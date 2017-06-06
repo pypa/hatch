@@ -17,3 +17,34 @@ hatch
     :target: https://en.wikipedia.org/wiki/MIT_License
 
 -----
+
+Installation
+------------
+
+hatch is distributed on `PyPI`_ as a universal wheel and is available on
+Linux/macOS and Windows and supports Python 2.7/3.3+ and PyPy.
+
+.. code-block:: bash
+
+    $ pip install hatch
+
+License
+-------
+
+Licensed under either of
+
+- Apache License, Version 2.0 `<http://www.apache.org/licenses/LICENSE-2.0>`_
+- MIT License `<http://opensource.org/licenses/MIT>`_
+
+at your option.
+
+Credits
+-------
+
+- All the people involved in the `Python packaging <https://github.com/pypa>`_
+  ecosystem
+- `Te-jé Rodgers <https://github.com/te-je>`_ for bestowing me the name
+  ``hatch`` on `PyPI`_
+
+
+.. _PyPI: https://pypi.org

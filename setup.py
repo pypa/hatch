@@ -38,7 +38,13 @@ setup(
         'Programming Language :: Python :: Implementation :: PyPy'
     ),
 
+    install_requires=('appdirs', 'atomicwrites', 'click'),
     tests_require=['pytest'],
 
     packages=find_packages(),
+    entry_points={
+        'console_scripts': (
+            'hatch = hatch.cli:hatch',
+        ),
+    },
 )
