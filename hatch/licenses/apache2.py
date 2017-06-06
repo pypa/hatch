@@ -189,5 +189,7 @@ class Apache2License(File):
             'LICENSE-APACHE',
             BASE.format(year=get_current_year(), name=name)
         )
-        self.name = 'Apache 2.0'
+        self.short_name = 'Apache-2.0'
+        self.long_name = 'Apache License, Version 2.0'
         self.pypi_classifier = 'License :: OSI Approved :: Apache Software License'
+        self.url = 'http://www.apache.org/licenses/LICENSE-2.0'

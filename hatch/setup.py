@@ -44,7 +44,7 @@ setup(
 """
 
 
-class Setup(File):
+class SetupFile(File):
     def __init__(self, name, email, package_name, pyversions, licenses, readme,
                  vc_url, cli=False):
         normalized_package_name = normalize_package_name(package_name)
@@ -67,7 +67,7 @@ class Setup(File):
                 '    },'.format(pn=package_name, pnn=normalized_package_name)
             )
 
-        super(Setup, self).__init__(
+        super(SetupFile, self).__init__(
             'setup.py',
             BASE.format(
                 name=name,
@@ -76,7 +76,7 @@ class Setup(File):
                 package_name_normalized=normalized_package_name,
                 readme_file=readme.file_name,
                 vc_url=vc_url,
-                license=' or '.join(l.name for l in licenses),
+                license='/'.join(l.short_name for l in licenses),
                 license_classifiers='\n        '.join(l.pypi_classifier for l in licenses),
                 pyversions=versions,
                 entry_point=entry_point

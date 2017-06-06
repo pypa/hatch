@@ -32,5 +32,7 @@ class MITLicense(File):
             'LICENSE-MIT',
             BASE.format(year=get_current_year(), name=name)
         )
-        self.name = 'MIT'
+        self.short_name = 'MIT'
+        self.long_name = 'MIT License'
         self.pypi_classifier = 'License :: OSI Approved :: MIT License'
+        self.url = 'http://opensource.org/licenses/MIT'
