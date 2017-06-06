@@ -1,4 +1,4 @@
-hatch
+Hatch
 =====
 
 .. image:: https://img.shields.io/pypi/v/hatch.svg?style=flat-square
@@ -21,7 +21,7 @@ hatch
 Installation
 ------------
 
-hatch is distributed on `PyPI`_ as a universal wheel and is available on
+Hatch is distributed on `PyPI`_ as a universal wheel and is available on
 Linux/macOS and Windows and supports Python 2.7/3.3+ and PyPy.
 
 .. code-block:: bash
@@ -31,7 +31,7 @@ Linux/macOS and Windows and supports Python 2.7/3.3+ and PyPy.
 License
 -------
 
-Licensed under either of
+Hatch is distributed under the terms of either
 
 - `Apache License, Version 2.0 <https://apache.org/licenses/LICENSE-2.0>`_
 - `MIT License <https://opensource.org/licenses/MIT>`_
