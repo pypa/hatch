@@ -19,8 +19,8 @@ setup(
     author_email='{email}',
     maintainer='{name}',
     maintainer_email='{email}',
-    url='{vc_url}/{package_name}',
-    download_url='{vc_url}/{package_name}',
+    url='{package_url}',
+    download_url='{package_url}',
     license='{license}',
 
     keywords=[
@@ -46,7 +46,7 @@ setup(
 
 class SetupFile(File):
     def __init__(self, name, email, package_name, pyversions, licenses, readme,
-                 vc_url, cli=False):
+                 package_url, cli=False):
         normalized_package_name = normalize_package_name(package_name)
 
         versions = ''
@@ -75,7 +75,7 @@ class SetupFile(File):
                 package_name=package_name,
                 package_name_normalized=normalized_package_name,
                 readme_file=readme.file_name,
-                vc_url=vc_url,
+                package_url=package_url,
                 license='/'.join(l.short_name for l in licenses),
                 license_classifiers='\n        '.join(l.pypi_classifier for l in licenses),
                 pyversions=versions,
