@@ -192,4 +192,4 @@ class Apache2License(File):
         self.short_name = 'Apache-2.0'
         self.long_name = 'Apache License, Version 2.0'
         self.pypi_classifier = 'License :: OSI Approved :: Apache Software License'
-        self.url = 'http://www.apache.org/licenses/LICENSE-2.0'
+        self.url = 'https://apache.org/licenses/LICENSE-2.0'

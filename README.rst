@@ -33,8 +33,8 @@ License
 
 Licensed under either of
 
-- Apache License, Version 2.0 `<http://www.apache.org/licenses/LICENSE-2.0>`_
-- MIT License `<http://opensource.org/licenses/MIT>`_
+- `Apache License, Version 2.0 <https://apache.org/licenses/LICENSE-2.0>`_
+- `MIT License <https://opensource.org/licenses/MIT>`_
 
 at your option.
 
@@ -45,6 +45,5 @@ Credits
   ecosystem
 - `Te-jé Rodgers <https://github.com/te-je>`_ for bestowing me the name
   ``hatch`` on `PyPI`_
-
 
 .. _PyPI: https://pypi.org

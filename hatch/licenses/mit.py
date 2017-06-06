@@ -35,4 +35,4 @@ class MITLicense(File):
         self.short_name = 'MIT'
         self.long_name = 'MIT License'
         self.pypi_classifier = 'License :: OSI Approved :: MIT License'
-        self.url = 'http://opensource.org/licenses/MIT'
+        self.url = 'https://opensource.org/licenses/MIT'
