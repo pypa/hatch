@@ -1,5 +1,5 @@
+from hatch.badges.ci import TravisBadge
 from hatch.badges.coverage import CodecovBadge
 from hatch.badges.pypi import (
-    PyPIPythonVersionsBadge, PyPIVersionBadge
+    PyPILicenseBadge, PyPIPythonVersionsBadge, PyPIVersionBadge
 )
-from hatch.badges.vc import TravisBadge

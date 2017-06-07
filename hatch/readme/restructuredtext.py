@@ -1,22 +1,7 @@
 from hatch.io import File
 
 BASE = """\
-{title}
-
-.. image:: https://img.shields.io/pypi/v/hatch.svg?style=flat-square
-    :target: https://pypi.org/project/hatch
-
-.. image:: https://img.shields.io/travis/ofek/hatch.svg?branch=master&style=flat-square
-    :target: https://travis-ci.org/ofek/hatch
-
-.. image:: https://img.shields.io/codecov/c/github/ofek/hatch.svg?style=flat-square
-    :target: https://codecov.io/gh/ofek/hatch
-
-.. image:: https://img.shields.io/pypi/pyversions/hatch.svg?style=flat-square
-    :target: https://pypi.org/project/hatch
-
-.. image:: https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square
-    :target: https://en.wikipedia.org/wiki/MIT_License
+{title}{badges}
 
 -----
 
@@ -35,9 +20,6 @@ License
 -------
 
 {package_name} is distributed under the terms of {license_info}.
-
-Credits
--------
 """
 
 
@@ -72,23 +54,23 @@ class ReStructuredTextReadme(File):
                 license_name=l.long_name, license_url=l.url
             )
 
+        badge_data = ''
+        if badges:
+            badge_data += '\n'
+            for badge in badges:
+                badge_data += '\n' + ReStructuredTextReadme.format_badge(badge)
+
         super(ReStructuredTextReadme, self).__init__(
             'README.rst',
             BASE.format(
-                package_name=package_name
+                title=title,
+                badges=badge_data,
+                package_name=package_name,
+                supported_versions=supported_versions,
+                license_info=license_info
             )
         )
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+    @classmethod
+    def format_badge(cls, badge):
+        return '.. image:: {}\n:target: {}'.format(badge.image, badge.target)

@@ -13,7 +13,7 @@ script: "tox -- -rs"{coverage_command}
 """
 
 
-class Travis(File):
+class TravisCI(File):
     def __init__(self, pyversions, coverage_service):
         build_matrix = ''
 
@@ -30,7 +30,7 @@ class Travis(File):
             coverage_package = ' {}'.format(coverage_service.package)
             coverage_command = '\n\nafter_success:\n  - {}'.format(coverage_service.command)
 
-        super(Travis, self).__init__(
+        super(TravisCI, self).__init__(
             '.travis.yml',
             BASE.format(
                 build_matrix=build_matrix, coverage_package=coverage_package,

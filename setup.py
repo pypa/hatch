@@ -3,7 +3,7 @@ from setuptools import find_packages, setup
 with open('hatch/__init__.py', 'r') as f:
     for line in f:
         if line.startswith('__version__'):
-            version = line.strip().split('= ')[1].strip("'")
+            version = line.strip().split('= ')[1].strip('\'"')
             break
 
 setup(
@@ -20,7 +20,10 @@ setup(
     license='MIT',
 
     keywords=(
-        '',
+        'packaging',
+        'package manager',
+        'project template',
+        'cli'
     ),
 
     classifiers=(
@@ -38,7 +41,7 @@ setup(
         'Programming Language :: Python :: Implementation :: PyPy'
     ),
 
-    install_requires=('appdirs', 'atomicwrites', 'click'),
+    install_requires=('appdirs', 'atomicwrites', 'click', 'pytest', 'twine'),
     tests_require=['pytest'],
 
     packages=find_packages(),
