@@ -28,16 +28,6 @@ Linux/macOS and Windows and supports Python 2.7/3.3+ and PyPy.
 
     $ pip install hatch
 
-License
--------
-
-Hatch is distributed under the terms of either
-
-- `Apache License, Version 2.0 <https://apache.org/licenses/LICENSE-2.0>`_
-- `MIT License <https://opensource.org/licenses/MIT>`_
-
-at your option.
-
 Credits
 -------
 
