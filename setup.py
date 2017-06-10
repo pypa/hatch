@@ -41,7 +41,7 @@ setup(
         'Programming Language :: Python :: Implementation :: PyPy'
     ),
 
-    install_requires=('appdirs', 'atomicwrites', 'click', 'pytest', 'twine'),
+    install_requires=('appdirs', 'atomicwrites', 'click', 'coverage', 'pytest', 'twine'),
     tests_require=['pytest'],
 
     packages=find_packages(),

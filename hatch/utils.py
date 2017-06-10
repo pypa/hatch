@@ -1,5 +1,20 @@
+import os
 import re
 from datetime import datetime
+
+
+def merge_missing_keys(d1, d2):
+    for key in d2.keys():
+        if key not in d1:
+            d1[key] = d2[key]
+
+
+def create_file(fname):
+    base_dir = os.path.dirname(fname)
+    if not os.path.exists(base_dir):
+        os.makedirs(base_dir)
+    with open(fname, 'a'):
+        os.utime(fname, times=None)
 
 
 def get_current_year():
