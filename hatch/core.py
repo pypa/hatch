@@ -43,7 +43,7 @@ def create_package(d, package_name, settings):
     )
     vc_url = settings.get('vc_url') or DEFAULT_SETTINGS['vc_url']
     package_url = vc_url + '/' + package_name
-    vc_setup = VC_SETUP[settings['vc'] or DEFAULT_SETTINGS['vc']]
+    vc_setup = VC_SETUP[settings.get('vc') or DEFAULT_SETTINGS['vc']]
 
     readme_format = (
         settings.get('readme', {}).get('format') or
@@ -56,27 +56,28 @@ def create_package(d, package_name, settings):
     ]
 
     badges = []
-    for badge_info in settings.get('readme', {}).get('badges', []):
-        image = badge_info.get('image', 'no_image')
-        target = badge_info.get('target', 'no_target')
+    if not basic:
+        for badge_info in settings.get('readme', {}).get('badges', []):
+            image = badge_info.get('image', 'no_image')
+            target = badge_info.get('target', 'no_target')
 
-        try:
-            badge_info.pop('image')
-        except KeyError:
-            pass
+            try:
+                badge_info.pop('image')
+            except KeyError:
+                pass
 
-        try:
-            badge_info.pop('target')
-        except KeyError:
-            pass
+            try:
+                badge_info.pop('target')
+            except KeyError:
+                pass
 
-        badges.append(
-            Badge(
-                image.format(package_name),
-                target.format(package_name),
-                badge_info
+            badges.append(
+                Badge(
+                    image.format(package_name),
+                    target.format(package_name),
+                    badge_info
+                )
             )
-        )
 
     readme = README[readme_format](
         package_name, pyversions, licenses, badges
@@ -99,16 +100,22 @@ def create_package(d, package_name, settings):
     coveragerc = CoverageConfig(package_name)
     tox = Tox(pyversions, coverage_service)
 
+    init_py = File(
+        '__init__.py',
+        "__version__ = '0.0.1'\n"
+    )
+    init_py.write(os.path.join(d, normalized_package_name))
+
+    create_file(os.path.join(d, 'tests', '__init__.py'))
+    create_file(os.path.join(d, 'requirements.txt'))
+
     if cli:
         cli_py = File(
             'cli.py',
-            'def {}:\n    pass\n'.format(normalized_package_name)
+            'def {}():\n    pass\n'.format(normalized_package_name)
         )
         cli_py.write(os.path.join(d, normalized_package_name))
 
-    create_file(os.path.join(d, normalized_package_name, '__init__.py'))
-    create_file(os.path.join(d, 'tests', '__init__.py'))
-    create_file(os.path.join(d, 'requirements.txt'))
     setup_py.write(d)
     readme.write(d)
     coveragerc.write(d)

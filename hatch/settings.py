@@ -36,7 +36,7 @@ DEFAULT_SETTINGS = OrderedDict([
             ]),
             OrderedDict([
                 ('image', 'https://img.shields.io/pypi/l/{}.svg'),
-                ('target', 'https://opensource.org/licenses'),
+                ('target', 'https://choosealicense.com/licenses'),
             ]),
         ]),
     ])),

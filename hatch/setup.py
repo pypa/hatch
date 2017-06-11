@@ -72,11 +72,11 @@ class SetupFile(File):
         else:
             entry_point = (
                 '\n'
-                '    entry_points={\n'
+                '    entry_points={{\n'
                 "        'console_scripts': [\n"
                 "            '{pn} = {pnn}.cli:{pnn}',\n"
                 '        ],\n'
-                '    },'.format(pn=package_name, pnn=normalized_package_name)
+                '    }},'.format(pn=package_name, pnn=normalized_package_name)
             )
 
         super(SetupFile, self).__init__(

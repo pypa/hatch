@@ -1,8 +1,7 @@
 from setuptools import find_packages, setup
 
-from hatch.settings import make_settings
-
 try:
+    from hatch.settings import make_settings
     make_settings()
 except:
     print('Failed to create config file. Try again via "hatch set --restore".')
@@ -16,7 +15,7 @@ with open('hatch/__init__.py', 'r') as f:
 setup(
     name='hatch',
     version=version,
-    description='Easy project setup for Python, finally!',
+    description="Python's package manager",
     long_description=open('README.rst', 'r').read(),
     author='Ofek Lev',
     author_email='ofekmeister@gmail.com',
@@ -24,7 +23,7 @@ setup(
     maintainer_email='ofekmeister@gmail.com',
     url='https://github.com/ofek/hatch',
     download_url='https://github.com/ofek/hatch',
-    license='MIT',
+    license='MIT/Apache-2.0',
 
     keywords=(
         'packaging',
@@ -50,7 +49,7 @@ setup(
 
     install_requires=('appdirs', 'atomicwrites', 'click', 'coverage', 'pytest', 'twine'),
     setup_requires=('appdirs', 'atomicwrites'),
-    tests_require=['pytest'],
+    tests_require=['pytest', 'parse'],
 
     packages=find_packages(),
     entry_points={
