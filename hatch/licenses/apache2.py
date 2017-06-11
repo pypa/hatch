@@ -2,11 +2,11 @@ from hatch.structures import File
 from hatch.utils import get_current_year
 
 BASE = """\
+Copyright {year} {name}
+
                               Apache License
                         Version 2.0, January 2004
                      http://www.apache.org/licenses/
-
-Copyright {year} {name}
 
 TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
 
