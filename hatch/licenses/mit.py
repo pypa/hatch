@@ -1,4 +1,4 @@
-from hatch.io import File
+from hatch.structures import File
 from hatch.utils import get_current_year
 
 BASE = """\

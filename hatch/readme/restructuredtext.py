@@ -1,4 +1,4 @@
-from hatch.io import File
+from hatch.structures import File
 
 BASE = """\
 {title}{badges}
@@ -40,17 +40,17 @@ class ReStructuredTextReadme(File):
             supported_versions += min_py3 + '+'
 
         if len(licenses) > 1:
-            license_info = 'either\n'
+            license_info = 'either\n\n'
             license_info += '\n'.join(
                 '- `{license_name} <{license_url}>`_'.format(
                     license_name=l.long_name, license_url=l.url
                 ) for l in licenses
             )
-            license_info += '\nat your option'
+            license_info += '\n\nat your option'
         else:
             l = licenses[0]
             license_info = 'the\n'
-            license_info += '`{license_name} <{license_url}>`_.'.format(
+            license_info += '`{license_name} <{license_url}>`_'.format(
                 license_name=l.long_name, license_url=l.url
             )
 
@@ -73,4 +73,4 @@ class ReStructuredTextReadme(File):
 
     @classmethod
     def format_badge(cls, badge):
-        return '.. image:: {}\n:target: {}'.format(badge.image, badge.target)
+        return '.. image:: {}\n    :target: {}'.format(badge.image, badge.target)

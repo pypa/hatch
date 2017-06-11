@@ -1,4 +1,4 @@
-from hatch.io import File
+from hatch.structures import File
 from hatch.utils import normalize_package_name
 
 BASE = """\
@@ -7,8 +7,16 @@ from setuptools import find_packages, setup
 with open('{package_name_normalized}/__init__.py', 'r') as f:
     for line in f:
         if line.startswith('__version__'):
-            version = line.strip().split('= ')[1].strip('\'"')
+            version = line.strip().split('= ')[1].strip('\\'"')
             break
+
+requires = []
+
+with open('requirements.txt', 'r') as f:
+    for line in f.readlines():
+        req = line.strip()
+        if req:
+            requires.append(req)
 
 setup(
     name='{package_name}',
@@ -36,7 +44,7 @@ setup(
         'Programming Language :: Python :: Implementation :: PyPy'
     ],
 
-    install_requires=[],
+    install_requires=requires,
     tests_require=['coverage', 'pytest'],
 
     packages=find_packages(),{entry_point}
@@ -46,14 +54,18 @@ setup(
 
 class SetupFile(File):
     def __init__(self, name, email, package_name, pyversions, licenses, readme,
-                 package_url, cli=False):
+                 package_url, cli):
         normalized_package_name = normalize_package_name(package_name)
 
         versions = ''
         for pyversion in pyversions:
-            versions += '\n        Programming Language :: Python :: {}'.format(
+            versions += "\n        'Programming Language :: Python :: {}',".format(
                 pyversion
             )
+
+        license_classifiers = ''
+        for li in licenses:
+            license_classifiers += "\n        '{}',".format(li.pypi_classifier)
 
         if not cli:
             entry_point = ''
@@ -76,8 +88,8 @@ class SetupFile(File):
                 package_name_normalized=normalized_package_name,
                 readme_file=readme.file_name,
                 package_url=package_url,
-                license='/'.join(l.short_name for l in licenses),
-                license_classifiers='\n        '.join(l.pypi_classifier for l in licenses),
+                license='/'.join(li.short_name for li in licenses),
+                license_classifiers=license_classifiers,
                 pyversions=versions,
                 entry_point=entry_point
             )

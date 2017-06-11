@@ -1,5 +1,12 @@
 from setuptools import find_packages, setup
 
+from hatch.settings import make_settings
+
+try:
+    make_settings()
+except:
+    print('Failed to create config file. Try again via "hatch set --restore".')
+
 with open('hatch/__init__.py', 'r') as f:
     for line in f:
         if line.startswith('__version__'):
@@ -42,6 +49,7 @@ setup(
     ),
 
     install_requires=('appdirs', 'atomicwrites', 'click', 'coverage', 'pytest', 'twine'),
+    setup_requires=('appdirs', 'atomicwrites'),
     tests_require=['pytest'],
 
     packages=find_packages(),

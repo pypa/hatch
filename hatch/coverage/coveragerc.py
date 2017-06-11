@@ -1,4 +1,4 @@
-from hatch.io import File
+from hatch.structures import File
 
 BASE = """\
 [run]

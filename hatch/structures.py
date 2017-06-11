@@ -1,5 +1,10 @@
 import os
 
+try:
+    from urllib.parse import urlencode
+except:
+    from urllib import urlencode
+
 
 class File:
     def __init__(self, file_name, contents, binary=False):
@@ -10,3 +15,12 @@ class File:
     def write(self, d):
         with open(os.path.join(d, self.file_name), self.write_mode) as f:
             f.write(self.contents)
+
+
+class Badge:
+    def __init__(self, image, target, params=None):
+        self.image = image
+        self.target = target
+
+        if params:
+            self.image += '?' + urlencode(params)
