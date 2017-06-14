@@ -13,7 +13,7 @@ DEFAULT_SETTINGS = OrderedDict([
     ('basic', True),
     ('name', 'U.N. Owen'),
     ('email', 'me@un.known'),
-    ('pyversions', ['2.7', '3.5', '3.6']),
+    ('pyversions', ['2.7', '3.5', '3.6', 'pypy', 'pypy3']),
     ('licenses', ['mit', 'apache2']),
     ('readme', OrderedDict([
         ('format', 'rst'),

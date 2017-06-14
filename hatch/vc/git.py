@@ -1,3 +1,4 @@
+import os
 import subprocess
 
 from hatch.ignore import GitIgnore
@@ -16,9 +17,10 @@ class GitAttributes(File):
 
 
 def setup_git(d, package_name):
-    try:
-        subprocess.call('git init')
-    except:
-        print('Could not find "git" executable')
-    GitAttributes().write(d)
-    GitIgnore(package_name).write(d)
+    if not os.path.exists(os.path.join(d, '.git')):
+        try:
+            subprocess.call('git init --quiet')
+        except:
+            print('Could not find "git" executable')
+        GitAttributes().write(d)
+        GitIgnore(package_name).write(d)

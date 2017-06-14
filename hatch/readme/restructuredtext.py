@@ -10,7 +10,7 @@ Installation
 
 {package_name} is distributed on `PyPI <https://pypi.org>`_ as a universal
 wheel and is available on Linux/macOS and Windows and supports
-Python {supported_versions} and PyPy.
+Python {supported_versions}{pypy}.
 
 .. code-block:: bash
 
@@ -28,6 +28,12 @@ class ReStructuredTextReadme(File):
         pyversions = sorted(pyversions)
         max_py2 = max((s for s in pyversions if s.startswith('2')), default=None)
         min_py3 = min((s for s in pyversions if s.startswith('3')), default=None)
+
+        pypy = ''
+        for pyversion in pyversions:
+            if pyversion.startswith('pypy'):
+                pypy = ' and PyPy'
+                break
 
         title = package_name + '\n' + ('=' * len(package_name))
 
@@ -67,6 +73,7 @@ class ReStructuredTextReadme(File):
                 badges=badge_data,
                 package_name=package_name,
                 supported_versions=supported_versions,
+                pypy=pypy,
                 license_info=license_info
             )
         )

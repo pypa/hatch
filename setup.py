@@ -49,7 +49,7 @@ setup(
 
     install_requires=('appdirs', 'atomicwrites', 'click', 'coverage', 'pytest', 'twine'),
     setup_requires=('appdirs', 'atomicwrites'),
-    tests_require=['pytest', 'parse'],
+    tests_require=['click', 'pytest', 'parse'],
 
     packages=find_packages(),
     entry_points={

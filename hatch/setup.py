@@ -40,8 +40,7 @@ setup(
         'Intended Audience :: Developers',{license_classifiers}
         'Natural Language :: English',
         'Operating System :: OS Independent',{pyversions}
-        'Programming Language :: Python :: Implementation :: CPython',
-        'Programming Language :: Python :: Implementation :: PyPy'
+        'Programming Language :: Python :: Implementation :: CPython',{pypy}
     ],
 
     install_requires=requires,
@@ -57,11 +56,15 @@ class SetupFile(File):
                  package_url, cli):
         normalized_package_name = normalize_package_name(package_name)
 
+        pypy = ''
         versions = ''
         for pyversion in pyversions:
-            versions += "\n        'Programming Language :: Python :: {}',".format(
-                pyversion
-            )
+            if not pyversion.startswith('pypy'):
+                versions += "\n        'Programming Language :: Python :: {}',".format(
+                    pyversion
+                )
+            else:
+                pypy = "\n        'Programming Language :: Python :: Implementation :: PyPy',"
 
         license_classifiers = ''
         for li in licenses:
@@ -91,6 +94,7 @@ class SetupFile(File):
                 license='/'.join(li.short_name for li in licenses),
                 license_classifiers=license_classifiers,
                 pyversions=versions,
+                pypy=pypy,
                 entry_point=entry_point
             )
         )
