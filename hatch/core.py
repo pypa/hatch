@@ -32,7 +32,7 @@ COVERAGE_SERVICES = {
 
 def create_package(d, package_name, settings):
     normalized_package_name = normalize_package_name(package_name)
-    cli = settings['cli']
+    cli = settings.get('cli')
     basic = settings.get('basic', DEFAULT_SETTINGS['basic'])
     extra_files = []
 

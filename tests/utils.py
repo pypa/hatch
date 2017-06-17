@@ -4,6 +4,11 @@ from contextlib import contextmanager
 from tempfile import TemporaryDirectory
 
 
+def read_file(path):
+    with open(path, 'r') as f:
+        return f.read()
+
+
 def matching_file(pattern, files):
     for file in files:
         if re.match(pattern, file):
