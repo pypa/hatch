@@ -21,8 +21,6 @@ Hatch
 Table of Contents
 =================
 
------
-
 .. contents:: Table of Contents
    :backlinks: top
    :local:
