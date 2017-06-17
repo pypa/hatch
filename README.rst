@@ -22,7 +22,7 @@ Table of Contents
 =================
 
 .. contents::
-   :backlinks: top
+   :backlinks: entry
    :local:
 
 Installation
