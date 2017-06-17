@@ -20,7 +20,8 @@ Hatch
 
 Table of Contents
 -----------------
-.. contents::
+
+.. contents:: yyyyy
    :backlinks: top
    :local:
 
