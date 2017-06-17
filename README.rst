@@ -18,9 +18,6 @@ Hatch
 
 -----
 
-Table of Contents
------------------
-
 .. contents::
    :backlinks: top
    :local:
