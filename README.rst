@@ -18,8 +18,7 @@ Hatch
 
 -----
 
-.. toctree::
-   :caption: Table of Contents
+.. contents:: Table of Contents
    :backlinks: top
    :local:
 
