@@ -1,6 +1,14 @@
 import os
+import re
 from contextlib import contextmanager
 from tempfile import TemporaryDirectory
+
+
+def matching_file(pattern, files):
+    for file in files:
+        if re.match(pattern, file):
+            return True
+    return False
 
 
 @contextmanager
