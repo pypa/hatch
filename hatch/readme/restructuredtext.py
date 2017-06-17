@@ -6,7 +6,7 @@ BASE = """\
 -----
 
 Table of Contents
-=================
+~~~~~~~~~~~~~~~~~
 
 .. contents::
     :backlinks: top
