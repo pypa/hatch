@@ -5,6 +5,13 @@ BASE = """\
 
 -----
 
+Table of Contents
+=================
+
+.. contents::
+    :backlinks: top
+    :local:
+
 Installation
 ------------
 
