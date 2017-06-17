@@ -22,8 +22,8 @@ Table of Contents
 =================
 
 .. contents::
-   :backlinks: top
-   :local:
+    :backlinks: top
+    :local:
 
 Installation
 ------------
