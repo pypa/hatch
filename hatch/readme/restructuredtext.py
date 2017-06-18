@@ -35,12 +35,15 @@ class ReStructuredTextReadme(File):
         pyversions = sorted(pyversions)
         header_marker = '=' * len(package_name)
 
+        min_py2 = min((s for s in pyversions if s.startswith('2')), default=None)
         max_py2 = max((s for s in pyversions if s.startswith('2')), default=None)
         min_py3 = min((s for s in pyversions if s.startswith('3')), default=None)
         supported_versions = ''
 
-        if max_py2:
-            supported_versions += max_py2
+        if min_py2:
+            supported_versions += min_py2
+            if min_py2 != max_py2:
+                supported_versions += '-' + max_py2
         if min_py3:
             if max_py2:
                 supported_versions += '/'
