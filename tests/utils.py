@@ -18,18 +18,11 @@ def matching_file(pattern, files):
 
 @contextmanager
 def temp_chdir(cwd=None):
-    error = None
-
     with TemporaryDirectory() as d:
         origin = cwd or os.getcwd()
         os.chdir(d)
 
         try:
             yield d
-        except AssertionError as e:
-            error = e
-
-        os.chdir(origin)
-
-    if error:
-        raise error
+        finally:
+            os.chdir(origin)
