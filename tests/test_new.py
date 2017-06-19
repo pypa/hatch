@@ -6,6 +6,14 @@ from hatch.cli import hatch
 from .utils import matching_file, temp_chdir
 
 
+def test_invalid_name():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['new', 'invalid-name', '--basic'])
+
+        assert os.path.exists(os.path.join(d, 'invalid-name', 'invalid_name', '__init__.py'))
+
+
 def test_basic():
     with temp_chdir() as d:
         runner = CliRunner()
