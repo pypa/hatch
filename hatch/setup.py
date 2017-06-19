@@ -1,7 +1,7 @@
 from hatch.structures import File
 from hatch.utils import normalize_package_name
 
-BASE = """\
+TEMPLATE = """\
 from setuptools import find_packages, setup
 
 with open('{package_name_normalized}/__init__.py', 'r') as f:
@@ -84,7 +84,7 @@ class SetupFile(File):
 
         super(SetupFile, self).__init__(
             'setup.py',
-            BASE.format(
+            TEMPLATE.format(
                 name=name,
                 email=email,
                 package_name=package_name,

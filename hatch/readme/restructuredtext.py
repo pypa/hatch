@@ -1,6 +1,6 @@
 from hatch.structures import File
 
-BASE = """\
+TEMPLATE = """\
 {title}
 {header_marker}
 {badges}-----
@@ -80,7 +80,7 @@ class ReStructuredTextReadme(File):
 
         super(ReStructuredTextReadme, self).__init__(
             'README.rst',
-            BASE.format(
+            TEMPLATE.format(
                 title=package_name,
                 header_marker=header_marker,
                 badges=badge_data,

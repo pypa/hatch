@@ -1,7 +1,7 @@
 from hatch.structures import File
 from hatch.utils import get_current_year
 
-BASE = """\
+TEMPLATE = """\
 MIT License
 
 Copyright (c) {year} {name}
@@ -30,7 +30,7 @@ class MITLicense(File):
     def __init__(self, name):
         super(MITLicense, self).__init__(
             'LICENSE-MIT',
-            BASE.format(year=get_current_year(), name=name)
+            TEMPLATE.format(year=get_current_year(), name=name)
         )
         self.short_name = 'MIT'
         self.long_name = 'MIT License'

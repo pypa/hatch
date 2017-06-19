@@ -3,7 +3,7 @@ import os
 from parse import parse
 
 from hatch.core import create_package
-from hatch.readme.restructuredtext import BASE
+from hatch.readme.restructuredtext import TEMPLATE
 from hatch.settings import DEFAULT_SETTINGS
 from ..utils import read_file, temp_chdir
 
@@ -24,7 +24,7 @@ def test_title():
         create_package(d, 'ok', settings)
 
         contents = read_file(os.path.join(d, 'README.rst'))
-        parsed = parse(BASE, contents)
+        parsed = parse(TEMPLATE, contents)
 
         assert parsed['title'] == 'ok'
         assert parsed['header_marker'] == '=='
@@ -37,7 +37,7 @@ def test_package_name():
         create_package(d, 'ok', settings)
 
         contents = read_file(os.path.join(d, 'README.rst'))
-        parsed = parse(BASE, contents)
+        parsed = parse(TEMPLATE, contents)
 
         assert parsed['package_name'] == 'ok'
 
@@ -49,7 +49,7 @@ def test_supported_versions_none():
         create_package(d, 'ok', settings)
 
         contents = read_file(os.path.join(d, 'README.rst'))
-        parsed = parse(BASE, contents)
+        parsed = parse(TEMPLATE, contents)
 
         assert parsed['supported_versions'] == '2.7/3.5+ and PyPy'
 
@@ -61,7 +61,7 @@ def test_supported_versions_py2_single():
         create_package(d, 'ok', settings)
 
         contents = read_file(os.path.join(d, 'README.rst'))
-        parsed = parse(BASE, contents)
+        parsed = parse(TEMPLATE, contents)
 
         assert parsed['supported_versions'] == '2.7'
 
@@ -73,7 +73,7 @@ def test_supported_versions_py2():
         create_package(d, 'ok', settings)
 
         contents = read_file(os.path.join(d, 'README.rst'))
-        parsed = parse(BASE, contents)
+        parsed = parse(TEMPLATE, contents)
 
         assert parsed['supported_versions'] == '2.6-2.7'
 
@@ -85,7 +85,7 @@ def test_supported_versions_py3():
         create_package(d, 'ok', settings)
 
         contents = read_file(os.path.join(d, 'README.rst'))
-        parsed = parse(BASE, contents)
+        parsed = parse(TEMPLATE, contents)
 
         assert parsed['supported_versions'] == '3.3+'
 
@@ -97,7 +97,7 @@ def test_supported_versions_all():
         create_package(d, 'ok', settings)
 
         contents = read_file(os.path.join(d, 'README.rst'))
-        parsed = parse(BASE, contents)
+        parsed = parse(TEMPLATE, contents)
 
         assert parsed['supported_versions'] == '2.7/3.3+ and PyPy'
 
@@ -109,7 +109,7 @@ def test_licenses_single():
         create_package(d, 'ok', settings)
 
         contents = read_file(os.path.join(d, 'README.rst'))
-        parsed = parse(BASE, contents)
+        parsed = parse(TEMPLATE, contents)
 
         assert parsed['license_info'] == (
             'the\n`MIT License <https://choosealicense.com/licenses/mit>`_'
@@ -123,7 +123,7 @@ def test_licenses_multiple():
         create_package(d, 'ok', settings)
 
         contents = read_file(os.path.join(d, 'README.rst'))
-        parsed = parse(BASE, contents)
+        parsed = parse(TEMPLATE, contents)
 
         assert parsed['license_info'] == (
             'either\n\n'
@@ -141,7 +141,7 @@ def test_badges_none():
         create_package(d, 'ok', settings)
 
         contents = read_file(os.path.join(d, 'README.rst'))
-        parsed = parse(BASE, contents)
+        parsed = parse(TEMPLATE, contents)
 
         assert parsed['badges'] == '\n'
 
@@ -152,7 +152,7 @@ def test_badges_basic():
         create_package(d, 'ok', settings)
 
         contents = read_file(os.path.join(d, 'README.rst'))
-        parsed = parse(BASE, contents)
+        parsed = parse(TEMPLATE, contents)
 
         assert parsed['badges'] == '\n'
 
@@ -170,7 +170,7 @@ def test_badges_single():
         create_package(d, 'ok', settings)
 
         contents = read_file(os.path.join(d, 'README.rst'))
-        parsed = parse(BASE, contents)
+        parsed = parse(TEMPLATE, contents)
 
         assert parsed['badges'] == (
             '\n'
@@ -197,7 +197,7 @@ def test_badges_multiple():
         create_package(d, 'ok', settings)
 
         contents = read_file(os.path.join(d, 'README.rst'))
-        parsed = parse(BASE, contents)
+        parsed = parse(TEMPLATE, contents)
 
         assert parsed['badges'] == (
             '\n'
@@ -229,7 +229,7 @@ def test_badges_params():
         create_package(d, 'ok', settings)
 
         contents = read_file(os.path.join(d, 'README.rst'))
-        parsed = parse(BASE, contents)
+        parsed = parse(TEMPLATE, contents)
 
         assert parsed['badges'] == (
             '\n'

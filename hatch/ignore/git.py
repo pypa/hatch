@@ -1,6 +1,6 @@
 from hatch.structures import File
 
-BASE = """\
+TEMPLATE = """\
 *.log
 *.pyc
 /.cache
@@ -18,5 +18,5 @@ class GitIgnore(File):
     def __init__(self, package_name):
         super(GitIgnore, self).__init__(
             '.gitignore',
-            BASE.format(package_name=package_name)
+            TEMPLATE.format(package_name=package_name)
         )

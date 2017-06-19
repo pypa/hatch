@@ -1,6 +1,6 @@
 from hatch.structures import File
 
-BASE = """\
+TEMPLATE = """\
 language: python
 
 matrix:
@@ -83,7 +83,7 @@ class TravisCI(File):
 
         super(TravisCI, self).__init__(
             '.travis.yml',
-            BASE.format(
+            TEMPLATE.format(
                 build_matrix=build_matrix, coverage_package=coverage_package,
                 pypy_install=pypy_install,
                 coverage_command=coverage_command

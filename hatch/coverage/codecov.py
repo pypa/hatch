@@ -1,6 +1,6 @@
 from hatch.structures import File
 
-BASE = """\
+TEMPLATE = """\
 comment: false
 coverage:
     status:
@@ -15,6 +15,6 @@ coverage:
 
 class Codecov(File):
     def __init__(self):
-        super(Codecov, self).__init__('.codecov.yml', BASE)
+        super(Codecov, self).__init__('.codecov.yml', TEMPLATE)
         self.package = 'codecov'
         self.command = 'codecov'

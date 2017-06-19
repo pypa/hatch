@@ -1,6 +1,6 @@
 from hatch.structures import File
 
-BASE = """\
+TEMPLATE = """\
 [run]
 source =
     {package_name}
@@ -22,5 +22,5 @@ class CoverageConfig(File):
     def __init__(self, package_name):
         super(CoverageConfig, self).__init__(
             '.coveragerc',
-            BASE.format(package_name=package_name)
+            TEMPLATE.format(package_name=package_name)
         )

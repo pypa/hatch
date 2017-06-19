@@ -1,6 +1,6 @@
 from hatch.structures import File
 
-BASE = """\
+TEMPLATE = """\
 [tox]
 envlist ={build_matrix}
 
@@ -33,7 +33,7 @@ class Tox(File):
 
         super(Tox, self).__init__(
             'tox.ini',
-            BASE.format(
+            TEMPLATE.format(
                 build_matrix=build_matrix, coverage_package=coverage_package
             )
         )
