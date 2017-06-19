@@ -40,9 +40,9 @@ def create_package(d, package_name, settings):
     pyversions = sorted(
         settings.get('pyversions') or DEFAULT_SETTINGS['pyversions']
     )
+    vc_setup = VC_SETUP[settings.get('vc') or DEFAULT_SETTINGS['vc']]
     vc_url = settings.get('vc_url') or DEFAULT_SETTINGS['vc_url']
     package_url = vc_url + '/' + package_name
-    vc_setup = VC_SETUP[settings.get('vc') or DEFAULT_SETTINGS['vc']]
 
     readme_format = (
         settings.get('readme', {}).get('format') or

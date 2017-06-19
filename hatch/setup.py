@@ -46,8 +46,7 @@ setup(
     install_requires=requires,
     tests_require=['coverage', 'pytest'],
 
-    packages=find_packages(),{entry_point}
-)
+    packages=find_packages(),{entry_point})
 """
 
 
@@ -70,10 +69,9 @@ class SetupFile(File):
         for li in licenses:
             license_classifiers += "\n        '{}',".format(li.pypi_classifier)
 
-        if not cli:
-            entry_point = ''
-        else:
-            entry_point = (
+        entry_point = ''
+        if cli:
+            entry_point += (
                 '\n'
                 '    entry_points={{\n'
                 "        'console_scripts': [\n"
@@ -81,6 +79,10 @@ class SetupFile(File):
                 '        ],\n'
                 '    }},'.format(pn=package_name, pnn=normalized_package_name)
             )
+
+        # For testing we use https://github.com/r1chardj0n3s/parse and its
+        # `parse` function breaks on empty inputs.
+        entry_point += '\n'
 
         super(SetupFile, self).__init__(
             'setup.py',
