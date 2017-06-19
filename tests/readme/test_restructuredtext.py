@@ -42,6 +42,18 @@ def test_package_name():
         assert parsed['package_name'] == 'ok'
 
 
+def test_supported_versions_none():
+    with temp_chdir() as d:
+        settings = DEFAULT_SETTINGS.copy()
+        settings['pyversions'] = []
+        create_package(d, 'ok', settings)
+
+        contents = read_file(os.path.join(d, 'README.rst'))
+        parsed = parse(BASE, contents)
+
+        assert parsed['supported_versions'] == '2.7/3.5+ and PyPy'
+
+
 def test_supported_versions_py2_single():
     with temp_chdir() as d:
         settings = DEFAULT_SETTINGS.copy()
@@ -81,16 +93,16 @@ def test_supported_versions_py3():
 def test_supported_versions_all():
     with temp_chdir() as d:
         settings = DEFAULT_SETTINGS.copy()
-        settings['pyversions'] = ['pypy3', 'pypy', '3.6', '3.5', '2.7']
+        settings['pyversions'] = ['pypy3', 'pypy', '3.4', '3.3', '3.6', '3.5', '2.7']
         create_package(d, 'ok', settings)
 
         contents = read_file(os.path.join(d, 'README.rst'))
         parsed = parse(BASE, contents)
 
-        assert parsed['supported_versions'] == '2.7/3.5+ and PyPy'
+        assert parsed['supported_versions'] == '2.7/3.3+ and PyPy'
 
 
-def test_single_license():
+def test_licenses_single():
     with temp_chdir() as d:
         settings = DEFAULT_SETTINGS.copy()
         settings['licenses'] = ['mit']
@@ -104,7 +116,7 @@ def test_single_license():
         )
 
 
-def test_multiple_licenses():
+def test_licenses_multiple():
     with temp_chdir() as d:
         settings = DEFAULT_SETTINGS.copy()
         settings['licenses'] = ['mit', 'apache2']
@@ -121,18 +133,7 @@ def test_multiple_licenses():
         )
 
 
-def test_badges_basic():
-    with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
-        create_package(d, 'ok', settings)
-
-        contents = read_file(os.path.join(d, 'README.rst'))
-        parsed = parse(BASE, contents)
-
-        assert parsed['badges'] == '\n'
-
-
-def test_no_badges():
+def test_badges_none():
     with temp_chdir() as d:
         settings = DEFAULT_SETTINGS.copy()
         settings['basic'] = False
@@ -145,7 +146,18 @@ def test_no_badges():
         assert parsed['badges'] == '\n'
 
 
-def test_single_badge():
+def test_badges_basic():
+    with temp_chdir() as d:
+        settings = DEFAULT_SETTINGS.copy()
+        create_package(d, 'ok', settings)
+
+        contents = read_file(os.path.join(d, 'README.rst'))
+        parsed = parse(BASE, contents)
+
+        assert parsed['badges'] == '\n'
+
+
+def test_badges_single():
     with temp_chdir() as d:
         settings = DEFAULT_SETTINGS.copy()
         settings['basic'] = False
@@ -168,22 +180,63 @@ def test_single_badge():
         )
 
 
+def test_badges_multiple():
+    with temp_chdir() as d:
+        settings = DEFAULT_SETTINGS.copy()
+        settings['basic'] = False
+        settings['readme']['badges'] = [
+            {
+                'image': 'https://img.shields.io/pypi/v/ok.svg',
+                'target': 'https://pypi.org/project/ok'
+            },
+            {
+                'image': 'https://img.shields.io/pypi/l/ok.svg',
+                'target': 'https://choosealicense.com/licenses'
+            }
+        ]
+        create_package(d, 'ok', settings)
+
+        contents = read_file(os.path.join(d, 'README.rst'))
+        parsed = parse(BASE, contents)
+
+        assert parsed['badges'] == (
+            '\n'
+            '.. image:: https://img.shields.io/pypi/v/ok.svg\n'
+            '    :target: https://pypi.org/project/ok\n'
+            '\n'
+            '.. image:: https://img.shields.io/pypi/l/ok.svg\n'
+            '    :target: https://choosealicense.com/licenses\n'
+            '\n'
+        )
 
 
+def test_badges_params():
+    with temp_chdir() as d:
+        settings = DEFAULT_SETTINGS.copy()
+        settings['basic'] = False
+        settings['readme']['badges'] = [
+            {
+                'image': 'https://img.shields.io/pypi/v/ok.svg',
+                'target': 'https://pypi.org/project/ok',
+                'style': 'flat-square'
+            },
+            {
+                'image': 'https://img.shields.io/pypi/l/ok.svg',
+                'target': 'https://choosealicense.com/licenses',
+                'style': 'flat-square'
+            }
+        ]
+        create_package(d, 'ok', settings)
 
+        contents = read_file(os.path.join(d, 'README.rst'))
+        parsed = parse(BASE, contents)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        assert parsed['badges'] == (
+            '\n'
+            '.. image:: https://img.shields.io/pypi/v/ok.svg?style=flat-square\n'
+            '    :target: https://pypi.org/project/ok\n'
+            '\n'
+            '.. image:: https://img.shields.io/pypi/l/ok.svg?style=flat-square\n'
+            '    :target: https://choosealicense.com/licenses\n'
+            '\n'
+        )
