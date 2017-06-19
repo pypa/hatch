@@ -41,6 +41,21 @@ def new(name, basic, cli):
     create_package(d, name, settings)
 
 
+@hatch.command(context_settings=CONTEXT_SETTINGS)
+@click.argument('name')
+@click.option('--basic', is_flag=True)
+@click.option('--cli', is_flag=True)
+def init(name, basic, cli):
+    settings = load_settings()
+
+    if basic:
+        settings['basic'] = True
+
+    settings['cli'] = cli
+
+    create_package(os.getcwd(), name, settings)
+
+
 @hatch.command(name='set', context_settings=CONTEXT_SETTINGS)
 @click.option('-n', '--name')
 @click.option('-e', '--email')
