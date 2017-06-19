@@ -2,10 +2,9 @@ import os
 
 from hatch.ci import Tox, TravisCI
 from hatch.coverage import Codecov, CoverageConfig
-from hatch.ignore import GitIgnore
 from hatch.licenses import Apache2License, MITLicense
 from hatch.readme import ReStructuredTextReadme
-from hatch.settings import DEFAULT_SETTINGS, load_settings, save_settings
+from hatch.settings import DEFAULT_SETTINGS
 from hatch.setup import SetupFile
 from hatch.structures import Badge, File
 from hatch.vc import setup_git
