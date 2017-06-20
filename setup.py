@@ -52,6 +52,7 @@ setup(
         'atomicwrites',
         'click',
         'coverage',
+        'pip>=9.0.1',
         'pytest',
         'twine',
         'wheel'
