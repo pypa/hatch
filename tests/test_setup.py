@@ -90,7 +90,16 @@ def test_readme():
         assert parsed['readme_file'] == 'README.rst'
 
 
+def test_package_url():
+    with temp_chdir() as d:
+        settings = DEFAULT_SETTINGS.copy()
+        settings['vc_url'] = 'https://github.com/me'
+        create_package(d, 'ok', settings)
 
+        contents = read_file(os.path.join(d, 'setup.py'))
+        parsed = parse(TEMPLATE, contents)
+
+        assert parsed['package_url'] == 'https://github.com/me/ok'
 
 
 
