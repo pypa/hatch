@@ -32,7 +32,6 @@ License
 
 class ReStructuredTextReadme(File):
     def __init__(self, package_name, pyversions, licenses, badges):
-        pyversions = sorted(pyversions)
         header_marker = '=' * len(package_name)
 
         min_py2 = min((s for s in pyversions if s.startswith('2')), default=None)

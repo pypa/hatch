@@ -40,8 +40,7 @@ setup(
         'Intended Audience :: Developers',{license_classifiers}
         'Natural Language :: English',
         'Operating System :: OS Independent',{pyversions}
-        'Programming Language :: Python :: Implementation :: CPython',{pypy}
-    ],
+        'Programming Language :: Python :: Implementation :: CPython',{pypy}    ],
 
     install_requires=requires,
     tests_require=['coverage', 'pytest'],
@@ -55,7 +54,7 @@ class SetupFile(File):
                  package_url, cli):
         normalized_package_name = normalize_package_name(package_name)
 
-        pypy = ''
+        pypy = '\n'
         versions = ''
         for pyversion in pyversions:
             if not pyversion.startswith('pypy'):
