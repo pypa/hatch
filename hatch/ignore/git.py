@@ -7,7 +7,7 @@ TEMPLATE = """\
 /.cache
 /.coverage
 /.idea
-/{normalized_package_name}.egg-info
+/{package_name_normalized}.egg-info
 /build
 /dist
 /docs/build
@@ -19,5 +19,5 @@ class GitIgnore(File):
     def __init__(self, package_name):
         super(GitIgnore, self).__init__(
             '.gitignore',
-            TEMPLATE.format(normalized_package_name=normalize_package_name(package_name))
+            TEMPLATE.format(package_name_normalized=normalize_package_name(package_name))
         )
