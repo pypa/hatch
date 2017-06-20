@@ -11,7 +11,7 @@ def read_file(path):
 
 def matching_file(pattern, files):
     for file in files:
-        if re.match(pattern, file):
+        if re.search(pattern, file):
             return True
     return False
 
