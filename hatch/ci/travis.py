@@ -74,7 +74,7 @@ class TravisCI(File):
 
             pypy_install += '  - cd $TRAVIS_BUILD_DIR'
 
-        if coverage_service is None:
+        if not coverage_service:
             coverage_package = ''
             coverage_command = ''
         else:

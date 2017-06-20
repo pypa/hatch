@@ -28,7 +28,7 @@ class Tox(File):
             )
 
         coverage_package = (
-            '' if coverage_service is None else '\n    {}'.format(coverage_service.package)
+            '' if not coverage_service else '\n    {}'.format(coverage_service.package)
         )
 
         super(Tox, self).__init__(
