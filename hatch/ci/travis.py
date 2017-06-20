@@ -4,13 +4,11 @@ TEMPLATE = """\
 language: python
 
 matrix:
-    include:{build_matrix}{pypy_install}
+    include:{build_matrix}
 
-install:
+{pypy_install}install:
   - pip install tox{coverage_package}
-
-script: "tox -- -rs"{coverage_command}
-"""
+script: "tox -- -rs"{coverage_command}"""
 
 
 class TravisCI(File):
@@ -33,7 +31,6 @@ class TravisCI(File):
         # Travis' PyPy is old
         pypy_install = ''
         if pypy_versions:
-            pypy_install += '\n\n'
             pypy_install += 'before_install:\n'
             pypy_install += '  - cd $HOME\n'
             pypy_install += '  - mkdir bin\n'
@@ -73,19 +70,32 @@ class TravisCI(File):
                 )
 
             pypy_install += '  - cd $TRAVIS_BUILD_DIR'
+            pypy_install += '\n'
 
-        if not coverage_service:
-            coverage_package = ''
-            coverage_command = ''
-        else:
-            coverage_package = ' {}'.format(coverage_service.package)
-            coverage_command = '\n\nafter_success:\n  - {}'.format(coverage_service.command)
+        # For testing we use https://github.com/r1chardj0n3s/parse and its
+        # `parse` function breaks on empty inputs.
+        #
+        # Bug: This creates an unnecessary new line when there is no pypy but
+        # there is no good way around it. When Travis updates their PyPy we
+        # will remove this anyway.
+        pypy_install += '\n'
+
+        coverage_package = ''
+        coverage_command = ''
+        if coverage_service:
+            coverage_package += ' {}'.format(coverage_service.package)
+            coverage_command += '\n\nafter_success:\n  - {}'.format(coverage_service.command)
+
+        # for `parse`
+        coverage_package += '\n'
+        coverage_command += '\n'
 
         super(TravisCI, self).__init__(
             '.travis.yml',
             TEMPLATE.format(
-                build_matrix=build_matrix, coverage_package=coverage_package,
+                build_matrix=build_matrix,
                 pypy_install=pypy_install,
+                coverage_package=coverage_package,
                 coverage_command=coverage_command
             )
         )
