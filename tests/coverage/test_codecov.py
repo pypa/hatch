@@ -1,0 +1,26 @@
+import os
+
+from hatch.core import create_package
+from hatch.coverage.codecov import TEMPLATE
+from hatch.settings import DEFAULT_SETTINGS
+from ..utils import read_file, temp_chdir
+
+
+def test_basic():
+    with temp_chdir() as d:
+        settings = DEFAULT_SETTINGS.copy()
+        settings['basic'] = True
+        settings['coverage'] = 'codecov'
+        create_package(d, 'ok', settings)
+
+        assert not os.path.exists(os.path.join(d, '.codecov.yml'))
+
+
+def test_correct():
+    with temp_chdir() as d:
+        settings = DEFAULT_SETTINGS.copy()
+        settings['basic'] = False
+        settings['coverage'] = 'codecov'
+        create_package(d, 'ok', settings)
+
+        assert read_file(os.path.join(d, '.codecov.yml')) == TEMPLATE
