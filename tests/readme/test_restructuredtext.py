@@ -3,8 +3,8 @@ import os
 from parse import parse
 
 from hatch.core import create_package
-from hatch.readme.restructuredtext import TEMPLATE
 from hatch.settings import DEFAULT_SETTINGS
+from hatch.readme.restructuredtext import TEMPLATE
 from ..utils import read_file, temp_chdir
 
 
