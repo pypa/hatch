@@ -8,8 +8,7 @@ envlist ={build_matrix}
 passenv = *
 deps =
     coverage
-    pytest{coverage_package}
-commands =
+    pytest{coverage_package}commands =
     python setup.py --quiet clean develop
     coverage run --parallel-mode -m pytest
     coverage combine --append
@@ -27,9 +26,11 @@ class Tox(File):
                 else 'py{}'.format(''.join(version.split('.')))
             )
 
-        coverage_package = (
-            '' if not coverage_service else '\n    {}'.format(coverage_service.package)
-        )
+        coverage_package = ''
+        if coverage_service:
+            coverage_package += '\n    {}'.format(coverage_service.package)
+
+        coverage_package += '\n'
 
         super(Tox, self).__init__(
             'tox.ini',
