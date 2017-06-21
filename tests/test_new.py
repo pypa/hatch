@@ -14,6 +14,26 @@ def test_invalid_name():
         assert os.path.exists(os.path.join(d, 'invalid-name', 'invalid_name', '__init__.py'))
 
 
+def test_output():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        result = runner.invoke(hatch, ['new', 'new-project', '--basic'])
+
+        assert result.exit_code == 0
+        assert 'Created project `new-project`' in result.output
+
+
+def test_already_exists():
+    with temp_chdir() as d:
+        d = os.path.join(d, 'ok')
+        os.makedirs(d)
+        runner = CliRunner()
+        result = runner.invoke(hatch, ['new', 'ok', '--basic'])
+
+        assert result.exit_code == 1
+        assert 'Directory `{}` already exists.'.format(d) in result.output
+
+
 def test_basic():
     with temp_chdir() as d:
         runner = CliRunner()

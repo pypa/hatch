@@ -1,4 +1,5 @@
 import os
+import sys
 
 import click
 
@@ -32,13 +33,14 @@ def new(name, basic, cli):
     d = os.path.join(os.getcwd(), name)
 
     if os.path.exists(d):
-        click.echo('Directory {} already exists.'.format(d))
-        return
+        click.echo('Directory `{}` already exists.'.format(d))
+        sys.exit(1)
 
     os.makedirs(d)
     os.chdir(d)
 
     create_package(d, name, settings)
+    click.echo('Created project `{}`'.format(name))
 
 
 @hatch.command(context_settings=CONTEXT_SETTINGS)
@@ -54,6 +56,7 @@ def init(name, basic, cli):
     settings['cli'] = cli
 
     create_package(os.getcwd(), name, settings)
+    click.echo('Created project `{}` here'.format(name))
 
 
 @hatch.command(name='set', context_settings=CONTEXT_SETTINGS)
