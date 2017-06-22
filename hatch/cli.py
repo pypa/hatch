@@ -3,7 +3,7 @@ import sys
 
 import click
 
-from hatch.core import create_package
+from hatch.create import create_package
 from hatch.settings import SETTINGS_FILE, load_settings, restore_settings
 
 
