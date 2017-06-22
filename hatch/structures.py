@@ -2,7 +2,7 @@ import os
 
 try:
     from urllib.parse import urlencode
-except:
+except:  # no cov
     from urllib import urlencode
 
 

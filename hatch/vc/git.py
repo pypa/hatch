@@ -17,7 +17,7 @@ class GitAttributes(File):
 
 
 def setup_git(d, package_name):
-    if not os.path.exists(os.path.join(d, '.git')):
+    if not os.path.exists(os.path.join(d, '.git')):  # no cov
         try:
             subprocess.call('git init --quiet')
         except:
