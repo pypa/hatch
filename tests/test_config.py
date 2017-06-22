@@ -5,7 +5,7 @@ from click.testing import CliRunner
 
 from hatch.cli import hatch
 from hatch.settings import (
-    DEFAULT_SETTINGS, SETTINGS_FILE, load_settings, restore_settings
+    DEFAULT_SETTINGS, SETTINGS_FILE, load_settings
 )
 from .utils import temp_chdir
 
