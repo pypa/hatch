@@ -3,8 +3,8 @@ import os
 from parse import parse
 
 from hatch.create import create_package
+from hatch.files.setup import TEMPLATE
 from hatch.settings import DEFAULT_SETTINGS
-from hatch.setup import TEMPLATE
 from .utils import read_file, temp_chdir
 
 

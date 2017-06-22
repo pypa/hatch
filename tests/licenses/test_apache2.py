@@ -5,7 +5,7 @@ from parse import parse
 from hatch.create import create_package
 from hatch.settings import DEFAULT_SETTINGS
 from hatch.utils import get_current_year
-from hatch.licenses.apache2 import TEMPLATE
+from hatch.files.licenses.apache2 import TEMPLATE
 from ..utils import read_file, temp_chdir
 
 

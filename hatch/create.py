@@ -1,15 +1,14 @@
 import os
 
-from hatch.ci import Tox, TravisCI
-from hatch.coverage import Codecov, CoverageConfig
-from hatch.licenses import Apache2License, MITLicense
-from hatch.readme import ReStructuredTextReadme
+from hatch.files.ci import Tox, TravisCI
+from hatch.files.coverage import Codecov, CoverageConfig
+from hatch.files.licenses import Apache2License, MITLicense
+from hatch.files.readme import ReStructuredTextReadme
+from hatch.files.setup import SetupFile
+from hatch.files.vc import setup_git
 from hatch.settings import DEFAULT_SETTINGS
-from hatch.setup import SetupFile
 from hatch.structures import Badge, File
-from hatch.vc import setup_git
 from hatch.utils import create_file, normalize_package_name
-
 
 LICENSES = {
     'mit': MITLicense,

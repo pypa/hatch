@@ -2,7 +2,7 @@ import os
 
 from hatch.create import create_package
 from hatch.settings import DEFAULT_SETTINGS
-from hatch.coverage.codecov import TEMPLATE
+from hatch.files.coverage.codecov import TEMPLATE
 from ..utils import read_file, temp_chdir
 
 

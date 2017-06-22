@@ -1,7 +1,7 @@
 import os
 import subprocess
 
-from hatch.ignore import GitIgnore
+from hatch.files.ignore import GitIgnore
 from hatch.structures import File
 
 

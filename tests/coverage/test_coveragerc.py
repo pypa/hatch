@@ -4,7 +4,7 @@ from parse import parse
 
 from hatch.create import create_package
 from hatch.settings import DEFAULT_SETTINGS
-from hatch.coverage.coveragerc import TEMPLATE
+from hatch.files.coverage.coveragerc import TEMPLATE
 from ..utils import read_file, temp_chdir
 
 
