@@ -57,6 +57,6 @@ def save_settings(settings):
         f.write(json.dumps(settings, indent=4))
 
 
-def make_settings():
+def restore_settings():
     create_file(SETTINGS_FILE)
     save_settings(DEFAULT_SETTINGS)
