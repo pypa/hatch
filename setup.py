@@ -4,7 +4,7 @@ try:
     from hatch.settings import make_settings
     make_settings()
 except:
-    print('Failed to create config file. Try again via "hatch set --restore".')
+    print('Failed to create config file. Try again via "hatch config --restore".')
 
 with open('hatch/__init__.py', 'r') as f:
     for line in f:

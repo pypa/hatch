@@ -4,7 +4,7 @@ import sys
 import click
 
 from hatch.core import create_package
-from hatch.settings import load_settings
+from hatch.settings import SETTINGS_FILE, load_settings, restore_settings
 
 
 CONTEXT_SETTINGS = {
@@ -59,8 +59,11 @@ def init(name, basic, cli):
     click.echo('Created project `{}` here'.format(name))
 
 
-@hatch.command(name='set', context_settings=CONTEXT_SETTINGS)
-@click.option('-n', '--name')
-@click.option('-e', '--email')
-def set_defaults(name, email):
-    click.echo(name)
+@hatch.command(context_settings=CONTEXT_SETTINGS)
+@click.option('--restore', is_flag=True)
+def config(restore):
+    if restore:
+        restore_settings()
+        click.echo('Settings were successfully restored.')
+
+    click.echo('Settings location: ' + SETTINGS_FILE)
