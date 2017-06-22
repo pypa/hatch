@@ -58,7 +58,7 @@ setup(
         'wheel'
     ),
     setup_requires=('appdirs', 'atomicwrites'),
-    tests_require=['click', 'pytest', 'parse'],
+    tests_require=['click', 'pytest', 'parse', 'virtualenv'],
 
     packages=find_packages(),
     entry_points={
