@@ -9,6 +9,13 @@ matrix:
         - python: pypy3
           env: TOXENV=pypy3
 
+before_install:
+  - cd $HOME
+  - mkdir bin
+  - export PATH=$HOME/bin:$PATH
+  - "if [[ $TRAVIS_PYTHON_VERSION == 'pypy3' ]]; then deactivate && wget https://bitbucket.org/squeaky/portable-pypy/downloads/pypy3.5-5.8-beta-linux_x86_64-portable.tar.bz2 && tar -jxvf pypy3.5-5.8-beta-linux_x86_64-portable.tar.bz2 && echo 'Setting up aliases...' && cd pypy3.5-5.8-beta-linux_x86_64-portable/bin/ && export PATH=$PWD:$PATH && ln -s pypy3 python && echo 'Setting up pip...' && ./pypy3 -m ensurepip && ln -s pip3 pip ; fi"
+  - cd $TRAVIS_BUILD_DIR
+
 install:
   - pip install tox
   - pip install codecov
