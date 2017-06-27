@@ -24,7 +24,7 @@ def hatch():
 @click.argument('name')
 @click.option('--basic', is_flag=True)
 @click.option('--cli', is_flag=True)
-def new(name, basic, cli):
+def egg(name, basic, cli):
     settings = load_settings()
 
     if basic:
