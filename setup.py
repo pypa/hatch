@@ -57,6 +57,7 @@ setup(
         'coverage',
         'pip>=9.0.1',
         'pytest',
+        'setuptools',
         'twine',
         'virtualenv',
         'wheel'
