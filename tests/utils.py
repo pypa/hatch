@@ -3,6 +3,14 @@ import re
 from contextlib import contextmanager
 from tempfile import TemporaryDirectory
 
+from hatch.utils import get_package_version
+
+
+def get_version_as_bytes():
+    return bytes(
+        int(s) for s in get_package_version('requests').split('.')
+    )
+
 
 def read_file(path):
     with open(path, 'r') as f:

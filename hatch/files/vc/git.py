@@ -3,6 +3,7 @@ import subprocess
 
 from hatch.files.ignore import GitIgnore
 from hatch.structures import File
+from hatch.utils import NEED_SUBPROCESS_SHELL
 
 
 class GitAttributes(File):
@@ -19,7 +20,7 @@ class GitAttributes(File):
 def setup_git(d, package_name):
     if not os.path.exists(os.path.join(d, '.git')):  # no cov
         try:
-            subprocess.call('git init --quiet')
+            subprocess.call(['git', 'init', '--quiet'], shell=NEED_SUBPROCESS_SHELL)
         except:
             print('Could not find "git" executable')
         GitAttributes().write(d)

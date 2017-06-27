@@ -1,10 +1,12 @@
 import os
+import subprocess
 import sys
 
 import click
 
 from hatch.create import create_package
 from hatch.settings import SETTINGS_FILE, load_settings, restore_settings
+from hatch.utils import NEED_SUBPROCESS_SHELL, get_installed_packages
 
 
 CONTEXT_SETTINGS = {
@@ -67,3 +69,51 @@ def config(restore):
         click.echo('Settings were successfully restored.')
 
     click.echo('Settings location: ' + SETTINGS_FILE)
+
+
+@hatch.command(context_settings=CONTEXT_SETTINGS)
+@click.option('--eager', is_flag=True)
+@click.option('--all', 'all_packages', is_flag=True)
+def update(eager, all_packages):
+    command = [
+        'pip', 'install', '--upgrade', '--upgrade-strategy',
+        'eager' if eager else 'only-if-needed'
+    ]
+
+    if all_packages:
+        installed_packages = get_installed_packages()
+        installed_packages = [
+            package for package in installed_packages
+            if package not in ['pip', 'setuptools', 'wheel']
+        ]
+        if not installed_packages:
+            click.echo('No packages installed.')
+            sys.exit(1)
+        command.extend(installed_packages)
+    else:
+        path = os.path.join(os.getcwd(), 'requirements.txt')
+        if not os.path.exists(path):
+            click.echo('Unable to locate a requirements file.')
+            sys.exit(1)
+        command.extend(['-r', path])
+
+    subprocess.call(command, shell=NEED_SUBPROCESS_SHELL)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
