@@ -58,10 +58,11 @@ setup(
         'pip>=9.0.1',
         'pytest',
         'twine',
+        'virtualenv',
         'wheel'
     ),
     setup_requires=('appdirs', 'atomicwrites'),
-    tests_require=['click', 'pytest', 'parse', 'virtualenv'],
+    tests_require=('parse'),
 
     packages=find_packages(),
     entry_points={
