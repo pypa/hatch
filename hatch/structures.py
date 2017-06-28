@@ -1,9 +1,5 @@
 import os
-
-try:
-    from urllib.parse import urlencode
-except:  # no cov
-    from urllib import urlencode
+from urllib.parse import urlencode
 
 
 class File:
