@@ -54,7 +54,8 @@ setup(
         'coverage',
         'pip>=9.0.1',
         'pytest',
-        'setuptools',
+        'semver',
+        'setuptools>=36.0.0',
         'twine',
         'virtualenv',
         'wheel'
