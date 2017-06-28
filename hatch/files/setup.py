@@ -7,7 +7,7 @@ from setuptools import find_packages, setup
 with open('{package_name_normalized}/__init__.py', 'r') as f:
     for line in f:
         if line.startswith('__version__'):
-            version = line.strip().split('= ')[1].strip('\\'"')
+            version = line.strip().split('=')[1].strip(' \\'"')
             break
 
 requires = []

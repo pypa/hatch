@@ -12,7 +12,7 @@ except:
 with open('hatch/__init__.py', 'r') as f:
     for line in f:
         if line.startswith('__version__'):
-            version = line.strip().split('= ')[1].strip('\'"')
+            version = line.strip().split('=')[1].strip(' \'"')
             break
 
 setup(
