@@ -29,11 +29,19 @@ Installation
 ------------
 
 Hatch is distributed on `PyPI`_ as a universal wheel and is available on
-Linux/macOS and Windows and supports Python 2.7/3.3+ and PyPy.
+Linux/macOS and Windows and supports 3.5+ and PyPy.
 
 .. code-block:: bash
 
     $ pip install hatch
+
+Usage
+-----
+
+.. code-block:: bash
+
+    $ hatch
+
 
 License
 -------
