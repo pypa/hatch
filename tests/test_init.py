@@ -15,7 +15,7 @@ def test_invalid_name():
 
 
 def test_output():
-    with temp_chdir() as d:
+    with temp_chdir():
         runner = CliRunner()
         result = runner.invoke(hatch, ['init', 'new-project', '--basic'])
 
