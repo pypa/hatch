@@ -3,9 +3,11 @@ import os
 from click.testing import CliRunner
 
 from hatch.cli import hatch
+from hatch.env import (
+    get_installed_packages, get_package_version, install_packages
+)
 from hatch.utils import (
-    get_current_year, get_installed_packages, get_package_version,
-    install_packages, normalize_package_name
+    get_current_year, normalize_package_name
 )
 from hatch.venv import create_venv, venv
 from .utils import temp_chdir

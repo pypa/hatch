@@ -5,9 +5,10 @@ import sys
 import click
 
 from hatch.create import create_package
+from hatch.env import get_installed_packages
 from hatch.grow import bump_package_version
 from hatch.settings import SETTINGS_FILE, load_settings, restore_settings
-from hatch.utils import NEED_SUBPROCESS_SHELL, get_installed_packages
+from hatch.utils import NEED_SUBPROCESS_SHELL
 
 
 CONTEXT_SETTINGS = {

@@ -3,7 +3,7 @@ import re
 from contextlib import contextmanager
 from tempfile import TemporaryDirectory
 
-from hatch.utils import get_package_version
+from hatch.env import get_package_version
 
 
 def get_version_as_bytes():

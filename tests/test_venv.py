@@ -3,8 +3,8 @@ import shutil
 
 import pytest
 
+from hatch.env import get_python_path
 from hatch.venv import create_venv, venv
-from hatch.utils import get_python_path
 from .utils import temp_chdir
 
 
