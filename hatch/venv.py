@@ -32,21 +32,3 @@ def venv(d):
         yield
     finally:
         os.environ['PATH'] = old_path
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
