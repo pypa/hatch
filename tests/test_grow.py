@@ -99,6 +99,19 @@ def test_no_init():
         assert 'No init files found.' in result.output
 
 
+def test_multi_line_init():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        with open(os.path.join(d, 'ok', '__init__.py'), 'w') as f:
+            f.write('__version__ = "123"\nok\n')
+
+        result = runner.invoke(hatch, ['grow', 'fix'])
+
+        assert result.exit_code == 1
+        assert 'Unable to find a version specifier.' in result.output
+
+
 def test_no_version():
     with temp_chdir() as d:
         runner = CliRunner()
@@ -122,24 +135,3 @@ def test_no_match():
 
         assert result.exit_code == 1
         assert 'Unable to find a version specifier.' in result.output
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
