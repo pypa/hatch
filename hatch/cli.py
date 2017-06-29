@@ -5,6 +5,7 @@ import sys
 import click
 
 from hatch.create import create_package
+from hatch.grow import bump_package_version
 from hatch.settings import SETTINGS_FILE, load_settings, restore_settings
 from hatch.utils import NEED_SUBPROCESS_SHELL, get_installed_packages
 
@@ -32,7 +33,8 @@ def egg(name, basic, cli):
 
     settings['cli'] = cli
 
-    d = os.path.join(os.getcwd(), name)
+    origin = os.getcwd()
+    d = os.path.join(origin, name)
 
     if os.path.exists(d):
         click.echo('Directory `{}` already exists.'.format(d))
@@ -43,6 +45,7 @@ def egg(name, basic, cli):
 
     create_package(d, name, settings)
     click.echo('Created project `{}`'.format(name))
+    os.chdir(origin)
 
 
 @hatch.command(context_settings=CONTEXT_SETTINGS)
@@ -98,6 +101,38 @@ def update(eager, all_packages):
         command.extend(['-r', path])
 
     subprocess.call(command, shell=NEED_SUBPROCESS_SHELL)
+
+
+@hatch.command(context_settings=CONTEXT_SETTINGS)
+@click.argument('part')
+@click.option('-p', '--path')
+def grow(part, path):
+    if path:
+        full_path = os.path.join(os.getcwd(), path)
+        if os.path.exists(full_path):
+            path = full_path
+        else:
+            if not os.path.exists(path):
+                click.echo('Directory `{}` does not exist.'.format(path))
+                sys.exit(1)
+    else:
+        path = os.getcwd()
+
+    f, old_version, new_version = bump_package_version(path, part)
+
+    if new_version:
+        click.echo('Updated {}'.format(f))
+        click.echo('{} -> {}'.format(old_version, new_version))
+    else:
+        if f:
+            click.echo('Found init files:')
+            for file in f:
+                click.echo(file)
+            click.echo('\nUnable to find a version specifier.')
+            sys.exit(1)
+        else:
+            click.echo('No init files found.')
+            sys.exit(1)
 
 
 
