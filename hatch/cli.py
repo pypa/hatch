@@ -112,7 +112,7 @@ def grow(part, path):
         if os.path.exists(full_path):
             path = full_path
         else:
-            if not os.path.exists(path):
+            if not os.path.exists(path):  # no cov
                 click.echo('Directory `{}` does not exist.'.format(path))
                 sys.exit(1)
     else:
