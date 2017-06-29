@@ -25,11 +25,15 @@ def get_package_version(package_name):
     return ''
 
 
-def get_installed_packages(editable=True):
+def get_editable_packages():
     output = subprocess.check_output(
         ['pip', 'list', '-e', '--format', 'json'], shell=NEED_SUBPROCESS_SHELL
     ).decode()
-    editable_packages = set(package['name'] for package in json.loads(output))
+    return set(package['name'] for package in json.loads(output))
+
+
+def get_installed_packages(editable=True):
+    editable_packages = get_editable_packages()
 
     output = subprocess.check_output(
         ['pip', 'list', '--format', 'json'], shell=NEED_SUBPROCESS_SHELL
