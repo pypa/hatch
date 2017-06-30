@@ -5,7 +5,7 @@ import sys
 import click
 
 from hatch.create import create_package
-from hatch.env import get_installed_packages
+from hatch.env import get_editable_package_location, get_installed_packages
 from hatch.grow import bump_package_version
 from hatch.settings import SETTINGS_FILE, load_settings, restore_settings
 from hatch.utils import NEED_SUBPROCESS_SHELL
@@ -106,9 +106,15 @@ def update(eager, all_packages):
 
 @hatch.command(context_settings=CONTEXT_SETTINGS)
 @click.argument('part')
+@click.argument('package', required=False)
 @click.option('-p', '--path')
-def grow(part, path):
-    if path:
+def grow(part, package, path):
+    if package:
+        path = get_editable_package_location(package)
+        if not path:  # no cov
+            click.echo('`{}` is not an editable package.'.format(package))
+            sys.exit(1)
+    elif path:
         full_path = os.path.join(os.getcwd(), path)
         if os.path.exists(full_path):
             path = full_path
