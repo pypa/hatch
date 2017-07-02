@@ -15,7 +15,7 @@ def ensure_dir_exists(d):
 
 
 def create_file(fname):
-    ensure_dir_exists(os.path.dirname(fname))
+    ensure_dir_exists(os.path.dirname(os.path.abspath(fname)))
     with open(fname, 'a'):
         os.utime(fname, times=None)
 
