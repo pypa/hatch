@@ -31,6 +31,17 @@ def normalize_package_name(package_name):
 
 
 @contextmanager
+def chdir(d, cwd=None):
+    origin = cwd or os.getcwd()
+    os.chdir(d)
+
+    try:
+        yield
+    finally:
+        os.chdir(origin)
+
+
+@contextmanager
 def temp_chdir(cwd=None):
     with TemporaryDirectory() as d:
         origin = cwd or os.getcwd()
