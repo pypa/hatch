@@ -94,6 +94,8 @@ def test_path_full():
     with temp_chdir() as d:
         runner = CliRunner()
         runner.invoke(hatch, ['egg', 'ok', '--basic'])
+        runner.invoke(hatch, ['egg', 'ko', '--basic'])
+        os.chdir(os.path.join(d, 'ko'))
 
         result = runner.invoke(
             hatch,

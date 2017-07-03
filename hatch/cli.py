@@ -111,17 +111,19 @@ def update(eager, all_packages):
 def grow(part, package, path):
     if package:
         path = get_editable_package_location(package)
-        if not path:  # no cov
+        if not path:
             click.echo('`{}` is not an editable package.'.format(package))
             sys.exit(1)
     elif path:
-        full_path = os.path.join(os.getcwd(), path)
-        if os.path.exists(full_path):
-            path = full_path
-        else:
-            if not os.path.exists(path):  # no cov
-                click.echo('Directory `{}` does not exist.'.format(path))
-                sys.exit(1)
+        relative_path = os.path.join(
+            os.getcwd(),
+            os.path.basename(os.path.normpath(path))
+        )
+        if os.path.exists(relative_path):
+            path = relative_path
+        elif not os.path.exists(path):
+            click.echo('Directory `{}` does not exist.'.format(path))
+            sys.exit(1)
     else:
         path = os.getcwd()
 
