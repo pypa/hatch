@@ -8,7 +8,7 @@ from hatch.create import create_package
 from hatch.env import get_editable_package_location, get_installed_packages
 from hatch.grow import bump_package_version
 from hatch.settings import SETTINGS_FILE, load_settings, restore_settings
-from hatch.utils import NEED_SUBPROCESS_SHELL
+from hatch.utils import NEED_SUBPROCESS_SHELL, chdir
 
 
 CONTEXT_SETTINGS = {
@@ -42,11 +42,9 @@ def egg(name, basic, cli):
         sys.exit(1)
 
     os.makedirs(d)
-    os.chdir(d)
-
-    create_package(d, name, settings)
-    click.echo('Created project `{}`'.format(name))
-    os.chdir(origin)
+    with chdir(d, cwd=origin):
+        create_package(d, name, settings)
+        click.echo('Created project `{}`'.format(name))
 
 
 @hatch.command(context_settings=CONTEXT_SETTINGS)
