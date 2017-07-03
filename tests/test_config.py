@@ -7,7 +7,7 @@ from hatch.cli import hatch
 from hatch.settings import (
     DEFAULT_SETTINGS, SETTINGS_FILE, load_settings
 )
-from .utils import temp_chdir
+from hatch.utils import temp_chdir
 
 
 def test_show_location():

@@ -4,8 +4,9 @@ from click.testing import CliRunner
 
 from hatch.cli import hatch
 from hatch.env import install_packages
+from hatch.utils import temp_chdir
 from hatch.venv import create_venv, venv
-from .utils import get_version_as_bytes, temp_chdir
+from .utils import get_version_as_bytes
 
 
 def test_requirements():

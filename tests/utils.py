@@ -1,7 +1,4 @@
-import os
 import re
-from contextlib import contextmanager
-from tempfile import TemporaryDirectory
 
 from hatch.env import get_package_version
 
@@ -22,15 +19,3 @@ def matching_file(pattern, files):
         if re.search(pattern, file):
             return True
     return False
-
-
-@contextmanager
-def temp_chdir(cwd=None):
-    with TemporaryDirectory() as d:
-        origin = cwd or os.getcwd()
-        os.chdir(d)
-
-        try:
-            yield d
-        finally:
-            os.chdir(origin)

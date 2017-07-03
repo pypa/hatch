@@ -6,8 +6,8 @@ from hatch.cli import hatch
 from hatch.env import (
     get_installed_packages, get_package_version, install_packages
 )
+from hatch.utils import temp_chdir
 from hatch.venv import create_venv, venv
-from .utils import temp_chdir
 
 
 def test_get_package_version_not_installed():

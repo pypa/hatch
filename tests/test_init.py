@@ -3,7 +3,8 @@ import os
 from click.testing import CliRunner
 
 from hatch.cli import hatch
-from .utils import matching_file, temp_chdir
+from hatch.utils import temp_chdir
+from .utils import matching_file
 
 
 def test_invalid_name():

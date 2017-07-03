@@ -2,7 +2,8 @@ import os
 
 from hatch.create import create_package
 from hatch.settings import DEFAULT_SETTINGS
-from ..utils import read_file, temp_chdir
+from hatch.utils import temp_chdir
+from ..utils import read_file
 
 
 def test_setup():

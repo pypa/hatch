@@ -4,8 +4,8 @@ import shutil
 import pytest
 
 from hatch.env import get_python_path
+from hatch.utils import temp_chdir
 from hatch.venv import create_venv, venv
-from .utils import temp_chdir
 
 
 def test_default():
