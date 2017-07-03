@@ -10,6 +10,9 @@ with open('{package_name_normalized}/__init__.py', 'r') as f:
             version = line.strip().split('=')[1].strip(' \\'"')
             break
 
+with open('{readme_file}', 'r') as f:
+    readme = f.read()
+
 requires = []
 
 with open('requirements.txt', 'r') as f:
@@ -22,7 +25,7 @@ setup(
     name='{package_name}',
     version=version,
     description='',
-    long_description=open('{readme_file}', 'r').read(),
+    long_description=readme,
     author='{name}',
     author_email='{email}',
     maintainer='{name}',
