@@ -21,7 +21,7 @@ def test_chdir():
     with chdir(parent_dir):
         assert os.getcwd() == parent_dir
 
-        assert os.getcwd() == origin
+    assert os.getcwd() == origin
 
 
 def test_temp_chdir():
