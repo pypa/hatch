@@ -1,18 +1,19 @@
 import os
 import re
+from collections import OrderedDict
 
 import semver
 from atomicwrites import atomic_write
 
 VERSION = re.compile(r'[0-9]+\.[0-9]+\.[0-9]+')
-BUMP = {
-    'major': semver.bump_major,
-    'minor': semver.bump_minor,
-    'patch': semver.bump_patch,
-    'fix': semver.bump_patch,
-    'pre': semver.bump_prerelease,
-    'build': semver.bump_build
-}
+BUMP = OrderedDict([
+    ('major', semver.bump_major),
+    ('minor', semver.bump_minor),
+    ('patch', semver.bump_patch),
+    ('fix', semver.bump_patch),
+    ('pre', semver.bump_prerelease),
+    ('build', semver.bump_build)
+])
 
 
 def bump_package_version(d, part='patch'):

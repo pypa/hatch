@@ -9,6 +9,20 @@ from hatch.venv import create_venv, venv
 from .utils import read_file
 
 
+def test_invalid_part():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', 'ok', '--basic'])
+
+        result = runner.invoke(hatch, ['grow', 'big'])
+        init_file = os.path.join(d, 'ok', '__init__.py')
+        contents = read_file(init_file)
+
+        assert result.exit_code == 2
+        assert contents == "__version__ = '0.0.1'\n"
+        assert 'invalid choice' in result.output
+
+
 def test_package_cwd():
     with temp_chdir() as d:
         runner = CliRunner()
