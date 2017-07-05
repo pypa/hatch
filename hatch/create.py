@@ -98,11 +98,12 @@ def create_package(d, package_name, settings):
     coveragerc = CoverageConfig(package_name)
     tox = Tox(pyversions, coverage_service)
 
+    package_dir = os.path.join(d, normalized_package_name)
     init_py = File(
         '__init__.py',
         "__version__ = '0.0.1'\n"
     )
-    init_py.write(os.path.join(d, normalized_package_name))
+    init_py.write(package_dir)
 
     create_file(os.path.join(d, 'tests', '__init__.py'))
     create_file(os.path.join(d, 'requirements.txt'))
@@ -112,7 +113,14 @@ def create_package(d, package_name, settings):
             'cli.py',
             'def {}():\n    pass\n'.format(normalized_package_name)
         )
-        cli_py.write(os.path.join(d, normalized_package_name))
+        cli_py.write(package_dir)
+        main_py = File(
+            '__main__.py',
+            'import sys\n'
+            'from {npn}.cli import {npn}\n'
+            'sys.exit({npn}())\n'.format(npn=normalized_package_name)
+        )
+        main_py.write(package_dir)
 
     setup_py.write(d)
     readme.write(d)

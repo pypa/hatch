@@ -58,3 +58,4 @@ def test_cli():
         d = os.path.join(d, 'ok')
 
         assert os.path.exists(os.path.join(d, 'ok', 'cli.py'))
+        assert os.path.exists(os.path.join(d, 'ok', '__main__.py'))

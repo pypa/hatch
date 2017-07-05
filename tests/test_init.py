@@ -45,3 +45,4 @@ def test_cli():
         runner.invoke(hatch, ['init', 'ok', '--cli'])
 
         assert os.path.exists(os.path.join(d, 'ok', 'cli.py'))
+        assert os.path.exists(os.path.join(d, 'ok', '__main__.py'))
