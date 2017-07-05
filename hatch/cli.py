@@ -142,6 +142,65 @@ def grow(part, package, path):
             sys.exit(1)
 
 
+@hatch.command(context_settings=CONTEXT_SETTINGS)
+@click.argument('package', required=False)
+@click.option('-p', '--path')
+@click.option('-c', '--cov', is_flag=True)
+@click.option('-tp', '--passthru')
+@click.option('-e', '--env-aware', is_flag=True)
+def test(package, path, cov, passthru, env_aware):
+    if package:
+        path = get_editable_package_location(package)
+        if not path:
+            click.echo('`{}` is not an editable package.'.format(package))
+            sys.exit(1)
+    elif path:
+        relative_path = os.path.join(
+            os.getcwd(),
+            os.path.basename(os.path.normpath(path))
+        )
+        if os.path.exists(relative_path):
+            path = relative_path
+        elif not os.path.exists(path):
+            click.echo('Directory `{}` does not exist.'.format(path))
+            sys.exit(1)
+    else:
+        path = os.getcwd()
+
+    python_cmd = ['python', '-m'] if env_aware else []
+    command = python_cmd.copy()
+
+    if cov:
+        command.extend(['coverage', 'run', '-m'])
+
+    command.append('pytest')
+
+    if passthru:
+        command.extend(passthru.split())
+
+    with chdir(path):
+        result = subprocess.run(
+            command,
+            stdout=sys.stdout.fileno(), stderr=sys.stderr.fileno(),
+            shell=NEED_SUBPROCESS_SHELL
+        )
+
+        if cov:
+            click.echo('\nTests completed, checking coverage...\n')
+            subprocess.run(
+                python_cmd + ['coverage', 'combine', '--append'],
+                stdout=sys.stdout.fileno(), stderr=sys.stderr.fileno(),
+                shell=NEED_SUBPROCESS_SHELL
+            )
+            subprocess.run(
+                python_cmd + ['coverage', 'report', '-m'],
+                stdout=sys.stdout.fileno(), stderr=sys.stderr.fileno(),
+                shell=NEED_SUBPROCESS_SHELL
+            )
+
+    sys.exit(result.returncode)
+
+
 
 
 
