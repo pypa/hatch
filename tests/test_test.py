@@ -33,7 +33,6 @@ def test_package_cwd():
 
         result = runner.invoke(hatch, ['test'])
 
-        raise result.exception
         assert result.exit_code == 0
         assert '1 passed' in result.output
 

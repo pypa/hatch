@@ -1,3 +1,4 @@
+import io
 import os
 import subprocess
 import sys
@@ -178,27 +179,51 @@ def test(package, path, cov, passthru, env_aware):
     if passthru:
         command.extend(passthru.split())
 
+    try:  # no cov
+        sys.stdout.fileno()
+        testing = False
+    except io.UnsupportedOperation:  # no cov
+        testing = True
+
+    # For testing we need to pipe because Click changes stdio streams.
+    stdout = sys.stdout if not testing else subprocess.PIPE
+    stderr = sys.stderr if not testing else subprocess.PIPE
+
     with chdir(path):
-        result = subprocess.run(
+        output = b''
+
+        test_result = subprocess.run(
             command,
-            stdout=sys.stdout.fileno(), stderr=sys.stderr.fileno(),
+            stdout=stdout, stderr=stderr,
             shell=NEED_SUBPROCESS_SHELL
         )
+        output += test_result.stdout or b''
+        output += test_result.stderr or b''
 
         if cov:
             click.echo('\nTests completed, checking coverage...\n')
-            subprocess.run(
-                python_cmd + ['coverage', 'combine', '--append'],
-                stdout=sys.stdout.fileno(), stderr=sys.stderr.fileno(),
-                shell=NEED_SUBPROCESS_SHELL
-            )
-            subprocess.run(
-                python_cmd + ['coverage', 'report', '-m'],
-                stdout=sys.stdout.fileno(), stderr=sys.stderr.fileno(),
-                shell=NEED_SUBPROCESS_SHELL
-            )
 
-    sys.exit(result.returncode)
+            result = subprocess.run(
+                python_cmd + ['coverage', 'combine', '--append'],
+                stdout=stdout, stderr=stderr,
+                shell=NEED_SUBPROCESS_SHELL
+            )
+            output += result.stdout or b''
+            output += result.stderr or b''
+
+            result = subprocess.run(
+                python_cmd + ['coverage', 'report', '-m'],
+                stdout=stdout, stderr=stderr,
+                shell=NEED_SUBPROCESS_SHELL
+            )
+            output += result.stdout or b''
+            output += result.stderr or b''
+
+    if testing:  # no cov
+        click.echo(output.decode())
+        click.echo(output.decode())
+
+    sys.exit(test_result.returncode)
 
 
 
