@@ -4,14 +4,15 @@ from hatch.utils import normalize_package_name
 TEMPLATE = """\
 *.log
 *.pyc
-/.cache
-/.coverage
-/.idea
-/{package_name_normalized}.egg-info
-/build
-/dist
-/docs/build
-/wheelhouse
+.cache/
+.coverage
+.idea/
+.vscode/
+{package_name_normalized}.egg-info/
+build/
+dist/
+docs/build/
+wheelhouse/
 """
 
 
