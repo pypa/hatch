@@ -147,9 +147,10 @@ def grow(part, package, path):
 @click.argument('package', required=False)
 @click.option('-p', '--path')
 @click.option('-c', '--cov', is_flag=True)
-@click.option('-tp', '--passthru')
+@click.option('-ta', '--test-args', default='')
+@click.option('-ca', '--cov-args')
 @click.option('-e', '--env-aware', is_flag=True)
-def test(package, path, cov, passthru, env_aware):
+def test(package, path, cov, test_args, cov_args, env_aware):
     if package:
         path = get_editable_package_location(package)
         if not path:
@@ -172,12 +173,12 @@ def test(package, path, cov, passthru, env_aware):
     command = python_cmd.copy()
 
     if cov:
-        command.extend(['coverage', 'run', '-m'])
+        command.extend(['coverage', 'run'])
+        command.extend(cov_args.split() if cov_args is not None else ['--parallel-mode'])
+        command.append('-m')
 
     command.append('pytest')
-
-    if passthru:
-        command.extend(passthru.split())
+    command.extend(test_args.split())
 
     try:  # no cov
         sys.stdout.fileno()
