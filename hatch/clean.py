@@ -44,19 +44,15 @@ def clean_package(d):
             removal_queue.append(str(p))
 
     for root, dirs, files in walk(d):
-        matches = []
-
         for d in dirs:
             d = join(root, d)
             for glob in DELETE_EVERYWHERE:
                 for p in Path(d).glob(glob):
-                    path = str(p)
-                    matches.append(path)
-                    removal_queue.append(path)
+                    removal_queue.append(str(p))
 
     for _ in range(len(removal_queue)):
         p = removal_queue.popleft()
         delete_path(p)
         removed.append(p)
 
-    return removed
+    return sorted(removed)
