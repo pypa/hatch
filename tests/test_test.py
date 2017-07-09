@@ -176,7 +176,7 @@ def test_coverage_incomplete():
 
 
 def test_test_args():
-    with temp_chdir() as d:
+    with temp_chdir():
         runner = CliRunner()
         runner.invoke(hatch, ['init', 'ok', '--basic'])
 
@@ -186,7 +186,7 @@ def test_test_args():
 
 
 def test_coverage_args():
-    with temp_chdir() as d:
+    with temp_chdir():
         runner = CliRunner()
         runner.invoke(hatch, ['init', 'ok', '--basic'])
 
