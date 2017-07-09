@@ -54,12 +54,6 @@ def clean_package(d):
                     matches.append(path)
                     removal_queue.append(path)
 
-        for match in matches:
-            try:
-                dirs.remove(match)
-            except ValueError:
-                pass
-
     for _ in range(len(removal_queue)):
         p = removal_queue.popleft()
         delete_path(p)
