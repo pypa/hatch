@@ -3,6 +3,8 @@ source =
     hatch
     tests
 branch = True
+omit =
+    hatch/__main__.py
 
 [report]
 exclude_lines =

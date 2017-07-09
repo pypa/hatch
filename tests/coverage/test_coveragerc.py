@@ -18,3 +18,27 @@ def test_package_name():
         parsed = parse(TEMPLATE, contents)
 
         assert parsed['package_name_normalized'] == 'invalid_name'
+
+
+def test_cli():
+    with temp_chdir() as d:
+        settings = DEFAULT_SETTINGS.copy()
+        settings['cli'] = True
+        create_package(d, 'ok', settings)
+
+        contents = read_file(os.path.join(d, '.coveragerc'))
+        parsed = parse(TEMPLATE, contents)
+
+        assert parsed['cli_file'] == '__main__'
+
+
+def test_cli_none():
+    with temp_chdir() as d:
+        settings = DEFAULT_SETTINGS.copy()
+        settings['cli'] = False
+        create_package(d, 'ok', settings)
+
+        contents = read_file(os.path.join(d, '.coveragerc'))
+        parsed = parse(TEMPLATE, contents)
+
+        assert parsed['cli_file'] == 'cli'

@@ -95,7 +95,7 @@ def create_package(d, package_name, settings):
         if not basic:
             extra_files.append(CI_SERVICES[service](pyversions, coverage_service))
 
-    coveragerc = CoverageConfig(package_name)
+    coveragerc = CoverageConfig(package_name, cli)
     tox = Tox(pyversions, coverage_service)
 
     package_dir = os.path.join(d, normalized_package_name)

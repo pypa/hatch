@@ -8,7 +8,7 @@ source =
     tests
 branch = True
 omit =
-    {package_name_normalized}/cli.py
+    {package_name_normalized}/{cli_file}.py
 
 [report]
 exclude_lines =
@@ -20,8 +20,11 @@ exclude_lines =
 
 
 class CoverageConfig(File):
-    def __init__(self, package_name):
+    def __init__(self, package_name, cli):
         super(CoverageConfig, self).__init__(
             '.coveragerc',
-            TEMPLATE.format(package_name_normalized=normalize_package_name(package_name))
+            TEMPLATE.format(
+                package_name_normalized=normalize_package_name(package_name),
+                cli_file='__main__' if cli else 'cli'
+            )
         )
