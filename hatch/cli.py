@@ -5,6 +5,7 @@ import sys
 
 import click
 
+from hatch.clean import clean_package
 from hatch.create import create_package
 from hatch.env import get_editable_package_location, get_installed_packages
 from hatch.grow import BUMP, bump_package_version
@@ -225,6 +226,37 @@ def test(package, path, cov, test_args, cov_args, env_aware):
         click.echo(output.decode())
 
     sys.exit(test_result.returncode)
+
+
+@hatch.command(context_settings=CONTEXT_SETTINGS)
+@click.argument('package', required=False)
+@click.option('-p', '--path')
+@click.option('-v', '--verbose', is_flag=True)
+def clean(package, path, verbose):
+    if package:
+        path = get_editable_package_location(package)
+        if not path:
+            click.echo('`{}` is not an editable package.'.format(package))
+            sys.exit(1)
+    elif path:
+        relative_path = os.path.join(
+            os.getcwd(),
+            os.path.basename(os.path.normpath(path))
+        )
+        if os.path.exists(relative_path):
+            path = relative_path
+        elif not os.path.exists(path):
+            click.echo('Directory `{}` does not exist.'.format(path))
+            sys.exit(1)
+    else:
+        path = os.getcwd()
+
+    removed_paths = clean_package(path)
+
+    if verbose:
+        click.echo('Removed paths:')
+        for p in removed_paths:
+            click.echo(p)
 
 
 
