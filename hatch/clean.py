@@ -19,10 +19,6 @@ DELETE_EVERYWHERE = {
 ALL_PATTERNS = DELETE_IN_ROOT | DELETE_EVERYWHERE
 
 
-def get_path(dir_entry):
-    return dir_entry.path
-
-
 def delete_path(path):
     try:
         rmtree(path)
