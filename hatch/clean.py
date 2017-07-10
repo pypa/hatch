@@ -1,4 +1,3 @@
-from collections import deque
 from os import remove, walk
 from os.path import join
 from pathlib import Path
@@ -17,7 +16,7 @@ DELETE_EVERYWHERE = {
     '__pycache__',
     '*.pyc'
 }
-ALL_GLOBS = DELETE_IN_ROOT | DELETE_EVERYWHERE
+ALL_PATTERNS = DELETE_IN_ROOT | DELETE_EVERYWHERE
 
 
 def get_path(dir_entry):
@@ -30,26 +29,45 @@ def delete_path(path):
     except OSError:
         try:
             remove(path)
-        except FileNotFoundError:
+
+        # Since we delete files first by reverse iterating
+        # over sorted path names, this should never occur.
+        except FileNotFoundError:  # no cov
             pass
 
 
-def clean_package(d):
-    removed = []
-
-    root = Path(d)
-    for glob in ALL_GLOBS:
-        for p in root.glob(glob):
-            removed.append(str(p))
-
+def find_globs(d, patterns, matches):
     for root, dirs, files in walk(d):
         for d in dirs:
             d = join(root, d)
-            for glob in DELETE_EVERYWHERE:
-                for p in Path(d).glob(glob):
-                    removed.append(str(p))
+            for pattern in patterns:
+                for p in Path(d).glob(pattern):
+                    matches.add(str(p))
 
-    for p in removed:
+        sub_files = set()
+        for p in matches:
+            if root.startswith(p):
+                for f in files:
+                    sub_files.add(join(root, f))
+
+        matches.update(sub_files)
+
+
+def clean_package(d):
+    removed = set()
+
+    root = Path(d)
+    for pattern in ALL_PATTERNS:
+        for p in root.glob(pattern):
+            removed.add(str(p))
+            if p.is_dir():
+                find_globs(str(p), DELETE_EVERYWHERE, removed)
+
+    find_globs(d, DELETE_EVERYWHERE, removed)
+
+    removed = sorted(removed)
+
+    for p in reversed(removed):
         delete_path(p)
 
-    return sorted(removed)
+    return removed
