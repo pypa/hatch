@@ -14,8 +14,8 @@ DELETE_IN_ROOT = {
 }
 DELETE_EVERYWHERE = {
     '__pycache__',
-    '*.pyc'
-    '*.pyd'
+    '*.pyc',
+    '*.pyd',
 }
 ALL_PATTERNS = DELETE_IN_ROOT | DELETE_EVERYWHERE
 
