@@ -254,9 +254,10 @@ def clean(package, path, verbose):
     removed_paths = clean_package(path)
 
     if verbose:
-        click.echo('Removed paths:')
-        for p in removed_paths:
-            click.echo(p)
+        if removed_paths:
+            click.echo('Removed paths:')
+            for p in removed_paths:
+                click.echo(p)
 
 
 

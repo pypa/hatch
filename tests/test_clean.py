@@ -125,3 +125,288 @@ def test_path_full_not_exist():
 
         assert result.exit_code == 1
         assert 'Directory `{}` does not exist.'.format(full_path) in result.output
+
+
+def test_cache():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        create_file(os.path.join(d, 'ok', '.cache', 'v', 'cache', 'lastfailed'))
+        files = find_all_files(d)
+
+        test_file = os.path.join(d, '.cache', 'v', 'cache', 'lastfailed')
+        create_file(test_file)
+        assert os.path.exists(test_file)
+
+        result = runner.invoke(hatch, ['clean', '-v'])
+
+        assert result.exit_code == 0
+        assert result.output == (
+            'Removed paths:\n'
+            '{}\n'
+            '{}\n'.format(
+                os.path.join(d, '.cache'),
+                test_file
+            )
+        )
+        assert not os.path.exists(test_file)
+        assert_files_exist(files)
+
+
+def test_coverage():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        create_file(os.path.join(d, 'ok', '.coverage'))
+        files = find_all_files(d)
+
+        test_file = os.path.join(d, '.coverage')
+        create_file(test_file)
+        assert os.path.exists(test_file)
+
+        result = runner.invoke(hatch, ['clean', '-v'])
+
+        assert result.exit_code == 0
+        assert result.output == (
+            'Removed paths:\n'
+            '{}\n'.format(test_file)
+        )
+        assert not os.path.exists(test_file)
+        assert_files_exist(files)
+
+
+def test_eggs():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        create_file(os.path.join(d, 'ok', '.eggs', 'ok.egg'))
+        files = find_all_files(d)
+
+        test_file = os.path.join(d, '.eggs', 'ok.egg')
+        create_file(test_file)
+        assert os.path.exists(test_file)
+
+        result = runner.invoke(hatch, ['clean', '-v'])
+
+        assert result.exit_code == 0
+        assert result.output == (
+            'Removed paths:\n'
+            '{}\n'
+            '{}\n'.format(
+                os.path.join(d, '.eggs'),
+                test_file
+            )
+        )
+        assert not os.path.exists(test_file)
+        assert_files_exist(files)
+
+
+def test_tox():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        create_file(os.path.join(d, 'ok', '.tox', 'dist', 'ok.zip'))
+        files = find_all_files(d)
+
+        test_file = os.path.join(d, '.tox', 'dist', 'ok.zip')
+        create_file(test_file)
+        assert os.path.exists(test_file)
+
+        result = runner.invoke(hatch, ['clean', '-v'])
+
+        assert result.exit_code == 0
+        assert result.output == (
+            'Removed paths:\n'
+            '{}\n'
+            '{}\n'.format(
+                os.path.join(d, '.tox'),
+                test_file
+            )
+        )
+        assert not os.path.exists(test_file)
+        assert_files_exist(files)
+
+
+def test_build():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        create_file(os.path.join(d, 'ok', 'build', 'lib', 'ok', 'ok.py'))
+        files = find_all_files(d)
+
+        test_file = os.path.join(d, 'build', 'lib', 'ok', 'ok.py')
+        create_file(test_file)
+        assert os.path.exists(test_file)
+
+        result = runner.invoke(hatch, ['clean', '-v'])
+
+        assert result.exit_code == 0
+        assert result.output == (
+            'Removed paths:\n'
+            '{}\n'
+            '{}\n'.format(
+                os.path.join(d, 'build'),
+                test_file
+            )
+        )
+        assert not os.path.exists(test_file)
+        assert_files_exist(files)
+
+
+def test_dist():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        create_file(os.path.join(d, 'ok', 'dist', 'ok.whl'))
+        files = find_all_files(d)
+
+        test_file = os.path.join(d, 'dist', 'ok.whl')
+        create_file(test_file)
+        assert os.path.exists(test_file)
+
+        result = runner.invoke(hatch, ['clean', '-v'])
+
+        assert result.exit_code == 0
+        assert result.output == (
+            'Removed paths:\n'
+            '{}\n'
+            '{}\n'.format(
+                os.path.join(d, 'dist'),
+                test_file
+            )
+        )
+        assert not os.path.exists(test_file)
+        assert_files_exist(files)
+
+
+def test_egg_info():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        create_file(os.path.join(d, 'ok', 'ok.egg-info', 'PKG-INFO'))
+        files = find_all_files(d)
+
+        test_file = os.path.join(d, 'ok.egg-info', 'PKG-INFO')
+        create_file(test_file)
+        assert os.path.exists(test_file)
+
+        result = runner.invoke(hatch, ['clean', '-v'])
+
+        assert result.exit_code == 0
+        assert result.output == (
+            'Removed paths:\n'
+            '{}\n'
+            '{}\n'.format(
+                os.path.join(d, 'ok.egg-info'),
+                test_file
+            )
+        )
+        assert not os.path.exists(test_file)
+        assert_files_exist(files)
+
+
+def test_pycache():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        files = find_all_files(d)
+
+        root_file = os.path.join(d, '__pycache__', 'ok.txt')
+        create_file(root_file)
+        assert os.path.exists(root_file)
+
+        non_root_file = os.path.join(d, 'ok', '__pycache__', 'ok.txt')
+        create_file(non_root_file)
+        assert os.path.exists(non_root_file)
+
+        result = runner.invoke(hatch, ['clean', '-v'])
+
+        assert result.exit_code == 0
+        assert result.output == (
+            'Removed paths:\n'
+            '{}\n'
+            '{}\n'
+            '{}\n'
+            '{}\n'.format(
+                os.path.join(d, '__pycache__'),
+                root_file,
+                os.path.join(d, 'ok', '__pycache__'),
+                non_root_file
+            )
+        )
+        assert not os.path.exists(root_file)
+        assert not os.path.exists(non_root_file)
+        assert_files_exist(files)
+
+
+def test_pyc():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        files = find_all_files(d)
+
+        root_file = os.path.join(d, 'ok.pyc')
+        create_file(root_file)
+        assert os.path.exists(root_file)
+
+        non_root_file = os.path.join(d, 'ok', 'ko.pyc')
+        create_file(non_root_file)
+        assert os.path.exists(non_root_file)
+
+        result = runner.invoke(hatch, ['clean', '-v'])
+
+        assert result.exit_code == 0
+        assert result.output == (
+            'Removed paths:\n'
+            '{}\n'
+            '{}\n'.format(
+                root_file,
+                non_root_file
+            )
+        )
+        assert not os.path.exists(root_file)
+        assert not os.path.exists(non_root_file)
+        assert_files_exist(files)
+
+
+def test_pyd():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        files = find_all_files(d)
+
+        root_file = os.path.join(d, 'ok.pyd')
+        create_file(root_file)
+        assert os.path.exists(root_file)
+
+        non_root_file = os.path.join(d, 'ok', 'ko.pyd')
+        create_file(non_root_file)
+        assert os.path.exists(non_root_file)
+
+        result = runner.invoke(hatch, ['clean', '-v'])
+
+        assert result.exit_code == 0
+        assert result.output == (
+            'Removed paths:\n'
+            '{}\n'
+            '{}\n'.format(
+                root_file,
+                non_root_file
+            )
+        )
+        assert not os.path.exists(root_file)
+        assert not os.path.exists(non_root_file)
+        assert_files_exist(files)
+
+
+def test_verbose_already_clean():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        files = find_all_files(d)
+
+        result = runner.invoke(hatch, ['clean', '-v'])
+
+        assert result.exit_code == 0
+        assert not result.output
+        assert_files_exist(files)
