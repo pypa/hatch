@@ -127,7 +127,7 @@ def test_licenses_multiple():
         parsed = parse(TEMPLATE, contents)
 
         assert parsed['license_info'] == (
-            'either\n\n'
+            'both\n\n'
             '- `MIT License <https://choosealicense.com/licenses/mit>`_\n'
             '- `Apache License, Version 2.0 <https://choosealicense.com/licenses/apache-2.0>`_'
             '\n\nat your option'

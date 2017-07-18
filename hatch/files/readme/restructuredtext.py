@@ -54,7 +54,7 @@ class ReStructuredTextReadme(File):
                 break
 
         if len(licenses) > 1:
-            license_info = 'either\n\n'
+            license_info = 'both\n\n'
             license_info += '\n'.join(
                 '- `{license_name} <{license_url}>`_'.format(
                     license_name=l.long_name, license_url=l.url

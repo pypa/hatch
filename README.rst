@@ -46,7 +46,7 @@ Usage
 License
 -------
 
-Hatch is distributed under the terms of either
+Hatch is distributed under the terms of both
 
 - `Apache License, Version 2.0 <https://choosealicense.com/licenses/apache-2.0>`_
 - `MIT License <https://choosealicense.com/licenses/mit>`_
