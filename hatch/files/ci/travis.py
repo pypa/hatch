@@ -8,7 +8,7 @@ matrix:
 
 {pypy_install}install:
   - pip install tox{coverage_package}
-script: "tox -- -rs"{coverage_command}"""
+script: tox{coverage_command}"""
 
 
 class TravisCI(File):
