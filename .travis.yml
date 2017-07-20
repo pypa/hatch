@@ -17,10 +17,9 @@ before_install:
   - cd $TRAVIS_BUILD_DIR
 
 install:
-  - pip install tox
-  - pip install codecov
+  - pip install tox codecov
 
-script: "tox -- -rs"
+script: tox
 
 after_success:
   - codecov
