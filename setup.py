@@ -59,7 +59,7 @@ setup(
         'setuptools>=36.0.0',
         'twine',
         'virtualenv',
-        'wheel'
+        'wheel>=0.27.0'
     ),
     setup_requires=('appdirs', 'atomicwrites'),
     tests_require=('parse'),
