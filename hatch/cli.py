@@ -5,6 +5,7 @@ import sys
 
 import click
 
+from hatch.build import build_package
 from hatch.clean import clean_package
 from hatch.create import create_package
 from hatch.env import get_editable_package_location, get_installed_packages
@@ -260,7 +261,36 @@ def clean(package, path, verbose):
                 click.echo(p)
 
 
+@hatch.command(context_settings=CONTEXT_SETTINGS)
+@click.argument('package', required=False)
+@click.option('-p', '--path')
+@click.option('-u', '--universal', is_flag=True)
+@click.option('-n', '--name')
+@click.option('-d', '--build-dir')
+@click.option('-c', '--clean', 'clean_first', is_flag=True)
+def build(package, path, universal, name, build_dir, clean_first):
+    if package:
+        path = get_editable_package_location(package)
+        if not path:
+            click.echo('`{}` is not an editable package.'.format(package))
+            sys.exit(1)
+    elif path:
+        relative_path = os.path.join(
+            os.getcwd(),
+            os.path.basename(os.path.normpath(path))
+        )
+        if os.path.exists(relative_path):
+            path = relative_path
+        elif not os.path.exists(path):
+            click.echo('Directory `{}` does not exist.'.format(path))
+            sys.exit(1)
+    else:
+        path = os.getcwd()
 
+    if clean_first:
+        clean_package(path)
+
+    build_package(path, universal, name, build_dir)
 
 
 
