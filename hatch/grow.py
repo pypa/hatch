@@ -31,6 +31,8 @@ def bump_package_version(d, part='patch'):
             if os.path.exists(path):
                 version_files.append(path)
 
+    version_files.sort()
+
     for version_file in version_files:
         with open(version_file, 'r') as f:
             lines = f.readlines()
