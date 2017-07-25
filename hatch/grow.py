@@ -14,18 +14,22 @@ BUMP = OrderedDict([
     ('pre', semver.bump_prerelease),
     ('build', semver.bump_build)
 ])
+FILE_NAMES = ['__about__.py', '__init__.py']
 
 
 def bump_package_version(d, part='patch'):
     init_files = []
-    path = os.path.join(d, '__init__.py')
-    if os.path.exists(path):
-        init_files.append(path)
 
-    for f in os.scandir(d):
-        path = os.path.join(f.path, '__init__.py')
+    for filename in FILE_NAMES:
+        path = os.path.join(d, filename)
         if os.path.exists(path):
             init_files.append(path)
+
+    for f in os.scandir(d):
+        for filename in FILE_NAMES:
+            path = os.path.join(f.path, filename)
+            if os.path.exists(path):
+                init_files.append(path)
 
     for init_file in init_files:
         with open(init_file, 'r') as f:

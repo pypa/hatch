@@ -1,4 +1,5 @@
 import os
+import shutil
 
 from click.testing import CliRunner
 
@@ -35,6 +36,24 @@ def test_package_cwd():
         assert result.exit_code == 0
         assert contents == "__version__ = '0.1.0'\n"
         assert 'Updated {}'.format(init_file) in result.output
+        assert '0.0.1 -> 0.1.0' in result.output
+
+
+def test_package_cwd_about():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', 'ok', '--basic'])
+
+        init_file = os.path.join(d, 'ok', '__init__.py')
+        about_file = os.path.join(d, 'ok', '__about__.py')
+        shutil.copyfile(init_file, about_file)
+
+        result = runner.invoke(hatch, ['grow', 'minor'])
+
+        assert result.exit_code == 0
+        assert read_file(init_file) == "__version__ = '0.0.1'\n"
+        assert read_file(about_file) == "__version__ = '0.1.0'\n"
+        assert 'Updated {}'.format(about_file) in result.output
         assert '0.0.1 -> 0.1.0' in result.output
 
 
