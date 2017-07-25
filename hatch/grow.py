@@ -18,21 +18,21 @@ FILE_NAMES = ['__about__.py', '__init__.py']
 
 
 def bump_package_version(d, part='patch'):
-    init_files = []
+    version_files = []
 
     for filename in FILE_NAMES:
         path = os.path.join(d, filename)
         if os.path.exists(path):
-            init_files.append(path)
+            version_files.append(path)
 
     for f in os.scandir(d):
         for filename in FILE_NAMES:
             path = os.path.join(f.path, filename)
             if os.path.exists(path):
-                init_files.append(path)
+                version_files.append(path)
 
-    for init_file in init_files:
-        with open(init_file, 'r') as f:
+    for version_file in version_files:
+        with open(version_file, 'r') as f:
             lines = f.readlines()
 
         for i, line in enumerate(lines):
@@ -43,9 +43,9 @@ def bump_package_version(d, part='patch'):
                     new_version = BUMP[part](old_version)
                     lines[i] = lines[i].replace(old_version, new_version)
 
-                    with atomic_write(init_file, overwrite=True) as f:
+                    with atomic_write(version_file, overwrite=True) as f:
                         f.write(''.join(lines))
 
-                    return init_file, old_version, new_version
+                    return version_file, old_version, new_version
 
-    return init_files, None, None
+    return version_files, None, None
