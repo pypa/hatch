@@ -27,8 +27,10 @@ def venv(d):
 
     old_path = os.environ['PATH']
     os.environ['PATH'] = '{}{}{}'.format(venv_exe_dir, os.pathsep, old_path)
+    os.environ['_HATCHING_'] = '1'
 
     try:
         yield
     finally:
         os.environ['PATH'] = old_path
+        os.environ.pop('_HATCHING_', None)

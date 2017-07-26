@@ -8,7 +8,10 @@ import click
 from hatch.build import build_package
 from hatch.clean import clean_package
 from hatch.create import create_package
-from hatch.env import get_editable_package_location, get_installed_packages
+from hatch.env import (
+    get_editable_package_location, get_installed_packages, get_proper_pip,
+    get_proper_python
+)
 from hatch.grow import BUMP, bump_package_version
 from hatch.settings import SETTINGS_FILE, load_settings, restore_settings
 from hatch.utils import NEED_SUBPROCESS_SHELL, chdir
@@ -81,7 +84,7 @@ def config(restore):
 @click.option('--all', 'all_packages', is_flag=True)
 def update(eager, all_packages):
     command = [
-        'pip', 'install', '--upgrade', '--upgrade-strategy',
+        get_proper_pip(), 'install', '--upgrade', '--upgrade-strategy',
         'eager' if eager else 'only-if-needed'
     ]
 
@@ -171,7 +174,7 @@ def test(package, path, cov, test_args, cov_args, env_aware):
     else:
         path = os.getcwd()
 
-    python_cmd = ['python', '-m'] if env_aware else []
+    python_cmd = [get_proper_python(), '-m'] if env_aware else []
     command = python_cmd.copy()
 
     if cov:

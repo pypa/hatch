@@ -1,11 +1,12 @@
 import subprocess
 
+from hatch.env import get_proper_python
 from hatch.utils import NEED_SUBPROCESS_SHELL, chdir
 
 
 def build_package(d, universal, name, build_dir):
     command = [
-        'python', 'setup.py', 'bdist_wheel'
+        get_proper_python(), 'setup.py', 'bdist_wheel'
     ]
 
     if universal:

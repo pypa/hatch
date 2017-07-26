@@ -1,23 +1,42 @@
 import json
+import os
 import subprocess
+import sys
 from pathlib import Path
 
 from hatch.utils import NEED_SUBPROCESS_SHELL
 
+VENV_FLAGS = {
+    '_HATCHING_',
+    'VIRTUAL_ENV'
+}
+
+
+def get_proper_python():  # no cov
+    if sys.platform.startswith('linux') and not VENV_FLAGS & set(os.environ):
+        return 'python3'
+    return 'python'
+
+
+def get_proper_pip():  # no cov
+    if sys.platform.startswith('linux') and not VENV_FLAGS & set(os.environ):
+        return 'pip3'
+    return 'pip'
+
 
 def get_python_path():
     return subprocess.check_output(
-        ['python', '-c', 'import sys;print(sys.executable)'], shell=NEED_SUBPROCESS_SHELL
+        [get_proper_python(), '-c', 'import sys;print(sys.executable)'], shell=NEED_SUBPROCESS_SHELL
     ).decode().strip()
 
 
 def install_packages(packages):
-    subprocess.call(['pip', 'install'] + packages, shell=NEED_SUBPROCESS_SHELL)
+    subprocess.call([get_proper_pip(), 'install'] + packages, shell=NEED_SUBPROCESS_SHELL)
 
 
 def get_package_version(package_name):
     output = subprocess.check_output(
-        ['pip', 'list', '--format', 'json'], shell=NEED_SUBPROCESS_SHELL
+        [get_proper_pip(), 'list', '--format', 'json'], shell=NEED_SUBPROCESS_SHELL
     ).decode()
     packages = json.loads(output)
     for package in packages:
@@ -28,7 +47,7 @@ def get_package_version(package_name):
 
 def get_editable_packages():
     output = subprocess.check_output(
-        ['pip', 'list', '-e', '--format', 'json'], shell=NEED_SUBPROCESS_SHELL
+        [get_proper_pip(), 'list', '-e', '--format', 'json'], shell=NEED_SUBPROCESS_SHELL
     ).decode()
     return set(package['name'] for package in json.loads(output))
 
@@ -41,7 +60,7 @@ def get_editable_package_location(package_name):
         return location
 
     output = subprocess.check_output(
-        ['pip', 'show', package_name], shell=NEED_SUBPROCESS_SHELL
+        [get_proper_pip(), 'show', package_name], shell=NEED_SUBPROCESS_SHELL
     ).decode()
 
     for line in output.splitlines():
@@ -55,7 +74,7 @@ def get_installed_packages(editable=True):
     editable_packages = get_editable_packages()
 
     output = subprocess.check_output(
-        ['pip', 'list', '--format', 'json'], shell=NEED_SUBPROCESS_SHELL
+        [get_proper_pip(), 'list', '--format', 'json'], shell=NEED_SUBPROCESS_SHELL
     ).decode()
     packages = [
         package['name'] for package in json.loads(output)
