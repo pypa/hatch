@@ -33,4 +33,4 @@ def venv(d):
         yield
     finally:
         os.environ['PATH'] = old_path
-        os.environ.pop('_HATCHING_', None)
+        os.environ.pop('_HATCHING_')
