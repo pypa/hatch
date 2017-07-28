@@ -22,6 +22,6 @@ def setup_git(d, package_name):
         try:
             subprocess.call(['git', 'init', '--quiet'], shell=NEED_SUBPROCESS_SHELL)
         except:
-            print('Could not find "git" executable')
+            print('Could not find `git` executable')
         GitAttributes().write(d)
         GitIgnore(package_name).write(d)
