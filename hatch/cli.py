@@ -310,8 +310,9 @@ def build(package, path, universal, name, build_dir, clean_first):
 @click.option('-p', '--path')
 @click.option('-n', '--username')
 @click.option('-t', '--test', is_flag=True)
-@click.option('-s', '--setup', is_flag=True)
-def release(package, path, username, test, setup):
+@click.option('-s', '--skip', is_flag=True)
+@click.option('--setup', is_flag=True)
+def release(package, path, username, test, skip, setup):
     if setup:
         try:
             settings = load_settings()
@@ -375,7 +376,19 @@ def release(package, path, username, test, setup):
             click.echo('Directory `{}` does not exist.'.format(path))
             sys.exit(1)
 
-    command = ['twine', 'upload', path + '/*']
+    command = ['twine', 'upload', '{}{}*'.format(path, os.path.sep)]
+
+    if username:
+        command.extend(['-n', username])
+
+    if test:
+        command.extend(['-r', 'testpypi'])
+
+    if skip:
+        command.append('--skip-existing')
+
+    result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
+    sys.exit(result.returncode)
 
 
 
