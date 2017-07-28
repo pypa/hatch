@@ -302,7 +302,7 @@ def build(package, path, universal, name, build_dir, clean_first):
     if clean_first:
         clean_package(path)
 
-    build_package(path, universal, name, build_dir)
+    sys.exit(build_package(path, universal, name, build_dir))
 
 
 @hatch.command(context_settings=CONTEXT_SETTINGS)

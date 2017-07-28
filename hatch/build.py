@@ -19,4 +19,6 @@ def build_package(d, universal, name, build_dir):
         command.extend(['--dist-dir', build_dir])
 
     with chdir(d):
-        subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
+        result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
+
+    return result.returncode
