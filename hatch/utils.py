@@ -51,3 +51,15 @@ def temp_chdir(cwd=None):
             yield d
         finally:
             os.chdir(origin)
+
+
+@contextmanager
+def env_vars(evars):
+    for ev in evars:
+        os.environ[ev] = evars[ev]
+
+    try:
+        yield
+    finally:
+        for ev in evars:
+            os.environ.pop(ev)
