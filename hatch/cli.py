@@ -33,7 +33,11 @@ def hatch():
 @click.option('--basic', is_flag=True)
 @click.option('--cli', is_flag=True)
 def egg(name, basic, cli):
-    settings = load_settings()
+    try:
+        settings = load_settings()
+    except FileNotFoundError:
+        click.echo('Unable to locate config file. Try `hatch config --restore`.')
+        sys.exit(1)
 
     if basic:
         settings['basic'] = True
@@ -58,7 +62,11 @@ def egg(name, basic, cli):
 @click.option('--basic', is_flag=True)
 @click.option('--cli', is_flag=True)
 def init(name, basic, cli):
-    settings = load_settings()
+    try:
+        settings = load_settings()
+    except FileNotFoundError:
+        click.echo('Unable to locate config file. Try `hatch config --restore`.')
+        sys.exit(1)
 
     if basic:
         settings['basic'] = True
@@ -304,7 +312,12 @@ def build(package, path, universal, name, build_dir, clean_first):
 @click.option('-s', '--setup', is_flag=True)
 def release(package, path, username, test, setup):
     if setup:
-        settings = load_settings()
+        try:
+            settings = load_settings()
+        except FileNotFoundError:
+            click.echo('Unable to locate config file. Try `hatch config --restore`.')
+            sys.exit(1)
+
         pypi_username = (
             username or
             settings.get('pypi_username', None) or
@@ -317,6 +330,7 @@ def release(package, path, username, test, setup):
                 'as TWINE_USERNAME environment variable.'.format(SETTINGS_FILE)
             )
             sys.exit(1)
+
         home_dir = os.path.expanduser('~')
         pypirc = os.path.join(home_dir, '.pypirc')
 
