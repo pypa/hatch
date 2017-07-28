@@ -14,6 +14,7 @@ from hatch.env import (
 )
 from hatch.grow import BUMP, bump_package_version
 from hatch.settings import SETTINGS_FILE, load_settings, restore_settings
+from hatch.structures import File
 from hatch.utils import NEED_SUBPROCESS_SHELL, chdir
 
 
@@ -331,8 +332,27 @@ def release(package, path, username, test, setup):
             )
             sys.exit(1)
 
+        pypirc = File(
+            '.pypirc',
+            '[distutils]\n'
+            'index-servers=\n'
+            '    pypi\n'
+            '    testpypi\n\n'
+            '[pypi]\n'
+            'username = {pypi_username}\n\n'
+            '[testpypi]\n'
+            'repository = https://test.pypi.org/legacy/\n'
+            'username = {pypi_username}\n'
+            ''.format(pypi_username=pypi_username)
+        )
+
         home_dir = os.path.expanduser('~')
-        pypirc = os.path.join(home_dir, '.pypirc')
+        pypirc.write(home_dir)
+
+        click.echo('Successfully wrote `{}`.'.format(
+            os.path.join(home_dir, pypirc.file_name)
+        ))
+        return
 
     if package:
         path = get_editable_package_location(package)
