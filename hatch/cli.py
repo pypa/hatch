@@ -296,6 +296,53 @@ def build(package, path, universal, name, build_dir, clean_first):
     build_package(path, universal, name, build_dir)
 
 
+@hatch.command(context_settings=CONTEXT_SETTINGS)
+@click.argument('package', required=False)
+@click.option('-p', '--path')
+@click.option('-n', '--username')
+@click.option('-t', '--test', is_flag=True)
+@click.option('-s', '--setup', is_flag=True)
+def release(package, path, username, test, setup):
+    if setup:
+        settings = load_settings()
+        pypi_username = (
+            username or
+            settings.get('pypi_username', None) or
+            os.environ.get('TWINE_USERNAME', None)
+        )
+        if not pypi_username:
+            click.echo(
+                'A username must be supplied via -n/--username, or,\n'
+                'in {} as pypi_username, or,\n'
+                'as TWINE_USERNAME environment variable.'.format(SETTINGS_FILE)
+            )
+            sys.exit(1)
+        home_dir = os.path.expanduser('~')
+        pypirc = os.path.join(home_dir, '.pypirc')
+
+    if package:
+        path = get_editable_package_location(package)
+        if not path:
+            click.echo('`{}` is not an editable package.'.format(package))
+            sys.exit(1)
+    elif path:
+        relative_path = os.path.join(
+            os.getcwd(),
+            os.path.basename(os.path.normpath(path))
+        )
+        if os.path.exists(relative_path):
+            path = relative_path
+        elif not os.path.exists(path):
+            click.echo('Directory `{}` does not exist.'.format(path))
+            sys.exit(1)
+    else:
+        path = os.path.join(os.getcwd(), 'dist')
+        if not os.path.exists(path):
+            click.echo('Directory `{}` does not exist.'.format(path))
+            sys.exit(1)
+
+    command = ['twine', 'upload', path + '/*']
+
 
 
 
