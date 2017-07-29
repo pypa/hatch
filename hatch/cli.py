@@ -360,6 +360,7 @@ def release(package, path, username, test, skip, setup):
         if not path:
             click.echo('`{}` is not an editable package.'.format(package))
             sys.exit(1)
+        path = os.path.join(path, 'dist')
     elif path:
         relative_path = os.path.join(
             os.getcwd(),
