@@ -1,6 +1,7 @@
 import os
 import platform
 import re
+import shutil
 from datetime import datetime
 from contextlib import contextmanager
 from tempfile import TemporaryDirectory
@@ -63,3 +64,13 @@ def env_vars(evars):
     finally:
         for ev in evars:
             os.environ.pop(ev)
+
+
+@contextmanager
+def temp_move_file(file, d):
+    dst = shutil.move(file, d)
+
+    try:
+        yield dst
+    finally:
+        shutil.move(dst, file)
