@@ -4,7 +4,7 @@ from hatch.env import get_proper_python
 from hatch.utils import NEED_SUBPROCESS_SHELL, chdir
 
 
-def build_package(d, universal, name, build_dir):
+def build_package(d, universal=None, name=None, build_dir=None):
     command = [
         get_proper_python(), 'setup.py', 'bdist_wheel'
     ]
