@@ -310,9 +310,9 @@ def build(package, path, universal, name, build_dir, clean_first):
 @click.option('-p', '--path')
 @click.option('-n', '--username')
 @click.option('-t', '--test', is_flag=True)
-@click.option('-s', '--skip', is_flag=True)
+@click.option('-s', '--strict', is_flag=True)
 @click.option('--setup', is_flag=True)
-def release(package, path, username, test, skip, setup):
+def release(package, path, username, test, strict, setup):
     if setup:
         try:
             settings = load_settings()
@@ -385,7 +385,7 @@ def release(package, path, username, test, skip, setup):
     if test:
         command.extend(['-r', 'testpypi'])
 
-    if skip:
+    if not strict:
         command.append('--skip-existing')
 
     result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
