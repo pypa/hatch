@@ -76,4 +76,4 @@ def temp_move_path(path, d):
         finally:
             os.replace(dst, path)
     else:
-        yield None
+        yield
