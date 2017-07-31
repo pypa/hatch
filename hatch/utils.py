@@ -67,10 +67,13 @@ def env_vars(evars):
 
 
 @contextmanager
-def temp_move_file(file, d):
-    dst = shutil.move(file, d)
+def temp_move_path(path, d):
+    if os.path.exists(path):
+        dst = shutil.move(path, d)
 
-    try:
-        yield dst
-    finally:
-        shutil.move(dst, file)
+        try:
+            yield dst
+        finally:
+            os.replace(dst, path)
+    else:
+        yield None
