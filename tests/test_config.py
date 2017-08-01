@@ -29,8 +29,6 @@ def test_restore():
 
             assert result.exit_code == 0
             assert 'Settings were successfully restored.' in result.output
-            assert 'Settings location: ' in result.output
-            assert 'settings.json' in result.output
             assert load_settings() == DEFAULT_SETTINGS
 
 
@@ -50,8 +48,6 @@ def test_update():
 
             assert result.exit_code == 0
             assert 'Settings were successfully updated.' in result.output
-            assert 'Settings location: ' in result.output
-            assert 'settings.json' in result.output
             assert 'email' in updated_settings
             assert 'new setting' in updated_settings
 
@@ -65,6 +61,4 @@ def test_update_config_not_exist():
 
             assert result.exit_code == 0
             assert 'Settings were successfully restored.' in result.output
-            assert 'Settings location: ' in result.output
-            assert 'settings.json' in result.output
             assert load_settings() == DEFAULT_SETTINGS
