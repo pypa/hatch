@@ -354,7 +354,7 @@ def release(package, path, username, test, strict):
 
     if test:
         command.extend(['-r', TEST_REPOSITORY, '--repository-url', TEST_REPOSITORY])
-    else:
+    else:  # no cov
         command.extend(['-r', DEFAULT_REPOSITORY, '--repository-url', DEFAULT_REPOSITORY])
 
     if not strict:
