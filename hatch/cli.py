@@ -15,7 +15,6 @@ from hatch.env import (
 )
 from hatch.grow import BUMP, bump_package_version
 from hatch.settings import SETTINGS_FILE, load_settings, restore_settings
-from hatch.structures import File
 from hatch.utils import NEED_SUBPROCESS_SHELL, chdir
 
 
