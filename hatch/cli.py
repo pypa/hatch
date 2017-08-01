@@ -4,6 +4,7 @@ import subprocess
 import sys
 
 import click
+from twine.utils import DEFAULT_REPOSITORY, TEST_REPOSITORY
 
 from hatch.build import build_package
 from hatch.clean import clean_package
@@ -308,53 +309,10 @@ def build(package, path, universal, name, build_dir, clean_first):
 @hatch.command(context_settings=CONTEXT_SETTINGS)
 @click.argument('package', required=False)
 @click.option('-p', '--path')
-@click.option('-n', '--username')
+@click.option('-u', '--username')
 @click.option('-t', '--test', is_flag=True)
 @click.option('-s', '--strict', is_flag=True)
-@click.option('--setup', is_flag=True)
-def release(package, path, username, test, strict, setup):
-    if setup:
-        try:
-            settings = load_settings()
-        except FileNotFoundError:
-            click.echo('Unable to locate config file. Try `hatch config --restore`.')
-            sys.exit(1)
-
-        pypi_username = (
-            username or
-            settings.get('pypi_username', None) or
-            os.environ.get('TWINE_USERNAME', None)
-        )
-        if not pypi_username:
-            click.echo(
-                'A username must be supplied via -n/--username, or,\n'
-                'in {} as pypi_username, or,\n'
-                'as TWINE_USERNAME environment variable.'.format(SETTINGS_FILE)
-            )
-            sys.exit(1)
-
-        pypirc = File(
-            '.pypirc',
-            '[distutils]\n'
-            'index-servers=\n'
-            '    pypi\n'
-            '    testpypi\n\n'
-            '[pypi]\n'
-            'username = {pypi_username}\n\n'
-            '[testpypi]\n'
-            'repository = https://test.pypi.org/legacy/\n'
-            'username = {pypi_username}\n'
-            ''.format(pypi_username=pypi_username)
-        )
-
-        home_dir = os.path.expanduser('~')
-        pypirc.write(home_dir)
-
-        click.echo('Successfully wrote `{}`.'.format(
-            os.path.join(home_dir, pypirc.file_name)
-        ))
-        return
-
+def release(package, path, username, test, strict):
     if package:
         path = get_editable_package_location(package)
         if not path:
@@ -377,13 +335,27 @@ def release(package, path, username, test, strict, setup):
             click.echo('Directory `{}` does not exist.'.format(path))
             sys.exit(1)
 
-    command = ['twine', 'upload', '{}{}*'.format(path, os.path.sep)]
+    if not username:
+        try:
+            settings = load_settings()
+        except FileNotFoundError:
+            click.echo('Unable to locate config file. Try `hatch config --restore`.')
+            sys.exit(1)
 
-    if username:
-        command.extend(['-n', username])
+        username = settings.get('pypi_username', None)
+        if not username:
+            click.echo(
+                'A username must be supplied via -u/--username or '
+                'in {} as pypi_username.'.format(SETTINGS_FILE)
+            )
+            sys.exit(1)
+
+    command = ['twine', 'upload', '{}{}*'.format(path, os.path.sep), '-u', username]
 
     if test:
-        command.extend(['-r', 'testpypi'])
+        command.extend(['-r', TEST_REPOSITORY, '--repository-url', TEST_REPOSITORY])
+    else:
+        command.extend(['-r', DEFAULT_REPOSITORY, '--repository-url', DEFAULT_REPOSITORY])
 
     if not strict:
         command.append('--skip-existing')
