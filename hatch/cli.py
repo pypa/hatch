@@ -82,10 +82,10 @@ def init(name, basic, cli):
 
 
 @hatch.command(context_settings=CONTEXT_SETTINGS)
-@click.option('-u', '--update', is_flag=True)
+@click.option('-u', '--update', 'update_settings', is_flag=True)
 @click.option('--restore', is_flag=True)
-def config(update, restore):
-    if update:
+def config(update_settings, restore):
+    if update_settings:
         try:
             user_settings = load_settings()
             updated_settings = DEFAULT_SETTINGS.copy()
@@ -322,9 +322,9 @@ def build(package, path, universal, name, build_dir, clean_first):
 @click.argument('package', required=False)
 @click.option('-p', '--path')
 @click.option('-u', '--username')
-@click.option('-t', '--test', is_flag=True)
+@click.option('-t', '--test', 'test_pypi', is_flag=True)
 @click.option('-s', '--strict', is_flag=True)
-def release(package, path, username, test, strict):
+def release(package, path, username, test_pypi, strict):
     if package:
         path = get_editable_package_location(package)
         if not path:
@@ -364,7 +364,7 @@ def release(package, path, username, test, strict):
 
     command = ['twine', 'upload', '{}{}*'.format(path, os.path.sep), '-u', username]
 
-    if test:
+    if test_pypi:
         command.extend(['-r', TEST_REPOSITORY, '--repository-url', TEST_REPOSITORY])
     else:  # no cov
         command.extend(['-r', DEFAULT_REPOSITORY, '--repository-url', DEFAULT_REPOSITORY])
