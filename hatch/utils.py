@@ -23,6 +23,17 @@ def create_file(fname):
         os.utime(fname, times=None)
 
 
+def copy_path(path, d):
+    if os.path.isdir(path):
+        shutil.copytree(
+            path,
+            os.path.join(d, os.path.basename(os.path.normpath(path))),
+            copy_function=shutil.copy
+        )
+    else:
+        shutil.copy(path, d)
+
+
 def get_current_year():
     return str(datetime.now().year)
 
