@@ -152,3 +152,11 @@ def test_clean():
         assert result.exit_code == 0
         assert matching_file(r'.*\.whl$', os.listdir(os.path.join(d, 'dist')))
         assert not os.path.exists(old_artifact)
+
+
+def test_fail():
+    with temp_chdir():
+        runner = CliRunner()
+        result = runner.invoke(hatch, ['build'])
+
+        assert result.exit_code != 0
