@@ -14,7 +14,10 @@ from hatch.env import (
     get_proper_python
 )
 from hatch.grow import BUMP, bump_package_version
-from hatch.settings import SETTINGS_FILE, load_settings, restore_settings
+from hatch.settings import (
+    DEFAULT_SETTINGS, SETTINGS_FILE, load_settings, restore_settings,
+    save_settings
+)
 from hatch.utils import NEED_SUBPROCESS_SHELL, chdir
 
 
@@ -79,8 +82,18 @@ def init(name, basic, cli):
 
 
 @hatch.command(context_settings=CONTEXT_SETTINGS)
+@click.option('-u', '--update', is_flag=True)
 @click.option('--restore', is_flag=True)
-def config(restore):
+def config(update, restore):
+    if update:
+        try:
+            user_settings = load_settings()
+            updated_settings = DEFAULT_SETTINGS.copy()
+            updated_settings.update(user_settings)
+            save_settings(updated_settings)
+        except FileNotFoundError:
+            restore_settings()
+
     if restore:
         restore_settings()
         click.echo('Settings were successfully restored.')
