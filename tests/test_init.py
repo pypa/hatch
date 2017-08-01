@@ -3,8 +3,20 @@ import os
 from click.testing import CliRunner
 
 from hatch.cli import hatch
-from hatch.utils import temp_chdir
+from hatch.settings import SETTINGS_FILE
+from hatch.utils import temp_chdir, temp_move_path
 from .utils import matching_file
+
+
+def test_config_not_exist():
+    with temp_chdir() as d:
+        runner = CliRunner()
+
+        with temp_move_path(SETTINGS_FILE, d):
+            result = runner.invoke(hatch, ['init', 'ok', '--basic'])
+
+        assert result.exit_code == 1
+        assert 'Unable to locate config file. Try `hatch config --restore`.' in result.output
 
 
 def test_invalid_name():
