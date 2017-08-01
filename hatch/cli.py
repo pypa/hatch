@@ -92,7 +92,7 @@ def config(update_settings, restore):
             updated_settings.update(user_settings)
             save_settings(updated_settings)
         except FileNotFoundError:
-            restore_settings()
+            restore = True
 
     if restore:
         restore_settings()
