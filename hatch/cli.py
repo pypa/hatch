@@ -91,6 +91,7 @@ def config(update_settings, restore):
             updated_settings = DEFAULT_SETTINGS.copy()
             updated_settings.update(user_settings)
             save_settings(updated_settings)
+            click.echo('Settings were successfully updated.')
         except FileNotFoundError:
             restore = True
 
