@@ -8,7 +8,7 @@ from hatch.files.setup import SetupFile
 from hatch.files.vc import setup_git
 from hatch.settings import DEFAULT_SETTINGS
 from hatch.structures import Badge, File
-from hatch.utils import create_file, normalize_package_name
+from hatch.utils import copy_path, create_file, normalize_package_name
 
 LICENSES = {
     'mit': MITLicense,
@@ -132,5 +132,9 @@ def create_package(d, package_name, settings):
 
     for file in extra_files:
         file.write(d)
+
+    for path in settings.get('extras', []):
+        if os.path.exists(path):
+            copy_path(path, d)
 
     vc_setup(d, package_name)

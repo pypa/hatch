@@ -45,6 +45,7 @@ DEFAULT_SETTINGS = OrderedDict([
     ('vc_url', 'https://github.com/_'),
     ('ci', ['travis']),
     ('coverage', 'codecov'),
+    ('extras', []),
 ])
 
 
