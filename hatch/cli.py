@@ -18,7 +18,7 @@ from hatch.settings import (
     DEFAULT_SETTINGS, SETTINGS_FILE, load_settings, restore_settings,
     save_settings
 )
-from hatch.utils import NEED_SUBPROCESS_SHELL, chdir
+from hatch.utils import NEED_SUBPROCESS_SHELL, basepath, chdir
 
 
 CONTEXT_SETTINGS = {
@@ -142,10 +142,7 @@ def grow(part, package, path):
             click.echo('`{}` is not an editable package.'.format(package))
             sys.exit(1)
     elif path:
-        relative_path = os.path.join(
-            os.getcwd(),
-            os.path.basename(os.path.normpath(path))
-        )
+        relative_path = os.path.join(os.getcwd(), basepath(path))
         if os.path.exists(relative_path):
             path = relative_path
         elif not os.path.exists(path):
@@ -185,10 +182,7 @@ def test(package, path, cov, test_args, cov_args, env_aware):
             click.echo('`{}` is not an editable package.'.format(package))
             sys.exit(1)
     elif path:
-        relative_path = os.path.join(
-            os.getcwd(),
-            os.path.basename(os.path.normpath(path))
-        )
+        relative_path = os.path.join(os.getcwd(), basepath(path))
         if os.path.exists(relative_path):
             path = relative_path
         elif not os.path.exists(path):
@@ -266,10 +260,7 @@ def clean(package, path, verbose):
             click.echo('`{}` is not an editable package.'.format(package))
             sys.exit(1)
     elif path:
-        relative_path = os.path.join(
-            os.getcwd(),
-            os.path.basename(os.path.normpath(path))
-        )
+        relative_path = os.path.join(os.getcwd(), basepath(path))
         if os.path.exists(relative_path):
             path = relative_path
         elif not os.path.exists(path):
@@ -301,10 +292,7 @@ def build(package, path, universal, name, build_dir, clean_first):
             click.echo('`{}` is not an editable package.'.format(package))
             sys.exit(1)
     elif path:
-        relative_path = os.path.join(
-            os.getcwd(),
-            os.path.basename(os.path.normpath(path))
-        )
+        relative_path = os.path.join(os.getcwd(), basepath(path))
         if os.path.exists(relative_path):
             path = relative_path
         elif not os.path.exists(path):
@@ -333,10 +321,7 @@ def release(package, path, username, test_pypi, strict):
             sys.exit(1)
         path = os.path.join(path, 'dist')
     elif path:
-        relative_path = os.path.join(
-            os.getcwd(),
-            os.path.basename(os.path.normpath(path))
-        )
+        relative_path = os.path.join(os.getcwd(), basepath(path))
         if os.path.exists(relative_path):
             path = relative_path
         elif not os.path.exists(path):

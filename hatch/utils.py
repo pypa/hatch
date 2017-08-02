@@ -27,11 +27,15 @@ def copy_path(path, d):
     if os.path.isdir(path):
         shutil.copytree(
             path,
-            os.path.join(d, os.path.basename(os.path.normpath(path))),
+            os.path.join(d, basepath(path)),
             copy_function=shutil.copy
         )
     else:
         shutil.copy(path, d)
+
+
+def basepath(path):
+    return os.path.basename(os.path.normpath(path))
 
 
 def get_current_year():
