@@ -19,6 +19,7 @@ from hatch.settings import (
     save_settings
 )
 from hatch.utils import NEED_SUBPROCESS_SHELL, basepath, chdir
+from hatch.venv import venv_active
 
 
 CONTEXT_SETTINGS = {
@@ -105,11 +106,15 @@ def config(update_settings, restore):
 @hatch.command(context_settings=CONTEXT_SETTINGS)
 @click.option('--eager', is_flag=True)
 @click.option('--all', 'all_packages', is_flag=True)
-def update(eager, all_packages):
+@click.option('--global', 'global_install', is_flag=True)
+def update(eager, all_packages, global_install):
     command = [
         get_proper_pip(), 'install', '--upgrade', '--upgrade-strategy',
         'eager' if eager else 'only-if-needed'
     ]
+
+    if not venv_active() and not global_install:  # no cov
+        command.append('--user')
 
     if all_packages:
         installed_packages = get_installed_packages()
