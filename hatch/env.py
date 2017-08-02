@@ -1,4 +1,5 @@
 import json
+import os
 import subprocess
 from pathlib import Path
 
@@ -7,14 +8,22 @@ from hatch.venv import venv_active
 
 
 def get_proper_python():  # no cov
-    if not NEED_SUBPROCESS_SHELL and not venv_active():
-        return 'python3'
+    if not venv_active():
+        default_python = os.environ.get('_DEFAULT_PYTHON_', None)
+        if default_python:
+            return default_python
+        elif not NEED_SUBPROCESS_SHELL:
+            return 'python3'
     return 'python'
 
 
 def get_proper_pip():  # no cov
-    if not NEED_SUBPROCESS_SHELL and not venv_active():
-        return 'pip3'
+    if not venv_active():
+        default_python = os.environ.get('_DEFAULT_PIP_', None)
+        if default_python:
+            return default_python
+        elif not NEED_SUBPROCESS_SHELL:
+            return 'pip3'
     return 'pip'
 
 
