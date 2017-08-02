@@ -6,7 +6,15 @@ from appdirs import user_data_dir
 
 from hatch.utils import NEED_SUBPROCESS_SHELL, env_vars
 
-ENV_DIR = os.path.join(user_data_dir('hatch', ''), 'envs')
+VENV_DIR = os.path.join(user_data_dir('hatch', ''), 'venvs')
+VENV_FLAGS = {
+    '_HATCHING_',
+    'VIRTUAL_ENV'
+}
+
+
+def venv_active():
+    return bool(VENV_FLAGS & set(os.environ))
 
 
 def create_venv(d, pypath=None):

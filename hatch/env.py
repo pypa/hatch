@@ -1,25 +1,20 @@
 import json
-import os
 import subprocess
 import sys
 from pathlib import Path
 
 from hatch.utils import NEED_SUBPROCESS_SHELL
-
-VENV_FLAGS = {
-    '_HATCHING_',
-    'VIRTUAL_ENV'
-}
+from hatch.venv import venv_active
 
 
 def get_proper_python():  # no cov
-    if sys.platform.startswith('linux') and not VENV_FLAGS & set(os.environ):
+    if sys.platform.startswith('linux') and not venv_active():
         return 'python3'
     return 'python'
 
 
 def get_proper_pip():  # no cov
-    if sys.platform.startswith('linux') and not VENV_FLAGS & set(os.environ):
+    if sys.platform.startswith('linux') and not venv_active():
         return 'pip3'
     return 'pip'
 
