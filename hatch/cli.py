@@ -106,7 +106,7 @@ def config(update_settings, restore):
 @hatch.command(context_settings=CONTEXT_SETTINGS)
 @click.option('--eager', is_flag=True)
 @click.option('--all', 'all_packages', is_flag=True)
-@click.option('--global', 'global_install', is_flag=True)
+@click.option('-g', '--global', 'global_install', is_flag=True)
 def update(eager, all_packages, global_install):
     command = [
         get_proper_pip(), 'install', '--upgrade', '--upgrade-strategy',
