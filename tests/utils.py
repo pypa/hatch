@@ -3,9 +3,9 @@ import re
 from hatch.env import get_package_version
 
 
-def get_version_as_bytes():
+def get_version_as_bytes(package_name):
     return bytes(
-        int(s) for s in get_package_version('requests').split('.')
+        int(s) for s in get_package_version(package_name).split('.')
     )
 
 

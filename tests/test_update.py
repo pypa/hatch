@@ -19,10 +19,10 @@ def test_requirements():
 
         with venv(venv_dir):
             install_packages(['requests==2.17.3'])
-            initial_version = get_version_as_bytes()
+            initial_version = get_version_as_bytes('requests')
             runner = CliRunner()
             result = runner.invoke(hatch, ['update'])
-            final_version = get_version_as_bytes()
+            final_version = get_version_as_bytes('requests')
 
         assert result.exit_code == 0
         assert initial_version < final_version
@@ -48,10 +48,10 @@ def test_all_packages():
 
         with venv(venv_dir):
             install_packages(['requests==2.17.3'])
-            initial_version = get_version_as_bytes()
+            initial_version = get_version_as_bytes('requests')
             runner = CliRunner()
             result = runner.invoke(hatch, ['update', '--all'])
-            final_version = get_version_as_bytes()
+            final_version = get_version_as_bytes('requests')
 
         assert result.exit_code == 0
         assert initial_version < final_version
