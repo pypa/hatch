@@ -6,7 +6,7 @@ from hatch.create import create_package
 from hatch.settings import DEFAULT_SETTINGS
 from hatch.utils import get_current_year, temp_chdir
 from hatch.files.licenses.mit import TEMPLATE
-from ..utils import read_file
+from ...utils import read_file
 
 
 def test_year():

@@ -7,7 +7,7 @@ from hatch.cli import hatch
 from hatch.env import install_packages
 from hatch.utils import temp_chdir
 from hatch.venv import create_venv, venv
-from .utils import read_file
+from ..utils import read_file
 
 
 def test_invalid_part():

@@ -6,7 +6,7 @@ from hatch.cli import hatch
 from hatch.env import install_packages
 from hatch.utils import create_file, temp_chdir
 from hatch.venv import create_venv, venv
-from .utils import matching_file
+from ..utils import matching_file
 
 
 def test_cwd():
