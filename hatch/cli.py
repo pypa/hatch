@@ -19,6 +19,7 @@ from hatch.utils import (
     NEED_SUBPROCESS_SHELL, basepath, chdir, get_proper_pip, get_proper_python,
     venv_active
 )
+from hatch.venv import VENV_DIR, create_venv
 
 
 CONTEXT_SETTINGS = {
@@ -387,6 +388,24 @@ def python(name, path):
     click.echo('Successfully saved Python `{}` located at `{}`.'.format(name, path))
 
 
+@hatch.command(context_settings=CONTEXT_SETTINGS)
+@click.argument('name')
+@click.option('-p', '--python', 'pyname')
+@click.option('--pypath')
+def env(name, pyname, pypath):
+    if pyname:
+        try:
+            settings = load_settings()
+        except FileNotFoundError:
+            click.echo('Unable to locate config file. Try `hatch config --restore`.')
+            sys.exit(1)
+
+        pypath = settings.get('pythons', {}).get(pyname, None)
+        if not pypath:
+            click.echo('Unable to find a Python path named ``.'.format(pyname))
+            sys.exit(1)
+
+    create_venv(os.path.join(VENV_DIR, name), pypath)
 
 
 
