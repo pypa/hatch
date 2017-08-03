@@ -50,11 +50,14 @@ def find_globs(d, patterns, matches):
         matches.update(sub_files)
 
 
-def clean_package(d):
+def clean_package(d, editable=False):
     removed = set()
+    patterns = ALL_PATTERNS.copy()
+    if editable:  # no cov
+        patterns.remove('*.egg-info')
 
     root = Path(d)
-    for pattern in ALL_PATTERNS:
+    for pattern in patterns:
         for p in root.glob(pattern):
             removed.add(str(p))
             if p.is_dir():

@@ -274,7 +274,7 @@ def clean(package, path, verbose):
     else:
         path = os.getcwd()
 
-    removed_paths = clean_package(path)
+    removed_paths = clean_package(path, editable=package)
 
     if verbose:
         if removed_paths:
