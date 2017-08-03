@@ -1,9 +1,12 @@
 import os
+import sys
 
 from click.testing import CliRunner
 
 from hatch.cli import hatch
-from hatch.settings import SETTINGS_FILE, restore_settings
+from hatch.settings import (
+    DEFAULT_SETTINGS, SETTINGS_FILE, restore_settings, save_settings
+)
 from hatch.utils import remove_path, temp_chdir, temp_move_path
 from hatch.venv import VENV_DIR
 
@@ -21,6 +24,30 @@ def test_success():
         try:
             result = runner.invoke(hatch, ['env', env_name])
             assert venv_dir
+        finally:
+            remove_path(os.path.join(VENV_DIR, env_name))
+
+        assert result.exit_code == 0
+        assert 'Successfully saved virtual env `{}` to `{}`.'.format(env_name, venv_dir) in result.output
+
+
+def test_pyname():
+    with temp_chdir() as d:
+        runner = CliRunner()
+
+        env_name = os.urandom(10).hex()
+        while os.path.exists(os.path.join(VENV_DIR, env_name)):  # no cov
+            env_name = os.urandom(10).hex()
+
+        venv_dir = os.path.join(VENV_DIR, env_name)
+
+        try:
+            with temp_move_path(SETTINGS_FILE, d):
+                settings = DEFAULT_SETTINGS.copy()
+                settings['pythons']['python'] = sys.executable
+                save_settings(settings)
+                result = runner.invoke(hatch, ['env', env_name, '-p', 'python'])
+                assert venv_dir
         finally:
             remove_path(os.path.join(VENV_DIR, env_name))
 
