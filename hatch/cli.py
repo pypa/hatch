@@ -411,6 +411,11 @@ def env(name, pyname, pypath):
                    'it do `hatch shed -e {name}`.'.format(name=name))
         sys.exit(1)
 
+    if pypath and not os.path.exists(pypath):
+        click.echo('Python path `{}` does not exist. Be sure to use the absolute path '
+                   'e.g. `/usr/bin/python` instead of simply `python`.'.format(pypath))
+        sys.exit(1)
+
     create_venv(venv_dir, pypath)
 
 
