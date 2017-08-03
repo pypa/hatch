@@ -402,7 +402,7 @@ def env(name, pyname, pypath):
 
         pypath = settings.get('pythons', {}).get(pyname, None)
         if not pypath:
-            click.echo('Unable to find a Python path named ``.'.format(pyname))
+            click.echo('Unable to find a Python path named `{}`.'.format(pyname))
             sys.exit(1)
 
     venv_dir = os.path.join(VENV_DIR, name)
