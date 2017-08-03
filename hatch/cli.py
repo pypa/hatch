@@ -9,17 +9,16 @@ from twine.utils import DEFAULT_REPOSITORY, TEST_REPOSITORY
 from hatch.build import build_package
 from hatch.clean import clean_package
 from hatch.create import create_package
-from hatch.env import (
-    get_editable_package_location, get_installed_packages, get_proper_pip,
-    get_proper_python
-)
+from hatch.env import get_editable_package_location, get_installed_packages
 from hatch.grow import BUMP, bump_package_version
 from hatch.settings import (
     DEFAULT_SETTINGS, SETTINGS_FILE, load_settings, restore_settings,
     save_settings
 )
-from hatch.utils import NEED_SUBPROCESS_SHELL, basepath, chdir
-from hatch.venv import venv_active
+from hatch.utils import (
+    NEED_SUBPROCESS_SHELL, basepath, chdir, get_proper_pip, get_proper_python,
+    venv_active
+)
 
 
 CONTEXT_SETTINGS = {

@@ -7,9 +7,37 @@ from contextlib import contextmanager
 from tempfile import TemporaryDirectory
 
 NEED_SUBPROCESS_SHELL = False
-
 if os.name == 'nt' or platform.system() == 'Windows':  # no cov
     NEED_SUBPROCESS_SHELL = True
+
+VENV_FLAGS = {
+    '_HATCHING_',
+    'VIRTUAL_ENV'
+}
+
+
+def venv_active():
+    return bool(VENV_FLAGS & set(os.environ))
+
+
+def get_proper_python():  # no cov
+    if not venv_active():
+        default_python = os.environ.get('_DEFAULT_PYTHON_', None)
+        if default_python:
+            return default_python
+        elif not NEED_SUBPROCESS_SHELL:
+            return 'python3'
+    return 'python'
+
+
+def get_proper_pip():  # no cov
+    if not venv_active():
+        default_python = os.environ.get('_DEFAULT_PIP_', None)
+        if default_python:
+            return default_python
+        elif not NEED_SUBPROCESS_SHELL:
+            return 'pip3'
+    return 'pip'
 
 
 def ensure_dir_exists(d):

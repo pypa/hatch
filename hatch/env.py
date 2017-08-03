@@ -1,30 +1,10 @@
 import json
-import os
 import subprocess
 from pathlib import Path
 
-from hatch.utils import NEED_SUBPROCESS_SHELL
-from hatch.venv import venv_active
-
-
-def get_proper_python():  # no cov
-    if not venv_active():
-        default_python = os.environ.get('_DEFAULT_PYTHON_', None)
-        if default_python:
-            return default_python
-        elif not NEED_SUBPROCESS_SHELL:
-            return 'python3'
-    return 'python'
-
-
-def get_proper_pip():  # no cov
-    if not venv_active():
-        default_python = os.environ.get('_DEFAULT_PIP_', None)
-        if default_python:
-            return default_python
-        elif not NEED_SUBPROCESS_SHELL:
-            return 'pip3'
-    return 'pip'
+from hatch.utils import (
+    NEED_SUBPROCESS_SHELL, get_proper_pip, get_proper_python
+)
 
 
 def get_python_path():
