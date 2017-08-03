@@ -1,7 +1,8 @@
-from os import remove, walk
+from os import walk
 from os.path import join
 from pathlib import Path
-from shutil import rmtree
+
+from hatch.utils import remove_path
 
 DELETE_IN_ROOT = {
     '.cache',
@@ -18,19 +19,6 @@ DELETE_EVERYWHERE = {
     '*.pyd',
 }
 ALL_PATTERNS = DELETE_IN_ROOT | DELETE_EVERYWHERE
-
-
-def delete_path(path):
-    try:
-        rmtree(path)
-    except OSError:
-        try:
-            remove(path)
-
-        # Since we delete files first by reverse iterating
-        # over sorted path names, this should never occur.
-        except FileNotFoundError:  # no cov
-            pass
 
 
 def find_globs(d, patterns, matches):
@@ -68,6 +56,6 @@ def clean_package(d, editable=False):
     removed = sorted(removed)
 
     for p in reversed(removed):
-        delete_path(p)
+        remove_path(p)
 
     return removed

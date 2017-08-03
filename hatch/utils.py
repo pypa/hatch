@@ -62,6 +62,16 @@ def copy_path(path, d):
         shutil.copy(path, d)
 
 
+def remove_path(path):
+    try:
+        shutil.rmtree(path)
+    except OSError:
+        try:
+            os.remove(path)
+        except FileNotFoundError:  # no cov
+            pass
+
+
 def basepath(path):
     return os.path.basename(os.path.normpath(path))
 
