@@ -417,6 +417,7 @@ def env(name, pyname, pypath):
         sys.exit(1)
 
     create_venv(venv_dir, pypath)
+    click.echo('Successfully saved virtual env `{}` to `{}`.'.format(name, venv_dir))
 
 
 
