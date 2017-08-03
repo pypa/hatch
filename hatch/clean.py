@@ -1,4 +1,4 @@
-from os import walk
+import os
 from os.path import join
 from pathlib import Path
 
@@ -22,7 +22,7 @@ ALL_PATTERNS = DELETE_IN_ROOT | DELETE_EVERYWHERE
 
 
 def find_globs(d, patterns, matches):
-    for root, dirs, files in walk(d):
+    for root, dirs, files in os.walk(d):
         for d in dirs:
             d = join(root, d)
             for pattern in patterns:
