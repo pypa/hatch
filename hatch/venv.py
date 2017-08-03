@@ -4,13 +4,14 @@ from contextlib import contextmanager
 
 from appdirs import user_data_dir
 
-from hatch.utils import NEED_SUBPROCESS_SHELL, env_vars, get_proper_python
+from hatch.env import get_python_path
+from hatch.utils import NEED_SUBPROCESS_SHELL, env_vars
 
 VENV_DIR = os.path.join(user_data_dir('hatch', ''), 'venvs')
 
 
 def create_venv(d, pypath=None):
-    command = ['virtualenv', d, '-p', pypath or get_proper_python()]
+    command = ['virtualenv', d, '-p', pypath or get_python_path()]
     subprocess.call(command, shell=NEED_SUBPROCESS_SHELL)
 
 
