@@ -41,7 +41,7 @@ def find_globs(d, patterns, matches):
 def clean_package(d, editable=False):
     removed = set()
     patterns = ALL_PATTERNS.copy()
-    if editable:  # no cov
+    if editable:
         patterns.remove('*.egg-info')
 
     root = Path(d)

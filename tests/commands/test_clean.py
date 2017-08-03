@@ -27,21 +27,25 @@ def test_cwd():
         runner.invoke(hatch, ['init', 'ok', '--basic'])
         files = find_all_files(d)
 
-        test_file = os.path.join(d, 'test.pyc')
-        create_file(test_file)
-        assert os.path.exists(test_file)
+        test_file1 = os.path.join(d, 'test.pyc')
+        test_file2 = os.path.join(d, 'ok.egg-info', 'entry_points.txt')
+        create_file(test_file1)
+        create_file(test_file2)
+        assert os.path.exists(test_file1)
+        assert os.path.exists(test_file2)
 
         result = runner.invoke(hatch, ['clean'])
 
         assert result.exit_code == 0
-        assert not os.path.exists(test_file)
+        assert not os.path.exists(test_file1)
+        assert not os.path.exists(os.path.join(d, 'ok.egg-info'))
         assert_files_exist(files)
 
 
 def test_package():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['egg', 'ok', '--basic'])
+        runner.invoke(hatch, ['egg', 'ok', '--cli'])
         package_dir = os.path.join(d, 'ok')
         files = find_all_files(package_dir)
 
@@ -61,6 +65,7 @@ def test_package():
 
         assert result.exit_code == 0
         assert not os.path.exists(test_file)
+        assert os.path.exists(os.path.join(package_dir, 'ok.egg-info'))
         assert_files_exist(files)
 
 
