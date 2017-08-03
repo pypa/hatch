@@ -405,7 +405,13 @@ def env(name, pyname, pypath):
             click.echo('Unable to find a Python path named ``.'.format(pyname))
             sys.exit(1)
 
-    create_venv(os.path.join(VENV_DIR, name), pypath)
+    venv_dir = os.path.join(VENV_DIR, name)
+    if os.path.exists(venv_dir):
+        click.echo('Virtual env `{name}` already exists. To remove '
+                   'it do `hatch shed -e {name}`.'.format(name=name))
+        sys.exit(1)
+
+    create_venv(venv_dir, pypath)
 
 
 
