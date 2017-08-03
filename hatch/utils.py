@@ -65,7 +65,7 @@ def copy_path(path, d):
 def remove_path(path):
     try:
         shutil.rmtree(path)
-    except OSError:
+    except (FileNotFoundError, OSError):
         try:
             os.remove(path)
         except FileNotFoundError:  # no cov
