@@ -367,6 +367,29 @@ def release(package, path, username, test_pypi, strict):
     sys.exit(result.returncode)
 
 
+@hatch.command(context_settings=CONTEXT_SETTINGS)
+@click.argument('name')
+@click.argument('path')
+def python(name, path):
+    try:
+        settings = load_settings()
+    except FileNotFoundError:
+        click.echo('Unable to locate config file. Try `hatch config --restore`.')
+        sys.exit(1)
+
+    if 'pythons' not in settings:
+        updated_settings = DEFAULT_SETTINGS.copy()
+        updated_settings.update(settings)
+        settings = updated_settings
+        click.echo('Settings were successfully updated to include `pythons` entry.')
+
+    settings['pythons'][name] = path
+    save_settings(settings)
+    click.echo('Successfully saved Python `{}` located at `{}`.'.format(name, path))
+
+
+
+
 
 
 

@@ -10,10 +10,11 @@ from hatch.utils import create_file
 SETTINGS_FILE = os.path.join(user_data_dir('hatch', ''), 'settings.json')
 
 DEFAULT_SETTINGS = OrderedDict([
-    ('basic', True),
+    ('pythons', OrderedDict([])),
+    ('pypi_username', ''),
     ('name', 'U.N. Owen'),
     ('email', 'me@un.known'),
-    ('pypi_username', ''),
+    ('basic', True),
     ('pyversions', ['2.7', '3.5', '3.6', 'pypy', 'pypy3']),
     ('licenses', ['mit', 'apache2']),
     ('readme', OrderedDict([
