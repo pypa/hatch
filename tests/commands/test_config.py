@@ -2,7 +2,7 @@ from click.testing import CliRunner
 
 from hatch.cli import hatch
 from hatch.settings import (
-    DEFAULT_SETTINGS, SETTINGS_FILE, load_settings, save_settings
+    SETTINGS_FILE, copy_default_settings, load_settings, save_settings
 )
 from hatch.utils import temp_chdir, temp_move_path
 
@@ -26,7 +26,7 @@ def test_restore():
 
             assert result.exit_code == 0
             assert 'Settings were successfully restored.' in result.output
-            assert load_settings() == DEFAULT_SETTINGS
+            assert load_settings() == copy_default_settings()
 
 
 def test_update():
@@ -34,7 +34,7 @@ def test_update():
         runner = CliRunner()
 
         with temp_move_path(SETTINGS_FILE, d):
-            new_settings = DEFAULT_SETTINGS.copy()
+            new_settings = copy_default_settings()
             new_settings.pop('email')
             new_settings['new setting'] = ''
             save_settings(new_settings)
@@ -58,4 +58,4 @@ def test_update_config_not_exist():
 
             assert result.exit_code == 0
             assert 'Settings were successfully restored.' in result.output
-            assert load_settings() == DEFAULT_SETTINGS
+            assert load_settings() == copy_default_settings()

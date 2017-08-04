@@ -1,14 +1,14 @@
 import os
 
 from hatch.create import create_package
-from hatch.settings import DEFAULT_SETTINGS
+from hatch.settings import copy_default_settings
 from hatch.utils import temp_chdir
 from ...utils import read_file
 
 
 def test_setup():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['vc'] = 'git'
         create_package(d, 'ok', settings)
 
@@ -19,7 +19,7 @@ def test_setup():
 
 def test_gitattributes():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['vc'] = 'git'
         create_package(d, 'ok', settings)
 

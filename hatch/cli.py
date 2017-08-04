@@ -12,7 +12,7 @@ from hatch.create import create_package
 from hatch.env import get_editable_package_location, get_installed_packages
 from hatch.grow import BUMP, bump_package_version
 from hatch.settings import (
-    DEFAULT_SETTINGS, SETTINGS_FILE, load_settings, restore_settings,
+    SETTINGS_FILE, copy_default_settings, load_settings, restore_settings,
     save_settings
 )
 from hatch.utils import (
@@ -89,7 +89,7 @@ def config(update_settings, restore):
     if update_settings:
         try:
             user_settings = load_settings()
-            updated_settings = DEFAULT_SETTINGS.copy()
+            updated_settings = copy_default_settings()
             updated_settings.update(user_settings)
             save_settings(updated_settings)
             click.echo('Settings were successfully updated.')
@@ -378,7 +378,7 @@ def python(name, path):
         sys.exit(1)
 
     if 'pythons' not in settings:
-        updated_settings = DEFAULT_SETTINGS.copy()
+        updated_settings = copy_default_settings()
         updated_settings.update(settings)
         settings = updated_settings
         click.echo('Settings were successfully updated to include `pythons` entry.')

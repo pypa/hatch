@@ -1,6 +1,7 @@
 import json
 import os
 from collections import OrderedDict
+from copy import deepcopy
 
 from appdirs import user_data_dir
 from atomicwrites import atomic_write
@@ -48,6 +49,10 @@ DEFAULT_SETTINGS = OrderedDict([
     ('coverage', 'codecov'),
     ('extras', []),
 ])
+
+
+def copy_default_settings():
+    return deepcopy(DEFAULT_SETTINGS)
 
 
 def load_settings():

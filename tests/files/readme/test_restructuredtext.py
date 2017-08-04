@@ -3,7 +3,7 @@ import os
 from parse import parse
 
 from hatch.create import create_package
-from hatch.settings import DEFAULT_SETTINGS
+from hatch.settings import copy_default_settings
 from hatch.utils import temp_chdir
 from hatch.files.readme.restructuredtext import TEMPLATE
 from ...utils import read_file
@@ -11,7 +11,7 @@ from ...utils import read_file
 
 def test_format():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['readme']['format'] = 'rst'
         create_package(d, 'ok', settings)
 
@@ -20,7 +20,7 @@ def test_format():
 
 def test_title():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['readme']['format'] = 'rst'
         create_package(d, 'ok', settings)
 
@@ -33,7 +33,7 @@ def test_title():
 
 def test_package_name():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['readme']['format'] = 'rst'
         create_package(d, 'ok', settings)
 
@@ -45,7 +45,7 @@ def test_package_name():
 
 def test_supported_versions_none():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['pyversions'] = []
         create_package(d, 'ok', settings)
 
@@ -57,7 +57,7 @@ def test_supported_versions_none():
 
 def test_supported_versions_py2_single():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['pyversions'] = ['2.7']
         create_package(d, 'ok', settings)
 
@@ -69,7 +69,7 @@ def test_supported_versions_py2_single():
 
 def test_supported_versions_py2():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['pyversions'] = ['2.7', '2.6']
         create_package(d, 'ok', settings)
 
@@ -81,7 +81,7 @@ def test_supported_versions_py2():
 
 def test_supported_versions_py3():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['pyversions'] = ['3.5', '3.6', '3.3', '3.4']
         create_package(d, 'ok', settings)
 
@@ -93,7 +93,7 @@ def test_supported_versions_py3():
 
 def test_supported_versions_all():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['pyversions'] = ['pypy3', 'pypy', '3.4', '3.3', '3.6', '3.5', '2.7']
         create_package(d, 'ok', settings)
 
@@ -105,7 +105,7 @@ def test_supported_versions_all():
 
 def test_licenses_single():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['licenses'] = ['mit']
         create_package(d, 'ok', settings)
 
@@ -119,7 +119,7 @@ def test_licenses_single():
 
 def test_licenses_multiple():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['licenses'] = ['mit', 'apache2']
         create_package(d, 'ok', settings)
 
@@ -136,7 +136,7 @@ def test_licenses_multiple():
 
 def test_badges_none():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['basic'] = False
         settings['readme']['badges'] = []
         create_package(d, 'ok', settings)
@@ -149,7 +149,7 @@ def test_badges_none():
 
 def test_badges_basic():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         create_package(d, 'ok', settings)
 
         contents = read_file(os.path.join(d, 'README.rst'))
@@ -160,7 +160,7 @@ def test_badges_basic():
 
 def test_badges_single():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['basic'] = False
         settings['readme']['badges'] = [
             {
@@ -183,7 +183,7 @@ def test_badges_single():
 
 def test_badges_multiple():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['basic'] = False
         settings['readme']['badges'] = [
             {
@@ -213,7 +213,7 @@ def test_badges_multiple():
 
 def test_badges_params():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['basic'] = False
         settings['readme']['badges'] = [
             {

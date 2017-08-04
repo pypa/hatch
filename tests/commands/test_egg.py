@@ -3,7 +3,7 @@ import os
 from click.testing import CliRunner
 
 from hatch.cli import hatch
-from hatch.settings import DEFAULT_SETTINGS, SETTINGS_FILE, save_settings
+from hatch.settings import SETTINGS_FILE, copy_default_settings, save_settings
 from hatch.utils import create_file, temp_chdir, temp_move_path
 from ..utils import matching_file
 
@@ -82,7 +82,7 @@ def test_extras():
         create_file(test_file)
 
         with temp_move_path(SETTINGS_FILE, d):
-            new_settings = DEFAULT_SETTINGS.copy()
+            new_settings = copy_default_settings()
             new_settings['extras'].extend([test_dir, test_file, fake_file])
             save_settings(new_settings)
 

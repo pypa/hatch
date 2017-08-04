@@ -3,7 +3,7 @@ import os
 from parse import parse
 
 from hatch.create import create_package
-from hatch.settings import DEFAULT_SETTINGS
+from hatch.settings import copy_default_settings
 from hatch.utils import temp_chdir
 from hatch.files.ignore.git import TEMPLATE
 from ...utils import read_file
@@ -11,7 +11,7 @@ from ...utils import read_file
 
 def test_package_name():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['vc'] = 'git'
         create_package(d, 'invalid-name', settings)
 

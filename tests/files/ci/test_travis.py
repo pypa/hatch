@@ -3,7 +3,7 @@ import os
 from parse import parse
 
 from hatch.create import create_package
-from hatch.settings import DEFAULT_SETTINGS
+from hatch.settings import copy_default_settings
 from hatch.utils import temp_chdir
 from hatch.files.ci.travis import TEMPLATE
 from ...utils import read_file
@@ -11,7 +11,7 @@ from ...utils import read_file
 
 def test_basic():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['basic'] = True
         settings['ci'] = ['travis']
         settings['pyversions'] = ['3.6']
@@ -22,7 +22,7 @@ def test_basic():
 
 def test_build_matrix_single():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['basic'] = False
         settings['ci'] = ['travis']
         settings['pyversions'] = ['3.6']
@@ -39,7 +39,7 @@ def test_build_matrix_single():
 
 def test_build_matrix_multiple():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['basic'] = False
         settings['ci'] = ['travis']
         settings['pyversions'] = ['2.7', '3.6']
@@ -58,7 +58,7 @@ def test_build_matrix_multiple():
 
 def test_pypy_install():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['basic'] = False
         settings['ci'] = ['travis']
         settings['pyversions'] = ['3.6', 'pypy']
@@ -74,7 +74,7 @@ def test_pypy_install():
 
 def test_pypy3_install():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['basic'] = False
         settings['ci'] = ['travis']
         settings['pyversions'] = ['3.6', 'pypy3']
@@ -90,7 +90,7 @@ def test_pypy3_install():
 
 def test_pypy_and_pypy3_install():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['basic'] = False
         settings['ci'] = ['travis']
         settings['pyversions'] = ['3.6', 'pypy', 'pypy3']
@@ -107,7 +107,7 @@ def test_pypy_and_pypy3_install():
 
 def test_coverage_package():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['basic'] = False
         settings['ci'] = ['travis']
         settings['coverage'] = 'codecov'
@@ -121,7 +121,7 @@ def test_coverage_package():
 
 def test_coverage_package_none():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['basic'] = False
         settings['ci'] = ['travis']
         settings['coverage'] = ''
@@ -135,7 +135,7 @@ def test_coverage_package_none():
 
 def test_coverage_command():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['basic'] = False
         settings['ci'] = ['travis']
         settings['coverage'] = 'codecov'
@@ -149,7 +149,7 @@ def test_coverage_command():
 
 def test_coverage_command_none():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['basic'] = False
         settings['ci'] = ['travis']
         settings['coverage'] = ''

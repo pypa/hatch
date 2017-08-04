@@ -3,7 +3,7 @@ import os
 from parse import parse
 
 from hatch.create import create_package
-from hatch.settings import DEFAULT_SETTINGS
+from hatch.settings import copy_default_settings
 from hatch.utils import get_current_year, temp_chdir
 from hatch.files.licenses.mit import TEMPLATE
 from ...utils import read_file
@@ -11,7 +11,7 @@ from ...utils import read_file
 
 def test_year():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['licenses'] = ['mit']
         create_package(d, 'ok', settings)
 
@@ -23,7 +23,7 @@ def test_year():
 
 def test_name():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['licenses'] = ['mit']
         settings['name'] = 'Don Quixote'
         create_package(d, 'ok', settings)

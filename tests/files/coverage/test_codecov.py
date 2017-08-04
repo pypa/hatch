@@ -1,7 +1,7 @@
 import os
 
 from hatch.create import create_package
-from hatch.settings import DEFAULT_SETTINGS
+from hatch.settings import copy_default_settings
 from hatch.utils import temp_chdir
 from hatch.files.coverage.codecov import TEMPLATE
 from ...utils import read_file
@@ -9,7 +9,7 @@ from ...utils import read_file
 
 def test_no_coverage():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['basic'] = False
         settings['coverage'] = ''
         create_package(d, 'ok', settings)
@@ -19,7 +19,7 @@ def test_no_coverage():
 
 def test_basic():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['basic'] = True
         settings['coverage'] = 'codecov'
         create_package(d, 'ok', settings)
@@ -29,7 +29,7 @@ def test_basic():
 
 def test_correct():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['basic'] = False
         settings['coverage'] = 'codecov'
         create_package(d, 'ok', settings)

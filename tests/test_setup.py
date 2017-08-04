@@ -4,14 +4,14 @@ from parse import parse
 
 from hatch.create import create_package
 from hatch.files.setup import TEMPLATE
-from hatch.settings import DEFAULT_SETTINGS
+from hatch.settings import copy_default_settings
 from hatch.utils import temp_chdir
 from .utils import read_file
 
 
 def test_name():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['name'] = 'Don Quixote'
         create_package(d, 'ok', settings)
 
@@ -23,7 +23,7 @@ def test_name():
 
 def test_name_none():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['name'] = ''
         create_package(d, 'ok', settings)
 
@@ -35,7 +35,7 @@ def test_name_none():
 
 def test_email():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['email'] = 'no-reply@dev.null'
         create_package(d, 'ok', settings)
 
@@ -47,7 +47,7 @@ def test_email():
 
 def test_email_none():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['email'] = ''
         create_package(d, 'ok', settings)
 
@@ -59,7 +59,7 @@ def test_email_none():
 
 def test_package_name():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         create_package(d, 'ok', settings)
 
         contents = read_file(os.path.join(d, 'setup.py'))
@@ -70,7 +70,7 @@ def test_package_name():
 
 def test_package_name_normalized():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         create_package(d, 'invalid-name', settings)
 
         contents = read_file(os.path.join(d, 'setup.py'))
@@ -81,7 +81,7 @@ def test_package_name_normalized():
 
 def test_readme():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['readme']['format'] = 'rst'
         create_package(d, 'ok', settings)
 
@@ -93,7 +93,7 @@ def test_readme():
 
 def test_package_url():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['vc_url'] = 'https://github.com/me'
         create_package(d, 'ok', settings)
 
@@ -105,7 +105,7 @@ def test_package_url():
 
 def test_license_single():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['licenses'] = ['mit']
         create_package(d, 'ok', settings)
 
@@ -117,7 +117,7 @@ def test_license_single():
 
 def test_license_multiple():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['licenses'] = ['mit', 'apache2']
         create_package(d, 'ok', settings)
 
@@ -129,7 +129,7 @@ def test_license_multiple():
 
 def test_license_classifiers_single():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['licenses'] = ['mit']
         create_package(d, 'ok', settings)
 
@@ -141,7 +141,7 @@ def test_license_classifiers_single():
 
 def test_license_classifiers_multiple():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['licenses'] = ['mit', 'apache2']
         create_package(d, 'ok', settings)
 
@@ -156,7 +156,7 @@ def test_license_classifiers_multiple():
 
 def test_pyversions_single():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['pyversions'] = ['3.6']
         create_package(d, 'ok', settings)
 
@@ -168,7 +168,7 @@ def test_pyversions_single():
 
 def test_pyversions_multiple():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['pyversions'] = ['3.6', '2.7']
         create_package(d, 'ok', settings)
 
@@ -183,7 +183,7 @@ def test_pyversions_multiple():
 
 def test_pypy():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['pyversions'] = ['3.6', 'pypy3']
         create_package(d, 'ok', settings)
 
@@ -195,7 +195,7 @@ def test_pypy():
 
 def test_pypy_none():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['pyversions'] = ['3.6']
         create_package(d, 'ok', settings)
 
@@ -207,7 +207,7 @@ def test_pypy_none():
 
 def test_cli():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['cli'] = True
         create_package(d, 'invalid-name', settings)
 
@@ -226,7 +226,7 @@ def test_cli():
 
 def test_cli_none():
     with temp_chdir() as d:
-        settings = DEFAULT_SETTINGS.copy()
+        settings = copy_default_settings()
         settings['cli'] = False
         create_package(d, 'invalid-name', settings)
 

@@ -2,7 +2,7 @@ from click.testing import CliRunner
 
 from hatch.cli import hatch
 from hatch.settings import (
-    DEFAULT_SETTINGS, SETTINGS_FILE, load_settings, restore_settings,
+    SETTINGS_FILE, copy_default_settings, load_settings, restore_settings,
     save_settings
 )
 from hatch.utils import temp_chdir, temp_move_path
@@ -39,7 +39,7 @@ def test_success_missing_key():
         runner = CliRunner()
 
         with temp_move_path(SETTINGS_FILE, d):
-            settings = DEFAULT_SETTINGS.copy()
+            settings = copy_default_settings()
             settings.pop('pythons')
             save_settings(settings)
             result = runner.invoke(hatch, ['python', 'name', 'path'])

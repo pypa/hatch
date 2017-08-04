@@ -4,7 +4,7 @@ from click.testing import CliRunner
 
 from hatch.cli import hatch
 from hatch.env import install_packages
-from hatch.settings import DEFAULT_SETTINGS, SETTINGS_FILE, save_settings
+from hatch.settings import SETTINGS_FILE, copy_default_settings, save_settings
 from hatch.utils import env_vars, temp_chdir, temp_move_path
 from hatch.venv import create_venv, venv
 
@@ -117,7 +117,7 @@ def test_config_username():
         runner.invoke(hatch, ['build'])
 
         with temp_move_path(SETTINGS_FILE, d):
-            settings = DEFAULT_SETTINGS.copy()
+            settings = copy_default_settings()
             settings['pypi_username'] = USERNAME
             save_settings(settings)
             with env_vars(ENV_VARS):
@@ -147,7 +147,7 @@ def test_config_username_empty():
         runner.invoke(hatch, ['build'])
 
         with temp_move_path(SETTINGS_FILE, d):
-            settings = DEFAULT_SETTINGS.copy()
+            settings = copy_default_settings()
             settings['pypi_username'] = ''
             save_settings(settings)
             with env_vars(ENV_VARS):

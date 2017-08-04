@@ -5,7 +5,7 @@ from click.testing import CliRunner
 
 from hatch.cli import hatch
 from hatch.settings import (
-    DEFAULT_SETTINGS, SETTINGS_FILE, restore_settings, save_settings
+    SETTINGS_FILE, copy_default_settings, restore_settings, save_settings
 )
 from hatch.utils import remove_path, temp_chdir, temp_move_path
 from hatch.venv import VENV_DIR
@@ -43,7 +43,7 @@ def test_pyname():
 
         try:
             with temp_move_path(SETTINGS_FILE, d):
-                settings = DEFAULT_SETTINGS.copy()
+                settings = copy_default_settings()
                 settings['pythons']['python'] = sys.executable
                 save_settings(settings)
                 result = runner.invoke(hatch, ['env', env_name, '-p', 'python'])
