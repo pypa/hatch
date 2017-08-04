@@ -420,6 +420,28 @@ def env(name, pyname, pypath):
     click.echo('Successfully saved virtual env `{}` to `{}`.'.format(name, venv_dir))
 
 
+@hatch.command(context_settings=CONTEXT_SETTINGS)
+@click.option('-p', '--python', 'pyname')
+@click.option('-e', '--env', 'env_name')
+@click.pass_context
+def shed(ctx, pyname, env_name):
+    if not (pyname or env_name):
+        click.echo(ctx.get_help())
+        return
+
+    if pyname:
+        try:
+            settings = load_settings()
+        except FileNotFoundError:
+            click.echo('Unable to locate config file. Try `hatch config --restore`.')
+            sys.exit(1)
+
+        pypath = settings.get('pythons', {}).pop(pyname, None)
+        if pypath is not None:
+            click.echo('Successfully removed Python path named `{}`.'.format(pyname))
+            save_settings(settings)
+        else:
+            click.echo('Python path named `{}` already does not exist.'.format(pyname))
 
 
 
