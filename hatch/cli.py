@@ -367,10 +367,32 @@ def release(package, path, username, test_pypi, strict):
     sys.exit(result.returncode)
 
 
+def list_pythons(ctx, param, value):
+    if not value or ctx.resilient_parsing:
+        return
+
+    try:
+        settings = load_settings()
+    except FileNotFoundError:
+        click.echo('Unable to locate config file. Try `hatch config --restore`.')
+        sys.exit(1)
+
+    pythons = settings.get('pythons', {})
+    if pythons:
+        for p in pythons:
+            click.echo('{} -> {}'.format(p, pythons[p]))
+    else:
+        click.echo('There are no saved Python paths. Add '
+                   'one via `hatch python NAME PATH`.')
+
+    ctx.exit()
+
+
 @hatch.command(context_settings=CONTEXT_SETTINGS)
 @click.argument('name')
 @click.argument('path')
-def python(name, path):
+@click.option('-l', '--list', 'show', is_flag=True, is_eager=True, callback=list_pythons)
+def python(name, path, show):
     try:
         settings = load_settings()
     except FileNotFoundError:

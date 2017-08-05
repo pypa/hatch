@@ -51,3 +51,44 @@ def test_success_missing_key():
         assert result.exit_code == 0
         assert 'Settings were successfully updated to include `pythons` entry.' in result.output
         assert 'Successfully saved Python `name` located at `path`.' in result.output
+
+
+def test_list_config_not_exist():
+    with temp_chdir() as d:
+        runner = CliRunner()
+
+        with temp_move_path(SETTINGS_FILE, d):
+            result = runner.invoke(hatch, ['python', '-l'])
+
+        assert result.exit_code == 1
+        assert 'Unable to locate config file. Try `hatch config --restore`.' in result.output
+
+
+def test_list_success():
+    with temp_chdir() as d:
+        runner = CliRunner()
+
+        with temp_move_path(SETTINGS_FILE, d):
+            settings = copy_default_settings()
+            settings['pythons']['name1'] = 'path1'
+            settings['pythons']['name2'] = 'path2'
+            save_settings(settings)
+            result = runner.invoke(hatch, ['python', '-l'])
+
+        assert result.exit_code == 0
+        assert 'name1 -> path1\nname2 -> path2' in result.output
+
+
+def test_list_success_no_pythons():
+    with temp_chdir() as d:
+        runner = CliRunner()
+
+        with temp_move_path(SETTINGS_FILE, d):
+            restore_settings()
+            result = runner.invoke(hatch, ['python', '-l'])
+
+        assert result.exit_code == 0
+        assert (
+            'There are no saved Python paths. Add '
+            'one via `hatch python NAME PATH`.'
+        ) in result.output
