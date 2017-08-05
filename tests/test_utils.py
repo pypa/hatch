@@ -53,5 +53,5 @@ def test_temp_move_path():
 
 def test_temp_move_path_not_exist():
     with temp_chdir() as d:
-        with temp_move_path(os.path.join(d, 'test'), d) as dst:
+        with temp_move_path(os.path.join(d, 'test'), d):
             pass
