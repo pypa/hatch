@@ -68,7 +68,7 @@ def remove_path(path):
     except (FileNotFoundError, OSError):
         try:
             os.remove(path)
-        except FileNotFoundError:  # no cov
+        except FileNotFoundError:
             pass
 
 

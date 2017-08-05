@@ -1,8 +1,8 @@
 import os
 
 from hatch.utils import (
-    chdir, create_file, get_current_year, normalize_package_name, temp_chdir,
-    temp_move_path
+    chdir, create_file, get_current_year, normalize_package_name, remove_path,
+    temp_chdir, temp_move_path
 )
 
 
@@ -30,6 +30,11 @@ def test_temp_chdir():
         create_file(os.path.join(d, 'file.txt'))
 
     assert not os.path.exists(d)
+
+
+def test_remove_path_not_exist():
+    with temp_chdir() as d:
+        remove_path(os.path.join(d, 'file.txt'))
 
 
 def test_temp_move_path():
