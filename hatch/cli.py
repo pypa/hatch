@@ -20,7 +20,7 @@ from hatch.settings import (
 )
 from hatch.utils import (
     NEED_SUBPROCESS_SHELL, basepath, chdir, get_proper_pip, get_proper_python,
-    venv_active
+    remove_path, venv_active
 )
 from hatch.venv import VENV_DIR, create_venv, venv
 
@@ -498,6 +498,13 @@ def shed(ctx, pyname, env_name):
             save_settings(settings)
         else:
             click.echo('Python path named `{}` already does not exist.'.format(pyname))
+    else:
+        venv_dir = os.path.join(VENV_DIR, env_name)
+        if os.path.exists(venv_dir):
+            remove_path(venv_dir)
+            click.echo('Successfully removed virtual env named `{}`.'.format(env_name))
+        else:
+            click.echo('Virtual env named `{}` already does not exist.'.format(env_name))
 
 
 

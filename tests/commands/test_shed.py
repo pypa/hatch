@@ -57,14 +57,37 @@ def test_pyname_not_exist():
         assert 'Python path named `pyname` already does not exist.' in result.output
 
 
+def test_env():
+    with temp_chdir():
+        runner = CliRunner()
+
+        env_name = os.urandom(10).hex()
+        while os.path.exists(os.path.join(VENV_DIR, env_name)):  # no cov
+            env_name = os.urandom(10).hex()
+
+        venv_dir = os.path.join(VENV_DIR, env_name)
+
+        try:
+            runner.invoke(hatch, ['env', env_name])
+            assert os.path.exists(venv_dir)
+            result = runner.invoke(hatch, ['shed', '-e', env_name])
+            assert not os.path.exists(venv_dir)
+        finally:
+            remove_path(venv_dir)
+
+        assert result.exit_code == 0
+        assert 'Successfully removed virtual env named `{}`.'.format(env_name)
 
 
+def test_env_not_exist():
+    with temp_chdir():
+        runner = CliRunner()
 
+        env_name = os.urandom(10).hex()
+        while os.path.exists(os.path.join(VENV_DIR, env_name)):  # no cov
+            env_name = os.urandom(10).hex()
 
+        result = runner.invoke(hatch, ['shed', '-e', env_name])
 
-
-
-
-
-
-
+        assert result.exit_code == 0
+        assert 'Virtual env named `{}` already does not exist.'.format(env_name)
