@@ -26,7 +26,7 @@ def test_success():
             result = runner.invoke(hatch, ['env', env_name])
             assert os.path.exists(venv_dir)
         finally:
-            remove_path(os.path.join(VENV_DIR, env_name))
+            remove_path(venv_dir)
 
         assert result.exit_code == 0
         assert 'Successfully saved virtual env `{}` to `{}`.'.format(env_name, venv_dir) in result.output
@@ -50,7 +50,7 @@ def test_pyname():
                 result = runner.invoke(hatch, ['env', env_name, '-p', 'python'])
                 assert os.path.exists(venv_dir)
         finally:
-            remove_path(os.path.join(VENV_DIR, env_name))
+            remove_path(venv_dir)
 
         assert result.exit_code == 0
         assert 'Successfully saved virtual env `{}` to `{}`.'.format(env_name, venv_dir) in result.output
