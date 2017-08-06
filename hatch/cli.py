@@ -446,7 +446,7 @@ def list_envs(ctx, param, value):
 @hatch.command(context_settings=CONTEXT_SETTINGS)
 @click.argument('name')
 @click.option('-p', '--python', 'pyname')
-@click.option('--pypath')
+@click.option('-pp', '--pypath')
 @click.option('-l', '--list', 'show', is_flag=True, is_eager=True, callback=list_envs)
 def env(name, pyname, pypath, show):
     if pyname:
