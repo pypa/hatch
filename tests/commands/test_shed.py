@@ -12,7 +12,7 @@ from hatch.venv import VENV_DIR
 
 
 def test_help():
-    with temp_chdir() as d:
+    with temp_chdir():
         runner = CliRunner()
         result = runner.invoke(hatch, ['shed'])
 
