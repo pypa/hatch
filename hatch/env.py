@@ -15,7 +15,8 @@ def get_python_path():
 
 def get_python_version():
     return subprocess.check_output(
-        [get_proper_python(), '-c', 'import sys;print(sys.version)'], shell=NEED_SUBPROCESS_SHELL
+        [get_proper_python(), '-c', 'import sys;print(".".join(str(i) for i in sys.version_info[:3]))'],
+        shell=NEED_SUBPROCESS_SHELL
     ).decode().strip()
 
 
