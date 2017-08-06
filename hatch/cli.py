@@ -9,7 +9,10 @@ from twine.utils import DEFAULT_REPOSITORY, TEST_REPOSITORY
 from hatch.build import build_package
 from hatch.clean import clean_package
 from hatch.create import create_package
-from hatch.env import get_editable_package_location, get_installed_packages
+from hatch.env import (
+    get_editable_package_location, get_installed_packages, get_python_version,
+    get_python_implementation
+)
 from hatch.grow import BUMP, bump_package_version
 from hatch.settings import (
     SETTINGS_FILE, copy_default_settings, load_settings, restore_settings,
@@ -19,7 +22,7 @@ from hatch.utils import (
     NEED_SUBPROCESS_SHELL, basepath, chdir, get_proper_pip, get_proper_python,
     venv_active
 )
-from hatch.venv import VENV_DIR, create_venv
+from hatch.venv import VENV_DIR, create_venv, venv
 
 
 CONTEXT_SETTINGS = {
@@ -410,11 +413,35 @@ def python(name, path, show):
     click.echo('Successfully saved Python `{}` located at `{}`.'.format(name, path))
 
 
+def list_envs(ctx, param, value):
+    if not value or ctx.resilient_parsing:
+        return
+
+    venv_names = [
+        path for path in os.listdir(VENV_DIR)
+        if os.path.isdir(os.path.join(VENV_DIR, path))
+    ] if os.path.exists(VENV_DIR) else None
+
+    if venv_names:
+        click.echo('Virtual environments found in {}:\n'.format(VENV_DIR))
+        for name in venv_names:
+            with venv(os.path.join(VENV_DIR, name)):
+                click.echo('{} ->'.format(name))
+                click.echo('  Version: {}'.format(get_python_version()))
+                click.echo('  Implementation: {}'.format(get_python_implementation()))
+    else:
+        click.echo('No virtual environments found in {}. To create '
+                   'one do `hatch env NAME`.'.format(VENV_DIR))
+
+    ctx.exit()
+
+
 @hatch.command(context_settings=CONTEXT_SETTINGS)
 @click.argument('name')
 @click.option('-p', '--python', 'pyname')
 @click.option('--pypath')
-def env(name, pyname, pypath):
+@click.option('-l', '--list', 'show', is_flag=True, is_eager=True, callback=list_envs)
+def env(name, pyname, pypath, show):
     if pyname:
         try:
             settings = load_settings()

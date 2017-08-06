@@ -4,6 +4,7 @@ import sys
 from click.testing import CliRunner
 
 from hatch.cli import hatch
+from hatch.env import get_python_implementation, get_python_version
 from hatch.settings import (
     SETTINGS_FILE, copy_default_settings, restore_settings, save_settings
 )
@@ -111,3 +112,42 @@ def test_pypath_not_exist():
             'Python path `{}` does not exist. Be sure to use the absolute path '
             'e.g. `/usr/bin/python` instead of simply `python`.'.format(fake_path)
         ) in result.output
+
+
+def test_list_success():
+    with temp_chdir():
+        runner = CliRunner()
+
+        env_name = os.urandom(10).hex()
+        while os.path.exists(os.path.join(VENV_DIR, env_name)):  # no cov
+            env_name = os.urandom(10).hex()
+
+        venv_dir = os.path.join(VENV_DIR, env_name)
+
+        try:
+            result = runner.invoke(hatch, ['env', env_name])
+            assert venv_dir
+        finally:
+            remove_path(os.path.join(VENV_DIR, env_name))
+
+        assert result.exit_code == 0
+        assert (
+            '{} ->\n'
+            '  Version: {}'
+            '  Implementation: {}'.format(
+                env_name, get_python_version(), get_python_implementation()
+            )
+        ) in result.output
+
+
+
+
+
+
+
+
+
+
+
+
+
