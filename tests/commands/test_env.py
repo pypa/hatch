@@ -24,7 +24,7 @@ def test_success():
 
         try:
             result = runner.invoke(hatch, ['env', env_name])
-            assert venv_dir
+            assert os.path.exists(venv_dir)
         finally:
             remove_path(os.path.join(VENV_DIR, env_name))
 
@@ -48,7 +48,7 @@ def test_pyname():
                 settings['pythons']['python'] = sys.executable
                 save_settings(settings)
                 result = runner.invoke(hatch, ['env', env_name, '-p', 'python'])
-                assert venv_dir
+                assert os.path.exists(venv_dir)
         finally:
             remove_path(os.path.join(VENV_DIR, env_name))
 
