@@ -426,10 +426,17 @@ def list_envs(ctx, param, value):
         click.echo('Virtual environments found in {}:\n'.format(VENV_DIR))
         for name in venv_names:
             with venv(os.path.join(VENV_DIR, name)):
-                click.echo('{} ->'.format(name))
-                click.echo('  Version: {}'.format(get_python_version()))
-                click.echo('  Implementation: {}'.format(get_python_implementation()))
-    else:
+                click.echo(
+                    '{} ->\n'
+                    '  Version: {}\n'
+                    '  Implementation: {}'.format(
+                        name, get_python_version(), get_python_implementation()
+                    )
+                )
+
+    # I don't want move users' virtual environments
+    # temporarily for tests as one may be in use.
+    else:  # no cov
         click.echo('No virtual environments found in {}. To create '
                    'one do `hatch env NAME`.'.format(VENV_DIR))
 

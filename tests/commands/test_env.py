@@ -122,32 +122,17 @@ def test_list_success():
         while os.path.exists(os.path.join(VENV_DIR, env_name)):  # no cov
             env_name = os.urandom(10).hex()
 
-        venv_dir = os.path.join(VENV_DIR, env_name)
-
         try:
-            result = runner.invoke(hatch, ['env', env_name])
-            assert venv_dir
+            runner.invoke(hatch, ['env', env_name])
+            result = runner.invoke(hatch, ['env', '-l'])
         finally:
             remove_path(os.path.join(VENV_DIR, env_name))
 
         assert result.exit_code == 0
         assert (
             '{} ->\n'
-            '  Version: {}'
+            '  Version: {}\n'
             '  Implementation: {}'.format(
                 env_name, get_python_version(), get_python_implementation()
             )
         ) in result.output
-
-
-
-
-
-
-
-
-
-
-
-
-
