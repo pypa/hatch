@@ -56,18 +56,8 @@ def create_package(d, package_name, settings):
     badges = []
     if not basic:
         for badge_info in settings.get('readme', {}).get('badges', []):
-            image = badge_info.get('image', 'no_image')
-            target = badge_info.get('target', 'no_target')
-
-            try:
-                badge_info.pop('image')
-            except KeyError:
-                pass
-
-            try:
-                badge_info.pop('target')
-            except KeyError:
-                pass
+            image = badge_info.pop('image', 'no_image')
+            target = badge_info.pop('target', 'no_target')
 
             badges.append(
                 Badge(
