@@ -19,6 +19,13 @@ def get_python_version():
     ).decode().strip()
 
 
+def get_python_implementation():
+    return subprocess.check_output(
+        [get_proper_python(), '-c', 'import platform;print(platform.python_implementation())'],
+        shell=NEED_SUBPROCESS_SHELL
+    ).decode().strip()
+
+
 def install_packages(packages):
     subprocess.call([get_proper_pip(), 'install'] + packages, shell=NEED_SUBPROCESS_SHELL)
 
