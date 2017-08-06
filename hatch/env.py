@@ -13,7 +13,7 @@ def get_python_path():
     ).decode().strip()
 
 
-def get_python_version_full():
+def get_python_version():
     return subprocess.check_output(
         [get_proper_python(), '-c', 'import sys;print(sys.version)'], shell=NEED_SUBPROCESS_SHELL
     ).decode().strip()
