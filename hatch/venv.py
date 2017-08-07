@@ -24,13 +24,10 @@ def venv(d, evars=None):
     else:
         raise OSError('Unable to locate executables directory.')
 
-    old_path = os.environ['PATH']
-    os.environ['PATH'] = '{}{}{}'.format(venv_exe_dir, os.pathsep, old_path)
-    os.environ['_HATCHING_'] = '1'
+    evars = evars or {}
+    evars['PATH'] = '{}{}{}'.format(
+        venv_exe_dir, os.pathsep, os.environ.get('PATH', '')
+    )
 
-    try:
-        with env_vars(evars or {}):
-            yield
-    finally:
-        os.environ['PATH'] = old_path
-        os.environ.pop('_HATCHING_')
+    with env_vars(evars):
+        yield
