@@ -28,6 +28,7 @@ def venv(d, evars=None):
     evars['PATH'] = '{}{}{}'.format(
         venv_exe_dir, os.pathsep, os.environ.get('PATH', '')
     )
+    evars['_HATCHING_'] = '1'
 
     with env_vars(evars):
         yield

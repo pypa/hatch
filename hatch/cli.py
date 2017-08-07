@@ -527,7 +527,7 @@ def use(env_name, command, shell):  # no cov
             click.echo('Virtual env named `{}` does not exist.'.format(env_name))
             sys.exit(1)
 
-        with venv(venv_dir, evars={'_HATCHING_': '1'}):
+        with venv(venv_dir):
             subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
         return
 
@@ -543,7 +543,7 @@ def use(env_name, command, shell):  # no cov
 
     with TemporaryDirectory() as d:
         communication_file = os.path.join(d, 'temp.json')
-        evars = {'_HATCHING_': '1', '_HATCH_FILE_': communication_file}
+        evars = {'_HATCH_FILE_': communication_file}
 
         while True:
             venv_dir = os.path.join(VENV_DIR, env_name)
