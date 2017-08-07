@@ -109,14 +109,21 @@ def temp_chdir(cwd=None):
 
 @contextmanager
 def env_vars(evars):
+    old_evars = {}
+
     for ev in evars:
+        if ev in os.environ:
+            old_evars[ev] = os.environ[ev]
         os.environ[ev] = evars[ev]
 
     try:
         yield
     finally:
         for ev in evars:
-            os.environ.pop(ev)
+            if ev in old_evars:
+                os.environ[ev] = old_evars[ev]
+            else:
+                os.environ.pop(ev)
 
 
 @contextmanager
