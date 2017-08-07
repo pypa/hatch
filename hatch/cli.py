@@ -1,7 +1,9 @@
+import json
 import io
 import os
 import subprocess
 import sys
+from tempfile import TemporaryDirectory
 
 import click
 from twine.utils import DEFAULT_REPOSITORY, TEST_REPOSITORY
@@ -18,15 +20,20 @@ from hatch.settings import (
     SETTINGS_FILE, copy_default_settings, load_settings, restore_settings,
     save_settings
 )
+from hatch.shells import DEFAULT_SHELL, SHELL_COMMANDS
 from hatch.utils import (
-    NEED_SUBPROCESS_SHELL, basepath, chdir, get_proper_pip, get_proper_python,
-    remove_path, venv_active
+    NEED_SUBPROCESS_SHELL, basepath, chdir, env_vars, get_proper_pip,
+    get_proper_python, remove_path, venv_active
 )
 from hatch.venv import VENV_DIR, create_venv, venv
 
 
 CONTEXT_SETTINGS = {
     'max_content_width': 300
+}
+UNKNOWN_OPTIONS = {
+    'max_content_width': 300,
+    'ignore_unknown_options': True
 }
 
 
@@ -507,7 +514,72 @@ def shed(ctx, pyname, env_name):
             click.echo('Virtual env named `{}` already does not exist.'.format(env_name))
 
 
+@hatch.command(context_settings=UNKNOWN_OPTIONS)
+@click.argument('env_name')
+@click.argument('command', required=False, nargs=-1, type=click.UNPROCESSED)
+@click.option('-s', '--shell')
+def use(env_name, command, shell):  # no cov
 
+    # Run commands regardless of virtual env activation.
+    if command:
+        venv_dir = os.path.join(VENV_DIR, env_name)
+        if not os.path.exists(venv_dir):
+            click.echo('Virtual env named `{}` does not exist.'.format(env_name))
+            sys.exit(1)
+
+        with venv(venv_dir, evars={'_HATCHING_': '1'}):
+            subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
+        return
+
+    # If in activated venv shell, notify main loop and exit.
+    if '_HATCH_FILE_' in os.environ:
+        with open(os.environ['_HATCH_FILE_'], 'w') as f:
+            data = json.dumps({
+                'env_name': env_name,
+                'shell': shell
+            })
+            f.write(data)
+        return
+
+    with TemporaryDirectory() as d:
+        communication_file = os.path.join(d, 'temp.json')
+        evars = {'_HATCHING_': '1', '_HATCH_FILE_': communication_file}
+
+        while True:
+            venv_dir = os.path.join(VENV_DIR, env_name)
+            if not os.path.exists(venv_dir):
+                click.echo('Virtual env named `{}` does not exist.'.format(env_name))
+                sys.exit(1)
+
+            try:
+                settings = load_settings()
+            except FileNotFoundError:
+                settings = {}
+
+            shell = shell or settings.get('shell', DEFAULT_SHELL)
+
+            # This is for shells that are actually influenced by a PROMPT env var.
+            new_prompt = '({}) {}'.format(env_name, os.environ.get('PROMPT', ''))
+            evars['PROMPT'] = new_prompt
+
+            with venv(venv_dir, evars=evars):
+                try:
+                    process = subprocess.Popen(SHELL_COMMANDS.get(shell, shell))
+                    while True:
+                        if process.poll() is not None:
+                            return
+
+                        if os.path.exists(communication_file):
+                            with open(communication_file) as f:
+                                args = json.loads(f.read())
+                            env_name = args['env_name']
+                            shell = args['shell']
+
+                            remove_path(communication_file)
+                            process.kill()
+                            break
+                except KeyboardInterrupt:
+                    break
 
 
 
