@@ -581,7 +581,7 @@ def use(env_name, command, shell):  # no cov
                                 if not NEED_SUBPROCESS_SHELL:
                                     time.sleep(0.2)
 
-                                with open(communication_file) as f:
+                                with open(communication_file, 'r') as f:
                                     args = json.loads(f.read())
                                 env_name = args['env_name']
                                 shell = args['shell']
