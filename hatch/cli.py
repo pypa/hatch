@@ -6,6 +6,7 @@ import sys
 from tempfile import TemporaryDirectory
 
 import click
+from atomicwrites import atomic_write
 from twine.utils import DEFAULT_REPOSITORY, TEST_REPOSITORY
 
 from hatch.build import build_package
@@ -533,7 +534,7 @@ def use(env_name, command, shell):  # no cov
 
     # If in activated venv shell, notify main loop and exit.
     if '_HATCH_FILE_' in os.environ:
-        with open(os.environ['_HATCH_FILE_'], 'w') as f:
+        with atomic_write(os.environ['_HATCH_FILE_'], overwrite=True) as f:
             data = json.dumps({
                 'env_name': env_name,
                 'shell': shell
