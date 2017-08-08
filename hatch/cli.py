@@ -576,7 +576,7 @@ def use(env_name, command, shell):  # no cov
                             shell = args['shell']
 
                             remove_path(communication_file)
-                            process.kill()
+                            process.terminate()
                             break
                 except KeyboardInterrupt:
                     break
