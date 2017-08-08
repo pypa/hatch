@@ -24,7 +24,7 @@ from hatch.settings import (
 )
 from hatch.shells import DEFAULT_SHELL, SHELL_COMMANDS
 from hatch.utils import (
-    NEED_SUBPROCESS_SHELL, basepath, chdir, env_vars, get_proper_pip,
+    NEED_SUBPROCESS_SHELL, basepath, chdir, get_proper_pip,
     get_proper_python, remove_path, venv_active
 )
 from hatch.venv import VENV_DIR, create_venv, venv
