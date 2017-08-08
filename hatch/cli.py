@@ -22,7 +22,7 @@ from hatch.settings import (
     SETTINGS_FILE, copy_default_settings, load_settings, restore_settings,
     save_settings
 )
-from hatch.shells import DEFAULT_SHELL, SHELL_COMMANDS
+from hatch.shells import get_shell_command
 from hatch.utils import (
     NEED_SUBPROCESS_SHELL, basepath, chdir, get_proper_pip,
     get_proper_python, remove_path, venv_active
@@ -558,40 +558,37 @@ def use(env_name, command, shell):  # no cov
             except FileNotFoundError:
                 settings = {}
 
-            shell = shell or settings.get('shell', DEFAULT_SHELL)
-
-            # This is for shells that are actually influenced by a PROMPT env var.
-            new_prompt = '({}) {}'.format(env_name, os.environ.get('PROMPT', ''))
-            evars['PROMPT'] = new_prompt
+            shell_name = shell or settings.get('shell')
 
             with venv(venv_dir, evars=evars):
                 try:
-                    process = subprocess.Popen(SHELL_COMMANDS.get(shell, shell))
-                    while True:
-                        if process.poll() is not None:
-                            return
+                    with get_shell_command(env_name, shell_name) as shell_command:
+                        process = subprocess.Popen(shell_command)
+                        while True:
+                            if process.poll() is not None:
+                                return
 
-                        if os.path.exists(communication_file):
+                            if os.path.exists(communication_file):
 
-                            # This is necessary on non-Windows machines.
-                            #
-                            # Killing a spawned shell suspends execution of
-                            # this script due to competition for terminal use.
-                            # Termination works, however only if the spawned
-                            # shell has no active processes. Therefore, we sleep
-                            # shortly to ensure the second `hatch use ...` has
-                            # time to write the communication file and exit.
-                            if not NEED_SUBPROCESS_SHELL:
-                                time.sleep(0.2)
+                                # This is necessary on non-Windows machines.
+                                #
+                                # Killing a spawned shell suspends execution of
+                                # this script due to competition for terminal use.
+                                # Termination works, however only if the spawned
+                                # shell has no active processes. Therefore, we sleep
+                                # shortly to ensure the second `hatch use ...` has
+                                # time to write the communication file and exit.
+                                if not NEED_SUBPROCESS_SHELL:
+                                    time.sleep(0.2)
 
-                            with open(communication_file) as f:
-                                args = json.loads(f.read())
-                            env_name = args['env_name']
-                            shell = args['shell']
+                                with open(communication_file) as f:
+                                    args = json.loads(f.read())
+                                env_name = args['env_name']
+                                shell = args['shell']
 
-                            remove_path(communication_file)
-                            process.terminate()
-                            break
+                                remove_path(communication_file)
+                                process.terminate()
+                                break
                 except KeyboardInterrupt:
                     break
 
