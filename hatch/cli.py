@@ -3,6 +3,7 @@ import io
 import os
 import subprocess
 import sys
+import time
 from tempfile import TemporaryDirectory
 
 import click
@@ -571,6 +572,17 @@ def use(env_name, command, shell):  # no cov
                             return
 
                         if os.path.exists(communication_file):
+
+                            # This is necessary on non-Windows machines.
+                            #
+                            # Killing a spawned shell suspends execution of
+                            # this script due to competition for terminal use.
+                            # Termination works, however only if the spawned
+                            # shell has no active processes. Therefore, we sleep
+                            # shortly to ensure the second `hatch use ...` has
+                            # time to write the communication file and exit.
+                            time.sleep(0.2)
+
                             with open(communication_file) as f:
                                 args = json.loads(f.read())
                             env_name = args['env_name']
