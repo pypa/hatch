@@ -5,6 +5,7 @@ source =
 branch = True
 omit =
     hatch/__main__.py
+    hatch/shells.py
 
 [report]
 exclude_lines =
