@@ -581,7 +581,8 @@ def use(env_name, command, shell):  # no cov
                             # shell has no active processes. Therefore, we sleep
                             # shortly to ensure the second `hatch use ...` has
                             # time to write the communication file and exit.
-                            time.sleep(0.2)
+                            if not NEED_SUBPROCESS_SHELL:
+                                time.sleep(0.2)
 
                             with open(communication_file) as f:
                                 args = json.loads(f.read())
