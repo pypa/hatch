@@ -1,20 +1,30 @@
 import os
+import re
 from contextlib import contextmanager
 from tempfile import TemporaryDirectory
 
 from hatch.utils import NEED_SUBPROCESS_SHELL, env_vars, temp_move_path
 
 DEFAULT_SHELL = 'cmd' if NEED_SUBPROCESS_SHELL else 'bash'
+VENV_TEXT = re.compile(r'^([0-9]+ )?\(([^)]+)\) ')
 
 
 @contextmanager
 def cmd_shell(env_name, nest):
+    old_prompt = os.environ.get('PROMPT', '$P$G')
+
     if nest:
-        prompt = None
+        if VENV_TEXT.match(old_prompt):
+            prompt = VENV_TEXT.sub('({}) '.format(env_name), old_prompt)
+        else:
+            prompt = '({}) {}'.format(env_name, old_prompt)
+        hatch_level = int(os.environ.get('_HATCH_LEVEL_', 1))
+        if hatch_level > 1:
+            prompt = '{} '.format(hatch_level) + prompt
     else:
-        prompt = '({}) {}'.format(env_name, os.environ.get('PROMPT', '$P$G'))
-    evars = {'PROMPT': prompt}
-    with env_vars(evars):
+        prompt = '({}) {}'.format(env_name, old_prompt)
+
+    with env_vars({'PROMPT': prompt}):
         yield ['cmd', '/k']
 
 
