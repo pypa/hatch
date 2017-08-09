@@ -29,7 +29,7 @@ def venv(d, evars=None):
         venv_exe_dir, os.pathsep, os.environ.get('PATH', '')
     )
 
-    hatch_level = int(os.environ.get('HATCH_LEVEL', 0))
+    hatch_level = int(os.environ.get('_HATCH_LEVEL_', 0))
     evars['_HATCH_LEVEL_'] = str(hatch_level + 1)
 
     with env_vars(evars):
