@@ -41,7 +41,7 @@ def bash_shell(env_name):
 
 @contextmanager
 def zsh_shell(env_name, nest):
-    old_prompt = os.environ.get('PROMPT', '')
+    old_prompt = os.environ.get('PROMPT', '%m%# ')
     new_prompt = '({}) {}'.format(env_name, old_prompt)
 
     if nest:
