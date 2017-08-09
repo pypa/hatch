@@ -65,6 +65,9 @@ SHELL_COMMANDS = {
     'zsh': zsh_shell,
     'xonsh': xonsh_shell,
 }
+IMMORTAL_SHELLS = {
+    'xonsh',
+}
 
 
 def get_shell_command(env_name, shell_name=None):

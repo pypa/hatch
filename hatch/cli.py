@@ -22,7 +22,7 @@ from hatch.settings import (
     SETTINGS_FILE, copy_default_settings, load_settings, restore_settings,
     save_settings
 )
-from hatch.shells import get_shell_command
+from hatch.shells import IMMORTAL_SHELLS, get_shell_command
 from hatch.utils import (
     NEED_SUBPROCESS_SHELL, basepath, chdir, get_proper_pip,
     get_proper_python, remove_path, venv_active
@@ -520,7 +520,8 @@ def shed(ctx, pyname, env_name):
 @click.argument('env_name')
 @click.argument('command', required=False, nargs=-1, type=click.UNPROCESSED)
 @click.option('-s', '--shell')
-def use(env_name, command, shell):  # no cov
+@click.option('--nest/--kill', '-n/-k', default=None)
+def use(env_name, command, shell, nest):  # no cov
 
     # Run commands regardless of virtual env activation.
     if command:
@@ -531,6 +532,24 @@ def use(env_name, command, shell):  # no cov
 
         with venv(venv_dir):
             subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
+        return
+
+    try:
+        settings = load_settings()
+    except FileNotFoundError:
+        settings = {}
+
+    shell_name = shell or settings.get('shell')
+
+    if shell_name in IMMORTAL_SHELLS or nest or (nest is None and settings.get('nest_shells')):
+        venv_dir = os.path.join(VENV_DIR, env_name)
+        if not os.path.exists(venv_dir):
+            click.echo('Virtual env named `{}` does not exist.'.format(env_name))
+            sys.exit(1)
+
+        with venv(venv_dir):
+            with get_shell_command(env_name, shell_name) as shell_command:
+                subprocess.run(shell_command, shell=NEED_SUBPROCESS_SHELL)
         return
 
     # If in activated venv shell, notify main loop and exit.

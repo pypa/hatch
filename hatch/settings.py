@@ -12,6 +12,7 @@ SETTINGS_FILE = os.path.join(user_data_dir('hatch', ''), 'settings.json')
 
 DEFAULT_SETTINGS = OrderedDict([
     ('shell', ''),
+    ('nest_shells', False),
     ('pythons', OrderedDict([])),
     ('pypi_username', ''),
     ('name', 'U.N. Owen'),
