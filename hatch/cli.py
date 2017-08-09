@@ -22,7 +22,7 @@ from hatch.settings import (
     SETTINGS_FILE, copy_default_settings, load_settings, restore_settings,
     save_settings
 )
-from hatch.shells import IMMORTAL_SHELLS, get_shell_command
+from hatch.shells import IMMORTAL_SHELLS, get_default_shell_info, get_shell_command
 from hatch.utils import (
     NEED_SUBPROCESS_SHELL, basepath, chdir, get_proper_pip,
     get_proper_python, remove_path, venv_active
@@ -539,7 +539,7 @@ def use(env_name, command, shell, nest):  # no cov
     except FileNotFoundError:
         settings = {}
 
-    shell_name = shell or settings.get('shell')
+    shell_name, shell_path = get_default_shell_info(shell, settings)
 
     if shell_name in IMMORTAL_SHELLS or nest or (nest is None and settings.get('nest_shells')):
         venv_dir = os.path.join(VENV_DIR, env_name)
@@ -548,7 +548,7 @@ def use(env_name, command, shell, nest):  # no cov
             sys.exit(1)
 
         with venv(venv_dir):
-            with get_shell_command(env_name, shell_name, nest=True) as shell_command:
+            with get_shell_command(env_name, shell_name, shell_path, nest=True) as shell_command:
                 subprocess.run(shell_command, shell=NEED_SUBPROCESS_SHELL)
         return
 
@@ -572,16 +572,11 @@ def use(env_name, command, shell, nest):  # no cov
                 click.echo('Virtual env named `{}` does not exist.'.format(env_name))
                 sys.exit(1)
 
-            try:
-                settings = load_settings()
-            except FileNotFoundError:
-                settings = {}
-
-            shell_name = shell or settings.get('shell')
+            shell_name, shell_path = get_default_shell_info(shell)
 
             with venv(venv_dir, evars=evars):
                 try:
-                    with get_shell_command(env_name, shell_name) as shell_command:
+                    with get_shell_command(env_name, shell_name, shell_path) as shell_command:
                         process = subprocess.Popen(shell_command)
                         while True:
                             if process.poll() is not None:

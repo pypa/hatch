@@ -3,6 +3,7 @@ import re
 from contextlib import contextmanager
 from tempfile import TemporaryDirectory
 
+from hatch.settings import load_settings
 from hatch.utils import (
     NEED_SUBPROCESS_SHELL, basepath, env_vars, temp_move_path
 )
@@ -95,13 +96,28 @@ IMMORTAL_SHELLS = {
 }
 
 
-def get_shell_command(env_name, shell_name=None, nest=False):
-    shell_path = None
+def get_default_shell_info(shell_name=None, settings=None):
     if not shell_name:
+        try:
+            settings = settings or load_settings()
+        except FileNotFoundError:
+            settings = {}
+
+        shell_name = settings.get('shell')
+        if shell_name:
+            return shell_name, None
+
         shell_path = os.environ.get('SHELL')
         if shell_path:
             shell_name = basepath(shell_path)
         else:
             shell_name = DEFAULT_SHELL
+
+        return shell_name, shell_path
+
+    return shell_name, None
+
+
+def get_shell_command(env_name, shell_name=None, shell_path=None, nest=False):
     shell = SHELL_COMMANDS.get(shell_name)
     return shell(env_name, nest, shell_path) if shell else unknown_shell(shell_name)
