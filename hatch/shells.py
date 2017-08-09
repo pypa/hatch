@@ -12,7 +12,7 @@ def cmd_shell(env_name, nest):
     if nest:
         prompt = None
     else:
-        prompt = '({}) {}'.format(env_name, os.environ.get('PROMPT', ''))
+        prompt = '({}) {}'.format(env_name, os.environ.get('PROMPT', '$P$G'))
     evars = {'PROMPT': prompt}
     with env_vars(evars):
         yield ['cmd', '/k']
