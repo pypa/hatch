@@ -29,7 +29,7 @@ def cmd_shell(env_name, nest):
 
 
 @contextmanager
-def bash_shell(env_name):
+def bash_shell(env_name, nest):
     with TemporaryDirectory() as d:
         init_file = os.path.join(d, 'init_file')
         with open(init_file, 'w') as f:
