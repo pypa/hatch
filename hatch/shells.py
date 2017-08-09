@@ -3,7 +3,9 @@ import re
 from contextlib import contextmanager
 from tempfile import TemporaryDirectory
 
-from hatch.utils import NEED_SUBPROCESS_SHELL, env_vars, temp_move_path
+from hatch.utils import (
+    NEED_SUBPROCESS_SHELL, basepath, env_vars, temp_move_path
+)
 
 DEFAULT_SHELL = 'cmd' if NEED_SUBPROCESS_SHELL else 'bash'
 VENV_TEXT = re.compile(r'^([0-9]+ )?\(([^)]+)\) ')
@@ -93,6 +95,6 @@ IMMORTAL_SHELLS = {
 
 
 def get_shell_command(env_name, shell_name=None, nest=False):
-    shell_name = shell_name or os.environ.get('SHELL') or DEFAULT_SHELL
+    shell_name = shell_name or basepath(os.environ.get('SHELL')) or DEFAULT_SHELL
     shell = SHELL_COMMANDS.get(shell_name)
     return shell(env_name, nest) if shell else unknown_shell(shell_name)
