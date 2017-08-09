@@ -12,7 +12,7 @@ VENV_TEXT = re.compile(r'^([0-9]+ )?\(([^)]+)\) ')
 
 
 @contextmanager
-def cmd_shell(env_name, nest):
+def cmd_shell(env_name, nest, shell_path):
     old_prompt = os.environ.get('PROMPT', '$P$G')
     new_prompt = '({}) {}'.format(env_name, old_prompt)
 
@@ -25,11 +25,11 @@ def cmd_shell(env_name, nest):
             new_prompt = '{} {}'.format(hatch_level, new_prompt)
 
     with env_vars({'PROMPT': new_prompt}):
-        yield ['cmd', '/k']
+        yield [shell_path or 'cmd', '/k']
 
 
 @contextmanager
-def bash_shell(env_name, nest):
+def bash_shell(env_name, nest, shell_path):
     with TemporaryDirectory() as d:
         init_file = os.path.join(d, 'init_file')
         with open(init_file, 'w') as f:
@@ -38,11 +38,11 @@ def bash_shell(env_name, nest):
                 'PS1="({}) $PS1"\n'
                 ''.format(env_name)
             )
-        yield ['bash', '--init-file', init_file]
+        yield [shell_path or 'bash', '--init-file', init_file]
 
 
 @contextmanager
-def zsh_shell(env_name, nest):
+def zsh_shell(env_name, nest, shell_path):
     old_prompt = os.environ.get('PROMPT', '%m%# ')
     new_prompt = '({}) {}'.format(env_name, old_prompt)
 
@@ -55,11 +55,11 @@ def zsh_shell(env_name, nest):
             new_prompt = '{} {}'.format(hatch_level, new_prompt)
 
     with env_vars({'PROMPT': new_prompt}):
-        yield ['zsh']
+        yield [shell_path or 'zsh']
 
 
 @contextmanager
-def xonsh_shell(env_name):
+def xonsh_shell(env_name, nest, shell_path):
     with TemporaryDirectory() as d:
         config_file = os.path.expanduser('~/.xonshrc')
         with temp_move_path(config_file, d) as path:
@@ -74,7 +74,7 @@ def xonsh_shell(env_name):
             )
             with open(new_config_path, 'w') as f:
                 f.write(new_config)
-            yield ['xonsh', '--rc', new_config_path]
+            yield [shell_path or 'xonsh', '--rc', new_config_path]
 
 
 @contextmanager
@@ -96,6 +96,12 @@ IMMORTAL_SHELLS = {
 
 
 def get_shell_command(env_name, shell_name=None, nest=False):
-    shell_name = shell_name or basepath(os.environ.get('SHELL')) or DEFAULT_SHELL
+    shell_path = None
+    if not shell_name:
+        shell_path = os.environ.get('SHELL')
+        if shell_path:
+            shell_name = basepath(shell_path)
+        else:
+            shell_name = DEFAULT_SHELL
     shell = SHELL_COMMANDS.get(shell_name)
-    return shell(env_name, nest) if shell else unknown_shell(shell_name)
+    return shell(env_name, nest, shell_path) if shell else unknown_shell(shell_name)
