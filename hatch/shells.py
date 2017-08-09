@@ -71,6 +71,6 @@ IMMORTAL_SHELLS = {
 
 
 def get_shell_command(env_name, shell_name=None):
-    shell_name = shell_name or DEFAULT_SHELL
+    shell_name = shell_name or os.environ.get('SHELL') or DEFAULT_SHELL
     shell = SHELL_COMMANDS.get(shell_name)
     return shell(env_name) if shell else unknown_shell(shell_name)
