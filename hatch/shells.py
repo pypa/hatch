@@ -12,19 +12,17 @@ VENV_TEXT = re.compile(r'^([0-9]+ )?\(([^)]+)\) ')
 @contextmanager
 def cmd_shell(env_name, nest):
     old_prompt = os.environ.get('PROMPT', '$P$G')
+    new_prompt = '({}) {}'.format(env_name, old_prompt)
 
     if nest:
         if VENV_TEXT.match(old_prompt):
-            prompt = VENV_TEXT.sub('({}) '.format(env_name), old_prompt)
-        else:
-            prompt = '({}) {}'.format(env_name, old_prompt)
+            new_prompt = VENV_TEXT.sub('({}) '.format(env_name), old_prompt)
+
         hatch_level = int(os.environ.get('_HATCH_LEVEL_', 1))
         if hatch_level > 1:
-            prompt = '{} '.format(hatch_level) + prompt
-    else:
-        prompt = '({}) {}'.format(env_name, old_prompt)
+            new_prompt = '{} {}'.format(hatch_level, new_prompt)
 
-    with env_vars({'PROMPT': prompt}):
+    with env_vars({'PROMPT': new_prompt}):
         yield ['cmd', '/k']
 
 
@@ -44,19 +42,17 @@ def bash_shell(env_name):
 @contextmanager
 def zsh_shell(env_name, nest):
     old_prompt = os.environ.get('PROMPT', '')
+    new_prompt = '({}) {}'.format(env_name, old_prompt)
 
     if nest:
         if VENV_TEXT.match(old_prompt):
-            prompt = VENV_TEXT.sub('({}) '.format(env_name), old_prompt)
-        else:
-            prompt = '({}) {}'.format(env_name, old_prompt)
+            new_prompt = VENV_TEXT.sub('({}) '.format(env_name), old_prompt)
+
         hatch_level = int(os.environ.get('_HATCH_LEVEL_', 1))
         if hatch_level > 1:
-            prompt = '{} '.format(hatch_level) + prompt
-    else:
-        prompt = '({}) {}'.format(env_name, old_prompt)
+            new_prompt = '{} {}'.format(hatch_level, new_prompt)
 
-    with env_vars({'PROMPT': prompt}):
+    with env_vars({'PROMPT': new_prompt}):
         yield ['zsh']
 
 
