@@ -42,9 +42,21 @@ def bash_shell(env_name):
 
 
 @contextmanager
-def zsh_shell(env_name):
-    evars = {'PROMPT': '({}) {}'.format(env_name, os.environ.get('PROMPT', ''))}
-    with env_vars(evars):
+def zsh_shell(env_name, nest):
+    old_prompt = os.environ.get('PROMPT', '')
+
+    if nest:
+        if VENV_TEXT.match(old_prompt):
+            prompt = VENV_TEXT.sub('({}) '.format(env_name), old_prompt)
+        else:
+            prompt = '({}) {}'.format(env_name, old_prompt)
+        hatch_level = int(os.environ.get('_HATCH_LEVEL_', 1))
+        if hatch_level > 1:
+            prompt = '{} '.format(hatch_level) + prompt
+    else:
+        prompt = '({}) {}'.format(env_name, old_prompt)
+
+    with env_vars({'PROMPT': prompt}):
         yield ['zsh']
 
 
