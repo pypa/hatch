@@ -90,6 +90,7 @@ SHELL_COMMANDS = {
     'xonsh': xonsh_shell,
 }
 IMMORTAL_SHELLS = {
+    'zsh',
     'xonsh',
 }
 
