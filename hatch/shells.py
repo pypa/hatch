@@ -8,8 +8,12 @@ DEFAULT_SHELL = 'cmd' if NEED_SUBPROCESS_SHELL else 'bash'
 
 
 @contextmanager
-def cmd_shell(env_name):
-    evars = {'PROMPT': '({}) {}'.format(env_name, os.environ.get('PROMPT', ''))}
+def cmd_shell(env_name, nest):
+    if nest:
+        prompt = None
+    else:
+        prompt = '({}) {}'.format(env_name, os.environ.get('PROMPT', ''))
+    evars = {'PROMPT': prompt}
     with env_vars(evars):
         yield ['cmd', '/k']
 
@@ -70,7 +74,7 @@ IMMORTAL_SHELLS = {
 }
 
 
-def get_shell_command(env_name, shell_name=None):
+def get_shell_command(env_name, shell_name=None, nest=False):
     shell_name = shell_name or os.environ.get('SHELL') or DEFAULT_SHELL
     shell = SHELL_COMMANDS.get(shell_name)
-    return shell(env_name) if shell else unknown_shell(shell_name)
+    return shell(env_name, nest) if shell else unknown_shell(shell_name)

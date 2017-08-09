@@ -548,7 +548,7 @@ def use(env_name, command, shell, nest):  # no cov
             sys.exit(1)
 
         with venv(venv_dir):
-            with get_shell_command(env_name, shell_name) as shell_command:
+            with get_shell_command(env_name, shell_name, nest=True) as shell_command:
                 subprocess.run(shell_command, shell=NEED_SUBPROCESS_SHELL)
         return
 
