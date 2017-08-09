@@ -11,7 +11,7 @@ if os.name == 'nt' or platform.system() == 'Windows':  # no cov
     NEED_SUBPROCESS_SHELL = True
 
 VENV_FLAGS = {
-    '_HATCHING_',
+    '_HATCH_LEVEL_',
     'VIRTUAL_ENV'
 }
 
