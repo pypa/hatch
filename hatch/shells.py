@@ -99,7 +99,7 @@ def xonsh_shell(env_name, nest, shell_path):
 
             hatch_level = int(os.environ.get('_HATCH_LEVEL_', 1))
 
-            if hatch_level > 1:
+            if nest and hatch_level > 1:
                 new_config += (
                     '\n$PROMPT_FIELDS["env_name"] = "{hatch_level} ({env_name})"\n'
                     ''.format(hatch_level=hatch_level, env_name=env_name)
