@@ -31,13 +31,24 @@ def cmd_shell(env_name, nest, shell_path):
 
 @contextmanager
 def bash_shell(env_name, nest, shell_path):
+    old_prompt = os.environ.get('PS1', '')
+    new_prompt = '({}) {}'.format(env_name, old_prompt)
+
+    if nest:
+        if VENV_TEXT.match(old_prompt):
+            new_prompt = VENV_TEXT.sub('({}) '.format(env_name), old_prompt)
+
+        hatch_level = int(os.environ.get('_HATCH_LEVEL_', 1))
+        if hatch_level > 1:
+            new_prompt = '{} {}'.format(hatch_level, new_prompt)
+
     with TemporaryDirectory() as d:
         init_file = os.path.join(d, 'init_file')
         with open(init_file, 'w') as f:
             f.write(
                 'source ~/.bashrc\n'
-                'PS1="({}) $PS1"\n'
-                ''.format(env_name)
+                'PS1="{}"\n'
+                ''.format(new_prompt)
             )
         yield [shell_path or 'bash', '--init-file', init_file]
 
