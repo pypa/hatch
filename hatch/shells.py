@@ -13,6 +13,13 @@ DEFAULT_SHELL = 'cmd' if NEED_SUBPROCESS_SHELL else 'bash'
 VENV_TEXT = re.compile(r'^([0-9]+ )?\(([^)]+)\) ')
 
 
+def get_prompt(command):
+    process = subprocess.run(command)
+    if process.returncode == 0:
+        return process.stdout.decode().strip() + ' '
+    return ''
+
+
 @contextmanager
 def cmd_shell(env_name, nest, shell_path):
     old_prompt = os.environ.get('PROMPT', '$P$G')
@@ -32,12 +39,7 @@ def cmd_shell(env_name, nest, shell_path):
 
 @contextmanager
 def bash_shell(env_name, nest, shell_path):
-    old_prompt = os.environ.get(
-        'PS1',
-        subprocess.check_output(
-            [shell_path or 'bash', '-i', '-c', 'echo $PS1']
-        ).decode().strip() + ' '
-    ) or ''
+    old_prompt = os.environ.get('PS1', get_prompt([shell_path or 'bash', '-i', '-c', 'echo $PS1']))
     new_prompt = '({}) {}'.format(env_name, old_prompt)
 
     if nest:
