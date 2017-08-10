@@ -125,7 +125,7 @@ def update(eager, all_packages, global_install):
         'eager' if eager else 'only-if-needed'
     ]
 
-    if not venv_active() and not global_install:  # no cov
+    if not venv_active() and not global_install and not NEED_SUBPROCESS_SHELL:  # no cov
         command.append('--user')
 
     if all_packages:
