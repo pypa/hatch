@@ -49,3 +49,22 @@ def test_venv_unknown():
                 shutil.rmtree(os.path.join(d, 'Scripts'))
             with venv(d):  # no cov
                 pass
+
+
+def test_levels():
+    with temp_chdir() as d:
+        d1 = os.path.join(d, 'test_env1')
+        d2 = os.path.join(d, 'test_env2')
+        d3 = os.path.join(d, 'test_env3')
+        create_venv(d1)
+        create_venv(d2)
+        create_venv(d3)
+
+        with venv(d1):
+            assert os.environ.get('_HATCH_LEVEL_') == '1'
+            with venv(d2):
+                assert os.environ.get('_HATCH_LEVEL_') == '2'
+                with venv(d3):
+                    assert os.environ.get('_HATCH_LEVEL_') == '3'
+                assert os.environ.get('_HATCH_LEVEL_') == '2'
+            assert os.environ.get('_HATCH_LEVEL_') == '1'
