@@ -12,7 +12,8 @@ if os.name == 'nt' or platform.system() == 'Windows':  # no cov
 
 VENV_FLAGS = {
     '_HATCH_LEVEL_',
-    'VIRTUAL_ENV'
+    'VIRTUAL_ENV',
+    'CONDA_PREFIX'
 }
 
 
