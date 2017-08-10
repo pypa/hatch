@@ -13,7 +13,7 @@ DEFAULT_SHELL = 'cmd' if NEED_SUBPROCESS_SHELL else 'bash'
 VENV_TEXT = re.compile(r'^([0-9]+ )?\(([^)]+)\) ')
 
 
-def get_prompt(command):
+def get_prompt(command, default=''):
     result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if result.returncode == 0:
         output = b''
@@ -21,7 +21,7 @@ def get_prompt(command):
         output += result.stderr or b''
         if output:
             return output.decode().strip() + ' '
-    return ''
+    return default
 
 
 @contextmanager
@@ -43,7 +43,10 @@ def cmd_shell(env_name, nest, shell_path):
 
 @contextmanager
 def bash_shell(env_name, nest, shell_path):
-    old_prompt = os.environ.get('PS1', get_prompt([shell_path or 'bash', '-i', '-c', 'echo $PS1']))
+    old_prompt = os.environ.get(
+        'PS1',
+        get_prompt([shell_path or 'bash', '-i', '-c', 'echo $PS1'])
+    )
     new_prompt = '({}) {}'.format(env_name, old_prompt)
 
     if nest:
@@ -67,7 +70,10 @@ def bash_shell(env_name, nest, shell_path):
 
 @contextmanager
 def zsh_shell(env_name, nest, shell_path):
-    old_prompt = os.environ.get('PROMPT', '%m%# ')
+    old_prompt = os.environ.get(
+        'PROMPT',
+        get_prompt([shell_path or 'zsh', '-i', '-c', 'echo $PROMPT'], default='%m%# ')
+    )
     new_prompt = '({}) {}'.format(env_name, old_prompt)
 
     if nest:
