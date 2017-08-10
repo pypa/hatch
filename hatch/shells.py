@@ -91,17 +91,26 @@ def zsh_shell(env_name, nest, shell_path):
 @contextmanager
 def xonsh_shell(env_name, nest, shell_path):
     with TemporaryDirectory() as d:
-        config_file = os.path.expanduser('~/.xonshrc')
-        with temp_move_path(config_file, d) as path:
-            new_config_path = os.path.join(d, 'new.xonshrc')
+        with temp_move_path(os.path.expanduser('~/.xonshrc'), d) as path:
             new_config = ''
             if path:
                 with open(path, 'r') as f:
                     new_config += f.read()
-            new_config += (
-                '\n$PROMPT_FIELDS["env_name"] = "({env_name})"\n'
-                ''.format(env_name=env_name)
-            )
+
+            hatch_level = int(os.environ.get('_HATCH_LEVEL_', 1))
+
+            if hatch_level > 1:
+                new_config += (
+                    '\n$PROMPT_FIELDS["env_name"] = "{hatch_level} ({env_name})"\n'
+                    ''.format(hatch_level=hatch_level, env_name=env_name)
+                )
+            else:
+                new_config += (
+                    '\n$PROMPT_FIELDS["env_name"] = "({env_name})"\n'
+                    ''.format(env_name=env_name)
+                )
+
+            new_config_path = os.path.join(d, 'new.xonshrc')
             with open(new_config_path, 'w') as f:
                 f.write(new_config)
             yield [shell_path or 'xonsh', '--rc', new_config_path]
