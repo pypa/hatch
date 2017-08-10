@@ -34,7 +34,9 @@ def cmd_shell(env_name, nest, shell_path):
 def bash_shell(env_name, nest, shell_path):
     old_prompt = os.environ.get(
         'PS1',
-        subprocess.check_output(['bash', '-i', '-c', 'echo $PS1']).decode().strip() + ' '
+        subprocess.check_output(
+            [shell_path or 'bash', '-i', '-c', 'echo $PS1']
+        ).decode().strip() + ' '
     ) or ''
     new_prompt = '({}) {}'.format(env_name, old_prompt)
 
