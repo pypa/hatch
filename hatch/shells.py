@@ -1,5 +1,6 @@
 import os
 import re
+import subprocess
 from contextlib import contextmanager
 from tempfile import TemporaryDirectory
 
@@ -31,7 +32,10 @@ def cmd_shell(env_name, nest, shell_path):
 
 @contextmanager
 def bash_shell(env_name, nest, shell_path):
-    old_prompt = os.environ.get('PS1', '')
+    old_prompt = os.environ.get(
+        'PS1',
+        subprocess.check_output(['bash', '-i', '-c', 'echo $PS1']).decode().strip()
+    ) or ''
     new_prompt = '({}) {}'.format(env_name, old_prompt)
 
     if nest:
