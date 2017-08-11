@@ -25,6 +25,7 @@ def venv(d, evars=None):
         raise OSError('Unable to locate executables directory.')
 
     evars = evars or {}
+    evars['VIRTUAL_ENV'] = d
     evars['PATH'] = '{}{}{}'.format(
         venv_exe_dir, os.pathsep, os.environ.get('PATH', '')
     )
