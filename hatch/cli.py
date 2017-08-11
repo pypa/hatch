@@ -116,20 +116,34 @@ def config(update_settings, restore):
 
 
 @hatch.command(context_settings=CONTEXT_SETTINGS)
+@click.argument('env_name', required=False)
 @click.option('--eager', is_flag=True)
 @click.option('--all', 'all_packages', is_flag=True)
 @click.option('-g', '--global', 'global_install', is_flag=True)
-def update(eager, all_packages, global_install):
+def update(env_name, eager, all_packages, global_install):
     command = [
-        get_proper_pip(), 'install', '--upgrade', '--upgrade-strategy',
+        'install', '--upgrade', '--upgrade-strategy',
         'eager' if eager else 'only-if-needed'
     ]
 
-    if not venv_active() and not global_install and not NEED_SUBPROCESS_SHELL:  # no cov
-        command.append('--user')
+    if env_name:
+        venv_dir = os.path.join(VENV_DIR, env_name)
+        if not os.path.exists(venv_dir):
+            click.echo('Virtual env named `{}` does not exist.'.format(env_name))
+            sys.exit(1)
+
+        with venv(venv_dir):
+            command.insert(0, get_proper_pip())
+            installed_packages = get_installed_packages()
+    else:
+        venv_dir = None
+        command.insert(0, get_proper_pip())
+        installed_packages = get_installed_packages()
+
+        if not venv_active() and not global_install:  # no cov
+            command.append('--user')
 
     if all_packages:
-        installed_packages = get_installed_packages()
         installed_packages = [
             package for package in installed_packages
             if package not in ['pip', 'setuptools', 'wheel']
@@ -145,7 +159,13 @@ def update(eager, all_packages, global_install):
             sys.exit(1)
         command.extend(['-r', path])
 
-    subprocess.call(command, shell=NEED_SUBPROCESS_SHELL)
+    if venv_dir:
+        with venv(venv_dir):
+            subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
+        click.echo('Successfully updated virtual env named `{}`.'.format(env_name))
+    else:
+        subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
+        click.echo('Successfully updated.'.format(env_name))
 
 
 @hatch.command(context_settings=CONTEXT_SETTINGS)
