@@ -572,9 +572,12 @@ def use(env_name, command, shell, nest):  # no cov
             click.echo('Virtual env named `{}` does not exist.'.format(env_name))
             sys.exit(1)
 
-        with venv(venv_dir):
-            subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
-        return
+        result = None
+        try:
+            with venv(venv_dir):
+                result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
+        finally:
+            sys.exit(1 if result is None else result.returncode)
 
     try:
         settings = load_settings()
