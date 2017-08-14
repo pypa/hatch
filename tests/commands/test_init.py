@@ -60,6 +60,23 @@ def test_cli():
         assert os.path.exists(os.path.join(d, 'ok', '__main__.py'))
 
 
+def test_license_single():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', 'ok', '-l', 'cc0'])
+
+        assert os.path.exists(os.path.join(d, 'LICENSE-CC0'))
+
+
+def test_license_multiple():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', 'ok', '-l', 'cc0,mpl'])
+
+        assert os.path.exists(os.path.join(d, 'LICENSE-CC0'))
+        assert os.path.exists(os.path.join(d, 'LICENSE-MPL'))
+
+
 def test_extras():
     with temp_chdir() as d:
         runner = CliRunner()

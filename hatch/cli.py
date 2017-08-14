@@ -49,7 +49,8 @@ def hatch():
 @click.argument('name')
 @click.option('--basic', is_flag=True)
 @click.option('--cli', is_flag=True)
-def egg(name, basic, cli):
+@click.option('-l', '--licenses')
+def egg(name, basic, cli, licenses):
     try:
         settings = load_settings()
     except FileNotFoundError:
@@ -58,6 +59,9 @@ def egg(name, basic, cli):
 
     if basic:
         settings['basic'] = True
+
+    if licenses:
+        settings['licenses'] = licenses.split(',')
 
     settings['cli'] = cli
 
@@ -78,7 +82,8 @@ def egg(name, basic, cli):
 @click.argument('name')
 @click.option('--basic', is_flag=True)
 @click.option('--cli', is_flag=True)
-def init(name, basic, cli):
+@click.option('-l', '--licenses')
+def init(name, basic, cli, licenses):
     try:
         settings = load_settings()
     except FileNotFoundError:
@@ -87,6 +92,9 @@ def init(name, basic, cli):
 
     if basic:
         settings['basic'] = True
+
+    if licenses:
+        settings['licenses'] = licenses.split(',')
 
     settings['cli'] = cli
 
