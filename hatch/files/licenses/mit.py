@@ -2,9 +2,9 @@ from hatch.structures import File
 from hatch.utils import get_current_year
 
 TEMPLATE = """\
-MIT License
-
 Copyright (c) {year} {name}
+
+MIT License
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
