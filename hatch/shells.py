@@ -6,10 +6,10 @@ from tempfile import TemporaryDirectory
 
 from hatch.settings import load_settings
 from hatch.utils import (
-    NEED_SUBPROCESS_SHELL, basepath, env_vars, temp_move_path
+    NEED_SUBPROCESS_SHELL, ON_WINDOWS, basepath, env_vars, temp_move_path
 )
 
-DEFAULT_SHELL = 'cmd' if NEED_SUBPROCESS_SHELL else 'bash'
+DEFAULT_SHELL = 'cmd' if ON_WINDOWS else 'bash'
 VENV_TEXT = re.compile(r'^([0-9]+ )?\(([^)]+)\) ')
 
 

@@ -24,7 +24,7 @@ from hatch.settings import (
 )
 from hatch.shells import IMMORTAL_SHELLS, get_default_shell_info, get_shell_command
 from hatch.utils import (
-    NEED_SUBPROCESS_SHELL, basepath, chdir, get_proper_pip,
+    NEED_SUBPROCESS_SHELL, ON_WINDOWS, basepath, chdir, get_proper_pip,
     get_proper_python, remove_path, venv_active
 )
 from hatch.venv import VENV_DIR, create_venv, venv
@@ -137,7 +137,7 @@ def update(env_name, eager, all_packages, infra, global_install):
         with venv(venv_dir):
             executable = (
                 [get_proper_python(), '-m', 'pip']
-                if infra and NEED_SUBPROCESS_SHELL
+                if infra and ON_WINDOWS
                 else [get_proper_pip()]
             )
             command = executable + command
@@ -146,7 +146,7 @@ def update(env_name, eager, all_packages, infra, global_install):
         venv_dir = None
         executable = (
             [get_proper_python(), '-m', 'pip']
-            if infra and NEED_SUBPROCESS_SHELL
+            if infra and ON_WINDOWS
             else [get_proper_pip()]
         )
         command = executable + command
@@ -626,7 +626,7 @@ def use(env_name, command, shell, nest):  # no cov
                                 # shell has no active processes. Therefore, we sleep
                                 # shortly to ensure the second `hatch use ...` has
                                 # time to write the communication file and exit.
-                                if not NEED_SUBPROCESS_SHELL:
+                                if not ON_WINDOWS:
                                     time.sleep(0.2)
 
                                 with open(communication_file, 'r') as f:

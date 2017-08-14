@@ -6,9 +6,11 @@ from datetime import datetime
 from contextlib import contextmanager
 from tempfile import TemporaryDirectory
 
-NEED_SUBPROCESS_SHELL = False
+ON_WINDOWS = False
 if os.name == 'nt' or platform.system() == 'Windows':  # no cov
-    NEED_SUBPROCESS_SHELL = True
+    ON_WINDOWS = True
+
+NEED_SUBPROCESS_SHELL = ON_WINDOWS
 
 VENV_FLAGS = {
     '_HATCH_LEVEL_',
@@ -26,7 +28,7 @@ def get_proper_python():  # no cov
         default_python = os.environ.get('_DEFAULT_PYTHON_', None)
         if default_python:
             return default_python
-        elif not NEED_SUBPROCESS_SHELL:
+        elif not ON_WINDOWS:
             return 'python3'
     return 'python'
 
@@ -36,7 +38,7 @@ def get_proper_pip():  # no cov
         default_python = os.environ.get('_DEFAULT_PIP_', None)
         if default_python:
             return default_python
-        elif not NEED_SUBPROCESS_SHELL:
+        elif not ON_WINDOWS:
             return 'pip3'
     return 'pip'
 
