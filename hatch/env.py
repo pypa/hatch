@@ -28,7 +28,7 @@ def get_python_implementation():
 
 
 def install_packages(packages):
-    subprocess.call([get_proper_pip(), 'install'] + packages, shell=NEED_SUBPROCESS_SHELL)
+    subprocess.run([get_proper_pip(), 'install'] + packages, shell=NEED_SUBPROCESS_SHELL)
 
 
 def get_package_version(package_name):

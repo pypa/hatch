@@ -12,7 +12,7 @@ VENV_DIR = os.path.join(user_data_dir('hatch', ''), 'venvs')
 
 def create_venv(d, pypath=None):
     command = ['virtualenv', d, '-p', pypath or get_python_path()]
-    subprocess.call(command, shell=NEED_SUBPROCESS_SHELL)
+    subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
 
 
 @contextmanager

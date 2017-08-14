@@ -20,7 +20,7 @@ class GitAttributes(File):
 def setup_git(d, package_name):
     if not os.path.exists(os.path.join(d, '.git')):  # no cov
         try:
-            subprocess.call(['git', 'init', '--quiet'], shell=NEED_SUBPROCESS_SHELL)
+            subprocess.run(['git', 'init', '--quiet'], shell=NEED_SUBPROCESS_SHELL)
         except:
             print('Could not find `git` executable')
         GitAttributes().write(d)
