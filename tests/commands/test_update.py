@@ -72,6 +72,20 @@ def test_all_packages_none():
         assert 'No packages installed.' in result.output
 
 
+def test_env_not_exist():
+    with temp_chdir():
+        runner = CliRunner()
+
+        env_name = os.urandom(10).hex()
+        while os.path.exists(os.path.join(VENV_DIR, env_name)):  # no cov
+            env_name = os.urandom(10).hex()
+
+        result = runner.invoke(hatch, ['update', env_name])
+
+        assert result.exit_code == 1
+        assert 'Virtual env named `{}` already does not exist.'.format(env_name)
+
+
 def test_env():
     with temp_chdir():
         runner = CliRunner()
@@ -98,7 +112,24 @@ def test_env():
         assert 'Successfully updated virtual env named `{}`.'.format(env_name) in result.output
 
 
-def test_env_not_exist():
+def test_infra():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        venv_dir = os.path.join(d, 'venv')
+        create_venv(venv_dir)
+
+        with venv(venv_dir):
+            install_packages(['setuptools==36.0.1'])
+            initial_version = get_version_as_bytes('setuptools')
+            result = runner.invoke(hatch, ['update', '--infra'])
+            final_version = get_version_as_bytes('setuptools')
+
+        assert result.exit_code == 0
+        assert initial_version < final_version
+        assert 'Successfully updated.' in result.output
+
+
+def test_infra_env():
     with temp_chdir():
         runner = CliRunner()
 
@@ -106,7 +137,19 @@ def test_env_not_exist():
         while os.path.exists(os.path.join(VENV_DIR, env_name)):  # no cov
             env_name = os.urandom(10).hex()
 
-        result = runner.invoke(hatch, ['update', env_name])
+        venv_dir = os.path.join(VENV_DIR, env_name)
+        create_venv(venv_dir)
 
-        assert result.exit_code == 1
-        assert 'Virtual env named `{}` already does not exist.'.format(env_name)
+        try:
+            with venv(venv_dir):
+                install_packages(['setuptools==36.0.1'])
+                initial_version = get_version_as_bytes('setuptools')
+            result = runner.invoke(hatch, ['update', env_name, '--infra'])
+            with venv(venv_dir):
+                final_version = get_version_as_bytes('setuptools')
+        finally:
+            remove_path(venv_dir)
+
+        assert result.exit_code == 0
+        assert initial_version < final_version
+        assert 'Successfully updated virtual env named `{}`.'.format(env_name) in result.output

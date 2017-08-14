@@ -119,12 +119,14 @@ def config(update_settings, restore):
 @click.argument('env_name', required=False)
 @click.option('--eager', is_flag=True)
 @click.option('--all', 'all_packages', is_flag=True)
+@click.option('--infra', is_flag=True)
 @click.option('-g', '--global', 'global_install', is_flag=True)
-def update(env_name, eager, all_packages, global_install):
+def update(env_name, eager, all_packages, infra, global_install):
     command = [
         'install', '--upgrade', '--upgrade-strategy',
         'eager' if eager else 'only-if-needed'
     ]
+    infra_packages = ['pip', 'setuptools', 'wheel']
 
     if env_name:
         venv_dir = os.path.join(VENV_DIR, env_name)
@@ -133,20 +135,32 @@ def update(env_name, eager, all_packages, global_install):
             sys.exit(1)
 
         with venv(venv_dir):
-            command.insert(0, get_proper_pip())
-            installed_packages = get_installed_packages()
+            executable = (
+                [get_proper_python(), '-m', 'pip']
+                if infra and NEED_SUBPROCESS_SHELL
+                else [get_proper_pip()]
+            )
+            command = executable + command
+            installed_packages = infra_packages if infra else get_installed_packages()
     else:
         venv_dir = None
-        command.insert(0, get_proper_pip())
-        installed_packages = get_installed_packages()
+        executable = (
+            [get_proper_python(), '-m', 'pip']
+            if infra and NEED_SUBPROCESS_SHELL
+            else [get_proper_pip()]
+        )
+        command = executable + command
+        installed_packages = infra_packages if infra else get_installed_packages()
 
         if not venv_active() and not global_install:  # no cov
             command.append('--user')
 
-    if all_packages:
+    if infra:
+        command.extend(infra_packages)
+    elif all_packages:
         installed_packages = [
             package for package in installed_packages
-            if package not in ['pip', 'setuptools', 'wheel']
+            if package not in infra_packages
         ]
         if not installed_packages:
             click.echo('No packages installed.')
