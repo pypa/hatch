@@ -12,8 +12,9 @@ omit =
 
 [report]
 exclude_lines =
-    no qa
     no cov
+    no qa
+    noqa
     pragma: no cover
     if __name__ == .__main__.:
 """
