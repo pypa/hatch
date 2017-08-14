@@ -14,7 +14,11 @@ VENV_TEXT = re.compile(r'^([0-9]+ )?\(([^)]+)\) ')
 
 
 def get_prompt(command, default=''):
-    result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    result = subprocess.run(
+        command,
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        shell=NEED_SUBPROCESS_SHELL
+    )
     if result.returncode == 0:
         output = b''
         output += result.stdout or b''
