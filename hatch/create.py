@@ -2,7 +2,9 @@ import os
 
 from hatch.files.ci import Tox, TravisCI
 from hatch.files.coverage import Codecov, CoverageConfig
-from hatch.files.licenses import Apache2License, CC0License, MITLicense
+from hatch.files.licenses import (
+    Apache2License, CC0License, MITLicense, MPLLicense
+)
 from hatch.files.readme import ReStructuredTextReadme
 from hatch.files.setup import SetupFile
 from hatch.files.vc import setup_git
@@ -14,6 +16,7 @@ LICENSES = {
     'mit': MITLicense,
     'apache2': Apache2License,
     'cc0': CC0License,
+    'mpl': MPLLicense,
 }
 README = {
     'rst': ReStructuredTextReadme,
