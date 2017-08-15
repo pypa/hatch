@@ -15,14 +15,18 @@ def create_venv(d, pypath=None):
     subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
 
 
-@contextmanager
-def venv(d, evars=None):
+def locate_exe_dir(d):
     if os.path.exists(os.path.join(d, 'bin')):  # no cov
-        venv_exe_dir = os.path.join(d, 'bin')
+        return os.path.join(d, 'bin')
     elif os.path.exists(os.path.join(d, 'Scripts')):  # no cov
-        venv_exe_dir = os.path.join(d, 'Scripts')
+        return os.path.join(d, 'Scripts')
     else:
         raise OSError('Unable to locate executables directory.')
+
+
+@contextmanager
+def venv(d, evars=None):
+    venv_exe_dir = locate_exe_dir(d)
 
     evars = evars or {}
     evars['VIRTUAL_ENV'] = d
