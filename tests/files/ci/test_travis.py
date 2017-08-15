@@ -33,7 +33,7 @@ def test_build_matrix_single():
 
         assert parsed['build_matrix'] == (
             '\n        - python: 3.6'
-            '\n          env: TOXENV=36'
+            '\n          env: TOXENV=py36'
         )
 
 
@@ -50,59 +50,67 @@ def test_build_matrix_multiple():
 
         assert parsed['build_matrix'] == (
             '\n        - python: 2.7'
-            '\n          env: TOXENV=27'
+            '\n          env: TOXENV=py27'
             '\n        - python: 3.6'
-            '\n          env: TOXENV=36'
+            '\n          env: TOXENV=py36'
         )
 
 
-def test_pypy_install():
+def test_build_matrix_pypy():
     with temp_chdir() as d:
         settings = copy_default_settings()
         settings['basic'] = False
         settings['ci'] = ['travis']
-        settings['pyversions'] = ['3.6', 'pypy']
+        settings['pyversions'] = ['pypy']
         create_package(d, 'ok', settings)
 
         contents = read_file(os.path.join(d, '.travis.yml'))
         parsed = parse(TEMPLATE, contents)
-        pypy_install = parsed['pypy_install']
 
-        assert "$TRAVIS_PYTHON_VERSION == 'pypy'" in pypy_install
-        assert pypy_install.count('-portable') == 3
+        assert parsed['build_matrix'] == (
+            '\n        - python: pypy2.7-5.8.0'
+            '\n          env: TOXENV=pypy'
+        )
 
 
-def test_pypy3_install():
+def test_build_matrix_pypy3():
     with temp_chdir() as d:
         settings = copy_default_settings()
         settings['basic'] = False
         settings['ci'] = ['travis']
-        settings['pyversions'] = ['3.6', 'pypy3']
+        settings['pyversions'] = ['pypy3']
         create_package(d, 'ok', settings)
 
         contents = read_file(os.path.join(d, '.travis.yml'))
         parsed = parse(TEMPLATE, contents)
-        pypy_install = parsed['pypy_install']
 
-        assert "$TRAVIS_PYTHON_VERSION == 'pypy3'" in pypy_install
-        assert pypy_install.count('-portable') == 3
+        assert parsed['build_matrix'] == (
+            '\n        - python: pypy3.5-5.8.0'
+            '\n          env: TOXENV=pypy3'
+        )
 
 
-def test_pypy_and_pypy3_install():
+def test_build_matrix_mixed():
     with temp_chdir() as d:
         settings = copy_default_settings()
         settings['basic'] = False
         settings['ci'] = ['travis']
-        settings['pyversions'] = ['3.6', 'pypy', 'pypy3']
+        settings['pyversions'] = ['3.6', '2.7', 'pypy3', 'pypy']
         create_package(d, 'ok', settings)
 
         contents = read_file(os.path.join(d, '.travis.yml'))
         parsed = parse(TEMPLATE, contents)
-        pypy_install = parsed['pypy_install']
 
-        assert "$TRAVIS_PYTHON_VERSION == 'pypy'" in pypy_install
-        assert "$TRAVIS_PYTHON_VERSION == 'pypy3'" in pypy_install
-        assert pypy_install.count('-portable') == 6
+        assert parsed['build_matrix'] == (
+            '\n        - python: 2.7'
+            '\n          env: TOXENV=py27'
+            '\n        - python: 3.6'
+            '\n          env: TOXENV=py36'
+            '\n        - python: pypy2.7-5.8.0'
+            '\n          env: TOXENV=pypy'
+            '\n        - python: pypy3.5-5.8.0'
+            '\n          env: TOXENV=pypy3'
+        )
 
 
 def test_coverage_package():
