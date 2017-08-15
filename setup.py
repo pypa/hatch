@@ -57,7 +57,7 @@ setup(
         'pytest',
         'semver',
         'setuptools>=36.0.0',
-        'twine',
+        'twine>=1.9.1',
         'virtualenv',
         'wheel>=0.27.0'
     ),
