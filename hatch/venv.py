@@ -3,6 +3,7 @@ import subprocess
 from contextlib import contextmanager
 
 from appdirs import user_data_dir
+from atomicwrites import atomic_write
 
 from hatch.env import get_python_path
 from hatch.utils import NEED_SUBPROCESS_SHELL, env_vars
@@ -13,6 +14,42 @@ VENV_DIR = os.path.join(user_data_dir('hatch', ''), 'venvs')
 def create_venv(d, pypath=None):
     command = ['virtualenv', d, '-p', pypath or get_python_path()]
     subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
+
+
+def fix_executable(path, exe_dir):
+    with open(path, 'rb') as f:
+        contents = f.read()
+
+    if not contents.startswith(b'#!'):
+        return
+
+    lines = contents.decode().splitlines(keepends=True)
+    first_line = lines[0]
+
+    # Remove the #! and trailing whitespace.
+    executable_path = first_line[2:].strip()
+
+    # If the executable path contains spaces it will be wrapped in quotes.
+    if executable_path.startswith('"'):
+        path_start = executable_path.find('"') + 1
+        path_end = executable_path.find('"', path_start)
+        executable_path = executable_path[path_start:path_end]
+
+    # Otherwise, the executable path is whatever precedes the first space.
+    else:
+        executable_path = executable_path.split()[0]
+
+    filename = os.path.basename(executable_path)
+
+    # Removing all instances of characters in filename from the right side
+    # is safe because of the path separator. Indeed, we want to remove only
+    # the filename and keep the separator.
+    old_path = executable_path.rstrip(filename)
+    new_path = os.path.normpath(exe_dir) + os.path.sep
+
+    lines[0] = first_line.replace(old_path, new_path, count=1)
+    with atomic_write(path, overwrite=True) as f:
+        f.write(''.join(lines))
 
 
 def locate_exe_dir(d):
