@@ -28,6 +28,8 @@ def fix_executable(path, exe_dir):
 
     # Remove the #! and trailing whitespace.
     executable_path = first_line[2:].strip()
+    if not executable_path:
+        return
 
     # If the executable path contains spaces it will be wrapped in quotes.
     if executable_path.startswith('"'):
