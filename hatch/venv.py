@@ -18,12 +18,12 @@ def create_venv(d, pypath=None):
 
 def fix_executable(path, exe_dir):
     with open(path, 'rb') as f:
-        contents = f.read()
+        if f.read(2) != b'#!':
+            return
 
-    if not contents.startswith(b'#!'):
-        return
+    with open(path) as f:
+        lines = f.readlines()
 
-    lines = contents.decode().splitlines(keepends=True)
     first_line = lines[0]
 
     # Remove the #! and trailing whitespace.
@@ -49,9 +49,9 @@ def fix_executable(path, exe_dir):
     old_path = executable_path.rstrip(filename)
     new_path = os.path.normpath(exe_dir) + os.path.sep
 
-    lines[0] = first_line.replace(old_path, new_path, count=1)
-    with atomic_write(path, overwrite=True) as f:
-        f.write(''.join(lines))
+    lines[0] = first_line.replace(old_path, new_path, 1)
+    with open(path, 'w') as f:
+        f.writelines(lines)
 
 
 def locate_exe_dir(d):
