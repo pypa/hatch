@@ -311,9 +311,9 @@ def test(package, path, cov, test_args, cov_args, env_aware):
 @hatch.command(context_settings=CONTEXT_SETTINGS)
 @click.argument('package', required=False)
 @click.option('-p', '--path')
-@click.option('-c', '--compiled', is_flag=True)
+@click.option('-c', '--compiled-only', is_flag=True)
 @click.option('-v', '--verbose', is_flag=True)
-def clean(package, path, compiled, verbose):
+def clean(package, path, compiled_only, verbose):
     if package:
         path = get_editable_package_location(package)
         if not path:
@@ -329,7 +329,7 @@ def clean(package, path, compiled, verbose):
     else:
         path = os.getcwd()
 
-    if compiled:
+    if compiled_only:
         removed_paths = remove_compiled_scripts(path)
     else:
         removed_paths = clean_package(path, editable=package)
