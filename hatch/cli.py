@@ -489,7 +489,7 @@ def list_envs(ctx, param, value):
                     )
                 )
 
-    # I don't want move users' virtual environments
+    # I don't want to move users' virtual environments
     # temporarily for tests as one may be in use.
     else:  # no cov
         click.echo('No virtual environments found in {}. To create '
