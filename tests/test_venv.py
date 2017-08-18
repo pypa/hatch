@@ -73,6 +73,10 @@ def test_levels():
 
 
 class TestFixExecutable:
+    def test_not_file(self):
+        with temp_chdir() as d:
+            fix_executable(d, d)
+
     def test_no_hashbang(self):
         with temp_chdir() as d:
             file = os.path.join(d, 'pip')

@@ -2,6 +2,7 @@ import os
 import shutil
 import subprocess
 from contextlib import contextmanager
+from os.path import isfile
 
 from appdirs import user_data_dir
 
@@ -22,13 +23,15 @@ def clone_venv(origin, location):
     venv_exe_dir = locate_exe_dir(location)
 
     for path in os.listdir(venv_exe_dir):
-        if os.path.isfile(path):  # no cov
-            fix_executable(path, venv_exe_dir)
+        fix_executable(path, venv_exe_dir)
 
     remove_compiled_scripts(location)
 
 
 def fix_executable(path, exe_dir):
+    if not isfile(path):
+        return
+
     with open(path, 'rb') as f:
         if f.read(2) != b'#!':
             return
