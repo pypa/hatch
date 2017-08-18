@@ -139,6 +139,41 @@ class TestFixExecutable:
                 '    sys.exit(main())\n'.format(new_path + os.path.sep)
             )
 
+    def test_spaces_everywhere(self):
+        with temp_chdir() as d:
+            file = os.path.join(d, 'pip')
+            File(
+                'pip',
+                '#!"/home/me/.local/share/hatch/venvs/a space/bin/python"\n'
+                '\n'
+                '# -*- coding: utf-8 -*-\n'
+                'import re\n'
+                'import sys\n'
+                '\n'
+                'from pip import main\n'
+                '\n'
+                "if __name__ == '__main__':\n"
+                "    sys.argv[0] = re.sub(r'(-script\.pyw?|\.exe)?$', '', sys.argv[0])\n"
+                '    sys.exit(main())\n'
+            ).write(d)
+            new_path = os.path.join('some', 'place', 'with spaces')
+            fix_executable(file, new_path)
+            updated = read_file(file)
+
+            assert updated == (
+                '#!"{}python"\n'
+                '\n'
+                '# -*- coding: utf-8 -*-\n'
+                'import re\n'
+                'import sys\n'
+                '\n'
+                'from pip import main\n'
+                '\n'
+                "if __name__ == '__main__':\n"
+                "    sys.argv[0] = re.sub(r'(-script\.pyw?|\.exe)?$', '', sys.argv[0])\n"
+                '    sys.exit(main())\n'.format(new_path + os.path.sep)
+            )
+
 
 def test_default():
     with temp_chdir() as d:
