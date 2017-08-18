@@ -1,9 +1,11 @@
 import os
+import shutil
 import subprocess
 from contextlib import contextmanager
 
 from appdirs import user_data_dir
 
+from hatch.clean import remove_compiled_scripts
 from hatch.env import get_python_path
 from hatch.utils import NEED_SUBPROCESS_SHELL, env_vars
 
@@ -13,6 +15,17 @@ VENV_DIR = os.path.join(user_data_dir('hatch', ''), 'venvs')
 def create_venv(d, pypath=None):
     command = ['virtualenv', d, '-p', pypath or get_python_path()]
     subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
+
+
+def clone_venv(origin, location):
+    shutil.copytree(origin, location, copy_function=shutil.copy)
+    venv_exe_dir = locate_exe_dir(location)
+
+    for path in os.listdir(venv_exe_dir):
+        if os.path.isfile(path):  # no cov
+            fix_executable(path, venv_exe_dir)
+
+    remove_compiled_scripts(location)
 
 
 def fix_executable(path, exe_dir):

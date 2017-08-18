@@ -4,12 +4,15 @@ import sys
 from click.testing import CliRunner
 
 from hatch.cli import hatch
-from hatch.env import get_python_implementation, get_python_version
+from hatch.env import (
+    get_installed_packages, get_python_implementation, get_python_version,
+    install_packages
+)
 from hatch.settings import (
     SETTINGS_FILE, copy_default_settings, restore_settings, save_settings
 )
 from hatch.utils import remove_path, temp_chdir, temp_move_path
-from hatch.venv import VENV_DIR
+from hatch.venv import VENV_DIR, locate_exe_dir, venv
 
 
 def test_success():
@@ -136,3 +139,54 @@ def test_list_success():
                 env_name, get_python_version(), get_python_implementation()
             )
         ) in result.output
+
+
+def test_clone_venv_not_exist():
+    with temp_chdir():
+        runner = CliRunner()
+
+        env_name = os.urandom(10).hex()
+        while os.path.exists(os.path.join(VENV_DIR, env_name)):  # no cov
+            env_name = os.urandom(10).hex()
+
+        result = runner.invoke(hatch, ['env', env_name, '-c', env_name])
+
+        assert result.exit_code == 1
+        assert 'Virtual env `{name}` does not exist.'.format(name=env_name) in result.output
+
+
+def test_clone_success():
+    with temp_chdir():
+        runner = CliRunner()
+
+        origin = os.urandom(10).hex()
+        while os.path.exists(os.path.join(VENV_DIR, origin)):  # no cov
+            origin = os.urandom(10).hex()
+
+        origin_dir = os.path.join(VENV_DIR, origin)
+        clone_dir = origin_dir
+
+        try:
+            runner.invoke(hatch, ['env', origin])
+            with venv(origin_dir):
+                install_packages(['requests'])
+
+            clone = os.urandom(10).hex()
+            while os.path.exists(os.path.join(VENV_DIR, clone)):  # no cov
+                clone = os.urandom(10).hex()
+
+            clone_dir = os.path.join(VENV_DIR, clone)
+
+            result = runner.invoke(hatch, ['env', clone, '-c', origin])
+            with venv(clone_dir):
+                install_packages(['six'])
+                installed_packages = get_installed_packages()
+        finally:
+            remove_path(origin_dir)
+            remove_path(clone_dir)
+
+        assert result.exit_code == 0
+        assert 'Successfully cloned virtual env `{}` from `{}` to {}.'.format(
+            clone, origin, clone_dir) in result.output
+        assert 'requests' in installed_packages
+        assert 'six' in installed_packages

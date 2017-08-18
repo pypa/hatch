@@ -27,7 +27,7 @@ from hatch.utils import (
     NEED_SUBPROCESS_SHELL, ON_WINDOWS, basepath, chdir, get_proper_pip,
     get_proper_python, remove_path, venv_active
 )
-from hatch.venv import VENV_DIR, create_venv, venv
+from hatch.venv import VENV_DIR, clone_venv, create_venv, venv
 
 
 CONTEXT_SETTINGS = {
@@ -502,8 +502,9 @@ def list_envs(ctx, param, value):
 @click.argument('name')
 @click.option('-p', '--python', 'pyname')
 @click.option('-pp', '--pypath')
+@click.option('-c', '--clone')
 @click.option('-l', '--list', 'show', is_flag=True, is_eager=True, callback=list_envs)
-def env(name, pyname, pypath, show):
+def env(name, pyname, pypath, clone, show):
     if pyname:
         try:
             settings = load_settings()
@@ -522,13 +523,21 @@ def env(name, pyname, pypath, show):
                    'it do `hatch shed -e {name}`.'.format(name=name))
         sys.exit(1)
 
-    if not pyname and pypath and not os.path.exists(pypath):
+    if not clone and not pyname and pypath and not os.path.exists(pypath):
         click.echo('Python path `{}` does not exist. Be sure to use the absolute path '
                    'e.g. `/usr/bin/python` instead of simply `python`.'.format(pypath))
         sys.exit(1)
 
-    create_venv(venv_dir, pypath)
-    click.echo('Successfully saved virtual env `{}` to `{}`.'.format(name, venv_dir))
+    if clone:
+        origin = os.path.join(VENV_DIR, clone)
+        if not os.path.exists(origin):
+            click.echo('Virtual env `{name}` does not exist.'.format(name=clone))
+            sys.exit(1)
+        clone_venv(origin, venv_dir)
+        click.echo('Successfully cloned virtual env `{}` from `{}` to {}.'.format(name, clone, venv_dir))
+    else:
+        create_venv(venv_dir, pypath)
+        click.echo('Successfully saved virtual env `{}` to `{}`.'.format(name, venv_dir))
 
 
 @hatch.command(context_settings=CONTEXT_SETTINGS)
