@@ -3,7 +3,6 @@ import subprocess
 from contextlib import contextmanager
 
 from appdirs import user_data_dir
-from atomicwrites import atomic_write
 
 from hatch.env import get_python_path
 from hatch.utils import NEED_SUBPROCESS_SHELL, env_vars
@@ -37,6 +36,9 @@ def fix_executable(path, exe_dir):
         path_end = executable_path.find('"', path_start)
         executable_path = executable_path[path_start:path_end]
 
+        # Remove the first pair of quotes.
+        first_line = first_line.replace('"', '', 2)
+
     # Otherwise, the executable path is whatever precedes the first space.
     else:
         executable_path = executable_path.split()[0]
@@ -49,7 +51,14 @@ def fix_executable(path, exe_dir):
     old_path = executable_path.rstrip(filename)
     new_path = os.path.normpath(exe_dir) + os.path.sep
 
-    lines[0] = first_line.replace(old_path, new_path, 1)
+    first_line = first_line.replace(old_path, new_path, 1)
+
+    if ' ' in exe_dir:
+        full_path = new_path + filename
+        lines[0] = first_line.replace(full_path, '"{}"'.format(full_path))
+    else:
+        lines[0] = first_line
+
     with open(path, 'w') as f:
         f.writelines(lines)
 

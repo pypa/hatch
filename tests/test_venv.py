@@ -4,8 +4,140 @@ import shutil
 import pytest
 
 from hatch.env import get_python_path
+from hatch.structures import File
 from hatch.utils import temp_chdir
-from hatch.venv import create_venv, venv
+from hatch.venv import create_venv, fix_executable, venv
+from .utils import read_file
+
+
+class TestFixExecutable:
+    def test_no_hashbang(self):
+        with temp_chdir() as d:
+            file = os.path.join(d, 'pip')
+            File('pip', '').write(d)
+            original = read_file(file)
+            fix_executable(file, d)
+            updated = read_file(file)
+
+            assert original == updated
+
+    def test_no_path(self):
+        with temp_chdir() as d:
+            file = os.path.join(d, 'pip')
+            File(
+                'pip',
+                '#!'
+            ).write(d)
+            original = read_file(file)
+            fix_executable(file, d)
+            updated = read_file(file)
+
+            assert original == updated
+
+    def test_old_path_normal(self):
+        with temp_chdir() as d:
+            file = os.path.join(d, 'pip')
+            File(
+                'pip',
+                '#!/home/Klaatu/.local/share/hatch/venvs/Gort/bin/python\n'
+                '\n'
+                '# -*- coding: utf-8 -*-\n'
+                'import re\n'
+                'import sys\n'
+                '\n'
+                'from pip import main\n'
+                '\n'
+                "if __name__ == '__main__':\n"
+                "    sys.argv[0] = re.sub(r'(-script\.pyw?|\.exe)?$', '', sys.argv[0])\n"
+                '    sys.exit(main())\n'
+            ).write(d)
+            new_path = os.path.join('some', 'place', 'without', 'spaces')
+            fix_executable(file, new_path)
+            updated = read_file(file)
+
+            assert updated == (
+                '#!{}python\n'
+                '\n'
+                '# -*- coding: utf-8 -*-\n'
+                'import re\n'
+                'import sys\n'
+                '\n'
+                'from pip import main\n'
+                '\n'
+                "if __name__ == '__main__':\n"
+                "    sys.argv[0] = re.sub(r'(-script\.pyw?|\.exe)?$', '', sys.argv[0])\n"
+                '    sys.exit(main())\n'.format(new_path + os.path.sep)
+            )
+
+    def test_old_path_contains_spaces(self):
+        with temp_chdir() as d:
+            file = os.path.join(d, 'pip')
+            File(
+                'pip',
+                '#!"/home/me/.local/share/hatch/venvs/a space/bin/python"\n'
+                '\n'
+                '# -*- coding: utf-8 -*-\n'
+                'import re\n'
+                'import sys\n'
+                '\n'
+                'from pip import main\n'
+                '\n'
+                "if __name__ == '__main__':\n"
+                "    sys.argv[0] = re.sub(r'(-script\.pyw?|\.exe)?$', '', sys.argv[0])\n"
+                '    sys.exit(main())\n'
+            ).write(d)
+            new_path = os.path.join('some', 'place', 'without', 'spaces')
+            fix_executable(file, new_path)
+            updated = read_file(file)
+
+            assert updated == (
+                '#!{}python\n'
+                '\n'
+                '# -*- coding: utf-8 -*-\n'
+                'import re\n'
+                'import sys\n'
+                '\n'
+                'from pip import main\n'
+                '\n'
+                "if __name__ == '__main__':\n"
+                "    sys.argv[0] = re.sub(r'(-script\.pyw?|\.exe)?$', '', sys.argv[0])\n"
+                '    sys.exit(main())\n'.format(new_path + os.path.sep)
+            )
+
+    def test_new_path_contains_spaces(self):
+        with temp_chdir() as d:
+            file = os.path.join(d, 'pip')
+            File(
+                'pip',
+                '#!/home/Klaatu/.local/share/hatch/venvs/Gort/bin/python\n'
+                '\n'
+                '# -*- coding: utf-8 -*-\n'
+                'import re\n'
+                'import sys\n'
+                '\n'
+                'from pip import main\n'
+                '\n'
+                "if __name__ == '__main__':\n"
+                "    sys.argv[0] = re.sub(r'(-script\.pyw?|\.exe)?$', '', sys.argv[0])\n"
+                '    sys.exit(main())\n'
+            ).write(d)
+            new_path = os.path.join('some', 'place', 'with spaces')
+            fix_executable(file, new_path)
+            updated = read_file(file)
+
+            assert updated == (
+                '#!"{}python"\n'
+                '\n'
+                '# -*- coding: utf-8 -*-\n'
+                'import re\n'
+                'import sys\n'
+                '\n'
+                'from pip import main\n'
+                '\n'
+                "if __name__ == '__main__':\n"
+                "    sys.argv[0] = re.sub(r'(-script\.pyw?|\.exe)?$', '', sys.argv[0])\n"
+                '    sys.exit(main())\n'.format(new_path + os.path.sep)
+            )
 
 
 def test_default():
