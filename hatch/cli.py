@@ -11,7 +11,7 @@ from atomicwrites import atomic_write
 from twine.utils import DEFAULT_REPOSITORY, TEST_REPOSITORY
 
 from hatch.build import build_package
-from hatch.clean import clean_package
+from hatch.clean import clean_package, remove_compiled_scripts
 from hatch.create import create_package
 from hatch.env import (
     get_editable_package_location, get_installed_packages, get_python_version,
@@ -311,8 +311,9 @@ def test(package, path, cov, test_args, cov_args, env_aware):
 @hatch.command(context_settings=CONTEXT_SETTINGS)
 @click.argument('package', required=False)
 @click.option('-p', '--path')
+@click.option('-c', '--compiled', is_flag=True)
 @click.option('-v', '--verbose', is_flag=True)
-def clean(package, path, verbose):
+def clean(package, path, compiled, verbose):
     if package:
         path = get_editable_package_location(package)
         if not path:
@@ -328,7 +329,10 @@ def clean(package, path, verbose):
     else:
         path = os.getcwd()
 
-    removed_paths = clean_package(path, editable=package)
+    if compiled:
+        removed_paths = remove_compiled_scripts(path)
+    else:
+        removed_paths = clean_package(path, editable=package)
 
     if verbose:
         if removed_paths:

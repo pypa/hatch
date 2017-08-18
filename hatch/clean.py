@@ -21,6 +21,22 @@ DELETE_EVERYWHERE = {
 ALL_PATTERNS = DELETE_IN_ROOT | DELETE_EVERYWHERE
 
 
+def remove_compiled_scripts(d):
+    removed = set()
+
+    for root, _, files in os.walk(d):
+        for file in files:
+            if file.endswith('.pyc'):
+                removed.add(join(root, file))
+
+    removed = sorted(removed)
+
+    for p in reversed(removed):
+        remove_path(p)
+
+    return removed
+
+
 def find_globs(d, patterns, matches):
     for root, dirs, files in os.walk(d):
         for d in dirs:

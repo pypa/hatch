@@ -42,6 +42,31 @@ def test_cwd():
         assert_files_exist(files)
 
 
+def test_cwd_compiled_only():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        files = find_all_files(d)
+
+        test_file1 = os.path.join(d, 'test.pyc')
+        test_file2 = os.path.join(d, 'ok', 'test.pyc')
+        test_file3 = os.path.join(d, 'ok', 'deeper', 'test.pyc')
+        create_file(test_file1)
+        create_file(test_file2)
+        create_file(test_file3)
+        assert os.path.exists(test_file1)
+        assert os.path.exists(test_file2)
+        assert os.path.exists(test_file3)
+
+        result = runner.invoke(hatch, ['clean', '-c'])
+
+        assert result.exit_code == 0
+        assert not os.path.exists(test_file1)
+        assert not os.path.exists(test_file2)
+        assert not os.path.exists(test_file3)
+        assert_files_exist(files)
+
+
 def test_package():
     with temp_chdir() as d:
         runner = CliRunner()
