@@ -212,14 +212,24 @@ def test_restore_success():
         venv_dir = os.path.join(VENV_DIR, env_name)
         copy_path(venv_origin, VENV_DIR)
 
+        fake_venv = ''
+
         try:
             runner.invoke(hatch, ['env', env_name])
+
+            env_name = os.urandom(10).hex()
+            while os.path.exists(os.path.join(VENV_DIR, env_name)):  # no cov
+                env_name = os.urandom(10).hex()
+            fake_venv = os.path.join(VENV_DIR, env_name)
+            os.makedirs(fake_venv)
+
             result = runner.invoke(hatch, ['env', '-r'])
             with venv(venv_dir):
                 install_packages(['six'])
                 installed_packages = get_installed_packages()
         finally:
             remove_path(venv_dir)
+            remove_path(fake_venv)
 
         assert result.exit_code == 0
         assert 'Successfully restored all available virtual envs.' in result.output
