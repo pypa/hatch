@@ -53,14 +53,7 @@ def test_venv():
 
 def test_venv_unknown():
     with temp_chdir() as d:
-        d = os.path.join(d, 'test_env')
-        create_venv(d)
-
         with pytest.raises(InvalidVirtualEnv):
-            if os.path.exists(os.path.join(d, 'bin')):  # no cov
-                shutil.rmtree(os.path.join(d, 'bin'))
-            if os.path.exists(os.path.join(d, 'Scripts')):  # no cov
-                shutil.rmtree(os.path.join(d, 'Scripts'))
             with venv(d):  # no cov
                 pass
 
