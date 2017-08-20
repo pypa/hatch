@@ -55,6 +55,17 @@ def fix_venv(d):
     remove_compiled_scripts(d)
 
 
+def fix_available_venvs():
+    if not os.path.exists(VENV_DIR):  # no cov
+        return
+
+    for name in sorted(os.listdir(VENV_DIR)):
+        try:
+            fix_venv(os.path.join(VENV_DIR, name))
+        except OSError:
+            pass
+
+
 def fix_executable(path, exe_dir):
     if not isfile(path):
         return

@@ -11,8 +11,8 @@ from hatch.env import (
 from hatch.settings import (
     SETTINGS_FILE, copy_default_settings, restore_settings, save_settings
 )
-from hatch.utils import remove_path, temp_chdir, temp_move_path
-from hatch.venv import VENV_DIR, locate_exe_dir, venv
+from hatch.utils import copy_path, remove_path, temp_chdir, temp_move_path
+from hatch.venv import VENV_DIR, create_venv, locate_exe_dir, venv
 
 
 def test_success():
@@ -195,4 +195,32 @@ def test_clone_success():
         assert 'Successfully cloned virtual env `{}` from `{}` to {}.'.format(
             clone, origin, clone_dir) in result.output
         assert 'requests' in installed_packages
+        assert 'six' in installed_packages
+
+
+def test_restore_success():
+    with temp_chdir() as d:
+        runner = CliRunner()
+
+        env_name = os.urandom(10).hex()
+        while os.path.exists(os.path.join(VENV_DIR, env_name)):  # no cov
+            env_name = os.urandom(10).hex()
+
+        venv_origin = os.path.join(d, env_name)
+        create_venv(venv_origin)
+
+        venv_dir = os.path.join(VENV_DIR, env_name)
+        copy_path(venv_origin, VENV_DIR)
+
+        try:
+            runner.invoke(hatch, ['env', env_name])
+            result = runner.invoke(hatch, ['env', '-r'])
+            with venv(venv_dir):
+                install_packages(['six'])
+                installed_packages = get_installed_packages()
+        finally:
+            remove_path(venv_dir)
+
+        assert result.exit_code == 0
+        assert 'Successfully restored all available virtual envs.' in result.output
         assert 'six' in installed_packages

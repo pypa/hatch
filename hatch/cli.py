@@ -27,7 +27,9 @@ from hatch.utils import (
     NEED_SUBPROCESS_SHELL, ON_WINDOWS, basepath, chdir, get_proper_pip,
     get_proper_python, remove_path, venv_active
 )
-from hatch.venv import VENV_DIR, clone_venv, create_venv, get_available_venvs, venv
+from hatch.venv import (
+    VENV_DIR, clone_venv, create_venv, fix_available_venvs, get_available_venvs, venv
+)
 
 
 CONTEXT_SETTINGS = {
@@ -495,12 +497,21 @@ def list_envs(ctx, param, value):
     ctx.exit()
 
 
+def restore_envs(ctx, param, value):
+    if not value or ctx.resilient_parsing:
+        return
+
+    fix_available_venvs()
+    click.echo('Successfully restored all available virtual envs.')
+    ctx.exit()
+
+
 @hatch.command(context_settings=CONTEXT_SETTINGS)
 @click.argument('name')
 @click.option('-p', '--python', 'pyname')
 @click.option('-pp', '--pypath')
 @click.option('-c', '--clone')
-@click.option('-r', '--restore', is_flag=True)
+@click.option('-r', '--restore', is_flag=True, is_eager=True, callback=restore_envs)
 @click.option('-l', '--list', 'show', is_flag=True, is_eager=True, callback=list_envs)
 def env(name, pyname, pypath, clone, restore, show):
     if pyname:
