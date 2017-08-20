@@ -12,7 +12,7 @@ from hatch.settings import (
     SETTINGS_FILE, copy_default_settings, restore_settings, save_settings
 )
 from hatch.utils import copy_path, remove_path, temp_chdir, temp_move_path
-from hatch.venv import VENV_DIR, create_venv, locate_exe_dir, venv
+from hatch.venv import VENV_DIR, create_venv, venv
 
 
 def test_success():
