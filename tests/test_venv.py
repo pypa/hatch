@@ -6,8 +6,19 @@ import pytest
 from hatch.env import get_python_path
 from hatch.structures import File
 from hatch.utils import temp_chdir
-from hatch.venv import create_venv, fix_executable, venv
+from hatch.venv import create_venv, fix_executable, is_venv, venv
 from .utils import read_file
+
+
+def test_is_venv():
+    with temp_chdir() as d:
+        os.makedirs(os.path.join(d, 'bin'))
+        assert is_venv(d)
+
+
+def test_is_not_venv():
+    with temp_chdir() as d:
+        assert not is_venv(d)
 
 
 def test_default():

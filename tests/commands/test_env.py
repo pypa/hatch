@@ -121,22 +121,28 @@ def test_list_success():
     with temp_chdir():
         runner = CliRunner()
 
-        env_name = os.urandom(10).hex()
-        while os.path.exists(os.path.join(VENV_DIR, env_name)):  # no cov
-            env_name = os.urandom(10).hex()
+        env_name1 = os.urandom(10).hex()
+        while os.path.exists(os.path.join(VENV_DIR, env_name1)):  # no cov
+            env_name1 = os.urandom(10).hex()
+        env_name2 = ''
 
         try:
-            runner.invoke(hatch, ['env', env_name])
+            runner.invoke(hatch, ['env', env_name1])
+            env_name2 = os.urandom(10).hex()
+            while os.path.exists(os.path.join(VENV_DIR, env_name2)):  # no cov
+                env_name2 = os.urandom(10).hex()
+            os.makedirs(os.path.join(VENV_DIR, env_name2))
             result = runner.invoke(hatch, ['env', '-l'])
         finally:
-            remove_path(os.path.join(VENV_DIR, env_name))
+            remove_path(os.path.join(VENV_DIR, env_name1))
+            remove_path(os.path.join(VENV_DIR, env_name2))
 
         assert result.exit_code == 0
         assert (
             '{} ->\n'
             '  Version: {}\n'
             '  Implementation: {}'.format(
-                env_name, get_python_version(), get_python_implementation()
+                env_name1, get_python_version(), get_python_implementation()
             )
         ) in result.output
 

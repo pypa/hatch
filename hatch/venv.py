@@ -13,6 +13,29 @@ from hatch.utils import NEED_SUBPROCESS_SHELL, env_vars
 VENV_DIR = os.path.join(user_data_dir('hatch', ''), 'venvs')
 
 
+def is_venv(d):
+    try:
+        locate_exe_dir(d)
+    except OSError:
+        return False
+
+    return True
+
+
+def get_available_venvs():
+    venvs = []
+
+    if not os.path.exists(VENV_DIR):  # no cov
+        return venvs
+
+    for name in sorted(os.listdir(VENV_DIR)):
+        venv_dir = os.path.join(VENV_DIR, name)
+        if is_venv(venv_dir):
+            venvs.append((name, venv_dir))
+
+    return venvs
+
+
 def create_venv(d, pypath=None):
     command = ['virtualenv', d, '-p', pypath or get_python_path()]
     subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
@@ -20,12 +43,16 @@ def create_venv(d, pypath=None):
 
 def clone_venv(origin, location):
     shutil.copytree(origin, location, copy_function=shutil.copy)
-    venv_exe_dir = locate_exe_dir(location)
+    fix_venv(location)
+
+
+def fix_venv(d):
+    venv_exe_dir = locate_exe_dir(d)
 
     for path in os.listdir(venv_exe_dir):
         fix_executable(path, venv_exe_dir)
 
-    remove_compiled_scripts(location)
+    remove_compiled_scripts(d)
 
 
 def fix_executable(path, exe_dir):

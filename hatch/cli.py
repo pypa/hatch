@@ -27,7 +27,7 @@ from hatch.utils import (
     NEED_SUBPROCESS_SHELL, ON_WINDOWS, basepath, chdir, get_proper_pip,
     get_proper_python, remove_path, venv_active
 )
-from hatch.venv import VENV_DIR, clone_venv, create_venv, venv
+from hatch.venv import VENV_DIR, clone_venv, create_venv, get_available_venvs, venv
 
 
 CONTEXT_SETTINGS = {
@@ -472,20 +472,17 @@ def list_envs(ctx, param, value):
     if not value or ctx.resilient_parsing:
         return
 
-    venv_names = [
-        path for path in os.listdir(VENV_DIR)
-        if os.path.isdir(os.path.join(VENV_DIR, path))
-    ] if os.path.exists(VENV_DIR) else None
+    venvs = get_available_venvs()
 
-    if venv_names:
+    if venvs:
         click.echo('Virtual environments found in {}:\n'.format(VENV_DIR))
-        for name in venv_names:
-            with venv(os.path.join(VENV_DIR, name)):
+        for venv_name, venv_dir in venvs:
+            with venv(venv_dir):
                 click.echo(
                     '{} ->\n'
                     '  Version: {}\n'
                     '  Implementation: {}'.format(
-                        name, get_python_version(), get_python_implementation()
+                        venv_name, get_python_version(), get_python_implementation()
                     )
                 )
 
@@ -503,8 +500,9 @@ def list_envs(ctx, param, value):
 @click.option('-p', '--python', 'pyname')
 @click.option('-pp', '--pypath')
 @click.option('-c', '--clone')
+@click.option('-r', '--restore', is_flag=True)
 @click.option('-l', '--list', 'show', is_flag=True, is_eager=True, callback=list_envs)
-def env(name, pyname, pypath, clone, show):
+def env(name, pyname, pypath, clone, restore, show):
     if pyname:
         try:
             settings = load_settings()
