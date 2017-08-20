@@ -1,0 +1,2 @@
+class InvalidVirtualEnv(Exception):
+    pass

@@ -7,6 +7,7 @@ from os.path import isfile
 from appdirs import user_data_dir
 
 from hatch.clean import remove_compiled_scripts
+from hatch.exceptions import InvalidVirtualEnv
 from hatch.env import get_python_path
 from hatch.utils import NEED_SUBPROCESS_SHELL, env_vars
 
@@ -16,7 +17,7 @@ VENV_DIR = os.path.join(user_data_dir('hatch', ''), 'venvs')
 def is_venv(d):
     try:
         locate_exe_dir(d)
-    except OSError:
+    except InvalidVirtualEnv:
         return False
 
     return True
@@ -62,7 +63,7 @@ def fix_available_venvs():
     for name in sorted(os.listdir(VENV_DIR)):
         try:
             fix_venv(os.path.join(VENV_DIR, name))
-        except OSError:
+        except InvalidVirtualEnv:
             pass
 
 
@@ -123,7 +124,7 @@ def locate_exe_dir(d):
     elif os.path.exists(os.path.join(d, 'Scripts')):  # no cov
         return os.path.join(d, 'Scripts')
     else:
-        raise OSError('Unable to locate executables directory.')
+        raise InvalidVirtualEnv('Unable to locate executables directory.')
 
 
 @contextmanager

@@ -3,6 +3,7 @@ import shutil
 
 import pytest
 
+from hatch.exceptions import InvalidVirtualEnv
 from hatch.env import get_python_path
 from hatch.structures import File
 from hatch.utils import temp_chdir
@@ -55,7 +56,7 @@ def test_venv_unknown():
         d = os.path.join(d, 'test_env')
         create_venv(d)
 
-        with pytest.raises(OSError):
+        with pytest.raises(InvalidVirtualEnv):
             if os.path.exists(os.path.join(d, 'bin')):  # no cov
                 shutil.rmtree(os.path.join(d, 'bin'))
             if os.path.exists(os.path.join(d, 'Scripts')):  # no cov
