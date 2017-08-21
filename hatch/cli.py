@@ -301,7 +301,7 @@ def test(package, path, cov, merge, test_args, cov_args, env_aware):
                 output += result.stderr or b''
 
             result = subprocess.run(
-                python_cmd + ['coverage', 'report', '-m'],
+                python_cmd + ['coverage', 'report', '--show-missing'],
                 stdout=stdout, stderr=stderr,
                 shell=NEED_SUBPROCESS_SHELL
             )
