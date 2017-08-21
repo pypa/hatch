@@ -260,7 +260,7 @@ def test(package, path, cov, merge, test_args, cov_args, env_aware):
         command.extend(['coverage', 'run'])
         command.extend(
             cov_args.split() if cov_args is not None
-            else ['--parallel-mode'] if merge else []
+            else (['--parallel-mode'] if merge else [])
         )
         command.append('-m')
 
@@ -291,13 +291,14 @@ def test(package, path, cov, merge, test_args, cov_args, env_aware):
         if cov:
             click.echo('\nTests completed, checking coverage...\n')
 
-            result = subprocess.run(
-                python_cmd + ['coverage', 'combine'] + ['--append'] if merge else [],
-                stdout=stdout, stderr=stderr,
-                shell=NEED_SUBPROCESS_SHELL
-            )
-            output += result.stdout or b''
-            output += result.stderr or b''
+            if merge:
+                result = subprocess.run(
+                    python_cmd + ['coverage', 'combine', '--append'],
+                    stdout=stdout, stderr=stderr,
+                    shell=NEED_SUBPROCESS_SHELL
+                )
+                output += result.stdout or b''
+                output += result.stderr or b''
 
             result = subprocess.run(
                 python_cmd + ['coverage', 'report', '-m'],
