@@ -162,6 +162,20 @@ def test_coverage_complete():
         assert result.output.strip().endswith(' 100%')
 
 
+def test_coverage_complete_merge():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        create_test_complete_coverage(d, 'ok')
+
+        runner.invoke(hatch, ['test', '-c'])
+        result = runner.invoke(hatch, ['test', '-c', '-m'])
+
+        assert result.exit_code == 0
+        assert '1 passed' in result.output
+        assert result.output.strip().endswith(' 100%')
+
+
 def test_coverage_incomplete():
     with temp_chdir() as d:
         runner = CliRunner()

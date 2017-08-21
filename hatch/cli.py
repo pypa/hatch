@@ -233,10 +233,11 @@ def grow(part, package, path):
 @click.argument('package', required=False)
 @click.option('-p', '--path')
 @click.option('-c', '--cov', is_flag=True)
+@click.option('-m', '--merge', is_flag=True)
 @click.option('-ta', '--test-args', default='')
 @click.option('-ca', '--cov-args')
 @click.option('-e', '--env-aware', is_flag=True)
-def test(package, path, cov, test_args, cov_args, env_aware):
+def test(package, path, cov, merge, test_args, cov_args, env_aware):
     if package:
         path = get_editable_package_location(package)
         if not path:
@@ -257,7 +258,10 @@ def test(package, path, cov, test_args, cov_args, env_aware):
 
     if cov:
         command.extend(['coverage', 'run'])
-        command.extend(cov_args.split() if cov_args is not None else ['--parallel-mode'])
+        command.extend(
+            cov_args.split() if cov_args is not None
+            else ['--parallel-mode'] if merge else []
+        )
         command.append('-m')
 
     command.append('pytest')
@@ -288,7 +292,7 @@ def test(package, path, cov, test_args, cov_args, env_aware):
             click.echo('\nTests completed, checking coverage...\n')
 
             result = subprocess.run(
-                python_cmd + ['coverage', 'combine', '--append'],
+                python_cmd + ['coverage', 'combine'] + ['--append'] if merge else [],
                 stdout=stdout, stderr=stderr,
                 shell=NEED_SUBPROCESS_SHELL
             )
