@@ -33,11 +33,11 @@ from hatch.venv import (
 
 
 CONTEXT_SETTINGS = {
-    'max_content_width': 300
+    'help_option_names': ['-h', '--help'],
 }
 UNKNOWN_OPTIONS = {
-    'max_content_width': 300,
-    'ignore_unknown_options': True
+    'ignore_unknown_options': True,
+    **CONTEXT_SETTINGS
 }
 
 
