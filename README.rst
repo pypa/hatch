@@ -19,7 +19,7 @@ Hatch
 -----
 
 Table of Contents
-~~~~~~~~~~~~~~~~~
+-----------------
 
 .. contents::
     :backlinks: none
