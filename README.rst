@@ -18,10 +18,7 @@ Hatch
 
 -----
 
-Table of Contents
------------------
-
-.. contents::
+.. contents:: **Table of Contents**
     :backlinks: none
 
 Installation
