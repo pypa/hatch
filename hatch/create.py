@@ -5,7 +5,7 @@ from hatch.files.coverage import Codecov, CoverageConfig
 from hatch.files.licenses import (
     Apache2License, CC0License, MITLicense, MPLLicense
 )
-from hatch.files.readme import ReStructuredTextReadme
+from hatch.files.readme import MarkdownReadme, ReStructuredTextReadme
 from hatch.files.setup import SetupFile
 from hatch.files.vc import setup_git
 from hatch.settings import DEFAULT_SETTINGS
@@ -20,6 +20,7 @@ LICENSES = {
 }
 README = {
     'rst': ReStructuredTextReadme,
+    'md': MarkdownReadme,
 }
 VC_SETUP = {
     'git': setup_git,
