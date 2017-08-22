@@ -23,7 +23,6 @@ Table of Contents
 
 .. contents::
     :backlinks: none
-    :local:
 
 Installation
 ------------
