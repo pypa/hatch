@@ -5,12 +5,8 @@ TEMPLATE = """\
 {header_marker}
 {badges}-----
 
-Table of Contents
-~~~~~~~~~~~~~~~~~
-
-.. contents::
-    :backlinks: top
-    :local:
+.. contents:: **Table of Contents**
+    :backlinks: none
 
 Installation
 ------------
