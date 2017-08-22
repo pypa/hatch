@@ -26,22 +26,27 @@ DEFAULT_SETTINGS = OrderedDict([
             OrderedDict([
                 ('image', 'https://img.shields.io/pypi/v/{}.svg'),
                 ('target', 'https://pypi.org/project/{}'),
+                ('alt', 'Latest PyPI version'),
             ]),
             OrderedDict([
                 ('image', 'https://img.shields.io/travis/_/{}/master.svg'),
                 ('target', 'https://travis-ci.org/_/{}'),
+                ('alt', 'Travis CI'),
             ]),
             OrderedDict([
                 ('image', 'https://img.shields.io/codecov/c/github/_/{}/master.svg'),
                 ('target', 'https://codecov.io/gh/_/{}'),
+                ('alt', 'Codecov'),
             ]),
             OrderedDict([
                 ('image', 'https://img.shields.io/pypi/pyversions/{}.svg'),
                 ('target', 'https://pypi.org/project/{}'),
+                ('alt', 'Supported Python versions'),
             ]),
             OrderedDict([
                 ('image', 'https://img.shields.io/pypi/l/{}.svg'),
                 ('target', 'https://choosealicense.com/licenses'),
+                ('alt', 'License'),
             ]),
         ]),
     ])),

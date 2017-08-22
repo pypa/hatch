@@ -17,9 +17,10 @@ class File:
 
 
 class Badge:
-    def __init__(self, image, target, params=None):
+    def __init__(self, image, target, alt, params=None):
         self.image = image
         self.target = target
+        self.alt = alt
 
         if params:
             self.image += '?' + urlencode(params)

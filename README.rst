@@ -3,18 +3,23 @@ Hatch
 
 .. image:: https://img.shields.io/pypi/v/hatch.svg?style=flat-square
     :target: https://pypi.org/project/hatch
+    :alt: Latest PyPI version
 
 .. image:: https://img.shields.io/travis/ofek/hatch/master.svg?style=flat-square
     :target: https://travis-ci.org/ofek/hatch
+    :alt: Travis CI
 
 .. image:: https://img.shields.io/codecov/c/github/ofek/hatch/master.svg?style=flat-square
     :target: https://codecov.io/gh/ofek/hatch
+    :alt: Codecov
 
 .. image:: https://img.shields.io/pypi/pyversions/hatch.svg?style=flat-square
     :target: https://pypi.org/project/hatch
+    :alt: Supported Python versions
 
 .. image:: https://img.shields.io/pypi/l/hatch.svg?style=flat-square
     :target: https://choosealicense.com/licenses
+    :alt: License
 
 -----
 

@@ -62,11 +62,13 @@ def create_package(d, package_name, settings):
         for badge_info in settings.get('readme', {}).get('badges', []):
             image = badge_info.pop('image', 'no_image')
             target = badge_info.pop('target', 'no_target')
+            alt = badge_info.pop('alt', 'badge')
 
             badges.append(
                 Badge(
                     image.format(package_name),
                     target.format(package_name),
+                    alt,
                     badge_info
                 )
             )

@@ -87,4 +87,4 @@ class ReStructuredTextReadme(File):
 
     @classmethod
     def format_badge(cls, badge):
-        return '\n.. image:: {}\n    :target: {}\n'.format(badge.image, badge.target)
+        return '\n.. image:: {}\n    :target: {}\n    :alt: {}\n'.format(badge.image, badge.target, badge.alt)

@@ -165,7 +165,8 @@ def test_badges_single():
         settings['readme']['badges'] = [
             {
                 'image': 'https://img.shields.io/pypi/v/ok.svg',
-                'target': 'https://pypi.org/project/ok'
+                'target': 'https://pypi.org/project/ok',
+                'alt': 'Latest PyPI version'
             }
         ]
         create_package(d, 'ok', settings)
@@ -177,6 +178,7 @@ def test_badges_single():
             '\n'
             '.. image:: https://img.shields.io/pypi/v/ok.svg\n'
             '    :target: https://pypi.org/project/ok\n'
+            '    :alt: Latest PyPI version\n'
             '\n'
         )
 
@@ -188,11 +190,13 @@ def test_badges_multiple():
         settings['readme']['badges'] = [
             {
                 'image': 'https://img.shields.io/pypi/v/ok.svg',
-                'target': 'https://pypi.org/project/ok'
+                'target': 'https://pypi.org/project/ok',
+                'alt': 'Latest PyPI version'
             },
             {
                 'image': 'https://img.shields.io/pypi/l/ok.svg',
-                'target': 'https://choosealicense.com/licenses'
+                'target': 'https://choosealicense.com/licenses',
+                'alt': 'License'
             }
         ]
         create_package(d, 'ok', settings)
@@ -204,9 +208,11 @@ def test_badges_multiple():
             '\n'
             '.. image:: https://img.shields.io/pypi/v/ok.svg\n'
             '    :target: https://pypi.org/project/ok\n'
+            '    :alt: Latest PyPI version\n'
             '\n'
             '.. image:: https://img.shields.io/pypi/l/ok.svg\n'
             '    :target: https://choosealicense.com/licenses\n'
+            '    :alt: License\n'
             '\n'
         )
 
@@ -219,11 +225,13 @@ def test_badges_params():
             {
                 'image': 'https://img.shields.io/pypi/v/ok.svg',
                 'target': 'https://pypi.org/project/ok',
+                'alt': 'Latest PyPI version',
                 'style': 'flat-square'
             },
             {
                 'image': 'https://img.shields.io/pypi/l/ok.svg',
                 'target': 'https://choosealicense.com/licenses',
+                'alt': 'License',
                 'style': 'flat-square'
             }
         ]
@@ -236,8 +244,10 @@ def test_badges_params():
             '\n'
             '.. image:: https://img.shields.io/pypi/v/ok.svg?style=flat-square\n'
             '    :target: https://pypi.org/project/ok\n'
+            '    :alt: Latest PyPI version\n'
             '\n'
             '.. image:: https://img.shields.io/pypi/l/ok.svg?style=flat-square\n'
             '    :target: https://choosealicense.com/licenses\n'
+            '    :alt: License\n'
             '\n'
         )
