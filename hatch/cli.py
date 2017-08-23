@@ -48,7 +48,7 @@ def hatch():
 
 
 @hatch.command(context_settings=CONTEXT_SETTINGS,
-               short_help='Creates a new Python project.')
+               short_help='Creates a new Python project')
 @click.argument('name')
 @click.option('--basic', is_flag=True,
               help='Disables CI/coverage services and readme badges.')
@@ -116,7 +116,7 @@ def egg(name, basic, cli, licenses):
 
 
 @hatch.command(context_settings=CONTEXT_SETTINGS,
-               short_help='Creates a new Python project in the current directory.')
+               short_help='Creates a new Python project in the current directory')
 @click.argument('name')
 @click.option('--basic', is_flag=True,
               help='Disables CI/coverage services and readme badges.')
@@ -175,7 +175,7 @@ def init(name, basic, cli, licenses):
 
 
 @hatch.command(context_settings=CONTEXT_SETTINGS,
-               short_help='Locates, updates, or restores the config file.')
+               short_help='Locates, updates, or restores the config file')
 @click.option('-u', '--update', 'update_settings', is_flag=True,
               help='Updates the config file with any new fields.')
 @click.option('--restore', is_flag=True,
