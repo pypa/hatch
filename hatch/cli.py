@@ -204,13 +204,30 @@ def config(update_settings, restore):
     click.echo('Settings location: ' + SETTINGS_FILE)
 
 
-@hatch.command(context_settings=CONTEXT_SETTINGS)
+@hatch.command(context_settings=CONTEXT_SETTINGS, short_help='Updates packages')
 @click.argument('env_name', required=False)
-@click.option('--eager', is_flag=True)
-@click.option('--all', 'all_packages', is_flag=True)
-@click.option('--infra', is_flag=True)
+@click.option('--eager', is_flag=True,
+              help=(
+                  'Updates all dependencies regardless of whether they '
+                  'still satisfy the new parent requirements. See: '
+                  'https://github.com/pypa/pip/pull/3972'
+              ))
+@click.option('--all', 'all_packages', is_flag=True,
+              help=(
+                  'Updates all currently installed packages instead of '
+                  'looking for a `requirements.txt`. The packages `pip`, '
+                  '`setuptools`, and `wheel` are excluded.'
+              ))
+@click.option('--infra', is_flag=True,
+              help='Updates only the packages `pip`, `setuptools`, and `wheel`.')
 @click.option('-g', '--global', 'global_install', is_flag=True)
 def update(env_name, eager, all_packages, infra, global_install):
+    """With no options selected, this will update packages by looking for a
+    `requirements.txt` in the current directory. If the optional argument is
+    supplied, the update will be applied using that named virtual env. Unless
+    the option --global is selected, the update will only affect the current
+    user.
+    """
     command = [
         'install', '--upgrade', '--upgrade-strategy',
         'eager' if eager else 'only-if-needed'
