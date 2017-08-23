@@ -47,17 +47,25 @@ def hatch():
     pass
 
 
-@hatch.command(context_settings=CONTEXT_SETTINGS, short_help='Create a new Python project.')
+@hatch.command(context_settings=CONTEXT_SETTINGS)
 @click.argument('name')
-@click.option('--basic', is_flag=True)
-@click.option('--cli', is_flag=True)
-@click.option('-l', '--licenses')
+@click.option('--basic', is_flag=True,
+              help='Disables CI/coverage services and readme badges.')
+@click.option('--cli', is_flag=True,
+              help=(
+                  'Creates a `cli.py` in the package directory and an entry '
+                  'point in `setup.py` pointing to the properly named function '
+                  'within. Also, a `__main__.py` is created so it can be '
+                  'invoked via `python -m pkg_name`.'
+              ))
+@click.option('-l', '--licenses',
+              help='Comma-separated list of licenses to use. This overrides the config file.')
 def egg(name, basic, cli, licenses):
-    """Create a new Python project.
+    """Creates a new Python project.
 
     Values from your config file such as `name` and `pyversions` will be used
     to help populate fields. You can also specify things like the readme format
-    and what CI service file to create.
+    and which CI service files to create.
 
     Here is an example using an unmodified config file:
 
@@ -108,10 +116,44 @@ def egg(name, basic, cli, licenses):
 
 @hatch.command(context_settings=CONTEXT_SETTINGS)
 @click.argument('name')
-@click.option('--basic', is_flag=True)
-@click.option('--cli', is_flag=True)
-@click.option('-l', '--licenses')
+@click.option('--basic', is_flag=True,
+              help='Disables CI/coverage services and readme badges.')
+@click.option('--cli', is_flag=True,
+              help=(
+                  'Creates a `cli.py` in the package directory and an entry '
+                  'point in `setup.py` pointing to the properly named function '
+                  'within. Also, a `__main__.py` is created so it can be '
+                  'invoked via `python -m pkg_name`.'
+              ))
+@click.option('-l', '--licenses',
+              help='Comma-separated list of licenses to use. This overrides the config file.')
 def init(name, basic, cli, licenses):
+    """Creates a new Python project in the current directory.
+
+    Values from your config file such as `name` and `pyversions` will be used
+    to help populate fields. You can also specify things like the readme format
+    and which CI service files to create.
+
+    Here is an example using an unmodified config file:
+
+    \b
+    $ hatch init my-app
+    Created project `my-app` here
+    $ tree --dirsfirst .
+    .
+    ├── my_app
+    │   └── __init__.py
+    ├── tests
+    │   └── __init__.py
+    ├── LICENSE-APACHE
+    ├── LICENSE-MIT
+    ├── README.rst
+    ├── requirements.txt
+    ├── setup.py
+    └── tox.ini
+
+    2 directories, 8 files
+    """
     try:
         settings = load_settings()
     except FileNotFoundError:
