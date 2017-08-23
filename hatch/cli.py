@@ -114,7 +114,8 @@ def egg(name, basic, cli, licenses):
         click.echo('Created project `{}`'.format(name))
 
 
-@hatch.command(context_settings=CONTEXT_SETTINGS)
+@hatch.command(context_settings=CONTEXT_SETTINGS,
+               short_help='Creates a new Python project in the current directory.')
 @click.argument('name')
 @click.option('--basic', is_flag=True,
               help='Disables CI/coverage services and readme badges.')
