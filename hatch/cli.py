@@ -220,13 +220,18 @@ def config(update_settings, restore):
               ))
 @click.option('--infra', is_flag=True,
               help='Updates only the packages `pip`, `setuptools`, and `wheel`.')
-@click.option('-g', '--global', 'global_install', is_flag=True)
+@click.option('-g', '--global', 'global_install', is_flag=True,
+              help=(
+                  'Updates globally, rather than on a per-user basis. This '
+                  'has no effect if a virtual env is in use.'
+              ))
 def update(env_name, eager, all_packages, infra, global_install):
     """With no options selected, this will update packages by looking for a
     `requirements.txt` in the current directory. If the optional argument is
-    supplied, the update will be applied using that named virtual env. Unless
-    the option --global is selected, the update will only affect the current
-    user.
+    supplied, the update will be applied using that named virtual env.
+
+    Unless the option --global is selected, the update will only affect the
+    current user.
     """
     command = [
         'install', '--upgrade', '--upgrade-strategy',
