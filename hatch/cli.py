@@ -293,11 +293,48 @@ def update(env_name, eager, all_packages, infra, global_install):
         click.echo('Successfully updated.'.format(env_name))
 
 
-@hatch.command(context_settings=CONTEXT_SETTINGS)
+@hatch.command(context_settings=CONTEXT_SETTINGS,
+               short_help="Increments a project's version")
 @click.argument('part', type=click.Choice(BUMP.keys()))
 @click.argument('package', required=False)
-@click.option('-p', '--path')
+@click.option('-p', '--path', help='A relative or absolute path to a project.')
 def grow(part, package, path):
+    """Increments a project's version number using semantic versioning.
+    Valid choices for the part are `major`, `minor`, `patch` (`fix` alias),
+    `pre`, and `build`.
+
+    The path to the project is derived in the following order:
+
+    \b
+    1. The optional argument, which should be the name of a package
+       that was installed via `pip install -e`.
+    2. The option --path, which can be a relative or absolute path.
+    3. The current directory.
+
+    The path, and every top level directory within, will be checked for an
+    `__about__.py` and `__init__.py`, in that order. The first encounter of
+    a `__version__` variable that also appears to equal a version string will
+    be updated.
+
+    \b
+    $ hatch init my-app
+    Created project `my-app` here
+    $ hatch grow build
+    Updated /home/ofek/test/my_app/__init__.py
+    0.0.1 -> 0.0.1+build.1
+    $ hatch grow fix
+    Updated /home/ofek/test/my_app/__init__.py
+    0.0.1+build.1 -> 0.0.2
+    $ hatch grow pre
+    Updated /home/ofek/test/my_app/__init__.py
+    0.0.2 -> 0.0.2-rc.1
+    $ hatch grow minor
+    Updated /home/ofek/test/my_app/__init__.py
+    0.0.2-rc.1 -> 0.1.0
+    $ hatch grow major
+    Updated /home/ofek/test/my_app/__init__.py
+    0.1.0 -> 1.0.0
+    """
     if package:
         path = get_editable_package_location(package)
         if not path:
