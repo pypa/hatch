@@ -317,23 +317,22 @@ def grow(part, package, path):
     version string will be updated.
 
     \b
-    $ hatch init my-app
-    Created project `my-app` here
+    $ git clone -q https://github.com/requests/requests && cd requests
     $ hatch grow build
-    Updated /home/ofek/test/my_app/__init__.py
-    0.0.1 -> 0.0.1+build.1
+    Updated /home/ofek/requests/requests/__version__.py
+    2.18.4 -> 2.18.4+build.1
     $ hatch grow fix
-    Updated /home/ofek/test/my_app/__init__.py
-    0.0.1+build.1 -> 0.0.2
+    Updated /home/ofek/requests/requests/__version__.py
+    2.18.4+build.1 -> 2.18.5
     $ hatch grow pre
-    Updated /home/ofek/test/my_app/__init__.py
-    0.0.2 -> 0.0.2-rc.1
+    Updated /home/ofek/requests/requests/__version__.py
+    2.18.5 -> 2.18.5-rc.1
     $ hatch grow minor
-    Updated /home/ofek/test/my_app/__init__.py
-    0.0.2-rc.1 -> 0.1.0
+    Updated /home/ofek/requests/requests/__version__.py
+    2.18.5-rc.1 -> 2.19.0
     $ hatch grow major
-    Updated /home/ofek/test/my_app/__init__.py
-    0.1.0 -> 1.0.0
+    Updated /home/ofek/requests/requests/__version__.py
+    2.19.0 -> 3.0.0
     """
     if package:
         path = get_editable_package_location(package)
