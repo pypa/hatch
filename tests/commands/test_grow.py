@@ -57,6 +57,27 @@ def test_package_cwd_about():
         assert '0.0.1 -> 0.1.0' in result.output
 
 
+def test_package_cwd_version():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', 'ok', '--basic'])
+
+        init_file = os.path.join(d, 'ok', '__init__.py')
+        about_file = os.path.join(d, 'ok', '__about__.py')
+        version_file = os.path.join(d, 'ok', '__version__.py')
+        shutil.copyfile(init_file, about_file)
+        shutil.copyfile(init_file, version_file)
+
+        result = runner.invoke(hatch, ['grow', 'minor'])
+
+        assert result.exit_code == 0
+        assert read_file(init_file) == "__version__ = '0.0.1'\n"
+        assert read_file(about_file) == "__version__ = '0.0.1'\n"
+        assert read_file(version_file) == "__version__ = '0.1.0'\n"
+        assert 'Updated {}'.format(version_file) in result.output
+        assert '0.0.1 -> 0.1.0' in result.output
+
+
 def test_init_cwd():
     with temp_chdir() as d:
         runner = CliRunner()

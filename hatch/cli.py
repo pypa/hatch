@@ -312,9 +312,9 @@ def grow(part, package, path):
     3. The current directory.
 
     The path, and every top level directory within, will be checked for an
-    `__about__.py` and `__init__.py`, in that order. The first encounter of
-    a `__version__` variable that also appears to equal a version string will
-    be updated.
+    `__version__.py`, `__about__.py`, and `__init__.py`, in that order. The
+    first encounter of a `__version__` variable that also appears to equal a
+    version string will be updated.
 
     \b
     $ hatch init my-app

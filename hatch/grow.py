@@ -14,7 +14,7 @@ BUMP = OrderedDict([
     ('pre', semver.bump_prerelease),
     ('build', semver.bump_build)
 ])
-FILE_NAMES = ['__about__.py', '__init__.py']
+FILE_NAMES = ['__version__.py', '__about__.py', '__init__.py']
 
 
 def bump_package_version(d, part='patch'):
@@ -25,13 +25,11 @@ def bump_package_version(d, part='patch'):
         if os.path.exists(path):
             version_files.append(path)
 
-    for f in os.scandir(d):
+    for path in sorted(p.path for p in os.scandir(d)):
         for filename in FILE_NAMES:
-            path = os.path.join(f.path, filename)
-            if os.path.exists(path):
-                version_files.append(path)
-
-    version_files.sort()
+            file = os.path.join(path, filename)
+            if os.path.exists(file):
+                version_files.append(file)
 
     for version_file in version_files:
         with open(version_file, 'r') as f:
