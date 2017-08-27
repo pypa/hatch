@@ -298,7 +298,11 @@ def update(env_name, eager, all_packages, infra, global_install):
 @click.argument('part', type=click.Choice(BUMP.keys()))
 @click.argument('package', required=False)
 @click.option('-p', '--path', help='A relative or absolute path to a project.')
-def grow(part, package, path):
+@click.option('--pre', 'pre_token',
+              help='The token to use for `pre` part. This overrides config. Default: rc')
+@click.option('--build', 'build_token',
+              help='The token to use for `build` part. This overrides config. Default: build')
+def grow(part, package, path, pre_token, build_token):
     """Increments a project's version number using semantic versioning.
     Valid choices for the part are `major`, `minor`, `patch` (`fix` alias),
     `pre`, and `build`.
@@ -316,6 +320,10 @@ def grow(part, package, path):
     first encounter of a `__version__` variable that also appears to equal a
     version string will be updated. Probable package paths will be given
     precedence.
+
+    The default tokens for the prerelease and build parts, `rc` and `build`
+    respectively, can be altered via the options `--pre` and `--build`, or
+    the config entry `semver`.
 
     \b
     $ git clone -q https://github.com/requests/requests && cd requests
@@ -350,7 +358,17 @@ def grow(part, package, path):
     else:
         path = os.getcwd()
 
-    f, old_version, new_version = bump_package_version(path, part)
+    try:
+        settings = load_settings()
+    except FileNotFoundError:  # no cov
+        settings = {}
+
+    pre_token = pre_token or settings.get('semver', {}).get('pre')
+    build_token = build_token or settings.get('semver', {}).get('build')
+
+    f, old_version, new_version = bump_package_version(
+        path, part, pre_token, build_token
+    )
 
     if new_version:
         click.echo('Updated {}'.format(f))

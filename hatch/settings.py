@@ -14,6 +14,10 @@ DEFAULT_SETTINGS = OrderedDict([
     ('shell', ''),
     ('nest_shells', False),
     ('pythons', OrderedDict([])),
+    ('semver', OrderedDict([
+        ('pre', ''),
+        ('build', ''),
+    ])),
     ('pypi_username', ''),
     ('name', 'U.N. Owen'),
     ('email', 'me@un.known'),

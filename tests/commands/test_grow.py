@@ -5,7 +5,10 @@ from click.testing import CliRunner
 
 from hatch.cli import hatch
 from hatch.env import install_packages
-from hatch.utils import basepath, temp_chdir
+from hatch.settings import (
+    SETTINGS_FILE, copy_default_settings, load_settings, save_settings
+)
+from hatch.utils import basepath, temp_chdir, temp_move_path
 from hatch.venv import create_venv, venv
 from ..utils import read_file
 
@@ -281,3 +284,79 @@ def test_no_match():
 
         assert result.exit_code == 1
         assert 'Unable to find a version specifier.' in result.output
+
+
+def test_pre_config():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        init_file = os.path.join(d, 'ok', '__init__.py')
+
+        with temp_move_path(SETTINGS_FILE, d):
+            settings = copy_default_settings()
+            settings['semver']['pre'] = 'dev'
+            save_settings(settings)
+            result = runner.invoke(hatch, ['grow', 'pre'])
+            contents = read_file(init_file)
+
+        assert result.exit_code == 0
+        assert contents == "__version__ = '0.0.1-dev.1'\n"
+        assert 'Updated {}'.format(init_file) in result.output
+        assert '0.0.1 -> 0.0.1-dev.1' in result.output
+
+
+def test_pre_option():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        init_file = os.path.join(d, 'ok', '__init__.py')
+
+        with temp_move_path(SETTINGS_FILE, d):
+            settings = copy_default_settings()
+            settings['semver']['pre'] = 'rc'
+            save_settings(settings)
+            result = runner.invoke(hatch, ['grow', 'pre', '--pre', 'dev'])
+            contents = read_file(init_file)
+
+        assert result.exit_code == 0
+        assert contents == "__version__ = '0.0.1-dev.1'\n"
+        assert 'Updated {}'.format(init_file) in result.output
+        assert '0.0.1 -> 0.0.1-dev.1' in result.output
+
+
+def test_build_config():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        init_file = os.path.join(d, 'ok', '__init__.py')
+
+        with temp_move_path(SETTINGS_FILE, d):
+            settings = copy_default_settings()
+            settings['semver']['build'] = 'nightly'
+            save_settings(settings)
+            result = runner.invoke(hatch, ['grow', 'build'])
+            contents = read_file(init_file)
+
+        assert result.exit_code == 0
+        assert contents == "__version__ = '0.0.1+nightly.1'\n"
+        assert 'Updated {}'.format(init_file) in result.output
+        assert '0.0.1 -> 0.0.1+nightly.1' in result.output
+
+
+def test_build_option():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        init_file = os.path.join(d, 'ok', '__init__.py')
+
+        with temp_move_path(SETTINGS_FILE, d):
+            settings = copy_default_settings()
+            settings['semver']['build'] = 'rc'
+            save_settings(settings)
+            result = runner.invoke(hatch, ['grow', 'build', '--build', 'nightly'])
+            contents = read_file(init_file)
+
+        assert result.exit_code == 0
+        assert contents == "__version__ = '0.0.1+nightly.1'\n"
+        assert 'Updated {}'.format(init_file) in result.output
+        assert '0.0.1 -> 0.0.1+nightly.1' in result.output

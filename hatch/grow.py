@@ -19,7 +19,7 @@ BUMP = OrderedDict([
 FILE_NAMES = ['__version__.py', '__about__.py', '__init__.py']
 
 
-def bump_package_version(d, part='patch'):
+def bump_package_version(d, part='patch', pre_token=None, build_token=None):
     version_files = []
 
     for filename in FILE_NAMES:
@@ -55,7 +55,12 @@ def bump_package_version(d, part='patch'):
                 match = VERSION.search(line)
                 if match:
                     old_version = line.strip().split('=')[1].strip(' \'"')
-                    new_version = BUMP[part](old_version)
+                    if part == 'pre':
+                        new_version = BUMP[part](old_version, pre_token)
+                    elif part == 'build':
+                        new_version = BUMP[part](old_version, build_token)
+                    else:
+                        new_version = BUMP[part](old_version)
                     lines[i] = lines[i].replace(old_version, new_version)
 
                     with atomic_write(version_file, overwrite=True) as f:
