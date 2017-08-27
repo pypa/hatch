@@ -1,3 +1,4 @@
+import glob
 import os
 
 from click.testing import CliRunner
@@ -15,9 +16,11 @@ def test_cwd():
         runner.invoke(hatch, ['init', 'ok', '--basic'])
 
         result = runner.invoke(hatch, ['build'])
+        files = os.listdir(os.path.join(d, 'dist'))
 
         assert result.exit_code == 0
-        assert matching_file(r'.*\.whl$', os.listdir(os.path.join(d, 'dist')))
+        assert matching_file(r'.*\.whl$', files)
+        assert len(files) == 2
 
 
 def test_package():
@@ -35,9 +38,11 @@ def test_package():
             os.chdir(d)
 
             result = runner.invoke(hatch, ['build', 'ok'])
+            files = os.listdir(os.path.join(package_dir, 'dist'))
 
         assert result.exit_code == 0
-        assert matching_file(r'.*\.whl$', os.listdir(os.path.join(package_dir, 'dist')))
+        assert matching_file(r'.*\.whl$', files)
+        assert len(files) == 2
 
 
 def test_package_not_exist():
@@ -59,9 +64,11 @@ def test_path_relative():
         runner.invoke(hatch, ['egg', 'ok', '--basic'])
 
         result = runner.invoke(hatch, ['build', '-p', 'ok'])
+        files = os.listdir(os.path.join(d, 'ok', 'dist'))
 
         assert result.exit_code == 0
-        assert matching_file(r'.*\.whl$', os.listdir(os.path.join(d, 'ok', 'dist')))
+        assert matching_file(r'.*\.whl$', files)
+        assert len(files) == 2
 
 
 def test_path_full():
@@ -73,9 +80,11 @@ def test_path_full():
 
         os.chdir(os.path.join(d, 'ko'))
         result = runner.invoke(hatch, ['build', '-p', package_dir])
+        files = os.listdir(os.path.join(package_dir, 'dist'))
 
         assert result.exit_code == 0
-        assert matching_file(r'.*\.whl$', os.listdir(os.path.join(package_dir, 'dist')))
+        assert matching_file(r'.*\.whl$', files)
+        assert len(files) == 2
 
 
 def test_path_full_not_exist():
@@ -96,7 +105,7 @@ def test_default_non_universal():
         runner.invoke(hatch, ['init', 'ok', '--basic'])
 
         result = runner.invoke(hatch, ['build'])
-        file_name = os.listdir(os.path.join(d, 'dist'))[0]
+        file_name = glob.glob(os.path.join(d, 'dist', '*.whl'))[0]
 
         assert result.exit_code == 0
         assert 'py2' in file_name or 'py3' in file_name
@@ -109,7 +118,7 @@ def test_universal():
         runner.invoke(hatch, ['init', 'ok', '--basic'])
 
         result = runner.invoke(hatch, ['build', '-u'])
-        file_name = os.listdir(os.path.join(d, 'dist'))[0]
+        file_name = glob.glob(os.path.join(d, 'dist', '*.whl'))[0]
 
         assert result.exit_code == 0
         assert 'py2' in file_name and 'py3' in file_name
@@ -121,9 +130,11 @@ def test_platform_name():
         runner.invoke(hatch, ['init', 'ok', '--basic'])
 
         result = runner.invoke(hatch, ['build', '-n', 'linux_x86_64'])
+        files = os.listdir(os.path.join(d, 'dist'))
 
         assert result.exit_code == 0
-        assert matching_file(r'linux_x86_64\.whl$', os.listdir(os.path.join(d, 'dist')))
+        assert matching_file(r'linux_x86_64\.whl$', files)
+        assert len(files) == 2
 
 
 def test_build_dir():
@@ -133,9 +144,11 @@ def test_build_dir():
 
         build_dir = os.path.join(d, '_build_dir')
         result = runner.invoke(hatch, ['build', '-d', build_dir])
+        files = os.listdir(build_dir)
 
         assert result.exit_code == 0
-        assert matching_file(r'.*\.whl$', os.listdir(build_dir))
+        assert matching_file(r'.*\.whl$', files)
+        assert len(files) == 2
 
 
 def test_clean():
@@ -148,9 +161,11 @@ def test_clean():
         assert os.path.exists(old_artifact)
 
         result = runner.invoke(hatch, ['build', '-c'])
+        files = os.listdir(os.path.join(d, 'dist'))
 
         assert result.exit_code == 0
-        assert matching_file(r'.*\.whl$', os.listdir(os.path.join(d, 'dist')))
+        assert matching_file(r'.*\.whl$', files)
+        assert len(files) == 2
         assert not os.path.exists(old_artifact)
 
 
