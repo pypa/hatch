@@ -5,6 +5,8 @@ from collections import OrderedDict
 import semver
 from atomicwrites import atomic_write
 
+from hatch.utils import basepath, normalize_package_name
+
 VERSION = re.compile(r'[0-9]+\.[0-9]+\.[0-9]+')
 BUMP = OrderedDict([
     ('major', semver.bump_major),
@@ -25,7 +27,20 @@ def bump_package_version(d, part='patch'):
         if os.path.exists(path):
             version_files.append(path)
 
-    for path in sorted(p.path for p in os.scandir(d)):
+    package_name = normalize_package_name(basepath(d))
+    locations = sorted(p.path for p in os.scandir(d))
+
+    package_path = os.path.join(d, package_name)
+    if package_path in locations:
+        locations.remove(package_path)
+        locations.insert(0, package_path)
+
+    # https://hynek.me/articles/testing-packaging
+    src_package_path = os.path.join(d, 'src', package_name)
+    if os.path.exists(src_package_path):
+        locations.insert(0, src_package_path)
+
+    for path in locations:
         for filename in FILE_NAMES:
             file = os.path.join(path, filename)
             if os.path.exists(file):

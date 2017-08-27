@@ -5,7 +5,7 @@ from click.testing import CliRunner
 
 from hatch.cli import hatch
 from hatch.env import install_packages
-from hatch.utils import temp_chdir
+from hatch.utils import basepath, temp_chdir
 from hatch.venv import create_venv, venv
 from ..utils import read_file
 
@@ -75,6 +75,55 @@ def test_package_cwd_version():
         assert read_file(about_file) == "__version__ = '0.0.1'\n"
         assert read_file(version_file) == "__version__ = '0.1.0'\n"
         assert 'Updated {}'.format(version_file) in result.output
+        assert '0.0.1 -> 0.1.0' in result.output
+
+
+def test_package_path():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['egg', 'zzz', '--basic'])
+        origin = os.path.join(d, 'zzz', 'zzz')
+
+        package_dir = os.path.join(d, basepath(d))
+        priority_dir = os.path.join(d, 'aaa')
+        package_file = os.path.join(package_dir, '__init__.py')
+        priority_file = os.path.join(priority_dir, '__init__.py')
+        shutil.copytree(origin, package_dir)
+        shutil.copytree(origin, priority_dir)
+
+        result = runner.invoke(hatch, ['grow', 'minor'])
+
+        assert result.exit_code == 0
+        assert read_file(priority_file) == "__version__ = '0.0.1'\n"
+        assert read_file(package_file) == "__version__ = '0.1.0'\n"
+        assert 'Updated {}'.format(package_file) in result.output
+        assert '0.0.1 -> 0.1.0' in result.output
+
+
+def test_src_package_path():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['egg', 'zzz', '--basic'])
+        origin = os.path.join(d, 'zzz', 'zzz')
+
+        project_name = basepath(d)
+        src_package_dir = os.path.join(d, 'src', project_name)
+        package_dir = os.path.join(d, project_name)
+        priority_dir = os.path.join(d, 'aaa')
+        src_package_file = os.path.join(src_package_dir, '__init__.py')
+        package_file = os.path.join(package_dir, '__init__.py')
+        priority_file = os.path.join(priority_dir, '__init__.py')
+        shutil.copytree(origin, src_package_dir)
+        shutil.copytree(origin, package_dir)
+        shutil.copytree(origin, priority_dir)
+
+        result = runner.invoke(hatch, ['grow', 'minor'])
+
+        assert result.exit_code == 0
+        assert read_file(priority_file) == "__version__ = '0.0.1'\n"
+        assert read_file(package_file) == "__version__ = '0.0.1'\n"
+        assert read_file(src_package_file) == "__version__ = '0.1.0'\n"
+        assert 'Updated {}'.format(src_package_file) in result.output
         assert '0.0.1 -> 0.1.0' in result.output
 
 

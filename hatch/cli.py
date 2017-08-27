@@ -311,10 +311,11 @@ def grow(part, package, path):
     2. The option --path, which can be a relative or absolute path.
     3. The current directory.
 
-    The path, and every top level directory within, will be checked for an
+    The path, and every top level directory within, will be checked for a
     `__version__.py`, `__about__.py`, and `__init__.py`, in that order. The
     first encounter of a `__version__` variable that also appears to equal a
-    version string will be updated.
+    version string will be updated. Probable package paths will be given
+    precedence.
 
     \b
     $ git clone -q https://github.com/requests/requests && cd requests
