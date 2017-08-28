@@ -1,11 +1,15 @@
 import glob
 import os
+import sys
 
 from click.testing import CliRunner
 
 from hatch.cli import hatch
 from hatch.env import install_packages
-from hatch.utils import create_file, temp_chdir
+from hatch.settings import (
+    SETTINGS_FILE, copy_default_settings, save_settings
+)
+from hatch.utils import create_file, temp_chdir, temp_move_path
 from hatch.venv import create_venv, venv
 from ..utils import matching_file
 
@@ -175,3 +179,60 @@ def test_fail():
         result = runner.invoke(hatch, ['build'])
 
         assert result.exit_code != 0
+
+
+def test_pypath():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', 'ok', '--basic'])
+
+        result = runner.invoke(hatch, ['build', '-pp', sys.executable])
+        files = os.listdir(os.path.join(d, 'dist'))
+
+        assert result.exit_code == 0
+        assert matching_file(r'.*\.whl$', files)
+        assert len(files) == 2
+
+
+def test_python():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', 'ok', '--basic'])
+
+        with temp_move_path(SETTINGS_FILE, d):
+            settings = copy_default_settings()
+            settings['pythons']['python'] = sys.executable
+            save_settings(settings)
+            result = runner.invoke(hatch, ['build', '-py', 'python', '-pp', 'Delphi'])
+            files = os.listdir(os.path.join(d, 'dist'))
+
+        assert result.exit_code == 0
+        assert matching_file(r'.*\.whl$', files)
+        assert len(files) == 2
+
+
+def test_python_no_config():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', 'ok', '--basic'])
+
+        with temp_move_path(SETTINGS_FILE, d):
+            result = runner.invoke(hatch, ['build', '-py', 'python'])
+
+        assert result.exit_code == 1
+        assert 'Unable to locate config file. Try `hatch config --restore`.' in result.output
+
+
+def test_python_invalid():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', 'ok', '--basic'])
+
+        with temp_move_path(SETTINGS_FILE, d):
+            settings = copy_default_settings()
+            settings['pythons']['python'] = ''
+            save_settings(settings)
+            result = runner.invoke(hatch, ['build', '-py', 'python'])
+
+        assert result.exit_code == 1
+        assert 'Python path named `python` does not exist or is invalid.' in result.output

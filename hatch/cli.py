@@ -507,11 +507,13 @@ def clean(package, path, compiled_only, verbose):
 @hatch.command(context_settings=CONTEXT_SETTINGS)
 @click.argument('package', required=False)
 @click.option('-p', '--path')
+@click.option('-py', '--python', 'pyname')
+@click.option('-pp', '--pypath')
 @click.option('-u', '--universal', is_flag=True)
 @click.option('-n', '--name')
 @click.option('-d', '--build-dir')
 @click.option('-c', '--clean', 'clean_first', is_flag=True)
-def build(package, path, universal, name, build_dir, clean_first):
+def build(package, path, pyname, pypath, universal, name, build_dir, clean_first):
     if package:
         path = get_editable_package_location(package)
         if not path:
@@ -527,10 +529,22 @@ def build(package, path, universal, name, build_dir, clean_first):
     else:
         path = os.getcwd()
 
+    if pyname:
+        try:
+            settings = load_settings()
+        except FileNotFoundError:
+            click.echo('Unable to locate config file. Try `hatch config --restore`.')
+            sys.exit(1)
+
+        pypath = settings.get('pythons', {}).get(pyname, None)
+        if not pypath:
+            click.echo('Python path named `{}` does not exist or is invalid.'.format(pyname))
+            sys.exit(1)
+
     if clean_first:
         clean_package(path)
 
-    sys.exit(build_package(path, universal, name, build_dir))
+    sys.exit(build_package(path, universal, name, build_dir, pypath))
 
 
 @hatch.command(context_settings=CONTEXT_SETTINGS)

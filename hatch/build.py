@@ -3,9 +3,9 @@ import subprocess
 from hatch.utils import NEED_SUBPROCESS_SHELL, chdir, get_proper_python
 
 
-def build_package(d, universal=None, name=None, build_dir=None):
+def build_package(d, universal=None, name=None, build_dir=None, pypath=None):
     command = [
-        get_proper_python(), 'setup.py', 'sdist'
+        pypath or get_proper_python(), 'setup.py', 'sdist'
     ]
 
     if build_dir:
