@@ -229,7 +229,7 @@ def install(packages, env_name, global_install):
             sys.exit(1)
 
         with venv(venv_dir):
-            command = [get_proper_pip(), 'install'] + packages
+            command = [get_proper_pip(), 'install', *packages]
             subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
         click.echo('Successfully updated virtual env named `{}`.'.format(env_name))
     else:
