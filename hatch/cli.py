@@ -205,6 +205,7 @@ def config(update_settings, restore):
 
 
 @hatch.command(context_settings=CONTEXT_SETTINGS, short_help='Updates packages')
+@click.argument('packages', nargs=-1)
 @click.option('-e', '--env', 'env_name', help='The named virtual env to use.')
 @click.option('--eager', is_flag=True,
               help=(
@@ -214,9 +215,8 @@ def config(update_settings, restore):
               ))
 @click.option('--all', 'all_packages', is_flag=True,
               help=(
-                  'Updates all currently installed packages instead of '
-                  'looking for a `requirements.txt`. The packages `pip`, '
-                  '`setuptools`, and `wheel` are excluded.'
+                  'Updates all currently installed packages. The packages '
+                  '`pip`, `setuptools`, and `wheel` are excluded.'
               ))
 @click.option('--infra', is_flag=True,
               help='Updates only the packages `pip`, `setuptools`, and `wheel`.')
@@ -225,13 +225,13 @@ def config(update_settings, restore):
                   'Updates globally, rather than on a per-user basis. This '
                   'has no effect if a virtual env is in use.'
               ))
-def update(env_name, eager, all_packages, infra, global_install):
-    """With no options selected, this will update packages by looking for a
-    `requirements.txt` in the current directory. If the option --env is
-    supplied, the update will be applied using that named virtual env.
+def update(packages, env_name, eager, all_packages, infra, global_install):
+    """With no packages nor options selected, this will update packages by
+    looking for a `requirements.txt` in the current directory. If the option
+    --env is supplied, the update will be applied using that named virtual env.
 
     Unless the option --global is selected, the update will only affect the
-    current user.
+    current user. Of course, this will have no effect if a virtual env is in use.
     """
     command = [
         'install', '--upgrade', '--upgrade-strategy',
@@ -277,6 +277,8 @@ def update(env_name, eager, all_packages, infra, global_install):
             click.echo('No packages installed.')
             sys.exit(1)
         command.extend(installed_packages)
+    elif packages:
+        command.extend(packages)
     else:
         path = os.path.join(os.getcwd(), 'requirements.txt')
         if not os.path.exists(path):

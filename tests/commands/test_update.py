@@ -42,6 +42,26 @@ def test_requirements_none():
         assert 'Unable to locate a requirements file.' in result.output
 
 
+def test_packages():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        venv_dir = os.path.join(d, 'venv')
+        create_venv(venv_dir)
+
+        with venv(venv_dir):
+            install_packages(['requests==2.17.3', 'six==1.9.0'])
+            initial_version_requests = get_version_as_bytes('requests')
+            initial_version_six = get_version_as_bytes('six')
+            result = runner.invoke(hatch, ['update', 'six'])
+            final_version_requests = get_version_as_bytes('requests')
+            final_version_six = get_version_as_bytes('six')
+
+        assert result.exit_code == 0
+        assert initial_version_requests == final_version_requests
+        assert initial_version_six < final_version_six
+        assert 'Successfully updated.' in result.output
+
+
 def test_all_packages():
     with temp_chdir() as d:
         venv_dir = os.path.join(d, 'venv')
