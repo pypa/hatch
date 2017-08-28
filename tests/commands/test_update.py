@@ -29,6 +29,26 @@ def test_requirements():
         assert 'Successfully updated.' in result.output
 
 
+def test_requirements_dev():
+    with temp_chdir() as d:
+        with open(os.path.join(d, 'dev-requirements.txt'), 'w') as f:
+            f.write('requests==2.18.1\n')
+
+        venv_dir = os.path.join(d, 'venv')
+        create_venv(venv_dir)
+
+        with venv(venv_dir):
+            install_packages(['requests==2.17.3'])
+            initial_version = get_version_as_bytes('requests')
+            runner = CliRunner()
+            result = runner.invoke(hatch, ['update'])
+            final_version = get_version_as_bytes('requests')
+
+        assert result.exit_code == 0
+        assert initial_version < final_version
+        assert 'Successfully updated.' in result.output
+
+
 def test_requirements_none():
     with temp_chdir() as d:
         venv_dir = os.path.join(d, 'venv')

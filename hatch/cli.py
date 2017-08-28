@@ -227,8 +227,9 @@ def config(update_settings, restore):
               ))
 def update(packages, env_name, eager, all_packages, infra, global_install):
     """With no packages nor options selected, this will update packages by
-    looking for a `requirements.txt` in the current directory. If the option
-    --env is supplied, the update will be applied using that named virtual env.
+    looking for a `requirements.txt` or `dev-requirements.txt` in the current
+    directory. If the option --env is supplied, the update will be applied
+    using that named virtual env.
 
     Unless the option --global is selected, the update will only affect the
     current user. Of course, this will have no effect if a virtual env is in use.
@@ -282,8 +283,10 @@ def update(packages, env_name, eager, all_packages, infra, global_install):
     else:
         path = os.path.join(os.getcwd(), 'requirements.txt')
         if not os.path.exists(path):
-            click.echo('Unable to locate a requirements file.')
-            sys.exit(1)
+            path = os.path.join(os.getcwd(), 'dev-requirements.txt')
+            if not os.path.exists(path):
+                click.echo('Unable to locate a requirements file.')
+                sys.exit(1)
         command.extend(['-r', path])
 
     if venv_dir:
