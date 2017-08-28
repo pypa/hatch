@@ -26,7 +26,6 @@ def test_requirements():
 
         assert result.exit_code == 0
         assert initial_version < final_version
-        assert 'Successfully updated.' in result.output
 
 
 def test_requirements_dev():
@@ -46,7 +45,6 @@ def test_requirements_dev():
 
         assert result.exit_code == 0
         assert initial_version < final_version
-        assert 'Successfully updated.' in result.output
 
 
 def test_requirements_none():
@@ -79,7 +77,6 @@ def test_packages():
         assert result.exit_code == 0
         assert initial_version_requests == final_version_requests
         assert initial_version_six < final_version_six
-        assert 'Successfully updated.' in result.output
 
 
 def test_all_packages():
@@ -96,7 +93,6 @@ def test_all_packages():
 
         assert result.exit_code == 0
         assert initial_version < final_version
-        assert 'Successfully updated.' in result.output
 
 
 def test_all_packages_none():
@@ -149,7 +145,6 @@ def test_env():
 
         assert result.exit_code == 0
         assert initial_version < final_version
-        assert 'Successfully updated virtual env named `{}`.'.format(env_name) in result.output
 
 
 def test_infra():
@@ -166,7 +161,6 @@ def test_infra():
 
         assert result.exit_code == 0
         assert initial_version < final_version
-        assert 'Successfully updated.' in result.output
 
 
 def test_infra_env():
@@ -192,4 +186,3 @@ def test_infra_env():
 
         assert result.exit_code == 0
         assert initial_version < final_version
-        assert 'Successfully updated virtual env named `{}`.'.format(env_name) in result.output

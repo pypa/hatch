@@ -329,11 +329,11 @@ def update(packages, env_name, eager, all_packages, infra, global_install):
 
     if venv_dir:
         with venv(venv_dir):
-            subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
-        click.echo('Successfully updated virtual env named `{}`.'.format(env_name))
+            result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
+        sys.exit(result.returncode)
     else:
-        subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
-        click.echo('Successfully updated.')
+        result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
+        sys.exit(result.returncode)
 
 
 @hatch.command(context_settings=CONTEXT_SETTINGS,
