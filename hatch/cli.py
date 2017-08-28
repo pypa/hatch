@@ -333,7 +333,7 @@ def update(packages, env_name, eager, all_packages, infra, global_install):
         click.echo('Successfully updated virtual env named `{}`.'.format(env_name))
     else:
         subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
-        click.echo('Successfully updated.'.format(env_name))
+        click.echo('Successfully updated.')
 
 
 @hatch.command(context_settings=CONTEXT_SETTINGS,
