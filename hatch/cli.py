@@ -204,6 +204,44 @@ def config(update_settings, restore):
     click.echo('Settings location: ' + SETTINGS_FILE)
 
 
+@hatch.command(context_settings=CONTEXT_SETTINGS, short_help='Installs packages')
+@click.argument('packages', nargs=-1)
+@click.option('-e', '--env', 'env_name', help='The named virtual env to use.')
+@click.option('-g', '--global', 'global_install', is_flag=True,
+              help=(
+                  'Installs globally, rather than on a per-user basis. This '
+                  'has no effect if a virtual env is in use.'
+              ))
+def install(packages, env_name, global_install):
+    """With no packages selected, this will install using a `setup.py` in the
+    current directory. If the option --env is supplied, the install will be
+    applied using that named virtual env.
+
+    Unless the option --global is selected, the install will only affect the
+    current user. Of course, this will have no effect if a virtual env is in use.
+    """
+    packages = packages or ['.']
+
+    if env_name:
+        venv_dir = os.path.join(VENV_DIR, env_name)
+        if not os.path.exists(venv_dir):
+            click.echo('Virtual env named `{}` does not exist.'.format(env_name))
+            sys.exit(1)
+
+        with venv(venv_dir):
+            command = [get_proper_pip(), 'install'] + packages
+            subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
+        click.echo('Successfully updated virtual env named `{}`.'.format(env_name))
+    else:
+        command = [get_proper_pip(), 'install']
+        if not venv_active() and not global_install:  # no cov
+            command.append('--user')
+        command.extend(packages)
+
+        subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
+        click.echo('Successfully updated.'.format(env_name))
+
+
 @hatch.command(context_settings=CONTEXT_SETTINGS, short_help='Updates packages')
 @click.argument('packages', nargs=-1)
 @click.option('-e', '--env', 'env_name', help='The named virtual env to use.')
