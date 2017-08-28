@@ -360,7 +360,7 @@ def grow(part, package, path, pre_token, build_token):
 
     try:
         settings = load_settings()
-    except FileNotFoundError:  # no cov
+    except FileNotFoundError:
         settings = {}
 
     pre_token = pre_token or settings.get('semver', {}).get('pre')

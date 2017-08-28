@@ -360,3 +360,19 @@ def test_build_option():
         assert contents == "__version__ = '0.0.1+nightly.1'\n"
         assert 'Updated {}'.format(init_file) in result.output
         assert '0.0.1 -> 0.0.1+nightly.1' in result.output
+
+
+def test_no_config():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        init_file = os.path.join(d, 'ok', '__init__.py')
+
+        with temp_move_path(SETTINGS_FILE, d):
+            result = runner.invoke(hatch, ['grow', 'pre'])
+            contents = read_file(init_file)
+
+        assert result.exit_code == 0
+        assert contents == "__version__ = '0.0.1-rc.1'\n"
+        assert 'Updated {}'.format(init_file) in result.output
+        assert '0.0.1 -> 0.0.1-rc.1' in result.output
