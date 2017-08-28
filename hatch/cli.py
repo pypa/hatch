@@ -230,16 +230,16 @@ def install(packages, env_name, global_install):
 
         with venv(venv_dir):
             command = [get_proper_pip(), 'install', *packages]
-            subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
-        click.echo('Successfully updated virtual env named `{}`.'.format(env_name))
+            result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
+        sys.exit(result.returncode)
     else:
         command = [get_proper_pip(), 'install']
         if not venv_active() and not global_install:  # no cov
             command.append('--user')
         command.extend(packages)
 
-        subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
-        click.echo('Successfully updated.'.format(env_name))
+        result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
+        sys.exit(result.returncode)
 
 
 @hatch.command(context_settings=CONTEXT_SETTINGS, short_help='Updates packages')

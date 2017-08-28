@@ -24,6 +24,18 @@ def test_local():
         assert result.exit_code == 0
 
 
+def test_local_none():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        venv_dir = os.path.join(d, 'venv')
+        create_venv(venv_dir)
+
+        with venv(venv_dir):
+            result = runner.invoke(hatch, ['install'])
+
+        assert result.exit_code != 0
+
+
 def test_packages():
     with temp_chdir() as d:
         runner = CliRunner()
