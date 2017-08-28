@@ -34,7 +34,7 @@ def test_cwd_no_build():
             result = runner.invoke(hatch, ['release', '-u', USERNAME, '-t'])
 
         assert result.exit_code == 1
-        assert 'Directory `{}` does not exist.'.format(os.path.join(d, 'dist'))
+        assert 'Directory `{}` does not exist.'.format(os.path.join(d, 'dist')) in result.output
 
 
 def test_package():

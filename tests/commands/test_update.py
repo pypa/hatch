@@ -119,7 +119,7 @@ def test_env_not_exist():
         result = runner.invoke(hatch, ['update', '-e', env_name])
 
         assert result.exit_code == 1
-        assert 'Virtual env named `{}` already does not exist.'.format(env_name)
+        assert 'Virtual env named `{}` does not exist.'.format(env_name) in result.output
 
 
 def test_env():

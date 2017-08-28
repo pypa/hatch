@@ -76,7 +76,7 @@ def test_env():
             remove_path(venv_dir)
 
         assert result.exit_code == 0
-        assert 'Successfully removed virtual env named `{}`.'.format(env_name)
+        assert 'Successfully removed virtual env named `{}`.'.format(env_name) in result.output
 
 
 def test_env_not_exist():
