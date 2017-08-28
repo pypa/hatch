@@ -205,7 +205,7 @@ def config(update_settings, restore):
 
 
 @hatch.command(context_settings=CONTEXT_SETTINGS, short_help='Updates packages')
-@click.argument('env_name', required=False)
+@click.option('-e', '--env', 'env_name', help='The named virtual env to use.')
 @click.option('--eager', is_flag=True,
               help=(
                   'Updates all dependencies regardless of whether they '
@@ -227,7 +227,7 @@ def config(update_settings, restore):
               ))
 def update(env_name, eager, all_packages, infra, global_install):
     """With no options selected, this will update packages by looking for a
-    `requirements.txt` in the current directory. If the optional argument is
+    `requirements.txt` in the current directory. If the option --env is
     supplied, the update will be applied using that named virtual env.
 
     Unless the option --global is selected, the update will only affect the

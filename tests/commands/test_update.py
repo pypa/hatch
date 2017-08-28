@@ -80,7 +80,7 @@ def test_env_not_exist():
         while os.path.exists(os.path.join(VENV_DIR, env_name)):  # no cov
             env_name = os.urandom(10).hex()
 
-        result = runner.invoke(hatch, ['update', env_name])
+        result = runner.invoke(hatch, ['update', '-e', env_name])
 
         assert result.exit_code == 1
         assert 'Virtual env named `{}` already does not exist.'.format(env_name)
@@ -101,7 +101,7 @@ def test_env():
             with venv(venv_dir):
                 install_packages(['requests==2.17.3'])
                 initial_version = get_version_as_bytes('requests')
-            result = runner.invoke(hatch, ['update', env_name, '--all'])
+            result = runner.invoke(hatch, ['update', '-e', env_name, '--all'])
             with venv(venv_dir):
                 final_version = get_version_as_bytes('requests')
         finally:
@@ -144,7 +144,7 @@ def test_infra_env():
             with venv(venv_dir):
                 install_packages(['setuptools==36.0.1'])
                 initial_version = get_version_as_bytes('setuptools')
-            result = runner.invoke(hatch, ['update', env_name, '--infra'])
+            result = runner.invoke(hatch, ['update', '-e', env_name, '--infra'])
             with venv(venv_dir):
                 final_version = get_version_as_bytes('setuptools')
         finally:
