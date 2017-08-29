@@ -95,19 +95,23 @@ def test_extras():
     with temp_chdir() as d:
         runner = CliRunner()
         test_dir = os.path.join(d, 'a', 'b')
-        test_file = os.path.join(test_dir, 'file.txt')
+        test_file1 = os.path.join(test_dir, 'file1.txt')
+        test_file2 = os.path.join(d, 'x', 'y', 'file2.txt')
+        test_glob = '{}{}*'.format(os.path.join(d, 'x'), os.path.sep)
         fake_file = os.path.join(test_dir, 'file.py')
-        create_file(test_file)
+        create_file(test_file1)
+        create_file(test_file2)
 
         with temp_move_path(SETTINGS_FILE, d):
             new_settings = copy_default_settings()
-            new_settings['extras'].extend([test_dir, test_file, fake_file])
+            new_settings['extras'] = [test_dir, test_file1, test_glob, fake_file]
             save_settings(new_settings)
 
             runner.invoke(hatch, ['egg', 'ok', '--basic'])
             d = os.path.join(d, 'ok')
 
-        assert os.path.exists(os.path.join(d, 'b'))
-        assert os.path.exists(os.path.join(d, 'b', 'file.txt'))
-        assert os.path.exists(os.path.join(d, 'file.txt'))
+        assert os.path.exists(os.path.join(d, 'b', 'file1.txt'))
+        assert os.path.exists(os.path.join(d, 'file1.txt'))
+        assert os.path.exists(os.path.join(d, 'y', 'file2.txt'))
+        assert not os.path.exists(os.path.join(d, 'file2.txt'))
         assert not os.path.exists(os.path.join(d, 'file.py'))

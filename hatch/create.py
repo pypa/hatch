@@ -1,3 +1,4 @@
+import glob
 import os
 
 from hatch.files.ci import Tox, TravisCI
@@ -130,8 +131,8 @@ def create_package(d, package_name, settings):
     for file in extra_files:
         file.write(d)
 
-    for path in settings.get('extras', []):
-        if os.path.exists(path):
+    for p in settings.get('extras', []):
+        for path in glob.iglob(p):
             copy_path(path, d)
 
     vc_setup(d, package_name)
