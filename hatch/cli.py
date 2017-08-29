@@ -1,3 +1,4 @@
+import glob
 import json
 import io
 import os
@@ -267,7 +268,7 @@ def install(packages, env_name, global_install):
               ))
 def update(packages, env_name, eager, all_packages, infra, global_install):
     """With no packages nor options selected, this will update packages by
-    looking for a `requirements.txt` or `dev-requirements.txt` in the current
+    looking for a `requirements.txt` or a dev version of that in the current
     directory. If the option --env is supplied, the update will be applied
     using that named virtual env.
 
@@ -331,13 +332,14 @@ def update(packages, env_name, eager, all_packages, infra, global_install):
             sys.exit(1)
         command.extend(packages)
     else:
-        path = os.path.join(os.getcwd(), 'requirements.txt')
-        if not os.path.exists(path):
-            path = os.path.join(os.getcwd(), 'dev-requirements.txt')
-            if not os.path.exists(path):
+        reqs = os.path.join(os.getcwd(), 'requirements.txt')
+        if not os.path.exists(reqs):
+            paths = glob.glob(os.path.join(os.getcwd(), '*requirements*.txt'))
+            if not paths:
                 click.echo('Unable to locate a requirements file.')
                 sys.exit(1)
-        command.extend(['-r', path])
+            reqs = paths[0]
+        command.extend(['-r', reqs])
 
     if venv_dir:
         with venv(venv_dir):
