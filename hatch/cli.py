@@ -2,6 +2,7 @@ import glob
 import json
 import io
 import os
+import re
 import subprocess
 import sys
 import time
@@ -275,6 +276,7 @@ def update(packages, env_name, eager, all_packages, infra, global_install):
     Unless the option --global is selected, the update will only affect the
     current user. Of course, this will have no effect if a virtual env is in use.
     """
+    temp_dir = None
     command = [
         'install', '--upgrade', '--upgrade-strategy',
         'eager' if eager else 'only-if-needed'
@@ -339,15 +341,38 @@ def update(packages, env_name, eager, all_packages, infra, global_install):
                 click.echo('Unable to locate a requirements file.')
                 sys.exit(1)
             reqs = paths[0]
+
+        with open(reqs, 'r') as f:
+            lines = f.readlines()
+
+        matches = []
+        for line in lines:
+            match = re.match(r'^[^=<>]+', line.lstrip())
+            if match and match.group(0) == 'hatch':
+                matches.append(line)
+
+        if matches:
+            for line in matches:
+                lines.remove(line)
+
+            temp_dir = TemporaryDirectory()
+            reqs = os.path.join(temp_dir.name, basepath(reqs))
+
+            with open(reqs, 'w') as f:
+                f.writelines(lines)
+
         command.extend(['-r', reqs])
 
     if venv_dir:
         with venv(venv_dir):
             result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
-        sys.exit(result.returncode)
     else:
         result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
-        sys.exit(result.returncode)
+
+    if temp_dir is not None:
+        temp_dir.cleanup()
+
+    sys.exit(result.returncode)
 
 
 @hatch.command(context_settings=CONTEXT_SETTINGS,

@@ -3,7 +3,7 @@ import os
 from click.testing import CliRunner
 
 from hatch.cli import hatch
-from hatch.env import install_packages
+from hatch.env import get_installed_packages, install_packages
 from hatch.utils import remove_path, temp_chdir
 from hatch.venv import VENV_DIR, create_venv, venv
 from ..utils import get_version_as_bytes
@@ -64,6 +64,27 @@ def test_requirements_dev():
 
         assert result.exit_code == 0
         assert initial_version < final_version
+
+
+def test_requirements_includes_hatch():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        with open(os.path.join(d, 'requirements.txt'), 'w') as f:
+            f.write('requests==2.18.1\nhatch>=0.0.1\n')
+
+        venv_dir = os.path.join(d, 'venv')
+        create_venv(venv_dir)
+
+        with venv(venv_dir):
+            install_packages(['requests==2.17.3'])
+            initial_version = get_version_as_bytes('requests')
+            result = runner.invoke(hatch, ['update'])
+            final_version = get_version_as_bytes('requests')
+            installed_packages = get_installed_packages()
+
+        assert result.exit_code == 0
+        assert initial_version < final_version
+        assert 'hatch' not in installed_packages
 
 
 def test_requirements_none():
