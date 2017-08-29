@@ -312,13 +312,17 @@ def update(packages, env_name, eager, all_packages, infra, global_install):
     elif all_packages:
         installed_packages = [
             package for package in installed_packages
-            if package not in infra_packages
+            if package not in infra_packages and package != 'hatch'
         ]
         if not installed_packages:
             click.echo('No packages installed.')
             sys.exit(1)
         command.extend(installed_packages)
     elif packages:
+        packages = [package for package in packages if package != 'hatch']
+        if not packages:
+            click.echo('No packages to install.')
+            sys.exit(1)
         command.extend(packages)
     else:
         path = os.path.join(os.getcwd(), 'requirements.txt')

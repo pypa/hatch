@@ -79,6 +79,15 @@ def test_packages():
         assert initial_version_six < final_version_six
 
 
+def test_packages_only_hatch():
+    with temp_chdir():
+        runner = CliRunner()
+        result = runner.invoke(hatch, ['update', 'hatch'])
+
+        assert result.exit_code == 1
+        assert 'No packages to install.' in result.output
+
+
 def test_all_packages():
     with temp_chdir() as d:
         venv_dir = os.path.join(d, 'venv')
