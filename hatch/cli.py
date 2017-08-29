@@ -293,7 +293,10 @@ def update(packages, env_name, eager, all_packages, infra, global_install):
                 else [get_proper_pip()]
             )
             command = executable + command
-            installed_packages = infra_packages if infra else get_installed_packages()
+            if all_packages:
+                installed_packages = infra_packages if infra else get_installed_packages()
+            else:
+                installed_packages = None
     else:
         venv_dir = None
         executable = (
@@ -302,7 +305,10 @@ def update(packages, env_name, eager, all_packages, infra, global_install):
             else [get_proper_pip()]
         )
         command = executable + command
-        installed_packages = infra_packages if infra else get_installed_packages()
+        if all_packages:
+            installed_packages = infra_packages if infra else get_installed_packages()
+        else:
+            installed_packages = None
 
         if not venv_active() and not global_install:  # no cov
             command.append('--user')
