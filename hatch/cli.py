@@ -81,6 +81,7 @@ def egg(name, basic, cli, licenses):
     │   └── __init__.py
     ├── LICENSE-APACHE
     ├── LICENSE-MIT
+    ├── MANIFEST.in
     ├── README.rst
     ├── requirements.txt
     ├── setup.py
@@ -149,6 +150,7 @@ def init(name, basic, cli, licenses):
     │   └── __init__.py
     ├── LICENSE-APACHE
     ├── LICENSE-MIT
+    ├── MANIFEST.in
     ├── README.rst
     ├── requirements.txt
     ├── setup.py

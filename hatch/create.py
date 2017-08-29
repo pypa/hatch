@@ -125,6 +125,19 @@ def create_package(d, package_name, settings):
     coveragerc.write(d)
     tox.write(d)
 
+    manifest = File(
+        'MANIFEST.in',
+        'include AUTHORS*\n'
+        'include CHANGELOG*\n'
+        'include CHANGES*\n'
+        'include CONTRIBUTING*\n'
+        'include HISTORY*\n'
+        'include LICENCE*\n'
+        'include LICENSE*\n'
+        'include README*\n'
+    )
+    manifest.write(d)
+
     for li in licenses:
         li.write(d)
 

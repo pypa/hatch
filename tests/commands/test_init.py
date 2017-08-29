@@ -44,6 +44,7 @@ def test_basic():
         assert os.path.exists(os.path.join(d, 'ok', '__init__.py'))
         assert os.path.exists(os.path.join(d, 'tests', '__init__.py'))
         assert os.path.exists(os.path.join(d, 'setup.py'))
+        assert os.path.exists(os.path.join(d, 'MANIFEST.in'))
         assert os.path.exists(os.path.join(d, 'requirements.txt'))
         assert os.path.exists(os.path.join(d, '.coveragerc'))
         assert os.path.exists(os.path.join(d, 'tox.ini'))
