@@ -235,7 +235,6 @@ def install(packages, env_name, global_install):
         with venv(venv_dir):
             command = [get_proper_pip(), 'install', *packages]
             result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
-        sys.exit(result.returncode)
     else:
         command = [get_proper_pip(), 'install']
         if not venv_active() and not global_install:  # no cov
@@ -243,7 +242,8 @@ def install(packages, env_name, global_install):
         command.extend(packages)
 
         result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
-        sys.exit(result.returncode)
+
+    sys.exit(result.returncode)
 
 
 @hatch.command(context_settings=CONTEXT_SETTINGS, short_help='Updates packages')
