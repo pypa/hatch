@@ -761,7 +761,7 @@ def build(package, path, pyname, pypath, universal, name, build_dir, clean_first
 @click.option('-s', '--strict', is_flag=True,
               help='Aborts if a distribution already exists.')
 def release(package, path, username, test_pypi, strict):
-    """Uploads all files in a directory to PyPI.
+    """Uploads all files in a directory to PyPI using Twine.
 
     The path to the build directory is derived in the following order:
 
@@ -773,6 +773,10 @@ def release(package, path, username, test_pypi, strict):
 
     If the path was derived from the optional package argument, the
     files must be in a directory named `dist`.
+
+    The PyPI username can be saved in the config file entry `pypi_username`.
+    If the `TWINE_PASSWORD` environment variable is not set, a hidden prompt
+    will be provided for the password.
     """
     if package:
         path = get_editable_package_location(package)
