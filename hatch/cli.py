@@ -750,13 +750,29 @@ def build(package, path, pyname, pypath, universal, name, build_dir, clean_first
     sys.exit(build_package(path, universal, name, build_dir, pypath))
 
 
-@hatch.command(context_settings=CONTEXT_SETTINGS)
+@hatch.command(context_settings=CONTEXT_SETTINGS, short_help='Uploads to PyPI')
 @click.argument('package', required=False)
-@click.option('-p', '--path')
-@click.option('-u', '--username')
-@click.option('-t', '--test', 'test_pypi', is_flag=True)
-@click.option('-s', '--strict', is_flag=True)
+@click.option('-p', '--path',
+              help='A relative or absolute path to a build directory.')
+@click.option('-u', '--username', help='The PyPI username to use.')
+@click.option('-t', '--test', 'test_pypi', is_flag=True,
+              help='Uses the test version of PyPI.')
+@click.option('-s', '--strict', is_flag=True,
+              help='Aborts if a distribution already exists.')
 def release(package, path, username, test_pypi, strict):
+    """Uploads all files in a directory to PyPI.
+
+    The path to the build directory is derived in the following order:
+
+    \b
+    1. The optional argument, which should be the name of a package
+       that was installed via `pip install -e`.
+    2. The option --path, which can be a relative or absolute path.
+    3. The current directory.
+
+    If the path was derived from the optional package argument, the
+    files must be in a directory named `dist`.
+    """
     if package:
         path = get_editable_package_location(package)
         if not path:
