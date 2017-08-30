@@ -637,12 +637,31 @@ def test(package, path, cov, merge, test_args, cov_args, env_aware):
     sys.exit(test_result.returncode)
 
 
-@hatch.command(context_settings=CONTEXT_SETTINGS)
+@hatch.command(context_settings=CONTEXT_SETTINGS,
+               short_help="Removes a project's build artifacts")
 @click.argument('package', required=False)
-@click.option('-p', '--path')
-@click.option('-c', '--compiled-only', is_flag=True)
-@click.option('-v', '--verbose', is_flag=True)
+@click.option('-p', '--path', help='A relative or absolute path to a project.')
+@click.option('-c', '--compiled-only', is_flag=True,
+              help='Removes only .pyc files.')
+@click.option('-v', '--verbose', is_flag=True, help='Shows removed paths.')
 def clean(package, path, compiled_only, verbose):
+    """Removes a project's build artifacts.
+
+    The path to the project is derived in the following order:
+
+    \b
+    1. The optional argument, which should be the name of a package
+       that was installed via `pip install -e`.
+    2. The option --path, which can be a relative or absolute path.
+    3. The current directory.
+
+    All `*.pyc`/`*.pyd` files and `__pycache__` directories will be removed.
+    Additionally, the following patterns will be removed in the root of the
+    path: `.cache`, `.coverage`, `.eggs`, `.tox`, `build`, `dist`, `*.egg-info`
+
+    If the path was derived from the optional argument, the pattern
+    `*.egg-info` will not be applied so as to not break that installation.
+    """
     if package:
         path = get_editable_package_location(package)
         if not path:
