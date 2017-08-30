@@ -293,6 +293,9 @@ def update(packages, env_name, eager, all_packages,
     ]
     infra_packages = ['pip', 'setuptools', 'wheel']
 
+    if self:
+        as_module = True
+
     if env_name:
         venv_dir = os.path.join(VENV_DIR, env_name)
         if not os.path.exists(venv_dir):
@@ -301,7 +304,7 @@ def update(packages, env_name, eager, all_packages,
 
         with venv(venv_dir):
             executable = (
-                [get_proper_python(), '-m', 'pip']
+                [sys.executable if self else get_proper_python(), '-m', 'pip']
                 if as_module or (infra and ON_WINDOWS)
                 else [get_proper_pip()]
             )
@@ -313,7 +316,7 @@ def update(packages, env_name, eager, all_packages,
     else:
         venv_dir = None
         executable = (
-            [get_proper_python(), '-m', 'pip']
+            [sys.executable if self else get_proper_python(), '-m', 'pip']
             if as_module or (infra and ON_WINDOWS)
             else [get_proper_pip()]
         )
