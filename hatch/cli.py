@@ -295,7 +295,7 @@ def update(packages, env_name, eager, all_packages,
     ]
     infra_packages = ['pip', 'setuptools', 'wheel']
 
-    if self:
+    if self:  # no cov
         as_module = True
 
     if env_name:
@@ -331,7 +331,7 @@ def update(packages, env_name, eager, all_packages,
         if not venv_active() and not global_install:  # no cov
             command.append('--user')
 
-    if self:
+    if self:  # no cov
         command.append('hatch')
         if venv_dir:
             with venv(venv_dir):
