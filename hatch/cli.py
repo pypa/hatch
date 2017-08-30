@@ -492,15 +492,74 @@ def grow(part, package, path, pre_token, build_token):
             sys.exit(1)
 
 
-@hatch.command(context_settings=CONTEXT_SETTINGS)
+@hatch.command(context_settings=CONTEXT_SETTINGS, short_help='Runs tests')
 @click.argument('package', required=False)
-@click.option('-p', '--path')
-@click.option('-c', '--cov', is_flag=True)
-@click.option('-m', '--merge', is_flag=True)
-@click.option('-ta', '--test-args', default='')
-@click.option('-ca', '--cov-args')
-@click.option('-e', '--env-aware', is_flag=True)
+@click.option('-p', '--path',
+              help='A relative or absolute path to a project or test directory.')
+@click.option('-c', '--cov', is_flag=True,
+              help='Computes, then outputs coverage after testing.')
+@click.option('-m', '--merge', is_flag=True,
+              help=(
+                  'If --cov, coverage will run using --parallel-mode '
+                  'and combine the results.'
+              ))
+@click.option('-ta', '--test-args', default='',
+              help=(
+                  'Pass through to `pytest`, overriding defaults. Example: '
+                  '`hatch test -ta "-k test_core.py -vv"`'
+              ))
+@click.option('-ca', '--cov-args',
+              help=(
+                  'Pass through to `coverage run`, overriding defaults. '
+                  'Example: `hatch test -ca "--timid --pylib"`'
+              ))
+@click.option('-e', '--env-aware', is_flag=True,
+              help=(
+                  'Invokes `pytest` and `coverage` as modules instead of '
+                  'directly, i.e. `python -m pytest`.'
+              ))
 def test(package, path, cov, merge, test_args, cov_args, env_aware):
+    """Runs tests using `pytest`, optionally checking coverage.
+
+    The path is derived in the following order:
+
+    \b
+    1. The optional argument, which should be the name of a package
+       that was installed via `pip install -e`.
+    2. The option --path, which can be a relative or absolute path.
+    3. The current directory.
+
+    If the path points to a package, it should have a `tests` directory.
+
+    \b
+    $ git clone https://github.com/ofek/privy && cd privy
+    $ hatch test -c
+    ========================= test session starts ==========================
+    platform linux -- Python 3.5.2, pytest-3.2.1, py-1.4.34, pluggy-0.4.0
+    rootdir: /home/ofek/privy, inifile:
+    plugins: xdist-1.20.0, mock-1.6.2, httpbin-0.0.7, forked-0.2, cov-2.5.1
+    collected 10 items
+
+    \b
+    tests/test_privy.py ..........
+
+    \b
+    ====================== 10 passed in 4.34 seconds =======================
+
+    \b
+    Tests completed, checking coverage...
+
+    \b
+    Name                  Stmts   Miss Branch BrPart  Cover   Missing
+    -----------------------------------------------------------------
+    privy/__init__.py         1      0      0      0   100%
+    privy/core.py            30      0      0      0   100%
+    privy/utils.py           13      0      4      0   100%
+    tests/__init__.py         0      0      0      0   100%
+    tests/test_privy.py      57      0      0      0   100%
+    -----------------------------------------------------------------
+    TOTAL                   101      0      4      0   100%
+    """
     if package:
         path = get_editable_package_location(package)
         if not path:
