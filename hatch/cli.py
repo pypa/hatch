@@ -285,8 +285,9 @@ def update(packages, env_name, eager, all_packages,
     looking for a `requirements.txt` or a dev version of that in the current
     directory.
 
-    To update this tool, use the --self flag. All other methods of updating
-    will ignore `hatch`. See: https://github.com/pypa/pip/issues/1299
+    To update this tool, use the --self flag. After the update, you may want
+    to press Enter. All other methods of updating will ignore `hatch`. See:
+    https://github.com/pypa/pip/issues/1299
     """
     temp_dir = None
     command = [
