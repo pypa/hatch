@@ -272,7 +272,9 @@ def install(packages, env_name, global_install):
                   'Invokes `pip` as a module instead of directly, i.e. '
                   '`python -m pip`.'
               ))
-def update(packages, env_name, eager, all_packages, infra, global_install, as_module):
+@click.option('--self', is_flag=True, help='Updates `hatch` itself')
+def update(packages, env_name, eager, all_packages,
+           infra, global_install, as_module, self):
     """With no packages nor options selected, this will update packages by
     looking for a `requirements.txt` or a dev version of that in the current
     directory. If the option --env is supplied, the update will be applied
@@ -280,6 +282,9 @@ def update(packages, env_name, eager, all_packages, infra, global_install, as_mo
 
     Unless the option --global is selected, the update will only affect the
     current user. Of course, this will have no effect if a virtual env is in use.
+
+    To update this tool, use the --self flag. All other methods of updating
+    will ignore `hatch`. See: https://github.com/pypa/pip/issues/1299
     """
     temp_dir = None
     command = [
@@ -321,7 +326,14 @@ def update(packages, env_name, eager, all_packages, infra, global_install, as_mo
         if not venv_active() and not global_install:  # no cov
             command.append('--user')
 
-    if infra:
+    if self:
+        if venv_dir:
+            with venv(venv_dir):
+                subprocess.Popen(command, shell=NEED_SUBPROCESS_SHELL)
+        else:
+            subprocess.Popen(command, shell=NEED_SUBPROCESS_SHELL)
+        sys.exit()
+    elif infra:
         command.extend(infra_packages)
     elif all_packages:
         installed_packages = [
