@@ -327,6 +327,7 @@ def update(packages, env_name, eager, all_packages,
             command.append('--user')
 
     if self:
+        command.append('hatch')
         if venv_dir:
             with venv(venv_dir):
                 subprocess.Popen(command, shell=NEED_SUBPROCESS_SHELL)
