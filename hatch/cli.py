@@ -689,16 +689,34 @@ def clean(package, path, compiled_only, verbose):
                 click.echo(p)
 
 
-@hatch.command(context_settings=CONTEXT_SETTINGS)
+@hatch.command(context_settings=CONTEXT_SETTINGS, short_help='Builds a project')
 @click.argument('package', required=False)
-@click.option('-p', '--path')
-@click.option('-py', '--python', 'pyname')
-@click.option('-pp', '--pypath')
-@click.option('-u', '--universal', is_flag=True)
-@click.option('-n', '--name')
-@click.option('-d', '--build-dir')
-@click.option('-c', '--clean', 'clean_first', is_flag=True)
+@click.option('-p', '--path', help='A relative or absolute path to a project.')
+@click.option('-py', '--python', 'pyname',
+              help='The named Python path to use. This overrides --pypath.')
+@click.option('-pp', '--pypath',
+              help='An absolute path to a Python executable.')
+@click.option('-u', '--universal', is_flag=True,
+              help='Indicates compatibility with both Python 2 and 3.')
+@click.option('-n', '--name',
+              help='Forces a particular platform name, e.g. linux_x86_64.')
+@click.option('-d', '--build-dir',
+              help='An absolute path to the desired build directory.')
+@click.option('-c', '--clean', 'clean_first', is_flag=True,
+              help='Removes build artifacts before building.')
 def build(package, path, pyname, pypath, universal, name, build_dir, clean_first):
+    """Builds a project, producing a source distribution and a wheel.
+
+    The path to the project is derived in the following order:
+
+    \b
+    1. The optional argument, which should be the name of a package
+       that was installed via `pip install -e`.
+    2. The option --path, which can be a relative or absolute path.
+    3. The current directory.
+
+    The path must contain a `setup.py` file.
+    """
     if package:
         path = get_editable_package_location(package)
         if not path:
