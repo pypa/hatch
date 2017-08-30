@@ -659,7 +659,7 @@ def clean(package, path, compiled_only, verbose):
     Additionally, the following patterns will be removed in the root of the
     path: `.cache`, `.coverage`, `.eggs`, `.tox`, `build`, `dist`, `*.egg-info`
 
-    If the path was derived from the optional argument, the pattern
+    If the path was derived from the optional package argument, the pattern
     `*.egg-info` will not be applied so as to not break that installation.
     """
     if package:
