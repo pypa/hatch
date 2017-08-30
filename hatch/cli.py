@@ -840,11 +840,30 @@ def list_pythons(ctx, param, value):
     ctx.exit()
 
 
-@hatch.command(context_settings=CONTEXT_SETTINGS)
+@hatch.command(context_settings=CONTEXT_SETTINGS,
+               short_help='Names a Python path or shows available ones')
 @click.argument('name')
 @click.argument('path')
-@click.option('-l', '--list', 'show', is_flag=True, is_eager=True, callback=list_pythons)
+@click.option('-l', '--list', 'show', is_flag=True, is_eager=True, callback=list_pythons,
+              help='Shows available Python paths.')
 def python(name, path, show):
+    """Names an absolute path to a Python executable. You can also modify
+    these in the config file entry `pythons`.
+
+    Hatch can then use these paths by name when creating virtual envs, building
+    packages, etc.
+
+    \b
+    $ hatch python -l
+    There are no saved Python paths. Add one via `hatch python NAME PATH`.
+    $ hatch python py2 /usr/bin/python
+    Successfully saved Python `py2` located at `/usr/bin/python`.
+    $ hatch python py3 /usr/bin/python3
+    Successfully saved Python `py3` located at `/usr/bin/python3`.
+    $ hatch python -l
+    py2 -> /usr/bin/python
+    py3 -> /usr/bin/python3
+    """
     try:
         settings = load_settings()
     except FileNotFoundError:
