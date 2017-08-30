@@ -745,7 +745,7 @@ def build(package, path, pyname, pypath, universal, name, build_dir, clean_first
             sys.exit(1)
 
     if clean_first:
-        clean_package(path)
+        clean_package(path, editable=package)
 
     sys.exit(build_package(path, universal, name, build_dir, pypath))
 
