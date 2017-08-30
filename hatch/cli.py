@@ -268,7 +268,10 @@ def install(packages, env_name, global_install):
                   'has no effect if a virtual env is in use.'
               ))
 @click.option('-m', '--module', 'as_module', is_flag=True,
-              help='Invoke `pip` as a module instead of directly.')
+              help=(
+                  'Invoke `pip` as a module instead of directly, i.e. '
+                  '`python -m pip`.'
+              ))
 def update(packages, env_name, eager, all_packages, infra, global_install, as_module):
     """With no packages nor options selected, this will update packages by
     looking for a `requirements.txt` or a dev version of that in the current
