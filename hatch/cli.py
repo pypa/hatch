@@ -217,12 +217,13 @@ def config(update_settings, restore):
                   'has no effect if a virtual env is in use.'
               ))
 def install(packages, env_name, global_install):
-    """With no packages selected, this will install using a `setup.py` in the
-    current directory. If the option --env is supplied, the install will be
-    applied using that named virtual env.
+    """If the option --env is supplied, the update will be applied using
+    that named virtual env. Unless the option --global is selected, the
+    update will only affect the current user. Of course, this will have
+    no effect if a virtual env is in use.
 
-    Unless the option --global is selected, the install will only affect the
-    current user. Of course, this will have no effect if a virtual env is in use.
+    With no packages selected, this will install using a `setup.py` in the
+    current directory.
     """
     packages = packages or ['.']
 
@@ -275,13 +276,14 @@ def install(packages, env_name, global_install):
 @click.option('--self', is_flag=True, help='Updates `hatch` itself')
 def update(packages, env_name, eager, all_packages,
            infra, global_install, as_module, self):
-    """With no packages nor options selected, this will update packages by
-    looking for a `requirements.txt` or a dev version of that in the current
-    directory. If the option --env is supplied, the update will be applied
-    using that named virtual env.
+    """If the option --env is supplied, the update will be applied using
+    that named virtual env. Unless the option --global is selected, the
+    update will only affect the current user. Of course, this will have
+    no effect if a virtual env is in use.
 
-    Unless the option --global is selected, the update will only affect the
-    current user. Of course, this will have no effect if a virtual env is in use.
+    With no packages nor options selected, this will update packages by
+    looking for a `requirements.txt` or a dev version of that in the current
+    directory.
 
     To update this tool, use the --self flag. All other methods of updating
     will ignore `hatch`. See: https://github.com/pypa/pip/issues/1299
