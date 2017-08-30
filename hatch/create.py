@@ -102,9 +102,7 @@ def create_package(d, package_name, settings):
         "__version__ = '0.0.1'\n"
     )
     init_py.write(package_dir)
-
     create_file(os.path.join(d, 'tests', '__init__.py'))
-    create_file(os.path.join(d, 'requirements.txt'))
 
     if cli:
         cli_py = File(
@@ -124,6 +122,12 @@ def create_package(d, package_name, settings):
     readme.write(d)
     coveragerc.write(d)
     tox.write(d)
+
+    requirements = File(
+        'requirements.txt',
+        "-e .\n"
+    )
+    requirements.write(d)
 
     manifest = File(
         'MANIFEST.in',

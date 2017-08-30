@@ -13,13 +13,7 @@ with open('{package_name_normalized}/__init__.py', 'r') as f:
 with open('{readme_file}', 'r') as f:
     readme = f.read()
 
-requires = []
-
-with open('requirements.txt', 'r') as f:
-    for line in f.readlines():
-        req = line.strip()
-        if req:
-            requires.append(req)
+requirements = []
 
 setup(
     name='{package_name}',
@@ -45,7 +39,7 @@ setup(
         'Operating System :: OS Independent',{pyversions}
         'Programming Language :: Python :: Implementation :: CPython',{pypy}    ],
 
-    install_requires=requires,
+    install_requires=requirements,
     tests_require=['coverage', 'pytest'],
 
     packages=find_packages(),{entry_point})
