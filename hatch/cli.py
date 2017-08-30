@@ -267,7 +267,9 @@ def install(packages, env_name, global_install):
                   'Updates globally, rather than on a per-user basis. This '
                   'has no effect if a virtual env is in use.'
               ))
-def update(packages, env_name, eager, all_packages, infra, global_install):
+@click.option('-m', '--module', 'as_module', is_flag=True,
+              help='Invoke `pip` as a module instead of directly.')
+def update(packages, env_name, eager, all_packages, infra, global_install, as_module):
     """With no packages nor options selected, this will update packages by
     looking for a `requirements.txt` or a dev version of that in the current
     directory. If the option --env is supplied, the update will be applied
@@ -292,7 +294,7 @@ def update(packages, env_name, eager, all_packages, infra, global_install):
         with venv(venv_dir):
             executable = (
                 [get_proper_python(), '-m', 'pip']
-                if infra and ON_WINDOWS
+                if as_module or (infra and ON_WINDOWS)
                 else [get_proper_pip()]
             )
             command = executable + command
@@ -304,7 +306,7 @@ def update(packages, env_name, eager, all_packages, infra, global_install):
         venv_dir = None
         executable = (
             [get_proper_python(), '-m', 'pip']
-            if infra and ON_WINDOWS
+            if as_module or (infra and ON_WINDOWS)
             else [get_proper_pip()]
         )
         command = executable + command
