@@ -269,7 +269,7 @@ def install(packages, env_name, global_install):
               ))
 @click.option('-m', '--module', 'as_module', is_flag=True,
               help=(
-                  'Invoke `pip` as a module instead of directly, i.e. '
+                  'Invokes `pip` as a module instead of directly, i.e. '
                   '`python -m pip`.'
               ))
 def update(packages, env_name, eager, all_packages, infra, global_install, as_module):
