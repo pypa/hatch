@@ -14,27 +14,16 @@ ENV_VARS = {'TWINE_PASSWORD': 'badpwbestpw'}
 
 
 def test_cwd():
-    with temp_chdir():
+    with temp_chdir() as d:
         runner = CliRunner()
         runner.invoke(hatch, ['init', PACKAGE_NAME, '--basic'])
         runner.invoke(hatch, ['build'])
+        os.chdir(os.path.join(d, 'dist'))
 
         with env_vars(ENV_VARS):
             result = runner.invoke(hatch, ['release', '-u', USERNAME, '-t'])
 
         assert result.exit_code == 0
-
-
-def test_cwd_no_build():
-    with temp_chdir() as d:
-        runner = CliRunner()
-        runner.invoke(hatch, ['init', PACKAGE_NAME, '--basic'])
-
-        with env_vars(ENV_VARS):
-            result = runner.invoke(hatch, ['release', '-u', USERNAME, '-t'])
-
-        assert result.exit_code == 1
-        assert 'Directory `{}` does not exist.'.format(os.path.join(d, 'dist')) in result.output
 
 
 def test_package():
@@ -121,7 +110,7 @@ def test_config_username():
             settings['pypi_username'] = USERNAME
             save_settings(settings)
             with env_vars(ENV_VARS):
-                result = runner.invoke(hatch, ['release', '-t'])
+                result = runner.invoke(hatch, ['release', '-p', 'dist', '-t'])
 
         assert result.exit_code == 0
 
@@ -134,7 +123,7 @@ def test_config_not_exist():
 
         with temp_move_path(SETTINGS_FILE, d):
             with env_vars(ENV_VARS):
-                result = runner.invoke(hatch, ['release', '-t'])
+                result = runner.invoke(hatch, ['release', '-p', 'dist', '-t'])
 
         assert result.exit_code == 1
         assert 'Unable to locate config file. Try `hatch config --restore`.' in result.output
@@ -151,7 +140,7 @@ def test_config_username_empty():
             settings['pypi_username'] = ''
             save_settings(settings)
             with env_vars(ENV_VARS):
-                result = runner.invoke(hatch, ['release', '-t'])
+                result = runner.invoke(hatch, ['release', '-p', 'dist', '-t'])
 
         assert result.exit_code == 1
         assert (
@@ -167,6 +156,6 @@ def test_strict():
         runner.invoke(hatch, ['build'])
 
         with env_vars(ENV_VARS):
-            result = runner.invoke(hatch, ['release', '-u', USERNAME, '-t', '-s'])
+            result = runner.invoke(hatch, ['release', '-p', 'dist', '-u', USERNAME, '-t', '-s'])
 
         assert result.exit_code == 1

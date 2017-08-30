@@ -771,10 +771,7 @@ def release(package, path, username, test_pypi, strict):
             click.echo('Directory `{}` does not exist.'.format(path))
             sys.exit(1)
     else:
-        path = os.path.join(os.getcwd(), 'dist')
-        if not os.path.exists(path):
-            click.echo('Directory `{}` does not exist.'.format(path))
-            sys.exit(1)
+        path = os.getcwd()
 
     if not username:
         try:
