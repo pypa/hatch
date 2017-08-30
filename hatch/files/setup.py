@@ -9,6 +9,8 @@ with open('{package_name_normalized}/__init__.py', 'r') as f:
         if line.startswith('__version__'):
             version = line.strip().split('=')[1].strip(' \\'"')
             break
+    else:
+        version = '0.0.1'
 
 with open('{readme_file}', 'r') as f:
     readme = f.read()
