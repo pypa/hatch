@@ -354,6 +354,8 @@ def update(packages, env_name, eager, all_packages,
             click.echo('No packages to install.')
             sys.exit(1)
         command.extend(packages)
+
+    # When https://github.com/pypa/pipfile is finalized, we'll use it.
     else:
         reqs = os.path.join(os.getcwd(), 'requirements.txt')
         if not os.path.exists(reqs):
