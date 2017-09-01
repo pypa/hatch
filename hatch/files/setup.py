@@ -61,7 +61,7 @@ class SetupFile(File):
                     pyversion
                 )
             else:
-                pypy = "\n        'Programming Language :: Python :: Implementation :: PyPy',"
+                pypy = "\n        'Programming Language :: Python :: Implementation :: PyPy',\n"
 
         license_classifiers = ''
         for li in licenses:
