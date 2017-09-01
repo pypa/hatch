@@ -232,6 +232,21 @@ def test_path_full_not_exist():
         assert 'Directory `{}` does not exist.'.format(full_path) in result.output
 
 
+def test_path_file():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['egg', 'ok', '--basic'])
+        init_file = os.path.join(d, 'ok', 'ok', '__init__.py')
+
+        result = runner.invoke(hatch, ['grow', 'major', '-p', init_file])
+        contents = read_file(init_file)
+
+        assert result.exit_code == 0
+        assert contents == "__version__ = '1.0.0'\n"
+        assert 'Updated {}'.format(init_file) in result.output
+        assert '0.0.1 -> 1.0.0' in result.output
+
+
 def test_no_init():
     with temp_chdir() as d:
         runner = CliRunner()
@@ -243,7 +258,7 @@ def test_no_init():
 
         assert result.exit_code == 1
         assert contents == "__version__ = '0.0.1'\n"
-        assert 'No init files found.' in result.output
+        assert 'No version files found.' in result.output
 
 
 def test_no_version():
@@ -255,7 +270,7 @@ def test_no_version():
         result = runner.invoke(hatch, ['grow', 'fix'])
 
         assert result.exit_code == 1
-        assert 'Found init files:' in result.output
+        assert 'Found version files:' in result.output
         assert os.path.join(d, 'tests', '__init__.py') in result.output
         assert 'Unable to find a version specifier.' in result.output
 

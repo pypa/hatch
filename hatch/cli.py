@@ -405,7 +405,7 @@ def update(packages, env_name, eager, all_packages,
                short_help="Increments a project's version")
 @click.argument('part', type=click.Choice(BUMP.keys()))
 @click.argument('package', required=False)
-@click.option('-p', '--path', help='A relative or absolute path to a project.')
+@click.option('-p', '--path', help='A relative or absolute path to a project or file.')
 @click.option('--pre', 'pre_token',
               help='The token to use for `pre` part. This overrides config. Default: rc')
 @click.option('--build', 'build_token',
@@ -423,11 +423,11 @@ def grow(part, package, path, pre_token, build_token):
     2. The option --path, which can be a relative or absolute path.
     3. The current directory.
 
-    The path, and every top level directory within, will be checked for a
-    `__version__.py`, `__about__.py`, and `__init__.py`, in that order. The
-    first encounter of a `__version__` variable that also appears to equal a
-    version string will be updated. Probable package paths will be given
-    precedence.
+    If the path is a file, it will be the target. Otherwise, the path, and
+    every top level directory within, will be checked for a `__version__.py`,
+    `__about__.py`, and `__init__.py`, in that order. The first encounter of
+    a `__version__` variable that also appears to equal a version string will
+    be updated. Probable package paths will be given precedence.
 
     The default tokens for the prerelease and build parts, `rc` and `build`
     respectively, can be altered via the options `--pre` and `--build`, or
