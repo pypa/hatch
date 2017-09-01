@@ -1003,8 +1003,8 @@ def shed(ctx, pyname, env_name):
         for pyname in pyname.split(','):
             pypath = settings.get('pythons', {}).pop(pyname, None)
             if pypath is not None:
-                click.echo('Successfully removed Python path named `{}`.'.format(pyname))
                 save_settings(settings)
+                click.echo('Successfully removed Python path named `{}`.'.format(pyname))
             else:
                 click.echo('Python path named `{}` already does not exist.'.format(pyname))
     else:
