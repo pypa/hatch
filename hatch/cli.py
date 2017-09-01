@@ -483,13 +483,13 @@ def grow(part, package, path, pre_token, build_token):
         click.echo('{} -> {}'.format(old_version, new_version))
     else:
         if f:
-            click.echo('Found init files:')
+            click.echo('Found version files:')
             for file in f:
                 click.echo(file)
             click.echo('\nUnable to find a version specifier.')
             sys.exit(1)
         else:
-            click.echo('No init files found.')
+            click.echo('No version files found.')
             sys.exit(1)
 
 
