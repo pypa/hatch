@@ -1007,7 +1007,8 @@ def shed(ctx, pyname, env_name):
                 click.echo('Successfully removed Python path named `{}`.'.format(pyname))
             else:
                 click.echo('Python path named `{}` already does not exist.'.format(pyname))
-    else:
+
+    if env_name:
         for env_name in env_name.split(','):
             venv_dir = os.path.join(VENV_DIR, env_name)
             if os.path.exists(venv_dir):

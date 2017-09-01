@@ -143,3 +143,32 @@ def test_env_not_exist():
 
         assert result.exit_code == 0
         assert 'Virtual env named `{}` already does not exist.'.format(env_name)
+
+
+def test_pyname_and_env():
+    with temp_chdir() as d:
+        runner = CliRunner()
+
+        env_name = os.urandom(10).hex()
+        while os.path.exists(os.path.join(VENV_DIR, env_name)):  # no cov
+            env_name = os.urandom(10).hex()
+
+        venv_dir = os.path.join(VENV_DIR, env_name)
+
+        try:
+            runner.invoke(hatch, ['env', env_name])
+            assert os.path.exists(venv_dir)
+
+            with temp_move_path(SETTINGS_FILE, d):
+                settings = copy_default_settings()
+                settings['pythons']['pyname'] = 'pypath'
+                save_settings(settings)
+                result = runner.invoke(hatch, ['shed', '-p', 'pyname', '-e', env_name])
+                assert load_settings()['pythons'] == {}
+                assert not os.path.exists(venv_dir)
+        finally:
+            remove_path(venv_dir)
+
+        assert result.exit_code == 0
+        assert 'Successfully removed Python path named `pyname`.' in result.output
+        assert 'Successfully removed virtual env named `{}`.'.format(env_name) in result.output
