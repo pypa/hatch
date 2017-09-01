@@ -938,6 +938,7 @@ def restore_envs(ctx, param, value):
 @click.option('-pp', '--pypath',
               help='An absolute path to a Python executable.')
 @click.option('-c', '--clone', help='Clones an existing virtual env.')
+@click.option('-q', '--quiet', is_flag=True, help='Decreases verbosity.')
 @click.option('-r', '--restore', is_flag=True, is_eager=True, callback=restore_envs,
               help=(
                   'Attempts to make all virtual envs in `{}` usable by '
@@ -946,7 +947,7 @@ def restore_envs(ctx, param, value):
               ))
 @click.option('-l', '--list', 'show', is_flag=True, is_eager=True, callback=list_envs,
               help='Shows available virtual envs.')
-def env(name, pyname, pypath, clone, restore, show):
+def env(name, pyname, pypath, clone, quiet, restore, show):
     """Creates a new virtual env that can later be `use`d."""
     if pyname:
         try:
@@ -979,7 +980,7 @@ def env(name, pyname, pypath, clone, restore, show):
         clone_venv(origin, venv_dir)
         click.echo('Successfully cloned virtual env `{}` from `{}` to {}.'.format(name, clone, venv_dir))
     else:
-        create_venv(venv_dir, pypath)
+        create_venv(venv_dir, pypath, quiet=quiet)
         click.echo('Successfully saved virtual env `{}` to `{}`.'.format(name, venv_dir))
 
 
