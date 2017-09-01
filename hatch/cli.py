@@ -223,9 +223,9 @@ def config(update_settings, restore):
                   'has no effect if a virtual env is in use.'
               ))
 def install(packages, env_name, editable, global_install):
-    """If the option --env is supplied, the update will be applied using
+    """If the option --env is supplied, the install will be applied using
     that named virtual env. Unless the option --global is selected, the
-    update will only affect the current user. Of course, this will have
+    install will only affect the current user. Of course, this will have
     no effect if a virtual env is in use.
 
     With no packages selected, this will install using a `setup.py` in the
