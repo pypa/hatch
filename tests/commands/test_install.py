@@ -3,7 +3,7 @@ import os
 from click.testing import CliRunner
 
 from hatch.cli import hatch
-from hatch.env import get_installed_packages
+from hatch.env import get_editable_packages, get_installed_packages
 from hatch.utils import remove_path, temp_chdir
 from hatch.venv import VENV_DIR, create_venv, venv
 
@@ -20,6 +20,22 @@ def test_local():
             assert 'ok' not in get_installed_packages()
             result = runner.invoke(hatch, ['install'])
             assert 'ok' in get_installed_packages()
+
+        assert result.exit_code == 0
+
+
+def test_local_editable():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', 'ok'])
+
+        venv_dir = os.path.join(d, 'venv')
+        create_venv(venv_dir)
+
+        with venv(venv_dir):
+            assert 'ok' not in get_editable_packages()
+            result = runner.invoke(hatch, ['install', '-l'])
+            assert 'ok' in get_editable_packages()
 
         assert result.exit_code == 0
 

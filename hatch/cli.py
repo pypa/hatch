@@ -211,12 +211,18 @@ def config(update_settings, restore):
 @hatch.command(context_settings=CONTEXT_SETTINGS, short_help='Installs packages')
 @click.argument('packages', nargs=-1)
 @click.option('-e', '--env', 'env_name', help='The named virtual env to use.')
+@click.option('-l', '--local', 'editable', is_flag=True,
+              help=(
+                  "Corresponds to pip's --editable option, allowing a local "
+                  "package to be automatically updated when modifications "
+                  "are made."
+              ))
 @click.option('-g', '--global', 'global_install', is_flag=True,
               help=(
                   'Installs globally, rather than on a per-user basis. This '
                   'has no effect if a virtual env is in use.'
               ))
-def install(packages, env_name, global_install):
+def install(packages, env_name, editable, global_install):
     """If the option --env is supplied, the update will be applied using
     that named virtual env. Unless the option --global is selected, the
     update will only affect the current user. Of course, this will have
@@ -226,6 +232,9 @@ def install(packages, env_name, global_install):
     current directory.
     """
     packages = packages or ['.']
+
+    if editable:
+        packages = ['-e', *packages]
 
     if env_name:
         venv_dir = os.path.join(VENV_DIR, env_name)
