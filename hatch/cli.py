@@ -921,14 +921,24 @@ def restore_envs(ctx, param, value):
     ctx.exit()
 
 
-@hatch.command(context_settings=CONTEXT_SETTINGS)
+@hatch.command(context_settings=CONTEXT_SETTINGS,
+               short_help='Manages virtual environments')
 @click.argument('name')
-@click.option('-p', '--python', 'pyname')
-@click.option('-pp', '--pypath')
-@click.option('-c', '--clone')
-@click.option('-r', '--restore', is_flag=True, is_eager=True, callback=restore_envs)
-@click.option('-l', '--list', 'show', is_flag=True, is_eager=True, callback=list_envs)
+@click.option('-py', '--python', 'pyname',
+              help='The named Python path to use. This overrides --pypath.')
+@click.option('-pp', '--pypath',
+              help='An absolute path to a Python executable.')
+@click.option('-c', '--clone', help='Clones an existing virtual env.')
+@click.option('-r', '--restore', is_flag=True, is_eager=True, callback=restore_envs,
+              help=(
+                  'Attempts to make all virtual envs in `{}` usable by '
+                  'fixing the executable paths in scripts and removing '
+                  'all compiled `*.pyc` files.'.format(VENV_DIR)
+              ))
+@click.option('-l', '--list', 'show', is_flag=True, is_eager=True, callback=list_envs,
+              help='Shows available virtual envs.')
 def env(name, pyname, pypath, clone, restore, show):
+    """Creates a new virtual env that can later be `use`d."""
     if pyname:
         try:
             settings = load_settings()
