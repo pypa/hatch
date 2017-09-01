@@ -50,7 +50,7 @@ def test_pyname():
                 settings = copy_default_settings()
                 settings['pythons']['python'] = sys.executable
                 save_settings(settings)
-                result = runner.invoke(hatch, ['env', env_name, '-p', 'python'])
+                result = runner.invoke(hatch, ['env', env_name, '-py', 'python'])
                 assert os.path.exists(venv_dir)
         finally:
             remove_path(venv_dir)
@@ -64,7 +64,7 @@ def test_pyname_config_not_exist():
         runner = CliRunner()
 
         with temp_move_path(SETTINGS_FILE, d):
-            result = runner.invoke(hatch, ['env', 'name', '-p', 'python'])
+            result = runner.invoke(hatch, ['env', 'name', '-py', 'python'])
 
         assert result.exit_code == 1
         assert 'Unable to locate config file. Try `hatch config --restore`.' in result.output
@@ -76,7 +76,7 @@ def test_pyname_key_not_exist():
 
         with temp_move_path(SETTINGS_FILE, d):
             restore_settings()
-            result = runner.invoke(hatch, ['env', 'name', '-p', 'pyname'])
+            result = runner.invoke(hatch, ['env', 'name', '-py', 'pyname'])
 
         assert result.exit_code == 1
         assert 'Unable to find a Python path named `pyname`.' in result.output
