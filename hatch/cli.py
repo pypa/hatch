@@ -1000,19 +1000,21 @@ def shed(ctx, pyname, env_name):
             click.echo('Unable to locate config file. Try `hatch config --restore`.')
             sys.exit(1)
 
-        pypath = settings.get('pythons', {}).pop(pyname, None)
-        if pypath is not None:
-            click.echo('Successfully removed Python path named `{}`.'.format(pyname))
-            save_settings(settings)
-        else:
-            click.echo('Python path named `{}` already does not exist.'.format(pyname))
+        for pyname in pyname.split(','):
+            pypath = settings.get('pythons', {}).pop(pyname, None)
+            if pypath is not None:
+                click.echo('Successfully removed Python path named `{}`.'.format(pyname))
+                save_settings(settings)
+            else:
+                click.echo('Python path named `{}` already does not exist.'.format(pyname))
     else:
-        venv_dir = os.path.join(VENV_DIR, env_name)
-        if os.path.exists(venv_dir):
-            remove_path(venv_dir)
-            click.echo('Successfully removed virtual env named `{}`.'.format(env_name))
-        else:
-            click.echo('Virtual env named `{}` already does not exist.'.format(env_name))
+        for env_name in env_name.split(','):
+            venv_dir = os.path.join(VENV_DIR, env_name)
+            if os.path.exists(venv_dir):
+                remove_path(venv_dir)
+                click.echo('Successfully removed virtual env named `{}`.'.format(env_name))
+            else:
+                click.echo('Virtual env named `{}` already does not exist.'.format(env_name))
 
 
 @hatch.command(context_settings=UNKNOWN_OPTIONS)
