@@ -190,7 +190,7 @@ def test_pypy():
         contents = read_file(os.path.join(d, 'setup.py'))
         parsed = parse(TEMPLATE, contents)
 
-        assert parsed['pypy'] == "\n        'Programming Language :: Python :: Implementation :: PyPy',"
+        assert parsed['pypy'] == "\n        'Programming Language :: Python :: Implementation :: PyPy',\n"
 
 
 def test_pypy_none():
