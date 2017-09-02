@@ -1013,11 +1013,42 @@ def env(name, pyname, pypath, clone, quiet, restore, show):
         click.echo('Successfully saved virtual env `{}` to `{}`.'.format(name, venv_dir))
 
 
-@hatch.command(context_settings=CONTEXT_SETTINGS)
-@click.option('-p', '--python', 'pyname')
-@click.option('-e', '--env', 'env_name')
+@hatch.command(context_settings=CONTEXT_SETTINGS,
+               short_help='Removes named Python paths or virtual environments')
+@click.option('-p', '--python', 'pyname',
+              help='Comma-separated list of named Python paths.')
+@click.option('-e', '--env', 'env_name',
+              help='Comma-separated list of named virtual envs.')
 @click.pass_context
 def shed(ctx, pyname, env_name):
+    """Removes named Python paths or virtual environments.
+
+    \b
+    $ hatch python -l
+    py2 -> /usr/bin/python
+    py3 -> /usr/bin/python3
+    invalid -> :\/:
+    $ hatch env -l
+    Virtual environments found in /home/ofek/.local/share/hatch/venvs:
+
+    \b
+    duplicate ->
+      Version: 3.5.2
+      Implementation: CPython
+    fast ->
+      Version: 3.5.3
+      Implementation: PyPy
+    my-app ->
+      Version: 3.5.2
+      Implementation: CPython
+    old ->
+      Version: 2.7.12
+      Implementation: CPython
+    $ hatch shed -p invalid -e duplicate,old
+    Successfully removed Python path named `invalid`.
+    Successfully removed virtual env named `duplicate`.
+    Successfully removed virtual env named `old`.
+    """
     if not (pyname or env_name):
         click.echo(ctx.get_help())
         return
