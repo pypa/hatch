@@ -901,7 +901,7 @@ def list_envs(ctx, param, value):
     venvs = get_available_venvs()
 
     if venvs:
-        click.echo('Virtual environments found in {}:\n'.format(VENV_DIR))
+        click.echo('Virtual environments found in `{}`:\n'.format(VENV_DIR))
         for venv_name, venv_dir in venvs:
             with venv(venv_dir):
                 click.echo(
@@ -915,7 +915,7 @@ def list_envs(ctx, param, value):
     # I don't want to move users' virtual environments
     # temporarily for tests as one may be in use.
     else:  # no cov
-        click.echo('No virtual environments found in {}. To create '
+        click.echo('No virtual environments found in `{}`. To create '
                    'one do `hatch env NAME`.'.format(VENV_DIR))
 
     ctx.exit()
