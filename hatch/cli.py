@@ -948,7 +948,36 @@ def restore_envs(ctx, param, value):
 @click.option('-l', '--list', 'show', is_flag=True, is_eager=True, callback=list_envs,
               help='Shows available virtual envs.')
 def env(name, pyname, pypath, clone, quiet, restore, show):
-    """Creates a new virtual env that can later be `use`d."""
+    """Creates a new virtual env that can later be utilized with the
+    `use` command.
+
+    \b
+    $ hatch python -l
+    py2 -> /usr/bin/python
+    py3 -> /usr/bin/python3
+    $ hatch env -l
+    No virtual environments found in /home/ofek/.local/share/hatch/venvs. To create one do `hatch env NAME`.
+    $ hatch env -q my-app
+    Already using interpreter /usr/bin/python3
+    Successfully saved virtual env `my-app` to `/home/ofek/.local/share/hatch/venvs/my-app`.
+    $ hatch env -q -py py2 old
+    Successfully saved virtual env `old` to `/home/ofek/.local/share/hatch/venvs/old`.
+    $ hatch env -q -pp ~/pypy3/bin/pypy fast
+    Successfully saved virtual env `fast` to `/home/ofek/.local/share/hatch/venvs/fast`.
+    $ hatch env -l
+    Virtual environments found in /home/ofek/.local/share/hatch/venvs:
+
+    \b
+    fast ->
+      Version: 3.5.3
+      Implementation: PyPy
+    my-app ->
+      Version: 3.5.2
+      Implementation: CPython
+    old ->
+      Version: 2.7.12
+      Implementation: CPython
+    """
     if pyname:
         try:
             settings = load_settings()
