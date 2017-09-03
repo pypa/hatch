@@ -18,7 +18,7 @@ with open('hatch/__init__.py', 'r') as f:
 setup(
     name='hatch',
     version=version,
-    description="Python's package manager",
+    description='A modern project, package, and virtual env manager',
     long_description=open('README.rst', 'r').read(),
     author='Ofek Lev',
     author_email='ofekmeister@gmail.com',
@@ -29,10 +29,17 @@ setup(
     license='MIT/Apache-2.0',
 
     keywords=(
+        'productivity',
+        'virtual env',
         'packaging',
         'package manager',
+        'cookiecutter',
         'project template',
-        'cli'
+        'bump version',
+        'versioning',
+        'cleanup',
+        'testing',
+        'cli',
     ),
 
     classifiers=(
@@ -62,7 +69,7 @@ setup(
         'wheel>=0.27.0'
     ),
     setup_requires=('appdirs', 'atomicwrites'),
-    tests_require=('parse'),
+    tests_require=('parse', ),
 
     packages=find_packages(),
     entry_points={
