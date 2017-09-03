@@ -47,6 +47,25 @@ Why use a plethora of disparate tools when most of the time only 1 is needed?!
 .. contents:: **Table of Contents**
     :backlinks: none
 
+Features
+--------
+
+- Completely cross-platform \\(*_^)/
+- Configurable project creation! CI service files, readme format/badges, licenses, etc.
+- Easiest virtual environment management available
+- Activation of virtual envs without disruption of current environments
+- Ability to send commands to virtual envs without the need for activation
+- Changed prompts when in a virtual env
+- Installing/updating packages defaults to a per-user basis, allowing global
+  usage with elevated privileges
+- Configurable semantic version bumping
+- Robust build/package cleanup
+- Easy testing with code coverage
+- Simple building and releasing for PyPI
+- All commands are environment-aware w.r.t. python/pip
+- Virtual envs can be the target for relevant commands
+- Editable packages can be the target for relevant commands
+
 Installation
 ------------
 
