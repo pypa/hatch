@@ -50,6 +50,36 @@ def hatch():
 
 
 @hatch.command(context_settings=CONTEXT_SETTINGS,
+               short_help='Locates, updates, or restores the config file')
+@click.option('-u', '--update', 'update_settings', is_flag=True,
+              help='Updates the config file with any new fields.')
+@click.option('--restore', is_flag=True,
+              help='Restores the config file to default settings.')
+def config(update_settings, restore):
+    """Locates, updates, or restores the config file.
+
+    \b
+    $ hatch config
+    Settings location: /home/ofek/.local/share/hatch/settings.json
+    """
+    if update_settings:
+        try:
+            user_settings = load_settings()
+            updated_settings = copy_default_settings()
+            updated_settings.update(user_settings)
+            save_settings(updated_settings)
+            click.echo('Settings were successfully updated.')
+        except FileNotFoundError:
+            restore = True
+
+    if restore:
+        restore_settings()
+        click.echo('Settings were successfully restored.')
+
+    click.echo('Settings location: ' + SETTINGS_FILE)
+
+
+@hatch.command(context_settings=CONTEXT_SETTINGS,
                short_help='Creates a new Python project')
 @click.argument('name')
 @click.option('--basic', is_flag=True,
@@ -176,36 +206,6 @@ def init(name, basic, cli, licenses):
 
     create_package(os.getcwd(), name, settings)
     click.echo('Created project `{}` here'.format(name))
-
-
-@hatch.command(context_settings=CONTEXT_SETTINGS,
-               short_help='Locates, updates, or restores the config file')
-@click.option('-u', '--update', 'update_settings', is_flag=True,
-              help='Updates the config file with any new fields.')
-@click.option('--restore', is_flag=True,
-              help='Restores the config file to default settings.')
-def config(update_settings, restore):
-    """Locates, updates, or restores the config file.
-
-    \b
-    $ hatch config
-    Settings location: /home/ofek/.local/share/hatch/settings.json
-    """
-    if update_settings:
-        try:
-            user_settings = load_settings()
-            updated_settings = copy_default_settings()
-            updated_settings.update(user_settings)
-            save_settings(updated_settings)
-            click.echo('Settings were successfully updated.')
-        except FileNotFoundError:
-            restore = True
-
-    if restore:
-        restore_settings()
-        click.echo('Settings were successfully restored.')
-
-    click.echo('Settings location: ' + SETTINGS_FILE)
 
 
 @hatch.command(context_settings=CONTEXT_SETTINGS, short_help='Installs packages')
