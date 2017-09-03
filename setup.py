@@ -14,12 +14,18 @@ with open('hatch/__init__.py', 'r') as f:
         if line.startswith('__version__'):
             version = line.strip().split('=')[1].strip(' \'"')
             break
+    else:
+        version = '0.0.1'
+
+with open('README.rst', 'r') as f:
+    readme = f.read()
+
 
 setup(
     name='hatch',
     version=version,
     description='A modern project, package, and virtual env manager',
-    long_description=open('README.rst', 'r').read(),
+    long_description=readme,
     author='Ofek Lev',
     author_email='ofekmeister@gmail.com',
     maintainer='Ofek Lev',
