@@ -1148,6 +1148,77 @@ def use(env_name, command, shell, nest):  # no cov
     spawn a subprocess to avoid any unwanted strangeness occurring in your
     current environment. If you would like to learn more about the benefits
     of this approach, be sure to read https://gist.github.com/datagrok/2199506
+
+    \b
+    Non-nesting:
+    $ hatch env -l
+    Virtual environments found in `/home/ofek/.local/share/hatch/venvs`:
+
+    \b
+    fast ->
+      Version: 3.5.3
+      Implementation: PyPy
+    my-app ->
+      Version: 3.5.2
+      Implementation: CPython
+    old ->
+      Version: 2.7.12
+      Implementation: CPython
+    $ python -c "import sys;print(sys.executable)"
+    /usr/bin/python
+    $ hatch use my-app
+    (my-app) $ python -c "import sys;print(sys.executable)"
+    /home/ofek/.local/share/hatch/venvs/my-app/bin/python
+    (my-app) $ hatch use fast
+    (my-app) $ exit
+    (fast) $ exit
+    $
+
+    \b
+    Nesting:
+    $ hatch use my-app
+    (my-app) $ hatch use -n fast
+    2 (fast) $ hatch use -n old
+    3 (old) $ exit
+    2 (fast) $ exit
+    (my-app) $ exit
+    $
+
+    \b
+    Commands:
+    $ hatch use my-app pip list --format=columns
+    Package    Version
+    ---------- -------
+    pip        9.0.1
+    setuptools 36.3.0
+    wheel      0.29.0
+    $ hatch use my-app hatch install requests six
+    Collecting requests
+      Using cached requests-2.18.4-py2.py3-none-any.whl
+    Collecting six
+      Using cached six-1.10.0-py2.py3-none-any.whl
+    Collecting urllib3<1.23,>=1.21.1 (from requests)
+      Using cached urllib3-1.22-py2.py3-none-any.whl
+    Collecting idna<2.7,>=2.5 (from requests)
+      Using cached idna-2.6-py2.py3-none-any.whl
+    Collecting chardet<3.1.0,>=3.0.2 (from requests)
+      Using cached chardet-3.0.4-py2.py3-none-any.whl
+    Collecting certifi>=2017.4.17 (from requests)
+      Using cached certifi-2017.7.27.1-py2.py3-none-any.whl
+    Installing collected packages: urllib3, idna, chardet, certifi, requests, six
+    Successfully installed certifi-2017.7.27.1 chardet-3.0.4 idna-2.6 requests-2.18.4 six-1.10.0 urllib3-1.22
+    $ hatch use my-app pip list --format=columns
+    Package    Version
+    ---------- -----------
+    certifi    2017.7.27.1
+    chardet    3.0.4
+    idna       2.6
+    pip        9.0.1
+    requests   2.18.4
+    setuptools 36.3.0
+    six        1.10.0
+    urllib3    1.22
+    wheel      0.29.0
     """
 
     # Run commands regardless of virtual env activation.
