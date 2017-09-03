@@ -26,8 +26,8 @@ from hatch.settings import (
 )
 from hatch.shells import IMMORTAL_SHELLS, get_default_shell_info, get_shell_command
 from hatch.utils import (
-    NEED_SUBPROCESS_SHELL, ON_WINDOWS, basepath, chdir, get_proper_pip,
-    get_proper_python, remove_path, venv_active
+    NEED_SUBPROCESS_SHELL, ON_WINDOWS, basepath, chdir, get_admin_command,
+    get_proper_pip, get_proper_python, remove_path, venv_active
 )
 from hatch.venv import (
     VENV_DIR, clone_venv, create_venv, fix_available_venvs, get_available_venvs, venv
@@ -247,10 +247,14 @@ def install(packages, env_name, editable, global_install):
             result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
     else:
         command = [get_proper_pip(), 'install']
-        if not venv_active() and not global_install:  # no cov
-            command.append('--user')
-        command.extend(packages)
 
+        if not venv_active():  # no cov
+            if global_install:
+                command = get_admin_command() + command
+            else:
+                command.append('--user')
+
+        command.extend(packages)
         result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
 
     sys.exit(result.returncode)
@@ -338,8 +342,11 @@ def update(packages, env_name, eager, all_packages,
         else:
             installed_packages = None
 
-        if not venv_active() and not global_install:  # no cov
-            command.append('--user')
+        if not venv_active():  # no cov
+            if global_install:
+                command = get_admin_command() + command
+            else:
+                command.append('--user')
 
     if self:  # no cov
         command.append('hatch')

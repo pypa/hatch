@@ -43,6 +43,21 @@ def get_proper_pip():  # no cov
     return 'pip'
 
 
+def get_admin_command():
+    # The default name `Administrator` will not always be desired. In future,
+    # we should allow the use of an env var to specify the admin name.
+    if ON_WINDOWS:
+        return [
+            'runas', r'/user:{}\{}'.format(
+                platform.node() or os.environ.get('USERDOMAIN', ''),
+                'Administrator'
+            )
+        ]
+    # Should we indeed use -H here?
+    else:
+        return ['sudo', '-H']
+
+
 def ensure_dir_exists(d):
     if not os.path.exists(d):
         os.makedirs(d)
