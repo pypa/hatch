@@ -1173,6 +1173,8 @@ def use(env_name, command, shell, nest):  # no cov
     /home/ofek/.local/share/hatch/venvs/my-app/bin/python
     (my-app) $ hatch use fast
     (my-app) $ exit
+    (fast) $ python -c "import sys;print(sys.executable)"
+    /home/ofek/.local/share/hatch/venvs/fast/bin/python
     (fast) $ exit
     $
 
