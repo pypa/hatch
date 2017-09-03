@@ -1298,13 +1298,3 @@ def use(env_name, command, shell, nest):  # no cov
                                 break
                 except KeyboardInterrupt:
                     break
-
-
-
-
-
-
-
-
-
-
