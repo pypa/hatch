@@ -275,6 +275,71 @@ def install(packages, env_name, editable, global_install, quiet):
     sys.exit(result.returncode)
 
 
+@hatch.command(context_settings=CONTEXT_SETTINGS, short_help='Uninstalls packages')
+@click.argument('packages', nargs=-1)
+@click.option('-e', '--env', 'env_name', help='The named virtual env to use.')
+@click.option('-g', '--global', 'global_uninstall', is_flag=True,
+              help=(
+                  'Uninstalls globally, rather than on a per-user basis. This '
+                  'has no effect if a virtual env is in use.'
+              ))
+@click.option('-q', '--quiet', is_flag=True, help='Decreases verbosity.')
+@click.option('-y', '--yes', is_flag=True,
+              help='Confirms the intent to uninstall without a prompt.')
+def uninstall(packages, env_name, global_uninstall, quiet, yes):
+    """If the option --env is supplied, the uninstall will be applied using
+    that named virtual env. Unless the option --global is selected, the
+    uninstall will only affect the current user. Of course, this will have
+    no effect if a virtual env is in use. The desired name of the admin
+    user can be set with the `_DEFAULT_ADMIN_` environment variable.
+
+    With no packages selected, this will uninstall using a `requirements.txt`
+    or a dev version of that in the current directory.
+    """
+    if not packages:
+        reqs = get_requirements_file(os.getcwd())
+        if not reqs:
+            click.echo('Unable to locate a requirements file.')
+            sys.exit(1)
+
+        packages = ['-r', reqs]
+
+    # Windows' `runas` allows only a single argument for the
+    # command so we catch this case and turn our command into
+    # a string later.
+    windows_admin_command = None
+
+    if yes:  # no cov
+        packages = ['-y', *packages]
+
+    if env_name:
+        venv_dir = os.path.join(VENV_DIR, env_name)
+        if not os.path.exists(venv_dir):
+            click.echo('Virtual env named `{}` does not exist.'.format(env_name))
+            sys.exit(1)
+
+        with venv(venv_dir):
+            command = [get_proper_pip(), 'uninstall', *packages] + (['-q'] if quiet else [])
+            result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
+    else:
+        command = [get_proper_pip(), 'uninstall'] + (['-q'] if quiet else [])
+
+        if not venv_active() and global_uninstall:  # no cov
+            if ON_WINDOWS:
+                windows_admin_command = get_admin_command()
+            else:
+                command = get_admin_command() + command
+
+        command.extend(packages)
+
+        if windows_admin_command:  # no cov
+            command = windows_admin_command + [' '.join(command)]
+
+        result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
+
+    sys.exit(result.returncode)
+
+
 @hatch.command(context_settings=CONTEXT_SETTINGS, short_help='Updates packages')
 @click.argument('packages', nargs=-1)
 @click.option('-e', '--env', 'env_name', help='The named virtual env to use.')
