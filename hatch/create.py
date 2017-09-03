@@ -107,7 +107,7 @@ def create_package(d, package_name, settings):
     if cli:
         cli_py = File(
             'cli.py',
-            'def {}():\n    pass\n'.format(normalized_package_name)
+            "def {}():\n    print('Hello world!')\n".format(normalized_package_name)
         )
         cli_py.write(package_dir)
         main_py = File(
