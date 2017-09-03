@@ -23,6 +23,27 @@ Hatch
 
 -----
 
+Hatch is a productivity tool designed to make your workflow easier and more
+efficient, while also reducing the number of other tools you need to know.
+It aims to make the 90% use cases as pleasant as possible.
+
+For me personally, Hatch has entirely replaced the manual (or entire!)
+use of these:
+
+- `Cookiecutter PyPackage <https://github.com/audreyr/cookiecutter-pypackage>`_
+- `virtualenv <https://github.com/pypa/virtualenv>`_
+- `pyenv <https://github.com/pyenv/pyenv>`_
+- `Pew <https://github.com/berdario/pew>`_
+- `inve <https://gist.github.com/datagrok/2199506>`_
+- `pytest <https://github.com/pytest-dev/pytest>`_
+- `Coverage.py <https://github.com/nedbat/coveragepy>`_
+- `twine <https://github.com/pypa/twine>`_
+- `bumpversion <https://github.com/peritus/bumpversion>`_
+- `Incremental <https://github.com/twisted/incremental>`_
+- ``python setup.py ...``
+
+Why use a plethora of disparate tools when most of the time only 1 is needed?!
+
 .. contents:: **Table of Contents**
     :backlinks: none
 
