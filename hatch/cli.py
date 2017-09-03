@@ -1116,12 +1116,39 @@ def shed(ctx, pyname, env_name):
                 click.echo('Virtual env named `{}` already does not exist.'.format(env_name))
 
 
-@hatch.command(context_settings=UNKNOWN_OPTIONS)
+@hatch.command(context_settings=UNKNOWN_OPTIONS,
+               short_help='Activates or sends a command to a virtual environment')
 @click.argument('env_name')
 @click.argument('command', required=False, nargs=-1, type=click.UNPROCESSED)
-@click.option('-s', '--shell')
-@click.option('--nest/--kill', '-n/-k', default=None)
+@click.option('-s', '--shell',
+              help=(
+                  'The name of shell to use e.g. `bash`. If the shell name '
+                  'is not supported, e.g. `bash -O`, it will be treated as '
+                  'a command and no custom prompt will be provided. This '
+                  'overrides the config file entry `shell`.'
+              ))
+@click.option('--nest/--kill', '-n/-k', default=None,
+              help=(
+                  'Whether or not to nest shells, instead of killing them to mirror '
+                  'the infamous activate script\'s behavior. Some shells can only '
+                  'be nested. By default the shell will not be nested if possible. '
+                  'This flag overrides the config file entry `nest_shells`.'
+              ))
 def use(env_name, command, shell, nest):  # no cov
+    """Activates or sends a command to a virtual environment. A default shell
+    name (or command) can be specified in the config file entry `shell`. If
+    there is no entry nor shell option provided, a system default will be used:
+    `cmd` on Windows, `bash` otherwise.
+
+    Any arguments provided after the first will be sent to the virtual env as
+    a command without activating it. If there is only the env without args,
+    it will be activated similarly to how you are accustomed.
+
+    Activation will not do anything to your current shell, but will rather
+    spawn a subprocess to avoid any unwanted strangeness occurring in your
+    current environment. If you would like to learn more about the benefits
+    of this approach, be sure to read https://gist.github.com/datagrok/2199506
+    """
 
     # Run commands regardless of virtual env activation.
     if command:
