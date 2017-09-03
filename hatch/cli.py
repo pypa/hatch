@@ -283,10 +283,12 @@ def install(packages, env_name, editable, global_install, quiet):
                   'Uninstalls globally, rather than on a per-user basis. This '
                   'has no effect if a virtual env is in use.'
               ))
+@click.option('-d', '--dev', is_flag=True,
+              help='When locating a requirements file, only use the dev version.')
 @click.option('-q', '--quiet', is_flag=True, help='Decreases verbosity.')
 @click.option('-y', '--yes', is_flag=True,
               help='Confirms the intent to uninstall without a prompt.')
-def uninstall(packages, env_name, global_uninstall, quiet, yes):
+def uninstall(packages, env_name, global_uninstall, dev, quiet, yes):
     """If the option --env is supplied, the uninstall will be applied using
     that named virtual env. Unless the option --global is selected, the
     uninstall will only affect the current user. Of course, this will have
@@ -297,7 +299,7 @@ def uninstall(packages, env_name, global_uninstall, quiet, yes):
     or a dev version of that in the current directory.
     """
     if not packages:
-        reqs = get_requirements_file(os.getcwd())
+        reqs = get_requirements_file(os.getcwd(), dev=dev)
         if not reqs:
             click.echo('Unable to locate a requirements file.')
             sys.exit(1)
@@ -363,6 +365,8 @@ def uninstall(packages, env_name, global_uninstall, quiet, yes):
               ))
 @click.option('-f', '--force', is_flag=True,
               help='Forces the use of newer features in global updates.')
+@click.option('-d', '--dev', is_flag=True,
+              help='When locating a requirements file, only use the dev version.')
 @click.option('-m', '--module', 'as_module', is_flag=True,
               help=(
                   'Invokes `pip` as a module instead of directly, i.e. '
@@ -370,8 +374,8 @@ def uninstall(packages, env_name, global_uninstall, quiet, yes):
               ))
 @click.option('--self', is_flag=True, help='Updates `hatch` itself')
 @click.option('-q', '--quiet', is_flag=True, help='Decreases verbosity.')
-def update(packages, env_name, eager, all_packages, infra,
-           global_install, force, as_module, self, quiet):
+def update(packages, env_name, eager, all_packages, infra, global_install,
+           force, dev, as_module, self, quiet):
     """If the option --env is supplied, the update will be applied using
     that named virtual env. Unless the option --global is selected, the
     update will only affect the current user. Of course, this will have
@@ -472,7 +476,7 @@ def update(packages, env_name, eager, all_packages, infra,
 
     # When https://github.com/pypa/pipfile is finalized, we'll use it.
     else:
-        reqs = get_requirements_file(os.getcwd())
+        reqs = get_requirements_file(os.getcwd(), dev=dev)
         if not reqs:
             click.echo('Unable to locate a requirements file.')
             sys.exit(1)
