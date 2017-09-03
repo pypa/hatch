@@ -63,10 +63,11 @@ def get_requirements_file(d, dev=False):
 
     reqs = os.path.join(d, 'requirements.txt')
     if dev or not os.path.exists(reqs):
-        paths = glob.glob(os.path.join(d, '*requirements*.txt'))
+        paths = set(glob.iglob(os.path.join(d, '*requirements*.txt')))
+        paths.discard(reqs)
         if not paths:
             return
-        reqs = paths[0]
+        reqs = sorted(paths)[0]
 
     return reqs
 

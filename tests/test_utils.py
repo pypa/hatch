@@ -1,9 +1,43 @@
 import os
 
 from hatch.utils import (
-    chdir, create_file, get_current_year, normalize_package_name, remove_path,
-    temp_chdir, temp_move_path
+    chdir, create_file, get_current_year, get_requirements_file,
+    normalize_package_name, remove_path, temp_chdir, temp_move_path
 )
+
+
+class TestGetRequirementsFile:
+    def test_default_exists(self):
+        with temp_chdir() as d:
+            file = os.path.join(d, 'requirements.txt')
+            create_file(file)
+            assert get_requirements_file(d) == file
+
+    def test_default_not_exists(self):
+        with temp_chdir() as d:
+            assert get_requirements_file(d) is None
+
+    def test_default_exists_dev_exists(self):
+        with temp_chdir() as d:
+            file1 = os.path.join(d, 'requirements.txt')
+            file2 = os.path.join(d, 'dev-requirements.txt')
+            create_file(file1)
+            create_file(file2)
+            assert get_requirements_file(d) == file1
+
+    def test_default_not_exists_dev_exists(self):
+        with temp_chdir() as d:
+            file = os.path.join(d, 'dev-requirements.txt')
+            create_file(file)
+            assert get_requirements_file(d) == file
+
+    def test_default_exists_dev_exists_dev_only(self):
+        with temp_chdir() as d:
+            file1 = os.path.join(d, 'requirements.txt')
+            file2 = os.path.join(d, 'requirementss.txt')
+            create_file(file1)
+            create_file(file2)
+            assert get_requirements_file(d, dev=True) == file2
 
 
 def test_get_current_year():
