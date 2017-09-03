@@ -1,3 +1,4 @@
+import glob
 import os
 import platform
 import re
@@ -55,6 +56,19 @@ def get_admin_command():  # no cov
     else:
         admin = os.environ.get('_DEFAULT_ADMIN_', '')
         return ['sudo', '-H'] + (['--user={}'.format(admin)] if admin else [])
+
+
+def get_requirements_file(d, dev=False):
+    d = d or os.getcwd()
+
+    reqs = os.path.join(d, 'requirements.txt')
+    if dev or not os.path.exists(reqs):
+        paths = glob.glob(os.path.join(d, '*requirements*.txt'))
+        if not paths:
+            return
+        reqs = paths[0]
+
+    return reqs
 
 
 def ensure_dir_exists(d):

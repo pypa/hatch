@@ -27,7 +27,8 @@ from hatch.settings import (
 from hatch.shells import IMMORTAL_SHELLS, get_default_shell_info, get_shell_command
 from hatch.utils import (
     NEED_SUBPROCESS_SHELL, ON_WINDOWS, basepath, chdir, get_admin_command,
-    get_proper_pip, get_proper_python, remove_path, venv_active
+    get_proper_pip, get_proper_python, get_requirements_file, remove_path,
+    venv_active
 )
 from hatch.venv import (
     VENV_DIR, clone_venv, create_venv, fix_available_venvs, get_available_venvs, venv
@@ -406,13 +407,10 @@ def update(packages, env_name, eager, all_packages, infra,
 
     # When https://github.com/pypa/pipfile is finalized, we'll use it.
     else:
-        reqs = os.path.join(os.getcwd(), 'requirements.txt')
-        if not os.path.exists(reqs):
-            paths = glob.glob(os.path.join(os.getcwd(), '*requirements*.txt'))
-            if not paths:
-                click.echo('Unable to locate a requirements file.')
-                sys.exit(1)
-            reqs = paths[0]
+        reqs = get_requirements_file(os.getcwd())
+        if not reqs:
+            click.echo('Unable to locate a requirements file.')
+            sys.exit(1)
 
         with open(reqs, 'r') as f:
             lines = f.readlines()
