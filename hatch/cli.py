@@ -281,18 +281,24 @@ def install(packages, env_name, editable, global_install):
                   'Updates globally, rather than on a per-user basis. This '
                   'has no effect if a virtual env is in use.'
               ))
+@click.option('-f', '--force', is_flag=True,
+              help='Forces the use of newer features in global updates.')
 @click.option('-m', '--module', 'as_module', is_flag=True,
               help=(
                   'Invokes `pip` as a module instead of directly, i.e. '
                   '`python -m pip`.'
               ))
 @click.option('--self', is_flag=True, help='Updates `hatch` itself')
-def update(packages, env_name, eager, all_packages,
-           infra, global_install, as_module, self):
+def update(packages, env_name, eager, all_packages, infra,
+           global_install, force, as_module, self):
     """If the option --env is supplied, the update will be applied using
-    that named virtual env. Unless the option --global is selected, the
-    update will only affect the current user. Of course, this will have
-    no effect if a virtual env is in use.
+    that named virtual env.
+
+    Unless the option --global is selected, the update will only affect
+    the current user. Of course, this will have no effect if a virtual
+    env is in use. When performing a global update, your system may use
+    an older version of pip that is incompatible with some features such
+    as --eager. To force the use of these features, use --force.
 
     With no packages nor options selected, this will update packages by
     looking for a `requirements.txt` or a dev version of that in the current
@@ -302,12 +308,12 @@ def update(packages, env_name, eager, all_packages,
     to press Enter. All other methods of updating will ignore `hatch`. See:
     https://github.com/pypa/pip/issues/1299
     """
-    temp_dir = None
-    command = [
-        'install', '--upgrade', '--upgrade-strategy',
-        'eager' if eager else 'only-if-needed'
-    ]
+    command = ['install', '--upgrade']
+    if not global_install or force:  # no cov
+        command.extend(['--upgrade-strategy', 'eager' if eager else 'only-if-needed'])
+
     infra_packages = ['pip', 'setuptools', 'wheel']
+    temp_dir = None
 
     if self:  # no cov
         as_module = True
