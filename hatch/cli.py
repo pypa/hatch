@@ -222,7 +222,8 @@ def config(update_settings, restore):
                   'Installs globally, rather than on a per-user basis. This '
                   'has no effect if a virtual env is in use.'
               ))
-def install(packages, env_name, editable, global_install):
+@click.option('-q', '--quiet', is_flag=True, help='Decreases verbosity.')
+def install(packages, env_name, editable, global_install, quiet):
     """If the option --env is supplied, the install will be applied using
     that named virtual env. Unless the option --global is selected, the
     install will only affect the current user. Of course, this will have
@@ -249,10 +250,10 @@ def install(packages, env_name, editable, global_install):
             sys.exit(1)
 
         with venv(venv_dir):
-            command = [get_proper_pip(), 'install', *packages]
+            command = [get_proper_pip(), 'install', *packages] + (['-q'] if quiet else [])
             result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
     else:
-        command = [get_proper_pip(), 'install']
+        command = [get_proper_pip(), 'install'] + (['-q'] if quiet else [])
 
         if not venv_active():  # no cov
             if global_install:
@@ -302,8 +303,9 @@ def install(packages, env_name, editable, global_install):
                   '`python -m pip`.'
               ))
 @click.option('--self', is_flag=True, help='Updates `hatch` itself')
+@click.option('-q', '--quiet', is_flag=True, help='Decreases verbosity.')
 def update(packages, env_name, eager, all_packages, infra,
-           global_install, force, as_module, self):
+           global_install, force, as_module, self, quiet):
     """If the option --env is supplied, the update will be applied using
     that named virtual env. Unless the option --global is selected, the
     update will only affect the current user. Of course, this will have
@@ -322,7 +324,7 @@ def update(packages, env_name, eager, all_packages, infra,
     to press Enter. All other methods of updating will ignore `hatch`. See:
     https://github.com/pypa/pip/issues/1299
     """
-    command = ['install', '--upgrade']
+    command = ['install', '--upgrade'] + (['-q'] if quiet else [])
     if not global_install or force:  # no cov
         command.extend(['--upgrade-strategy', 'eager' if eager else 'only-if-needed'])
 
