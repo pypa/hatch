@@ -1194,21 +1194,7 @@ def use(env_name, command, shell, nest):  # no cov
     pip        9.0.1
     setuptools 36.3.0
     wheel      0.29.0
-    $ hatch use my-app hatch install requests six
-    Collecting requests
-      Using cached requests-2.18.4-py2.py3-none-any.whl
-    Collecting six
-      Using cached six-1.10.0-py2.py3-none-any.whl
-    Collecting urllib3<1.23,>=1.21.1 (from requests)
-      Using cached urllib3-1.22-py2.py3-none-any.whl
-    Collecting idna<2.7,>=2.5 (from requests)
-      Using cached idna-2.6-py2.py3-none-any.whl
-    Collecting chardet<3.1.0,>=3.0.2 (from requests)
-      Using cached chardet-3.0.4-py2.py3-none-any.whl
-    Collecting certifi>=2017.4.17 (from requests)
-      Using cached certifi-2017.7.27.1-py2.py3-none-any.whl
-    Installing collected packages: urllib3, idna, chardet, certifi, requests, six
-    Successfully installed certifi-2017.7.27.1 chardet-3.0.4 idna-2.6 requests-2.18.4 six-1.10.0 urllib3-1.22
+    $ hatch use my-app hatch install -q requests six
     $ hatch use my-app pip list --format=columns
     Package    Version
     ---------- -----------
