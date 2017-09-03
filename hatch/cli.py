@@ -265,7 +265,7 @@ def install(packages, env_name, editable, global_install):
 
         command.extend(packages)
 
-        if windows_admin_command:
+        if windows_admin_command:  # no cov
             command = windows_admin_command + [' '.join(command)]
 
         result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
@@ -433,7 +433,7 @@ def update(packages, env_name, eager, all_packages, infra,
 
         command.extend(['-r', reqs])
 
-    if windows_admin_command:
+    if windows_admin_command:  # no cov
         command = windows_admin_command + [' '.join(command)]
 
     if venv_dir:
