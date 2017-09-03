@@ -34,7 +34,7 @@ def test_cli():
 
         assert read_file(os.path.join(d, 'invalid_name', 'cli.py')) == (
             'def invalid_name():\n'
-            '    pass\n'
+            "    print('Hello world!')\n"
         )
 
 
