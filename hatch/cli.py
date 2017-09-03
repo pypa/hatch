@@ -234,6 +234,11 @@ def install(packages, env_name, editable, global_install):
     """
     packages = packages or ['.']
 
+    # Windows' `runas` allows only a single argument for the
+    # command so we catch this case and turn our command into
+    # a string later.
+    windows_admin_command = None
+
     if editable:
         packages = ['-e', *packages]
 
@@ -251,11 +256,18 @@ def install(packages, env_name, editable, global_install):
 
         if not venv_active():  # no cov
             if global_install:
-                command = get_admin_command() + command
+                if ON_WINDOWS:
+                    windows_admin_command = get_admin_command()
+                else:
+                    command = get_admin_command() + command
             else:
                 command.append('--user')
 
         command.extend(packages)
+
+        if windows_admin_command:
+            command = windows_admin_command + [' '.join(command)]
+
         result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
 
     sys.exit(result.returncode)
@@ -317,6 +329,11 @@ def update(packages, env_name, eager, all_packages, infra,
     infra_packages = ['pip', 'setuptools', 'wheel']
     temp_dir = None
 
+    # Windows' `runas` allows only a single argument for the
+    # command so we catch this case and turn our command into
+    # a string later.
+    windows_admin_command = None
+
     if self:  # no cov
         as_module = True
 
@@ -352,7 +369,10 @@ def update(packages, env_name, eager, all_packages, infra,
 
         if not venv_active():  # no cov
             if global_install:
-                command = get_admin_command() + command
+                if ON_WINDOWS:
+                    windows_admin_command = get_admin_command()
+                else:
+                    command = get_admin_command() + command
             else:
                 command.append('--user')
 
@@ -412,6 +432,9 @@ def update(packages, env_name, eager, all_packages, infra,
                 f.writelines(lines)
 
         command.extend(['-r', reqs])
+
+    if windows_admin_command:
+        command = windows_admin_command + [' '.join(command)]
 
     if venv_dir:
         with venv(venv_dir):
