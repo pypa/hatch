@@ -226,7 +226,8 @@ def install(packages, env_name, editable, global_install):
     """If the option --env is supplied, the install will be applied using
     that named virtual env. Unless the option --global is selected, the
     install will only affect the current user. Of course, this will have
-    no effect if a virtual env is in use.
+    no effect if a virtual env is in use. The desired name of the admin
+    user can be set with the `_DEFAULT_ADMIN_` environment variable.
 
     With no packages selected, this will install using a `setup.py` in the
     current directory.
@@ -292,13 +293,14 @@ def install(packages, env_name, editable, global_install):
 def update(packages, env_name, eager, all_packages, infra,
            global_install, force, as_module, self):
     """If the option --env is supplied, the update will be applied using
-    that named virtual env.
+    that named virtual env. Unless the option --global is selected, the
+    update will only affect the current user. Of course, this will have
+    no effect if a virtual env is in use. The desired name of the admin
+    user can be set with the `_DEFAULT_ADMIN_` environment variable.
 
-    Unless the option --global is selected, the update will only affect
-    the current user. Of course, this will have no effect if a virtual
-    env is in use. When performing a global update, your system may use
-    an older version of pip that is incompatible with some features such
-    as --eager. To force the use of these features, use --force.
+    When performing a global update, your system may use an older version
+    of pip that is incompatible with some features such as --eager. To
+    force the use of these features, use --force.
 
     With no packages nor options selected, this will update packages by
     looking for a `requirements.txt` or a dev version of that in the current
