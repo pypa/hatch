@@ -100,7 +100,7 @@ env is not in use, things get a bit ambiguous. Therefore, you can set the
 ``_DEFAULT_PYTHON_`` and ``_DEFAULT_PIP_`` environment variables to a command
 name (recommended) or absolute path so the correct executable gets called. If
 a virtual env is not in use and no env var is detected, the Python 3 versions
-will be used if on a non-Windows machine.
+will be used on non-Windows machines.
 
 Here is the literal implementation:
 
