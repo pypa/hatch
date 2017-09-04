@@ -869,6 +869,49 @@ Here is the literal implementation:
                 return 'pip3'
         return 'pip'
 
+Config file
+-----------
+
+*shell*
+    The shell name or command to use when activating virtual envs.
+
+*nest_shells*
+    Whether or not to nest shells, instead of killing them to prevent stacking.
+
+*pythons*
+    Maps names to an absolute path to a Python executable.
+
+*semver*
+    Maps ``pre`` and ``build`` semver parts to a textual representation.
+
+*pypi_username*
+    The username to use when uploading to PyPI.
+
+*name*
+    Your name e.g. Bob Saget.
+
+*email*
+    Your email.
+
+*basic*
+    If true, disables third-party services and readme badges during project creation.
+
+*pyversions*
+    The default versions of Python to support. Must be in the form major.minor e.g.
+    3.7. The values pypy and pypy3 are also accepted.
+
+*licenses*
+    The default licenses to use. Hatch currently supports:
+
+    - ``mit``, which represents the
+      `MIT License <https://choosealicense.com/licenses/mit>`_
+    - ``apache2``, which represents the
+      `Apache License, Version 2.0 <https://choosealicense.com/licenses/apache-2.0>`_
+    - ``mpl``, which represents the
+      `Mozilla Public License 2.0 <https://choosealicense.com/licenses/mpl-2.0>`_
+    - ``cc0``, which represents the
+      `Creative Commons Zero v1.0 Universal <https://choosealicense.com/licenses/cc0-1.0>`_
+
 License
 -------
 
