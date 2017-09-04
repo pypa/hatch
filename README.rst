@@ -88,8 +88,8 @@ ensure your config file is available.
 Commands
 --------
 
-egg
-^^^
+``egg``
+^^^^^^^
 
 Creates a new Python project. Think of an "egg" as a new idea.
 
@@ -141,8 +141,8 @@ Here is an example using an unmodified config file:
 *--l/--licenses*
     Comma-separated list of licenses to use.
 
-init
-^^^^
+``init``
+^^^^^^^^
 
 Same as ``egg`` but the project target is the current directory.
 
