@@ -946,7 +946,7 @@ TODO
 
 *meta*
     - start using AppVeyor
-    - next to the snake ascii art, put a ``hatch``ed egg
+    - next to the snake ascii art, put a ``hatch``\ ed egg
 
 *third-party services*
     Support `AppVeyor <https://www.appveyor.com/>`_ and `CircleCI <https://circleci.com/>`_.
