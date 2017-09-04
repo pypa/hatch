@@ -107,6 +107,8 @@ ensure your config file is available.
 Commands
 --------
 
+For your convenience, anything after a ``--`` will be treated as arguments.
+
 ``config``
 ^^^^^^^^^^
 
