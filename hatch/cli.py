@@ -93,13 +93,13 @@ def config(update_settings, restore):
                   'invoked via `python -m pkg_name`.'
               ))
 @click.option('-l', '--licenses',
-              help='Comma-separated list of licenses to use. This overrides the config file.')
+              help='Comma-separated list of licenses to use.')
 def egg(name, basic, cli, licenses):
     """Creates a new Python project. Think of an "egg" as a new idea.
 
     Values from your config file such as `name` and `pyversions` will be used
     to help populate fields. You can also specify things like the readme format
-    and which CI service files to create.
+    and which CI service files to create. All options override the config file.
 
     Here is an example using an unmodified config file:
 
@@ -162,13 +162,13 @@ def egg(name, basic, cli, licenses):
                   'invoked via `python -m pkg_name`.'
               ))
 @click.option('-l', '--licenses',
-              help='Comma-separated list of licenses to use. This overrides the config file.')
+              help='Comma-separated list of licenses to use.')
 def init(name, basic, cli, licenses):
     """Creates a new Python project in the current directory.
 
     Values from your config file such as `name` and `pyversions` will be used
     to help populate fields. You can also specify things like the readme format
-    and which CI service files to create.
+    and which CI service files to create. All options override the config file.
 
     Here is an example using an unmodified config file:
 
