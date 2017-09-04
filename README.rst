@@ -916,7 +916,7 @@ Config file
     Mapping which helps construct your readme file. Hatch currently supports
     ``rst`` and ``md`` for the ``format`` key.
 
-    Badges have attributes the ``image``, ``target``, and ``alt``. Any others
+    Badges have the attributes ``image``, ``target``, and ``alt``. Any others
     you add will become url parameters for the ``target``.
 
 License
