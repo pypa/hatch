@@ -800,7 +800,7 @@ to press Enter. All other methods of updating will ignore ``hatch``. See:
     Updates only the packages ``pip``, ``setuptools``, and ``wheel``.
 
 *-g/--global*
-    Uninstalls globally, rather than on a per-user basis. This has no effect if
+    Updates globally, rather than on a per-user basis. This has no effect if
     a virtual env is in use.
 
 *-f/--force*
