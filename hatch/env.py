@@ -52,17 +52,17 @@ def get_editable_packages():
 def get_editable_package_location(package_name):
     location = ''
 
-    editable_packages = get_editable_packages()
-    if package_name not in editable_packages:
+    try:
+        output = subprocess.check_output(
+            [get_proper_pip(), 'list', '-e', '--format', 'columns'], shell=NEED_SUBPROCESS_SHELL
+        ).decode().strip()
+    except subprocess.CalledProcessError:  # no cov
         return location
 
-    output = subprocess.check_output(
-        [get_proper_pip(), 'show', package_name], shell=NEED_SUBPROCESS_SHELL
-    ).decode()
-
-    for line in output.splitlines():
-        if line.startswith('Location'):
-            location = str(Path(line.split()[1]).resolve())
+    for line in output.splitlines()[2:]:
+        name, _, path = line.split()
+        if name == package_name:
+            return str(Path(path).resolve())
 
     return location
 

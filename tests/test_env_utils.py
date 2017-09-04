@@ -4,7 +4,8 @@ from click.testing import CliRunner
 
 from hatch.cli import hatch
 from hatch.env import (
-    get_installed_packages, get_package_version, install_packages
+    get_editable_package_location, get_installed_packages, get_package_version,
+    install_packages
 )
 from hatch.utils import temp_chdir
 from hatch.venv import create_venv, venv
@@ -26,3 +27,18 @@ def test_get_installed_packages_no_editable():
             install_packages(['six'])
             install_packages(['-e', '.'])
             assert get_installed_packages(editable=False) == ['pip', 'setuptools', 'six', 'wheel']
+
+
+def test_get_editable_package_location():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['egg', 'foo', '--basic'])
+        runner.invoke(hatch, ['egg', 'bar', '--basic'])
+
+        venv_dir = os.path.join(d, 'venv')
+        create_venv(venv_dir)
+
+        with venv(venv_dir):
+            install_packages(['-e', os.path.join(d, 'foo')])
+            install_packages(['-e', os.path.join(d, 'bar')])
+            assert get_editable_package_location('foo') == os.path.join(d, 'foo')
