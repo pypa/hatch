@@ -917,7 +917,7 @@ Config file
     ``rst`` and ``md`` for the ``format`` key.
 
     Badges have the attributes ``image``, ``target``, and ``alt``. Any others
-    you add will become url parameters for the ``target``.
+    you add will become url parameters for the ``image``.
 
 License
 -------
