@@ -971,9 +971,12 @@ at your option.
 Credits
 -------
 
-- All the people involved in the `Python packaging <https://github.com/pypa>`_
-  ecosystem
-- `Te-jé Rodgers <https://github.com/te-je>`_ for bestowing me the name
-  ``hatch`` on `PyPI`_
+- All the people who work on `Click <https://github.com/pallets/click>`_
+- All the people involved in the `Python packaging <https://github.com/pypa>`_ ecosystem
+- All the people involved in the `pytest <https://github.com/pytest-dev>`_ ecosystem
+- `Ned Batchelder <https://twitter.com/nedbat>`_, for his
+  `Coverage.py <https://github.com/nedbat/coveragepy>`_ is the unsung heroic tool of the
+  Python community. Without it, users would be exposed to more bugs before we are.
+- `Te-jé Rodgers <https://github.com/te-je>`_ for bestowing me the name ``hatch`` on `PyPI`_
 
 .. _PyPI: https://pypi.org
