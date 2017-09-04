@@ -119,6 +119,11 @@ Here is an example using an unmodified config file:
 
     2 directories, 8 files
 
+**Arguments:**
+
+name
+    The desired name of package.
+
 Environment awareness
 ---------------------
 
