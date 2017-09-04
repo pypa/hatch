@@ -636,6 +636,48 @@ The path must contain a ``setup.py`` file.
 *-c/--clean*
     Removes build artifacts before building.
 
+``release``
+^^^^^^^^^^^
+
+Uploads all files in a directory to PyPI using Twine.
+
+The path to the build directory is derived in the following order:
+
+1. The optional argument, which should be the name of a package
+   that was installed via ``hatch install -l`` or ``pip install -e``.
+2. The option --path, which can be a relative or absolute path.
+3. The current directory.
+
+If the path was derived from the optional package argument, the
+files must be in a directory named ``dist``.
+
+The PyPI username can be saved in the config file entry ``pypi_username``.
+If the ``TWINE_PASSWORD`` environment variable is not set, a hidden prompt
+will be provided for the password.
+
+..
+
+    **Arguments:**
+
+*package*
+    The editable package to target (optional).
+
+..
+
+    **Options:**
+
+*-p/--path*
+    A relative or absolute path to a build directory.
+
+*-u/--username*
+    The PyPI username to use.
+
+*-t/--test*
+    Uses the test version of PyPI.
+
+*-s/--strict*
+    Aborts if a distribution already exists.
+
 Environment awareness
 ---------------------
 
