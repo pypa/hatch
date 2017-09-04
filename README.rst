@@ -43,7 +43,26 @@ use of these:
 - `Incremental <https://github.com/twisted/incremental>`_
 - ``python setup.py ...``
 
-Why use a plethora of disparate tools when most of the time only 1 is needed?!
+.. code-block::
+
+                        /^\/^\
+                      _|__|  O|
+             \/     /~     \_/ \
+              \____|__________/  \
+                     \_______      \
+                             `\     \                 \
+                               |     |                  \
+                              /      /                    \
+                             /     /                       \
+                           /      /                         \ \
+                          /     /                            \  \
+                        /     /             _----_            \   \
+                       /     /           _-~      ~-_         |   |
+                      (      (        _-~    _--_    ~-_     _/   |
+                       \      ~-____-~    _-~    ~-_    ~-_-~    /
+                         ~-_           _-~          ~-_       _-~
+                            ~--______-~                ~-___-~
+
 
 .. contents:: **Table of Contents**
     :backlinks: none
