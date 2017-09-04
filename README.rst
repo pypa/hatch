@@ -301,6 +301,44 @@ If the path points to a package, it should have a ``tests`` directory.
 *-e/--env-aware*
     Invokes ``pytest`` and ``coverage`` as modules instead of directly, i.e. ``python -m pytest``.
 
+``python``
+^^^^^^^^^^
+
+Names an absolute path to a Python executable. You can also modify
+these in the config file entry ``pythons``.
+
+Hatch can then use these paths by name when creating virtual envs, building
+packages, etc.
+
+.. code-block:: bash
+
+    $ hatch python -l
+    There are no saved Python paths. Add one via `hatch python NAME PATH`.
+    $ hatch python py2 /usr/bin/python
+    Successfully saved Python `py2` located at `/usr/bin/python`.
+    $ hatch python py3 /usr/bin/python3
+    Successfully saved Python `py3` located at `/usr/bin/python3`.
+    $ hatch python -l
+    py2 -> /usr/bin/python
+    py3 -> /usr/bin/python3
+
+..
+
+    **Arguments:**
+
+*name*
+    The desired name of the Python path.
+
+*path*
+    An absolute path to a Python executable.
+
+..
+
+    **Options:**
+
+*-l/--list*
+    Shows available Python paths.
+
 Environment awareness
 ---------------------
 
