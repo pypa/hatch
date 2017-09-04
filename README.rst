@@ -186,7 +186,7 @@ every top level directory within, will be checked for a ``__version__.py``,
 a ``__version__`` variable that also appears to equal a version string will
 be updated. Probable package paths will be given precedence.
 
-The default tokens for the prerelease and build parts, ``rc`` and ``build``
+The default tokens for the prerelease and build parts, *rc* and *build*
 respectively, can be altered via the options ``--pre`` and ``--build``, or
 the config entry ``semver``.
 
@@ -227,10 +227,10 @@ the config entry ``semver``.
     A relative or absolute path to a project or file.
 
 *--pre*
-    The token to use for ``pre`` part, overriding the config file. Default: ``rc``
+    The token to use for ``pre`` part, overriding the config file. Default: *rc*
 
 *--build*
-    The token to use for ``build`` part, overriding the config file. Default: ``build``
+    The token to use for ``build`` part, overriding the config file. Default: *build*
 
 Environment awareness
 ---------------------
