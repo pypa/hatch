@@ -95,7 +95,7 @@ Creates a new Python project. Think of an "egg" as a new idea.
 
 Values from your config file such as ``name`` and ``pyversions`` will be used
 to help populate fields. You can also specify things like the readme format
-and which CI service files to create.
+and which CI service files to create. All options override the config file.
 
 Here is an example using an unmodified config file:
 
@@ -123,6 +123,19 @@ Here is an example using an unmodified config file:
 
 name
     The desired name of package.
+
+**Options:**
+
+--basic
+    Disables third-party services and readme badges.
+
+--cli
+    Creates a ``cli.py`` in the package directory and an entry point in
+    ``setup.py`` pointing to the properly named function within. Also, a
+    ``__main__.py`` is created so it can be invoked via ``python -m pkg_name``.
+
+-l/--licenses
+    Comma-separated list of licenses to use.
 
 Environment awareness
 ---------------------
