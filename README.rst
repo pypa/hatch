@@ -119,12 +119,16 @@ Here is an example using an unmodified config file:
 
     2 directories, 8 files
 
-**Arguments:**
+..
+
+    **Arguments:**
 
 *name*
     The desired name of package.
 
-**Options:**
+..
+
+    **Options:**
 
 *--basic*
     Disables third-party services and readme badges.
