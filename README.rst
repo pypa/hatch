@@ -141,6 +141,11 @@ Here is an example using an unmodified config file:
 *--l/--licenses*
     Comma-separated list of licenses to use.
 
+init
+^^^^
+
+Same as ``egg`` but the project target is the current directory.
+
 Environment awareness
 ---------------------
 
