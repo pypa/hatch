@@ -3,7 +3,9 @@ import os
 from click.testing import CliRunner
 
 from hatch.cli import hatch
-from hatch.env import get_installed_packages, install_packages
+from hatch.env import (
+    get_installed_packages, get_python_implementation, install_packages
+)
 from hatch.utils import remove_path, temp_chdir
 from hatch.venv import VENV_DIR, create_venv, venv
 from ..utils import get_version_as_bytes
@@ -153,7 +155,9 @@ def test_all_packages_none():
             runner = CliRunner()
             result = runner.invoke(hatch, ['update', '--all'])
 
-        assert result.exit_code == 1
+        assert result.exit_code == (
+            0 if get_python_implementation() in {'PyPy'} else 1
+        )
         assert 'No packages installed.' in result.output
 
 
