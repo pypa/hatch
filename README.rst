@@ -88,6 +88,26 @@ ensure your config file is available.
 Commands
 --------
 
+``config``
+^^^^^^^^^^
+
+Locates, updates, or restores the config file.
+
+.. code-block:: bash
+
+    $ hatch config
+    Settings location: /home/ofek/.local/share/hatch/settings.json
+
+..
+
+    **Options:**
+
+*-u/--update*
+    Updates the config file with any new fields.
+
+*--restore*
+    Restores the config file to default settings.
+
 ``egg``
 ^^^^^^^
 
