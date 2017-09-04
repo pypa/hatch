@@ -678,6 +678,43 @@ will be provided for the password.
 *-s/--strict*
     Aborts if a distribution already exists.
 
+``install``
+^^^^^^^^^^^
+
+If the option --env is supplied, the install will be applied using
+that named virtual env. Unless the option --global is selected, the
+install will only affect the current user. Of course, this will have
+no effect if a virtual env is in use. The desired name of the admin
+user can be set with the ``_DEFAULT_ADMIN_`` environment variable.
+
+With no packages selected, this will install using a ``setup.py`` in the
+current directory.
+
+..
+
+    **Arguments:**
+
+*packages*
+    The packages to install (optional).
+
+..
+
+    **Options:**
+
+*-e/--env*
+    The named virtual env to use.
+
+*-l/--local*
+    Corresponds to ``pip``'s --editable option, allowing a local package to be
+    automatically updated when modifications are made.
+
+*-g/--global*
+    Installs globally, rather than on a per-user basis. This has no effect if
+    a virtual env is in use.
+
+*-q/--quiet*
+    Decreases verbosity.
+
 Environment awareness
 ---------------------
 
