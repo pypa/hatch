@@ -917,7 +917,25 @@ Config file
     ``rst`` and ``md`` for the ``format`` key.
 
     Badges have the attributes ``image``, ``target``, and ``alt``. Any others
-    you add will become url parameters for the ``image``.
+    you add will become url parameters for the ``image``. Also, if a ``{}``
+    appears in the ``image`` or ``target``, the name of the created package
+    will be formatted there.
+
+*vc*
+    The version control system to initialize when creating a project. Hatch
+    currently only supports ``git``.
+
+*vc_url*
+    Your version control url e.g. ``https://github.com/ofek``.
+
+*ci*
+    A list of third-party service files to create. Hatch currently only supports ``travis``.
+
+*coverage*
+    A code coverage service to use. Hatch currently only supports ``codecov``.
+
+*extras*
+    A list of glob patterns to copy to new projects.
 
 License
 -------
