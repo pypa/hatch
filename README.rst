@@ -31,6 +31,7 @@ For me personally, Hatch has entirely replaced the manual (or entire!)
 use of these:
 
 - `Cookiecutter PyPackage <https://github.com/audreyr/cookiecutter-pypackage>`_
+- `pip <https://github.com/pypa/pip>`_
 - `virtualenv <https://github.com/pypa/virtualenv>`_
 - `pyenv <https://github.com/pyenv/pyenv>`_
 - `Pew <https://github.com/berdario/pew>`_
