@@ -898,7 +898,7 @@ Config file
 
 *pyversions*
     The default versions of Python to support. Must be in the form major.minor e.g.
-    3.7. The values pypy and pypy3 are also accepted.
+    ``3.7``. The values ``pypy`` and ``pypy3`` are also accepted.
 
 *licenses*
     The default licenses to use. Hatch currently supports:
