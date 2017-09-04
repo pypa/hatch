@@ -232,6 +232,75 @@ the config entry ``semver``.
 *--build*
     The token to use for ``build`` part, overriding the config file. Default: *build*
 
+``test``
+^^^^^^^^
+
+Runs tests using ``pytest``, optionally checking coverage.
+
+The path is derived in the following order:
+
+1. The optional argument, which should be the name of a package
+   that was installed via ``hatch install -l`` or ``pip install -e``.
+2. The option --path, which can be a relative or absolute path.
+3. The current directory.
+
+If the path points to a package, it should have a ``tests`` directory.
+
+.. code-block:: bash
+
+    $ git clone https://github.com/ofek/privy && cd privy
+    $ hatch test -c
+    ========================= test session starts ==========================
+    platform linux -- Python 3.5.2, pytest-3.2.1, py-1.4.34, pluggy-0.4.0
+    rootdir: /home/ofek/privy, inifile:
+    plugins: xdist-1.20.0, mock-1.6.2, httpbin-0.0.7, forked-0.2, cov-2.5.1
+    collected 10 items
+
+    tests/test_privy.py ..........
+
+    ====================== 10 passed in 4.34 seconds =======================
+
+    Tests completed, checking coverage...
+
+    Name                  Stmts   Miss Branch BrPart  Cover   Missing
+    -----------------------------------------------------------------
+    privy/__init__.py         1      0      0      0   100%
+    privy/core.py            30      0      0      0   100%
+    privy/utils.py           13      0      4      0   100%
+    tests/__init__.py         0      0      0      0   100%
+    tests/test_privy.py      57      0      0      0   100%
+    -----------------------------------------------------------------
+    TOTAL                   101      0      4      0   100%
+
+..
+
+    **Arguments:**
+
+*package*
+    The editable package to target (optional).
+
+..
+
+    **Options:**
+
+*-p/--path*
+    A relative or absolute path to a project or test directory.
+
+*-c/--cov*
+    Computes, then outputs coverage after testing.
+
+*-m/--merge*
+    If --cov, coverage will run using --parallel-mode and combine the results.
+
+*-ta/--test-args*
+    Pass through to ``pytest``, overriding defaults. Example: ``hatch test -ta "-k test_core.py -vv"``
+
+*-ca/--cov-args*
+    Pass through to ``coverage run``, overriding defaults. Example: ``hatch test -ca "--timid --pylib"``
+
+*-e/--env-aware*
+    Invokes ``pytest`` and ``coverage`` as modules instead of directly, i.e. ``python -m pytest``.
+
 Environment awareness
 ---------------------
 
