@@ -108,7 +108,7 @@ Here is the literal implementation:
 
     def get_proper_python():
         if not venv_active():
-            default_python = os.environ.get('_DEFAULT_PYTHON_', None)
+            default_python = os.environ.get('_DEFAULT_PYTHON_')
             if default_python:
                 return default_python
             elif not ON_WINDOWS:
@@ -117,7 +117,7 @@ Here is the literal implementation:
 
     def get_proper_pip():
         if not venv_active():
-            default_python = os.environ.get('_DEFAULT_PIP_', None)
+            default_python = os.environ.get('_DEFAULT_PIP_')
             if default_python:
                 return default_python
             elif not ON_WINDOWS:
