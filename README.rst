@@ -92,6 +92,37 @@ Usage
 
     $ hatch
 
+Environment awareness
+---------------------
+
+Hatch will always try to use the correct python/pip, however, when a virtual
+env is not in use, things get a bit ambiguous. Therefore, you can set the
+``_DEFAULT_PYTHON_`` and ``_DEFAULT_PIP_`` environment variables to a command
+name (recommended) or absolute path so the correct executable gets called. If
+a virtual env is not in use and no env var is detected, the Python 3 versions
+will be used if on a non-Windows machine.
+
+Here is the literal implementation:
+
+.. code-block:: python
+
+    def get_proper_python():
+        if not venv_active():
+            default_python = os.environ.get('_DEFAULT_PYTHON_', None)
+            if default_python:
+                return default_python
+            elif not ON_WINDOWS:
+                return 'python3'
+        return 'python'
+
+    def get_proper_pip():
+        if not venv_active():
+            default_python = os.environ.get('_DEFAULT_PIP_', None)
+            if default_python:
+                return default_python
+            elif not ON_WINDOWS:
+                return 'pip3'
+        return 'pip'
 
 License
 -------
