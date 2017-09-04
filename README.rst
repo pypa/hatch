@@ -938,6 +938,26 @@ Config file
 *extras*
     A list of glob patterns to copy to new projects.
 
+Contributing
+------------
+
+TODO
+^^^^
+
+*meta*
+
+    - start using AppVeyor
+    - next to the snake ascii art, put a ``hatch``ed egg
+
+*third-party services*
+    Support `AppVeyor <https://www.appveyor.com/>`_ and `CircleCI <https://circleci.com/>`_.
+
+*Commands*
+
+    - ``bench`` - use `<https://github.com/ionelmc/pytest-benchmark>`_
+    - ``style`` - maybe not needed. use `<https://github.com/PyCQA/flake8>`_
+    - ``docs`` - use `<https://github.com/sphinx-doc/sphinx/>`_
+
 License
 -------
 
