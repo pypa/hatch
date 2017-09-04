@@ -1218,7 +1218,7 @@ def use(env_name, command, shell, nest):  # no cov
     spawn a subprocess to avoid any unwanted strangeness occurring in your
     current environment. If you would like to learn more about the benefits
     of this approach, be sure to read https://gist.github.com/datagrok/2199506.
-    To leave a virtual env type `exit`, or you can do `Ctrl-D` on non-Windows
+    To leave a virtual env, type `exit`, or you can do `Ctrl-D` on non-Windows
     machines.
 
     \b
