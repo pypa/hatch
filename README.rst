@@ -715,6 +715,45 @@ current directory.
 *-q/--quiet*
     Decreases verbosity.
 
+``uninstall``
+^^^^^^^^^^^^^
+
+If the option --env is supplied, the uninstall will be applied using
+that named virtual env. Unless the option --global is selected, the
+uninstall will only affect the current user. Of course, this will have
+no effect if a virtual env is in use. The desired name of the admin
+user can be set with the ``_DEFAULT_ADMIN_`` environment variable.
+
+With no packages selected, this will uninstall using a ``requirements.txt``
+or a dev version of that in the current directory.
+
+..
+
+    **Arguments:**
+
+*packages*
+    The packages to uninstall (optional).
+
+..
+
+    **Options:**
+
+*-e/--env*
+    The named virtual env to use.
+
+*-g/--global*
+    Uninstalls globally, rather than on a per-user basis. This has no effect if
+    a virtual env is in use.
+
+*-d/--dev*
+    When locating a requirements file, only use the dev version.
+
+*-y/--yes*
+    Confirms the intent to uninstall without a prompt.
+
+*-q/--quiet*
+    Decreases verbosity.
+
 Environment awareness
 ---------------------
 
