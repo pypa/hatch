@@ -134,7 +134,7 @@ name
     ``setup.py`` pointing to the properly named function within. Also, a
     ``__main__.py`` is created so it can be invoked via ``python -m pkg_name``.
 
--l/--licenses
+--l/--licenses
     Comma-separated list of licenses to use.
 
 Environment awareness
