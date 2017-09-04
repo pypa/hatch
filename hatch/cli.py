@@ -84,7 +84,7 @@ def config(update_settings, restore):
                short_help='Creates a new Python project')
 @click.argument('name')
 @click.option('--basic', is_flag=True,
-              help='Disables CI/coverage services and readme badges.')
+              help='Disables third-party services and readme badges.')
 @click.option('--cli', is_flag=True,
               help=(
                   'Creates a `cli.py` in the package directory and an entry '
@@ -153,7 +153,7 @@ def egg(name, basic, cli, licenses):
                short_help='Creates a new Python project in the current directory')
 @click.argument('name')
 @click.option('--basic', is_flag=True,
-              help='Disables CI/coverage services and readme badges.')
+              help='Disables third-party services and readme badges.')
 @click.option('--cli', is_flag=True,
               help=(
                   'Creates a `cli.py` in the package directory and an entry '
