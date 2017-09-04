@@ -535,7 +535,7 @@ def grow(part, package, path, pre_token, build_token):
 
     \b
     1. The optional argument, which should be the name of a package
-       that was installed via `pip install -e`.
+       that was installed via `hatch install -l` or `pip install -e`.
     2. The option --path, which can be a relative or absolute path.
     3. The current directory.
 
@@ -642,7 +642,7 @@ def test(package, path, cov, merge, test_args, cov_args, env_aware):
 
     \b
     1. The optional argument, which should be the name of a package
-       that was installed via `pip install -e`.
+       that was installed via `hatch install -l` or `pip install -e`.
     2. The option --path, which can be a relative or absolute path.
     3. The current directory.
 
@@ -768,7 +768,7 @@ def clean(package, path, compiled_only, verbose):
 
     \b
     1. The optional argument, which should be the name of a package
-       that was installed via `pip install -e`.
+       that was installed via `hatch install -l` or `pip install -e`.
     2. The option --path, which can be a relative or absolute path.
     3. The current directory.
 
@@ -828,7 +828,7 @@ def build(package, path, pyname, pypath, universal, name, build_dir, clean_first
 
     \b
     1. The optional argument, which should be the name of a package
-       that was installed via `pip install -e`.
+       that was installed via `hatch install -l` or `pip install -e`.
     2. The option --path, which can be a relative or absolute path.
     3. The current directory.
 
@@ -883,7 +883,7 @@ def release(package, path, username, test_pypi, strict):
 
     \b
     1. The optional argument, which should be the name of a package
-       that was installed via `pip install -e`.
+       that was installed via `hatch install -l` or `pip install -e`.
     2. The option --path, which can be a relative or absolute path.
     3. The current directory.
 
