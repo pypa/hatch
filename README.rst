@@ -126,7 +126,7 @@ name
 
 **Options:**
 
---basic
+*--basic*
     Disables third-party services and readme badges.
 
 Environment awareness
