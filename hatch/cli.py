@@ -773,8 +773,8 @@ def clean(package, path, compiled_only, verbose):
     3. The current directory.
 
     All `*.pyc`/`*.pyd` files and `__pycache__` directories will be removed.
-    Additionally, the following patterns will be removed in the root of the
-    path: `.cache`, `.coverage`, `.eggs`, `.tox`, `build`, `dist`, `*.egg-info`
+    Additionally, the following patterns will be removed from the root of the path:
+    `.cache`, `.coverage`, `.eggs`, `.tox`, `build`, `dist`, and `*.egg-info`.
 
     If the path was derived from the optional package argument, the pattern
     `*.egg-info` will not be applied so as to not break that installation.

@@ -551,6 +551,45 @@ Commands:
     default the shell will not be nested if possible. This flag overrides
     the config file entry ``nest_shells``.
 
+``clean``
+^^^^^^^^^
+
+Removes a project's build artifacts.
+
+The path to the project is derived in the following order:
+
+1. The optional argument, which should be the name of a package
+   that was installed via ``hatch install -l`` or ``pip install -e``.
+2. The option --path, which can be a relative or absolute path.
+3. The current directory.
+
+All ``*.pyc``/``*.pyd`` files and ``__pycache__`` directories will be removed.
+Additionally, the following patterns will be removed from the root of the path:
+``.cache``, ``.coverage``, ``.eggs``, ``.tox``, ``build``, ``dist``, and ``*.egg-info``.
+
+If the path was derived from the optional package argument, the pattern
+``*.egg-info`` will not be applied so as to not break that installation.
+
+..
+
+    **Arguments:**
+
+*package*
+    The editable package to target (optional).
+
+..
+
+    **Options:**
+
+*-p/--path*
+    A relative or absolute path to a project.
+
+*-c/--compiled-only*
+    Removes only .pyc files.
+
+*-v/--verbose*
+    Shows removed paths.
+
 ``build``
 ^^^^^^^^^
 
