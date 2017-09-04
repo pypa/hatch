@@ -155,10 +155,11 @@ def test_all_packages_none():
             runner = CliRunner()
             result = runner.invoke(hatch, ['update', '--all'])
 
-        assert result.exit_code == (
-            0 if get_python_implementation() in {'PyPy'} else 1
-        )
-        assert 'No packages installed.' in result.output
+        if get_python_implementation() in {'PyPy'}:
+            assert result.exit_code == 0
+        else:
+            assert result.exit_code == 1
+            assert 'No packages installed.' in result.output
 
 
 def test_env_not_exist():
