@@ -26,7 +26,9 @@ def test_get_installed_packages_no_editable():
         with venv(venv_dir):
             install_packages(['six'])
             install_packages(['-e', '.'])
-            assert get_installed_packages(editable=False) == ['pip', 'setuptools', 'six', 'wheel']
+            packages = get_installed_packages(editable=False)
+            assert 'six' in packages
+            assert 'ok' not in packages
 
 
 def test_get_editable_package_location():
