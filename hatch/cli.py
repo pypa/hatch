@@ -1123,7 +1123,7 @@ def env(name, pyname, pypath, clone, quiet, restore, show):
 
 @hatch.command(context_settings=CONTEXT_SETTINGS,
                short_help='Removes named Python paths or virtual environments')
-@click.option('-p', '--python', 'pyname',
+@click.option('-p', '-py', '--python', 'pyname',
               help='Comma-separated list of named Python paths.')
 @click.option('-e', '--env', 'env_name',
               help='Comma-separated list of named virtual envs.')
