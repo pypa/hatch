@@ -1044,13 +1044,14 @@ def restore_envs(ctx, param, value):
               help='The named Python path to use. This overrides --pypath.')
 @click.option('-pp', '--pypath',
               help='An absolute path to a Python executable.')
-@click.option('-c', '--clone', help='Clones an existing virtual env.')
+@click.option('-c', '--clone',
+              help='Specifies an existing virtual env to clone. (Experimental)')
 @click.option('-q', '--quiet', is_flag=True, help='Decreases verbosity.')
 @click.option('-r', '--restore', is_flag=True, is_eager=True, callback=restore_envs,
               help=(
                   'Attempts to make all virtual envs in `{}` usable by '
                   'fixing the executable paths in scripts and removing '
-                  'all compiled `*.pyc` files.'.format(VENV_DIR)
+                  'all compiled `*.pyc` files. (Experimental)'.format(VENV_DIR)
               ))
 @click.option('-l', '--list', 'show', is_flag=True, is_eager=True, callback=list_envs,
               help='Shows available virtual envs.')
