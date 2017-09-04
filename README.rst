@@ -121,13 +121,21 @@ Here is an example using an unmodified config file:
 
 **Arguments:**
 
-name
+*name*
     The desired name of package.
 
 **Options:**
 
 *--basic*
     Disables third-party services and readme badges.
+
+*--cli*
+    Creates a ``cli.py`` in the package directory and an entry point in
+    ``setup.py`` pointing to the properly named function within. Also, a
+    ``__main__.py`` is created so it can be invoked via ``python -m pkg_name``.
+
+*--l/--licenses*
+    Comma-separated list of licenses to use.
 
 Environment awareness
 ---------------------
