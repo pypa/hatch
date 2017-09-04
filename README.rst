@@ -930,9 +930,10 @@ Config file
 
 *ci*
     A list of third-party service files to create. Hatch currently only supports ``travis``.
+    Can be empty.
 
 *coverage*
-    A code coverage service to use. Hatch currently only supports ``codecov``.
+    A code coverage service to use. Hatch currently only supports ``codecov``. Can be null.
 
 *extras*
     A list of glob patterns to copy to new projects.
