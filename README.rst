@@ -85,12 +85,39 @@ run `this command <https://github.com/ofek/pybin#pybin-put>`_.
 After the first installation, you may want to run ``hatch config --restore`` to
 ensure your config file is available.
 
-Usage
------
+Commands
+--------
+
+egg
+^^^
+
+Creates a new Python project. Think of an "egg" as a new idea.
+
+Values from your config file such as ``name`` and ``pyversions`` will be used
+to help populate fields. You can also specify things like the readme format
+and which CI service files to create.
+
+Here is an example using an unmodified config file:
 
 .. code-block:: bash
 
-    $ hatch
+    $ hatch egg my-app
+    Created project `my-app`
+    $ tree --dirsfirst my-app
+    my-app
+    ├── my_app
+    │   └── __init__.py
+    ├── tests
+    │   └── __init__.py
+    ├── LICENSE-APACHE
+    ├── LICENSE-MIT
+    ├── MANIFEST.in
+    ├── README.rst
+    ├── requirements.txt
+    ├── setup.py
+    └── tox.ini
+
+    2 directories, 8 files
 
 Environment awareness
 ---------------------
