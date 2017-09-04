@@ -95,7 +95,7 @@ def config(update_settings, restore):
 @click.option('-l', '--licenses',
               help='Comma-separated list of licenses to use. This overrides the config file.')
 def egg(name, basic, cli, licenses):
-    """Creates a new Python project.
+    """Creates a new Python project. Think of an "egg" as a new idea.
 
     Values from your config file such as `name` and `pyversions` will be used
     to help populate fields. You can also specify things like the readme format
