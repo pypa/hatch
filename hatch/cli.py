@@ -523,9 +523,9 @@ def update(packages, env_name, eager, all_packages, infra, global_install,
 @click.argument('package', required=False)
 @click.option('-p', '--path', help='A relative or absolute path to a project or file.')
 @click.option('--pre', 'pre_token',
-              help='The token to use for `pre` part. This overrides config. Default: rc')
+              help='The token to use for `pre` part, overriding the config file. Default: rc')
 @click.option('--build', 'build_token',
-              help='The token to use for `build` part. This overrides config. Default: build')
+              help='The token to use for `build` part, overriding the config file. Default: build')
 def grow(part, package, path, pre_token, build_token):
     """Increments a project's version number using semantic versioning.
     Valid choices for the part are `major`, `minor`, `patch` (`fix` alias),

@@ -166,6 +166,72 @@ Here is an example using an unmodified config file:
 
 Same as ``egg`` but the project target is the current directory.
 
+``grow``
+^^^^^^^^
+
+Increments a project's version number using semantic versioning.
+Valid choices for the part are ``major``, ``minor``, ``patch``
+(``fix`` alias), ``pre``, and ``build``.
+
+The path to the project is derived in the following order:
+
+1. The optional argument, which should be the name of a package
+   that was installed via ``hatch install -l`` or ``pip install -e``.
+2. The option --path, which can be a relative or absolute path.
+3. The current directory.
+
+If the path is a file, it will be the target. Otherwise, the path, and
+every top level directory within, will be checked for a ``__version__.py``,
+``__about__.py``, and ``__init__.py``, in that order. The first encounter of
+a ``__version__`` variable that also appears to equal a version string will
+be updated. Probable package paths will be given precedence.
+
+The default tokens for the prerelease and build parts, ``rc`` and ``build``
+respectively, can be altered via the options ``--pre`` and ``--build``, or
+the config entry ``semver``.
+
+.. code-block:: bash
+
+    $ git clone -q https://github.com/requests/requests && cd requests
+    $ hatch grow build
+    Updated /home/ofek/requests/requests/__version__.py
+    2.18.4 -> 2.18.4+build.1
+    $ hatch grow fix
+    Updated /home/ofek/requests/requests/__version__.py
+    2.18.4+build.1 -> 2.18.5
+    $ hatch grow pre
+    Updated /home/ofek/requests/requests/__version__.py
+    2.18.5 -> 2.18.5-rc.1
+    $ hatch grow minor
+    Updated /home/ofek/requests/requests/__version__.py
+    2.18.5-rc.1 -> 2.19.0
+    $ hatch grow major
+    Updated /home/ofek/requests/requests/__version__.py
+    2.19.0 -> 3.0.0
+
+..
+
+    **Arguments:**
+
+*part*
+    The part of version to bump.
+
+*package*
+    The editable package to target (optional).
+
+..
+
+    **Options:**
+
+*-p/--path*
+    A relative or absolute path to a project or file.
+
+*--pre*
+    The token to use for ``pre`` part, overriding the config file. Default: rc
+
+*--build*
+    The token to use for ``build`` part, overriding the config file. Default: build
+
 Environment awareness
 ---------------------
 
