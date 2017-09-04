@@ -227,10 +227,10 @@ the config entry ``semver``.
     A relative or absolute path to a project or file.
 
 *--pre*
-    The token to use for ``pre`` part, overriding the config file. Default: rc
+    The token to use for ``pre`` part, overriding the config file. Default: ``rc``
 
 *--build*
-    The token to use for ``build`` part, overriding the config file. Default: build
+    The token to use for ``build`` part, overriding the config file. Default: ``build``
 
 Environment awareness
 ---------------------
