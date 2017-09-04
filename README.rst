@@ -551,6 +551,52 @@ Commands:
     default the shell will not be nested if possible. This flag overrides
     the config file entry ``nest_shells``.
 
+``build``
+^^^^^^^^^
+
+Builds a project, producing a source distribution and a wheel.
+
+The path to the project is derived in the following order:
+
+1. The optional argument, which should be the name of a package
+   that was installed via ``hatch install -l`` or ``pip install -e``.
+2. The option --path, which can be a relative or absolute path.
+3. The current directory.
+
+The path must contain a ``setup.py`` file.
+
+..
+
+    **Arguments:**
+
+*package*
+    The editable package to target (optional).
+
+..
+
+    **Options:**
+
+*-p/--path*
+    A relative or absolute path to a project.
+
+*-py/--python*
+    The named Python path to use. This overrides --pypath.
+
+*-pp/--pypath*
+    An absolute path to a Python executable.
+
+*-u/--universal*
+    Indicates compatibility with both Python 2 and 3.
+
+*-n/--name*
+    Forces a particular platform name, e.g. linux_x86_64.
+
+*-d/--build-dir*
+    An absolute path to the desired build directory.
+
+*-c/--clean*
+    Removes build artifacts before building.
+
 Environment awareness
 ---------------------
 
