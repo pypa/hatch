@@ -393,7 +393,7 @@ Creates a new virtual env that can later be utilized with the ``use`` command.
 
 *-r/--restore*
     Attempts to make all virtual envs in the venvs directory usable by fixing the
-    executable paths in scripts and removing  all compiled ``*.pyc`` files.' (Experimental)
+    executable paths in scripts and removing  all compiled ``*.pyc`` files. (Experimental)
 
 *-q/--quiet*
     Decreases verbosity.
