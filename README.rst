@@ -912,6 +912,13 @@ Config file
     - ``cc0``, which represents the
       `Creative Commons Zero v1.0 Universal <https://choosealicense.com/licenses/cc0-1.0>`_
 
+*readme*
+    Mapping which helps construct your readme file. Hatch currently supports
+    ``rst`` and ``md`` for the ``format`` key.
+
+    Badges have attributes the ``image``, ``target``, and ``alt``. Any others
+    you add will become url parameters for the ``target``.
+
 License
 -------
 
