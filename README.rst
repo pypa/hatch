@@ -401,6 +401,47 @@ Creates a new virtual env that can later be utilized with the ``use`` command.
 *-l/--list*
     Shows available virtual envs.
 
+``shed``
+^^^^^^^^
+
+Removes named Python paths or virtual environments.
+
+.. code-block:: bash
+
+    $ hatch python -l
+    py2 -> /usr/bin/python
+    py3 -> /usr/bin/python3
+    invalid -> :\/:
+    $ hatch env -l
+    Virtual environments found in /home/ofek/.local/share/hatch/venvs:
+
+    duplicate ->
+      Version: 3.5.2
+      Implementation: CPython
+    fast ->
+      Version: 3.5.3
+      Implementation: PyPy
+    my-app ->
+      Version: 3.5.2
+      Implementation: CPython
+    old ->
+      Version: 2.7.12
+      Implementation: CPython
+    $ hatch shed -p invalid -e duplicate,old
+    Successfully removed Python path named `invalid`.
+    Successfully removed virtual env named `duplicate`.
+    Successfully removed virtual env named `old`.
+
+..
+
+    **Options:**
+
+*-p/-py/--python*
+    Comma-separated list of named Python paths.
+
+*-e/--env*
+    Comma-separated list of named virtual envs.
+
 Environment awareness
 ---------------------
 
