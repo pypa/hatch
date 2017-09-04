@@ -754,6 +754,70 @@ or a dev version of that in the current directory.
 *-q/--quiet*
     Decreases verbosity.
 
+``update``
+^^^^^^^^^^
+
+If the option --env is supplied, the update will be applied using
+that named virtual env. Unless the option --global is selected, the
+update will only affect the current user. Of course, this will have
+no effect if a virtual env is in use. The desired name of the admin
+user can be set with the ``_DEFAULT_ADMIN_`` environment variable.
+
+When performing a global update, your system may use an older version
+of pip that is incompatible with some features such as --eager. To
+force the use of these features, use --force.
+
+With no packages nor options selected, this will update packages by looking
+for a ``requirements.txt`` or a dev version of that in the current directory.
+
+To update this tool, use the --self flag. After the update, you may want
+to press Enter. All other methods of updating will ignore ``hatch``. See:
+`<https://github.com/pypa/pip/issues/1299>`_
+
+..
+
+    **Arguments:**
+
+*packages*
+    The packages to update (optional).
+
+..
+
+    **Options:**
+
+*-e/--env*
+    The named virtual env to use.
+
+*--eager*
+    Updates all dependencies regardless of whether they still satisfy the
+    new parent requirements. See: `<https://github.com/pypa/pip/pull/3972>`_
+
+*--all*
+    Updates all currently installed packages. The packages ``pip``,
+    ``setuptools``, and ``wheel`` are excluded.
+
+*--infra*
+    Updates only the packages ``pip``, ``setuptools``, and ``wheel``.
+
+*-g/--global*
+    Uninstalls globally, rather than on a per-user basis. This has no effect if
+    a virtual env is in use.
+
+*-f/--force*
+    Forces the use of newer features in global updates.
+
+*-d/--dev*
+    When locating a requirements file, only use the dev version.
+
+*-m/--module*
+    Invokes ``pip`` as a module instead of directly, i.e. ``python -m pip``.
+
+*--self*
+    Updates ``hatch`` itself.
+
+*-q/--quiet*
+    Decreases verbosity.
+
 Environment awareness
 ---------------------
 

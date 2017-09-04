@@ -372,7 +372,7 @@ def uninstall(packages, env_name, global_uninstall, dev, quiet, yes):
                   'Invokes `pip` as a module instead of directly, i.e. '
                   '`python -m pip`.'
               ))
-@click.option('--self', is_flag=True, help='Updates `hatch` itself')
+@click.option('--self', is_flag=True, help='Updates `hatch` itself.')
 @click.option('-q', '--quiet', is_flag=True, help='Decreases verbosity.')
 def update(packages, env_name, eager, all_packages, infra, global_install,
            force, dev, as_module, self, quiet):
