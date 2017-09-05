@@ -992,7 +992,7 @@ History
 
 Important changes are emphasized.
 
-0.1.0
+0.2.0
 ^^^^^
 
 - Initial release
