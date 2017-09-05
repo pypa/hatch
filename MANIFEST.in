@@ -6,3 +6,6 @@ include HISTORY*
 include LICENCE*
 include LICENSE*
 include README*
+
+include COMMANDS.rst
+include CONFIG.rst
