@@ -27,7 +27,6 @@ setup(
     maintainer='{name}',
     maintainer_email='{email}',
     url='{package_url}',
-    download_url='{package_url}',
     license='{license}',
 
     keywords=[
