@@ -856,7 +856,7 @@ def build(package, path, pyname, pypath, universal, name, build_dir, clean_first
             click.echo('Unable to locate config file. Try `hatch config --restore`.')
             sys.exit(1)
 
-        pypath = settings.get('pythons', {}).get(pyname, None)
+        pypath = settings.get('pypaths', {}).get(pyname, None)
         if not pypath:
             click.echo('Python path named `{}` does not exist or is invalid.'.format(pyname))
             sys.exit(1)
@@ -939,7 +939,7 @@ def release(package, path, username, test_pypi, strict):
     sys.exit(result.returncode)
 
 
-def list_pythons(ctx, param, value):
+def list_pypaths(ctx, param, value):
     if not value or ctx.resilient_parsing:
         return
 
@@ -949,38 +949,38 @@ def list_pythons(ctx, param, value):
         click.echo('Unable to locate config file. Try `hatch config --restore`.')
         sys.exit(1)
 
-    pythons = settings.get('pythons', {})
-    if pythons:
-        for p in pythons:
-            click.echo('{} -> {}'.format(p, pythons[p]))
+    pypaths = settings.get('pypaths', {})
+    if pypaths:
+        for p in pypaths:
+            click.echo('{} -> {}'.format(p, pypaths[p]))
     else:
         click.echo('There are no saved Python paths. Add '
-                   'one via `hatch python NAME PATH`.')
+                   'one via `hatch pypath NAME PATH`.')
 
     ctx.exit()
 
 
-@hatch.command(context_settings=CONTEXT_SETTINGS,
+@hatch.command('pypath', context_settings=CONTEXT_SETTINGS,
                short_help='Names a Python path or shows available ones')
 @click.argument('name')
 @click.argument('path')
-@click.option('-l', '--list', 'show', is_flag=True, is_eager=True, callback=list_pythons,
+@click.option('-l', '--list', 'show', is_flag=True, is_eager=True, callback=list_pypaths,
               help='Shows available Python paths.')
-def python(name, path, show):
+def python_path(name, path, show):
     """Names an absolute path to a Python executable. You can also modify
-    these in the config file entry `pythons`.
+    these in the config file entry `pypaths`.
 
     Hatch can then use these paths by name when creating virtual envs, building
     packages, etc.
 
     \b
-    $ hatch python -l
-    There are no saved Python paths. Add one via `hatch python NAME PATH`.
-    $ hatch python py2 /usr/bin/python
+    $ hatch pypath -l
+    There are no saved Python paths. Add one via `hatch pypath NAME PATH`.
+    $ hatch pypath py2 /usr/bin/python
     Successfully saved Python `py2` located at `/usr/bin/python`.
-    $ hatch python py3 /usr/bin/python3
+    $ hatch pypath py3 /usr/bin/python3
     Successfully saved Python `py3` located at `/usr/bin/python3`.
-    $ hatch python -l
+    $ hatch pypath -l
     py2 -> /usr/bin/python
     py3 -> /usr/bin/python3
     """
@@ -990,13 +990,13 @@ def python(name, path, show):
         click.echo('Unable to locate config file. Try `hatch config --restore`.')
         sys.exit(1)
 
-    if 'pythons' not in settings:
+    if 'pypaths' not in settings:
         updated_settings = copy_default_settings()
         updated_settings.update(settings)
         settings = updated_settings
-        click.echo('Settings were successfully updated to include `pythons` entry.')
+        click.echo('Settings were successfully updated to include `pypaths` entry.')
 
-    settings['pythons'][name] = path
+    settings['pypaths'][name] = path
     save_settings(settings)
     click.echo('Successfully saved Python `{}` located at `{}`.'.format(name, path))
 
@@ -1060,7 +1060,7 @@ def env(name, pyname, pypath, clone, quiet, restore, show):
     `use` command.
 
     \b
-    $ hatch python -l
+    $ hatch pypath -l
     py2 -> /usr/bin/python
     py3 -> /usr/bin/python3
     $ hatch env -l
@@ -1093,7 +1093,7 @@ def env(name, pyname, pypath, clone, quiet, restore, show):
             click.echo('Unable to locate config file. Try `hatch config --restore`.')
             sys.exit(1)
 
-        pypath = settings.get('pythons', {}).get(pyname, None)
+        pypath = settings.get('pypaths', {}).get(pyname, None)
         if not pypath:
             click.echo('Unable to find a Python path named `{}`.'.format(pyname))
             sys.exit(1)
@@ -1123,7 +1123,7 @@ def env(name, pyname, pypath, clone, quiet, restore, show):
 
 @hatch.command(context_settings=CONTEXT_SETTINGS,
                short_help='Removes named Python paths or virtual environments')
-@click.option('-p', '-py', '--python', 'pyname',
+@click.option('-p', '-py', '--pypath', 'pyname',
               help='Comma-separated list of named Python paths.')
 @click.option('-e', '--env', 'env_name',
               help='Comma-separated list of named virtual envs.')
@@ -1132,7 +1132,7 @@ def shed(ctx, pyname, env_name):
     """Removes named Python paths or virtual environments.
 
     \b
-    $ hatch python -l
+    $ hatch pypath -l
     py2 -> /usr/bin/python
     py3 -> /usr/bin/python3
     invalid -> :\/:
@@ -1169,7 +1169,7 @@ def shed(ctx, pyname, env_name):
             sys.exit(1)
 
         for pyname in pyname.split(','):
-            pypath = settings.get('pythons', {}).pop(pyname, None)
+            pypath = settings.get('pypaths', {}).pop(pyname, None)
             if pypath is not None:
                 save_settings(settings)
                 click.echo('Successfully removed Python path named `{}`.'.format(pyname))

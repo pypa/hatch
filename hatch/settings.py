@@ -13,7 +13,7 @@ SETTINGS_FILE = os.path.join(user_data_dir('hatch', ''), 'settings.json')
 DEFAULT_SETTINGS = OrderedDict([
     ('shell', ''),
     ('nest_shells', False),
-    ('pythons', OrderedDict([])),
+    ('pypaths', OrderedDict([])),
     ('semver', OrderedDict([
         ('pre', ''),
         ('build', ''),

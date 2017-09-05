@@ -201,7 +201,7 @@ def test_python():
 
         with temp_move_path(SETTINGS_FILE, d):
             settings = copy_default_settings()
-            settings['pythons']['python'] = sys.executable
+            settings['pypaths']['python'] = sys.executable
             save_settings(settings)
             result = runner.invoke(hatch, ['build', '-py', 'python', '-pp', 'Delphi'])
             files = os.listdir(os.path.join(d, 'dist'))
@@ -230,7 +230,7 @@ def test_python_invalid():
 
         with temp_move_path(SETTINGS_FILE, d):
             settings = copy_default_settings()
-            settings['pythons']['python'] = ''
+            settings['pypaths']['python'] = ''
             save_settings(settings)
             result = runner.invoke(hatch, ['build', '-py', 'python'])
 

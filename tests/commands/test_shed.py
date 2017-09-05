@@ -36,10 +36,10 @@ def test_pyname():
 
         with temp_move_path(SETTINGS_FILE, d):
             settings = copy_default_settings()
-            settings['pythons']['pyname'] = 'pypath'
+            settings['pypaths']['pyname'] = 'pypath'
             save_settings(settings)
             result = runner.invoke(hatch, ['shed', '-p', 'pyname'])
-            assert load_settings()['pythons'] == {}
+            assert load_settings()['pypaths'] == {}
 
         assert result.exit_code == 0
         assert 'Successfully removed Python path named `pyname`.' in result.output
@@ -51,11 +51,11 @@ def test_pyname_multiple():
 
         with temp_move_path(SETTINGS_FILE, d):
             settings = copy_default_settings()
-            settings['pythons']['pyname1'] = 'pypath1'
-            settings['pythons']['pyname2'] = 'pypath2'
+            settings['pypaths']['pyname1'] = 'pypath1'
+            settings['pypaths']['pyname2'] = 'pypath2'
             save_settings(settings)
             result = runner.invoke(hatch, ['shed', '-p', 'pyname1,pyname2'])
-            assert load_settings()['pythons'] == {}
+            assert load_settings()['pypaths'] == {}
 
         assert result.exit_code == 0
         assert 'Successfully removed Python path named `pyname1`.' in result.output
@@ -161,10 +161,10 @@ def test_pyname_and_env():
 
             with temp_move_path(SETTINGS_FILE, d):
                 settings = copy_default_settings()
-                settings['pythons']['pyname'] = 'pypath'
+                settings['pypaths']['pyname'] = 'pypath'
                 save_settings(settings)
                 result = runner.invoke(hatch, ['shed', '-p', 'pyname', '-e', env_name])
-                assert load_settings()['pythons'] == {}
+                assert load_settings()['pypaths'] == {}
                 assert not os.path.exists(venv_dir)
         finally:
             remove_path(venv_dir)

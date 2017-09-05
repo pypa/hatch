@@ -323,24 +323,24 @@ If the path points to a package, it should have a ``tests`` directory.
 *-e/--env-aware*
     Invokes ``pytest`` and ``coverage`` as modules instead of directly, i.e. ``python -m pytest``.
 
-``python``
+``pypath``
 ^^^^^^^^^^
 
 Names an absolute path to a Python executable. You can also modify
-these in the config file entry ``pythons``.
+these in the config file entry ``pypaths``.
 
 Hatch can then use these paths by name when creating virtual envs, building
 packages, etc.
 
 .. code-block:: bash
 
-    $ hatch python -l
-    There are no saved Python paths. Add one via `hatch python NAME PATH`.
-    $ hatch python py2 /usr/bin/python
+    $ hatch pypath -l
+    There are no saved Python paths. Add one via `hatch pypath NAME PATH`.
+    $ hatch pypath py2 /usr/bin/python
     Successfully saved Python `py2` located at `/usr/bin/python`.
-    $ hatch python py3 /usr/bin/python3
+    $ hatch pypath py3 /usr/bin/python3
     Successfully saved Python `py3` located at `/usr/bin/python3`.
-    $ hatch python -l
+    $ hatch pypath -l
     py2 -> /usr/bin/python
     py3 -> /usr/bin/python3
 
@@ -368,7 +368,7 @@ Creates a new virtual env that can later be utilized with the ``use`` command.
 
 .. code-block:: bash
 
-    $ hatch python -l
+    $ hatch pypath -l
     py2 -> /usr/bin/python
     py3 -> /usr/bin/python3
     $ hatch env -l
@@ -430,7 +430,7 @@ Removes named Python paths or virtual environments.
 
 .. code-block:: bash
 
-    $ hatch python -l
+    $ hatch pypath -l
     py2 -> /usr/bin/python
     py3 -> /usr/bin/python3
     invalid -> :\/:
@@ -458,7 +458,7 @@ Removes named Python paths or virtual environments.
 
     **Options:**
 
-*-p/-py/--python*
+*-p/-py/--pypath*
     Comma-separated list of named Python paths.
 
 *-e/--env*
@@ -881,7 +881,7 @@ Config file
 *nest_shells*
     Whether or not to nest shells, instead of killing them to prevent stacking.
 
-*pythons*
+*pypaths*
     Maps names to an absolute path to a Python executable.
 
 *semver*

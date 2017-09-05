@@ -48,7 +48,7 @@ def test_pyname():
         try:
             with temp_move_path(SETTINGS_FILE, d):
                 settings = copy_default_settings()
-                settings['pythons']['python'] = sys.executable
+                settings['pypaths']['python'] = sys.executable
                 save_settings(settings)
                 result = runner.invoke(hatch, ['env', env_name, '-py', 'python'])
                 assert os.path.exists(venv_dir)
