@@ -954,6 +954,10 @@ TODO
     - start using AppVeyor
     - next to the snake ascii art, put a ``hatch``\ ed egg
 
+*issues*
+    - I really, really need help with
+      `this <https://github.com/ofek/hatch/blob/5293e418c52fb6b0417fcbff0ea17ccd01bbdab1/hatch/cli.py#L1347-L1363>`_
+
 *third-party services*
     Support `AppVeyor <https://www.appveyor.com/>`_ and `CircleCI <https://circleci.com/>`_.
 
