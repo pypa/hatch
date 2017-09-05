@@ -36,7 +36,7 @@ use of these:
 - `pyenv <https://github.com/pyenv/pyenv>`_
 - `Pew <https://github.com/berdario/pew>`_
 - `inve <https://gist.github.com/datagrok/2199506>`_
-- `pytest <https://github.com/pytest-dev/pytest>`_
+- `pytest`_
 - `Coverage.py <https://github.com/nedbat/coveragepy>`_
 - `twine <https://github.com/pypa/twine>`_
 - `bumpversion <https://github.com/peritus/bumpversion>`_
@@ -977,7 +977,7 @@ Credits
 
 - All the people who work on `Click <https://github.com/pallets/click>`_
 - All the people involved in the `Python packaging <https://github.com/pypa>`_ ecosystem
-- All the people involved in the `pytest <https://github.com/pytest-dev>`_ ecosystem
+- All the people involved in the `pytest`_ ecosystem
 - `Ned Batchelder <https://twitter.com/nedbat>`_, for his
   `Coverage.py <https://github.com/nedbat/coveragepy>`_ is the unsung heroic tool of the
   Python community. Without it, users would be exposed to more bugs before we are.
@@ -993,4 +993,5 @@ Important changes are emphasized.
 
 - Initial release
 
+.. _pytest: https://github.com/pytest-dev
 .. _PyPI: https://pypi.org
