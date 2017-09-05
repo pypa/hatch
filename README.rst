@@ -108,13 +108,13 @@ ensure your config file is available.
 Commands
 --------
 
-For a complete reference, see `COMMANDS.rst <https://github.com/ofek/hatch/blob/master/COMMANDS.rst>`_
+For a complete reference, see `COMMANDS <https://github.com/ofek/hatch/blob/master/COMMANDS.rst>`_
 
 Configuration
 -------------
 
 If you would like to learn more about advanced configuration, check out
-`CONFIG.rst <https://github.com/ofek/hatch/blob/master/CONFIG.rst>`_
+`CONFIG <https://github.com/ofek/hatch/blob/master/CONFIG.rst>`_
 
 Contributing
 ------------
