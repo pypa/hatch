@@ -979,4 +979,14 @@ Credits
   Python community. Without it, users would be exposed to more bugs before we are.
 - `Te-jé Rodgers <https://github.com/te-je>`_ for bestowing me the name ``hatch`` on `PyPI`_
 
+History
+-------
+
+Important changes are emphasized.
+
+0.1.0
+^^^^^
+
+- Initial release
+
 .. _PyPI: https://pypi.org
