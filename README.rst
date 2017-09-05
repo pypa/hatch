@@ -40,6 +40,7 @@ use of these:
 - `Coverage.py <https://github.com/nedbat/coveragepy>`_
 - `twine <https://github.com/pypa/twine>`_
 - `bumpversion <https://github.com/peritus/bumpversion>`_
+- `zest.releaser <https://github.com/zestsoftware/zest.releaser>`_
 - `Incremental <https://github.com/twisted/incremental>`_
 - ``python setup.py ...``
 
