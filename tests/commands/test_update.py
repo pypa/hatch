@@ -155,7 +155,7 @@ def test_all_packages_none():
             runner = CliRunner()
             result = runner.invoke(hatch, ['update', '--all'])
 
-        if get_python_implementation() in {'PyPy'}:
+        if get_python_implementation() in {'PyPy'}:  # no cov
             assert result.exit_code == 0
         else:
             assert result.exit_code == 1
