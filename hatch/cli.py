@@ -1344,14 +1344,23 @@ def use(env_name, command, shell, nest):  # no cov
 
                             if os.path.exists(communication_file):
 
-                                # This is necessary on non-Windows machines.
+                                # This is necessary on non-Windows machines. The
+                                # only hint of this situation I was able to find
+                                # on Google was https://unix.stackexchange.com/a/289003
                                 #
                                 # Killing a spawned shell suspends execution of
                                 # this script due to competition for terminal use.
                                 # Termination works, however only if the spawned
                                 # shell has no active processes. Therefore, we sleep
                                 # shortly to ensure the second `hatch use ...` has
-                                # time to write the communication file and exit.
+                                # time to write the communication file and exit. On
+                                # some shells, even this doesn't work!
+                                #
+                                # Please, if you know of a workaround, do submit
+                                # an issue/PR or tweet me https://twitter.com/Ofekmeister
+                                #
+                                # Having all shells support the non-nesting workflow
+                                # would be ideal {^.^}
                                 if not ON_WINDOWS:
                                     time.sleep(0.2)
 
