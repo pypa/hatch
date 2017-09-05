@@ -12,8 +12,8 @@ with open('{package_name_normalized}/__init__.py', 'r') as f:
     else:
         version = '0.0.1'
 
-with open('{readme_file}', 'r') as f:
-    readme = f.read()
+with open('{readme_file}', 'rb') as f:
+    readme = f.read().decode('utf-8')
 
 REQUIRES = []
 
