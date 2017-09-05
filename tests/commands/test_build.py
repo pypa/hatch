@@ -30,7 +30,7 @@ def test_cwd():
 def test_package():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['egg', 'ok', '--basic'])
+        runner.invoke(hatch, ['new', 'ok', '--basic'])
         package_dir = os.path.join(d, 'ok')
 
         venv_dir = os.path.join(d, 'venv')
@@ -65,7 +65,7 @@ def test_package_not_exist():
 def test_path_relative():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['egg', 'ok', '--basic'])
+        runner.invoke(hatch, ['new', 'ok', '--basic'])
 
         result = runner.invoke(hatch, ['build', '-p', 'ok'])
         files = os.listdir(os.path.join(d, 'ok', 'dist'))
@@ -78,8 +78,8 @@ def test_path_relative():
 def test_path_full():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['egg', 'ok', '--basic'])
-        runner.invoke(hatch, ['egg', 'ko', '--basic'])
+        runner.invoke(hatch, ['new', 'ok', '--basic'])
+        runner.invoke(hatch, ['new', 'ko', '--basic'])
         package_dir = os.path.join(d, 'ok')
 
         os.chdir(os.path.join(d, 'ko'))
@@ -94,7 +94,7 @@ def test_path_full():
 def test_path_full_not_exist():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['egg', 'ok', '--basic'])
+        runner.invoke(hatch, ['new', 'ok', '--basic'])
 
         full_path = os.path.join(d, 'ko')
         result = runner.invoke(hatch, ['build', '-p', full_path])

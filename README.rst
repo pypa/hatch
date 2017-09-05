@@ -130,10 +130,10 @@ Locates, updates, or restores the config file.
 *--restore*
     Restores the config file to default settings.
 
-``egg``
+``new``
 ^^^^^^^
 
-Creates a new Python project. Think of an "egg" as a new idea.
+Creates a new Python project.
 
 Values from your config file such as ``name`` and ``pyversions`` will be used
 to help populate fields. You can also specify things like the readme format
@@ -143,7 +143,7 @@ Here is an example using an unmodified config file:
 
 .. code-block:: bash
 
-    $ hatch egg my-app
+    $ hatch new my-app
     Created project `my-app`
     $ tree --dirsfirst my-app
     my-app
@@ -186,7 +186,7 @@ Here is an example using an unmodified config file:
 ``init``
 ^^^^^^^^
 
-Same as ``egg`` but the project target is the current directory.
+Same as ``new`` but the project target is the current directory.
 
 ``grow``
 ^^^^^^^^

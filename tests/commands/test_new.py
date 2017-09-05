@@ -13,7 +13,7 @@ def test_config_not_exist():
         runner = CliRunner()
 
         with temp_move_path(SETTINGS_FILE, d):
-            result = runner.invoke(hatch, ['egg', 'ok', '--basic'])
+            result = runner.invoke(hatch, ['new', 'ok', '--basic'])
 
         assert result.exit_code == 1
         assert 'Unable to locate config file. Try `hatch config --restore`.' in result.output
@@ -22,7 +22,7 @@ def test_config_not_exist():
 def test_invalid_name():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['egg', 'invalid-name', '--basic'])
+        runner.invoke(hatch, ['new', 'invalid-name', '--basic'])
 
         assert os.path.exists(os.path.join(d, 'invalid-name', 'invalid_name', '__init__.py'))
 
@@ -30,7 +30,7 @@ def test_invalid_name():
 def test_output():
     with temp_chdir():
         runner = CliRunner()
-        result = runner.invoke(hatch, ['egg', 'new-project', '--basic'])
+        result = runner.invoke(hatch, ['new', 'new-project', '--basic'])
 
         assert result.exit_code == 0
         assert 'Created project `new-project`' in result.output
@@ -41,7 +41,7 @@ def test_already_exists():
         d = os.path.join(d, 'ok')
         os.makedirs(d)
         runner = CliRunner()
-        result = runner.invoke(hatch, ['egg', 'ok', '--basic'])
+        result = runner.invoke(hatch, ['new', 'ok', '--basic'])
 
         assert result.exit_code == 1
         assert 'Directory `{}` already exists.'.format(d) in result.output
@@ -50,7 +50,7 @@ def test_already_exists():
 def test_basic():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['egg', 'ok', '--basic'])
+        runner.invoke(hatch, ['new', 'ok', '--basic'])
         d = os.path.join(d, 'ok')
 
         assert os.path.exists(os.path.join(d, 'ok', '__init__.py'))
@@ -67,7 +67,7 @@ def test_basic():
 def test_cli():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['egg', 'ok', '--cli'])
+        runner.invoke(hatch, ['new', 'ok', '--cli'])
         d = os.path.join(d, 'ok')
 
         assert os.path.exists(os.path.join(d, 'ok', 'cli.py'))
@@ -77,7 +77,7 @@ def test_cli():
 def test_license_single():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['egg', 'ok', '-l', 'cc0'])
+        runner.invoke(hatch, ['new', 'ok', '-l', 'cc0'])
 
         assert os.path.exists(os.path.join(d, 'ok', 'LICENSE-CC0'))
 
@@ -85,7 +85,7 @@ def test_license_single():
 def test_license_multiple():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['egg', 'ok', '-l', 'cc0,mpl'])
+        runner.invoke(hatch, ['new', 'ok', '-l', 'cc0,mpl'])
         d = os.path.join(d, 'ok')
 
         assert os.path.exists(os.path.join(d, 'LICENSE-CC0'))
@@ -108,7 +108,7 @@ def test_extras():
             new_settings['extras'] = [test_dir, test_file1, test_glob, fake_file]
             save_settings(new_settings)
 
-            runner.invoke(hatch, ['egg', 'ok', '--basic'])
+            runner.invoke(hatch, ['new', 'ok', '--basic'])
             d = os.path.join(d, 'ok')
 
         assert os.path.exists(os.path.join(d, 'b', 'file1.txt'))

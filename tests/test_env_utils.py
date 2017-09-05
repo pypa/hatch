@@ -34,8 +34,8 @@ def test_get_installed_packages_no_editable():
 def test_get_editable_package_location():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['egg', 'foo', '--basic'])
-        runner.invoke(hatch, ['egg', 'bar', '--basic'])
+        runner.invoke(hatch, ['new', 'foo', '--basic'])
+        runner.invoke(hatch, ['new', 'bar', '--basic'])
 
         venv_dir = os.path.join(d, 'venv')
         create_venv(venv_dir)
