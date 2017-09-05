@@ -992,6 +992,13 @@ History
 
 Important changes are emphasized.
 
+0.4.0
+^^^^^
+
+- **Change:** ``egg`` command is now ``new``
+- Removed ``download_url`` attribute from ``setup.py``. See:
+  `<https://github.com/pypa/python-packaging-user-guide/pull/264>`_
+
 0.3.0
 ^^^^^
 
