@@ -87,6 +87,129 @@ Features
 - Virtual envs can be the target for relevant commands
 - Editable packages can be the target for relevant commands
 
+Usage
+-----
+
+Starting a new project is as easy as:
+
+.. code-block:: bash
+
+    $ hatch new my-app
+    Created project `my-app`
+
+Now you have a fully function package that can be built and distributed.
+
+.. code-block:: bash
+
+    $ tree --dirsfirst my-app
+    my-app
+    ├── my_app
+    │   └── __init__.py
+    ├── tests
+    │   └── __init__.py
+    ├── LICENSE-APACHE
+    ├── LICENSE-MIT
+    ├── MANIFEST.in
+    ├── README.rst
+    ├── requirements.txt
+    ├── setup.py
+    └── tox.ini
+
+    2 directories, 8 files
+
+You can also bump the version of most projects without any setup:
+
+.. code-block:: bash
+
+    $ git clone -q https://github.com/requests/requests && cd requests
+    $ hatch grow build
+    Updated /home/ofek/requests/requests/__version__.py
+    2.18.4 -> 2.18.4+build.1
+    $ hatch grow fix
+    Updated /home/ofek/requests/requests/__version__.py
+    2.18.4+build.1 -> 2.18.5
+    $ hatch grow pre
+    Updated /home/ofek/requests/requests/__version__.py
+    2.18.5 -> 2.18.5-rc.1
+    $ hatch grow minor
+    Updated /home/ofek/requests/requests/__version__.py
+    2.18.5-rc.1 -> 2.19.0
+    $ hatch grow major
+    Updated /home/ofek/requests/requests/__version__.py
+    2.19.0 -> 3.0.0
+
+Checking code coverage is a breeze:
+
+.. code-block:: bash
+
+    $ git clone https://github.com/ofek/privy && cd privy
+    $ hatch test -c
+    ========================= test session starts ==========================
+    platform linux -- Python 3.5.2, pytest-3.2.1, py-1.4.34, pluggy-0.4.0
+    rootdir: /home/ofek/privy, inifile:
+    plugins: xdist-1.20.0, mock-1.6.2, httpbin-0.0.7, forked-0.2, cov-2.5.1
+    collected 10 items
+
+    tests/test_privy.py ..........
+
+    ====================== 10 passed in 4.34 seconds =======================
+
+    Tests completed, checking coverage...
+
+    Name                  Stmts   Miss Branch BrPart  Cover   Missing
+    -----------------------------------------------------------------
+    privy/__init__.py         1      0      0      0   100%
+    privy/core.py            30      0      0      0   100%
+    privy/utils.py           13      0      4      0   100%
+    tests/__init__.py         0      0      0      0   100%
+    tests/test_privy.py      57      0      0      0   100%
+    -----------------------------------------------------------------
+    TOTAL                   101      0      4      0   100%
+
+Creating virtual envs is incredibly simple:
+
+.. code-block:: bash
+
+    $ hatch env my-app
+    Already using interpreter /usr/bin/python3
+    Successfully saved virtual env `my-app` to `/home/ofek/.local/share/hatch/venvs/my-app`.
+    $ hatch env -l
+    Virtual environments found in /home/ofek/.local/share/hatch/venvs:
+
+    my-app ->
+      Version: 3.5.2
+      Implementation: CPython
+
+You can nest activated virtual envs:
+
+.. code-block:: bash
+
+    $ hatch use my-app
+    (my-app) $ hatch use -n fast
+    2 (fast) $ hatch use -n old
+    3 (old) $ exit
+    2 (fast) $ exit
+    (my-app) $ exit
+    $
+
+or use them as usual:
+
+.. code-block:: bash
+
+    $ python -c "import sys;print(sys.executable)"
+    /usr/bin/python
+    $ hatch use my-app
+    (my-app) $ python -c "import sys;print(sys.executable)"
+    /home/ofek/.local/share/hatch/venvs/my-app/bin/python
+    (my-app) $ hatch use fast
+    (my-app) $ exit
+    (fast) $ python -c "import sys;print(sys.executable)"
+    /home/ofek/.local/share/hatch/venvs/fast/bin/python
+    (fast) $ exit
+    $
+
+And so much more!
+
 Installation
 ------------
 
