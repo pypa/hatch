@@ -903,7 +903,10 @@ Config file
     ``3.7``. The values ``pypy`` and ``pypy3`` are also accepted.
 
 *licenses*
-    The default licenses to use. Hatch currently supports:
+    The default licenses to use. Defaults to
+    `dual MIT/Apache-2.0 <https://github.com/sfackler/rust-postgres-macros/issues/19>`_,
+    which is `desirable <https://github.com/facebook/react/issues/10191>`_.
+    Hatch currently supports:
 
     - ``mit``, which represents the
       `MIT License <https://choosealicense.com/licenses/mit>`_
