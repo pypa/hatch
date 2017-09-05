@@ -70,7 +70,7 @@ use of these:
 Features
 --------
 
-- Completely cross-platform \\(*_^)/
+- Completely cross-platform \\(\*_^)/
 - Configurable project creation! CI service files, readme format/badges, licenses, etc.
 - Easiest virtual environment management available
 - Activation of virtual envs without disruption of current environments
