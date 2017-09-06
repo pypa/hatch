@@ -2,6 +2,7 @@ import json
 import io
 import os
 import re
+import shutil
 import subprocess
 import sys
 import time
@@ -1361,8 +1362,22 @@ def use(env_name, command, shell, nest):  # no cov
                                 #
                                 # Having all shells support the non-nesting workflow
                                 # would be ideal {^.^}
-                                if not ON_WINDOWS:
-                                    time.sleep(0.2)
+                                time.sleep(0.2)
+
+                                # This is necessary because Windows doesn't like sleeping.
+                                # We get something like this:
+                                #
+                                # C:\Users\Ofek\Desktop>hatch use rft
+                                # (rft) C:\Users\Ofek\Desktop>hatch use st
+                                # (rft) C:\Users\Ofek\Desktop>(st) C:\Users\Ofek\Desktop>
+                                #
+                                # So we hide that last output from the terminated shell
+                                # with a bunch of spaces. #software
+                                if ON_WINDOWS:
+                                    sys.stdout.write('\r{}\r'.format(
+                                        ' ' * (shutil.get_terminal_size()[0] - 1)
+                                    ))
+                                    sys.stdout.flush()
 
                                 with open(communication_file, 'r') as f:
                                     args = json.loads(f.read())
@@ -1372,5 +1387,9 @@ def use(env_name, command, shell, nest):  # no cov
                                 remove_path(communication_file)
                                 process.terminate()
                                 break
+
+                            # Don't hog users' CPU
+                            else:
+                                time.sleep(0.2)
                 except KeyboardInterrupt:
                     break
