@@ -5,6 +5,7 @@ import re
 import shutil
 from datetime import datetime
 from contextlib import contextmanager
+from pathlib import Path
 from tempfile import TemporaryDirectory
 
 ON_WINDOWS = False
@@ -102,6 +103,11 @@ def remove_path(path):
             os.remove(path)
         except FileNotFoundError:
             pass
+
+
+def resolve_path(path):
+    path = str(Path(path).resolve())
+    return path if os.path.exists(path) else ''
 
 
 def basepath(path):

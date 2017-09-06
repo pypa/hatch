@@ -1,9 +1,8 @@
 import json
 import subprocess
-from pathlib import Path
 
 from hatch.utils import (
-    NEED_SUBPROCESS_SHELL, get_proper_pip, get_proper_python
+    NEED_SUBPROCESS_SHELL, get_proper_pip, get_proper_python, resolve_path
 )
 
 
@@ -62,7 +61,7 @@ def get_editable_package_location(package_name):
     for line in output.splitlines()[2:]:
         name, _, path = line.split()
         if name == package_name:
-            return str(Path(path).resolve())
+            return resolve_path(path)
 
     return location
 
