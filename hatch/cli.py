@@ -1011,15 +1011,13 @@ def list_envs(ctx, param, value):
         click.echo('Virtual environments found in `{}`:\n'.format(VENV_DIR))
         for venv_name, venv_dir in venvs:
             with venv(venv_dir):
+                click.echo('{} ->'.format(venv_name))
                 if value == 1:
-                    click.echo('{} ->'.format(venv_name))
                     click.echo('  Version: {}'.format(get_python_version()))
                 elif value == 2:
-                    click.echo('{} ->'.format(venv_name))
                     click.echo('  Version: {}'.format(get_python_version()))
                     click.echo('  Implementation: {}'.format(get_python_implementation()))
                 else:
-                    click.echo('{} ->'.format(venv_name))
                     click.echo('  Version: {}'.format(get_python_version()))
                     click.echo('  Implementation: {}'.format(get_python_implementation()))
                     click.echo('  Local packages: {}'.format(', '.join(sorted(get_editable_packages()))))
