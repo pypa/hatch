@@ -287,6 +287,12 @@ History
 
 Important changes are emphasized.
 
+master
+^^^^^^
+
+- Significant improvements to documentation
+- ``MANIFEST.in`` now considers users' files from ``extras`` config entry
+
 0.4.0
 ^^^^^
 
