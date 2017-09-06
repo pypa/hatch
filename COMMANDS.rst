@@ -266,12 +266,12 @@ Creates a new virtual env that can later be utilized with the ``use`` command.
     py3 -> /usr/bin/python3
     $ hatch env -l
     No virtual environments found in /home/ofek/.local/share/hatch/venvs. To create one do `hatch env NAME`.
-    $ hatch env -q my-app
+    $ hatch env my-app
     Already using interpreter /usr/bin/python3
     Successfully saved virtual env `my-app` to `/home/ofek/.local/share/hatch/venvs/my-app`.
-    $ hatch env -q -py py2 old
+    $ hatch env -py py2 old
     Successfully saved virtual env `old` to `/home/ofek/.local/share/hatch/venvs/old`.
-    $ hatch env -q -pp ~/pypy3/bin/pypy fast
+    $ hatch env -pp ~/pypy3/bin/pypy fast
     Successfully saved virtual env `fast` to `/home/ofek/.local/share/hatch/venvs/fast`.
     $ hatch env -l
     Virtual environments found in /home/ofek/.local/share/hatch/venvs:
@@ -310,8 +310,8 @@ Creates a new virtual env that can later be utilized with the ``use`` command.
     Attempts to make all virtual envs in the venvs directory usable by fixing the
     executable paths in scripts and removing  all compiled ``*.pyc`` files. (Experimental)
 
-*-q/--quiet*
-    Decreases verbosity.
+*-v/--verbose*
+    Increases verbosity.
 
 *-l/--list*
     Shows available virtual envs.

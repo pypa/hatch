@@ -37,9 +37,9 @@ def get_available_venvs():
     return venvs
 
 
-def create_venv(d, pypath=None, quiet=False):
+def create_venv(d, pypath=None, verbose=False):
     command = ['virtualenv', d, '-p', pypath or get_python_path()]
-    if quiet:  # no cov
+    if not verbose:  # no cov
         command.append('--quiet')
     subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
 

@@ -291,6 +291,8 @@ Important changes are emphasized.
 master
 ^^^^^^
 
+- ``env`` command is now quiet by default (option removed) and option ``verbose`` added
+
 0.5.0
 ^^^^^
 

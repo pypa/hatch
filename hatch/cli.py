@@ -1046,7 +1046,7 @@ def restore_envs(ctx, param, value):
               help='An absolute path to a Python executable.')
 @click.option('-c', '--clone',
               help='Specifies an existing virtual env to clone. (Experimental)')
-@click.option('-q', '--quiet', is_flag=True, help='Decreases verbosity.')
+@click.option('-v', '--verbose', is_flag=True, help='Increases verbosity.')
 @click.option('-r', '--restore', is_flag=True, is_eager=True, callback=restore_envs,
               help=(
                   'Attempts to make all virtual envs in `{}` usable by '
@@ -1055,7 +1055,7 @@ def restore_envs(ctx, param, value):
               ))
 @click.option('-l', '--list', 'show', is_flag=True, is_eager=True, callback=list_envs,
               help='Shows available virtual envs.')
-def env(name, pyname, pypath, clone, quiet, restore, show):
+def env(name, pyname, pypath, clone, verbose, restore, show):
     """Creates a new virtual env that can later be utilized with the
     `use` command.
 
@@ -1065,12 +1065,12 @@ def env(name, pyname, pypath, clone, quiet, restore, show):
     py3 -> /usr/bin/python3
     $ hatch env -l
     No virtual environments found in /home/ofek/.local/share/hatch/venvs. To create one do `hatch env NAME`.
-    $ hatch env -q my-app
+    $ hatch env my-app
     Already using interpreter /usr/bin/python3
     Successfully saved virtual env `my-app` to `/home/ofek/.local/share/hatch/venvs/my-app`.
-    $ hatch env -q -py py2 old
+    $ hatch env -py py2 old
     Successfully saved virtual env `old` to `/home/ofek/.local/share/hatch/venvs/old`.
-    $ hatch env -q -pp ~/pypy3/bin/pypy fast
+    $ hatch env -pp ~/pypy3/bin/pypy fast
     Successfully saved virtual env `fast` to `/home/ofek/.local/share/hatch/venvs/fast`.
     $ hatch env -l
     Virtual environments found in /home/ofek/.local/share/hatch/venvs:
@@ -1117,7 +1117,7 @@ def env(name, pyname, pypath, clone, quiet, restore, show):
         clone_venv(origin, venv_dir)
         click.echo('Successfully cloned virtual env `{}` from `{}` to {}.'.format(name, clone, venv_dir))
     else:
-        create_venv(venv_dir, pypath, quiet=quiet)
+        create_venv(venv_dir, pypath, verbose=verbose)
         click.echo('Successfully saved virtual env `{}` to `{}`.'.format(name, venv_dir))
 
 
