@@ -291,6 +291,9 @@ Important changes are emphasized.
 master
 ^^^^^^
 
+0.5.0
+^^^^^
+
 - **Fix:** using virtual envs no longer uses an abundant amount of CPU
 - Significant improvements to documentation
 - ``MANIFEST.in`` now considers users' files from ``extras`` config entry
