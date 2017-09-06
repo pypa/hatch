@@ -129,19 +129,6 @@ def create_package(d, package_name, settings):
     )
     requirements.write(d)
 
-    manifest = File(
-        'MANIFEST.in',
-        'include AUTHORS*\n'
-        'include CHANGELOG*\n'
-        'include CHANGES*\n'
-        'include CONTRIBUTING*\n'
-        'include HISTORY*\n'
-        'include LICENCE*\n'
-        'include LICENSE*\n'
-        'include README*\n'
-    )
-    manifest.write(d)
-
     for li in licenses:
         li.write(d)
 
@@ -151,5 +138,26 @@ def create_package(d, package_name, settings):
     for p in settings.get('extras', []):
         for path in glob.iglob(p):
             copy_path(path, d)
+
+    manifest_text = ''
+
+    manifest_files = {
+        'AUTHORS*',
+        'CHANGELOG*',
+        'CHANGES*',
+        'CONTRIBUTING*',
+        'HISTORY*',
+        'LICENCE*',
+        'LICENSE*',
+        'README*',
+    }
+
+    for pattern in manifest_files:
+        for path in sorted(glob.iglob(os.path.join(d, pattern))):
+            if os.path.isfile(path):  # no cov
+                manifest_text += '{}\n'.format(os.path.basename(path))
+
+    manifest = File('MANIFEST.in', manifest_text)
+    manifest.write(d)
 
     vc_setup(d, package_name)
