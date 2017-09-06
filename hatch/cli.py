@@ -1012,32 +1012,17 @@ def list_envs(ctx, param, value):
         for venv_name, venv_dir in venvs:
             with venv(venv_dir):
                 if value == 1:
-                    click.echo(
-                        '{} ->\n'
-                        '  Version: {}'.format(
-                            venv_name, get_python_version()
-                        )
-                    )
+                    click.echo('{} ->'.format(venv_name))
+                    click.echo('  Version: {}'.format(get_python_version()))
                 elif value == 2:
-                    click.echo(
-                        '{} ->\n'
-                        '  Version: {}\n'
-                        '  Implementation: {}'.format(
-                            venv_name, get_python_version(), get_python_implementation()
-                        )
-                    )
+                    click.echo('{} ->'.format(venv_name))
+                    click.echo('  Version: {}'.format(get_python_version()))
+                    click.echo('  Implementation: {}'.format(get_python_implementation()))
                 else:
-                    click.echo(
-                        '{} ->\n'
-                        '  Version: {}\n'
-                        '  Implementation: {}\n'
-                        '  Local packages: {}'.format(
-                            venv_name,
-                            get_python_version(),
-                            get_python_implementation(),
-                            ', '.join(sorted(get_editable_packages()))
-                        )
-                    )
+                    click.echo('{} ->'.format(venv_name))
+                    click.echo('  Version: {}'.format(get_python_version()))
+                    click.echo('  Implementation: {}'.format(get_python_implementation()))
+                    click.echo('  Local packages: {}'.format(', '.join(sorted(get_editable_packages()))))
 
     # I don't want to move users' virtual environments
     # temporarily for tests as one may be in use.
