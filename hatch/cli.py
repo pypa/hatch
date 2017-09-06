@@ -16,8 +16,8 @@ from hatch.build import build_package
 from hatch.clean import clean_package, remove_compiled_scripts
 from hatch.create import create_package
 from hatch.env import (
-    get_editable_package_location, get_installed_packages, get_python_version,
-    get_python_implementation
+    get_editable_packages, get_editable_package_location, get_installed_packages,
+    get_python_version, get_python_implementation
 )
 from hatch.grow import BUMP, bump_package_version
 from hatch.settings import (
@@ -1011,13 +1011,33 @@ def list_envs(ctx, param, value):
         click.echo('Virtual environments found in `{}`:\n'.format(VENV_DIR))
         for venv_name, venv_dir in venvs:
             with venv(venv_dir):
-                click.echo(
-                    '{} ->\n'
-                    '  Version: {}\n'
-                    '  Implementation: {}'.format(
-                        venv_name, get_python_version(), get_python_implementation()
+                if value == 1:
+                    click.echo(
+                        '{} ->\n'
+                        '  Version: {}'.format(
+                            venv_name, get_python_version()
+                        )
                     )
-                )
+                elif value == 2:
+                    click.echo(
+                        '{} ->\n'
+                        '  Version: {}\n'
+                        '  Implementation: {}'.format(
+                            venv_name, get_python_version(), get_python_implementation()
+                        )
+                    )
+                else:
+                    click.echo(
+                        '{} ->\n'
+                        '  Version: {}\n'
+                        '  Implementation: {}\n'
+                        '  Local packages: {}'.format(
+                            venv_name,
+                            get_python_version(),
+                            get_python_implementation(),
+                            ', '.join(sorted(get_editable_packages()))
+                        )
+                    )
 
     # I don't want to move users' virtual environments
     # temporarily for tests as one may be in use.
@@ -1053,8 +1073,11 @@ def restore_envs(ctx, param, value):
                   'fixing the executable paths in scripts and removing '
                   'all compiled `*.pyc` files. (Experimental)'.format(VENV_DIR)
               ))
-@click.option('-l', '--list', 'show', is_flag=True, is_eager=True, callback=list_envs,
-              help='Shows available virtual envs.')
+@click.option('-l', '--list', 'show', count=True, is_eager=True, callback=list_envs,
+              help=(
+                  'Shows available virtual envs. Can stack up to 3 times to '
+                  'show more info.'
+              ))
 def env(name, pyname, pypath, clone, verbose, restore, show):
     """Creates a new virtual env that can later be utilized with the
     `use` command.
@@ -1072,7 +1095,7 @@ def env(name, pyname, pypath, clone, verbose, restore, show):
     Successfully saved virtual env `old` to `/home/ofek/.local/share/hatch/venvs/old`.
     $ hatch env -pp ~/pypy3/bin/pypy fast
     Successfully saved virtual env `fast` to `/home/ofek/.local/share/hatch/venvs/fast`.
-    $ hatch env -l
+    $ hatch env -ll
     Virtual environments found in /home/ofek/.local/share/hatch/venvs:
 
     \b
@@ -1136,7 +1159,7 @@ def shed(ctx, pyname, env_name):
     py2 -> /usr/bin/python
     py3 -> /usr/bin/python3
     invalid -> :\/:
-    $ hatch env -l
+    $ hatch env -ll
     Virtual environments found in /home/ofek/.local/share/hatch/venvs:
 
     \b
@@ -1223,7 +1246,7 @@ def use(env_name, command, shell, nest):  # no cov
 
     \b
     Non-nesting:
-    $ hatch env -l
+    $ hatch env -ll
     Virtual environments found in `/home/ofek/.local/share/hatch/venvs`:
 
     \b

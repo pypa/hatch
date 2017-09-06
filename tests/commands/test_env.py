@@ -117,7 +117,7 @@ def test_pypath_not_exist():
         ) in result.output
 
 
-def test_list_success():
+def test_list_success_1():
     with temp_chdir():
         runner = CliRunner()
 
@@ -140,9 +140,59 @@ def test_list_success():
         assert result.exit_code == 0
         assert (
             '{} ->\n'
+            '  Version: {}'.format(
+                env_name1, get_python_version()
+            )
+        ) in result.output
+
+
+def test_list_success_2():
+    with temp_chdir():
+        runner = CliRunner()
+
+        env_name = os.urandom(10).hex()
+        while os.path.exists(os.path.join(VENV_DIR, env_name)):  # no cov
+            env_name = os.urandom(10).hex()
+
+        try:
+            runner.invoke(hatch, ['env', env_name])
+            result = runner.invoke(hatch, ['env', '-ll'])
+        finally:
+            remove_path(os.path.join(VENV_DIR, env_name))
+
+        assert result.exit_code == 0
+        assert (
+            '{} ->\n'
             '  Version: {}\n'
             '  Implementation: {}'.format(
-                env_name1, get_python_version(), get_python_implementation()
+                env_name, get_python_version(), get_python_implementation()
+            )
+        ) in result.output
+
+
+def test_list_success_3():
+    with temp_chdir():
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', 'ok'])
+
+        env_name = os.urandom(10).hex()
+        while os.path.exists(os.path.join(VENV_DIR, env_name)):  # no cov
+            env_name = os.urandom(10).hex()
+
+        try:
+            runner.invoke(hatch, ['env', env_name])
+            runner.invoke(hatch, ['install', '-l', '-e', env_name])
+            result = runner.invoke(hatch, ['env', '-lll'])
+        finally:
+            remove_path(os.path.join(VENV_DIR, env_name))
+
+        assert result.exit_code == 0
+        assert (
+            '{} ->\n'
+            '  Version: {}\n'
+            '  Implementation: {}\n'
+            '  Local packages: {}'.format(
+                env_name, get_python_version(), get_python_implementation(), 'ok'
             )
         ) in result.output
 

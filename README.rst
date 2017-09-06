@@ -173,7 +173,7 @@ Creating virtual envs is incredibly simple:
     $ hatch env my-app
     Already using interpreter /usr/bin/python3
     Successfully saved virtual env `my-app` to `/home/ofek/.local/share/hatch/venvs/my-app`.
-    $ hatch env -l
+    $ hatch env -ll
     Virtual environments found in /home/ofek/.local/share/hatch/venvs:
 
     my-app ->
@@ -291,7 +291,8 @@ Important changes are emphasized.
 master
 ^^^^^^
 
-- ``env`` command is now quiet by default (option removed) and option ``verbose`` added
+- ``env`` command is now quiet by default (option removed) and option ``-v/--verbose`` added
+- ``env`` command option ``-l/--list`` can now stack
 
 0.5.0
 ^^^^^

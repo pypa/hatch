@@ -273,7 +273,7 @@ Creates a new virtual env that can later be utilized with the ``use`` command.
     Successfully saved virtual env `old` to `/home/ofek/.local/share/hatch/venvs/old`.
     $ hatch env -pp ~/pypy3/bin/pypy fast
     Successfully saved virtual env `fast` to `/home/ofek/.local/share/hatch/venvs/fast`.
-    $ hatch env -l
+    $ hatch env -ll
     Virtual environments found in /home/ofek/.local/share/hatch/venvs:
 
     fast ->
@@ -314,7 +314,7 @@ Creates a new virtual env that can later be utilized with the ``use`` command.
     Increases verbosity.
 
 *-l/--list*
-    Shows available virtual envs.
+    Shows available virtual envs. Can stack up to 3 times to show more info.
 
 ``shed``
 ^^^^^^^^
@@ -327,7 +327,7 @@ Removes named Python paths or virtual environments.
     py2 -> /usr/bin/python
     py3 -> /usr/bin/python3
     invalid -> :\/:
-    $ hatch env -l
+    $ hatch env -ll
     Virtual environments found in /home/ofek/.local/share/hatch/venvs:
 
     duplicate ->
@@ -380,7 +380,7 @@ Non-nesting:
 
 .. code-block:: bash
 
-    $ hatch env -l
+    $ hatch env -ll
     Virtual environments found in `/home/ofek/.local/share/hatch/venvs`:
 
     fast ->
