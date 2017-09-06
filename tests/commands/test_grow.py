@@ -6,7 +6,7 @@ from click.testing import CliRunner
 from hatch.cli import hatch
 from hatch.env import install_packages
 from hatch.settings import (
-    SETTINGS_FILE, copy_default_settings, load_settings, save_settings
+    SETTINGS_FILE, copy_default_settings, save_settings
 )
 from hatch.utils import basepath, temp_chdir, temp_move_path
 from hatch.venv import create_venv, venv
