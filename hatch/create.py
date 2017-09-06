@@ -155,7 +155,7 @@ def create_package(d, package_name, settings):
     for pattern in manifest_files:
         for path in sorted(glob.iglob(os.path.join(d, pattern))):
             if os.path.isfile(path):  # no cov
-                manifest_text += '{}\n'.format(os.path.basename(path))
+                manifest_text += 'include {}\n'.format(os.path.basename(path))
 
     manifest = File('MANIFEST.in', manifest_text)
     manifest.write(d)
