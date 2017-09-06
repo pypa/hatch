@@ -1,11 +1,3 @@
-include AUTHORS*
-include CHANGELOG*
-include CHANGES*
-include CONTRIBUTING*
-include HISTORY*
-include LICENCE*
-include LICENSE*
-include README*
-
-include COMMANDS.rst
-include CONFIG.rst
+include LICENSE-APACHE
+include LICENSE-MIT
+include README.rst
