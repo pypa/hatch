@@ -34,7 +34,13 @@ Config file
 -----------
 
 *shell*
-    The shell name or command to use when activating virtual envs.
+    The shell name or command to use when activating virtual envs. Hatch
+    currently supports custom prompts and behavior for:
+
+    - ``bash``
+    - ``cmd``
+    - ``zsh`` (nesting cannot be prevented)
+    - ``xonsh`` (nesting cannot be prevented)
 
 *nest_shells*
     Whether or not to nest shells, instead of killing them to prevent stacking.
