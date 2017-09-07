@@ -296,7 +296,7 @@ master
 - If the ``release`` command is invoked with no path information, it will
   use a ``current_directory/dist`` directory if it exists before defaulting
   to the current directory.
-- **Fix/Change:** Shedding now uses ``\/`` as a separator instead of a comma for names.
+- **Fix/Change:** Shedding now uses ``/`` as a separator instead of a comma for names.
 
 0.6.0
 ^^^^^
