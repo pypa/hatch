@@ -575,7 +575,8 @@ The path to the build directory is derived in the following order:
 1. The optional argument, which should be the name of a package
    that was installed via ``hatch install -l`` or ``pip install -e``.
 2. The option --path, which can be a relative or absolute path.
-3. The current directory.
+3. The current directory. If the current directory has a ``dist``
+   directory, that will be used instead.
 
 If the path was derived from the optional package argument, the
 files must be in a directory named ``dist``.

@@ -26,6 +26,18 @@ def test_cwd():
         assert result.exit_code == 0
 
 
+def test_cwd_dist_exists():
+    with temp_chdir():
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', PACKAGE_NAME, '--basic'])
+        runner.invoke(hatch, ['build'])
+
+        with env_vars(ENV_VARS):
+            result = runner.invoke(hatch, ['release', '-u', USERNAME, '-t'])
+
+        assert result.exit_code == 0
+
+
 def test_package():
     with temp_chdir() as d:
         runner = CliRunner()

@@ -954,7 +954,8 @@ def release(package, path, username, test_pypi, strict):
     1. The optional argument, which should be the name of a package
        that was installed via `hatch install -l` or `pip install -e`.
     2. The option --path, which can be a relative or absolute path.
-    3. The current directory.
+    3. The current directory. If the current directory has a `dist`
+       directory, that will be used instead.
 
     If the path was derived from the optional package argument, the
     files must be in a directory named `dist`.
@@ -977,6 +978,9 @@ def release(package, path, username, test_pypi, strict):
         path = possible_path
     else:
         path = os.getcwd()
+        default_build_dir = os.path.join(path, 'dist')
+        if os.path.isdir(default_build_dir):
+            path = default_build_dir
 
     if not username:
         try:
