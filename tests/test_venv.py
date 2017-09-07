@@ -24,10 +24,11 @@ def test_get_new_venv_name_single():
 
 
 def test_get_new_venv_name_multiple():
-    names = get_new_venv_name(2)
-    assert len(names) == 2
-    assert names[0] not in os.listdir(VENV_DIR)
-    assert names[1] not in os.listdir(VENV_DIR)
+    current_names = os.listdir(VENV_DIR) if os.path.exists(VENV_DIR) else []
+    new_names = get_new_venv_name(2)
+    assert len(new_names) == 2
+    assert new_names[0] not in current_names
+    assert new_names[1] not in current_names
 
 
 def test_is_venv():
