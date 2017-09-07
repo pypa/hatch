@@ -291,6 +291,9 @@ Important changes are emphasized.
 master
 ^^^^^^
 
+0.6.0
+^^^^^
+
 - ``env`` command is now quiet by default (option removed) and option ``-v/--verbose`` added
 - ``env`` command option ``-l/--list`` can now stack
 - ``build`` command is now quiet by default and option ``-v/--verbose`` added. Also,
