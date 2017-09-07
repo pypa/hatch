@@ -1,6 +1,7 @@
 import os
 import shutil
 import subprocess
+from base64 import urlsafe_b64encode
 from contextlib import contextmanager
 from os.path import isfile
 
@@ -21,6 +22,27 @@ def is_venv(d):
         return False
 
     return True
+
+
+def get_random_venv_name():
+    # Will be length 4, so 16777216 possibilities.
+    return urlsafe_b64encode(os.urandom(3)).decode()
+
+
+def get_new_venv_name(count=1):
+    if not os.path.exists(VENV_DIR):  # no cov
+        return get_random_venv_name()
+
+    current_venvs = set(p.name for p in os.scandir(VENV_DIR))
+    new_venvs = set()
+
+    while len(new_venvs) < count:
+        name = get_random_venv_name()
+        while name in current_venvs or name in new_venvs:  # no cov
+            name = get_random_venv_name()
+        new_venvs.add(name)
+
+    return new_venvs.pop() if count == 1 else sorted(new_venvs)
 
 
 def get_available_venvs():
