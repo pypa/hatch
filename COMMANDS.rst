@@ -546,10 +546,13 @@ The path must contain a ``setup.py`` file.
     Forces a particular platform name, e.g. linux_x86_64.
 
 *-d/--build-dir*
-    An absolute path to the desired build directory.
+    A relative or absolute path to the desired build directory.
 
 *-c/--clean*
     Removes build artifacts before building.
+
+*-v/--verbose*
+    Increases verbosity.
 
 ``release``
 ^^^^^^^^^^^

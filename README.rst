@@ -293,6 +293,8 @@ master
 
 - ``env`` command is now quiet by default (option removed) and option ``-v/--verbose`` added
 - ``env`` command option ``-l/--list`` can now stack
+- ``build`` command is now quiet by default and option ``-v/--verbose`` added. Also,
+  it now shows what files are inside the build directory afterward.
 
 0.5.0
 ^^^^^

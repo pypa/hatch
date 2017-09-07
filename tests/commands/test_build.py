@@ -14,17 +14,29 @@ from hatch.venv import create_venv, venv
 from ..utils import matching_file
 
 
+def format_files(d):
+    return ''.join(
+        '{}\n'.format(path)
+        for path in sorted(os.listdir(d))
+        if os.path.isfile(os.path.join(d, path))
+    )
+
+
 def test_cwd():
     with temp_chdir() as d:
         runner = CliRunner()
         runner.invoke(hatch, ['init', 'ok', '--basic'])
+        build_dir = os.path.join(d, 'dist')
 
         result = runner.invoke(hatch, ['build'])
-        files = os.listdir(os.path.join(d, 'dist'))
+        files = os.listdir(build_dir)
 
         assert result.exit_code == 0
         assert matching_file(r'.*\.whl$', files)
         assert len(files) == 2
+        assert (
+            'Files found in `{}`:\n\n'.format(build_dir) + format_files(build_dir)
+        ) in result.output
 
 
 def test_package():
@@ -32,6 +44,7 @@ def test_package():
         runner = CliRunner()
         runner.invoke(hatch, ['new', 'ok', '--basic'])
         package_dir = os.path.join(d, 'ok')
+        build_dir = os.path.join(package_dir, 'dist')
 
         venv_dir = os.path.join(d, 'venv')
         create_venv(venv_dir)
@@ -42,11 +55,14 @@ def test_package():
             os.chdir(d)
 
             result = runner.invoke(hatch, ['build', 'ok'])
-            files = os.listdir(os.path.join(package_dir, 'dist'))
+            files = os.listdir(build_dir)
 
         assert result.exit_code == 0
         assert matching_file(r'.*\.whl$', files)
         assert len(files) == 2
+        assert (
+            'Files found in `{}`:\n\n'.format(build_dir) + format_files(build_dir)
+        ) in result.output
 
 
 def test_package_not_exist():
@@ -66,13 +82,17 @@ def test_path_relative():
     with temp_chdir() as d:
         runner = CliRunner()
         runner.invoke(hatch, ['new', 'ok', '--basic'])
+        build_dir = os.path.join(d, 'ok', 'dist')
 
         result = runner.invoke(hatch, ['build', '-p', 'ok'])
-        files = os.listdir(os.path.join(d, 'ok', 'dist'))
+        files = os.listdir(build_dir)
 
         assert result.exit_code == 0
         assert matching_file(r'.*\.whl$', files)
         assert len(files) == 2
+        assert (
+            'Files found in `{}`:\n\n'.format(build_dir) + format_files(build_dir)
+        ) in result.output
 
 
 def test_path_full():
@@ -81,14 +101,18 @@ def test_path_full():
         runner.invoke(hatch, ['new', 'ok', '--basic'])
         runner.invoke(hatch, ['new', 'ko', '--basic'])
         package_dir = os.path.join(d, 'ok')
+        build_dir = os.path.join(package_dir, 'dist')
 
         os.chdir(os.path.join(d, 'ko'))
         result = runner.invoke(hatch, ['build', '-p', package_dir])
-        files = os.listdir(os.path.join(package_dir, 'dist'))
+        files = os.listdir(build_dir)
 
         assert result.exit_code == 0
         assert matching_file(r'.*\.whl$', files)
         assert len(files) == 2
+        assert (
+            'Files found in `{}`:\n\n'.format(build_dir) + format_files(build_dir)
+        ) in result.output
 
 
 def test_path_full_not_exist():
@@ -141,18 +165,52 @@ def test_platform_name():
         assert len(files) == 2
 
 
-def test_build_dir():
+def test_build_dir_relative():
     with temp_chdir() as d:
         runner = CliRunner()
         runner.invoke(hatch, ['init', 'ok', '--basic'])
-
         build_dir = os.path.join(d, '_build_dir')
+        os.makedirs(os.path.join(build_dir, 'd'))
+
+        result = runner.invoke(hatch, ['build', '-d', '_build_dir'])
+        files = os.listdir(build_dir)
+
+        assert result.exit_code == 0
+        assert matching_file(r'.*\.whl$', files)
+        assert len(files) == 3
+        assert (
+            'Files found in `{}`:\n\n'.format(build_dir) + format_files(build_dir)
+        ) in result.output
+
+
+def test_build_dir_full():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        build_dir = os.path.join(d, '_build_dir')
+
         result = runner.invoke(hatch, ['build', '-d', build_dir])
         files = os.listdir(build_dir)
 
         assert result.exit_code == 0
         assert matching_file(r'.*\.whl$', files)
         assert len(files) == 2
+        assert (
+            'Files found in `{}`:\n\n'.format(build_dir) + format_files(build_dir)
+        ) in result.output
+
+
+def test_build_dir_file():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        build_dir = os.path.join(d, '_build_dir')
+        create_file(build_dir)
+
+        result = runner.invoke(hatch, ['build', '-d', build_dir])
+
+        assert result.exit_code == 1
+        assert 'Files found in' not in result.output
 
 
 def test_clean():

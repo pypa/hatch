@@ -818,10 +818,12 @@ def clean(package, path, compiled_only, verbose):
 @click.option('-n', '--name',
               help='Forces a particular platform name, e.g. linux_x86_64.')
 @click.option('-d', '--build-dir',
-              help='An absolute path to the desired build directory.')
+              help='A relative or absolute path to the desired build directory.')
 @click.option('-c', '--clean', 'clean_first', is_flag=True,
               help='Removes build artifacts before building.')
-def build(package, path, pyname, pypath, universal, name, build_dir, clean_first):
+@click.option('-v', '--verbose', is_flag=True, help='Increases verbosity.')
+def build(package, path, pyname, pypath, universal, name, build_dir,
+          clean_first, verbose):
     """Builds a project, producing a source distribution and a wheel.
 
     The path to the project is derived in the following order:
@@ -849,6 +851,11 @@ def build(package, path, pyname, pypath, universal, name, build_dir, clean_first
     else:
         path = os.getcwd()
 
+    if build_dir:
+        build_dir = os.path.abspath(build_dir)
+    else:
+        build_dir = os.path.join(path, 'dist')
+
     if pyname:
         try:
             settings = load_settings()
@@ -864,7 +871,15 @@ def build(package, path, pyname, pypath, universal, name, build_dir, clean_first
     if clean_first:
         clean_package(path, editable=package)
 
-    sys.exit(build_package(path, universal, name, build_dir, pypath))
+    return_code = build_package(path, build_dir, universal, name, pypath, verbose)
+
+    if os.path.isdir(build_dir):
+        click.echo('Files found in `{}`:\n'.format(build_dir))
+        for file in sorted(os.listdir(build_dir)):
+            if os.path.isfile(os.path.join(build_dir, file)):
+                click.echo(file)
+
+    sys.exit(return_code)
 
 
 @hatch.command(context_settings=CONTEXT_SETTINGS, short_help='Uploads to PyPI')

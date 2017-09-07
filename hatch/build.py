@@ -3,18 +3,17 @@ import subprocess
 from hatch.utils import NEED_SUBPROCESS_SHELL, chdir, get_proper_python
 
 
-def build_package(d, universal=None, name=None, build_dir=None, pypath=None):
-    command = [
-        pypath or get_proper_python(), 'setup.py', 'sdist'
-    ]
+def build_package(d, build_dir, universal=None, name=None,
+                  pypath=None, verbose=False):
+    command = [pypath or get_proper_python(), 'setup.py']
 
-    if build_dir:
-        command.extend(['--dist-dir', build_dir])
+    if not verbose:  # no cov
+        command.append('--quiet')
 
-    command.append('bdist_wheel')
-
-    if build_dir:
-        command.extend(['--dist-dir', build_dir])
+    command.extend([
+        'sdist', '--dist-dir', build_dir,
+        'bdist_wheel', '--dist-dir', build_dir
+    ])
 
     if universal:
         command.append('--universal')
