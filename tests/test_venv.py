@@ -19,7 +19,8 @@ def test_get_random_venv_name():
 
 
 def test_get_new_venv_name_single():
-    assert get_new_venv_name() not in os.listdir(VENV_DIR)
+    names = os.listdir(VENV_DIR) if os.path.exists(VENV_DIR) else []
+    assert get_new_venv_name() not in names
 
 
 def test_get_new_venv_name_multiple():
