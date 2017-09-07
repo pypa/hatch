@@ -295,6 +295,7 @@ master
 - ``env`` command option ``-l/--list`` can now stack
 - ``build`` command is now quiet by default and option ``-v/--verbose`` added. Also,
   it now shows what files are inside the build directory afterward.
+- Resolving user supplied paths for options is now more robust.
 
 0.5.0
 ^^^^^

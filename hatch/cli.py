@@ -28,7 +28,7 @@ from hatch.shells import IMMORTAL_SHELLS, get_default_shell_info, get_shell_comm
 from hatch.utils import (
     NEED_SUBPROCESS_SHELL, ON_WINDOWS, basepath, chdir, get_admin_command,
     get_proper_pip, get_proper_python, get_requirements_file, remove_path,
-    venv_active
+    resolve_path, venv_active
 )
 from hatch.venv import (
     VENV_DIR, clone_venv, create_venv, fix_available_venvs, get_available_venvs, venv
@@ -573,12 +573,11 @@ def grow(part, package, path, pre_token, build_token):
             click.echo('`{}` is not an editable package.'.format(package))
             sys.exit(1)
     elif path:
-        relative_path = os.path.join(os.getcwd(), basepath(path))
-        if os.path.exists(relative_path):
-            path = relative_path
-        elif not os.path.exists(path):
+        possible_path = resolve_path(path)
+        if not possible_path:
             click.echo('Directory `{}` does not exist.'.format(path))
             sys.exit(1)
+        path = possible_path
     else:
         path = os.getcwd()
 
@@ -683,12 +682,11 @@ def test(package, path, cov, merge, test_args, cov_args, env_aware):
             click.echo('`{}` is not an editable package.'.format(package))
             sys.exit(1)
     elif path:
-        relative_path = os.path.join(os.getcwd(), basepath(path))
-        if os.path.exists(relative_path):
-            path = relative_path
-        elif not os.path.exists(path):
+        possible_path = resolve_path(path)
+        if not possible_path:
             click.echo('Directory `{}` does not exist.'.format(path))
             sys.exit(1)
+        path = possible_path
     else:
         path = os.getcwd()
 
@@ -785,12 +783,11 @@ def clean(package, path, compiled_only, verbose):
             click.echo('`{}` is not an editable package.'.format(package))
             sys.exit(1)
     elif path:
-        relative_path = os.path.join(os.getcwd(), basepath(path))
-        if os.path.exists(relative_path):
-            path = relative_path
-        elif not os.path.exists(path):
+        possible_path = resolve_path(path)
+        if not possible_path:
             click.echo('Directory `{}` does not exist.'.format(path))
             sys.exit(1)
+        path = possible_path
     else:
         path = os.getcwd()
 
@@ -842,12 +839,11 @@ def build(package, path, pyname, pypath, universal, name, build_dir,
             click.echo('`{}` is not an editable package.'.format(package))
             sys.exit(1)
     elif path:
-        relative_path = os.path.join(os.getcwd(), basepath(path))
-        if os.path.exists(relative_path):
-            path = relative_path
-        elif not os.path.exists(path):
+        possible_path = resolve_path(path)
+        if not possible_path:
             click.echo('Directory `{}` does not exist.'.format(path))
             sys.exit(1)
+        path = possible_path
     else:
         path = os.getcwd()
 
@@ -916,12 +912,11 @@ def release(package, path, username, test_pypi, strict):
             sys.exit(1)
         path = os.path.join(path, 'dist')
     elif path:
-        relative_path = os.path.join(os.getcwd(), basepath(path))
-        if os.path.exists(relative_path):
-            path = relative_path
-        elif not os.path.exists(path):
+        possible_path = resolve_path(path)
+        if not possible_path:
             click.echo('Directory `{}` does not exist.'.format(path))
             sys.exit(1)
+        path = possible_path
     else:
         path = os.getcwd()
 
