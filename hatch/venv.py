@@ -31,7 +31,10 @@ def get_random_venv_name():
 
 def get_new_venv_name(count=1):
     if not os.path.exists(VENV_DIR):  # no cov
-        return get_random_venv_name()
+        if count == 1:
+            return get_random_venv_name()
+        else:
+            return sorted(get_random_venv_name() for _ in range(count))
 
     current_venvs = set(p.name for p in os.scandir(VENV_DIR))
     new_venvs = set()
