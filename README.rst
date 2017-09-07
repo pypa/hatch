@@ -293,6 +293,7 @@ master
 
 - Upon project creation, it is now possible to automatically install it
   locally (editable) in a virtual environment.
+- **Fix/Change:** Shedding now uses ``/`` as a separator instead of a comma for names.
 
 0.6.0
 ^^^^^

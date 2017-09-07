@@ -1198,9 +1198,9 @@ def env(name, pyname, pypath, clone, verbose, restore, show):
 @hatch.command(context_settings=CONTEXT_SETTINGS,
                short_help='Removes named Python paths or virtual environments')
 @click.option('-p', '-py', '--pypath', 'pyname',
-              help='Comma-separated list of named Python paths.')
+              help='Forward-slash-separated list of named Python paths.')
 @click.option('-e', '--env', 'env_name',
-              help='Comma-separated list of named virtual envs.')
+              help='Forward-slash-separated list of named virtual envs.')
 @click.pass_context
 def shed(ctx, pyname, env_name):
     """Removes named Python paths or virtual environments.
@@ -1226,7 +1226,7 @@ def shed(ctx, pyname, env_name):
     old ->
       Version: 2.7.12
       Implementation: CPython
-    $ hatch shed -p invalid -e duplicate,old
+    $ hatch shed -p invalid -e duplicate/old
     Successfully removed Python path named `invalid`.
     Successfully removed virtual env named `duplicate`.
     Successfully removed virtual env named `old`.
@@ -1242,7 +1242,7 @@ def shed(ctx, pyname, env_name):
             click.echo('Unable to locate config file. Try `hatch config --restore`.')
             sys.exit(1)
 
-        for pyname in pyname.split(','):
+        for pyname in pyname.split('/'):
             pypath = settings.get('pypaths', {}).pop(pyname, None)
             if pypath is not None:
                 save_settings(settings)
@@ -1251,7 +1251,7 @@ def shed(ctx, pyname, env_name):
                 click.echo('Python path named `{}` already does not exist.'.format(pyname))
 
     if env_name:
-        for env_name in env_name.split(','):
+        for env_name in env_name.split('/'):
             venv_dir = os.path.join(VENV_DIR, env_name)
             if os.path.exists(venv_dir):
                 remove_path(venv_dir)

@@ -54,7 +54,7 @@ def test_pyname_multiple():
             settings['pypaths']['pyname1'] = 'pypath1'
             settings['pypaths']['pyname2'] = 'pypath2'
             save_settings(settings)
-            result = runner.invoke(hatch, ['shed', '-p', 'pyname1,pyname2'])
+            result = runner.invoke(hatch, ['shed', '-p', 'pyname1/pyname2'])
             assert load_settings()['pypaths'] == {}
 
         assert result.exit_code == 0
@@ -119,7 +119,7 @@ def test_env_multiple():
             runner.invoke(hatch, ['env', env_name2])
             assert os.path.exists(venv_dir2)
 
-            result = runner.invoke(hatch, ['shed', '-e', '{},{}'.format(env_name1, env_name2)])
+            result = runner.invoke(hatch, ['shed', '-e', '{}/{}'.format(env_name1, env_name2)])
             assert not os.path.exists(venv_dir1)
             assert not os.path.exists(venv_dir2)
         finally:

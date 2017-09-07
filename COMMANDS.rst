@@ -353,7 +353,7 @@ Removes named Python paths or virtual environments.
     old ->
       Version: 2.7.12
       Implementation: CPython
-    $ hatch shed -p invalid -e duplicate,old
+    $ hatch shed -p invalid -e duplicate/old
     Successfully removed Python path named `invalid`.
     Successfully removed virtual env named `duplicate`.
     Successfully removed virtual env named `old`.
@@ -363,10 +363,10 @@ Removes named Python paths or virtual environments.
     **Options:**
 
 *-p/-py/--pypath*
-    Comma-separated list of named Python paths.
+    Forward-slash-separated list of named Python paths.
 
 *-e/--env*
-    Comma-separated list of named virtual envs.
+    Forward-slash-separated list of named virtual envs.
 
 ``use``
 ^^^^^^^
