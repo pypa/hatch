@@ -17,7 +17,7 @@ from hatch.clean import clean_package, remove_compiled_scripts
 from hatch.create import create_package
 from hatch.env import (
     get_editable_packages, get_editable_package_location, get_installed_packages,
-    get_python_version, get_python_implementation
+    get_python_version, get_python_implementation, install_packages
 )
 from hatch.grow import BUMP, bump_package_version
 from hatch.settings import (
@@ -83,6 +83,12 @@ def config(update_settings, restore):
 @hatch.command(context_settings=CONTEXT_SETTINGS,
                short_help='Creates a new Python project')
 @click.argument('name')
+@click.argument('new_env', required=False)
+@click.option('-e', '--env', 'env_name',
+              help=(
+                  'Forward-slash-separated list of named virtual envs to be '
+                  "installed in. Will create any that don't already exist."
+              ))
 @click.option('--basic', is_flag=True,
               help='Disables third-party services and readme badges.')
 @click.option('--cli', is_flag=True,
@@ -94,12 +100,16 @@ def config(update_settings, restore):
               ))
 @click.option('-l', '--licenses',
               help='Comma-separated list of licenses to use.')
-def new(name, basic, cli, licenses):
+def new(name, new_env, env_name, basic, cli, licenses):
     """Creates a new Python project.
 
     Values from your config file such as `name` and `pyversions` will be used
     to help populate fields. You can also specify things like the readme format
     and which CI service files to create. All options override the config file.
+
+    You can also locally install the created project in a virtual env using
+    the optional argument or the --env option. If the virtual env for the
+    optional argument already exists, an error will be raised.
 
     Here is an example using an unmodified config file:
 
@@ -128,6 +138,15 @@ def new(name, basic, cli, licenses):
         click.echo('Unable to locate config file. Try `hatch config --restore`.')
         sys.exit(1)
 
+    venvs = env_name.split('/') if env_name else []
+    if new_env:
+        venv_dir = os.path.join(VENV_DIR, new_env)
+        if os.path.exists(venv_dir):
+            click.echo('Virtual env `{name}` already exists. To remove '
+                       'it do `hatch shed -e {name}`.'.format(name=new_env))
+            sys.exit(1)
+        venvs.insert(0, new_env)
+
     if basic:
         settings['basic'] = True
 
@@ -148,10 +167,26 @@ def new(name, basic, cli, licenses):
         create_package(d, name, settings)
         click.echo('Created project `{}`'.format(name))
 
+        for vname in venvs:
+            venv_dir = os.path.join(VENV_DIR, vname)
+            if not os.path.exists(venv_dir):
+                click.echo('Creating virtual env `{}`...'.format(vname))
+                create_venv(venv_dir)
+
+            with venv(venv_dir):
+                click.echo('Installing locally in virtual env `{}`...'.format(vname))
+                install_packages(['-q', '-e', '.'])
+
 
 @hatch.command(context_settings=CONTEXT_SETTINGS,
                short_help='Creates a new Python project in the current directory')
 @click.argument('name')
+@click.argument('new_env', required=False)
+@click.option('-e', '--env', 'env_name',
+              help=(
+                  'Forward-slash-separated list of named virtual envs to be '
+                  "installed in. Will create any that don't already exist."
+              ))
 @click.option('--basic', is_flag=True,
               help='Disables third-party services and readme badges.')
 @click.option('--cli', is_flag=True,
@@ -163,12 +198,16 @@ def new(name, basic, cli, licenses):
               ))
 @click.option('-l', '--licenses',
               help='Comma-separated list of licenses to use.')
-def init(name, basic, cli, licenses):
+def init(name, new_env, env_name, basic, cli, licenses):
     """Creates a new Python project in the current directory.
 
     Values from your config file such as `name` and `pyversions` will be used
     to help populate fields. You can also specify things like the readme format
     and which CI service files to create. All options override the config file.
+
+    You can also locally install the created project in a virtual env using
+    the optional argument or the --env option. If the virtual env for the
+    optional argument already exists, an error will be raised.
 
     Here is an example using an unmodified config file:
 
@@ -197,6 +236,15 @@ def init(name, basic, cli, licenses):
         click.echo('Unable to locate config file. Try `hatch config --restore`.')
         sys.exit(1)
 
+    venvs = env_name.split('/') if env_name else []
+    if new_env:
+        venv_dir = os.path.join(VENV_DIR, new_env)
+        if os.path.exists(venv_dir):
+            click.echo('Virtual env `{name}` already exists. To remove '
+                       'it do `hatch shed -e {name}`.'.format(name=new_env))
+            sys.exit(1)
+        venvs.insert(0, new_env)
+
     if basic:
         settings['basic'] = True
 
@@ -207,6 +255,16 @@ def init(name, basic, cli, licenses):
 
     create_package(os.getcwd(), name, settings)
     click.echo('Created project `{}` here'.format(name))
+
+    for vname in venvs:
+        venv_dir = os.path.join(VENV_DIR, vname)
+        if not os.path.exists(venv_dir):
+            click.echo('Creating virtual env `{}`...'.format(vname))
+            create_venv(venv_dir)
+
+        with venv(venv_dir):
+            click.echo('Installing locally in virtual env `{}`...'.format(vname))
+            install_packages(['-q', '-e', '.'])
 
 
 @hatch.command(context_settings=CONTEXT_SETTINGS, short_help='Installs packages')

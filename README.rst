@@ -291,6 +291,9 @@ Important changes are emphasized.
 master
 ^^^^^^
 
+- Upon project creation, it is now possible to automatically install it
+  locally (editable) in a virtual environment.
+
 0.6.0
 ^^^^^
 

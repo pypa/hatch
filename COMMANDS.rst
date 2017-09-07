@@ -32,6 +32,10 @@ Values from your config file such as ``name`` and ``pyversions`` will be used
 to help populate fields. You can also specify things like the readme format
 and which CI service files to create. All options override the config file.
 
+You can also locally install the created project in a virtual env using
+the optional argument or the --env option. If the virtual env for the
+optional argument already exists, an error will be raised.
+
 Here is an example using an unmodified config file:
 
 .. code-block:: bash
@@ -61,9 +65,16 @@ Here is an example using an unmodified config file:
 *name*
     The desired name of package.
 
+*new_env*
+    The virtual env to create and install in (optional).
+
 ..
 
     **Options:**
+
+*-e/--env*
+    Forward-slash-separated list of named virtual envs to be
+    installed in. Will create any that don't already exist.
 
 *--basic*
     Disables third-party services and readme badges.

@@ -3,8 +3,10 @@ import os
 from click.testing import CliRunner
 
 from hatch.cli import hatch
+from hatch.env import get_editable_packages
 from hatch.settings import SETTINGS_FILE, copy_default_settings, save_settings
-from hatch.utils import create_file, temp_chdir, temp_move_path
+from hatch.utils import create_file, remove_path, temp_chdir, temp_move_path
+from hatch.venv import VENV_DIR, create_venv, get_new_venv_name, venv
 from ..utils import matching_file
 
 
@@ -101,3 +103,67 @@ def test_extras():
         assert os.path.exists(os.path.join(d, 'y', 'file2.txt'))
         assert not os.path.exists(os.path.join(d, 'file2.txt'))
         assert not os.path.exists(os.path.join(d, 'file.py'))
+
+
+def test_new_env_exists():
+    with temp_chdir():
+        runner = CliRunner()
+        env_name = get_new_venv_name()
+        venv_dir = os.path.join(VENV_DIR, env_name)
+        os.makedirs(venv_dir)
+
+        try:
+            result = runner.invoke(hatch, ['init', '--basic', 'ok', env_name])
+        finally:
+            remove_path(venv_dir)
+
+        assert result.exit_code == 1
+        assert (
+            'Virtual env `{name}` already exists. To remove '
+            'it do `hatch shed -e {name}`.'.format(name=env_name)
+        ) in result.output
+
+
+def test_new_env():
+    with temp_chdir():
+        runner = CliRunner()
+        env_name = get_new_venv_name()
+        venv_dir = os.path.join(VENV_DIR, env_name)
+
+        try:
+            result = runner.invoke(hatch, ['init', '--basic', 'ok', env_name])
+            with venv(venv_dir):
+                assert 'ok' in get_editable_packages()
+        finally:
+            remove_path(venv_dir)
+
+        assert result.exit_code == 0
+        assert 'Creating virtual env `{}`...'.format(env_name) in result.output
+        assert 'Installing locally in virtual env `{}`...'.format(env_name) in result.output
+
+
+def test_envs():
+    with temp_chdir():
+        runner = CliRunner()
+        env_name1, env_name2 = get_new_venv_name(count=2)
+        venv_dir1 = os.path.join(VENV_DIR, env_name1)
+        venv_dir2 = os.path.join(VENV_DIR, env_name2)
+        create_venv(venv_dir1)
+
+        try:
+            result = runner.invoke(hatch, [
+                'init', '--basic', 'ok', '-e', '{}/{}'.format(env_name1, env_name2)
+            ])
+            with venv(venv_dir1):
+                assert 'ok' in get_editable_packages()
+            with venv(venv_dir2):
+                assert 'ok' in get_editable_packages()
+        finally:
+            remove_path(venv_dir1)
+            remove_path(venv_dir2)
+
+        assert result.exit_code == 0
+        assert 'Creating virtual env `{}`...'.format(env_name1) not in result.output
+        assert 'Creating virtual env `{}`...'.format(env_name2) in result.output
+        assert 'Installing locally in virtual env `{}`...'.format(env_name1) in result.output
+        assert 'Installing locally in virtual env `{}`...'.format(env_name2) in result.output
