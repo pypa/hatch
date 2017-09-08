@@ -1429,6 +1429,9 @@ def use(env_name, command, shell, nest):  # no cov
                                 #
                                 # Killing a spawned shell suspends execution of
                                 # this script due to competition for terminal use.
+                                # To be more precise, we receive a SIGTTIN because
+                                # bash, zsh, etc. is reading from the tty.
+                                #
                                 # Termination works, however only if the spawned
                                 # shell has no active processes. Therefore, we sleep
                                 # shortly to ensure the second `hatch use ...` has
