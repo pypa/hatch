@@ -448,9 +448,9 @@ def update(packages, env_name, eager, all_packages, infra, global_install,
     looking for a `requirements.txt` or a dev version of that in the current
     directory.
 
-    To update this tool, use the --self flag. After the update, you may want
-    to press Enter. All other methods of updating will ignore `hatch`. See:
-    https://github.com/pypa/pip/issues/1299
+    To update this tool, use the --self flag. On Windows, you may want to
+    press Enter after the self update. All other methods of updating will
+    ignore `hatch`. See: https://github.com/pypa/pip/issues/1299
     """
     command = ['install', '--upgrade'] + (['-q'] if quiet else [])
     if not global_install or force:  # no cov
@@ -508,8 +508,12 @@ def update(packages, env_name, eager, all_packages, infra, global_install,
 
     if self:  # no cov
         command.append('hatch')
-        subprocess.Popen(command, shell=NEED_SUBPROCESS_SHELL)
-        sys.exit()
+        if ON_WINDOWS:
+            subprocess.Popen(command, shell=NEED_SUBPROCESS_SHELL)
+            sys.exit()
+        else:
+            result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
+            sys.exit(result.returncode)
     elif infra:
         command.extend(infra_packages)
     elif all_packages:

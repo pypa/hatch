@@ -700,9 +700,9 @@ force the use of these features, use --force.
 With no packages nor options selected, this will update packages by looking
 for a ``requirements.txt`` or a dev version of that in the current directory.
 
-To update this tool, use the --self flag. After the update, you may want
-to press Enter. All other methods of updating will ignore ``hatch``. See:
-`<https://github.com/pypa/pip/issues/1299>`_
+To update this tool, use the --self flag. On Windows, you may want to
+press Enter after the self update. All other methods of updating will
+ignore ``hatch``. See: `<https://github.com/pypa/pip/issues/1299>`_
 
 ..
 

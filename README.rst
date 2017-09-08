@@ -291,6 +291,8 @@ Important changes are emphasized.
 master
 ^^^^^^
 
+- Nicer self updating for Linux.
+
 0.7.0
 ^^^^^
 
