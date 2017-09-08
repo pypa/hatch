@@ -251,7 +251,7 @@ TODO
 
 *issues*
     - I really, really need help with
-      `this <https://github.com/ofek/hatch/blob/5293e418c52fb6b0417fcbff0ea17ccd01bbdab1/hatch/cli.py#L1347-L1363>`_
+      `this <https://github.com/ofek/hatch/blob/870b56bf130d952def1e5f71b7bed22a774c9981/hatch/cli.py#L1426-L1444>`_
       (blocks ``1.0.0``)
 
 *project creation*
