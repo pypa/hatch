@@ -291,6 +291,9 @@ Important changes are emphasized.
 master
 ^^^^^^
 
+0.7.0
+^^^^^
+
 - Upon project creation, it is now possible to automatically install it
   locally (editable) in a virtual environment.
 - If the ``release`` command is invoked with no path information, it will
