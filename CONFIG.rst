@@ -30,6 +30,33 @@ Here is the literal implementation:
                 return 'pip3'
         return 'pip'
 
+Global package management
+-------------------------
+
+To install/uninstall/update packages globally, Hatch runs ``pip`` with elevated
+privileges. On Windows this is done with ``runas``, otherwise ``sudo -H`` is used.
+
+To change the desired name of the admin user, you can set the ``_DEFAULT_ADMIN_``
+environment variable. If this is not set, Windows will assume the user is named
+``Administrator``. On other systems where ``sudo -H`` is used no user will be
+specified.
+
+Here is the literal implementation:
+
+.. code-block:: python
+
+    def get_admin_command():
+        if ON_WINDOWS:
+            return [
+                'runas', r'/user:{}\{}'.format(
+                    platform.node() or os.environ.get('USERDOMAIN', ''),
+                    os.environ.get('_DEFAULT_ADMIN_', 'Administrator')
+                )
+            ]
+        else:
+            admin = os.environ.get('_DEFAULT_ADMIN_', '')
+            return ['sudo', '-H'] + (['--user={}'.format(admin)] if admin else [])
+
 Config file
 -----------
 
