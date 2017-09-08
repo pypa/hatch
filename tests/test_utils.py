@@ -1,9 +1,15 @@
 import os
 
 from hatch.utils import (
-    chdir, create_file, get_current_year, get_requirements_file,
-    normalize_package_name, remove_path, temp_chdir, temp_move_path
+    chdir, create_file, get_current_year, get_random_venv_name,
+    get_requirements_file, normalize_package_name, remove_path,
+    temp_chdir, temp_move_path
 )
+
+
+def test_get_random_venv_name():
+    assert isinstance(get_random_venv_name(), str)
+    assert 3 <= len(get_random_venv_name()) <= 5
 
 
 class TestGetRequirementsFile:

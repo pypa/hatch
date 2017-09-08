@@ -3,6 +3,7 @@ import os
 import platform
 import re
 import shutil
+from base64 import urlsafe_b64encode
 from datetime import datetime
 from contextlib import contextmanager
 from pathlib import Path
@@ -23,6 +24,11 @@ VENV_FLAGS = {
 
 def venv_active():
     return bool(VENV_FLAGS & set(os.environ))
+
+
+def get_random_venv_name():
+    # Will be length 4, so 16777216 possibilities.
+    return urlsafe_b64encode(os.urandom(3)).decode()
 
 
 def get_proper_python():  # no cov

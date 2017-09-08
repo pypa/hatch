@@ -1,7 +1,6 @@
 import os
 import shutil
 import subprocess
-from base64 import urlsafe_b64encode
 from contextlib import contextmanager
 from os.path import isfile
 
@@ -10,7 +9,7 @@ from appdirs import user_data_dir
 from hatch.clean import remove_compiled_scripts
 from hatch.exceptions import InvalidVirtualEnv
 from hatch.env import get_python_path
-from hatch.utils import NEED_SUBPROCESS_SHELL, env_vars
+from hatch.utils import NEED_SUBPROCESS_SHELL, env_vars, get_random_venv_name
 
 VENV_DIR = os.path.join(user_data_dir('hatch', ''), 'venvs')
 
@@ -22,11 +21,6 @@ def is_venv(d):
         return False
 
     return True
-
-
-def get_random_venv_name():
-    # Will be length 4, so 16777216 possibilities.
-    return urlsafe_b64encode(os.urandom(3)).decode()
 
 
 def get_new_venv_name(count=1):

@@ -7,15 +7,9 @@ from hatch.env import get_python_path
 from hatch.structures import File
 from hatch.utils import temp_chdir
 from hatch.venv import (
-    VENV_DIR, create_venv, fix_executable, get_new_venv_name, get_random_venv_name,
-    is_venv, venv
+    VENV_DIR, create_venv, fix_executable, get_new_venv_name, is_venv, venv
 )
 from .utils import read_file
-
-
-def test_get_random_venv_name():
-    assert isinstance(get_random_venv_name(), str)
-    assert 3 <= len(get_random_venv_name()) <= 5
 
 
 def test_get_new_venv_name_single():
