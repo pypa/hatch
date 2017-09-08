@@ -247,18 +247,20 @@ TODO
 
 *meta*
     - start using AppVeyor
-    - next to the snake ascii art, put a ``hatch``\ ed egg
+    - next to the snake ascii art, put a ``hatch``\ ed egg (blocks ``1.0.0``)
 
 *issues*
     - I really, really need help with
       `this <https://github.com/ofek/hatch/blob/5293e418c52fb6b0417fcbff0ea17ccd01bbdab1/hatch/cli.py#L1347-L1363>`_
+      (blocks ``1.0.0``)
 
 *project creation*
     - Support `AppVeyor <https://www.appveyor.com/>`_ and `CircleCI <https://circleci.com/>`_.
     - Minimally support `Mercurial <https://en.wikipedia.org/wiki/Mercurial>`_
 
 *Commands*
-    - ``bench`` - use `<https://github.com/ionelmc/pytest-benchmark>`_
+    - ``bench`` - use `<https://github.com/ionelmc/pytest-benchmark>`_ (blocks ``1.0.0``)
+    - ``python`` - installs the desired version of Python. will work on each platform
     - ``style`` - maybe not needed. use `<https://github.com/PyCQA/flake8>`_
     - ``docs`` - maybe not needed. use `<https://github.com/sphinx-doc/sphinx/>`_
 
