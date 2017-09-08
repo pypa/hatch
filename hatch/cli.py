@@ -467,7 +467,7 @@ def update(packages, env_name, eager, all_packages, infra, global_install,
     if self:  # no cov
         as_module = True
 
-    if env_name:
+    if env_name and not self:
         venv_dir = os.path.join(VENV_DIR, env_name)
         if not os.path.exists(venv_dir):
             click.echo('Virtual env named `{}` does not exist.'.format(env_name))
@@ -475,7 +475,7 @@ def update(packages, env_name, eager, all_packages, infra, global_install,
 
         with venv(venv_dir):
             executable = (
-                [sys.executable if self else get_proper_python(), '-m', 'pip']
+                [get_proper_python(), '-m', 'pip']
                 if as_module or (infra and ON_WINDOWS)
                 else [get_proper_pip()]
             )
@@ -508,11 +508,7 @@ def update(packages, env_name, eager, all_packages, infra, global_install,
 
     if self:  # no cov
         command.append('hatch')
-        if venv_dir:
-            with venv(venv_dir):
-                subprocess.Popen(command, shell=NEED_SUBPROCESS_SHELL)
-        else:
-            subprocess.Popen(command, shell=NEED_SUBPROCESS_SHELL)
+        subprocess.Popen(command, shell=NEED_SUBPROCESS_SHELL)
         sys.exit()
     elif infra:
         command.extend(infra_packages)
