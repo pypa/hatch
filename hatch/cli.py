@@ -1423,9 +1423,8 @@ def use(env_name, command, shell, nest):  # no cov
 
                             if os.path.exists(communication_file):
 
-                                # This is necessary on non-Windows machines. The
-                                # only hint of this situation I was able to find
-                                # on Google was https://unix.stackexchange.com/a/289003
+                                # The only hint of this situation I was able to find on
+                                # Google was https://unix.stackexchange.com/a/289003
                                 #
                                 # Killing a spawned shell suspends execution of
                                 # this script due to competition for terminal use.
@@ -1438,8 +1437,8 @@ def use(env_name, command, shell, nest):  # no cov
                                 # time to write the communication file and exit. On
                                 # some shells, even this doesn't work!
                                 #
-                                # Please, if you know of a workaround, do submit
-                                # an issue/PR or tweet me https://twitter.com/Ofekmeister
+                                # Please, if you know of a workaround, do submit an
+                                # issue/PR or tweet me https://twitter.com/Ofekmeister
                                 #
                                 # Having all shells support the non-nesting workflow
                                 # would be ideal {^.^}
