@@ -44,6 +44,14 @@ UNKNOWN_OPTIONS = {
 }
 
 
+def echo_success(text):
+    click.secho(text, fg='cyan', bold=True)
+
+
+def echo_failure(text):
+    click.secho(text, fg='red', bold=True)
+
+
 @click.group(context_settings=CONTEXT_SETTINGS)
 @click.version_option()
 def hatch():
@@ -69,15 +77,15 @@ def config(update_settings, restore):
             updated_settings = copy_default_settings()
             updated_settings.update(user_settings)
             save_settings(updated_settings)
-            click.echo('Settings were successfully updated.')
+            echo_success('Settings were successfully updated.')
         except FileNotFoundError:
             restore = True
 
     if restore:
         restore_settings()
-        click.echo('Settings were successfully restored.')
+        echo_success('Settings were successfully restored.')
 
-    click.echo('Settings location: ' + SETTINGS_FILE)
+    echo_success('Settings location: ' + SETTINGS_FILE)
 
 
 @hatch.command(context_settings=CONTEXT_SETTINGS,
@@ -135,15 +143,15 @@ def new(name, new_env, env_name, basic, cli, licenses):
     try:
         settings = load_settings()
     except FileNotFoundError:
-        click.echo('Unable to locate config file. Try `hatch config --restore`.')
+        echo_failure('Unable to locate config file. Try `hatch config --restore`.')
         sys.exit(1)
 
     venvs = env_name.split('/') if env_name else []
     if new_env:
         venv_dir = os.path.join(VENV_DIR, new_env)
         if os.path.exists(venv_dir):
-            click.echo('Virtual env `{name}` already exists. To remove '
-                       'it do `hatch shed -e {name}`.'.format(name=new_env))
+            echo_failure('Virtual env `{name}` already exists. To remove '
+                         'it do `hatch shed -e {name}`.'.format(name=new_env))
             sys.exit(1)
         venvs.insert(0, new_env)
 
@@ -159,13 +167,13 @@ def new(name, new_env, env_name, basic, cli, licenses):
     d = os.path.join(origin, name)
 
     if os.path.exists(d):
-        click.echo('Directory `{}` already exists.'.format(d))
+        echo_failure('Directory `{}` already exists.'.format(d))
         sys.exit(1)
 
     os.makedirs(d)
     with chdir(d, cwd=origin):
         create_package(d, name, settings)
-        click.echo('Created project `{}`'.format(name))
+        echo_success('Created project `{}`'.format(name))
 
         for vname in venvs:
             venv_dir = os.path.join(VENV_DIR, vname)
@@ -233,15 +241,15 @@ def init(name, new_env, env_name, basic, cli, licenses):
     try:
         settings = load_settings()
     except FileNotFoundError:
-        click.echo('Unable to locate config file. Try `hatch config --restore`.')
+        echo_failure('Unable to locate config file. Try `hatch config --restore`.')
         sys.exit(1)
 
     venvs = env_name.split('/') if env_name else []
     if new_env:
         venv_dir = os.path.join(VENV_DIR, new_env)
         if os.path.exists(venv_dir):
-            click.echo('Virtual env `{name}` already exists. To remove '
-                       'it do `hatch shed -e {name}`.'.format(name=new_env))
+            echo_failure('Virtual env `{name}` already exists. To remove '
+                         'it do `hatch shed -e {name}`.'.format(name=new_env))
             sys.exit(1)
         venvs.insert(0, new_env)
 
@@ -254,7 +262,7 @@ def init(name, new_env, env_name, basic, cli, licenses):
     settings['cli'] = cli
 
     create_package(os.getcwd(), name, settings)
-    click.echo('Created project `{}` here'.format(name))
+    echo_success('Created project `{}` here'.format(name))
 
     for vname in venvs:
         venv_dir = os.path.join(VENV_DIR, vname)
@@ -305,7 +313,7 @@ def install(packages, env_name, editable, global_install, quiet):
     if env_name:
         venv_dir = os.path.join(VENV_DIR, env_name)
         if not os.path.exists(venv_dir):
-            click.echo('Virtual env named `{}` does not exist.'.format(env_name))
+            echo_failure('Virtual env named `{}` does not exist.'.format(env_name))
             sys.exit(1)
 
         with venv(venv_dir):
@@ -359,7 +367,7 @@ def uninstall(packages, env_name, global_uninstall, dev, quiet, yes):
     if not packages:
         reqs = get_requirements_file(os.getcwd(), dev=dev)
         if not reqs:
-            click.echo('Unable to locate a requirements file.')
+            echo_failure('Unable to locate a requirements file.')
             sys.exit(1)
 
         packages = ['-r', reqs]
@@ -375,7 +383,7 @@ def uninstall(packages, env_name, global_uninstall, dev, quiet, yes):
     if env_name:
         venv_dir = os.path.join(VENV_DIR, env_name)
         if not os.path.exists(venv_dir):
-            click.echo('Virtual env named `{}` does not exist.'.format(env_name))
+            echo_failure('Virtual env named `{}` does not exist.'.format(env_name))
             sys.exit(1)
 
         with venv(venv_dir):
@@ -470,7 +478,7 @@ def update(packages, env_name, eager, all_packages, infra, global_install,
     if env_name and not self:
         venv_dir = os.path.join(VENV_DIR, env_name)
         if not os.path.exists(venv_dir):
-            click.echo('Virtual env named `{}` does not exist.'.format(env_name))
+            echo_failure('Virtual env named `{}` does not exist.'.format(env_name))
             sys.exit(1)
 
         with venv(venv_dir):
@@ -522,13 +530,13 @@ def update(packages, env_name, eager, all_packages, infra, global_install,
             if package not in infra_packages and package != 'hatch'
         ]
         if not installed_packages:
-            click.echo('No packages installed.')
+            echo_failure('No packages installed.')
             sys.exit(1)
         command.extend(installed_packages)
     elif packages:
         packages = [package for package in packages if package != 'hatch']
         if not packages:
-            click.echo('No packages to install.')
+            echo_failure('No packages to install.')
             sys.exit(1)
         command.extend(packages)
 
@@ -536,7 +544,7 @@ def update(packages, env_name, eager, all_packages, infra, global_install,
     else:
         reqs = get_requirements_file(os.getcwd(), dev=dev)
         if not reqs:
-            click.echo('Unable to locate a requirements file.')
+            echo_failure('Unable to locate a requirements file.')
             sys.exit(1)
 
         with open(reqs, 'r') as f:
@@ -628,12 +636,12 @@ def grow(part, package, path, pre_token, build_token):
     if package:
         path = get_editable_package_location(package)
         if not path:
-            click.echo('`{}` is not an editable package.'.format(package))
+            echo_failure('`{}` is not an editable package.'.format(package))
             sys.exit(1)
     elif path:
         possible_path = resolve_path(path)
         if not possible_path:
-            click.echo('Directory `{}` does not exist.'.format(path))
+            echo_failure('Directory `{}` does not exist.'.format(path))
             sys.exit(1)
         path = possible_path
     else:
@@ -652,17 +660,17 @@ def grow(part, package, path, pre_token, build_token):
     )
 
     if new_version:
-        click.echo('Updated {}'.format(f))
-        click.echo('{} -> {}'.format(old_version, new_version))
+        echo_success('Updated {}'.format(f))
+        echo_success('{} -> {}'.format(old_version, new_version))
     else:
         if f:
-            click.echo('Found version files:')
+            echo_failure('Found version files:')
             for file in f:
-                click.echo(file)
-            click.echo('\nUnable to find a version specifier.')
+                echo_failure(file)
+                echo_failure('\nUnable to find a version specifier.')
             sys.exit(1)
         else:
-            click.echo('No version files found.')
+            echo_failure('No version files found.')
             sys.exit(1)
 
 
@@ -737,12 +745,12 @@ def test(package, path, cov, merge, test_args, cov_args, env_aware):
     if package:
         path = get_editable_package_location(package)
         if not path:
-            click.echo('`{}` is not an editable package.'.format(package))
+            echo_failure('`{}` is not an editable package.'.format(package))
             sys.exit(1)
     elif path:
         possible_path = resolve_path(path)
         if not possible_path:
-            click.echo('Directory `{}` does not exist.'.format(path))
+            echo_failure('Directory `{}` does not exist.'.format(path))
             sys.exit(1)
         path = possible_path
     else:
@@ -838,12 +846,12 @@ def clean(package, path, compiled_only, verbose):
     if package:
         path = get_editable_package_location(package)
         if not path:
-            click.echo('`{}` is not an editable package.'.format(package))
+            echo_failure('`{}` is not an editable package.'.format(package))
             sys.exit(1)
     elif path:
         possible_path = resolve_path(path)
         if not possible_path:
-            click.echo('Directory `{}` does not exist.'.format(path))
+            echo_failure('Directory `{}` does not exist.'.format(path))
             sys.exit(1)
         path = possible_path
     else:
@@ -894,12 +902,12 @@ def build(package, path, pyname, pypath, universal, name, build_dir,
     if package:
         path = get_editable_package_location(package)
         if not path:
-            click.echo('`{}` is not an editable package.'.format(package))
+            echo_failure('`{}` is not an editable package.'.format(package))
             sys.exit(1)
     elif path:
         possible_path = resolve_path(path)
         if not possible_path:
-            click.echo('Directory `{}` does not exist.'.format(path))
+            echo_failure('Directory `{}` does not exist.'.format(path))
             sys.exit(1)
         path = possible_path
     else:
@@ -914,12 +922,12 @@ def build(package, path, pyname, pypath, universal, name, build_dir,
         try:
             settings = load_settings()
         except FileNotFoundError:
-            click.echo('Unable to locate config file. Try `hatch config --restore`.')
+            echo_failure('Unable to locate config file. Try `hatch config --restore`.')
             sys.exit(1)
 
         pypath = settings.get('pypaths', {}).get(pyname, None)
         if not pypath:
-            click.echo('Python path named `{}` does not exist or is invalid.'.format(pyname))
+            echo_failure('Python path named `{}` does not exist or is invalid.'.format(pyname))
             sys.exit(1)
 
     if clean_first:
@@ -928,7 +936,7 @@ def build(package, path, pyname, pypath, universal, name, build_dir,
     return_code = build_package(path, build_dir, universal, name, pypath, verbose)
 
     if os.path.isdir(build_dir):
-        click.echo('Files found in `{}`:\n'.format(build_dir))
+        echo_success('Files found in `{}`:\n'.format(build_dir))
         for file in sorted(os.listdir(build_dir)):
             if os.path.isfile(os.path.join(build_dir, file)):
                 click.echo(file)
@@ -967,13 +975,13 @@ def release(package, path, username, test_pypi, strict):
     if package:
         path = get_editable_package_location(package)
         if not path:
-            click.echo('`{}` is not an editable package.'.format(package))
+            echo_failure('`{}` is not an editable package.'.format(package))
             sys.exit(1)
         path = os.path.join(path, 'dist')
     elif path:
         possible_path = resolve_path(path)
         if not possible_path:
-            click.echo('Directory `{}` does not exist.'.format(path))
+            echo_failure('Directory `{}` does not exist.'.format(path))
             sys.exit(1)
         path = possible_path
     else:
@@ -986,12 +994,12 @@ def release(package, path, username, test_pypi, strict):
         try:
             settings = load_settings()
         except FileNotFoundError:
-            click.echo('Unable to locate config file. Try `hatch config --restore`.')
+            echo_failure('Unable to locate config file. Try `hatch config --restore`.')
             sys.exit(1)
 
         username = settings.get('pypi_username', None)
         if not username:
-            click.echo(
+            echo_failure(
                 'A username must be supplied via -u/--username or '
                 'in {} as pypi_username.'.format(SETTINGS_FILE)
             )
@@ -1018,16 +1026,16 @@ def list_pypaths(ctx, param, value):
     try:
         settings = load_settings()
     except FileNotFoundError:
-        click.echo('Unable to locate config file. Try `hatch config --restore`.')
+        echo_failure('Unable to locate config file. Try `hatch config --restore`.')
         sys.exit(1)
 
     pypaths = settings.get('pypaths', {})
     if pypaths:
         for p in pypaths:
-            click.echo('{} -> {}'.format(p, pypaths[p]))
+            echo_success('{} -> {}'.format(p, pypaths[p]))
     else:
-        click.echo('There are no saved Python paths. Add '
-                   'one via `hatch pypath NAME PATH`.')
+        echo_failure('There are no saved Python paths. Add '
+                     'one via `hatch pypath NAME PATH`.')
 
     ctx.exit()
 
@@ -1059,18 +1067,18 @@ def python_path(name, path, show):
     try:
         settings = load_settings()
     except FileNotFoundError:
-        click.echo('Unable to locate config file. Try `hatch config --restore`.')
+        echo_failure('Unable to locate config file. Try `hatch config --restore`.')
         sys.exit(1)
 
     if 'pypaths' not in settings:
         updated_settings = copy_default_settings()
         updated_settings.update(settings)
         settings = updated_settings
-        click.echo('Settings were successfully updated to include `pypaths` entry.')
+        echo_success('Settings were successfully updated to include `pypaths` entry.')
 
     settings['pypaths'][name] = path
     save_settings(settings)
-    click.echo('Successfully saved Python `{}` located at `{}`.'.format(name, path))
+    echo_success('Successfully saved Python `{}` located at `{}`.'.format(name, path))
 
 
 def list_envs(ctx, param, value):
@@ -1080,25 +1088,25 @@ def list_envs(ctx, param, value):
     venvs = get_available_venvs()
 
     if venvs:
-        click.echo('Virtual environments found in `{}`:\n'.format(VENV_DIR))
+        echo_success('Virtual environments found in `{}`:\n'.format(VENV_DIR))
         for venv_name, venv_dir in venvs:
             with venv(venv_dir):
-                click.echo('{} ->'.format(venv_name))
+                echo_success('{} ->'.format(venv_name))
                 if value == 1:
-                    click.echo('  Version: {}'.format(get_python_version()))
+                    echo_success('  Version: {}'.format(get_python_version()))
                 elif value == 2:
-                    click.echo('  Version: {}'.format(get_python_version()))
-                    click.echo('  Implementation: {}'.format(get_python_implementation()))
+                    echo_success('  Version: {}'.format(get_python_version()))
+                    echo_success('  Implementation: {}'.format(get_python_implementation()))
                 else:
-                    click.echo('  Version: {}'.format(get_python_version()))
-                    click.echo('  Implementation: {}'.format(get_python_implementation()))
-                    click.echo('  Local packages: {}'.format(', '.join(sorted(get_editable_packages()))))
+                    echo_success('  Version: {}'.format(get_python_version()))
+                    echo_success('  Implementation: {}'.format(get_python_implementation()))
+                    echo_success('  Local packages: {}'.format(', '.join(sorted(get_editable_packages()))))
 
     # I don't want to move users' virtual environments
     # temporarily for tests as one may be in use.
     else:  # no cov
-        click.echo('No virtual environments found in `{}`. To create '
-                   'one do `hatch env NAME`.'.format(VENV_DIR))
+        echo_failure('No virtual environments found in `{}`. To create '
+                     'one do `hatch env NAME`.'.format(VENV_DIR))
 
     ctx.exit()
 
@@ -1108,7 +1116,7 @@ def restore_envs(ctx, param, value):
         return
 
     fix_available_venvs()
-    click.echo('Successfully restored all available virtual envs.')
+    echo_success('Successfully restored all available virtual envs.')
     ctx.exit()
 
 
@@ -1168,35 +1176,35 @@ def env(name, pyname, pypath, clone, verbose, restore, show):
         try:
             settings = load_settings()
         except FileNotFoundError:
-            click.echo('Unable to locate config file. Try `hatch config --restore`.')
+            echo_failure('Unable to locate config file. Try `hatch config --restore`.')
             sys.exit(1)
 
         pypath = settings.get('pypaths', {}).get(pyname, None)
         if not pypath:
-            click.echo('Unable to find a Python path named `{}`.'.format(pyname))
+            echo_failure('Unable to find a Python path named `{}`.'.format(pyname))
             sys.exit(1)
 
     venv_dir = os.path.join(VENV_DIR, name)
     if os.path.exists(venv_dir):
-        click.echo('Virtual env `{name}` already exists. To remove '
-                   'it do `hatch shed -e {name}`.'.format(name=name))
+        echo_failure('Virtual env `{name}` already exists. To remove '
+                     'it do `hatch shed -e {name}`.'.format(name=name))
         sys.exit(1)
 
     if not clone and not pyname and pypath and not os.path.exists(pypath):
-        click.echo('Python path `{}` does not exist. Be sure to use the absolute path '
-                   'e.g. `/usr/bin/python` instead of simply `python`.'.format(pypath))
+        echo_failure('Python path `{}` does not exist. Be sure to use the absolute path '
+                     'e.g. `/usr/bin/python` instead of simply `python`.'.format(pypath))
         sys.exit(1)
 
     if clone:
         origin = os.path.join(VENV_DIR, clone)
         if not os.path.exists(origin):
-            click.echo('Virtual env `{name}` does not exist.'.format(name=clone))
+            echo_failure('Virtual env `{name}` does not exist.'.format(name=clone))
             sys.exit(1)
         clone_venv(origin, venv_dir)
-        click.echo('Successfully cloned virtual env `{}` from `{}` to {}.'.format(name, clone, venv_dir))
+        echo_success('Successfully cloned virtual env `{}` from `{}` to {}.'.format(name, clone, venv_dir))
     else:
         create_venv(venv_dir, pypath, verbose=verbose)
-        click.echo('Successfully saved virtual env `{}` to `{}`.'.format(name, venv_dir))
+        echo_success('Successfully saved virtual env `{}` to `{}`.'.format(name, venv_dir))
 
 
 @hatch.command(context_settings=CONTEXT_SETTINGS,
@@ -1243,14 +1251,14 @@ def shed(ctx, pyname, env_name):
         try:
             settings = load_settings()
         except FileNotFoundError:
-            click.echo('Unable to locate config file. Try `hatch config --restore`.')
+            echo_failure('Unable to locate config file. Try `hatch config --restore`.')
             sys.exit(1)
 
         for pyname in pyname.split('/'):
             pypath = settings.get('pypaths', {}).pop(pyname, None)
             if pypath is not None:
                 save_settings(settings)
-                click.echo('Successfully removed Python path named `{}`.'.format(pyname))
+                echo_success('Successfully removed Python path named `{}`.'.format(pyname))
             else:
                 click.echo('Python path named `{}` already does not exist.'.format(pyname))
 
@@ -1259,7 +1267,7 @@ def shed(ctx, pyname, env_name):
             venv_dir = os.path.join(VENV_DIR, env_name)
             if os.path.exists(venv_dir):
                 remove_path(venv_dir)
-                click.echo('Successfully removed virtual env named `{}`.'.format(env_name))
+                echo_success('Successfully removed virtual env named `{}`.'.format(env_name))
             else:
                 click.echo('Virtual env named `{}` already does not exist.'.format(env_name))
 
@@ -1378,7 +1386,7 @@ def use(ctx, env_name, command, temp_env, shell, nest):  # no cov
         return
 
     if env_name and temp_env:
-        click.echo('Cannot use more than one virtual env at a time!')
+        echo_failure('Cannot use more than one virtual env at a time!')
         sys.exit(1)
 
     with TemporaryDirectory() as d:
@@ -1394,7 +1402,7 @@ def use(ctx, env_name, command, temp_env, shell, nest):  # no cov
 
             venv_dir = venv_dir or os.path.join(VENV_DIR, env_name)
             if not os.path.exists(venv_dir):
-                click.echo('Virtual env named `{}` does not exist.'.format(env_name))
+                echo_failure('Virtual env named `{}` does not exist.'.format(env_name))
                 sys.exit(1)
 
             result = None
@@ -1421,7 +1429,7 @@ def use(ctx, env_name, command, temp_env, shell, nest):  # no cov
 
             venv_dir = venv_dir or os.path.join(VENV_DIR, env_name)
             if not os.path.exists(venv_dir):
-                click.echo('Virtual env named `{}` does not exist.'.format(env_name))
+                echo_failure('Virtual env named `{}` does not exist.'.format(env_name))
                 sys.exit(1)
 
             with venv(venv_dir):
@@ -1432,8 +1440,8 @@ def use(ctx, env_name, command, temp_env, shell, nest):  # no cov
         # If in activated venv shell, notify main loop and exit.
         if '_HATCH_FILE_' in os.environ:
             if temp_env:
-                click.echo('Can only use a temporary virtual env while a virtual '
-                           'env is already in use when nesting shells, sorry!')
+                echo_failure('Can only use a temporary virtual env while a virtual '
+                             'env is already in use when nesting shells, sorry!')
                 sys.exit(1)
             with atomic_write(os.environ['_HATCH_FILE_'], overwrite=True) as f:
                 data = json.dumps({
@@ -1456,7 +1464,7 @@ def use(ctx, env_name, command, temp_env, shell, nest):  # no cov
         while True:
             venv_dir = venv_dir or os.path.join(VENV_DIR, env_name)
             if not os.path.exists(venv_dir):
-                click.echo('Virtual env named `{}` does not exist.'.format(env_name))
+                echo_failure('Virtual env named `{}` does not exist.'.format(env_name))
                 sys.exit(1)
 
             shell_name, shell_path = get_default_shell_info(shell)

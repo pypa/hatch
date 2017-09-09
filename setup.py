@@ -64,6 +64,7 @@ setup(
         'appdirs',
         'atomicwrites',
         'click',
+        'colorama',
         'coverage',
         'pip>=9.0.1',
         'pytest',
