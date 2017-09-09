@@ -1,4 +1,5 @@
 import os
+import sys
 import shutil
 import subprocess
 from contextlib import contextmanager
@@ -75,7 +76,8 @@ def get_available_venvs():
 
 
 def create_venv(d, pypath=None, verbose=False):
-    command = ['virtualenv', d, '-p', pypath or get_python_path()]
+    command = [sys.executable, '-m', 'virtualenv', d,
+               '-p', pypath or get_python_path()]
     if not verbose:  # no cov
         command.append('--quiet')
     subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
