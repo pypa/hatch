@@ -1360,6 +1360,17 @@ def use(ctx, env_name, command, temp_env, shell, nest):  # no cov
     six        1.10.0
     urllib3    1.22
     wheel      0.29.0
+
+    \b
+    Temporary env:
+    $ hatch use -t
+    Already using interpreter /usr/bin/python3
+    Using base prefix '/usr'
+    New python executable in /tmp/tmpzg73untp/Ihqd/bin/python3
+    Also creating executable in /tmp/tmpzg73untp/Ihqd/bin/python
+    Installing setuptools, pip, wheel...done.
+    $ python -c "import sys;print(sys.executable)"
+    /tmp/tmpzg73untp/Ihqd/bin/python
     """
     if not (env_name or temp_env):
         click.echo(ctx.get_help())

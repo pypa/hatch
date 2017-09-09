@@ -293,6 +293,7 @@ Important changes are emphasized.
 master
 ^^^^^^
 
+- You can now ``use`` a new temporary virtual env via the ``-t/--temp`` option!!!
 - Nicer self updating for Linux.
 
 0.7.0

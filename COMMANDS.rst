@@ -451,6 +451,19 @@ Commands:
     urllib3    1.22
     wheel      0.29.0
 
+Temporary env:
+
+.. code-block:: bash
+
+    $ hatch use -t
+    Already using interpreter /usr/bin/python3
+    Using base prefix '/usr'
+    New python executable in /tmp/tmpzg73untp/Ihqd/bin/python3
+    Also creating executable in /tmp/tmpzg73untp/Ihqd/bin/python
+    Installing setuptools, pip, wheel...done.
+    $ python -c "import sys;print(sys.executable)"
+    /tmp/tmpzg73untp/Ihqd/bin/python
+
 ..
 
     **Arguments:**
@@ -464,6 +477,9 @@ Commands:
 ..
 
     **Options:**
+
+*-t/--temp*
+    Use a new temporary virtual env.
 
 *-s/--shell*
     The name of shell to use e.g. ``bash``. If the shell name is not
