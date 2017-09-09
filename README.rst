@@ -288,6 +288,9 @@ Important changes are emphasized.
 master
 ^^^^^^
 
+0.8.0
+^^^^^
+
 - You can now ``use`` a new temporary virtual env via the ``-t/--temp`` option!!!
 - Pretty terminal colors {^.^}
 - Nicer self updating for Linux.
