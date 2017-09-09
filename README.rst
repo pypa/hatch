@@ -228,16 +228,11 @@ run `this command <https://github.com/ofek/pybin#pybin-put>`_.
 After the first installation, you may want to run ``hatch config --restore`` to
 ensure your config file is available.
 
-Commands
---------
+Guide
+-----
 
-For a complete reference, see `COMMANDS <https://github.com/ofek/hatch/blob/master/COMMANDS.rst>`_
-
-Configuration
--------------
-
-If you would like to learn more about advanced configuration, check out
-`CONFIG <https://github.com/ofek/hatch/blob/master/CONFIG.rst>`_
+- `Command reference <https://github.com/ofek/hatch/blob/master/COMMANDS.rst>`_
+- `Configuration <https://github.com/ofek/hatch/blob/master/CONFIG.rst>`_
 
 Contributing
 ------------
