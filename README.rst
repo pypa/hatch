@@ -288,6 +288,8 @@ Important changes are emphasized.
 master
 ^^^^^^
 
+- ``fish`` shells now support custom prompts!
+
 0.8.0
 ^^^^^
 

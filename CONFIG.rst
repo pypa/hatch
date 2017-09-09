@@ -66,6 +66,7 @@ Config file
 
     - ``bash``
     - ``cmd``
+    - ``fish`` (nesting cannot be prevented)
     - ``zsh`` (nesting cannot be prevented)
     - ``xonsh`` (nesting cannot be prevented)
 
