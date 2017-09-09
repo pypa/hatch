@@ -1,4 +1,6 @@
+import getpass
 import os
+import platform
 import re
 import subprocess
 from contextlib import contextmanager
@@ -73,6 +75,35 @@ def bash_shell(env_name, nest, shell_path):
 
 
 @contextmanager
+def fish_shell(env_name, nest, shell_path):
+    host = platform.node()
+    try:
+        user = getpass.getuser()
+    except:
+        user = os.getlogin()
+
+    old_prompt = os.environ.get(
+        'PS1',
+        get_prompt(
+            [shell_path or 'fish', '-i', '-c', 'fish_prompt'],
+            default='[{}@{} \x1b[32m~\x1b[30m\x1b(B\x1b[m]$ '.format(user, host)
+        )
+    )
+    new_prompt = '({}) {}'.format(env_name, old_prompt)
+
+    if nest:
+        if VENV_TEXT.match(old_prompt):
+            new_prompt = VENV_TEXT.sub('({}) '.format(env_name), old_prompt)
+
+        hatch_level = int(os.environ.get('_HATCH_LEVEL_', 1))
+        if hatch_level > 1:
+            new_prompt = '{} {}'.format(hatch_level, new_prompt)
+
+    with env_vars({'PROMPT': new_prompt}):
+        yield [shell_path or 'zsh']
+
+
+@contextmanager
 def zsh_shell(env_name, nest, shell_path):
     old_prompt = os.environ.get(
         'PROMPT',
@@ -129,6 +160,7 @@ def unknown_shell(shell_name):
 SHELL_COMMANDS = {
     'cmd': cmd_shell,
     'bash': bash_shell,
+    'fish': fish_shell,
     'zsh': zsh_shell,
     'xonsh': xonsh_shell,
 }
