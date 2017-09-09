@@ -27,8 +27,8 @@ from hatch.settings import (
 from hatch.shells import IMMORTAL_SHELLS, get_default_shell_info, get_shell_command
 from hatch.utils import (
     NEED_SUBPROCESS_SHELL, ON_WINDOWS, basepath, chdir, get_admin_command,
-    get_proper_pip, get_proper_python, get_requirements_file, remove_path,
-    resolve_path, venv_active
+    get_proper_pip, get_proper_python, get_random_venv_name, get_requirements_file,
+    remove_path, resolve_path, venv_active
 )
 from hatch.venv import (
     VENV_DIR, clone_venv, create_venv, fix_available_venvs, get_available_venvs, venv
@@ -1266,8 +1266,10 @@ def shed(ctx, pyname, env_name):
 
 @hatch.command(context_settings=UNKNOWN_OPTIONS,
                short_help='Activates or sends a command to a virtual environment')
-@click.argument('env_name')
+@click.argument('env_name', required=False)
 @click.argument('command', required=False, nargs=-1, type=click.UNPROCESSED)
+@click.option('-t', '--temp', 'temp_env', is_flag=True,
+              help='Use a new temporary virtual env.')
 @click.option('-s', '--shell',
               help=(
                   'The name of shell to use e.g. `bash`. If the shell name '
@@ -1282,7 +1284,8 @@ def shed(ctx, pyname, env_name):
                   'be nested. By default the shell will not be nested if possible. '
                   'This flag overrides the config file entry `nest_shells`.'
               ))
-def use(env_name, command, shell, nest):  # no cov
+@click.pass_context
+def use(ctx, env_name, command, temp_env, shell, nest):  # no cov
     """Activates or sends a command to a virtual environment. A default shell
     name (or command) can be specified in the config file entry `shell`. If
     there is no entry nor shell option provided, a system default will be used:
@@ -1358,55 +1361,88 @@ def use(env_name, command, shell, nest):  # no cov
     urllib3    1.22
     wheel      0.29.0
     """
-
-    # Run commands regardless of virtual env activation.
-    if command:
-        venv_dir = os.path.join(VENV_DIR, env_name)
-        if not os.path.exists(venv_dir):
-            click.echo('Virtual env named `{}` does not exist.'.format(env_name))
-            sys.exit(1)
-
-        result = None
-        try:
-            with venv(venv_dir):
-                result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
-        finally:
-            sys.exit(1 if result is None else result.returncode)
-
-    try:
-        settings = load_settings()
-    except FileNotFoundError:
-        settings = {}
-
-    shell_name, shell_path = get_default_shell_info(shell, settings)
-
-    if shell_name in IMMORTAL_SHELLS or nest or (nest is None and settings.get('nest_shells')):
-        venv_dir = os.path.join(VENV_DIR, env_name)
-        if not os.path.exists(venv_dir):
-            click.echo('Virtual env named `{}` does not exist.'.format(env_name))
-            sys.exit(1)
-
-        with venv(venv_dir):
-            with get_shell_command(env_name, shell_name, shell_path, nest=True) as shell_command:
-                subprocess.run(shell_command, shell=NEED_SUBPROCESS_SHELL)
+    if not (env_name or temp_env):
+        click.echo(ctx.get_help())
         return
 
-    # If in activated venv shell, notify main loop and exit.
-    if '_HATCH_FILE_' in os.environ:
-        with atomic_write(os.environ['_HATCH_FILE_'], overwrite=True) as f:
-            data = json.dumps({
-                'env_name': env_name,
-                'shell': shell
-            })
-            f.write(data)
-        return
+    if env_name and temp_env:
+        click.echo('Cannot use more than one virtual env at a time!')
+        sys.exit(1)
 
     with TemporaryDirectory() as d:
+
+        # Run commands regardless of virtual env activation.
+        if command:
+            if temp_env:
+                env_name = get_random_venv_name()
+                venv_dir = os.path.join(d, env_name)
+                create_venv(venv_dir, verbose=True)
+            else:
+                venv_dir = None
+
+            venv_dir = venv_dir or os.path.join(VENV_DIR, env_name)
+            if not os.path.exists(venv_dir):
+                click.echo('Virtual env named `{}` does not exist.'.format(env_name))
+                sys.exit(1)
+
+            result = None
+            try:
+                with venv(venv_dir):
+                    result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
+            finally:
+                sys.exit(1 if result is None else result.returncode)
+
+        try:
+            settings = load_settings()
+        except FileNotFoundError:
+            settings = {}
+
+        shell_name, shell_path = get_default_shell_info(shell, settings)
+
+        if shell_name in IMMORTAL_SHELLS or nest or (nest is None and settings.get('nest_shells')):
+            if temp_env:
+                env_name = get_random_venv_name()
+                venv_dir = os.path.join(d, env_name)
+                create_venv(venv_dir, verbose=True)
+            else:
+                venv_dir = None
+
+            venv_dir = venv_dir or os.path.join(VENV_DIR, env_name)
+            if not os.path.exists(venv_dir):
+                click.echo('Virtual env named `{}` does not exist.'.format(env_name))
+                sys.exit(1)
+
+            with venv(venv_dir):
+                with get_shell_command(env_name, shell_name, shell_path, nest=True) as shell_command:
+                    subprocess.run(shell_command, shell=NEED_SUBPROCESS_SHELL)
+            return
+
+        # If in activated venv shell, notify main loop and exit.
+        if '_HATCH_FILE_' in os.environ:
+            if temp_env:
+                click.echo('Can only use a temporary virtual env while a virtual '
+                           'env is already in use when nesting shells, sorry!')
+                sys.exit(1)
+            with atomic_write(os.environ['_HATCH_FILE_'], overwrite=True) as f:
+                data = json.dumps({
+                    'env_name': env_name,
+                    'shell': shell
+                })
+                f.write(data)
+            return
+
         communication_file = os.path.join(d, 'temp.json')
         evars = {'_HATCH_FILE_': communication_file}
 
+        if temp_env:
+            env_name = get_random_venv_name()
+            venv_dir = os.path.join(d, env_name)
+            create_venv(venv_dir, verbose=True)
+        else:
+            venv_dir = None
+
         while True:
-            venv_dir = os.path.join(VENV_DIR, env_name)
+            venv_dir = venv_dir or os.path.join(VENV_DIR, env_name)
             if not os.path.exists(venv_dir):
                 click.echo('Virtual env named `{}` does not exist.'.format(env_name))
                 sys.exit(1)
@@ -1463,6 +1499,7 @@ def use(env_name, command, shell, nest):  # no cov
                                     args = json.loads(f.read())
                                 env_name = args['env_name']
                                 shell = args['shell']
+                                venv_dir = None
 
                                 remove_path(communication_file)
                                 process.terminate()
