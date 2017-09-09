@@ -378,7 +378,8 @@ there is no entry nor shell option provided, a system default will be used:
 
 Any arguments provided after the first will be sent to the virtual env as
 a command without activating it. If there is only the env without args,
-it will be activated similarly to how you are accustomed.
+it will be activated similarly to how you are accustomed. The name of
+the virtual env to use must be omitted if using the --temp env option.
 
 Activation will not do anything to your current shell, but will rather
 spawn a subprocess to avoid any unwanted strangeness occurring in your
