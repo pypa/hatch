@@ -71,7 +71,7 @@ use of these:
 Features
 --------
 
-- Completely cross-platform \\(\*_^)/
+- Completely cross-platform (terminal colors too!) \\(\*_^)/
 - Configurable project creation! CI service files, readme format/badges, licenses, etc.
 - Easiest virtual environment management available
 - Activation of virtual envs without disruption of current environments
@@ -289,6 +289,7 @@ master
 ^^^^^^
 
 - You can now ``use`` a new temporary virtual env via the ``-t/--temp`` option!!!
+- Pretty terminal colors {^.^}
 - Nicer self updating for Linux.
 
 0.7.0
