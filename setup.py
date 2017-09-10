@@ -66,6 +66,7 @@ setup(
         'click',
         'colorama',
         'coverage',
+        'pexpect',
         'pip>=9.0.1',
         'pytest',
         'semver>=2.7.8',

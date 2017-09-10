@@ -24,7 +24,7 @@ from hatch.settings import (
     SETTINGS_FILE, copy_default_settings, load_settings, restore_settings,
     save_settings
 )
-from hatch.shells import IMMORTAL_SHELLS, get_default_shell_info, get_shell_command
+from hatch.shells import run_shell
 from hatch.utils import (
     NEED_SUBPROCESS_SHELL, ON_WINDOWS, basepath, chdir, get_admin_command,
     get_proper_pip, get_proper_python, get_random_venv_name, get_requirements_file,
@@ -1285,15 +1285,8 @@ def shed(ctx, pyname, env_name):
                   'a command and no custom prompt will be provided. This '
                   'overrides the config file entry `shell`.'
               ))
-@click.option('--nest/--kill', '-n/-k', default=None,
-              help=(
-                  'Whether or not to nest shells, instead of killing them to mirror '
-                  'the infamous activate script\'s behavior. Some shells can only '
-                  'be nested. By default the shell will not be nested if possible. '
-                  'This flag overrides the config file entry `nest_shells`.'
-              ))
 @click.pass_context
-def use(ctx, env_name, command, temp_env, shell, nest):  # no cov
+def use(ctx, env_name, command, temp_env, shell):  # no cov
     """Activates or sends a command to a virtual environment. A default shell
     name (or command) can be specified in the config file entry `shell`. If
     there is no entry nor shell option provided, a system default will be used:
@@ -1312,7 +1305,7 @@ def use(ctx, env_name, command, temp_env, shell, nest):  # no cov
     machines.
 
     \b
-    Non-nesting:
+    Activation:
     $ hatch env -ll
     Virtual environments found in `/home/ofek/.local/share/hatch/venvs`:
 
@@ -1336,16 +1329,6 @@ def use(ctx, env_name, command, temp_env, shell, nest):  # no cov
     (fast) $ python -c "import sys;print(sys.executable)"
     /home/ofek/.local/share/hatch/venvs/fast/bin/python
     (fast) $ exit
-    $
-
-    \b
-    Nesting:
-    $ hatch use my-app
-    (my-app) $ hatch use -n fast
-    2 (fast) $ hatch use -n old
-    3 (old) $ exit
-    2 (fast) $ exit
-    (my-app) $ exit
     $
 
     \b
@@ -1390,16 +1373,14 @@ def use(ctx, env_name, command, temp_env, shell, nest):  # no cov
         sys.exit(1)
 
     with TemporaryDirectory() as d:
+        if temp_env:
+            env_name = get_random_venv_name()
+            venv_dir = os.path.join(d, env_name)
+            create_venv(venv_dir, verbose=True)
+        else:
+            venv_dir = None
 
-        # Run commands regardless of virtual env activation.
         if command:
-            if temp_env:
-                env_name = get_random_venv_name()
-                venv_dir = os.path.join(d, env_name)
-                create_venv(venv_dir, verbose=True)
-            else:
-                venv_dir = None
-
             venv_dir = venv_dir or os.path.join(VENV_DIR, env_name)
             if not os.path.exists(venv_dir):
                 echo_failure('Virtual env named `{}` does not exist.'.format(env_name))
@@ -1411,122 +1392,11 @@ def use(ctx, env_name, command, temp_env, shell, nest):  # no cov
                     result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
             finally:
                 sys.exit(1 if result is None else result.returncode)
-
-        try:
-            settings = load_settings()
-        except FileNotFoundError:
-            settings = {}
-
-        shell_name, shell_path = get_default_shell_info(shell, settings)
-
-        if shell_name in IMMORTAL_SHELLS or nest or (nest is None and settings.get('nest_shells')):
-            if temp_env:
-                env_name = get_random_venv_name()
-                venv_dir = os.path.join(d, env_name)
-                create_venv(venv_dir, verbose=True)
-            else:
-                venv_dir = None
-
-            venv_dir = venv_dir or os.path.join(VENV_DIR, env_name)
-            if not os.path.exists(venv_dir):
-                echo_failure('Virtual env named `{}` does not exist.'.format(env_name))
-                sys.exit(1)
-
-            with venv(venv_dir):
-                with get_shell_command(env_name, shell_name, shell_path, nest=True) as shell_command:
-                    subprocess.run(shell_command, shell=NEED_SUBPROCESS_SHELL)
-            return
-
-        # If in activated venv shell, notify main loop and exit.
-        if '_HATCH_FILE_' in os.environ:
-            if temp_env:
-                echo_failure('Can only use a temporary virtual env while a virtual '
-                             'env is already in use when nesting shells, sorry!')
-                sys.exit(1)
-            with atomic_write(os.environ['_HATCH_FILE_'], overwrite=True) as f:
-                data = json.dumps({
-                    'env_name': env_name,
-                    'shell': shell
-                })
-                f.write(data)
-            return
-
-        communication_file = os.path.join(d, 'temp.json')
-        evars = {'_HATCH_FILE_': communication_file}
-
-        if temp_env:
-            env_name = get_random_venv_name()
-            venv_dir = os.path.join(d, env_name)
-            create_venv(venv_dir, verbose=True)
         else:
-            venv_dir = None
-
-        while True:
             venv_dir = venv_dir or os.path.join(VENV_DIR, env_name)
             if not os.path.exists(venv_dir):
                 echo_failure('Virtual env named `{}` does not exist.'.format(env_name))
                 sys.exit(1)
 
-            shell_name, shell_path = get_default_shell_info(shell)
-
-            with venv(venv_dir, evars=evars):
-                try:
-                    with get_shell_command(env_name, shell_name, shell_path) as shell_command:
-                        process = subprocess.Popen(shell_command)
-                        while True:
-                            if process.poll() is not None:
-                                return
-
-                            if os.path.exists(communication_file):
-
-                                # The only hint of this situation I was able to find on
-                                # Google was https://unix.stackexchange.com/a/289003
-                                #
-                                # Killing a spawned shell suspends execution of
-                                # this script due to competition for terminal use.
-                                # To be more precise, we receive a SIGTTIN because
-                                # bash, zsh, etc. is reading from the tty.
-                                #
-                                # Termination works, however only if the spawned
-                                # shell has no active processes. Therefore, we sleep
-                                # shortly to ensure the second `hatch use ...` has
-                                # time to write the communication file and exit. On
-                                # some shells, even this doesn't work!
-                                #
-                                # Please, if you know of a workaround, do submit an
-                                # issue/PR or tweet me https://twitter.com/Ofekmeister
-                                #
-                                # Having all shells support the non-nesting workflow
-                                # would be ideal {^.^}
-                                time.sleep(0.2)
-
-                                # This is necessary because Windows doesn't like sleeping.
-                                # We get something like this:
-                                #
-                                # C:\Users\Ofek\Desktop>hatch use rft
-                                # (rft) C:\Users\Ofek\Desktop>hatch use st
-                                # (rft) C:\Users\Ofek\Desktop>(st) C:\Users\Ofek\Desktop>
-                                #
-                                # So we hide that last output from the terminated shell
-                                # with a bunch of spaces. #software
-                                if ON_WINDOWS:
-                                    sys.stdout.write('\r{}\r'.format(
-                                        ' ' * (shutil.get_terminal_size()[0] - 1)
-                                    ))
-                                    sys.stdout.flush()
-
-                                with open(communication_file, 'r') as f:
-                                    args = json.loads(f.read())
-                                env_name = args['env_name']
-                                shell = args['shell']
-                                venv_dir = None
-
-                                remove_path(communication_file)
-                                process.terminate()
-                                break
-
-                            # Don't hog users' CPU
-                            else:
-                                time.sleep(0.2)
-                except KeyboardInterrupt:
-                    break
+            with venv(venv_dir)as exe_dir:
+                sys.exit(run_shell(exe_dir, shell))

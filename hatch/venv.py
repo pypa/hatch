@@ -12,6 +12,7 @@ from hatch.env import get_python_path
 from hatch.utils import NEED_SUBPROCESS_SHELL, env_vars, get_random_venv_name
 
 VENV_DIR = os.path.join(user_data_dir('hatch', ''), 'venvs')
+# VENV_DIR = os.path.expanduser('~{}.virtualenvs'.format(os.path.sep))
 
 
 def is_venv(d):
@@ -162,4 +163,4 @@ def venv(d, evars=None):
     evars['_HATCH_LEVEL_'] = str(hatch_level + 1)
 
     with env_vars(evars):
-        yield
+        yield venv_exe_dir
