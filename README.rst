@@ -248,7 +248,9 @@ TODO
 *issues*
     - I really, really need help with
       `this <https://github.com/ofek/hatch/blob/870b56bf130d952def1e5f71b7bed22a774c9981/hatch/cli.py#L1426-L1444>`_
-      (blocks ``1.0.0``)
+      (blocks ``1.0.0``). Whoever solves this will get
+      `all my BTC <https://blockchain.info/address/1ofekLevAMy1GMGvrLETZz9jhvt65ZJro>`_.
+      Occasionally added to, never decreases.
 
 *project creation*
     - Support `AppVeyor <https://www.appveyor.com/>`_ and `CircleCI <https://circleci.com/>`_.
