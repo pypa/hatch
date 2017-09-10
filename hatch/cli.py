@@ -1398,5 +1398,5 @@ def use(ctx, env_name, command, temp_env, shell):  # no cov
                 echo_failure('Virtual env named `{}` does not exist.'.format(env_name))
                 sys.exit(1)
 
-            with venv(venv_dir)as exe_dir:
+            with venv(venv_dir) as exe_dir:
                 sys.exit(run_shell(exe_dir, shell))
