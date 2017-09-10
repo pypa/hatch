@@ -223,7 +223,8 @@ Linux/macOS and Windows and supports Python 3.5+ and PyPy.
 or simply ``pip`` if that already points to a Python 3 version.
 
 If ``hatch`` doesn't work on your system immediately after that, please
-run `this command <https://github.com/ofek/pybin#pybin-put>`_.
+run `this command <https://github.com/ofek/pybin#installation>`_ then
+`this command <https://github.com/ofek/pybin#pybin-put>`_.
 
 After the first installation, you may want to run ``hatch config --restore`` to
 ensure your config file is available.
