@@ -100,7 +100,7 @@ def fish_shell(env_name, nest, shell_path):
             new_prompt = '{} {}'.format(hatch_level, new_prompt)
 
     with env_vars({'PROMPT': new_prompt}):
-        yield [shell_path or 'zsh']
+        yield [shell_path or 'fish']
 
 
 @contextmanager
