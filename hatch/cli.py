@@ -1372,31 +1372,37 @@ def use(ctx, env_name, command, temp_env, shell):  # no cov
         echo_failure('Cannot use more than one virtual env at a time!')
         sys.exit(1)
 
-    with TemporaryDirectory() as d:
-        if temp_env:
-            env_name = get_random_venv_name()
-            venv_dir = os.path.join(d, env_name)
-            create_venv(venv_dir, verbose=True)
+    if temp_env:
+        temp_dir = TemporaryDirectory()
+        env_name = get_random_venv_name()
+        venv_dir = os.path.join(d, env_name)
+        create_venv(venv_dir, verbose=True)
+    else:
+        temp_dir = None
+        venv_dir = None
+
+    if command:
+        venv_dir = venv_dir or os.path.join(VENV_DIR, env_name)
+        if not os.path.exists(venv_dir):
+            echo_failure('Virtual env named `{}` does not exist.'.format(env_name))
+            result = 1
         else:
-            venv_dir = None
-
-        if command:
-            venv_dir = venv_dir or os.path.join(VENV_DIR, env_name)
-            if not os.path.exists(venv_dir):
-                echo_failure('Virtual env named `{}` does not exist.'.format(env_name))
-                sys.exit(1)
-
             result = None
             try:
                 with venv(venv_dir):
                     result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
             finally:
-                sys.exit(1 if result is None else result.returncode)
+                result = 1 if result is None else result.returncode
+    else:
+        venv_dir = venv_dir or os.path.join(VENV_DIR, env_name)
+        if not os.path.exists(venv_dir):
+            echo_failure('Virtual env named `{}` does not exist.'.format(env_name))
+            result = 1
         else:
-            venv_dir = venv_dir or os.path.join(VENV_DIR, env_name)
-            if not os.path.exists(venv_dir):
-                echo_failure('Virtual env named `{}` does not exist.'.format(env_name))
-                sys.exit(1)
-
             with venv(venv_dir) as exe_dir:
-                sys.exit(run_shell(exe_dir, shell))
+                result = run_shell(exe_dir, shell)
+
+    if temp_dir is not None:
+        temp_dir.cleanup()
+
+    sys.exit(result)
