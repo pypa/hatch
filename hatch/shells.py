@@ -110,7 +110,7 @@ def fish_shell(env_name, nest, shell_path):
             new_config += (
                 '\n'
                 'function fish_prompt\n'
-                '    echo {}\n'
+                '    echo "{}"\n'
                 'end\n'.format(new_prompt)
             )
 
