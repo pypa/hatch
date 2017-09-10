@@ -99,8 +99,24 @@ def fish_shell(env_name, nest, shell_path):
         if hatch_level > 1:
             new_prompt = '{} {}'.format(hatch_level, new_prompt)
 
-    with env_vars({'PROMPT': new_prompt}):
-        yield [shell_path or 'fish']
+    with TemporaryDirectory() as d:
+        config_path = os.path.expanduser('~/.config/fish/config.fish')
+        with temp_move_path(config_path, d) as path:
+            new_config = ''
+            if path:
+                with open(path, 'r') as f:
+                    new_config += f.read()
+
+            new_config += (
+                '\n'
+                'function fish_prompt\n'
+                '    echo {}\n'
+                'end\n'.format(new_prompt)
+            )
+
+            with open(config_path, 'w') as f:
+                f.write(new_config)
+            yield [shell_path or 'fish']
 
 
 @contextmanager
