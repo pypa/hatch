@@ -266,6 +266,9 @@ Important changes are emphasized.
 master
 ^^^^^^
 
+0.9.0
+^^^^^
+
 - Hatch now officially supports ``bash``, ``fish``, ``zsh``, ``cmd``,
   ``powershell``, and ``xonsh`` /\*_^\\
 - The location of virtual environments can now be
