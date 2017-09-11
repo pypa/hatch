@@ -266,6 +266,11 @@ Important changes are emphasized.
 master
 ^^^^^^
 
+0.9.1
+^^^^^
+
+- Hatch now uses the proper ``virtualenv`` executable in all circumstances.
+
 0.9.0
 ^^^^^
 
