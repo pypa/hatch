@@ -291,8 +291,11 @@ Important changes are emphasized.
 master
 ^^^^^^
 
+- Hatch now officially supports ``bash``, ``fish``, ``zsh``, ``cmd``,
+  ``powershell``, and ``xonsh`` /\*_^\\
 - The location of virtual environments can now be
   `configured <https://github.com/ofek/hatch/blob/master/CONFIG.rst#virtual-env-location>`_!
+- **Breaking:** Virtual envs can no longer be nested.
 - **Breaking:** Default virtual env location is now ``~/.virtualenvs`` for
   better interoperability with other tools.
 

@@ -73,10 +73,14 @@ Config file
     currently supports custom prompts and behavior for:
 
     - ``bash``
+    - ``fish``
+    - ``zsh``
     - ``cmd``
-    - ``fish`` (nesting cannot be prevented)
-    - ``zsh`` (nesting cannot be prevented)
-    - ``xonsh`` (nesting cannot be prevented)
+    - ``powershell``
+    - ``xonsh``
+
+*venv_dir*
+    The directory to create and look for virtual envs. Also accepts ``shared`` and ``isolated``.
 
 *pypaths*
     Maps names to an absolute path to a Python executable.
