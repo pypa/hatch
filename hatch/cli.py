@@ -1201,9 +1201,11 @@ def env(name, pyname, pypath, clone, verbose, restore, show):
         if not os.path.exists(origin):
             echo_failure('Virtual env `{name}` does not exist.'.format(name=clone))
             sys.exit(1)
+        echo_waiting('Cloning virtual env `{}`...'.format(clone))
         clone_venv(origin, venv_dir)
-        echo_success('Successfully cloned virtual env `{}` from `{}` to {}.'.format(name, clone, venv_dir))
+        echo_success('Successfully cloned virtual env `{}` from `{}` to `{}`.'.format(name, clone, venv_dir))
     else:
+        echo_waiting('Creating virtual env `{}`...'.format(name))
         create_venv(venv_dir, pypath, verbose=verbose)
         echo_success('Successfully saved virtual env `{}` to `{}`.'.format(name, venv_dir))
 
@@ -1392,6 +1394,10 @@ def use(ctx, env_name, command, temp_env, shell):  # no cov
     try:
         if command:
             with venv(venv_dir):
+                echo_waiting('Running `{}` in `{}`...'.format(
+                    ' '.join(c if len(c.split()) == 1 else '"{}"'.format(c) for c in command),
+                    env_name
+                ))
                 result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL).returncode
         else:
             with venv(venv_dir) as exe_dir:
