@@ -97,7 +97,7 @@ Starting a new project is as easy as:
     $ hatch new my-app
     Created project `my-app`
 
-Now you have a fully function package that can be built and distributed.
+Now you have a fully functional package that can be built and distributed.
 
 .. code-block:: bash
 
