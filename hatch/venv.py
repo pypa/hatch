@@ -9,10 +9,27 @@ from appdirs import user_data_dir
 from hatch.clean import remove_compiled_scripts
 from hatch.exceptions import InvalidVirtualEnv
 from hatch.env import get_python_path
+from hatch.settings import load_settings
 from hatch.utils import NEED_SUBPROCESS_SHELL, env_vars, get_random_venv_name
 
-VENV_DIR = os.path.join(user_data_dir('hatch', ''), 'venvs')
-# VENV_DIR = os.path.expanduser('~{}.virtualenvs'.format(os.path.sep))
+VENV_DIR_ISOLATED = os.path.join(user_data_dir('hatch', ''), 'venvs')
+VENV_DIR_SHARED = os.path.expanduser('~{}.virtualenvs'.format(os.path.sep))
+VENV_DIR = VENV_DIR_SHARED
+
+
+def set_venv_dir():  # no cov
+    global VENV_DIR
+    venv_dir = os.environ.get('_VENV_DIR_') or load_settings(lazy=True).get('venv_dir')
+    if venv_dir:
+        if venv_dir == 'isolated':
+            VENV_DIR = VENV_DIR_ISOLATED
+        elif venv_dir == 'shared':
+            VENV_DIR = VENV_DIR_SHARED
+        else:
+            VENV_DIR = venv_dir
+    else:
+        VENV_DIR = VENV_DIR_SHARED
+set_venv_dir()
 
 
 def is_venv(d):
