@@ -291,6 +291,9 @@ Important changes are emphasized.
 master
 ^^^^^^
 
+- **Breaking:** Default virtual env location is now ``~/.virtualenvs`` for
+  better interoperability with other tools.
+
 0.8.0
 ^^^^^
 

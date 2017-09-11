@@ -1,3 +1,11 @@
+Virtual env location
+--------------------
+
+You can modify where virtual envs are discovered with the ``_VENV_DIR_``
+environment variable or the ``venv_dir`` config entry, in that order. You
+can choose ``shared`` (``~/.virtualenvs``), ``isolated``, or a custom
+directory.
+
 Environment awareness
 ---------------------
 
