@@ -180,35 +180,17 @@ Creating virtual envs is incredibly simple:
       Version: 3.5.2
       Implementation: CPython
 
-You can nest activated virtual envs:
+and using them is just as fluid:
 
 .. code-block:: bash
 
-    $ hatch use my-app
-    (my-app) $ hatch use -n fast
-    2 (fast) $ hatch use -n old
-    3 (old) $ exit
-    2 (fast) $ exit
-    (my-app) $ exit
-    $
-
-or use them as usual:
-
-.. code-block:: bash
-
-    $ python -c "import sys;print(sys.executable)"
+    $ which python
     /usr/bin/python
     $ hatch use my-app
-    (my-app) $ python -c "import sys;print(sys.executable)"
+    (my-app) $ which python
     /home/ofek/.virtualenvs/my-app/bin/python
-    (my-app) $ hatch use fast
-    (my-app) $ exit
-    (fast) $ python -c "import sys;print(sys.executable)"
-    /home/ofek/.virtualenvs/fast/bin/python
-    (fast) $ exit
-    $
 
-And so much more!
+Keep reading for so much more!
 
 Installation
 ------------

@@ -405,17 +405,11 @@ Activation:
     old ->
       Version: 2.7.12
       Implementation: CPython
-    $ python -c "import sys;print(sys.executable)"
+    $ which python
     /usr/bin/python
     $ hatch use my-app
-    (my-app) $ python -c "import sys;print(sys.executable)"
+    (my-app) $ which python
     /home/ofek/.virtualenvs/my-app/bin/python
-    (my-app) $ hatch use fast
-    (my-app) $ exit
-    (fast) $ python -c "import sys;print(sys.executable)"
-    /home/ofek/.virtualenvs/fast/bin/python
-    (fast) $ exit
-    $
 
 Commands:
 
@@ -451,7 +445,7 @@ Temporary env:
     New python executable in /tmp/tmpzg73untp/Ihqd/bin/python3
     Also creating executable in /tmp/tmpzg73untp/Ihqd/bin/python
     Installing setuptools, pip, wheel...done.
-    $ python -c "import sys;print(sys.executable)"
+    $ which python
     /tmp/tmpzg73untp/Ihqd/bin/python
 
 ..
