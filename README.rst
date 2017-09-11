@@ -172,9 +172,9 @@ Creating virtual envs is incredibly simple:
 
     $ hatch env my-app
     Already using interpreter /usr/bin/python3
-    Successfully saved virtual env `my-app` to `/home/ofek/.local/share/hatch/venvs/my-app`.
+    Successfully saved virtual env `my-app` to `/home/ofek/.virtualenvs/my-app`.
     $ hatch env -ll
-    Virtual environments found in /home/ofek/.local/share/hatch/venvs:
+    Virtual environments found in /home/ofek/.virtualenvs:
 
     my-app ->
       Version: 3.5.2
@@ -200,11 +200,11 @@ or use them as usual:
     /usr/bin/python
     $ hatch use my-app
     (my-app) $ python -c "import sys;print(sys.executable)"
-    /home/ofek/.local/share/hatch/venvs/my-app/bin/python
+    /home/ofek/.virtualenvs/my-app/bin/python
     (my-app) $ hatch use fast
     (my-app) $ exit
     (fast) $ python -c "import sys;print(sys.executable)"
-    /home/ofek/.local/share/hatch/venvs/fast/bin/python
+    /home/ofek/.virtualenvs/fast/bin/python
     (fast) $ exit
     $
 

@@ -276,16 +276,16 @@ Creates a new virtual env that can later be utilized with the ``use`` command.
     py2 -> /usr/bin/python
     py3 -> /usr/bin/python3
     $ hatch env -l
-    No virtual environments found in /home/ofek/.local/share/hatch/venvs. To create one do `hatch env NAME`.
+    No virtual environments found in /home/ofek/.virtualenvs. To create one do `hatch env NAME`.
     $ hatch env my-app
     Already using interpreter /usr/bin/python3
-    Successfully saved virtual env `my-app` to `/home/ofek/.local/share/hatch/venvs/my-app`.
+    Successfully saved virtual env `my-app` to `/home/ofek/.virtualenvs/my-app`.
     $ hatch env -py py2 old
-    Successfully saved virtual env `old` to `/home/ofek/.local/share/hatch/venvs/old`.
+    Successfully saved virtual env `old` to `/home/ofek/.virtualenvs/old`.
     $ hatch env -pp ~/pypy3/bin/pypy fast
-    Successfully saved virtual env `fast` to `/home/ofek/.local/share/hatch/venvs/fast`.
+    Successfully saved virtual env `fast` to `/home/ofek/.virtualenvs/fast`.
     $ hatch env -ll
-    Virtual environments found in /home/ofek/.local/share/hatch/venvs:
+    Virtual environments found in /home/ofek/.virtualenvs:
 
     fast ->
       Version: 3.5.3
@@ -339,7 +339,7 @@ Removes named Python paths or virtual environments.
     py3 -> /usr/bin/python3
     invalid -> :\/:
     $ hatch env -ll
-    Virtual environments found in /home/ofek/.local/share/hatch/venvs:
+    Virtual environments found in /home/ofek/.virtualenvs:
 
     duplicate ->
       Version: 3.5.2
@@ -372,9 +372,10 @@ Removes named Python paths or virtual environments.
 ^^^^^^^
 
 Activates or sends a command to a virtual environment. A default shell
-name (or command) can be specified in the config file entry ``shell``. If
-there is no entry nor shell option provided, a system default will be used:
-``cmd`` on Windows, ``bash`` otherwise.
+name (or command) can be specified in the config file entry ``shell`` or the
+environment variable ``SHELL``. If there is no entry, env var, nor shell
+option provided, a system default will be used: ``cmd`` on Windows, ``bash``
+otherwise.
 
 Any arguments provided after the first will be sent to the virtual env as
 a command without activating it. If there is only the env without args,
@@ -385,15 +386,15 @@ Activation will not do anything to your current shell, but will rather
 spawn a subprocess to avoid any unwanted strangeness occurring in your
 current environment. If you would like to learn more about the benefits
 of this approach, be sure to read `<https://gist.github.com/datagrok/2199506>`_.
-To leave a virtual env, type ``exit``, or you can do ``Ctrl-D`` on non-Windows
+To leave a virtual env, type ``exit``, or you can do ``Ctrl+D`` on non-Windows
 machines.
 
-Non-nesting:
+Activation:
 
 .. code-block:: bash
 
     $ hatch env -ll
-    Virtual environments found in `/home/ofek/.local/share/hatch/venvs`:
+    Virtual environments found in `/home/ofek/.virtualenvs`:
 
     fast ->
       Version: 3.5.3
@@ -408,24 +409,12 @@ Non-nesting:
     /usr/bin/python
     $ hatch use my-app
     (my-app) $ python -c "import sys;print(sys.executable)"
-    /home/ofek/.local/share/hatch/venvs/my-app/bin/python
+    /home/ofek/.virtualenvs/my-app/bin/python
     (my-app) $ hatch use fast
     (my-app) $ exit
     (fast) $ python -c "import sys;print(sys.executable)"
-    /home/ofek/.local/share/hatch/venvs/fast/bin/python
+    /home/ofek/.virtualenvs/fast/bin/python
     (fast) $ exit
-    $
-
-Nesting:
-
-.. code-block:: bash
-
-    $ hatch use my-app
-    (my-app) $ hatch use -n fast
-    2 (fast) $ hatch use -n old
-    3 (old) $ exit
-    2 (fast) $ exit
-    (my-app) $ exit
     $
 
 Commands:
@@ -487,12 +476,6 @@ Temporary env:
     supported, e.g. ``bash -O``, it will be treated as a command and
     no custom prompt will be provided. This overrides the config file
     entry ``shell``.
-
-*-n, --nest / -k, --kill*
-    Whether or not to nest shells, instead of killing them to mirror the
-    infamous activate script's behavior. Some shells can only be nested. By
-    default the shell will not be nested if possible. This flag overrides
-    the config file entry ``nest_shells``.
 
 ``clean``
 ^^^^^^^^^

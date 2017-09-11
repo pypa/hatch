@@ -1142,16 +1142,16 @@ def env(name, pyname, pypath, clone, verbose, restore, show):
     py2 -> /usr/bin/python
     py3 -> /usr/bin/python3
     $ hatch env -l
-    No virtual environments found in /home/ofek/.local/share/hatch/venvs. To create one do `hatch env NAME`.
+    No virtual environments found in /home/ofek/.virtualenvs. To create one do `hatch env NAME`.
     $ hatch env my-app
     Already using interpreter /usr/bin/python3
-    Successfully saved virtual env `my-app` to `/home/ofek/.local/share/hatch/venvs/my-app`.
+    Successfully saved virtual env `my-app` to `/home/ofek/.virtualenvs/my-app`.
     $ hatch env -py py2 old
-    Successfully saved virtual env `old` to `/home/ofek/.local/share/hatch/venvs/old`.
+    Successfully saved virtual env `old` to `/home/ofek/.virtualenvs/old`.
     $ hatch env -pp ~/pypy3/bin/pypy fast
-    Successfully saved virtual env `fast` to `/home/ofek/.local/share/hatch/venvs/fast`.
+    Successfully saved virtual env `fast` to `/home/ofek/.virtualenvs/fast`.
     $ hatch env -ll
-    Virtual environments found in /home/ofek/.local/share/hatch/venvs:
+    Virtual environments found in /home/ofek/.virtualenvs:
 
     \b
     fast ->
@@ -1215,7 +1215,7 @@ def shed(ctx, pyname, env_name):
     py3 -> /usr/bin/python3
     invalid -> :\/:
     $ hatch env -ll
-    Virtual environments found in /home/ofek/.local/share/hatch/venvs:
+    Virtual environments found in /home/ofek/.virtualenvs:
 
     \b
     duplicate ->
@@ -1280,9 +1280,10 @@ def shed(ctx, pyname, env_name):
 @click.pass_context
 def use(ctx, env_name, command, temp_env, shell):  # no cov
     """Activates or sends a command to a virtual environment. A default shell
-    name (or command) can be specified in the config file entry `shell`. If
-    there is no entry nor shell option provided, a system default will be used:
-    `cmd` on Windows, `bash` otherwise.
+    name (or command) can be specified in the config file entry `shell` or the
+    environment variable `SHELL`. If there is no entry, env var, nor shell
+    option provided, a system default will be used: `cmd` on Windows, `bash`
+    otherwise.
 
     Any arguments provided after the first will be sent to the virtual env as
     a command without activating it. If there is only the env without args,
@@ -1293,13 +1294,13 @@ def use(ctx, env_name, command, temp_env, shell):  # no cov
     spawn a subprocess to avoid any unwanted strangeness occurring in your
     current environment. If you would like to learn more about the benefits
     of this approach, be sure to read https://gist.github.com/datagrok/2199506.
-    To leave a virtual env, type `exit`, or you can do `Ctrl-D` on non-Windows
+    To leave a virtual env, type `exit`, or you can do `Ctrl+D` on non-Windows
     machines.
 
     \b
     Activation:
     $ hatch env -ll
-    Virtual environments found in `/home/ofek/.local/share/hatch/venvs`:
+    Virtual environments found in `/home/ofek/.virtualenvs`:
 
     \b
     fast ->
@@ -1315,11 +1316,11 @@ def use(ctx, env_name, command, temp_env, shell):  # no cov
     /usr/bin/python
     $ hatch use my-app
     (my-app) $ python -c "import sys;print(sys.executable)"
-    /home/ofek/.local/share/hatch/venvs/my-app/bin/python
+    /home/ofek/.virtualenvs/my-app/bin/python
     (my-app) $ hatch use fast
     (my-app) $ exit
     (fast) $ python -c "import sys;print(sys.executable)"
-    /home/ofek/.local/share/hatch/venvs/fast/bin/python
+    /home/ofek/.virtualenvs/fast/bin/python
     (fast) $ exit
     $
 
