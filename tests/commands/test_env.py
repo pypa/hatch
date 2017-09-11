@@ -242,7 +242,7 @@ def test_clone_success():
             remove_path(clone_dir)
 
         assert result.exit_code == 0
-        assert 'Successfully cloned virtual env `{}` from `{}` to {}.'.format(
+        assert 'Successfully cloned virtual env `{}` from `{}` to `{}`.'.format(
             clone, origin, clone_dir) in result.output
         assert 'requests' in installed_packages
         assert 'six' in installed_packages
