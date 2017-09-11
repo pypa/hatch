@@ -1379,30 +1379,23 @@ def use(ctx, env_name, command, temp_env, shell):  # no cov
         create_venv(venv_dir, verbose=True)
     else:
         temp_dir = None
-        venv_dir = None
+        venv_dir = os.path.join(VENV_DIR, env_name)
+        if not os.path.exists(venv_dir):
+            echo_failure('Virtual env named `{}` does not exist.'.format(env_name))
+            sys.exit(1)
 
-    if command:
-        venv_dir = venv_dir or os.path.join(VENV_DIR, env_name)
-        if not os.path.exists(venv_dir):
-            echo_failure('Virtual env named `{}` does not exist.'.format(env_name))
-            result = 1
-        else:
-            result = None
-            try:
-                with venv(venv_dir):
-                    result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
-            finally:
-                result = 1 if result is None else result.returncode
-    else:
-        venv_dir = venv_dir or os.path.join(VENV_DIR, env_name)
-        if not os.path.exists(venv_dir):
-            echo_failure('Virtual env named `{}` does not exist.'.format(env_name))
-            result = 1
+    result = None
+
+    try:
+        if command:
+            with venv(venv_dir):
+                result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL).returncode
         else:
             with venv(venv_dir) as exe_dir:
                 result = run_shell(exe_dir, shell)
-
-    if temp_dir is not None:
-        temp_dir.cleanup()
+    finally:
+        result = 1 if result is None else result
+        if temp_dir is not None:
+            temp_dir.cleanup()
 
     sys.exit(result)
