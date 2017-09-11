@@ -182,7 +182,10 @@ def temp_move_path(path, d):
         try:
             yield dst
         finally:
-            os.replace(dst, path)
+            try:
+                os.replace(dst, path)
+            except OSError:  # no cov
+                shutil.move(dst, path)
     else:
         try:
             yield
