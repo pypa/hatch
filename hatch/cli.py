@@ -1381,6 +1381,7 @@ def use(ctx, env_name, command, temp_env, shell):  # no cov
         temp_dir = TemporaryDirectory()
         env_name = get_random_venv_name()
         venv_dir = os.path.join(temp_dir.name, env_name)
+        echo_waiting('Creating a temporary virtual env named `{}`...'.format(env_name))
         create_venv(venv_dir, verbose=True)
     else:
         temp_dir = None
