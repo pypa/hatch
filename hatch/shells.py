@@ -27,15 +27,16 @@ def cmd_shell(exe_dir, shell_path):
 
 
 def bash_shell(exe_dir, shell_path):
-    def sigwinch_passthrough(sig, data):
-        terminal.setwinsize(*get_terminal_dimensions())
-    signal.signal(signal.SIGWINCH, sigwinch_passthrough)
-
     terminal = pexpect.spawn(
         shell_path or 'bash',
         args=['-i'],
         dimensions=get_terminal_dimensions()
     )
+
+    def sigwinch_passthrough(sig, data):
+        terminal.setwinsize(*get_terminal_dimensions())
+    signal.signal(signal.SIGWINCH, sigwinch_passthrough)
+
     terminal.sendline('source "{}"'.format(os.path.join(exe_dir, 'activate')))
     terminal.interact(escape_character=None)
     terminal.close()
@@ -43,15 +44,16 @@ def bash_shell(exe_dir, shell_path):
 
 
 def fish_shell(exe_dir, shell_path):
-    def sigwinch_passthrough(sig, data):
-        terminal.setwinsize(*get_terminal_dimensions())
-    signal.signal(signal.SIGWINCH, sigwinch_passthrough)
-
     terminal = pexpect.spawn(
         shell_path or 'fish',
         args=['-i'],
         dimensions=get_terminal_dimensions()
     )
+
+    def sigwinch_passthrough(sig, data):
+        terminal.setwinsize(*get_terminal_dimensions())
+    signal.signal(signal.SIGWINCH, sigwinch_passthrough)
+
     terminal.sendline('"{}"'.format(os.path.join(exe_dir, 'activate.fish')))
     terminal.interact(escape_character=None)
     terminal.close()
@@ -59,15 +61,16 @@ def fish_shell(exe_dir, shell_path):
 
 
 def zsh_shell(exe_dir, shell_path):
-    def sigwinch_passthrough(sig, data):
-        terminal.setwinsize(*get_terminal_dimensions())
-    signal.signal(signal.SIGWINCH, sigwinch_passthrough)
-
     terminal = pexpect.spawn(
         shell_path or 'zsh',
         args=['-i'],
         dimensions=get_terminal_dimensions()
     )
+
+    def sigwinch_passthrough(sig, data):
+        terminal.setwinsize(*get_terminal_dimensions())
+    signal.signal(signal.SIGWINCH, sigwinch_passthrough)
+
     terminal.sendline('source "{}"'.format(os.path.join(exe_dir, 'activate')))
     terminal.interact(escape_character=None)
     terminal.close()
