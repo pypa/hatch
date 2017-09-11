@@ -48,6 +48,14 @@ def echo_failure(text):
     click.secho(text, fg='red', bold=True)
 
 
+def echo_warning(text):
+    click.secho(text, fg='yellow', bold=True)
+
+
+def echo_waiting(text):
+    click.secho(text, fg='magenta', bold=True)
+
+
 @click.group(context_settings=CONTEXT_SETTINGS)
 @click.version_option()
 def hatch():
@@ -174,11 +182,11 @@ def new(name, new_env, env_name, basic, cli, licenses):
         for vname in venvs:
             venv_dir = os.path.join(VENV_DIR, vname)
             if not os.path.exists(venv_dir):
-                click.echo('Creating virtual env `{}`...'.format(vname))
+                echo_waiting('Creating virtual env `{}`...'.format(vname))
                 create_venv(venv_dir)
 
             with venv(venv_dir):
-                click.echo('Installing locally in virtual env `{}`...'.format(vname))
+                echo_waiting('Installing locally in virtual env `{}`...'.format(vname))
                 install_packages(['-q', '-e', '.'])
 
 
@@ -263,11 +271,11 @@ def init(name, new_env, env_name, basic, cli, licenses):
     for vname in venvs:
         venv_dir = os.path.join(VENV_DIR, vname)
         if not os.path.exists(venv_dir):
-            click.echo('Creating virtual env `{}`...'.format(vname))
+            echo_waiting('Creating virtual env `{}`...'.format(vname))
             create_venv(venv_dir)
 
         with venv(venv_dir):
-            click.echo('Installing locally in virtual env `{}`...'.format(vname))
+            echo_waiting('Installing locally in virtual env `{}`...'.format(vname))
             install_packages(['-q', '-e', '.'])
 
 
@@ -1253,7 +1261,7 @@ def shed(ctx, pyname, env_name):
                 save_settings(settings)
                 echo_success('Successfully removed Python path named `{}`.'.format(pyname))
             else:
-                click.echo('Python path named `{}` already does not exist.'.format(pyname))
+                echo_warning('Python path named `{}` already does not exist.'.format(pyname))
 
     if env_name:
         for env_name in env_name.split('/'):
@@ -1262,7 +1270,7 @@ def shed(ctx, pyname, env_name):
                 remove_path(venv_dir)
                 echo_success('Successfully removed virtual env named `{}`.'.format(env_name))
             else:
-                click.echo('Virtual env named `{}` already does not exist.'.format(env_name))
+                echo_warning('Virtual env named `{}` already does not exist.'.format(env_name))
 
 
 @hatch.command(context_settings=UNKNOWN_OPTIONS,
