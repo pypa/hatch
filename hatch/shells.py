@@ -26,6 +26,15 @@ def cmd_shell(exe_dir, shell_path):
     return result.returncode
 
 
+def ps_shell(exe_dir, shell_path):
+    result = subprocess.run(
+        [shell_path or 'powershell', '-executionpolicy', 'bypass', '-NoExit',
+         '-NoLogo', '-File', os.path.join(exe_dir, 'activate.ps1')],
+        shell=NEED_SUBPROCESS_SHELL
+    )
+    return result.returncode
+
+
 def bash_shell(exe_dir, shell_path):
     terminal = pexpect.spawn(
         shell_path or 'bash',
@@ -109,6 +118,8 @@ def unknown_shell(shell_name):
 
 SHELL_COMMANDS = {
     'cmd': cmd_shell,
+    'powershell': ps_shell,
+    'ps': ps_shell,
     'bash': bash_shell,
     'fish': fish_shell,
     'zsh': zsh_shell,
