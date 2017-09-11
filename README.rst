@@ -300,24 +300,7 @@ master
   it now shows what files are inside the build directory afterward.
 - Resolving user supplied paths for options is now more robust.
 
-0.5.0
-^^^^^
-
-- **Fix:** using virtual envs no longer uses an abundant amount of CPU
-- Significant improvements to documentation
-- ``MANIFEST.in`` now considers users' files from ``extras`` config entry
-
-0.4.0
-^^^^^
-
-- **Change:** ``egg`` command is now ``new``
-- Removed ``download_url`` attribute from ``setup.py``. See:
-  `<https://github.com/pypa/python-packaging-user-guide/pull/264>`_
-
-0.3.0
-^^^^^
-
-- Initial release
+View `all history <https://github.com/ofek/hatch/blob/master/HISTORY.rst>`_
 
 .. _pytest: https://github.com/pytest-dev
 .. _PyPI: https://pypi.org
