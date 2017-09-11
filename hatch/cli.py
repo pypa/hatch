@@ -997,7 +997,8 @@ def release(package, path, username, test_pypi, strict):
             )
             sys.exit(1)
 
-    command = ['twine', 'upload', '{}{}*'.format(path, os.path.sep), '-u', username]
+    command = [sys.executable, '-m', 'twine', 'upload', '-u', username,
+               '{}{}*'.format(path, os.path.sep)]
 
     if test_pypi:
         command.extend(['-r', TEST_REPOSITORY, '--repository-url', TEST_REPOSITORY])
