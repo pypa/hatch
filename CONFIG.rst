@@ -70,9 +70,6 @@ Config file
     - ``zsh`` (nesting cannot be prevented)
     - ``xonsh`` (nesting cannot be prevented)
 
-*nest_shells*
-    Whether or not to nest shells, instead of killing them to prevent stacking.
-
 *pypaths*
     Maps names to an absolute path to a Python executable.
 
