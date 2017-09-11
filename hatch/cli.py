@@ -1375,7 +1375,7 @@ def use(ctx, env_name, command, temp_env, shell):  # no cov
     if temp_env:
         temp_dir = TemporaryDirectory()
         env_name = get_random_venv_name()
-        venv_dir = os.path.join(d, env_name)
+        venv_dir = os.path.join(temp_dir.name, env_name)
         create_venv(venv_dir, verbose=True)
     else:
         temp_dir = None
