@@ -79,7 +79,7 @@ def zsh_shell(exe_dir, shell_path):
 
 def xonsh_shell(exe_dir, shell_path):
     with TemporaryDirectory() as d:
-        with temp_move_path(os.path.expanduser('~/.xonshrc'), d) as path:
+        with temp_move_path(os.path.expanduser('~{}.xonshrc'.format(os.path.sep)), d) as path:
             new_config = ''
             if path:
                 with open(path, 'r') as f:
