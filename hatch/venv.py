@@ -154,13 +154,11 @@ def venv(d, evars=None):
     venv_exe_dir = locate_exe_dir(d)
 
     evars = evars or {}
+    evars['_HATCHING_'] = '1'
     evars['VIRTUAL_ENV'] = d
     evars['PATH'] = '{}{}{}'.format(
         venv_exe_dir, os.pathsep, os.environ.get('PATH', '')
     )
-
-    hatch_level = int(os.environ.get('_HATCH_LEVEL_', 0))
-    evars['_HATCH_LEVEL_'] = str(hatch_level + 1)
 
     with env_vars(evars):
         yield venv_exe_dir

@@ -85,19 +85,11 @@ def xonsh_shell(exe_dir, shell_path):
                 with open(path, 'r') as f:
                     new_config += f.read()
 
-            hatch_level = int(os.environ.get('_HATCH_LEVEL_', 1))
             env_name = os.path.dirname(exe_dir)
-
-            if hatch_level > 1:
-                new_config += (
-                    '\n$PROMPT_FIELDS["env_name"] = "{hatch_level} ({env_name})"\n'
-                    ''.format(hatch_level=hatch_level, env_name=env_name)
-                )
-            else:
-                new_config += (
-                    '\n$PROMPT_FIELDS["env_name"] = "({env_name})"\n'
-                    ''.format(env_name=env_name)
-                )
+            new_config += (
+                '\n$PROMPT_FIELDS["env_name"] = "({env_name})"\n'
+                ''.format(env_name=env_name)
+            )
 
             new_config_path = os.path.join(d, 'new.xonshrc')
             with open(new_config_path, 'w') as f:
