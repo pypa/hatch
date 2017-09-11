@@ -118,10 +118,7 @@ SHELL_COMMANDS = {
 
 def get_default_shell_info(shell_name=None, settings=None):
     if not shell_name:
-        try:
-            settings = settings or load_settings()
-        except FileNotFoundError:
-            settings = {}
+        settings = settings or load_settings(lazy=True)
 
         shell_name = settings.get('shell')
         if shell_name:

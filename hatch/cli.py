@@ -643,11 +643,7 @@ def grow(part, package, path, pre_token, build_token):
     else:
         path = os.getcwd()
 
-    try:
-        settings = load_settings()
-    except FileNotFoundError:
-        settings = {}
-
+    settings = load_settings(lazy=True)
     pre_token = pre_token or settings.get('semver', {}).get('pre')
     build_token = build_token or settings.get('semver', {}).get('build')
 

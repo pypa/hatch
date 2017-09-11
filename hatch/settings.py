@@ -65,7 +65,9 @@ def copy_default_settings():
     return deepcopy(DEFAULT_SETTINGS)
 
 
-def load_settings():
+def load_settings(lazy=False):
+    if lazy and not os.path.exists(SETTINGS_FILE):
+        return {}
     with open(SETTINGS_FILE, 'r') as f:
         return json.loads(f.read(), object_pairs_hook=OrderedDict)
 
