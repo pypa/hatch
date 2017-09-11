@@ -5,7 +5,7 @@ from click.testing import CliRunner
 from hatch.cli import hatch
 from hatch.env import get_editable_packages
 from hatch.settings import SETTINGS_FILE, copy_default_settings, save_settings
-from hatch.utils import create_file, remove_path, temp_chdir, temp_move_path
+from hatch.utils import create_file, remove_path, temp_chdir, temp_move_path, fix_osx_symlink
 from hatch.venv import VENV_DIR, create_venv, get_new_venv_name, venv
 from ..utils import matching_file
 
@@ -46,7 +46,7 @@ def test_already_exists():
         result = runner.invoke(hatch, ['new', 'ok', '--basic'])
 
         assert result.exit_code == 1
-        assert 'Directory `{}` already exists.'.format(d) in result.output
+        assert 'Directory `{}` already exists.'.format(d) in fix_osx_symlink(result.output)
 
 
 def test_basic():

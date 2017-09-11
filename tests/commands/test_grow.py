@@ -8,7 +8,7 @@ from hatch.env import install_packages
 from hatch.settings import (
     SETTINGS_FILE, copy_default_settings, save_settings
 )
-from hatch.utils import basepath, temp_chdir, temp_move_path
+from hatch.utils import basepath, temp_chdir, temp_move_path, fix_osx_symlink
 from hatch.venv import create_venv, venv
 from ..utils import read_file
 
@@ -24,7 +24,7 @@ def test_invalid_part():
 
         assert result.exit_code == 2
         assert contents == "__version__ = '0.0.1'\n"
-        assert 'invalid choice' in result.output
+        assert 'invalid choice' in fix_osx_symlink(result.output)
 
 
 def test_package_cwd():
@@ -38,8 +38,8 @@ def test_package_cwd():
 
         assert result.exit_code == 0
         assert contents == "__version__ = '0.1.0'\n"
-        assert 'Updated {}'.format(init_file) in result.output
-        assert '0.0.1 -> 0.1.0' in result.output
+        assert 'Updated {}'.format(init_file) in fix_osx_symlink(result.output)
+        assert '0.0.1 -> 0.1.0' in fix_osx_symlink(result.output)
 
 
 def test_package_cwd_about():
@@ -56,8 +56,8 @@ def test_package_cwd_about():
         assert result.exit_code == 0
         assert read_file(init_file) == "__version__ = '0.0.1'\n"
         assert read_file(about_file) == "__version__ = '0.1.0'\n"
-        assert 'Updated {}'.format(about_file) in result.output
-        assert '0.0.1 -> 0.1.0' in result.output
+        assert 'Updated {}'.format(about_file) in fix_osx_symlink(result.output)
+        assert '0.0.1 -> 0.1.0' in fix_osx_symlink(result.output)
 
 
 def test_package_cwd_version():
@@ -77,8 +77,8 @@ def test_package_cwd_version():
         assert read_file(init_file) == "__version__ = '0.0.1'\n"
         assert read_file(about_file) == "__version__ = '0.0.1'\n"
         assert read_file(version_file) == "__version__ = '0.1.0'\n"
-        assert 'Updated {}'.format(version_file) in result.output
-        assert '0.0.1 -> 0.1.0' in result.output
+        assert 'Updated {}'.format(version_file) in fix_osx_symlink(result.output)
+        assert '0.0.1 -> 0.1.0' in fix_osx_symlink(result.output)
 
 
 def test_package_path():
@@ -99,8 +99,8 @@ def test_package_path():
         assert result.exit_code == 0
         assert read_file(priority_file) == "__version__ = '0.0.1'\n"
         assert read_file(package_file) == "__version__ = '0.1.0'\n"
-        assert 'Updated {}'.format(package_file) in result.output
-        assert '0.0.1 -> 0.1.0' in result.output
+        assert 'Updated {}'.format(package_file) in fix_osx_symlink(result.output)
+        assert '0.0.1 -> 0.1.0' in fix_osx_symlink(result.output)
 
 
 def test_src_package_path():
@@ -126,8 +126,8 @@ def test_src_package_path():
         assert read_file(priority_file) == "__version__ = '0.0.1'\n"
         assert read_file(package_file) == "__version__ = '0.0.1'\n"
         assert read_file(src_package_file) == "__version__ = '0.1.0'\n"
-        assert 'Updated {}'.format(src_package_file) in result.output
-        assert '0.0.1 -> 0.1.0' in result.output
+        assert 'Updated {}'.format(src_package_file) in fix_osx_symlink(result.output)
+        assert '0.0.1 -> 0.1.0' in fix_osx_symlink(result.output)
 
 
 def test_init_cwd():
@@ -142,8 +142,8 @@ def test_init_cwd():
 
         assert result.exit_code == 0
         assert contents == "__version__ = '0.0.2'\n"
-        assert 'Updated {}'.format(init_file) in result.output
-        assert '0.0.1 -> 0.0.2' in result.output
+        assert 'Updated {}'.format(init_file) in fix_osx_symlink(result.output)
+        assert '0.0.1 -> 0.0.2' in fix_osx_symlink(result.output)
 
 
 def test_package():
@@ -165,8 +165,8 @@ def test_package():
 
         assert result.exit_code == 0
         assert contents == "__version__ = '0.0.2'\n"
-        assert 'Updated {}'.format(init_file) in result.output
-        assert '0.0.1 -> 0.0.2' in result.output
+        assert 'Updated {}'.format(init_file) in fix_osx_symlink(result.output)
+        assert '0.0.1 -> 0.0.2' in fix_osx_symlink(result.output)
 
 
 def test_package_not_exist():
@@ -179,7 +179,7 @@ def test_package_not_exist():
             result = runner.invoke(hatch, ['grow', 'fix', 'ok'])
 
         assert result.exit_code == 1
-        assert '`{}` is not an editable package.'.format('ok') in result.output
+        assert '`{}` is not an editable package.'.format('ok') in fix_osx_symlink(result.output)
 
 
 def test_path_relative():
@@ -193,8 +193,8 @@ def test_path_relative():
 
         assert result.exit_code == 0
         assert contents == "__version__ = '1.0.0'\n"
-        assert 'Updated {}'.format(init_file) in result.output
-        assert '0.0.1 -> 1.0.0' in result.output
+        assert 'Updated {}'.format(init_file) in fix_osx_symlink(result.output)
+        assert '0.0.1 -> 1.0.0' in fix_osx_symlink(result.output)
 
 
 def test_path_full():
@@ -213,8 +213,8 @@ def test_path_full():
 
         assert result.exit_code == 0
         assert contents == "__version__ = '0.0.2'\n"
-        assert 'Updated {}'.format(init_file) in result.output
-        assert '0.0.1 -> 0.0.2' in result.output
+        assert 'Updated {}'.format(init_file) in fix_osx_symlink(result.output)
+        assert '0.0.1 -> 0.0.2' in fix_osx_symlink(result.output)
 
 
 def test_path_full_not_exist():
@@ -229,7 +229,7 @@ def test_path_full_not_exist():
 
         assert result.exit_code == 1
         assert contents == "__version__ = '0.0.1'\n"
-        assert 'Directory `{}` does not exist.'.format(full_path) in result.output
+        assert 'Directory `{}` does not exist.'.format(full_path) in fix_osx_symlink(result.output)
 
 
 def test_path_file():
@@ -243,8 +243,8 @@ def test_path_file():
 
         assert result.exit_code == 0
         assert contents == "__version__ = '1.0.0'\n"
-        assert 'Updated {}'.format(init_file) in result.output
-        assert '0.0.1 -> 1.0.0' in result.output
+        assert 'Updated {}'.format(init_file) in fix_osx_symlink(result.output)
+        assert '0.0.1 -> 1.0.0' in fix_osx_symlink(result.output)
 
 
 def test_no_init():
@@ -258,7 +258,7 @@ def test_no_init():
 
         assert result.exit_code == 1
         assert contents == "__version__ = '0.0.1'\n"
-        assert 'No version files found.' in result.output
+        assert 'No version files found.' in fix_osx_symlink(result.output)
 
 
 def test_no_version():
@@ -270,9 +270,9 @@ def test_no_version():
         result = runner.invoke(hatch, ['grow', 'fix'])
 
         assert result.exit_code == 1
-        assert 'Found version files:' in result.output
-        assert os.path.join(d, 'tests', '__init__.py') in result.output
-        assert 'Unable to find a version specifier.' in result.output
+        assert 'Found version files:' in fix_osx_symlink(result.output)
+        assert os.path.join(d, 'tests', '__init__.py') in fix_osx_symlink(result.output)
+        assert 'Unable to find a version specifier.' in fix_osx_symlink(result.output)
 
 
 def test_multi_line_init():
@@ -285,7 +285,7 @@ def test_multi_line_init():
         result = runner.invoke(hatch, ['grow', 'fix'])
 
         assert result.exit_code == 1
-        assert 'Unable to find a version specifier.' in result.output
+        assert 'Unable to find a version specifier.' in fix_osx_symlink(result.output)
 
 
 def test_no_match():
@@ -298,7 +298,7 @@ def test_no_match():
         result = runner.invoke(hatch, ['grow', 'fix'])
 
         assert result.exit_code == 1
-        assert 'Unable to find a version specifier.' in result.output
+        assert 'Unable to find a version specifier.' in fix_osx_symlink(result.output)
 
 
 def test_pre_config():
@@ -316,8 +316,8 @@ def test_pre_config():
 
         assert result.exit_code == 0
         assert contents == "__version__ = '0.0.1-dev.1'\n"
-        assert 'Updated {}'.format(init_file) in result.output
-        assert '0.0.1 -> 0.0.1-dev.1' in result.output
+        assert 'Updated {}'.format(init_file) in fix_osx_symlink(result.output)
+        assert '0.0.1 -> 0.0.1-dev.1' in fix_osx_symlink(result.output)
 
 
 def test_pre_option():
@@ -335,8 +335,8 @@ def test_pre_option():
 
         assert result.exit_code == 0
         assert contents == "__version__ = '0.0.1-dev.1'\n"
-        assert 'Updated {}'.format(init_file) in result.output
-        assert '0.0.1 -> 0.0.1-dev.1' in result.output
+        assert 'Updated {}'.format(init_file) in fix_osx_symlink(result.output)
+        assert '0.0.1 -> 0.0.1-dev.1' in fix_osx_symlink(result.output)
 
 
 def test_build_config():
@@ -354,8 +354,8 @@ def test_build_config():
 
         assert result.exit_code == 0
         assert contents == "__version__ = '0.0.1+nightly.1'\n"
-        assert 'Updated {}'.format(init_file) in result.output
-        assert '0.0.1 -> 0.0.1+nightly.1' in result.output
+        assert 'Updated {}'.format(init_file) in fix_osx_symlink(result.output)
+        assert '0.0.1 -> 0.0.1+nightly.1' in fix_osx_symlink(result.output)
 
 
 def test_build_option():
@@ -373,8 +373,8 @@ def test_build_option():
 
         assert result.exit_code == 0
         assert contents == "__version__ = '0.0.1+nightly.1'\n"
-        assert 'Updated {}'.format(init_file) in result.output
-        assert '0.0.1 -> 0.0.1+nightly.1' in result.output
+        assert 'Updated {}'.format(init_file) in fix_osx_symlink(result.output)
+        assert '0.0.1 -> 0.0.1+nightly.1' in fix_osx_symlink(result.output)
 
 
 def test_no_config():
@@ -389,5 +389,5 @@ def test_no_config():
 
         assert result.exit_code == 0
         assert contents == "__version__ = '0.0.1-rc.1'\n"
-        assert 'Updated {}'.format(init_file) in result.output
-        assert '0.0.1 -> 0.0.1-rc.1' in result.output
+        assert 'Updated {}'.format(init_file) in fix_osx_symlink(result.output)
+        assert '0.0.1 -> 0.0.1-rc.1' in fix_osx_symlink(result.output)
