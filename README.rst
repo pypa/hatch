@@ -291,6 +291,8 @@ Important changes are emphasized.
 master
 ^^^^^^
 
+- The location of virtual environments can now be
+  `configured <https://github.com/ofek/hatch/blob/master/CONFIG.rst#virtual-env-location>`_!
 - **Breaking:** Default virtual env location is now ``~/.virtualenvs`` for
   better interoperability with other tools.
 
