@@ -1368,7 +1368,7 @@ def use(ctx, env_name, command, temp_env, shell):  # no cov
         echo_failure('Cannot use more than one virtual env at a time!')
         sys.exit(1)
 
-    if not command and venv_active():
+    if not command and '_HATCHING_' in os.environ:
         echo_failure(
             'Virtual environments cannot be nested, sorry! To leave '
             'the current one type `exit` or press `Ctrl+D`.'
