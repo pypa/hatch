@@ -1,15 +1,11 @@
-import json
 import io
 import os
 import re
-import shutil
 import subprocess
 import sys
-import time
 from tempfile import TemporaryDirectory
 
 import click
-from atomicwrites import atomic_write
 from twine.utils import DEFAULT_REPOSITORY, TEST_REPOSITORY
 
 from hatch.build import build_package
@@ -1372,6 +1368,13 @@ def use(ctx, env_name, command, temp_env, shell):  # no cov
         echo_failure('Cannot use more than one virtual env at a time!')
         sys.exit(1)
 
+    if not command and '_HATCHING_' in os.environ:
+        echo_failure(
+            'Virtual environments cannot be nested, sorry! To leave '
+            'the current one type `exit` or press `Ctrl+D`.'
+        )
+        sys.exit(1)
+
     if temp_env:
         temp_dir = TemporaryDirectory()
         env_name = get_random_venv_name()
@@ -1394,8 +1397,8 @@ def use(ctx, env_name, command, temp_env, shell):  # no cov
             with venv(venv_dir) as exe_dir:
                 result = run_shell(exe_dir, shell)
     finally:
-        result = 1 if result is None else result
         if temp_dir is not None:
             temp_dir.cleanup()
 
+    result = 1 if result is None else result
     sys.exit(result)
