@@ -7,12 +7,14 @@ from hatch.env import install_packages
 from hatch.settings import SETTINGS_FILE, copy_default_settings, save_settings
 from hatch.utils import env_vars, temp_chdir, temp_move_path
 from hatch.venv import create_venv, venv
+from ..utils import requires_internet
 
 PACKAGE_NAME = 'e00f69943529ccc38058'
 USERNAME = 'Ofekmeister'
 ENV_VARS = {'TWINE_PASSWORD': 'badpwbestpw'}
 
 
+@requires_internet
 def test_cwd():
     with temp_chdir() as d:
         runner = CliRunner()
@@ -26,6 +28,7 @@ def test_cwd():
         assert result.exit_code == 0
 
 
+@requires_internet
 def test_cwd_dist_exists():
     with temp_chdir():
         runner = CliRunner()
@@ -38,6 +41,7 @@ def test_cwd_dist_exists():
         assert result.exit_code == 0
 
 
+@requires_internet
 def test_package():
     with temp_chdir() as d:
         runner = CliRunner()
@@ -71,6 +75,7 @@ def test_package_not_exist():
         assert '`{}` is not an editable package.'.format(PACKAGE_NAME) in result.output
 
 
+@requires_internet
 def test_path_relative():
     with temp_chdir():
         runner = CliRunner()
@@ -84,6 +89,7 @@ def test_path_relative():
         assert result.exit_code == 0
 
 
+@requires_internet
 def test_path_full():
     with temp_chdir() as d:
         runner = CliRunner()
@@ -111,6 +117,7 @@ def test_path_full_not_exist():
         assert 'Directory `{}` does not exist.'.format(full_path) in result.output
 
 
+@requires_internet
 def test_config_username():
     with temp_chdir() as d:
         runner = CliRunner()

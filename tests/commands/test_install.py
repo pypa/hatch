@@ -6,6 +6,7 @@ from hatch.cli import hatch
 from hatch.env import get_editable_packages, get_installed_packages
 from hatch.utils import remove_path, temp_chdir
 from hatch.venv import VENV_DIR, create_venv, get_new_venv_name, venv
+from ..utils import requires_internet
 
 
 def test_local():
@@ -52,6 +53,7 @@ def test_local_none():
         assert result.exit_code != 0
 
 
+@requires_internet
 def test_packages():
     with temp_chdir() as d:
         runner = CliRunner()
@@ -77,6 +79,7 @@ def test_env_not_exist():
         assert 'Virtual env named `{}` does not exist.'.format(env_name) in result.output
 
 
+@requires_internet
 def test_env():
     with temp_chdir():
         runner = CliRunner()

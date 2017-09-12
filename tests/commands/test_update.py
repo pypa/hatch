@@ -9,8 +9,10 @@ from hatch.env import (
 from hatch.utils import remove_path, temp_chdir
 from hatch.venv import VENV_DIR, create_venv, get_new_venv_name, venv
 from ..utils import get_version_as_bytes
+from ..utils import requires_internet
 
 
+@requires_internet
 def test_requirements():
     with temp_chdir() as d:
         with open(os.path.join(d, 'requirements.txt'), 'w') as f:
@@ -30,6 +32,7 @@ def test_requirements():
         assert initial_version < final_version
 
 
+@requires_internet
 def test_dev_requirements():
     with temp_chdir() as d:
         with open(os.path.join(d, 'dev-requirements.txt'), 'w') as f:
@@ -49,6 +52,7 @@ def test_dev_requirements():
         assert initial_version < final_version
 
 
+@requires_internet
 def test_requirements_dev():
     with temp_chdir() as d:
         with open(os.path.join(d, 'requirements-dev.txt'), 'w') as f:
@@ -68,6 +72,7 @@ def test_requirements_dev():
         assert initial_version < final_version
 
 
+@requires_internet
 def test_requirements_includes_hatch():
     with temp_chdir() as d:
         runner = CliRunner()
@@ -102,6 +107,7 @@ def test_requirements_none():
         assert 'Unable to locate a requirements file.' in result.output
 
 
+@requires_internet
 def test_packages():
     with temp_chdir() as d:
         runner = CliRunner()
@@ -130,6 +136,7 @@ def test_packages_only_hatch():
         assert 'No packages to install.' in result.output
 
 
+@requires_internet
 def test_all_packages():
     with temp_chdir() as d:
         venv_dir = os.path.join(d, 'venv')
@@ -173,6 +180,7 @@ def test_env_not_exist():
         assert 'Virtual env named `{}` does not exist.'.format(env_name) in result.output
 
 
+@requires_internet
 def test_env():
     with temp_chdir():
         runner = CliRunner()
@@ -195,6 +203,7 @@ def test_env():
         assert initial_version < final_version
 
 
+@requires_internet
 def test_infra():
     with temp_chdir() as d:
         runner = CliRunner()
@@ -211,6 +220,7 @@ def test_infra():
         assert initial_version < final_version
 
 
+@requires_internet
 def test_infra_env():
     with temp_chdir():
         runner = CliRunner()

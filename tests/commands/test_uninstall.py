@@ -6,8 +6,10 @@ from hatch.cli import hatch
 from hatch.env import get_installed_packages
 from hatch.utils import remove_path, temp_chdir
 from hatch.venv import VENV_DIR, create_venv, get_new_venv_name, venv
+from ..utils import requires_internet
 
 
+@requires_internet
 def test_requirements():
     with temp_chdir() as d:
         runner = CliRunner()
@@ -38,6 +40,7 @@ def test_requirements_none():
         assert 'Unable to locate a requirements file.' in result.output
 
 
+@requires_internet
 def test_packages():
     with temp_chdir() as d:
         runner = CliRunner()
@@ -64,6 +67,7 @@ def test_env_not_exist():
         assert 'Virtual env named `{}` does not exist.'.format(env_name) in result.output
 
 
+@requires_internet
 def test_env():
     with temp_chdir():
         runner = CliRunner()

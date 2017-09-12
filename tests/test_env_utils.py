@@ -9,12 +9,14 @@ from hatch.env import (
 )
 from hatch.utils import temp_chdir
 from hatch.venv import create_venv, venv
+from .utils import requires_internet
 
 
 def test_get_package_version_not_installed():
     assert get_package_version('the_knights_who_say_ni') == ''
 
 
+@requires_internet
 def test_get_installed_packages_no_editable():
     with temp_chdir() as d:
         runner = CliRunner()

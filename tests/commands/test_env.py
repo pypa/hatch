@@ -13,6 +13,7 @@ from hatch.settings import (
 )
 from hatch.utils import copy_path, remove_path, temp_chdir, temp_move_path
 from hatch.venv import VENV_DIR, create_venv, get_new_venv_name, venv
+from ..utils import requires_internet
 
 
 def test_success():
@@ -192,6 +193,7 @@ def test_clone_venv_not_exist():
         assert 'Virtual env `{name}` does not exist.'.format(name=env_name) in result.output
 
 
+@requires_internet
 def test_clone_success():
     with temp_chdir():
         runner = CliRunner()
@@ -220,6 +222,7 @@ def test_clone_success():
         assert 'six' in installed_packages
 
 
+@requires_internet
 def test_restore_success():
     with temp_chdir() as d:
         runner = CliRunner()
