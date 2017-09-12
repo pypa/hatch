@@ -266,6 +266,9 @@ Important changes are emphasized.
 master
 ^^^^^^
 
+- Better ``xonsh`` support :)
+- More informative output and coloring!
+
 0.9.1
 ^^^^^
 
