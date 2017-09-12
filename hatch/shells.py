@@ -84,12 +84,28 @@ def zsh_shell(exe_dir, shell_path):
 
 
 def xonsh_shell(exe_dir, shell_path):
-    result = subprocess.run(
-        [shell_path or 'xonsh', '-i', '-D',
-         'VIRTUAL_ENV={}'.format(os.path.dirname(exe_dir))],
-        shell=NEED_SUBPROCESS_SHELL
-    )
-    return result.returncode
+    if ON_WINDOWS:
+        result = subprocess.run(
+            [shell_path or 'xonsh', '-i', '-D',
+             'VIRTUAL_ENV={}'.format(os.path.dirname(exe_dir))],
+            shell=NEED_SUBPROCESS_SHELL
+        )
+        return result.returncode
+    else:
+        terminal = pexpect.spawn(
+            shell_path or 'xonsh',
+            args=['-i', '-D', 'VIRTUAL_ENV={}'.format(os.path.dirname(exe_dir))],
+            dimensions=get_terminal_dimensions()
+        )
+
+        def sigwinch_passthrough(sig, data):
+            terminal.setwinsize(*get_terminal_dimensions())
+        signal.signal(signal.SIGWINCH, sigwinch_passthrough)
+
+        terminal.sendline('source "{}"'.format(os.path.join(exe_dir, 'activate')))
+        terminal.interact(escape_character=None)
+        terminal.close()
+        return terminal.exitstatus
 
 
 def unknown_shell(shell_name):
