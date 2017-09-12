@@ -8,6 +8,7 @@ matrix:
           env: TOXENV=py36
         - python: pypy3.5-5.8.0
           env: TOXENV=pypy3
+    allow_failures:
         - language: generic
           os: osx
           osx_image: xcode8.3
