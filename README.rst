@@ -267,7 +267,7 @@ master
 ^^^^^^
 
 - Faster virtual environment creation!
-- Better ``xonsh`` support :)
+- Full ``xonsh`` support :)
 - More informative output and coloring!
 
 0.9.1
