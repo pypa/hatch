@@ -102,7 +102,7 @@ def xonsh_shell(exe_dir, shell_path):
             terminal.setwinsize(*get_terminal_dimensions())
         signal.signal(signal.SIGWINCH, sigwinch_passthrough)
 
-        terminal.sendline('source "{}"'.format(os.path.join(exe_dir, 'activate')))
+        terminal.sendline('source-bash "{}"'.format(os.path.join(exe_dir, 'activate')))
         terminal.interact(escape_character=None)
         terminal.close()
         return terminal.exitstatus
