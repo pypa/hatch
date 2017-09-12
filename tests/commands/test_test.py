@@ -91,7 +91,7 @@ def test_package():
             install_packages(['-e', '.'])
             os.chdir(d)
 
-            result = runner.invoke(hatch, ['test', 'ok'])
+            result = runner.invoke(hatch, ['test', 'ok', '-g'])
 
         assert result.exit_code == 0
         assert '1 passed' in result.output

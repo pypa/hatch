@@ -695,12 +695,14 @@ def grow(part, package, path, pre_token, build_token):
                   'Pass through to `coverage run`, overriding defaults. '
                   'Example: `hatch test -ca "--timid --pylib"`'
               ))
-@click.option('-e', '--env-aware', is_flag=True,
+@click.option('-g', '--global', 'global_exe', is_flag=True,
               help=(
-                  'Invokes `pytest` and `coverage` as modules instead of '
-                  'directly, i.e. `python -m pytest`.'
+                  'Uses the `pytest` and `coverage` shipped with Hatch instead '
+                  'of environment-aware modules. This is useful if you just want '
+                  'want to run a quick test without installing these again in a '
+                  'virtual env. Keep in mind these will be the Python 3 versions.'
               ))
-def test(package, path, cov, merge, test_args, cov_args, env_aware):
+def test(package, path, cov, merge, test_args, cov_args, global_exe):
     """Runs tests using `pytest`, optionally checking coverage.
 
     The path is derived in the following order:
@@ -756,7 +758,7 @@ def test(package, path, cov, merge, test_args, cov_args, env_aware):
     else:
         path = os.getcwd()
 
-    python_cmd = [get_proper_python(), '-m'] if env_aware else []
+    python_cmd = [sys.executable if global_exe else get_proper_python(), '-m']
     command = python_cmd.copy()
 
     if cov:
