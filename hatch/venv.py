@@ -9,9 +9,11 @@ from appdirs import user_data_dir
 
 from hatch.clean import remove_compiled_scripts
 from hatch.exceptions import InvalidVirtualEnv
-from hatch.env import get_python_path
 from hatch.settings import load_settings
-from hatch.utils import NEED_SUBPROCESS_SHELL, env_vars, get_random_venv_name
+from hatch.utils import (
+    NEED_SUBPROCESS_SHELL, env_vars, get_proper_python, get_random_venv_name,
+    resolve_path
+)
 
 VENV_DIR_ISOLATED = os.path.join(user_data_dir('hatch', ''), 'venvs')
 VENV_DIR_SHARED = os.path.expanduser('~{}.virtualenvs'.format(os.path.sep))
@@ -77,7 +79,7 @@ def get_available_venvs():
 
 def create_venv(d, pypath=None, verbose=False):
     command = [sys.executable, '-m', 'virtualenv', d,
-               '-p', pypath or get_python_path()]
+               '-p', pypath or resolve_path(shutil.which(get_proper_python()))]
     if not verbose:  # no cov
         command.append('--quiet')
     subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
