@@ -322,6 +322,7 @@ def install(packages, env_name, editable, global_install, quiet):
 
         with venv(venv_dir):
             command = [get_proper_pip(), 'install', *packages] + (['-q'] if quiet else [])
+            echo_waiting('Installing in virtual env `{}`...'.format(env_name))
             result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
     else:
         command = [get_proper_pip(), 'install'] + (['-q'] if quiet else [])
@@ -340,6 +341,7 @@ def install(packages, env_name, editable, global_install, quiet):
         if windows_admin_command:  # no cov
             command = windows_admin_command + [' '.join(command)]
 
+        echo_waiting('Installing...')
         result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
 
     sys.exit(result.returncode)
@@ -392,6 +394,7 @@ def uninstall(packages, env_name, global_uninstall, dev, quiet, yes):
 
         with venv(venv_dir):
             command = [get_proper_pip(), 'uninstall', *packages] + (['-q'] if quiet else [])
+            echo_waiting('Uninstalling in virtual env `{}`...'.format(env_name))
             result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
     else:
         command = [get_proper_pip(), 'uninstall'] + (['-q'] if quiet else [])
@@ -407,6 +410,7 @@ def uninstall(packages, env_name, global_uninstall, dev, quiet, yes):
         if windows_admin_command:  # no cov
             command = windows_admin_command + [' '.join(command)]
 
+        echo_waiting('Uninstalling...')
         result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
 
     sys.exit(result.returncode)
@@ -577,8 +581,10 @@ def update(packages, env_name, eager, all_packages, infra, global_install,
 
     if venv_dir:
         with venv(venv_dir):
+            echo_waiting('Updating virtual env `{}`...'.format(env_name))
             result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
     else:
+        echo_waiting('Updating...')
         result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
 
     if temp_dir is not None:
@@ -666,7 +672,7 @@ def grow(part, package, path, pre_token, build_token):
         if f:
             echo_failure('Found version files:')
             for file in f:
-                echo_failure(file)
+                echo_warning(file)
                 echo_failure('\nUnable to find a version specifier.')
             sys.exit(1)
         else:
@@ -933,6 +939,7 @@ def build(package, path, pyname, pypath, universal, name, build_dir,
             sys.exit(1)
 
     if clean_first:
+        echo_waiting('Removing build artifacts...')
         clean_package(path, editable=package)
 
     return_code = build_package(path, build_dir, universal, name, pypath, verbose)
