@@ -1,25 +1,24 @@
 language: python
 
 matrix:
-    include:
-        - python: 3.5
-          env: TOXENV=py35
-        - python: 3.6
-          env: TOXENV=py36
-        - python: pypy3.5-5.8.0
-          env: TOXENV=pypy3
-
-matrix:
-    allow_failures:
-        - language: generic
-          os: osx
-          osx_image: xcode8.3
-          env: TOXENV=py36
-          before_install:
-            - brew update
-            - brew install python3
-            - virtualenv env -p python3
-            - source env/bin/activate
+  include:
+    - python: 3.5
+      env: TOXENV=py35
+    - python: 3.6
+      env: TOXENV=py36
+    - python: pypy3.5-5.8.0
+      env: TOXENV=pypy3
+    - language: generic
+      os: osx
+      osx_image: xcode8.3
+      env: TOXENV=py36
+      before_install:
+        - brew update
+        - brew install python3
+        - virtualenv env -p python3
+        - source env/bin/activate
+  allow_failures:
+    - os: osx
 
 install:
   - pip install tox codecov
