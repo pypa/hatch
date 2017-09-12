@@ -150,7 +150,7 @@ def temp_chdir(cwd=None):
         os.chdir(d)
 
         try:
-            yield d
+            yield resolve_path(d)
         finally:
             os.chdir(origin)
 
