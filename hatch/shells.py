@@ -3,12 +3,9 @@ import pexpect
 import shutil
 import signal
 import subprocess
-from tempfile import TemporaryDirectory
 
 from hatch.settings import load_settings
-from hatch.utils import (
-    NEED_SUBPROCESS_SHELL, ON_WINDOWS, basepath, temp_move_path
-)
+from hatch.utils import NEED_SUBPROCESS_SHELL, ON_WINDOWS, basepath
 
 DEFAULT_SHELL = 'cmd' if ON_WINDOWS else 'bash'
 
@@ -87,28 +84,12 @@ def zsh_shell(exe_dir, shell_path):
 
 
 def xonsh_shell(exe_dir, shell_path):
-    with TemporaryDirectory() as d:
-        with temp_move_path(os.path.expanduser('~{}.xonshrc'.format(os.path.sep)), d) as path:
-            new_config = ''
-            if path:
-                with open(path, 'r') as f:
-                    new_config += f.read()
-
-            env_name = os.path.dirname(exe_dir)
-            new_config += (
-                '\n$PROMPT_FIELDS["env_name"] = "({env_name})"\n'
-                ''.format(env_name=env_name)
-            )
-
-            new_config_path = os.path.join(d, 'new.xonshrc')
-            with open(new_config_path, 'w') as f:
-                f.write(new_config)
-
-            result = subprocess.run(
-                [shell_path or 'xonsh', '--rc', new_config_path],
-                shell=NEED_SUBPROCESS_SHELL
-            )
-            return result.returncode
+    result = subprocess.run(
+        [shell_path or 'xonsh', '-i', '-D',
+         'VIRTUAL_ENV={}'.format(os.path.dirname(exe_dir))],
+        shell=NEED_SUBPROCESS_SHELL
+    )
+    return result.returncode
 
 
 def unknown_shell(shell_name):
