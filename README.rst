@@ -266,6 +266,7 @@ Important changes are emphasized.
 master
 ^^^^^^
 
+- Faster virtual environment creation!
 - Better ``xonsh`` support :)
 - More informative output and coloring!
 
