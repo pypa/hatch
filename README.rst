@@ -266,6 +266,9 @@ Important changes are emphasized.
 master
 ^^^^^^
 
+0.10.0
+^^^^^
+
 - ``test`` is now environment-aware by default.
 - Faster virtual environment creation!
 - Full ``xonsh`` support :)
