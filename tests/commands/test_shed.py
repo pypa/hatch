@@ -8,7 +8,7 @@ from hatch.settings import (
     save_settings
 )
 from hatch.utils import remove_path, temp_chdir, temp_move_path
-from hatch.venv import VENV_DIR
+from hatch.venv import VENV_DIR, get_new_venv_name
 
 
 def test_help():
@@ -78,10 +78,7 @@ def test_env():
     with temp_chdir():
         runner = CliRunner()
 
-        env_name = os.urandom(10).hex()
-        while os.path.exists(os.path.join(VENV_DIR, env_name)):  # no cov
-            env_name = os.urandom(10).hex()
-
+        env_name = get_new_venv_name()
         venv_dir = os.path.join(VENV_DIR, env_name)
 
         try:
@@ -100,22 +97,13 @@ def test_env_multiple():
     with temp_chdir():
         runner = CliRunner()
 
-        env_name1 = os.urandom(10).hex()
-        while os.path.exists(os.path.join(VENV_DIR, env_name1)):  # no cov
-            env_name1 = os.urandom(10).hex()
-
+        env_name1, env_name2 = get_new_venv_name(count=2)
         venv_dir1 = os.path.join(VENV_DIR, env_name1)
-        env_name2 = ''
-        venv_dir2 = ''
+        venv_dir2 = os.path.join(VENV_DIR, env_name2)
 
         try:
             runner.invoke(hatch, ['env', env_name1])
             assert os.path.exists(venv_dir1)
-
-            env_name2 = os.urandom(10).hex()
-            while os.path.exists(os.path.join(VENV_DIR, env_name2)):  # no cov
-                env_name2 = os.urandom(10).hex()
-            venv_dir2 = os.path.join(VENV_DIR, env_name2)
             runner.invoke(hatch, ['env', env_name2])
             assert os.path.exists(venv_dir2)
 
@@ -135,10 +123,7 @@ def test_env_not_exist():
     with temp_chdir():
         runner = CliRunner()
 
-        env_name = os.urandom(10).hex()
-        while os.path.exists(os.path.join(VENV_DIR, env_name)):  # no cov
-            env_name = os.urandom(10).hex()
-
+        env_name = get_new_venv_name()
         result = runner.invoke(hatch, ['shed', '-e', env_name])
 
         assert result.exit_code == 0
@@ -149,10 +134,7 @@ def test_pyname_and_env():
     with temp_chdir() as d:
         runner = CliRunner()
 
-        env_name = os.urandom(10).hex()
-        while os.path.exists(os.path.join(VENV_DIR, env_name)):  # no cov
-            env_name = os.urandom(10).hex()
-
+        env_name = get_new_venv_name()
         venv_dir = os.path.join(VENV_DIR, env_name)
 
         try:

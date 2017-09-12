@@ -7,7 +7,7 @@ from hatch.env import (
     get_installed_packages, get_python_implementation, install_packages
 )
 from hatch.utils import remove_path, temp_chdir
-from hatch.venv import VENV_DIR, create_venv, venv
+from hatch.venv import VENV_DIR, create_venv, get_new_venv_name, venv
 from ..utils import get_version_as_bytes
 
 
@@ -166,10 +166,7 @@ def test_env_not_exist():
     with temp_chdir():
         runner = CliRunner()
 
-        env_name = os.urandom(10).hex()
-        while os.path.exists(os.path.join(VENV_DIR, env_name)):  # no cov
-            env_name = os.urandom(10).hex()
-
+        env_name = get_new_venv_name()
         result = runner.invoke(hatch, ['update', '-e', env_name])
 
         assert result.exit_code == 1
@@ -180,10 +177,7 @@ def test_env():
     with temp_chdir():
         runner = CliRunner()
 
-        env_name = os.urandom(10).hex()
-        while os.path.exists(os.path.join(VENV_DIR, env_name)):  # no cov
-            env_name = os.urandom(10).hex()
-
+        env_name = get_new_venv_name()
         venv_dir = os.path.join(VENV_DIR, env_name)
         create_venv(venv_dir)
 
@@ -221,10 +215,7 @@ def test_infra_env():
     with temp_chdir():
         runner = CliRunner()
 
-        env_name = os.urandom(10).hex()
-        while os.path.exists(os.path.join(VENV_DIR, env_name)):  # no cov
-            env_name = os.urandom(10).hex()
-
+        env_name = get_new_venv_name()
         venv_dir = os.path.join(VENV_DIR, env_name)
         create_venv(venv_dir)
 

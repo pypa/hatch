@@ -12,17 +12,14 @@ from hatch.settings import (
     SETTINGS_FILE, copy_default_settings, restore_settings, save_settings
 )
 from hatch.utils import copy_path, remove_path, temp_chdir, temp_move_path
-from hatch.venv import VENV_DIR, create_venv, venv
+from hatch.venv import VENV_DIR, create_venv, get_new_venv_name, venv
 
 
 def test_success():
     with temp_chdir():
         runner = CliRunner()
 
-        env_name = os.urandom(10).hex()
-        while os.path.exists(os.path.join(VENV_DIR, env_name)):  # no cov
-            env_name = os.urandom(10).hex()
-
+        env_name = get_new_venv_name()
         venv_dir = os.path.join(VENV_DIR, env_name)
 
         try:
@@ -39,10 +36,7 @@ def test_pyname():
     with temp_chdir() as d:
         runner = CliRunner()
 
-        env_name = os.urandom(10).hex()
-        while os.path.exists(os.path.join(VENV_DIR, env_name)):  # no cov
-            env_name = os.urandom(10).hex()
-
+        env_name = get_new_venv_name()
         venv_dir = os.path.join(VENV_DIR, env_name)
 
         try:
@@ -86,9 +80,7 @@ def test_existing_venv():
     with temp_chdir():
         runner = CliRunner()
 
-        env_name = os.urandom(10).hex()
-        while os.path.exists(os.path.join(VENV_DIR, env_name)):  # no cov
-            env_name = os.urandom(10).hex()
+        env_name = get_new_venv_name()
 
         try:
             runner.invoke(hatch, ['env', env_name])
@@ -121,21 +113,17 @@ def test_list_success_1():
     with temp_chdir():
         runner = CliRunner()
 
-        env_name1 = os.urandom(10).hex()
-        while os.path.exists(os.path.join(VENV_DIR, env_name1)):  # no cov
-            env_name1 = os.urandom(10).hex()
-        env_name2 = ''
+        env_name1, env_name2 = get_new_venv_name(count=2)
+        venv_dir1 = os.path.join(VENV_DIR, env_name1)
+        venv_dir2 = os.path.join(VENV_DIR, env_name2)
 
         try:
             runner.invoke(hatch, ['env', env_name1])
-            env_name2 = os.urandom(10).hex()
-            while os.path.exists(os.path.join(VENV_DIR, env_name2)):  # no cov
-                env_name2 = os.urandom(10).hex()
-            os.makedirs(os.path.join(VENV_DIR, env_name2))
+            os.makedirs(venv_dir2)
             result = runner.invoke(hatch, ['env', '-l'])
         finally:
-            remove_path(os.path.join(VENV_DIR, env_name1))
-            remove_path(os.path.join(VENV_DIR, env_name2))
+            remove_path(venv_dir1)
+            remove_path(venv_dir2)
 
         assert result.exit_code == 0
         assert (
@@ -150,9 +138,7 @@ def test_list_success_2():
     with temp_chdir():
         runner = CliRunner()
 
-        env_name = os.urandom(10).hex()
-        while os.path.exists(os.path.join(VENV_DIR, env_name)):  # no cov
-            env_name = os.urandom(10).hex()
+        env_name = get_new_venv_name()
 
         try:
             runner.invoke(hatch, ['env', env_name])
@@ -175,9 +161,7 @@ def test_list_success_3():
         runner = CliRunner()
         runner.invoke(hatch, ['init', 'ok'])
 
-        env_name = os.urandom(10).hex()
-        while os.path.exists(os.path.join(VENV_DIR, env_name)):  # no cov
-            env_name = os.urandom(10).hex()
+        env_name = get_new_venv_name()
 
         try:
             runner.invoke(hatch, ['env', env_name])
@@ -201,10 +185,7 @@ def test_clone_venv_not_exist():
     with temp_chdir():
         runner = CliRunner()
 
-        env_name = os.urandom(10).hex()
-        while os.path.exists(os.path.join(VENV_DIR, env_name)):  # no cov
-            env_name = os.urandom(10).hex()
-
+        env_name = get_new_venv_name()
         result = runner.invoke(hatch, ['env', env_name, '-c', env_name])
 
         assert result.exit_code == 1
@@ -215,23 +196,14 @@ def test_clone_success():
     with temp_chdir():
         runner = CliRunner()
 
-        origin = os.urandom(10).hex()
-        while os.path.exists(os.path.join(VENV_DIR, origin)):  # no cov
-            origin = os.urandom(10).hex()
-
+        origin, clone = get_new_venv_name(count=2)
         origin_dir = os.path.join(VENV_DIR, origin)
-        clone_dir = origin_dir
+        clone_dir = os.path.join(VENV_DIR, clone)
 
         try:
             runner.invoke(hatch, ['env', origin])
             with venv(origin_dir):
                 install_packages(['requests'])
-
-            clone = os.urandom(10).hex()
-            while os.path.exists(os.path.join(VENV_DIR, clone)):  # no cov
-                clone = os.urandom(10).hex()
-
-            clone_dir = os.path.join(VENV_DIR, clone)
 
             result = runner.invoke(hatch, ['env', clone, '-c', origin])
             with venv(clone_dir):
@@ -252,26 +224,17 @@ def test_restore_success():
     with temp_chdir() as d:
         runner = CliRunner()
 
-        env_name = os.urandom(10).hex()
-        while os.path.exists(os.path.join(VENV_DIR, env_name)):  # no cov
-            env_name = os.urandom(10).hex()
-
+        env_name, fake_name = get_new_venv_name(count=2)
         venv_origin = os.path.join(d, env_name)
-        create_venv(venv_origin)
-
         venv_dir = os.path.join(VENV_DIR, env_name)
-        copy_path(venv_origin, VENV_DIR)
+        fake_venv = os.path.join(VENV_DIR, fake_name)
 
-        fake_venv = ''
+        create_venv(venv_origin)
+        copy_path(venv_origin, VENV_DIR)
+        os.makedirs(fake_venv)
 
         try:
             runner.invoke(hatch, ['env', env_name])
-
-            env_name = os.urandom(10).hex()
-            while os.path.exists(os.path.join(VENV_DIR, env_name)):  # no cov
-                env_name = os.urandom(10).hex()
-            fake_venv = os.path.join(VENV_DIR, env_name)
-            os.makedirs(fake_venv)
 
             result = runner.invoke(hatch, ['env', '-r'])
             with venv(venv_dir):
