@@ -132,6 +132,13 @@ def normalize_package_name(package_name):
     return re.sub(r"[-_.]+", "_", package_name).lower()
 
 
+def fix_osx_symlink(path):
+    # tempfile is just using the environment TMPDIR variable to prefix the path location, so its just a string.
+    # But os.getcwd() is resolving the absolute location, so we need to skip '/private' on OS X, or use os.path.realpath
+    # https://stackoverflow.com/questions/12482702/pythons-os-chdir-and-os-getcwd-mismatch-when-using-tempfile-mkdtemp-on-ma
+    return path.replace('/private', '') if '/private' in path else path
+
+
 @contextmanager
 def chdir(d, cwd=None):
     origin = cwd or os.getcwd()

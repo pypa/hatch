@@ -12,6 +12,7 @@ from hatch.settings import (
 from hatch.utils import create_file, temp_chdir, temp_move_path
 from hatch.venv import create_venv, venv
 from ..utils import matching_file
+from hatch.utils import fix_osx_symlink
 
 
 def format_files(d):
@@ -36,7 +37,7 @@ def test_cwd():
         assert len(files) == 2
         assert (
             'Files found in `{}`:\n\n'.format(build_dir) + format_files(build_dir)
-        ) in result.output
+        ) in fix_osx_symlink(result.output)
 
 
 def test_package():
@@ -62,7 +63,7 @@ def test_package():
         assert len(files) == 2
         assert (
             'Files found in `{}`:\n\n'.format(build_dir) + format_files(build_dir)
-        ) in result.output
+        ) in fix_osx_symlink(result.output)
 
 
 def test_package_not_exist():
@@ -75,7 +76,7 @@ def test_package_not_exist():
             result = runner.invoke(hatch, ['build', 'ok'])
 
         assert result.exit_code == 1
-        assert '`{}` is not an editable package.'.format('ok') in result.output
+        assert '`{}` is not an editable package.'.format('ok') in fix_osx_symlink(result.output)
 
 
 def test_path_relative():
@@ -92,7 +93,7 @@ def test_path_relative():
         assert len(files) == 2
         assert (
             'Files found in `{}`:\n\n'.format(build_dir) + format_files(build_dir)
-        ) in result.output
+        ) in fix_osx_symlink(result.output)
 
 
 def test_path_full():
@@ -112,7 +113,7 @@ def test_path_full():
         assert len(files) == 2
         assert (
             'Files found in `{}`:\n\n'.format(build_dir) + format_files(build_dir)
-        ) in result.output
+        ) in fix_osx_symlink(result.output)
 
 
 def test_path_full_not_exist():
@@ -124,7 +125,7 @@ def test_path_full_not_exist():
         result = runner.invoke(hatch, ['build', '-p', full_path])
 
         assert result.exit_code == 1
-        assert 'Directory `{}` does not exist.'.format(full_path) in result.output
+        assert 'Directory `{}` does not exist.'.format(full_path) in fix_osx_symlink(result.output)
 
 
 def test_default_non_universal():
@@ -180,7 +181,7 @@ def test_build_dir_relative():
         assert len(files) == 3
         assert (
             'Files found in `{}`:\n\n'.format(build_dir) + format_files(build_dir)
-        ) in result.output
+        ) in fix_osx_symlink(fix_osx_symlink(result.output))
 
 
 def test_build_dir_full():
@@ -197,7 +198,7 @@ def test_build_dir_full():
         assert len(files) == 2
         assert (
             'Files found in `{}`:\n\n'.format(build_dir) + format_files(build_dir)
-        ) in result.output
+        ) in fix_osx_symlink(result.output)
 
 
 def test_build_dir_file():
@@ -210,7 +211,7 @@ def test_build_dir_file():
         result = runner.invoke(hatch, ['build', '-d', build_dir])
 
         assert result.exit_code == 1
-        assert 'Files found in' not in result.output
+        assert 'Files found in' not in fix_osx_symlink(result.output)
 
 
 def test_clean():
@@ -278,7 +279,7 @@ def test_python_no_config():
             result = runner.invoke(hatch, ['build', '-py', 'python'])
 
         assert result.exit_code == 1
-        assert 'Unable to locate config file. Try `hatch config --restore`.' in result.output
+        assert 'Unable to locate config file. Try `hatch config --restore`.' in fix_osx_symlink(result.output)
 
 
 def test_python_invalid():
@@ -293,4 +294,4 @@ def test_python_invalid():
             result = runner.invoke(hatch, ['build', '-py', 'python'])
 
         assert result.exit_code == 1
-        assert 'Python path named `python` does not exist or is invalid.' in result.output
+        assert 'Python path named `python` does not exist or is invalid.' in fix_osx_symlink(result.output)

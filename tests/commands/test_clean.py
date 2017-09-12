@@ -6,6 +6,7 @@ from hatch.cli import hatch
 from hatch.env import install_packages
 from hatch.utils import create_file, temp_chdir
 from hatch.venv import create_venv, venv
+from hatch.utils import fix_osx_symlink
 
 
 def find_all_files(d):
@@ -104,7 +105,7 @@ def test_package_not_exist():
             result = runner.invoke(hatch, ['clean', 'ok'])
 
         assert result.exit_code == 1
-        assert '`{}` is not an editable package.'.format('ok') in result.output
+        assert '`{}` is not an editable package.'.format('ok') in fix_osx_symlink(result.output)
 
 
 def test_path_relative():
@@ -154,7 +155,7 @@ def test_path_full_not_exist():
         result = runner.invoke(hatch, ['clean', '-p', full_path])
 
         assert result.exit_code == 1
-        assert 'Directory `{}` does not exist.'.format(full_path) in result.output
+        assert 'Directory `{}` does not exist.'.format(full_path) in fix_osx_symlink(result.output)
 
 
 def test_cache():
@@ -171,7 +172,7 @@ def test_cache():
         result = runner.invoke(hatch, ['clean', '-v'])
 
         assert result.exit_code == 0
-        assert result.output == (
+        assert fix_osx_symlink(result.output) == (
             'Removed paths:\n'
             '{}\n'
             '{}\n'.format(
@@ -197,7 +198,7 @@ def test_coverage():
         result = runner.invoke(hatch, ['clean', '-v'])
 
         assert result.exit_code == 0
-        assert result.output == (
+        assert fix_osx_symlink(result.output) == (
             'Removed paths:\n'
             '{}\n'.format(test_file)
         )
@@ -219,7 +220,7 @@ def test_eggs():
         result = runner.invoke(hatch, ['clean', '-v'])
 
         assert result.exit_code == 0
-        assert result.output == (
+        assert fix_osx_symlink(result.output) == (
             'Removed paths:\n'
             '{}\n'
             '{}\n'.format(
@@ -245,7 +246,7 @@ def test_tox():
         result = runner.invoke(hatch, ['clean', '-v'])
 
         assert result.exit_code == 0
-        assert result.output == (
+        assert fix_osx_symlink(result.output) == (
             'Removed paths:\n'
             '{}\n'
             '{}\n'.format(
@@ -271,7 +272,7 @@ def test_build():
         result = runner.invoke(hatch, ['clean', '-v'])
 
         assert result.exit_code == 0
-        assert result.output == (
+        assert fix_osx_symlink(result.output) == (
             'Removed paths:\n'
             '{}\n'
             '{}\n'.format(
@@ -297,7 +298,7 @@ def test_dist():
         result = runner.invoke(hatch, ['clean', '-v'])
 
         assert result.exit_code == 0
-        assert result.output == (
+        assert fix_osx_symlink(result.output) == (
             'Removed paths:\n'
             '{}\n'
             '{}\n'.format(
@@ -323,7 +324,7 @@ def test_egg_info():
         result = runner.invoke(hatch, ['clean', '-v'])
 
         assert result.exit_code == 0
-        assert result.output == (
+        assert fix_osx_symlink(result.output) == (
             'Removed paths:\n'
             '{}\n'
             '{}\n'.format(
@@ -352,7 +353,7 @@ def test_pycache():
         result = runner.invoke(hatch, ['clean', '-v'])
 
         assert result.exit_code == 0
-        assert result.output == (
+        assert fix_osx_symlink(result.output) == (
             'Removed paths:\n'
             '{}\n'
             '{}\n'
@@ -386,7 +387,7 @@ def test_pyc():
         result = runner.invoke(hatch, ['clean', '-v'])
 
         assert result.exit_code == 0
-        assert result.output == (
+        assert fix_osx_symlink(result.output) == (
             'Removed paths:\n'
             '{}\n'
             '{}\n'.format(
@@ -416,7 +417,7 @@ def test_pyd():
         result = runner.invoke(hatch, ['clean', '-v'])
 
         assert result.exit_code == 0
-        assert result.output == (
+        assert fix_osx_symlink(result.output) == (
             'Removed paths:\n'
             '{}\n'
             '{}\n'.format(
@@ -438,5 +439,5 @@ def test_verbose_already_clean():
         result = runner.invoke(hatch, ['clean', '-v'])
 
         assert result.exit_code == 0
-        assert not result.output
+        assert not fix_osx_symlink(result.output)
         assert_files_exist(files)
