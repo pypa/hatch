@@ -882,6 +882,8 @@ def clean(package, path, compiled_only, verbose):
             echo_success('Removed paths:')
             for p in removed_paths:
                 echo_info(p)
+        else:
+            echo_success('Already clean!')
 
 
 @hatch.command(context_settings=CONTEXT_SETTINGS, short_help='Builds a project')

@@ -468,5 +468,5 @@ def test_verbose_already_clean():
         result = runner.invoke(hatch, ['clean', '-v'])
 
         assert result.exit_code == 0
-        assert not result.output
+        assert 'Already clean!' in result.output
         assert_files_exist(files)
