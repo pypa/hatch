@@ -644,6 +644,7 @@ def grow(part, package, path, pre_token, build_token):
     2.19.0 -> 3.0.0
     """
     if package:
+        echo_waiting('Locating package...')
         path = get_editable_package_location(package)
         if not path:
             echo_failure('`{}` is not an editable package.'.format(package))
@@ -751,6 +752,7 @@ def test(package, path, cov, merge, test_args, cov_args, global_exe):
     TOTAL                   101      0      4      0   100%
     """
     if package:
+        echo_waiting('Locating package...')
         path = get_editable_package_location(package)
         if not path:
             echo_failure('`{}` is not an editable package.'.format(package))
@@ -852,6 +854,7 @@ def clean(package, path, compiled_only, verbose):
     `*.egg-info` will not be applied so as to not break that installation.
     """
     if package:
+        echo_waiting('Locating package...')
         path = get_editable_package_location(package)
         if not path:
             echo_failure('`{}` is not an editable package.'.format(package))
@@ -908,6 +911,7 @@ def build(package, path, pyname, pypath, universal, name, build_dir,
     The path must contain a `setup.py` file.
     """
     if package:
+        echo_waiting('Locating package...')
         path = get_editable_package_location(package)
         if not path:
             echo_failure('`{}` is not an editable package.'.format(package))
@@ -982,6 +986,7 @@ def release(package, path, username, test_pypi, strict):
     will be provided for the password.
     """
     if package:
+        echo_waiting('Locating package...')
         path = get_editable_package_location(package)
         if not path:
             echo_failure('`{}` is not an editable package.'.format(package))
