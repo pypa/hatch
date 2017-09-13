@@ -844,7 +844,7 @@ def clean(package, path, compiled_only, verbose):
     2. The option --path, which can be a relative or absolute path.
     3. The current directory.
 
-    All `*.pyc`/`*.pyd` files and `__pycache__` directories will be removed.
+    All `*.pyc`/`*.pyd`/`*.pyo` files and `__pycache__` directories will be removed.
     Additionally, the following patterns will be removed from the root of the path:
     `.cache`, `.coverage`, `.eggs`, `.tox`, `build`, `dist`, and `*.egg-info`.
 

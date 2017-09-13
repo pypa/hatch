@@ -429,6 +429,36 @@ def test_pyd():
         assert_files_exist(files)
 
 
+def test_pyo():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        files = find_all_files(d)
+
+        root_file = os.path.join(d, 'ok.pyo')
+        create_file(root_file)
+        assert os.path.exists(root_file)
+
+        non_root_file = os.path.join(d, 'ok', 'ko.pyo')
+        create_file(non_root_file)
+        assert os.path.exists(non_root_file)
+
+        result = runner.invoke(hatch, ['clean', '-v'])
+
+        assert result.exit_code == 0
+        assert result.output == (
+            'Removed paths:\n'
+            '{}\n'
+            '{}\n'.format(
+                root_file,
+                non_root_file
+            )
+        )
+        assert not os.path.exists(root_file)
+        assert not os.path.exists(non_root_file)
+        assert_files_exist(files)
+
+
 def test_verbose_already_clean():
     with temp_chdir() as d:
         runner = CliRunner()

@@ -266,6 +266,8 @@ Important changes are emphasized.
 master
 ^^^^^^
 
+- ``clean`` now also removes optimized bytecode files (``*.pyo``).
+
 0.10.0
 ^^^^^
 
