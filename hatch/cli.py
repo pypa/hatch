@@ -879,7 +879,7 @@ def clean(package, path, compiled_only, verbose):
 
     if verbose:
         if removed_paths:
-            click.echo('Removed paths:')
+            echo_success('Removed paths:')
             for p in removed_paths:
                 echo_info(p)
 
