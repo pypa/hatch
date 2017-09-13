@@ -269,7 +269,7 @@ master
 - ``clean`` now also removes optimized bytecode files (``*.pyo``).
 
 0.10.0
-^^^^^
+^^^^^^
 
 - ``test`` is now environment-aware by default.
 - Faster virtual environment creation!
