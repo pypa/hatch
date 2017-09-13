@@ -827,7 +827,6 @@ def test(package, path, cov, merge, test_args, cov_args, global_exe):
 
     if testing:  # no cov
         click.echo(output.decode())
-        click.echo(output.decode())
 
     sys.exit(test_result.returncode)
 
