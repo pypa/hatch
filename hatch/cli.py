@@ -56,6 +56,10 @@ def echo_waiting(text):
     click.secho(text, fg='magenta', bold=True)
 
 
+def echo_info(text):
+    click.secho(text, fg='white', bold=True)
+
+
 @click.group(context_settings=CONTEXT_SETTINGS)
 @click.version_option()
 def hatch():
@@ -877,7 +881,7 @@ def clean(package, path, compiled_only, verbose):
         if removed_paths:
             click.echo('Removed paths:')
             for p in removed_paths:
-                click.echo(p)
+                echo_info(p)
 
 
 @hatch.command(context_settings=CONTEXT_SETTINGS, short_help='Builds a project')
@@ -952,7 +956,7 @@ def build(package, path, pyname, pypath, universal, name, build_dir,
         echo_success('Files found in `{}`:\n'.format(build_dir))
         for file in sorted(os.listdir(build_dir)):
             if os.path.isfile(os.path.join(build_dir, file)):
-                click.echo(file)
+                echo_info(file)
 
     sys.exit(return_code)
 
@@ -1108,14 +1112,14 @@ def list_envs(ctx, param, value):
             with venv(venv_dir):
                 echo_success('{} ->'.format(venv_name))
                 if value == 1:
-                    echo_success('  Version: {}'.format(get_python_version()))
+                    echo_info('  Version: {}'.format(get_python_version()))
                 elif value == 2:
-                    echo_success('  Version: {}'.format(get_python_version()))
-                    echo_success('  Implementation: {}'.format(get_python_implementation()))
+                    echo_info('  Version: {}'.format(get_python_version()))
+                    echo_info('  Implementation: {}'.format(get_python_implementation()))
                 else:
-                    echo_success('  Version: {}'.format(get_python_version()))
-                    echo_success('  Implementation: {}'.format(get_python_implementation()))
-                    echo_success('  Local packages: {}'.format(', '.join(sorted(get_editable_packages()))))
+                    echo_info('  Version: {}'.format(get_python_version()))
+                    echo_info('  Implementation: {}'.format(get_python_implementation()))
+                    echo_info('  Local packages: {}'.format(', '.join(sorted(get_editable_packages()))))
 
     # I don't want to move users' virtual environments
     # temporarily for tests as one may be in use.
