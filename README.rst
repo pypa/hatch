@@ -266,6 +266,8 @@ Important changes are emphasized.
 master
 ^^^^^^
 
+- More informative output, including a new color!
+
 0.11.0
 ^^^^^^
 
