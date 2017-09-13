@@ -806,7 +806,7 @@ def test(package, path, cov, merge, test_args, cov_args, global_exe):
         output += test_result.stderr or b''
 
         if cov:
-            click.echo('\nTests completed, checking coverage...\n')
+            echo_waiting('\nTests completed, checking coverage...\n')
 
             if merge:
                 result = subprocess.run(
