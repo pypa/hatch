@@ -266,6 +266,10 @@ Important changes are emphasized.
 master
 ^^^^^^
 
+0.11.0
+^^^^^^
+
+- Package review for Fedora begins!
 - ``clean`` now also removes optimized bytecode files (``*.pyo``).
 
 0.10.0
@@ -308,15 +312,6 @@ master
   use a ``current_directory/dist`` directory if it exists before defaulting
   to the current directory.
 - **Fix/Change:** Shedding now uses ``/`` as a separator instead of a comma for names.
-
-0.6.0
-^^^^^
-
-- ``env`` command is now quiet by default (option removed) and option ``-v/--verbose`` added
-- ``env`` command option ``-l/--list`` can now stack
-- ``build`` command is now quiet by default and option ``-v/--verbose`` added. Also,
-  it now shows what files are inside the build directory afterward.
-- Resolving user supplied paths for options is now more robust.
 
 View `all history <https://github.com/ofek/hatch/blob/master/HISTORY.rst>`_
 
