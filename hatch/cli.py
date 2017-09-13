@@ -40,24 +40,24 @@ UNKNOWN_OPTIONS = {
 }
 
 
-def echo_success(text):
-    click.secho(text, fg='cyan', bold=True)
+def echo_success(text, nl=True):
+    click.secho(text, fg='cyan', bold=True, nl=nl)
 
 
-def echo_failure(text):
-    click.secho(text, fg='red', bold=True)
+def echo_failure(text, nl=True):
+    click.secho(text, fg='red', bold=True, nl=nl)
 
 
-def echo_warning(text):
-    click.secho(text, fg='yellow', bold=True)
+def echo_warning(text, nl=True):
+    click.secho(text, fg='yellow', bold=True, nl=nl)
 
 
-def echo_waiting(text):
-    click.secho(text, fg='magenta', bold=True)
+def echo_waiting(text, nl=True):
+    click.secho(text, fg='magenta', bold=True, nl=nl)
 
 
-def echo_info(text):
-    click.secho(text, fg='white', bold=True)
+def echo_info(text, nl=True):
+    click.secho(text, fg='white', bold=True, nl=nl)
 
 
 @click.group(context_settings=CONTEXT_SETTINGS)
@@ -1053,7 +1053,8 @@ def list_pypaths(ctx, param, value):
     pypaths = settings.get('pypaths', {})
     if pypaths:
         for p in pypaths:
-            echo_success('{} -> {}'.format(p, pypaths[p]))
+            echo_success('{} -> '.format(p), nl=False)
+            echo_info('{}'.format(pypaths[p]))
     else:
         echo_failure('There are no saved Python paths. Add '
                      'one via `hatch pypath NAME PATH`.')
