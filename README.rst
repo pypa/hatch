@@ -269,7 +269,7 @@ master
 0.11.0
 ^^^^^^
 
-- Package review for Fedora begins!
+- Package `review <https://bugzilla.redhat.com/show_bug.cgi?id=1491456>`_ for Fedora begins!
 - ``clean`` now also removes optimized bytecode files (``*.pyo``).
 
 0.10.0
