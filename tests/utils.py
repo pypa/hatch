@@ -1,5 +1,7 @@
+import os
 import re
 import socket
+
 import pytest
 
 from hatch.env import get_package_version
@@ -24,6 +26,8 @@ def matching_file(pattern, files):
 
 
 def connected_to_internet():  # no cov
+    if os.environ.get('CI') and os.environ.get('TRAVIS'):
+        return True
     try:
         # Test availability of DNS first
         host = socket.gethostbyname('www.google.com')
@@ -35,4 +39,4 @@ def connected_to_internet():  # no cov
 
 
 requires_internet = pytest.mark.skipif(not connected_to_internet(),
-                                       reason="Not connected to internet")
+                                       reason='Not connected to internet')
