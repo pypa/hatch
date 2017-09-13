@@ -37,6 +37,7 @@ def test_cwd():
         result = runner.invoke(hatch, ['clean'])
 
         assert result.exit_code == 0
+        assert 'Cleaned!' in result.output
         assert not os.path.exists(test_file1)
         assert not os.path.exists(os.path.join(d, 'ok.egg-info'))
         assert_files_exist(files)
@@ -61,6 +62,7 @@ def test_cwd_compiled_only():
         result = runner.invoke(hatch, ['clean', '-c'])
 
         assert result.exit_code == 0
+        assert 'Cleaned!' in result.output
         assert not os.path.exists(test_file1)
         assert not os.path.exists(test_file2)
         assert not os.path.exists(test_file3)
@@ -89,6 +91,7 @@ def test_package():
             result = runner.invoke(hatch, ['clean', 'ok'])
 
         assert result.exit_code == 0
+        assert 'Cleaned!' in result.output
         assert not os.path.exists(test_file)
         assert os.path.exists(os.path.join(package_dir, 'ok.egg-info'))
         assert_files_exist(files)
@@ -121,6 +124,7 @@ def test_path_relative():
         result = runner.invoke(hatch, ['clean', '-p', 'ok'])
 
         assert result.exit_code == 0
+        assert 'Cleaned!' in result.output
         assert not os.path.exists(test_file)
         assert_files_exist(files)
 
@@ -141,6 +145,7 @@ def test_path_full():
         result = runner.invoke(hatch, ['clean', '-p', package_dir])
 
         assert result.exit_code == 0
+        assert 'Cleaned!' in result.output
         assert not os.path.exists(test_file)
         assert_files_exist(files)
 
@@ -171,14 +176,15 @@ def test_cache():
         result = runner.invoke(hatch, ['clean', '-v'])
 
         assert result.exit_code == 0
-        assert result.output == (
+        assert 'Cleaned!' in result.output
+        assert (
             'Removed paths:\n'
             '{}\n'
             '{}\n'.format(
                 os.path.join(d, '.cache'),
                 test_file
             )
-        )
+        ) in result.output
         assert not os.path.exists(test_file)
         assert_files_exist(files)
 
@@ -197,10 +203,11 @@ def test_coverage():
         result = runner.invoke(hatch, ['clean', '-v'])
 
         assert result.exit_code == 0
-        assert result.output == (
+        assert 'Cleaned!' in result.output
+        assert (
             'Removed paths:\n'
             '{}\n'.format(test_file)
-        )
+        ) in result.output
         assert not os.path.exists(test_file)
         assert_files_exist(files)
 
@@ -219,14 +226,15 @@ def test_eggs():
         result = runner.invoke(hatch, ['clean', '-v'])
 
         assert result.exit_code == 0
-        assert result.output == (
+        assert 'Cleaned!' in result.output
+        assert (
             'Removed paths:\n'
             '{}\n'
             '{}\n'.format(
                 os.path.join(d, '.eggs'),
                 test_file
             )
-        )
+        ) in result.output
         assert not os.path.exists(test_file)
         assert_files_exist(files)
 
@@ -245,14 +253,15 @@ def test_tox():
         result = runner.invoke(hatch, ['clean', '-v'])
 
         assert result.exit_code == 0
-        assert result.output == (
+        assert 'Cleaned!' in result.output
+        assert (
             'Removed paths:\n'
             '{}\n'
             '{}\n'.format(
                 os.path.join(d, '.tox'),
                 test_file
             )
-        )
+        ) in result.output
         assert not os.path.exists(test_file)
         assert_files_exist(files)
 
@@ -271,14 +280,15 @@ def test_build():
         result = runner.invoke(hatch, ['clean', '-v'])
 
         assert result.exit_code == 0
-        assert result.output == (
+        assert 'Cleaned!' in result.output
+        assert (
             'Removed paths:\n'
             '{}\n'
             '{}\n'.format(
                 os.path.join(d, 'build'),
                 test_file
             )
-        )
+        ) in result.output
         assert not os.path.exists(test_file)
         assert_files_exist(files)
 
@@ -297,14 +307,15 @@ def test_dist():
         result = runner.invoke(hatch, ['clean', '-v'])
 
         assert result.exit_code == 0
-        assert result.output == (
+        assert 'Cleaned!' in result.output
+        assert (
             'Removed paths:\n'
             '{}\n'
             '{}\n'.format(
                 os.path.join(d, 'dist'),
                 test_file
             )
-        )
+        ) in result.output
         assert not os.path.exists(test_file)
         assert_files_exist(files)
 
@@ -323,14 +334,15 @@ def test_egg_info():
         result = runner.invoke(hatch, ['clean', '-v'])
 
         assert result.exit_code == 0
-        assert result.output == (
+        assert 'Cleaned!' in result.output
+        assert (
             'Removed paths:\n'
             '{}\n'
             '{}\n'.format(
                 os.path.join(d, 'ok.egg-info'),
                 test_file
             )
-        )
+        ) in result.output
         assert not os.path.exists(test_file)
         assert_files_exist(files)
 
@@ -352,7 +364,8 @@ def test_pycache():
         result = runner.invoke(hatch, ['clean', '-v'])
 
         assert result.exit_code == 0
-        assert result.output == (
+        assert 'Cleaned!' in result.output
+        assert (
             'Removed paths:\n'
             '{}\n'
             '{}\n'
@@ -363,7 +376,7 @@ def test_pycache():
                 os.path.join(d, 'ok', '__pycache__'),
                 non_root_file
             )
-        )
+        ) in result.output
         assert not os.path.exists(root_file)
         assert not os.path.exists(non_root_file)
         assert_files_exist(files)
@@ -386,14 +399,15 @@ def test_pyc():
         result = runner.invoke(hatch, ['clean', '-v'])
 
         assert result.exit_code == 0
-        assert result.output == (
+        assert 'Cleaned!' in result.output
+        assert (
             'Removed paths:\n'
             '{}\n'
             '{}\n'.format(
                 root_file,
                 non_root_file
             )
-        )
+        ) in result.output
         assert not os.path.exists(root_file)
         assert not os.path.exists(non_root_file)
         assert_files_exist(files)
@@ -416,14 +430,15 @@ def test_pyd():
         result = runner.invoke(hatch, ['clean', '-v'])
 
         assert result.exit_code == 0
-        assert result.output == (
+        assert 'Cleaned!' in result.output
+        assert (
             'Removed paths:\n'
             '{}\n'
             '{}\n'.format(
                 root_file,
                 non_root_file
             )
-        )
+        ) in result.output
         assert not os.path.exists(root_file)
         assert not os.path.exists(non_root_file)
         assert_files_exist(files)
@@ -446,14 +461,15 @@ def test_pyo():
         result = runner.invoke(hatch, ['clean', '-v'])
 
         assert result.exit_code == 0
-        assert result.output == (
+        assert 'Cleaned!' in result.output
+        assert (
             'Removed paths:\n'
             '{}\n'
             '{}\n'.format(
                 root_file,
                 non_root_file
             )
-        )
+        ) in result.output
         assert not os.path.exists(root_file)
         assert not os.path.exists(non_root_file)
         assert_files_exist(files)
