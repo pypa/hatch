@@ -6,15 +6,6 @@ from hatch.exceptions import PythonPkgNotInstalled, PkgInstallerSystemProblem
 
 ENCODING = 'utf-8'
 
-# reinstall = 'pip3.5 uninstall hatch & cd ~/PycharmProjects/hatch && python3.5 setup.py install'
-#
-# example = 'org.python.Python.PythonApplications-3.4'
-# example_installer_path = '~/Downloads/python-3.4.4-macosx10.6.pkg'
-# ex = 'cd /Applications'
-# delete_files_ex = "pkgutil --only-files --files org.python.Python.PythonApplications-3.4 | tr '\n' '\0' | xargs -n 1 -0 sudo rm -rf"
-# delete_dirs_ex = "pkgutil --only-dirs --files org.python.Python.PythonApplications-3.4 | tail -r | tr '\n' '\0' | xargs -n 1 -0 sudo rmdir"
-# forget_ex = "sudo pkgutil --forget org.python.Python.PythonApplications-3.4"
-
 PYTHON_PKGS = {
     'app': 'org.python.Python.PythonApplications-',
     'docs': 'org.python.Python.PythonDocumentation-',
