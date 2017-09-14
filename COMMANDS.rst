@@ -472,14 +472,22 @@ Temporary env:
 
     **Options:**
 
-*-t/--temp*
-    Use a new temporary virtual env.
-
 *-s/--shell*
     The name of shell to use e.g. ``bash``. If the shell name is not
     supported, e.g. ``bash -O``, it will be treated as a command and
     no custom prompt will be provided. This overrides the config file
     entry ``shell``.
+
+*-t/--temp*
+    Use a new temporary virtual env.
+
+*-py/--python*
+    A named Python path to use when creating a temporary virtual
+    env. This overrides --pypath.
+
+*-pp/--pypath*
+    An absolute path to a Python executable to use when creating
+    a temporary virtual env.
 
 ``clean``
 ^^^^^^^^^

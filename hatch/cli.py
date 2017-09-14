@@ -1403,8 +1403,6 @@ def shed(ctx, pyname, env_name):
                short_help='Activates or sends a command to a virtual environment')
 @click.argument('env_name', required=False)
 @click.argument('command', required=False, nargs=-1, type=click.UNPROCESSED)
-@click.option('-t', '--temp', 'temp_env', is_flag=True,
-              help='Use a new temporary virtual env.')
 @click.option('-s', '--shell',
               help=(
                   'The name of shell to use e.g. `bash`. If the shell name '
@@ -1412,8 +1410,20 @@ def shed(ctx, pyname, env_name):
                   'a command and no custom prompt will be provided. This '
                   'overrides the config file entry `shell`.'
               ))
+@click.option('-t', '--temp', 'temp_env', is_flag=True,
+              help='Use a new temporary virtual env.')
+@click.option('-py', '--python', 'pyname',
+              help=(
+                  'A named Python path to use when creating a temporary '
+                  'virtual env. This overrides --pypath.'
+              ))
+@click.option('-pp', '--pypath',
+              help=(
+                  'An absolute path to a Python executable to use when '
+                  'creating a temporary virtual env.'
+              ))
 @click.pass_context
-def use(ctx, env_name, command, temp_env, shell):  # no cov
+def use(ctx, env_name, command, shell, temp_env, pyname, pypath):  # no cov
     """Activates or sends a command to a virtual environment. A default shell
     name (or command) can be specified in the config file entry `shell` or the
     environment variable `SHELL`. If there is no entry, env var, nor shell
@@ -1502,11 +1512,23 @@ def use(ctx, env_name, command, temp_env, shell):  # no cov
         sys.exit(1)
 
     if temp_env:
+        if pyname:
+            try:
+                settings = load_settings()
+            except FileNotFoundError:
+                echo_failure('Unable to locate config file. Try `hatch config --restore`.')
+                sys.exit(1)
+
+            pypath = settings.get('pypaths', {}).get(pyname, None)
+            if not pypath:
+                echo_failure('Unable to find a Python path named `{}`.'.format(pyname))
+                sys.exit(1)
+
         temp_dir = TemporaryDirectory()
         env_name = get_random_venv_name()
         venv_dir = os.path.join(temp_dir.name, env_name)
         echo_waiting('Creating a temporary virtual env named `{}`...'.format(env_name))
-        create_venv(venv_dir, verbose=True)
+        create_venv(venv_dir, pypath=pypath, verbose=True)
     else:
         temp_dir = None
         venv_dir = os.path.join(VENV_DIR, env_name)

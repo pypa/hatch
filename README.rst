@@ -266,6 +266,8 @@ Important changes are emphasized.
 master
 ^^^^^^
 
+- You can now specify what Python to use when creating a temporary virtual
+  env in the ``use`` command.
 - Added a ``-l/--local`` shortcut flag to the commands ``grow``, ``test``,
   ``clean``, ``build``, and ``release``. This allows you to omit the name
   of a local package if it is the only one.
