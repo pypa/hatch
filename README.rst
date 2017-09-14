@@ -71,7 +71,7 @@ use of these:
 Features
 --------
 
-- Completely cross-platform (terminal colors too!) \\(*_^)/
+- Completely cross-platform (terminal colors too!) \\(\*_^)/
 - Configurable project creation! CI service files, readme format/badges, licenses, etc.
 - Easiest virtual environment management available
 - Activation of virtual envs without disruption of current environments
@@ -206,7 +206,7 @@ or simply ``pip`` if that already points to a Python 3 version.
 
 If ``hatch`` doesn't work on your system immediately after that, please
 run `this command <https://github.com/ofek/pybin#installation>`_ then
-`this command <https://github.com/ofek/pybin#pybin-put>`_.
+`that command <https://github.com/ofek/pybin#pybin-put>`_.
 
 After the first installation, you may want to run ``hatch config --restore`` to
 ensure your config file is available.
@@ -299,7 +299,7 @@ master
 ^^^^^
 
 - Hatch now officially supports ``bash``, ``fish``, ``zsh``, ``cmd``,
-  ``powershell``, and ``xonsh`` /*_^\\
+  ``powershell``, and ``xonsh`` /\*_^\\
 - The location of virtual environments can now be
   `configured <https://github.com/ofek/hatch/blob/master/CONFIG.rst#virtual-env-location>`_!
 - **Breaking:** Virtual envs can no longer be nested.
