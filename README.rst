@@ -266,6 +266,9 @@ Important changes are emphasized.
 master
 ^^^^^^
 
+- Added a ``-l/--local`` shortcut flag to the commands ``grow``, ``test``,
+  ``clean``, ``build``, and ``release``. This allows you to omit the name
+  of a local package if it is the only one.
 - More informative output, including a new color!
 
 0.11.0

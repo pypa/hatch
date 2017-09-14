@@ -182,6 +182,63 @@ def test_package_not_exist():
         assert '`{}` is not an editable package.'.format('ok') in result.output
 
 
+def test_local():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['new', 'ok', '--basic'])
+
+        venv_dir = os.path.join(d, 'venv')
+        create_venv(venv_dir)
+
+        with venv(venv_dir):
+            install_packages(['-e', os.path.join(d, 'ok')])
+
+            result = runner.invoke(hatch, ['grow', 'fix', '-l'])
+            init_file = os.path.join(d, 'ok', 'ok', '__init__.py')
+            contents = read_file(init_file)
+
+        assert result.exit_code == 0
+        assert contents == "__version__ = '0.0.2'\n"
+        assert 'Package `ok` has been selected.' in result.output
+        assert 'Updated {}'.format(init_file) in result.output
+        assert '0.0.1 -> 0.0.2' in result.output
+
+
+def test_local_not_exist():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        venv_dir = os.path.join(d, 'venv')
+        create_venv(venv_dir)
+
+        with venv(venv_dir):
+            result = runner.invoke(hatch, ['grow', 'fix', '-l'])
+
+        assert result.exit_code == 1
+        assert 'There are no local packages available.' in result.output
+
+
+def test_local_multiple():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['new', 'ok', '--basic'])
+        runner.invoke(hatch, ['new', 'ko', '--basic'])
+
+        venv_dir = os.path.join(d, 'venv')
+        create_venv(venv_dir)
+
+        with venv(venv_dir):
+            install_packages(['-e', os.path.join(d, 'ok')])
+            install_packages(['-e', os.path.join(d, 'ko')])
+
+            result = runner.invoke(hatch, ['grow', 'fix', '-l'])
+
+        assert result.exit_code == 1
+        assert (
+            'There are multiple local packages available. '
+            'Select one with the optional argument.'
+        ) in result.output
+
+
 def test_path_relative():
     with temp_chdir() as d:
         runner = CliRunner()

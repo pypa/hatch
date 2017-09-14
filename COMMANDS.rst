@@ -103,8 +103,9 @@ The path to the project is derived in the following order:
 
 1. The optional argument, which should be the name of a package
    that was installed via ``hatch install -l`` or ``pip install -e``.
-2. The option --path, which can be a relative or absolute path.
-3. The current directory.
+2. The --local flag.
+3. The option --path, which can be a relative or absolute path.
+4. The current directory.
 
 If the path is a file, it will be the target. Otherwise, the path, and
 every top level directory within, will be checked for a ``__version__.py``,
@@ -149,6 +150,10 @@ the config entry ``semver``.
 
     **Options:**
 
+*-l/--local*
+    Shortcut to select the only available local (editable) package. If
+    there are multiple, an error will be raised.
+
 *-p/--path*
     A relative or absolute path to a project or file.
 
@@ -167,8 +172,9 @@ The path is derived in the following order:
 
 1. The optional argument, which should be the name of a package
    that was installed via ``hatch install -l`` or ``pip install -e``.
-2. The option --path, which can be a relative or absolute path.
-3. The current directory.
+2. The --local flag.
+3. The option --path, which can be a relative or absolute path.
+4. The current directory.
 
 If the path points to a package, it should have a ``tests`` directory.
 
@@ -208,6 +214,10 @@ If the path points to a package, it should have a ``tests`` directory.
 ..
 
     **Options:**
+
+*-l/--local*
+    Shortcut to select the only available local (editable) package. If
+    there are multiple, an error will be raised.
 
 *-p/--path*
     A relative or absolute path to a project or test directory.
@@ -480,8 +490,9 @@ The path to the project is derived in the following order:
 
 1. The optional argument, which should be the name of a package
    that was installed via ``hatch install -l`` or ``pip install -e``.
-2. The option --path, which can be a relative or absolute path.
-3. The current directory.
+2. The --local flag.
+3. The option --path, which can be a relative or absolute path.
+4. The current directory.
 
 All ``*.pyc``/``*.pyd``/``*.pyo`` files and ``__pycache__`` directories will be removed.
 Additionally, the following patterns will be removed from the root of the path:
@@ -501,6 +512,10 @@ If the path was derived from the optional package argument, the pattern
 
     **Options:**
 
+*-l/--local*
+    Shortcut to select the only available local (editable) package. If
+    there are multiple, an error will be raised.
+
 *-p/--path*
     A relative or absolute path to a project.
 
@@ -519,8 +534,9 @@ The path to the project is derived in the following order:
 
 1. The optional argument, which should be the name of a package
    that was installed via ``hatch install -l`` or ``pip install -e``.
-2. The option --path, which can be a relative or absolute path.
-3. The current directory.
+2. The --local flag.
+3. The option --path, which can be a relative or absolute path.
+4. The current directory.
 
 The path must contain a ``setup.py`` file.
 
@@ -534,6 +550,10 @@ The path must contain a ``setup.py`` file.
 ..
 
     **Options:**
+
+*-l/--local*
+    Shortcut to select the only available local (editable) package. If
+    there are multiple, an error will be raised.
 
 *-p/--path*
     A relative or absolute path to a project.
@@ -568,8 +588,9 @@ The path to the build directory is derived in the following order:
 
 1. The optional argument, which should be the name of a package
    that was installed via ``hatch install -l`` or ``pip install -e``.
-2. The option --path, which can be a relative or absolute path.
-3. The current directory. If the current directory has a ``dist``
+2. The --local flag.
+3. The option --path, which can be a relative or absolute path.
+4. The current directory. If the current directory has a ``dist``
    directory, that will be used instead.
 
 If the path was derived from the optional package argument, the
@@ -589,6 +610,10 @@ will be provided for the password.
 ..
 
     **Options:**
+
+*-l/--local*
+    Shortcut to select the only available local (editable) package. If
+    there are multiple, an error will be raised.
 
 *-p/--path*
     A relative or absolute path to a build directory.
