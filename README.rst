@@ -71,7 +71,7 @@ use of these:
 Features
 --------
 
-- Completely cross-platform (terminal colors too!) \\(\*_^)/
+- Completely cross-platform (terminal colors too!) \\(*_^)/
 - Configurable project creation! CI service files, readme format/badges, licenses, etc.
 - Easiest virtual environment management available
 - Activation of virtual envs without disruption of current environments
@@ -294,7 +294,7 @@ master
 ^^^^^
 
 - Hatch now officially supports ``bash``, ``fish``, ``zsh``, ``cmd``,
-  ``powershell``, and ``xonsh`` /\*_^\\
+  ``powershell``, and ``xonsh`` /*_^\\
 - The location of virtual environments can now be
   `configured <https://github.com/ofek/hatch/blob/master/CONFIG.rst#virtual-env-location>`_!
 - **Breaking:** Virtual envs can no longer be nested.
