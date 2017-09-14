@@ -29,7 +29,10 @@ from hatch.utils import (
 from hatch.venv import (
     VENV_DIR, clone_venv, create_venv, fix_available_venvs, get_available_venvs, venv
 )
-
+from hatch.interpreters_osx import (
+    PYTHON_PKGS, install_interpreter, download_python_pkg,
+    is_pkgs_installed, strip_build_ver, uninstall_pkg, py_framework_path
+)
 
 CONTEXT_SETTINGS = {
     'help_option_names': ['-h', '--help'],
@@ -1432,3 +1435,36 @@ def use(ctx, env_name, command, temp_env, shell):  # no cov
             temp_dir.cleanup()
 
     sys.exit(result)
+
+
+@hatch.command(context_settings=UNKNOWN_OPTIONS,
+               short_help='Installing python interpreters from python.org')
+@click.argument('version', required=True)
+@click.option('--rm', 'rm', is_flag=True, help=('Uninstall interpreter'))
+@click.pass_context
+def python(ctx, version, rm):  # no cov
+    #TODO: List all avaliable versions if user enters version without build
+    sv = strip_build_ver(version)
+    if rm:
+        if is_pkgs_installed(sv):
+            # TODO: Defend against uninstalling current version which used by hatch
+            pf = py_framework_path(sv)
+            click.echo('Uninstalling python in {}/{}'.format(pf, sv))
+            for p in PYTHON_PKGS:
+                uninstall_pkg(PYTHON_PKGS[p] + sv)
+        else:
+            click.echo('Interpreter is not installed!')
+    else:
+        if not is_pkgs_installed(sv):
+            # TODO: By default versions with different build just overwriting each other,system python is not changed,
+            # TODO: should we have a feature of overwriting build of Python?
+            click.echo('Downloading python {} from python.org...'.format(version))
+            installer_path = download_python_pkg(version)
+            click.echo('Saved installer in {}'.format(installer_path))
+            click.echo('Installing interpreter (may require your sudo password)...')
+            install_interpreter(installer_path)
+            pf = py_framework_path(sv)
+            click.echo('Interpreter installed in {}'.format(pf, sv))
+        else:
+            pf = py_framework_path(sv)
+            click.echo('Interpreter already installed in {}/{}'.format(pf, sv))

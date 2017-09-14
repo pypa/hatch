@@ -73,7 +73,8 @@ setup(
         'setuptools>=36.0.0',
         'twine>=1.9.1',
         'virtualenv',
-        'wheel>=0.27.0'
+        'wheel>=0.27.0',
+        'requests'
     ),
     setup_requires=('appdirs', 'atomicwrites'),
     tests_require=('parse', ),
