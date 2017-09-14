@@ -266,6 +266,9 @@ Important changes are emphasized.
 master
 ^^^^^^
 
+0.12.0
+^^^^^^
+
 - You can now specify what Python to use when creating a temporary virtual
   env in the ``use`` command.
 - Added a ``-l/--local`` shortcut flag to the commands ``grow``, ``test``,
@@ -309,16 +312,6 @@ master
 - You can now ``use`` a new temporary virtual env via the ``-t/--temp`` option!!!
 - Pretty terminal colors {^.^}
 - Nicer self updating for Linux.
-
-0.7.0
-^^^^^
-
-- Upon project creation, it is now possible to automatically install it
-  locally (editable) in a virtual environment.
-- If the ``release`` command is invoked with no path information, it will
-  use a ``current_directory/dist`` directory if it exists before defaulting
-  to the current directory.
-- **Fix/Change:** Shedding now uses ``/`` as a separator instead of a comma for names.
 
 View `all history <https://github.com/ofek/hatch/blob/master/HISTORY.rst>`_
 
