@@ -669,6 +669,10 @@ current directory.
     Installs globally, rather than on a per-user basis. This has no effect if
     a virtual env is in use.
 
+*--admin*
+    When --global is selected, this assumes admin rights are already enabled
+    and therefore sudo/runas will not be used.
+
 *-q/--quiet*
     Decreases verbosity.
 
@@ -701,6 +705,10 @@ or a dev version of that in the current directory.
 *-g/--global*
     Uninstalls globally, rather than on a per-user basis. This has no effect if
     a virtual env is in use.
+
+*--admin*
+    When --global is selected, this assumes admin rights are already enabled
+    and therefore sudo/runas will not be used.
 
 *-d/--dev*
     When locating a requirements file, only use the dev version.
@@ -758,6 +766,10 @@ ignore ``hatch``. See: `<https://github.com/pypa/pip/issues/1299>`_
 *-g/--global*
     Updates globally, rather than on a per-user basis. This has no effect if
     a virtual env is in use.
+
+*--admin*
+    When --global is selected, this assumes admin rights are already enabled
+    and therefore sudo/runas will not be used.
 
 *-f/--force*
     Forces the use of newer features in global updates.

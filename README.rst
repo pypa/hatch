@@ -266,6 +266,8 @@ Important changes are emphasized.
 master
 ^^^^^^
 
+- Added ``--admin`` flag to ``install``, ``uninstall``, and ``update`` commands
+  to indicate elevated privileges have already been given.
 - Basic support for ``csh``/``tcsh`` shells.
 
 0.12.0
