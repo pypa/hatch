@@ -76,8 +76,8 @@ Config file
     - ``bash``
     - ``fish``
     - ``zsh``
-    - ``cmd``
     - ``powershell`` (``ps`` alias)
+    - ``cmd``
     - ``tcsh``
     - ``csh``
 
