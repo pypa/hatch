@@ -72,12 +72,12 @@ Config file
     The shell name or command to use when activating virtual envs. Hatch
     currently supports custom prompts and behavior for:
 
+    - ``xonsh`` (recommended due to its overall awesomeness!)
     - ``bash``
     - ``fish``
     - ``zsh``
     - ``cmd``
     - ``powershell`` (``ps`` alias)
-    - ``xonsh``
     - ``tcsh``
     - ``csh``
 
