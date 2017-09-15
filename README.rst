@@ -266,6 +266,8 @@ Important changes are emphasized.
 master
 ^^^^^^
 
+- Basic support for ``csh``/``tcsh`` shells.
+
 0.12.0
 ^^^^^^
 

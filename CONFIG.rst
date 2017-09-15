@@ -78,6 +78,8 @@ Config file
     - ``cmd``
     - ``powershell`` (``ps`` alias)
     - ``xonsh``
+    - ``tcsh``
+    - ``csh``
 
 *venv_dir*
     The directory to create and look for virtual envs. Also accepts ``shared`` and ``isolated``.
