@@ -2,6 +2,7 @@ import os
 import re
 import subprocess
 import requests
+from distutils.version import LooseVersion
 from hatch.exceptions import PythonPkgNotInstalled, PkgInstallerSystemProblem
 
 ENCODING = 'utf-8'
@@ -36,9 +37,20 @@ def gen_installers_list():
             pass
     return ver_to_link
 
+def gen_installers_cli():
+    installers = gen_installers_list()
+    for ver in '23':
+        vers = [i for i in installers if i.startswith(ver)]
+        vers.sort(key=LooseVersion)
+        yield vers
+
 
 def strip_build_ver(version):
     return '.'.join(version.split('.')[:-1])
+
+
+def no_build(version):
+    return len(version.split('.')) == 2
 
 
 def py_framework_path(stripped_ver):

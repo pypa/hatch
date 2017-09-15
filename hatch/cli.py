@@ -31,8 +31,9 @@ from hatch.venv import (
 )
 from hatch.interpreters_osx import (
     PYTHON_PKGS, install_interpreter, download_python_pkg,
-    is_pkgs_installed, strip_build_ver, uninstall_pkg, py_framework_path
+    is_pkgs_installed, strip_build_ver, uninstall_pkg, py_framework_path, no_build, gen_installers_cli
 )
+from itertools import zip_longest
 
 CONTEXT_SETTINGS = {
     'help_option_names': ['-h', '--help'],
@@ -1443,6 +1444,12 @@ def use(ctx, env_name, command, temp_env, shell):  # no cov
 @click.option('--rm', 'rm', is_flag=True, help=('Uninstall interpreter'))
 @click.pass_context
 def python(ctx, version, rm):  # no cov
+    if no_build(version):
+        click.echo('Please choose from avaliable versions:')
+        vers = [v for v in gen_installers_cli()]
+        for v in zip_longest(vers[0], vers[1]):
+            click.echo('%-10s %-10s' % (v[0] or ' ', v[1]))
+        return
     #TODO: List all avaliable versions if user enters version without build
     sv = strip_build_ver(version)
     if rm:
