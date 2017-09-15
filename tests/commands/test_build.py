@@ -65,6 +65,65 @@ def test_package():
         ) in result.output
 
 
+def test_local():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['new', 'ok', '--basic'])
+        package_dir = os.path.join(d, 'ok')
+        build_dir = os.path.join(package_dir, 'dist')
+
+        venv_dir = os.path.join(d, 'venv')
+        create_venv(venv_dir)
+
+        with venv(venv_dir):
+            install_packages(['-e', package_dir])
+
+            result = runner.invoke(hatch, ['build', '-l'])
+            files = os.listdir(build_dir)
+
+        assert result.exit_code == 0
+        assert matching_file(r'.*\.whl$', files)
+        assert len(files) == 2
+        assert (
+            'Files found in `{}`:\n\n'.format(build_dir) + format_files(build_dir)
+        ) in result.output
+
+
+def test_local_not_exist():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        venv_dir = os.path.join(d, 'venv')
+        create_venv(venv_dir)
+
+        with venv(venv_dir):
+            result = runner.invoke(hatch, ['build', '-l'])
+
+        assert result.exit_code == 1
+        assert 'There are no local packages available.' in result.output
+
+
+def test_local_multiple():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['new', 'ok', '--basic'])
+        runner.invoke(hatch, ['new', 'ko', '--basic'])
+
+        venv_dir = os.path.join(d, 'venv')
+        create_venv(venv_dir)
+
+        with venv(venv_dir):
+            install_packages(['-e', os.path.join(d, 'ok')])
+            install_packages(['-e', os.path.join(d, 'ko')])
+
+            result = runner.invoke(hatch, ['build', '-l'])
+
+        assert result.exit_code == 1
+        assert (
+            'There are multiple local packages available. '
+            'Select one with the optional argument.'
+        ) in result.output
+
+
 def test_package_not_exist():
     with temp_chdir() as d:
         runner = CliRunner()

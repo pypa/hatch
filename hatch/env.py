@@ -48,20 +48,29 @@ def get_editable_packages():
     return set(package['name'] for package in json.loads(output))
 
 
-def get_editable_package_location(package_name):
+def get_editable_package_location(package_name=None):
     location = ''
 
     try:
         output = subprocess.check_output(
             [get_proper_pip(), 'list', '-e', '--format', 'columns'], shell=NEED_SUBPROCESS_SHELL
-        ).decode().strip()
+        ).decode().strip().splitlines()[2:]
     except subprocess.CalledProcessError:  # no cov
         return location
 
-    for line in output.splitlines()[2:]:
-        name, _, path = line.split()
-        if name == package_name:
-            return resolve_path(path)
+    if package_name:
+        for line in output:
+            name, _, path = line.split()
+            if name == package_name:
+                return resolve_path(path)
+    else:
+        if len(output) == 1:
+            name, _, path = output[0].split()
+            return name, resolve_path(path)
+        elif len(output) > 1:
+            return None, False
+        else:
+            return None, None
 
     return location
 

@@ -206,7 +206,7 @@ or simply ``pip`` if that already points to a Python 3 version.
 
 If ``hatch`` doesn't work on your system immediately after that, please
 run `this command <https://github.com/ofek/pybin#installation>`_ then
-`this command <https://github.com/ofek/pybin#pybin-put>`_.
+`that command <https://github.com/ofek/pybin#pybin-put>`_.
 
 After the first installation, you may want to run ``hatch config --restore`` to
 ensure your config file is available.
@@ -266,12 +266,20 @@ Important changes are emphasized.
 master
 ^^^^^^
 
+0.12.0
+^^^^^^
+
+- You can now specify what Python to use when creating a temporary virtual
+  env in the ``use`` command.
+- Added a ``-l/--local`` shortcut flag to the commands ``grow``, ``test``,
+  ``clean``, ``build``, and ``release``. This allows you to omit the name
+  of a local package if it is the only one.
 - More informative output, including a new color!
 
 0.11.0
 ^^^^^^
 
-- Package `review <https://bugzilla.redhat.com/show_bug.cgi?id=1491456>`_ for Fedora begins!
+- Package `review <https://bugzilla.redhat.com/show_bug.cgi?id=1491456>`_ for Fedora begins! (now approved)
 - ``clean`` now also removes optimized bytecode files (``*.pyo``).
 
 0.10.0
@@ -304,16 +312,6 @@ master
 - You can now ``use`` a new temporary virtual env via the ``-t/--temp`` option!!!
 - Pretty terminal colors {^.^}
 - Nicer self updating for Linux.
-
-0.7.0
-^^^^^
-
-- Upon project creation, it is now possible to automatically install it
-  locally (editable) in a virtual environment.
-- If the ``release`` command is invoked with no path information, it will
-  use a ``current_directory/dist`` directory if it exists before defaulting
-  to the current directory.
-- **Fix/Change:** Shedding now uses ``/`` as a separator instead of a comma for names.
 
 View `all history <https://github.com/ofek/hatch/blob/master/HISTORY.rst>`_
 

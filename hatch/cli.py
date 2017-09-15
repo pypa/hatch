@@ -605,12 +605,17 @@ def update(packages, env_name, eager, all_packages, infra, global_install,
                short_help="Increments a project's version")
 @click.argument('part', type=click.Choice(BUMP.keys()))
 @click.argument('package', required=False)
+@click.option('-l', '--local', is_flag=True,
+              help=(
+                  'Shortcut to select the only available local (editable) '
+                  'package. If there are multiple, an error will be raised.'
+              ))
 @click.option('-p', '--path', help='A relative or absolute path to a project or file.')
 @click.option('--pre', 'pre_token',
               help='The token to use for `pre` part, overriding the config file. Default: rc')
 @click.option('--build', 'build_token',
               help='The token to use for `build` part, overriding the config file. Default: build')
-def grow(part, package, path, pre_token, build_token):
+def grow(part, package, local, path, pre_token, build_token):
     """Increments a project's version number using semantic versioning.
     Valid choices for the part are `major`, `minor`, `patch` (`fix` alias),
     `pre`, and `build`.
@@ -620,8 +625,9 @@ def grow(part, package, path, pre_token, build_token):
     \b
     1. The optional argument, which should be the name of a package
        that was installed via `hatch install -l` or `pip install -e`.
-    2. The option --path, which can be a relative or absolute path.
-    3. The current directory.
+    2. The --local flag.
+    3. The option --path, which can be a relative or absolute path.
+    4. The current directory.
 
     If the path is a file, it will be the target. Otherwise, the path, and
     every top level directory within, will be checked for a `__version__.py`,
@@ -657,6 +663,20 @@ def grow(part, package, path, pre_token, build_token):
         if not path:
             echo_failure('`{}` is not an editable package.'.format(package))
             sys.exit(1)
+    elif local:
+        echo_waiting('Locating package...')
+        name, path = get_editable_package_location()
+        if not name:
+            if path is None:
+                echo_failure('There are no local packages available.')
+                sys.exit(1)
+            else:
+                echo_failure(
+                    'There are multiple local packages available. Select '
+                    'one with the optional argument.'
+                )
+                sys.exit(1)
+        echo_info('Package `{}` has been selected.'.format(name))
     elif path:
         possible_path = resolve_path(path)
         if not possible_path:
@@ -691,6 +711,11 @@ def grow(part, package, path, pre_token, build_token):
 
 @hatch.command(context_settings=CONTEXT_SETTINGS, short_help='Runs tests')
 @click.argument('package', required=False)
+@click.option('-l', '--local', is_flag=True,
+              help=(
+                  'Shortcut to select the only available local (editable) '
+                  'package. If there are multiple, an error will be raised.'
+              ))
 @click.option('-p', '--path',
               help='A relative or absolute path to a project or test directory.')
 @click.option('-c', '--cov', is_flag=True,
@@ -717,7 +742,7 @@ def grow(part, package, path, pre_token, build_token):
                   'want to run a quick test without installing these again in a '
                   'virtual env. Keep in mind these will be the Python 3 versions.'
               ))
-def test(package, path, cov, merge, test_args, cov_args, global_exe):
+def test(package, local, path, cov, merge, test_args, cov_args, global_exe):
     """Runs tests using `pytest`, optionally checking coverage.
 
     The path is derived in the following order:
@@ -725,8 +750,9 @@ def test(package, path, cov, merge, test_args, cov_args, global_exe):
     \b
     1. The optional argument, which should be the name of a package
        that was installed via `hatch install -l` or `pip install -e`.
-    2. The option --path, which can be a relative or absolute path.
-    3. The current directory.
+    2. The --local flag.
+    3. The option --path, which can be a relative or absolute path.
+    4. The current directory.
 
     If the path points to a package, it should have a `tests` directory.
 
@@ -765,6 +791,20 @@ def test(package, path, cov, merge, test_args, cov_args, global_exe):
         if not path:
             echo_failure('`{}` is not an editable package.'.format(package))
             sys.exit(1)
+    elif local:
+        echo_waiting('Locating package...')
+        name, path = get_editable_package_location()
+        if not name:
+            if path is None:
+                echo_failure('There are no local packages available.')
+                sys.exit(1)
+            else:
+                echo_failure(
+                    'There are multiple local packages available. Select '
+                    'one with the optional argument.'
+                )
+                sys.exit(1)
+        echo_info('Package `{}` has been selected.'.format(name))
     elif path:
         possible_path = resolve_path(path)
         if not possible_path:
@@ -838,11 +878,16 @@ def test(package, path, cov, merge, test_args, cov_args, global_exe):
 @hatch.command(context_settings=CONTEXT_SETTINGS,
                short_help="Removes a project's build artifacts")
 @click.argument('package', required=False)
+@click.option('-l', '--local', is_flag=True,
+              help=(
+                  'Shortcut to select the only available local (editable) '
+                  'package. If there are multiple, an error will be raised.'
+              ))
 @click.option('-p', '--path', help='A relative or absolute path to a project.')
 @click.option('-c', '--compiled-only', is_flag=True,
               help='Removes only .pyc files.')
 @click.option('-v', '--verbose', is_flag=True, help='Shows removed paths.')
-def clean(package, path, compiled_only, verbose):
+def clean(package, local, path, compiled_only, verbose):
     """Removes a project's build artifacts.
 
     The path to the project is derived in the following order:
@@ -850,8 +895,9 @@ def clean(package, path, compiled_only, verbose):
     \b
     1. The optional argument, which should be the name of a package
        that was installed via `hatch install -l` or `pip install -e`.
-    2. The option --path, which can be a relative or absolute path.
-    3. The current directory.
+    2. The --local flag.
+    3. The option --path, which can be a relative or absolute path.
+    4. The current directory.
 
     All `*.pyc`/`*.pyd`/`*.pyo` files and `__pycache__` directories will be removed.
     Additionally, the following patterns will be removed from the root of the path:
@@ -866,6 +912,20 @@ def clean(package, path, compiled_only, verbose):
         if not path:
             echo_failure('`{}` is not an editable package.'.format(package))
             sys.exit(1)
+    elif local:
+        echo_waiting('Locating package...')
+        name, path = get_editable_package_location()
+        if not name:
+            if path is None:
+                echo_failure('There are no local packages available.')
+                sys.exit(1)
+            else:
+                echo_failure(
+                    'There are multiple local packages available. Select '
+                    'one with the optional argument.'
+                )
+                sys.exit(1)
+        echo_info('Package `{}` has been selected.'.format(name))
     elif path:
         possible_path = resolve_path(path)
         if not possible_path:
@@ -878,7 +938,7 @@ def clean(package, path, compiled_only, verbose):
     if compiled_only:
         removed_paths = remove_compiled_scripts(path)
     else:
-        removed_paths = clean_package(path, editable=package)
+        removed_paths = clean_package(path, editable=package or local)
 
     if verbose:
         if removed_paths:
@@ -894,6 +954,11 @@ def clean(package, path, compiled_only, verbose):
 
 @hatch.command(context_settings=CONTEXT_SETTINGS, short_help='Builds a project')
 @click.argument('package', required=False)
+@click.option('-l', '--local', is_flag=True,
+              help=(
+                  'Shortcut to select the only available local (editable) '
+                  'package. If there are multiple, an error will be raised.'
+              ))
 @click.option('-p', '--path', help='A relative or absolute path to a project.')
 @click.option('-py', '--python', 'pyname',
               help='The named Python path to use. This overrides --pypath.')
@@ -908,7 +973,7 @@ def clean(package, path, compiled_only, verbose):
 @click.option('-c', '--clean', 'clean_first', is_flag=True,
               help='Removes build artifacts before building.')
 @click.option('-v', '--verbose', is_flag=True, help='Increases verbosity.')
-def build(package, path, pyname, pypath, universal, name, build_dir,
+def build(package, local, path, pyname, pypath, universal, name, build_dir,
           clean_first, verbose):
     """Builds a project, producing a source distribution and a wheel.
 
@@ -917,8 +982,9 @@ def build(package, path, pyname, pypath, universal, name, build_dir,
     \b
     1. The optional argument, which should be the name of a package
        that was installed via `hatch install -l` or `pip install -e`.
-    2. The option --path, which can be a relative or absolute path.
-    3. The current directory.
+    2. The --local flag.
+    3. The option --path, which can be a relative or absolute path.
+    4. The current directory.
 
     The path must contain a `setup.py` file.
     """
@@ -928,6 +994,20 @@ def build(package, path, pyname, pypath, universal, name, build_dir,
         if not path:
             echo_failure('`{}` is not an editable package.'.format(package))
             sys.exit(1)
+    elif local:
+        echo_waiting('Locating package...')
+        name, path = get_editable_package_location()
+        if not name:
+            if path is None:
+                echo_failure('There are no local packages available.')
+                sys.exit(1)
+            else:
+                echo_failure(
+                    'There are multiple local packages available. Select '
+                    'one with the optional argument.'
+                )
+                sys.exit(1)
+        echo_info('Package `{}` has been selected.'.format(name))
     elif path:
         possible_path = resolve_path(path)
         if not possible_path:
@@ -956,7 +1036,7 @@ def build(package, path, pyname, pypath, universal, name, build_dir,
 
     if clean_first:
         echo_waiting('Removing build artifacts...')
-        clean_package(path, editable=package)
+        clean_package(path, editable=package or local)
 
     return_code = build_package(path, build_dir, universal, name, pypath, verbose)
 
@@ -971,6 +1051,11 @@ def build(package, path, pyname, pypath, universal, name, build_dir,
 
 @hatch.command(context_settings=CONTEXT_SETTINGS, short_help='Uploads to PyPI')
 @click.argument('package', required=False)
+@click.option('-l', '--local', is_flag=True,
+              help=(
+                  'Shortcut to select the only available local (editable) '
+                  'package. If there are multiple, an error will be raised.'
+              ))
 @click.option('-p', '--path',
               help='A relative or absolute path to a build directory.')
 @click.option('-u', '--username', help='The PyPI username to use.')
@@ -978,7 +1063,7 @@ def build(package, path, pyname, pypath, universal, name, build_dir,
               help='Uses the test version of PyPI.')
 @click.option('-s', '--strict', is_flag=True,
               help='Aborts if a distribution already exists.')
-def release(package, path, username, test_pypi, strict):
+def release(package, local, path, username, test_pypi, strict):
     """Uploads all files in a directory to PyPI using Twine.
 
     The path to the build directory is derived in the following order:
@@ -986,8 +1071,9 @@ def release(package, path, username, test_pypi, strict):
     \b
     1. The optional argument, which should be the name of a package
        that was installed via `hatch install -l` or `pip install -e`.
-    2. The option --path, which can be a relative or absolute path.
-    3. The current directory. If the current directory has a `dist`
+    2. The --local flag.
+    3. The option --path, which can be a relative or absolute path.
+    4. The current directory. If the current directory has a `dist`
        directory, that will be used instead.
 
     If the path was derived from the optional package argument, the
@@ -1003,6 +1089,21 @@ def release(package, path, username, test_pypi, strict):
         if not path:
             echo_failure('`{}` is not an editable package.'.format(package))
             sys.exit(1)
+        path = os.path.join(path, 'dist')
+    elif local:
+        echo_waiting('Locating package...')
+        name, path = get_editable_package_location()
+        if not name:
+            if path is None:
+                echo_failure('There are no local packages available.')
+                sys.exit(1)
+            else:
+                echo_failure(
+                    'There are multiple local packages available. Select '
+                    'one with the optional argument.'
+                )
+                sys.exit(1)
+        echo_info('Package `{}` has been selected.'.format(name))
         path = os.path.join(path, 'dist')
     elif path:
         possible_path = resolve_path(path)
@@ -1306,8 +1407,6 @@ def shed(ctx, pyname, env_name):
                short_help='Activates or sends a command to a virtual environment')
 @click.argument('env_name', required=False)
 @click.argument('command', required=False, nargs=-1, type=click.UNPROCESSED)
-@click.option('-t', '--temp', 'temp_env', is_flag=True,
-              help='Use a new temporary virtual env.')
 @click.option('-s', '--shell',
               help=(
                   'The name of shell to use e.g. `bash`. If the shell name '
@@ -1315,8 +1414,20 @@ def shed(ctx, pyname, env_name):
                   'a command and no custom prompt will be provided. This '
                   'overrides the config file entry `shell`.'
               ))
+@click.option('-t', '--temp', 'temp_env', is_flag=True,
+              help='Use a new temporary virtual env.')
+@click.option('-py', '--python', 'pyname',
+              help=(
+                  'A named Python path to use when creating a temporary '
+                  'virtual env. This overrides --pypath.'
+              ))
+@click.option('-pp', '--pypath',
+              help=(
+                  'An absolute path to a Python executable to use when '
+                  'creating a temporary virtual env.'
+              ))
 @click.pass_context
-def use(ctx, env_name, command, temp_env, shell):  # no cov
+def use(ctx, env_name, command, shell, temp_env, pyname, pypath):  # no cov
     """Activates or sends a command to a virtual environment. A default shell
     name (or command) can be specified in the config file entry `shell` or the
     environment variable `SHELL`. If there is no entry, env var, nor shell
@@ -1405,11 +1516,23 @@ def use(ctx, env_name, command, temp_env, shell):  # no cov
         sys.exit(1)
 
     if temp_env:
+        if pyname:
+            try:
+                settings = load_settings()
+            except FileNotFoundError:
+                echo_failure('Unable to locate config file. Try `hatch config --restore`.')
+                sys.exit(1)
+
+            pypath = settings.get('pypaths', {}).get(pyname, None)
+            if not pypath:
+                echo_failure('Unable to find a Python path named `{}`.'.format(pyname))
+                sys.exit(1)
+
         temp_dir = TemporaryDirectory()
         env_name = get_random_venv_name()
         venv_dir = os.path.join(temp_dir.name, env_name)
         echo_waiting('Creating a temporary virtual env named `{}`...'.format(env_name))
-        create_venv(venv_dir, verbose=True)
+        create_venv(venv_dir, pypath=pypath, verbose=True)
     else:
         temp_dir = None
         venv_dir = os.path.join(VENV_DIR, env_name)
