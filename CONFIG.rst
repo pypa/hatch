@@ -76,7 +76,7 @@ Config file
     - ``fish``
     - ``zsh``
     - ``cmd``
-    - ``powershell``
+    - ``powershell`` (``ps`` alias)
     - ``xonsh``
 
 *venv_dir*
