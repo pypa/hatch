@@ -1567,13 +1567,6 @@ def use(ctx, env_name, command, shell, temp_env, pyname, pypath):  # no cov
 @click.option('--rm', 'rm', is_flag=True, help=('Uninstall interpreter'))
 @click.pass_context
 def python(ctx, version, rm):  # no cov
-    if no_build(version):
-        click.echo('Please choose from avaliable versions:')
-        vers = [v for v in gen_installers_cli()]
-        for v in zip_longest(vers[0], vers[1]):
-            click.echo('%-10s %-10s' % (v[0] or ' ', v[1]))
-        return
-    #TODO: List all avaliable versions if user enters version without build
     sv = strip_build_ver(version)
     if rm:
         if is_pkgs_installed(sv):
@@ -1585,6 +1578,12 @@ def python(ctx, version, rm):  # no cov
         else:
             click.echo('Interpreter is not installed!')
     else:
+        if no_build(version):
+            click.echo('Please choose from avaliable versions:')
+            vers = [v for v in gen_installers_cli()]
+            for v in zip_longest(vers[0], vers[1]):
+                click.echo('%-10s %-10s' % (v[0] or ' ', v[1]))
+            return
         if not is_pkgs_installed(sv):
             # TODO: By default versions with different build just overwriting each other,system python is not changed,
             # TODO: should we have a feature of overwriting build of Python?
