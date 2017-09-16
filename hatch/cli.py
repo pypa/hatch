@@ -3,6 +3,7 @@ import os
 import re
 import subprocess
 import sys
+import shutil
 from tempfile import TemporaryDirectory
 
 import click
@@ -24,7 +25,7 @@ from hatch.shells import run_shell
 from hatch.utils import (
     NEED_SUBPROCESS_SHELL, ON_WINDOWS, basepath, chdir, get_admin_command,
     get_proper_pip, get_proper_python, get_random_venv_name, get_requirements_file,
-    remove_path, resolve_path, venv_active
+    remove_path, resolve_path, venv_active, temp_chdir
 )
 from hatch.venv import (
     VENV_DIR, clone_venv, create_venv, fix_available_venvs, get_available_venvs, venv
@@ -1432,3 +1433,131 @@ def use(ctx, env_name, command, temp_env, shell):  # no cov
             temp_dir.cleanup()
 
     sys.exit(result)
+
+
+@hatch.command(context_settings=CONTEXT_SETTINGS, short_help='Generate documenation')
+@click.argument('package', required=False)
+@click.option('-p', '--path',
+              help='A relative or absolute path to a project or test directory.')
+@click.option('-da', '--doc-args', default='',
+              help=(
+                  'Pass through to `pydoc`, overriding defaults. Example: '
+                  '`hatch doc -da "-vv"`'
+              ))
+@click.option('-g', '--global', 'global_exe', is_flag=True,
+              help=(
+                  'Uses `pydoc` shipped with Hatch instead of environment-aware'
+                  'modules. This is useful if you just want to run a quick test'
+                  'without installing these again in a virtual env. Keep in mind'
+                  'these will be the Python 3 versions.'
+              ))
+def doc(package, path, doc_args, global_exe):
+    """Generate documenation using `pydoc`.
+
+    The path is derived in the following order:
+
+    \b
+    1. The optional argument, which should be the name of a package
+       that was installed via `hatch install -l` or `pip install -e`.
+    2. The option --path, which can be a relative or absolute path.
+    3. The current directory.
+
+    \b
+    $ git clone https://github.com/ofek/privy && cd privy
+    $ hatch doc
+    ========================= test session starts ==========================
+    platform linux -- Python 3.5.2, pytest-3.2.1, py-1.4.34, pluggy-0.4.0
+    rootdir: /home/ofek/privy, inifile:
+    plugins: xdist-1.20.0, mock-1.6.2, httpbin-0.0.7, forked-0.2, cov-2.5.1
+    collected 10 items
+
+    \b
+    tests/test_privy.py ..........
+
+    \b
+    ====================== 10 passed in 4.34 seconds =======================
+
+    \b
+    Tests completed, checking coverage...
+
+    \b
+    Name                  Stmts   Miss Branch BrPart  Cover   Missing
+    -----------------------------------------------------------------
+    privy/__init__.py         1      0      0      0   100%
+    privy/core.py            30      0      0      0   100%
+    privy/utils.py           13      0      4      0   100%
+    tests/__init__.py         0      0      0      0   100%
+    tests/test_privy.py      57      0      0      0   100%
+    -----------------------------------------------------------------
+    TOTAL                   101      0      4      0   100%
+    """
+    if package:
+        echo_waiting('Locating package...')
+        path = get_editable_package_location(package)
+        docs_path = os.path.join(path, 'docs')
+        if not path:
+            echo_failure('`{}` is not an editable package.'.format(package))
+            sys.exit(1)
+    elif path:
+        possible_path = resolve_path(path)
+        if not possible_path:
+            echo_failure('Directory `{}` does not exist.'.format(path))
+            sys.exit(1)
+        path = possible_path
+        docs_path = os.path.join(path, 'docs')
+    else:
+        path = os.getcwd()
+        docs_path = os.path.join(path, 'docs')
+        try:
+            if os.path.isfile(os.path.join(path, 'setup.py')):
+                with open(os.path.join(path, 'setup.py')) as fd:
+                    for line in fd:
+                        if 'name=' in line:
+                            line = line.strip().replace(',', '')
+                            line = line.replace('\'', '')
+                            line = line.replace('\"', '')
+                            path = os.path.join(path,
+                                    line.split('=')[-1])
+        except: pass
+
+    '''
+    python_cmd = [sys.executable if global_exe else get_proper_python(), '-m']
+    command = python_cmd.copy()
+
+    command.append('pydoc')
+    command.extend(['-w', path])
+    command.extend(doc_args.split())
+    click.echo(str(command))
+
+    try:  # no cov
+        sys.stdout.fileno()
+        testing = False
+    except io.UnsupportedOperation:  # no cov
+        testing = True
+
+    # For testing we need to pipe because Click changes stdio streams.
+    stdout = sys.stdout if not testing else subprocess.PIPE
+    stderr = sys.stderr if not testing else subprocess.PIPE
+    '''
+
+    sys.exit(sphinx.quickstart.main(doc_args))
+    return
+    print(docs_path)
+    try:
+        with temp_chdir() as temp_docs:
+            sys.argv = ['pydoc', '-w', path]
+            pydoc.cli()
+            if os.path.isdir(docs_path):
+                shutil.rmtree(docs_path)
+            with chdir(path):
+                shutil.copytree(temp_docs, docs_path)
+    except pydoc.ErrorDuringImport as e:
+        echo_failure('Failed to document {}: {}'.format(package, e))
+        sys.exit(1)
+
+    '''
+    if testing:  # no cov
+        click.echo(output.decode())
+    '''
+
+    # sys.exit(doc_result.returncode)
