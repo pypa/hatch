@@ -29,6 +29,7 @@ from hatch.utils import (
 from hatch.venv import (
     VENV_DIR, clone_venv, create_venv, fix_available_venvs, get_available_venvs, venv
 )
+from hatch.commands.confi import config
 
 
 CONTEXT_SETTINGS = {
@@ -60,40 +61,12 @@ def echo_info(text, nl=True):
     click.secho(text, fg='white', bold=True, nl=nl)
 
 
+hatch.add_command(config)
+
 @click.group(context_settings=CONTEXT_SETTINGS)
 @click.version_option()
 def hatch():
     pass
-
-
-@hatch.command(context_settings=CONTEXT_SETTINGS,
-               short_help='Locates, updates, or restores the config file')
-@click.option('-u', '--update', 'update_settings', is_flag=True,
-              help='Updates the config file with any new fields.')
-@click.option('--restore', is_flag=True,
-              help='Restores the config file to default settings.')
-def config(update_settings, restore):
-    """Locates, updates, or restores the config file.
-
-    \b
-    $ hatch config
-    Settings location: /home/ofek/.local/share/hatch/settings.json
-    """
-    if update_settings:
-        try:
-            user_settings = load_settings()
-            updated_settings = copy_default_settings()
-            updated_settings.update(user_settings)
-            save_settings(updated_settings)
-            echo_success('Settings were successfully updated.')
-        except FileNotFoundError:
-            restore = True
-
-    if restore:
-        restore_settings()
-        echo_success('Settings were successfully restored.')
-
-    echo_success('Settings location: ' + SETTINGS_FILE)
 
 
 @hatch.command(context_settings=CONTEXT_SETTINGS,
