@@ -266,6 +266,7 @@ Important changes are emphasized.
 master
 ^^^^^^
 
+- Support for recent versions of the ``fish`` shell!
 - Added ``--admin`` flag to ``install``, ``uninstall``, and ``update`` commands
   to indicate elevated privileges have already been given.
 - Basic support for ``csh``/``tcsh`` shells.

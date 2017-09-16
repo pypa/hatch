@@ -60,7 +60,7 @@ def fish_shell(exe_dir, shell_path):
         terminal.setwinsize(*get_terminal_dimensions())
     signal.signal(signal.SIGWINCH, sigwinch_passthrough)
 
-    terminal.sendline('. "{}"'.format(os.path.join(exe_dir, 'activate.fish')))
+    terminal.sendline('source "{}"'.format(os.path.join(exe_dir, 'activate.fish')))
     terminal.interact(escape_character=None)
     terminal.close()
     return terminal.exitstatus
