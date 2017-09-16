@@ -1,5 +1,6 @@
 *.log
 *.pyc
+*.swp
 .cache/
 .coverage
 .idea/
