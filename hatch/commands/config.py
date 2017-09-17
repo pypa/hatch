@@ -1,9 +1,9 @@
 import click
-from hatch.cli import (CONTEXT_SETTINGS, echo_success)
 from hatch.settings import (
     SETTINGS_FILE, copy_default_settings, load_settings, restore_settings,
     save_settings
 )
+from hatch.utils import CONTEXT_SETTINGS, echo_success
 
 @click.command(context_settings=CONTEXT_SETTINGS,
                short_help='Locates, updates, or restores the config file')

@@ -24,50 +24,21 @@ from hatch.shells import run_shell
 from hatch.utils import (
     NEED_SUBPROCESS_SHELL, ON_WINDOWS, basepath, chdir, get_admin_command,
     get_proper_pip, get_proper_python, get_random_venv_name, get_requirements_file,
-    remove_path, resolve_path, venv_active
+    remove_path, resolve_path, venv_active, CONTEXT_SETTINGS, UNKNOWN_OPTIONS,
+    echo_failure, echo_info, echo_success, echo_warning, echo_waiting
 )
 from hatch.venv import (
     VENV_DIR, clone_venv, create_venv, fix_available_venvs, get_available_venvs, venv
 )
-from hatch.commands.confi import config
-
-
-CONTEXT_SETTINGS = {
-    'help_option_names': ['-h', '--help'],
-}
-UNKNOWN_OPTIONS = {
-    'ignore_unknown_options': True,
-    **CONTEXT_SETTINGS
-}
-
-
-def echo_success(text, nl=True):
-    click.secho(text, fg='cyan', bold=True, nl=nl)
-
-
-def echo_failure(text, nl=True):
-    click.secho(text, fg='red', bold=True, nl=nl)
-
-
-def echo_warning(text, nl=True):
-    click.secho(text, fg='yellow', bold=True, nl=nl)
-
-
-def echo_waiting(text, nl=True):
-    click.secho(text, fg='magenta', bold=True, nl=nl)
-
-
-def echo_info(text, nl=True):
-    click.secho(text, fg='white', bold=True, nl=nl)
-
-
-hatch.add_command(config)
+from hatch.commands.config import config
 
 @click.group(context_settings=CONTEXT_SETTINGS)
 @click.version_option()
 def hatch():
     pass
 
+
+hatch.add_command(config)
 
 @hatch.command(context_settings=CONTEXT_SETTINGS,
                short_help='Creates a new Python project')
