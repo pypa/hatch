@@ -9,7 +9,7 @@ from hatch.env import get_package_version
 
 
 def wait_for_os():
-    time.sleep(0.05)
+    time.sleep(0.1)
 
 
 def get_version_as_bytes(package_name):
