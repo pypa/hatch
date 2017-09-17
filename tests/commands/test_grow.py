@@ -122,6 +122,7 @@ def test_src_package_path():
         shutil.copytree(origin, priority_dir)
 
         result = runner.invoke(hatch, ['grow', 'minor'])
+        wait_for_os()
 
         assert result.exit_code == 0
         assert read_file(priority_file) == "__version__ = '0.0.1'\n"

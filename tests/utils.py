@@ -8,8 +8,8 @@ import pytest
 from hatch.env import get_package_version
 
 
-def wait_for_os():
-    time.sleep(0.25)
+def wait_for_os(s=None):
+    time.sleep(s or 0.25)
 
 
 def get_version_as_bytes(package_name):
