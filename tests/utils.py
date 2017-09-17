@@ -37,9 +37,9 @@ def connected_to_internet():  # no cov
         # Test availability of DNS first
         host = socket.gethostbyname('www.google.com')
         # Test connection
-        s = socket.create_connection((host, 80), 2)
+        socket.create_connection((host, 80), 2)
         return True
-    except Exception:
+    except:
         return False
 
 
