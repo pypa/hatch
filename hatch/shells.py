@@ -60,7 +60,7 @@ def fish_shell(exe_dir, shell_path):
         terminal.setwinsize(*get_terminal_dimensions())
     signal.signal(signal.SIGWINCH, sigwinch_passthrough)
 
-    terminal.sendline('. "{}"'.format(os.path.join(exe_dir, 'activate.fish')))
+    terminal.sendline('source "{}"'.format(os.path.join(exe_dir, 'activate.fish')))
     terminal.interact(escape_character=None)
     terminal.close()
     return terminal.exitstatus
@@ -110,6 +110,40 @@ def xonsh_shell(exe_dir, shell_path):
         return terminal.exitstatus
 
 
+def tcsh_shell(exe_dir, shell_path):
+    terminal = pexpect.spawn(
+        shell_path or 'tcsh',
+        args=['-i'],
+        dimensions=get_terminal_dimensions()
+    )
+
+    def sigwinch_passthrough(sig, data):
+        terminal.setwinsize(*get_terminal_dimensions())
+    signal.signal(signal.SIGWINCH, sigwinch_passthrough)
+
+    terminal.sendline('source "{}"'.format(os.path.join(exe_dir, 'activate.csh')))
+    terminal.interact(escape_character=None)
+    terminal.close()
+    return terminal.exitstatus
+
+
+def csh_shell(exe_dir, shell_path):
+    terminal = pexpect.spawn(
+        shell_path or 'csh',
+        args=['-i'],
+        dimensions=get_terminal_dimensions()
+    )
+
+    def sigwinch_passthrough(sig, data):
+        terminal.setwinsize(*get_terminal_dimensions())
+    signal.signal(signal.SIGWINCH, sigwinch_passthrough)
+
+    terminal.sendline('source "{}"'.format(os.path.join(exe_dir, 'activate.csh')))
+    terminal.interact(escape_character=None)
+    terminal.close()
+    return terminal.exitstatus
+
+
 def unknown_shell(shell_name):
     result = subprocess.run(shell_name.split(), shell=NEED_SUBPROCESS_SHELL)
     return result.returncode
@@ -123,6 +157,8 @@ SHELL_COMMANDS = {
     'fish': fish_shell,
     'zsh': zsh_shell,
     'xonsh': xonsh_shell,
+    'tcsh': tcsh_shell,
+    'csh': csh_shell,
 }
 
 

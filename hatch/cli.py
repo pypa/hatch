@@ -301,8 +301,13 @@ def init(name, new_env, env_name, basic, cli, licenses):
                   'Installs globally, rather than on a per-user basis. This '
                   'has no effect if a virtual env is in use.'
               ))
+@click.option('--admin', is_flag=True,
+              help=(
+                  'When --global is selected, this assumes admin rights are '
+                  'already enabled and therefore sudo/runas will not be used.'
+              ))
 @click.option('-q', '--quiet', is_flag=True, help='Decreases verbosity.')
-def install(packages, env_name, editable, global_install, quiet):
+def install(packages, env_name, editable, global_install, admin, quiet):
     """If the option --env is supplied, the install will be applied using
     that named virtual env. Unless the option --global is selected, the
     install will only affect the current user. Of course, this will have
@@ -337,10 +342,11 @@ def install(packages, env_name, editable, global_install, quiet):
 
         if not venv_active():  # no cov
             if global_install:
-                if ON_WINDOWS:
-                    windows_admin_command = get_admin_command()
-                else:
-                    command = get_admin_command() + command
+                if not admin:
+                    if ON_WINDOWS:
+                        windows_admin_command = get_admin_command()
+                    else:
+                        command = get_admin_command() + command
             else:
                 command.append('--user')
 
@@ -363,12 +369,17 @@ def install(packages, env_name, editable, global_install, quiet):
                   'Uninstalls globally, rather than on a per-user basis. This '
                   'has no effect if a virtual env is in use.'
               ))
+@click.option('--admin', is_flag=True,
+              help=(
+                  'When --global is selected, this assumes admin rights are '
+                  'already enabled and therefore sudo/runas will not be used.'
+              ))
 @click.option('-d', '--dev', is_flag=True,
               help='When locating a requirements file, only use the dev version.')
 @click.option('-q', '--quiet', is_flag=True, help='Decreases verbosity.')
 @click.option('-y', '--yes', is_flag=True,
               help='Confirms the intent to uninstall without a prompt.')
-def uninstall(packages, env_name, global_uninstall, dev, quiet, yes):
+def uninstall(packages, env_name, global_uninstall, admin, dev, quiet, yes):
     """If the option --env is supplied, the uninstall will be applied using
     that named virtual env. Unless the option --global is selected, the
     uninstall will only affect the current user. Of course, this will have
@@ -408,10 +419,11 @@ def uninstall(packages, env_name, global_uninstall, dev, quiet, yes):
         command = [get_proper_pip(), 'uninstall'] + (['-q'] if quiet else [])
 
         if not venv_active() and global_uninstall:  # no cov
-            if ON_WINDOWS:
-                windows_admin_command = get_admin_command()
-            else:
-                command = get_admin_command() + command
+            if not admin:
+                if ON_WINDOWS:
+                    windows_admin_command = get_admin_command()
+                else:
+                    command = get_admin_command() + command
 
         command.extend(packages)
 
@@ -445,6 +457,11 @@ def uninstall(packages, env_name, global_uninstall, dev, quiet, yes):
                   'Updates globally, rather than on a per-user basis. This '
                   'has no effect if a virtual env is in use.'
               ))
+@click.option('--admin', is_flag=True,
+              help=(
+                  'When --global is selected, this assumes admin rights are '
+                  'already enabled and therefore sudo/runas will not be used.'
+              ))
 @click.option('-f', '--force', is_flag=True,
               help='Forces the use of newer features in global updates.')
 @click.option('-d', '--dev', is_flag=True,
@@ -457,7 +474,7 @@ def uninstall(packages, env_name, global_uninstall, dev, quiet, yes):
 @click.option('--self', is_flag=True, help='Updates `hatch` itself.')
 @click.option('-q', '--quiet', is_flag=True, help='Decreases verbosity.')
 def update(packages, env_name, eager, all_packages, infra, global_install,
-           force, dev, as_module, self, quiet):
+           admin, force, dev, as_module, self, quiet):
     """If the option --env is supplied, the update will be applied using
     that named virtual env. Unless the option --global is selected, the
     update will only affect the current user. Of course, this will have
@@ -522,10 +539,11 @@ def update(packages, env_name, eager, all_packages, infra, global_install,
 
         if not venv_active():  # no cov
             if global_install:
-                if ON_WINDOWS:
-                    windows_admin_command = get_admin_command()
-                else:
-                    command = get_admin_command() + command
+                if not admin:
+                    if ON_WINDOWS:
+                        windows_admin_command = get_admin_command()
+                    else:
+                        command = get_admin_command() + command
             else:
                 command.append('--user')
 

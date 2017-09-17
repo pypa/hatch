@@ -72,12 +72,14 @@ Config file
     The shell name or command to use when activating virtual envs. Hatch
     currently supports custom prompts and behavior for:
 
+    - ``xonsh`` (recommended due to its overall awesomeness!)
     - ``bash``
     - ``fish``
     - ``zsh``
+    - ``powershell`` (``ps`` alias)
     - ``cmd``
-    - ``powershell``
-    - ``xonsh``
+    - ``tcsh``
+    - ``csh``
 
 *venv_dir*
     The directory to create and look for virtual envs. Also accepts ``shared`` and ``isolated``.

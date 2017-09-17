@@ -266,6 +266,14 @@ Important changes are emphasized.
 master
 ^^^^^^
 
+0.13.0
+^^^^^^
+
+- Support for recent versions of the ``fish`` shell!
+- Added ``--admin`` flag to ``install``, ``uninstall``, and ``update`` commands
+  to indicate elevated privileges have already been given.
+- Basic support for ``csh``/``tcsh`` shells.
+
 0.12.0
 ^^^^^^
 
@@ -289,29 +297,6 @@ master
 - Faster virtual environment creation!
 - Full ``xonsh`` support :)
 - More informative output and coloring!
-
-0.9.1
-^^^^^
-
-- Hatch now uses the proper ``virtualenv`` executable in all circumstances.
-
-0.9.0
-^^^^^
-
-- Hatch now officially supports ``bash``, ``fish``, ``zsh``, ``cmd``,
-  ``powershell``, and ``xonsh`` /\*_^\\
-- The location of virtual environments can now be
-  `configured <https://github.com/ofek/hatch/blob/master/CONFIG.rst#virtual-env-location>`_!
-- **Breaking:** Virtual envs can no longer be nested.
-- **Breaking:** Default virtual env location is now ``~/.virtualenvs`` for
-  better interoperability with other tools.
-
-0.8.0
-^^^^^
-
-- You can now ``use`` a new temporary virtual env via the ``-t/--temp`` option!!!
-- Pretty terminal colors {^.^}
-- Nicer self updating for Linux.
 
 View `all history <https://github.com/ofek/hatch/blob/master/HISTORY.rst>`_
 
