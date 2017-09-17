@@ -1,10 +1,15 @@
 import os
 import re
 import socket
+import time
 
 import pytest
 
 from hatch.env import get_package_version
+
+
+def wait_for_os():
+    time.sleep(0.05)
 
 
 def get_version_as_bytes(package_name):

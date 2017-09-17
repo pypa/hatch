@@ -7,7 +7,7 @@ from hatch.env import get_editable_packages
 from hatch.settings import SETTINGS_FILE, copy_default_settings, save_settings
 from hatch.utils import create_file, remove_path, temp_chdir, temp_move_path
 from hatch.venv import VENV_DIR, create_venv, get_new_venv_name, venv
-from ..utils import matching_file
+from ..utils import matching_file, wait_for_os
 
 
 def test_config_not_exist():
@@ -117,6 +117,7 @@ def test_envs():
             result = runner.invoke(hatch, [
                 'init', '--basic', 'ok', '-e', '{}/{}'.format(env_name1, env_name2)
             ])
+            wait_for_os()
             with venv(venv_dir1):
                 assert 'ok' in get_editable_packages()
             with venv(venv_dir2):
