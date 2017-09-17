@@ -266,6 +266,8 @@ Important changes are emphasized.
 master
 ^^^^^^
 
+- **Removed:** redundant optional argument for ``new``/``init`` commands.
+
 0.13.0
 ^^^^^^
 

@@ -105,43 +105,6 @@ def test_extras():
         assert not os.path.exists(os.path.join(d, 'file.py'))
 
 
-def test_new_env_exists():
-    with temp_chdir():
-        runner = CliRunner()
-        env_name = get_new_venv_name()
-        venv_dir = os.path.join(VENV_DIR, env_name)
-        os.makedirs(venv_dir)
-
-        try:
-            result = runner.invoke(hatch, ['init', '--basic', 'ok', env_name])
-        finally:
-            remove_path(venv_dir)
-
-        assert result.exit_code == 1
-        assert (
-            'Virtual env `{name}` already exists. To remove '
-            'it do `hatch shed -e {name}`.'.format(name=env_name)
-        ) in result.output
-
-
-def test_new_env():
-    with temp_chdir():
-        runner = CliRunner()
-        env_name = get_new_venv_name()
-        venv_dir = os.path.join(VENV_DIR, env_name)
-
-        try:
-            result = runner.invoke(hatch, ['init', '--basic', 'ok', env_name])
-            with venv(venv_dir):
-                assert 'ok' in get_editable_packages()
-        finally:
-            remove_path(venv_dir)
-
-        assert result.exit_code == 0
-        assert 'Creating virtual env `{}`...'.format(env_name) in result.output
-        assert 'Installing locally in virtual env `{}`...'.format(env_name) in result.output
-
-
 def test_envs():
     with temp_chdir():
         runner = CliRunner()
