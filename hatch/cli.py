@@ -377,7 +377,7 @@ def install(packages, no_detect, env_name, editable, global_install, admin, quie
 
         with venv(venv_dir):
             command = [get_proper_pip(), 'install', *packages] + (['-q'] if quiet else [])
-            echo_waiting('Installing...')
+            echo_waiting('Installing for this project...')
             result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
     else:
         command = [get_proper_pip(), 'install'] + (['-q'] if quiet else [])
@@ -484,7 +484,7 @@ def uninstall(packages, no_detect, env_name, global_uninstall, admin, dev, quiet
 
         with venv(venv_dir):
             command = [get_proper_pip(), 'uninstall', *packages] + (['-q'] if quiet else [])
-            echo_waiting('Uninstalling...')
+            echo_waiting('Uninstalling for this project...')
             result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
     else:
         command = [get_proper_pip(), 'uninstall'] + (['-q'] if quiet else [])
@@ -714,7 +714,7 @@ def update(packages, no_detect, env_name, eager, all_packages, infra, global_ins
             if env_name:
                 echo_waiting('Updating virtual env `{}`...'.format(env_name))
             else:
-                echo_waiting('Updating...')
+                echo_waiting('Updating for this project...')
             result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
     else:
         echo_waiting('Updating...')

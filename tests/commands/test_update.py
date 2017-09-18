@@ -31,7 +31,7 @@ def test_project_no_venv():
         assert 'A project has been detected!' in result.output
         assert 'Creating a dedicated virtual env... complete!' in result.output
         assert 'Installing this project in the virtual env... complete!' in result.output
-        assert 'Updating...' in result.output
+        assert 'Updating for this project...' in result.output
 
 
 @requires_internet
@@ -60,7 +60,7 @@ def test_project_existing_venv():
         assert result.exit_code == 0
         assert initial_version < final_version
         assert 'A project has been detected!' not in result.output
-        assert 'Updating...' in result.output
+        assert 'Updating for this project...' in result.output
 
 
 @requires_internet
@@ -89,7 +89,7 @@ def test_project_existing_venv_all_packages():
         assert result.exit_code == 0
         assert initial_version < final_version
         assert 'A project has been detected!' not in result.output
-        assert 'Updating...' in result.output
+        assert 'Updating for this project...' in result.output
 
 
 @requires_internet

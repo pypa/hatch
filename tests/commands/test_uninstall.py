@@ -25,7 +25,7 @@ def test_project_no_venv():
         assert 'Creating a dedicated virtual env... complete!' in result.output
         assert 'Installing this project in the virtual env... complete!' in result.output
         assert 'New virtual envs have nothing to uninstall, exiting...' in result.output
-        assert 'Uninstalling...' not in result.output
+        assert 'Uninstalling for this project...' not in result.output
 
 
 def test_project_existing_venv():
@@ -52,7 +52,7 @@ def test_project_existing_venv():
 
         assert result.exit_code == 0
         assert 'A project has been detected!' not in result.output
-        assert 'Uninstalling...' in result.output
+        assert 'Uninstalling for this project...' in result.output
 
 
 @requires_internet
