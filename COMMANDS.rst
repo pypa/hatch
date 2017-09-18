@@ -33,8 +33,7 @@ to help populate fields. You can also specify things like the readme format
 and which CI service files to create. All options override the config file.
 
 You can also locally install the created project in a virtual env using
-the optional argument or the --env option. If the virtual env for the
-optional argument already exists, an error will be raised.
+the optional argument or the --env option.
 
 Here is an example using an unmodified config file:
 
@@ -64,9 +63,6 @@ Here is an example using an unmodified config file:
 
 *name*
     The desired name of package.
-
-*new_env*
-    The virtual env to create and install in (optional).
 
 ..
 

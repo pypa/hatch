@@ -10,7 +10,7 @@ from hatch.settings import (
 )
 from hatch.utils import basepath, temp_chdir, temp_move_path
 from hatch.venv import create_venv, venv
-from ..utils import read_file
+from ..utils import read_file, wait_for_os
 
 
 def test_invalid_part():
@@ -95,6 +95,7 @@ def test_package_path():
         shutil.copytree(origin, priority_dir)
 
         result = runner.invoke(hatch, ['grow', 'minor'])
+        wait_for_os()
 
         assert result.exit_code == 0
         assert read_file(priority_file) == "__version__ = '0.0.1'\n"
@@ -121,6 +122,7 @@ def test_src_package_path():
         shutil.copytree(origin, priority_dir)
 
         result = runner.invoke(hatch, ['grow', 'minor'])
+        wait_for_os()
 
         assert result.exit_code == 0
         assert read_file(priority_file) == "__version__ = '0.0.1'\n"

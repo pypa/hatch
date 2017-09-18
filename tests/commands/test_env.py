@@ -13,7 +13,7 @@ from hatch.settings import (
 )
 from hatch.utils import copy_path, remove_path, temp_chdir, temp_move_path
 from hatch.venv import VENV_DIR, create_venv, get_new_venv_name, venv
-from ..utils import requires_internet
+from ..utils import requires_internet, wait_for_os
 
 
 def test_success():
@@ -25,6 +25,7 @@ def test_success():
 
         try:
             result = runner.invoke(hatch, ['env', env_name])
+            wait_for_os()
             assert os.path.exists(venv_dir)
         finally:
             remove_path(venv_dir)
@@ -46,6 +47,7 @@ def test_pyname():
                 settings['pypaths']['python'] = sys.executable
                 save_settings(settings)
                 result = runner.invoke(hatch, ['env', env_name, '-py', 'python'])
+                wait_for_os()
                 assert os.path.exists(venv_dir)
         finally:
             remove_path(venv_dir)
@@ -85,6 +87,7 @@ def test_existing_venv():
 
         try:
             runner.invoke(hatch, ['env', env_name])
+            wait_for_os()
             result = runner.invoke(hatch, ['env', env_name])
         finally:
             remove_path(os.path.join(VENV_DIR, env_name))
@@ -120,6 +123,7 @@ def test_list_success_1():
 
         try:
             runner.invoke(hatch, ['env', env_name1])
+            wait_for_os()
             os.makedirs(venv_dir2)
             result = runner.invoke(hatch, ['env', '-l'])
         finally:
@@ -143,6 +147,7 @@ def test_list_success_2():
 
         try:
             runner.invoke(hatch, ['env', env_name])
+            wait_for_os()
             result = runner.invoke(hatch, ['env', '-ll'])
         finally:
             remove_path(os.path.join(VENV_DIR, env_name))
@@ -166,6 +171,7 @@ def test_list_success_3():
 
         try:
             runner.invoke(hatch, ['env', env_name])
+            wait_for_os()
             runner.invoke(hatch, ['install', '-l', '-e', env_name])
             result = runner.invoke(hatch, ['env', '-lll'])
         finally:
@@ -204,10 +210,12 @@ def test_clone_success():
 
         try:
             runner.invoke(hatch, ['env', origin])
+            wait_for_os()
             with venv(origin_dir):
                 install_packages(['requests'])
 
             result = runner.invoke(hatch, ['env', clone, '-c', origin])
+            wait_for_os()
             with venv(clone_dir):
                 install_packages(['six'])
                 installed_packages = get_installed_packages()
@@ -238,8 +246,10 @@ def test_restore_success():
 
         try:
             runner.invoke(hatch, ['env', env_name])
+            wait_for_os()
 
             result = runner.invoke(hatch, ['env', '-r'])
+            wait_for_os()
             with venv(venv_dir):
                 install_packages(['six'])
                 installed_packages = get_installed_packages()

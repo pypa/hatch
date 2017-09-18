@@ -103,7 +103,6 @@ def config(update_settings, restore):
 @hatch.command(context_settings=CONTEXT_SETTINGS,
                short_help='Creates a new Python project')
 @click.argument('name')
-@click.argument('new_env', required=False)
 @click.option('-e', '--env', 'env_name',
               help=(
                   'Forward-slash-separated list of named virtual envs to be '
@@ -120,7 +119,7 @@ def config(update_settings, restore):
               ))
 @click.option('-l', '--licenses',
               help='Comma-separated list of licenses to use.')
-def new(name, new_env, env_name, basic, cli, licenses):
+def new(name, env_name, basic, cli, licenses):
     """Creates a new Python project.
 
     Values from your config file such as `name` and `pyversions` will be used
@@ -128,8 +127,7 @@ def new(name, new_env, env_name, basic, cli, licenses):
     and which CI service files to create. All options override the config file.
 
     You can also locally install the created project in a virtual env using
-    the optional argument or the --env option. If the virtual env for the
-    optional argument already exists, an error will be raised.
+    the optional argument or the --env option.
 
     Here is an example using an unmodified config file:
 
@@ -158,15 +156,6 @@ def new(name, new_env, env_name, basic, cli, licenses):
         echo_failure('Unable to locate config file. Try `hatch config --restore`.')
         sys.exit(1)
 
-    venvs = env_name.split('/') if env_name else []
-    if new_env:
-        venv_dir = os.path.join(VENV_DIR, new_env)
-        if os.path.exists(venv_dir):
-            echo_failure('Virtual env `{name}` already exists. To remove '
-                         'it do `hatch shed -e {name}`.'.format(name=new_env))
-            sys.exit(1)
-        venvs.insert(0, new_env)
-
     if basic:
         settings['basic'] = True
 
@@ -187,6 +176,7 @@ def new(name, new_env, env_name, basic, cli, licenses):
         create_package(d, name, settings)
         echo_success('Created project `{}`'.format(name))
 
+        venvs = env_name.split('/') if env_name else []
         for vname in venvs:
             venv_dir = os.path.join(VENV_DIR, vname)
             if not os.path.exists(venv_dir):
@@ -201,7 +191,6 @@ def new(name, new_env, env_name, basic, cli, licenses):
 @hatch.command(context_settings=CONTEXT_SETTINGS,
                short_help='Creates a new Python project in the current directory')
 @click.argument('name')
-@click.argument('new_env', required=False)
 @click.option('-e', '--env', 'env_name',
               help=(
                   'Forward-slash-separated list of named virtual envs to be '
@@ -218,7 +207,7 @@ def new(name, new_env, env_name, basic, cli, licenses):
               ))
 @click.option('-l', '--licenses',
               help='Comma-separated list of licenses to use.')
-def init(name, new_env, env_name, basic, cli, licenses):
+def init(name, env_name, basic, cli, licenses):
     """Creates a new Python project in the current directory.
 
     Values from your config file such as `name` and `pyversions` will be used
@@ -226,8 +215,7 @@ def init(name, new_env, env_name, basic, cli, licenses):
     and which CI service files to create. All options override the config file.
 
     You can also locally install the created project in a virtual env using
-    the optional argument or the --env option. If the virtual env for the
-    optional argument already exists, an error will be raised.
+    the optional argument or the --env option.
 
     Here is an example using an unmodified config file:
 
@@ -256,15 +244,6 @@ def init(name, new_env, env_name, basic, cli, licenses):
         echo_failure('Unable to locate config file. Try `hatch config --restore`.')
         sys.exit(1)
 
-    venvs = env_name.split('/') if env_name else []
-    if new_env:
-        venv_dir = os.path.join(VENV_DIR, new_env)
-        if os.path.exists(venv_dir):
-            echo_failure('Virtual env `{name}` already exists. To remove '
-                         'it do `hatch shed -e {name}`.'.format(name=new_env))
-            sys.exit(1)
-        venvs.insert(0, new_env)
-
     if basic:
         settings['basic'] = True
 
@@ -276,6 +255,7 @@ def init(name, new_env, env_name, basic, cli, licenses):
     create_package(os.getcwd(), name, settings)
     echo_success('Created project `{}` here'.format(name))
 
+    venvs = env_name.split('/') if env_name else []
     for vname in venvs:
         venv_dir = os.path.join(VENV_DIR, vname)
         if not os.path.exists(venv_dir):
