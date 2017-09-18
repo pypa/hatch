@@ -18,17 +18,17 @@ def uninstall_python(ver):
     return RUNNER.invoke(hatch, ['python', ver, '--rm'])
 
 def runtime(ver):
-    command = [PYTHON_PKGS_DEFAULT_PATHS['framework'] +
-               '/Versions/' + strip_build_ver(ver) +
-               '/bin/python' + strip_build_ver(ver) + ' -c "import sys; print(sys.executable)"']
+    sv = strip_build_ver(ver)
+    command = [PYTHON_PKGS_DEFAULT_PATHS['framework'].format(sv) +
+               '/bin/python' + sv + ' -c "import sys; print(sys.executable)"']
+    print('Commands ->> %s' % command)
 
     installed_in_paths = [
-        '/Library/Frameworks/Python.framework/Versions/' \
-        + strip_build_ver(ver) + \
-        '/bin/python' + strip_build_ver(ver) + '\n',
+        PYTHON_PKGS_DEFAULT_PATHS['framework'].format(sv) +
+        '/bin/python' + sv + '\n',
 
-        '/Library/Frameworks/Python.framework/Versions/'
-        + strip_build_ver(ver) + '/Resources/Python.app/Contents/MacOS/Python' + '\n'
+        PYTHON_PKGS_DEFAULT_PATHS['framework'].format(sv) +
+        '/Resources/Python.app/Contents/MacOS/Python' + '\n'
     ] #TODO: What is the problem behind installing some versions of python as app, and some as Framework?
       #TODO: Check DEFAULT symlinks is not changed, for example 2.7.14rc1 changes python2.7 symlink
     return any([subprocess.run(command,
@@ -37,9 +37,9 @@ def runtime(ver):
 
 
 def no_runtime(ver):
-    command = [PYTHON_PKGS_DEFAULT_PATHS['framework'] +
-               '/Versions/' + strip_build_ver(ver) +
-               '/bin/python' + strip_build_ver(ver) + ' -c "import sys; print(sys.executable)"']
+    sv = strip_build_ver(ver)
+    command = [PYTHON_PKGS_DEFAULT_PATHS['framework'].format(sv) +
+               '/bin/python' + sv + ' -c "import sys; print(sys.executable)"']
     return 127 == subprocess.run(command,
                                  stdout=subprocess.PIPE,
                                  shell=True).returncode

@@ -30,9 +30,9 @@ from hatch.venv import (
     VENV_DIR, clone_venv, create_venv, fix_available_venvs, get_available_venvs, venv
 )
 from hatch.interpreters_osx import (
-    PYTHON_PKGS, install_interpreter, download_python_pkg,
-    is_pkgs_installed, strip_build_ver, uninstall_pkg, py_framework_path, no_build, gen_installers_cli
-)
+    install_interpreter, download_python_pkg,
+    is_pkgs_installed, strip_build_ver, py_framework_path, no_build, gen_installers_cli,
+    PYTHON_PKGS_DEFAULT_PATHS, uninstall_pkgs)
 from itertools import zip_longest
 
 CONTEXT_SETTINGS = {
@@ -1583,16 +1583,25 @@ def use(ctx, env_name, command, shell, temp_env, pyname, pypath):  # no cov
                short_help='Installing python interpreters from python.org')
 @click.argument('version', required=True)
 @click.option('--rm', 'rm', is_flag=True, help=('Uninstall interpreter'))
+@click.option('-l', '--list', 'py_list', is_flag=True, help=('List all interpreters'))
 @click.pass_context
-def python(ctx, version, rm):  # no cov
+def python(ctx, version, rm, py_list):  # no cov
+    if sys.platform != 'darwin':
+        click.echo('Install command currently works only on OS X!')
+
+    if py_list:
+        versions = os.listdir(os.path.join(PYTHON_PKGS_DEFAULT_PATHS['framework'].format('')))
+        click.echo('Installed versions')
+        click.echo(versions)
+        return
+
     sv = strip_build_ver(version)
     if rm:
         if is_pkgs_installed(sv):
             # TODO: Defend against uninstalling current version which used by hatch
             pf = py_framework_path(sv)
             click.echo('Uninstalling python in {}/{}'.format(pf, sv))
-            for p in PYTHON_PKGS:
-                uninstall_pkg(PYTHON_PKGS[p] + sv)
+            uninstall_pkgs(sv)
         else:
             click.echo('Interpreter is not installed!')
     else:

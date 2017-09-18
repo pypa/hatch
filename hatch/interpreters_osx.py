@@ -8,14 +8,15 @@ from hatch.exceptions import PythonPkgNotInstalled, PkgInstallerSystemProblem
 ENCODING = 'utf-8'
 
 PYTHON_PKGS = {
-    'app': 'org.python.Python.PythonApplications-',
-    'docs': 'org.python.Python.PythonDocumentation-',
-    'framework': 'org.python.Python.PythonFramework-',
+    'app': 'org.python.Python.PythonApplications-', # /Applications/Python x.x
+    'docs': 'org.python.Python.PythonDocumentation-', # /Library/Frameworks/Python.framework/Versions/x.x/Resources/English.lproj/Documentation
+    'framework': 'org.python.Python.PythonFramework-', #/Library/Frameworks/Python.framework/Versions/x.x
     'tools': 'org.python.Python.PythonUnixTools-'
 }
 
 PYTHON_PKGS_DEFAULT_PATHS = {
-    'framework': '/Library/Frameworks/Python.framework'
+    'framework': '/Library/Frameworks/Python.framework/Versions/{}',
+    'app': '/Applications/Python {}',
 }
 
 DEVNULL = open(os.devnull, 'w')
@@ -87,21 +88,18 @@ def install_interpreter(pkg_path):
         raise PkgInstallerSystemProblem('Problem installing package %s' % pkg_path)
 
 
-def uninstall_pkg(pkg):
-    path = pkg_path(pkg)
-    os.chdir(path)
-    delete_files = "pkgutil --only-files --files {}" \
-                   " | tr '\n' '\\0'" \
-                   " | xargs -n 1 -0 sudo rm -rf".format(pkg)
-    subprocess.run(delete_files, stdout=DEVNULL, shell=True)
-
-    delete_dirs = "pkgutil --only-dirs --files {}" \
-                  " | tail -r" \
-                  " | tr '\n' '\\0' | xargs -n 1 -0 sudo rmdir".format(pkg)
-    subprocess.run(delete_dirs, stdout=DEVNULL, stderr=DEVNULL, shell=True)
-
-    forget_pkg = "sudo pkgutil --forget {}".format(pkg)
-    subprocess.run(forget_pkg, stdout=DEVNULL, shell=True)
+def uninstall_pkgs(sv):
+    # According to pkgutil --pkg-info org.python.Python.PythonUnixTools-x.x is empty,
+    #  and Documentation pkg is in Framework's path
+    for pkg in ('framework', 'app'):
+        ppath = PYTHON_PKGS_DEFAULT_PATHS[pkg].format(sv)
+        print('Removing {}'.format(ppath))
+        command = "sudo rm -rf {}".format(ppath)
+        subprocess.run(command, stdout=DEVNULL, shell=True)
+    for pkg in PYTHON_PKGS.values():
+        add_ver = pkg + sv
+        forget_pkg = "sudo pkgutil --forget {}".format(add_ver)
+        subprocess.run(forget_pkg, stdout=DEVNULL, shell=True)
 
 
 def download_python_pkg(version):
