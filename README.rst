@@ -266,6 +266,9 @@ Important changes are emphasized.
 master
 ^^^^^^
 
+0.14.0
+^^^^^^
+
 - ``new``/``init`` commands now create a dedicated virtual env for the project.
   This can be disabled with the new ``-ne/--no-env`` flag.
 - ``install``, ``uninstall``, ``update``, and ``use`` commands are now able to
