@@ -165,7 +165,7 @@ def test_list_success_2():
 def test_list_success_3():
     with temp_chdir():
         runner = CliRunner()
-        runner.invoke(hatch, ['init', 'ok'])
+        runner.invoke(hatch, ['init', 'ok', '-ne'])
 
         env_name = get_new_venv_name()
 

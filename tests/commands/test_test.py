@@ -55,7 +55,7 @@ def create_test_incomplete_coverage(d, pkg):
 def test_passing_cwd():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        runner.invoke(hatch, ['init', 'ok', '--basic', '-ne'])
         create_test_passing(d)
 
         result = runner.invoke(hatch, ['test'])
@@ -67,7 +67,7 @@ def test_passing_cwd():
 def test_failing_cwd():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        runner.invoke(hatch, ['init', 'ok', '--basic', '-ne'])
         create_test_failing(d)
 
         result = runner.invoke(hatch, ['test'])
@@ -79,7 +79,7 @@ def test_failing_cwd():
 def test_package():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['new', 'ok', '--basic'])
+        runner.invoke(hatch, ['new', 'ok', '--basic', '-ne'])
         package_dir = os.path.join(d, 'ok')
         create_test_passing(package_dir)
 
@@ -113,7 +113,7 @@ def test_package_not_exist():
 def test_local():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['new', 'ok', '--basic'])
+        runner.invoke(hatch, ['new', 'ok', '--basic', '-ne'])
         package_dir = os.path.join(d, 'ok')
         create_test_passing(package_dir)
 
@@ -145,8 +145,8 @@ def test_local_not_exist():
 def test_local_multiple():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['new', 'ok', '--basic'])
-        runner.invoke(hatch, ['new', 'ko', '--basic'])
+        runner.invoke(hatch, ['new', 'ok', '--basic', '-ne'])
+        runner.invoke(hatch, ['new', 'ko', '--basic', '-ne'])
 
         venv_dir = os.path.join(d, 'venv')
         create_venv(venv_dir)
@@ -167,7 +167,7 @@ def test_local_multiple():
 def test_path_relative():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['new', 'ok', '--basic'])
+        runner.invoke(hatch, ['new', 'ok', '--basic', '-ne'])
         create_test_passing(os.path.join(d, 'ok'))
 
         result = runner.invoke(hatch, ['test', '-p', 'ok'])
@@ -179,8 +179,8 @@ def test_path_relative():
 def test_path_full():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['new', 'ok', '--basic'])
-        runner.invoke(hatch, ['new', 'ko', '--basic'])
+        runner.invoke(hatch, ['new', 'ok', '--basic', '-ne'])
+        runner.invoke(hatch, ['new', 'ko', '--basic', '-ne'])
         package_dir = os.path.join(d, 'ok')
         create_test_passing(package_dir)
 
@@ -194,7 +194,7 @@ def test_path_full():
 def test_path_full_not_exist():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['new', 'ok', '--basic'])
+        runner.invoke(hatch, ['new', 'ok', '--basic', '-ne'])
 
         full_path = os.path.join(d, 'ko')
         result = runner.invoke(hatch, ['test', '-p', full_path])
@@ -206,7 +206,7 @@ def test_path_full_not_exist():
 def test_coverage_complete():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        runner.invoke(hatch, ['init', 'ok', '--basic', '-ne'])
         create_test_complete_coverage(d, 'ok')
 
         result = runner.invoke(hatch, ['test', '-c'])
@@ -219,7 +219,7 @@ def test_coverage_complete():
 def test_coverage_complete_merge():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        runner.invoke(hatch, ['init', 'ok', '--basic', '-ne'])
         create_test_complete_coverage(d, 'ok')
 
         runner.invoke(hatch, ['test', '-c'])
@@ -233,7 +233,7 @@ def test_coverage_complete_merge():
 def test_coverage_incomplete():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        runner.invoke(hatch, ['init', 'ok', '--basic', '-ne'])
         create_test_incomplete_coverage(d, 'ok')
 
         result = runner.invoke(hatch, ['test', '-c'])
@@ -246,7 +246,7 @@ def test_coverage_incomplete():
 def test_test_args():
     with temp_chdir():
         runner = CliRunner()
-        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        runner.invoke(hatch, ['init', 'ok', '--basic', '-ne'])
 
         result = runner.invoke(hatch, ['test', '-ta', '--help'])
 
@@ -256,7 +256,7 @@ def test_test_args():
 def test_coverage_args():
     with temp_chdir():
         runner = CliRunner()
-        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        runner.invoke(hatch, ['init', 'ok', '--basic', '-ne'])
 
         result = runner.invoke(hatch, ['test', '-c', '-ca', '--help'])
 

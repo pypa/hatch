@@ -18,7 +18,7 @@ ENV_VARS = {'TWINE_PASSWORD': 'badpwbestpw'}
 def test_cwd():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['init', PACKAGE_NAME, '--basic'])
+        runner.invoke(hatch, ['init', PACKAGE_NAME, '--basic', '-ne'])
         runner.invoke(hatch, ['build'])
         os.chdir(os.path.join(d, 'dist'))
 
@@ -32,7 +32,7 @@ def test_cwd():
 def test_cwd_dist_exists():
     with temp_chdir():
         runner = CliRunner()
-        runner.invoke(hatch, ['init', PACKAGE_NAME, '--basic'])
+        runner.invoke(hatch, ['init', PACKAGE_NAME, '--basic', '-ne'])
         runner.invoke(hatch, ['build'])
 
         with env_vars(ENV_VARS):
@@ -45,7 +45,7 @@ def test_cwd_dist_exists():
 def test_package():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['new', PACKAGE_NAME, '--basic'])
+        runner.invoke(hatch, ['new', PACKAGE_NAME, '--basic', '-ne'])
         runner.invoke(hatch, ['build', '-p', PACKAGE_NAME])
         package_dir = os.path.join(d, PACKAGE_NAME)
 
@@ -79,7 +79,7 @@ def test_package_not_exist():
 def test_local():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['new', PACKAGE_NAME, '--basic'])
+        runner.invoke(hatch, ['new', PACKAGE_NAME, '--basic', '-ne'])
         runner.invoke(hatch, ['build', '-p', PACKAGE_NAME])
         package_dir = os.path.join(d, PACKAGE_NAME)
 
@@ -109,8 +109,8 @@ def test_local_not_exist():
 def test_local_multiple():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['new', 'ok', '--basic'])
-        runner.invoke(hatch, ['new', 'ko', '--basic'])
+        runner.invoke(hatch, ['new', 'ok', '--basic', '-ne'])
+        runner.invoke(hatch, ['new', 'ko', '--basic', '-ne'])
 
         venv_dir = os.path.join(d, 'venv')
         create_venv(venv_dir)
@@ -132,7 +132,7 @@ def test_local_multiple():
 def test_path_relative():
     with temp_chdir():
         runner = CliRunner()
-        runner.invoke(hatch, ['init', PACKAGE_NAME, '--basic'])
+        runner.invoke(hatch, ['init', PACKAGE_NAME, '--basic', '-ne'])
         runner.invoke(hatch, ['build'])
 
         with env_vars(ENV_VARS):
@@ -146,8 +146,8 @@ def test_path_relative():
 def test_path_full():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['new', PACKAGE_NAME, '--basic'])
-        runner.invoke(hatch, ['new', 'ko', '--basic'])
+        runner.invoke(hatch, ['new', PACKAGE_NAME, '--basic', '-ne'])
+        runner.invoke(hatch, ['new', 'ko', '--basic', '-ne'])
         runner.invoke(hatch, ['build', '-p', PACKAGE_NAME])
         build_dir = os.path.join(d, PACKAGE_NAME, 'dist')
 
@@ -161,7 +161,7 @@ def test_path_full():
 def test_path_full_not_exist():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['new', PACKAGE_NAME, '--basic'])
+        runner.invoke(hatch, ['new', PACKAGE_NAME, '--basic', '-ne'])
 
         full_path = os.path.join(d, 'dist')
         result = runner.invoke(hatch, ['release', '-p', full_path])
@@ -174,7 +174,7 @@ def test_path_full_not_exist():
 def test_config_username():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['init', PACKAGE_NAME, '--basic'])
+        runner.invoke(hatch, ['init', PACKAGE_NAME, '--basic', '-ne'])
         runner.invoke(hatch, ['build'])
 
         with temp_move_path(SETTINGS_FILE, d):
@@ -190,7 +190,7 @@ def test_config_username():
 def test_config_not_exist():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['init', PACKAGE_NAME, '--basic'])
+        runner.invoke(hatch, ['init', PACKAGE_NAME, '--basic', '-ne'])
         runner.invoke(hatch, ['build'])
 
         with temp_move_path(SETTINGS_FILE, d):
@@ -204,7 +204,7 @@ def test_config_not_exist():
 def test_config_username_empty():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['init', PACKAGE_NAME, '--basic'])
+        runner.invoke(hatch, ['init', PACKAGE_NAME, '--basic', '-ne'])
         runner.invoke(hatch, ['build'])
 
         with temp_move_path(SETTINGS_FILE, d):
@@ -218,13 +218,13 @@ def test_config_username_empty():
         assert (
             'A username must be supplied via -u/--username or '
             'in {} as pypi_username.'.format(SETTINGS_FILE)
-            ) in result.output
+        ) in result.output
 
 
 def test_strict():
     with temp_chdir():
         runner = CliRunner()
-        runner.invoke(hatch, ['init', PACKAGE_NAME, '--basic'])
+        runner.invoke(hatch, ['init', PACKAGE_NAME, '--basic', '-ne'])
         runner.invoke(hatch, ['build'])
 
         with env_vars(ENV_VARS):

@@ -32,14 +32,16 @@ Values from your config file such as ``name`` and ``pyversions`` will be used
 to help populate fields. You can also specify things like the readme format
 and which CI service files to create. All options override the config file.
 
-You can also locally install the created project in a virtual env using
-the optional argument or the --env option.
+By default a virtual env will be created in the project directory and will
+install the project locally so any edits will auto-update the installation.
+You can also locally install the created project in other virtual envs using
+the --env option.
 
 Here is an example using an unmodified config file:
 
 .. code-block:: bash
 
-    $ hatch new my-app
+    $ hatch new -ne my-app
     Created project `my-app`
     $ tree --dirsfirst my-app
     my-app
@@ -67,6 +69,9 @@ Here is an example using an unmodified config file:
 ..
 
     **Options:**
+
+*-ne/--no-env*
+    Disables the creation of a dedicated virtual env.
 
 *-e/--env*
     Forward-slash-separated list of named virtual envs to be

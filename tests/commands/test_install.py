@@ -12,7 +12,7 @@ from ..utils import requires_internet
 def test_local():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['init', 'ok'])
+        runner.invoke(hatch, ['init', 'ok', '-ne'])
 
         venv_dir = os.path.join(d, 'venv')
         create_venv(venv_dir)
@@ -28,7 +28,7 @@ def test_local():
 def test_local_editable():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['init', 'ok'])
+        runner.invoke(hatch, ['init', 'ok', '-ne'])
 
         venv_dir = os.path.join(d, 'venv')
         create_venv(venv_dir)

@@ -15,7 +15,7 @@ def test_config_not_exist():
         runner = CliRunner()
 
         with temp_move_path(SETTINGS_FILE, d):
-            result = runner.invoke(hatch, ['new', 'ok', '--basic'])
+            result = runner.invoke(hatch, ['new', 'ok', '--basic', '-ne'])
 
         assert result.exit_code == 1
         assert 'Unable to locate config file. Try `hatch config --restore`.' in result.output
@@ -24,7 +24,7 @@ def test_config_not_exist():
 def test_invalid_name():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['new', 'invalid-name', '--basic'])
+        runner.invoke(hatch, ['new', 'invalid-name', '--basic', '-ne'])
 
         assert os.path.exists(os.path.join(d, 'invalid-name', 'invalid_name', '__init__.py'))
 
@@ -32,7 +32,7 @@ def test_invalid_name():
 def test_output():
     with temp_chdir():
         runner = CliRunner()
-        result = runner.invoke(hatch, ['new', 'new-project', '--basic'])
+        result = runner.invoke(hatch, ['new', 'new-project', '--basic', '-ne'])
 
         assert result.exit_code == 0
         assert 'Created project `new-project`' in result.output
@@ -43,16 +43,30 @@ def test_already_exists():
         d = os.path.join(d, 'ok')
         os.makedirs(d)
         runner = CliRunner()
-        result = runner.invoke(hatch, ['new', 'ok', '--basic'])
+        result = runner.invoke(hatch, ['new', 'ok', '--basic', '-ne'])
 
         assert result.exit_code == 1
         assert 'Directory `{}` already exists.'.format(d) in result.output
 
 
+def test_env():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        result = runner.invoke(hatch, ['new', 'new-project', '--basic'])
+        wait_for_os()
+
+        with venv(os.path.join(d, 'new-project', 'venv')):
+            assert 'new-project' in get_editable_packages()
+
+        assert result.exit_code == 0
+        assert 'Creating its own virtual env... complete!' in result.output
+        assert 'Installing locally in the virtual env... complete!' in result.output
+
+
 def test_basic():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['new', 'ok', '--basic'])
+        runner.invoke(hatch, ['new', 'ok', '--basic', '-ne'])
         d = os.path.join(d, 'ok')
 
         assert os.path.exists(os.path.join(d, 'ok', '__init__.py'))
@@ -69,7 +83,7 @@ def test_basic():
 def test_cli():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['new', 'ok', '--cli'])
+        runner.invoke(hatch, ['new', 'ok', '--cli', '-ne'])
         d = os.path.join(d, 'ok')
 
         assert os.path.exists(os.path.join(d, 'ok', 'cli.py'))
@@ -79,7 +93,7 @@ def test_cli():
 def test_license_single():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['new', 'ok', '-l', 'cc0'])
+        runner.invoke(hatch, ['new', 'ok', '-l', 'cc0', '-ne'])
 
         assert os.path.exists(os.path.join(d, 'ok', 'LICENSE-CC0'))
 
@@ -87,7 +101,7 @@ def test_license_single():
 def test_license_multiple():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['new', 'ok', '-l', 'cc0,mpl'])
+        runner.invoke(hatch, ['new', 'ok', '-l', 'cc0,mpl', '-ne'])
         d = os.path.join(d, 'ok')
 
         assert os.path.exists(os.path.join(d, 'LICENSE-CC0'))
@@ -110,7 +124,7 @@ def test_extras():
             new_settings['extras'] = [test_dir, test_file1, test_glob, fake_file]
             save_settings(new_settings)
 
-            runner.invoke(hatch, ['new', 'ok', '--basic'])
+            runner.invoke(hatch, ['new', 'ok', '--basic', '-ne'])
             d = os.path.join(d, 'ok')
 
         assert os.path.exists(os.path.join(d, 'b', 'file1.txt'))
@@ -130,7 +144,7 @@ def test_envs():
 
         try:
             result = runner.invoke(hatch, [
-                'new', '--basic', 'ok', '-e', '{}/{}'.format(env_name1, env_name2)
+                'new', '-ne', '--basic', 'ok', '-e', '{}/{}'.format(env_name1, env_name2)
             ])
             wait_for_os()
             with venv(venv_dir1):
@@ -142,7 +156,7 @@ def test_envs():
             remove_path(venv_dir2)
 
         assert result.exit_code == 0
-        assert 'Creating virtual env `{}`...'.format(env_name1) not in result.output
-        assert 'Creating virtual env `{}`...'.format(env_name2) in result.output
-        assert 'Installing locally in virtual env `{}`...'.format(env_name1) in result.output
-        assert 'Installing locally in virtual env `{}`...'.format(env_name2) in result.output
+        assert 'Creating virtual env `{}`... complete!'.format(env_name1) not in result.output
+        assert 'Creating virtual env `{}`... complete!'.format(env_name2) in result.output
+        assert 'Installing locally in virtual env `{}`... complete!'.format(env_name1) in result.output
+        assert 'Installing locally in virtual env `{}`... complete!'.format(env_name2) in result.output

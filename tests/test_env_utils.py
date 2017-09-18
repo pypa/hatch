@@ -20,7 +20,7 @@ def test_get_package_version_not_installed():
 def test_get_installed_packages_no_editable():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        runner.invoke(hatch, ['init', 'ok', '--basic', '-ne'])
 
         venv_dir = os.path.join(d, 'venv')
         create_venv(venv_dir)
@@ -36,8 +36,8 @@ def test_get_installed_packages_no_editable():
 def test_get_editable_package_location():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['new', 'foo', '--basic'])
-        runner.invoke(hatch, ['new', 'bar', '--basic'])
+        runner.invoke(hatch, ['new', 'foo', '--basic', '-ne'])
+        runner.invoke(hatch, ['new', 'bar', '--basic', '-ne'])
 
         venv_dir = os.path.join(d, 'venv')
         create_venv(venv_dir)

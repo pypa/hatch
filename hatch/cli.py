@@ -99,6 +99,10 @@ def config(update_settings, restore):
 @hatch.command(context_settings=CONTEXT_SETTINGS,
                short_help='Creates a new Python project')
 @click.argument('name')
+@click.option('-ne', '--no-env', is_flag=True,
+              help=(
+                  'Disables the creation of a dedicated virtual env.'
+              ))
 @click.option('-e', '--env', 'env_name',
               help=(
                   'Forward-slash-separated list of named virtual envs to be '
@@ -115,15 +119,17 @@ def config(update_settings, restore):
               ))
 @click.option('-l', '--licenses',
               help='Comma-separated list of licenses to use.')
-def new(name, env_name, basic, cli, licenses):
+def new(name, no_env, env_name, basic, cli, licenses):
     """Creates a new Python project.
 
     Values from your config file such as `name` and `pyversions` will be used
     to help populate fields. You can also specify things like the readme format
     and which CI service files to create. All options override the config file.
 
-    You can also locally install the created project in a virtual env using
-    the optional argument or the --env option.
+    By default a virtual env will be created in the project directory and will
+    install the project locally so any edits will auto-update the installation.
+    You can also locally install the created project in other virtual envs using
+    the --env option.
 
     Here is an example using an unmodified config file:
 
@@ -172,21 +178,38 @@ def new(name, env_name, basic, cli, licenses):
         create_package(d, name, settings)
         echo_success('Created project `{}`'.format(name))
 
+        if not no_env:
+            venv_dir = os.path.join(d, 'venv')
+            echo_waiting('Creating its own virtual env... ', nl=False)
+            create_venv(venv_dir)
+            echo_success('complete!')
+
+            with venv(venv_dir):
+                echo_waiting('Installing locally in the virtual env... ', nl=False)
+                install_packages(['-q', '-e', '.'])
+                echo_success('complete!')
+
         venvs = env_name.split('/') if env_name else []
         for vname in venvs:
             venv_dir = os.path.join(VENV_DIR, vname)
             if not os.path.exists(venv_dir):
-                echo_waiting('Creating virtual env `{}`...'.format(vname))
+                echo_waiting('Creating virtual env `{}`... '.format(vname), nl=False)
                 create_venv(venv_dir)
+                echo_success('complete!')
 
             with venv(venv_dir):
-                echo_waiting('Installing locally in virtual env `{}`...'.format(vname))
+                echo_waiting('Installing locally in virtual env `{}`... '.format(vname), nl=False)
                 install_packages(['-q', '-e', '.'])
+                echo_success('complete!')
 
 
 @hatch.command(context_settings=CONTEXT_SETTINGS,
                short_help='Creates a new Python project in the current directory')
 @click.argument('name')
+@click.option('-ne', '--no-env', is_flag=True,
+              help=(
+                  'Disables the creation of a dedicated virtual env.'
+              ))
 @click.option('-e', '--env', 'env_name',
               help=(
                   'Forward-slash-separated list of named virtual envs to be '
@@ -203,15 +226,17 @@ def new(name, env_name, basic, cli, licenses):
               ))
 @click.option('-l', '--licenses',
               help='Comma-separated list of licenses to use.')
-def init(name, env_name, basic, cli, licenses):
+def init(name, no_env, env_name, basic, cli, licenses):
     """Creates a new Python project in the current directory.
 
     Values from your config file such as `name` and `pyversions` will be used
     to help populate fields. You can also specify things like the readme format
     and which CI service files to create. All options override the config file.
 
-    You can also locally install the created project in a virtual env using
-    the optional argument or the --env option.
+    By default a virtual env will be created in the project directory and will
+    install the project locally so any edits will auto-update the installation.
+    You can also locally install the created project in other virtual envs using
+    the --env option.
 
     Here is an example using an unmodified config file:
 
@@ -248,19 +273,33 @@ def init(name, env_name, basic, cli, licenses):
 
     settings['cli'] = cli
 
-    create_package(os.getcwd(), name, settings)
+    d = os.getcwd()
+    create_package(d, name, settings)
     echo_success('Created project `{}` here'.format(name))
+
+    if not no_env:
+        venv_dir = os.path.join(d, 'venv')
+        echo_waiting('Creating its own virtual env... ', nl=False)
+        create_venv(venv_dir)
+        echo_success('complete!')
+
+        with venv(venv_dir):
+            echo_waiting('Installing locally in the virtual env... ', nl=False)
+            install_packages(['-q', '-e', '.'])
+            echo_success('complete!')
 
     venvs = env_name.split('/') if env_name else []
     for vname in venvs:
         venv_dir = os.path.join(VENV_DIR, vname)
         if not os.path.exists(venv_dir):
-            echo_waiting('Creating virtual env `{}`...'.format(vname))
+            echo_waiting('Creating virtual env `{}`... '.format(vname), nl=False)
             create_venv(venv_dir)
+            echo_success('complete!')
 
         with venv(venv_dir):
-            echo_waiting('Installing locally in virtual env `{}`...'.format(vname))
+            echo_waiting('Installing locally in virtual env `{}`... '.format(vname), nl=False)
             install_packages(['-q', '-e', '.'])
+            echo_success('complete!')
 
 
 @hatch.command(context_settings=CONTEXT_SETTINGS, short_help='Installs packages')
