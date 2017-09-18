@@ -3,6 +3,9 @@ Commands
 
 For your convenience, anything after a ``--`` will be treated as arguments.
 
+.. contents:: **Table of Contents**
+    :backlinks: none
+
 ``config``
 ^^^^^^^^^^
 
@@ -392,6 +395,8 @@ Any arguments provided after the first will be sent to the virtual env as
 a command without activating it. If there is only the env without args,
 it will be activated similarly to how you are accustomed. The name of
 the virtual env to use must be omitted if using the --temp env option.
+If no env is chosen, this will attempt to detect a project and activate
+its virtual env.
 
 Activation will not do anything to your current shell, but will rather
 spawn a subprocess to avoid any unwanted strangeness occurring in your
@@ -648,6 +653,9 @@ user can be set with the ``_DEFAULT_ADMIN_`` environment variable.
 With no packages selected, this will install using a ``setup.py`` in the
 current directory.
 
+If no --env is chosen, this will attempt to detect a project and use its
+virtual env before resorting to the default pip.
+
 ..
 
     **Arguments:**
@@ -658,6 +666,10 @@ current directory.
 ..
 
     **Options:**
+
+*-nd/--no-detect*
+    Disables the use of a project's dedicated virtual env. This is useful if
+    you need to be in a project root but wish to not target its virtual env.
 
 *-e/--env*
     The named virtual env to use.
@@ -689,6 +701,9 @@ user can be set with the ``_DEFAULT_ADMIN_`` environment variable.
 With no packages selected, this will uninstall using a ``requirements.txt``
 or a dev version of that in the current directory.
 
+If no --env is chosen, this will attempt to detect a project and use its
+virtual env before resorting to the default pip.
+
 ..
 
     **Arguments:**
@@ -699,6 +714,10 @@ or a dev version of that in the current directory.
 ..
 
     **Options:**
+
+*-nd/--no-detect*
+    Disables the use of a project's dedicated virtual env. This is useful if
+    you need to be in a project root but wish to not target its virtual env.
 
 *-e/--env*
     The named virtual env to use.
@@ -736,6 +755,9 @@ force the use of these features, use --force.
 With no packages nor options selected, this will update packages by looking
 for a ``requirements.txt`` or a dev version of that in the current directory.
 
+If no --env is chosen, this will attempt to detect a project and use its
+virtual env before resorting to the default pip.
+
 To update this tool, use the --self flag. All other methods of updating will
 ignore ``hatch``. See: `<https://github.com/pypa/pip/issues/1299>`_
 
@@ -749,6 +771,10 @@ ignore ``hatch``. See: `<https://github.com/pypa/pip/issues/1299>`_
 ..
 
     **Options:**
+
+*-nd/--no-detect*
+    Disables the use of a project's dedicated virtual env. This is useful if
+    you need to be in a project root but wish to not target its virtual env.
 
 *-e/--env*
     The named virtual env to use.

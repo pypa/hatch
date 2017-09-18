@@ -268,6 +268,8 @@ master
 
 - ``new``/``init`` commands now create a dedicated virtual env for the project.
   This can be disabled with the new ``-ne/--no-env`` flag.
+- ``install``, ``uninstall``, ``update``, and ``use`` commands are now able to
+  detect and use a project's dedicated virtual env!
 - **Removed:** redundant optional argument for ``new``/``init`` commands.
 
 0.13.0
