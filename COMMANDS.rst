@@ -396,7 +396,8 @@ a command without activating it. If there is only the env without args,
 it will be activated similarly to how you are accustomed. The name of
 the virtual env to use must be omitted if using the --temp env option.
 If no env is chosen, this will attempt to detect a project and activate
-its virtual env.
+its virtual env. To run a command in a project's virtual env, use ``.`` as
+the env name.
 
 Activation will not do anything to your current shell, but will rather
 spawn a subprocess to avoid any unwanted strangeness occurring in your

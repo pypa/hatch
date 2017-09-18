@@ -1563,7 +1563,8 @@ def use(env_name, command, shell, temp_env, pyname, pypath):  # no cov
     it will be activated similarly to how you are accustomed. The name of
     the virtual env to use must be omitted if using the --temp env option.
     If no env is chosen, this will attempt to detect a project and activate
-    its virtual env.
+    its virtual env. To run a command in a project's virtual env, use `.` as
+    the env name.
 
     Activation will not do anything to your current shell, but will rather
     spawn a subprocess to avoid any unwanted strangeness occurring in your
@@ -1627,6 +1628,8 @@ def use(env_name, command, shell, temp_env, pyname, pypath):  # no cov
     /tmp/tmpzg73untp/Ihqd/bin/python
     """
     venv_dir = None
+    if resolve_path(env_name) == os.getcwd():
+        env_name = ''
 
     if not (env_name or temp_env):
         if os.path.isfile(os.path.join(os.getcwd(), 'setup.py')):
@@ -1686,9 +1689,9 @@ def use(env_name, command, shell, temp_env, pyname, pypath):  # no cov
     try:
         if command:
             with venv(venv_dir):
-                echo_waiting('Running `{}` in `{}`...'.format(
+                echo_waiting('Running `{}` in {}...'.format(
                     ' '.join(c if len(c.split()) == 1 else '"{}"'.format(c) for c in command),
-                    env_name
+                    '`{}`'.format(env_name) if env_name else "this project's env"
                 ))
                 result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL).returncode
         else:
