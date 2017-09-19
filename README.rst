@@ -72,20 +72,15 @@ Features
 --------
 
 - Completely cross-platform (terminal colors too!) \\(\*_^)/
-- Configurable project creation! CI service files, readme format/badges, licenses, etc.
-- Easiest virtual environment management available
-- Activation of virtual envs without disruption of current environments
-- Ability to send commands to virtual envs without the need for activation
-- Changed prompts when in a virtual env
-- Installing/updating packages defaults to a per-user basis, allowing global
-  usage with elevated privileges
+- Configurable project creation, with good defaults
+- Easiest virtual environment management available, with support for all shells
+- Package management defaults to a per-user basis, allowing global usage with
+  elevated privileges (`for your safety <https://news.ycombinator.com/item?id=15256121>`_)
 - Configurable semantic version bumping
 - Robust build/package cleanup
 - Easy testing with code coverage
 - Simple building and releasing for PyPI
 - All commands are environment-aware w.r.t. python/pip
-- Virtual envs can be the target for relevant commands
-- Editable packages can be the target for relevant commands
 
 Usage
 -----
