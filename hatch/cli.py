@@ -10,6 +10,13 @@ from twine.utils import DEFAULT_REPOSITORY, TEST_REPOSITORY
 
 from hatch.build import build_package
 from hatch.clean import clean_package, remove_compiled_scripts
+from hatch.commands import (
+    conda, python
+)
+from hatch.commands.utils import (
+    CONTEXT_SETTINGS, UNKNOWN_OPTIONS, echo_failure, echo_info, echo_success,
+    echo_warning, echo_waiting
+)
 from hatch.create import create_package
 from hatch.env import (
     get_editable_packages, get_editable_package_location, get_installed_packages,
@@ -30,16 +37,16 @@ from hatch.venv import (
     VENV_DIR, clone_venv, create_venv, fix_available_venvs, get_available_venvs,
     is_venv, venv
 )
-from hatch.commands.utils import (
-    CONTEXT_SETTINGS, UNKNOWN_OPTIONS, echo_failure, echo_info, echo_success,
-    echo_warning, echo_waiting
-)
 
 
 @click.group(context_settings=CONTEXT_SETTINGS)
 @click.version_option()
 def hatch():
     pass
+
+
+hatch.add_command(conda)
+hatch.add_command(python)
 
 
 @hatch.command(context_settings=CONTEXT_SETTINGS,
