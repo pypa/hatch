@@ -6,7 +6,7 @@ from copy import deepcopy
 from appdirs import user_data_dir
 from atomicwrites import atomic_write
 
-from hatch.utils import create_file
+from hatch.utils import create_file, ensure_dir_exists
 
 SETTINGS_FILE = os.path.join(user_data_dir('hatch', ''), 'settings.json')
 
@@ -74,6 +74,7 @@ def load_settings(lazy=False):
 
 
 def save_settings(settings):
+    ensure_dir_exists(os.path.dirname(SETTINGS_FILE))
     with atomic_write(SETTINGS_FILE, overwrite=True) as f:
         f.write(json.dumps(settings, indent=4))
 
