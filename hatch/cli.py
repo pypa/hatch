@@ -24,42 +24,14 @@ from hatch.shells import run_shell
 from hatch.utils import (
     NEED_SUBPROCESS_SHELL, ON_WINDOWS, basepath, chdir, get_admin_command,
     get_proper_pip, get_proper_python, get_random_venv_name, get_requirements_file,
-    remove_path, resolve_path, venv_active
+    remove_path, resolve_path, venv_active, CONTEXT_SETTINGS, UNKNOWN_OPTIONS,
+    echo_failure, echo_info, echo_success, echo_warning, echo_waiting
 )
 from hatch.venv import (
     VENV_DIR, clone_venv, create_venv, fix_available_venvs, get_available_venvs,
     is_venv, venv
 )
-
-
-CONTEXT_SETTINGS = {
-    'help_option_names': ['-h', '--help'],
-}
-UNKNOWN_OPTIONS = {
-    'ignore_unknown_options': True,
-    **CONTEXT_SETTINGS
-}
-
-
-def echo_success(text, nl=True):
-    click.secho(text, fg='cyan', bold=True, nl=nl)
-
-
-def echo_failure(text, nl=True):
-    click.secho(text, fg='red', bold=True, nl=nl)
-
-
-def echo_warning(text, nl=True):
-    click.secho(text, fg='yellow', bold=True, nl=nl)
-
-
-def echo_waiting(text, nl=True):
-    click.secho(text, fg='magenta', bold=True, nl=nl)
-
-
-def echo_info(text, nl=True):
-    click.secho(text, fg='white', bold=True, nl=nl)
-
+from hatch.commands.config import config
 
 @click.group(context_settings=CONTEXT_SETTINGS)
 @click.version_option()
@@ -67,35 +39,7 @@ def hatch():
     pass
 
 
-@hatch.command(context_settings=CONTEXT_SETTINGS,
-               short_help='Locates, updates, or restores the config file')
-@click.option('-u', '--update', 'update_settings', is_flag=True,
-              help='Updates the config file with any new fields.')
-@click.option('--restore', is_flag=True,
-              help='Restores the config file to default settings.')
-def config(update_settings, restore):
-    """Locates, updates, or restores the config file.
-
-    \b
-    $ hatch config
-    Settings location: /home/ofek/.local/share/hatch/settings.json
-    """
-    if update_settings:
-        try:
-            user_settings = load_settings()
-            updated_settings = copy_default_settings()
-            updated_settings.update(user_settings)
-            save_settings(updated_settings)
-            echo_success('Settings were successfully updated.')
-        except FileNotFoundError:
-            restore = True
-
-    if restore:
-        restore_settings()
-        echo_success('Settings were successfully restored.')
-
-    echo_success('Settings location: ' + SETTINGS_FILE)
-
+hatch.add_command(config)
 
 @hatch.command(context_settings=CONTEXT_SETTINGS,
                short_help='Creates a new Python project')
