@@ -1,13 +1,4 @@
-import os
-
 from setuptools import find_packages, setup
-
-try:
-    from hatch.settings import SETTINGS_FILE, restore_settings
-    if not os.path.exists(SETTINGS_FILE):
-        restore_settings()
-except:
-    print('Failed to create config file. Try again via `hatch config --restore`.')
 
 with open('hatch/__init__.py', 'r') as f:
     for line in f:
