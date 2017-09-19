@@ -1,15 +1,18 @@
 import io
 import os
-import sys
-import click
 import subprocess
+import sys
 
-from hatch.utils import (
-    NEED_SUBPROCESS_SHELL, get_proper_python, chdir, resolve_path
+import click
+
+from hatch.commands.utils import (
+    CONTEXT_SETTINGS, echo_failure, echo_info, echo_waiting
 )
 from hatch.env import get_editable_package_location
-from hatch.commands.utils import (CONTEXT_SETTINGS, echo_failure, echo_waiting,
-        echo_info)
+from hatch.utils import (
+    NEED_SUBPROCESS_SHELL, chdir, get_proper_python, resolve_path
+)
+
 
 @click.command(context_settings=CONTEXT_SETTINGS, short_help='Runs tests')
 @click.argument('package', required=False)

@@ -1,13 +1,17 @@
 import os
 import sys
+
 import click
 
-from hatch.commands.utils import (CONTEXT_SETTINGS, echo_success, echo_failure,
-        echo_waiting, echo_warning, echo_info)
-from hatch.settings import load_settings
-from hatch.utils import (resolve_path)
-from hatch.grow import BUMP, bump_package_version
+from hatch.commands.utils import (
+    CONTEXT_SETTINGS, echo_failure, echo_info, echo_success, echo_waiting,
+    echo_warning
+)
 from hatch.env import get_editable_package_location
+from hatch.grow import BUMP, bump_package_version
+from hatch.settings import load_settings
+from hatch.utils import resolve_path
+
 
 @click.command(context_settings=CONTEXT_SETTINGS,
                short_help="Increments a project's version")

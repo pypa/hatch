@@ -16,18 +16,15 @@ from hatch.commands.utils import (
     echo_warning, echo_waiting
 )
 from hatch.env import (
-    get_editable_packages, get_editable_package_location, get_installed_packages,
-    get_python_version, get_python_implementation, install_packages
+    get_editable_packages, get_editable_package_location, get_python_version,
+    get_python_implementation, install_packages
 )
-from hatch.grow import BUMP, bump_package_version
 from hatch.settings import (
     SETTINGS_FILE, copy_default_settings, load_settings, save_settings
 )
 from hatch.shells import run_shell
 from hatch.utils import (
-    NEED_SUBPROCESS_SHELL, ON_WINDOWS, basepath, chdir, get_admin_command,
-    get_proper_pip, get_proper_python, get_random_venv_name, get_requirements_file,
-    remove_path, resolve_path, venv_active
+    NEED_SUBPROCESS_SHELL, get_random_venv_name, remove_path, resolve_path
 )
 from hatch.venv import (
     VENV_DIR, clone_venv, create_venv, fix_available_venvs, get_available_venvs,
@@ -41,17 +38,18 @@ def hatch():
     pass
 
 
+hatch.add_command(build)
 hatch.add_command(conda)
 hatch.add_command(config)
+hatch.add_command(grow)
 hatch.add_command(init)
 hatch.add_command(install)
 hatch.add_command(new)
 hatch.add_command(python)
-hatch.add_command(uninstall)
-hatch.add_command(grow)
-hatch.add_command(update)
 hatch.add_command(test)
-hatch.add_command(build)
+hatch.add_command(uninstall)
+hatch.add_command(update)
+
 
 @hatch.command(context_settings=CONTEXT_SETTINGS,
                short_help="Removes a project's build artifacts")
@@ -128,6 +126,7 @@ def clean(package, local, path, compiled_only, verbose):
         echo_success('Cleaned!')
     else:
         echo_success('Already clean!')
+
 
 @hatch.command(context_settings=CONTEXT_SETTINGS, short_help='Uploads to PyPI')
 @click.argument('package', required=False)

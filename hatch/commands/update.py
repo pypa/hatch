@@ -1,18 +1,22 @@
-import re
 import os
-import sys
-import click
+import re
 import subprocess
+import sys
 from tempfile import TemporaryDirectory
 
-from hatch.utils import (
-    NEED_SUBPROCESS_SHELL, ON_WINDOWS, get_admin_command, get_proper_pip,
-    venv_active, get_proper_python, get_requirements_file, basepath
+import click
+
+from hatch.commands.utils import (
+    CONTEXT_SETTINGS, echo_failure, echo_info, echo_success, echo_waiting,
+    echo_warning
 )
-from hatch.venv import (VENV_DIR, is_venv, venv, create_venv)
-from hatch.env import (install_packages, get_installed_packages)
-from hatch.commands.utils import (CONTEXT_SETTINGS, echo_success, echo_failure,
-        echo_waiting, echo_warning, echo_info)
+from hatch.env import get_installed_packages, install_packages
+from hatch.utils import (
+    NEED_SUBPROCESS_SHELL, ON_WINDOWS, basepath, get_admin_command,
+    get_proper_pip, get_proper_python, get_requirements_file, venv_active
+)
+from hatch.venv import VENV_DIR, create_venv, is_venv, venv
+
 
 @click.command(context_settings=CONTEXT_SETTINGS, short_help='Updates packages')
 @click.argument('packages', nargs=-1)
