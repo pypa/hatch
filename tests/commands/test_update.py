@@ -9,7 +9,87 @@ from hatch.env import (
 from hatch.utils import remove_path, temp_chdir
 from hatch.venv import VENV_DIR, create_venv, get_new_venv_name, venv
 from ..utils import get_version_as_bytes
-from ..utils import requires_internet
+from ..utils import requires_internet, wait_for_os
+
+
+@requires_internet
+def test_project_no_venv():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', 'ok', '-ne'])
+        venv_dir = os.path.join(d, 'venv')
+
+        assert not os.path.exists(venv_dir)
+        result = runner.invoke(hatch, ['update', 'six'])
+        wait_for_os()
+        assert os.path.exists(venv_dir)
+
+        with venv(venv_dir):
+            assert 'ok' in get_installed_packages()
+
+        assert result.exit_code == 0
+        assert 'A project has been detected!' in result.output
+        assert 'Creating a dedicated virtual env... complete!' in result.output
+        assert 'Installing this project in the virtual env... complete!' in result.output
+        assert 'Updating for this project...' in result.output
+
+
+@requires_internet
+def test_project_existing_venv():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', 'ok'])
+        venv_dir = os.path.join(d, 'venv')
+        wait_for_os()
+        assert os.path.exists(venv_dir)
+
+        runner.invoke(hatch, ['install', 'six==1.9.0'])
+        wait_for_os()
+        assert os.path.exists(venv_dir)
+
+        with venv(venv_dir):
+            assert 'ok' in get_installed_packages()
+            initial_version = get_version_as_bytes('six')
+
+        result = runner.invoke(hatch, ['update', 'six'])
+        wait_for_os()
+
+        with venv(venv_dir):
+            final_version = get_version_as_bytes('six')
+
+        assert result.exit_code == 0
+        assert initial_version < final_version
+        assert 'A project has been detected!' not in result.output
+        assert 'Updating for this project...' in result.output
+
+
+@requires_internet
+def test_project_existing_venv_all_packages():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', 'ok'])
+        venv_dir = os.path.join(d, 'venv')
+        wait_for_os()
+        assert os.path.exists(venv_dir)
+
+        runner.invoke(hatch, ['install', 'six==1.9.0'])
+        wait_for_os()
+        assert os.path.exists(venv_dir)
+
+        with venv(venv_dir):
+            assert 'ok' in get_installed_packages()
+            initial_version = get_version_as_bytes('six')
+
+        result = runner.invoke(hatch, ['update', '--all'])
+        wait_for_os()
+
+        with venv(venv_dir):
+            final_version = get_version_as_bytes('six')
+
+        assert result.exit_code == 0
+        assert initial_version < final_version
+        assert 'A project has been detected!' not in result.output
+        assert 'Updating for this project...' in result.output
 
 
 @requires_internet
@@ -25,7 +105,7 @@ def test_requirements():
             install_packages(['requests==2.17.3'])
             initial_version = get_version_as_bytes('requests')
             runner = CliRunner()
-            result = runner.invoke(hatch, ['update'])
+            result = runner.invoke(hatch, ['update', '-nd'])
             final_version = get_version_as_bytes('requests')
 
         assert result.exit_code == 0
@@ -45,7 +125,7 @@ def test_dev_requirements():
             install_packages(['requests==2.17.3'])
             initial_version = get_version_as_bytes('requests')
             runner = CliRunner()
-            result = runner.invoke(hatch, ['update'])
+            result = runner.invoke(hatch, ['update', '-nd'])
             final_version = get_version_as_bytes('requests')
 
         assert result.exit_code == 0
@@ -65,7 +145,7 @@ def test_requirements_dev():
             install_packages(['requests==2.17.3'])
             initial_version = get_version_as_bytes('requests')
             runner = CliRunner()
-            result = runner.invoke(hatch, ['update'])
+            result = runner.invoke(hatch, ['update', '-nd'])
             final_version = get_version_as_bytes('requests')
 
         assert result.exit_code == 0
@@ -85,7 +165,7 @@ def test_requirements_includes_hatch():
         with venv(venv_dir):
             install_packages(['requests==2.17.3'])
             initial_version = get_version_as_bytes('requests')
-            result = runner.invoke(hatch, ['update'])
+            result = runner.invoke(hatch, ['update', '-nd'])
             final_version = get_version_as_bytes('requests')
             installed_packages = get_installed_packages()
 
@@ -101,7 +181,7 @@ def test_requirements_none():
 
         with venv(venv_dir):
             runner = CliRunner()
-            result = runner.invoke(hatch, ['update'])
+            result = runner.invoke(hatch, ['update', '-nd'])
 
         assert result.exit_code == 1
         assert 'Unable to locate a requirements file.' in result.output
@@ -118,7 +198,7 @@ def test_packages():
             install_packages(['requests==2.17.3', 'six==1.9.0'])
             initial_version_requests = get_version_as_bytes('requests')
             initial_version_six = get_version_as_bytes('six')
-            result = runner.invoke(hatch, ['update', 'six'])
+            result = runner.invoke(hatch, ['update', '-nd', 'six'])
             final_version_requests = get_version_as_bytes('requests')
             final_version_six = get_version_as_bytes('six')
 
@@ -130,7 +210,7 @@ def test_packages():
 def test_packages_only_hatch():
     with temp_chdir():
         runner = CliRunner()
-        result = runner.invoke(hatch, ['update', 'hatch'])
+        result = runner.invoke(hatch, ['update', '-nd', 'hatch'])
 
         assert result.exit_code == 1
         assert 'No packages to install.' in result.output
@@ -146,7 +226,7 @@ def test_all_packages():
             install_packages(['requests==2.17.3'])
             initial_version = get_version_as_bytes('requests')
             runner = CliRunner()
-            result = runner.invoke(hatch, ['update', '--all'])
+            result = runner.invoke(hatch, ['update', '-nd', '--all'])
             final_version = get_version_as_bytes('requests')
 
         assert result.exit_code == 0
@@ -160,7 +240,7 @@ def test_all_packages_none():
 
         with venv(venv_dir):
             runner = CliRunner()
-            result = runner.invoke(hatch, ['update', '--all'])
+            result = runner.invoke(hatch, ['update', '-nd', '--all'])
 
         if get_python_implementation() in {'PyPy'}:  # no cov
             assert result.exit_code == 0
@@ -213,7 +293,7 @@ def test_infra():
         with venv(venv_dir):
             install_packages(['setuptools==36.0.1'])
             initial_version = get_version_as_bytes('setuptools')
-            result = runner.invoke(hatch, ['update', '--infra'])
+            result = runner.invoke(hatch, ['update', '-nd', '--infra'])
             final_version = get_version_as_bytes('setuptools')
 
         assert result.exit_code == 0

@@ -6,7 +6,53 @@ from hatch.cli import hatch
 from hatch.env import get_installed_packages
 from hatch.utils import remove_path, temp_chdir
 from hatch.venv import VENV_DIR, create_venv, get_new_venv_name, venv
-from ..utils import requires_internet
+from ..utils import requires_internet, wait_for_os
+
+
+def test_project_no_venv():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', 'ok', '-ne'])
+        venv_dir = os.path.join(d, 'venv')
+
+        assert not os.path.exists(venv_dir)
+        result = runner.invoke(hatch, ['uninstall', 'ko', '-y'])
+        wait_for_os()
+        assert os.path.exists(venv_dir)
+
+        assert result.exit_code == 2
+        assert 'A project has been detected!' in result.output
+        assert 'Creating a dedicated virtual env... complete!' in result.output
+        assert 'Installing this project in the virtual env... complete!' in result.output
+        assert 'New virtual envs have nothing to uninstall, exiting...' in result.output
+        assert 'Uninstalling for this project...' not in result.output
+
+
+def test_project_existing_venv():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', 'ok'])
+        runner.invoke(hatch, ['new', 'ko', '-ne'])
+        venv_dir = os.path.join(d, 'venv')
+        package_dir = os.path.join(d, 'ko')
+        wait_for_os()
+        assert os.path.exists(venv_dir)
+
+        runner.invoke(hatch, ['install', package_dir])
+        wait_for_os()
+
+        with venv(venv_dir):
+            assert 'ko' in get_installed_packages(editable=False)
+
+        result = runner.invoke(hatch, ['uninstall', 'ko', '-y'])
+        wait_for_os()
+
+        with venv(venv_dir):
+            assert 'ko' not in get_installed_packages(editable=False)
+
+        assert result.exit_code == 0
+        assert 'A project has been detected!' not in result.output
+        assert 'Uninstalling for this project...' in result.output
 
 
 @requires_internet
@@ -19,9 +65,9 @@ def test_requirements():
             f.write('six\n')
 
         with venv(venv_dir):
-            runner.invoke(hatch, ['install', 'six'])
+            runner.invoke(hatch, ['install', '-nd', 'six'])
             assert 'six' in get_installed_packages()
-            result = runner.invoke(hatch, ['uninstall', '-y'])
+            result = runner.invoke(hatch, ['uninstall', '-nd', '-y'])
             assert 'six' not in get_installed_packages()
 
         assert result.exit_code == 0
@@ -34,7 +80,7 @@ def test_requirements_none():
         create_venv(venv_dir)
 
         with venv(venv_dir):
-            result = runner.invoke(hatch, ['uninstall', '-y'])
+            result = runner.invoke(hatch, ['uninstall', '-nd', '-y'])
 
         assert result.exit_code == 1
         assert 'Unable to locate a requirements file.' in result.output
@@ -48,9 +94,9 @@ def test_packages():
         create_venv(venv_dir)
 
         with venv(venv_dir):
-            runner.invoke(hatch, ['install', 'six'])
+            runner.invoke(hatch, ['install', '-nd', 'six'])
             assert 'six' in get_installed_packages()
-            result = runner.invoke(hatch, ['uninstall', '-y', 'six'])
+            result = runner.invoke(hatch, ['uninstall', '-nd', '-y', 'six'])
             assert 'six' not in get_installed_packages()
 
         assert result.exit_code == 0
@@ -61,7 +107,7 @@ def test_env_not_exist():
         runner = CliRunner()
 
         env_name = get_new_venv_name()
-        result = runner.invoke(hatch, ['uninstall', '-y', '-e', env_name, 'six'])
+        result = runner.invoke(hatch, ['uninstall', '-nd', '-y', '-e', env_name, 'six'])
 
         assert result.exit_code == 1
         assert 'Virtual env named `{}` does not exist.'.format(env_name) in result.output
@@ -80,7 +126,7 @@ def test_env():
             runner.invoke(hatch, ['install', '-e', env_name, 'six'])
             with venv(venv_dir):
                 assert 'six' in get_installed_packages()
-            result = runner.invoke(hatch, ['uninstall', '-y', '-e', env_name, 'six'])
+            result = runner.invoke(hatch, ['uninstall', '-nd', '-y', '-e', env_name, 'six'])
             with venv(venv_dir):
                 assert 'six' not in get_installed_packages()
         finally:

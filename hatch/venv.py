@@ -81,8 +81,9 @@ def create_venv(d, pypath=None, verbose=False):
     command = [sys.executable, '-m', 'virtualenv', d,
                '-p', pypath or resolve_path(shutil.which(get_proper_python()))]
     if not verbose:  # no cov
-        command.append('--quiet')
-    subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
+        command.append('-qqq')
+    result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
+    return result.returncode
 
 
 def clone_venv(origin, location):

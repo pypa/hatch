@@ -24,7 +24,7 @@ def assert_files_exist(files):
 def test_cwd():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        runner.invoke(hatch, ['init', 'ok', '--basic', '-ne'])
         files = find_all_files(d)
 
         test_file1 = os.path.join(d, 'test.pyc')
@@ -46,7 +46,7 @@ def test_cwd():
 def test_cwd_compiled_only():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        runner.invoke(hatch, ['init', 'ok', '--basic', '-ne'])
         files = find_all_files(d)
 
         test_file1 = os.path.join(d, 'test.pyc')
@@ -72,7 +72,7 @@ def test_cwd_compiled_only():
 def test_package():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['new', 'ok', '--cli'])
+        runner.invoke(hatch, ['new', 'ok', '--cli', '-ne'])
         package_dir = os.path.join(d, 'ok')
         files = find_all_files(package_dir)
 
@@ -113,7 +113,7 @@ def test_package_not_exist():
 def test_local():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['new', 'ok', '--cli'])
+        runner.invoke(hatch, ['new', 'ok', '--cli', '-ne'])
         package_dir = os.path.join(d, 'ok')
         files = find_all_files(package_dir)
 
@@ -153,8 +153,8 @@ def test_local_not_exist():
 def test_local_multiple():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['new', 'ok', '--basic'])
-        runner.invoke(hatch, ['new', 'ko', '--basic'])
+        runner.invoke(hatch, ['new', 'ok', '--basic', '-ne'])
+        runner.invoke(hatch, ['new', 'ko', '--basic', '-ne'])
 
         venv_dir = os.path.join(d, 'venv')
         create_venv(venv_dir)
@@ -175,7 +175,7 @@ def test_local_multiple():
 def test_path_relative():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['new', 'ok', '--basic'])
+        runner.invoke(hatch, ['new', 'ok', '--basic', '-ne'])
         package_dir = os.path.join(d, 'ok')
         files = find_all_files(package_dir)
 
@@ -194,8 +194,8 @@ def test_path_relative():
 def test_path_full():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['new', 'ok', '--basic'])
-        runner.invoke(hatch, ['new', 'ko', '--basic'])
+        runner.invoke(hatch, ['new', 'ok', '--basic', '-ne'])
+        runner.invoke(hatch, ['new', 'ko', '--basic', '-ne'])
         package_dir = os.path.join(d, 'ok')
         files = find_all_files(package_dir)
 
@@ -215,7 +215,7 @@ def test_path_full():
 def test_path_full_not_exist():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['new', 'ok', '--basic'])
+        runner.invoke(hatch, ['new', 'ok', '--basic', '-ne'])
 
         full_path = os.path.join(d, 'ko')
         result = runner.invoke(hatch, ['clean', '-p', full_path])
@@ -227,7 +227,7 @@ def test_path_full_not_exist():
 def test_cache():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        runner.invoke(hatch, ['init', 'ok', '--basic', '-ne'])
         create_file(os.path.join(d, 'ok', '.cache', 'v', 'cache', 'lastfailed'))
         files = find_all_files(d)
 
@@ -254,7 +254,7 @@ def test_cache():
 def test_coverage():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        runner.invoke(hatch, ['init', 'ok', '--basic', '-ne'])
         create_file(os.path.join(d, 'ok', '.coverage'))
         files = find_all_files(d)
 
@@ -277,7 +277,7 @@ def test_coverage():
 def test_eggs():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        runner.invoke(hatch, ['init', 'ok', '--basic', '-ne'])
         create_file(os.path.join(d, 'ok', '.eggs', 'ok.egg'))
         files = find_all_files(d)
 
@@ -304,7 +304,7 @@ def test_eggs():
 def test_tox():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        runner.invoke(hatch, ['init', 'ok', '--basic', '-ne'])
         create_file(os.path.join(d, 'ok', '.tox', 'dist', 'ok.zip'))
         files = find_all_files(d)
 
@@ -331,7 +331,7 @@ def test_tox():
 def test_build():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        runner.invoke(hatch, ['init', 'ok', '--basic', '-ne'])
         create_file(os.path.join(d, 'ok', 'build', 'lib', 'ok', 'ok.py'))
         files = find_all_files(d)
 
@@ -358,7 +358,7 @@ def test_build():
 def test_dist():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        runner.invoke(hatch, ['init', 'ok', '--basic', '-ne'])
         create_file(os.path.join(d, 'ok', 'dist', 'ok.whl'))
         files = find_all_files(d)
 
@@ -385,7 +385,7 @@ def test_dist():
 def test_egg_info():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        runner.invoke(hatch, ['init', 'ok', '--basic', '-ne'])
         create_file(os.path.join(d, 'ok', 'ok.egg-info', 'PKG-INFO'))
         files = find_all_files(d)
 
@@ -412,7 +412,7 @@ def test_egg_info():
 def test_pycache():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        runner.invoke(hatch, ['init', 'ok', '--basic', '-ne'])
         files = find_all_files(d)
 
         root_file = os.path.join(d, '__pycache__', 'ok.txt')
@@ -447,7 +447,7 @@ def test_pycache():
 def test_pyc():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        runner.invoke(hatch, ['init', 'ok', '--basic', '-ne'])
         files = find_all_files(d)
 
         root_file = os.path.join(d, 'ok.pyc')
@@ -478,7 +478,7 @@ def test_pyc():
 def test_pyd():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        runner.invoke(hatch, ['init', 'ok', '--basic', '-ne'])
         files = find_all_files(d)
 
         root_file = os.path.join(d, 'ok.pyd')
@@ -509,7 +509,7 @@ def test_pyd():
 def test_pyo():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        runner.invoke(hatch, ['init', 'ok', '--basic', '-ne'])
         files = find_all_files(d)
 
         root_file = os.path.join(d, 'ok.pyo')
@@ -540,7 +540,7 @@ def test_pyo():
 def test_verbose_already_clean():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        runner.invoke(hatch, ['init', 'ok', '--basic', '-ne'])
         files = find_all_files(d)
 
         result = runner.invoke(hatch, ['clean', '-v'])

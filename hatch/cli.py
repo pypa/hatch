@@ -10,6 +10,13 @@ from twine.utils import DEFAULT_REPOSITORY, TEST_REPOSITORY
 
 from hatch.build import build_package
 from hatch.clean import clean_package, remove_compiled_scripts
+from hatch.commands import (
+    conda, python
+)
+from hatch.commands.utils import (
+    CONTEXT_SETTINGS, UNKNOWN_OPTIONS, echo_failure, echo_info, echo_success,
+    echo_warning, echo_waiting
+)
 from hatch.create import create_package
 from hatch.env import (
     get_editable_packages, get_editable_package_location, get_installed_packages,
@@ -27,7 +34,8 @@ from hatch.utils import (
     remove_path, resolve_path, venv_active
 )
 from hatch.venv import (
-    VENV_DIR, clone_venv, create_venv, fix_available_venvs, get_available_venvs, venv
+    VENV_DIR, clone_venv, create_venv, fix_available_venvs, get_available_venvs,
+    is_venv, venv
 )
 from hatch.interpreters_osx import (
     install_interpreter, download_python_pkg,
@@ -35,39 +43,14 @@ from hatch.interpreters_osx import (
     PYTHON_PKGS_DEFAULT_PATHS, uninstall_pkgs)
 from itertools import zip_longest
 
-CONTEXT_SETTINGS = {
-    'help_option_names': ['-h', '--help'],
-}
-UNKNOWN_OPTIONS = {
-    'ignore_unknown_options': True,
-    **CONTEXT_SETTINGS
-}
-
-
-def echo_success(text, nl=True):
-    click.secho(text, fg='cyan', bold=True, nl=nl)
-
-
-def echo_failure(text, nl=True):
-    click.secho(text, fg='red', bold=True, nl=nl)
-
-
-def echo_warning(text, nl=True):
-    click.secho(text, fg='yellow', bold=True, nl=nl)
-
-
-def echo_waiting(text, nl=True):
-    click.secho(text, fg='magenta', bold=True, nl=nl)
-
-
-def echo_info(text, nl=True):
-    click.secho(text, fg='white', bold=True, nl=nl)
-
-
 @click.group(context_settings=CONTEXT_SETTINGS)
 @click.version_option()
 def hatch():
     pass
+
+
+hatch.add_command(conda)
+hatch.add_command(python)
 
 
 @hatch.command(context_settings=CONTEXT_SETTINGS,
@@ -103,6 +86,20 @@ def config(update_settings, restore):
 @hatch.command(context_settings=CONTEXT_SETTINGS,
                short_help='Creates a new Python project')
 @click.argument('name')
+@click.option('-ne', '--no-env', is_flag=True,
+              help=(
+                  'Disables the creation of a dedicated virtual env.'
+              ))
+@click.option('-py', '--python', 'pyname',
+              help=(
+                  'A named Python path to use when creating a virtual '
+                  'env. This overrides --pypath.'
+              ))
+@click.option('-pp', '--pypath',
+              help=(
+                  'An absolute path to a Python executable to use when '
+                  'creating a virtual env.'
+              ))
 @click.option('-e', '--env', 'env_name',
               help=(
                   'Forward-slash-separated list of named virtual envs to be '
@@ -119,15 +116,17 @@ def config(update_settings, restore):
               ))
 @click.option('-l', '--licenses',
               help='Comma-separated list of licenses to use.')
-def new(name, env_name, basic, cli, licenses):
+def new(name, no_env, pyname, pypath, env_name, basic, cli, licenses):
     """Creates a new Python project.
 
     Values from your config file such as `name` and `pyversions` will be used
     to help populate fields. You can also specify things like the readme format
     and which CI service files to create. All options override the config file.
 
-    You can also locally install the created project in a virtual env using
-    the optional argument or the --env option.
+    By default a virtual env will be created in the project directory and will
+    install the project locally so any edits will auto-update the installation.
+    You can also locally install the created project in other virtual envs using
+    the --env option.
 
     Here is an example using an unmodified config file:
 
@@ -171,26 +170,65 @@ def new(name, env_name, basic, cli, licenses):
         echo_failure('Directory `{}` already exists.'.format(d))
         sys.exit(1)
 
+    venvs = env_name.split('/') if env_name else []
+    if (venvs or not no_env) and pyname:
+        try:
+            settings = load_settings()
+        except FileNotFoundError:  # no cov
+            echo_failure('Unable to locate config file. Try `hatch config --restore`.')
+            sys.exit(1)
+
+        pypath = settings.get('pypaths', {}).get(pyname, None)
+        if not pypath:
+            echo_failure('Unable to find a Python path named `{}`.'.format(pyname))
+            sys.exit(1)
+
     os.makedirs(d)
     with chdir(d, cwd=origin):
         create_package(d, name, settings)
         echo_success('Created project `{}`'.format(name))
 
-        venvs = env_name.split('/') if env_name else []
+        if not no_env:
+            venv_dir = os.path.join(d, 'venv')
+            echo_waiting('Creating its own virtual env... ', nl=False)
+            create_venv(venv_dir, pypath=pypath)
+            echo_success('complete!')
+
+            with venv(venv_dir):
+                echo_waiting('Installing locally in the virtual env... ', nl=False)
+                install_packages(['-q', '-e', '.'])
+                echo_success('complete!')
+
         for vname in venvs:
             venv_dir = os.path.join(VENV_DIR, vname)
             if not os.path.exists(venv_dir):
-                echo_waiting('Creating virtual env `{}`...'.format(vname))
-                create_venv(venv_dir)
+                echo_waiting('Creating virtual env `{}`... '.format(vname), nl=False)
+                create_venv(venv_dir, pypath=pypath)
+                echo_success('complete!')
 
             with venv(venv_dir):
-                echo_waiting('Installing locally in virtual env `{}`...'.format(vname))
+                echo_waiting('Installing locally in virtual env `{}`... '.format(vname), nl=False)
                 install_packages(['-q', '-e', '.'])
+                echo_success('complete!')
 
 
 @hatch.command(context_settings=CONTEXT_SETTINGS,
                short_help='Creates a new Python project in the current directory')
 @click.argument('name')
+@click.option('-ne', '--no-env', is_flag=True,
+              help=(
+                  'Disables the creation of a dedicated virtual env.'
+              ))
+@click.option('-py', '--python', 'pyname',
+              help=(
+                  'A named Python path to use when creating a virtual '
+                  'env. This overrides --pypath.'
+              ))
+@click.option('-pp', '--pypath',
+              help=(
+                  'An absolute path to a Python executable to use when '
+                  'creating a virtual env.'
+              ))
 @click.option('-e', '--env', 'env_name',
               help=(
                   'Forward-slash-separated list of named virtual envs to be '
@@ -207,15 +245,17 @@ def new(name, env_name, basic, cli, licenses):
               ))
 @click.option('-l', '--licenses',
               help='Comma-separated list of licenses to use.')
-def init(name, env_name, basic, cli, licenses):
+def init(name, no_env, pyname, pypath, env_name, basic, cli, licenses):
     """Creates a new Python project in the current directory.
 
     Values from your config file such as `name` and `pyversions` will be used
     to help populate fields. You can also specify things like the readme format
     and which CI service files to create. All options override the config file.
 
-    You can also locally install the created project in a virtual env using
-    the optional argument or the --env option.
+    By default a virtual env will be created in the project directory and will
+    install the project locally so any edits will auto-update the installation.
+    You can also locally install the created project in other virtual envs using
+    the --env option.
 
     Here is an example using an unmodified config file:
 
@@ -252,23 +292,55 @@ def init(name, env_name, basic, cli, licenses):
 
     settings['cli'] = cli
 
-    create_package(os.getcwd(), name, settings)
+    d = os.getcwd()
+    create_package(d, name, settings)
     echo_success('Created project `{}` here'.format(name))
 
     venvs = env_name.split('/') if env_name else []
+    if (venvs or not no_env) and pyname:
+        try:
+            settings = load_settings()
+        except FileNotFoundError:  # no cov
+            echo_failure('Unable to locate config file. Try `hatch config --restore`.')
+            sys.exit(1)
+
+        pypath = settings.get('pypaths', {}).get(pyname, None)
+        if not pypath:
+            echo_failure('Unable to find a Python path named `{}`.'.format(pyname))
+            sys.exit(1)
+
+    if not no_env:
+        venv_dir = os.path.join(d, 'venv')
+        echo_waiting('Creating its own virtual env... ', nl=False)
+        create_venv(venv_dir, pypath=pypath)
+        echo_success('complete!')
+
+        with venv(venv_dir):
+            echo_waiting('Installing locally in the virtual env... ', nl=False)
+            install_packages(['-q', '-e', '.'])
+            echo_success('complete!')
+
     for vname in venvs:
         venv_dir = os.path.join(VENV_DIR, vname)
         if not os.path.exists(venv_dir):
-            echo_waiting('Creating virtual env `{}`...'.format(vname))
-            create_venv(venv_dir)
+            echo_waiting('Creating virtual env `{}`... '.format(vname), nl=False)
+            create_venv(venv_dir, pypath=pypath)
+            echo_success('complete!')
 
         with venv(venv_dir):
-            echo_waiting('Installing locally in virtual env `{}`...'.format(vname))
+            echo_waiting('Installing locally in virtual env `{}`... '.format(vname), nl=False)
             install_packages(['-q', '-e', '.'])
+            echo_success('complete!')
 
 
 @hatch.command(context_settings=CONTEXT_SETTINGS, short_help='Installs packages')
 @click.argument('packages', nargs=-1)
+@click.option('-nd', '--no-detect', is_flag=True,
+              help=(
+                  "Disables the use of a project's dedicated virtual env. "
+                  'This is useful if you need to be in a project root but '
+                  'wish to not target its virtual env.'
+              ))
 @click.option('-e', '--env', 'env_name', help='The named virtual env to use.')
 @click.option('-l', '--local', 'editable', is_flag=True,
               help=(
@@ -287,7 +359,7 @@ def init(name, env_name, basic, cli, licenses):
                   'already enabled and therefore sudo/runas will not be used.'
               ))
 @click.option('-q', '--quiet', is_flag=True, help='Decreases verbosity.')
-def install(packages, env_name, editable, global_install, admin, quiet):
+def install(packages, no_detect, env_name, editable, global_install, admin, quiet):
     """If the option --env is supplied, the install will be applied using
     that named virtual env. Unless the option --global is selected, the
     install will only affect the current user. Of course, this will have
@@ -296,6 +368,9 @@ def install(packages, env_name, editable, global_install, admin, quiet):
 
     With no packages selected, this will install using a `setup.py` in the
     current directory.
+
+    If no --env is chosen, this will attempt to detect a project and use its
+    virtual env before resorting to the default pip.
     """
     packages = packages or ['.']
 
@@ -316,6 +391,23 @@ def install(packages, env_name, editable, global_install, admin, quiet):
         with venv(venv_dir):
             command = [get_proper_pip(), 'install', *packages] + (['-q'] if quiet else [])
             echo_waiting('Installing in virtual env `{}`...'.format(env_name))
+            result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
+    elif not no_detect and os.path.isfile(os.path.join(os.getcwd(), 'setup.py')):
+        venv_dir = os.path.join(os.getcwd(), 'venv')
+        if not is_venv(venv_dir):
+            echo_info('A project has been detected!')
+            echo_waiting('Creating a dedicated virtual env... ', nl=False)
+            create_venv(venv_dir)
+            echo_success('complete!')
+
+            with venv(venv_dir):
+                echo_waiting('Installing this project in the virtual env... ', nl=False)
+                install_packages(['-q', '-e', '.'])
+                echo_success('complete!')
+
+        with venv(venv_dir):
+            command = [get_proper_pip(), 'install', *packages] + (['-q'] if quiet else [])
+            echo_waiting('Installing for this project...')
             result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
     else:
         command = [get_proper_pip(), 'install'] + (['-q'] if quiet else [])
@@ -343,6 +435,12 @@ def install(packages, env_name, editable, global_install, admin, quiet):
 
 @hatch.command(context_settings=CONTEXT_SETTINGS, short_help='Uninstalls packages')
 @click.argument('packages', nargs=-1)
+@click.option('-nd', '--no-detect', is_flag=True,
+              help=(
+                  "Disables the use of a project's dedicated virtual env. "
+                  'This is useful if you need to be in a project root but '
+                  'wish to not target its virtual env.'
+              ))
 @click.option('-e', '--env', 'env_name', help='The named virtual env to use.')
 @click.option('-g', '--global', 'global_uninstall', is_flag=True,
               help=(
@@ -359,7 +457,7 @@ def install(packages, env_name, editable, global_install, admin, quiet):
 @click.option('-q', '--quiet', is_flag=True, help='Decreases verbosity.')
 @click.option('-y', '--yes', is_flag=True,
               help='Confirms the intent to uninstall without a prompt.')
-def uninstall(packages, env_name, global_uninstall, admin, dev, quiet, yes):
+def uninstall(packages, no_detect, env_name, global_uninstall, admin, dev, quiet, yes):
     """If the option --env is supplied, the uninstall will be applied using
     that named virtual env. Unless the option --global is selected, the
     uninstall will only affect the current user. Of course, this will have
@@ -368,6 +466,9 @@ def uninstall(packages, env_name, global_uninstall, admin, dev, quiet, yes):
 
     With no packages selected, this will uninstall using a `requirements.txt`
     or a dev version of that in the current directory.
+
+    If no --env is chosen, this will attempt to detect a project and use its
+    virtual env before resorting to the default pip.
     """
     if not packages:
         reqs = get_requirements_file(os.getcwd(), dev=dev)
@@ -395,6 +496,26 @@ def uninstall(packages, env_name, global_uninstall, admin, dev, quiet, yes):
             command = [get_proper_pip(), 'uninstall', *packages] + (['-q'] if quiet else [])
             echo_waiting('Uninstalling in virtual env `{}`...'.format(env_name))
             result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
+    elif not no_detect and os.path.isfile(os.path.join(os.getcwd(), 'setup.py')):
+        venv_dir = os.path.join(os.getcwd(), 'venv')
+        if not is_venv(venv_dir):
+            echo_info('A project has been detected!')
+            echo_waiting('Creating a dedicated virtual env... ', nl=False)
+            create_venv(venv_dir)
+            echo_success('complete!')
+
+            with venv(venv_dir):
+                echo_waiting('Installing this project in the virtual env... ', nl=False)
+                install_packages(['-q', '-e', '.'])
+                echo_success('complete!')
+
+            echo_warning('New virtual envs have nothing to uninstall, exiting...')
+            sys.exit(2)
+
+        with venv(venv_dir):
+            command = [get_proper_pip(), 'uninstall', *packages] + (['-q'] if quiet else [])
+            echo_waiting('Uninstalling for this project...')
+            result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
     else:
         command = [get_proper_pip(), 'uninstall'] + (['-q'] if quiet else [])
 
@@ -418,6 +539,12 @@ def uninstall(packages, env_name, global_uninstall, admin, dev, quiet, yes):
 
 @hatch.command(context_settings=CONTEXT_SETTINGS, short_help='Updates packages')
 @click.argument('packages', nargs=-1)
+@click.option('-nd', '--no-detect', is_flag=True,
+              help=(
+                  "Disables the use of a project's dedicated virtual env. "
+                  'This is useful if you need to be in a project root but '
+                  'wish to not target its virtual env.'
+              ))
 @click.option('-e', '--env', 'env_name', help='The named virtual env to use.')
 @click.option('--eager', is_flag=True,
               help=(
@@ -453,7 +580,7 @@ def uninstall(packages, env_name, global_uninstall, admin, dev, quiet, yes):
               ))
 @click.option('--self', is_flag=True, help='Updates `hatch` itself.')
 @click.option('-q', '--quiet', is_flag=True, help='Decreases verbosity.')
-def update(packages, env_name, eager, all_packages, infra, global_install,
+def update(packages, no_detect, env_name, eager, all_packages, infra, global_install,
            admin, force, dev, as_module, self, quiet):
     """If the option --env is supplied, the update will be applied using
     that named virtual env. Unless the option --global is selected, the
@@ -468,6 +595,9 @@ def update(packages, env_name, eager, all_packages, infra, global_install,
     With no packages nor options selected, this will update packages by
     looking for a `requirements.txt` or a dev version of that in the current
     directory.
+
+    If no --env is chosen, this will attempt to detect a project and use its
+    virtual env before resorting to the default pip.
 
     To update this tool, use the --self flag. All other methods of updating will
     ignore `hatch`. See: https://github.com/pypa/pip/issues/1299
@@ -487,11 +617,35 @@ def update(packages, env_name, eager, all_packages, infra, global_install,
     if self:  # no cov
         as_module = True
 
-    if env_name and not self:
+    if not self and env_name:
         venv_dir = os.path.join(VENV_DIR, env_name)
         if not os.path.exists(venv_dir):
             echo_failure('Virtual env named `{}` does not exist.'.format(env_name))
             sys.exit(1)
+
+        with venv(venv_dir):
+            executable = (
+                [get_proper_python(), '-m', 'pip']
+                if as_module or (infra and ON_WINDOWS)
+                else [get_proper_pip()]
+            )
+            command = executable + command
+            if all_packages:
+                installed_packages = infra_packages if infra else get_installed_packages()
+            else:
+                installed_packages = None
+    elif not self and not no_detect and os.path.isfile(os.path.join(os.getcwd(), 'setup.py')):
+        venv_dir = os.path.join(os.getcwd(), 'venv')
+        if not is_venv(venv_dir):
+            echo_info('A project has been detected!')
+            echo_waiting('Creating a dedicated virtual env... ', nl=False)
+            create_venv(venv_dir)
+            echo_success('complete!')
+
+            with venv(venv_dir):
+                echo_waiting('Installing this project in the virtual env... ', nl=False)
+                install_packages(['-q', '-e', '.'])
+                echo_success('complete!')
 
         with venv(venv_dir):
             executable = (
@@ -587,7 +741,10 @@ def update(packages, env_name, eager, all_packages, infra, global_install,
 
     if venv_dir:
         with venv(venv_dir):
-            echo_waiting('Updating virtual env `{}`...'.format(env_name))
+            if env_name:
+                echo_waiting('Updating virtual env `{}`...'.format(env_name))
+            else:
+                echo_waiting('Updating for this project...')
             result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
     else:
         echo_waiting('Updating...')
@@ -1424,8 +1581,7 @@ def shed(ctx, pyname, env_name):
                   'An absolute path to a Python executable to use when '
                   'creating a temporary virtual env.'
               ))
-@click.pass_context
-def use(ctx, env_name, command, shell, temp_env, pyname, pypath):  # no cov
+def use(env_name, command, shell, temp_env, pyname, pypath):  # no cov
     """Activates or sends a command to a virtual environment. A default shell
     name (or command) can be specified in the config file entry `shell` or the
     environment variable `SHELL`. If there is no entry, env var, nor shell
@@ -1436,6 +1592,9 @@ def use(ctx, env_name, command, shell, temp_env, pyname, pypath):  # no cov
     a command without activating it. If there is only the env without args,
     it will be activated similarly to how you are accustomed. The name of
     the virtual env to use must be omitted if using the --temp env option.
+    If no env is chosen, this will attempt to detect a project and activate
+    its virtual env. To run a command in a project's virtual env, use `.` as
+    the env name.
 
     Activation will not do anything to your current shell, but will rather
     spawn a subprocess to avoid any unwanted strangeness occurring in your
@@ -1498,9 +1657,26 @@ def use(ctx, env_name, command, shell, temp_env, pyname, pypath):  # no cov
     $ which python
     /tmp/tmpzg73untp/Ihqd/bin/python
     """
+    venv_dir = None
+    if resolve_path(env_name) == os.getcwd():
+        env_name = ''
+
     if not (env_name or temp_env):
-        click.echo(ctx.get_help())
-        return
+        if os.path.isfile(os.path.join(os.getcwd(), 'setup.py')):
+            venv_dir = os.path.join(os.getcwd(), 'venv')
+            if not is_venv(venv_dir):
+                echo_info('A project has been detected!')
+                echo_waiting('Creating a dedicated virtual env... ', nl=False)
+                create_venv(venv_dir)
+                echo_success('complete!')
+
+                with venv(venv_dir):
+                    echo_waiting('Installing this project in the virtual env... ', nl=False)
+                    install_packages(['-q', '-e', '.'])
+                    echo_success('complete!')
+        else:
+            echo_failure('No project found.')
+            sys.exit(1)
 
     if env_name and temp_env:
         echo_failure('Cannot use more than one virtual env at a time!')
@@ -1533,7 +1709,7 @@ def use(ctx, env_name, command, shell, temp_env, pyname, pypath):  # no cov
         create_venv(venv_dir, pypath=pypath, verbose=True)
     else:
         temp_dir = None
-        venv_dir = os.path.join(VENV_DIR, env_name)
+        venv_dir = venv_dir or os.path.join(VENV_DIR, env_name)
         if not os.path.exists(venv_dir):
             echo_failure('Virtual env named `{}` does not exist.'.format(env_name))
             sys.exit(1)
@@ -1543,9 +1719,9 @@ def use(ctx, env_name, command, shell, temp_env, pyname, pypath):  # no cov
     try:
         if command:
             with venv(venv_dir):
-                echo_waiting('Running `{}` in `{}`...'.format(
+                echo_waiting('Running `{}` in {}...'.format(
                     ' '.join(c if len(c.split()) == 1 else '"{}"'.format(c) for c in command),
-                    env_name
+                    '`{}`'.format(env_name) if env_name else "this project's env"
                 ))
                 result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL).returncode
         else:

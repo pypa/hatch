@@ -6,20 +6,66 @@ from hatch.cli import hatch
 from hatch.env import get_editable_packages, get_installed_packages
 from hatch.utils import remove_path, temp_chdir
 from hatch.venv import VENV_DIR, create_venv, get_new_venv_name, venv
-from ..utils import requires_internet
+from ..utils import requires_internet, wait_for_os
+
+
+def test_project_no_venv():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', 'ok', '-ne'])
+        runner.invoke(hatch, ['new', 'ko', '-ne'])
+        venv_dir = os.path.join(d, 'venv')
+        package_dir = os.path.join(d, 'ko')
+
+        assert not os.path.exists(venv_dir)
+        result = runner.invoke(hatch, ['install', package_dir])
+        wait_for_os()
+        assert os.path.exists(venv_dir)
+
+        with venv(venv_dir):
+            assert 'ok' in get_editable_packages()
+            assert 'ko' in get_installed_packages(editable=False)
+
+        assert result.exit_code == 0
+        assert 'A project has been detected!' in result.output
+        assert 'Creating a dedicated virtual env... complete!' in result.output
+        assert 'Installing this project in the virtual env... complete!' in result.output
+        assert 'Installing for this project...' in result.output
+
+
+def test_project_existing_venv():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', 'ok'])
+        runner.invoke(hatch, ['new', 'ko', '-ne'])
+        venv_dir = os.path.join(d, 'venv')
+        package_dir = os.path.join(d, 'ko')
+        wait_for_os()
+        assert os.path.exists(venv_dir)
+
+        result = runner.invoke(hatch, ['install', package_dir])
+        wait_for_os()
+
+        with venv(venv_dir):
+            assert 'ok' in get_editable_packages()
+            assert 'ko' in get_installed_packages(editable=False)
+
+        assert result.exit_code == 0
+        assert 'A project has been detected!' not in result.output
+        assert 'Installing for this project...' in result.output
 
 
 def test_local():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['init', 'ok'])
+        runner.invoke(hatch, ['init', 'ok', '-ne'])
 
         venv_dir = os.path.join(d, 'venv')
         create_venv(venv_dir)
 
         with venv(venv_dir):
             assert 'ok' not in get_installed_packages()
-            result = runner.invoke(hatch, ['install'])
+            result = runner.invoke(hatch, ['install', '-nd'])
             assert 'ok' in get_installed_packages()
 
         assert result.exit_code == 0
@@ -28,14 +74,14 @@ def test_local():
 def test_local_editable():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['init', 'ok'])
+        runner.invoke(hatch, ['init', 'ok', '-ne'])
 
         venv_dir = os.path.join(d, 'venv')
         create_venv(venv_dir)
 
         with venv(venv_dir):
             assert 'ok' not in get_editable_packages()
-            result = runner.invoke(hatch, ['install', '-l'])
+            result = runner.invoke(hatch, ['install', '-nd', '-l'])
             assert 'ok' in get_editable_packages()
 
         assert result.exit_code == 0
@@ -48,7 +94,7 @@ def test_local_none():
         create_venv(venv_dir)
 
         with venv(venv_dir):
-            result = runner.invoke(hatch, ['install'])
+            result = runner.invoke(hatch, ['install', '-nd'])
 
         assert result.exit_code != 0
 
@@ -62,7 +108,7 @@ def test_packages():
 
         with venv(venv_dir):
             assert 'six' not in get_installed_packages()
-            result = runner.invoke(hatch, ['install', 'six'])
+            result = runner.invoke(hatch, ['install', '-nd', 'six'])
             assert 'six' in get_installed_packages()
 
         assert result.exit_code == 0

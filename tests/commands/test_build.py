@@ -25,7 +25,7 @@ def format_files(d):
 def test_cwd():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        runner.invoke(hatch, ['init', 'ok', '--basic', '-ne'])
         build_dir = os.path.join(d, 'dist')
 
         result = runner.invoke(hatch, ['build'])
@@ -42,7 +42,7 @@ def test_cwd():
 def test_package():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['new', 'ok', '--basic'])
+        runner.invoke(hatch, ['new', 'ok', '--basic', '-ne'])
         package_dir = os.path.join(d, 'ok')
         build_dir = os.path.join(package_dir, 'dist')
 
@@ -68,7 +68,7 @@ def test_package():
 def test_local():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['new', 'ok', '--basic'])
+        runner.invoke(hatch, ['new', 'ok', '--basic', '-ne'])
         package_dir = os.path.join(d, 'ok')
         build_dir = os.path.join(package_dir, 'dist')
 
@@ -105,8 +105,8 @@ def test_local_not_exist():
 def test_local_multiple():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['new', 'ok', '--basic'])
-        runner.invoke(hatch, ['new', 'ko', '--basic'])
+        runner.invoke(hatch, ['new', 'ok', '--basic', '-ne'])
+        runner.invoke(hatch, ['new', 'ko', '--basic', '-ne'])
 
         venv_dir = os.path.join(d, 'venv')
         create_venv(venv_dir)
@@ -140,7 +140,7 @@ def test_package_not_exist():
 def test_path_relative():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['new', 'ok', '--basic'])
+        runner.invoke(hatch, ['new', 'ok', '--basic', '-ne'])
         build_dir = os.path.join(d, 'ok', 'dist')
 
         result = runner.invoke(hatch, ['build', '-p', 'ok'])
@@ -157,8 +157,8 @@ def test_path_relative():
 def test_path_full():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['new', 'ok', '--basic'])
-        runner.invoke(hatch, ['new', 'ko', '--basic'])
+        runner.invoke(hatch, ['new', 'ok', '--basic', '-ne'])
+        runner.invoke(hatch, ['new', 'ko', '--basic', '-ne'])
         package_dir = os.path.join(d, 'ok')
         build_dir = os.path.join(package_dir, 'dist')
 
@@ -177,7 +177,7 @@ def test_path_full():
 def test_path_full_not_exist():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['new', 'ok', '--basic'])
+        runner.invoke(hatch, ['new', 'ok', '--basic', '-ne'])
 
         full_path = os.path.join(d, 'ko')
         result = runner.invoke(hatch, ['build', '-p', full_path])
@@ -189,7 +189,7 @@ def test_path_full_not_exist():
 def test_default_non_universal():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        runner.invoke(hatch, ['init', 'ok', '--basic', '-ne'])
 
         result = runner.invoke(hatch, ['build'])
         file_name = glob.glob(os.path.join(d, 'dist', '*.whl'))[0]
@@ -202,7 +202,7 @@ def test_default_non_universal():
 def test_universal():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        runner.invoke(hatch, ['init', 'ok', '--basic', '-ne'])
 
         result = runner.invoke(hatch, ['build', '-u'])
         file_name = glob.glob(os.path.join(d, 'dist', '*.whl'))[0]
@@ -214,7 +214,7 @@ def test_universal():
 def test_platform_name():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        runner.invoke(hatch, ['init', 'ok', '--basic', '-ne'])
 
         result = runner.invoke(hatch, ['build', '-n', 'linux_x86_64'])
         files = os.listdir(os.path.join(d, 'dist'))
@@ -227,7 +227,7 @@ def test_platform_name():
 def test_build_dir_relative():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        runner.invoke(hatch, ['init', 'ok', '--basic', '-ne'])
         build_dir = os.path.join(d, '_build_dir')
         os.makedirs(os.path.join(build_dir, 'd'))
 
@@ -245,7 +245,7 @@ def test_build_dir_relative():
 def test_build_dir_full():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        runner.invoke(hatch, ['init', 'ok', '--basic', '-ne'])
         build_dir = os.path.join(d, '_build_dir')
 
         result = runner.invoke(hatch, ['build', '-d', build_dir])
@@ -262,7 +262,7 @@ def test_build_dir_full():
 def test_build_dir_file():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        runner.invoke(hatch, ['init', 'ok', '--basic', '-ne'])
         build_dir = os.path.join(d, '_build_dir')
         create_file(build_dir)
 
@@ -275,7 +275,7 @@ def test_build_dir_file():
 def test_clean():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        runner.invoke(hatch, ['init', 'ok', '--basic', '-ne'])
 
         old_artifact = os.path.join(d, 'dist', 'foo.whl')
         create_file(old_artifact)
@@ -301,7 +301,7 @@ def test_fail():
 def test_pypath():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        runner.invoke(hatch, ['init', 'ok', '--basic', '-ne'])
 
         result = runner.invoke(hatch, ['build', '-pp', sys.executable])
         files = os.listdir(os.path.join(d, 'dist'))
@@ -314,7 +314,7 @@ def test_pypath():
 def test_python():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        runner.invoke(hatch, ['init', 'ok', '--basic', '-ne'])
 
         with temp_move_path(SETTINGS_FILE, d):
             settings = copy_default_settings()
@@ -331,7 +331,7 @@ def test_python():
 def test_python_no_config():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        runner.invoke(hatch, ['init', 'ok', '--basic', '-ne'])
 
         with temp_move_path(SETTINGS_FILE, d):
             result = runner.invoke(hatch, ['build', '-py', 'python'])
@@ -343,7 +343,7 @@ def test_python_no_config():
 def test_python_invalid():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['init', 'ok', '--basic'])
+        runner.invoke(hatch, ['init', 'ok', '--basic', '-ne'])
 
         with temp_move_path(SETTINGS_FILE, d):
             settings = copy_default_settings()

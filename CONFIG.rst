@@ -1,3 +1,9 @@
+Configuration
+=============
+
+.. contents:: **Table of Contents**
+    :backlinks: none
+
 Virtual env location
 --------------------
 
