@@ -264,6 +264,8 @@ master
 - ``new``/``init`` commands now only emit a warning when there is no config file.
 - You can now specify what Python to use when creating a virtual env
   in the ``new``/``init`` command.
+- **Fix:** ``use`` no longer requires the env name argument to be ``.`` when
+  targeting a project's dedicated virtual env.
 
 0.14.0
 ^^^^^^

@@ -484,7 +484,7 @@ def shed(ctx, pyname, env_name):
 
 @hatch.command(context_settings=UNKNOWN_OPTIONS,
                short_help='Activates or sends a command to a virtual environment')
-@click.argument('env_name', required=False)
+@click.argument('env_name', required=False, default='')
 @click.argument('command', required=False, nargs=-1, type=click.UNPROCESSED)
 @click.option('-s', '--shell',
               help=(
