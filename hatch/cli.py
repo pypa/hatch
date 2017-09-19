@@ -11,7 +11,7 @@ from twine.utils import DEFAULT_REPOSITORY, TEST_REPOSITORY
 from hatch.build import build_package
 from hatch.clean import clean_package, remove_compiled_scripts
 from hatch.commands import (
-    conda, config, init, install, new, python, uninstall
+    conda, python, config, new, init, install, uninstall, grow, update
 )
 from hatch.commands.utils import (
     CONTEXT_SETTINGS, UNKNOWN_OPTIONS, echo_failure, echo_info, echo_success,
@@ -50,6 +50,8 @@ hatch.add_command(install)
 hatch.add_command(new)
 hatch.add_command(python)
 hatch.add_command(uninstall)
+hatch.add_command(grow)
+hatch.add_command(update)
 
 @hatch.command(context_settings=CONTEXT_SETTINGS, short_help='Runs tests')
 @click.argument('package', required=False)
