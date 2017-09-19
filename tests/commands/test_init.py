@@ -20,8 +20,12 @@ def test_config_not_exist():
         with temp_move_path(SETTINGS_FILE, d):
             result = runner.invoke(hatch, ['init', 'ok', '--basic', '-ne'])
 
-        assert result.exit_code == 1
-        assert 'Unable to locate config file. Try `hatch config --restore`.' in result.output
+        assert result.exit_code == 0
+        assert (
+            'Unable to locate config file; try `hatch config --restore`. '
+            'The default project structure will be used.'
+        ) in result.output
+        assert 'Created project `ok`' in result.output
 
 
 def test_invalid_name():

@@ -261,6 +261,7 @@ Important changes are emphasized.
 master
 ^^^^^^
 
+- ``new``/``init`` commands now only emit a warning when there is no config file.
 - You can now specify what Python to use when creating a virtual env
   in the ``new``/``init`` command.
 

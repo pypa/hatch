@@ -4,7 +4,7 @@ import sys
 import click
 
 from hatch.commands.utils import (
-    CONTEXT_SETTINGS, echo_failure, echo_success, echo_waiting
+    CONTEXT_SETTINGS, echo_failure, echo_success, echo_waiting, echo_warning
 )
 from hatch.create import create_package
 from hatch.env import install_packages
@@ -81,8 +81,11 @@ def init(name, no_env, pyname, pypath, env_name, basic, cli, licenses):
     try:
         settings = load_settings()
     except FileNotFoundError:
-        echo_failure('Unable to locate config file. Try `hatch config --restore`.')
-        sys.exit(1)
+        settings = {}
+        echo_warning(
+            'Unable to locate config file; try `hatch config --restore`. '
+            'The default project structure will be used.'
+        )
 
     if basic:
         settings['basic'] = True
