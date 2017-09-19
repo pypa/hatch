@@ -6,7 +6,7 @@ import subprocess
 
 from hatch.utils import (
     NEED_SUBPROCESS_SHELL, ON_WINDOWS, get_admin_command, get_proper_pip,
-    venv_active
+    venv_active, get_requirements_file
 )
 from hatch.venv import (VENV_DIR, is_venv, venv, create_venv)
 from hatch.env import install_packages
