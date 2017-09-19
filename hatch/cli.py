@@ -188,7 +188,7 @@ def new(name, no_env, pyname, pypath, env_name, basic, cli, licenses):
     if (venvs or not no_env) and pyname:
         try:
             settings = load_settings()
-        except FileNotFoundError:
+        except FileNotFoundError:  # no cov
             echo_failure('Unable to locate config file. Try `hatch config --restore`.')
             sys.exit(1)
 
@@ -314,7 +314,7 @@ def init(name, no_env, pyname, pypath, env_name, basic, cli, licenses):
     if (venvs or not no_env) and pyname:
         try:
             settings = load_settings()
-        except FileNotFoundError:
+        except FileNotFoundError:  # no cov
             echo_failure('Unable to locate config file. Try `hatch config --restore`.')
             sys.exit(1)
 
