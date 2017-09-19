@@ -1,7 +1,8 @@
 import pytest
 from click.testing import CliRunner
 from hatch.cli import hatch
-from hatch.interpreters_osx import PYTHON_PKGS_DEFAULT_PATHS, strip_build_ver, ENCODING, is_pkgs_installed
+from hatch.interpreters_osx import PYTHON_PKGS_DEFAULT_PATHS, strip_build_ver, ENCODING, is_pkgs_installed, gen_installers_cli, pkg_path, install_interpreter
+from hatch.exceptions import PythonPkgNotInstalled, PkgInstallerSystemProblem
 import subprocess
 
 """
@@ -52,3 +53,22 @@ def test_install_uninstall_python(ver):
     assert uninstall_python(ver).exit_code == 0
     assert no_runtime(ver)
     assert not is_pkgs_installed(ver)
+
+@pytest.mark.darwin
+def test_gen_cli_installers():
+    installers = [i for i in gen_installers_cli()]
+    assert len(installers) == 2
+    assert '2.7.14rc1' in installers[0]
+    assert '3.6.2rc2' in installers[1]
+
+@pytest.mark.darwin
+def test_pkgpath_for_non_existing_raises():
+    with pytest.raises(PythonPkgNotInstalled):
+        pkg_path('non existing package')
+
+
+@pytest.mark.darwin
+def test_install_interpreter_failed():
+    with pytest.raises(PkgInstallerSystemProblem):
+        install_interpreter('/not/valid/path')
+
