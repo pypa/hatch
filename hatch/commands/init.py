@@ -1,13 +1,16 @@
 import os
 import sys
+
 import click
 
-from hatch.venv import (VENV_DIR, create_venv, venv)
-from hatch.env import install_packages
+from hatch.commands.utils import (
+    CONTEXT_SETTINGS, echo_failure, echo_success, echo_waiting
+)
 from hatch.create import create_package
-from hatch.commands.utils import (CONTEXT_SETTINGS, echo_success, echo_failure,
-        echo_waiting)
+from hatch.env import install_packages
 from hatch.settings import load_settings
+from hatch.venv import VENV_DIR, create_venv, venv
+
 
 @click.command(context_settings=CONTEXT_SETTINGS,
                short_help='Creates a new Python project in the current directory')

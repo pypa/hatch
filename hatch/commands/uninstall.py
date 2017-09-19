@@ -1,17 +1,20 @@
-
 import os
-import sys
-import click
 import subprocess
+import sys
 
+import click
+
+from hatch.commands.utils import (
+    CONTEXT_SETTINGS, echo_failure, echo_info, echo_success, echo_waiting,
+    echo_warning
+)
+from hatch.env import install_packages
 from hatch.utils import (
     NEED_SUBPROCESS_SHELL, ON_WINDOWS, get_admin_command, get_proper_pip,
-    venv_active, get_requirements_file
+    get_requirements_file, venv_active
 )
-from hatch.venv import (VENV_DIR, is_venv, venv, create_venv)
-from hatch.env import install_packages
-from hatch.commands.utils import (CONTEXT_SETTINGS, echo_success, echo_failure,
-        echo_waiting, echo_info, echo_warning)
+from hatch.venv import VENV_DIR, create_venv, is_venv, venv
+
 
 @click.command(context_settings=CONTEXT_SETTINGS, short_help='Uninstalls packages')
 @click.argument('packages', nargs=-1)
