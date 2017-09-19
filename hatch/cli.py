@@ -104,6 +104,16 @@ def config(update_settings, restore):
               help=(
                   'Disables the creation of a dedicated virtual env.'
               ))
+@click.option('-py', '--python', 'pyname',
+              help=(
+                  'A named Python path to use when creating a virtual '
+                  'env. This overrides --pypath.'
+              ))
+@click.option('-pp', '--pypath',
+              help=(
+                  'An absolute path to a Python executable to use when '
+                  'creating a virtual env.'
+              ))
 @click.option('-e', '--env', 'env_name',
               help=(
                   'Forward-slash-separated list of named virtual envs to be '
@@ -120,7 +130,7 @@ def config(update_settings, restore):
               ))
 @click.option('-l', '--licenses',
               help='Comma-separated list of licenses to use.')
-def new(name, no_env, env_name, basic, cli, licenses):
+def new(name, no_env, pyname, pypath, env_name, basic, cli, licenses):
     """Creates a new Python project.
 
     Values from your config file such as `name` and `pyversions` will be used
@@ -174,6 +184,19 @@ def new(name, no_env, env_name, basic, cli, licenses):
         echo_failure('Directory `{}` already exists.'.format(d))
         sys.exit(1)
 
+    venvs = env_name.split('/') if env_name else []
+    if (venvs or not no_env) and pyname:
+        try:
+            settings = load_settings()
+        except FileNotFoundError:
+            echo_failure('Unable to locate config file. Try `hatch config --restore`.')
+            sys.exit(1)
+
+        pypath = settings.get('pypaths', {}).get(pyname, None)
+        if not pypath:
+            echo_failure('Unable to find a Python path named `{}`.'.format(pyname))
+            sys.exit(1)
+
     os.makedirs(d)
     with chdir(d, cwd=origin):
         create_package(d, name, settings)
@@ -182,7 +205,7 @@ def new(name, no_env, env_name, basic, cli, licenses):
         if not no_env:
             venv_dir = os.path.join(d, 'venv')
             echo_waiting('Creating its own virtual env... ', nl=False)
-            create_venv(venv_dir)
+            create_venv(venv_dir, pypath=pypath)
             echo_success('complete!')
 
             with venv(venv_dir):
@@ -190,12 +213,11 @@ def new(name, no_env, env_name, basic, cli, licenses):
                 install_packages(['-q', '-e', '.'])
                 echo_success('complete!')
 
-        venvs = env_name.split('/') if env_name else []
         for vname in venvs:
             venv_dir = os.path.join(VENV_DIR, vname)
             if not os.path.exists(venv_dir):
                 echo_waiting('Creating virtual env `{}`... '.format(vname), nl=False)
-                create_venv(venv_dir)
+                create_venv(venv_dir, pypath=pypath)
                 echo_success('complete!')
 
             with venv(venv_dir):
@@ -210,6 +232,16 @@ def new(name, no_env, env_name, basic, cli, licenses):
 @click.option('-ne', '--no-env', is_flag=True,
               help=(
                   'Disables the creation of a dedicated virtual env.'
+              ))
+@click.option('-py', '--python', 'pyname',
+              help=(
+                  'A named Python path to use when creating a virtual '
+                  'env. This overrides --pypath.'
+              ))
+@click.option('-pp', '--pypath',
+              help=(
+                  'An absolute path to a Python executable to use when '
+                  'creating a virtual env.'
               ))
 @click.option('-e', '--env', 'env_name',
               help=(
@@ -227,7 +259,7 @@ def new(name, no_env, env_name, basic, cli, licenses):
               ))
 @click.option('-l', '--licenses',
               help='Comma-separated list of licenses to use.')
-def init(name, no_env, env_name, basic, cli, licenses):
+def init(name, no_env, pyname, pypath, env_name, basic, cli, licenses):
     """Creates a new Python project in the current directory.
 
     Values from your config file such as `name` and `pyversions` will be used
@@ -278,10 +310,23 @@ def init(name, no_env, env_name, basic, cli, licenses):
     create_package(d, name, settings)
     echo_success('Created project `{}` here'.format(name))
 
+    venvs = env_name.split('/') if env_name else []
+    if (venvs or not no_env) and pyname:
+        try:
+            settings = load_settings()
+        except FileNotFoundError:
+            echo_failure('Unable to locate config file. Try `hatch config --restore`.')
+            sys.exit(1)
+
+        pypath = settings.get('pypaths', {}).get(pyname, None)
+        if not pypath:
+            echo_failure('Unable to find a Python path named `{}`.'.format(pyname))
+            sys.exit(1)
+
     if not no_env:
         venv_dir = os.path.join(d, 'venv')
         echo_waiting('Creating its own virtual env... ', nl=False)
-        create_venv(venv_dir)
+        create_venv(venv_dir, pypath=pypath)
         echo_success('complete!')
 
         with venv(venv_dir):
@@ -289,12 +334,11 @@ def init(name, no_env, env_name, basic, cli, licenses):
             install_packages(['-q', '-e', '.'])
             echo_success('complete!')
 
-    venvs = env_name.split('/') if env_name else []
     for vname in venvs:
         venv_dir = os.path.join(VENV_DIR, vname)
         if not os.path.exists(venv_dir):
             echo_waiting('Creating virtual env `{}`... '.format(vname), nl=False)
-            create_venv(venv_dir)
+            create_venv(venv_dir, pypath=pypath)
             echo_success('complete!')
 
         with venv(venv_dir):

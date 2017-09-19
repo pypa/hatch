@@ -266,6 +266,9 @@ Important changes are emphasized.
 master
 ^^^^^^
 
+- You can now specify what Python to use when creating a virtual env
+  in the ``new``/``init`` command.
+
 0.14.0
 ^^^^^^
 

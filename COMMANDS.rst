@@ -76,6 +76,14 @@ Here is an example using an unmodified config file:
 *-ne/--no-env*
     Disables the creation of a dedicated virtual env.
 
+*-py/--python*
+    A named Python path to use when creating a virtual
+    env. This overrides --pypath.
+
+*-pp/--pypath*
+    An absolute path to a Python executable to use when
+    creating a virtual env.
+
 *-e/--env*
     Forward-slash-separated list of named virtual envs to be
     installed in. Will create any that don't already exist.
