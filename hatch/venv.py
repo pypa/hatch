@@ -82,7 +82,8 @@ def create_venv(d, pypath=None, verbose=False):
                '-p', pypath or resolve_path(shutil.which(get_proper_python()))]
     if not verbose:  # no cov
         command.append('-qqq')
-    subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
+    result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
+    return result.returncode
 
 
 def clone_venv(origin, location):
