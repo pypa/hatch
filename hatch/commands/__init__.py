@@ -5,3 +5,7 @@ from hatch.commands.install import install
 from hatch.commands.new import new
 from hatch.commands.python import python
 from hatch.commands.uninstall import uninstall
+from hatch.commands.grow import grow
+from hatch.commands.update import update
+from hatch.commands.test import test
+from hatch.commands.build import build
