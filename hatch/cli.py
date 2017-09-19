@@ -30,35 +30,10 @@ from hatch.venv import (
     VENV_DIR, clone_venv, create_venv, fix_available_venvs, get_available_venvs,
     is_venv, venv
 )
-
-
-CONTEXT_SETTINGS = {
-    'help_option_names': ['-h', '--help'],
-}
-UNKNOWN_OPTIONS = {
-    'ignore_unknown_options': True,
-    **CONTEXT_SETTINGS
-}
-
-
-def echo_success(text, nl=True):
-    click.secho(text, fg='cyan', bold=True, nl=nl)
-
-
-def echo_failure(text, nl=True):
-    click.secho(text, fg='red', bold=True, nl=nl)
-
-
-def echo_warning(text, nl=True):
-    click.secho(text, fg='yellow', bold=True, nl=nl)
-
-
-def echo_waiting(text, nl=True):
-    click.secho(text, fg='magenta', bold=True, nl=nl)
-
-
-def echo_info(text, nl=True):
-    click.secho(text, fg='white', bold=True, nl=nl)
+from hatch.commands.utils import (
+    CONTEXT_SETTINGS, UNKNOWN_OPTIONS, echo_failure, echo_info, echo_success,
+    echo_warning, echo_waiting
+)
 
 
 @click.group(context_settings=CONTEXT_SETTINGS)
