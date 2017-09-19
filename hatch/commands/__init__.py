@@ -7,3 +7,4 @@ from hatch.commands.python import python
 from hatch.commands.uninstall import uninstall
 from hatch.commands.grow import grow
 from hatch.commands.update import update
+from hatch.commands.test import test
