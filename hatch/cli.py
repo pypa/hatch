@@ -11,7 +11,7 @@ from twine.utils import DEFAULT_REPOSITORY, TEST_REPOSITORY
 from hatch.build import build_package
 from hatch.clean import clean_package, remove_compiled_scripts
 from hatch.commands import (
-    conda, python
+    conda, python, config
 )
 from hatch.commands.utils import (
     CONTEXT_SETTINGS, UNKNOWN_OPTIONS, echo_failure, echo_info, echo_success,
@@ -47,37 +47,7 @@ def hatch():
 
 hatch.add_command(conda)
 hatch.add_command(python)
-
-
-@hatch.command(context_settings=CONTEXT_SETTINGS,
-               short_help='Locates, updates, or restores the config file')
-@click.option('-u', '--update', 'update_settings', is_flag=True,
-              help='Updates the config file with any new fields.')
-@click.option('--restore', is_flag=True,
-              help='Restores the config file to default settings.')
-def config(update_settings, restore):
-    """Locates, updates, or restores the config file.
-
-    \b
-    $ hatch config
-    Settings location: /home/ofek/.local/share/hatch/settings.json
-    """
-    if update_settings:
-        try:
-            user_settings = load_settings()
-            updated_settings = copy_default_settings()
-            updated_settings.update(user_settings)
-            save_settings(updated_settings)
-            echo_success('Settings were successfully updated.')
-        except FileNotFoundError:
-            restore = True
-
-    if restore:
-        restore_settings()
-        echo_success('Settings were successfully restored.')
-
-    echo_success('Settings location: ' + SETTINGS_FILE)
-
+hatch.add_command(config)
 
 @hatch.command(context_settings=CONTEXT_SETTINGS,
                short_help='Creates a new Python project')
