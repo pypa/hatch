@@ -13,3 +13,4 @@ from hatch.commands.clean import clean
 from hatch.commands.release import release
 from hatch.commands.python_path import python_path
 from hatch.commands.env import env
+from hatch.commands.shed import shed
