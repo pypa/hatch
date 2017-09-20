@@ -261,7 +261,10 @@ Important changes are emphasized.
 master
 ^^^^^^
 
-- ``use`` renamed to ``shell``, though it will remain as an alias.
+0.15.0
+^^^^^^
+
+- ``use`` renamed to ``shell``, though it will remain as an alias!
 - ``new``/``init`` commands now only emit a warning when there is no config file.
 - You can now specify what Python to use when creating a virtual env
   in the ``new``/``init`` command.
