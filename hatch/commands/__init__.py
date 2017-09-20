@@ -9,3 +9,9 @@ from hatch.commands.python import python
 from hatch.commands.test import test
 from hatch.commands.uninstall import uninstall
 from hatch.commands.update import update
+from hatch.commands.clean import clean
+from hatch.commands.release import release
+from hatch.commands.python_path import python_path
+from hatch.commands.env import env
+from hatch.commands.shed import shed
+from hatch.commands.shell import shell
