@@ -11,3 +11,4 @@ from hatch.commands.uninstall import uninstall
 from hatch.commands.update import update
 from hatch.commands.clean import clean
 from hatch.commands.release import release
+from hatch.commands.python_path import python_path
