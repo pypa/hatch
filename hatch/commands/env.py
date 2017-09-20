@@ -140,5 +140,9 @@ def env(name, pyname, pypath, clone, verbose, restore, show):
         echo_success('Successfully cloned virtual env `{}` from `{}` to `{}`.'.format(name, clone, venv_dir))
     else:
         echo_waiting('Creating virtual env `{}`...'.format(name))
-        create_venv(venv_dir, pypath, verbose=verbose)
-        echo_success('Successfully saved virtual env `{}` to `{}`.'.format(name, venv_dir))
+        result = create_venv(venv_dir, pypath, verbose=verbose)
+        if result == 0:
+            echo_success('Successfully saved virtual env `{}` to `{}`.'.format(name, venv_dir))
+        else:
+            echo_failure('An unexpected failure may have occurred.')
+        sys.exit(result)
