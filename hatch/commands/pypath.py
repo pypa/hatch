@@ -30,13 +30,13 @@ def list_pypaths(ctx, param, value):
     ctx.exit()
 
 
-@click.command('pypath', context_settings=CONTEXT_SETTINGS,
+@click.command(context_settings=CONTEXT_SETTINGS,
                short_help='Names a Python path or shows available ones')
 @click.argument('name')
 @click.argument('path')
 @click.option('-l', '--list', 'show', is_flag=True, is_eager=True, callback=list_pypaths,
               help='Shows available Python paths.')
-def python_path(name, path, show):
+def pypath(name, path, show):
     """Names an absolute path to a Python executable. You can also modify
     these in the config file entry `pypaths`.
 

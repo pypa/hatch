@@ -1,20 +1,21 @@
 import os
-import sys
 import subprocess
+import sys
 from tempfile import TemporaryDirectory
 
 import click
 
 from hatch.commands.utils import (
-        UNKNOWN_OPTIONS, echo_info, echo_waiting, echo_failure, echo_success
+    UNKNOWN_OPTIONS, echo_failure, echo_info, echo_success, echo_waiting
 )
-from hatch.venv import VENV_DIR, create_venv, is_venv, venv
 from hatch.env import install_packages
 from hatch.settings import load_settings
 from hatch.shells import run_shell
 from hatch.utils import (
     NEED_SUBPROCESS_SHELL, get_random_venv_name, resolve_path
 )
+from hatch.venv import VENV_DIR, create_venv, is_venv, venv
+
 
 @click.command(context_settings=UNKNOWN_OPTIONS,
                short_help='Activates or sends a command to a virtual environment')

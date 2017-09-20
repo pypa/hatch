@@ -7,13 +7,13 @@ from hatch.commands.utils import (
     CONTEXT_SETTINGS, echo_failure, echo_info, echo_success, echo_waiting
 )
 from hatch.env import (
-    get_editable_packages, get_python_version, get_python_implementation
+    get_editable_packages, get_python_implementation, get_python_version
 )
+from hatch.settings import load_settings
 from hatch.venv import (
     VENV_DIR, clone_venv, create_venv, fix_available_venvs, get_available_venvs,
     venv
 )
-from hatch.settings import load_settings
 
 
 def list_envs(ctx, param, value):

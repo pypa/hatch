@@ -1,6 +1,6 @@
 import os
-import sys
 import subprocess
+import sys
 
 import click
 from twine.utils import DEFAULT_REPOSITORY, TEST_REPOSITORY
@@ -8,9 +8,10 @@ from twine.utils import DEFAULT_REPOSITORY, TEST_REPOSITORY
 from hatch.commands.utils import (
     CONTEXT_SETTINGS, echo_failure, echo_info, echo_waiting
 )
-from hatch.settings import SETTINGS_FILE, load_settings
 from hatch.env import get_editable_package_location
-from hatch.utils import resolve_path, NEED_SUBPROCESS_SHELL
+from hatch.settings import SETTINGS_FILE, load_settings
+from hatch.utils import NEED_SUBPROCESS_SHELL, resolve_path
+
 
 @click.command(context_settings=CONTEXT_SETTINGS, short_help='Uploads to PyPI')
 @click.argument('package', required=False)

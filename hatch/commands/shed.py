@@ -6,9 +6,9 @@ import click
 from hatch.commands.utils import (
     CONTEXT_SETTINGS, echo_failure, echo_success, echo_warning
 )
-from hatch.venv import VENV_DIR
 from hatch.settings import load_settings, save_settings
 from hatch.utils import remove_path
+from hatch.venv import VENV_DIR
 
 
 @click.command(context_settings=CONTEXT_SETTINGS,
