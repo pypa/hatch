@@ -32,7 +32,14 @@ from hatch.venv import (
 )
 
 
-@click.group(context_settings=CONTEXT_SETTINGS)
+class AliasedGroup(click.Group):  # no cov
+    def get_command(self, ctx, cmd_name):
+        if cmd_name == 'use':
+            return shell
+        return click.Group.get_command(self, ctx, cmd_name)
+
+
+@click.group(cls=AliasedGroup, context_settings=CONTEXT_SETTINGS)
 @click.version_option()
 def hatch():
     pass
@@ -351,7 +358,7 @@ def restore_envs(ctx, param, value):
               ))
 def env(name, pyname, pypath, clone, verbose, restore, show):
     """Creates a new virtual env that can later be utilized with the
-    `use` command.
+    `shell` command.
 
     \b
     $ hatch pypath -l
@@ -486,7 +493,7 @@ def shed(ctx, pyname, env_name):
                short_help='Activates or sends a command to a virtual environment')
 @click.argument('env_name', required=False, default='')
 @click.argument('command', required=False, nargs=-1, type=click.UNPROCESSED)
-@click.option('-s', '--shell',
+@click.option('-s', '--shell', 'shell_name',
               help=(
                   'The name of shell to use e.g. `bash`. If the shell name '
                   'is not supported, e.g. `bash -O`, it will be treated as '
@@ -505,7 +512,7 @@ def shed(ctx, pyname, env_name):
                   'An absolute path to a Python executable to use when '
                   'creating a temporary virtual env.'
               ))
-def use(env_name, command, shell, temp_env, pyname, pypath):  # no cov
+def shell(env_name, command, shell_name, temp_env, pyname, pypath):  # no cov
     """Activates or sends a command to a virtual environment. A default shell
     name (or command) can be specified in the config file entry `shell` or the
     environment variable `SHELL`. If there is no entry, env var, nor shell
@@ -527,6 +534,8 @@ def use(env_name, command, shell, temp_env, pyname, pypath):  # no cov
     To leave a virtual env, type `exit`, or you can do `Ctrl+D` on non-Windows
     machines.
 
+    `use` is an alias for this command.
+
     \b
     Activation:
     $ hatch env -ll
@@ -544,20 +553,20 @@ def use(env_name, command, shell, temp_env, pyname, pypath):  # no cov
       Implementation: CPython
     $ which python
     /usr/bin/python
-    $ hatch use my-app
+    $ hatch shell my-app
     (my-app) $ which python
     /home/ofek/.virtualenvs/my-app/bin/python
 
     \b
     Commands:
-    $ hatch use my-app pip list --format=columns
+    $ hatch shell my-app pip list --format=columns
     Package    Version
     ---------- -------
     pip        9.0.1
     setuptools 36.3.0
     wheel      0.29.0
-    $ hatch use my-app hatch install -q requests six
-    $ hatch use my-app pip list --format=columns
+    $ hatch shell my-app hatch install -q requests six
+    $ hatch shell my-app pip list --format=columns
     Package    Version
     ---------- -----------
     certifi    2017.7.27.1
@@ -572,7 +581,7 @@ def use(env_name, command, shell, temp_env, pyname, pypath):  # no cov
 
     \b
     Temporary env:
-    $ hatch use -t
+    $ hatch shell -t
     Already using interpreter /usr/bin/python3
     Using base prefix '/usr'
     New python executable in /tmp/tmpzg73untp/Ihqd/bin/python3
@@ -650,7 +659,7 @@ def use(env_name, command, shell, temp_env, pyname, pypath):  # no cov
                 result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL).returncode
         else:
             with venv(venv_dir) as exe_dir:
-                result = run_shell(exe_dir, shell)
+                result = run_shell(exe_dir, shell_name)
     finally:
         result = 1 if result is None else result
         if temp_dir is not None:

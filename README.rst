@@ -181,7 +181,7 @@ and using them is just as fluid:
 
     $ which python
     /usr/bin/python
-    $ hatch use my-app
+    $ hatch shell my-app
     (my-app) $ which python
     /home/ofek/.virtualenvs/my-app/bin/python
 
@@ -261,6 +261,7 @@ Important changes are emphasized.
 master
 ^^^^^^
 
+- ``use`` renamed to ``shell``, though it will remain as an alias.
 - ``new``/``init`` commands now only emit a warning when there is no config file.
 - You can now specify what Python to use when creating a virtual env
   in the ``new``/``init`` command.

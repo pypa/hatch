@@ -290,7 +290,7 @@ packages, etc.
 ``env``
 ^^^^^^^
 
-Creates a new virtual env that can later be utilized with the ``use`` command.
+Creates a new virtual env that can later be utilized with the ``shell`` command.
 
 .. code-block:: bash
 
@@ -390,8 +390,8 @@ Removes named Python paths or virtual environments.
 *-e/--env*
     Forward-slash-separated list of named virtual envs.
 
-``use``
-^^^^^^^
+``shell``
+^^^^^^^^^
 
 Activates or sends a command to a virtual environment. A default shell
 name (or command) can be specified in the config file entry ``shell`` or the
@@ -414,6 +414,8 @@ of this approach, be sure to read `<https://gist.github.com/datagrok/2199506>`_.
 To leave a virtual env, type ``exit``, or you can do ``Ctrl+D`` on non-Windows
 machines.
 
+``use`` is an alias for this command.
+
 Activation:
 
 .. code-block:: bash
@@ -432,7 +434,7 @@ Activation:
       Implementation: CPython
     $ which python
     /usr/bin/python
-    $ hatch use my-app
+    $ hatch shell my-app
     (my-app) $ which python
     /home/ofek/.virtualenvs/my-app/bin/python
 
@@ -440,14 +442,14 @@ Commands:
 
 .. code-block:: bash
 
-    $ hatch use my-app pip list --format=columns
+    $ hatch shell my-app pip list --format=columns
     Package    Version
     ---------- -------
     pip        9.0.1
     setuptools 36.3.0
     wheel      0.29.0
-    $ hatch use my-app hatch install -q requests six
-    $ hatch use my-app pip list --format=columns
+    $ hatch shell my-app hatch install -q requests six
+    $ hatch shell my-app pip list --format=columns
     Package    Version
     ---------- -----------
     certifi    2017.7.27.1
@@ -464,7 +466,7 @@ Temporary env:
 
 .. code-block:: bash
 
-    $ hatch use -t
+    $ hatch shell -t
     Already using interpreter /usr/bin/python3
     Using base prefix '/usr'
     New python executable in /tmp/tmpzg73untp/Ihqd/bin/python3
