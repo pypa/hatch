@@ -24,7 +24,7 @@ def wait_until(f, *args):  # no cov
             time.sleep(0.5)
             return True
         time.sleep(0.1)
-    return False
+    raise AssertionError('timeout')
 
 
 def get_version_as_bytes(package_name):
