@@ -8,8 +8,8 @@ from hatch.settings import (
     save_settings
 )
 from hatch.utils import remove_path, temp_chdir, temp_move_path
-from hatch.venv import VENV_DIR, get_new_venv_name
-from ..utils import wait_for_os
+from hatch.venv import VENV_DIR, get_new_venv_name, is_venv
+from ..utils import wait_until
 
 
 def test_help():
@@ -84,7 +84,7 @@ def test_env():
 
         try:
             runner.invoke(hatch, ['env', env_name])
-            wait_for_os()
+            wait_until(is_venv, venv_dir)
             assert os.path.exists(venv_dir)
             result = runner.invoke(hatch, ['shed', '-e', env_name])
             assert not os.path.exists(venv_dir)
@@ -105,10 +105,10 @@ def test_env_multiple():
 
         try:
             runner.invoke(hatch, ['env', env_name1])
-            wait_for_os()
+            wait_until(is_venv, venv_dir1)
             assert os.path.exists(venv_dir1)
             runner.invoke(hatch, ['env', env_name2])
-            wait_for_os()
+            wait_until(is_venv, venv_dir2)
             assert os.path.exists(venv_dir2)
 
             result = runner.invoke(hatch, ['shed', '-e', '{}/{}'.format(env_name1, env_name2)])
@@ -143,7 +143,7 @@ def test_pyname_and_env():
 
         try:
             runner.invoke(hatch, ['env', env_name])
-            wait_for_os()
+            wait_until(is_venv, venv_dir)
             assert os.path.exists(venv_dir)
 
             with temp_move_path(SETTINGS_FILE, d):

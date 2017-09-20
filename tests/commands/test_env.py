@@ -12,8 +12,8 @@ from hatch.settings import (
     SETTINGS_FILE, copy_default_settings, restore_settings, save_settings
 )
 from hatch.utils import copy_path, remove_path, temp_chdir, temp_move_path
-from hatch.venv import VENV_DIR, create_venv, get_new_venv_name, venv
-from ..utils import requires_internet, wait_for_os
+from hatch.venv import VENV_DIR, create_venv, get_new_venv_name, is_venv, venv
+from ..utils import requires_internet, wait_until
 
 
 def test_success():
@@ -25,7 +25,7 @@ def test_success():
 
         try:
             result = runner.invoke(hatch, ['env', env_name])
-            wait_for_os()
+            wait_until(is_venv, venv_dir)
             assert os.path.exists(venv_dir)
         finally:
             remove_path(venv_dir)
@@ -47,7 +47,7 @@ def test_pyname():
                 settings['pypaths']['python'] = sys.executable
                 save_settings(settings)
                 result = runner.invoke(hatch, ['env', env_name, '-py', 'python'])
-                wait_for_os()
+                wait_until(is_venv, venv_dir)
                 assert os.path.exists(venv_dir)
         finally:
             remove_path(venv_dir)
@@ -84,13 +84,14 @@ def test_existing_venv():
         runner = CliRunner()
 
         env_name = get_new_venv_name()
+        venv_dir = os.path.join(VENV_DIR, env_name)
 
         try:
             runner.invoke(hatch, ['env', env_name])
-            wait_for_os()
+            wait_until(is_venv, venv_dir)
             result = runner.invoke(hatch, ['env', env_name])
         finally:
-            remove_path(os.path.join(VENV_DIR, env_name))
+            remove_path(venv_dir)
 
         assert result.exit_code == 1
         assert (
@@ -123,7 +124,7 @@ def test_list_success_1():
 
         try:
             runner.invoke(hatch, ['env', env_name1])
-            wait_for_os()
+            wait_until(is_venv, venv_dir1)
             os.makedirs(venv_dir2)
             result = runner.invoke(hatch, ['env', '-l'])
         finally:
@@ -144,13 +145,14 @@ def test_list_success_2():
         runner = CliRunner()
 
         env_name = get_new_venv_name()
+        venv_dir = os.path.join(VENV_DIR, env_name)
 
         try:
             runner.invoke(hatch, ['env', env_name])
-            wait_for_os()
+            wait_until(is_venv, venv_dir)
             result = runner.invoke(hatch, ['env', '-ll'])
         finally:
-            remove_path(os.path.join(VENV_DIR, env_name))
+            remove_path(venv_dir)
 
         assert result.exit_code == 0
         assert (
@@ -168,10 +170,11 @@ def test_list_success_3():
         runner.invoke(hatch, ['init', 'ok', '-ne'])
 
         env_name = get_new_venv_name()
+        venv_dir = os.path.join(VENV_DIR, env_name)
 
         try:
             runner.invoke(hatch, ['env', env_name])
-            wait_for_os()
+            wait_until(is_venv, venv_dir)
             runner.invoke(hatch, ['install', '-l', '-e', env_name])
             result = runner.invoke(hatch, ['env', '-lll'])
         finally:
@@ -210,12 +213,12 @@ def test_clone_success():
 
         try:
             runner.invoke(hatch, ['env', origin])
-            wait_for_os()
+            wait_until(is_venv, origin_dir)
             with venv(origin_dir):
                 install_packages(['requests'])
 
             result = runner.invoke(hatch, ['env', clone, '-c', origin])
-            wait_for_os()
+            wait_until(is_venv, clone_dir)
             with venv(clone_dir):
                 install_packages(['six'])
                 installed_packages = get_installed_packages()
@@ -246,10 +249,9 @@ def test_restore_success():
 
         try:
             runner.invoke(hatch, ['env', env_name])
-            wait_for_os()
+            wait_until(is_venv, venv_dir)
 
             result = runner.invoke(hatch, ['env', '-r'])
-            wait_for_os()
             with venv(venv_dir):
                 install_packages(['six'])
                 installed_packages = get_installed_packages()

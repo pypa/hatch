@@ -7,9 +7,9 @@ from hatch.env import (
     get_installed_packages, get_python_implementation, install_packages
 )
 from hatch.utils import remove_path, temp_chdir
-from hatch.venv import VENV_DIR, create_venv, get_new_venv_name, venv
+from hatch.venv import VENV_DIR, create_venv, get_new_venv_name, is_venv, venv
 from ..utils import get_version_as_bytes
-from ..utils import requires_internet, wait_for_os
+from ..utils import requires_internet, wait_for_os, wait_until
 
 
 @requires_internet
@@ -21,7 +21,7 @@ def test_project_no_venv():
 
         assert not os.path.exists(venv_dir)
         result = runner.invoke(hatch, ['update', 'six'])
-        wait_for_os()
+        wait_until(is_venv, venv_dir)
         assert os.path.exists(venv_dir)
 
         with venv(venv_dir):
@@ -40,12 +40,11 @@ def test_project_existing_venv():
         runner = CliRunner()
         runner.invoke(hatch, ['init', 'ok'])
         venv_dir = os.path.join(d, 'venv')
-        wait_for_os()
+        wait_until(is_venv, venv_dir)
         assert os.path.exists(venv_dir)
 
         runner.invoke(hatch, ['install', 'six==1.9.0'])
         wait_for_os()
-        assert os.path.exists(venv_dir)
 
         with venv(venv_dir):
             assert 'ok' in get_installed_packages()
@@ -69,7 +68,7 @@ def test_project_existing_venv_all_packages():
         runner = CliRunner()
         runner.invoke(hatch, ['init', 'ok'])
         venv_dir = os.path.join(d, 'venv')
-        wait_for_os()
+        wait_until(is_venv, venv_dir)
         assert os.path.exists(venv_dir)
 
         runner.invoke(hatch, ['install', 'six==1.9.0'])

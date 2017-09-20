@@ -9,8 +9,8 @@ from hatch.settings import (
     SETTINGS_FILE, copy_default_settings, restore_settings, save_settings
 )
 from hatch.utils import create_file, remove_path, temp_chdir, temp_move_path
-from hatch.venv import VENV_DIR, create_venv, get_new_venv_name, venv
-from ..utils import matching_file, wait_for_os
+from hatch.venv import VENV_DIR, create_venv, get_new_venv_name, is_venv, venv
+from ..utils import matching_file, wait_until
 
 
 def test_config_not_exist():
@@ -49,9 +49,10 @@ def test_env():
     with temp_chdir() as d:
         runner = CliRunner()
         result = runner.invoke(hatch, ['init', 'new-project', '--basic'])
-        wait_for_os()
+        venv_dir = os.path.join(d, 'venv')
+        wait_until(is_venv, venv_dir)
 
-        with venv(os.path.join(d, 'venv')):
+        with venv(venv_dir):
             assert 'new-project' in get_editable_packages()
 
         assert result.exit_code == 0
@@ -74,7 +75,7 @@ def test_pyname():
                 result = runner.invoke(hatch, ['init', 'ok', '-py', 'python'])
                 venv_dir = os.path.join(d, 'venv')
                 global_version = get_python_version()
-                wait_for_os()
+                wait_until(is_venv, venv_dir)
                 with venv(venv_dir):
                     assert get_python_version() == global_version
         finally:
@@ -185,7 +186,7 @@ def test_envs():
             result = runner.invoke(hatch, [
                 'init', '-ne', '--basic', 'ok', '-e', '{}/{}'.format(env_name1, env_name2)
             ])
-            wait_for_os()
+            wait_until(is_venv, venv_dir2)
             with venv(venv_dir1):
                 assert 'ok' in get_editable_packages()
             with venv(venv_dir2):
