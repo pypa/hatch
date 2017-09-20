@@ -38,7 +38,7 @@ def test_failure():
     with temp_chdir() as d:
         runner = CliRunner()
         env_name = get_new_venv_name()
-        result = runner.invoke(hatch, ['env', env_name, d])
+        result = runner.invoke(hatch, ['env', env_name, '--pypath', d])
 
         assert result.exit_code != 0
         assert 'An unexpected failure may have occurred.' in result.output
