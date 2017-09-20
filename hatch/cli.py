@@ -4,12 +4,10 @@ import sys
 from tempfile import TemporaryDirectory
 
 import click
-from twine.utils import DEFAULT_REPOSITORY, TEST_REPOSITORY
 
-from hatch.clean import clean_package, remove_compiled_scripts
 from hatch.commands import (
     conda, python, config, new, init, install, uninstall, grow, update, test,
-    build
+    build, clean, release
 )
 from hatch.commands.utils import (
     CONTEXT_SETTINGS, UNKNOWN_OPTIONS, echo_failure, echo_info, echo_success,
@@ -56,181 +54,8 @@ hatch.add_command(python)
 hatch.add_command(test)
 hatch.add_command(uninstall)
 hatch.add_command(update)
-
-
-@hatch.command(context_settings=CONTEXT_SETTINGS,
-               short_help="Removes a project's build artifacts")
-@click.argument('package', required=False)
-@click.option('-l', '--local', is_flag=True,
-              help=(
-                  'Shortcut to select the only available local (editable) '
-                  'package. If there are multiple, an error will be raised.'
-              ))
-@click.option('-p', '--path', help='A relative or absolute path to a project.')
-@click.option('-c', '--compiled-only', is_flag=True,
-              help='Removes only .pyc files.')
-@click.option('-v', '--verbose', is_flag=True, help='Shows removed paths.')
-def clean(package, local, path, compiled_only, verbose):
-    """Removes a project's build artifacts.
-
-    The path to the project is derived in the following order:
-
-    \b
-    1. The optional argument, which should be the name of a package
-       that was installed via `hatch install -l` or `pip install -e`.
-    2. The --local flag.
-    3. The option --path, which can be a relative or absolute path.
-    4. The current directory.
-
-    All `*.pyc`/`*.pyd`/`*.pyo` files and `__pycache__` directories will be removed.
-    Additionally, the following patterns will be removed from the root of the path:
-    `.cache`, `.coverage`, `.eggs`, `.tox`, `build`, `dist`, and `*.egg-info`.
-
-    If the path was derived from the optional package argument, the pattern
-    `*.egg-info` will not be applied so as to not break that installation.
-    """
-    if package:
-        echo_waiting('Locating package...')
-        path = get_editable_package_location(package)
-        if not path:
-            echo_failure('`{}` is not an editable package.'.format(package))
-            sys.exit(1)
-    elif local:
-        echo_waiting('Locating package...')
-        name, path = get_editable_package_location()
-        if not name:
-            if path is None:
-                echo_failure('There are no local packages available.')
-                sys.exit(1)
-            else:
-                echo_failure(
-                    'There are multiple local packages available. Select '
-                    'one with the optional argument.'
-                )
-                sys.exit(1)
-        echo_info('Package `{}` has been selected.'.format(name))
-    elif path:
-        possible_path = resolve_path(path)
-        if not possible_path:
-            echo_failure('Directory `{}` does not exist.'.format(path))
-            sys.exit(1)
-        path = possible_path
-    else:
-        path = os.getcwd()
-
-    if compiled_only:
-        removed_paths = remove_compiled_scripts(path)
-    else:
-        removed_paths = clean_package(path, editable=package or local)
-
-    if verbose:
-        if removed_paths:
-            echo_success('Removed paths:')
-            for p in removed_paths:
-                echo_info(p)
-
-    if removed_paths:
-        echo_success('Cleaned!')
-    else:
-        echo_success('Already clean!')
-
-
-@hatch.command(context_settings=CONTEXT_SETTINGS, short_help='Uploads to PyPI')
-@click.argument('package', required=False)
-@click.option('-l', '--local', is_flag=True,
-              help=(
-                  'Shortcut to select the only available local (editable) '
-                  'package. If there are multiple, an error will be raised.'
-              ))
-@click.option('-p', '--path',
-              help='A relative or absolute path to a build directory.')
-@click.option('-u', '--username', help='The PyPI username to use.')
-@click.option('-t', '--test', 'test_pypi', is_flag=True,
-              help='Uses the test version of PyPI.')
-@click.option('-s', '--strict', is_flag=True,
-              help='Aborts if a distribution already exists.')
-def release(package, local, path, username, test_pypi, strict):
-    """Uploads all files in a directory to PyPI using Twine.
-
-    The path to the build directory is derived in the following order:
-
-    \b
-    1. The optional argument, which should be the name of a package
-       that was installed via `hatch install -l` or `pip install -e`.
-    2. The --local flag.
-    3. The option --path, which can be a relative or absolute path.
-    4. The current directory. If the current directory has a `dist`
-       directory, that will be used instead.
-
-    If the path was derived from the optional package argument, the
-    files must be in a directory named `dist`.
-
-    The PyPI username can be saved in the config file entry `pypi_username`.
-    If the `TWINE_PASSWORD` environment variable is not set, a hidden prompt
-    will be provided for the password.
-    """
-    if package:
-        echo_waiting('Locating package...')
-        path = get_editable_package_location(package)
-        if not path:
-            echo_failure('`{}` is not an editable package.'.format(package))
-            sys.exit(1)
-        path = os.path.join(path, 'dist')
-    elif local:
-        echo_waiting('Locating package...')
-        name, path = get_editable_package_location()
-        if not name:
-            if path is None:
-                echo_failure('There are no local packages available.')
-                sys.exit(1)
-            else:
-                echo_failure(
-                    'There are multiple local packages available. Select '
-                    'one with the optional argument.'
-                )
-                sys.exit(1)
-        echo_info('Package `{}` has been selected.'.format(name))
-        path = os.path.join(path, 'dist')
-    elif path:
-        possible_path = resolve_path(path)
-        if not possible_path:
-            echo_failure('Directory `{}` does not exist.'.format(path))
-            sys.exit(1)
-        path = possible_path
-    else:
-        path = os.getcwd()
-        default_build_dir = os.path.join(path, 'dist')
-        if os.path.isdir(default_build_dir):
-            path = default_build_dir
-
-    if not username:
-        try:
-            settings = load_settings()
-        except FileNotFoundError:
-            echo_failure('Unable to locate config file. Try `hatch config --restore`.')
-            sys.exit(1)
-
-        username = settings.get('pypi_username', None)
-        if not username:
-            echo_failure(
-                'A username must be supplied via -u/--username or '
-                'in {} as pypi_username.'.format(SETTINGS_FILE)
-            )
-            sys.exit(1)
-
-    command = [sys.executable, '-m', 'twine', 'upload', '-u', username,
-               '{}{}*'.format(path, os.path.sep)]
-
-    if test_pypi:
-        command.extend(['-r', TEST_REPOSITORY, '--repository-url', TEST_REPOSITORY])
-    else:  # no cov
-        command.extend(['-r', DEFAULT_REPOSITORY, '--repository-url', DEFAULT_REPOSITORY])
-
-    if not strict:
-        command.append('--skip-existing')
-
-    result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
-    sys.exit(result.returncode)
+hatch.add_command(clean)
+hatch.add_command(release)
 
 
 def list_pypaths(ctx, param, value):
