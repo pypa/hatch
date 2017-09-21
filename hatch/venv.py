@@ -77,9 +77,11 @@ def get_available_venvs():
     return venvs
 
 
-def create_venv(d, pypath=None, verbose=False):
+def create_venv(d, pypath=None, use_global=False, verbose=False):
     command = [sys.executable, '-m', 'virtualenv', d,
                '-p', pypath or resolve_path(shutil.which(get_proper_python()))]
+    if use_global:  # no cov
+        command.append('--system-site-packages')
     if not verbose:  # no cov
         command.append('-qqq')
     result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)

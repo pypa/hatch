@@ -261,6 +261,8 @@ Important changes are emphasized.
 master
 ^^^^^^
 
+- Virtual envs created with ``env``, ``new``, ``init``, and ``shell`` commands can
+  now access the system site-packages with the ``-g/--global-packages`` flag!
 - Improved ``setup.py`` generation.
 
 0.15.0

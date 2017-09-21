@@ -40,7 +40,9 @@ from hatch.venv import VENV_DIR, create_venv, is_venv, venv
                   'An absolute path to a Python executable to use when '
                   'creating a temporary virtual env.'
               ))
-def shell(env_name, command, shell_name, temp_env, pyname, pypath):  # no cov
+@click.option('-g', '--global-packages', is_flag=True,
+              help='Gives created virtual envs access to the global site-packages.')
+def shell(env_name, command, shell_name, temp_env, pyname, pypath, global_packages):  # no cov
     """Activates or sends a command to a virtual environment. A default shell
     name (or command) can be specified in the config file entry `shell` or the
     environment variable `SHELL`. If there is no entry, env var, nor shell
@@ -128,7 +130,7 @@ def shell(env_name, command, shell_name, temp_env, pyname, pypath):  # no cov
             if not is_venv(venv_dir):
                 echo_info('A project has been detected!')
                 echo_waiting('Creating a dedicated virtual env... ', nl=False)
-                create_venv(venv_dir)
+                create_venv(venv_dir, use_global=global_packages)
                 echo_success('complete!')
 
                 with venv(venv_dir):
@@ -167,7 +169,7 @@ def shell(env_name, command, shell_name, temp_env, pyname, pypath):  # no cov
         env_name = get_random_venv_name()
         venv_dir = os.path.join(temp_dir.name, env_name)
         echo_waiting('Creating a temporary virtual env named `{}`...'.format(env_name))
-        create_venv(venv_dir, pypath=pypath, verbose=True)
+        create_venv(venv_dir, pypath=pypath, use_global=global_packages, verbose=True)
     else:
         temp_dir = None
         venv_dir = venv_dir or os.path.join(VENV_DIR, env_name)

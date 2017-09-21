@@ -84,6 +84,9 @@ Here is an example using an unmodified config file:
     An absolute path to a Python executable to use when
     creating a virtual env.
 
+*-g/--global-packages*
+    Gives created virtual envs access to the global site-packages.
+
 *-e/--env*
     Forward-slash-separated list of named virtual envs to be
     installed in. Will create any that don't already exist.
@@ -336,6 +339,9 @@ Creates a new virtual env that can later be utilized with the ``shell`` command.
 *-pp/--pypath*
     An absolute path to a Python executable.
 
+*-g/--global-packages*
+    Gives the virtual environment access to the global site-packages.
+
 *-c/--clone*
     Specifies an existing virtual env to clone. (Experimental)
 
@@ -505,6 +511,9 @@ Temporary env:
 *-pp/--pypath*
     An absolute path to a Python executable to use when creating
     a temporary virtual env.
+
+*-g/--global-packages*
+    Gives created virtual envs access to the global site-packages.
 
 ``clean``
 ^^^^^^^^^

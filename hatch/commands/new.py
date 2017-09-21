@@ -30,6 +30,8 @@ from hatch.venv import VENV_DIR, create_venv, venv
                   'An absolute path to a Python executable to use when '
                   'creating a virtual env.'
               ))
+@click.option('-g', '--global-packages', is_flag=True,
+              help='Gives created virtual envs access to the global site-packages.')
 @click.option('-e', '--env', 'env_name',
               help=(
                   'Forward-slash-separated list of named virtual envs to be '
@@ -46,7 +48,7 @@ from hatch.venv import VENV_DIR, create_venv, venv
               ))
 @click.option('-l', '--licenses',
               help='Comma-separated list of licenses to use.')
-def new(name, no_env, pyname, pypath, env_name, basic, cli, licenses):
+def new(name, no_env, pyname, pypath, global_packages, env_name, basic, cli, licenses):
     """Creates a new Python project.
 
     Values from your config file such as `name` and `pyversions` will be used
@@ -124,7 +126,7 @@ def new(name, no_env, pyname, pypath, env_name, basic, cli, licenses):
         if not no_env:
             venv_dir = os.path.join(d, 'venv')
             echo_waiting('Creating its own virtual env... ', nl=False)
-            create_venv(venv_dir, pypath=pypath)
+            create_venv(venv_dir, pypath=pypath, use_global=global_packages)
             echo_success('complete!')
 
             with venv(venv_dir):
@@ -136,7 +138,7 @@ def new(name, no_env, pyname, pypath, env_name, basic, cli, licenses):
             venv_dir = os.path.join(VENV_DIR, vname)
             if not os.path.exists(venv_dir):
                 echo_waiting('Creating virtual env `{}`... '.format(vname), nl=False)
-                create_venv(venv_dir, pypath=pypath)
+                create_venv(venv_dir, pypath=pypath, use_global=global_packages)
                 echo_success('complete!')
 
             with venv(venv_dir):

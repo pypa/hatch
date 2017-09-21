@@ -62,6 +62,8 @@ def restore_envs(ctx, param, value):
               help='The named Python path to use. This overrides --pypath.')
 @click.option('-pp', '--pypath',
               help='An absolute path to a Python executable.')
+@click.option('-g', '--global-packages', is_flag=True,
+              help='Gives the virtual environment access to the global site-packages.')
 @click.option('-c', '--clone',
               help='Specifies an existing virtual env to clone. (Experimental)')
 @click.option('-v', '--verbose', is_flag=True, help='Increases verbosity.')
@@ -76,7 +78,7 @@ def restore_envs(ctx, param, value):
                   'Shows available virtual envs. Can stack up to 3 times to '
                   'show more info.'
               ))
-def env(name, pyname, pypath, clone, verbose, restore, show):
+def env(name, pyname, pypath, global_packages, clone, verbose, restore, show):
     """Creates a new virtual env that can later be utilized with the
     `shell` command.
 
@@ -140,7 +142,7 @@ def env(name, pyname, pypath, clone, verbose, restore, show):
         echo_success('Successfully cloned virtual env `{}` from `{}` to `{}`.'.format(name, clone, venv_dir))
     else:
         echo_waiting('Creating virtual env `{}`...'.format(name))
-        result = create_venv(venv_dir, pypath, verbose=verbose)
+        result = create_venv(venv_dir, pypath, use_global=global_packages, verbose=verbose)
         if result == 0:
             echo_success('Successfully saved virtual env `{}` to `{}`.'.format(name, venv_dir))
         else:
