@@ -8,6 +8,7 @@ from hatch.files.licenses import (
 )
 from hatch.files.readme import MarkdownReadme, ReStructuredTextReadme
 from hatch.files.setup import SetupFile
+from hatch.files.pyproject import ProjectFile
 from hatch.files.vc import setup_git
 from hatch.settings import DEFAULT_SETTINGS
 from hatch.structures import Badge, File
@@ -41,6 +42,7 @@ def create_package(d, package_name, settings):
     extra_files = []
 
     name = settings.get('name') or DEFAULT_SETTINGS['name']
+    version = settings.get('version') or '1.0.0'
     email = settings.get('email') or DEFAULT_SETTINGS['email']
     pyversions = sorted(
         settings.get('pyversions') or DEFAULT_SETTINGS['pyversions']
@@ -83,6 +85,8 @@ def create_package(d, package_name, settings):
         name, email, package_name, pyversions, licenses,
         readme, package_url, cli
     )
+    projectfile = ProjectFile(package_name, version, name, email, pyversions,
+        licenses, package_url)
 
     coverage_service = settings.get('coverage') if not basic else None
     if coverage_service:
@@ -119,6 +123,7 @@ def create_package(d, package_name, settings):
         main_py.write(package_dir)
 
     setup_py.write(d)
+    projectfile.write(d)
     readme.write(d)
     coveragerc.write(d)
     tox.write(d)
