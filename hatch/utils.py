@@ -9,10 +9,7 @@ from contextlib import contextmanager
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-ON_WINDOWS = False
-if os.name == 'nt' or platform.system() == 'Windows':  # no cov
-    ON_WINDOWS = True
-
+ON_WINDOWS = os.name == 'nt' or platform.system() == 'Windows'
 NEED_SUBPROCESS_SHELL = ON_WINDOWS
 
 VENV_FLAGS = {
