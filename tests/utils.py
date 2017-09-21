@@ -18,7 +18,7 @@ def wait_until(f, *args):  # no cov
     # for virtualenv creation. There is a lag between the commands'
     # completion and when the OS sees the files. So, we just wait until
     # those conditions are true. #software
-    end_time = time.time() + 5
+    end_time = time.time() + 10
     while time.time() < end_time:
         if f(*args):
             time.sleep(0.5)
