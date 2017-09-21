@@ -8,6 +8,7 @@ from datetime import datetime
 from contextlib import contextmanager
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from urllib.request import urlopen
 
 ON_MACOS = os.name == 'mac' or platform.system() == 'Darwin'
 ON_WINDOWS = NEED_SUBPROCESS_SHELL = os.name == 'nt' or platform.system() == 'Windows'
@@ -89,6 +90,17 @@ def create_file(fname):
     ensure_dir_exists(os.path.dirname(os.path.abspath(fname)))
     with open(fname, 'a'):
         os.utime(fname, times=None)
+
+
+def download_file(url, fname):
+    req = urlopen(url)
+    with open(fname, 'wb') as f:
+        while True:
+            chunk = req.read(16384)
+            if not chunk:
+                break
+            f.write(chunk)
+            f.flush()
 
 
 def copy_path(path, d):

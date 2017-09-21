@@ -1,9 +1,9 @@
 import os
 
 from hatch.utils import (
-    chdir, create_file, get_current_year, get_random_venv_name,
-    get_requirements_file, normalize_package_name, remove_path,
-    temp_chdir, temp_move_path
+    chdir, create_file, download_file, get_current_year, get_random_venv_name,
+    get_requirements_file, normalize_package_name, remove_path, temp_chdir,
+    temp_move_path
 )
 
 
@@ -70,6 +70,14 @@ def test_temp_chdir():
         create_file(os.path.join(d, 'file.txt'))
 
     assert not os.path.exists(d)
+
+
+def test_download_file():
+    with temp_chdir() as d:
+        fname = os.path.join(d, 'file.txt')
+        download_file('https://httpbin.org/bytes/1024', fname)
+        with open(fname, 'rb') as f:
+            assert len(f.read()) == 1024
 
 
 def test_remove_path_not_exist():
