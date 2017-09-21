@@ -223,7 +223,6 @@ TODO
 ^^^^
 
 *meta*
-    - start using AppVeyor
     - next to the snake ascii art, put a ``hatch``\ ed egg (blocks ``1.0.0``)
 
 *project creation*
