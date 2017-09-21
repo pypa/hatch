@@ -6,6 +6,12 @@ Important changes are emphasized.
 master
 ^^^^^^
 
+0.17.0
+^^^^^^
+
+- Hatch now guarantees Windows support via AppVeyor!
+- No project detection will occur if a virtual env is active.
+
 0.16.0
 ^^^^^^
 
