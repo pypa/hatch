@@ -12,6 +12,12 @@ environment variable or the ``venv_dir`` config entry, in that order. You
 can choose ``shared`` (``~/.virtualenvs``), ``isolated``, or a custom
 directory.
 
+Virtual env detection
+---------------------
+
+You can disable detection by setting the environment variable
+``_IGNORE_VENV_`` to ``1``.
+
 Environment awareness
 ---------------------
 
