@@ -9,6 +9,10 @@ Hatch
     :target: https://travis-ci.org/ofek/hatch
     :alt: Travis CI
 
+.. image:: https://img.shields.io/appveyor/ci/ofek/hatch/master.svg?style=flat-square
+    :target: https://ci.appveyor.com/project/ofek/hatch
+    :alt: AppVeyor CI
+
 .. image:: https://img.shields.io/codecov/c/github/ofek/hatch/master.svg?style=flat-square
     :target: https://codecov.io/gh/ofek/hatch
     :alt: Codecov
