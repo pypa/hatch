@@ -8,7 +8,7 @@ environment:
 
 install:
   - "%PYTHON%\\python.exe -m pip install pytest"
-  - "%PYTHON%\\python.exe setup.py --quiet clean develop"
+  - "%PYTHON%\\python.exe setup.py --quiet develop"
 
 build: off
 
