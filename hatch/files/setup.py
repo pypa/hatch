@@ -2,6 +2,8 @@ from hatch.structures import File
 from hatch.utils import normalize_package_name
 
 TEMPLATE = """\
+from io import open
+
 from setuptools import find_packages, setup
 
 with open('{package_name_normalized}/__init__.py', 'r') as f:
@@ -12,8 +14,8 @@ with open('{package_name_normalized}/__init__.py', 'r') as f:
     else:
         version = '0.0.1'
 
-with open('{readme_file}', 'rb') as f:
-    readme = f.read().decode('utf-8')
+with open('{readme_file}', 'r', encoding='utf-8') as f:
+    readme = f.read()
 
 REQUIRES = []
 

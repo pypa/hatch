@@ -261,6 +261,8 @@ Important changes are emphasized.
 master
 ^^^^^^
 
+- Improved ``setup.py`` generation.
+
 0.15.0
 ^^^^^^
 
