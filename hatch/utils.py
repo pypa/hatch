@@ -10,8 +10,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 ON_MACOS = os.name == 'mac' or platform.system() == 'Darwin'
-ON_WINDOWS = os.name == 'nt' or platform.system() == 'Windows'
-NEED_SUBPROCESS_SHELL = ON_WINDOWS
+ON_WINDOWS = NEED_SUBPROCESS_SHELL = os.name == 'nt' or platform.system() == 'Windows'
 
 VENV_FLAGS = {
     '_HATCHING_',
