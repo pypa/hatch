@@ -674,7 +674,8 @@ With no packages selected, this will install using a ``setup.py`` in the
 current directory.
 
 If no --env is chosen, this will attempt to detect a project and use its
-virtual env before resorting to the default pip.
+virtual env before resorting to the default pip. No project detection
+will occur if a virtual env is active.
 
 ..
 
@@ -722,7 +723,8 @@ With no packages selected, this will uninstall using a ``requirements.txt``
 or a dev version of that in the current directory.
 
 If no --env is chosen, this will attempt to detect a project and use its
-virtual env before resorting to the default pip.
+virtual env before resorting to the default pip. No project detection
+will occur if a virtual env is active.
 
 ..
 
@@ -776,7 +778,8 @@ With no packages nor options selected, this will update packages by looking
 for a ``requirements.txt`` or a dev version of that in the current directory.
 
 If no --env is chosen, this will attempt to detect a project and use its
-virtual env before resorting to the default pip.
+virtual env before resorting to the default pip. No project detection
+will occur if a virtual env is active.
 
 To update this tool, use the --self flag. All other methods of updating will
 ignore ``hatch``. See: `<https://github.com/pypa/pip/issues/1299>`_

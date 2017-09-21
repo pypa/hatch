@@ -55,6 +55,25 @@ def test_project_existing_venv():
         assert 'Installing for this project...' in result.output
 
 
+def test_project_not_detected_when_venv_active():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', 'ok', '-ne'])
+        runner.invoke(hatch, ['new', 'ko'])
+        venv_dir = os.path.join(d, 'ko', 'venv')
+        wait_until(is_venv, venv_dir)
+        assert os.path.exists(venv_dir)
+
+        with venv(venv_dir):
+            result = runner.invoke(hatch, ['install'])
+            wait_for_os()
+            assert 'ok' in get_installed_packages(editable=False)
+
+        assert result.exit_code == 0
+        assert 'A project has been detected!' not in result.output
+        assert 'Installing...' in result.output
+
+
 def test_local():
     with temp_chdir() as d:
         runner = CliRunner()

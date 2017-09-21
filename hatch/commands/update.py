@@ -78,7 +78,8 @@ def update(packages, no_detect, env_name, eager, all_packages, infra, global_ins
     directory.
 
     If no --env is chosen, this will attempt to detect a project and use its
-    virtual env before resorting to the default pip.
+    virtual env before resorting to the default pip. No project detection
+    will occur if a virtual env is active.
 
     To update this tool, use the --self flag. All other methods of updating will
     ignore `hatch`. See: https://github.com/pypa/pip/issues/1299
@@ -115,7 +116,7 @@ def update(packages, no_detect, env_name, eager, all_packages, infra, global_ins
                 installed_packages = infra_packages if infra else get_installed_packages()
             else:
                 installed_packages = None
-    elif not self and not no_detect and os.path.isfile(os.path.join(os.getcwd(), 'setup.py')):
+    elif not self and not venv_active() and not no_detect and os.path.isfile(os.path.join(os.getcwd(), 'setup.py')):
         venv_dir = os.path.join(os.getcwd(), 'venv')
         if not is_venv(venv_dir):
             echo_info('A project has been detected!')

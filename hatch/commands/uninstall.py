@@ -51,7 +51,8 @@ def uninstall(packages, no_detect, env_name, global_uninstall, admin, dev, quiet
     or a dev version of that in the current directory.
 
     If no --env is chosen, this will attempt to detect a project and use its
-    virtual env before resorting to the default pip.
+    virtual env before resorting to the default pip. No project detection
+    will occur if a virtual env is active.
     """
     if not packages:
         reqs = get_requirements_file(os.getcwd(), dev=dev)
@@ -79,7 +80,7 @@ def uninstall(packages, no_detect, env_name, global_uninstall, admin, dev, quiet
             command = [get_proper_pip(), 'uninstall', *packages] + (['-q'] if quiet else [])
             echo_waiting('Uninstalling in virtual env `{}`...'.format(env_name))
             result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
-    elif not no_detect and os.path.isfile(os.path.join(os.getcwd(), 'setup.py')):
+    elif not venv_active() and not no_detect and os.path.isfile(os.path.join(os.getcwd(), 'setup.py')):
         venv_dir = os.path.join(os.getcwd(), 'venv')
         if not is_venv(venv_dir):
             echo_info('A project has been detected!')

@@ -63,6 +63,30 @@ def test_project_existing_venv():
 
 
 @requires_internet
+def test_project_not_detected_when_venv_active():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', 'ok', '-ne'])
+        runner.invoke(hatch, ['new', 'ko'])
+        venv_dir = os.path.join(d, 'ko', 'venv')
+        wait_until(is_venv, venv_dir)
+        assert os.path.exists(venv_dir)
+
+        with venv(venv_dir):
+            runner.invoke(hatch, ['install', 'six==1.9.0'])
+            wait_for_os()
+            initial_version = get_version_as_bytes('six')
+            result = runner.invoke(hatch, ['update', 'six'])
+            wait_for_os()
+            final_version = get_version_as_bytes('six')
+
+        assert result.exit_code == 0
+        assert initial_version < final_version
+        assert 'A project has been detected!' not in result.output
+        assert 'Updating...' in result.output
+
+
+@requires_internet
 def test_project_existing_venv_all_packages():
     with temp_chdir() as d:
         runner = CliRunner()
