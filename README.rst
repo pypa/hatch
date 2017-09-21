@@ -305,30 +305,6 @@ master
   to indicate elevated privileges have already been given.
 - Basic support for ``csh``/``tcsh`` shells.
 
-0.12.0
-^^^^^^
-
-- You can now specify what Python to use when creating a temporary virtual
-  env in the ``use`` command.
-- Added a ``-l/--local`` shortcut flag to the commands ``grow``, ``test``,
-  ``clean``, ``build``, and ``release``. This allows you to omit the name
-  of a local package if it is the only one.
-- More informative output, including a new color!
-
-0.11.0
-^^^^^^
-
-- Package `review <https://bugzilla.redhat.com/show_bug.cgi?id=1491456>`_ for Fedora begins! (now approved)
-- ``clean`` now also removes optimized bytecode files (``*.pyo``).
-
-0.10.0
-^^^^^^
-
-- ``test`` is now environment-aware by default.
-- Faster virtual environment creation!
-- Full ``xonsh`` support :)
-- More informative output and coloring!
-
 View `all history <https://github.com/ofek/hatch/blob/master/HISTORY.rst>`_
 
 .. _pytest: https://github.com/pytest-dev
