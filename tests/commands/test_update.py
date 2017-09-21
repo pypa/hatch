@@ -6,7 +6,7 @@ from hatch.cli import hatch
 from hatch.env import (
     get_installed_packages, get_python_implementation, install_packages
 )
-from hatch.utils import remove_path, temp_chdir
+from hatch.utils import env_vars, remove_path, temp_chdir
 from hatch.venv import VENV_DIR, create_venv, get_new_venv_name, is_venv, venv
 from ..utils import get_version_as_bytes
 from ..utils import requires_internet, wait_for_os, wait_until
@@ -20,7 +20,8 @@ def test_project_no_venv():
         venv_dir = os.path.join(d, 'venv')
 
         assert not os.path.exists(venv_dir)
-        result = runner.invoke(hatch, ['update', 'six'])
+        with env_vars({'_IGNORE_VENV_': '1'}):
+            result = runner.invoke(hatch, ['update', 'six'])
         wait_until(is_venv, venv_dir)
         assert os.path.exists(venv_dir)
 
@@ -43,14 +44,16 @@ def test_project_existing_venv():
         wait_until(is_venv, venv_dir)
         assert os.path.exists(venv_dir)
 
-        runner.invoke(hatch, ['install', 'six==1.9.0'])
+        with env_vars({'_IGNORE_VENV_': '1'}):
+            runner.invoke(hatch, ['install', 'six==1.9.0'])
         wait_for_os()
 
         with venv(venv_dir):
             assert 'ok' in get_installed_packages()
             initial_version = get_version_as_bytes('six')
 
-        result = runner.invoke(hatch, ['update', 'six'])
+        with env_vars({'_IGNORE_VENV_': '1'}):
+            result = runner.invoke(hatch, ['update', 'six'])
         wait_for_os()
 
         with venv(venv_dir):
@@ -95,7 +98,8 @@ def test_project_existing_venv_all_packages():
         wait_until(is_venv, venv_dir)
         assert os.path.exists(venv_dir)
 
-        runner.invoke(hatch, ['install', 'six==1.9.0'])
+        with env_vars({'_IGNORE_VENV_': '1'}):
+            runner.invoke(hatch, ['install', 'six==1.9.0'])
         wait_for_os()
         assert os.path.exists(venv_dir)
 
@@ -103,7 +107,8 @@ def test_project_existing_venv_all_packages():
             assert 'ok' in get_installed_packages()
             initial_version = get_version_as_bytes('six')
 
-        result = runner.invoke(hatch, ['update', '--all'])
+        with env_vars({'_IGNORE_VENV_': '1'}):
+            result = runner.invoke(hatch, ['update', '--all'])
         wait_for_os()
 
         with venv(venv_dir):

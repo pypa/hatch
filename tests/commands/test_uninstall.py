@@ -4,7 +4,7 @@ from click.testing import CliRunner
 
 from hatch.cli import hatch
 from hatch.env import get_installed_packages
-from hatch.utils import remove_path, temp_chdir
+from hatch.utils import env_vars, remove_path, temp_chdir
 from hatch.venv import VENV_DIR, create_venv, get_new_venv_name, is_venv, venv
 from ..utils import requires_internet, wait_for_os, wait_until
 
@@ -16,7 +16,8 @@ def test_project_no_venv():
         venv_dir = os.path.join(d, 'venv')
 
         assert not os.path.exists(venv_dir)
-        result = runner.invoke(hatch, ['uninstall', 'ko', '-y'])
+        with env_vars({'_IGNORE_VENV_': '1'}):
+            result = runner.invoke(hatch, ['uninstall', 'ko', '-y'])
         wait_until(is_venv, venv_dir)
         assert os.path.exists(venv_dir)
 
@@ -38,13 +39,15 @@ def test_project_existing_venv():
         wait_until(is_venv, venv_dir)
         assert os.path.exists(venv_dir)
 
-        runner.invoke(hatch, ['install', package_dir])
+        with env_vars({'_IGNORE_VENV_': '1'}):
+            runner.invoke(hatch, ['install', package_dir])
         wait_for_os()
 
         with venv(venv_dir):
             assert 'ko' in get_installed_packages(editable=False)
 
-        result = runner.invoke(hatch, ['uninstall', 'ko', '-y'])
+        with env_vars({'_IGNORE_VENV_': '1'}):
+            result = runner.invoke(hatch, ['uninstall', 'ko', '-y'])
         wait_for_os()
 
         with venv(venv_dir):

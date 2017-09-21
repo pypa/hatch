@@ -20,7 +20,11 @@ VENV_FLAGS = {
 
 
 def venv_active():
-    return bool(VENV_FLAGS & set(os.environ))
+    return bool(VENV_FLAGS & set(os.environ)) and not ignore_venv()
+
+
+def ignore_venv():
+    return os.environ.get('_IGNORE_VENV_') == '1'
 
 
 def get_random_venv_name():

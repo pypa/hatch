@@ -4,7 +4,7 @@ from click.testing import CliRunner
 
 from hatch.cli import hatch
 from hatch.env import get_editable_packages, get_installed_packages
-from hatch.utils import remove_path, temp_chdir
+from hatch.utils import env_vars, remove_path, temp_chdir
 from hatch.venv import VENV_DIR, create_venv, get_new_venv_name, is_venv, venv
 from ..utils import requires_internet, wait_for_os, wait_until
 
@@ -18,7 +18,8 @@ def test_project_no_venv():
         package_dir = os.path.join(d, 'ko')
 
         assert not os.path.exists(venv_dir)
-        result = runner.invoke(hatch, ['install', package_dir])
+        with env_vars({'_IGNORE_VENV_': '1'}):
+            result = runner.invoke(hatch, ['install', package_dir])
         wait_until(is_venv, venv_dir)
         assert os.path.exists(venv_dir)
 
@@ -43,7 +44,8 @@ def test_project_existing_venv():
         wait_until(is_venv, venv_dir)
         assert os.path.exists(venv_dir)
 
-        result = runner.invoke(hatch, ['install', package_dir])
+        with env_vars({'_IGNORE_VENV_': '1'}):
+            result = runner.invoke(hatch, ['install', package_dir])
         wait_for_os()
 
         with venv(venv_dir):
