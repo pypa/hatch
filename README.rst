@@ -264,6 +264,8 @@ Important changes are emphasized.
 master
 ^^^^^^
 
+- Handle `<https://bugs.python.org/issue22490>`_
+
 0.17.0
 ^^^^^^
 

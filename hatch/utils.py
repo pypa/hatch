@@ -183,13 +183,20 @@ def temp_chdir(cwd=None):
 
 
 @contextmanager
-def env_vars(evars):
+def env_vars(evars, ignore=None):
+    ignore = ignore or {}
+    ignored_evars = {}
     old_evars = {}
 
     for ev in evars:
         if ev in os.environ:
             old_evars[ev] = os.environ[ev]
         os.environ[ev] = evars[ev]
+
+    for ev in ignore:
+        if ev in os.environ:  # no cov
+            ignored_evars[ev] = os.environ[ev]
+            os.environ.pop(ev)
 
     try:
         yield
@@ -199,6 +206,9 @@ def env_vars(evars):
                 os.environ[ev] = old_evars[ev]
             else:
                 os.environ.pop(ev)
+
+        for ev in ignored_evars:
+            os.environ[ev] = ignored_evars[ev]
 
 
 @contextmanager

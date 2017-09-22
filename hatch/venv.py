@@ -184,5 +184,5 @@ def venv(d, evars=None):
         venv_exe_dir, os.pathsep, os.environ.get('PATH', '')
     )
 
-    with env_vars(evars):
+    with env_vars(evars, ignore={'__PYVENV_LAUNCHER__'}):
         yield venv_exe_dir
