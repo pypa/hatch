@@ -1,7 +1,7 @@
 import os
-import sys
 import shutil
 import subprocess
+import sys
 from contextlib import contextmanager
 from os.path import isfile
 
