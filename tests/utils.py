@@ -13,17 +13,13 @@ def wait_for_os(s=None):
 
 
 def wait_until(f, *args):  # no cov
-    # There is seemingly some strange race condition when using Click's
-    # test runner with commands that create a bunch of files like `env`
-    # for virtualenv creation. There is a lag between the commands'
-    # completion and when the OS sees the files. So, we just wait until
-    # those conditions are true. #software
-    end_time = time.time() + 10
+    # https://github.com/kennethreitz/pipenv/pull/403
+    end_time = time.time() + 120
     while time.time() < end_time:
         if f(*args):
             time.sleep(0.5)
             return True
-        time.sleep(0.1)
+        time.sleep(0.2)
     raise AssertionError('timeout')
 
 
