@@ -52,6 +52,7 @@ setup(
     ),
 
     install_requires=(
+        # 'adduserpath',
         'appdirs',
         'atomicwrites',
         'click',

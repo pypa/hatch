@@ -3,6 +3,7 @@ import os
 import platform
 import re
 import shutil
+import subprocess
 from base64 import urlsafe_b64encode
 from datetime import datetime
 from contextlib import contextmanager
@@ -65,6 +66,19 @@ def get_admin_command():  # no cov
     else:
         admin = os.environ.get('_DEFAULT_ADMIN_', '')
         return ['sudo', '-H'] + (['--user={}'.format(admin)] if admin else [])
+
+
+def is_os_64bit():  # no cov
+    # https://stackoverflow.com/a/12578715/5854007
+    return platform.machine().endswith('64')
+
+
+def conda_available():  # no cov
+    try:
+        subprocess.run(['conda', '--help'], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    except subprocess.CalledProcessError:
+        return False
+    return True
 
 
 def get_requirements_file(d, dev=False):
