@@ -12,6 +12,7 @@ TEMPLATE = """\
 build/
 dist/
 docs/build/
+venv/
 wheelhouse/
 """
 
