@@ -3,7 +3,7 @@ import subprocess
 import sys
 
 import click
-import userpath
+# import userpath
 
 from hatch.commands.utils import (
     CONTEXT_SETTINGS, echo_failure, echo_success, echo_warning
