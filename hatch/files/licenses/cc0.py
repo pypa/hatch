@@ -2,7 +2,7 @@ from hatch.structures import File
 from hatch.utils import get_current_year
 
 TEMPLATE = """\
-Written in {year} by {name}
+Written in {year} by {author}
 
 CC0 1.0 Universal
 
@@ -124,10 +124,10 @@ For more information, please see
 
 
 class CC0License(File):
-    def __init__(self, name):
+    def __init__(self, author):
         super(CC0License, self).__init__(
             'LICENSE-CC0',
-            TEMPLATE.format(year=get_current_year(), name=name)
+            TEMPLATE.format(year=get_current_year(), author=author)
         )
         self.short_name = 'CC0'
         self.long_name = 'Creative Commons Zero v1.0 Universal'

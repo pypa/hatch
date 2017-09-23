@@ -2,7 +2,7 @@ from hatch.structures import File
 from hatch.utils import get_current_year
 
 TEMPLATE = """\
-Copyright {year} {name}
+Copyright {year} {author}
 
                               Apache License
                         Version 2.0, January 2004
@@ -184,10 +184,10 @@ END OF TERMS AND CONDITIONS
 
 
 class Apache2License(File):
-    def __init__(self, name):
+    def __init__(self, author):
         super(Apache2License, self).__init__(
             'LICENSE-APACHE',
-            TEMPLATE.format(year=get_current_year(), name=name)
+            TEMPLATE.format(year=get_current_year(), author=author)
         )
         self.short_name = 'Apache-2.0'
         self.long_name = 'Apache License, Version 2.0'
