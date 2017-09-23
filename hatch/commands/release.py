@@ -23,13 +23,13 @@ from hatch.utils import NEED_SUBPROCESS_SHELL, resolve_path
 @click.option('-p', '--path',
               help='A relative or absolute path to a build directory.')
 @click.option('-u', '--username', help='The PyPI username to use.')
-@click.option('-r', '--repository',
+@click.option('-r', '--repo',
               help=(
                   'The PyPI repository to use (default: {}). '
                   'Should be a section in the .pypirc file. '
                   '(Can also be set via TWINE_REPOSITORY environment variable)'
               ).format(DEFAULT_REPOSITORY))
-@click.option('--repository-url',
+@click.option('-ru', '--repo-url',
               help=(
                   'The repository URL to upload the package to. '
                   'This overrides --repository. '
@@ -39,7 +39,7 @@ from hatch.utils import NEED_SUBPROCESS_SHELL, resolve_path
               help='Uses the test version of PyPI. Equivalent to \'-r {}\''.format(TEST_REPOSITORY))
 @click.option('-s', '--strict', is_flag=True,
               help='Aborts if a distribution already exists.')
-def release(package, local, path, username, repository, repository_url, test_pypi, strict):
+def release(package, local, path, username, repo, repo_url, test_pypi, strict):
     """Uploads all files in a directory to PyPI using Twine.
 
     The path to the build directory is derived in the following order:
@@ -120,11 +120,11 @@ def release(package, local, path, username, repository, repository_url, test_pyp
         # Disallow these combinations, since it is ambiguous whether they are intended
         # to be used as the test repository (if a custom test repository is desired,
         # then users can omit the '--test'.)
-        if repository:
-            echo_failure('Cannot specify both --test and --repository.')
+        if repo:
+            echo_failure('Cannot specify both --test and --repo.')
             any_failed = True
-        if repository_url:
-            echo_failure('Cannot specify both --test and --repository-url.')
+        if repo_url:
+            echo_failure('Cannot specify both --test and --repo-url.')
             any_failed = True
         if any_failed:
             sys.exit(1)
@@ -132,10 +132,10 @@ def release(package, local, path, username, repository, repository_url, test_pyp
     else:  # no cov
         # Only pass these to twine if they are given to us. Otherwise,
         # fall back onto the default twine behavior
-        if repository:
-            command.extend(['-r', repository])
-        if repository_url:
-            command.extend(['--repository-url', repository_url])
+        if repo:
+            command.extend(['-r', repo])
+        if repo_url:
+            command.extend(['--repository-url', repo_url])
 
     if not strict:
         command.append('--skip-existing')

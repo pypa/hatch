@@ -286,7 +286,7 @@ def test_repository_url_local():
         with venv(venv_dir, evars=ENV_VARS):
             install_packages(['-e', package_dir])
             result = runner.invoke(hatch, ['release', '-l', '-u', USERNAME,
-                                           '--repository-url', TEST_REPOSITORY])
+                                           '--repo-url', TEST_REPOSITORY])
 
         assert result.exit_code == 0
 
@@ -305,8 +305,8 @@ def test_repository_and_repository_url_local():
         with venv(venv_dir, evars=ENV_VARS):
             install_packages(['-e', package_dir])
             result = runner.invoke(hatch, ['release', '-l', '-u', USERNAME,
-                                           '--repository', TEST_REPOSITORY,
-                                           '--repository-url', TEST_REPOSITORY])
+                                           '--repo', TEST_REPOSITORY,
+                                           '--repo-url', TEST_REPOSITORY])
 
         assert result.exit_code == 0
 
@@ -346,22 +346,22 @@ def test_repository_and_test():
                                            '-t'])
 
         assert result.exit_code == 1
-        assert "Cannot specify both --test and --repository." in result.output
+        assert "Cannot specify both --test and --repo." in result.output
 
         with venv(venv_dir, evars=ENV_VARS):
             result = runner.invoke(hatch, ['release', '-l', '-u', USERNAME,
-                                           '--repository-url', TEST_REPOSITORY,
+                                           '--repo-url', TEST_REPOSITORY,
                                            '-t'])
 
         assert result.exit_code == 1
-        assert "Cannot specify both --test and --repository-url." in result.output
+        assert "Cannot specify both --test and --repo-url." in result.output
 
         with venv(venv_dir, evars=ENV_VARS):
             result = runner.invoke(hatch, ['release', '-l', '-u', USERNAME,
                                            '-r', TEST_REPOSITORY,
-                                           '--repository-url', TEST_REPOSITORY,
+                                           '-ru', TEST_REPOSITORY,
                                            '-t'])
 
         assert result.exit_code == 1
-        assert "Cannot specify both --test and --repository." in result.output
-        assert "Cannot specify both --test and --repository-url." in result.output
+        assert "Cannot specify both --test and --repo." in result.output
+        assert "Cannot specify both --test and --repo-url." in result.output
