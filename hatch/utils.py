@@ -68,6 +68,10 @@ def get_admin_command():  # no cov
         return ['sudo', '-H'] + (['--user={}'.format(admin)] if admin else [])
 
 
+def is_project(d=None):
+    return os.path.isfile(os.path.join(d or os.getcwd(), 'setup.py'))
+
+
 def is_os_64bit():  # no cov
     # https://stackoverflow.com/a/12578715/5854007
     return platform.machine().endswith('64')

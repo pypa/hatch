@@ -11,7 +11,7 @@ from hatch.commands.utils import (
 from hatch.env import install_packages
 from hatch.utils import (
     NEED_SUBPROCESS_SHELL, ON_WINDOWS, get_admin_command, get_proper_pip,
-    get_requirements_file, venv_active
+    get_requirements_file, is_project, venv_active
 )
 from hatch.venv import VENV_DIR, create_venv, is_venv, venv
 
@@ -80,7 +80,7 @@ def uninstall(packages, no_detect, env_name, global_uninstall, admin, dev, quiet
             command = [get_proper_pip(), 'uninstall', *packages] + (['-q'] if quiet else [])
             echo_waiting('Uninstalling in virtual env `{}`...'.format(env_name))
             result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
-    elif not venv_active() and not no_detect and os.path.isfile(os.path.join(os.getcwd(), 'setup.py')):
+    elif not venv_active() and not no_detect and is_project():
         venv_dir = os.path.join(os.getcwd(), 'venv')
         if not is_venv(venv_dir):
             echo_info('A project has been detected!')
