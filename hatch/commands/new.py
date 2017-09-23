@@ -15,7 +15,7 @@ from hatch.venv import VENV_DIR, create_venv, venv
 
 @click.command(context_settings=CONTEXT_SETTINGS,
                short_help='Creates a new Python project')
-@click.argument('name')
+@click.argument('name', nargs=-1, default=None)
 @click.option('-ne', '--no-env', is_flag=True,
               help=(
                   'Disables the creation of a dedicated virtual env.'
@@ -46,9 +46,7 @@ from hatch.venv import VENV_DIR, create_venv, venv
                   'within. Also, a `__main__.py` is created so it can be '
                   'invoked via `python -m pkg_name`.'
               ))
-@click.option('-l', '--licenses',
-              help='Comma-separated list of licenses to use.')
-def new(name, no_env, pyname, pypath, global_packages, env_name, basic, cli, licenses):
+def new(name, no_env, pyname, pypath, global_packages, env_name, basic, cli):
     """Creates a new Python project.
 
     Values from your config file such as `name` and `pyversions` will be used
@@ -93,17 +91,26 @@ def new(name, no_env, pyname, pypath, global_packages, env_name, basic, cli, lic
     if basic:
         settings['basic'] = True
 
-    if licenses:
-        settings['licenses'] = licenses.split(',')
-
     settings['cli'] = cli
 
     origin = os.getcwd()
-    d = os.path.join(origin, name)
+    if name:
+        settings['package_name'] = name[0]
+    else:
+        settings['package_name'] = click.prompt('project name')
+
+    d = os.path.join(origin, settings['package_name'])
 
     if os.path.exists(d):
         echo_failure('Directory `{}` already exists.'.format(d))
         sys.exit(1)
+
+    settings['version'] = click.prompt('version', default='1.0.0')
+    settings['description'] = click.prompt('description', default='')
+    settings['author'] = click.prompt('author', default='')
+    settings['email'] = click.prompt('author_email', default='')
+    licenses = click.prompt('license', default='mit')
+    settings['licenses'] = map(str.strip, licenses.split(','))
 
     venvs = env_name.split('/') if env_name else []
     if (venvs or not no_env) and pyname:
@@ -120,8 +127,8 @@ def new(name, no_env, pyname, pypath, global_packages, env_name, basic, cli, lic
 
     os.makedirs(d)
     with chdir(d, cwd=origin):
-        create_package(d, name, settings)
-        echo_success('Created project `{}`'.format(name))
+        create_package(d, settings)
+        echo_success('Created project `{}`'.format(settings['package_name']))
 
         if not no_env:
             venv_dir = os.path.join(d, 'venv')

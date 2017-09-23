@@ -44,7 +44,7 @@ from hatch.venv import VENV_DIR, create_venv, venv
                   'within. Also, a `__main__.py` is created so it can be '
                   'invoked via `python -m pkg_name`.'
               ))
-def init(no_env, pyname, pypath, env_name, basic, cli):
+def init(name, no_env, pyname, pypath, global_packages, env_name, basic, cli):
     """Creates a new Python project in the current directory.
 
     Values from your config file such as `name` and `pyversions` will be used
