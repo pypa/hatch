@@ -1,6 +1,7 @@
 import os
 
 from click.testing import CliRunner
+from twine.utils import TEST_REPOSITORY
 
 from hatch.cli import hatch
 from hatch.env import install_packages
@@ -27,6 +28,23 @@ def test_cwd():
 
         assert result.exit_code == 0
 
+@requires_internet
+def test_username_env():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', PACKAGE_NAME, '--basic', '-ne'])
+        runner.invoke(hatch, ['build'])
+        os.chdir(os.path.join(d, 'dist'))
+
+        with temp_move_path(SETTINGS_FILE, d):
+            settings = copy_default_settings()
+            settings['pypi_username'] = ''
+            save_settings(settings)
+            extra_env_vars = {'TWINE_USERNAME': USERNAME, **ENV_VARS}
+            with env_vars(extra_env_vars):
+                result = runner.invoke(hatch, ['release', '-t'])
+
+        assert result.exit_code == 0
 
 @requires_internet
 def test_cwd_dist_exists():
@@ -216,8 +234,8 @@ def test_config_username_empty():
 
         assert result.exit_code == 1
         assert (
-            'A username must be supplied via -u/--username or '
-            'in {} as pypi_username.'.format(SETTINGS_FILE)
+            'A username must be supplied via -u/--username, '
+            'in {} as pypi_username, or in the TWINE_USERNAME environment variable.'.format(SETTINGS_FILE)
         ) in result.output
 
 
@@ -231,3 +249,119 @@ def test_strict():
             result = runner.invoke(hatch, ['release', '-p', 'dist', '-u', USERNAME, '-t', '-s'])
 
         assert result.exit_code == 1
+
+
+def test_repository_local():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['new', PACKAGE_NAME, '--basic', '-ne'])
+        runner.invoke(hatch, ['build', '-p', PACKAGE_NAME])
+        package_dir = os.path.join(d, PACKAGE_NAME)
+
+        venv_dir = os.path.join(d, 'venv')
+        create_venv(venv_dir)
+
+        # Make sure there's no configuration
+        with temp_move_path(os.path.expanduser("~/.pypirc"), d):
+            with venv(venv_dir, evars=ENV_VARS):
+                install_packages(['-e', package_dir])
+                # Will error, since there's no configuration parameter for
+                # this URL
+                result = runner.invoke(hatch, ['release', '-l', '-u', USERNAME, '-r', TEST_REPOSITORY])
+
+        assert result.exit_code == 1
+
+
+@requires_internet
+def test_repository_url_local():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['new', PACKAGE_NAME, '--basic', '-ne'])
+        runner.invoke(hatch, ['build', '-p', PACKAGE_NAME])
+        package_dir = os.path.join(d, PACKAGE_NAME)
+
+        venv_dir = os.path.join(d, 'venv')
+        create_venv(venv_dir)
+
+        with venv(venv_dir, evars=ENV_VARS):
+            install_packages(['-e', package_dir])
+            result = runner.invoke(hatch, ['release', '-l', '-u', USERNAME,
+                                           '--repository-url', TEST_REPOSITORY])
+
+        assert result.exit_code == 0
+
+
+@requires_internet
+def test_repository_and_repository_url_local():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['new', PACKAGE_NAME, '--basic', '-ne'])
+        runner.invoke(hatch, ['build', '-p', PACKAGE_NAME])
+        package_dir = os.path.join(d, PACKAGE_NAME)
+
+        venv_dir = os.path.join(d, 'venv')
+        create_venv(venv_dir)
+
+        with venv(venv_dir, evars=ENV_VARS):
+            install_packages(['-e', package_dir])
+            result = runner.invoke(hatch, ['release', '-l', '-u', USERNAME,
+                                           '--repository', TEST_REPOSITORY,
+                                           '--repository-url', TEST_REPOSITORY])
+
+        assert result.exit_code == 0
+
+@requires_internet
+def test_repository_env_vars():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['new', PACKAGE_NAME, '--basic', '-ne'])
+        runner.invoke(hatch, ['build', '-p', PACKAGE_NAME])
+        package_dir = os.path.join(d, PACKAGE_NAME)
+
+        venv_dir = os.path.join(d, 'venv')
+        create_venv(venv_dir)
+
+        extra_env_vars = {'TWINE_REPOSITORY': TEST_REPOSITORY, 'TWINE_REPOSITORY_URL': TEST_REPOSITORY, **ENV_VARS}
+        with venv(venv_dir, evars=extra_env_vars):
+            install_packages(['-e', package_dir])
+            result = runner.invoke(hatch, ['release', '-l', '-u', USERNAME])
+
+        assert result.exit_code == 0
+
+
+def test_repository_and_test():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['new', PACKAGE_NAME, '--basic', '-ne'])
+        runner.invoke(hatch, ['build', '-p', PACKAGE_NAME])
+        package_dir = os.path.join(d, PACKAGE_NAME)
+
+        venv_dir = os.path.join(d, 'venv')
+        create_venv(venv_dir)
+
+        with venv(venv_dir, evars=ENV_VARS):
+            install_packages(['-e', package_dir])
+            result = runner.invoke(hatch, ['release', '-l', '-u', USERNAME,
+                                           '-r', TEST_REPOSITORY,
+                                           '-t'])
+
+        assert result.exit_code == 1
+        assert "Cannot specify both --test and --repository." in result.output
+
+        with venv(venv_dir, evars=ENV_VARS):
+            result = runner.invoke(hatch, ['release', '-l', '-u', USERNAME,
+                                           '--repository-url', TEST_REPOSITORY,
+                                           '-t'])
+
+        assert result.exit_code == 1
+        assert "Cannot specify both --test and --repository-url." in result.output
+
+        with venv(venv_dir, evars=ENV_VARS):
+            result = runner.invoke(hatch, ['release', '-l', '-u', USERNAME,
+                                           '-r', TEST_REPOSITORY,
+                                           '--repository-url', TEST_REPOSITORY,
+                                           '-t'])
+
+        assert result.exit_code == 1
+        assert "Cannot specify both --test and --repository." in result.output
+        assert "Cannot specify both --test and --repository-url." in result.output

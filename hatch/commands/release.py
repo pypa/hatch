@@ -23,11 +23,23 @@ from hatch.utils import NEED_SUBPROCESS_SHELL, resolve_path
 @click.option('-p', '--path',
               help='A relative or absolute path to a build directory.')
 @click.option('-u', '--username', help='The PyPI username to use.')
+@click.option('-r', '--repository',
+              help=(
+                  'The PyPI repository to use (default: {}). '
+                  'Should be a section in the .pypirc file. '
+                  '(Can also be set via TWINE_REPOSITORY environment variable)'
+              ).format(DEFAULT_REPOSITORY))
+@click.option('--repository-url',
+              help=(
+                  'The repository URL to upload the package to. '
+                  'This overrides --repository. '
+                  '(Can also be set via TWINE_REPOSITORY_URL environment variable)'
+              ))
 @click.option('-t', '--test', 'test_pypi', is_flag=True,
-              help='Uses the test version of PyPI.')
+              help='Uses the test version of PyPI. Equivalent to \'-r {}\''.format(TEST_REPOSITORY))
 @click.option('-s', '--strict', is_flag=True,
               help='Aborts if a distribution already exists.')
-def release(package, local, path, username, test_pypi, strict):
+def release(package, local, path, username, repository, repository_url, test_pypi, strict):
     """Uploads all files in a directory to PyPI using Twine.
 
     The path to the build directory is derived in the following order:
@@ -43,7 +55,8 @@ def release(package, local, path, username, test_pypi, strict):
     If the path was derived from the optional package argument, the
     files must be in a directory named `dist`.
 
-    The PyPI username can be saved in the config file entry `pypi_username`.
+    The PyPI username can be saved in the config file entry `pypi_username`
+    or the `TWINE_USERNAME` environment variable.
     If the `TWINE_PASSWORD` environment variable is not set, a hidden prompt
     will be provided for the password.
     """
@@ -88,11 +101,13 @@ def release(package, local, path, username, test_pypi, strict):
             echo_failure('Unable to locate config file. Try `hatch config --restore`.')
             sys.exit(1)
 
-        username = settings.get('pypi_username', None)
+        # Fall back when 'pypi_username' value is '' or None
+        username = settings.get('pypi_username') or os.environ.get('TWINE_USERNAME')
         if not username:
             echo_failure(
-                'A username must be supplied via -u/--username or '
-                'in {} as pypi_username.'.format(SETTINGS_FILE)
+                'A username must be supplied via -u/--username, '
+                'in {} as pypi_username, or in the TWINE_USERNAME '
+                'environment variable.'.format(SETTINGS_FILE)
             )
             sys.exit(1)
 
@@ -100,9 +115,27 @@ def release(package, local, path, username, test_pypi, strict):
                '{}{}*'.format(path, os.path.sep)]
 
     if test_pypi:
+        # Print all error messages before exiting
+        any_failed = False
+        # Disallow these combinations, since it is ambiguous whether they are intended
+        # to be used as the test repository (if a custom test repository is desired,
+        # then users can omit the '--test'.)
+        if repository:
+            echo_failure('Cannot specify both --test and --repository.')
+            any_failed = True
+        if repository_url:
+            echo_failure('Cannot specify both --test and --repository-url.')
+            any_failed = True
+        if any_failed:
+            sys.exit(1)
         command.extend(['-r', TEST_REPOSITORY, '--repository-url', TEST_REPOSITORY])
     else:  # no cov
-        command.extend(['-r', DEFAULT_REPOSITORY, '--repository-url', DEFAULT_REPOSITORY])
+        # Only pass these to twine if they are given to us. Otherwise,
+        # fall back onto the default twine behavior
+        if repository:
+            command.extend(['-r', repository])
+        if repository_url:
+            command.extend(['--repository-url', repository_url])
 
     if not strict:
         command.append('--skip-existing')
