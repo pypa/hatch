@@ -2,7 +2,7 @@ from hatch.structures import File
 from hatch.utils import get_current_year
 
 TEMPLATE = """\
-Copyright (c) {year} {name}
+Copyright (c) {year} {author}
 
 Mozilla Public License Version 2.0
 ==================================
@@ -381,10 +381,10 @@ Exhibit B - "Incompatible With Secondary Licenses" Notice
 
 
 class MPLLicense(File):
-    def __init__(self, name):
+    def __init__(self, author):
         super(MPLLicense, self).__init__(
             'LICENSE-MPL',
-            TEMPLATE.format(year=get_current_year(), name=name)
+            TEMPLATE.format(year=get_current_year(), author=author)
         )
         self.short_name = 'MPL-2.0'
         self.long_name = 'Mozilla Public License 2.0'

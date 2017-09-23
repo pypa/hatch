@@ -4,7 +4,7 @@ import os
 from hatch.files.ci import Tox, TravisCI
 from hatch.files.coverage import Codecov, CoverageConfig
 from hatch.files.licenses import (
-    Apache2License, CC0License, MITLicense, MPLLicense
+    Apache2License, BSDLicense, CC0License, MITLicense, MPLLicense
 )
 from hatch.files.readme import MarkdownReadme, ReStructuredTextReadme
 from hatch.files.setup import SetupFile
@@ -14,6 +14,7 @@ from hatch.structures import Badge, File
 from hatch.utils import copy_path, create_file, normalize_package_name
 
 LICENSES = {
+    'bsd': BSDLicense,
     'mit': MITLicense,
     'apache2': Apache2License,
     'cc0': CC0License,
