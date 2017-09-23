@@ -19,7 +19,7 @@ DEFAULT_SETTINGS = OrderedDict([
         ('build', ''),
     ])),
     ('pypi_username', ''),
-    ('name', 'U.N. Owen'),
+    ('author', 'U.N. Owen'),
     ('email', 'me@un.known'),
     ('basic', True),
     ('pyversions', ['2.7', '3.5', '3.6', 'pypy', 'pypy3']),

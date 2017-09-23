@@ -35,13 +35,14 @@ COVERAGE_SERVICES = {
 }
 
 
-def create_package(d, package_name, settings):
+def create_package(d, settings):
+    package_name = settings['package_name']
     normalized_package_name = normalize_package_name(package_name)
     cli = settings.get('cli')
     basic = settings.get('basic', DEFAULT_SETTINGS['basic'])
     extra_files = []
 
-    name = settings.get('name') or DEFAULT_SETTINGS['name']
+    author = settings.get('author') or DEFAULT_SETTINGS['author']
     version = settings.get('version') or '1.0.0'
     email = settings.get('email') or DEFAULT_SETTINGS['email']
     pyversions = sorted(
@@ -57,7 +58,7 @@ def create_package(d, package_name, settings):
     )
 
     licenses = [
-        LICENSES[li](name)
+        LICENSES[li](author)
         for li in settings.get('licenses') or DEFAULT_SETTINGS['licenses']
     ]
 
@@ -82,10 +83,10 @@ def create_package(d, package_name, settings):
     )
 
     setup_py = SetupFile(
-        name, email, package_name, pyversions, licenses,
+        author, email, package_name, pyversions, licenses,
         readme, package_url, cli
     )
-    projectfile = ProjectFile(package_name, version, name, email, pyversions,
+    projectfile = ProjectFile(package_name, version, author, email, pyversions,
         licenses, package_url)
 
     coverage_service = settings.get('coverage') if not basic else None

@@ -14,7 +14,6 @@ from hatch.venv import VENV_DIR, create_venv, venv
 
 @click.command(context_settings=CONTEXT_SETTINGS,
                short_help='Creates a new Python project in the current directory')
-@click.argument('name')
 @click.option('-ne', '--no-env', is_flag=True,
               help=(
                   'Disables the creation of a dedicated virtual env.'
@@ -45,9 +44,7 @@ from hatch.venv import VENV_DIR, create_venv, venv
                   'within. Also, a `__main__.py` is created so it can be '
                   'invoked via `python -m pkg_name`.'
               ))
-@click.option('-l', '--licenses',
-              help='Comma-separated list of licenses to use.')
-def init(name, no_env, pyname, pypath, global_packages, env_name, basic, cli, licenses):
+def init(no_env, pyname, pypath, env_name, basic, cli):
     """Creates a new Python project in the current directory.
 
     Values from your config file such as `name` and `pyversions` will be used
@@ -89,17 +86,23 @@ def init(name, no_env, pyname, pypath, global_packages, env_name, basic, cli, li
             'The default project structure will be used.'
         )
 
+    cwd = os.getcwd()
+    pname = os.path.split(cwd)[-1]
+    settings['package_name'] = click.prompt('project name', default=pname)
+    settings['version'] = click.prompt('version', default='1.0.0')
+    settings['description'] = click.prompt('description', default='')
+    settings['author'] = click.prompt('author', default='')
+    settings['email'] = click.prompt('author_email', default='')
+    licenses = click.prompt('license', default='mit')
+    settings['licenses'] = map(str.strip, licenses.split(','))
+
     if basic:
         settings['basic'] = True
 
-    if licenses:
-        settings['licenses'] = licenses.split(',')
-
     settings['cli'] = cli
 
-    d = os.getcwd()
-    create_package(d, name, settings)
-    echo_success('Created project `{}` here'.format(name))
+    create_package(cwd, settings)
+    echo_success('Created project `{}` here'.format(settings['package_name']))
 
     venvs = env_name.split('/') if env_name else []
     if (venvs or not no_env) and pyname:
@@ -115,7 +118,7 @@ def init(name, no_env, pyname, pypath, global_packages, env_name, basic, cli, li
             sys.exit(1)
 
     if not no_env:
-        venv_dir = os.path.join(d, 'venv')
+        venv_dir = os.path.join(cwd, 'venv')
         echo_waiting('Creating its own virtual env... ', nl=False)
         create_venv(venv_dir, pypath=pypath, use_global=global_packages)
         echo_success('complete!')
