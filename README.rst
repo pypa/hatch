@@ -264,6 +264,8 @@ Important changes are emphasized.
 master
 ^^^^^^
 
+- ``release`` now allows the use of custom repositories!
+
 0.17.1
 ^^^^^^
 
