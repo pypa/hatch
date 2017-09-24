@@ -25,7 +25,7 @@ def test_name():
     with temp_chdir() as d:
         settings = copy_default_settings()
         settings['licenses'] = ['mpl']
-        settings['name'] = 'Red Panda'
+        settings['author'] = 'Red Panda'
         create_package(d, 'ok', settings)
 
         contents = read_file(os.path.join(d, 'LICENSE-MPL'))
