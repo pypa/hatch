@@ -265,6 +265,8 @@ master
 ^^^^^^
 
 - ``release`` now allows the use of custom repositories!
+- **Fix:** ``clean``\ ing now correctly ignores a project's dedicated virtual
+  env. This behavior can be disabled with the new ``-nd/--no-detect`` flag.
 
 0.17.1
 ^^^^^^

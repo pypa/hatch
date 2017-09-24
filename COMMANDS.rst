@@ -558,6 +558,10 @@ If the path was derived from the optional package argument, the pattern
 *-c/--compiled-only*
     Removes only .pyc files.
 
+*-nd/--no-detect*
+    Disables the detection of a project's dedicated virtual env. By default,
+    it will not be considered.
+
 *-v/--verbose*
     Shows removed paths.
 
