@@ -19,7 +19,7 @@ def wait_for_os(s=None):
 
 def wait_until(f, *args):  # no cov
     # https://github.com/kennethreitz/pipenv/pull/403
-    end_time = time.time() + 120
+    end_time = time.time() + 300
     while time.time() < end_time:
         if f(*args):
             time.sleep(0.5)
