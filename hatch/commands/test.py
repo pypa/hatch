@@ -42,10 +42,10 @@ from hatch.utils import (
               ))
 @click.option('-g', '--global', 'global_exe', is_flag=True,
               help=(
-                  'Uses the `pytest` and `coverage` shipped with Hatch instead '
-                  'of environment-aware modules. This is useful if you just want '
-                  'want to run a quick test without installing these again in a '
-                  'virtual env. Keep in mind these will be the Python 3 versions.'
+                  'Uses the `pytest` and `coverage` shipped with Hatch instead of '
+                  'environment-aware modules. This is useful if you just want to '
+                  'run a quick test without installing these again in a virtual '
+                  'env. Keep in mind these will be the Python 3 versions.'
               ))
 def test(package, local, path, cov, merge, test_args, cov_args, global_exe):
     """Runs tests using `pytest`, optionally checking coverage.

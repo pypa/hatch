@@ -249,8 +249,10 @@ If the path points to a package, it should have a ``tests`` directory.
 *-ca/--cov-args*
     Pass through to ``coverage run``, overriding defaults. Example: ``hatch test -ca "--timid --pylib"``
 
-*-e/--env-aware*
-    Invokes ``pytest`` and ``coverage`` as modules instead of directly, i.e. ``python -m pytest``.
+*-g/--global*
+    Uses the ``pytest`` and ``coverage`` shipped with Hatch instead of environment-aware modules.
+    This is useful if you just want to run a quick test without installing these again in a
+    virtual env. Keep in mind these will be the Python 3 versions.
 
 ``pypath``
 ^^^^^^^^^^
