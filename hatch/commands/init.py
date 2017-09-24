@@ -93,15 +93,14 @@ def init(name, no_env, pyname, pypath, global_packages, env_name, basic, cli,
 
     cwd = os.getcwd()
     if name:
-        settings['package_name'] = name[0]
+        package_name = name[0]
 
     if licenses:
         settings['licenses'] = map(str.strip, licenses.split(','))
 
     if interactive or not name:
         pname = os.path.split(cwd)[-1]
-        settings['package_name'] = click.prompt('project name',
-                default=(name or pname))
+        package_name = click.prompt('project name', default=(name or pname))
         settings['version'] = click.prompt('version', default='1.0.0')
         settings['description'] = click.prompt('description', default='')
         settings['author'] = click.prompt('author',
@@ -115,8 +114,8 @@ def init(name, no_env, pyname, pypath, global_packages, env_name, basic, cli,
 
     settings['cli'] = cli
 
-    create_package(cwd, settings)
-    echo_success('Created project `{}` here'.format(settings['package_name']))
+    create_package(cwd, package_name, settings)
+    echo_success('Created project `{}` here'.format(package_name))
 
     venvs = env_name.split('/') if env_name else []
     if (venvs or not no_env) and pyname:

@@ -35,8 +35,7 @@ COVERAGE_SERVICES = {
 }
 
 
-def create_package(d, settings):
-    package_name = settings['package_name']
+def create_package(d, package_name, settings):
     normalized_package_name = normalize_package_name(package_name)
     cli = settings.get('cli')
     basic = settings.get('basic', DEFAULT_SETTINGS['basic'])

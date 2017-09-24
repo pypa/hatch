@@ -99,11 +99,11 @@ def new(name, no_env, pyname, pypath, global_packages, env_name, basic, cli,
 
     origin = os.getcwd()
     if name:
-        settings['package_name'] = name[0]
+        package_name = name[0]
     else:
-        settings['package_name'] = click.prompt('project name')
+        package_name = click.prompt('project name')
 
-    d = os.path.join(origin, settings['package_name'])
+    d = os.path.join(origin, package_name)
 
     if os.path.exists(d):
         echo_failure('Directory `{}` already exists.'.format(d))
@@ -137,8 +137,8 @@ def new(name, no_env, pyname, pypath, global_packages, env_name, basic, cli,
 
     os.makedirs(d)
     with chdir(d, cwd=origin):
-        create_package(d, settings)
-        echo_success('Created project `{}`'.format(settings['package_name']))
+        create_package(d, package_name, settings)
+        echo_success('Created project `{}`'.format(package_name))
 
         if not no_env:
             venv_dir = os.path.join(d, 'venv')
