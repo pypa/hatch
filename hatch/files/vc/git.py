@@ -25,3 +25,19 @@ def setup_git(d, package_name):
             print('Could not find `git` executable')
         GitAttributes().write(d)
         GitIgnore(package_name).write(d)
+
+def get_user():
+    try:
+        user = subprocess.check_output(['git', 'config', '--get', 'user.name'],
+                shell=NEED_SUBPROCESS_SHELL)
+        return user.strip().decode('utf-8')
+    except:
+        return None
+
+def get_email():
+    try:
+        email = subprocess.check_output(['git', 'config', '--get', 'user.email'],
+                shell=NEED_SUBPROCESS_SHELL)
+        return email.strip().decode('utf-8')
+    except:
+        return None
