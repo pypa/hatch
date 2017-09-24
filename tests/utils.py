@@ -2,10 +2,15 @@ import os
 import re
 import socket
 import time
+import traceback
 
 import pytest
 
 from hatch.env import get_package_version
+
+
+def print_traceback(exc_info):  # no cov
+    traceback.print_exception(*exc_info)
 
 
 def wait_for_os(s=None):
