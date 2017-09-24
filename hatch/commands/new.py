@@ -46,7 +46,11 @@ from hatch.venv import VENV_DIR, create_venv, venv
                   'within. Also, a `__main__.py` is created so it can be '
                   'invoked via `python -m pkg_name`.'
               ))
-def new(name, no_env, pyname, pypath, global_packages, env_name, basic, cli):
+@click.option('-l', '--licenses',
+              help='Comma-separated list of licenses to use.')
+@click.option('-i', '--interactive', is_flag=True, help=('Invoke interactive mode.'))
+def new(name, no_env, pyname, pypath, global_packages, env_name, basic, cli,
+        licenses, interactive):
     """Creates a new Python project.
 
     Values from your config file such as `name` and `pyversions` will be used
@@ -105,12 +109,15 @@ def new(name, no_env, pyname, pypath, global_packages, env_name, basic, cli):
         echo_failure('Directory `{}` already exists.'.format(d))
         sys.exit(1)
 
-    settings['version'] = click.prompt('version', default='1.0.0')
-    settings['description'] = click.prompt('description', default='')
-    settings['author'] = click.prompt('author', default='')
-    settings['email'] = click.prompt('author_email', default='')
-    licenses = click.prompt('license', default='mit')
-    settings['licenses'] = map(str.strip, licenses.split(','))
+    if interactive or not name:
+        settings['version'] = click.prompt('version', default='1.0.0')
+        settings['description'] = click.prompt('description', default='')
+        settings['author'] = click.prompt('author',
+                default=settings.get('author') or '')
+        settings['email'] = click.prompt('author_email',
+                default=settings.get('email') or '')
+        licenses = click.prompt('license', default=(licenses or 'mit'))
+        settings['licenses'] = map(str.strip, licenses.split(','))
 
     venvs = env_name.split('/') if env_name else []
     if (venvs or not no_env) and pyname:
