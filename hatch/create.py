@@ -103,7 +103,7 @@ def create_package(d, package_name, settings):
     package_dir = os.path.join(d, normalized_package_name)
     init_py = File(
         '__init__.py',
-        "__version__ = '0.0.1'\n"
+        "__version__ = '{version}'\n".format(version=version)
     )
     init_py.write(package_dir)
     create_file(os.path.join(d, 'tests', '__init__.py'))
