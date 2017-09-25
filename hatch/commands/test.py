@@ -160,8 +160,6 @@ def test(package, local, path, cov, merge, test_args, cov_args, global_exe, no_d
             echo_waiting('Creating a dedicated virtual env... ', nl=False)
             create_venv(venv_dir)
             echo_success('complete!')
-            print(os.listdir(venv_dir))
-            sys.exit()
 
             with venv(venv_dir):
                 echo_waiting('Installing this project in the virtual env... ', nl=False)
