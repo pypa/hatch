@@ -104,13 +104,11 @@ def test_project_no_venv():
     with temp_chdir() as d:
         runner = CliRunner()
         runner.invoke(hatch, ['init', 'ok', '--basic', '-ne'])
+
         create_test_passing(d)
-
         result = runner.invoke(hatch, ['test'])
-        venv_dir = os.path.join(d, 'venv')
-        wait_until(is_venv, venv_dir)
 
-        with venv(venv_dir):
+        with venv(os.path.join(d, 'venv')):
             assert 'ok' in get_editable_packages()
             installed_packages = get_installed_packages(editable=False)
             assert 'pytest' in installed_packages
@@ -131,13 +129,11 @@ def test_project_no_venv_install_dev_requirements():
         runner.invoke(hatch, ['init', 'ok', '--basic', '-ne'])
         with open(os.path.join(d, 'dev-requirements.txt'), 'w') as f:
             f.write('six\n')
+
         create_test_passing(d)
-
         result = runner.invoke(hatch, ['test'])
-        venv_dir = os.path.join(d, 'venv')
-        wait_until(is_venv, venv_dir)
 
-        with venv(venv_dir):
+        with venv(os.path.join(d, 'venv')):
             assert 'ok' in get_editable_packages()
             installed_packages = get_installed_packages(editable=False)
             assert 'pytest' in installed_packages

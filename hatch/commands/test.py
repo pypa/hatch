@@ -2,6 +2,7 @@ import io
 import os
 import subprocess
 import sys
+import time
 
 import click
 
@@ -159,6 +160,8 @@ def test(package, local, path, cov, merge, test_args, cov_args, global_exe, no_d
             echo_info('A project has been detected!')
             echo_waiting('Creating a dedicated virtual env... ', nl=False)
             create_venv(venv_dir)
+            if stdout == subprocess.PIPE:  # no cov
+                time.sleep(300)
             echo_success('complete!')
 
             with venv(venv_dir):
