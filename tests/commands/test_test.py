@@ -107,6 +107,8 @@ def test_project_no_venv():
         create_test_passing(d)
 
         result = runner.invoke(hatch, ['test'])
+        print(result.output)
+        assert False
         venv_dir = os.path.join(d, 'venv')
         wait_until(is_venv, venv_dir)
 
