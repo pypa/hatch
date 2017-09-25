@@ -26,4 +26,4 @@ def echo_waiting(text, nl=True):
 
 
 def echo_info(text, nl=True):
-    click.secho(text, fg='white', bold=True, nl=nl)
+    click.secho(text, bold=True, nl=nl)
