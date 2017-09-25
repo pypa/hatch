@@ -100,7 +100,7 @@ def test_project_existing_venv():
 
 
 @requires_internet
-def test_project_no_venv():
+def test_project_no_venvvv():
     with temp_chdir() as d:
         runner = CliRunner()
         runner.invoke(hatch, ['init', 'ok', '--basic', '-ne'])
