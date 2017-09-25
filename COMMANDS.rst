@@ -193,6 +193,9 @@ The path is derived in the following order:
 
 If the path points to a package, it should have a ``tests`` directory.
 
+If a project is detected but there is no dedicated virtual env, it
+will be created and any dev requirements will be installed in it.
+
 .. code-block:: bash
 
     $ git clone https://github.com/ofek/privy && cd privy
@@ -253,6 +256,9 @@ If the path points to a package, it should have a ``tests`` directory.
     Uses the ``pytest`` and ``coverage`` shipped with Hatch instead of environment-aware modules.
     This is useful if you just want to run a quick test without installing these again in a
     virtual env. Keep in mind these will be the Python 3 versions.
+
+*-nd/--no-detect*
+    Does not run the tests inside a project's dedicated virtual env.
 
 ``pypath``
 ^^^^^^^^^^
