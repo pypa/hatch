@@ -9,5 +9,5 @@ hatch.egg-info/
 build/
 dist/
 docs/build/
-wheelhouse/
 venv/
+wheelhouse/
