@@ -1,8 +1,9 @@
+import itertools
 import os
 from os.path import join
 from pathlib import Path
 
-from hatch.utils import remove_path
+from hatch.utils import is_project, remove_path
 
 DELETE_IN_ROOT = {
     '.cache',
@@ -22,10 +23,10 @@ DELETE_EVERYWHERE = {
 ALL_PATTERNS = DELETE_IN_ROOT | DELETE_EVERYWHERE
 
 
-def remove_compiled_scripts(d):
+def remove_compiled_scripts(d, detect_project=True):
     removed = set()
 
-    for root, _, files in os.walk(d):
+    for root, _, files in generate_walker(d, detect_project):
         for file in files:
             if file.endswith('.pyc'):
                 removed.add(join(root, file))
@@ -38,8 +39,8 @@ def remove_compiled_scripts(d):
     return removed
 
 
-def find_globs(d, patterns, matches):
-    for root, dirs, files in os.walk(d):
+def find_globs(walker, patterns, matches):
+    for root, dirs, files in walker:
         for d in dirs:
             d = join(root, d)
             for pattern in patterns:
@@ -55,7 +56,7 @@ def find_globs(d, patterns, matches):
         matches.update(sub_files)
 
 
-def clean_package(d, editable=False):
+def clean_package(d, editable=False, detect_project=True):
     removed = set()
     patterns = ALL_PATTERNS.copy()
     if editable:
@@ -64,11 +65,12 @@ def clean_package(d, editable=False):
     root = Path(d)
     for pattern in patterns:
         for p in root.glob(pattern):
-            removed.add(str(p))
+            full_path = str(p)
+            removed.add(full_path)
             if p.is_dir():
-                find_globs(str(p), DELETE_EVERYWHERE, removed)
+                find_globs(os.walk(full_path), DELETE_EVERYWHERE, removed)
 
-    find_globs(d, DELETE_EVERYWHERE, removed)
+    find_globs(generate_walker(d, detect_project), DELETE_EVERYWHERE, removed)
 
     removed = sorted(removed)
 
@@ -76,3 +78,16 @@ def clean_package(d, editable=False):
         remove_path(p)
 
     return removed
+
+
+def generate_walker(d, detect_project=True):
+    walker = os.walk(d)
+    r, dirs, f = next(walker)
+
+    try:
+        if detect_project and is_project(d):
+            dirs.remove('venv')
+    except ValueError:
+        pass
+
+    return itertools.chain(((r, dirs, f),), walker)

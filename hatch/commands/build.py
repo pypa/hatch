@@ -97,7 +97,7 @@ def build(package, local, path, pyname, pypath, universal, name, build_dir,
 
     if clean_first:
         echo_waiting('Removing build artifacts...')
-        clean_package(path, editable=package or local)
+        clean_package(path, editable=package or local, detect_project=True)
 
     return_code = build_package(path, build_dir, universal, name, pypath, verbose)
 

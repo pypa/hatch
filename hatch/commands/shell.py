@@ -12,7 +12,7 @@ from hatch.env import install_packages
 from hatch.settings import load_settings
 from hatch.shells import run_shell
 from hatch.utils import (
-    NEED_SUBPROCESS_SHELL, get_random_venv_name, resolve_path
+    NEED_SUBPROCESS_SHELL, get_random_venv_name, is_project, resolve_path
 )
 from hatch.venv import VENV_DIR, create_venv, is_venv, venv
 
@@ -125,7 +125,7 @@ def shell(env_name, command, shell_name, temp_env, pyname, pypath, global_packag
         env_name = ''
 
     if not (env_name or temp_env):
-        if os.path.isfile(os.path.join(os.getcwd(), 'setup.py')):
+        if is_project():
             venv_dir = os.path.join(os.getcwd(), 'venv')
             if not is_venv(venv_dir):
                 echo_info('A project has been detected!')

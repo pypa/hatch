@@ -2,15 +2,18 @@ import io
 import os
 import subprocess
 import sys
+import time
 
 import click
 
 from hatch.commands.utils import (
-    CONTEXT_SETTINGS, echo_failure, echo_info, echo_waiting
+    CONTEXT_SETTINGS, echo_failure, echo_info, echo_success, echo_waiting
 )
-from hatch.env import get_editable_package_location
+from hatch.env import get_editable_package_location, install_packages
+from hatch.venv import create_venv, is_venv, venv
 from hatch.utils import (
-    NEED_SUBPROCESS_SHELL, chdir, get_proper_python, resolve_path
+    NEED_SUBPROCESS_SHELL, chdir, get_proper_python, get_requirements_file,
+    is_project, resolve_path, venv_active, wait_until
 )
 
 
@@ -42,12 +45,16 @@ from hatch.utils import (
               ))
 @click.option('-g', '--global', 'global_exe', is_flag=True,
               help=(
-                  'Uses the `pytest` and `coverage` shipped with Hatch instead '
-                  'of environment-aware modules. This is useful if you just want '
-                  'want to run a quick test without installing these again in a '
-                  'virtual env. Keep in mind these will be the Python 3 versions.'
+                  'Uses the `pytest` and `coverage` shipped with Hatch instead of '
+                  'environment-aware modules. This is useful if you just want to '
+                  'run a quick test without installing these again in a virtual '
+                  'env. Keep in mind these will be the Python 3 versions.'
               ))
-def test(package, local, path, cov, merge, test_args, cov_args, global_exe):
+@click.option('-nd', '--no-detect', is_flag=True,
+              help=(
+                  "Does not run the tests inside a project's dedicated virtual env."
+              ))
+def test(package, local, path, cov, merge, test_args, cov_args, global_exe, no_detect):
     """Runs tests using `pytest`, optionally checking coverage.
 
     The path is derived in the following order:
@@ -60,6 +67,9 @@ def test(package, local, path, cov, merge, test_args, cov_args, global_exe):
     4. The current directory.
 
     If the path points to a package, it should have a `tests` directory.
+
+    If a project is detected but there is no dedicated virtual env, it
+    will be created and any dev requirements will be installed in it.
 
     \b
     $ git clone https://github.com/ofek/privy && cd privy
@@ -143,14 +153,48 @@ def test(package, local, path, cov, merge, test_args, cov_args, global_exe):
     stdout = sys.stdout if not testing else subprocess.PIPE
     stderr = sys.stderr if not testing else subprocess.PIPE
 
+    venv_dir = None
+    if not (package or local) and not venv_active() and not no_detect and is_project():
+        venv_dir = os.path.join(path, 'venv')
+        if not is_venv(venv_dir):
+            echo_info('A project has been detected!')
+            echo_waiting('Creating a dedicated virtual env... ', nl=False)
+            create_venv(venv_dir)
+            wait_until(is_venv, venv_dir)
+            echo_success('complete!')
+
+            with venv(venv_dir):
+                echo_waiting('Installing this project in the virtual env... ', nl=False)
+                install_packages(['-q', '-e', '.'])
+                echo_success('complete!')
+
+                echo_waiting('Installing pytest and coverage in the virtual env...')
+                install_packages(['pytest', 'coverage'])
+                click.echo()
+
+                dev_requirements = get_requirements_file(path, dev=True)
+                if dev_requirements:
+                    echo_waiting('Installing test dependencies in the virtual env...')
+                    install_packages(['-r', dev_requirements])
+                    click.echo()
+
     with chdir(path):
+        echo_waiting('Testing...')
         output = b''
 
-        test_result = subprocess.run(
-            command,
-            stdout=stdout, stderr=stderr,
-            shell=NEED_SUBPROCESS_SHELL
-        )
+        if venv_dir:
+            with venv(venv_dir):
+                test_result = subprocess.run(
+                    command,
+                    stdout=stdout, stderr=stderr,
+                    shell=NEED_SUBPROCESS_SHELL
+                )
+        else:
+            test_result = subprocess.run(
+                command,
+                stdout=stdout, stderr=stderr,
+                shell=NEED_SUBPROCESS_SHELL
+            )
         output += test_result.stdout or b''
         output += test_result.stderr or b''
 
@@ -158,19 +202,35 @@ def test(package, local, path, cov, merge, test_args, cov_args, global_exe):
             echo_waiting('\nTests completed, checking coverage...\n')
 
             if merge:
-                result = subprocess.run(
-                    python_cmd + ['coverage', 'combine', '--append'],
-                    stdout=stdout, stderr=stderr,
-                    shell=NEED_SUBPROCESS_SHELL
-                )
+                if venv_dir:
+                    with venv(venv_dir):
+                        result = subprocess.run(
+                            python_cmd + ['coverage', 'combine', '--append'],
+                            stdout=stdout, stderr=stderr,
+                            shell=NEED_SUBPROCESS_SHELL
+                        )
+                else:
+                    result = subprocess.run(
+                        python_cmd + ['coverage', 'combine', '--append'],
+                        stdout=stdout, stderr=stderr,
+                        shell=NEED_SUBPROCESS_SHELL
+                    )
                 output += result.stdout or b''
                 output += result.stderr or b''
 
-            result = subprocess.run(
-                python_cmd + ['coverage', 'report', '--show-missing'],
-                stdout=stdout, stderr=stderr,
-                shell=NEED_SUBPROCESS_SHELL
-            )
+            if venv_dir:
+                with venv(venv_dir):
+                    result = subprocess.run(
+                        python_cmd + ['coverage', 'report', '--show-missing'],
+                        stdout=stdout, stderr=stderr,
+                        shell=NEED_SUBPROCESS_SHELL
+                    )
+            else:
+                result = subprocess.run(
+                    python_cmd + ['coverage', 'report', '--show-missing'],
+                    stdout=stdout, stderr=stderr,
+                    shell=NEED_SUBPROCESS_SHELL
+                )
             output += result.stdout or b''
             output += result.stderr or b''
 

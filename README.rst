@@ -264,6 +264,16 @@ Important changes are emphasized.
 master
 ^^^^^^
 
+- ``test``\ ing now supports the use of a project's dedicated virtual
+  env and any dev requirements can be installed in it automatically!
+
+0.18.0
+^^^^^^
+
+- ``release`` now allows the use of custom repositories!
+- **Fix:** ``clean``\ ing now correctly ignores a project's dedicated virtual
+  env. This behavior can be disabled with the new ``-nd/--no-detect`` flag.
+
 0.17.1
 ^^^^^^
 

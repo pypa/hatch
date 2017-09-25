@@ -22,8 +22,13 @@ from hatch.utils import resolve_path
 @click.option('-p', '--path', help='A relative or absolute path to a project.')
 @click.option('-c', '--compiled-only', is_flag=True,
               help='Removes only .pyc files.')
+@click.option('-nd', '--no-detect', is_flag=True,
+              help=(
+                  "Disables the detection of a project's dedicated virtual "
+                  'env. By default, it will not be considered.'
+              ))
 @click.option('-v', '--verbose', is_flag=True, help='Shows removed paths.')
-def clean(package, local, path, compiled_only, verbose):
+def clean(package, local, path, compiled_only, no_detect, verbose):
     """Removes a project's build artifacts.
 
     The path to the project is derived in the following order:
@@ -72,9 +77,9 @@ def clean(package, local, path, compiled_only, verbose):
         path = os.getcwd()
 
     if compiled_only:
-        removed_paths = remove_compiled_scripts(path)
+        removed_paths = remove_compiled_scripts(path, detect_project=not no_detect)
     else:
-        removed_paths = clean_package(path, editable=package or local)
+        removed_paths = clean_package(path, editable=package or local, detect_project=not no_detect)
 
     if verbose:
         if removed_paths:
