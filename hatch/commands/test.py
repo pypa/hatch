@@ -166,7 +166,7 @@ def test(package, local, path, cov, merge, test_args, cov_args, global_exe, no_d
                 install_packages(['-e', '.'])
                 click.echo()
 
-                echo_waiting('Installing pytest and coverage in the virtual env...')
+                echo_waiting('Ensuring pytest and coverage are available...')
                 install_packages(['pytest', 'coverage'])
                 click.echo()
 
