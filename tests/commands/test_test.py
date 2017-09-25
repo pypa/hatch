@@ -6,7 +6,7 @@ from hatch.cli import hatch
 from hatch.env import (
     get_editable_packages, get_installed_packages, install_packages
 )
-from hatch.utils import temp_chdir
+from hatch.utils import env_vars, temp_chdir
 from hatch.venv import create_venv, is_venv, venv
 from ..utils import requires_internet, wait_until
 
@@ -106,7 +106,8 @@ def test_project_no_venvvv():
         runner.invoke(hatch, ['init', 'ok', '--basic', '-ne'])
         create_test_passing(d)
 
-        result = runner.invoke(hatch, ['test'])
+        with env_vars({'_IGNORE_VENV_': '1'}):
+            result = runner.invoke(hatch, ['test'])
         print(result.output)
         assert False
         venv_dir = os.path.join(d, 'venv')
