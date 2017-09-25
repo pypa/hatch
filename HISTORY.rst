@@ -6,6 +6,12 @@ Important changes are emphasized.
 master
 ^^^^^^
 
+0.19.0
+^^^^^^
+
+- ``test``\ ing now supports the use of a project's dedicated virtual
+  env and any dev requirements can be installed in it automatically!
+
 0.18.0
 ^^^^^^
 

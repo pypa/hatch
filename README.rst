@@ -264,6 +264,9 @@ Important changes are emphasized.
 master
 ^^^^^^
 
+0.19.0
+^^^^^^
+
 - ``test``\ ing now supports the use of a project's dedicated virtual
   env and any dev requirements can be installed in it automatically!
 
@@ -301,23 +304,6 @@ master
   in the ``new``/``init`` command.
 - **Fix:** ``use`` no longer requires the env name argument to be ``.`` when
   targeting a project's dedicated virtual env.
-
-0.14.0
-^^^^^^
-
-- ``new``/``init`` commands now create a dedicated virtual env for the project.
-  This can be disabled with the new ``-ne/--no-env`` flag.
-- ``install``, ``uninstall``, ``update``, and ``use`` commands are now able to
-  detect and use a project's dedicated virtual env!
-- **Removed:** redundant optional argument for ``new``/``init`` commands.
-
-0.13.0
-^^^^^^
-
-- Support for recent versions of the ``fish`` shell!
-- Added ``--admin`` flag to ``install``, ``uninstall``, and ``update`` commands
-  to indicate elevated privileges have already been given.
-- Basic support for ``csh``/``tcsh`` shells.
 
 View `all history <https://github.com/ofek/hatch/blob/master/HISTORY.rst>`_
 
