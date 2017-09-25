@@ -159,7 +159,6 @@ def test_project_no_venv_coverage():
         runner.invoke(hatch, ['init', 'ok', '--basic', '-ne'])
         create_test_complete_coverage(d, 'ok')
 
-        create_test_passing(d)
         with env_vars({'_IGNORE_VENV_': '1'}):
             result = runner.invoke(hatch, ['test', '-c'])
 
@@ -175,7 +174,6 @@ def test_project_no_venv_coverage_merge():
         runner.invoke(hatch, ['init', 'ok', '--basic', '-ne'])
         create_test_complete_coverage(d, 'ok')
 
-        create_test_passing(d)
         with env_vars({'_IGNORE_VENV_': '1'}):
             runner.invoke(hatch, ['test', '-c'])
             result = runner.invoke(hatch, ['test', '-c', '-m'])
