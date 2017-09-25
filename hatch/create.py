@@ -44,6 +44,7 @@ def create_package(d, package_name, settings):
     author = settings.get('author') or DEFAULT_SETTINGS['author']
     version = settings.get('version') or '1.0.0'
     email = settings.get('email') or DEFAULT_SETTINGS['email']
+    description = settings.get('description') or ''
     pyversions = sorted(
         settings.get('pyversions') or DEFAULT_SETTINGS['pyversions']
     )
@@ -85,8 +86,8 @@ def create_package(d, package_name, settings):
         author, email, package_name, pyversions, licenses,
         readme, package_url, cli
     )
-    projectfile = ProjectFile(package_name, version, author, email, pyversions,
-        licenses, package_url)
+    projectfile = ProjectFile(package_name, version, author, email,
+            description, pyversions, licenses, package_url)
 
     coverage_service = settings.get('coverage') if not basic else None
     if coverage_service:

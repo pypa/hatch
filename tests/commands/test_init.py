@@ -2,6 +2,7 @@ import os
 import sys
 
 from click.testing import CliRunner
+import toml
 
 from hatch.cli import hatch
 from hatch.env import get_editable_packages, get_python_version
@@ -26,6 +27,33 @@ def test_config_not_exist():
             'The default project structure will be used.'
         ) in result.output
         assert 'Created project `ok`' in result.output
+
+def test_missing_name_invokes_interactive_mode():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', '--basic', '-ne'], input='ok')
+
+        assert os.path.exists(os.path.join(d, 'ok', '__init__.py'))
+
+
+def test_interactive_mode():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', '-i', '--basic', '-ne'], input='ok\n0.1.0\nTest Description\nPicard\npicard@startrek.com\nmpl\n')
+
+        assert os.path.exists(os.path.join(d, 'ok', '__init__.py'))
+        assert "__version__ = '0.1.0'\n" == open(os.path.join(d, 'ok', '__init__.py')).read()
+        assert os.path.exists(os.path.join(d, 'LICENSE-MPL'))
+        assert os.path.exists(os.path.join(d, 'pyproject.toml'))
+        pyproject = toml.load('pyproject.toml')
+        source = pyproject['source'][0]
+        assert source['name'] == 'ok'
+        assert source['version'] == '0.1.0'
+        assert source['description'] == 'Test Description'
+        assert source['author'] == 'Picard'
+        assert source['author_email'] == 'picard@startrek.com'
+        assert source['license'] == 'MPL-2.0'
+        assert source['url'] == 'https://github.com/_/ok'
 
 
 def test_invalid_name():

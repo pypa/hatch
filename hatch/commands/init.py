@@ -95,9 +95,6 @@ def init(name, no_env, pyname, pypath, global_packages, env_name, basic, cli,
     if name:
         package_name = name[0]
 
-    if licenses:
-        settings['licenses'] = map(str.strip, licenses.split(','))
-
     if interactive or not name:
         pname = os.path.split(cwd)[-1]
         package_name = click.prompt('project name', default=(name or pname))
@@ -108,6 +105,8 @@ def init(name, no_env, pyname, pypath, global_packages, env_name, basic, cli,
         settings['email'] = click.prompt('author_email',
                 default=settings.get('email') or '')
         licenses = click.prompt('license', default=(licenses or 'mit'))
+
+    settings['licenses'] = map(str.strip, licenses.split(','))
 
     if basic:
         settings['basic'] = True
