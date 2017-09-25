@@ -119,7 +119,7 @@ def test_project_no_venv():
         assert result.exit_code == 0
         assert 'A project has been detected!' in result.output
         assert 'Creating a dedicated virtual env... complete!' in result.output
-        assert 'Installing this project in the virtual env... complete!' in result.output
+        assert 'Installing this project in the virtual env...' in result.output
         assert 'Installing pytest and coverage in the virtual env...' in result.output
         assert '1 passed' in result.output
 
@@ -146,7 +146,7 @@ def test_project_no_venv_install_dev_requirements():
         assert result.exit_code == 0
         assert 'A project has been detected!' in result.output
         assert 'Creating a dedicated virtual env... complete!' in result.output
-        assert 'Installing this project in the virtual env... complete!' in result.output
+        assert 'Installing this project in the virtual env...' in result.output
         assert 'Installing pytest and coverage in the virtual env...' in result.output
         assert 'Installing test dependencies in the virtual env...' in result.output
         assert '1 passed' in result.output

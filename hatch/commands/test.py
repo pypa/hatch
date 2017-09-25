@@ -162,9 +162,9 @@ def test(package, local, path, cov, merge, test_args, cov_args, global_exe, no_d
             echo_success('complete!')
 
             with venv(venv_dir):
-                echo_waiting('Installing this project in the virtual env... ', nl=False)
-                install_packages(['-q', '-e', '.'])
-                echo_success('complete!')
+                echo_waiting('Installing this project in the virtual env...')
+                install_packages(['-e', '.'])
+                click.echo()
 
                 echo_waiting('Installing pytest and coverage in the virtual env...')
                 install_packages(['pytest', 'coverage'])
