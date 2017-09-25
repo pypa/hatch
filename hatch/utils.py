@@ -4,7 +4,6 @@ import platform
 import re
 import shutil
 import subprocess
-import time
 from base64 import urlsafe_b64encode
 from datetime import datetime
 from contextlib import contextmanager
@@ -84,17 +83,6 @@ def conda_available():  # no cov
     except subprocess.CalledProcessError:
         return False
     return True
-
-
-def wait_until(f, *args):  # no cov
-    # https://github.com/kennethreitz/pipenv/pull/403
-    end_time = time.time() + 300
-    while time.time() < end_time:
-        if f(*args):
-            time.sleep(0.5)
-            return True
-        time.sleep(0.2)
-    raise AssertionError('timeout')
 
 
 def get_requirements_file(d, dev=False):

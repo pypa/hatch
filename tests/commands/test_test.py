@@ -1,5 +1,4 @@
 import os
-import subprocess
 
 from click.testing import CliRunner
 
@@ -107,7 +106,7 @@ def test_project_no_venv():
         runner.invoke(hatch, ['init', 'ok', '--basic', '-ne'])
         create_test_passing(d)
 
-        result = subprocess.run(['hatch', 'test'])
+        result = runner.invoke(hatch, ['test'])
         venv_dir = os.path.join(d, 'venv')
         wait_until(is_venv, venv_dir)
 
@@ -117,12 +116,12 @@ def test_project_no_venv():
             assert 'pytest' in installed_packages
             assert 'coverage' in installed_packages
 
-        # assert result.exit_code == 0
-        # assert 'A project has been detected!' in result.output
-        # assert 'Creating a dedicated virtual env... complete!' in result.output
-        # assert 'Installing this project in the virtual env... complete!' in result.output
-        # assert 'Installing pytest and coverage in the virtual env...' in result.output
-        # assert '1 passed' in result.output
+        assert result.exit_code == 0
+        assert 'A project has been detected!' in result.output
+        assert 'Creating a dedicated virtual env... complete!' in result.output
+        assert 'Installing this project in the virtual env... complete!' in result.output
+        assert 'Installing pytest and coverage in the virtual env...' in result.output
+        assert '1 passed' in result.output
 
 
 @requires_internet
