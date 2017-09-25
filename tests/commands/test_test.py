@@ -109,6 +109,7 @@ def test_project_no_venv():
         result = runner.invoke(hatch, ['test'])
 
         with venv(os.path.join(d, 'venv')):
+            assert 'ok' in get_editable_packages()
             installed_packages = get_installed_packages(editable=False)
             assert 'pytest' in installed_packages
             assert 'coverage' in installed_packages
@@ -133,6 +134,7 @@ def test_project_no_venv_install_dev_requirements():
         result = runner.invoke(hatch, ['test'])
 
         with venv(os.path.join(d, 'venv')):
+            assert 'ok' in get_editable_packages()
             installed_packages = get_installed_packages(editable=False)
             assert 'pytest' in installed_packages
             assert 'coverage' in installed_packages
