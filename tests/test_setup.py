@@ -30,7 +30,7 @@ def test_name_none():
 
         contents = read_file(os.path.join(d, 'setup.py'))
         parsed = parse(TEMPLATE, contents)
-        expected_author = get_user()
+        expected_author = get_user() or 'U.N. Owen'
 
         assert parsed['name'] == expected_author
 
@@ -55,7 +55,7 @@ def test_email_none():
 
         contents = read_file(os.path.join(d, 'setup.py'))
         parsed = parse(TEMPLATE, contents)
-        expected_email = get_email()
+        expected_email = get_email() or 'me@un.known'
         assert parsed['email'] == expected_email
 
 
