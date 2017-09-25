@@ -42,7 +42,7 @@ def create_package(d, package_name, settings):
     extra_files = []
 
     author = settings.get('author') or DEFAULT_SETTINGS['author']
-    version = settings.get('version') or '1.0.0'
+    version = settings.get('version') or '0.0.1'
     email = settings.get('email') or DEFAULT_SETTINGS['email']
     description = settings.get('description') or ''
     pyversions = sorted(

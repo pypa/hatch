@@ -106,7 +106,8 @@ def init(name, no_env, pyname, pypath, global_packages, env_name, basic, cli,
                 default=settings.get('email') or '')
         licenses = click.prompt('license', default=(licenses or 'mit'))
 
-    settings['licenses'] = map(str.strip, licenses.split(','))
+    if licenses:
+        settings['licenses'] = map(str.strip, licenses.split(','))
 
     if basic:
         settings['basic'] = True
