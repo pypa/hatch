@@ -23,7 +23,7 @@ matrix:
 install:
   - pip install tox codecov
 
-script: tox
+script: tox -- -k test_test.py -vv
 
 after_success:
   - codecov
