@@ -168,11 +168,13 @@ def test(package, local, path, cov, merge, test_args, cov_args, global_exe, no_d
 
                 echo_waiting('Installing pytest and coverage in the virtual env...')
                 install_packages(['pytest', 'coverage'])
+                click.echo()
 
                 dev_requirements = get_requirements_file(path, dev=True)
                 if dev_requirements:
-                    echo_waiting('\nInstalling test dependencies in the virtual env...\n')
+                    echo_waiting('Installing test dependencies in the virtual env...')
                     install_packages(['-r', dev_requirements])
+                    click.echo()
 
     with chdir(path):
         echo_waiting('Testing...')
