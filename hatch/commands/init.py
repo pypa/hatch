@@ -8,7 +8,7 @@ from hatch.commands.utils import (
 )
 from hatch.create import create_package
 from hatch.env import install_packages
-from hatch.settings import load_settings
+from hatch.settings import load_settings, copy_default_settings
 from hatch.venv import VENV_DIR, create_venv, venv
 from hatch.utils import basepath
 
@@ -86,7 +86,7 @@ def init(name, no_env, pyname, pypath, global_packages, env_name, basic, cli,
     try:
         settings = load_settings()
     except FileNotFoundError:
-        settings = {}
+        settings = copy_default_settings()
         echo_warning(
             'Unable to locate config file; try `hatch config --restore`. '
             'The default project structure will be used.'

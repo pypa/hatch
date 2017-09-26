@@ -25,7 +25,7 @@ def test_name():
     with temp_chdir() as d:
         settings = copy_default_settings()
         settings['licenses'] = ['cc0']
-        settings['author'] = 'Guy Fawkes'
+        settings['name'] = 'Guy Fawkes'
         create_package(d, 'ok', settings)
 
         contents = read_file(os.path.join(d, 'LICENSE-CC0'))
