@@ -13,15 +13,7 @@ url = '{url}'
 [requires]
 python_version = {python_version}
 
-
-[dev-packages]
-pytest = '3.2.2'
-
-[packages]
-# requests = '2.18'
-
-
-[commands]
+[tool.hatch.commands]
 prerelease = 'hatch build'
 """
 
