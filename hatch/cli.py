@@ -22,7 +22,7 @@ def hatch():
 
 hatch.add_command(build)
 hatch.add_command(clean)
-# hatch.add_command(conda)
+hatch.add_command(conda)
 hatch.add_command(config)
 hatch.add_command(env)
 hatch.add_command(grow)
