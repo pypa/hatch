@@ -92,7 +92,7 @@ def conda(location, force, head):  # no cov
             location, exe_dir, os.path.join(location, 'Library', 'bin')
         ))
     else:
-        new_path = location
+        new_path = exe_dir
 
     add_to_path = userpath.prepend if head else userpath.append
     success = add_to_path(new_path, app_name='Hatch')
