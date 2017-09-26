@@ -10,11 +10,12 @@ from hatch.create import create_package
 from hatch.env import install_packages
 from hatch.settings import load_settings
 from hatch.venv import VENV_DIR, create_venv, venv
+from hatch.utils import basepath
 
 
 @click.command(context_settings=CONTEXT_SETTINGS,
                short_help='Creates a new Python project in the current directory')
-@click.argument('name', nargs=-1)
+@click.argument('name', required=False)
 @click.option('-ne', '--no-env', is_flag=True,
               help=(
                   'Disables the creation of a dedicated virtual env.'
@@ -93,15 +94,15 @@ def init(name, no_env, pyname, pypath, global_packages, env_name, basic, cli,
 
     cwd = os.getcwd()
     if name:
-        package_name = name[0]
+        package_name = name
 
     if interactive or not name:
-        pname = os.path.split(cwd)[-1]
+        pname = basepath(cwd)
         package_name = click.prompt('project name', default=(name or pname))
         settings['version'] = click.prompt('version', default='1.0.0')
         settings['description'] = click.prompt('description', default='')
-        settings['author'] = click.prompt('author',
-                default=settings.get('author') or '')
+        settings['name'] = click.prompt('author',
+                default=settings.get('name') or '')
         settings['email'] = click.prompt('author_email',
                 default=settings.get('email') or '')
         licenses = click.prompt('license', default=(licenses or 'mit'))

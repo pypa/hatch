@@ -13,7 +13,7 @@ from .utils import read_file
 def test_name():
     with temp_chdir() as d:
         settings = copy_default_settings()
-        settings['author'] = 'Don Quixote'
+        settings['name'] = 'Don Quixote'
         create_package(d, 'ok', settings)
 
         contents = read_file(os.path.join(d, 'setup.py'))
@@ -25,7 +25,7 @@ def test_name():
 def test_name_none():
     with temp_chdir() as d:
         settings = copy_default_settings()
-        settings['author'] = ''
+        settings['name'] = ''
         create_package(d, 'ok', settings)
 
         contents = read_file(os.path.join(d, 'setup.py'))

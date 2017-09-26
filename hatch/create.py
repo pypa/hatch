@@ -41,7 +41,7 @@ def create_package(d, package_name, settings):
     basic = settings.get('basic', DEFAULT_SETTINGS['basic'])
     extra_files = []
 
-    author = settings.get('author') or DEFAULT_SETTINGS['author']
+    author = settings.get('name') or DEFAULT_SETTINGS['name']
     version = settings.get('version') or '0.0.1'
     email = settings.get('email') or DEFAULT_SETTINGS['email']
     description = settings.get('description') or ''
