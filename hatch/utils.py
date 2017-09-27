@@ -80,7 +80,7 @@ def is_os_64bit():  # no cov
 def conda_available():  # no cov
     try:
         subprocess.run(['conda', '--help'], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    except subprocess.CalledProcessError:
+    except:
         return False
     return True
 
