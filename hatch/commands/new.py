@@ -8,7 +8,7 @@ from hatch.commands.utils import (
 )
 from hatch.create import create_package
 from hatch.env import install_packages
-from hatch.settings import load_settings, copy_default_settings
+from hatch.settings import copy_default_settings, load_settings
 from hatch.utils import chdir
 from hatch.venv import VENV_DIR, create_venv, venv
 
@@ -48,7 +48,7 @@ from hatch.venv import VENV_DIR, create_venv, venv
               ))
 @click.option('-l', '--licenses',
               help='Comma-separated list of licenses to use.')
-@click.option('-i', '--interactive', is_flag=True, help=('Invoke interactive mode.'))
+@click.option('-i', '--interactive', is_flag=True, help='Invokes interactive mode.')
 def new(name, no_env, pyname, pypath, global_packages, env_name, basic, cli,
         licenses, interactive):
     """Creates a new Python project.
@@ -109,10 +109,8 @@ def new(name, no_env, pyname, pypath, global_packages, env_name, basic, cli,
     if interactive or not name:
         settings['version'] = click.prompt('version', default='1.0.0')
         settings['description'] = click.prompt('description', default='')
-        settings['name'] = click.prompt('author',
-                default=settings.get('name') or '')
-        settings['email'] = click.prompt('author_email',
-                default=settings.get('email') or '')
+        settings['name'] = click.prompt('author', default=settings.get('name') or '')
+        settings['email'] = click.prompt('author_email', default=settings.get('email') or '')
         licenses = click.prompt('license', default=(licenses or 'mit'))
 
     if licenses:

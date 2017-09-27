@@ -22,8 +22,7 @@ prerelease = 'hatch build'
 
 
 class ProjectFile(File):
-    def __init__(self, name, version, author, email, description, pyversions,
-            licenses, package_url):
+    def __init__(self, name, version, author, email, description, pyversions, licenses, package_url):
         super(ProjectFile, self).__init__(
             'pyproject.toml',
             TEMPLATE.format(

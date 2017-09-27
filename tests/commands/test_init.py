@@ -1,8 +1,8 @@
 import os
 import sys
 
-from click.testing import CliRunner
 import toml
+from click.testing import CliRunner
 
 from hatch.cli import hatch
 from hatch.env import get_editable_packages, get_python_version
@@ -11,7 +11,7 @@ from hatch.settings import (
 )
 from hatch.utils import create_file, remove_path, temp_chdir, temp_move_path
 from hatch.venv import VENV_DIR, create_venv, get_new_venv_name, is_venv, venv
-from ..utils import matching_file, wait_until, read_file
+from ..utils import matching_file, read_file, wait_until
 
 
 def test_config_not_exist():
@@ -28,19 +28,25 @@ def test_config_not_exist():
         ) in result.output
         assert 'Created project `ok`' in result.output
 
+
 def test_missing_name_invokes_interactive_mode():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['init', '--basic', '-ne'], input='ok')
+        result = runner.invoke(hatch, ['init', '--basic', '-ne'], input='ok')
 
+        assert result.exit_code == 0
         assert os.path.exists(os.path.join(d, 'ok', '__init__.py'))
 
 
 def test_interactive_mode():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['init', '-i', '--basic', '-ne'], input='ok\n0.1.0\nTest Description\nPicard\npicard@startrek.com\nmpl\n')
+        result = runner.invoke(
+            hatch, ['init', '-i', '--basic', '-ne'],
+            input='ok\n0.1.0\nTest Description\nPicard\npicard@startrek.com\nmpl\n'
+        )
 
+        assert result.exit_code == 0
         assert os.path.exists(os.path.join(d, 'ok', '__init__.py'))
         assert "__version__ = '0.1.0'\n" == read_file(os.path.join(d, 'ok', '__init__.py'))
         assert os.path.exists(os.path.join(d, 'LICENSE-MPL'))

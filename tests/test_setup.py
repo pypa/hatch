@@ -4,7 +4,7 @@ from parse import parse
 
 from hatch.create import create_package
 from hatch.files.setup import TEMPLATE
-from hatch.files.vc.git import get_user, get_email
+from hatch.files.vc.git import get_email, get_user
 from hatch.settings import copy_default_settings
 from hatch.utils import temp_chdir
 from .utils import read_file

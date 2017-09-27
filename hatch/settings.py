@@ -6,8 +6,8 @@ from copy import deepcopy
 from appdirs import user_data_dir
 from atomicwrites import atomic_write
 
+from hatch.files.vc.git import get_email, get_user
 from hatch.utils import create_file, ensure_dir_exists
-from hatch.files.vc.git import get_user, get_email
 
 SETTINGS_FILE = os.path.join(user_data_dir('hatch', ''), 'settings.json')
 

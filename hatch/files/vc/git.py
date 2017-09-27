@@ -26,18 +26,24 @@ def setup_git(d, package_name):
         GitAttributes().write(d)
         GitIgnore(package_name).write(d)
 
+
 def get_user():  # no cov
     try:
-        user = subprocess.check_output(['git', 'config', '--get', 'user.name'],
-                shell=NEED_SUBPROCESS_SHELL)
-        return user.strip().decode('utf-8')
+        user = subprocess.check_output(
+            ['git', 'config', '--get', 'user.name'],
+            shell=NEED_SUBPROCESS_SHELL
+        )
+        return user.decode().strip()
     except:
         return
 
+
 def get_email():  # no cov
     try:
-        email = subprocess.check_output(['git', 'config', '--get', 'user.email'],
-                shell=NEED_SUBPROCESS_SHELL)
-        return email.strip().decode('utf-8')
+        email = subprocess.check_output(
+            ['git', 'config', '--get', 'user.email'],
+            shell=NEED_SUBPROCESS_SHELL
+        )
+        return email.decode().strip()
     except:
         return

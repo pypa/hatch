@@ -11,7 +11,7 @@ from hatch.settings import (
 )
 from hatch.utils import create_file, remove_path, temp_chdir, temp_move_path
 from hatch.venv import VENV_DIR, create_venv, get_new_venv_name, is_venv, venv
-from ..utils import matching_file, wait_until, read_file
+from ..utils import matching_file, read_file, wait_until
 
 
 def test_config_not_exist():
@@ -32,16 +32,21 @@ def test_config_not_exist():
 def test_missing_name_invokes_interactive_mode():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['new', '--basic', '-ne'], input='invalid-name')
+        result = runner.invoke(hatch, ['new', '--basic', '-ne'], input='invalid-name')
 
+        assert result.exit_code == 0
         assert os.path.exists(os.path.join(d, 'invalid-name', 'invalid_name', '__init__.py'))
 
 
 def test_interactive_mode():
     with temp_chdir() as d:
         runner = CliRunner()
-        runner.invoke(hatch, ['new', '-i', '--basic', '-ne'], input='ok\n0.1.0\nTest Description\nPicard\npicard@startrek.com\nmpl\n')
+        result = runner.invoke(
+            hatch, ['new', '-i', '--basic', '-ne'],
+            input='ok\n0.1.0\nTest Description\nPicard\npicard@startrek.com\nmpl\n'
+        )
 
+        assert result.exit_code == 0
         assert os.path.exists(os.path.join(d, 'ok', 'ok', '__init__.py'))
         assert "__version__ = '0.1.0'\n" == read_file(os.path.join(d, 'ok', 'ok', '__init__.py'))
         assert os.path.exists(os.path.join(d, 'ok', 'LICENSE-MPL'))
@@ -55,8 +60,6 @@ def test_interactive_mode():
         assert metadata['author_email'] == 'picard@startrek.com'
         assert metadata['license'] == 'MPL-2.0'
         assert metadata['url'] == 'https://github.com/_/ok'
-
-
 
 
 def test_invalid_name():

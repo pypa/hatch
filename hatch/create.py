@@ -6,9 +6,9 @@ from hatch.files.coverage import Codecov, CoverageConfig
 from hatch.files.licenses import (
     Apache2License, CC0License, MITLicense, MPLLicense
 )
+from hatch.files.pyproject import ProjectFile
 from hatch.files.readme import MarkdownReadme, ReStructuredTextReadme
 from hatch.files.setup import SetupFile
-from hatch.files.pyproject import ProjectFile
 from hatch.files.vc import setup_git
 from hatch.settings import DEFAULT_SETTINGS
 from hatch.structures import Badge, File
@@ -86,8 +86,10 @@ def create_package(d, package_name, settings):
         author, email, package_name, pyversions, licenses,
         readme, package_url, cli
     )
-    projectfile = ProjectFile(package_name, version, author, email,
-            description, pyversions, licenses, package_url)
+    projectfile = ProjectFile(
+        package_name, version, author, email, description,
+        pyversions, licenses, package_url
+    )
 
     coverage_service = settings.get('coverage') if not basic else None
     if coverage_service:
