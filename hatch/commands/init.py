@@ -9,8 +9,8 @@ from hatch.commands.utils import (
 from hatch.create import create_package
 from hatch.env import install_packages
 from hatch.settings import copy_default_settings, load_settings
-from hatch.venv import VENV_DIR, create_venv, venv
 from hatch.utils import basepath
+from hatch.venv import VENV_DIR, create_venv, venv
 
 
 @click.command(context_settings=CONTEXT_SETTINGS,
@@ -93,20 +93,17 @@ def init(name, no_env, pyname, pypath, global_packages, env_name, basic, cli,
         )
 
     cwd = os.getcwd()
-    if name:
-        package_name = name
+    package_name = name or click.prompt('Project name', default=basepath(cwd))
 
     if interactive or not name:
-        pname = basepath(cwd)
-        package_name = click.prompt('project name', default=name or pname)
-        settings['version'] = click.prompt('version', default='1.0.0')
-        settings['description'] = click.prompt('description', default='')
-        settings['name'] = click.prompt('author', default=settings.get('name') or '')
-        settings['email'] = click.prompt('author_email', default=settings.get('email') or '')
-        licenses = click.prompt('license', default=(licenses or 'mit'))
+        settings['version'] = click.prompt('Version', default='0.0.1')
+        settings['description'] = click.prompt('Description', default='')
+        settings['name'] = click.prompt('Author', default=settings.get('name', ''))
+        settings['email'] = click.prompt("Author's email", default=settings.get('email', ''))
+        licenses = click.prompt('License(s)', default=licenses or 'mit,apache2')
 
     if licenses:
-        settings['licenses'] = map(str.strip, licenses.split(','))
+        settings['licenses'] = [str.strip(li) for li in licenses.split(',')]
 
     if basic:
         settings['basic'] = True
