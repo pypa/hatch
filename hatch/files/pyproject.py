@@ -1,7 +1,7 @@
 from hatch.structures import File
 
 TEMPLATE = """\
-[[source]]
+[metadata]
 name = '{name}'
 version = '{version}'
 description = '{description}'
