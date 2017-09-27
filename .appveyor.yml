@@ -16,4 +16,5 @@ install:
 build: off
 
 test_script:
+  - "%PYTHON%\\python.exe -m hatch conda ~/miniconda"
   - "%PYTHON%\\python.exe -m pytest"
