@@ -13,6 +13,9 @@ url = '{url}'
 [requires]
 python_version = {python_version}
 
+[build-system]
+requires = ["setuptools", "wheel"]
+
 [tool.hatch.commands]
 prerelease = 'hatch build'
 """
