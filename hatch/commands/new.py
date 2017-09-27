@@ -106,9 +106,6 @@ def new(name, no_env, pyname, pypath, global_packages, env_name, basic, cli,
         echo_failure('Directory `{}` already exists.'.format(d))
         sys.exit(1)
 
-    if licenses:
-        settings['licenses'] = map(str.strip, licenses.split(','))
-
     if interactive or not name:
         settings['version'] = click.prompt('version', default='1.0.0')
         settings['description'] = click.prompt('description', default='')
@@ -117,6 +114,8 @@ def new(name, no_env, pyname, pypath, global_packages, env_name, basic, cli,
         settings['email'] = click.prompt('author_email',
                 default=settings.get('email') or '')
         licenses = click.prompt('license', default=(licenses or 'mit'))
+
+    if licenses:
         settings['licenses'] = map(str.strip, licenses.split(','))
 
     venvs = env_name.split('/') if env_name else []
