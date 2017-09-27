@@ -7,6 +7,7 @@ from appdirs import user_data_dir
 from atomicwrites import atomic_write
 
 from hatch.utils import create_file, ensure_dir_exists
+from hatch.files.vc.git import get_user, get_email
 
 SETTINGS_FILE = os.path.join(user_data_dir('hatch', ''), 'settings.json')
 
@@ -19,8 +20,8 @@ DEFAULT_SETTINGS = OrderedDict([
         ('build', ''),
     ])),
     ('pypi_username', ''),
-    ('name', 'U.N. Owen'),
-    ('email', 'me@un.known'),
+    ('name', get_user() or 'U.N. Owen'),
+    ('email', get_email() or 'me@un.known'),
     ('basic', True),
     ('pyversions', ['2.7', '3.5', '3.6', 'pypy', 'pypy3']),
     ('licenses', ['mit', 'apache2']),

@@ -10,7 +10,7 @@ init:
   - set PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%
 
 install:
-  - "%PYTHON%\\python.exe -m pip install pytest parse"
+  - "%PYTHON%\\python.exe -m pip install pytest parse toml"
   - "%PYTHON%\\python.exe -m pip install -e ."
 
 build: off

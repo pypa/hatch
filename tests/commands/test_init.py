@@ -2,6 +2,7 @@ import os
 import sys
 
 from click.testing import CliRunner
+import toml
 
 from hatch.cli import hatch
 from hatch.env import get_editable_packages, get_python_version
@@ -10,7 +11,7 @@ from hatch.settings import (
 )
 from hatch.utils import create_file, remove_path, temp_chdir, temp_move_path
 from hatch.venv import VENV_DIR, create_venv, get_new_venv_name, is_venv, venv
-from ..utils import matching_file, wait_until
+from ..utils import matching_file, wait_until, read_file
 
 
 def test_config_not_exist():
@@ -26,6 +27,33 @@ def test_config_not_exist():
             'The default project structure will be used.'
         ) in result.output
         assert 'Created project `ok`' in result.output
+
+def test_missing_name_invokes_interactive_mode():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', '--basic', '-ne'], input='ok')
+
+        assert os.path.exists(os.path.join(d, 'ok', '__init__.py'))
+
+
+def test_interactive_mode():
+    with temp_chdir() as d:
+        runner = CliRunner()
+        runner.invoke(hatch, ['init', '-i', '--basic', '-ne'], input='ok\n0.1.0\nTest Description\nPicard\npicard@startrek.com\nmpl\n')
+
+        assert os.path.exists(os.path.join(d, 'ok', '__init__.py'))
+        assert "__version__ = '0.1.0'\n" == read_file(os.path.join(d, 'ok', '__init__.py'))
+        assert os.path.exists(os.path.join(d, 'LICENSE-MPL'))
+        assert os.path.exists(os.path.join(d, 'pyproject.toml'))
+        pyproject = toml.load('pyproject.toml')
+        metadata = pyproject['metadata']
+        assert metadata['name'] == 'ok'
+        assert metadata['version'] == '0.1.0'
+        assert metadata['description'] == 'Test Description'
+        assert metadata['author'] == 'Picard'
+        assert metadata['author_email'] == 'picard@startrek.com'
+        assert metadata['license'] == 'MPL-2.0'
+        assert metadata['url'] == 'https://github.com/_/ok'
 
 
 def test_invalid_name():

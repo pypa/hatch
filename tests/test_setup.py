@@ -4,6 +4,7 @@ from parse import parse
 
 from hatch.create import create_package
 from hatch.files.setup import TEMPLATE
+from hatch.files.vc.git import get_user, get_email
 from hatch.settings import copy_default_settings
 from hatch.utils import temp_chdir
 from .utils import read_file
@@ -29,8 +30,9 @@ def test_name_none():
 
         contents = read_file(os.path.join(d, 'setup.py'))
         parsed = parse(TEMPLATE, contents)
+        expected_author = get_user() or 'U.N. Owen'
 
-        assert parsed['name'] == 'U.N. Owen'
+        assert parsed['name'] == expected_author
 
 
 def test_email():
@@ -53,8 +55,8 @@ def test_email_none():
 
         contents = read_file(os.path.join(d, 'setup.py'))
         parsed = parse(TEMPLATE, contents)
-
-        assert parsed['email'] == 'me@un.known'
+        expected_email = get_email() or 'me@un.known'
+        assert parsed['email'] == expected_email
 
 
 def test_package_name():

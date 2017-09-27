@@ -8,13 +8,14 @@ from hatch.commands.utils import (
 )
 from hatch.create import create_package
 from hatch.env import install_packages
-from hatch.settings import load_settings
+from hatch.settings import load_settings, copy_default_settings
 from hatch.venv import VENV_DIR, create_venv, venv
+from hatch.utils import basepath
 
 
 @click.command(context_settings=CONTEXT_SETTINGS,
                short_help='Creates a new Python project in the current directory')
-@click.argument('name')
+@click.argument('name', required=False)
 @click.option('-ne', '--no-env', is_flag=True,
               help=(
                   'Disables the creation of a dedicated virtual env.'
@@ -47,7 +48,9 @@ from hatch.venv import VENV_DIR, create_venv, venv
               ))
 @click.option('-l', '--licenses',
               help='Comma-separated list of licenses to use.')
-def init(name, no_env, pyname, pypath, global_packages, env_name, basic, cli, licenses):
+@click.option('-i', '--interactive', is_flag=True, help=('Invoke interactive mode.'))
+def init(name, no_env, pyname, pypath, global_packages, env_name, basic, cli,
+        licenses, interactive):
     """Creates a new Python project in the current directory.
 
     Values from your config file such as `name` and `pyversions` will be used
@@ -83,23 +86,37 @@ def init(name, no_env, pyname, pypath, global_packages, env_name, basic, cli, li
     try:
         settings = load_settings()
     except FileNotFoundError:
-        settings = {}
+        settings = copy_default_settings()
         echo_warning(
             'Unable to locate config file; try `hatch config --restore`. '
             'The default project structure will be used.'
         )
 
+    cwd = os.getcwd()
+    if name:
+        package_name = name
+
+    if interactive or not name:
+        pname = basepath(cwd)
+        package_name = click.prompt('project name', default=(name or pname))
+        settings['version'] = click.prompt('version', default='1.0.0')
+        settings['description'] = click.prompt('description', default='')
+        settings['name'] = click.prompt('author',
+                default=settings.get('name') or '')
+        settings['email'] = click.prompt('author_email',
+                default=settings.get('email') or '')
+        licenses = click.prompt('license', default=(licenses or 'mit'))
+
+    if licenses:
+        settings['licenses'] = map(str.strip, licenses.split(','))
+
     if basic:
         settings['basic'] = True
 
-    if licenses:
-        settings['licenses'] = licenses.split(',')
-
     settings['cli'] = cli
 
-    d = os.getcwd()
-    create_package(d, name, settings)
-    echo_success('Created project `{}` here'.format(name))
+    create_package(cwd, package_name, settings)
+    echo_success('Created project `{}` here'.format(package_name))
 
     venvs = env_name.split('/') if env_name else []
     if (venvs or not no_env) and pyname:
@@ -115,7 +132,7 @@ def init(name, no_env, pyname, pypath, global_packages, env_name, basic, cli, li
             sys.exit(1)
 
     if not no_env:
-        venv_dir = os.path.join(d, 'venv')
+        venv_dir = os.path.join(cwd, 'venv')
         echo_waiting('Creating its own virtual env... ', nl=False)
         create_venv(venv_dir, pypath=pypath, use_global=global_packages)
         echo_success('complete!')

@@ -68,7 +68,7 @@ setup(
         'wheel>=0.27.0'
     ),
     setup_requires=('appdirs', 'atomicwrites'),
-    tests_require=('parse', ),
+    tests_require=('parse', 'toml'),
 
     packages=find_packages(),
     entry_points={

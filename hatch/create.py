@@ -8,6 +8,7 @@ from hatch.files.licenses import (
 )
 from hatch.files.readme import MarkdownReadme, ReStructuredTextReadme
 from hatch.files.setup import SetupFile
+from hatch.files.pyproject import ProjectFile
 from hatch.files.vc import setup_git
 from hatch.settings import DEFAULT_SETTINGS
 from hatch.structures import Badge, File
@@ -40,8 +41,10 @@ def create_package(d, package_name, settings):
     basic = settings.get('basic', DEFAULT_SETTINGS['basic'])
     extra_files = []
 
-    name = settings.get('name') or DEFAULT_SETTINGS['name']
+    author = settings.get('name') or DEFAULT_SETTINGS['name']
+    version = settings.get('version') or '0.0.1'
     email = settings.get('email') or DEFAULT_SETTINGS['email']
+    description = settings.get('description') or ''
     pyversions = sorted(
         settings.get('pyversions') or DEFAULT_SETTINGS['pyversions']
     )
@@ -55,7 +58,7 @@ def create_package(d, package_name, settings):
     )
 
     licenses = [
-        LICENSES[li](name)
+        LICENSES[li](author)
         for li in settings.get('licenses') or DEFAULT_SETTINGS['licenses']
     ]
 
@@ -80,9 +83,11 @@ def create_package(d, package_name, settings):
     )
 
     setup_py = SetupFile(
-        name, email, package_name, pyversions, licenses,
+        author, email, package_name, pyversions, licenses,
         readme, package_url, cli
     )
+    projectfile = ProjectFile(package_name, version, author, email,
+            description, pyversions, licenses, package_url)
 
     coverage_service = settings.get('coverage') if not basic else None
     if coverage_service:
@@ -99,7 +104,7 @@ def create_package(d, package_name, settings):
     package_dir = os.path.join(d, normalized_package_name)
     init_py = File(
         '__init__.py',
-        "__version__ = '0.0.1'\n"
+        "__version__ = '{version}'\n".format(version=version)
     )
     init_py.write(package_dir)
     create_file(os.path.join(d, 'tests', '__init__.py'))
@@ -119,6 +124,7 @@ def create_package(d, package_name, settings):
         main_py.write(package_dir)
 
     setup_py.write(d)
+    projectfile.write(d)
     readme.write(d)
     coveragerc.write(d)
     tox.write(d)
