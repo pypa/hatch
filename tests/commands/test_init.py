@@ -46,14 +46,14 @@ def test_interactive_mode():
         assert os.path.exists(os.path.join(d, 'LICENSE-MPL'))
         assert os.path.exists(os.path.join(d, 'pyproject.toml'))
         pyproject = toml.load('pyproject.toml')
-        source = pyproject['source'][0]
-        assert source['name'] == 'ok'
-        assert source['version'] == '0.1.0'
-        assert source['description'] == 'Test Description'
-        assert source['author'] == 'Picard'
-        assert source['author_email'] == 'picard@startrek.com'
-        assert source['license'] == 'MPL-2.0'
-        assert source['url'] == 'https://github.com/_/ok'
+        metadata = pyproject['metadata']
+        assert metadata['name'] == 'ok'
+        assert metadata['version'] == '0.1.0'
+        assert metadata['description'] == 'Test Description'
+        assert metadata['author'] == 'Picard'
+        assert metadata['author_email'] == 'picard@startrek.com'
+        assert metadata['license'] == 'MPL-2.0'
+        assert metadata['url'] == 'https://github.com/_/ok'
 
 
 def test_invalid_name():
