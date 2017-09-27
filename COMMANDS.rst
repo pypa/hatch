@@ -181,6 +181,9 @@ the config entry ``semver``.
 ``test``
 ^^^^^^^^
 
+.. image:: https://raw.githubusercontent.com/ofek/visuals/master/hatch/commands/test.gif
+    :alt: Example test run
+
 Runs tests using ``pytest``, optionally checking coverage.
 
 The path is derived in the following order:
