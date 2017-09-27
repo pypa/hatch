@@ -11,7 +11,7 @@ from hatch.settings import (
 )
 from hatch.utils import create_file, remove_path, temp_chdir, temp_move_path
 from hatch.venv import VENV_DIR, create_venv, get_new_venv_name, is_venv, venv
-from ..utils import matching_file, wait_until
+from ..utils import matching_file, wait_until, read_file
 
 
 def test_config_not_exist():
@@ -42,7 +42,7 @@ def test_interactive_mode():
         runner.invoke(hatch, ['init', '-i', '--basic', '-ne'], input='ok\n0.1.0\nTest Description\nPicard\npicard@startrek.com\nmpl\n')
 
         assert os.path.exists(os.path.join(d, 'ok', '__init__.py'))
-        assert "__version__ = '0.1.0'\n" == open(os.path.join(d, 'ok', '__init__.py')).read()
+        assert "__version__ = '0.1.0'\n" == read_file(os.path.join(d, 'ok', '__init__.py'))
         assert os.path.exists(os.path.join(d, 'LICENSE-MPL'))
         assert os.path.exists(os.path.join(d, 'pyproject.toml'))
         pyproject = toml.load('pyproject.toml')
