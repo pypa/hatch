@@ -22,8 +22,11 @@ matrix:
 
 install:
   - pip install tox codecov
+  - pip install -e .
 
-script: tox
+script:
+  - hatch conda ~/miniconda
+  - tox
 
 after_success:
   - codecov
