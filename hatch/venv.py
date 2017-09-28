@@ -11,8 +11,8 @@ from hatch.clean import remove_compiled_scripts
 from hatch.exceptions import InvalidVirtualEnv
 from hatch.settings import load_settings
 from hatch.utils import (
-    NEED_SUBPROCESS_SHELL, env_vars, get_proper_python, get_random_venv_name,
-    resolve_path
+    NEED_SUBPROCESS_SHELL, ON_WINDOWS, env_vars, get_proper_python,
+    get_random_venv_name, resolve_path
 )
 
 VENV_DIR_ISOLATED = os.path.join(user_data_dir('hatch', ''), 'venvs')
@@ -164,13 +164,11 @@ def fix_executable(path, exe_dir):
         f.writelines(lines)
 
 
-def locate_exe_dir(d):
-    if os.path.exists(os.path.join(d, 'bin')):  # no cov
-        return os.path.join(d, 'bin')
-    elif os.path.exists(os.path.join(d, 'Scripts')):  # no cov
-        return os.path.join(d, 'Scripts')
-    else:
+def locate_exe_dir(d, check=True):
+    exe_dir = os.path.join(d, 'Scripts') if ON_WINDOWS else os.path.join(d, 'bin')
+    if check and not os.path.isdir(exe_dir):
         raise InvalidVirtualEnv('Unable to locate executables directory.')
+    return exe_dir
 
 
 @contextmanager
