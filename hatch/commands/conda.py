@@ -28,7 +28,7 @@ from hatch.venv import locate_exe_dir
               help='Does nothing but show what would be added to the user PATH.')
 def conda(location, force, head, install_only, show):  # no cov
     """Installs Miniconda https://conda.io/docs/glossary.html#miniconda-glossary"""
-    location = os.path.abspath(location)
+    location = os.path.abspath(os.path.normpath(location))
     exe_dir = locate_exe_dir(location, check=False)
 
     if ON_WINDOWS:
