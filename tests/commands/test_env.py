@@ -38,7 +38,7 @@ def test_failure():
     with temp_chdir() as d:
         runner = CliRunner()
         env_name = get_new_venv_name()
-        result = runner.invoke(hatch, ['env', env_name, '--pypath', d])
+        result = runner.invoke(hatch, ['env', '--pypath', d, env_name])
 
         assert result.exit_code != 0
         assert 'An unexpected failure may have occurred.' in result.output
@@ -56,7 +56,7 @@ def test_pyname():
                 settings = copy_default_settings()
                 settings['pypaths']['python'] = sys.executable
                 save_settings(settings)
-                result = runner.invoke(hatch, ['env', env_name, '-py', 'python'])
+                result = runner.invoke(hatch, ['env', '-py', 'python', env_name])
                 wait_until(is_venv, venv_dir)
                 assert os.path.exists(venv_dir)
         finally:
@@ -71,7 +71,7 @@ def test_pyname_config_not_exist():
         runner = CliRunner()
 
         with temp_move_path(SETTINGS_FILE, d):
-            result = runner.invoke(hatch, ['env', 'name', '-py', 'python'])
+            result = runner.invoke(hatch, ['env', '-py', 'python', 'name'])
 
         assert result.exit_code == 1
         assert 'Unable to locate config file. Try `hatch config --restore`.' in result.output
@@ -83,7 +83,7 @@ def test_pyname_key_not_exist():
 
         with temp_move_path(SETTINGS_FILE, d):
             restore_settings()
-            result = runner.invoke(hatch, ['env', 'name', '-py', 'pyname'])
+            result = runner.invoke(hatch, ['env', '-py', 'pyname', 'name'])
 
         assert result.exit_code == 1
         assert 'Unable to find a Python path named `pyname`.' in result.output
@@ -115,7 +115,7 @@ def test_pypath_not_exist():
         runner = CliRunner()
         fake_path = os.path.join(d, 'python')
 
-        result = runner.invoke(hatch, ['env', 'name', '--pypath', fake_path])
+        result = runner.invoke(hatch, ['env', '--pypath', fake_path, 'name'])
 
         assert result.exit_code == 1
         assert (
@@ -206,7 +206,7 @@ def test_clone_venv_not_exist():
         runner = CliRunner()
 
         env_name = get_new_venv_name()
-        result = runner.invoke(hatch, ['env', env_name, '-c', env_name])
+        result = runner.invoke(hatch, ['env', '-c', env_name, env_name])
 
         assert result.exit_code == 1
         assert 'Virtual env `{name}` does not exist.'.format(name=env_name) in result.output
@@ -227,7 +227,7 @@ def test_clone_success():
             with venv(origin_dir):
                 install_packages(['requests'])
 
-            result = runner.invoke(hatch, ['env', clone, '-c', origin])
+            result = runner.invoke(hatch, ['env', '-c', origin, clone])
             wait_until(is_venv, clone_dir)
             with venv(clone_dir):
                 install_packages(['six'])
