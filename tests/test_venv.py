@@ -5,7 +5,7 @@ import pytest
 from hatch.exceptions import InvalidVirtualEnv
 from hatch.env import get_python_path
 from hatch.structures import File
-from hatch.utils import temp_chdir
+from hatch.utils import ON_WINDOWS, temp_chdir
 from hatch.venv import (
     VENV_DIR, create_venv, fix_executable, get_new_venv_name, is_venv, venv
 )
@@ -27,7 +27,7 @@ def test_get_new_venv_name_multiple():
 
 def test_is_venv():
     with temp_chdir() as d:
-        os.makedirs(os.path.join(d, 'bin'))
+        os.makedirs(os.path.join(d, 'Scripts' if ON_WINDOWS else 'bin'))
         assert is_venv(d)
 
 
