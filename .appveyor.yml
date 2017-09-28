@@ -1,18 +1,18 @@
 environment:
   matrix:
-    - PYTHON: C:\\Python35-x64
-    - PYTHON: C:\\Python36-x64
+    - PYTHON: "C:\\Python35-x64"
+    - PYTHON: "C:\\Python36-x64"
 
 init:
   - set PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%
 
 install:
-  - %PYTHON%\\python.exe -m pip install pytest parse toml
-  - %PYTHON%\\python.exe -m pip install -e .
+  - "%PYTHON%\\python.exe -m pip install pytest parse toml"
+  - "%PYTHON%\\python.exe -m pip install -e ."
 
 build: off
 
 test_script:
-  - %PYTHON%\\python.exe -m hatch conda ~\miniconda
-  - %PYTHON%\\python.exe -m hatch conda --show ~\miniconda
-  - %PYTHON%\\python.exe -m pytest
+  - "%PYTHON%\\python.exe -m hatch conda ~\\miniconda"
+  - "%PYTHON%\\python.exe -m hatch conda --show ~\\miniconda"
+  - "%PYTHON%\\python.exe -m pytest"
