@@ -264,6 +264,10 @@ Important changes are emphasized.
 master
 ^^^^^^
 
+- `Conda <https://conda.io/docs/glossary.html#miniconda-glossary>`_ can now be installed
+  on every platform with a simple ``hatch conda`` \\[^,^]/
+- ``new``/``init`` commands now enter an interactive mode if no project name is specified!
+
 0.19.0
 ^^^^^^
 
