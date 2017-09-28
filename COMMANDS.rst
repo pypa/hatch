@@ -102,6 +102,9 @@ Here is an example using an unmodified config file:
 *-l/--licenses*
     Comma-separated list of licenses to use.
 
+*-i/--interactive*
+    Invokes interactive mode.
+
 ``init``
 ^^^^^^^^
 
@@ -850,3 +853,24 @@ ignore ``hatch``. See: `<https://github.com/pypa/pip/issues/1299>`_
 
 *-q/--quiet*
     Decreases verbosity.
+
+``conda``
+^^^^^^^^^
+
+Installs Miniconda `<https://conda.io/docs/glossary.html#miniconda-glossary>`_
+
+..
+
+    **Options:**
+
+*-f/--force*
+    Proceed through errors and even if Conda is already installed.
+
+*--head/--tail*
+    Adds Conda to the head or tail (default) of the user PATH.
+
+*--install-only*
+    Does not modify the user PATH.
+
+*--show*
+    Does nothing but show what would be added to the user PATH.
