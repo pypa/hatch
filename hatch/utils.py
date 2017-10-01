@@ -49,6 +49,29 @@ def get_admin_command():  # no cov
         return ['sudo', '-H'] + (['--user={}'.format(admin)] if admin else [])
 
 
+def root_path():
+    return os.path.abspath(os.sep)
+
+
+def find_project_root(default=None):
+    cwd = os.getcwd()
+    root = root_path()
+    try:
+        project_toml = Path('project.toml')
+        while not project_toml.exists():
+            os.chdir('..')
+            if os.getcwd() == root:
+                if default is not None:
+                    return Path(default)
+                else:
+                    raise Exception('Unable to find project home. Are you '
+                            'sure you\'re inside a project directory?')
+
+        return Path(os.getcwd())
+    finally:
+        os.chdir(cwd)
+
+
 def is_project(d=None):
     return os.path.isfile(os.path.join(d or os.getcwd(), 'setup.py'))
 
@@ -209,3 +232,46 @@ def temp_move_path(path, d):
             yield
         finally:
             remove_path(path)
+
+def is_setup_managed(setup_file):
+    try:
+        with open(setup_file) as f:
+            contents = f.readlines()
+    except FileNotFoundError:
+        return False
+
+    setup_header = re.compile(r'\#+\sMaintained by Hatch\s\#+')
+    if setup_header.match(contents[1]):
+        return True
+
+    return False
+
+def parse_setup(setup_file):
+    try:
+        with open(setup_file) as f:
+            contents = f.readlines()
+    except FileNotFoundError:
+        raise Exception('setup.py does NOT exist.')
+
+    user_def_start = re.compile(r'\#+\sBEGIN USER OVERRIDES\s\#+')
+    user_def_end = re.compile(r'\#+\sEND USER OVERRIDES\s\#+')
+    user_defined_snippet = []
+    in_user_defined_section = False
+    user_defined_snippet_is_valid = False
+    place_holder_text = ["# Add your customizations in this section."]
+
+    for line in contents:
+        if user_def_start.match(line):
+            in_user_defined_section = True
+            continue
+        if in_user_defined_section:
+            if line.strip() in place_holder_text:
+                continue
+            if user_def_end.match(line):
+                user_defined_snippet_is_valid = True
+                break
+            user_defined_snippet.append(line)
+    if user_defined_snippet_is_valid:
+        return ''.join(user_defined_snippet)
+    else:
+        raise Exception('User-defined section did not end correctly.')
