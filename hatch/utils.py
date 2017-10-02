@@ -5,8 +5,8 @@ import re
 import shutil
 import subprocess
 from base64 import urlsafe_b64encode
-from datetime import datetime
 from contextlib import contextmanager
+from datetime import datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from urllib.request import urlopen
