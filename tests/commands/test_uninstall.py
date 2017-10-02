@@ -3,9 +3,10 @@ import os
 from click.testing import CliRunner
 
 from hatch.cli import hatch
+from hatch.config import get_venv_dir
 from hatch.env import get_installed_packages
 from hatch.utils import env_vars, remove_path, temp_chdir
-from hatch.venv import VENV_DIR, create_venv, get_new_venv_name, is_venv, venv
+from hatch.venv import create_venv, get_new_venv_name, is_venv, venv
 from ..utils import requires_internet, wait_for_os, wait_until
 
 
@@ -144,7 +145,7 @@ def test_env():
         runner = CliRunner()
 
         env_name = get_new_venv_name()
-        venv_dir = os.path.join(VENV_DIR, env_name)
+        venv_dir = os.path.join(get_venv_dir(), env_name)
         create_venv(venv_dir)
 
         try:

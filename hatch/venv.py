@@ -5,34 +5,13 @@ import sys
 from contextlib import contextmanager
 from os.path import isfile
 
-from appdirs import user_data_dir
-
 from hatch.clean import remove_compiled_scripts
+from hatch.config import get_venv_dir
 from hatch.exceptions import InvalidVirtualEnv
-from hatch.settings import load_settings
 from hatch.utils import (
     NEED_SUBPROCESS_SHELL, ON_WINDOWS, env_vars, get_proper_python,
     get_random_venv_name, resolve_path
 )
-
-VENV_DIR_ISOLATED = os.path.join(user_data_dir('hatch', ''), 'venvs')
-VENV_DIR_SHARED = os.path.expanduser('~{}.virtualenvs'.format(os.path.sep))
-VENV_DIR = VENV_DIR_SHARED
-
-
-def set_venv_dir():  # no cov
-    global VENV_DIR
-    venv_dir = os.environ.get('_VENV_DIR_') or load_settings(lazy=True).get('venv_dir')
-    if venv_dir:
-        if venv_dir == 'isolated':
-            VENV_DIR = VENV_DIR_ISOLATED
-        elif venv_dir == 'shared':
-            VENV_DIR = VENV_DIR_SHARED
-        else:
-            VENV_DIR = venv_dir
-    else:
-        VENV_DIR = VENV_DIR_SHARED
-set_venv_dir()
 
 
 def is_venv(d):
@@ -45,13 +24,13 @@ def is_venv(d):
 
 
 def get_new_venv_name(count=1):
-    if not os.path.exists(VENV_DIR):  # no cov
+    if not os.path.exists(get_venv_dir()):  # no cov
         if count == 1:
             return get_random_venv_name()
         else:
             return sorted(get_random_venv_name() for _ in range(count))
 
-    current_venvs = set(p.name for p in os.scandir(VENV_DIR))
+    current_venvs = set(p.name for p in os.scandir(get_venv_dir()))
     new_venvs = set()
 
     while len(new_venvs) < count:
@@ -66,11 +45,11 @@ def get_new_venv_name(count=1):
 def get_available_venvs():
     venvs = []
 
-    if not os.path.exists(VENV_DIR):  # no cov
+    if not os.path.exists(get_venv_dir()):  # no cov
         return venvs
 
-    for name in sorted(os.listdir(VENV_DIR)):
-        venv_dir = os.path.join(VENV_DIR, name)
+    for name in sorted(os.listdir(get_venv_dir())):
+        venv_dir = os.path.join(get_venv_dir(), name)
         if is_venv(venv_dir):
             venvs.append((name, venv_dir))
 
@@ -103,12 +82,12 @@ def fix_venv(d):
 
 
 def fix_available_venvs():
-    if not os.path.exists(VENV_DIR):  # no cov
+    if not os.path.exists(get_venv_dir()):  # no cov
         return
 
-    for name in sorted(os.listdir(VENV_DIR)):
+    for name in sorted(os.listdir(get_venv_dir())):
         try:
-            fix_venv(os.path.join(VENV_DIR, name))
+            fix_venv(os.path.join(get_venv_dir(), name))
         except InvalidVirtualEnv:
             pass
 

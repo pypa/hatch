@@ -5,12 +5,13 @@ import toml
 from click.testing import CliRunner
 
 from hatch.cli import hatch
+from hatch.config import get_venv_dir
 from hatch.env import get_editable_packages, get_python_version
 from hatch.settings import (
     SETTINGS_FILE, copy_default_settings, restore_settings, save_settings
 )
 from hatch.utils import create_file, remove_path, temp_chdir, temp_move_path
-from hatch.venv import VENV_DIR, create_venv, get_new_venv_name, is_venv, venv
+from hatch.venv import create_venv, get_new_venv_name, is_venv, venv
 from ..utils import matching_file, read_file, wait_until
 
 
@@ -110,7 +111,7 @@ def test_pyname():
         runner = CliRunner()
 
         env_name = get_new_venv_name()
-        venv_dir = os.path.join(VENV_DIR, env_name)
+        venv_dir = os.path.join(get_venv_dir(), env_name)
 
         try:
             with temp_move_path(SETTINGS_FILE, d):
@@ -227,8 +228,8 @@ def test_envs():
     with temp_chdir():
         runner = CliRunner()
         env_name1, env_name2 = get_new_venv_name(count=2)
-        venv_dir1 = os.path.join(VENV_DIR, env_name1)
-        venv_dir2 = os.path.join(VENV_DIR, env_name2)
+        venv_dir1 = os.path.join(get_venv_dir(), env_name1)
+        venv_dir2 = os.path.join(get_venv_dir(), env_name2)
         create_venv(venv_dir1)
 
         try:

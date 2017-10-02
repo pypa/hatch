@@ -6,11 +6,12 @@ import click
 from hatch.commands.utils import (
     CONTEXT_SETTINGS, echo_failure, echo_success, echo_waiting, echo_warning
 )
+from hatch.config import get_venv_dir
 from hatch.create import create_package
 from hatch.env import install_packages
 from hatch.settings import copy_default_settings, load_settings
 from hatch.utils import basepath
-from hatch.venv import VENV_DIR, create_venv, venv
+from hatch.venv import create_venv, venv
 
 
 @click.command(context_settings=CONTEXT_SETTINGS,
@@ -138,7 +139,7 @@ def init(name, no_env, pyname, pypath, global_packages, env_name, basic, cli,
             echo_success('complete!')
 
     for vname in venvs:
-        venv_dir = os.path.join(VENV_DIR, vname)
+        venv_dir = os.path.join(get_venv_dir(), vname)
         if not os.path.exists(venv_dir):
             echo_waiting('Creating virtual env `{}`... '.format(vname), nl=False)
             create_venv(venv_dir, pypath=pypath, use_global=global_packages)

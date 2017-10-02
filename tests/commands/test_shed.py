@@ -3,12 +3,13 @@ import os
 from click.testing import CliRunner
 
 from hatch.cli import hatch
+from hatch.config import get_venv_dir
 from hatch.settings import (
     SETTINGS_FILE, copy_default_settings, load_settings, restore_settings,
     save_settings
 )
 from hatch.utils import remove_path, temp_chdir, temp_move_path
-from hatch.venv import VENV_DIR, get_new_venv_name, is_venv
+from hatch.venv import get_new_venv_name, is_venv
 from ..utils import wait_until
 
 
@@ -80,7 +81,7 @@ def test_env():
         runner = CliRunner()
 
         env_name = get_new_venv_name()
-        venv_dir = os.path.join(VENV_DIR, env_name)
+        venv_dir = os.path.join(get_venv_dir(), env_name)
 
         try:
             runner.invoke(hatch, ['env', env_name])
@@ -100,8 +101,8 @@ def test_env_multiple():
         runner = CliRunner()
 
         env_name1, env_name2 = get_new_venv_name(count=2)
-        venv_dir1 = os.path.join(VENV_DIR, env_name1)
-        venv_dir2 = os.path.join(VENV_DIR, env_name2)
+        venv_dir1 = os.path.join(get_venv_dir(), env_name1)
+        venv_dir2 = os.path.join(get_venv_dir(), env_name2)
 
         try:
             runner.invoke(hatch, ['env', env_name1])
@@ -139,7 +140,7 @@ def test_pyname_and_env():
         runner = CliRunner()
 
         env_name = get_new_venv_name()
-        venv_dir = os.path.join(VENV_DIR, env_name)
+        venv_dir = os.path.join(get_venv_dir(), env_name)
 
         try:
             runner.invoke(hatch, ['env', env_name])

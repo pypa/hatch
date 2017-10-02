@@ -4,6 +4,7 @@ import sys
 from click.testing import CliRunner
 
 from hatch.cli import hatch
+from hatch.config import get_venv_dir
 from hatch.env import (
     get_installed_packages, get_python_implementation, get_python_version,
     install_packages
@@ -12,7 +13,7 @@ from hatch.settings import (
     SETTINGS_FILE, copy_default_settings, restore_settings, save_settings
 )
 from hatch.utils import copy_path, remove_path, temp_chdir, temp_move_path
-from hatch.venv import VENV_DIR, create_venv, get_new_venv_name, is_venv, venv
+from hatch.venv import create_venv, get_new_venv_name, is_venv, venv
 from ..utils import requires_internet, wait_until
 
 
@@ -21,7 +22,7 @@ def test_success():
         runner = CliRunner()
 
         env_name = get_new_venv_name()
-        venv_dir = os.path.join(VENV_DIR, env_name)
+        venv_dir = os.path.join(get_venv_dir(), env_name)
 
         try:
             result = runner.invoke(hatch, ['env', env_name])
@@ -49,7 +50,7 @@ def test_pyname():
         runner = CliRunner()
 
         env_name = get_new_venv_name()
-        venv_dir = os.path.join(VENV_DIR, env_name)
+        venv_dir = os.path.join(get_venv_dir(), env_name)
 
         try:
             with temp_move_path(SETTINGS_FILE, d):
@@ -94,7 +95,7 @@ def test_existing_venv():
         runner = CliRunner()
 
         env_name = get_new_venv_name()
-        venv_dir = os.path.join(VENV_DIR, env_name)
+        venv_dir = os.path.join(get_venv_dir(), env_name)
 
         try:
             runner.invoke(hatch, ['env', env_name])
@@ -129,8 +130,8 @@ def test_list_success_1():
         runner = CliRunner()
 
         env_name1, env_name2 = get_new_venv_name(count=2)
-        venv_dir1 = os.path.join(VENV_DIR, env_name1)
-        venv_dir2 = os.path.join(VENV_DIR, env_name2)
+        venv_dir1 = os.path.join(get_venv_dir(), env_name1)
+        venv_dir2 = os.path.join(get_venv_dir(), env_name2)
 
         try:
             runner.invoke(hatch, ['env', env_name1])
@@ -155,7 +156,7 @@ def test_list_success_2():
         runner = CliRunner()
 
         env_name = get_new_venv_name()
-        venv_dir = os.path.join(VENV_DIR, env_name)
+        venv_dir = os.path.join(get_venv_dir(), env_name)
 
         try:
             runner.invoke(hatch, ['env', env_name])
@@ -180,7 +181,7 @@ def test_list_success_3():
         runner.invoke(hatch, ['init', 'ok', '-ne'])
 
         env_name = get_new_venv_name()
-        venv_dir = os.path.join(VENV_DIR, env_name)
+        venv_dir = os.path.join(get_venv_dir(), env_name)
 
         try:
             runner.invoke(hatch, ['env', env_name])
@@ -188,7 +189,7 @@ def test_list_success_3():
             runner.invoke(hatch, ['install', '-l', '-e', env_name])
             result = runner.invoke(hatch, ['env', '-lll'])
         finally:
-            remove_path(os.path.join(VENV_DIR, env_name))
+            remove_path(os.path.join(get_venv_dir(), env_name))
 
         assert result.exit_code == 0
         assert (
@@ -218,8 +219,8 @@ def test_clone_success():
         runner = CliRunner()
 
         origin, clone = get_new_venv_name(count=2)
-        origin_dir = os.path.join(VENV_DIR, origin)
-        clone_dir = os.path.join(VENV_DIR, clone)
+        origin_dir = os.path.join(get_venv_dir(), origin)
+        clone_dir = os.path.join(get_venv_dir(), clone)
 
         try:
             runner.invoke(hatch, ['env', origin])
@@ -250,11 +251,11 @@ def test_restore_success():
 
         env_name, fake_name = get_new_venv_name(count=2)
         venv_origin = os.path.join(d, env_name)
-        venv_dir = os.path.join(VENV_DIR, env_name)
-        fake_venv = os.path.join(VENV_DIR, fake_name)
+        venv_dir = os.path.join(get_venv_dir(), env_name)
+        fake_venv = os.path.join(get_venv_dir(), fake_name)
 
         create_venv(venv_origin)
-        copy_path(venv_origin, VENV_DIR)
+        copy_path(venv_origin, get_venv_dir())
         os.makedirs(fake_venv)
 
         try:

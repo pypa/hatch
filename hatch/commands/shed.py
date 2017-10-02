@@ -6,9 +6,9 @@ import click
 from hatch.commands.utils import (
     CONTEXT_SETTINGS, echo_failure, echo_success, echo_warning
 )
+from hatch.config import get_venv_dir
 from hatch.settings import load_settings, save_settings
 from hatch.utils import remove_path
-from hatch.venv import VENV_DIR
 
 
 @click.command(context_settings=CONTEXT_SETTINGS,
@@ -68,7 +68,7 @@ def shed(ctx, pyname, env_name):
 
     if env_name:
         for env_name in env_name.split('/'):
-            venv_dir = os.path.join(VENV_DIR, env_name)
+            venv_dir = os.path.join(get_venv_dir(), env_name)
             if os.path.exists(venv_dir):
                 remove_path(venv_dir)
                 echo_success('Successfully removed virtual env named `{}`.'.format(env_name))

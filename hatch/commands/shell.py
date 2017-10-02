@@ -8,13 +8,14 @@ import click
 from hatch.commands.utils import (
     UNKNOWN_OPTIONS, echo_failure, echo_info, echo_success, echo_waiting
 )
+from hatch.config import get_venv_dir
 from hatch.env import install_packages
 from hatch.settings import load_settings
 from hatch.shells import run_shell
 from hatch.utils import (
     NEED_SUBPROCESS_SHELL, get_random_venv_name, is_project, resolve_path
 )
-from hatch.venv import VENV_DIR, create_venv, is_venv, venv
+from hatch.venv import create_venv, is_venv, venv
 
 
 @click.command(context_settings=UNKNOWN_OPTIONS,
@@ -172,7 +173,7 @@ def shell(env_name, command, shell_name, temp_env, pyname, pypath, global_packag
         create_venv(venv_dir, pypath=pypath, use_global=global_packages, verbose=True)
     else:
         temp_dir = None
-        venv_dir = venv_dir or os.path.join(VENV_DIR, env_name)
+        venv_dir = venv_dir or os.path.join(get_venv_dir(), env_name)
         if not os.path.exists(venv_dir):
             echo_failure('Virtual env named `{}` does not exist.'.format(env_name))
             sys.exit(1)

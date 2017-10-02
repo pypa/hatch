@@ -8,12 +8,13 @@ from hatch.commands.utils import (
     CONTEXT_SETTINGS, echo_failure, echo_info, echo_success, echo_waiting,
     echo_warning
 )
+from hatch.config import get_venv_dir
 from hatch.env import install_packages
 from hatch.utils import (
     NEED_SUBPROCESS_SHELL, ON_WINDOWS, get_admin_command, get_proper_pip,
     get_requirements_file, is_project, venv_active
 )
-from hatch.venv import VENV_DIR, create_venv, is_venv, venv
+from hatch.venv import create_venv, is_venv, venv
 
 
 @click.command(context_settings=CONTEXT_SETTINGS, short_help='Uninstalls packages')
@@ -71,7 +72,7 @@ def uninstall(packages, no_detect, env_name, global_uninstall, admin, dev, quiet
         packages = ['-y', *packages]
 
     if env_name:
-        venv_dir = os.path.join(VENV_DIR, env_name)
+        venv_dir = os.path.join(get_venv_dir(), env_name)
         if not os.path.exists(venv_dir):
             echo_failure('Virtual env named `{}` does not exist.'.format(env_name))
             sys.exit(1)

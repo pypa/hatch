@@ -6,13 +6,13 @@ import click
 from hatch.commands.utils import (
     CONTEXT_SETTINGS, echo_failure, echo_info, echo_success, echo_waiting
 )
+from hatch.config import get_venv_dir
 from hatch.env import (
     get_editable_packages, get_python_implementation, get_python_version
 )
 from hatch.settings import load_settings
 from hatch.venv import (
-    VENV_DIR, clone_venv, create_venv, fix_available_venvs, get_available_venvs,
-    venv
+    clone_venv, create_venv, fix_available_venvs, get_available_venvs, venv
 )
 
 
@@ -23,7 +23,7 @@ def list_envs(ctx, param, value):
     venvs = get_available_venvs()
 
     if venvs:
-        echo_success('Virtual environments found in `{}`:\n'.format(VENV_DIR))
+        echo_success('Virtual environments found in `{}`:\n'.format(get_venv_dir()))
         for venv_name, venv_dir in venvs:
             with venv(venv_dir):
                 echo_success('{} ->'.format(venv_name))
@@ -41,7 +41,7 @@ def list_envs(ctx, param, value):
     # temporarily for tests as one may be in use.
     else:  # no cov
         echo_failure('No virtual environments found in `{}`. To create '
-                     'one do `hatch env NAME`.'.format(VENV_DIR))
+                     'one do `hatch env NAME`.'.format(get_venv_dir()))
 
     ctx.exit()
 
@@ -71,7 +71,7 @@ def restore_envs(ctx, param, value):
               help=(
                   'Attempts to make all virtual envs in `{}` usable by '
                   'fixing the executable paths in scripts and removing '
-                  'all compiled `*.pyc` files. (Experimental)'.format(VENV_DIR)
+                  'all compiled `*.pyc` files. (Experimental)'.format(get_venv_dir())
               ))
 @click.option('-l', '--list', 'show', count=True, is_eager=True, callback=list_envs,
               help=(
@@ -121,7 +121,7 @@ def env(name, pyname, pypath, global_packages, clone, verbose, restore, show):
             echo_failure('Unable to find a Python path named `{}`.'.format(pyname))
             sys.exit(1)
 
-    venv_dir = os.path.join(VENV_DIR, name)
+    venv_dir = os.path.join(get_venv_dir(), name)
     if os.path.exists(venv_dir):
         echo_failure('Virtual env `{name}` already exists. To remove '
                      'it do `hatch shed -e {name}`.'.format(name=name))
@@ -133,7 +133,7 @@ def env(name, pyname, pypath, global_packages, clone, verbose, restore, show):
         sys.exit(1)
 
     if clone:
-        origin = os.path.join(VENV_DIR, clone)
+        origin = os.path.join(get_venv_dir(), clone)
         if not os.path.exists(origin):
             echo_failure('Virtual env `{name}` does not exist.'.format(name=clone))
             sys.exit(1)

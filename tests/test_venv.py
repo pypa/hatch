@@ -2,23 +2,24 @@ import os
 
 import pytest
 
+from hatch.config import get_venv_dir
 from hatch.exceptions import InvalidVirtualEnv
 from hatch.env import get_python_path
 from hatch.structures import File
 from hatch.utils import ON_WINDOWS, temp_chdir
 from hatch.venv import (
-    VENV_DIR, create_venv, fix_executable, get_new_venv_name, is_venv, venv
+    create_venv, fix_executable, get_new_venv_name, is_venv, venv
 )
 from .utils import read_file
 
 
 def test_get_new_venv_name_single():
-    names = os.listdir(VENV_DIR) if os.path.exists(VENV_DIR) else []
+    names = os.listdir(get_venv_dir()) if os.path.exists(get_venv_dir()) else []
     assert get_new_venv_name() not in names
 
 
 def test_get_new_venv_name_multiple():
-    current_names = os.listdir(VENV_DIR) if os.path.exists(VENV_DIR) else []
+    current_names = os.listdir(get_venv_dir()) if os.path.exists(get_venv_dir()) else []
     new_names = get_new_venv_name(2)
     assert len(new_names) == 2
     assert new_names[0] not in current_names
