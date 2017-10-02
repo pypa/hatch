@@ -42,10 +42,12 @@ def test_missing_name_invokes_interactive_mode():
 def test_interactive_mode():
     with temp_chdir() as d:
         runner = CliRunner()
-        result = runner.invoke(
-            hatch, ['init', '-i', '--basic', '-ne'],
-            input='ok\n0.1.0\nTest Description\nPicard\npicard@startrek.com\nmpl\n'
-        )
+
+        with temp_move_path(SETTINGS_FILE, d):
+            result = runner.invoke(
+                hatch, ['init', '-i', '--basic', '-ne'],
+                input='ok\n0.1.0\nTest Description\nPicard\npicard@startrek.com\nmpl\n'
+            )
 
         assert result.exit_code == 0
         assert os.path.exists(os.path.join(d, 'ok', '__init__.py'))
