@@ -11,8 +11,9 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from urllib.request import urlopen
 
-ON_MACOS = os.name == 'mac' or platform.system() == 'Darwin'
-ON_WINDOWS = NEED_SUBPROCESS_SHELL = os.name == 'nt' or platform.system() == 'Windows'
+__platform = platform.system()
+ON_MACOS = os.name == 'mac' or __platform == 'Darwin'
+ON_WINDOWS = NEED_SUBPROCESS_SHELL = os.name == 'nt' or __platform == 'Windows'
 
 VENV_FLAGS = {
     '_HATCHING_',
