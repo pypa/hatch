@@ -18,9 +18,12 @@ def __get_venv_dir_cache(f):
 
         if not cached or not cached_venv_dir or reset:
             venv_dir = os.environ.get('_VENV_DIR_') or load_settings(lazy=True).get('venv_dir')
-            if venv_dir == 'isolated':  # no cov
-                venv_dir = VENV_DIR_ISOLATED
-            elif venv_dir == 'shared':  # no cov
+            if venv_dir:  # no cov
+                if venv_dir == 'isolated':
+                    venv_dir = VENV_DIR_ISOLATED
+                elif venv_dir == 'shared':
+                    venv_dir = VENV_DIR_SHARED
+            else:  # no cov
                 venv_dir = VENV_DIR_SHARED
 
             cached_venv_dir = venv_dir
