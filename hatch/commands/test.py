@@ -9,11 +9,11 @@ from hatch.commands.utils import (
     CONTEXT_SETTINGS, echo_failure, echo_info, echo_success, echo_waiting
 )
 from hatch.env import get_editable_package_location, install_packages
-from hatch.venv import create_venv, is_venv, venv
 from hatch.utils import (
     NEED_SUBPROCESS_SHELL, chdir, get_proper_python, get_requirements_file,
     is_project, resolve_path, venv_active
 )
+from hatch.venv import create_venv, is_venv, venv
 
 
 @click.command(context_settings=CONTEXT_SETTINGS, short_help='Runs tests')
