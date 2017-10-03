@@ -10,12 +10,11 @@ from hatch.commands.utils import (
     CONTEXT_SETTINGS, echo_failure, echo_info, echo_success, echo_waiting,
     echo_warning
 )
-from hatch.config import get_venv_dir
+from hatch.config import get_proper_pip, get_proper_python, get_venv_dir
 from hatch.env import get_installed_packages, install_packages
 from hatch.utils import (
     NEED_SUBPROCESS_SHELL, ON_WINDOWS, basepath, get_admin_command,
-    get_proper_pip, get_proper_python, get_requirements_file, is_project,
-    venv_active
+    get_requirements_file, is_project, venv_active
 )
 from hatch.venv import create_venv, is_venv, venv
 

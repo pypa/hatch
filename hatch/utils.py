@@ -35,26 +35,6 @@ def get_random_venv_name():
     return urlsafe_b64encode(os.urandom(3)).decode()
 
 
-def get_proper_python():  # no cov
-    if not venv_active():
-        default_python = os.environ.get('_DEFAULT_PYTHON_', None)
-        if default_python:
-            return default_python
-        elif not ON_WINDOWS:
-            return 'python3'
-    return 'python'
-
-
-def get_proper_pip():  # no cov
-    if not venv_active():
-        default_pip = os.environ.get('_DEFAULT_PIP_', None)
-        if default_pip:
-            return default_pip
-        elif not ON_WINDOWS:
-            return 'pip3'
-    return 'pip'
-
-
 def get_admin_command():  # no cov
     if ON_WINDOWS:
         return [

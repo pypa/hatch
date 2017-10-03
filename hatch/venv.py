@@ -6,11 +6,10 @@ from contextlib import contextmanager
 from os.path import isfile
 
 from hatch.clean import remove_compiled_scripts
-from hatch.config import get_venv_dir
+from hatch.config import get_proper_python, get_venv_dir
 from hatch.exceptions import InvalidVirtualEnv
 from hatch.utils import (
-    NEED_SUBPROCESS_SHELL, ON_WINDOWS, env_vars, get_proper_python,
-    get_random_venv_name, resolve_path
+    NEED_SUBPROCESS_SHELL, ON_WINDOWS, env_vars, get_random_venv_name, resolve_path
 )
 
 

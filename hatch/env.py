@@ -1,9 +1,8 @@
 import json
 import subprocess
 
-from hatch.utils import (
-    NEED_SUBPROCESS_SHELL, get_proper_pip, get_proper_python, resolve_path
-)
+from hatch.config import get_proper_pip, get_proper_python
+from hatch.utils import NEED_SUBPROCESS_SHELL, resolve_path
 
 
 def get_python_path():

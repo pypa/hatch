@@ -1,6 +1,7 @@
 import subprocess
 
-from hatch.utils import NEED_SUBPROCESS_SHELL, chdir, get_proper_python
+from hatch.config import get_proper_python
+from hatch.utils import NEED_SUBPROCESS_SHELL, chdir
 
 
 def build_package(d, build_dir, universal=None, name=None,

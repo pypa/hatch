@@ -4,9 +4,30 @@ from functools import wraps
 from appdirs import user_data_dir
 
 from hatch.settings import load_settings
+from hatch.utils import ON_WINDOWS, venv_active
 
 VENV_DIR_ISOLATED = os.path.join(user_data_dir('hatch', ''), 'venvs')
 VENV_DIR_SHARED = os.path.expanduser(os.path.join('~', '.virtualenvs'))
+
+
+def get_proper_python():  # no cov
+    if not venv_active():
+        default_python = os.environ.get('_DEFAULT_PYTHON_', None)
+        if default_python:
+            return default_python
+        elif not ON_WINDOWS:
+            return 'python3'
+    return 'python'
+
+
+def get_proper_pip():  # no cov
+    if not venv_active():
+        default_pip = os.environ.get('_DEFAULT_PIP_', None)
+        if default_pip:
+            return default_pip
+        elif not ON_WINDOWS:
+            return 'pip3'
+    return 'pip'
 
 
 def __get_venv_dir_cache(f):
