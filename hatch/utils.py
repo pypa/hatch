@@ -18,15 +18,15 @@ ON_WINDOWS = NEED_SUBPROCESS_SHELL = os.name == 'nt' or __platform == 'Windows'
 VENV_FLAGS = {
     '_HATCHING_',
     'VIRTUAL_ENV',
-    'CONDA_PREFIX'
+    'CONDA_PREFIX',
 }
 
 
 def venv_active():
-    return bool(VENV_FLAGS & set(os.environ)) and not ignore_venv()
+    return bool(VENV_FLAGS & set(os.environ)) and not venv_ignored()
 
 
-def ignore_venv():
+def venv_ignored():
     return os.environ.get('_IGNORE_VENV_') == '1'
 
 
