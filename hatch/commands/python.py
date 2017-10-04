@@ -11,8 +11,9 @@ from hatch.settings import copy_default_settings, load_settings, save_settings
 from hatch.utils import conda_available
 
 
-@click.command(context_settings=CONTEXT_SETTINGS,
-               short_help='Installs different versions of Python')
+@click.command(context_settings=CONTEXT_SETTINGS, short_help='Manages Python installations')
+@click.argument('name')
+@click.argument('path')
 def python():  # no cov
     if not conda_available():
         echo_failure('Conda is unavailable. You can install it by doing `hatch conda`.')
