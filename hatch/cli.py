@@ -5,6 +5,7 @@ from hatch.commands import (
     python, release, shed, shell, test, uninstall, update
 )
 from hatch.commands.utils import CONTEXT_SETTINGS
+from hatch.project import Project
 
 
 class AliasedGroup(click.Group):  # no cov
@@ -16,8 +17,9 @@ class AliasedGroup(click.Group):  # no cov
 
 @click.group(cls=AliasedGroup, context_settings=CONTEXT_SETTINGS)
 @click.version_option()
-def hatch():
-    pass
+@click.pass_context
+def hatch(ctx):
+    ctx.obj = Project()
 
 
 hatch.add_command(build)

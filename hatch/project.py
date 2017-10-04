@@ -3,12 +3,12 @@ import logging
 from collections import OrderedDict
 from sortedcontainers import SortedDict
 import toml
-from utils import find_project_root, is_setup_managed, parse_setup
+from hatch.utils import find_project_root, is_setup_managed, parse_setup
 
 log = logging.getLogger(__name__)
 
 class Project(object):
-    def __init__(self, filename='project.toml'):
+    def __init__(self, filename='pyproject.toml'):
         project_root = find_project_root(os.getcwd())
         self.project_file = str(project_root / filename)
         self.lock_file = str(project_root / "{}.lock".format(filename))
@@ -29,11 +29,13 @@ class Project(object):
             self.packages = SortedDict(self.raw.get('packages'))
             self.dev_packages = SortedDict(self.raw.get('dev-packages'))
             self.metadata = self.raw.get('metadata')
-            self.commands = SortedDict(self.raw.get('tool.hatch.commands'))
+            self.commands = (self.raw.get('tool') and
+                    self.raw['tool'].get('hatch') and
+                    self.raw['tool']['hatch'].get('commands'))
         except (IOError, ValueError):
             self.packages = SortedDict()
             self.dev_packages = SortedDict()
-            self.metadata = [OrderedDict()]
+            self.metadata = OrderedDict()
             self.commands = SortedDict()
 
     def structure(self):
@@ -41,12 +43,15 @@ class Project(object):
         final['metadata'] = self.metadata
         final['packages'] = self.packages
         final['dev-packages'] = self.dev_packages
-        final['tool.hatch.commands'] = self.commands
-        return final
+        if final.get('tool') is None:
+            final['tool'] = OrderedDict()
+        if final['tool'].get('hatch') is None:
+            final['tool']['hatch'] = OrderedDict()
+        if final['tool']['hatch'].get('commands') is None:
+            final['tool']['hatch']['commands'] = OrderedDict()
 
-    @property
-    def metadata(self):
-        return self.metadata
+        final['tool']['hatch']['commands'] = self.commands
+        return final
 
     @property
     def name(self):
