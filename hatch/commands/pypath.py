@@ -30,8 +30,7 @@ def list_pypaths(ctx, param, value):
     ctx.exit()
 
 
-@click.command(context_settings=CONTEXT_SETTINGS,
-               short_help='Names a Python path or shows available ones')
+@click.command(context_settings=CONTEXT_SETTINGS, short_help='Manages named Python paths')
 @click.argument('name')
 @click.argument('path')
 @click.option('-l', '--list', 'show', is_flag=True, is_eager=True, callback=list_pypaths,
