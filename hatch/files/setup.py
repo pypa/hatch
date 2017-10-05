@@ -41,8 +41,7 @@ kwargs = {{
         'Intended Audience :: Developers',{license_classifiers}
         'Natural Language :: English',
         'Operating System :: OS Independent',{pyversions}
-        'Programming Language :: Python :: Implementation :: CPython',{pypy}
-        ],
+        'Programming Language :: Python :: Implementation :: CPython',{pypy}    ],
     'install_requires': REQUIRES,
     'tests_require': ['coverage', 'pytest'],
     'packages': find_packages(),{entry_point}
@@ -62,7 +61,7 @@ class SetupFile(File):
                  package_url, cli, requires=(), user_overrides=''):
         normalized_package_name = normalize_package_name(package_name)
 
-        pypy = ''
+        pypy = '\n'
         versions = ''
         for pyversion in pyversions:
             if not pyversion.startswith('pypy'):
@@ -70,7 +69,7 @@ class SetupFile(File):
                     pyversion
                 )
             else:
-                pypy = "\n        'Programming Language :: Python :: Implementation :: PyPy',"
+                pypy = "\n        'Programming Language :: Python :: Implementation :: PyPy',\n"
 
         license_classifiers = ''
         for li in licenses:

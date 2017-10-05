@@ -107,9 +107,3 @@ class Project(object):
         with open(self.project_file, 'w') as f:
             toml.dump(self.structure(), f)
             f.write('\n')
-
-
-if __name__ == '__main__':
-    p = Project()
-    s = p.structure()
-    print(toml.dumps(s))
