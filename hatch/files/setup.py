@@ -45,11 +45,10 @@ kwargs = {{
     'install_requires': REQUIRES,
     'tests_require': ['coverage', 'pytest'],
     'packages': find_packages(),{entry_point}
-    }}
+}}
 
 #################### BEGIN USER OVERRIDES ####################
-# Add your customizations in this section.
-{user_overrides}
+# Add your customizations in this section.{user_overrides}
 ###################### END USER OVERRIDES ####################
 
 setup(**kwargs)
@@ -58,7 +57,7 @@ setup(**kwargs)
 
 class SetupFile(File):
     def __init__(self, name, email, package_name, pyversions, licenses, readme,
-                 package_url, cli, requires=(), user_overrides=''):
+                 package_url, cli, requires=None, user_overrides=None):
         normalized_package_name = normalize_package_name(package_name)
 
         pypy = '\n'
@@ -79,7 +78,7 @@ class SetupFile(File):
         if cli:
             entry_point += (
                 '\n'
-                '    entry_points={{\n'
+                "    'entry_points'={{\n"
                 "        'console_scripts': [\n"
                 "            '{pn} = {pnn}.cli:{pnn}',\n"
                 '        ],\n'
@@ -89,6 +88,7 @@ class SetupFile(File):
         # For testing we use https://github.com/r1chardj0n3s/parse and its
         # `parse` function breaks on empty inputs.
         entry_point += '\n'
+        user_overrides = '\n' + (user_overrides or '')
 
         super(SetupFile, self).__init__(
             'setup.py',
@@ -105,6 +105,6 @@ class SetupFile(File):
                 pypy=pypy,
                 entry_point=entry_point,
                 user_overrides=user_overrides,
-                requires=list(requires),
+                requires=requires or [],
             )
         )
