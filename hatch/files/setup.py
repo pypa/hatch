@@ -78,7 +78,7 @@ class SetupFile(File):
         if cli:
             entry_point += (
                 '\n'
-                "    'entry_points'={{\n"
+                "    'entry_points': {{\n"
                 "        'console_scripts': [\n"
                 "            '{pn} = {pnn}.cli:{pnn}',\n"
                 '        ],\n'
