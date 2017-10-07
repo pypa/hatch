@@ -241,17 +241,14 @@ def is_setup_managed(setup_file):
         return False
 
     setup_header = re.compile(r'\#+\sMaintained by Hatch\s\#+')
-    if setup_header.match(contents[1]):
+    if setup_header.match(contents[0]):
         return True
 
     return False
 
 def parse_setup(setup_file):
-    try:
-        with open(setup_file) as f:
-            contents = f.readlines()
-    except FileNotFoundError:
-        raise Exception('setup.py does NOT exist.')
+    with open(setup_file) as f:
+        contents = f.readlines()
 
     user_def_start = re.compile(r'\#+\sBEGIN USER OVERRIDES\s\#+')
     user_def_end = re.compile(r'\#+\sEND USER OVERRIDES\s\#+')

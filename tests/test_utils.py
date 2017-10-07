@@ -1,10 +1,13 @@
 import os
+import pytest
 
 from hatch.utils import (
     chdir, create_file, download_file, get_current_year, get_random_venv_name,
     get_requirements_file, normalize_package_name, remove_path, temp_chdir,
-    temp_move_path
+    temp_move_path, is_setup_managed, parse_setup,
 )
+from hatch.create import create_package
+from hatch.settings import copy_default_settings
 
 
 def test_get_random_venv_name():
@@ -103,3 +106,33 @@ def test_temp_move_path_not_exist():
     with temp_chdir() as d:
         with temp_move_path(os.path.join(d, 'test'), d):
             pass
+
+def test_is_setup_managed():
+    with temp_chdir() as d:
+        settings = copy_default_settings()
+        create_package(d, 'ok', settings)
+
+        assert is_setup_managed(os.path.join(d, 'setup.py')) is True
+        assert is_setup_managed(os.path.join(d, 'pyproject.toml')) is False
+        assert is_setup_managed(os.path.join(d, 'non-existent-file')) is False
+
+
+def test_parse_setup():
+    # pass in a unmanaged file and watch it fumble
+    # pass in a managed file with wrong user section
+    # pass in a managed file and check for user section and everything else
+    # pass in a non-existent file
+    with temp_chdir() as d:
+        settings = copy_default_settings()
+        create_package(d, 'ok', settings)
+
+        assert parse_setup(os.path.join(d, 'setup.py')) == '\n'
+
+        faulty_setup_contents = "########## BEGIN USER OVERRIDES #######\n"
+        with open(os.path.join(d, 'faulty_setup.py'), 'w') as f:
+            f.write(faulty_setup_contents)
+        with pytest.raises(FileNotFoundError):
+            parse_setup(os.path.join(d, 'non-existent-file'))
+        with pytest.raises(Exception, message='User-defined section did not end correctly.'):
+            parse_setup(os.path.join(d, 'pyproject.toml'))
+            parse_setup(os.path.join(d, 'faulty_setup.py'))
