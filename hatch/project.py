@@ -85,10 +85,6 @@ class Project(object):
     def version(self):
         return self.metadata.get('version')
 
-    @property
-    def managed_setup(self):
-        return self.metadata.get('managed_setup')
-
     @version.setter
     def version(self, version):
         self.metadata['version'] = version
@@ -101,7 +97,6 @@ class Project(object):
 
     def write_files(self):
         self.write_project_file()
-        self.write_lock_file()
 
     def write_project_file(self):
         with open(self.project_file, 'w') as f:
