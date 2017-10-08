@@ -20,7 +20,7 @@ class Project(object):
             try:
                 self.setup_user_section = parse_setup(self.setup_file)
             except Exception as e:
-                self.setup_user_section_error = e.message
+                self.setup_user_section_error = str(e)
 
         self.raw = OrderedDict()
         try:

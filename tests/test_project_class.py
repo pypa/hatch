@@ -27,6 +27,16 @@ def test_project_class():
         assert project.version == '0.0.1'
         assert project.packages == SortedDict()
         assert project.commands == {'prerelease': 'hatch build'}
+        assert project.setup_user_section_error is None
+
+        faulty_setup_contents = """\
+#################### Maintained by Hatch ###################
+########### BEGIN USER OVERRIDES #######\n"""
+
+        with open(os.path.join(d, 'setup.py'), 'w') as f:
+            f.write(faulty_setup_contents)
+        new_project = Project(project_file)
+        assert new_project.setup_user_section_error is not None
 
 def test_project_class_empty_file():
     project = Project('non-existent-file')
@@ -50,6 +60,14 @@ def test_project_structure():
     assert 'tool' in project_structure
     assert 'commands' in project_structure['tool']['hatch']
 
+def test_project_user_section_error():
+    project = Project('non-existent-file')
+    project_structure = project.structure()
+    assert 'metadata' in project_structure
+    assert 'packages' in project_structure
+    assert 'dev-packages' in project_structure
+    assert 'tool' in project_structure
+    assert 'commands' in project_structure['tool']['hatch']
 
 def test_project_class_version_setter():
     with temp_chdir() as d:
