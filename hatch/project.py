@@ -36,7 +36,7 @@ class Project(object):
             self.packages = SortedDict()
             self.dev_packages = SortedDict()
             self.metadata = OrderedDict()
-            self.commands = SortedDict()
+            self.commands = OrderedDict()
 
     def structure(self):
         final = self.raw

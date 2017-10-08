@@ -5,7 +5,7 @@ from hatch.settings import copy_default_settings
 from hatch.utils import temp_chdir
 from hatch.project import Project
 from sortedcontainers import SortedDict
-
+from collections import OrderedDict
 
 def test_project_class():
     with temp_chdir() as d:
@@ -27,6 +27,29 @@ def test_project_class():
         assert project.version == '0.0.1'
         assert project.packages == SortedDict()
         assert project.commands == {'prerelease': 'hatch build'}
+
+def test_project_class_empty_file():
+    project = Project('non-existent-file')
+    assert project.name is None
+    assert project.description is None
+    assert project.author is None
+    assert project.author_email is None
+    assert project.user_defined is ''
+    assert project.url is None
+    assert project.license is None
+    assert project.version is None
+    assert project.packages == SortedDict()
+    assert project.commands == OrderedDict()
+
+def test_project_structure():
+    project = Project('non-existent-file')
+    project_structure = project.structure()
+    assert 'metadata' in project_structure
+    assert 'packages' in project_structure
+    assert 'dev-packages' in project_structure
+    assert 'tool' in project_structure
+    assert 'commands' in project_structure['tool']['hatch']
+
 
 def test_project_class_version_setter():
     with temp_chdir() as d:
