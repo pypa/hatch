@@ -9,6 +9,7 @@ from hatch.commands.utils import (
     CONTEXT_SETTINGS, echo_failure, echo_info, echo_success, echo_waiting,
     echo_warning
 )
+from hatch.conda import get_conda_new_exe_path
 from hatch.exceptions import InvalidVirtualEnv
 from hatch.utils import (
     NEED_SUBPROCESS_SHELL, ON_MACOS, ON_WINDOWS, conda_available,
@@ -29,14 +30,7 @@ from hatch.venv import locate_exe_dir
 def conda(location, force, head, install_only, show):  # no cov
     """Installs Miniconda https://conda.io/docs/glossary.html#miniconda-glossary"""
     location = userpath.normpath(location)
-    exe_dir = locate_exe_dir(location, check=False)
-
-    if ON_WINDOWS:
-        new_path = os.pathsep.join((
-            location, exe_dir, os.path.join(location, 'Library', 'bin')
-        ))
-    else:
-        new_path = exe_dir
+    new_path = get_conda_new_exe_path(location)
 
     if show:
         echo_info(new_path)

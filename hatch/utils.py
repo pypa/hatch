@@ -59,11 +59,7 @@ def is_os_64bit():  # no cov
 
 
 def conda_available():  # no cov
-    try:
-        subprocess.run(['conda', '--help'], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    except:
-        return False
-    return True
+    return not not shutil.which('conda')
 
 
 def get_requirements_file(d, dev=False):
