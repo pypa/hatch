@@ -14,5 +14,6 @@ build: off
 
 test_script:
   - "%PYTHON%\\python.exe -m hatch conda ~\\miniconda"
-  - "%PYTHON%\\python.exe -m hatch conda --show ~\\miniconda"
+  - "for /f %i in ('%PYTHON%\\python.exe -m hatch conda --show ~/miniconda') do set PATH=%PATH%;%i"
+  - "echo %PATH%"
   - "%PYTHON%\\python.exe -m pytest"
