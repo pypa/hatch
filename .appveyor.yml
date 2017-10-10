@@ -7,12 +7,12 @@ init:
   - set PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%
 
 install:
-  - "%PYTHON%\\python.exe -m pip install pytest parse toml"
-  - "%PYTHON%\\python.exe -m pip install -e ."
+  - "python -m pip install pytest parse toml"
+  - "python -m pip install -e ."
 
 build: off
 
 test_script:
-  - "%PYTHON%\\python.exe -m hatch conda ~\\miniconda"
+  - "python -m hatch conda ~\\miniconda"
   - "for /f %%i in ('python -m hatch conda --show ~/miniconda') do set PATH=%PATH%;%%i"
-  - "%PYTHON%\\python.exe -m pytest"
+  - "python -m pytest"
