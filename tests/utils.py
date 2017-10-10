@@ -7,6 +7,7 @@ import traceback
 import pytest
 
 from hatch.env import get_package_version
+from hatch.utils import conda_available
 
 
 def print_traceback(exc_info):  # no cov
@@ -59,5 +60,9 @@ def connected_to_internet():  # no cov
         return False
 
 
-requires_internet = pytest.mark.skipif(not connected_to_internet(),
-                                       reason='Not connected to internet')
+requires_conda = pytest.mark.skipif(
+    not conda_available(), reason='Conda is unavailable'
+)
+requires_internet = pytest.mark.skipif(
+    not connected_to_internet(), reason='Not connected to internet'
+)
