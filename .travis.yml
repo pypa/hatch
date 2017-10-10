@@ -27,7 +27,6 @@ install:
 script:
   - hatch conda ~/miniconda
   - export PATH="$PATH:$(hatch conda --show ~/miniconda)"
-  - echo $PATH
   - tox
 
 after_success:
