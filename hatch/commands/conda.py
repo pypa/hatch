@@ -114,6 +114,6 @@ def conda(location, force, head, install_only, show):  # no cov
         else:
             echo_warning(
                 'It appears that we were unable to modify PATH. Please '
-                'do so using the following:', nl=False
+                'do so using the following: ', nl=False
             )
             echo_info(new_path)
