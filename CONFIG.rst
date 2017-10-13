@@ -4,6 +4,14 @@ Configuration
 .. contents:: **Table of Contents**
     :backlinks: none
 
+Python installation location
+----------------------------
+
+You can modify where new Python installations go with the ``_PYTHON_DIR_``
+environment variable or the ``python_dir`` config entry, in that order. You
+can choose ``shared`` (``~/.pythons``), ``isolated``, or a custom
+directory.
+
 Virtual env location
 --------------------
 
@@ -92,6 +100,9 @@ Config file
     - ``cmd``
     - ``tcsh``
     - ``csh``
+
+*python_dir*
+    The directory to create new Python installations in. Also accepts ``shared`` and ``isolated``.
 
 *venv_dir*
     The directory to create and look for virtual envs. Also accepts ``shared`` and ``isolated``.
