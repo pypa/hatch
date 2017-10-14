@@ -7,7 +7,6 @@ TEMPLATE = """\
 # please add your changes near the bottom marked for 'USER OVERRIDES'.
 # EVERYTHING ELSE WILL BE OVERWRITTEN by hatch.
 #############################################################
-
 from io import open
 
 from setuptools import find_packages, setup
