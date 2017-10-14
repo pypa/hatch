@@ -52,7 +52,7 @@ def root_path():
     return os.path.abspath(os.sep)
 
 
-def find_project_root(default=None):
+def find_project_root(default=None):  # no cov
     cwd = os.getcwd()
     root = root_path()
     try:
