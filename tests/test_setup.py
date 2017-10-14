@@ -218,7 +218,7 @@ def test_cli():
 
         assert parsed['entry_point'] == (
             '\n'
-            '    entry_points={\n'
+            "    'entry_points': {\n"
             "        'console_scripts': [\n"
             "            'invalid-name = invalid_name.cli:invalid_name',\n"
             '        ],\n'
