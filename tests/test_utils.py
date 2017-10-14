@@ -1,13 +1,14 @@
 import os
+
 import pytest
 
-from hatch.utils import (
-    chdir, create_file, download_file, get_current_year, get_random_venv_name,
-    get_requirements_file, normalize_package_name, remove_path, temp_chdir,
-    temp_move_path, is_setup_managed, parse_setup,
-)
 from hatch.create import create_package
 from hatch.settings import copy_default_settings
+from hatch.utils import (
+    chdir, create_file, download_file, get_current_year, get_random_venv_name,
+    get_requirements_file, is_setup_managed, normalize_package_name, parse_setup,
+    remove_path, temp_chdir, temp_move_path
+)
 
 
 def test_get_random_venv_name():
@@ -107,6 +108,7 @@ def test_temp_move_path_not_exist():
         with temp_move_path(os.path.join(d, 'test'), d):
             pass
 
+
 def test_is_setup_managed():
     with temp_chdir() as d:
         settings = copy_default_settings()
@@ -128,7 +130,7 @@ def test_parse_setup():
 
         assert parse_setup(os.path.join(d, 'setup.py')) == '\n'
 
-        faulty_setup_contents = "########## BEGIN USER OVERRIDES #######\n"
+        faulty_setup_contents = '########## BEGIN USER OVERRIDES #######\n'
         with open(os.path.join(d, 'faulty_setup.py'), 'w') as f:
             f.write(faulty_setup_contents)
         with pytest.raises(FileNotFoundError):

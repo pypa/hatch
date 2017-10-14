@@ -1,11 +1,13 @@
 import os
+from collections import OrderedDict
+
+from sortedcontainers import SortedDict
 
 from hatch.create import create_package
+from hatch.project import Project
 from hatch.settings import copy_default_settings
 from hatch.utils import temp_chdir
-from hatch.project import Project
-from sortedcontainers import SortedDict
-from collections import OrderedDict
+
 
 def test_project_class():
     with temp_chdir() as d:
@@ -29,14 +31,16 @@ def test_project_class():
         assert project.commands == {'prerelease': 'hatch build'}
         assert project.setup_user_section_error is None
 
-        faulty_setup_contents = """\
-#################### Maintained by Hatch ###################
-########### BEGIN USER OVERRIDES #######\n"""
+        faulty_setup_contents = (
+            '#################### Maintained by Hatch ###################\n'
+            '########### BEGIN USER OVERRIDES #######\n'
+        )
 
         with open(os.path.join(d, 'setup.py'), 'w') as f:
             f.write(faulty_setup_contents)
         new_project = Project(project_file)
         assert new_project.setup_user_section_error is not None
+
 
 def test_project_class_empty_file():
     project = Project('non-existent-file')
@@ -51,6 +55,7 @@ def test_project_class_empty_file():
     assert project.packages == SortedDict()
     assert project.commands == OrderedDict()
 
+
 def test_project_structure():
     project = Project('non-existent-file')
     project_structure = project.structure()
@@ -59,6 +64,7 @@ def test_project_structure():
     assert 'dev-packages' in project_structure
     assert 'tool' in project_structure
     assert 'commands' in project_structure['tool']['hatch']
+
 
 def test_project_user_section_error():
     project = Project('non-existent-file')
@@ -69,6 +75,7 @@ def test_project_user_section_error():
     assert 'tool' in project_structure
     assert 'commands' in project_structure['tool']['hatch']
 
+
 def test_project_class_version_setter():
     with temp_chdir() as d:
         settings = copy_default_settings()
@@ -78,6 +85,7 @@ def test_project_class_version_setter():
         project = Project(project_file)
         project.version = '0.5.0'
         assert project.version == '0.5.0'
+
 
 def test_project_class_add_package():
     with temp_chdir() as d:

@@ -3,7 +3,6 @@ import os
 import platform
 import re
 import shutil
-import subprocess
 from base64 import urlsafe_b64encode
 from contextlib import contextmanager
 from datetime import datetime
@@ -64,8 +63,10 @@ def find_project_root(default=None):
                 if default is not None:
                     return Path(default)
                 else:
-                    raise Exception('Unable to find project home. Are you '
-                            'sure you\'re inside a project directory?')
+                    raise Exception(
+                        'Unable to find project home. Are you sure '
+                        "you're inside a project directory?"
+                    )
 
         return Path(os.getcwd())
     finally:
@@ -233,6 +234,7 @@ def temp_move_path(path, d):
         finally:
             remove_path(path)
 
+
 def is_setup_managed(setup_file):
     try:
         with open(setup_file) as f:
@@ -240,22 +242,23 @@ def is_setup_managed(setup_file):
     except FileNotFoundError:
         return False
 
-    setup_header = re.compile(r'\#+\sMaintained by Hatch\s\#+')
+    setup_header = re.compile(r'#+\sMaintained by Hatch\s#+')
     if setup_header.match(contents[0]):
         return True
 
     return False
 
+
 def parse_setup(setup_file):
     with open(setup_file) as f:
         contents = f.readlines()
 
-    user_def_start = re.compile(r'\#+\sBEGIN USER OVERRIDES\s\#+')
-    user_def_end = re.compile(r'\#+\sEND USER OVERRIDES\s\#+')
+    user_def_start = re.compile(r'#+\sBEGIN USER OVERRIDES\s#+')
+    user_def_end = re.compile(r'#+\sEND USER OVERRIDES\s#+')
     user_defined_snippet = []
     in_user_defined_section = False
     user_defined_snippet_is_valid = False
-    place_holder_text = ["# Add your customizations in this section."]
+    place_holder_text = ['# Add your customizations in this section.']
 
     for line in contents:
         if user_def_start.match(line):
@@ -268,6 +271,7 @@ def parse_setup(setup_file):
                 user_defined_snippet_is_valid = True
                 break
             user_defined_snippet.append(line)
+
     if user_defined_snippet_is_valid:
         return ''.join(user_defined_snippet)
     else:

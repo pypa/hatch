@@ -1,11 +1,11 @@
 import os
-import logging
 from collections import OrderedDict
-from sortedcontainers import SortedDict
+
 import toml
+from sortedcontainers import SortedDict
+
 from hatch.utils import find_project_root, is_setup_managed, parse_setup
 
-log = logging.getLogger(__name__)
 
 class Project(object):
     def __init__(self, filename='pyproject.toml'):
@@ -29,9 +29,11 @@ class Project(object):
             self.packages = SortedDict(self.raw.get('packages'))
             self.dev_packages = SortedDict(self.raw.get('dev-packages'))
             self.metadata = self.raw.get('metadata')
-            self.commands = (self.raw.get('tool') and
-                    self.raw['tool'].get('hatch') and
-                    self.raw['tool']['hatch'].get('commands'))
+            self.commands = (
+                self.raw.get('tool') and
+                self.raw['tool'].get('hatch') and
+                self.raw['tool']['hatch'].get('commands')
+            )
         except (IOError, ValueError):
             self.packages = SortedDict()
             self.dev_packages = SortedDict()

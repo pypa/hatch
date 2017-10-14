@@ -63,14 +63,14 @@ setup(
         'pytest',
         'semver>=2.7.8',
         'setuptools>=36.0.0',
+        'sortedcontainers>=1.5.7',
+        'toml>=0.9.3',
         'twine>=1.9.1',
         'virtualenv',
         'wheel>=0.27.0',
-        'sortedcontainers>=1.5.7',
-        'toml>=0.9.3',
     ),
     setup_requires=('appdirs', 'atomicwrites'),
-    tests_require=('parse',),
+    tests_require=('parse', ),
 
     packages=find_packages(),
     entry_points={
