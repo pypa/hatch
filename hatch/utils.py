@@ -48,10 +48,6 @@ def get_admin_command():  # no cov
         return ['sudo', '-H'] + (['--user={}'.format(admin)] if admin else [])
 
 
-def root_path():
-    return os.path.abspath(os.sep)
-
-
 def find_project_root(d=None, max_depth=3):  # no cov
     path = Path(d or os.getcwd())
     root = path.drive + path.root
