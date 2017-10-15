@@ -52,25 +52,30 @@ def root_path():
     return os.path.abspath(os.sep)
 
 
-def find_project_root(default=None):  # no cov
-    cwd = os.getcwd()
-    root = root_path()
-    try:
-        project_toml = Path('project.toml')
-        while not project_toml.exists():
-            os.chdir('..')
-            if os.getcwd() == root:
-                if default is not None:
-                    return Path(default)
-                else:
-                    raise Exception(
-                        'Unable to find project home. Are you sure '
-                        "you're inside a project directory?"
-                    )
+def find_project_root(d=None, max_depth=3):  # no cov
+    path = Path(d or os.getcwd())
+    root = path.drive + path.root
+    path = str(path)
 
-        return Path(os.getcwd())
-    finally:
-        os.chdir(cwd)
+    while max_depth > 0:
+        project_file = os.path.join(path, 'pyproject.toml')
+        setup_file = os.path.join(path, 'setup.py')
+
+        if os.path.isfile(project_file) or os.path.isfile(setup_file):
+            return path
+        elif path == root:
+            raise Exception(
+                'Unable to find project home. Are you sure '
+                "you're inside a project directory?"
+            )
+
+        max_depth -= 1
+        path = os.path.dirname(path)
+    else:
+        raise Exception(
+            'Unable to find project home. Are you sure '
+            "you're inside a project directory?"
+        )
 
 
 def is_project(d=None):

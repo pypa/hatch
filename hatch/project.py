@@ -9,10 +9,10 @@ from hatch.utils import find_project_root, is_setup_managed, parse_setup
 
 class Project(object):
     def __init__(self, filename='pyproject.toml'):
-        project_root = find_project_root(os.getcwd())
-        self.project_file = str(project_root / filename)
-        self.lock_file = str(project_root / "{}.lock".format(filename))
-        self.setup_file = str(project_root / 'setup.py')
+        project_root = find_project_root()
+        self.project_file = os.path.join(project_root, filename)
+        self.lock_file = os.path.join(project_root, '{}.lock'.format(filename))
+        self.setup_file = os.path.join(project_root, 'setup.py')
         self.setup_is_managed = is_setup_managed(self.setup_file)
         self.setup_user_section_error = None
         self.setup_user_section = ''
@@ -29,12 +29,8 @@ class Project(object):
             self.packages = SortedDict(self.raw.get('packages'))
             self.dev_packages = SortedDict(self.raw.get('dev-packages'))
             self.metadata = self.raw.get('metadata')
-            self.commands = (
-                self.raw.get('tool') and
-                self.raw['tool'].get('hatch') and
-                self.raw['tool']['hatch'].get('commands')
-            )
-        except (IOError, ValueError):
+            self.commands = self.raw.get('tool', {}).get('hatch', {}).get('commands', OrderedDict())
+        except (FileNotFoundError, IOError, ValueError):
             self.packages = SortedDict()
             self.dev_packages = SortedDict()
             self.metadata = OrderedDict()
