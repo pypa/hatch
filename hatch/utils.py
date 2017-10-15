@@ -48,22 +48,20 @@ def get_admin_command():  # no cov
         return ['sudo', '-H'] + (['--user={}'.format(admin)] if admin else [])
 
 
-def find_project_root(d=None, max_depth=3):  # no cov
+def find_project_root(d=None, max_depth=3):
     path = Path(d or os.getcwd())
     root = path.drive + path.root
     path = str(path)
 
-    while max_depth > 0:
+    while max_depth >= 0:
         project_file = os.path.join(path, 'pyproject.toml')
         setup_file = os.path.join(path, 'setup.py')
 
         if os.path.isfile(project_file) or os.path.isfile(setup_file):
             return path
         elif path == root:
-            raise Exception(
-                'Unable to find project home. Are you sure '
-                "you're inside a project directory?"
-            )
+            max_depth = -1
+            continue
 
         max_depth -= 1
         path = os.path.dirname(path)

@@ -5,9 +5,9 @@ import pytest
 from hatch.create import create_package
 from hatch.settings import copy_default_settings
 from hatch.utils import (
-    chdir, create_file, download_file, get_current_year, get_random_venv_name,
-    get_requirements_file, is_setup_managed, normalize_package_name, parse_setup,
-    remove_path, temp_chdir, temp_move_path
+    chdir, create_file, download_file, find_project_root, get_current_year,
+    get_random_venv_name, get_requirements_file, is_setup_managed,
+    normalize_package_name, parse_setup, remove_path, temp_chdir, temp_move_path
 )
 
 
@@ -139,3 +139,36 @@ def test_parse_setup():
             parse_setup(os.path.join(d, 'pyproject.toml'))
         with pytest.raises(Exception, message='User-defined section did not end correctly.'):
             parse_setup(os.path.join(d, 'faulty_setup.py'))
+
+
+class TestFindProjectRoot:
+    def test_cwd_pyproject(self):
+        with temp_chdir() as d:
+            create_file(os.path.join(d, 'pyproject.toml'))
+            assert find_project_root() == d
+
+    def test_cwd_setup(self):
+        with temp_chdir() as d:
+            create_file(os.path.join(d, 'setup.py'))
+            assert find_project_root() == d
+
+    def test_depth(self):
+        with temp_chdir() as d:
+            create_file(os.path.join(d, 'pyproject.toml'))
+            test_dir = os.path.join(d, '2', '1', 'test')
+            os.makedirs(test_dir)
+            assert find_project_root(test_dir) == d
+
+    def test_depth_exceeded(self):
+        with temp_chdir() as d:
+            create_file(os.path.join(d, 'pyproject.toml'))
+            test_dir = os.path.join(d, '3', '2', '1', 'test')
+            os.makedirs(test_dir)
+
+            with pytest.raises(Exception):
+                find_project_root(test_dir)
+
+    def test_at_root(self):
+        with temp_chdir():
+            with pytest.raises(Exception):
+                find_project_root(max_depth=1000)
