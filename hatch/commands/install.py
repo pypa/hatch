@@ -14,6 +14,18 @@ from hatch.utils import (
 )
 from hatch.venv import create_venv, is_venv, venv
 
+def get_installed_version(package):
+    """Run `pip show package_name` and parses the output to determine the
+    version of the package that is currently installed.
+    """
+    command = [get_proper_pip(), 'show', package]
+    r = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL,
+                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    for line in r.stdout.decode().splitlines():
+        if line.startswith('Version'):
+            return line.split(':', 1)[-1].strip()
+
 
 @click.command(context_settings=CONTEXT_SETTINGS, short_help='Installs packages')
 @click.argument('packages', nargs=-1)
@@ -41,7 +53,10 @@ from hatch.venv import create_venv, is_venv, venv
                   'already enabled and therefore sudo/runas will not be used.'
               ))
 @click.option('-q', '--quiet', is_flag=True, help='Decreases verbosity.')
-def install(packages, no_detect, env_name, editable, global_install, admin, quiet):
+@click.option('-s', '--save', is_flag=True, help='Save the package as a dependency.')
+@click.option('-sd', '--save-dev', is_flag=True, help='Save the package as a dependency.')
+def install(packages, no_detect, env_name, editable, global_install, admin,
+            quiet, save, save_dev):
     """If the option --env is supplied, the install will be applied using
     that named virtual env. Unless the option --global is selected, the
     install will only affect the current user. Of course, this will have
