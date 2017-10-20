@@ -13,6 +13,7 @@ from hatch.utils import (
     NEED_SUBPROCESS_SHELL, ON_WINDOWS, get_admin_command, is_project, venv_active
 )
 from hatch.venv import create_venv, is_venv, venv
+from hatch.project import Project
 
 def get_installed_version(package):
     """Run `pip show package_name` and parses the output to determine the
@@ -70,6 +71,7 @@ def install(packages, no_detect, env_name, editable, global_install, admin,
     virtual env before resorting to the default pip. No project detection
     will occur if a virtual env is active.
     """
+    raw_packages = packages
     packages = packages or ['.']
 
     # Windows' `runas` allows only a single argument for the
@@ -90,7 +92,7 @@ def install(packages, no_detect, env_name, editable, global_install, admin,
             command = [get_proper_pip(), 'install', *packages] + (['-q'] if quiet else [])
             echo_waiting('Installing in virtual env `{}`...'.format(env_name))
             result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
-    elif not venv_active() and not no_detect and is_project():
+    elif is_project() and not no_detect:
         venv_dir = os.path.join(os.getcwd(), 'venv')
         if not is_venv(venv_dir):
             echo_info('A project has been detected!')
@@ -127,5 +129,20 @@ def install(packages, no_detect, env_name, editable, global_install, admin,
 
         echo_waiting('Installing...')
         result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
+
+    if save or save_dev:
+        if result.returncode != 0:
+            echo_failure('Packages were NOT updated.')
+            sys.exit(result.returncode)
+        project = Project()
+        if raw_packages is None:
+            raw_packages = project.packages
+        for package in raw_packages:
+            ver = get_installed_version(package)
+            if ver is None:
+                echo_failure('Unable to detect {} in installed pacakges. Skipping!'.format(package))
+                continue
+            project.add_package(package, ver, save_dev)
+            echo_success('Added {} {} to pyproject.toml'.format(package, ver))
 
     sys.exit(result.returncode)
