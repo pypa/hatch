@@ -15,12 +15,18 @@ from hatch.utils import (
 from hatch.venv import create_venv, is_venv, venv
 from hatch.project import Project
 
-def get_installed_version(package):
+def get_installed_version(package, venv_dir=None):
     """Run `pip show package_name` and parses the output to determine the
     version of the package that is currently installed.
     """
-    command = [get_proper_pip(), 'show', package]
-    r = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL,
+    if venv_dir:
+        with venv(venv_dir):
+            command = [get_proper_pip(), 'show', package]
+            r = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL,
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    else:
+        command = [get_proper_pip(), 'show', package]
+        r = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL,
                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     for line in r.stdout.decode().splitlines():
@@ -82,6 +88,8 @@ def install(packages, no_detect, env_name, editable, global_install, admin,
     if editable:
         packages = ['-e', *packages]
 
+    venv_dir = None
+
     if env_name:
         venv_dir = os.path.join(get_venv_dir(), env_name)
         if not os.path.exists(venv_dir):
@@ -130,15 +138,12 @@ def install(packages, no_detect, env_name, editable, global_install, admin,
         echo_waiting('Installing...')
         result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
 
-    if save or save_dev:
-        if result.returncode != 0:
-            echo_failure('Packages were NOT updated.')
-            sys.exit(result.returncode)
+    if is_project() and (save or save_dev):
         project = Project()
         if raw_packages is None:
             raw_packages = project.packages
         for package in raw_packages:
-            ver = get_installed_version(package)
+            ver = get_installed_version(package, venv_dir)
             if ver is None:
                 echo_failure('Unable to detect {} in installed pacakges. Skipping!'.format(package))
                 continue
