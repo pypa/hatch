@@ -77,7 +77,13 @@ def install(packages, no_detect, env_name, editable, global_install, admin,
     virtual env before resorting to the default pip. No project detection
     will occur if a virtual env is active.
     """
-    raw_packages = packages
+    try:
+        project = Project()
+        packages = packages or [*project.packages, *project.dev_packages]
+    except Exception:
+        packages = ()
+
+    immutable_packages = tuple(packages)
     packages = packages or ['.']
 
     # Windows' `runas` allows only a single argument for the
@@ -138,11 +144,8 @@ def install(packages, no_detect, env_name, editable, global_install, admin,
         echo_waiting('Installing...')
         result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
 
-    if is_project() and (save or save_dev):
-        project = Project()
-        if raw_packages is None:
-            raw_packages = project.packages
-        for package in raw_packages:
+    if save or save_dev:
+        for package in immutable_packages:
             ver = get_installed_version(package, venv_dir)
             if ver is None:
                 echo_failure('Unable to detect {} in installed pacakges. Skipping!'.format(package))

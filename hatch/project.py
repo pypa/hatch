@@ -5,11 +5,14 @@ import toml
 from sortedcontainers import SortedDict
 
 from hatch.utils import find_project_root, is_setup_managed, parse_setup
+from hatch.commands.utils import echo_success, echo_failure
+from hatch.files.setup import SetupFile
+from hatch.files.licenses import LICENSES
 
 
 class Project(object):
     def __init__(self, filename='pyproject.toml'):
-        project_root = find_project_root()
+        self.project_root = project_root = find_project_root()
         self.project_file = os.path.join(project_root, filename)
         self.lock_file = os.path.join(project_root, '{}.lock'.format(filename))
         self.setup_file = os.path.join(project_root, 'setup.py')
@@ -30,11 +33,13 @@ class Project(object):
             self.dev_packages = SortedDict(self.raw.get('dev-packages'))
             self.metadata = self.raw.get('metadata')
             self.commands = self.raw.get('tool', {}).get('hatch', {}).get('commands', OrderedDict())
+            self.pyversions = self.raw.get('requires', []).get('python_version', [])
         except (FileNotFoundError, IOError, ValueError):
             self.packages = SortedDict()
             self.dev_packages = SortedDict()
             self.metadata = OrderedDict()
             self.commands = OrderedDict()
+            self.pyversions = []
 
     def structure(self):
         final = self.raw
@@ -68,6 +73,10 @@ class Project(object):
         return self.metadata.get('author_email')
 
     @property
+    def readme(self):
+        return self.metadata.get('readme')
+
+    @property
     def user_defined(self):
         return self.setup_user_section
 
@@ -78,6 +87,10 @@ class Project(object):
     @property
     def license(self):
         return self.metadata.get('license')
+
+    @property
+    def cli(self):
+        return self.metadata.get('cli')
 
     @property
     def version(self):
@@ -94,9 +107,26 @@ class Project(object):
         self.write_files()
 
     def write_files(self):
-        self.write_project_file()
+        if not self.write_project_file():
+            echo_failure('{} was NOT updated.'.format(self.project_file))
+        if not self.write_setup_file():
+            echo_failure('{} was NOT updated.'.format(self.setup_file))
 
     def write_project_file(self):
         with open(self.project_file, 'w') as f:
             toml.dump(self.structure(), f)
             f.write('\n')
+        return True
+
+    def write_setup_file(self):
+        if not self.setup_is_managed:
+            return False
+        try:
+            licenses = [LICENSES[li](self.author) for li in self.license.split('/')]
+            setup = SetupFile(self.author, self.author_email, self.name,
+                    self.pyversions, licenses, self.readme, self.url,
+                    self.cli, list(self.packages), self.user_defined)
+            setup.write(self.project_root)
+            return True
+        except Exception:
+            return False

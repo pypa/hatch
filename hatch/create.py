@@ -3,9 +3,7 @@ import os
 
 from hatch.files.ci import Tox, TravisCI
 from hatch.files.coverage import Codecov, CoverageConfig
-from hatch.files.licenses import (
-    Apache2License, CC0License, MITLicense, MPLLicense
-)
+from hatch.files.licenses import LICENSES
 from hatch.files.pyproject import ProjectFile
 from hatch.files.readme import MarkdownReadme, ReStructuredTextReadme
 from hatch.files.setup import SetupFile
@@ -14,12 +12,6 @@ from hatch.settings import DEFAULT_SETTINGS
 from hatch.structures import Badge, File
 from hatch.utils import copy_path, create_file, normalize_package_name
 
-LICENSES = {
-    'mit': MITLicense,
-    'apache2': Apache2License,
-    'cc0': CC0License,
-    'mpl': MPLLicense,
-}
 README = {
     'rst': ReStructuredTextReadme,
     'md': MarkdownReadme,
@@ -84,11 +76,11 @@ def create_package(d, package_name, settings):
 
     setup_py = SetupFile(
         author, email, package_name, pyversions, licenses,
-        readme, package_url, cli
+        readme.file_name, package_url, cli
     )
     projectfile = ProjectFile(
         package_name, version, author, email, description,
-        pyversions, licenses, package_url
+        pyversions, licenses, readme.file_name, package_url, cli
     )
 
     coverage_service = settings.get('coverage') if not basic else None

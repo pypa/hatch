@@ -9,6 +9,8 @@ author = '{author}'
 author_email = '{author_email}'
 license = '{license}'
 url = '{url}'
+readme = '{readme}'
+cli = {cli}
 
 [requires]
 python_version = {python_version}
@@ -22,7 +24,8 @@ prerelease = 'hatch build'
 
 
 class ProjectFile(File):
-    def __init__(self, name, version, author, email, description, pyversions, licenses, package_url):
+    def __init__(self, name, version, author, email, description, pyversions,
+            licenses, readme, package_url, cli):
         super(ProjectFile, self).__init__(
             'pyproject.toml',
             TEMPLATE.format(
@@ -32,6 +35,8 @@ class ProjectFile(File):
                 author_email=email,
                 description=description,
                 url=package_url,
+                readme=readme,
+                cli='true' if cli else 'false',
                 license='/'.join(li.short_name for li in licenses),
                 python_version=pyversions,
             )

@@ -96,7 +96,7 @@ class SetupFile(File):
                 email=email,
                 package_name=package_name,
                 package_name_normalized=normalized_package_name,
-                readme_file=readme.file_name,
+                readme_file=readme,
                 package_url=package_url,
                 license='/'.join(li.short_name for li in licenses),
                 license_classifiers=license_classifiers,
