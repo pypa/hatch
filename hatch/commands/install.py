@@ -81,7 +81,7 @@ def install(packages, no_detect, env_name, editable, global_install, admin,
         project = Project()
         packages = packages or [*project.packages, *project.dev_packages]
     except Exception:
-        packages = ()
+        packages = packages or ()
 
     immutable_packages = tuple(packages)
     packages = packages or ['.']
@@ -95,7 +95,6 @@ def install(packages, no_detect, env_name, editable, global_install, admin,
         packages = ['-e', *packages]
 
     venv_dir = None
-
     if env_name:
         venv_dir = os.path.join(get_venv_dir(), env_name)
         if not os.path.exists(venv_dir):
