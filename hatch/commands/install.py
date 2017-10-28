@@ -60,31 +60,30 @@ def get_installed_version(package, venv_dir=None):
                   'already enabled and therefore sudo/runas will not be used.'
               ))
 @click.option('-q', '--quiet', is_flag=True, help='Decreases verbosity.')
-@click.option('-s', '--save', is_flag=True, help='Save the package as a dependency.')
-@click.option('-sd', '--save-dev', is_flag=True, help='Save the package as a dependency.')
+@click.option('-na', '--no-add', is_flag=True, help='Do NOT add the package as a dependency.')
+@click.option('-d', '--dev', is_flag=True, help='Add the package as a dev-dependency.')
 def install(packages, no_detect, env_name, editable, global_install, admin,
-            quiet, save, save_dev):
+            quiet, no_add, dev):
     """If the option --env is supplied, the install will be applied using
     that named virtual env. Unless the option --global is selected, the
     install will only affect the current user. Of course, this will have
     no effect if a virtual env is in use. The desired name of the admin
     user can be set with the `_DEFAULT_ADMIN_` environment variable.
 
-    With no packages selected, this will install using a `setup.py` in the
-    current directory.
+    With no packages provided, this will install all the dependencies listed in
+    `pyproject.toml` of the current project.
 
     If no --env is chosen, this will attempt to detect a project and use its
     virtual env before resorting to the default pip. No project detection
     will occur if a virtual env is active.
     """
+    immutable_packages = tuple(packages)
+    project = None
     try:
         project = Project()
-        packages = packages or [*project.packages, *project.dev_packages]
+        packages = packages or [*project.packages, *project.dev_packages] or ['.']
     except Exception:
-        packages = packages or ()
-
-    immutable_packages = tuple(packages)
-    packages = packages or ['.']
+        packages = packages or ['.']
 
     # Windows' `runas` allows only a single argument for the
     # command so we catch this case and turn our command into
@@ -143,13 +142,17 @@ def install(packages, no_detect, env_name, editable, global_install, admin,
         echo_waiting('Installing...')
         result = subprocess.run(command, shell=NEED_SUBPROCESS_SHELL)
 
-    if save or save_dev:
+    if no_add or packages == ['.']:
+        sys.exit(result.returncode)
+
+    if project:
         for package in immutable_packages:
             ver = get_installed_version(package, venv_dir)
             if ver is None:
-                echo_failure('Unable to detect {} in installed pacakges. Skipping!'.format(package))
+                echo_failure('Unable to detect {} in installed pacakges. Skipping!'
+                        .format(package))
                 continue
-            project.add_package(package, ver, save_dev)
+            project.add_package(package, ver, dev)
             echo_success('Added {} {} to pyproject.toml'.format(package, ver))
 
     sys.exit(result.returncode)
