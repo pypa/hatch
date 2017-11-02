@@ -10,7 +10,7 @@ from hatch.commands.utils import (
 )
 from hatch.env import get_editable_package_location
 from hatch.settings import load_settings
-from hatch.utils import resolve_path
+from hatch.utils import basepath, resolve_path
 
 
 @click.command(context_settings=CONTEXT_SETTINGS, short_help='Builds a project')
@@ -99,7 +99,10 @@ def build(package, local, path, pyname, pypath, universal, name, build_dir,
         echo_waiting('Removing build artifacts...')
         clean_package(path, editable=package or local, detect_project=True)
 
-    return_code = build_package(path, build_dir, universal, name, pypath, verbose)
+    # basic handling of https://github.com/pypa/setuptools/issues/1185
+    bd = basepath(build_dir) if build_dir == os.path.join(path, 'dist') else build_dir
+
+    return_code = build_package(path, bd, universal, name, pypath, verbose)
 
     if os.path.isdir(build_dir):
         echo_success('Files found in `{}`:\n'.format(build_dir))
