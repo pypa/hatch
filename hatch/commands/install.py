@@ -52,7 +52,8 @@ def get_installed_version(package, venv_dir=None):
 @click.option('-g', '--global', 'global_install', is_flag=True,
               help=(
                   'Installs globally, rather than on a per-user basis. This '
-                  'has no effect if a virtual env is in use.'
+                  'option is ignored if issued while inside a project folder'
+                  'or while a virtualenv is active.'
               ))
 @click.option('--admin', is_flag=True,
               help=(
