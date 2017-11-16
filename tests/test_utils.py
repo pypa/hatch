@@ -9,6 +9,7 @@ from hatch.utils import (
     get_random_venv_name, get_requirements_file, is_setup_managed,
     normalize_package_name, parse_setup, remove_path, temp_chdir, temp_move_path
 )
+from .utils import requires_internet
 
 
 def test_get_random_venv_name():
@@ -76,6 +77,7 @@ def test_temp_chdir():
     assert not os.path.exists(d)
 
 
+@requires_internet
 def test_download_file():
     with temp_chdir() as d:
         fname = os.path.join(d, 'file.txt')
