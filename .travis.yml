@@ -14,8 +14,10 @@ matrix:
       env: TOXENV=py36
       before_install:
         - brew update
+        - pip uninstall virtualenv || true
         - brew upgrade python
-        - virtualenv env -p python3
+        - pip install -U virtualenv
+        - virtualenv env
         - source env/bin/activate
   allow_failures:
     - os: osx
