@@ -52,7 +52,6 @@ setup(
     ),
 
     install_requires=(
-        'adduserpath>=0.4.0',
         'appdirs',
         'atomicwrites',
         'click',
@@ -66,6 +65,7 @@ setup(
         'sortedcontainers>=1.5.7',
         'toml>=0.9.3',
         'twine>=1.9.1',
+        'userpath>=1.1.0',
         'virtualenv',
         'wheel>=0.27.0',
     ),

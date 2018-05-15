@@ -264,6 +264,8 @@ Important changes are emphasized.
 master
 ^^^^^^
 
+- ``adduserpath`` dependency has claimed/been renamed ``userpath``.
+
 0.20.0
 ^^^^^^
 
