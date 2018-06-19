@@ -14,3 +14,4 @@ Any PGP key fingerprints are enclosed in parentheses.
 - Amjith Ramanujam `@amjithr <https://twitter.com/amjithr>`_
 - Lumír 'Frenzy' Balhar <frenzy.madness@gmail.com> `@lumirbalhar <https://twitter.com/lumirbalhar>`_
 - Philip Blair <philip@pblair.org>
+- Ublimjo <ublimjo@gmail.com> `@Ublimjo <https://github.com/Ublimjo>`_
