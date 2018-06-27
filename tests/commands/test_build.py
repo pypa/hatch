@@ -11,7 +11,7 @@ from hatch.settings import (
 )
 from hatch.utils import create_file, temp_chdir, temp_move_path
 from hatch.venv import create_venv, venv
-from ..utils import matching_file
+from ..utils import matching_file, requires_internet
 
 
 def format_files(d):

@@ -10,7 +10,7 @@ from hatch.settings import (
 )
 from hatch.utils import basepath, temp_chdir, temp_move_path
 from hatch.venv import create_venv, venv
-from ..utils import read_file, wait_for_os
+from ..utils import read_file, wait_for_os, requires_internet
 
 
 def test_invalid_part():

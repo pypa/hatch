@@ -12,7 +12,7 @@ from hatch.settings import (
 )
 from hatch.utils import create_file, remove_path, temp_chdir, temp_move_path
 from hatch.venv import create_venv, get_new_venv_name, is_venv, venv
-from ..utils import matching_file, read_file, wait_until
+from ..utils import matching_file, read_file, wait_until, requires_internet
 
 
 def test_config_not_exist():
