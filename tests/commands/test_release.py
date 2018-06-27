@@ -124,6 +124,7 @@ def test_local_not_exist():
         assert 'There are no local packages available.' in result.output
 
 
+@requires_internet
 def test_local_multiple():
     with temp_chdir() as d:
         runner = CliRunner()
@@ -329,6 +330,7 @@ def test_repository_env_vars():
         assert result.exit_code == 0
 
 
+@requires_internet
 def test_repository_and_test():
     with temp_chdir() as d:
         runner = CliRunner()

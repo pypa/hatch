@@ -173,6 +173,7 @@ def test_compiled_only_project_venv_no_detect():
         assert_files_exist(files)
 
 
+@requires_internet
 def test_package():
     with temp_chdir() as d:
         runner = CliRunner()
@@ -214,6 +215,7 @@ def test_package_not_exist():
         assert '`{}` is not an editable package.'.format('ok') in result.output
 
 
+@requires_internet
 def test_local():
     with temp_chdir() as d:
         runner = CliRunner()
@@ -254,6 +256,7 @@ def test_local_not_exist():
         assert 'There are no local packages available.' in result.output
 
 
+@requires_internet
 def test_local_multiple():
     with temp_chdir() as d:
         runner = CliRunner()

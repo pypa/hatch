@@ -93,6 +93,7 @@ def test_already_exists():
         assert 'Directory `{}` already exists.'.format(d) in result.output
 
 
+@requires_internet
 def test_env():
     with temp_chdir() as d:
         runner = CliRunner()
@@ -226,6 +227,7 @@ def test_extras():
         assert not os.path.exists(os.path.join(d, 'file.py'))
 
 
+@requires_internet
 def test_envs():
     with temp_chdir():
         runner = CliRunner()

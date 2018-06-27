@@ -175,6 +175,7 @@ def test_list_success_2():
         ) in result.output
 
 
+@requires_internet
 def test_list_success_3():
     with temp_chdir():
         runner = CliRunner()
