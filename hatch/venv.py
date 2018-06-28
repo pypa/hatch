@@ -144,8 +144,13 @@ def fix_executable(path, exe_dir):
 
 def locate_exe_dir(d, check=True):
     exe_dir = os.path.join(d, 'Scripts') if ON_WINDOWS else os.path.join(d, 'bin')
-    if check and not os.path.isdir(exe_dir):
-        raise InvalidVirtualEnv('Unable to locate executables directory.')
+    if not os.path.isdir(exe_dir):
+        if ON_WINDOWS:
+            bin_dir = os.path.join(d, 'bin')
+            if os.path.isdir(bin_dir):
+                return bin_dir
+        if check:
+            raise InvalidVirtualEnv('Unable to locate executables directory.')
     return exe_dir
 
 
