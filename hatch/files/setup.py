@@ -43,7 +43,7 @@ kwargs = {{
         'Programming Language :: Python :: Implementation :: CPython',{pypy}    ],
     'install_requires': REQUIRES,
     'tests_require': ['coverage', 'pytest'],
-    'packages': find_packages(),{entry_point}
+    'packages': find_packages(exclude=('tests',)),{entry_point}
 }}
 
 #################### BEGIN USER OVERRIDES ####################

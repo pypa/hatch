@@ -72,7 +72,7 @@ setup(
     setup_requires=('appdirs', 'atomicwrites'),
     tests_require=('parse', ),
 
-    packages=find_packages(),
+    packages=find_packages(exclude=('tests',)),
     entry_points={
         'console_scripts': (
             'hatch = hatch.cli:hatch',
