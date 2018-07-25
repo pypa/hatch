@@ -12,7 +12,7 @@ class File:
         if not os.path.exists(d):
             os.makedirs(d)
 
-        with open(os.path.join(d, self.file_name), self.write_mode) as f:
+        with open(os.path.join(d, self.file_name), self.write_mode, encoding='utf-8') as f:
             f.write(self.contents)
 
 
