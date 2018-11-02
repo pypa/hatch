@@ -254,7 +254,7 @@ Credits
 - `Ned Batchelder <https://twitter.com/nedbat>`_, for his
   `Coverage.py <https://github.com/nedbat/coveragepy>`_ is the unsung heroic tool of the
   Python community. Without it, users would be exposed to more bugs before we are.
-- `Te-jé Rodgers <https://github.com/te-je>`_ for bestowing me the name ``hatch`` on `PyPI`_
+- `Te-jé Rodgers <https://github.com/mr-rodgers>`_ for bestowing me the name ``hatch`` on `PyPI`_
 
 History
 -------
