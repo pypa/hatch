@@ -111,7 +111,7 @@ Config file
     Maps names to an absolute path to a Python executable.
 
 *semver*
-    Maps ``pre`` and ``build`` semver parts to a textual representation.
+    Maps ``pre`` and ``build`` semver parts to a textual representation. The token to use for ``pre`` defaults to ``rc`` (e.g. ``2.18.5-rc.1``) while ``build`` defaults to ``build`` (e.g. ``2.18.4+build.1``). 
 
 *pypi_username*
     The username to use when uploading to PyPI.
