@@ -16,7 +16,7 @@ BUMP = OrderedDict([
     ('pre', semver.bump_prerelease),
     ('build', semver.bump_build)
 ])
-FILE_NAMES = ['__version__.py', '__about__.py', '__init__.py']
+FILE_NAMES = ['__version__.py', '__about__.py', '__init__.py','pyproject.toml']
 
 
 def bump_package_version(d, part='patch', pre_token=None, build_token=None):
@@ -49,12 +49,19 @@ def bump_package_version(d, part='patch', pre_token=None, build_token=None):
                 if os.path.exists(file):
                     version_files.append(file)
 
+    version_bumped = False
+    bumped_files = []
     for version_file in version_files:
         with open(version_file, 'r') as f:
             lines = f.readlines()
+        if version_file.endswith(".py"):
+            version_token = '__version__'
+        else:
+            # toml, etc
+            version_token = 'version'
 
         for i, line in enumerate(lines):
-            if line.startswith('__version__'):
+            if line.startswith(version_token):
                 match = VERSION.search(line)
                 if match:
                     old_version = line.strip().split('=')[1].strip(' \'"')
@@ -68,7 +75,8 @@ def bump_package_version(d, part='patch', pre_token=None, build_token=None):
 
                     with atomic_write(version_file, overwrite=True) as f:
                         f.write(''.join(lines))
-
-                    return version_file, old_version, new_version
-
-    return version_files, None, None
+                    version_bumped = True
+                    bumped_files.append((version_file, old_version, new_version))
+    if version_bumped:
+        return version_bumped, bumped_files
+    return version_bumped, version_files, None, None

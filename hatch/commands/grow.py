@@ -102,18 +102,19 @@ def grow(part, package, local, path, pre_token, build_token):
     pre_token = pre_token or settings.get('semver', {}).get('pre')
     build_token = build_token or settings.get('semver', {}).get('build')
 
-    f, old_version, new_version = bump_package_version(
+    version_bumped, version_files = bump_package_version(
         path, part, pre_token, build_token
     )
 
-    if new_version:
-        echo_success('Updated {}'.format(f))
-        echo_success('{} -> {}'.format(old_version, new_version))
+    if version_bumped:
+        for f, old_version, new_version in version_files:
+            echo_success('Updated {}'.format(f))
+            echo_success('{} -> {}'.format(old_version, new_version))
     else:
-        if f:
+        if version_files:
             echo_failure('Found version files:')
-            for file in f:
-                echo_warning(file)
+            for f, old_version, new_version in version_files:
+                echo_warning(f)
                 echo_failure('\nUnable to find a version specifier.')
             sys.exit(1)
         else:

@@ -54,7 +54,8 @@ def test_package_cwd_about():
         result = runner.invoke(hatch, ['grow', 'minor'])
 
         assert result.exit_code == 0
-        assert read_file(init_file) == "__version__ = '0.0.1'\n"
+        assert read_file(init_file) == "__version__ = '0.1.0'\n"
+        assert 'Updated {}'.format(init_file) in result.output
         assert read_file(about_file) == "__version__ = '0.1.0'\n"
         assert 'Updated {}'.format(about_file) in result.output
         assert '0.0.1 -> 0.1.0' in result.output
@@ -74,8 +75,8 @@ def test_package_cwd_version():
         result = runner.invoke(hatch, ['grow', 'minor'])
 
         assert result.exit_code == 0
-        assert read_file(init_file) == "__version__ = '0.0.1'\n"
-        assert read_file(about_file) == "__version__ = '0.0.1'\n"
+        assert read_file(init_file) == "__version__ = '0.1.0'\n"
+        assert read_file(about_file) == "__version__ = '0.1.0'\n"
         assert read_file(version_file) == "__version__ = '0.1.0'\n"
         assert 'Updated {}'.format(version_file) in result.output
         assert '0.0.1 -> 0.1.0' in result.output
@@ -98,7 +99,7 @@ def test_package_path():
         wait_for_os()
 
         assert result.exit_code == 0
-        assert read_file(priority_file) == "__version__ = '0.0.1'\n"
+        assert read_file(priority_file) == "__version__ = '0.1.0'\n"
         assert read_file(package_file) == "__version__ = '0.1.0'\n"
         assert 'Updated {}'.format(package_file) in result.output
         assert '0.0.1 -> 0.1.0' in result.output
@@ -125,8 +126,8 @@ def test_src_package_path():
         wait_for_os()
 
         assert result.exit_code == 0
-        assert read_file(priority_file) == "__version__ = '0.0.1'\n"
-        assert read_file(package_file) == "__version__ = '0.0.1'\n"
+        assert read_file(priority_file) == "__version__ = '0.1.0'\n"
+        assert read_file(package_file) == "__version__ = '0.1.0'\n"
         assert read_file(src_package_file) == "__version__ = '0.1.0'\n"
         assert 'Updated {}'.format(src_package_file) in result.output
         assert '0.0.1 -> 0.1.0' in result.output
