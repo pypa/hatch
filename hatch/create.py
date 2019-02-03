@@ -144,7 +144,7 @@ def create_package(d, package_name, settings):
         file.write(d)
 
     for p in settings.get('extras', []):
-        for path in glob.iglob(p):
+        for path in glob.iglob(os.path.expanduser(p)):
             copy_path(path, d)
 
     manifest_text = ''
