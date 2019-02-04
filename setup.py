@@ -78,4 +78,5 @@ setup(
             'hatch = hatch.cli:hatch',
         ),
     },
+    package_data={'hatch': ['templates/dot.gitignore']},
 )
