@@ -56,6 +56,9 @@ DEFAULT_SETTINGS = OrderedDict([
             ]),
         ]),
     ])),
+    ('changelog', OrderedDict([
+        ('format', 'md'),
+    ])),
     ('vc', 'git'),
     ('vc_url', 'https://github.com/_'),
     ('ci', ['travis']),

@@ -8,6 +8,7 @@ from hatch.files.licenses import (
 )
 from hatch.files.pyproject import ProjectFile
 from hatch.files.readme import MarkdownReadme, ReStructuredTextReadme
+from hatch.files.changelog import MarkdownChangelog, ReStructuredTextChangelog
 from hatch.files.setup import SetupFile
 from hatch.files.vc import setup_git
 from hatch.settings import DEFAULT_SETTINGS
@@ -23,6 +24,10 @@ LICENSES = {
 README = {
     'rst': ReStructuredTextReadme,
     'md': MarkdownReadme,
+}
+CHANGELOG = {
+    'rst': ReStructuredTextChangelog,
+    'md': MarkdownChangelog,
 }
 VC_SETUP = {
     'git': setup_git,
@@ -57,6 +62,11 @@ def create_package(d, package_name, settings):
         DEFAULT_SETTINGS['readme']['format']
     )
 
+    changelog_format = (
+        settings.get('changelog', {}).get('format') or
+        DEFAULT_SETTINGS['changelog']['format']
+    )
+
     licenses = [
         LICENSES[li](author)
         for li in settings.get('licenses') or DEFAULT_SETTINGS['licenses']
@@ -80,6 +90,10 @@ def create_package(d, package_name, settings):
 
     readme = README[readme_format](
         package_name, pyversions, licenses, badges
+    )
+
+    changelog = CHANGELOG[changelog_format](
+        package_url, version
     )
 
     setup_py = SetupFile(
@@ -128,6 +142,7 @@ def create_package(d, package_name, settings):
     setup_py.write(d)
     projectfile.write(d)
     readme.write(d)
+    changelog.write(d)
     coveragerc.write(d)
     tox.write(d)
 

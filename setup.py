@@ -78,4 +78,7 @@ setup(
             'hatch = hatch.cli:hatch',
         ),
     },
+    package_data={
+        'hatch': ['templates/CHANGELOG.md','templates/CHANGELOG.rst'],
+    },
 )
