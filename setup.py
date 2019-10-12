@@ -22,7 +22,7 @@ setup(
     maintainer='Ofek Lev',
     maintainer_email='ofekmeister@gmail.com',
     url='https://github.com/ofek/hatch',
-    license='MIT/Apache-2.0',
+    license='MIT or Apache-2.0',
 
     keywords=(
         'productivity',
