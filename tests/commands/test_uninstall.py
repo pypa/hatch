@@ -30,6 +30,7 @@ def test_project_no_venv():
         assert 'Uninstalling for this project...' not in result.output
 
 
+@requires_internet
 def test_project_existing_venv():
     with temp_chdir() as d:
         runner = CliRunner()
@@ -59,6 +60,7 @@ def test_project_existing_venv():
         assert 'Uninstalling for this project...' in result.output
 
 
+@requires_internet
 def test_project_not_detected_when_venv_active():
     with temp_chdir() as d:
         runner = CliRunner()

@@ -11,7 +11,7 @@ from hatch.settings import (
 )
 from hatch.utils import create_file, temp_chdir, temp_move_path
 from hatch.venv import create_venv, venv
-from ..utils import matching_file
+from ..utils import matching_file, requires_internet
 
 
 def format_files(d):
@@ -39,6 +39,7 @@ def test_cwd():
         ) in result.output
 
 
+@requires_internet
 def test_package():
     with temp_chdir() as d:
         runner = CliRunner()
@@ -65,6 +66,7 @@ def test_package():
         ) in result.output
 
 
+@requires_internet
 def test_local():
     with temp_chdir() as d:
         runner = CliRunner()
@@ -102,6 +104,7 @@ def test_local_not_exist():
         assert 'There are no local packages available.' in result.output
 
 
+@requires_internet
 def test_local_multiple():
     with temp_chdir() as d:
         runner = CliRunner()

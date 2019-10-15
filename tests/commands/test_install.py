@@ -10,6 +10,7 @@ from hatch.venv import create_venv, get_new_venv_name, is_venv, venv
 from ..utils import requires_internet, wait_for_os, wait_until
 
 
+@requires_internet
 def test_project_no_venv():
     with temp_chdir() as d:
         runner = CliRunner()
@@ -35,6 +36,7 @@ def test_project_no_venv():
         assert 'Installing for this project...' in result.output
 
 
+@requires_internet
 def test_project_existing_venv():
     with temp_chdir() as d:
         runner = CliRunner()
@@ -58,6 +60,7 @@ def test_project_existing_venv():
         assert 'Installing for this project...' in result.output
 
 
+@requires_internet
 def test_project_not_detected_when_venv_active():
     with temp_chdir() as d:
         runner = CliRunner()
@@ -77,6 +80,7 @@ def test_project_not_detected_when_venv_active():
         assert 'Installing...' in result.output
 
 
+@requires_internet
 def test_local():
     with temp_chdir() as d:
         runner = CliRunner()
@@ -93,6 +97,7 @@ def test_local():
         assert result.exit_code == 0
 
 
+@requires_internet
 def test_local_editable():
     with temp_chdir() as d:
         runner = CliRunner()

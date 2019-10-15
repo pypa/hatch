@@ -12,7 +12,7 @@ from hatch.settings import (
 )
 from hatch.utils import create_file, remove_path, temp_chdir, temp_move_path
 from hatch.venv import create_venv, get_new_venv_name, is_venv, venv
-from ..utils import matching_file, read_file, wait_until
+from ..utils import matching_file, read_file, wait_until, requires_internet
 
 
 def test_config_not_exist():
@@ -93,6 +93,7 @@ def test_already_exists():
         assert 'Directory `{}` already exists.'.format(d) in result.output
 
 
+@requires_internet
 def test_env():
     with temp_chdir() as d:
         runner = CliRunner()
@@ -226,6 +227,7 @@ def test_extras():
         assert not os.path.exists(os.path.join(d, 'file.py'))
 
 
+@requires_internet
 def test_envs():
     with temp_chdir():
         runner = CliRunner()

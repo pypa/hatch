@@ -33,6 +33,7 @@ def test_get_installed_packages_no_editable():
             assert 'ok' not in packages
 
 
+@requires_internet
 def test_get_editable_package_location():
     with temp_chdir() as d:
         runner = CliRunner()
