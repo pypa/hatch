@@ -6,6 +6,13 @@ Important changes are emphasized.
 master
 ^^^^^^
 
+0.21.0
+^^^^^^
+
+- ``adduserpath`` dependency has claimed/been renamed ``userpath``.
+- Fixed various build errors
+- Don't require internet for tests
+
 0.20.0
 ^^^^^^
 
