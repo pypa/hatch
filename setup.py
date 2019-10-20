@@ -1,4 +1,4 @@
-from setuptools import find_packages, setup
+from setuptools import setup
 
 with open('hatch/__init__.py', 'r') as f:
     for line in f:
@@ -47,6 +47,8 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy'
     ),
@@ -65,14 +67,12 @@ setup(
         'sortedcontainers>=1.5.7',
         'toml>=0.9.3',
         'twine>=1.9.1',
-        'userpath>=1.1.0',
+        'userpath>=1.3.0',
         'virtualenv',
         'wheel>=0.27.0',
     ),
-    setup_requires=('appdirs', 'atomicwrites'),
-    tests_require=('parse', ),
 
-    packages=find_packages(),
+    packages=['hatch'],
     entry_points={
         'console_scripts': (
             'hatch = hatch.cli:hatch',
