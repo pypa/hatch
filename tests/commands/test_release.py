@@ -12,7 +12,6 @@ from ..utils import requires_internet
 
 PACKAGE_NAME = 'e00f69943529ccc38058'
 USERNAME = 'Ofekmeister'
-ENV_VARS = {'TWINE_PASSWORD': 'badpwbestpw'}
 
 
 @requires_internet
