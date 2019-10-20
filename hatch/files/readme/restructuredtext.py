@@ -3,9 +3,7 @@ from hatch.structures import File
 TEMPLATE = """\
 {title}
 {header_marker}
-{badges}-----
-
-.. contents:: **Table of Contents**
+{badges}.. contents:: **Table of Contents**
     :backlinks: none
 
 Installation
@@ -68,6 +66,8 @@ class ReStructuredTextReadme(File):
         if badges:
             for badge in badges:
                 badge_data += ReStructuredTextReadme.format_badge(badge)
+
+            badge_data += '\n-----\n'
 
         # For testing we use https://github.com/r1chardj0n3s/parse and its
         # `parse` function breaks on empty inputs.
