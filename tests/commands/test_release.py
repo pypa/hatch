@@ -22,8 +22,7 @@ def test_cwd():
         runner.invoke(hatch, ['build'])
         os.chdir(os.path.join(d, 'dist'))
 
-        with env_vars(ENV_VARS):
-            result = runner.invoke(hatch, ['release', '-u', USERNAME, '-t'])
+        result = runner.invoke(hatch, ['release', '-u', USERNAME, '-t'])
 
         assert result.exit_code == 0
 
@@ -39,7 +38,7 @@ def test_username_env():
             settings = copy_default_settings()
             settings['pypi_username'] = ''
             save_settings(settings)
-            extra_env_vars = {'TWINE_USERNAME': USERNAME, **ENV_VARS}
+            extra_env_vars = {'TWINE_USERNAME': USERNAME}
             with env_vars(extra_env_vars):
                 result = runner.invoke(hatch, ['release', '-t'])
 
@@ -52,8 +51,7 @@ def test_cwd_dist_exists():
         runner.invoke(hatch, ['init', PACKAGE_NAME, '--basic', '-ne'])
         runner.invoke(hatch, ['build'])
 
-        with env_vars(ENV_VARS):
-            result = runner.invoke(hatch, ['release', '-u', USERNAME, '-t'])
+        result = runner.invoke(hatch, ['release', '-u', USERNAME, '-t'])
 
         assert result.exit_code == 0
 
@@ -69,7 +67,7 @@ def test_package():
         venv_dir = os.path.join(d, 'venv')
         create_venv(venv_dir)
 
-        with venv(venv_dir, evars=ENV_VARS):
+        with venv(venv_dir):
             os.chdir(package_dir)
             install_packages(['-e', '.'])
             os.chdir(d)
@@ -85,7 +83,7 @@ def test_package_not_exist():
         venv_dir = os.path.join(d, 'venv')
         create_venv(venv_dir)
 
-        with venv(venv_dir, evars=ENV_VARS):
+        with venv(venv_dir):
             result = runner.invoke(hatch, ['release', PACKAGE_NAME, '-u', USERNAME, '-t'])
 
         assert result.exit_code == 1
@@ -103,7 +101,7 @@ def test_local():
         venv_dir = os.path.join(d, 'venv')
         create_venv(venv_dir)
 
-        with venv(venv_dir, evars=ENV_VARS):
+        with venv(venv_dir):
             install_packages(['-e', package_dir])
             result = runner.invoke(hatch, ['release', '-l', '-u', USERNAME, '-t'])
 
@@ -153,8 +151,7 @@ def test_path_relative():
         runner.invoke(hatch, ['init', PACKAGE_NAME, '--basic', '-ne'])
         runner.invoke(hatch, ['build'])
 
-        with env_vars(ENV_VARS):
-            result = runner.invoke(hatch, ['release', '-p', 'dist', '-u', USERNAME, '-t'])
+        result = runner.invoke(hatch, ['release', '-p', 'dist', '-u', USERNAME, '-t'])
 
         print(result.output)
         assert result.exit_code == 0
@@ -170,8 +167,7 @@ def test_path_full():
         build_dir = os.path.join(d, PACKAGE_NAME, 'dist')
 
         os.chdir(os.path.join(d, 'ko'))
-        with env_vars(ENV_VARS):
-            result = runner.invoke(hatch, ['release', '-p', build_dir, '-u', USERNAME, '-t'])
+        result = runner.invoke(hatch, ['release', '-p', build_dir, '-u', USERNAME, '-t'])
 
         assert result.exit_code == 0
 
@@ -199,8 +195,7 @@ def test_config_username():
             settings = copy_default_settings()
             settings['pypi_username'] = USERNAME
             save_settings(settings)
-            with env_vars(ENV_VARS):
-                result = runner.invoke(hatch, ['release', '-p', 'dist', '-t'])
+            result = runner.invoke(hatch, ['release', '-p', 'dist', '-t'])
 
         assert result.exit_code == 0
 
@@ -212,8 +207,7 @@ def test_config_not_exist():
         runner.invoke(hatch, ['build'])
 
         with temp_move_path(SETTINGS_FILE, d):
-            with env_vars(ENV_VARS):
-                result = runner.invoke(hatch, ['release', '-p', 'dist', '-t'])
+            result = runner.invoke(hatch, ['release', '-p', 'dist', '-t'])
 
         assert result.exit_code == 1
         assert 'Unable to locate config file. Try `hatch config --restore`.' in result.output
@@ -229,8 +223,7 @@ def test_config_username_empty():
             settings = copy_default_settings()
             settings['pypi_username'] = ''
             save_settings(settings)
-            with env_vars(ENV_VARS):
-                result = runner.invoke(hatch, ['release', '-p', 'dist', '-t'])
+            result = runner.invoke(hatch, ['release', '-p', 'dist', '-t'])
 
         assert result.exit_code == 1
         assert (
@@ -245,8 +238,7 @@ def test_strict():
         runner.invoke(hatch, ['init', PACKAGE_NAME, '--basic', '-ne'])
         runner.invoke(hatch, ['build'])
 
-        with env_vars(ENV_VARS):
-            result = runner.invoke(hatch, ['release', '-p', 'dist', '-u', USERNAME, '-t', '-s'])
+        result = runner.invoke(hatch, ['release', '-p', 'dist', '-u', USERNAME, '-t', '-s'])
 
         assert result.exit_code == 1
 
@@ -263,7 +255,7 @@ def test_repository_local():
 
         # Make sure there's no configuration
         with temp_move_path(os.path.expanduser("~/.pypirc"), d):
-            with venv(venv_dir, evars=ENV_VARS):
+            with venv(venv_dir):
                 install_packages(['-e', package_dir])
                 # Will error, since there's no configuration parameter for
                 # this URL
@@ -283,7 +275,7 @@ def test_repository_url_local():
         venv_dir = os.path.join(d, 'venv')
         create_venv(venv_dir)
 
-        with venv(venv_dir, evars=ENV_VARS):
+        with venv(venv_dir):
             install_packages(['-e', package_dir])
             result = runner.invoke(hatch, ['release', '-l', '-u', USERNAME,
                                            '--repo-url', TEST_REPOSITORY])
@@ -302,7 +294,7 @@ def test_repository_and_repository_url_local():
         venv_dir = os.path.join(d, 'venv')
         create_venv(venv_dir)
 
-        with venv(venv_dir, evars=ENV_VARS):
+        with venv(venv_dir):
             install_packages(['-e', package_dir])
             result = runner.invoke(hatch, ['release', '-l', '-u', USERNAME,
                                            '--repo', TEST_REPOSITORY,
@@ -321,7 +313,7 @@ def test_repository_env_vars():
         venv_dir = os.path.join(d, 'venv')
         create_venv(venv_dir)
 
-        extra_env_vars = {'TWINE_REPOSITORY': TEST_REPOSITORY, 'TWINE_REPOSITORY_URL': TEST_REPOSITORY, **ENV_VARS}
+        extra_env_vars = {'TWINE_REPOSITORY': TEST_REPOSITORY, 'TWINE_REPOSITORY_URL': TEST_REPOSITORY}
         with venv(venv_dir, evars=extra_env_vars):
             install_packages(['-e', package_dir])
             result = runner.invoke(hatch, ['release', '-l', '-u', USERNAME])
@@ -340,7 +332,7 @@ def test_repository_and_test():
         venv_dir = os.path.join(d, 'venv')
         create_venv(venv_dir)
 
-        with venv(venv_dir, evars=ENV_VARS):
+        with venv(venv_dir):
             install_packages(['-e', package_dir])
             result = runner.invoke(hatch, ['release', '-l', '-u', USERNAME,
                                            '-r', TEST_REPOSITORY,
@@ -349,7 +341,7 @@ def test_repository_and_test():
         assert result.exit_code == 1
         assert "Cannot specify both --test and --repo." in result.output
 
-        with venv(venv_dir, evars=ENV_VARS):
+        with venv(venv_dir):
             result = runner.invoke(hatch, ['release', '-l', '-u', USERNAME,
                                            '--repo-url', TEST_REPOSITORY,
                                            '-t'])
@@ -357,7 +349,7 @@ def test_repository_and_test():
         assert result.exit_code == 1
         assert "Cannot specify both --test and --repo-url." in result.output
 
-        with venv(venv_dir, evars=ENV_VARS):
+        with venv(venv_dir):
             result = runner.invoke(hatch, ['release', '-l', '-u', USERNAME,
                                            '-r', TEST_REPOSITORY,
                                            '-ru', TEST_REPOSITORY,
