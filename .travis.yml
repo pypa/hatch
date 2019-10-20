@@ -16,7 +16,7 @@ matrix:
         - brew update
         - pip uninstall virtualenv || true
         - brew upgrade python
-        - pip install -U virtualenv
+        - pip3 install -U virtualenv
         - virtualenv env
         - source env/bin/activate
   allow_failures:
