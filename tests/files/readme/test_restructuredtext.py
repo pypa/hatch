@@ -179,6 +179,7 @@ def test_badges_single():
             '.. image:: https://img.shields.io/pypi/v/ok.svg\n'
             '    :target: https://pypi.org/project/ok\n'
             '    :alt: Latest PyPI version\n'
+            '\n-----\n'
             '\n'
         )
 
@@ -213,6 +214,7 @@ def test_badges_multiple():
             '.. image:: https://img.shields.io/pypi/l/ok.svg\n'
             '    :target: https://choosealicense.com/licenses\n'
             '    :alt: License\n'
+            '\n-----\n'
             '\n'
         )
 
@@ -249,5 +251,6 @@ def test_badges_params():
             '.. image:: https://img.shields.io/pypi/l/ok.svg?style=flat-square\n'
             '    :target: https://choosealicense.com/licenses\n'
             '    :alt: License\n'
+            '\n-----\n'
             '\n'
         )
