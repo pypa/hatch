@@ -137,9 +137,9 @@ def test_parse_setup():
             f.write(faulty_setup_contents)
         with pytest.raises(FileNotFoundError):
             parse_setup(os.path.join(d, 'non-existent-file'))
-        with pytest.raises(Exception, message='User-defined section did not end correctly.'):
+        with pytest.raises(Exception, match='User-defined section did not end correctly\\.'):
             parse_setup(os.path.join(d, 'pyproject.toml'))
-        with pytest.raises(Exception, message='User-defined section did not end correctly.'):
+        with pytest.raises(Exception, match='User-defined section did not end correctly\\.'):
             parse_setup(os.path.join(d, 'faulty_setup.py'))
 
 
