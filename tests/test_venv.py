@@ -115,7 +115,7 @@ class TestFixExecutable:
                 'from pip import main\n'
                 '\n'
                 "if __name__ == '__main__':\n"
-                "    sys.argv[0] = re.sub(r'(-script\.pyw?|\.exe)?$', '', sys.argv[0])\n"
+                "    sys.argv[0] = re.sub(r'(-script\\.pyw?|\\.exe)?$', '', sys.argv[0])\n"
                 '    sys.exit(main())\n'
             ).write(d)
             new_path = os.path.join('some', 'place', 'without', 'spaces')
@@ -132,7 +132,7 @@ class TestFixExecutable:
                 'from pip import main\n'
                 '\n'
                 "if __name__ == '__main__':\n"
-                "    sys.argv[0] = re.sub(r'(-script\.pyw?|\.exe)?$', '', sys.argv[0])\n"
+                "    sys.argv[0] = re.sub(r'(-script\\.pyw?|\\.exe)?$', '', sys.argv[0])\n"
                 '    sys.exit(main())\n'.format(new_path + os.path.sep)
             )
 
@@ -150,7 +150,7 @@ class TestFixExecutable:
                 'from pip import main\n'
                 '\n'
                 "if __name__ == '__main__':\n"
-                "    sys.argv[0] = re.sub(r'(-script\.pyw?|\.exe)?$', '', sys.argv[0])\n"
+                "    sys.argv[0] = re.sub(r'(-script\\.pyw?|\\.exe)?$', '', sys.argv[0])\n"
                 '    sys.exit(main())\n'
             ).write(d)
             new_path = os.path.join('some', 'place', 'without', 'spaces')
@@ -167,7 +167,7 @@ class TestFixExecutable:
                 'from pip import main\n'
                 '\n'
                 "if __name__ == '__main__':\n"
-                "    sys.argv[0] = re.sub(r'(-script\.pyw?|\.exe)?$', '', sys.argv[0])\n"
+                "    sys.argv[0] = re.sub(r'(-script\\.pyw?|\\.exe)?$', '', sys.argv[0])\n"
                 '    sys.exit(main())\n'.format(new_path + os.path.sep)
             )
 
@@ -185,7 +185,7 @@ class TestFixExecutable:
                 'from pip import main\n'
                 '\n'
                 "if __name__ == '__main__':\n"
-                "    sys.argv[0] = re.sub(r'(-script\.pyw?|\.exe)?$', '', sys.argv[0])\n"
+                "    sys.argv[0] = re.sub(r'(-script\\.pyw?|\\.exe)?$', '', sys.argv[0])\n"
                 '    sys.exit(main())\n'
             ).write(d)
             new_path = os.path.join('some', 'place', 'with spaces')
@@ -202,7 +202,7 @@ class TestFixExecutable:
                 'from pip import main\n'
                 '\n'
                 "if __name__ == '__main__':\n"
-                "    sys.argv[0] = re.sub(r'(-script\.pyw?|\.exe)?$', '', sys.argv[0])\n"
+                "    sys.argv[0] = re.sub(r'(-script\\.pyw?|\\.exe)?$', '', sys.argv[0])\n"
                 '    sys.exit(main())\n'.format(new_path + os.path.sep)
             )
 
@@ -220,7 +220,7 @@ class TestFixExecutable:
                 'from pip import main\n'
                 '\n'
                 "if __name__ == '__main__':\n"
-                "    sys.argv[0] = re.sub(r'(-script\.pyw?|\.exe)?$', '', sys.argv[0])\n"
+                "    sys.argv[0] = re.sub(r'(-script\\.pyw?|\\.exe)?$', '', sys.argv[0])\n"
                 '    sys.exit(main())\n'
             ).write(d)
             new_path = os.path.join('some', 'place', 'with spaces')
@@ -237,6 +237,6 @@ class TestFixExecutable:
                 'from pip import main\n'
                 '\n'
                 "if __name__ == '__main__':\n"
-                "    sys.argv[0] = re.sub(r'(-script\.pyw?|\.exe)?$', '', sys.argv[0])\n"
+                "    sys.argv[0] = re.sub(r'(-script\\.pyw?|\\.exe)?$', '', sys.argv[0])\n"
                 '    sys.exit(main())\n'.format(new_path + os.path.sep)
             )
