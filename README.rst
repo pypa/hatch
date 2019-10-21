@@ -264,6 +264,11 @@ Important changes are emphasized.
 master
 ^^^^^^
 
+0.23.0
+^^^^^^
+
+- Fixed wheel packaging
+
 0.22.0
 ^^^^^^
 
