@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import find_packages, setup
 
 with open('hatch/__init__.py', 'r') as f:
     for line in f:
@@ -72,7 +72,7 @@ setup(
         'wheel>=0.27.0',
     ),
 
-    packages=['hatch'],
+    packages=find_packages(include=['hatch', 'hatch.*']),
     entry_points={
         'console_scripts': (
             'hatch = hatch.cli:hatch',
