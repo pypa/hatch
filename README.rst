@@ -264,10 +264,16 @@ Important changes are emphasized.
 master
 ^^^^^^
 
+0.22.0
+^^^^^^
+
+- Upgrade ``userpath`` dependency
+- Fixed shipped test suite
+
 0.21.0
 ^^^^^^
 
-- ``adduserpath`` dependency has claimed/been renamed ``userpath``.
+- ``adduserpath`` dependency has claimed/been renamed ``userpath``
 - Fixed various build errors
 - Don't require internet for tests
 
