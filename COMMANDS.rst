@@ -857,7 +857,8 @@ ignore ``hatch``. See: `<https://github.com/pypa/pip/issues/1299>`_
 ``conda``
 ^^^^^^^^^
 
-Installs Miniconda `<https://conda.io/docs/glossary.html#miniconda-glossary>`_
+Installs Miniconda
+`<https://conda.io/projects/conda/en/latest/glossary.html#miniconda>`_
 
 ..
 
