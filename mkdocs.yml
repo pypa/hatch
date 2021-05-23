@@ -1,0 +1,171 @@
+site_name: Hatch
+site_description: Modern, extensible Python project management
+site_author: Ofek Lev
+site_url: https://ofek.dev/hatch/latest/
+repo_name: ofek/hatch
+repo_url: https://github.com/ofek/hatch
+# https://github.com/squidfunk/mkdocs-material/issues/3394
+# edit_uri: blob/master/docs
+edit_uri: ''
+copyright: 'Copyright &copy; Ofek Lev 2017-present'
+
+docs_dir: docs
+site_dir: site
+theme:
+  name: material
+  language: en
+  favicon: assets/images/favicon.ico
+  icon:
+    repo: fontawesome/brands/github-alt
+    # best approximation of an egg hatching
+    logo: material/egg-easter
+  font:
+    text: Roboto
+    code: Roboto Mono
+  palette:
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-night
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to dark mode
+  features:
+    - navigation.tabs
+
+nav:
+  - Home:
+    - About: index.md
+    - Installation: install.md
+    - Introduction: intro.md
+    - Environments: environment.md
+    - Versioning: version.md
+    - Builds: build.md
+    - Publishing: publish.md
+    - Next steps: next-steps.md
+  - Configuration:
+    - Metadata: config/metadata.md
+    - Dependencies: config/dependency.md
+    - Build: config/build.md
+    - Environments: config/environment.md
+    - Project templates: config/project-templates.md
+    - Hatch: config/hatch.md
+  - CLI:
+    - About: cli/about.md
+    - Reference: cli/reference.md
+  - Plugins:
+    - About: plugins/about.md
+    - Builder: plugins/builder.md
+    - Build hook: plugins/build-hook.md
+    - Metadata hook: plugins/metadata-hook.md
+    - Environment: plugins/environment.md
+    - Environment collector: plugins/environment-collector.md
+    - Publisher: plugins/publisher.md
+    - Version source: plugins/version-source.md
+    - Version scheme: plugins/version-scheme.md
+    - Utilities: plugins/utilities.md
+  - Meta:
+    - History: meta/history.md
+    - FAQ: meta/faq.md
+    - Authors: meta/authors.md
+
+plugins:
+  # Built-in
+  - search:
+  # Extra
+  - minify:
+      minify_html: true
+  - git-revision-date-localized:
+      type: date
+  - mike:
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          rendering:
+            show_if_no_docstring: true
+            show_root_heading: true
+            show_root_full_path: false
+            show_signature_annotations: true
+            show_source: true
+      watch:
+        - backend/hatchling
+        - hatch
+
+markdown_extensions:
+  # Built-in
+  - markdown.extensions.abbr:
+  - markdown.extensions.admonition:
+  - markdown.extensions.attr_list:
+  - markdown.extensions.footnotes:
+  - markdown.extensions.meta:
+  - markdown.extensions.tables:
+  - markdown.extensions.toc:
+      permalink: true
+  # Extra
+  - mkdocs-click:
+  - mkpatcher:
+      location: docs/.scripts
+  - pymdownx.arithmatex:
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret:
+  - pymdownx.critic:
+  - pymdownx.details:
+  - pymdownx.emoji:
+      # https://github.com/twitter/twemoji
+      # https://raw.githubusercontent.com/facelessuser/pymdown-extensions/master/pymdownx/twemoji_db.py
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+  - pymdownx.highlight:
+      guess_lang: false
+      linenums_style: pymdownx-inline
+      use_pygments: true
+  - pymdownx.inlinehilite:
+  - pymdownx.keys:
+  - pymdownx.magiclink:
+      repo_url_shortener: true
+      repo_url_shorthand: true
+      social_url_shortener: true
+      social_url_shorthand: true
+      normalize_issue_symbols: true
+      provider: github
+      user: ofek
+      repo: hatch
+  - pymdownx.mark:
+  - pymdownx.progressbar:
+  - pymdownx.saneheaders:
+  - pymdownx.smartsymbols:
+  - pymdownx.snippets:
+      check_paths: true
+      base_path:
+        - docs/.snippets
+  - pymdownx.superfences:
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde:
+
+extra:
+  version:
+    provider: mike
+  social:
+    - icon: fontawesome/brands/github-alt
+      link: https://github.com/ofek
+    - icon: fontawesome/solid/blog
+      link: https://ofek.dev/words/
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/Ofekmeister
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/in/ofeklev/
+extra_css:
+  - assets/css/custom.css
+  - https://cdn.jsdelivr.net/gh/tonsky/FiraCode@5.2/distr/fira_code.css

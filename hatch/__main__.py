@@ -1,3 +1,6 @@
 import sys
-from hatch.cli import hatch
-sys.exit(hatch())
+
+if __name__ == '__main__':
+    from .cli import main
+
+    sys.exit(main())

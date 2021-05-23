@@ -1,0 +1,4 @@
+[build-system]
+requires = []
+build-backend = 'hatchling.ouroboros'
+backend-path = '.'

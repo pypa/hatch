@@ -1,0 +1,79 @@
+name: release docs
+
+on:
+  create:
+    tags:
+    - hatch-*
+
+concurrency:
+  group: docs-deploy
+
+env:
+  FORCE_COLOR: "1"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        # Fetch all history for applying timestamps to every page
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
+
+    - name: Ensure latest pip
+      run: python -m pip install --upgrade pip
+
+    - name: Install ourself
+      run: pip install -e .
+
+    - name: Display full version
+      run: hatch version
+
+    - name: Set the version of docs to publish
+      run: python -c "import os,subprocess;v=subprocess.check_output(['hatch', 'version'], text=True);v='.'.join(v.split('.')[:2]);open(os.environ['GITHUB_ENV'], 'a').write(f'HATCH_DOCS_VERSION={v}\n')"
+
+    - name: Configure Git for GitHub Actions bot
+      run: |
+        git config --local user.name 'github-actions[bot]'
+        git config --local user.email 'github-actions[bot]@users.noreply.github.com'
+
+    - name: Deploy documentation
+      run: hatch run docs:ci-build $HATCH_DOCS_VERSION latest
+
+    - name: Create archive
+      run: git archive -o site.zip gh-pages
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: documentation
+        path: site.zip
+
+  publish:
+    runs-on: ubuntu-latest
+    needs:
+    - build
+
+    steps:
+    - uses: actions/download-artifact@v2
+      with:
+        name: documentation
+
+    - name: Unpack archive
+      run: python -m zipfile -e site.zip site
+
+    - uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: site
+        commit_message: ${{ github.event.head_commit.message }}
+        # Write .nojekyll at the root, see:
+        # https://help.github.com/en/github/working-with-github-pages/about-github-pages#static-site-generators
+        enable_jekyll: false
+        # Only deploy if there were changes
+        allow_empty_commit: false
