@@ -15,19 +15,19 @@
 <span class=s>&quot;docs/&quot;</span><span class=p>,</span>
 <span class=p>]</span>
 </code></pre></div> </div> </div> </div> <h2 id=building>Building<a class=headerlink href=#building title="Permanent link">&para;</a></h2> <p>Invoking the <a href=../cli/reference/#hatch-build><code>build</code></a> command without any arguments will build all defined targets, each in an isolated environment:</p> <div class=highlight><pre><span></span><code><span class=gp>$ </span>hatch build
-<span class=go>Setting up build environment...</span>
+<span class=go>Setting up build environment</span>
 <span class=go>[sdist]</span>
 <span class=go>dist/hatch_demo-1rc0.tar.gz</span>
 
-<span class=go>Setting up build environment...</span>
+<span class=go>Setting up build environment</span>
 <span class=go>[wheel]</span>
 <span class=go>dist/hatch_demo-1rc0-py3-none-any.whl</span>
 </code></pre></div> <p>To only build specific targets, use the <code>-t</code>/<code>--target</code> option:</p> <div class=highlight><pre><span></span><code><span class=gp>$ </span>hatch build -t wheel
-<span class=go>Setting up build environment...</span>
+<span class=go>Setting up build environment</span>
 <span class=go>[wheel]</span>
 <span class=go>dist/hatch_demo-1rc0-py3-none-any.whl</span>
 </code></pre></div> <p>If the target supports multiple <a href=../config/build/#versions>versions</a>, you can specify the exact versions to build by appending a colon followed by the desired versions separated by commas:</p> <div class=highlight><pre><span></span><code><span class=gp>$ </span>hatch -v build -t wheel:standard
-<span class=go>Setting up build environment...</span>
+<span class=go>Setting up build environment</span>
 <span class=go>...</span>
 <span class=go>[wheel]</span>
 <span class=go>Building `wheel` version `standard`</span>
