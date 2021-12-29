@@ -1,0 +1,8 @@
+[PEP 440 version specifiers]: https://www.python.org/dev/peps/pep-0440/#version-specifiers
+[PEP 508]: https://www.python.org/dev/peps/pep-0508/
+[PEP 517]: https://www.python.org/dev/peps/pep-0517/
+[PEP 621]: https://www.python.org/dev/peps/pep-0621/
+[PEP 631]: https://www.python.org/dev/peps/pep-0631/
+[PEP 639]: https://www.python.org/dev/peps/pep-0639/
+[PEP 660]: https://www.python.org/dev/peps/pep-0660/
+[PEP 665]: https://www.python.org/dev/peps/pep-0665/

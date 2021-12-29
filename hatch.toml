@@ -1,0 +1,81 @@
+[envs.default]
+dependencies = [
+  "coverage[toml]>=6.2",
+  "pytest",
+  "pytest-cov",
+  "pytest-mock",
+]
+post-install-commands = [
+  "python -m pip install -q -e ./backend",
+]
+[envs.default.scripts]
+full = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=hatch --cov=backend/hatchling --cov=tests"
+dev = "pytest --no-cov"
+
+[[envs.test.matrix]]
+python = ["38", "39", "310"]
+
+[envs.lint]
+skip-install = true
+dependencies = [
+  "flake8~=4.0.1",
+  "flake8-bugbear~=21.11.29",
+  "flake8-quotes~=3.3.1",
+  "black~=21.12b0",
+  "isort~=5.10.1",
+  "mypy==0.930",
+]
+[envs.lint.scripts]
+typing = "mypy --install-types --non-interactive hatch tests"
+style = [
+  "flake8 .",
+  "black --check --diff .",
+  "isort --check-only --diff .",
+]
+fmt = [
+  "isort .",
+  "black .",
+  "style",
+]
+all = [
+  "style",
+  "typing",
+]
+
+[envs.docs]
+dependencies = [
+  "mkdocs~=1.2.3",
+  "mkdocs-material~=8.1.3",
+  # Plugins
+  "mkdocs-minify-plugin~=0.5.0",
+  "mkdocs-git-revision-date-localized-plugin~=0.11.1",
+  "mkdocstrings~=0.17.0",
+  "mike~=1.1.2",
+  "mkdocs-redirects~=1.0.3",
+  # Extensions
+  "mkdocs-click~=0.5.0",
+  "pymdown-extensions~=9.1",
+  "mkdocs-material-extensions~=1.0.3",
+  "mkpatcher~=1.0.2",
+  # Necessary for syntax highlighting in code blocks
+  "Pygments~=2.10.0",
+]
+[envs.docs.env-vars]
+SOURCE_DATE_EPOCH = "1580601600"
+[envs.docs.scripts]
+build = "mkdocs build --clean --strict"
+serve = "mkdocs serve --dev-addr localhost:8000"
+ci-build = "mike deploy --no-redirect --update-aliases"
+
+[envs.backend]
+skip-install = true
+dependencies = [
+  "build~=0.7.0",
+  "httpx",
+]
+[envs.backend.env-vars]
+HATCH_BUILD_CLEAN = "true"
+[envs.backend.scripts]
+build = "python -m build backend"
+publish = "hatch publish backend/dist"
+update-licenses = "python backend/scripts/update_licenses.py"

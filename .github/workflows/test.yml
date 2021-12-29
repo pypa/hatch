@@ -1,0 +1,106 @@
+name: test
+
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+    branches:
+    - master
+
+concurrency:
+  group: test-${{ github.head_ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHONUNBUFFERED: "1"
+  FORCE_COLOR: "1"
+
+jobs:
+  run:
+    name: Python ${{ matrix.python-version }} on ${{ startsWith(matrix.os, 'macos-') && 'macOS' || startsWith(matrix.os, 'windows-') && 'Windows' || 'Linux' }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.8', '3.9', '3.10']
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Ensure latest pip
+      run: python -m pip install --upgrade pip
+
+    - name: Install ourself
+      run: pip install -e .
+
+    - if: matrix.python-version == '3.9' && runner.os == 'Linux'
+      name: Lint
+      run: hatch run lint:all
+
+    - name: Run tests
+      env:
+        HATCH_CI_PUBLISHER_TOKEN: ${{ secrets.HATCH_CI_PUBLISHER_TOKEN }}
+      run: hatch run full
+
+  downstream:
+    name: Downstream builds with Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['2.7', '3.8']
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install tools
+      run: pip install --upgrade -r tests/backend/downstream/requirements.txt
+
+    - name: Build downstream projects
+      run: python tests/backend/downstream/integrate.py
+
+  response-time:
+    name: CLI responsiveness with latest Python
+    runs-on: ubuntu-latest
+
+    env:
+      PYTHON_VERSION: '3.10'
+      HYPERFINE_VERSION: '1.12.0'
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install hyperfine
+      run: |
+        wget https://github.com/sharkdp/hyperfine/releases/download/v${HYPERFINE_VERSION}/hyperfine_${HYPERFINE_VERSION}_amd64.deb
+        sudo dpkg -i hyperfine_${HYPERFINE_VERSION}_amd64.deb
+
+    - name: Install other tools
+      run: pip install --upgrade flit poetry pipenv
+
+    - name: Install ourself
+      run: pip install .
+
+    - name: Benchmark
+      run: |
+        hyperfine -m 100 --warmup 10 -i pipenv
+        hyperfine -m 100 --warmup 10 poetry
+        hyperfine -m 100 --warmup 10 -i flit
+        hyperfine -m 100 --warmup 10 hatch

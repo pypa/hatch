@@ -1,0 +1,59 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "datadog"
+description = "The Datadog Python library"
+readme = "README.md"
+license = "BSD-3-Clause"
+keywords = [
+  "datadog",
+]
+authors = [
+  { name = "Datadog, Inc.", email = "dev@datadoghq.com" },
+]
+classifiers = [
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 2.7",
+  "Programming Language :: Python :: 3.4",
+  "Programming Language :: Python :: 3.5",
+  "Programming Language :: Python :: 3.6",
+  "Programming Language :: Python :: 3.7",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  'Programming Language :: Python :: Implementation :: CPython',
+  "Programming Language :: Python :: Implementation :: PyPy",
+]
+dependencies = [
+  "requests>=2.6.0",
+  "typing; python_version<'3.5'",
+  "configparser<5; python_version<'3.0'",
+]
+dynamic = ["version"]
+
+[project.urls]
+"Bug Tracker" = "https://github.com/DataDog/datadogpy/issues"
+Documentation = "https://datadogpy.readthedocs.io/en/latest/"
+"Source Code" = "https://github.com/DataDog/datadogpy"
+
+[project.scripts]
+dog = "datadog.dogshell:main"
+dogwrap = "datadog.dogshell.wrap:main"
+dogshell = "datadog.dogshell:main"
+dogshellwrap = "datadog.dogshell.wrap:main"
+
+[tool.hatch.version]
+path = "datadog/version.py"
+
+[tool.hatch.build]
+packages = ["datadog"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "/LICENSE",
+  "/tests",
+]
+
+[tool.hatch.build.targets.wheel]
+zip-safe = false

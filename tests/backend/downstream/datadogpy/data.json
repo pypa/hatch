@@ -1,0 +1,6 @@
+{
+  "archive_url": "https://github.com/DataDog/datadogpy/archive/6bf457859e23da8847291536e54b00e3b7023d5b.zip",
+  "statements": [
+    "from datadog import initialize, api"
+  ]
+}

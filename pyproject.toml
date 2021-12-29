@@ -1,0 +1,112 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "hatch"
+description = "Modern, extensible Python project management"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.8"
+keywords = [
+  "build",
+  "dependency",
+  "environment",
+  "hatch",
+  "packaging",
+  "plugin",
+  "publishing",
+  "release",
+  "versioning",
+]
+authors = [
+  { name = "Ofek Lev", email = "oss@ofek.dev" },
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Natural Language :: English",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+  "Topic :: Software Development :: Build Tools",
+]
+dependencies = [
+  "atomicwrites~=1.4",
+  "click~=8.0.3",
+  "hatchling",
+  "httpx~=0.21",
+  "keyring~=23.4",
+  "pexpect~=4.8.0",
+  "platformdirs~=2.4",
+  "pyperclip~=1.8",
+  "rich~=10.16",
+  "tomli-w~=1.0",
+  "tomlkit~=0.8",
+  "userpath~=1.5.0",
+  "virtualenv~=20.11.0",
+]
+dynamic = ["version"]
+
+[project.urls]
+Documentation = "https://ofek.dev/hatch/latest/"
+Donate = "https://github.com/sponsors/ofek"
+History = "https://ofek.dev/hatch/dev/meta/history/"
+Issues = "https://github.com/ofek/hatch/issues"
+Source = "https://github.com/ofek/hatch"
+
+[project.scripts]
+hatch = "hatch.cli:main"
+
+[tool.hatch.version]
+path = "hatch/__about__.py"
+
+[tool.hatch.build]
+packages = ["hatch"]
+
+[tool.hatch.build.targets.sdist]
+exclude = [
+  "/.github",
+  "/backend",
+]
+
+[tool.hatch.build.targets.wheel]
+zip-safe = false
+
+[tool.black]
+include = '\.pyi?$'
+line-length = 120
+skip-string-normalization = true
+target-version = ["py38"]
+
+[tool.isort]
+default_section = "THIRDPARTY"
+force_grid_wrap = 0
+include_trailing_comma = true
+known_first_party = ["hatch", "hatchling"]
+line_length = 120
+multi_line_output = 3
+use_parentheses = true
+
+[tool.coverage.run]
+branch = true
+omit = [
+  "backend/hatchling/__main__.py",
+  "backend/hatchling/bridge/*",
+  "backend/hatchling/utils/compat.py",
+  "backend/hatchling/ouroboros.py",
+  "hatch/__main__.py",
+  "hatch/config/models/user/previous/*",
+  "hatch/utils/shells.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]
