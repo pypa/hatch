@@ -130,7 +130,7 @@ path = "{package_metadata_file_path}"
         packages_section = ''
         if plugin_config['src-layout']:
             packages_section = f"""
-packages = "src/{template_config['package_name']}"\
+packages = ["src/{template_config['package_name']}"]\
 """
 
         tests_section = ''

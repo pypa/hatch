@@ -58,7 +58,7 @@ By default, Hatch will respect any `.gitignore` file located at your project's r
 
 ### Patterns
 
-You can set the `include` and `exclude` options to select exactly which files will be shipped in each build, with `exclude` taking precedence. The options may be defined as either an array of strings or a comma-separated string, with every entry representing a [Git-style glob pattern](https://git-scm.com/docs/gitignore#_pattern_format).
+You can set the `include` and `exclude` options to select exactly which files will be shipped in each build, with `exclude` taking precedence. Every entry represents a [Git-style glob pattern](https://git-scm.com/docs/gitignore#_pattern_format).
 
 For example, the following configuration:
 
@@ -70,7 +70,10 @@ For example, the following configuration:
       "pkg/*.py",
       "/tests",
     ]
-    exclude = "*.json,pkg/_compat.py"
+    exclude = [
+      "*.json",
+      "pkg/_compat.py",
+    ]
     ```
 
 === ":octicons-file-code-16: hatch.toml"
@@ -81,7 +84,10 @@ For example, the following configuration:
       "pkg/*.py",
       "/tests",
     ]
-    exclude = "*.json,pkg/_compat.py"
+    exclude = [
+      "*.json",
+      "pkg/_compat.py",
+    ]
     ```
 
 will exclude every file with a `.json` extension, and will include everything under a `tests` directory located at the root and every file with a `.py` extension that is directly under a `pkg` directory located at the root except for `_compat.py`.
@@ -96,14 +102,14 @@ So for example, if you want to ship a package `foo` that is stored in a director
 
     ```toml
     [tool.hatch.build]
-    packages = "src/foo"
+    packages = ["src/foo"]
     ```
 
 === ":octicons-file-code-16: hatch.toml"
 
     ```toml
     [build]
-    packages = "src/foo"
+    packages = ["src/foo"]
     ```
 
 ### Artifacts
@@ -176,20 +182,20 @@ When the output directory is not provided to the [`build`](../cli/reference.md#h
 
 In most cases, [dev mode](environment.md#dev-mode) environment installations or [editable installs](https://pip.pypa.io/en/stable/cli/pip_install/#editable-installs) in general will work as expected. However, for some project layouts you need to explicitly define which directories to add to Python's search path, such as for [namespace packages](https://packaging.python.org/guides/packaging-namespace-packages/).
 
-You can do this with the `dev-mode-dirs` option, which may be defined as either an array of strings or a comma-separated string:
+You can do this with the `dev-mode-dirs` option:
 
 === ":octicons-file-code-16: pyproject.toml"
 
     ```toml
     [tool.hatch.build]
-    dev-mode-dirs = "."
+    dev-mode-dirs = ["."]
     ```
 
 === ":octicons-file-code-16: hatch.toml"
 
     ```toml
     [build]
-    dev-mode-dirs = "."
+    dev-mode-dirs = ["."]
     ```
 
 ## Build targets

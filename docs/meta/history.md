@@ -4,11 +4,19 @@
 
 ## Hatch
 
+### Unreleased
+
 ### [1rc2](https://github.com/ofek/hatch/releases/tag/hatch-v1rc2) - 2021-12-29 ### {: #hatch-v1rc2 }
 
 This is the first release candidate for Hatch v1, a complete rewrite.
 
 ## Hatchling
+
+### Unreleased
+
+***Changed:***
+
+- In order to simplify configuration, build file selection options (`include`, `exclude`, etc.) can no longer be defined as comma separated strings.
 
 ### [0.3.1](https://github.com/ofek/hatch/releases/tag/hatchling-v0.3.1) - 2021-12-30 ### {: #hatchling-v0.3.1 }
 
