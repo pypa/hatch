@@ -1,7 +1,7 @@
 name: release docs
 
 on:
-  create:
+  push:
     tags:
     - hatch-v*
     - hatchling-v*
