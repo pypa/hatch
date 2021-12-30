@@ -10,13 +10,6 @@
   --md-typeset-a-color: var(--md-primary-fg-color--light);
 }
 
-/* FiraCode https://github.com/tonsky/FiraCode */
-code { font-family: 'Fira Code', monospace; }
-
-@supports (font-variation-settings: normal) {
-  code { font-family: 'Fira Code VF', monospace; }
-}
-
 /* Everything below is from https://mkdocstrings.github.io/handlers/python/#recommended-style-material */
 
 /* Indentation. */
