@@ -263,55 +263,59 @@ class TestDevModeDirs:
         assert builder.dev_mode_dirs == builder.dev_mode_dirs == []
 
     def test_global_invalid_type(self, isolation):
-        config = {'tool': {'hatch': {'build': {'dev-mode-dirs': 3}}}}
+        config = {'tool': {'hatch': {'build': {'dev-mode-dirs': ''}}}}
         builder = BuilderInterface(str(isolation), config=config)
 
-        with pytest.raises(
-            TypeError,
-            match='Field `tool.hatch.build.dev-mode-dirs` must be a comma-separated string or an array of strings',
-        ):
+        with pytest.raises(TypeError, match='Field `tool.hatch.build.dev-mode-dirs` must be an array of strings'):
             _ = builder.dev_mode_dirs
 
-    def test_global_string(self, isolation):
-        config = {'tool': {'hatch': {'build': {'dev-mode-dirs': 'foo,bar/baz,'}}}}
+    def test_global(self, isolation):
+        config = {'tool': {'hatch': {'build': {'dev-mode-dirs': ['foo', 'bar/baz']}}}}
         builder = BuilderInterface(str(isolation), config=config)
 
         assert builder.dev_mode_dirs == ['foo', 'bar/baz']
 
-    def test_global_array(self, isolation):
-        config = {'tool': {'hatch': {'build': {'dev-mode-dirs': ['foo', 'bar/baz', '']}}}}
-        builder = BuilderInterface(str(isolation), config=config)
-
-        assert builder.dev_mode_dirs == ['foo', 'bar/baz']
-
-    def test_global_array_pattern_not_string(self, isolation):
+    def test_global_pattern_not_string(self, isolation):
         config = {'tool': {'hatch': {'build': {'dev-mode-dirs': [0]}}}}
         builder = BuilderInterface(str(isolation), config=config)
 
         with pytest.raises(TypeError, match='Directory #1 in field `tool.hatch.build.dev-mode-dirs` must be a string'):
             _ = builder.dev_mode_dirs
 
-    def test_target_string(self, isolation):
-        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'dev-mode-dirs': 'foo,bar/baz,'}}}}}}
+    def test_global_pattern_empty_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'dev-mode-dirs': ['']}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+
+        with pytest.raises(
+            ValueError, match='Directory #1 in field `tool.hatch.build.dev-mode-dirs` cannot be an empty string'
+        ):
+            _ = builder.dev_mode_dirs
+
+    def test_target(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'dev-mode-dirs': ['foo', 'bar/baz']}}}}}}
         builder = BuilderInterface(str(isolation), config=config)
         builder.PLUGIN_NAME = 'foo'
 
         assert builder.dev_mode_dirs == ['foo', 'bar/baz']
 
-    def test_target_array(self, isolation):
-        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'dev-mode-dirs': ['foo', 'bar/baz', '']}}}}}}
-        builder = BuilderInterface(str(isolation), config=config)
-        builder.PLUGIN_NAME = 'foo'
-
-        assert builder.dev_mode_dirs == ['foo', 'bar/baz']
-
-    def test_target_array_pattern_not_string(self, isolation):
+    def test_target_pattern_not_string(self, isolation):
         config = {'tool': {'hatch': {'build': {'targets': {'foo': {'dev-mode-dirs': [0]}}}}}}
         builder = BuilderInterface(str(isolation), config=config)
         builder.PLUGIN_NAME = 'foo'
 
         with pytest.raises(
             TypeError, match='Directory #1 in field `tool.hatch.build.targets.foo.dev-mode-dirs` must be a string'
+        ):
+            _ = builder.dev_mode_dirs
+
+    def test_target_pattern_empty_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'dev-mode-dirs': ['']}}}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        with pytest.raises(
+            ValueError,
+            match='Directory #1 in field `tool.hatch.build.targets.foo.dev-mode-dirs` cannot be an empty string',
         ):
             _ = builder.dev_mode_dirs
 
@@ -333,36 +337,34 @@ class TestPackages:
         assert builder.get_distribution_path(pjoin('src', 'foo', 'bar.py')) == pjoin('src', 'foo', 'bar.py')
 
     def test_global_invalid_type(self, isolation):
-        config = {'tool': {'hatch': {'build': {'packages': 3}}}}
+        config = {'tool': {'hatch': {'build': {'packages': ''}}}}
         builder = BuilderInterface(str(isolation), config=config)
 
-        with pytest.raises(
-            TypeError,
-            match='Field `tool.hatch.build.packages` must be a comma-separated string or an array of strings',
-        ):
+        with pytest.raises(TypeError, match='Field `tool.hatch.build.packages` must be an array of strings'):
             _ = builder.packages
 
-    def test_global_string(self, isolation):
-        config = {'tool': {'hatch': {'build': {'packages': 'src/foo,'}}}}
+    def test_global(self, isolation):
+        config = {'tool': {'hatch': {'build': {'packages': ['src/foo']}}}}
         builder = BuilderInterface(str(isolation), config=config)
 
         assert len(builder.packages) == 1
         assert builder.packages[0][0] == pjoin('src', 'foo', '')
         assert builder.get_distribution_path(pjoin('src', 'foo', 'bar.py')) == pjoin('foo', 'bar.py')
 
-    def test_global_array(self, isolation):
-        config = {'tool': {'hatch': {'build': {'packages': ['src/foo', '']}}}}
-        builder = BuilderInterface(str(isolation), config=config)
-
-        assert len(builder.packages) == 1
-        assert builder.packages[0][0] == pjoin('src', 'foo', '')
-        assert builder.get_distribution_path(pjoin('src', 'foo', 'bar.py')) == pjoin('foo', 'bar.py')
-
-    def test_global_array_package_not_string(self, isolation):
+    def test_global_package_not_string(self, isolation):
         config = {'tool': {'hatch': {'build': {'packages': [0]}}}}
         builder = BuilderInterface(str(isolation), config=config)
 
         with pytest.raises(TypeError, match='Package #1 in field `tool.hatch.build.packages` must be a string'):
+            _ = builder.packages
+
+    def test_global_package_empty_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'packages': ['']}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+
+        with pytest.raises(
+            ValueError, match='Package #1 in field `tool.hatch.build.packages` cannot be an empty string'
+        ):
             _ = builder.packages
 
     def test_global_duplicate_package_name(self, isolation):
@@ -378,8 +380,8 @@ class TestPackages:
         ):
             _ = builder.packages
 
-    def test_target_string(self, isolation):
-        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'packages': 'src/foo,'}}}}}}
+    def test_target(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'packages': ['src/foo']}}}}}}
         builder = BuilderInterface(str(isolation), config=config)
         builder.PLUGIN_NAME = 'foo'
 
@@ -387,22 +389,23 @@ class TestPackages:
         assert builder.packages[0][0] == pjoin('src', 'foo', '')
         assert builder.get_distribution_path(pjoin('src', 'foo', 'bar.py')) == pjoin('foo', 'bar.py')
 
-    def test_target_array(self, isolation):
-        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'packages': ['src/foo', '']}}}}}}
-        builder = BuilderInterface(str(isolation), config=config)
-        builder.PLUGIN_NAME = 'foo'
-
-        assert len(builder.packages) == 1
-        assert builder.packages[0][0] == pjoin('src', 'foo', '')
-        assert builder.get_distribution_path(pjoin('src', 'foo', 'bar.py')) == pjoin('foo', 'bar.py')
-
-    def test_target_array_package_not_string(self, isolation):
+    def test_target_package_not_string(self, isolation):
         config = {'tool': {'hatch': {'build': {'targets': {'foo': {'packages': [0]}}}}}}
         builder = BuilderInterface(str(isolation), config=config)
         builder.PLUGIN_NAME = 'foo'
 
         with pytest.raises(
             TypeError, match='Package #1 in field `tool.hatch.build.targets.foo.packages` must be a string'
+        ):
+            _ = builder.packages
+
+    def test_target_package_empty_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'packages': ['']}}}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        with pytest.raises(
+            ValueError, match='Package #1 in field `tool.hatch.build.targets.foo.packages` cannot be an empty string'
         ):
             _ = builder.packages
 
@@ -421,7 +424,9 @@ class TestPackages:
             _ = builder.packages
 
     def test_target_overrides_global(self, isolation):
-        config = {'tool': {'hatch': {'build': {'packages': 'src/foo', 'targets': {'foo': {'packages': 'pkg/foo'}}}}}}
+        config = {
+            'tool': {'hatch': {'build': {'packages': ['src/foo'], 'targets': {'foo': {'packages': ['pkg/foo']}}}}}
+        }
         builder = BuilderInterface(str(isolation), config=config)
         builder.PLUGIN_NAME = 'foo'
 
@@ -431,7 +436,7 @@ class TestPackages:
         assert builder.get_distribution_path(pjoin('src', 'foo', 'bar.py')) == pjoin('src', 'foo', 'bar.py')
 
     def test_no_source(self, isolation):
-        config = {'tool': {'hatch': {'build': {'packages': 'foo'}}}}
+        config = {'tool': {'hatch': {'build': {'packages': ['foo']}}}}
         builder = BuilderInterface(str(isolation), config=config)
 
         assert len(builder.packages) == 1
@@ -455,55 +460,24 @@ class TestVersions:
         assert builder.versions == builder.versions == ['old', 'new']
 
     def test_invalid_type(self, isolation):
-        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'versions': 1}}}}}}
-        builder = BuilderInterface(str(isolation), config=config)
-        builder.PLUGIN_NAME = 'foo'
-
-        with pytest.raises(
-            TypeError,
-            match=(
-                'Field `tool.hatch.build.targets.foo.versions` must be a '
-                'comma-separated string or an array of strings'
-            ),
-        ):
-            _ = builder.versions
-
-    def test_string(self, isolation):
-        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'versions': '3.14,1,3.14,'}}}}}}
-        builder = BuilderInterface(str(isolation), config=config)
-        builder.PLUGIN_NAME = 'foo'
-        builder.get_version_api = lambda: {'3.14': str, '42': str, '1': str}
-
-        assert builder.versions == builder.versions == ['3.14', '1']
-
-    def test_string_empty_default(self, isolation):
         config = {'tool': {'hatch': {'build': {'targets': {'foo': {'versions': ''}}}}}}
         builder = BuilderInterface(str(isolation), config=config)
         builder.PLUGIN_NAME = 'foo'
-        builder.get_default_versions = lambda: ['old', 'new']
-
-        assert builder.versions == builder.versions == ['old', 'new']
-
-    def test_string_unknown_version(self, isolation):
-        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'versions': '9000,1,42'}}}}}}
-        builder = BuilderInterface(str(isolation), config=config)
-        builder.PLUGIN_NAME = 'foo'
-        builder.get_version_api = lambda: {'1': str}
 
         with pytest.raises(
-            ValueError, match='Unknown versions in field `tool.hatch.build.targets.foo.versions`: 42, 9000'
+            TypeError, match='Field `tool.hatch.build.targets.foo.versions` must be an array of strings'
         ):
             _ = builder.versions
 
-    def test_array(self, isolation):
-        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'versions': ['3.14', '1', '3.14', '']}}}}}}
+    def test_correct(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'versions': ['3.14', '1', '3.14']}}}}}}
         builder = BuilderInterface(str(isolation), config=config)
         builder.PLUGIN_NAME = 'foo'
         builder.get_version_api = lambda: {'3.14': str, '42': str, '1': str}
 
         assert builder.versions == builder.versions == ['3.14', '1']
 
-    def test_array_empty_default(self, isolation):
+    def test_empty_default(self, isolation):
         config = {'tool': {'hatch': {'build': {'targets': {'foo': {'versions': []}}}}}}
         builder = BuilderInterface(str(isolation), config=config)
         builder.PLUGIN_NAME = 'foo'
@@ -511,7 +485,7 @@ class TestVersions:
 
         assert builder.versions == builder.versions == ['old', 'new']
 
-    def test_array_version_not_string(self, isolation):
+    def test_version_not_string(self, isolation):
         config = {'tool': {'hatch': {'build': {'targets': {'foo': {'versions': [1]}}}}}}
         builder = BuilderInterface(str(isolation), config=config)
         builder.PLUGIN_NAME = 'foo'
@@ -521,7 +495,17 @@ class TestVersions:
         ):
             _ = builder.versions
 
-    def test_array_unknown_version(self, isolation):
+    def test_version_empty_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'versions': ['']}}}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        with pytest.raises(
+            ValueError, match='Version #1 in field `tool.hatch.build.targets.foo.versions` cannot be an empty string'
+        ):
+            _ = builder.versions
+
+    def test_unknown_version(self, isolation):
         config = {'tool': {'hatch': {'build': {'targets': {'foo': {'versions': ['9000', '1', '42']}}}}}}
         builder = BuilderInterface(str(isolation), config=config)
         builder.PLUGIN_NAME = 'foo'
@@ -705,50 +689,44 @@ class TestPatternInclude:
         assert builder.include_spec is None
 
     def test_global_becomes_spec(self, isolation):
-        config = {'tool': {'hatch': {'build': {'include': 'foo'}}}}
+        config = {'tool': {'hatch': {'build': {'include': ['foo']}}}}
         builder = BuilderInterface(str(isolation), config=config)
 
         assert isinstance(builder.include_spec, pathspec.PathSpec)
 
     def test_global_invalid_type(self, isolation):
-        config = {'tool': {'hatch': {'build': {'include': 3}}}}
+        config = {'tool': {'hatch': {'build': {'include': ''}}}}
         builder = BuilderInterface(str(isolation), config=config)
 
-        with pytest.raises(
-            TypeError,
-            match='Field `tool.hatch.build.include` must be a comma-separated string or an array of strings',
-        ):
+        with pytest.raises(TypeError, match='Field `tool.hatch.build.include` must be an array of strings'):
             _ = builder.include_spec
 
     @pytest.mark.parametrize('separator', ['/', '\\'])
-    def test_global_string(self, isolation, separator, platform):
+    def test_global(self, isolation, separator, platform):
         if separator == '\\' and not platform.windows:
             pytest.skip('Not running on Windows')
 
-        config = {'tool': {'hatch': {'build': {'include': 'foo,bar/baz,'}}}}
+        config = {'tool': {'hatch': {'build': {'include': ['foo', 'bar/baz']}}}}
         builder = BuilderInterface(str(isolation), config=config)
 
         assert builder.include_spec.match_file(f'foo{separator}file.py')
         assert builder.include_spec.match_file(f'bar{separator}baz{separator}file.py')
         assert not builder.include_spec.match_file(f'bar{separator}file.py')
 
-    @pytest.mark.parametrize('separator', ['/', '\\'])
-    def test_global_array(self, isolation, separator, platform):
-        if separator == '\\' and not platform.windows:
-            pytest.skip('Not running on Windows')
-
-        config = {'tool': {'hatch': {'build': {'include': ['foo', 'bar/baz', '']}}}}
-        builder = BuilderInterface(str(isolation), config=config)
-
-        assert builder.include_spec.match_file(f'foo{separator}file.py')
-        assert builder.include_spec.match_file(f'bar{separator}baz{separator}file.py')
-        assert not builder.include_spec.match_file(f'bar{separator}file.py')
-
-    def test_global_array_pattern_not_string(self, isolation):
+    def test_global_pattern_not_string(self, isolation):
         config = {'tool': {'hatch': {'build': {'include': [0]}}}}
         builder = BuilderInterface(str(isolation), config=config)
 
         with pytest.raises(TypeError, match='Pattern #1 in field `tool.hatch.build.include` must be a string'):
+            _ = builder.include_spec
+
+    def test_global_pattern_empty_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'include': ['']}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+
+        with pytest.raises(
+            ValueError, match='Pattern #1 in field `tool.hatch.build.include` cannot be an empty string'
+        ):
             _ = builder.include_spec
 
     @pytest.mark.parametrize('separator', ['/', '\\'])
@@ -756,7 +734,7 @@ class TestPatternInclude:
         if separator == '\\' and not platform.windows:
             pytest.skip('Not running on Windows')
 
-        config = {'tool': {'hatch': {'build': {'packages': 'bar', 'include': 'foo'}}}}
+        config = {'tool': {'hatch': {'build': {'packages': ['bar'], 'include': ['foo']}}}}
         builder = BuilderInterface(str(isolation), config=config)
 
         assert builder.include_spec.match_file(f'foo{separator}file.py')
@@ -764,11 +742,11 @@ class TestPatternInclude:
         assert not builder.include_spec.match_file(f'baz{separator}bar{separator}file.py')
 
     @pytest.mark.parametrize('separator', ['/', '\\'])
-    def test_target_string(self, isolation, separator, platform):
+    def test_target(self, isolation, separator, platform):
         if separator == '\\' and not platform.windows:
             pytest.skip('Not running on Windows')
 
-        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'include': 'foo,bar/baz,'}}}}}}
+        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'include': ['foo', 'bar/baz']}}}}}}
         builder = BuilderInterface(str(isolation), config=config)
         builder.PLUGIN_NAME = 'foo'
 
@@ -776,26 +754,23 @@ class TestPatternInclude:
         assert builder.include_spec.match_file(f'bar{separator}baz{separator}file.py')
         assert not builder.include_spec.match_file(f'bar{separator}file.py')
 
-    @pytest.mark.parametrize('separator', ['/', '\\'])
-    def test_target_array(self, isolation, separator, platform):
-        if separator == '\\' and not platform.windows:
-            pytest.skip('Not running on Windows')
-
-        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'include': ['foo', 'bar/baz', '']}}}}}}
-        builder = BuilderInterface(str(isolation), config=config)
-        builder.PLUGIN_NAME = 'foo'
-
-        assert builder.include_spec.match_file(f'foo{separator}file.py')
-        assert builder.include_spec.match_file(f'bar{separator}baz{separator}file.py')
-        assert not builder.include_spec.match_file(f'bar{separator}file.py')
-
-    def test_target_array_pattern_not_string(self, isolation):
+    def test_target_pattern_not_string(self, isolation):
         config = {'tool': {'hatch': {'build': {'targets': {'foo': {'include': [0]}}}}}}
         builder = BuilderInterface(str(isolation), config=config)
         builder.PLUGIN_NAME = 'foo'
 
         with pytest.raises(
             TypeError, match='Pattern #1 in field `tool.hatch.build.targets.foo.include` must be a string'
+        ):
+            _ = builder.include_spec
+
+    def test_target_pattern_empty_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'include': ['']}}}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        with pytest.raises(
+            ValueError, match='Pattern #1 in field `tool.hatch.build.targets.foo.include` cannot be an empty string'
         ):
             _ = builder.include_spec
 
@@ -816,7 +791,7 @@ class TestPatternInclude:
         if separator == '\\' and not platform.windows:
             pytest.skip('Not running on Windows')
 
-        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'packages': 'bar', 'include': 'foo'}}}}}}
+        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'packages': ['bar'], 'include': ['foo']}}}}}}
         builder = BuilderInterface(str(isolation), config=config)
         builder.PLUGIN_NAME = 'foo'
 
@@ -837,52 +812,46 @@ class TestPatternExclude:
         assert builder.exclude_spec.match_file(f'.git{separator}file.py')
 
     def test_global_invalid_type(self, isolation):
-        config = {'tool': {'hatch': {'build': {'exclude': 3}}}}
+        config = {'tool': {'hatch': {'build': {'exclude': ''}}}}
         builder = BuilderInterface(str(isolation), config=config)
 
-        with pytest.raises(
-            TypeError,
-            match='Field `tool.hatch.build.exclude` must be a comma-separated string or an array of strings',
-        ):
+        with pytest.raises(TypeError, match='Field `tool.hatch.build.exclude` must be an array of strings'):
             _ = builder.exclude_spec
 
     @pytest.mark.parametrize('separator', ['/', '\\'])
-    def test_global_string(self, isolation, separator, platform):
+    def test_global(self, isolation, separator, platform):
         if separator == '\\' and not platform.windows:
             pytest.skip('Not running on Windows')
 
-        config = {'tool': {'hatch': {'build': {'exclude': 'foo,bar/baz,'}}}}
+        config = {'tool': {'hatch': {'build': {'exclude': ['foo', 'bar/baz']}}}}
         builder = BuilderInterface(str(isolation), config=config)
 
         assert builder.exclude_spec.match_file(f'foo{separator}file.py')
         assert builder.exclude_spec.match_file(f'bar{separator}baz{separator}file.py')
         assert not builder.exclude_spec.match_file(f'bar{separator}file.py')
 
-    @pytest.mark.parametrize('separator', ['/', '\\'])
-    def test_global_array(self, isolation, separator, platform):
-        if separator == '\\' and not platform.windows:
-            pytest.skip('Not running on Windows')
-
-        config = {'tool': {'hatch': {'build': {'exclude': ['foo', 'bar/baz', '']}}}}
-        builder = BuilderInterface(str(isolation), config=config)
-
-        assert builder.exclude_spec.match_file(f'foo{separator}file.py')
-        assert builder.exclude_spec.match_file(f'bar{separator}baz{separator}file.py')
-        assert not builder.exclude_spec.match_file(f'bar{separator}file.py')
-
-    def test_global_array_pattern_not_string(self, isolation):
+    def test_global_pattern_not_string(self, isolation):
         config = {'tool': {'hatch': {'build': {'exclude': [0]}}}}
         builder = BuilderInterface(str(isolation), config=config)
 
         with pytest.raises(TypeError, match='Pattern #1 in field `tool.hatch.build.exclude` must be a string'):
             _ = builder.exclude_spec
 
+    def test_global_pattern_empty_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'exclude': ['']}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+
+        with pytest.raises(
+            ValueError, match='Pattern #1 in field `tool.hatch.build.exclude` cannot be an empty string'
+        ):
+            _ = builder.exclude_spec
+
     @pytest.mark.parametrize('separator', ['/', '\\'])
-    def test_target_string(self, isolation, separator, platform):
+    def test_target(self, isolation, separator, platform):
         if separator == '\\' and not platform.windows:
             pytest.skip('Not running on Windows')
 
-        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'exclude': 'foo,bar/baz,'}}}}}}
+        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'exclude': ['foo', 'bar/baz']}}}}}}
         builder = BuilderInterface(str(isolation), config=config)
         builder.PLUGIN_NAME = 'foo'
 
@@ -890,26 +859,23 @@ class TestPatternExclude:
         assert builder.exclude_spec.match_file(f'bar{separator}baz{separator}file.py')
         assert not builder.exclude_spec.match_file(f'bar{separator}file.py')
 
-    @pytest.mark.parametrize('separator', ['/', '\\'])
-    def test_target_array(self, isolation, separator, platform):
-        if separator == '\\' and not platform.windows:
-            pytest.skip('Not running on Windows')
-
-        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'exclude': ['foo', 'bar/baz', '']}}}}}}
-        builder = BuilderInterface(str(isolation), config=config)
-        builder.PLUGIN_NAME = 'foo'
-
-        assert builder.exclude_spec.match_file(f'foo{separator}file.py')
-        assert builder.exclude_spec.match_file(f'bar{separator}baz{separator}file.py')
-        assert not builder.exclude_spec.match_file(f'bar{separator}file.py')
-
-    def test_target_array_pattern_not_string(self, isolation):
+    def test_target_pattern_not_string(self, isolation):
         config = {'tool': {'hatch': {'build': {'targets': {'foo': {'exclude': [0]}}}}}}
         builder = BuilderInterface(str(isolation), config=config)
         builder.PLUGIN_NAME = 'foo'
 
         with pytest.raises(
             TypeError, match='Pattern #1 in field `tool.hatch.build.targets.foo.exclude` must be a string'
+        ):
+            _ = builder.exclude_spec
+
+    def test_target_pattern_empty_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'exclude': ['']}}}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        with pytest.raises(
+            ValueError, match='Pattern #1 in field `tool.hatch.build.targets.foo.exclude` cannot be an empty string'
         ):
             _ = builder.exclude_spec
 
@@ -972,58 +938,52 @@ class TestPatternArtifacts:
         assert builder.artifact_spec is None
 
     def test_global_becomes_spec(self, isolation):
-        config = {'tool': {'hatch': {'build': {'artifacts': 'foo'}}}}
+        config = {'tool': {'hatch': {'build': {'artifacts': ['foo']}}}}
         builder = BuilderInterface(str(isolation), config=config)
 
         assert isinstance(builder.artifact_spec, pathspec.PathSpec)
 
     def test_global_invalid_type(self, isolation):
-        config = {'tool': {'hatch': {'build': {'artifacts': 3}}}}
+        config = {'tool': {'hatch': {'build': {'artifacts': ''}}}}
         builder = BuilderInterface(str(isolation), config=config)
 
-        with pytest.raises(
-            TypeError,
-            match='Field `tool.hatch.build.artifacts` must be a comma-separated string or an array of strings',
-        ):
+        with pytest.raises(TypeError, match='Field `tool.hatch.build.artifacts` must be an array of strings'):
             _ = builder.artifact_spec
 
     @pytest.mark.parametrize('separator', ['/', '\\'])
-    def test_global_string(self, isolation, separator, platform):
+    def test_global(self, isolation, separator, platform):
         if separator == '\\' and not platform.windows:
             pytest.skip('Not running on Windows')
 
-        config = {'tool': {'hatch': {'build': {'artifacts': 'foo,bar/baz,'}}}}
+        config = {'tool': {'hatch': {'build': {'artifacts': ['foo', 'bar/baz']}}}}
         builder = BuilderInterface(str(isolation), config=config)
 
         assert builder.artifact_spec.match_file(f'foo{separator}file.py')
         assert builder.artifact_spec.match_file(f'bar{separator}baz{separator}file.py')
         assert not builder.artifact_spec.match_file(f'bar{separator}file.py')
 
-    @pytest.mark.parametrize('separator', ['/', '\\'])
-    def test_global_array(self, isolation, separator, platform):
-        if separator == '\\' and not platform.windows:
-            pytest.skip('Not running on Windows')
-
-        config = {'tool': {'hatch': {'build': {'artifacts': ['foo', 'bar/baz', '']}}}}
-        builder = BuilderInterface(str(isolation), config=config)
-
-        assert builder.artifact_spec.match_file(f'foo{separator}file.py')
-        assert builder.artifact_spec.match_file(f'bar{separator}baz{separator}file.py')
-        assert not builder.artifact_spec.match_file(f'bar{separator}file.py')
-
-    def test_global_array_pattern_not_string(self, isolation):
+    def test_global_pattern_not_string(self, isolation):
         config = {'tool': {'hatch': {'build': {'artifacts': [0]}}}}
         builder = BuilderInterface(str(isolation), config=config)
 
         with pytest.raises(TypeError, match='Pattern #1 in field `tool.hatch.build.artifacts` must be a string'):
             _ = builder.artifact_spec
 
+    def test_global_pattern_empty_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'artifacts': ['']}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+
+        with pytest.raises(
+            ValueError, match='Pattern #1 in field `tool.hatch.build.artifacts` cannot be an empty string'
+        ):
+            _ = builder.artifact_spec
+
     @pytest.mark.parametrize('separator', ['/', '\\'])
-    def test_target_string(self, isolation, separator, platform):
+    def test_target(self, isolation, separator, platform):
         if separator == '\\' and not platform.windows:
             pytest.skip('Not running on Windows')
 
-        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'artifacts': 'foo,bar/baz,'}}}}}}
+        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'artifacts': ['foo', 'bar/baz']}}}}}}
         builder = BuilderInterface(str(isolation), config=config)
         builder.PLUGIN_NAME = 'foo'
 
@@ -1031,26 +991,23 @@ class TestPatternArtifacts:
         assert builder.artifact_spec.match_file(f'bar{separator}baz{separator}file.py')
         assert not builder.artifact_spec.match_file(f'bar{separator}file.py')
 
-    @pytest.mark.parametrize('separator', ['/', '\\'])
-    def test_target_array(self, isolation, separator, platform):
-        if separator == '\\' and not platform.windows:
-            pytest.skip('Not running on Windows')
-
-        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'artifacts': ['foo', 'bar/baz', '']}}}}}}
-        builder = BuilderInterface(str(isolation), config=config)
-        builder.PLUGIN_NAME = 'foo'
-
-        assert builder.artifact_spec.match_file(f'foo{separator}file.py')
-        assert builder.artifact_spec.match_file(f'bar{separator}baz{separator}file.py')
-        assert not builder.artifact_spec.match_file(f'bar{separator}file.py')
-
-    def test_target_array_pattern_not_string(self, isolation):
+    def test_target_pattern_not_string(self, isolation):
         config = {'tool': {'hatch': {'build': {'targets': {'foo': {'artifacts': [0]}}}}}}
         builder = BuilderInterface(str(isolation), config=config)
         builder.PLUGIN_NAME = 'foo'
 
         with pytest.raises(
             TypeError, match='Pattern #1 in field `tool.hatch.build.targets.foo.artifacts` must be a string'
+        ):
+            _ = builder.artifact_spec
+
+    def test_target_pattern_empty_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'artifacts': ['']}}}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        with pytest.raises(
+            ValueError, match='Pattern #1 in field `tool.hatch.build.targets.foo.artifacts` cannot be an empty string'
         ):
             _ = builder.artifact_spec
 
@@ -1069,7 +1026,7 @@ class TestPatternArtifacts:
 
 class TestPatternMatching:
     def test_include_explicit(self, isolation):
-        config = {'tool': {'hatch': {'build': {'include': 'foo'}}}}
+        config = {'tool': {'hatch': {'build': {'include': ['foo']}}}}
         builder = BuilderInterface(str(isolation), config=config)
 
         assert builder.include_path('foo/file.py')
@@ -1082,14 +1039,14 @@ class TestPatternMatching:
         assert builder.include_path('bar/file.py')
 
     def test_exclude_precedence(self, isolation):
-        config = {'tool': {'hatch': {'build': {'include': 'foo', 'exclude': 'foo'}}}}
+        config = {'tool': {'hatch': {'build': {'include': ['foo'], 'exclude': ['foo']}}}}
         builder = BuilderInterface(str(isolation), config=config)
 
         assert not builder.include_path('foo/file.py')
         assert not builder.include_path('bar/file.py')
 
     def test_artifact_super_precedence(self, isolation):
-        config = {'tool': {'hatch': {'build': {'include': 'foo', 'exclude': 'foo', 'artifacts': 'foo'}}}}
+        config = {'tool': {'hatch': {'build': {'include': ['foo'], 'exclude': ['foo'], 'artifacts': ['foo']}}}}
         builder = BuilderInterface(str(isolation), config=config)
 
         assert builder.include_path('foo/file.py')
@@ -1103,9 +1060,9 @@ class TestDirectoryRecursion:
                 'tool': {
                     'hatch': {
                         'build': {
-                            'packages': 'src/foo',
-                            'include': 'bar,README.md,tox.ini',
-                            'exclude': '**/foo/baz.txt',
+                            'packages': ['src/foo'],
+                            'include': ['bar', 'README.md', 'tox.ini'],
+                            'exclude': ['**/foo/baz.txt'],
                         }
                     }
                 }

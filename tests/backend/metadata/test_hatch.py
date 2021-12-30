@@ -60,7 +60,7 @@ class TestBuildTargets:
             _ = metadata.build_targets
 
     def test_correct(self, isolation):
-        config = {'build': {'targets': {'wheel': {'versions': 'standard'}}}}
+        config = {'build': {'targets': {'wheel': {'versions': ['standard']}}}}
         metadata = HatchMetadata(str(isolation), config, None)
 
-        assert metadata.build_targets == metadata.build_targets == {'wheel': {'versions': 'standard'}}
+        assert metadata.build_targets == metadata.build_targets == {'wheel': {'versions': ['standard']}}

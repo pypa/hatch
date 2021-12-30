@@ -187,7 +187,7 @@ class TestBuildStandard:
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
-                    'build': {'targets': {'wheel': {'versions': 'standard'}}},
+                    'build': {'targets': {'wheel': {'versions': ['standard']}}},
                 },
             },
         }
@@ -238,7 +238,7 @@ class TestBuildStandard:
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
-                    'build': {'targets': {'wheel': {'versions': 'standard'}}},
+                    'build': {'targets': {'wheel': {'versions': ['standard']}}},
                 },
             },
         }
@@ -288,7 +288,7 @@ class TestBuildStandard:
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
-                    'build': {'targets': {'wheel': {'versions': 'standard', 'reproducible': False}}},
+                    'build': {'targets': {'wheel': {'versions': ['standard'], 'reproducible': False}}},
                 },
             },
         }
@@ -344,7 +344,7 @@ class TestBuildStandard:
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
-                    'build': {'targets': {'wheel': {'versions': 'standard'}}},
+                    'build': {'targets': {'wheel': {'versions': ['standard']}}},
                 },
             },
         }
@@ -391,7 +391,7 @@ class TestBuildStandard:
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
-                    'build': {'targets': {'wheel': {'versions': 'standard', 'include': 'my_app,tests'}}},
+                    'build': {'targets': {'wheel': {'versions': ['standard'], 'include': ['my_app', 'tests']}}},
                 },
             },
         }
@@ -437,7 +437,7 @@ class TestBuildStandard:
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
-                    'build': {'targets': {'wheel': {'versions': 'standard'}}},
+                    'build': {'targets': {'wheel': {'versions': ['standard']}}},
                 },
             },
         }
@@ -497,7 +497,7 @@ class TestBuildStandard:
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
                     'build': {
-                        'targets': {'wheel': {'versions': 'standard'}},
+                        'targets': {'wheel': {'versions': ['standard']}},
                         'hooks': {'custom': {'path': 'build.py'}},
                     },
                 },
@@ -562,7 +562,7 @@ class TestBuildStandard:
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
                     'build': {
-                        'targets': {'wheel': {'versions': 'standard'}},
+                        'targets': {'wheel': {'versions': ['standard']}},
                         'hooks': {'custom': {'path': 'build.py'}},
                     },
                 },
@@ -636,8 +636,8 @@ class TestBuildStandard:
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
                     'build': {
-                        'targets': {'wheel': {'versions': 'standard'}},
-                        'artifacts': 'my_app/lib.so',
+                        'targets': {'wheel': {'versions': ['standard']}},
+                        'artifacts': ['my_app/lib.so'],
                         'hooks': {'custom': {'path': 'build.py'}},
                     },
                 },
@@ -716,7 +716,7 @@ class TestBuildStandard:
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
                     'build': {
-                        'targets': {'wheel': {'versions': 'standard'}},
+                        'targets': {'wheel': {'versions': ['standard']}},
                         'hooks': {'custom': {'path': 'build.py'}},
                     },
                 },
@@ -771,7 +771,7 @@ class TestBuildStandard:
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
-                    'build': {'targets': {'wheel': {'versions': 'editable'}}},
+                    'build': {'targets': {'wheel': {'versions': ['editable']}}},
                 },
             },
         }
@@ -827,7 +827,7 @@ class TestBuildStandard:
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
-                    'build': {'targets': {'wheel': {'versions': 'editable', 'dev-mode-dirs': ['.']}}},
+                    'build': {'targets': {'wheel': {'versions': ['editable'], 'dev-mode-dirs': ['.']}}},
                 },
             },
         }

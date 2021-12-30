@@ -614,7 +614,7 @@ class TestBuildStandard:
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
-                    'build': {'targets': {'sdist': {'versions': 'standard'}}},
+                    'build': {'targets': {'sdist': {'versions': ['standard']}}},
                 },
             },
         }
@@ -661,7 +661,7 @@ class TestBuildStandard:
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
-                    'build': {'targets': {'sdist': {'versions': 'standard', 'reproducible': False}}},
+                    'build': {'targets': {'sdist': {'versions': ['standard'], 'reproducible': False}}},
                 },
             },
         }
@@ -709,7 +709,7 @@ class TestBuildStandard:
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
-                    'build': {'targets': {'sdist': {'versions': 'standard', 'support-legacy': True}}},
+                    'build': {'targets': {'sdist': {'versions': ['standard'], 'support-legacy': True}}},
                 },
             },
         }
@@ -775,8 +775,8 @@ class TestBuildStandard:
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
                     'build': {
-                        'targets': {'sdist': {'versions': 'standard'}},
-                        'artifacts': 'my_app/lib.so',
+                        'targets': {'sdist': {'versions': ['standard']}},
+                        'artifacts': ['my_app/lib.so'],
                         'hooks': {'custom': {'path': 'build.py'}},
                     },
                 },
@@ -823,7 +823,9 @@ class TestBuildStandard:
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
-                    'build': {'targets': {'sdist': {'versions': 'standard', 'include': ['my_app/', 'pyproject.toml']}}},
+                    'build': {
+                        'targets': {'sdist': {'versions': ['standard'], 'include': ['my_app/', 'pyproject.toml']}}
+                    },
                 },
             },
         }
@@ -872,7 +874,7 @@ class TestBuildStandard:
                     'version': {'path': 'my_app/__about__.py'},
                     'build': {
                         'targets': {
-                            'sdist': {'versions': 'standard', 'include': ['my_app/'], 'exclude': ['pyproject.toml']},
+                            'sdist': {'versions': ['standard'], 'include': ['my_app/'], 'exclude': ['pyproject.toml']},
                         },
                     },
                 },
@@ -924,7 +926,7 @@ class TestBuildStandard:
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
-                    'build': {'targets': {'sdist': {'versions': 'standard', 'include': ['my_app/', 'README.md']}}},
+                    'build': {'targets': {'sdist': {'versions': ['standard'], 'include': ['my_app/', 'README.md']}}},
                 },
             },
         }
@@ -973,7 +975,7 @@ class TestBuildStandard:
                     'version': {'path': 'my_app/__about__.py'},
                     'build': {
                         'targets': {
-                            'sdist': {'versions': 'standard', 'include': ['my_app/'], 'exclude': ['README.md']},
+                            'sdist': {'versions': ['standard'], 'include': ['my_app/'], 'exclude': ['README.md']},
                         },
                     },
                 },
@@ -1025,7 +1027,7 @@ class TestBuildStandard:
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
-                    'build': {'targets': {'sdist': {'versions': 'standard', 'include': ['my_app/', 'LICENSE.txt']}}},
+                    'build': {'targets': {'sdist': {'versions': ['standard'], 'include': ['my_app/', 'LICENSE.txt']}}},
                 },
             },
         }
@@ -1074,7 +1076,7 @@ class TestBuildStandard:
                     'version': {'path': 'my_app/__about__.py'},
                     'build': {
                         'targets': {
-                            'sdist': {'versions': 'standard', 'include': ['my_app/'], 'exclude': ['LICENSE.txt']},
+                            'sdist': {'versions': ['standard'], 'include': ['my_app/'], 'exclude': ['LICENSE.txt']},
                         },
                     },
                 },

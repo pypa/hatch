@@ -245,21 +245,16 @@ class BuilderInterface(object):
             all_include_patterns = []
 
             include_patterns = include_config.get('include', self.default_include_patterns())
-            if isinstance(include_patterns, str):
-                for include_pattern in include_patterns.split(','):
-                    if include_pattern:
-                        all_include_patterns.append(include_pattern)
-            elif isinstance(include_patterns, list):
-                for i, include_pattern in enumerate(include_patterns, 1):
-                    if not isinstance(include_pattern, str):
-                        raise TypeError('Pattern #{} in field `{}` must be a string'.format(i, include_location))
+            if not isinstance(include_patterns, list):
+                raise TypeError('Field `{}` must be an array of strings'.format(include_location))
 
-                    if include_pattern:
-                        all_include_patterns.append(include_pattern)
-            else:
-                raise TypeError(
-                    'Field `{}` must be a comma-separated string or an array of strings'.format(include_location)
-                )
+            for i, include_pattern in enumerate(include_patterns, 1):
+                if not isinstance(include_pattern, str):
+                    raise TypeError('Pattern #{} in field `{}` must be a string'.format(i, include_location))
+                elif not include_pattern:
+                    raise ValueError('Pattern #{} in field `{}` cannot be an empty string'.format(i, include_location))
+
+                all_include_patterns.append(include_pattern)
 
             for relative_path, _ in self.packages:
                 # Matching only at the root requires a forward slash, back slashes do not work. As such,
@@ -288,21 +283,16 @@ class BuilderInterface(object):
             all_exclude_patterns = self.default_global_exclude_patterns()
 
             exclude_patterns = exclude_config.get('exclude', self.default_exclude_patterns())
-            if isinstance(exclude_patterns, str):
-                for exclude_pattern in exclude_patterns.split(','):
-                    if exclude_pattern:
-                        all_exclude_patterns.append(exclude_pattern)
-            elif isinstance(exclude_patterns, list):
-                for i, exclude_pattern in enumerate(exclude_patterns, 1):
-                    if not isinstance(exclude_pattern, str):
-                        raise TypeError('Pattern #{} in field `{}` must be a string'.format(i, exclude_location))
+            if not isinstance(exclude_patterns, list):
+                raise TypeError('Field `{}` must be an array of strings'.format(exclude_location))
 
-                    if exclude_pattern:
-                        all_exclude_patterns.append(exclude_pattern)
-            else:
-                raise TypeError(
-                    'Field `{}` must be a comma-separated string or an array of strings'.format(exclude_location)
-                )
+            for i, exclude_pattern in enumerate(exclude_patterns, 1):
+                if not isinstance(exclude_pattern, str):
+                    raise TypeError('Pattern #{} in field `{}` must be a string'.format(i, exclude_location))
+                elif not exclude_pattern:
+                    raise ValueError('Pattern #{} in field `{}` cannot be an empty string'.format(i, exclude_location))
+
+                all_exclude_patterns.append(exclude_pattern)
 
             if not self.ignore_vcs:
                 all_exclude_patterns.extend(self.load_vcs_ignore_patterns())
@@ -329,21 +319,16 @@ class BuilderInterface(object):
             all_artifact_patterns = []
 
             artifact_patterns = artifact_config.get('artifacts', [])
-            if isinstance(artifact_patterns, str):
-                for artifact_pattern in artifact_patterns.split(','):
-                    if artifact_pattern:
-                        all_artifact_patterns.append(artifact_pattern)
-            elif isinstance(artifact_patterns, list):
-                for i, artifact_pattern in enumerate(artifact_patterns, 1):
-                    if not isinstance(artifact_pattern, str):
-                        raise TypeError('Pattern #{} in field `{}` must be a string'.format(i, artifact_location))
+            if not isinstance(artifact_patterns, list):
+                raise TypeError('Field `{}` must be an array of strings'.format(artifact_location))
 
-                    if artifact_pattern:
-                        all_artifact_patterns.append(artifact_pattern)
-            else:
-                raise TypeError(
-                    'Field `{}` must be a comma-separated string or an array of strings'.format(artifact_location)
-                )
+            for i, artifact_pattern in enumerate(artifact_patterns, 1):
+                if not isinstance(artifact_pattern, str):
+                    raise TypeError('Pattern #{} in field `{}` must be a string'.format(i, artifact_location))
+                elif not artifact_pattern:
+                    raise ValueError('Pattern #{} in field `{}` cannot be an empty string'.format(i, artifact_location))
+
+                all_artifact_patterns.append(artifact_pattern)
 
             if all_artifact_patterns:
                 self.__artifact_spec = pathspec.PathSpec.from_lines(
@@ -562,23 +547,18 @@ class BuilderInterface(object):
             all_dev_mode_dirs = []
 
             dev_mode_dirs = dev_mode_dirs_config.get('dev-mode-dirs', [])
-            if isinstance(dev_mode_dirs, str):
-                for dev_mode_dir in dev_mode_dirs.split(','):
-                    if dev_mode_dir:
-                        all_dev_mode_dirs.append(dev_mode_dir)
-            elif isinstance(dev_mode_dirs, list):
-                for i, dev_mode_dir in enumerate(dev_mode_dirs, 1):
-                    if not isinstance(dev_mode_dir, str):
-                        raise TypeError(
-                            'Directory #{} in field `{}` must be a string'.format(i, dev_mode_dirs_location)
-                        )
+            if not isinstance(dev_mode_dirs, list):
+                raise TypeError('Field `{}` must be an array of strings'.format(dev_mode_dirs_location))
 
-                    if dev_mode_dir:
-                        all_dev_mode_dirs.append(dev_mode_dir)
-            else:
-                raise TypeError(
-                    'Field `{}` must be a comma-separated string or an array of strings'.format(dev_mode_dirs_location)
-                )
+            for i, dev_mode_dir in enumerate(dev_mode_dirs, 1):
+                if not isinstance(dev_mode_dir, str):
+                    raise TypeError('Directory #{} in field `{}` must be a string'.format(i, dev_mode_dirs_location))
+                elif not dev_mode_dir:
+                    raise ValueError(
+                        'Directory #{} in field `{}` cannot be an empty string'.format(i, dev_mode_dirs_location)
+                    )
+
+                all_dev_mode_dirs.append(dev_mode_dir)
 
             self.__dev_mode_dirs = all_dev_mode_dirs
 
@@ -597,21 +577,16 @@ class BuilderInterface(object):
             all_packages = set()
 
             packages = package_config.get('packages', [])
-            if isinstance(packages, str):
-                for package in packages.split(','):
-                    if package:
-                        all_packages.add(os.path.normpath(package).lstrip(os.path.sep))
-            elif isinstance(packages, list):
-                for i, package in enumerate(packages, 1):
-                    if not isinstance(package, str):
-                        raise TypeError('Package #{} in field `{}` must be a string'.format(i, package_location))
+            if not isinstance(packages, list):
+                raise TypeError('Field `{}` must be an array of strings'.format(package_location))
 
-                    if package:
-                        all_packages.add(os.path.normpath(package).lstrip(os.path.sep))
-            else:
-                raise TypeError(
-                    'Field `{}` must be a comma-separated string or an array of strings'.format(package_location)
-                )
+            for i, package in enumerate(packages, 1):
+                if not isinstance(package, str):
+                    raise TypeError('Package #{} in field `{}` must be a string'.format(i, package_location))
+                elif not package:
+                    raise ValueError('Package #{} in field `{}` cannot be an empty string'.format(i, package_location))
+
+                all_packages.add(os.path.normpath(package).lstrip(os.path.sep))
 
             unique_packages = {}
             package_data = []
@@ -643,26 +618,26 @@ class BuilderInterface(object):
             all_versions = OrderedDict()
 
             versions = self.target_config.get('versions', [])
-            if isinstance(versions, str):
-                for version in versions.split(','):
-                    if version:
-                        all_versions[version] = None
-            elif isinstance(versions, list):
-                for i, version in enumerate(versions, 1):
-                    if not isinstance(version, str):
-                        raise TypeError(
-                            'Version #{} in field `tool.hatch.build.targets.{}.versions` must be a string'.format(
-                                i, self.PLUGIN_NAME
-                            )
-                        )
-
-                    if version:
-                        all_versions[version] = None
-            else:
+            if not isinstance(versions, list):
                 raise TypeError(
-                    'Field `tool.hatch.build.targets.{}.versions` must be a comma-separated '
-                    'string or an array of strings'.format(self.PLUGIN_NAME)
+                    'Field `tool.hatch.build.targets.{}.versions` must be an array of strings'.format(self.PLUGIN_NAME)
                 )
+
+            for i, version in enumerate(versions, 1):
+                if not isinstance(version, str):
+                    raise TypeError(
+                        'Version #{} in field `tool.hatch.build.targets.{}.versions` must be a string'.format(
+                            i, self.PLUGIN_NAME
+                        )
+                    )
+                elif not version:
+                    raise ValueError(
+                        'Version #{} in field `tool.hatch.build.targets.{}.versions` cannot be an empty string'.format(
+                            i, self.PLUGIN_NAME
+                        )
+                    )
+
+                all_versions[version] = None
 
             if not all_versions:
                 default_versions = self.get_default_versions()
