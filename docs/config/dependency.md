@@ -2,12 +2,6 @@
 
 -----
 
-<style>
-  :root {
-    font-variant-ligatures: none;
-  }
-</style>
-
 [Project dependencies](metadata.md#dependencies) are defined with [PEP 508][] strings using optional [PEP 440 version specifiers][].
 
 ## Version specifiers
