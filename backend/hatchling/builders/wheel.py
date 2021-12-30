@@ -202,6 +202,9 @@ class WheelBuilder(BuilderInterface):
         with WheelArchive(metadata_directory, self.reproducible) as archive, closing(StringIO()) as records:
             exposed_packages = {}
             for included_file in self.recurse_project_files():
+                if not included_file.path.endswith('.py'):
+                    continue
+
                 relative_path = included_file.relative_path
                 distribution_path = included_file.distribution_path
 
