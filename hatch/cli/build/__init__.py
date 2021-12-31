@@ -94,7 +94,7 @@ def build(app, location, targets, clean, hooks_only, no_hooks, ext, clean_only):
             builder.PLUGIN_NAME = target_name
 
             dependencies = [backend_requirement]
-            dependencies.extend(builder.dependencies)
+            dependencies.extend(builder.config.dependencies)
 
             with app.status_waiting('Setting up build environment') as status:
                 with environment.build_environment(dependencies) as build_environment:

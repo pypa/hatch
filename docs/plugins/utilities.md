@@ -6,6 +6,20 @@
     rendering:
       show_root_full_path: true
 
+::: hatchling.builders.config.BuilderConfig
+    rendering:
+      show_source: false
+    selection:
+      members:
+      - directory
+      - ignore_vcs
+      - reproducible
+      - dev_mode_dirs
+      - versions
+      - dependencies
+      - default_include_patterns
+      - default_exclude_patterns
+
 ::: hatchling.bridge.app.Application
     rendering:
       show_source: false

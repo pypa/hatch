@@ -27,17 +27,17 @@ class TestPatternDefaults:
     def test_include(self, isolation):
         builder = WheelBuilder(str(isolation))
 
-        assert builder.default_include_patterns() == []
+        assert builder.config.default_include_patterns() == []
 
     def test_exclude(self, isolation):
         builder = WheelBuilder(str(isolation))
 
-        assert builder.default_exclude_patterns() == []
+        assert builder.config.default_exclude_patterns() == []
 
     def test_global_exclude(self, isolation):
         builder = WheelBuilder(str(isolation))
 
-        assert builder.default_global_exclude_patterns() == ['.git']
+        assert builder.config.default_global_exclude_patterns() == ['.git']
 
 
 class TestZipSafe:
