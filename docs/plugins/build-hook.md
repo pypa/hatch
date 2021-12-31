@@ -74,6 +74,7 @@ If multiple subclasses are found, you must define a function named `get_build_ho
       - app
       - root
       - config
+      - build_config
       - target_name
       - directory
       - clean

@@ -314,7 +314,9 @@ class BuilderInterface(object):
             if build_hook is None:
                 raise ValueError('Unknown build hook: {}'.format(hook_name))
 
-            configured_build_hooks[hook_name] = build_hook(self.root, config, directory, self.PLUGIN_NAME, self.app)
+            configured_build_hooks[hook_name] = build_hook(
+                self.root, config, self.config, directory, self.PLUGIN_NAME, self.app
+            )
 
         return configured_build_hooks
 

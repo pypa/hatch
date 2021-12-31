@@ -20,10 +20,12 @@ def main():
                 continue
             elif line.startswith('## '):
                 _, _, package = line.partition(' ')
+                # Remove any emphasis
+                package = package.strip('*_')
                 current_pattern = HEADER_PATTERN.format(package=package.lower())
             elif line.startswith('### '):
                 _, _, header = line.partition(' ')
-                if header == 'Unreleased':
+                if header.strip('*_') == 'Unreleased':
                     continue
                 elif not re.search(current_pattern, header):
                     print('Invalid header:')
