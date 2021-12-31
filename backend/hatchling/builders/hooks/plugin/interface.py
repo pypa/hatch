@@ -30,9 +30,10 @@ class BuildHookInterface(object):  # no cov
     PLUGIN_NAME = ''
     """The name used for selection."""
 
-    def __init__(self, root, config, directory, target_name, app=None):
+    def __init__(self, root, config, build_config, directory, target_name, app=None):
         self.__root = root
         self.__config = config
+        self.__build_config = build_config
         self.__directory = directory
         self.__target_name = target_name
         self.__app = app
@@ -76,6 +77,13 @@ class BuildHookInterface(object):  # no cov
             ```
         """
         return self.__config
+
+    @property
+    def build_config(self):
+        """
+        An instance of [BuilderConfig](utilities.md#hatchling.builders.config.BuilderConfig).
+        """
+        return self.__build_config
 
     @property
     def directory(self):
