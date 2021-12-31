@@ -18,6 +18,10 @@ This is the first release candidate for Hatch v1, a complete rewrite.
 
 - In order to simplify configuration, build file selection options (`include`, `exclude`, etc.) can no longer be defined as comma separated strings.
 
+***Added:***
+
+- Refactor builder config handling into its own class
+
 ### [0.3.1](https://github.com/ofek/hatch/releases/tag/hatchling-v0.3.1) - 2021-12-30 ### {: #hatchling-v0.3.1 }
 
 ***Fixed:***

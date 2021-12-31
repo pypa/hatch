@@ -151,8 +151,8 @@ If multiple subclasses are found, you must define a function named `get_builder`
       - root
       - build_config
       - target_config
-      - reproducible
-      - dev_mode_dirs
+      - config
+      - get_config_class
       - get_version_api
       - get_default_versions
       - clean

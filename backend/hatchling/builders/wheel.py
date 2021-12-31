@@ -174,7 +174,7 @@ class WheelBuilder(BuilderInterface):
                 build_data['tag'] = self.get_default_tag()
 
         metadata_directory = '{}.dist-info'.format(self.project_id)
-        with WheelArchive(metadata_directory, self.reproducible) as archive, closing(StringIO()) as records:
+        with WheelArchive(metadata_directory, self.config.reproducible) as archive, closing(StringIO()) as records:
             for included_file in self.recurse_project_files():
                 record = archive.add_file(included_file)
                 records.write(self.format_record(record))
@@ -190,7 +190,7 @@ class WheelBuilder(BuilderInterface):
         return target
 
     def build_editable(self, directory, **build_data):
-        if sys.version_info[0] < 3 or self.dev_mode_dirs:
+        if sys.version_info[0] < 3 or self.config.dev_mode_dirs:
             return self.build_editable_pth(directory, **build_data)
         else:
             return self.build_editable_standard(directory, **build_data)
@@ -199,7 +199,7 @@ class WheelBuilder(BuilderInterface):
         build_data['tag'] = self.get_default_tag()
 
         metadata_directory = '{}.dist-info'.format(self.project_id)
-        with WheelArchive(metadata_directory, self.reproducible) as archive, closing(StringIO()) as records:
+        with WheelArchive(metadata_directory, self.config.reproducible) as archive, closing(StringIO()) as records:
             exposed_packages = {}
             for included_file in self.recurse_project_files():
                 if not included_file.path.endswith('.py'):
@@ -259,10 +259,10 @@ class WheelBuilder(BuilderInterface):
             build_data['tag'] = self.get_default_tag()
 
             metadata_directory = '{}.dist-info'.format(self.project_id)
-            with WheelArchive(metadata_directory, self.reproducible) as archive, closing(StringIO()) as records:
+            with WheelArchive(metadata_directory, self.config.reproducible) as archive, closing(StringIO()) as records:
                 editable_project = EditableProject(self.metadata.core.name.replace('-', '_'), self.root)
 
-                for relative_directory in self.dev_mode_dirs:
+                for relative_directory in self.config.dev_mode_dirs:
                     editable_project.add_to_path(relative_directory)
 
                 for filename, content in sorted(editable_project.files()):
@@ -294,9 +294,9 @@ class WheelBuilder(BuilderInterface):
             build_data['tag'] = self.get_default_tag()
 
             metadata_directory = '{}.dist-info'.format(self.project_id)
-            with WheelArchive(metadata_directory, self.reproducible) as archive, closing(StringIO()) as records:
+            with WheelArchive(metadata_directory, self.config.reproducible) as archive, closing(StringIO()) as records:
                 directories = []
-                for relative_directory in self.dev_mode_dirs:
+                for relative_directory in self.config.dev_mode_dirs:
                     directories.append(os.path.normpath(os.path.join(self.root, relative_directory)))
 
                 record = archive.write_file(
@@ -396,10 +396,10 @@ class WheelBuilder(BuilderInterface):
         return {'infer_tag': False}
 
     def ignore_directory(self, directory):
-        return self.include_spec is None and directory.startswith('test')
+        return self.config.include_spec is None and directory.startswith('test')
 
     def ignore_files(self, files):
-        return self.include_spec is None and '__init__.py' not in files
+        return self.config.include_spec is None and '__init__.py' not in files
 
     @property
     def core_metadata_constructor(self):

@@ -95,7 +95,7 @@ class SdistBuilder(BuilderInterface):
     def build_standard(self, directory, **build_data):
         found_packages = set()
 
-        with SdistArchive(self.project_id, self.reproducible) as archive:
+        with SdistArchive(self.project_id, self.config.reproducible) as archive:
             for included_file in self.recurse_project_files():
                 if self.support_legacy:
                     possible_package, file_name = os.path.split(included_file.relative_path)
@@ -226,17 +226,17 @@ class SdistBuilder(BuilderInterface):
 
     def get_default_build_data(self):
         build_data = {'artifacts': []}
-        if not self.include_path('pyproject.toml'):
+        if not self.config.include_path('pyproject.toml'):
             build_data['artifacts'].append('/pyproject.toml')
 
         readme_path = self.metadata.core.readme_path
-        if readme_path and not self.include_path(readme_path):
+        if readme_path and not self.config.include_path(readme_path):
             build_data['artifacts'].append('/{}'.format(readme_path))
 
         license_files = self.metadata.core.license_files
         if license_files:
             for license_file in license_files:
-                if not self.include_path(license_file):
+                if not self.config.include_path(license_file):
                     build_data['artifacts'].append('/{}'.format(license_file))
 
         return build_data
