@@ -704,7 +704,7 @@
 <span class=sd>        This is the canonical way [`build`](../cli/reference.md#hatch-build) command options are translated to</span>
 <span class=sd>        a subprocess command issued to [builders](builder.md).</span>
 <span class=sd>        &quot;&quot;&quot;</span>
-        <span class=n>command</span> <span class=o>=</span> <span class=p>[</span><span class=s1>&#39;python&#39;</span><span class=p>,</span> <span class=s1>&#39;-m&#39;</span><span class=p>,</span> <span class=s1>&#39;hatchling&#39;</span><span class=p>,</span> <span class=s1>&#39;build&#39;</span><span class=p>,</span> <span class=s1>&#39;--app&#39;</span><span class=p>]</span>
+        <span class=n>command</span> <span class=o>=</span> <span class=p>[</span><span class=s1>&#39;python&#39;</span><span class=p>,</span> <span class=s1>&#39;-u&#39;</span><span class=p>,</span> <span class=s1>&#39;-m&#39;</span><span class=p>,</span> <span class=s1>&#39;hatchling&#39;</span><span class=p>,</span> <span class=s1>&#39;build&#39;</span><span class=p>,</span> <span class=s1>&#39;--app&#39;</span><span class=p>]</span>
 
         <span class=k>if</span> <span class=n>directory</span><span class=p>:</span>
             <span class=n>command</span><span class=o>.</span><span class=n>extend</span><span class=p>((</span><span class=s1>&#39;--directory&#39;</span><span class=p>,</span> <span class=n>directory</span><span class=p>))</span>
@@ -739,7 +739,7 @@
             <span class=c1># Default to -1 verbosity</span>
             <span class=n>verbosity</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>verbosity</span> <span class=o>-</span> <span class=mi>1</span>
 
-        <span class=n>command</span> <span class=o>=</span> <span class=p>[</span><span class=s1>&#39;python&#39;</span><span class=p>,</span> <span class=s1>&#39;-m&#39;</span><span class=p>,</span> <span class=s1>&#39;pip&#39;</span><span class=p>,</span> <span class=s1>&#39;install&#39;</span><span class=p>,</span> <span class=s1>&#39;--disable-pip-version-check&#39;</span><span class=p>,</span> <span class=s1>&#39;--no-python-version-warning&#39;</span><span class=p>]</span>
+        <span class=n>command</span> <span class=o>=</span> <span class=p>[</span><span class=s1>&#39;python&#39;</span><span class=p>,</span> <span class=s1>&#39;-u&#39;</span><span class=p>,</span> <span class=s1>&#39;-m&#39;</span><span class=p>,</span> <span class=s1>&#39;pip&#39;</span><span class=p>,</span> <span class=s1>&#39;install&#39;</span><span class=p>,</span> <span class=s1>&#39;--disable-pip-version-check&#39;</span><span class=p>,</span> <span class=s1>&#39;--no-python-version-warning&#39;</span><span class=p>]</span>
 
         <span class=k>if</span> <span class=n>verbosity</span> <span class=o>&lt;</span> <span class=mi>0</span><span class=p>:</span>
             <span class=n>command</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=sa>f</span><span class=s2>&quot;-</span><span class=si>{</span><span class=s1>&#39;q&#39;</span> <span class=o>*</span> <span class=nb>abs</span><span class=p>(</span><span class=n>verbosity</span><span class=p>)</span><span class=si>}</span><span class=s2>&quot;</span><span class=p>)</span>
@@ -883,7 +883,7 @@
 <span class=sd>    This is the canonical way [`build`](../cli/reference.md#hatch-build) command options are translated to</span>
 <span class=sd>    a subprocess command issued to [builders](builder.md).</span>
 <span class=sd>    &quot;&quot;&quot;</span>
-    <span class=n>command</span> <span class=o>=</span> <span class=p>[</span><span class=s1>&#39;python&#39;</span><span class=p>,</span> <span class=s1>&#39;-m&#39;</span><span class=p>,</span> <span class=s1>&#39;hatchling&#39;</span><span class=p>,</span> <span class=s1>&#39;build&#39;</span><span class=p>,</span> <span class=s1>&#39;--app&#39;</span><span class=p>]</span>
+    <span class=n>command</span> <span class=o>=</span> <span class=p>[</span><span class=s1>&#39;python&#39;</span><span class=p>,</span> <span class=s1>&#39;-u&#39;</span><span class=p>,</span> <span class=s1>&#39;-m&#39;</span><span class=p>,</span> <span class=s1>&#39;hatchling&#39;</span><span class=p>,</span> <span class=s1>&#39;build&#39;</span><span class=p>,</span> <span class=s1>&#39;--app&#39;</span><span class=p>]</span>
 
     <span class=k>if</span> <span class=n>directory</span><span class=p>:</span>
         <span class=n>command</span><span class=o>.</span><span class=n>extend</span><span class=p>((</span><span class=s1>&#39;--directory&#39;</span><span class=p>,</span> <span class=n>directory</span><span class=p>))</span>
@@ -917,7 +917,7 @@
         <span class=c1># Default to -1 verbosity</span>
         <span class=n>verbosity</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>verbosity</span> <span class=o>-</span> <span class=mi>1</span>
 
-    <span class=n>command</span> <span class=o>=</span> <span class=p>[</span><span class=s1>&#39;python&#39;</span><span class=p>,</span> <span class=s1>&#39;-m&#39;</span><span class=p>,</span> <span class=s1>&#39;pip&#39;</span><span class=p>,</span> <span class=s1>&#39;install&#39;</span><span class=p>,</span> <span class=s1>&#39;--disable-pip-version-check&#39;</span><span class=p>,</span> <span class=s1>&#39;--no-python-version-warning&#39;</span><span class=p>]</span>
+    <span class=n>command</span> <span class=o>=</span> <span class=p>[</span><span class=s1>&#39;python&#39;</span><span class=p>,</span> <span class=s1>&#39;-u&#39;</span><span class=p>,</span> <span class=s1>&#39;-m&#39;</span><span class=p>,</span> <span class=s1>&#39;pip&#39;</span><span class=p>,</span> <span class=s1>&#39;install&#39;</span><span class=p>,</span> <span class=s1>&#39;--disable-pip-version-check&#39;</span><span class=p>,</span> <span class=s1>&#39;--no-python-version-warning&#39;</span><span class=p>]</span>
 
     <span class=k>if</span> <span class=n>verbosity</span> <span class=o>&lt;</span> <span class=mi>0</span><span class=p>:</span>
         <span class=n>command</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=sa>f</span><span class=s2>&quot;-</span><span class=si>{</span><span class=s1>&#39;q&#39;</span> <span class=o>*</span> <span class=nb>abs</span><span class=p>(</span><span class=n>verbosity</span><span class=p>)</span><span class=si>}</span><span class=s2>&quot;</span><span class=p>)</span>
