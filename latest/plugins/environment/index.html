@@ -602,8 +602,14 @@
 <span class=sd>        with environment.build_environment([...]):</span>
 <span class=sd>            ...</span>
 <span class=sd>        ```</span>
+
+<span class=sd>        The build environment should reflect any</span>
+<span class=sd>        [environment variables](environment.md#hatch.env.plugin.interface.EnvironmentInterface.get_env_vars)</span>
+<span class=sd>        the user defined either currently or at the time of</span>
+<span class=sd>        [creation](environment.md#hatch.env.plugin.interface.EnvironmentInterface.create).</span>
 <span class=sd>        &quot;&quot;&quot;</span>
-        <span class=k>yield</span>
+        <span class=k>with</span> <span class=bp>self</span><span class=o>.</span><span class=n>get_env_vars</span><span class=p>():</span>
+            <span class=k>yield</span>
 
     <span class=k>def</span> <span class=nf>get_build_process</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>build_environment</span><span class=p>,</span> <span class=o>**</span><span class=n>kwargs</span><span class=p>):</span>
         <span class=sd>&quot;&quot;&quot;</span>
@@ -690,13 +696,21 @@
             <span class=k>yield</span> <span class=n>command</span>
 
     <span class=k>def</span> <span class=nf>construct_build_command</span><span class=p>(</span>
-        <span class=bp>self</span><span class=p>,</span> <span class=o>*</span><span class=p>,</span> <span class=n>directory</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=n>targets</span><span class=o>=</span><span class=p>(),</span> <span class=n>clean</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>hooks_only</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>no_hooks</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>clean_only</span><span class=o>=</span><span class=kc>False</span>
+        <span class=bp>self</span><span class=p>,</span>
+        <span class=o>*</span><span class=p>,</span>
+        <span class=n>directory</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
+        <span class=n>targets</span><span class=o>=</span><span class=p>(),</span>
+        <span class=n>hooks_only</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span>
+        <span class=n>no_hooks</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span>
+        <span class=n>clean</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span>
+        <span class=n>clean_hooks_after</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span>
+        <span class=n>clean_only</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span>
     <span class=p>):</span>
         <span class=sd>&quot;&quot;&quot;</span>
 <span class=sd>        This is the canonical way [`build`](../cli/reference.md#hatch-build) command options are translated to</span>
 <span class=sd>        a subprocess command issued to [builders](builder.md).</span>
 <span class=sd>        &quot;&quot;&quot;</span>
-        <span class=n>command</span> <span class=o>=</span> <span class=p>[</span><span class=s1>&#39;python&#39;</span><span class=p>,</span> <span class=s1>&#39;-m&#39;</span><span class=p>,</span> <span class=s1>&#39;hatchling&#39;</span><span class=p>,</span> <span class=s1>&#39;build&#39;</span><span class=p>,</span> <span class=s1>&#39;--app&#39;</span><span class=p>]</span>
+        <span class=n>command</span> <span class=o>=</span> <span class=p>[</span><span class=s1>&#39;python&#39;</span><span class=p>,</span> <span class=s1>&#39;-u&#39;</span><span class=p>,</span> <span class=s1>&#39;-m&#39;</span><span class=p>,</span> <span class=s1>&#39;hatchling&#39;</span><span class=p>,</span> <span class=s1>&#39;build&#39;</span><span class=p>,</span> <span class=s1>&#39;--app&#39;</span><span class=p>]</span>
 
         <span class=k>if</span> <span class=n>directory</span><span class=p>:</span>
             <span class=n>command</span><span class=o>.</span><span class=n>extend</span><span class=p>((</span><span class=s1>&#39;--directory&#39;</span><span class=p>,</span> <span class=n>directory</span><span class=p>))</span>
@@ -705,14 +719,17 @@
             <span class=k>for</span> <span class=n>target</span> <span class=ow>in</span> <span class=n>targets</span><span class=p>:</span>
                 <span class=n>command</span><span class=o>.</span><span class=n>extend</span><span class=p>((</span><span class=s1>&#39;--target&#39;</span><span class=p>,</span> <span class=n>target</span><span class=p>))</span>
 
-        <span class=k>if</span> <span class=n>clean</span><span class=p>:</span>
-            <span class=n>command</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=s1>&#39;--clean&#39;</span><span class=p>)</span>
-
         <span class=k>if</span> <span class=n>hooks_only</span><span class=p>:</span>
             <span class=n>command</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=s1>&#39;--hooks-only&#39;</span><span class=p>)</span>
 
         <span class=k>if</span> <span class=n>no_hooks</span><span class=p>:</span>
             <span class=n>command</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=s1>&#39;--no-hooks&#39;</span><span class=p>)</span>
+
+        <span class=k>if</span> <span class=n>clean</span><span class=p>:</span>
+            <span class=n>command</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=s1>&#39;--clean&#39;</span><span class=p>)</span>
+
+        <span class=k>if</span> <span class=n>clean_hooks_after</span><span class=p>:</span>
+            <span class=n>command</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=s1>&#39;--clean-hooks-after&#39;</span><span class=p>)</span>
 
         <span class=k>if</span> <span class=n>clean_only</span><span class=p>:</span>
             <span class=n>command</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=s1>&#39;--clean-only&#39;</span><span class=p>)</span>
@@ -728,7 +745,7 @@
             <span class=c1># Default to -1 verbosity</span>
             <span class=n>verbosity</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>verbosity</span> <span class=o>-</span> <span class=mi>1</span>
 
-        <span class=n>command</span> <span class=o>=</span> <span class=p>[</span><span class=s1>&#39;python&#39;</span><span class=p>,</span> <span class=s1>&#39;-m&#39;</span><span class=p>,</span> <span class=s1>&#39;pip&#39;</span><span class=p>,</span> <span class=s1>&#39;install&#39;</span><span class=p>,</span> <span class=s1>&#39;--disable-pip-version-check&#39;</span><span class=p>,</span> <span class=s1>&#39;--no-python-version-warning&#39;</span><span class=p>]</span>
+        <span class=n>command</span> <span class=o>=</span> <span class=p>[</span><span class=s1>&#39;python&#39;</span><span class=p>,</span> <span class=s1>&#39;-u&#39;</span><span class=p>,</span> <span class=s1>&#39;-m&#39;</span><span class=p>,</span> <span class=s1>&#39;pip&#39;</span><span class=p>,</span> <span class=s1>&#39;install&#39;</span><span class=p>,</span> <span class=s1>&#39;--disable-pip-version-check&#39;</span><span class=p>,</span> <span class=s1>&#39;--no-python-version-warning&#39;</span><span class=p>]</span>
 
         <span class=k>if</span> <span class=n>verbosity</span> <span class=o>&lt;</span> <span class=mi>0</span><span class=p>:</span>
             <span class=n>command</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=sa>f</span><span class=s2>&quot;-</span><span class=si>{</span><span class=s1>&#39;q&#39;</span> <span class=o>*</span> <span class=nb>abs</span><span class=p>(</span><span class=n>verbosity</span><span class=p>)</span><span class=si>}</span><span class=s2>&quot;</span><span class=p>)</span>
@@ -837,7 +854,7 @@
     <span class=k>return</span> <span class=n>requirement</span>
 </code></pre></div> </details> </div> </div> <div class="doc doc-object doc-method"> <h3 id=hatch.env.plugin.interface.EnvironmentInterface.build_environment class="doc doc-heading"> <code class="highlight language-python"><span class=n>build_environment</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>dependencies</span><span class=p>:</span> <span class=nb>list</span><span class=p>[</span><span class=nb>str</span><span class=p>])</span></code> <a href=#hatch.env.plugin.interface.EnvironmentInterface.build_environment class=headerlink title="Permanent link">&para;</a></h3> <div class="doc doc-contents "> <p>This should set up an isolated environment in which to <a href=../../cli/reference/#hatch-build><code>build</code></a> the project given a set of dependencies and must be a context manager:</p> <div class=highlight><pre><span></span><code><span class=k>with</span> <span class=n>environment</span><span class=o>.</span><span class=n>build_environment</span><span class=p>([</span><span class=o>...</span><span class=p>]):</span>
     <span class=o>...</span>
-</code></pre></div> <details class=quote> <summary>Source code in <code>hatch/env/plugin/interface.py</code></summary> <div class=highlight><pre><span></span><code><span class=nd>@contextmanager</span>
+</code></pre></div> <p>The build environment should reflect any <a href=./#hatch.env.plugin.interface.EnvironmentInterface.get_env_vars>environment variables</a> the user defined either currently or at the time of <a href=./#hatch.env.plugin.interface.EnvironmentInterface.create>creation</a>.</p> <details class=quote> <summary>Source code in <code>hatch/env/plugin/interface.py</code></summary> <div class=highlight><pre><span></span><code><span class=nd>@contextmanager</span>
 <span class=k>def</span> <span class=nf>build_environment</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>dependencies</span><span class=p>:</span> <span class=nb>list</span><span class=p>[</span><span class=nb>str</span><span class=p>]):</span>
     <span class=sd>&quot;&quot;&quot;</span>
 <span class=sd>    This should set up an isolated environment in which to [`build`](../cli/reference.md#hatch-build) the project</span>
@@ -847,8 +864,14 @@
 <span class=sd>    with environment.build_environment([...]):</span>
 <span class=sd>        ...</span>
 <span class=sd>    ```</span>
+
+<span class=sd>    The build environment should reflect any</span>
+<span class=sd>    [environment variables](environment.md#hatch.env.plugin.interface.EnvironmentInterface.get_env_vars)</span>
+<span class=sd>    the user defined either currently or at the time of</span>
+<span class=sd>    [creation](environment.md#hatch.env.plugin.interface.EnvironmentInterface.create).</span>
 <span class=sd>    &quot;&quot;&quot;</span>
-    <span class=k>yield</span>
+    <span class=k>with</span> <span class=bp>self</span><span class=o>.</span><span class=n>get_env_vars</span><span class=p>():</span>
+        <span class=k>yield</span>
 </code></pre></div> </details> </div> </div> <div class="doc doc-object doc-method"> <h3 id=hatch.env.plugin.interface.EnvironmentInterface.check_compatibility class="doc doc-heading"> <code class="highlight language-python"><span class=n>check_compatibility</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span></code> <a href=#hatch.env.plugin.interface.EnvironmentInterface.check_compatibility class=headerlink title="Permanent link">&para;</a></h3> <div class="doc doc-contents "> <p>This raises an exception if the environment is not compatible with the user's setup. The default behavior checks for <a href=../../config/environment/#supported-platforms>platform compatibility</a> and any method override should keep this check.</p> <details class=quote> <summary>Source code in <code>hatch/env/plugin/interface.py</code></summary> <div class=highlight><pre><span></span><code><span class=k>def</span> <span class=nf>check_compatibility</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
     <span class=sd>&quot;&quot;&quot;</span>
 <span class=sd>    This raises an exception if the environment is not compatible with the user&#39;s setup.</span>
@@ -857,14 +880,22 @@
 <span class=sd>    &quot;&quot;&quot;</span>
     <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>platforms</span> <span class=ow>and</span> <span class=bp>self</span><span class=o>.</span><span class=n>platform</span><span class=o>.</span><span class=n>name</span> <span class=ow>not</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>platforms</span><span class=p>:</span>
         <span class=k>raise</span> <span class=ne>OSError</span><span class=p>(</span><span class=s1>&#39;unsupported platform&#39;</span><span class=p>)</span>
-</code></pre></div> </details> </div> </div> <div class="doc doc-object doc-method"> <h3 id=hatch.env.plugin.interface.EnvironmentInterface.construct_build_command class="doc doc-heading"> <code class="highlight language-python"><span class=n>construct_build_command</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=o>*</span><span class=p>,</span> <span class=n>directory</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span> <span class=n>targets</span> <span class=o>=</span> <span class=p>(),</span> <span class=n>clean</span> <span class=o>=</span> <span class=kc>False</span><span class=p>,</span> <span class=n>hooks_only</span> <span class=o>=</span> <span class=kc>False</span><span class=p>,</span> <span class=n>no_hooks</span> <span class=o>=</span> <span class=kc>False</span><span class=p>,</span> <span class=n>clean_only</span> <span class=o>=</span> <span class=kc>False</span><span class=p>)</span></code> <a href=#hatch.env.plugin.interface.EnvironmentInterface.construct_build_command class=headerlink title="Permanent link">&para;</a></h3> <div class="doc doc-contents "> <p>This is the canonical way <a href=../../cli/reference/#hatch-build><code>build</code></a> command options are translated to a subprocess command issued to <a href=../builder/ >builders</a>.</p> <details class=quote> <summary>Source code in <code>hatch/env/plugin/interface.py</code></summary> <div class=highlight><pre><span></span><code><span class=k>def</span> <span class=nf>construct_build_command</span><span class=p>(</span>
-    <span class=bp>self</span><span class=p>,</span> <span class=o>*</span><span class=p>,</span> <span class=n>directory</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=n>targets</span><span class=o>=</span><span class=p>(),</span> <span class=n>clean</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>hooks_only</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>no_hooks</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>clean_only</span><span class=o>=</span><span class=kc>False</span>
+</code></pre></div> </details> </div> </div> <div class="doc doc-object doc-method"> <h3 id=hatch.env.plugin.interface.EnvironmentInterface.construct_build_command class="doc doc-heading"> <code class="highlight language-python"><span class=n>construct_build_command</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=o>*</span><span class=p>,</span> <span class=n>directory</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span> <span class=n>targets</span> <span class=o>=</span> <span class=p>(),</span> <span class=n>hooks_only</span> <span class=o>=</span> <span class=kc>False</span><span class=p>,</span> <span class=n>no_hooks</span> <span class=o>=</span> <span class=kc>False</span><span class=p>,</span> <span class=n>clean</span> <span class=o>=</span> <span class=kc>False</span><span class=p>,</span> <span class=n>clean_hooks_after</span> <span class=o>=</span> <span class=kc>False</span><span class=p>,</span> <span class=n>clean_only</span> <span class=o>=</span> <span class=kc>False</span><span class=p>)</span></code> <a href=#hatch.env.plugin.interface.EnvironmentInterface.construct_build_command class=headerlink title="Permanent link">&para;</a></h3> <div class="doc doc-contents "> <p>This is the canonical way <a href=../../cli/reference/#hatch-build><code>build</code></a> command options are translated to a subprocess command issued to <a href=../builder/ >builders</a>.</p> <details class=quote> <summary>Source code in <code>hatch/env/plugin/interface.py</code></summary> <div class=highlight><pre><span></span><code><span class=k>def</span> <span class=nf>construct_build_command</span><span class=p>(</span>
+    <span class=bp>self</span><span class=p>,</span>
+    <span class=o>*</span><span class=p>,</span>
+    <span class=n>directory</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
+    <span class=n>targets</span><span class=o>=</span><span class=p>(),</span>
+    <span class=n>hooks_only</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span>
+    <span class=n>no_hooks</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span>
+    <span class=n>clean</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span>
+    <span class=n>clean_hooks_after</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span>
+    <span class=n>clean_only</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span>
 <span class=p>):</span>
     <span class=sd>&quot;&quot;&quot;</span>
 <span class=sd>    This is the canonical way [`build`](../cli/reference.md#hatch-build) command options are translated to</span>
 <span class=sd>    a subprocess command issued to [builders](builder.md).</span>
 <span class=sd>    &quot;&quot;&quot;</span>
-    <span class=n>command</span> <span class=o>=</span> <span class=p>[</span><span class=s1>&#39;python&#39;</span><span class=p>,</span> <span class=s1>&#39;-m&#39;</span><span class=p>,</span> <span class=s1>&#39;hatchling&#39;</span><span class=p>,</span> <span class=s1>&#39;build&#39;</span><span class=p>,</span> <span class=s1>&#39;--app&#39;</span><span class=p>]</span>
+    <span class=n>command</span> <span class=o>=</span> <span class=p>[</span><span class=s1>&#39;python&#39;</span><span class=p>,</span> <span class=s1>&#39;-u&#39;</span><span class=p>,</span> <span class=s1>&#39;-m&#39;</span><span class=p>,</span> <span class=s1>&#39;hatchling&#39;</span><span class=p>,</span> <span class=s1>&#39;build&#39;</span><span class=p>,</span> <span class=s1>&#39;--app&#39;</span><span class=p>]</span>
 
     <span class=k>if</span> <span class=n>directory</span><span class=p>:</span>
         <span class=n>command</span><span class=o>.</span><span class=n>extend</span><span class=p>((</span><span class=s1>&#39;--directory&#39;</span><span class=p>,</span> <span class=n>directory</span><span class=p>))</span>
@@ -873,14 +904,17 @@
         <span class=k>for</span> <span class=n>target</span> <span class=ow>in</span> <span class=n>targets</span><span class=p>:</span>
             <span class=n>command</span><span class=o>.</span><span class=n>extend</span><span class=p>((</span><span class=s1>&#39;--target&#39;</span><span class=p>,</span> <span class=n>target</span><span class=p>))</span>
 
-    <span class=k>if</span> <span class=n>clean</span><span class=p>:</span>
-        <span class=n>command</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=s1>&#39;--clean&#39;</span><span class=p>)</span>
-
     <span class=k>if</span> <span class=n>hooks_only</span><span class=p>:</span>
         <span class=n>command</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=s1>&#39;--hooks-only&#39;</span><span class=p>)</span>
 
     <span class=k>if</span> <span class=n>no_hooks</span><span class=p>:</span>
         <span class=n>command</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=s1>&#39;--no-hooks&#39;</span><span class=p>)</span>
+
+    <span class=k>if</span> <span class=n>clean</span><span class=p>:</span>
+        <span class=n>command</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=s1>&#39;--clean&#39;</span><span class=p>)</span>
+
+    <span class=k>if</span> <span class=n>clean_hooks_after</span><span class=p>:</span>
+        <span class=n>command</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=s1>&#39;--clean-hooks-after&#39;</span><span class=p>)</span>
 
     <span class=k>if</span> <span class=n>clean_only</span><span class=p>:</span>
         <span class=n>command</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=s1>&#39;--clean-only&#39;</span><span class=p>)</span>
@@ -895,7 +929,7 @@
         <span class=c1># Default to -1 verbosity</span>
         <span class=n>verbosity</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>verbosity</span> <span class=o>-</span> <span class=mi>1</span>
 
-    <span class=n>command</span> <span class=o>=</span> <span class=p>[</span><span class=s1>&#39;python&#39;</span><span class=p>,</span> <span class=s1>&#39;-m&#39;</span><span class=p>,</span> <span class=s1>&#39;pip&#39;</span><span class=p>,</span> <span class=s1>&#39;install&#39;</span><span class=p>,</span> <span class=s1>&#39;--disable-pip-version-check&#39;</span><span class=p>,</span> <span class=s1>&#39;--no-python-version-warning&#39;</span><span class=p>]</span>
+    <span class=n>command</span> <span class=o>=</span> <span class=p>[</span><span class=s1>&#39;python&#39;</span><span class=p>,</span> <span class=s1>&#39;-u&#39;</span><span class=p>,</span> <span class=s1>&#39;-m&#39;</span><span class=p>,</span> <span class=s1>&#39;pip&#39;</span><span class=p>,</span> <span class=s1>&#39;install&#39;</span><span class=p>,</span> <span class=s1>&#39;--disable-pip-version-check&#39;</span><span class=p>,</span> <span class=s1>&#39;--no-python-version-warning&#39;</span><span class=p>]</span>
 
     <span class=k>if</span> <span class=n>verbosity</span> <span class=o>&lt;</span> <span class=mi>0</span><span class=p>:</span>
         <span class=n>command</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=sa>f</span><span class=s2>&quot;-</span><span class=si>{</span><span class=s1>&#39;q&#39;</span> <span class=o>*</span> <span class=nb>abs</span><span class=p>(</span><span class=n>verbosity</span><span class=p>)</span><span class=si>}</span><span class=s2>&quot;</span><span class=p>)</span>
