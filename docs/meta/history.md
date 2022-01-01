@@ -10,6 +10,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Unreleased
 
+### [1rc4](https://github.com/ofek/hatch/releases/tag/hatch-v1rc4) - 2022-01-01 ### {: #hatch-v1rc4 }
+
+***Added:***
+
+- Bump the minimum supported version of Hatchling
+
 ***Fixed:***
 
 - Ensure Python subprocesses use unbuffered output to display real live progress
