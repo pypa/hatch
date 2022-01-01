@@ -14,15 +14,6 @@ import click
     ),
 )
 @click.option(
-    '--clean',
-    '-c',
-    is_flag=True,
-    help=(
-        'Whether or not each build target should first remove any of its existing artifacts '
-        '[env var: `HATCH_BUILD_CLEAN`]'
-    ),
-)
-@click.option(
     '--hooks-only', is_flag=True, help='Whether or not to only execute build hooks [env var: `HATCH_BUILD_HOOKS_ONLY`]'
 )
 @click.option(
@@ -36,9 +27,23 @@ import click
         'compiling extensions. Equivalent to `--hooks-only -t wheel`'
     ),
 )
+@click.option(
+    '--clean',
+    '-c',
+    is_flag=True,
+    help='Whether or not existing artifacts should first be removed [env var: `HATCH_BUILD_CLEAN`]',
+)
+@click.option(
+    '--clean-hooks-after',
+    is_flag=True,
+    help=(
+        'Whether or not build hook artifacts should be removed after each build '
+        '[env var: `HATCH_BUILD_CLEAN_HOOKS_AFTER`]'
+    ),
+)
 @click.option('--clean-only', is_flag=True, hidden=True)
 @click.pass_obj
-def build(app, location, targets, clean, hooks_only, no_hooks, ext, clean_only):
+def build(app, location, targets, hooks_only, no_hooks, ext, clean, clean_hooks_after, clean_only):
     """Build a project."""
     import pickle
 
@@ -104,9 +109,10 @@ def build(app, location, targets, clean, hooks_only, no_hooks, ext, clean_only):
                         build_environment,
                         directory=path,
                         targets=(target,),
-                        clean=clean,
                         hooks_only=hooks_only,
                         no_hooks=no_hooks,
+                        clean=clean,
+                        clean_hooks_after=clean_hooks_after,
                         clean_only=clean_only,
                     )
 

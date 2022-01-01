@@ -492,7 +492,7 @@ def test_clean_only(hatch, temp_dir, helpers):
     assert not build_artifact.exists()
 
     assert result.output == helpers.dedent(
-        f"""
+        """
         Setting up build environment
         Setting up build environment
         """
@@ -555,9 +555,129 @@ def test_clean_only_hooks_only(hatch, temp_dir, helpers):
     assert not build_artifact.exists()
 
     assert result.output == helpers.dedent(
+        """
+        Setting up build environment
+        Setting up build environment
+        """
+    )
+
+
+def test_clean_hooks_after(hatch, temp_dir, helpers):
+    project_name = 'My App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+        assert result.exit_code == 0, result.output
+
+    path = temp_dir / 'my-app'
+
+    build_script = path / 'build.py'
+    build_script.write_text(
+        helpers.dedent(
+            """
+            import pathlib
+
+            from hatchling.builders.hooks.plugin.interface import BuildHookInterface
+
+            class CustomHook(BuildHookInterface):
+                def clean(self, versions):
+                    pathlib.Path('my_app', 'lib.so').unlink(missing_ok=True)
+                def initialize(self, version, build_data):
+                    if self.target_name == 'wheel':
+                        pathlib.Path('my_app', 'lib.so').touch()
+            """
+        )
+    )
+
+    project = Project(path)
+    config = dict(project.raw_config)
+    config['tool']['hatch']['build']['hooks'] = {'custom': {'path': build_script.name}}
+    project.save_config(config)
+
+    with path.as_cwd():
+        result = hatch('build', '--clean-hooks-after')
+        assert result.exit_code == 0, result.output
+
+    build_directory = path / 'dist'
+    assert build_directory.is_dir()
+    build_artifact = path / 'my_app' / 'lib.so'
+    assert not build_artifact.exists()
+
+    artifacts = list(build_directory.iterdir())
+    assert len(artifacts) == 2
+
+    sdist_path = [artifact for artifact in artifacts if artifact.name.endswith('.tar.gz')][0]
+    wheel_path = [artifact for artifact in artifacts if artifact.name.endswith('.whl')][0]
+
+    assert result.output == helpers.dedent(
         f"""
         Setting up build environment
+        [sdist]
+        {sdist_path.relative_to(path)}
+
         Setting up build environment
+        [wheel]
+        {wheel_path.relative_to(path)}
+        """
+    )
+
+
+def test_clean_hooks_after_env_var(hatch, temp_dir, helpers):
+    project_name = 'My App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+        assert result.exit_code == 0, result.output
+
+    path = temp_dir / 'my-app'
+
+    build_script = path / 'build.py'
+    build_script.write_text(
+        helpers.dedent(
+            """
+            import pathlib
+
+            from hatchling.builders.hooks.plugin.interface import BuildHookInterface
+
+            class CustomHook(BuildHookInterface):
+                def clean(self, versions):
+                    pathlib.Path('my_app', 'lib.so').unlink(missing_ok=True)
+                def initialize(self, version, build_data):
+                    if self.target_name == 'wheel':
+                        pathlib.Path('my_app', 'lib.so').touch()
+            """
+        )
+    )
+
+    project = Project(path)
+    config = dict(project.raw_config)
+    config['tool']['hatch']['build']['hooks'] = {'custom': {'path': build_script.name}}
+    project.save_config(config)
+
+    with path.as_cwd({BuildEnvVars.CLEAN_HOOKS_AFTER: 'true'}):
+        result = hatch('build')
+        assert result.exit_code == 0, result.output
+
+    build_directory = path / 'dist'
+    assert build_directory.is_dir()
+    build_artifact = path / 'my_app' / 'lib.so'
+    assert not build_artifact.exists()
+
+    artifacts = list(build_directory.iterdir())
+    assert len(artifacts) == 2
+
+    sdist_path = [artifact for artifact in artifacts if artifact.name.endswith('.tar.gz')][0]
+    wheel_path = [artifact for artifact in artifacts if artifact.name.endswith('.whl')][0]
+
+    assert result.output == helpers.dedent(
+        f"""
+        Setting up build environment
+        [sdist]
+        {sdist_path.relative_to(path)}
+
+        Setting up build environment
+        [wheel]
+        {wheel_path.relative_to(path)}
         """
     )
 
@@ -618,7 +738,7 @@ def test_clean_only_no_hooks(hatch, temp_dir, helpers):
     assert build_artifact.is_file()
 
     assert result.output == helpers.dedent(
-        f"""
+        """
         Setting up build environment
         Setting up build environment
         """

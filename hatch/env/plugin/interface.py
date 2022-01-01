@@ -654,7 +654,15 @@ class EnvironmentInterface(ABC):
             yield command
 
     def construct_build_command(
-        self, *, directory=None, targets=(), clean=False, hooks_only=False, no_hooks=False, clean_only=False
+        self,
+        *,
+        directory=None,
+        targets=(),
+        hooks_only=False,
+        no_hooks=False,
+        clean=False,
+        clean_hooks_after=False,
+        clean_only=False,
     ):
         """
         This is the canonical way [`build`](../cli/reference.md#hatch-build) command options are translated to
@@ -669,14 +677,17 @@ class EnvironmentInterface(ABC):
             for target in targets:
                 command.extend(('--target', target))
 
-        if clean:
-            command.append('--clean')
-
         if hooks_only:
             command.append('--hooks-only')
 
         if no_hooks:
             command.append('--no-hooks')
+
+        if clean:
+            command.append('--clean')
+
+        if clean_hooks_after:
+            command.append('--clean-hooks-after')
 
         if clean_only:
             command.append('--clean-only')

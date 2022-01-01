@@ -63,7 +63,16 @@ class BuilderInterface(object):
         # Metadata
         self.__project_id = None
 
-    def build(self, directory=None, versions=None, clean=None, hooks_only=None, no_hooks=None, clean_only=False):
+    def build(
+        self,
+        directory=None,
+        versions=None,
+        hooks_only=None,
+        no_hooks=None,
+        clean=None,
+        clean_hooks_after=None,
+        clean_only=False,
+    ):
         if directory is None:
             if BuildEnvVars.LOCATION in os.environ:
                 directory = self.config.normalize_build_directory(os.environ[BuildEnvVars.LOCATION])
@@ -112,6 +121,9 @@ class BuilderInterface(object):
             if clean_only:
                 return
 
+        if clean_hooks_after is None:
+            clean_hooks_after = _env_var_enabled(BuildEnvVars.CLEAN_HOOKS_AFTER)
+
         for version in versions:
             self.app.display_debug('Building `{}` version `{}`'.format(self.PLUGIN_NAME, version))
 
@@ -138,6 +150,10 @@ class BuilderInterface(object):
             # Execute all `finalize` build hooks
             for build_hook in build_hooks:
                 build_hook.finalize(version, build_data, artifact)
+
+            if clean_hooks_after:
+                for build_hook in build_hooks:
+                    build_hook.clean([version])
 
             yield artifact
 

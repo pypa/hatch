@@ -1,7 +1,7 @@
 import argparse
 
 
-def build_impl(called_by_app, directory, targets, clean, hooks_only, no_hooks, clean_only):
+def build_impl(called_by_app, directory, targets, hooks_only, no_hooks, clean, clean_hooks_after, clean_only):
     import os
     from collections import OrderedDict
 
@@ -75,9 +75,10 @@ def build_impl(called_by_app, directory, targets, clean, hooks_only, no_hooks, c
         for artifact in builder.build(
             directory=directory,
             versions=versions,
-            clean=clean,
             hooks_only=hooks_only,
             no_hooks=no_hooks,
+            clean=clean,
+            clean_hooks_after=clean_hooks_after,
             clean_only=clean_only,
         ):
             if os.path.isfile(artifact) and artifact.startswith(root):
@@ -103,9 +104,10 @@ def build_command(subparsers, defaults):
         help='Comma-separated list of targets to build, overriding project defaults',
         **defaults
     )
-    parser.add_argument('-c', '--clean', dest='clean', action='store_true', default=None)
     parser.add_argument('--hooks-only', dest='hooks_only', action='store_true', default=None)
     parser.add_argument('--no-hooks', dest='no_hooks', action='store_true', default=None)
+    parser.add_argument('-c', '--clean', dest='clean', action='store_true', default=None)
+    parser.add_argument('--clean-hooks-after', dest='clean_hooks_after', action='store_true', default=None)
     parser.add_argument('--clean-only', dest='clean_only', action='store_true')
     parser.add_argument('--app', dest='called_by_app', action='store_true', help=argparse.SUPPRESS)
     parser.set_defaults(func=build_impl)
