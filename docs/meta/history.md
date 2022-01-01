@@ -26,6 +26,11 @@ This is the first release candidate for Hatch v1, a complete rewrite.
 
 ### Unreleased
 
+***Fixed:***
+
+- Properly include artifacts like C extensions that are built outside of package directories (with the intention of being placed directly inside `site-packages`) for projects with a `src`-layout structure
+- For wheels, the ordering of generated `.dist-info` files now matches the ordering of files included from the local file system
+
 ### [0.4](https://github.com/ofek/hatch/releases/tag/hatchling-v0.4) - 2021-12-30 ### {: #hatchling-v0.4 }
 
 ***Changed:***

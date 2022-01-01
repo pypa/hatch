@@ -20,9 +20,10 @@ class BuilderConfig(object):
         self.__supported_versions_getter = supported_versions_getter
         self.__default_versions_getter = default_versions_getter
         self.__hook_config = None
-        self.__packages = None
         self.__versions = None
         self.__dependencies = None
+        self.__packages = None
+        self.__package_sources = None
 
         # Possible pathspec.PathSpec
         self.__include_spec = None
@@ -118,10 +119,10 @@ class BuilderConfig(object):
 
                 all_include_patterns.append(include_pattern)
 
-            for relative_path, _ in self.packages:
+            for relative_path in self.packages:
                 # Matching only at the root requires a forward slash, back slashes do not work. As such,
                 # normalize to forward slashes for consistency.
-                all_include_patterns.append('/{}'.format(relative_path.replace(os.path.sep, '/')))
+                all_include_patterns.append('/{}/'.format(relative_path.replace(os.path.sep, '/')))
 
             if all_include_patterns:
                 self.__include_spec = pathspec.PathSpec.from_lines(
@@ -325,53 +326,6 @@ class BuilderConfig(object):
         return self.__dev_mode_dirs
 
     @property
-    def packages(self):
-        if self.__packages is None:
-            if 'packages' in self.target_config:
-                package_config = self.target_config
-                package_location = 'tool.hatch.build.targets.{}.packages'.format(self.plugin_name)
-            else:
-                package_config = self.build_config
-                package_location = 'tool.hatch.build.packages'
-
-            all_packages = set()
-
-            packages = package_config.get('packages', [])
-            if not isinstance(packages, list):
-                raise TypeError('Field `{}` must be an array of strings'.format(package_location))
-
-            for i, package in enumerate(packages, 1):
-                if not isinstance(package, str):
-                    raise TypeError('Package #{} in field `{}` must be a string'.format(i, package_location))
-                elif not package:
-                    raise ValueError('Package #{} in field `{}` cannot be an empty string'.format(i, package_location))
-
-                all_packages.add(os.path.normpath(package).lstrip(os.path.sep))
-
-            unique_packages = {}
-            package_data = []
-
-            for relative_path in sorted(all_packages):
-                source, package = os.path.split(relative_path)
-                if package in unique_packages:
-                    raise ValueError(
-                        'Package `{}` of field `{}` is already defined by path `{}`'.format(
-                            package, package_location, unique_packages[package]
-                        )
-                    )
-
-                unique_packages[package] = relative_path
-
-                if source:
-                    package_data.append((relative_path + os.path.sep, lambda path: path[len(source) + 1 :]))
-                else:
-                    package_data.append((relative_path + os.path.sep, lambda path: path))
-
-            self.__packages = package_data
-
-        return self.__packages
-
-    @property
     def versions(self):
         if self.__versions is None:
             # Used as an ordered set
@@ -469,11 +423,67 @@ class BuilderConfig(object):
 
         return self.__dependencies
 
+    @property
+    def packages(self):
+        if self.__packages is None:
+            if 'packages' in self.target_config:
+                package_config = self.target_config
+                package_location = 'tool.hatch.build.targets.{}.packages'.format(self.plugin_name)
+            else:
+                package_config = self.build_config
+                package_location = 'tool.hatch.build.packages'
+
+            all_packages = set()
+
+            packages = package_config.get('packages', [])
+            if not isinstance(packages, list):
+                raise TypeError('Field `{}` must be an array of strings'.format(package_location))
+
+            for i, package in enumerate(packages, 1):
+                if not isinstance(package, str):
+                    raise TypeError('Package #{} in field `{}` must be a string'.format(i, package_location))
+                elif not package:
+                    raise ValueError('Package #{} in field `{}` cannot be an empty string'.format(i, package_location))
+
+                all_packages.add(os.path.normpath(package).lstrip(os.path.sep))
+
+            unique_packages = {}
+            packages = []
+            package_sources = []
+
+            for relative_path in sorted(all_packages):
+                source, package = os.path.split(relative_path)
+                if package in unique_packages:
+                    raise ValueError(
+                        'Package `{}` of field `{}` is already defined by path `{}`'.format(
+                            package, package_location, unique_packages[package]
+                        )
+                    )
+
+                unique_packages[package] = relative_path
+
+                if source:
+                    package_sources.append(source + os.path.sep)
+
+                packages.append(relative_path)
+
+            self.__packages = packages
+            self.__package_sources = package_sources
+
+        return self.__packages
+
+    @property
+    def package_sources(self):
+        if self.__package_sources is None:
+            _ = self.packages
+
+        return self.__package_sources
+
     def get_distribution_path(self, relative_path):
         # src/foo/bar.py -> foo/bar.py
-        for package_relative_path, formatter in self.packages:
-            if relative_path.startswith(package_relative_path):
-                return formatter(relative_path)
+        for package_source in self.package_sources:
+            if relative_path.startswith(package_source):
+                return relative_path[len(package_source) :]
 
         return relative_path
 

@@ -14,8 +14,8 @@ Builds are [configured](config/build.md) using the `tool.hatch.build` table. Eve
 
     [tool.hatch.build.targets.sdist]
     exclude = [
-    ".github/",
-    "docs/",
+    "/.github",
+    "/docs",
     ]
     ```
 
@@ -27,8 +27,8 @@ Builds are [configured](config/build.md) using the `tool.hatch.build` table. Eve
 
     [build.targets.sdist]
     exclude = [
-    ".github/",
-    "docs/",
+    "/.github",
+    "/docs",
     ]
     ```
 

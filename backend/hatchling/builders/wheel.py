@@ -316,10 +316,7 @@ class WheelBuilder(BuilderInterface):
 
     def write_metadata(self, archive, records, build_data, extra_dependencies=()):
         # <<< IMPORTANT >>>
-        # Ensure calls are ordered by file name
-
-        # license_files/
-        self.add_licenses(archive, records)
+        # Ensure calls are ordered by the number of path components followed by the name of the components
 
         # METADATA
         self.write_project_metadata(archive, records, extra_dependencies=extra_dependencies)
@@ -329,6 +326,9 @@ class WheelBuilder(BuilderInterface):
 
         # entry_points.txt
         self.write_entry_points_file(archive, records)
+
+        # license_files/
+        self.add_licenses(archive, records)
 
     def write_archive_metadata(self, archive, records, build_data):
         from packaging.tags import parse_tag

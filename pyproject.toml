@@ -65,16 +65,15 @@ hatch = "hatch.cli:main"
 [tool.hatch.version]
 path = "hatch/__about__.py"
 
-[tool.hatch.build]
-packages = ["hatch"]
-
 [tool.hatch.build.targets.sdist]
 exclude = [
   "/.github",
   "/backend",
+  "/scripts",
 ]
 
 [tool.hatch.build.targets.wheel]
+packages = ["hatch"]
 zip-safe = false
 
 [tool.black]

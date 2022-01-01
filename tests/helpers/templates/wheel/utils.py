@@ -6,7 +6,7 @@ from hatchling.builders.utils import format_file_hash
 
 def update_record_file_contents(record_file, files, generated_files=()):
     for template_file in sorted(
-        files, key=lambda f: (f.path.parts[0].endswith('.dist-info'), -len(f.path.parts), f.path.parts)
+        files, key=lambda f: (f.path.parts[0].endswith('.dist-info'), len(f.path.parts), f.path.parts)
     ):
         raw_contents = template_file.contents.encode('utf-8')
 

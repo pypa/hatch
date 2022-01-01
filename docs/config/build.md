@@ -101,14 +101,14 @@ So for example, if you want to ship a package `foo` that is stored in a director
 === ":octicons-file-code-16: pyproject.toml"
 
     ```toml
-    [tool.hatch.build]
+    [tool.hatch.build.targets.wheel]
     packages = ["src/foo"]
     ```
 
 === ":octicons-file-code-16: hatch.toml"
 
     ```toml
-    [build]
+    [build.targets.wheel]
     packages = ["src/foo"]
     ```
 

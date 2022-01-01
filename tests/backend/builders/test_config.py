@@ -224,6 +224,7 @@ class TestPackages:
     def test_default(self, isolation):
         builder = BuilderInterface(str(isolation))
 
+        assert builder.config.package_sources == builder.config.package_sources == []
         assert builder.config.packages == builder.config.packages == []
         assert builder.config.get_distribution_path(pjoin('src', 'foo', 'bar.py')) == pjoin('src', 'foo', 'bar.py')
 
@@ -239,7 +240,9 @@ class TestPackages:
         builder = BuilderInterface(str(isolation), config=config)
 
         assert len(builder.config.packages) == 1
-        assert builder.config.packages[0][0] == pjoin('src', 'foo', '')
+        assert len(builder.config.package_sources) == 1
+        assert builder.config.packages[0] == pjoin('src', 'foo')
+        assert builder.config.package_sources[0] == pjoin('src', '')
         assert builder.config.get_distribution_path(pjoin('src', 'foo', 'bar.py')) == pjoin('foo', 'bar.py')
 
     def test_global_package_not_string(self, isolation):
@@ -277,7 +280,9 @@ class TestPackages:
         builder.PLUGIN_NAME = 'foo'
 
         assert len(builder.config.packages) == 1
-        assert builder.config.packages[0][0] == pjoin('src', 'foo', '')
+        assert len(builder.config.package_sources) == 1
+        assert builder.config.packages[0] == pjoin('src', 'foo')
+        assert builder.config.package_sources[0] == pjoin('src', '')
         assert builder.config.get_distribution_path(pjoin('src', 'foo', 'bar.py')) == pjoin('foo', 'bar.py')
 
     def test_target_package_not_string(self, isolation):
@@ -322,7 +327,9 @@ class TestPackages:
         builder.PLUGIN_NAME = 'foo'
 
         assert len(builder.config.packages) == 1
-        assert builder.config.packages[0][0] == pjoin('pkg', 'foo', '')
+        assert len(builder.config.package_sources) == 1
+        assert builder.config.packages[0] == pjoin('pkg', 'foo')
+        assert builder.config.package_sources[0] == pjoin('pkg', '')
         assert builder.config.get_distribution_path(pjoin('pkg', 'foo', 'bar.py')) == pjoin('foo', 'bar.py')
         assert builder.config.get_distribution_path(pjoin('src', 'foo', 'bar.py')) == pjoin('src', 'foo', 'bar.py')
 
@@ -331,7 +338,8 @@ class TestPackages:
         builder = BuilderInterface(str(isolation), config=config)
 
         assert len(builder.config.packages) == 1
-        assert builder.config.packages[0][0] == pjoin('foo', '')
+        assert len(builder.config.package_sources) == 0
+        assert builder.config.packages[0] == pjoin('foo')
         assert builder.config.get_distribution_path(pjoin('foo', 'bar.py')) == pjoin('foo', 'bar.py')
 
 
