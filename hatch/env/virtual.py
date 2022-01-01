@@ -75,7 +75,7 @@ class VirtualEnvironment(EnvironmentInterface):
 
     @contextmanager
     def build_environment(self, dependencies):
-        with TempVirtualEnv(self.parent_python, self.platform, self.verbosity):
+        with self.get_env_vars(), TempVirtualEnv(self.parent_python, self.platform, self.verbosity):
             self.platform.check_command(self.construct_pip_install_command(dependencies))
 
             yield

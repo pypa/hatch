@@ -566,8 +566,14 @@ class EnvironmentInterface(ABC):
         with environment.build_environment([...]):
             ...
         ```
+
+        The build environment should reflect any
+        [environment variables](environment.md#hatch.env.plugin.interface.EnvironmentInterface.get_env_vars)
+        the user defined either currently or at the time of
+        [creation](environment.md#hatch.env.plugin.interface.EnvironmentInterface.create).
         """
-        yield
+        with self.get_env_vars():
+            yield
 
     def get_build_process(self, build_environment, **kwargs):
         """

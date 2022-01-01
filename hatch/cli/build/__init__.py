@@ -54,16 +54,15 @@ def build(app, location, targets, hooks_only, no_hooks, ext, clean, clean_hooks_
     if app.project.metadata.build.build_backend != 'hatchling.build':
         app.abort('Field `build-system.build-backend` must be set to `hatchling.build`')
 
-    backend_requirement = ''
+    backend_requirements = []
     for requirement in app.project.metadata.build.requires_complex:
-        if requirement.name == 'hatchling':
-            backend_requirement = str(requirement)
-            break
-    else:
-        app.abort('Field `build-system.requires` must specify `hatchling` as a requirement')
+        if requirement.name != 'hatchling':
+            app.abort('Field `build-system.requires` must only specify `hatchling` as a requirement')
 
-    if len(app.project.metadata.build.requires) > 1:
-        app.abort('Field `build-system.requires` must only specify `hatchling` as a requirement')
+        backend_requirements.append(str(requirement))
+
+    if not backend_requirements:
+        app.abort('Field `build-system.requires` must specify `hatchling` as a requirement')
 
     if location:
         path = str(Path(location).resolve())
@@ -98,7 +97,7 @@ def build(app, location, targets, hooks_only, no_hooks, ext, clean, clean_hooks_
             builder = BuilderInterface(str(app.project.location))
             builder.PLUGIN_NAME = target_name
 
-            dependencies = [backend_requirement]
+            dependencies = list(backend_requirements)
             dependencies.extend(builder.config.dependencies)
 
             with app.status_waiting('Setting up build environment') as status:
