@@ -159,13 +159,13 @@ def mock_backend_process(request, mocker):
 
     def mock_process_api(api):
         def mock_process(command, **kwargs):
-            if not isinstance(command, list) or command[1:3] != ['-m', 'hatchling']:  # no cov
+            if not isinstance(command, list) or command[1:4] != ['-u', '-m', 'hatchling']:  # no cov
                 return api(command, **kwargs)
 
             line_queue.clear()
             original_args = sys.argv
             try:
-                sys.argv = command[2:]
+                sys.argv = command[3:]
                 mock = mocker.MagicMock()
 
                 try:

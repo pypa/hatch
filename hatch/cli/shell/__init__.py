@@ -5,7 +5,7 @@ import click
 @click.argument('shell_name', required=False)
 @click.argument('shell_path', required=False)
 @click.pass_obj
-def shell(app, shell_name, shell_path):
+def shell(app, shell_name, shell_path):  # no cov
     """Enter a shell within a project's environment."""
     if app.env == app.env_active:
         app.abort(f'Already in environment: {app.env}')

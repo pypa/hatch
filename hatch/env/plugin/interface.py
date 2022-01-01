@@ -668,7 +668,7 @@ class EnvironmentInterface(ABC):
         This is the canonical way [`build`](../cli/reference.md#hatch-build) command options are translated to
         a subprocess command issued to [builders](builder.md).
         """
-        command = ['python', '-m', 'hatchling', 'build', '--app']
+        command = ['python', '-u', '-m', 'hatchling', 'build', '--app']
 
         if directory:
             command.extend(('--directory', directory))
@@ -703,7 +703,7 @@ class EnvironmentInterface(ABC):
             # Default to -1 verbosity
             verbosity = self.verbosity - 1
 
-        command = ['python', '-m', 'pip', 'install', '--disable-pip-version-check', '--no-python-version-warning']
+        command = ['python', '-u', '-m', 'pip', 'install', '--disable-pip-version-check', '--no-python-version-warning']
 
         if verbosity < 0:
             command.append(f"-{'q' * abs(verbosity)}")
