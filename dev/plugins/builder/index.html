@@ -71,7 +71,16 @@
         <span class=c1># Metadata</span>
         <span class=bp>self</span><span class=o>.</span><span class=n>__project_id</span> <span class=o>=</span> <span class=kc>None</span>
 
-    <span class=k>def</span> <span class=nf>build</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>directory</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=n>versions</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=n>clean</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=n>hooks_only</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=n>no_hooks</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=n>clean_only</span><span class=o>=</span><span class=kc>False</span><span class=p>):</span>
+    <span class=k>def</span> <span class=nf>build</span><span class=p>(</span>
+        <span class=bp>self</span><span class=p>,</span>
+        <span class=n>directory</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
+        <span class=n>versions</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
+        <span class=n>hooks_only</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
+        <span class=n>no_hooks</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
+        <span class=n>clean</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
+        <span class=n>clean_hooks_after</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
+        <span class=n>clean_only</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span>
+    <span class=p>):</span>
         <span class=k>if</span> <span class=n>directory</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
             <span class=k>if</span> <span class=n>BuildEnvVars</span><span class=o>.</span><span class=n>LOCATION</span> <span class=ow>in</span> <span class=n>os</span><span class=o>.</span><span class=n>environ</span><span class=p>:</span>
                 <span class=n>directory</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>config</span><span class=o>.</span><span class=n>normalize_build_directory</span><span class=p>(</span><span class=n>os</span><span class=o>.</span><span class=n>environ</span><span class=p>[</span><span class=n>BuildEnvVars</span><span class=o>.</span><span class=n>LOCATION</span><span class=p>])</span>
@@ -120,6 +129,9 @@
             <span class=k>if</span> <span class=n>clean_only</span><span class=p>:</span>
                 <span class=k>return</span>
 
+        <span class=k>if</span> <span class=n>clean_hooks_after</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
+            <span class=n>clean_hooks_after</span> <span class=o>=</span> <span class=n>_env_var_enabled</span><span class=p>(</span><span class=n>BuildEnvVars</span><span class=o>.</span><span class=n>CLEAN_HOOKS_AFTER</span><span class=p>)</span>
+
         <span class=k>for</span> <span class=n>version</span> <span class=ow>in</span> <span class=n>versions</span><span class=p>:</span>
             <span class=bp>self</span><span class=o>.</span><span class=n>app</span><span class=o>.</span><span class=n>display_debug</span><span class=p>(</span><span class=s1>&#39;Building `</span><span class=si>{}</span><span class=s1>` version `</span><span class=si>{}</span><span class=s1>`&#39;</span><span class=o>.</span><span class=n>format</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>PLUGIN_NAME</span><span class=p>,</span> <span class=n>version</span><span class=p>))</span>
 
@@ -146,6 +158,10 @@
             <span class=c1># Execute all `finalize` build hooks</span>
             <span class=k>for</span> <span class=n>build_hook</span> <span class=ow>in</span> <span class=n>build_hooks</span><span class=p>:</span>
                 <span class=n>build_hook</span><span class=o>.</span><span class=n>finalize</span><span class=p>(</span><span class=n>version</span><span class=p>,</span> <span class=n>build_data</span><span class=p>,</span> <span class=n>artifact</span><span class=p>)</span>
+
+            <span class=k>if</span> <span class=n>clean_hooks_after</span><span class=p>:</span>
+                <span class=k>for</span> <span class=n>build_hook</span> <span class=ow>in</span> <span class=n>build_hooks</span><span class=p>:</span>
+                    <span class=n>build_hook</span><span class=o>.</span><span class=n>clean</span><span class=p>([</span><span class=n>version</span><span class=p>])</span>
 
             <span class=k>yield</span> <span class=n>artifact</span>
 
