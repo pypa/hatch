@@ -9,27 +9,27 @@ Builds are [configured](config/build.md) using the `tool.hatch.build` table. Eve
 === ":octicons-file-code-16: pyproject.toml"
 
     ```toml
-    [tool.hatch.build.targets.wheel]
-    packages = ["src/foo"]
-
     [tool.hatch.build.targets.sdist]
     exclude = [
-    "/.github",
-    "/docs",
+      "/.github",
+      "/docs",
     ]
+
+    [tool.hatch.build.targets.wheel]
+    packages = ["src/foo"]
     ```
 
 === ":octicons-file-code-16: hatch.toml"
 
     ```toml
-    [build.targets.wheel]
-    packages = ["src/foo"]
-
     [build.targets.sdist]
     exclude = [
-    "/.github",
-    "/docs",
+      "/.github",
+      "/docs",
     ]
+
+    [build.targets.wheel]
+    packages = ["src/foo"]
     ```
 
 ## Building

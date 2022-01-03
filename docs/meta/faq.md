@@ -134,15 +134,14 @@ The only caveat is that currently there is no support for re-creating an environ
         [tool.hatch.version]
         path = "src/foo/__about__.py"
 
-        [tool.hatch.build]
-        packages = ["src/foo"]
-
         [tool.hatch.build.targets.sdist]
         include = [
+          "/src",
           "/tests",
         ]
 
         [tool.hatch.build.targets.wheel]
+        packages = ["src/foo"]
         zip-safe = false
         ```
 

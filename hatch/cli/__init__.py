@@ -114,12 +114,12 @@ def hatch(ctx: click.Context, env_name, project, color, interactive, verbose, qu
         if not app.config_file.path.is_file():
             app.abort(f'The selected config file `{str(app.config_file.path)}` does not exist.')
     elif not app.config_file.path.is_file():
-        if not app.quiet:
+        if app.verbose:
             app.display_waiting('No config file found, creating one with default settings now...')
 
         try:
             app.config_file.restore()
-            if not app.quiet:
+            if app.verbose:
                 app.display_success('Success! Please see `hatch config`.')
         except OSError:  # no cov
             app.abort(

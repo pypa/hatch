@@ -10,19 +10,19 @@ No config file found, creating one with default settings now...
 Success! Please see `hatch config`.
 """
 
-    def test_config_file_creation(self, hatch):
+    def test_config_file_creation_default(self, hatch):
         os.environ.pop(ConfigEnvVars.CONFIG, None)
         with ConfigFile.get_default_location().temp_hide():
-            result = hatch()
-            assert self.INSTALL_MESSAGE in result.output
-
             result = hatch()
             assert self.INSTALL_MESSAGE not in result.output
 
-    def test_config_file_creation_quiet(self, hatch):
+    def test_config_file_creation_verbose(self, hatch):
         os.environ.pop(ConfigEnvVars.CONFIG, None)
         with ConfigFile.get_default_location().temp_hide():
-            result = hatch('--quiet')
+            result = hatch('-v')
+            assert self.INSTALL_MESSAGE in result.output
+
+            result = hatch('-v')
             assert self.INSTALL_MESSAGE not in result.output
 
 
