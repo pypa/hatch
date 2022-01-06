@@ -43,6 +43,10 @@ This is the first release candidate for Hatch v1, a complete rewrite.
 
 ### Unreleased
 
+***Fixed:***
+
+- Disregard hook dependencies when building without hooks
+
 ### [0.5](https://github.com/ofek/hatch/releases/tag/hatchling-v0.5) - 2022-01-01 ### {: #hatchling-v0.5 }
 
 ***Added:***

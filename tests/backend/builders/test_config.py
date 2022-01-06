@@ -4,6 +4,8 @@ from os.path import join as pjoin
 import pathspec
 import pytest
 
+from hatch.utils.structures import EnvVars
+from hatchling.builders.constants import BuildEnvVars
 from hatchling.builders.plugin.interface import BuilderInterface
 
 
@@ -471,6 +473,13 @@ class TestHookConfig:
 
         assert builder.config.hook_config['foo']['baz'] == 'bar'
 
+    def test_env_var_no_hooks(self, isolation):
+        config = {'tool': {'hatch': {'build': {'hooks': {'foo': {'bar': 'baz'}}}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+
+        with EnvVars({BuildEnvVars.NO_HOOKS: 'true'}):
+            assert builder.config.hook_config == {}
+
 
 class TestDependencies:
     def test_default(self, isolation):
@@ -546,6 +555,26 @@ class TestDependencies:
         builder.PLUGIN_NAME = 'foo'
 
         assert builder.config.dependencies == ['baz', 'bar', 'test2']
+
+    def test_env_var_no_hooks(self, isolation):
+        config = {
+            'tool': {
+                'hatch': {
+                    'build': {
+                        'hooks': {
+                            'foo': {'dependencies': ['foo']},
+                            'bar': {'dependencies': ['bar']},
+                            'baz': {'dependencies': ['baz']},
+                        },
+                    }
+                }
+            }
+        }
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        with EnvVars({BuildEnvVars.NO_HOOKS: 'true'}):
+            assert builder.config.dependencies == []
 
 
 class TestPatternDefaults:

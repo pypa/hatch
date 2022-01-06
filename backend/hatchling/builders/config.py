@@ -6,7 +6,7 @@ from io import open
 import pathspec
 
 from ..utils.fs import locate_file
-from .constants import DEFAULT_BUILD_DIRECTORY
+from .constants import DEFAULT_BUILD_DIRECTORY, BuildEnvVars
 
 
 class BuilderConfig(object):
@@ -231,7 +231,12 @@ class BuilderConfig(object):
 
                 hook_config.setdefault(hook_name, config)
 
-            self.__hook_config = hook_config
+            final_hook_config = OrderedDict()
+            if not env_var_enabled(BuildEnvVars.NO_HOOKS):
+                for hook_name, config in hook_config.items():
+                    final_hook_config[hook_name] = config
+
+            self.__hook_config = final_hook_config
 
         return self.__hook_config
 
@@ -524,3 +529,10 @@ class BuilderConfig(object):
             yield
         finally:
             self.build_artifact_spec = None
+
+
+def env_var_enabled(env_var, default=False):
+    if env_var in os.environ:
+        return os.environ[env_var] in ('1', 'true')
+    else:
+        return default

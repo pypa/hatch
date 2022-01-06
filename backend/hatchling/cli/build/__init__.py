@@ -5,6 +5,7 @@ def build_impl(called_by_app, directory, targets, hooks_only, no_hooks, clean, c
     import os
     from collections import OrderedDict
 
+    from ...builders.constants import BuildEnvVars
     from ...metadata.core import ProjectMetadata
     from ...plugin.manager import PluginManager
 
@@ -59,6 +60,9 @@ def build_impl(called_by_app, directory, targets, hooks_only, no_hooks, clean, c
     # We guarantee that builds occur within the project directory
     root = os.getcwd()
 
+    if no_hooks:
+        os.environ[BuildEnvVars.NO_HOOKS] = 'true'
+
     for i, (target_name, versions) in enumerate(target_data.items()):
         # Separate targets with a blank line
         if not clean_only and i != 0:  # no cov
@@ -76,7 +80,6 @@ def build_impl(called_by_app, directory, targets, hooks_only, no_hooks, clean, c
             directory=directory,
             versions=versions,
             hooks_only=hooks_only,
-            no_hooks=no_hooks,
             clean=clean,
             clean_hooks_after=clean_hooks_after,
             clean_only=clean_only,

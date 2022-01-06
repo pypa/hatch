@@ -47,9 +47,11 @@ def build(app, location, targets, hooks_only, no_hooks, ext, clean, clean_hooks_
     """Build a project."""
     import pickle
 
+    from hatchling.builders.constants import BuildEnvVars
     from hatchling.builders.plugin.interface import BuilderInterface
 
     from ...utils.fs import Path
+    from ...utils.structures import EnvVars
 
     if app.project.metadata.build.build_backend != 'hatchling.build':
         app.abort('Field `build-system.build-backend` must be set to `hatchling.build`')
@@ -85,7 +87,11 @@ def build(app, location, targets, hooks_only, no_hooks, ext, clean, clean_hooks_
 
         app.abort()
 
-    with app.project.location.as_cwd():
+    env_vars = {}
+    if no_hooks:
+        env_vars[BuildEnvVars.NO_HOOKS] = 'true'
+
+    with app.project.location.as_cwd(env_vars):
         environment = app.get_environment()
 
         for i, target in enumerate(targets):
@@ -98,7 +104,8 @@ def build(app, location, targets, hooks_only, no_hooks, ext, clean, clean_hooks_
             builder.PLUGIN_NAME = target_name
 
             dependencies = list(backend_requirements)
-            dependencies.extend(builder.config.dependencies)
+            with environment.get_env_vars(), EnvVars(env_vars):
+                dependencies.extend(builder.config.dependencies)
 
             with app.status_waiting('Setting up build environment') as status:
                 with environment.build_environment(dependencies) as build_environment:

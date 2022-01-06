@@ -2,7 +2,7 @@ import os
 import re
 from collections import OrderedDict
 
-from ..config import BuilderConfig
+from ..config import BuilderConfig, env_var_enabled
 from ..constants import BuildEnvVars
 
 
@@ -68,7 +68,6 @@ class BuilderInterface(object):
         directory=None,
         versions=None,
         hooks_only=None,
-        no_hooks=None,
         clean=None,
         clean_hooks_after=None,
         clean_only=False,
@@ -96,33 +95,27 @@ class BuilderInterface(object):
                 )
 
         if hooks_only is None:
-            hooks_only = _env_var_enabled(BuildEnvVars.HOOKS_ONLY)
+            hooks_only = env_var_enabled(BuildEnvVars.HOOKS_ONLY)
 
-        if no_hooks is None:
-            no_hooks = _env_var_enabled(BuildEnvVars.NO_HOOKS)
-        if no_hooks:
-            configured_build_hooks = OrderedDict()
-        else:
-            configured_build_hooks = self.get_build_hooks(directory)
-
+        configured_build_hooks = self.get_build_hooks(directory)
         build_hooks = list(configured_build_hooks.values())
 
         if clean_only:
             clean = True
         elif clean is None:
-            clean = _env_var_enabled(BuildEnvVars.CLEAN)
+            clean = env_var_enabled(BuildEnvVars.CLEAN)
         if clean:
             if not hooks_only:
                 self.clean(directory, versions)
-            if not no_hooks:
-                for build_hook in build_hooks:
-                    build_hook.clean(versions)
+
+            for build_hook in build_hooks:
+                build_hook.clean(versions)
 
             if clean_only:
                 return
 
         if clean_hooks_after is None:
-            clean_hooks_after = _env_var_enabled(BuildEnvVars.CLEAN_HOOKS_AFTER)
+            clean_hooks_after = env_var_enabled(BuildEnvVars.CLEAN_HOOKS_AFTER)
 
         for version in versions:
             self.app.display_debug('Building `{}` version `{}`'.format(self.PLUGIN_NAME, version))
@@ -390,10 +383,3 @@ class BuilderInterface(object):
         https://www.python.org/dev/peps/pep-0427/#escaping-and-unicode
         """
         return re.sub(r'[^\w\d.]+', '_', file_name, re.UNICODE)
-
-
-def _env_var_enabled(env_var, default=False):
-    if env_var in os.environ:
-        return os.environ[env_var] in ('1', 'true')
-    else:
-        return default

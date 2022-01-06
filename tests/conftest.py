@@ -169,7 +169,9 @@ def mock_backend_process(request, mocker):
                 mock = mocker.MagicMock()
 
                 try:
-                    hatchling()
+                    # The builder sets process-wide environment variables
+                    with EnvVars():
+                        hatchling()
                 except SystemExit as e:
                     mock.returncode = e.code
                 else:
