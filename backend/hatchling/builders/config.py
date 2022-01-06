@@ -233,8 +233,14 @@ class BuilderConfig(object):
 
             final_hook_config = OrderedDict()
             if not env_var_enabled(BuildEnvVars.NO_HOOKS):
+                all_hooks_enabled = env_var_enabled(BuildEnvVars.HOOKS_ENABLE)
                 for hook_name, config in hook_config.items():
-                    final_hook_config[hook_name] = config
+                    if (
+                        all_hooks_enabled
+                        or config.get('enable-by-default', True)
+                        or env_var_enabled('{}{}'.format(BuildEnvVars.HOOK_ENABLE_PREFIX, hook_name.upper()))
+                    ):
+                        final_hook_config[hook_name] = config
 
             self.__hook_config = final_hook_config
 

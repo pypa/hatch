@@ -327,3 +327,33 @@ As an example, for the following configuration:
     ```
 
 When target `foo` is built, build hook `hook2` will be executed first, followed by `hook3`, and then finally `hook1`.
+
+### Conditional execution
+
+If you want to disable a build hook by default and control its use by [environment variables](#environment-variables), you can do so by setting the `enable-by-default` option to `false`:
+
+=== ":octicons-file-code-16: pyproject.toml"
+
+    ```toml
+    [tool.hatch.build.hooks.<HOOK_NAME>]
+    enable-by-default = false
+    ```
+
+=== ":octicons-file-code-16: hatch.toml"
+
+    ```toml
+    [build.hooks.<HOOK_NAME>]
+    enable-by-default = false
+    ```
+
+## Environment variables
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `HATCH_BUILD_CLEAN` | `false` | Whether or not existing artifacts should first be removed |
+| `HATCH_BUILD_CLEAN_HOOKS_AFTER` | `false` | Whether or not build hook artifacts should be removed after each build |
+| `HATCH_BUILD_HOOKS_ONLY` | `false` | Whether or not to only execute build hooks |
+| `HATCH_BUILD_NO_HOOKS` | `false` | Whether or not to disable all build hooks; this takes precedence over other options |
+| `HATCH_BUILD_HOOKS_ENABLE` | `false` | Whether or not to enable all build hooks |
+| `HATCH_BUILD_HOOK_ENABLE_<HOOK_NAME>` | `false` |  |
+| `HATCH_BUILD_LOCATION` | `dist` | The location with which to build the targets; only used by the [`build`](../cli/reference.md#hatch-build) command |

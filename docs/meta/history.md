@@ -43,6 +43,10 @@ This is the first release candidate for Hatch v1, a complete rewrite.
 
 ### Unreleased
 
+***Added:***
+
+- Add ability to conditionally execute build hooks
+
 ***Fixed:***
 
 - Disregard hook dependencies when building without hooks

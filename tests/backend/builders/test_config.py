@@ -480,6 +480,69 @@ class TestHookConfig:
         with EnvVars({BuildEnvVars.NO_HOOKS: 'true'}):
             assert builder.config.hook_config == {}
 
+    def test_enable_by_default(self, isolation):
+        config = {
+            'tool': {
+                'hatch': {
+                    'build': {
+                        'hooks': {
+                            'foo': {'bar': 'baz', 'enable-by-default': False},
+                            'bar': {'foo': 'baz', 'enable-by-default': False},
+                            'baz': {'foo': 'bar'},
+                        }
+                    }
+                }
+            }
+        }
+        builder = BuilderInterface(str(isolation), config=config)
+
+        assert builder.config.hook_config == {'baz': {'foo': 'bar'}}
+
+    def test_env_var_all_override_enable_by_default(self, isolation):
+        config = {
+            'tool': {
+                'hatch': {
+                    'build': {
+                        'hooks': {
+                            'foo': {'bar': 'baz', 'enable-by-default': False},
+                            'bar': {'foo': 'baz', 'enable-by-default': False},
+                            'baz': {'foo': 'bar'},
+                        }
+                    }
+                }
+            }
+        }
+        builder = BuilderInterface(str(isolation), config=config)
+
+        with EnvVars({BuildEnvVars.HOOKS_ENABLE: 'true'}):
+            assert builder.config.hook_config == {
+                'foo': {'bar': 'baz', 'enable-by-default': False},
+                'bar': {'foo': 'baz', 'enable-by-default': False},
+                'baz': {'foo': 'bar'},
+            }
+
+    def test_env_var_specific_override_enable_by_default(self, isolation):
+        config = {
+            'tool': {
+                'hatch': {
+                    'build': {
+                        'hooks': {
+                            'foo': {'bar': 'baz', 'enable-by-default': False},
+                            'bar': {'foo': 'baz', 'enable-by-default': False},
+                            'baz': {'foo': 'bar'},
+                        }
+                    }
+                }
+            }
+        }
+        builder = BuilderInterface(str(isolation), config=config)
+
+        with EnvVars({f'{BuildEnvVars.HOOK_ENABLE_PREFIX}FOO': 'true'}):
+            assert builder.config.hook_config == {
+                'foo': {'bar': 'baz', 'enable-by-default': False},
+                'baz': {'foo': 'bar'},
+            }
+
 
 class TestDependencies:
     def test_default(self, isolation):
@@ -575,6 +638,65 @@ class TestDependencies:
 
         with EnvVars({BuildEnvVars.NO_HOOKS: 'true'}):
             assert builder.config.dependencies == []
+
+    def test_hooks_enable_by_default(self, isolation):
+        config = {
+            'tool': {
+                'hatch': {
+                    'build': {
+                        'hooks': {
+                            'foo': {'dependencies': ['foo'], 'enable-by-default': False},
+                            'bar': {'dependencies': ['bar'], 'enable-by-default': False},
+                            'baz': {'dependencies': ['baz']},
+                        },
+                    }
+                }
+            }
+        }
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        assert builder.config.dependencies == ['baz']
+
+    def test_hooks_env_var_all_override_enable_by_default(self, isolation):
+        config = {
+            'tool': {
+                'hatch': {
+                    'build': {
+                        'hooks': {
+                            'foo': {'dependencies': ['foo'], 'enable-by-default': False},
+                            'bar': {'dependencies': ['bar'], 'enable-by-default': False},
+                            'baz': {'dependencies': ['baz']},
+                        },
+                    }
+                }
+            }
+        }
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        with EnvVars({BuildEnvVars.HOOKS_ENABLE: 'true'}):
+            assert builder.config.dependencies == ['foo', 'bar', 'baz']
+
+    def test_hooks_env_var_specific_override_enable_by_default(self, isolation):
+        config = {
+            'tool': {
+                'hatch': {
+                    'build': {
+                        'hooks': {
+                            'foo': {'dependencies': ['foo'], 'enable-by-default': False},
+                            'bar': {'dependencies': ['bar'], 'enable-by-default': False},
+                            'baz': {'dependencies': ['baz']},
+                        },
+                    }
+                }
+            }
+        }
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        with EnvVars({f'{BuildEnvVars.HOOK_ENABLE_PREFIX}FOO': 'true'}):
+            assert builder.config.dependencies == ['foo', 'baz']
 
 
 class TestPatternDefaults:
