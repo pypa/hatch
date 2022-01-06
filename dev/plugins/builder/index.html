@@ -76,7 +76,6 @@
         <span class=n>directory</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
         <span class=n>versions</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
         <span class=n>hooks_only</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
-        <span class=n>no_hooks</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
         <span class=n>clean</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
         <span class=n>clean_hooks_after</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
         <span class=n>clean_only</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span>
@@ -104,33 +103,27 @@
                 <span class=p>)</span>
 
         <span class=k>if</span> <span class=n>hooks_only</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
-            <span class=n>hooks_only</span> <span class=o>=</span> <span class=n>_env_var_enabled</span><span class=p>(</span><span class=n>BuildEnvVars</span><span class=o>.</span><span class=n>HOOKS_ONLY</span><span class=p>)</span>
+            <span class=n>hooks_only</span> <span class=o>=</span> <span class=n>env_var_enabled</span><span class=p>(</span><span class=n>BuildEnvVars</span><span class=o>.</span><span class=n>HOOKS_ONLY</span><span class=p>)</span>
 
-        <span class=k>if</span> <span class=n>no_hooks</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
-            <span class=n>no_hooks</span> <span class=o>=</span> <span class=n>_env_var_enabled</span><span class=p>(</span><span class=n>BuildEnvVars</span><span class=o>.</span><span class=n>NO_HOOKS</span><span class=p>)</span>
-        <span class=k>if</span> <span class=n>no_hooks</span><span class=p>:</span>
-            <span class=n>configured_build_hooks</span> <span class=o>=</span> <span class=n>OrderedDict</span><span class=p>()</span>
-        <span class=k>else</span><span class=p>:</span>
-            <span class=n>configured_build_hooks</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>get_build_hooks</span><span class=p>(</span><span class=n>directory</span><span class=p>)</span>
-
+        <span class=n>configured_build_hooks</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>get_build_hooks</span><span class=p>(</span><span class=n>directory</span><span class=p>)</span>
         <span class=n>build_hooks</span> <span class=o>=</span> <span class=nb>list</span><span class=p>(</span><span class=n>configured_build_hooks</span><span class=o>.</span><span class=n>values</span><span class=p>())</span>
 
         <span class=k>if</span> <span class=n>clean_only</span><span class=p>:</span>
             <span class=n>clean</span> <span class=o>=</span> <span class=kc>True</span>
         <span class=k>elif</span> <span class=n>clean</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
-            <span class=n>clean</span> <span class=o>=</span> <span class=n>_env_var_enabled</span><span class=p>(</span><span class=n>BuildEnvVars</span><span class=o>.</span><span class=n>CLEAN</span><span class=p>)</span>
+            <span class=n>clean</span> <span class=o>=</span> <span class=n>env_var_enabled</span><span class=p>(</span><span class=n>BuildEnvVars</span><span class=o>.</span><span class=n>CLEAN</span><span class=p>)</span>
         <span class=k>if</span> <span class=n>clean</span><span class=p>:</span>
             <span class=k>if</span> <span class=ow>not</span> <span class=n>hooks_only</span><span class=p>:</span>
                 <span class=bp>self</span><span class=o>.</span><span class=n>clean</span><span class=p>(</span><span class=n>directory</span><span class=p>,</span> <span class=n>versions</span><span class=p>)</span>
-            <span class=k>if</span> <span class=ow>not</span> <span class=n>no_hooks</span><span class=p>:</span>
-                <span class=k>for</span> <span class=n>build_hook</span> <span class=ow>in</span> <span class=n>build_hooks</span><span class=p>:</span>
-                    <span class=n>build_hook</span><span class=o>.</span><span class=n>clean</span><span class=p>(</span><span class=n>versions</span><span class=p>)</span>
+
+            <span class=k>for</span> <span class=n>build_hook</span> <span class=ow>in</span> <span class=n>build_hooks</span><span class=p>:</span>
+                <span class=n>build_hook</span><span class=o>.</span><span class=n>clean</span><span class=p>(</span><span class=n>versions</span><span class=p>)</span>
 
             <span class=k>if</span> <span class=n>clean_only</span><span class=p>:</span>
                 <span class=k>return</span>
 
         <span class=k>if</span> <span class=n>clean_hooks_after</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
-            <span class=n>clean_hooks_after</span> <span class=o>=</span> <span class=n>_env_var_enabled</span><span class=p>(</span><span class=n>BuildEnvVars</span><span class=o>.</span><span class=n>CLEAN_HOOKS_AFTER</span><span class=p>)</span>
+            <span class=n>clean_hooks_after</span> <span class=o>=</span> <span class=n>env_var_enabled</span><span class=p>(</span><span class=n>BuildEnvVars</span><span class=o>.</span><span class=n>CLEAN_HOOKS_AFTER</span><span class=p>)</span>
 
         <span class=k>for</span> <span class=n>version</span> <span class=ow>in</span> <span class=n>versions</span><span class=p>:</span>
             <span class=bp>self</span><span class=o>.</span><span class=n>app</span><span class=o>.</span><span class=n>display_debug</span><span class=p>(</span><span class=s1>&#39;Building `</span><span class=si>{}</span><span class=s1>` version `</span><span class=si>{}</span><span class=s1>`&#39;</span><span class=o>.</span><span class=n>format</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>PLUGIN_NAME</span><span class=p>,</span> <span class=n>version</span><span class=p>))</span>
