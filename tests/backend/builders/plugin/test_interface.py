@@ -110,7 +110,7 @@ class TestProjectID:
         config = {'project': {'name': 'my-app', 'version': '1.0.0-rc.1'}}
         builder = BuilderInterface(str(isolation), config=config)
 
-        assert builder.project_id == builder.project_id == 'my_app-1rc1'
+        assert builder.project_id == builder.project_id == 'my_app-1.0.0rc1'
 
 
 class TestVersions:

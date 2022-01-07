@@ -149,7 +149,7 @@ class TestVersion:
     def test_static_normalization(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {'project': {'version': '0.1.0.0-rc.1'}})
 
-        assert metadata.version == metadata.version == '0.1rc1'
+        assert metadata.version == metadata.version == '0.1.0.0rc1'
         assert metadata.core.version == metadata.core.version == '0.1.0.0-rc.1'
 
     def test_dynamic_missing(self, isolation):

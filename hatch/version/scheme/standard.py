@@ -9,7 +9,6 @@ class StandardScheme(VersionSchemeInterface):
     PLUGIN_NAME = 'standard'
 
     def update(self, desired_version, original_version, version_data) -> str:
-        from packaging.utils import canonicalize_version
         from packaging.version import Version, _parse_letter_version
 
         original = Version(original_version)
@@ -17,11 +16,13 @@ class StandardScheme(VersionSchemeInterface):
 
         for version in versions:
             if version == 'major':
-                reset_version_parts(original, release=(original.major + 1,))
+                reset_version_parts(original, release=update_release(original, [original.major + 1]))
             elif version == 'minor':
-                reset_version_parts(original, release=(original.major, original.minor + 1))
+                reset_version_parts(original, release=update_release(original, [original.major, original.minor + 1]))
             elif version in ('micro', 'patch', 'fix'):
-                reset_version_parts(original, release=(original.major, original.minor, original.micro + 1))
+                reset_version_parts(
+                    original, release=update_release(original, [original.major, original.minor, original.micro + 1])
+                )
             elif version in ('a', 'b', 'c', 'rc', 'alpha', 'beta', 'pre', 'preview'):
                 phase, number = _parse_letter_version(version, 0)
                 if original.pre:
@@ -46,9 +47,9 @@ class StandardScheme(VersionSchemeInterface):
                         f'Version `{version}` is not higher than the original version `{original_version}`'
                     )
                 else:
-                    return canonicalize_version(next_version)
+                    return str(next_version)
 
-        return canonicalize_version(original)
+        return str(original)
 
 
 def reset_version_parts(version, **kwargs):
@@ -68,3 +69,11 @@ def reset_version_parts(version, **kwargs):
             parts[part_name] = getattr(internal_version, part_name)
 
     version._version = type(internal_version)(**parts)
+
+
+def update_release(original_version, new_release_parts):
+    # Retain release length
+    for _ in range(len(original_version.release) - len(new_release_parts)):
+        new_release_parts.append(0)
+
+    return tuple(new_release_parts)

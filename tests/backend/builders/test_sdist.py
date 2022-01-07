@@ -91,7 +91,7 @@ class TestConstructSetupPyFile:
 
             setup(
                 name='my-app',
-                version='0.1',
+                version='0.1.0',
             )
             """
         )
@@ -107,7 +107,7 @@ class TestConstructSetupPyFile:
 
             setup(
                 name='my-app',
-                version='0.1',
+                version='0.1.0',
                 packages=[
                     'my_app',
                     'my_app.pkg',
@@ -127,7 +127,7 @@ class TestConstructSetupPyFile:
 
             setup(
                 name='my-app',
-                version='0.1',
+                version='0.1.0',
                 description='foo',
                 packages=[
                     'my_app',
@@ -154,7 +154,7 @@ class TestConstructSetupPyFile:
 
             setup(
                 name='my-app',
-                version='0.1',
+                version='0.1.0',
                 long_description='test content\\n',
                 packages=[
                     'my_app',
@@ -175,7 +175,7 @@ class TestConstructSetupPyFile:
 
             setup(
                 name='my-app',
-                version='0.1',
+                version='0.1.0',
                 author='foo',
                 packages=[
                     'my_app',
@@ -196,7 +196,7 @@ class TestConstructSetupPyFile:
 
             setup(
                 name='my-app',
-                version='0.1',
+                version='0.1.0',
                 author_email='foo@domain',
                 packages=[
                     'my_app',
@@ -219,7 +219,7 @@ class TestConstructSetupPyFile:
 
             setup(
                 name='my-app',
-                version='0.1',
+                version='0.1.0',
                 author_email='foo <bar@domain>',
                 packages=[
                     'my_app',
@@ -240,7 +240,7 @@ class TestConstructSetupPyFile:
 
             setup(
                 name='my-app',
-                version='0.1',
+                version='0.1.0',
                 author='foo, bar',
                 packages=[
                     'my_app',
@@ -261,7 +261,7 @@ class TestConstructSetupPyFile:
 
             setup(
                 name='my-app',
-                version='0.1',
+                version='0.1.0',
                 maintainer='foo',
                 packages=[
                     'my_app',
@@ -282,7 +282,7 @@ class TestConstructSetupPyFile:
 
             setup(
                 name='my-app',
-                version='0.1',
+                version='0.1.0',
                 maintainer_email='foo@domain',
                 packages=[
                     'my_app',
@@ -305,7 +305,7 @@ class TestConstructSetupPyFile:
 
             setup(
                 name='my-app',
-                version='0.1',
+                version='0.1.0',
                 maintainer_email='foo <bar@domain>',
                 packages=[
                     'my_app',
@@ -326,7 +326,7 @@ class TestConstructSetupPyFile:
 
             setup(
                 name='my-app',
-                version='0.1',
+                version='0.1.0',
                 maintainer='foo, bar',
                 packages=[
                     'my_app',
@@ -347,7 +347,7 @@ class TestConstructSetupPyFile:
 
             setup(
                 name='my-app',
-                version='0.1',
+                version='0.1.0',
                 classifiers=[
                     'bar',
                     'foo',
@@ -371,7 +371,7 @@ class TestConstructSetupPyFile:
 
             setup(
                 name='my-app',
-                version='0.1',
+                version='0.1.0',
                 install_requires=[
                     'bar==5',
                     'foo==1',
@@ -404,7 +404,7 @@ class TestConstructSetupPyFile:
 
             setup(
                 name='my-app',
-                version='0.1',
+                version='0.1.0',
                 extras_require={
                     'feature1': [
                         'bar==5; python_version < "3"',
@@ -434,7 +434,7 @@ class TestConstructSetupPyFile:
 
             setup(
                 name='my-app',
-                version='0.1',
+                version='0.1.0',
                 entry_points={
                     'console_scripts': [
                         'bar = pkg:foo',
@@ -462,7 +462,7 @@ class TestConstructSetupPyFile:
 
             setup(
                 name='my-app',
-                version='0.1',
+                version='0.1.0',
                 entry_points={
                     'gui_scripts': [
                         'bar = pkg:foo',
@@ -497,7 +497,7 @@ class TestConstructSetupPyFile:
 
             setup(
                 name='my-app',
-                version='0.1',
+                version='0.1.0',
                 entry_points={
                     'bar': [
                         'bar = pkg:foo',
@@ -549,7 +549,7 @@ class TestConstructSetupPyFile:
 
             setup(
                 name='my-app',
-                version='0.1',
+                version='0.1.0',
                 description='foo',
                 long_description='test content\\n',
                 author_email='foo <bar@domain>',

@@ -133,10 +133,9 @@ class ProjectMetadata(object):
         if version is None:
             version = self.hatch.version
 
-        from packaging.utils import canonicalize_version
         from packaging.version import Version
 
-        self._version = canonicalize_version(Version(version))
+        self._version = str(Version(version))
 
 
 class BuildMetadata(object):

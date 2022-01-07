@@ -28,7 +28,7 @@ def test_set(hatch, helpers, temp_dir):
     assert result.output == helpers.dedent(
         """
         Old: 0.0.1
-        New: 0.1rc0
+        New: 0.1.0rc0
         """
     )
 
@@ -36,4 +36,4 @@ def test_set(hatch, helpers, temp_dir):
         result = hatch('version')
 
     assert result.exit_code == 0, result.output
-    assert result.output == '0.1rc0\n'
+    assert result.output == '0.1.0rc0\n'

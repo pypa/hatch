@@ -13,7 +13,7 @@ class TestCoreMetadataV12:
             """
             Metadata-Version: 1.2
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             """
         )
 
@@ -26,7 +26,7 @@ class TestCoreMetadataV12:
             """
             Metadata-Version: 1.2
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Summary: foo
             """
         )
@@ -42,7 +42,7 @@ class TestCoreMetadataV12:
             """
             Metadata-Version: 1.2
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Project-URL: bar, baz
             Project-URL: foo, bar
             """
@@ -57,7 +57,7 @@ class TestCoreMetadataV12:
             """
             Metadata-Version: 1.2
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Author: foo
             """
         )
@@ -73,7 +73,7 @@ class TestCoreMetadataV12:
             """
             Metadata-Version: 1.2
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Author-email: foo@domain
             """
         )
@@ -89,7 +89,7 @@ class TestCoreMetadataV12:
             """
             Metadata-Version: 1.2
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Author-email: foo <bar@domain>
             """
         )
@@ -105,7 +105,7 @@ class TestCoreMetadataV12:
             """
             Metadata-Version: 1.2
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Author: foo, bar
             """
         )
@@ -119,7 +119,7 @@ class TestCoreMetadataV12:
             """
             Metadata-Version: 1.2
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Maintainer: foo
             """
         )
@@ -135,7 +135,7 @@ class TestCoreMetadataV12:
             """
             Metadata-Version: 1.2
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Maintainer-email: foo@domain
             """
         )
@@ -157,7 +157,7 @@ class TestCoreMetadataV12:
             """
             Metadata-Version: 1.2
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Maintainer-email: foo <bar@domain>
             """
         )
@@ -173,7 +173,7 @@ class TestCoreMetadataV12:
             """
             Metadata-Version: 1.2
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Maintainer: foo, bar
             """
         )
@@ -187,7 +187,7 @@ class TestCoreMetadataV12:
             """
             Metadata-Version: 1.2
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             License: foo
                     bar
             """
@@ -202,7 +202,7 @@ class TestCoreMetadataV12:
             """
             Metadata-Version: 1.2
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Keywords: foo
             """
         )
@@ -216,7 +216,7 @@ class TestCoreMetadataV12:
             """
             Metadata-Version: 1.2
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Keywords: bar,foo
             """
         )
@@ -230,7 +230,7 @@ class TestCoreMetadataV12:
             """
             Metadata-Version: 1.2
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Classifier: bar
             Classifier: foo
             """
@@ -245,7 +245,7 @@ class TestCoreMetadataV12:
             """
             Metadata-Version: 1.2
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Requires-Python: <2,>=1
             """
         )
@@ -261,7 +261,7 @@ class TestCoreMetadataV12:
             """
             Metadata-Version: 1.2
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Requires-Dist: bar==5
             Requires-Dist: foo==1
             """
@@ -278,7 +278,7 @@ class TestCoreMetadataV12:
             """
             Metadata-Version: 1.2
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Requires-Dist: bar==5
             Requires-Dist: foo==1
             Requires-Dist: baz==9
@@ -310,7 +310,7 @@ class TestCoreMetadataV12:
             """
             Metadata-Version: 1.2
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Summary: foo
             Project-URL: bar, baz
             Project-URL: foo, bar
@@ -337,7 +337,7 @@ class TestCoreMetadataV21:
             """
             Metadata-Version: 2.1
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             """
         )
 
@@ -350,7 +350,7 @@ class TestCoreMetadataV21:
             """
             Metadata-Version: 2.1
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Summary: foo
             """
         )
@@ -366,7 +366,7 @@ class TestCoreMetadataV21:
             """
             Metadata-Version: 2.1
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Project-URL: bar, baz
             Project-URL: foo, bar
             """
@@ -381,7 +381,7 @@ class TestCoreMetadataV21:
             """
             Metadata-Version: 2.1
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Author: foo
             """
         )
@@ -397,7 +397,7 @@ class TestCoreMetadataV21:
             """
             Metadata-Version: 2.1
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Author-email: foo@domain
             """
         )
@@ -413,7 +413,7 @@ class TestCoreMetadataV21:
             """
             Metadata-Version: 2.1
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Author-email: foo <bar@domain>
             """
         )
@@ -429,7 +429,7 @@ class TestCoreMetadataV21:
             """
             Metadata-Version: 2.1
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Author: foo, bar
             """
         )
@@ -443,7 +443,7 @@ class TestCoreMetadataV21:
             """
             Metadata-Version: 2.1
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Maintainer: foo
             """
         )
@@ -459,7 +459,7 @@ class TestCoreMetadataV21:
             """
             Metadata-Version: 2.1
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Maintainer-email: foo@domain
             """
         )
@@ -481,7 +481,7 @@ class TestCoreMetadataV21:
             """
             Metadata-Version: 2.1
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Maintainer-email: foo <bar@domain>
             """
         )
@@ -497,7 +497,7 @@ class TestCoreMetadataV21:
             """
             Metadata-Version: 2.1
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Maintainer: foo, bar
             """
         )
@@ -511,7 +511,7 @@ class TestCoreMetadataV21:
             """
             Metadata-Version: 2.1
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             License: foo
                     bar
             """
@@ -526,7 +526,7 @@ class TestCoreMetadataV21:
             """
             Metadata-Version: 2.1
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Keywords: foo
             """
         )
@@ -540,7 +540,7 @@ class TestCoreMetadataV21:
             """
             Metadata-Version: 2.1
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Keywords: bar,foo
             """
         )
@@ -554,7 +554,7 @@ class TestCoreMetadataV21:
             """
             Metadata-Version: 2.1
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Classifier: bar
             Classifier: foo
             """
@@ -569,7 +569,7 @@ class TestCoreMetadataV21:
             """
             Metadata-Version: 2.1
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Requires-Python: <2,>=1
             """
         )
@@ -585,7 +585,7 @@ class TestCoreMetadataV21:
             """
             Metadata-Version: 2.1
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Requires-Dist: bar==5
             Requires-Dist: foo==1
             """
@@ -611,7 +611,7 @@ class TestCoreMetadataV21:
             """
             Metadata-Version: 2.1
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Provides-Extra: feature1
             Requires-Dist: bar==5; python_version < "3" and extra == "feature1"
             Requires-Dist: foo==1; extra == "feature1"
@@ -632,7 +632,7 @@ class TestCoreMetadataV21:
             """
             Metadata-Version: 2.1
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Requires-Dist: bar==5
             Requires-Dist: foo==1
             Requires-Dist: baz==9
@@ -656,7 +656,7 @@ class TestCoreMetadataV21:
             """
             Metadata-Version: 2.1
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Description-Content-Type: text/markdown
 
             test content
@@ -693,7 +693,7 @@ class TestCoreMetadataV21:
             """
             Metadata-Version: 2.1
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Summary: foo
             Project-URL: bar, baz
             Project-URL: foo, bar
@@ -729,7 +729,7 @@ class TestCoreMetadataV22:
             """
             Metadata-Version: 2.2
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             """
         )
 
@@ -742,7 +742,7 @@ class TestCoreMetadataV22:
             """
             Metadata-Version: 2.2
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Summary: foo
             """
         )
@@ -758,7 +758,7 @@ class TestCoreMetadataV22:
             """
             Metadata-Version: 2.2
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Project-URL: bar, baz
             Project-URL: foo, bar
             """
@@ -773,7 +773,7 @@ class TestCoreMetadataV22:
             """
             Metadata-Version: 2.2
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Author: foo
             """
         )
@@ -789,7 +789,7 @@ class TestCoreMetadataV22:
             """
             Metadata-Version: 2.2
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Author-email: foo@domain
             """
         )
@@ -805,7 +805,7 @@ class TestCoreMetadataV22:
             """
             Metadata-Version: 2.2
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Author-email: foo <bar@domain>
             """
         )
@@ -821,7 +821,7 @@ class TestCoreMetadataV22:
             """
             Metadata-Version: 2.2
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Author: foo, bar
             """
         )
@@ -835,7 +835,7 @@ class TestCoreMetadataV22:
             """
             Metadata-Version: 2.2
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Maintainer: foo
             """
         )
@@ -851,7 +851,7 @@ class TestCoreMetadataV22:
             """
             Metadata-Version: 2.2
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Maintainer-email: foo@domain
             """
         )
@@ -873,7 +873,7 @@ class TestCoreMetadataV22:
             """
             Metadata-Version: 2.2
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Maintainer-email: foo <bar@domain>
             """
         )
@@ -889,7 +889,7 @@ class TestCoreMetadataV22:
             """
             Metadata-Version: 2.2
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Maintainer: foo, bar
             """
         )
@@ -903,7 +903,7 @@ class TestCoreMetadataV22:
             """
             Metadata-Version: 2.2
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             License: foo
                     bar
             """
@@ -918,7 +918,7 @@ class TestCoreMetadataV22:
             """
             Metadata-Version: 2.2
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Keywords: foo
             """
         )
@@ -932,7 +932,7 @@ class TestCoreMetadataV22:
             """
             Metadata-Version: 2.2
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Keywords: bar,foo
             """
         )
@@ -946,7 +946,7 @@ class TestCoreMetadataV22:
             """
             Metadata-Version: 2.2
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Classifier: bar
             Classifier: foo
             """
@@ -961,7 +961,7 @@ class TestCoreMetadataV22:
             """
             Metadata-Version: 2.2
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Requires-Python: <2,>=1
             """
         )
@@ -977,7 +977,7 @@ class TestCoreMetadataV22:
             """
             Metadata-Version: 2.2
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Requires-Dist: bar==5
             Requires-Dist: foo==1
             """
@@ -1003,7 +1003,7 @@ class TestCoreMetadataV22:
             """
             Metadata-Version: 2.2
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Provides-Extra: feature1
             Requires-Dist: bar==5; python_version < "3" and extra == "feature1"
             Requires-Dist: foo==1; extra == "feature1"
@@ -1024,7 +1024,7 @@ class TestCoreMetadataV22:
             """
             Metadata-Version: 2.2
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Requires-Dist: bar==5
             Requires-Dist: foo==1
             Requires-Dist: baz==9
@@ -1048,7 +1048,7 @@ class TestCoreMetadataV22:
             """
             Metadata-Version: 2.2
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Description-Content-Type: text/markdown
 
             test content
@@ -1085,7 +1085,7 @@ class TestCoreMetadataV22:
             """
             Metadata-Version: 2.2
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Summary: foo
             Project-URL: bar, baz
             Project-URL: foo, bar
@@ -1121,7 +1121,7 @@ class TestCoreMetadataV23:
             """
             Metadata-Version: 2.3
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             """
         )
 
@@ -1134,7 +1134,7 @@ class TestCoreMetadataV23:
             """
             Metadata-Version: 2.3
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Summary: foo
             """
         )
@@ -1150,7 +1150,7 @@ class TestCoreMetadataV23:
             """
             Metadata-Version: 2.3
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Project-URL: bar, baz
             Project-URL: foo, bar
             """
@@ -1165,7 +1165,7 @@ class TestCoreMetadataV23:
             """
             Metadata-Version: 2.3
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Author: foo
             """
         )
@@ -1181,7 +1181,7 @@ class TestCoreMetadataV23:
             """
             Metadata-Version: 2.3
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Author-email: foo@domain
             """
         )
@@ -1197,7 +1197,7 @@ class TestCoreMetadataV23:
             """
             Metadata-Version: 2.3
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Author-email: foo <bar@domain>
             """
         )
@@ -1213,7 +1213,7 @@ class TestCoreMetadataV23:
             """
             Metadata-Version: 2.3
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Author: foo, bar
             """
         )
@@ -1227,7 +1227,7 @@ class TestCoreMetadataV23:
             """
             Metadata-Version: 2.3
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Maintainer: foo
             """
         )
@@ -1243,7 +1243,7 @@ class TestCoreMetadataV23:
             """
             Metadata-Version: 2.3
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Maintainer-email: foo@domain
             """
         )
@@ -1265,7 +1265,7 @@ class TestCoreMetadataV23:
             """
             Metadata-Version: 2.3
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Maintainer-email: foo <bar@domain>
             """
         )
@@ -1281,7 +1281,7 @@ class TestCoreMetadataV23:
             """
             Metadata-Version: 2.3
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Maintainer: foo, bar
             """
         )
@@ -1297,7 +1297,7 @@ class TestCoreMetadataV23:
             """
             Metadata-Version: 2.3
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             License-Expression: MIT OR Apache-2.0
             """
         )
@@ -1318,7 +1318,7 @@ class TestCoreMetadataV23:
             """
             Metadata-Version: 2.3
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             License-File: LICENSES/Apache-2.0.txt
             License-File: LICENSES/MIT.txt
             """
@@ -1333,7 +1333,7 @@ class TestCoreMetadataV23:
             """
             Metadata-Version: 2.3
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Keywords: foo
             """
         )
@@ -1347,7 +1347,7 @@ class TestCoreMetadataV23:
             """
             Metadata-Version: 2.3
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Keywords: bar,foo
             """
         )
@@ -1361,7 +1361,7 @@ class TestCoreMetadataV23:
             """
             Metadata-Version: 2.3
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Classifier: bar
             Classifier: foo
             """
@@ -1376,7 +1376,7 @@ class TestCoreMetadataV23:
             """
             Metadata-Version: 2.3
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Requires-Python: <2,>=1
             """
         )
@@ -1392,7 +1392,7 @@ class TestCoreMetadataV23:
             """
             Metadata-Version: 2.3
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Requires-Dist: bar==5
             Requires-Dist: foo==1
             """
@@ -1418,7 +1418,7 @@ class TestCoreMetadataV23:
             """
             Metadata-Version: 2.3
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Provides-Extra: feature1
             Requires-Dist: bar==5; python_version < "3" and extra == "feature1"
             Requires-Dist: foo==1; extra == "feature1"
@@ -1439,7 +1439,7 @@ class TestCoreMetadataV23:
             """
             Metadata-Version: 2.3
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Requires-Dist: bar==5
             Requires-Dist: foo==1
             Requires-Dist: baz==9
@@ -1463,7 +1463,7 @@ class TestCoreMetadataV23:
             """
             Metadata-Version: 2.3
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Description-Content-Type: text/markdown
 
             test content
@@ -1506,7 +1506,7 @@ class TestCoreMetadataV23:
             """
             Metadata-Version: 2.3
             Name: my-app
-            Version: 0.1
+            Version: 0.1.0
             Summary: foo
             Project-URL: bar, baz
             Project-URL: foo, bar
