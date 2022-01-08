@@ -49,6 +49,10 @@ This is the first release candidate for Hatch v1, a complete rewrite.
 
 ### Unreleased
 
+***Added:***
+
+- Improve default file selection to account for `src`-layout structures and namespaced packages
+
 ***Fixed:***
 
 - The normalization of project versions no longer strips trailing zero release segments

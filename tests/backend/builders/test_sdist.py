@@ -19,23 +19,6 @@ def test_default_versions(isolation):
     assert builder.get_default_versions() == ['standard']
 
 
-class TestPatternDefaults:
-    def test_include(self, isolation):
-        builder = SdistBuilder(str(isolation))
-
-        assert builder.config.default_include_patterns() == []
-
-    def test_exclude(self, isolation):
-        builder = SdistBuilder(str(isolation))
-
-        assert builder.config.default_exclude_patterns() == []
-
-    def test_global_exclude(self, isolation):
-        builder = SdistBuilder(str(isolation))
-
-        assert builder.config.default_global_exclude_patterns() == ['.git']
-
-
 class TestSupportLegacy:
     def test_default(self, isolation):
         builder = SdistBuilder(str(isolation))

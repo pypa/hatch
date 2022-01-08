@@ -94,7 +94,7 @@ dynamic = ["version"]
 path = "{package_metadata_file_path}"
 
 [tool.hatch.build.targets.sdist]
-[tool.hatch.build.targets.wheel]{packages_section}{tests_section}
+[tool.hatch.build.targets.wheel]{tests_section}
 """
 
     def __init__(self, template_config: dict, plugin_config: dict):
@@ -126,12 +126,6 @@ path = "{package_metadata_file_path}"
 [project.scripts]
 {template_config['project_name_normalized']} = "{template_config['package_name']}.cli:{template_config['package_name']}"\
 """  # noqa: E501
-
-        packages_section = ''
-        if plugin_config['src-layout']:
-            packages_section = f"""
-packages = ["src/{template_config['package_name']}"]\
-"""
 
         tests_section = ''
         if plugin_config['tests']:
@@ -170,7 +164,6 @@ exclude_lines = [
                 project_url_data=project_url_data,
                 dependency_data=dependency_data,
                 cli_scripts=cli_scripts,
-                packages_section=packages_section,
                 tests_section=tests_section,
                 **template_config,
             ),

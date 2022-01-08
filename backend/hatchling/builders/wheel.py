@@ -8,6 +8,7 @@ from contextlib import closing
 
 from ..__about__ import __version__
 from ..metadata.utils import DEFAULT_METADATA_VERSION, get_core_metadata_constructors
+from .config import BuilderConfig
 from .plugin.interface import BuilderInterface
 from .utils import (
     format_file_hash,
@@ -136,6 +137,58 @@ class WheelArchive(object):
     def __exit__(self, exc_type, exc_value, traceback):
         self.zf.close()
         self.fd.close()
+
+
+class WheelBuilderConfig(BuilderConfig):
+    def __init__(self, *args, **kwargs):
+        super(WheelBuilderConfig, self).__init__(*args, **kwargs)
+
+        self.__include_defined = bool(
+            self.target_config.get('include', self.build_config.get('include'))
+            or self.target_config.get('packages', self.build_config.get('packages'))
+        )
+        self.__include = []
+        self.__exclude = []
+        self.__packages = []
+
+    def set_default_file_selection(self):
+        if self.__include or self.__exclude or self.__packages:
+            return
+
+        project_name = self.builder.normalize_file_name_component(self.builder.metadata.core.name)
+        if os.path.isfile(os.path.join(self.root, project_name, '__init__.py')):
+            self.__include.append('/{}'.format(project_name))
+        elif os.path.isfile(os.path.join(self.root, 'src', project_name, '__init__.py')):
+            self.__packages.append('src/{}'.format(project_name))
+        else:
+            from glob import glob
+
+            possible_namespace_packages = glob(os.path.join(self.root, '*', project_name, '__init__.py'))
+            if possible_namespace_packages:
+                relative_path = os.path.relpath(possible_namespace_packages[0], self.root)
+                namespace = relative_path.split(os.path.sep)[0]
+                self.__include.append('/{}'.format(namespace))
+            else:
+                self.__include.append('*.py')
+                self.__exclude.append('test*')
+
+    def default_include(self):
+        if not self.__include_defined:
+            self.set_default_file_selection()
+
+        return self.__include
+
+    def default_exclude(self):
+        if not self.__include_defined:
+            self.set_default_file_selection()
+
+        return self.__exclude
+
+    def default_packages(self):
+        if not self.__include_defined:
+            self.set_default_file_selection()
+
+        return self.__packages
 
 
 class WheelBuilder(BuilderInterface):
@@ -395,12 +448,6 @@ class WheelBuilder(BuilderInterface):
     def get_default_build_data(self):
         return {'infer_tag': False}
 
-    def ignore_directory(self, directory):
-        return self.config.include_spec is None and directory.startswith('test')
-
-    def ignore_files(self, files):
-        return self.config.include_spec is None and '__init__.py' not in files
-
     @property
     def core_metadata_constructor(self):
         if self.__core_metadata_constructor is None:
@@ -429,6 +476,10 @@ class WheelBuilder(BuilderInterface):
             self.__zip_safe = bool(self.target_config.get('zip-safe', True))
 
         return self.__zip_safe
+
+    @classmethod
+    def get_config_class(cls):
+        return WheelBuilderConfig
 
     @staticmethod
     def format_record(record):

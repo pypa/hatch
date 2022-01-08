@@ -23,23 +23,6 @@ def test_default_versions(isolation):
     assert builder.get_default_versions() == ['standard']
 
 
-class TestPatternDefaults:
-    def test_include(self, isolation):
-        builder = WheelBuilder(str(isolation))
-
-        assert builder.config.default_include_patterns() == []
-
-    def test_exclude(self, isolation):
-        builder = WheelBuilder(str(isolation))
-
-        assert builder.config.default_exclude_patterns() == []
-
-    def test_global_exclude(self, isolation):
-        builder = WheelBuilder(str(isolation))
-
-        assert builder.config.default_global_exclude_patterns() == ['.git']
-
-
 class TestZipSafe:
     def test_default(self, isolation):
         builder = WheelBuilder(str(isolation))
@@ -799,7 +782,7 @@ class TestBuildStandard:
                 'hatch': {
                     'version': {'path': 'src/my_app/__about__.py'},
                     'build': {
-                        'targets': {'wheel': {'versions': ['standard'], 'packages': ['src/my_app']}},
+                        'targets': {'wheel': {'versions': ['standard']}},
                         'hooks': {'custom': {'path': 'build.py'}},
                     },
                 },
@@ -950,3 +933,56 @@ class TestBuildStandard:
         with zipfile.ZipFile(str(expected_artifact), 'r') as zip_archive:
             zip_info = zip_archive.getinfo(f'{metadata_directory}/WHEEL')
             assert zip_info.date_time == (2020, 2, 2, 0, 0, 0)
+
+    def test_default_namespace_package(self, hatch, helpers, temp_dir):
+        project_name = 'My App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / 'my-app'
+        package_path = project_path / 'my_app'
+        namespace_path = project_path / 'namespace'
+        namespace_path.mkdir()
+        package_path.replace(namespace_path / 'my_app')
+
+        config = {
+            'project': {'name': 'my__app', 'dynamic': ['version']},
+            'tool': {
+                'hatch': {
+                    'version': {'path': 'namespace/my_app/__about__.py'},
+                    'build': {'targets': {'wheel': {'versions': ['standard']}}},
+                },
+            },
+        }
+        builder = WheelBuilder(str(project_path), config=config)
+
+        build_path = project_path / 'dist'
+
+        with project_path.as_cwd():
+            artifacts = list(builder.build())
+
+        assert len(artifacts) == 1
+        expected_artifact = artifacts[0]
+
+        build_artifacts = list(build_path.iterdir())
+        assert len(build_artifacts) == 1
+        assert expected_artifact == str(build_artifacts[0])
+        assert expected_artifact == str(build_path / f'{builder.project_id}-{get_python_versions_tag()}-none-any.whl')
+
+        extraction_directory = temp_dir / '_archive'
+        extraction_directory.mkdir()
+
+        with zipfile.ZipFile(str(expected_artifact), 'r') as zip_archive:
+            zip_archive.extractall(str(extraction_directory))
+
+        metadata_directory = f'{builder.project_id}.dist-info'
+        expected_files = helpers.get_template_files(
+            'wheel.standard_default_namespace_package',
+            project_name,
+            metadata_directory=metadata_directory,
+            namespace='namespace',
+        )
+        helpers.assert_files(extraction_directory, expected_files, check_contents=True)

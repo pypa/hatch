@@ -104,7 +104,6 @@ path = "src/{kwargs['package_name']}/__about__.py"
 
 [tool.hatch.build.targets.sdist]
 [tool.hatch.build.targets.wheel]
-packages = ["src/{kwargs['package_name']}"]
 
 [tool.hatch.envs.default]
 dependencies = [

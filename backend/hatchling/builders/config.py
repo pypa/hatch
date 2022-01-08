@@ -10,15 +10,12 @@ from .constants import DEFAULT_BUILD_DIRECTORY, BuildEnvVars
 
 
 class BuilderConfig(object):
-    def __init__(
-        self, root, plugin_name, build_config, target_config, supported_versions_getter, default_versions_getter
-    ):
+    def __init__(self, builder, root, plugin_name, build_config, target_config):
+        self.__builder = builder
         self.__root = root
         self.__plugin_name = plugin_name
         self.__build_config = build_config
         self.__target_config = target_config
-        self.__supported_versions_getter = supported_versions_getter
-        self.__default_versions_getter = default_versions_getter
         self.__hook_config = None
         self.__versions = None
         self.__dependencies = None
@@ -43,6 +40,10 @@ class BuilderConfig(object):
         self.__dev_mode_dirs = None
 
     @property
+    def builder(self):
+        return self.__builder
+
+    @property
     def root(self):
         return self.__root
 
@@ -57,12 +58,6 @@ class BuilderConfig(object):
     @property
     def target_config(self):
         return self.__target_config
-
-    def get_supported_versions(self):
-        return self.__supported_versions_getter()
-
-    def get_default_versions(self):
-        return self.__default_versions_getter()
 
     def include_path(self, relative_path):
         return (
@@ -107,7 +102,7 @@ class BuilderConfig(object):
 
             all_include_patterns = []
 
-            include_patterns = include_config.get('include', self.default_include_patterns())
+            include_patterns = include_config.get('include', self.default_include())
             if not isinstance(include_patterns, list):
                 raise TypeError('Field `{}` must be an array of strings'.format(include_location))
 
@@ -143,9 +138,9 @@ class BuilderConfig(object):
                 exclude_config = self.build_config
                 exclude_location = 'tool.hatch.build.exclude'
 
-            all_exclude_patterns = self.default_global_exclude_patterns()
+            all_exclude_patterns = self.default_global_exclude()
 
-            exclude_patterns = exclude_config.get('exclude', self.default_exclude_patterns())
+            exclude_patterns = exclude_config.get('exclude', self.default_exclude())
             if not isinstance(exclude_patterns, list):
                 raise TypeError('Field `{}` must be an array of strings'.format(exclude_location))
 
@@ -365,11 +360,11 @@ class BuilderConfig(object):
                 all_versions[version] = None
 
             if not all_versions:
-                default_versions = self.get_default_versions()
+                default_versions = self.__builder.get_default_versions()
                 for version in default_versions:
                     all_versions[version] = None
             else:
-                unknown_versions = set(all_versions) - set(self.get_supported_versions())
+                unknown_versions = set(all_versions) - set(self.__builder.get_version_api())
                 if unknown_versions:
                     raise ValueError(
                         'Unknown versions in field `tool.hatch.build.targets.{}.versions`: {}'.format(
@@ -446,7 +441,7 @@ class BuilderConfig(object):
 
             all_packages = set()
 
-            packages = package_config.get('packages', [])
+            packages = package_config.get('packages', self.default_packages())
             if not isinstance(packages, list):
                 raise TypeError('Field `{}` must be an array of strings'.format(package_location))
 
@@ -513,13 +508,16 @@ class BuilderConfig(object):
 
         return os.path.normpath(build_directory)
 
-    def default_include_patterns(self):
+    def default_include(self):
         return []
 
-    def default_exclude_patterns(self):
+    def default_exclude(self):
         return []
 
-    def default_global_exclude_patterns(self):
+    def default_packages(self):
+        return []
+
+    def default_global_exclude(self):
         return ['.git']
 
     @contextmanager

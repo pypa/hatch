@@ -699,21 +699,26 @@ class TestDependencies:
             assert builder.config.dependencies == ['foo', 'baz']
 
 
-class TestPatternDefaults:
+class TestFileSelectionDefaults:
     def test_include(self, isolation):
         builder = BuilderInterface(str(isolation))
 
-        assert builder.config.default_include_patterns() == []
+        assert builder.config.default_include() == []
 
     def test_exclude(self, isolation):
         builder = BuilderInterface(str(isolation))
 
-        assert builder.config.default_exclude_patterns() == []
+        assert builder.config.default_exclude() == []
+
+    def test_packages(self, isolation):
+        builder = BuilderInterface(str(isolation))
+
+        assert builder.config.default_packages() == []
 
     def test_global_exclude(self, isolation):
         builder = BuilderInterface(str(isolation))
 
-        assert builder.config.default_global_exclude_patterns() == ['.git']
+        assert builder.config.default_global_exclude() == ['.git']
 
 
 class TestPatternInclude:
@@ -959,7 +964,7 @@ class TestPatternExclude:
 
     def test_override_default_global_exclude_patterns(self, isolation):
         builder = BuilderInterface(str(isolation))
-        builder.config.default_global_exclude_patterns = lambda: []
+        builder.config.default_global_exclude = lambda: []
 
         assert builder.config.exclude_spec is None
         assert not builder.config.path_is_excluded('.git/file')

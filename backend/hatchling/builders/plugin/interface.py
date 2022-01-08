@@ -169,15 +169,9 @@ class BuilderInterface(object):
             dirs[:] = sorted(
                 d
                 for d in dirs
-                if not (
-                    self.ignore_directory(d)
-                    # The trailing slash is necessary so e.g. `bar/` matches `foo/bar`
-                    or self.config.path_is_excluded('{}/'.format(os.path.join(relative_path, d)))
-                )
+                # The trailing slash is necessary so e.g. `bar/` matches `foo/bar`
+                if not self.config.path_is_excluded('{}/'.format(os.path.join(relative_path, d)))
             )
-
-            if self.ignore_files(files):
-                continue
 
             for f in sorted(files):
                 relative_file_path = os.path.join(relative_path, f)
@@ -251,12 +245,7 @@ class BuilderInterface(object):
         """
         if self.__config is None:
             self.__config = self.get_config_class()(
-                self.root,
-                self.PLUGIN_NAME,
-                self.build_config,
-                self.target_config,
-                self.get_version_api,
-                self.get_default_versions,
+                self, self.root, self.PLUGIN_NAME, self.build_config, self.target_config
             )
 
         return self.__config
@@ -328,14 +317,6 @@ class BuilderInterface(object):
             )
 
         return configured_build_hooks
-
-    def ignore_directory(self, directory):
-        # A hack used by WheelBuilder to ignore any test directories when no inclusion patterns are provided.
-        return False
-
-    def ignore_files(self, files):
-        # A hack used by WheelBuilder to ignore any non-package directory when no inclusion patterns are provided.
-        return False
 
     def get_version_api(self):
         """

@@ -17,8 +17,9 @@
       - dev_mode_dirs
       - versions
       - dependencies
-      - default_include_patterns
-      - default_exclude_patterns
+      - default_include
+      - default_exclude
+      - default_packages
 
 ::: hatchling.bridge.app.Application
     rendering:
