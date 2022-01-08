@@ -44,10 +44,12 @@ The builder plugin name is `wheel`.
 
 #### Default file selection
 
-When the user has not set any [file selection](../config/build.md#file-selection) options, every file will be included that is inside any Python package that does not start with the word `test`.
+When the user has not set any [file selection](../config/build.md#file-selection) options, the [project name](../config/metadata.md#name) will be used to determine the package to ship in the following heuristic order:
 
-??? note "Caveat"
-    [Native namespace packages](https://packaging.python.org/guides/packaging-namespace-packages/#native-namespace-packages) would not be included by default because one of the heuristics that is used is the presence of a `__init__.py` file.
+1. `<PACKAGE>/__init__.py`
+2. `src/<PACKAGE>/__init__.py`
+3. `<NAMESPACE>/<PACKAGE>/__init__.py`
+4. Otherwise, every Python package and file that does not start with the word `test` will be included
 
 #### Reproducibility
 

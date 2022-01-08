@@ -60,7 +60,7 @@ You can update the version like so:
 ```console
 $ hatch version "0.1.0"
 Old: 0.0.1
-New: 0.1
+New: 0.1.0
 ```
 
 The `scheme` option determines the [scheme](plugins/version-scheme.md) to use for parsing both the existing and new versions. The [standard](plugins/version-scheme.md#standard) scheme is used by default, which is based on [PEP 440](https://www.python.org/dev/peps/pep-0440/#public-version-identifiers).
@@ -69,29 +69,29 @@ Rather than setting the version explicitly, you can select the name of a [segmen
 
 ```console
 $ hatch version minor
-Old: 0.1
-New: 0.2
+Old: 0.1.0
+New: 0.2.0
 ```
 
 You can chain multiple segment updates with a comma. For example, if you wanted to release a preview of your project's first major version, you could do:
 
 ```console
 $ hatch version major,rc
-Old: 0.2
-New: 1rc0
+Old: 0.2.0
+New: 1.0.0rc0
 ```
 
 ### Supported segments
 
-Here are the supported segments and how they would influence an existing version of `1`:
+Here are the supported segments and how they would influence an existing version of `1.0.0`:
 
 | Segments | New version |
 | --- | --- |
-| `major` | `2` |
-| `minor` | `1.1` |
+| `major` | `2.0.0` |
+| `minor` | `1.1.0` |
 | `micro`<br>`patch`<br>`fix` | `1.0.1` |
-| `a`<br>`alpha` | `1a0` |
-| `b`<br>`beta` | `1b0` |
-| `c`<br>`rc`<br>`pre`<br>`preview` | `1rc0` |
-| `r`<br>`rev`<br>`post` | `1.post0` |
-| `dev` | `1.dev0` |
+| `a`<br>`alpha` | `1.0.0a0` |
+| `b`<br>`beta` | `1.0.0b0` |
+| `c`<br>`rc`<br>`pre`<br>`preview` | `1.0.0rc0` |
+| `r`<br>`rev`<br>`post` | `1.0.0.post0` |
+| `dev` | `1.0.0.dev0` |
