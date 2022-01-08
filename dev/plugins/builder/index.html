@@ -177,15 +177,9 @@
             <span class=n>dirs</span><span class=p>[:]</span> <span class=o>=</span> <span class=nb>sorted</span><span class=p>(</span>
                 <span class=n>d</span>
                 <span class=k>for</span> <span class=n>d</span> <span class=ow>in</span> <span class=n>dirs</span>
-                <span class=k>if</span> <span class=ow>not</span> <span class=p>(</span>
-                    <span class=bp>self</span><span class=o>.</span><span class=n>ignore_directory</span><span class=p>(</span><span class=n>d</span><span class=p>)</span>
-                    <span class=c1># The trailing slash is necessary so e.g. `bar/` matches `foo/bar`</span>
-                    <span class=ow>or</span> <span class=bp>self</span><span class=o>.</span><span class=n>config</span><span class=o>.</span><span class=n>path_is_excluded</span><span class=p>(</span><span class=s1>&#39;</span><span class=si>{}</span><span class=s1>/&#39;</span><span class=o>.</span><span class=n>format</span><span class=p>(</span><span class=n>os</span><span class=o>.</span><span class=n>path</span><span class=o>.</span><span class=n>join</span><span class=p>(</span><span class=n>relative_path</span><span class=p>,</span> <span class=n>d</span><span class=p>)))</span>
-                <span class=p>)</span>
+                <span class=c1># The trailing slash is necessary so e.g. `bar/` matches `foo/bar`</span>
+                <span class=k>if</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>config</span><span class=o>.</span><span class=n>path_is_excluded</span><span class=p>(</span><span class=s1>&#39;</span><span class=si>{}</span><span class=s1>/&#39;</span><span class=o>.</span><span class=n>format</span><span class=p>(</span><span class=n>os</span><span class=o>.</span><span class=n>path</span><span class=o>.</span><span class=n>join</span><span class=p>(</span><span class=n>relative_path</span><span class=p>,</span> <span class=n>d</span><span class=p>)))</span>
             <span class=p>)</span>
-
-            <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>ignore_files</span><span class=p>(</span><span class=n>files</span><span class=p>):</span>
-                <span class=k>continue</span>
 
             <span class=k>for</span> <span class=n>f</span> <span class=ow>in</span> <span class=nb>sorted</span><span class=p>(</span><span class=n>files</span><span class=p>):</span>
                 <span class=n>relative_file_path</span> <span class=o>=</span> <span class=n>os</span><span class=o>.</span><span class=n>path</span><span class=o>.</span><span class=n>join</span><span class=p>(</span><span class=n>relative_path</span><span class=p>,</span> <span class=n>f</span><span class=p>)</span>
@@ -259,12 +253,7 @@
 <span class=sd>        &quot;&quot;&quot;</span>
         <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>__config</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
             <span class=bp>self</span><span class=o>.</span><span class=n>__config</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>get_config_class</span><span class=p>()(</span>
-                <span class=bp>self</span><span class=o>.</span><span class=n>root</span><span class=p>,</span>
-                <span class=bp>self</span><span class=o>.</span><span class=n>PLUGIN_NAME</span><span class=p>,</span>
-                <span class=bp>self</span><span class=o>.</span><span class=n>build_config</span><span class=p>,</span>
-                <span class=bp>self</span><span class=o>.</span><span class=n>target_config</span><span class=p>,</span>
-                <span class=bp>self</span><span class=o>.</span><span class=n>get_version_api</span><span class=p>,</span>
-                <span class=bp>self</span><span class=o>.</span><span class=n>get_default_versions</span><span class=p>,</span>
+                <span class=bp>self</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>root</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>PLUGIN_NAME</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>build_config</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>target_config</span>
             <span class=p>)</span>
 
         <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>__config</span>
@@ -336,14 +325,6 @@
             <span class=p>)</span>
 
         <span class=k>return</span> <span class=n>configured_build_hooks</span>
-
-    <span class=k>def</span> <span class=nf>ignore_directory</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>directory</span><span class=p>):</span>
-        <span class=c1># A hack used by WheelBuilder to ignore any test directories when no inclusion patterns are provided.</span>
-        <span class=k>return</span> <span class=kc>False</span>
-
-    <span class=k>def</span> <span class=nf>ignore_files</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>files</span><span class=p>):</span>
-        <span class=c1># A hack used by WheelBuilder to ignore any non-package directory when no inclusion patterns are provided.</span>
-        <span class=k>return</span> <span class=kc>False</span>
 
     <span class=k>def</span> <span class=nf>get_version_api</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
         <span class=sd>&quot;&quot;&quot;</span>
@@ -450,15 +431,9 @@
         <span class=n>dirs</span><span class=p>[:]</span> <span class=o>=</span> <span class=nb>sorted</span><span class=p>(</span>
             <span class=n>d</span>
             <span class=k>for</span> <span class=n>d</span> <span class=ow>in</span> <span class=n>dirs</span>
-            <span class=k>if</span> <span class=ow>not</span> <span class=p>(</span>
-                <span class=bp>self</span><span class=o>.</span><span class=n>ignore_directory</span><span class=p>(</span><span class=n>d</span><span class=p>)</span>
-                <span class=c1># The trailing slash is necessary so e.g. `bar/` matches `foo/bar`</span>
-                <span class=ow>or</span> <span class=bp>self</span><span class=o>.</span><span class=n>config</span><span class=o>.</span><span class=n>path_is_excluded</span><span class=p>(</span><span class=s1>&#39;</span><span class=si>{}</span><span class=s1>/&#39;</span><span class=o>.</span><span class=n>format</span><span class=p>(</span><span class=n>os</span><span class=o>.</span><span class=n>path</span><span class=o>.</span><span class=n>join</span><span class=p>(</span><span class=n>relative_path</span><span class=p>,</span> <span class=n>d</span><span class=p>)))</span>
-            <span class=p>)</span>
+            <span class=c1># The trailing slash is necessary so e.g. `bar/` matches `foo/bar`</span>
+            <span class=k>if</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>config</span><span class=o>.</span><span class=n>path_is_excluded</span><span class=p>(</span><span class=s1>&#39;</span><span class=si>{}</span><span class=s1>/&#39;</span><span class=o>.</span><span class=n>format</span><span class=p>(</span><span class=n>os</span><span class=o>.</span><span class=n>path</span><span class=o>.</span><span class=n>join</span><span class=p>(</span><span class=n>relative_path</span><span class=p>,</span> <span class=n>d</span><span class=p>)))</span>
         <span class=p>)</span>
-
-        <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>ignore_files</span><span class=p>(</span><span class=n>files</span><span class=p>):</span>
-            <span class=k>continue</span>
 
         <span class=k>for</span> <span class=n>f</span> <span class=ow>in</span> <span class=nb>sorted</span><span class=p>(</span><span class=n>files</span><span class=p>):</span>
             <span class=n>relative_file_path</span> <span class=o>=</span> <span class=n>os</span><span class=o>.</span><span class=n>path</span><span class=o>.</span><span class=n>join</span><span class=p>(</span><span class=n>relative_path</span><span class=p>,</span> <span class=n>f</span><span class=p>)</span>
