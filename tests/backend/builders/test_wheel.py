@@ -1,3 +1,5 @@
+import platform
+import sys
 import zipfile
 
 import pytest
@@ -822,6 +824,9 @@ class TestBuildStandard:
         )
         helpers.assert_files(extraction_directory, expected_files, check_contents=True)
 
+    @pytest.mark.skipif(
+        platform.system() == 'Windows' and sys.version_info < (3, 8), reason='pathlib.Path.resolve has bug on Windows'
+    )
     def test_editable_standard(self, hatch, helpers, temp_dir):
         project_name = 'My App'
 
@@ -878,6 +883,9 @@ class TestBuildStandard:
             zip_info = zip_archive.getinfo(f'{metadata_directory}/WHEEL')
             assert zip_info.date_time == (2020, 2, 2, 0, 0, 0)
 
+    @pytest.mark.skipif(
+        platform.system() == 'Windows' and sys.version_info < (3, 8), reason='pathlib.Path.resolve has bug on Windows'
+    )
     def test_editable_pth(self, hatch, helpers, temp_dir):
         project_name = 'My App'
 
