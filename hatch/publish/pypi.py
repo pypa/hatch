@@ -141,7 +141,11 @@ class PyPIPublisher(PublisherInterface):
                 sha256_hash = hashlib.sha256()
                 blake2_256_hash = hashlib.blake2b(digest_size=32)
 
-                while chunk := f.read(io.DEFAULT_BUFFER_SIZE):
+                while True:
+                    chunk = f.read(io.DEFAULT_BUFFER_SIZE)
+                    if not chunk:
+                        break
+
                     md5_hash.update(chunk)
                     sha256_hash.update(chunk)
                     blake2_256_hash.update(chunk)
@@ -202,9 +206,10 @@ def get_wheel_form_data(app, artifact):
 
     with zipfile.ZipFile(str(artifact), 'r') as zip_archive:
         dist_info_dir = ''
-        for path in zipfile.Path(zip_archive).iterdir():
-            if path.name.endswith('.dist-info'):
-                dist_info_dir = path.name
+        for path in zip_archive.namelist():
+            root = path.split('/', 1)[0]
+            if root.endswith('.dist-info'):
+                dist_info_dir = root
                 break
         else:  # no cov
             app.abort(f'Could not find the `.dist-info` directory in wheel: {artifact}')

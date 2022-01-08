@@ -36,7 +36,9 @@ class Terminal:
 
         for option, style in styles.items():
             attribute = f'_style_level_{option}'
-            if default_level := getattr(self, attribute, None):
+
+            default_level = getattr(self, attribute, None)
+            if default_level:
                 try:
                     style = Style.parse(style)
                 except StyleSyntaxError as e:  # no cov
