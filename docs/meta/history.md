@@ -49,6 +49,8 @@ This is the first release candidate for Hatch v1, a complete rewrite.
 
 ### Unreleased
 
+### [0.7.0](https://github.com/ofek/hatch/releases/tag/hatchling-v0.7.0) - 2022-01-08 ### {: #hatchling-v0.7.0 }
+
 ***Added:***
 
 - Improve default file selection to account for `src`-layout structures and namespaced packages
