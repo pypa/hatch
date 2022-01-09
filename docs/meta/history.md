@@ -61,6 +61,8 @@ This is the first release candidate for Hatch v1, a complete rewrite.
 
 ### Unreleased
 
+### [0.8.0](https://github.com/ofek/hatch/releases/tag/hatchling-v0.8.0) - 2022-01-09 ### {: #hatchling-v0.8.0 }
+
 ***Added:***
 
 - The `regex` version source now supports the `^`/`$` multi-line characters by default
