@@ -52,10 +52,11 @@ class Path(_PathBase):
     @contextmanager
     def temp_hide(self) -> Generator[Path, None, None]:
         with temp_directory() as temp_dir:
+            temp_path = Path(temp_dir, self.name)
             try:
-                temp_path = self.replace(temp_dir / self.name)
+                self.replace(temp_dir / self.name)
             except FileNotFoundError:
-                temp_path = Path(temp_dir, self.name)
+                pass
 
             try:
                 yield temp_path

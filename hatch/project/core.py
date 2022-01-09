@@ -60,14 +60,16 @@ class Project:
             return None
 
         if project in config.projects:
-            if location := config.projects[project].location:
+            location = config.projects[project].location
+            if location:
                 return cls(Path(location).resolve(), name=project)
         else:
             for project_dir in config.dirs.project:
                 if not project_dir:
                     continue
 
-                if (location := Path(project_dir, project)).is_dir():
+                location = Path(project_dir, project)
+                if location.is_dir():
                     return cls(Path(location).resolve(), name=project)
 
     def find_project_root(self) -> Path | None:

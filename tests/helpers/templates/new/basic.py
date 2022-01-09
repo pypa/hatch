@@ -66,7 +66,7 @@ build-backend = "hatchling.build"
 name = "{kwargs['project_name_normalized']}"
 description = ''
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.7"
 license = "MIT"
 keywords = []
 authors = [
@@ -75,6 +75,7 @@ authors = [
 classifiers = [
   "Development Status :: 4 - Beta",
   "Programming Language :: Python",
+  "Programming Language :: Python :: 3.7",
   "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",

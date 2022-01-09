@@ -141,7 +141,10 @@ class Platform:
             if self.windows:
                 self.__join_command_args = self._subprocess.list2cmdline
             else:
-                self.__join_command_args = self._shlex.join
+                try:
+                    self.__join_command_args = self._shlex.join
+                except AttributeError:
+                    self.__join_command_args = lambda command_args: ' '.join(map(self._shlex.quote, command_args))
 
         return self.__join_command_args
 

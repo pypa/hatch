@@ -70,7 +70,7 @@ build-backend = "hatchling.build"
 name = "{project_name_normalized}"
 description = {description!r}
 readme = "{readme_file_path}"
-requires-python = ">=3.8"
+requires-python = ">=3.7"
 license = "{license_expression}"{license_files}
 keywords = []
 authors = [
@@ -79,6 +79,7 @@ authors = [
 classifiers = [
   "Development Status :: 4 - Beta",
   "Programming Language :: Python",
+  "Programming Language :: Python :: 3.7",
   "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
@@ -142,7 +143,7 @@ cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov={packa
 no-cov = "cov --no-cov"
 
 [[tool.hatch.envs.test.matrix]]
-python = ["38", "39", "310"]
+python = ["37", "38", "39", "310"]
 
 [tool.coverage.run]
 branch = true

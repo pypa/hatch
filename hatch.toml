@@ -13,7 +13,7 @@ full = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=hatch
 dev = "pytest --no-cov"
 
 [[envs.test.matrix]]
-python = ["38", "39", "310"]
+python = ["37", "38", "39", "310"]
 
 [envs.lint]
 skip-install = true

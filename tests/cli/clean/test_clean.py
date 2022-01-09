@@ -30,7 +30,8 @@ def test(hatch, temp_dir, helpers):
 
             class CustomHook(BuildHookInterface):
                 def clean(self, versions):
-                    pathlib.Path('my_app', 'lib.so').unlink(missing_ok=True)
+                    if self.target_name == 'wheel':
+                        pathlib.Path('my_app', 'lib.so').unlink()
                 def initialize(self, version, build_data):
                     if self.target_name == 'wheel':
                         pathlib.Path('my_app', 'lib.so').touch()
