@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Unreleased
 
+### [1.0.0rc8](https://github.com/ofek/hatch/releases/tag/hatch-v1.0.0rc8) - 2022-01-08 ### {: #hatch-v1.0.0rc8 }
+
 ***Added:***
 
 - Support Python 3.7
