@@ -75,24 +75,46 @@ def test_match_custom_pattern(temp_dir):
 
 
 @pytest.mark.parametrize('variable, quote, prefix', DEFAULT_PATTERN_PRODUCTS)
-def test_match_default_pattern(temp_dir, variable, quote, prefix):
+def test_match_default_pattern(temp_dir, helpers, variable, quote, prefix):
     source = RegexSource(str(temp_dir), {'path': 'a/b'})
 
     file_path = temp_dir / 'a' / 'b'
     file_path.ensure_parent_dir_exists()
-    file_path.write_text(f'{variable} = {quote}{prefix}0.0.1{quote}')
+    file_path.write_text(
+        helpers.dedent(
+            f"""
+            __all__ = [{quote}{variable}{quote}, {quote}foo{quote}]
+
+            {variable} = {quote}{prefix}0.0.1{quote}
+
+            def foo():
+                return {quote}bar{quote}
+            """
+        )
+    )
 
     with temp_dir.as_cwd():
         assert source.get_version_data()['version'] == '0.0.1'
 
 
 @pytest.mark.parametrize('variable, quote, prefix', DEFAULT_PATTERN_PRODUCTS)
-def test_set_default_pattern(temp_dir, variable, quote, prefix):
+def test_set_default_pattern(temp_dir, helpers, variable, quote, prefix):
     source = RegexSource(str(temp_dir), {'path': 'a/b'})
 
     file_path = temp_dir / 'a' / 'b'
     file_path.ensure_parent_dir_exists()
-    file_path.write_text(f'{variable} = {quote}{prefix}0.0.1{quote}')
+    file_path.write_text(
+        helpers.dedent(
+            f"""
+            __all__ = [{quote}{variable}{quote}, {quote}foo{quote}]
+
+            {variable} = {quote}{prefix}0.0.1{quote}
+
+            def foo():
+                return {quote}bar{quote}
+            """
+        )
+    )
 
     with temp_dir.as_cwd():
         source.set_version('foo', source.get_version_data())

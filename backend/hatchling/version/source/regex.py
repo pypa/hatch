@@ -4,7 +4,7 @@ from io import open
 
 from .plugin.interface import VersionSourceInterface
 
-DEFAULT_PATTERN = r'(__version__|VERSION) *= *([\'"])v?(?P<version>[^\2]+)\2'
+DEFAULT_PATTERN = r'^(__version__|VERSION) *= *([\'"])v?(?P<version>.+?)\2'
 
 
 class RegexSource(VersionSourceInterface):
@@ -28,7 +28,7 @@ class RegexSource(VersionSourceInterface):
         with open(path, 'r', encoding='utf-8') as f:
             contents = f.read()
 
-        match = re.search(pattern, contents)
+        match = re.search(pattern, contents, flags=re.MULTILINE)
         if not match:
             raise ValueError('unable to parse the version from the file: {}'.format(relative_path))
 
