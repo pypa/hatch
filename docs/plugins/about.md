@@ -78,5 +78,6 @@ These are all involved in building projects and therefore any defined dependenci
 These must be manually installed in the same environment as Hatch itself.
 
 - [Environment](environment.md)
+- [Environment collector](environment-collector.md)
 - [Publisher](publisher.md)
 - [Version scheme](version-scheme.md)
