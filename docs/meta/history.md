@@ -66,6 +66,8 @@ This is the first release candidate for Hatch v1, a complete rewrite.
 
 ### Unreleased
 
+### [0.8.1](https://github.com/ofek/hatch/releases/tag/hatchling-v0.8.1) - 2022-01-14 ### {: #hatchling-v0.8.1 }
+
 ***Fixed:***
 
 - Update project metadata
