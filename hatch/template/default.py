@@ -1,5 +1,3 @@
-from contextlib import suppress
-
 from ..utils.fs import Path
 from ..utils.network import download_file
 from . import File, files_default, find_template_files
@@ -42,12 +40,14 @@ class DefaultTemplate(TemplateInterface):
             if not cached_license_path.is_file():
                 from hatchling.licenses.supported import VERSION
 
-                with suppress(Exception):
-                    download_file(
-                        cached_license_path,
-                        f'https://raw.githubusercontent.com/spdx/license-list-data/v{VERSION}/text/{license_file_name}',
-                        timeout=2,
-                    )
+                url = f'https://raw.githubusercontent.com/spdx/license-list-data/v{VERSION}/text/{license_file_name}'
+                for _ in range(5):
+                    try:
+                        download_file(cached_license_path, url, timeout=2)
+                    except Exception:
+                        continue
+                    else:
+                        break
 
             license_data[license_id] = cached_license_path.read_text(encoding='utf-8')
 
