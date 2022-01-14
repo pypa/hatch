@@ -11,7 +11,7 @@ CONFIG = {
             'Donate': 'https://github.com/sponsors/ofek',
             'History': 'https://ofek.dev/hatch/dev/meta/history/',
             'Issues': 'https://github.com/ofek/hatch/issues',
-            'Source': 'https://github.com/ofek/hatch/tree/master/hatchling',
+            'Source': 'https://github.com/ofek/hatch/tree/master/backend',
         },
         'license': 'MIT',
         'keywords': ['build', 'hatch', 'packaging'],
@@ -31,7 +31,6 @@ CONFIG = {
             'Topic :: Software Development :: Build Tools',
             'Topic :: Software Development :: Libraries :: Python Modules',
         ],
-        'dynamic': ['version'],
         'dependencies': [
             'editables~=0.2; python_version > "3"',
             'importlib-metadata; python_version < "3.8"',
@@ -44,6 +43,7 @@ CONFIG = {
             'tomli~=2.0.0; python_version > "3"',
         ],
         'scripts': {'hatchling': 'hatchling.cli:hatchling'},
+        'dynamic': ['version'],
     },
     'tool': {
         'hatch': {
