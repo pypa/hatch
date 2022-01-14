@@ -17,6 +17,12 @@ def test_specific(isolation):
     assert scheme.update('9000.0.0-rc.1', '1.0', {}) == '9000.0.0rc1'
 
 
+def test_release(isolation):
+    scheme = StandardScheme(isolation, {})
+
+    assert scheme.update('release', '9000.0.0-rc.1.post7.dev5', {}) == '9000.0.0'
+
+
 def test_major(isolation):
     scheme = StandardScheme(isolation, {})
 

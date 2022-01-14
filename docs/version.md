@@ -81,12 +81,21 @@ Old: 0.2.0
 New: 1.0.0rc0
 ```
 
+When you want to release the final version, you would do:
+
+```console
+$ hatch version release
+Old: 1.0.0rc0
+New: 1.0.0
+```
+
 ### Supported segments
 
 Here are the supported segments and how they would influence an existing version of `1.0.0`:
 
 | Segments | New version |
 | --- | --- |
+| `release` | `1.0.0` |
 | `major` | `2.0.0` |
 | `minor` | `1.1.0` |
 | `micro`<br>`patch`<br>`fix` | `1.0.1` |

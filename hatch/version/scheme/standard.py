@@ -15,7 +15,9 @@ class StandardScheme(VersionSchemeInterface):
         versions = desired_version.split(',')
 
         for version in versions:
-            if version == 'major':
+            if version == 'release':
+                reset_version_parts(original, release=original.release)
+            elif version == 'major':
                 reset_version_parts(original, release=update_release(original, [original.major + 1]))
             elif version == 'minor':
                 reset_version_parts(original, release=update_release(original, [original.major, original.minor + 1]))
