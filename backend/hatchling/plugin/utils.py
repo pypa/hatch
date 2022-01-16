@@ -9,7 +9,7 @@ if sys.version_info[0] >= 3:
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
 
-        plugin_finder = f'get_{plugin_id}'
+        plugin_finder = 'get_{}'.format(plugin_id)
         names = dir(module)
         if plugin_finder in names:
             return getattr(module, plugin_finder)()
@@ -50,7 +50,7 @@ else:  # no cov
         local_variables = {}
         exec(compiled, globals(), local_variables)
 
-        plugin_finder = f'get_{plugin_id}'
+        plugin_finder = 'get_{}'.format(plugin_id)
         if plugin_finder in local_variables:
             return local_variables[plugin_finder]()
 

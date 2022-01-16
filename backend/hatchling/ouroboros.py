@@ -8,7 +8,7 @@ CONFIG = {
         'authors': [{'name': 'Ofek Lev', 'email': 'oss@ofek.dev'}],
         'urls': {
             'Documentation': 'https://ofek.dev/hatch/latest/',
-            'Donate': 'https://github.com/sponsors/ofek',
+            'Funding': 'https://github.com/sponsors/ofek',
             'History': 'https://ofek.dev/hatch/dev/meta/history/',
             'Issues': 'https://github.com/ofek/hatch/issues',
             'Source': 'https://github.com/ofek/hatch/tree/master/backend',
