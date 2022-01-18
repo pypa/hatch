@@ -313,7 +313,7 @@ class BuilderInterface(object):
                 raise ValueError('Unknown build hook: {}'.format(hook_name))
 
             configured_build_hooks[hook_name] = build_hook(
-                self.root, config, self.config, directory, self.PLUGIN_NAME, self.app
+                self.root, config, self.config, self.metadata, directory, self.PLUGIN_NAME, self.app
             )
 
         return configured_build_hooks
