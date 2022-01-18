@@ -53,10 +53,11 @@
     <span class=n>PLUGIN_NAME</span> <span class=o>=</span> <span class=s1>&#39;&#39;</span>
     <span class=sd>&quot;&quot;&quot;The name used for selection.&quot;&quot;&quot;</span>
 
-    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>root</span><span class=p>,</span> <span class=n>config</span><span class=p>,</span> <span class=n>build_config</span><span class=p>,</span> <span class=n>directory</span><span class=p>,</span> <span class=n>target_name</span><span class=p>,</span> <span class=n>app</span><span class=o>=</span><span class=kc>None</span><span class=p>):</span>
+    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>root</span><span class=p>,</span> <span class=n>config</span><span class=p>,</span> <span class=n>build_config</span><span class=p>,</span> <span class=n>metadata</span><span class=p>,</span> <span class=n>directory</span><span class=p>,</span> <span class=n>target_name</span><span class=p>,</span> <span class=n>app</span><span class=o>=</span><span class=kc>None</span><span class=p>):</span>
         <span class=bp>self</span><span class=o>.</span><span class=n>__root</span> <span class=o>=</span> <span class=n>root</span>
         <span class=bp>self</span><span class=o>.</span><span class=n>__config</span> <span class=o>=</span> <span class=n>config</span>
         <span class=bp>self</span><span class=o>.</span><span class=n>__build_config</span> <span class=o>=</span> <span class=n>build_config</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>__metadata</span> <span class=o>=</span> <span class=n>metadata</span>
         <span class=bp>self</span><span class=o>.</span><span class=n>__directory</span> <span class=o>=</span> <span class=n>directory</span>
         <span class=bp>self</span><span class=o>.</span><span class=n>__target_name</span> <span class=o>=</span> <span class=n>target_name</span>
         <span class=bp>self</span><span class=o>.</span><span class=n>__app</span> <span class=o>=</span> <span class=n>app</span>
@@ -100,6 +101,11 @@
 <span class=sd>            ```</span>
 <span class=sd>        &quot;&quot;&quot;</span>
         <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>__config</span>
+
+    <span class=nd>@property</span>
+    <span class=k>def</span> <span class=nf>metadata</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+        <span class=c1># Undocumented for now</span>
+        <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>__metadata</span>
 
     <span class=nd>@property</span>
     <span class=k>def</span> <span class=nf>build_config</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
