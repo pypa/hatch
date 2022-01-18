@@ -37,31 +37,6 @@ def test_backend_not_build_system(hatch, temp_dir, helpers):
     )
 
 
-def test_backend_not_only_build_dependency(hatch, temp_dir, helpers):
-    project_name = 'My App'
-
-    with temp_dir.as_cwd():
-        result = hatch('new', project_name)
-        assert result.exit_code == 0, result.output
-
-    path = temp_dir / 'my-app'
-
-    project = Project(path)
-    config = dict(project.raw_config)
-    config['build-system']['requires'] = ['foo', 'hatchling']
-    project.save_config(config)
-
-    with path.as_cwd():
-        result = hatch('build')
-
-    assert result.exit_code == 1, result.output
-    assert result.output == helpers.dedent(
-        """
-        Field `build-system.requires` must only specify `hatchling` as a requirement
-        """
-    )
-
-
 def test_backend_not_build_dependency(hatch, temp_dir, helpers):
     project_name = 'My App'
 
