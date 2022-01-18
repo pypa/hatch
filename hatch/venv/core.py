@@ -1,5 +1,4 @@
 import os
-from ast import literal_eval
 from tempfile import TemporaryDirectory
 
 from ..utils.fs import Path
@@ -16,6 +15,8 @@ class VirtualEnv:
 
         self._env_vars_to_restore = {}
         self._executables_directory = None
+        self._python_data = None
+        self._environment = None
         self._sys_path = None
 
     def activate(self):
@@ -81,15 +82,26 @@ class VirtualEnv:
         return self._executables_directory
 
     @property
+    def python_data(self):
+        if self._python_data is None:
+            # Assume caller will manage activation
+            from ..utils.env import get_python_data
+
+            self._python_data = get_python_data(self.platform)
+
+        return self._python_data
+
+    @property
+    def environment(self):
+        if self._environment is None:
+            self._environment = self.python_data['environment']
+
+        return self._environment
+
+    @property
     def sys_path(self):
         if self._sys_path is None:
-            # Assume caller will manage activation
-            process = self.platform.check_command(
-                ['python', '-c', 'import sys;print([path for path in sys.path if path])'],
-                capture_output=True,
-            )
-
-            self._sys_path = literal_eval(process.stdout.strip().decode('utf-8'))
+            self._sys_path = self.python_data['sys_path']
 
         return self._sys_path
 

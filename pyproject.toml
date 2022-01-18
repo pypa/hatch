@@ -28,6 +28,7 @@ classifiers = [
   "License :: OSI Approved :: MIT License",
   "Natural Language :: English",
   "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3.7",
   "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
@@ -54,7 +55,7 @@ dynamic = ["version"]
 
 [project.urls]
 Documentation = "https://ofek.dev/hatch/latest/"
-Donate = "https://github.com/sponsors/ofek"
+Funding = "https://github.com/sponsors/ofek"
 History = "https://ofek.dev/hatch/dev/meta/history/"
 Issues = "https://github.com/ofek/hatch/issues"
 Source = "https://github.com/ofek/hatch"

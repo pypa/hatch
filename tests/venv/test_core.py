@@ -136,16 +136,21 @@ def test_creation_allow_system_packages(temp_dir, platform):
         assert output.strip().count('==') > 0
 
 
-def test_sys_path(temp_dir, platform):
+def test_python_data(temp_dir, platform):
     venv_dir = temp_dir / 'venv'
     venv = VirtualEnv(venv_dir, platform)
     venv.create(sys.executable)
 
     with venv:
         output = platform.run_command(
-            ['python', '-c', 'import json,sys;print(json.dumps([path for path in sys.path if path]))'],
+            ['python', '-W', 'ignore', '-'],
             check=True,
             capture_output=True,
+            input=b'import json,sys;print(json.dumps([path for path in sys.path if path]))',
         ).stdout.decode('utf-8')
 
-        assert venv.sys_path == venv.sys_path == json.loads(output)
+        assert venv.environment is venv.environment
+        assert venv.sys_path is venv.sys_path
+
+        assert venv.environment['sys_platform'] == sys.platform
+        assert venv.sys_path == json.loads(output)
