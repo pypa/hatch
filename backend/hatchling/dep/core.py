@@ -1,6 +1,7 @@
 import re
 import sys
 
+from packaging.markers import default_environment
 from packaging.requirements import Requirement
 
 try:
@@ -10,8 +11,8 @@ except ImportError:  # no cov
 
 
 class DistributionCache:
-    def __init__(self, sys_path=None):
-        self._resolver = Distribution.discover(context=DistributionFinder.Context(path=sys_path or sys.path))
+    def __init__(self, sys_path):
+        self._resolver = Distribution.discover(context=DistributionFinder.Context(path=sys_path))
         self._distributions = {}
         self._search_exhausted = False
         self._canonical_regex = re.compile(r'[-_.]+')
@@ -35,7 +36,10 @@ class DistributionCache:
         self._search_exhausted = True
 
 
-def dependency_in_sync(requirement, installed_distributions):
+def dependency_in_sync(requirement, environment, installed_distributions):
+    if requirement.marker and not requirement.marker.evaluate(environment):
+        return True
+
     distribution = installed_distributions[requirement.name]
     if distribution is None:
         return False
@@ -58,10 +62,10 @@ def dependency_in_sync(requirement, installed_distributions):
                 # extra and it's just a user error/typo. See: https://github.com/pypa/pip/issues/7122
                 if extra not in available_extras:
                     return False
-                elif not transitive_requirement.marker.evaluate({'extra': extra}):
-                    continue
 
-                if not dependency_in_sync(transitive_requirement, installed_distributions):
+                extra_environment = dict(environment)
+                extra_environment['extra'] = extra
+                if not dependency_in_sync(transitive_requirement, extra_environment, installed_distributions):
                     return False
 
     if requirement.specifier and not requirement.specifier.contains(distribution.version):
@@ -93,6 +97,11 @@ def dependency_in_sync(requirement, installed_distributions):
     return True
 
 
-def dependencies_in_sync(requirements, sys_path=None):
+def dependencies_in_sync(requirements, sys_path=None, environment=None):
+    if sys_path is None:
+        sys_path = sys.path
+    if environment is None:
+        environment = default_environment()
+
     installed_distributions = DistributionCache(sys_path)
-    return all(dependency_in_sync(requirement, installed_distributions) for requirement in requirements)
+    return all(dependency_in_sync(requirement, environment, installed_distributions) for requirement in requirements)

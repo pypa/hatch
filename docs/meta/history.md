@@ -77,6 +77,10 @@ This is the first release candidate for Hatch v1, a complete rewrite.
 
 - Build hooks now have access to project metadata
 
+***Fixed:***
+
+- Improve check for satisfied dependencies
+
 ### [0.8.2](https://github.com/ofek/hatch/releases/tag/hatchling-v0.8.2) - 2022-01-16 ### {: #hatchling-v0.8.2 }
 
 ***Fixed:***
