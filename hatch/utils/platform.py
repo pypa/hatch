@@ -67,7 +67,7 @@ class Platform:
         with the command first being
         [properly formatted](utilities.md#hatch.utils.platform.Platform.format_for_subprocess).
         """
-        if self.displaying_status:
+        if self.displaying_status and not kwargs.get('capture_output'):
             return self._run_command_integrated(command, shell=shell, **kwargs)
 
         return self._subprocess.run(self.format_for_subprocess(command, shell=shell), shell=shell, **kwargs)
