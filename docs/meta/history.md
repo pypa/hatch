@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Unreleased
 
+### [1.0.0rc10](https://github.com/ofek/hatch/releases/tag/hatch-v1.0.0rc10) - 2022-01-19 ### {: #hatch-v1.0.0rc10 }
+
 ***Fixed:***
 
 - Handle edge case for displaying text while showing a status message
