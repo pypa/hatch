@@ -1,3 +1,4 @@
+from ..utils.env import PythonInfo
 from .plugin.interface import EnvironmentInterface
 
 
@@ -7,6 +8,7 @@ class SystemEnvironment(EnvironmentInterface):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.python_info = PythonInfo(self.platform)
         self.install_indicator = self.data_directory / str(self.root).encode('utf-8').hex()
 
     def create(self):
@@ -32,7 +34,9 @@ class SystemEnvironment(EnvironmentInterface):
 
         from hatchling.dep.core import dependencies_in_sync
 
-        return dependencies_in_sync(self.dependencies_complex)
+        return dependencies_in_sync(
+            self.dependencies_complex, sys_path=self.python_info.sys_path, environment=self.python_info.environment
+        )
 
     def sync_dependencies(self):
         self.platform.check_command(self.construct_pip_install_command(self.dependencies))

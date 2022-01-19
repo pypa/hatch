@@ -13,8 +13,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ***Added:***
 
 - Add ability to set the non-preview variant of versions
-- Improve collection of information about Python interpreters within virtual environments
-- Bump the minimum supported version of Hatchling
+- Improve collection of information about Python interpreters within environments
+- Update dependencies
 
 ***Fixed:***
 

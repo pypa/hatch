@@ -2,6 +2,10 @@
 
 -----
 
+## Known third-party
+
+- [hatch-vcs](https://github.com/ofek/hatch-vcs) - uses your preferred version control system (like Git)
+
 ## Built-in
 
 ### Regex

@@ -1,6 +1,7 @@
 import os
 from tempfile import TemporaryDirectory
 
+from ..utils.env import PythonInfo
 from ..utils.fs import Path
 from .utils import get_random_venv_name, handle_verbosity_flag
 
@@ -12,12 +13,10 @@ class VirtualEnv:
         self.directory = directory
         self.platform = platform
         self.verbosity = verbosity
+        self.python_info = PythonInfo(platform)
 
         self._env_vars_to_restore = {}
         self._executables_directory = None
-        self._python_data = None
-        self._environment = None
-        self._sys_path = None
 
     def activate(self):
         self._env_vars_to_restore['VIRTUAL_ENV'] = os.environ.pop('VIRTUAL_ENV', None)
@@ -82,28 +81,12 @@ class VirtualEnv:
         return self._executables_directory
 
     @property
-    def python_data(self):
-        if self._python_data is None:
-            # Assume caller will manage activation
-            from ..utils.env import get_python_data
-
-            self._python_data = get_python_data(self.platform)
-
-        return self._python_data
-
-    @property
     def environment(self):
-        if self._environment is None:
-            self._environment = self.python_data['environment']
-
-        return self._environment
+        return self.python_info.environment
 
     @property
     def sys_path(self):
-        if self._sys_path is None:
-            self._sys_path = self.python_data['sys_path']
-
-        return self._sys_path
+        return self.python_info.sys_path
 
     def __enter__(self):
         self.activate()

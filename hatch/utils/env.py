@@ -1,15 +1,44 @@
 from ast import literal_eval
 
 
-def get_python_data(platform, executable='python'):
-    process = platform.check_command([executable, '-W', 'ignore', '-'], capture_output=True, input=PYTHON_DATA_SCRIPT)
+class PythonInfo:
+    def __init__(self, platform, executable='python'):
+        self.platform = platform
+        self.executable = executable
 
-    return literal_eval(process.stdout.strip().decode('utf-8'))
+        self.__dep_check_data = None
+        self.__environment = None
+        self.__sys_path = None
+
+    @property
+    def dep_check_data(self):
+        if self.__dep_check_data is None:
+            process = self.platform.check_command(
+                [self.executable, '-W', 'ignore', '-'], capture_output=True, input=DEP_CHECK_DATA_SCRIPT
+            )
+
+            self.__dep_check_data = literal_eval(process.stdout.strip().decode('utf-8'))
+
+        return self.__dep_check_data
+
+    @property
+    def environment(self):
+        if self.__environment is None:
+            self.__environment = self.dep_check_data['environment']
+
+        return self.__environment
+
+    @property
+    def sys_path(self):
+        if self.__sys_path is None:
+            self.__sys_path = self.dep_check_data['sys_path']
+
+        return self.__sys_path
 
 
 # Keep support for Python 2 for a while:
 # https://github.com/pypa/packaging/blob/20.9/packaging/markers.py#L267-L300
-PYTHON_DATA_SCRIPT = b"""\
+DEP_CHECK_DATA_SCRIPT = b"""\
 import os
 import platform
 import sys
