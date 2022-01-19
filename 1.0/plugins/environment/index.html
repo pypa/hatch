@@ -162,7 +162,7 @@
     <span class=nd>@property</span>
     <span class=k>def</span> <span class=nf>system_python</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
         <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>_system_python</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
-            <span class=bp>self</span><span class=o>.</span><span class=n>_system_python</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>platform</span><span class=o>.</span><span class=n>_shutil</span><span class=o>.</span><span class=n>which</span><span class=p>(</span><span class=s1>&#39;python&#39;</span><span class=p>)</span> <span class=ow>or</span> <span class=bp>self</span><span class=o>.</span><span class=n>platform</span><span class=o>.</span><span class=n>_sys</span><span class=o>.</span><span class=n>executable</span>
+            <span class=bp>self</span><span class=o>.</span><span class=n>_system_python</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>platform</span><span class=o>.</span><span class=n>_shutil</span><span class=o>.</span><span class=n>which</span><span class=p>(</span><span class=s1>&#39;python&#39;</span><span class=p>)</span> <span class=ow>or</span> <span class=n>sys</span><span class=o>.</span><span class=n>executable</span>
 
         <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>_system_python</span>
 
