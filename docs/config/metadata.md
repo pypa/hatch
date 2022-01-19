@@ -67,7 +67,7 @@ The full description of the project.
         ```
 
     === "Complex"
-        The `content_type` field must be set to `text/markdown` or `text/x-rst`.
+        The `content-type` field must be set to `text/markdown` or `text/x-rst`.
 
         === "File"
             A `charset` field may also be set to instruct which encoding to
@@ -76,16 +76,16 @@ The full description of the project.
             ```toml
             [project]
             ...
-            readme = {"file": "README.md", "content_type": "text/markdown"}
+            readme = {"file" = "README.md", "content-type" = "text/markdown"}
             ```
 
         === "Text"
-            The `content_type` field must be set to `text/markdown` or `text/x-rst`.
+            The `content-type` field must be set to `text/markdown` or `text/x-rst`.
 
             ```toml
             [project]
             ...
-            readme = {"text": "...", "content_type": "text/markdown"}
+            readme = {"text" = "...", "content-type" = "text/markdown"}
             ```
 
 !!! note
