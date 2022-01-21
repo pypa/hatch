@@ -81,6 +81,8 @@ This is the first release candidate for Hatch v1, a complete rewrite.
 
 ### Unreleased
 
+### [0.10.0](https://github.com/ofek/hatch/releases/tag/hatchling-v0.10.0) - 2022-01-20 ### {: #hatchling-v0.10.0 }
+
 ***Added:***
 
 - Support `text/plain` content type for `project.readme` metadata
