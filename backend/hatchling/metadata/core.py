@@ -321,6 +321,8 @@ class CoreMetadata(object):
                     content_type = 'text/markdown'
                 elif normalized_path.endswith('.rst'):
                     content_type = 'text/x-rst'
+                elif normalized_path.endswith('.txt'):
+                    content_type = 'text/plain'
                 else:
                     raise TypeError(
                         'Unable to determine the content-type based on the extension of readme file: {}'.format(readme)
@@ -340,11 +342,11 @@ class CoreMetadata(object):
                 if content_type is None:
                     raise ValueError('Field `content-type` is required in the `project.readme` table')
                 elif not isinstance(content_type, str):
-                    raise TypeError('Field `content_type` in the `project.readme` table must be a string')
-                elif content_type != 'text/markdown' and content_type != 'text/x-rst':
+                    raise TypeError('Field `content-type` in the `project.readme` table must be a string')
+                elif content_type not in ('text/markdown', 'text/x-rst', 'text/plain'):
                     raise ValueError(
-                        'Field `content_type` in the `project.readme` table must be one of the following: '
-                        'text/markdown, text/x-rst'
+                        'Field `content-type` in the `project.readme` table must be one of the following: '
+                        'text/markdown, text/x-rst, text/plain'
                     )
 
                 if 'file' in readme and 'text' in readme:

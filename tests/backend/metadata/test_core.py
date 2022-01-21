@@ -269,7 +269,9 @@ class TestReadme:
         with pytest.raises(OSError, match='Readme file does not exist: foo/bar\\.md'):
             _ = metadata.core.readme
 
-    @pytest.mark.parametrize('extension, content_type', [('.md', 'text/markdown'), ('.rst', 'text/x-rst')])
+    @pytest.mark.parametrize(
+        'extension, content_type', [('.md', 'text/markdown'), ('.rst', 'text/x-rst'), ('.txt', 'text/plain')]
+    )
     def test_string_correct(self, extension, content_type, temp_dir):
         metadata = ProjectMetadata(str(temp_dir), None, {'project': {'readme': f'foo/bar{extension}'}})
 
@@ -290,7 +292,7 @@ class TestReadme:
     def test_table_content_type_not_string(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {'project': {'readme': {'content-type': 5}}})
 
-        with pytest.raises(TypeError, match='Field `content_type` in the `project.readme` table must be a string'):
+        with pytest.raises(TypeError, match='Field `content-type` in the `project.readme` table must be a string'):
             _ = metadata.core.readme
 
     def test_table_content_type_not_unknown(self, isolation):
@@ -299,8 +301,8 @@ class TestReadme:
         with pytest.raises(
             ValueError,
             match=(
-                'Field `content_type` in the `project.readme` table must be one of the following: '
-                'text/markdown, text/x-rst'
+                'Field `content-type` in the `project.readme` table must be one of the following: '
+                'text/markdown, text/x-rst, text/plain'
             ),
         ):
             _ = metadata.core.readme

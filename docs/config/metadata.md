@@ -58,7 +58,7 @@ The full description of the project.
 === ":octicons-file-code-16: pyproject.toml"
 
     === "Simple"
-        The file extension must be `.md` or `.rst`.
+        The file extension must be `.md`, `.rst`, or `.txt`.
 
         ```toml
         [project]
@@ -67,7 +67,7 @@ The full description of the project.
         ```
 
     === "Complex"
-        The `content-type` field must be set to `text/markdown` or `text/x-rst`.
+        The `content-type` field must be set to `text/markdown`, `text/x-rst`, or `text/plain`.
 
         === "File"
             A `charset` field may also be set to instruct which encoding to
