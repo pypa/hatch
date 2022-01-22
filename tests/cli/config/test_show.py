@@ -17,10 +17,11 @@ def test_default_scrubbed(hatch, config_file, helpers, default_cache_dir, defaul
 
         [dirs]
         project = []
-        env = "isolated"
         python = "isolated"
         data = "{default_data_directory}"
         cache = "{default_cache_directory}"
+
+        [dirs.env]
 
         [projects]
 
@@ -70,10 +71,11 @@ def test_reveal(hatch, config_file, helpers, default_cache_dir, default_data_dir
 
         [dirs]
         project = []
-        env = "isolated"
         python = "isolated"
         data = "{default_data_directory}"
         cache = "{default_cache_directory}"
+
+        [dirs.env]
 
         [projects]
 

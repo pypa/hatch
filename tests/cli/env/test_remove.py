@@ -2,19 +2,15 @@ from hatch.config.constants import AppEnvVars
 from hatch.project.core import Project
 
 
-def test_unknown(hatch, temp_dir, helpers, config_file):
+def test_unknown(hatch, temp_dir_data, helpers, config_file):
     project_name = 'My App'
 
-    cache_path = temp_dir / 'cache'
-    config_file.model.dirs.env = str(cache_path)
-    config_file.save()
-
-    with temp_dir.as_cwd():
+    with temp_dir_data.as_cwd():
         result = hatch('new', project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
+    project_path = temp_dir_data / 'my-app'
 
     with project_path.as_cwd():
         result = hatch('env', 'remove', 'foo')
@@ -27,19 +23,15 @@ def test_unknown(hatch, temp_dir, helpers, config_file):
     )
 
 
-def test_nonexistent(hatch, temp_dir, config_file):
+def test_nonexistent(hatch, temp_dir_data, config_file):
     project_name = 'My App'
 
-    cache_path = temp_dir / 'cache'
-    config_file.model.dirs.env = str(cache_path)
-    config_file.save()
-
-    with temp_dir.as_cwd():
+    with temp_dir_data.as_cwd():
         result = hatch('new', project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
+    project_path = temp_dir_data / 'my-app'
 
     with project_path.as_cwd():
         result = hatch('env', 'remove', 'default')
@@ -48,19 +40,15 @@ def test_nonexistent(hatch, temp_dir, config_file):
     assert not result.output
 
 
-def test_single(hatch, helpers, temp_dir, config_file):
+def test_single(hatch, helpers, temp_dir_data, config_file):
     project_name = 'My App'
 
-    cache_path = temp_dir / 'cache'
-    config_file.model.dirs.env = str(cache_path)
-    config_file.save()
-
-    with temp_dir.as_cwd():
+    with temp_dir_data.as_cwd():
         result = hatch('new', project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
+    project_path = temp_dir_data / 'my-app'
 
     project = Project(project_path)
     helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
@@ -77,7 +65,7 @@ def test_single(hatch, helpers, temp_dir, config_file):
 
     assert result.exit_code == 0, result.output
 
-    env_cache_path = cache_path / 'env' / 'virtual'
+    env_cache_path = temp_dir_data / 'data' / 'env' / 'virtual'
     assert env_cache_path.is_dir()
 
     storage_dirs = list(env_cache_path.iterdir())
@@ -110,19 +98,15 @@ def test_single(hatch, helpers, temp_dir, config_file):
     assert not bar_env_path.is_dir()
 
 
-def test_all(hatch, helpers, temp_dir, config_file):
+def test_all(hatch, helpers, temp_dir_data, config_file):
     project_name = 'My App'
 
-    cache_path = temp_dir / 'cache'
-    config_file.model.dirs.env = str(cache_path)
-    config_file.save()
-
-    with temp_dir.as_cwd():
+    with temp_dir_data.as_cwd():
         result = hatch('new', project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
+    project_path = temp_dir_data / 'my-app'
 
     project = Project(project_path)
     helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
@@ -139,7 +123,7 @@ def test_all(hatch, helpers, temp_dir, config_file):
 
     assert result.exit_code == 0, result.output
 
-    env_cache_path = cache_path / 'env' / 'virtual'
+    env_cache_path = temp_dir_data / 'data' / 'env' / 'virtual'
     assert env_cache_path.is_dir()
 
     storage_dirs = list(env_cache_path.iterdir())
@@ -177,19 +161,15 @@ def test_all(hatch, helpers, temp_dir, config_file):
     assert not storage_path.is_dir()
 
 
-def test_matrix_all(hatch, helpers, temp_dir, config_file):
+def test_matrix_all(hatch, helpers, temp_dir_data, config_file):
     project_name = 'My App'
 
-    cache_path = temp_dir / 'cache'
-    config_file.model.dirs.env = str(cache_path)
-    config_file.save()
-
-    with temp_dir.as_cwd():
+    with temp_dir_data.as_cwd():
         result = hatch('new', project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
+    project_path = temp_dir_data / 'my-app'
 
     project = Project(project_path)
     helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
@@ -200,7 +180,7 @@ def test_matrix_all(hatch, helpers, temp_dir, config_file):
 
     assert result.exit_code == 0, result.output
 
-    env_cache_path = cache_path / 'env' / 'virtual'
+    env_cache_path = temp_dir_data / 'data' / 'env' / 'virtual'
     assert env_cache_path.is_dir()
 
     storage_dirs = list(env_cache_path.iterdir())
@@ -232,19 +212,15 @@ def test_matrix_all(hatch, helpers, temp_dir, config_file):
     assert not storage_path.is_dir()
 
 
-def test_incompatible_ok(hatch, helpers, temp_dir, config_file):
+def test_incompatible_ok(hatch, helpers, temp_dir_data, config_file):
     project_name = 'My App'
 
-    cache_path = temp_dir / 'cache'
-    config_file.model.dirs.env = str(cache_path)
-    config_file.save()
-
-    with temp_dir.as_cwd():
+    with temp_dir_data.as_cwd():
         result = hatch('new', project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
+    project_path = temp_dir_data / 'my-app'
 
     project = Project(project_path)
     helpers.update_project_environment(
@@ -258,19 +234,15 @@ def test_incompatible_ok(hatch, helpers, temp_dir, config_file):
     assert not result.output
 
 
-def test_active(hatch, temp_dir, helpers, config_file):
+def test_active(hatch, temp_dir_data, helpers, config_file):
     project_name = 'My App'
 
-    cache_path = temp_dir / 'cache'
-    config_file.model.dirs.env = str(cache_path)
-    config_file.save()
-
-    with temp_dir.as_cwd():
+    with temp_dir_data.as_cwd():
         result = hatch('new', project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
+    project_path = temp_dir_data / 'my-app'
 
     with project_path.as_cwd(env_vars={AppEnvVars.ENV_ACTIVE: 'default'}):
         result = hatch('env', 'remove')
@@ -283,19 +255,15 @@ def test_active(hatch, temp_dir, helpers, config_file):
     )
 
 
-def test_active_override(hatch, helpers, temp_dir, config_file):
+def test_active_override(hatch, helpers, temp_dir_data, config_file):
     project_name = 'My App'
 
-    cache_path = temp_dir / 'cache'
-    config_file.model.dirs.env = str(cache_path)
-    config_file.save()
-
-    with temp_dir.as_cwd():
+    with temp_dir_data.as_cwd():
         result = hatch('new', project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
+    project_path = temp_dir_data / 'my-app'
 
     project = Project(project_path)
     helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
@@ -306,7 +274,7 @@ def test_active_override(hatch, helpers, temp_dir, config_file):
 
     assert result.exit_code == 0, result.output
 
-    env_cache_path = cache_path / 'env' / 'virtual'
+    env_cache_path = temp_dir_data / 'data' / 'env' / 'virtual'
     assert env_cache_path.is_dir()
 
     storage_dirs = list(env_cache_path.iterdir())

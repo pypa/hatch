@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Unreleased
 
+***Changed:***
+
+- Change environment storage configuration to allow for exact paths per type of environment
+
 ### [1.0.0rc10](https://github.com/ofek/hatch/releases/tag/hatch-v1.0.0rc10) - 2022-01-19 ### {: #hatch-v1.0.0rc10 }
 
 ***Fixed:***
