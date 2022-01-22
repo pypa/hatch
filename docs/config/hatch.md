@@ -156,18 +156,24 @@ You can select a custom path to the directory using the `--cache-dir` [root opti
 === ":octicons-file-code-16: config.toml"
 
     ```toml
-    [dirs]
-    env = "..."
+    [dirs.env]
+    <ENV_TYPE> = "..."
     ```
 
-This determines where to store environments, with the full path being `<VALUE>/env/<ENV_TYPE>`.
+This determines where to store environments, with every key being the [type of environment](environment.md#type) and the value being the desired storage location.
 
-The following values have special meanings.
+For example, if you wanted to store [virtual environments](../plugins/environment.md#virtual) in a `.virtualenvs` directory within your home directory, you could specify the following:
 
-| Value | Path |
-| --- | --- |
-| `isolated` (default) | `<DATA_DIR>/env/<ENV_TYPE>` |
-| `local` | `<PROJECT_ROOT>/.env/<ENV_TYPE>` |
+=== ":octicons-file-code-16: config.toml"
+
+    ```toml
+    [dirs.env]
+    virtual = "~/.virtualenvs"
+    ```
+
+Any environment variables are also expanded. If the path is not absolute, then it will be relative to the project root.
+
+Any type of environment that is not explicitly defined will default to `<DATA_DIR>/env/<ENV_TYPE>`.
 
 ### Python installations
 

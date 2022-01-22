@@ -317,12 +317,16 @@ class DirsConfig(LazilyParsedConfig):
         if self._field_env is FIELD_TO_PARSE:
             if 'env' in self.raw_data:
                 env = self.raw_data['env']
-                if not isinstance(env, str):
-                    self.raise_error('must be a string')
+                if not isinstance(env, dict):
+                    self.raise_error('must be a table')
+
+                for key, value in env.items():
+                    if not isinstance(value, str):
+                        self.raise_error('must be a string', extra_steps=(key,))
 
                 self._field_env = env
             else:
-                self._field_env = self.raw_data['env'] = 'isolated'
+                self._field_env = self.raw_data['env'] = {}
 
         return self._field_env
 

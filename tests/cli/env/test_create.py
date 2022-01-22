@@ -123,9 +123,9 @@ def test_new(hatch, helpers, temp_dir, config_file):
     assert env_path.name == 'test'
 
 
-def test_local_data_dir(hatch, helpers, temp_dir, config_file):
+def test_selected_absolute_directory(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
-    config_file.model.dirs.env = 'local'
+    config_file.model.dirs.env = {'virtual': '$VENVS_DIR'}
     config_file.save()
 
     project_name = 'My App'
@@ -136,12 +136,14 @@ def test_local_data_dir(hatch, helpers, temp_dir, config_file):
     assert result.exit_code == 0, result.output
 
     project_path = temp_dir / 'my-app'
+    env_data_path = temp_dir / '.venvs'
 
     project = Project(project_path)
+    assert project.config.envs == {'default': {'type': 'virtual'}}
     helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
     helpers.update_project_environment(project, 'test', {})
 
-    with project_path.as_cwd():
+    with project_path.as_cwd({'VENVS_DIR': str(env_data_path)}):
         result = hatch('env', 'create', 'test')
 
     assert result.exit_code == 0, result.output
@@ -151,7 +153,16 @@ def test_local_data_dir(hatch, helpers, temp_dir, config_file):
         """
     )
 
-    env_data_path = project_path / '.env' / 'virtual'
+    project = Project(project_path)
+    assert project.config.envs == {
+        'default': {'type': 'virtual', 'skip-install': True},
+        'test': {'type': 'virtual', 'skip-install': True},
+    }
+    assert project.raw_config['tool']['hatch']['envs'] == {
+        'default': {'type': 'virtual', 'skip-install': True},
+        'test': {},
+    }
+
     assert env_data_path.is_dir()
 
     storage_dirs = list(env_data_path.iterdir())
@@ -173,10 +184,9 @@ def test_local_data_dir(hatch, helpers, temp_dir, config_file):
     assert env_path.name == 'test'
 
 
-def test_selected_data_dir(hatch, helpers, temp_dir, config_file):
-    data_path = temp_dir / 'data'
+def test_selected_local_directory(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
-    config_file.model.dirs.env = str(data_path)
+    config_file.model.dirs.env = {'virtual': '$VENVS_DIR'}
     config_file.save()
 
     project_name = 'My App'
@@ -193,7 +203,7 @@ def test_selected_data_dir(hatch, helpers, temp_dir, config_file):
     helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
     helpers.update_project_environment(project, 'test', {})
 
-    with project_path.as_cwd():
+    with project_path.as_cwd({'VENVS_DIR': '.venvs'}):
         result = hatch('env', 'create', 'test')
 
     assert result.exit_code == 0, result.output
@@ -213,7 +223,7 @@ def test_selected_data_dir(hatch, helpers, temp_dir, config_file):
         'test': {},
     }
 
-    env_data_path = data_path / 'env' / 'virtual'
+    env_data_path = project_path / '.venvs'
     assert env_data_path.is_dir()
 
     storage_dirs = list(env_data_path.iterdir())

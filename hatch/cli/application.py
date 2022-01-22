@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from os.path import expanduser, expandvars, isabs
 from typing import Optional
 
 from ..config.user import ConfigFile, RootConfig
@@ -94,14 +95,16 @@ class Application(Terminal):
                 environment.sync_dependencies()
 
     def get_env_directory(self, environment_type):
-        directory = self.config.dirs.env
+        directories = self.config.dirs.env
 
-        if directory == 'isolated':
-            return self.data_dir / 'env' / environment_type
-        elif directory == 'local':
-            return self.project.location / '.env' / environment_type
+        if environment_type in directories:
+            path = expanduser(expandvars(directories[environment_type]))
+            if isabs(path):
+                return Path(path)
+            else:
+                return self.project.location / path
         else:
-            return Path(directory).resolve() / 'env' / environment_type
+            return self.data_dir / 'env' / environment_type
 
     def abort(self, text='', code=1, **kwargs):
         if text:

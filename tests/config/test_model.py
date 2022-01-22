@@ -15,7 +15,7 @@ def test_default(default_cache_dir, default_data_dir):
         'shell': '',
         'dirs': {
             'project': [],
-            'env': 'isolated',
+            'env': {},
             'python': 'isolated',
             'data': str(default_data_dir),
             'cache': str(default_cache_dir),
@@ -290,14 +290,14 @@ class TestDirs:
         default_cache_directory = str(default_cache_dir)
         default_data_directory = str(default_data_dir)
         assert config.dirs.project == config.dirs.project == []
-        assert config.dirs.env == config.dirs.env == 'isolated'
+        assert config.dirs.env == config.dirs.env == {}
         assert config.dirs.python == config.dirs.python == 'isolated'
         assert config.dirs.cache == config.dirs.cache == default_cache_directory
         assert config.dirs.data == config.dirs.data == default_data_directory
         assert config.raw_data == {
             'dirs': {
                 'project': [],
-                'env': 'isolated',
+                'env': {},
                 'python': 'isolated',
                 'data': default_data_directory,
                 'cache': default_cache_directory,
@@ -387,12 +387,12 @@ class TestDirs:
             _ = config.dirs.project
 
     def test_env(self):
-        config = RootConfig({'dirs': {'env': 'foo'}})
+        config = RootConfig({'dirs': {'env': {'foo': 'bar'}}})
 
-        assert config.dirs.env == 'foo'
-        assert config.raw_data == {'dirs': {'env': 'foo'}}
+        assert config.dirs.env == {'foo': 'bar'}
+        assert config.raw_data == {'dirs': {'env': {'foo': 'bar'}}}
 
-    def test_env_not_string(self, helpers):
+    def test_env_not_table(self, helpers):
         config = RootConfig({'dirs': {'env': 9000}})
 
         with pytest.raises(
@@ -401,6 +401,20 @@ class TestDirs:
                 """
                 Error parsing config:
                 dirs -> env
+                  must be a table"""
+            ),
+        ):
+            _ = config.dirs.env
+
+    def test_env_value_not_string(self, helpers):
+        config = RootConfig({'dirs': {'env': {'foo': 9000}}})
+
+        with pytest.raises(
+            ConfigurationError,
+            match=helpers.dedent(
+                """
+                Error parsing config:
+                dirs -> env -> foo
                   must be a string"""
             ),
         ):
@@ -418,7 +432,7 @@ class TestDirs:
                 """
                 Error parsing config:
                 dirs -> env
-                  must be a string"""
+                  must be a table"""
             ),
         ):
             _ = config.dirs.env
