@@ -5,7 +5,7 @@ import click
     short_help="Run a command within a project's environment",
     context_settings={'help_option_names': [], 'ignore_unknown_options': True},
 )
-@click.argument('args', required=True, nargs=-1)
+@click.argument('args', metavar='[ENV:]ARGS...', required=True, nargs=-1)
 @click.pass_obj
 def run(app, args):
     """Run commands within a project's environment."""
