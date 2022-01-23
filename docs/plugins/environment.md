@@ -68,6 +68,7 @@ The environment plugin name is `virtual`.
       - dev_mode
       - activate
       - deactivate
+      - find
       - create
       - remove
       - exists
