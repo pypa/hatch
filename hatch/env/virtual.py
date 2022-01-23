@@ -37,6 +37,9 @@ class VirtualEnvironment(EnvironmentInterface):
     def deactivate(self):
         self.virtual_env.deactivate()
 
+    def find(self):
+        return self.virtual_env_path
+
     def create(self):
         self.virtual_env.create(self.parent_python, allow_system_packages=self.config.get('system-packages', False))
 

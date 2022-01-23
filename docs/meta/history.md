@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ***Changed:***
 
 - Change environment storage configuration to allow for exact paths per type of environment
+- Add new required method `find` to the environment interface
 
 ***Added:***
 

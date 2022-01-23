@@ -496,6 +496,14 @@ class EnvironmentInterface(ABC):
         """
 
     @abstractmethod
+    def find(self):
+        """
+        :material-align-horizontal-left: **REQUIRED** :material-align-horizontal-right:
+
+        This should return information about how to locate the environment.
+        """
+
+    @abstractmethod
     def create(self):
         """
         :material-align-horizontal-left: **REQUIRED** :material-align-horizontal-right:

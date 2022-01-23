@@ -6,6 +6,9 @@ from hatch.project.core import Project
 
 
 class MockEnvironment(EnvironmentInterface):
+    def find(self):
+        pass
+
     def create(self):
         pass
 

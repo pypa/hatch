@@ -1,3 +1,5 @@
+import os
+
 from ..utils.env import PythonInfo
 from .plugin.interface import EnvironmentInterface
 
@@ -10,6 +12,9 @@ class SystemEnvironment(EnvironmentInterface):
 
         self.python_info = PythonInfo(self.platform)
         self.install_indicator = self.data_directory / str(self.root).encode('utf-8').hex()
+
+    def find(self):
+        return os.path.dirname(os.path.dirname(self.system_python))
 
     def create(self):
         self.install_indicator.touch()
