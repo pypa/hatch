@@ -1,7 +1,9 @@
+import errno
 import json
 import os
 import platform
 import shutil
+import stat
 import subprocess
 import sys
 import tempfile
@@ -22,6 +24,15 @@ except ImportError:
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ON_WINDOWS = platform.system() == 'Windows'
+
+
+def handle_remove_readonly(func, path, exc):  # no cov
+    # PermissionError: [WinError 5] Access is denied: '...\\.git\\...'
+    if func in (os.rmdir, os.remove, os.unlink) and exc[1].errno == errno.EACCES:
+        os.chmod(path, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
+        func(path)
+    else:
+        raise
 
 
 class EnvVars(dict):
@@ -49,7 +60,7 @@ def python_version_supported(project_config):
     requires_python = project_config['project'].get('requires-python', '')
     if requires_python:
         python_constraint = Requirement('requires_python{}'.format(requires_python)).specifier
-        if not python_constraint.contains(str(sys.version_info[0])):
+        if not python_constraint.contains(str('.'.join(map(str, sys.version_info[:2])))):
             return False
 
     return True
@@ -70,12 +81,34 @@ def temp_dir():
         d = os.path.realpath(d)
         yield d
     finally:
-        shutil.rmtree(d)
+        shutil.rmtree(d, ignore_errors=False, onerror=handle_remove_readonly)
 
 
 def main():
-    backend_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(HERE))), 'backend')
-    with temp_dir() as links_dir:
+    original_backend_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(HERE))), 'backend')
+    with temp_dir() as links_dir, temp_dir() as build_dir:
+        print('<<<<< Copying backend >>>>>')
+        backend_path = os.path.join(build_dir, 'backend')
+        shutil.copytree(original_backend_path, backend_path)
+
+        # Increment the minor version
+        version_file = os.path.join(backend_path, 'hatchling', '__about__.py')
+        with open(version_file, 'r') as f:
+            lines = f.readlines()
+
+        for i, line in enumerate(lines):
+            if line.startswith('__version__'):
+                version = line.strip().split(' = ')[1].strip('\'"')
+                version_parts = version.split('.')
+                version_parts[1] = str(int(version_parts[1]) + 1)
+                lines[i] = line.replace(version, '.'.join(version_parts))
+                break
+        else:
+            raise ValueError('No version found')
+
+        with open(version_file, 'w') as f:
+            f.writelines(lines)
+
         print('<<<<< Building backend >>>>>')
         subprocess.check_call([sys.executable, '-m', 'build', '--wheel', '-o', links_dir, backend_path])
         subprocess.check_call(
@@ -113,17 +146,22 @@ def main():
                 test_data = json.loads(f.read())
 
             with temp_dir() as d:
-                archive_name = '{}.zip'.format(project)
-                archive_path = os.path.join(d, archive_name)
+                if 'repo_url' in test_data:
+                    print('--> Cloning repository...')
+                    repo_dir = os.path.join(d, 'repo')
+                    subprocess.check_call(['git', 'clone', '-q', '--depth', '1', test_data['repo_url'], repo_dir])
+                else:
+                    archive_name = '{}.zip'.format(project)
+                    archive_path = os.path.join(d, archive_name)
 
-                print('--> Downloading archive...')
-                download_file(test_data['archive_url'], archive_path)
-                with ZipFile(archive_path) as zip_file:
-                    zip_file.extractall(d)
+                    print('--> Downloading archive...')
+                    download_file(test_data['archive_url'], archive_path)
+                    with ZipFile(archive_path) as zip_file:
+                        zip_file.extractall(d)
 
-                entries = os.listdir(d)
-                entries.remove(archive_name)
-                repo_dir = os.path.join(d, entries[0])
+                    entries = os.listdir(d)
+                    entries.remove(archive_name)
+                    repo_dir = os.path.join(d, entries[0])
 
                 project_file = os.path.join(repo_dir, 'pyproject.toml')
                 if project_config:
@@ -145,6 +183,11 @@ def main():
                         print('--> Unsupported version of Python, skipping...')
                         continue
 
+                extra_build_dependencies = [
+                    requirement for requirement in project_config.get('build-system', {}).get('requires', [])
+                    if Requirement(requirement).name != 'hatchling'
+                ]
+
                 for file_name in ('MANIFEST.in', 'setup.cfg', 'setup.py'):
                     possible_path = os.path.join(repo_dir, file_name)
                     if os.path.isfile(possible_path):
@@ -154,15 +197,23 @@ def main():
                 print('--> Creating virtual environment...')
                 cli_run([venv_dir, '--no-download', '--no-periodic-update', '--pip', 'embed'])
 
-                exe_dir = os.path.join(venv_dir, 'Scripts' if ON_WINDOWS else 'bin')
-                with EnvVars(
-                    {'VIRTUAL_ENV': venv_dir, 'PATH': '{}{}{}'.format(exe_dir, os.pathsep, os.environ['PATH'])},
-                    ignore=('__PYVENV_LAUNCHER__', 'PYTHONHOME'),
-                ):
+                env_vars = dict(test_data.get('env_vars', {}))
+                env_vars['VIRTUAL_ENV'] = venv_dir
+                env_vars['PATH'] = '{}{}{}'.format(
+                    os.path.join(venv_dir, 'Scripts' if ON_WINDOWS else 'bin'), os.pathsep, os.environ['PATH']
+                )
+                with EnvVars(env_vars, ignore=('__PYVENV_LAUNCHER__', 'PYTHONHOME')):
+                    # if extra_build_dependencies:
+                    #     print('--> Downloading build dependencies...')
+                    #     dep_install_command = [which('pip'), 'download', '-q', '--dest', links_dir]
+                    #     dep_install_command.extend(extra_build_dependencies)
+                    #     subprocess.check_call(dep_install_command)
+
                     print('--> Installing project...')
                     subprocess.check_call(
-                        [which('pip'), 'install', '-q', '--find-links', links_dir, '--no-index', '--no-deps', repo_dir]
+                        [which('pip'), 'install', '-q', '--find-links', links_dir, '--no-deps', repo_dir]
                     )
+
                     print('--> Installing dependencies...')
                     subprocess.check_call([which('pip'), 'install', '-q', repo_dir])
 

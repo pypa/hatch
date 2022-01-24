@@ -1,0 +1,9 @@
+{
+  "repo_url": "https://github.com/ofek/hatch-showcase",
+  "statements": [
+    "from hatch_showcase.fib import fibonacci; assert fibonacci(32) == 2178309"
+  ],
+  "env_vars": {
+    "HATCH_BUILD_HOOKS_ENABLE": "true"
+  }
+}
