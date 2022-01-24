@@ -183,11 +183,6 @@ def main():
                         print('--> Unsupported version of Python, skipping...')
                         continue
 
-                extra_build_dependencies = [
-                    requirement for requirement in project_config.get('build-system', {}).get('requires', [])
-                    if Requirement(requirement).name != 'hatchling'
-                ]
-
                 for file_name in ('MANIFEST.in', 'setup.cfg', 'setup.py'):
                     possible_path = os.path.join(repo_dir, file_name)
                     if os.path.isfile(possible_path):
@@ -203,12 +198,6 @@ def main():
                     os.path.join(venv_dir, 'Scripts' if ON_WINDOWS else 'bin'), os.pathsep, os.environ['PATH']
                 )
                 with EnvVars(env_vars, ignore=('__PYVENV_LAUNCHER__', 'PYTHONHOME')):
-                    # if extra_build_dependencies:
-                    #     print('--> Downloading build dependencies...')
-                    #     dep_install_command = [which('pip'), 'download', '-q', '--dest', links_dir]
-                    #     dep_install_command.extend(extra_build_dependencies)
-                    #     subprocess.check_call(dep_install_command)
-
                     print('--> Installing project...')
                     subprocess.check_call(
                         [which('pip'), 'install', '-q', '--find-links', links_dir, '--no-deps', repo_dir]
