@@ -64,7 +64,7 @@ Source = "https://github.com/ofek/hatch"
 hatch = "hatch.cli:main"
 
 [tool.hatch.version]
-path = "hatch/__about__.py"
+path = "src/hatch/__about__.py"
 
 [tool.hatch.build.targets.sdist]
 exclude = [
@@ -74,7 +74,6 @@ exclude = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["hatch"]
 zip-safe = false
 
 [tool.black]
@@ -95,13 +94,13 @@ use_parentheses = true
 [tool.coverage.run]
 branch = true
 omit = [
-  "backend/hatchling/__main__.py",
-  "backend/hatchling/bridge/*",
-  "backend/hatchling/utils/compat.py",
-  "backend/hatchling/ouroboros.py",
-  "hatch/__main__.py",
-  "hatch/config/models/user/previous/*",
-  "hatch/utils/shells.py",
+  "backend/src/hatchling/__main__.py",
+  "backend/src/hatchling/bridge/*",
+  "backend/src/hatchling/utils/compat.py",
+  "backend/src/hatchling/ouroboros.py",
+  "src/hatch/__main__.py",
+  "src/hatch/config/models/user/previous/*",
+  "src/hatch/utils/shells.py",
 ]
 
 [tool.coverage.report]

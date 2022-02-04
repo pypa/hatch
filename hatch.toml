@@ -9,7 +9,7 @@ post-install-commands = [
   "python -m pip install -q -e ./backend",
 ]
 [envs.default.scripts]
-full = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=hatch --cov=backend/hatchling --cov=tests"
+full = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=src/hatch --cov=backend/src/hatchling --cov=tests"
 dev = "pytest --no-cov"
 
 [[envs.test.matrix]]
@@ -26,7 +26,7 @@ dependencies = [
   "mypy>=0.931",
 ]
 [envs.lint.scripts]
-typing = "mypy --install-types --non-interactive hatch tests"
+typing = "mypy --install-types --non-interactive src/hatch tests"
 style = [
   "flake8 .",
   "black --check --diff .",

@@ -47,7 +47,7 @@ CONFIG = {
     },
     'tool': {
         'hatch': {
-            'version': {'path': 'hatchling/__about__.py'},
+            'version': {'path': 'src/hatchling/__about__.py'},
         },
     },
 }
