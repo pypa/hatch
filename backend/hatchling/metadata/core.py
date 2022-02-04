@@ -408,15 +408,15 @@ class CoreMetadata(object):
         https://www.python.org/dev/peps/pep-0621/#requires-python
         """
         if self._requires_python is None:
-            from packaging.requirements import InvalidRequirement, Requirement
+            from packaging.specifiers import InvalidSpecifier, SpecifierSet
 
             requires_python = self.config.get('requires-python', '')
             if not isinstance(requires_python, str):
                 raise TypeError('Field `project.requires-python` must be a string')
 
             try:
-                self._python_constraint = Requirement('requires_python{}'.format(requires_python)).specifier
-            except InvalidRequirement as e:
+                self._python_constraint = SpecifierSet(requires_python)
+            except InvalidSpecifier as e:
                 raise ValueError('Field `project.requires-python` is invalid: {}'.format(e))
 
             self._requires_python = str(self._python_constraint)

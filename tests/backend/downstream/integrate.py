@@ -13,6 +13,7 @@ from zipfile import ZipFile
 import requests
 import toml
 from packaging.requirements import Requirement
+from packaging.specifiers import SpecifierSet
 from virtualenv import cli_run
 
 try:
@@ -59,7 +60,7 @@ class EnvVars(dict):
 def python_version_supported(project_config):
     requires_python = project_config['project'].get('requires-python', '')
     if requires_python:
-        python_constraint = Requirement('requires_python{}'.format(requires_python)).specifier
+        python_constraint = SpecifierSet(requires_python)
         if not python_constraint.contains(str('.'.join(map(str, sys.version_info[:2])))):
             return False
 
