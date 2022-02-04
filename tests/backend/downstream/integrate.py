@@ -93,7 +93,7 @@ def main():
         shutil.copytree(original_backend_path, backend_path)
 
         # Increment the minor version
-        version_file = os.path.join(backend_path, 'hatchling', '__about__.py')
+        version_file = os.path.join(backend_path, 'src', 'hatchling', '__about__.py')
         with open(version_file, 'r') as f:
             lines = f.readlines()
 
