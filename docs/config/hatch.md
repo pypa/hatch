@@ -205,7 +205,7 @@ You can configure how all output is displayed using the `terminal.styles` table.
     ...
     ```
 
-Cross-platform terminal capabilities are provided by [Rich](https://github.com/willmcgugan/rich).
+Cross-platform terminal capabilities are provided by [Rich](https://github.com/Textualize/rich).
 
 ### Output levels
 
@@ -224,7 +224,7 @@ See the [documentation](https://rich.readthedocs.io/en/latest/style.html) and [c
 
 ### Spinner
 
-You can select the [sequence](https://github.com/willmcgugan/rich/blob/master/rich/_spinners.py) used for waiting animations with the `spinner` option.
+You can select the [sequence](https://github.com/Textualize/rich/blob/master/rich/_spinners.py) used for waiting animations with the `spinner` option.
 
 === ":octicons-file-code-16: config.toml"
 
