@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Unreleased
 
+***Added:***
+
+- Switch project to a `src`-layout structure
+
 ### [1.0.0rc11](https://github.com/ofek/hatch/releases/tag/hatch-v1.0.0rc11) - 2022-01-23 ### {: #hatch-v1.0.0rc11 }
 
 ***Changed:***
@@ -91,6 +95,14 @@ This is the first release candidate for Hatch v1, a complete rewrite.
 ## **Hatchling**
 
 ### Unreleased
+
+***Added:***
+
+- Switch project to a `src`-layout structure
+
+***Fixed:***
+
+- Ship license with `hatchling`
 
 ### [0.10.0](https://github.com/ofek/hatch/releases/tag/hatchling-v0.10.0) - 2022-01-20 ### {: #hatchling-v0.10.0 }
 
