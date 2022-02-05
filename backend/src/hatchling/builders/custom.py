@@ -15,7 +15,7 @@ class CustomBuilder:
         if not isinstance(target_config, dict):
             raise TypeError('Field `tool.hatch.build.targets.{}` must be a table'.format(cls.PLUGIN_NAME))
 
-        build_script = target_config.get('path', 'build.py')
+        build_script = target_config.get('path', 'hatch_build.py')
         if not isinstance(build_script, str):
             raise TypeError('Option `path` for builder `{}` must be a string'.format(cls.PLUGIN_NAME))
         elif not build_script:

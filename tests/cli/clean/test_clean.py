@@ -20,7 +20,7 @@ def test(hatch, temp_dir, helpers):
 
     path = temp_dir / 'my-app'
 
-    build_script = path / 'build.py'
+    build_script = path / 'hatch_build.py'
     build_script.write_text(
         helpers.dedent(
             """

@@ -25,7 +25,7 @@ def get_files(**kwargs):
     )
     files.append(
         File(
-            Path(relative_root, 'build.py'),
+            Path(relative_root, 'hatch_build.py'),
             """\
 import pathlib
 

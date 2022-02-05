@@ -60,7 +60,7 @@ def test_default(hatch, helpers, temp_dir):
         },
     }
 
-    file_path = project_path / 'build.py'
+    file_path = project_path / 'hatch_build.py'
     file_path.write_text(
         helpers.dedent(
             """
@@ -130,12 +130,12 @@ def test_explicit_path(hatch, helpers, temp_dir):
         'tool': {
             'hatch': {
                 'version': {'path': 'my_app/__about__.py'},
-                'build': {'targets': {'custom': {'path': 'foo/build.py'}}},
+                'build': {'targets': {'custom': {'path': 'foo/hatch_build.py'}}},
             },
         },
     }
 
-    file_path = project_path / 'foo' / 'build.py'
+    file_path = project_path / 'foo' / 'hatch_build.py'
     file_path.ensure_parent_dir_exists()
     file_path.write_text(
         helpers.dedent(
@@ -206,12 +206,12 @@ def test_no_subclass(hatch, helpers, temp_dir):
         'tool': {
             'hatch': {
                 'version': {'path': 'my_app/__about__.py'},
-                'build': {'targets': {'custom': {'path': 'foo/build.py'}}},
+                'build': {'targets': {'custom': {'path': 'foo/hatch_build.py'}}},
             },
         },
     }
 
-    file_path = project_path / 'foo' / 'build.py'
+    file_path = project_path / 'foo' / 'hatch_build.py'
     file_path.ensure_parent_dir_exists()
     file_path.write_text(
         helpers.dedent(
@@ -228,7 +228,8 @@ def test_no_subclass(hatch, helpers, temp_dir):
     )
 
     with pytest.raises(
-        ValueError, match=re.escape(f'Unable to find a subclass of `BuilderInterface` in `foo/build.py`: {temp_dir}')
+        ValueError,
+        match=re.escape(f'Unable to find a subclass of `BuilderInterface` in `foo/hatch_build.py`: {temp_dir}'),
     ):
         with project_path.as_cwd():
             CustomBuilder(str(project_path), config=config)
@@ -249,12 +250,12 @@ def test_multiple_subclasses(hatch, helpers, temp_dir):
         'tool': {
             'hatch': {
                 'version': {'path': 'my_app/__about__.py'},
-                'build': {'targets': {'custom': {'path': 'foo/build.py'}}},
+                'build': {'targets': {'custom': {'path': 'foo/hatch_build.py'}}},
             },
         },
     }
 
-    file_path = project_path / 'foo' / 'build.py'
+    file_path = project_path / 'foo' / 'hatch_build.py'
     file_path.ensure_parent_dir_exists()
     file_path.write_text(
         helpers.dedent(
@@ -272,7 +273,7 @@ def test_multiple_subclasses(hatch, helpers, temp_dir):
     with pytest.raises(
         ValueError,
         match=re.escape(
-            f'Multiple subclasses of `BuilderInterface` found in `foo/build.py`, select '
+            f'Multiple subclasses of `BuilderInterface` found in `foo/hatch_build.py`, select '
             f'one by defining a function named `get_builder`: {temp_dir}'
         ),
     ):
