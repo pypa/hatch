@@ -99,6 +99,7 @@ This is the first release candidate for Hatch v1, a complete rewrite.
 ***Added:***
 
 - Switch project to a `src`-layout structure
+- Ship downstream tests with `hatchling` source distributions
 
 ***Fixed:***
 

@@ -66,10 +66,10 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Install tools
-      run: pip install --upgrade -r tests/backend/downstream/requirements.txt
+      run: pip install --upgrade -r backend/tests/downstream/requirements.txt
 
     - name: Build downstream projects
-      run: python tests/backend/downstream/integrate.py
+      run: python backend/tests/downstream/integrate.py
 
   response-time:
     name: CLI responsiveness with latest Python
