@@ -1089,7 +1089,7 @@ def test_build_dependencies(hatch, temp_dir, helpers):
 
     project = Project(path)
     config = dict(project.raw_config)
-    config['tool']['hatch']['build']['targets'] = {'custom': {'dependencies': ['binary']}}
+    config['tool']['hatch']['build']['targets'] = {'custom': {'dependencies': ['binary'], 'path': 'hatch_build.py'}}
     project.save_config(config)
 
     with path.as_cwd():
