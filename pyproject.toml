@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling>=0.11.0"]
 build-backend = "hatchling.build"
 
 [project]
@@ -39,16 +39,16 @@ classifiers = [
 dependencies = [
   "atomicwrites~=1.4",
   "click>=8.0.3",
-  "hatchling>=0.9.0",
-  "httpx>=0.21.3",
+  "hatchling>=0.11.0",
+  "httpx>=0.22.0",
   "keyring>=23.5.0",
   "pexpect~=4.8",
-  "platformdirs>=2.4",
+  "platformdirs>=2.4.1",
   "pyperclip>=1.8.2",
-  "rich>=11.0.0",
+  "rich>=11.1.0",
   "tomli-w>=1.0",
-  "tomlkit~=0.8",
-  "userpath~=1.5",
+  "tomlkit~=0.9",
+  "userpath~=1.8",
   "virtualenv~=20.13",
 ]
 dynamic = ["version"]
