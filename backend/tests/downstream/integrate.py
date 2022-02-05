@@ -119,6 +119,8 @@ def main():
                 'pip',
                 'download',
                 '-q',
+                '--disable-pip-version-check',
+                '--no-python-version-warning',
                 '-d',
                 links_dir,
                 os.path.join(links_dir, os.listdir(links_dir)[0]),
@@ -140,7 +142,7 @@ def main():
                     project_config.update(toml.loads(f.read()))
 
                 if not python_version_supported(project_config):
-                    print('--> Unsupported version of Python, skipping...')
+                    print('--> Unsupported version of Python, skipping')
                     continue
 
             with open(os.path.join(project_dir, 'data.json'), 'r') as f:
@@ -148,14 +150,14 @@ def main():
 
             with temp_dir() as d:
                 if 'repo_url' in test_data:
-                    print('--> Cloning repository...')
+                    print('--> Cloning repository')
                     repo_dir = os.path.join(d, 'repo')
                     subprocess.check_call(['git', 'clone', '-q', '--depth', '1', test_data['repo_url'], repo_dir])
                 else:
                     archive_name = '{}.zip'.format(project)
                     archive_path = os.path.join(d, archive_name)
 
-                    print('--> Downloading archive...')
+                    print('--> Downloading archive')
                     download_file(test_data['archive_url'], archive_path)
                     with ZipFile(archive_path) as zip_file:
                         zip_file.extractall(d)
@@ -181,7 +183,7 @@ def main():
                         sys.exit('--> Field `build-system.requires` must specify `hatchling` as a requirement')
 
                     if not python_version_supported(project_config):
-                        print('--> Unsupported version of Python, skipping...')
+                        print('--> Unsupported version of Python, skipping')
                         continue
 
                 for file_name in ('MANIFEST.in', 'setup.cfg', 'setup.py'):
@@ -190,7 +192,7 @@ def main():
                         os.remove(possible_path)
 
                 venv_dir = os.path.join(d, '.venv')
-                print('--> Creating virtual environment...')
+                print('--> Creating virtual environment')
                 cli_run([venv_dir, '--no-download', '--no-periodic-update', '--pip', 'embed'])
 
                 env_vars = dict(test_data.get('env_vars', {}))
@@ -199,21 +201,40 @@ def main():
                     os.path.join(venv_dir, 'Scripts' if ON_WINDOWS else 'bin'), os.pathsep, os.environ['PATH']
                 )
                 with EnvVars(env_vars, ignore=('__PYVENV_LAUNCHER__', 'PYTHONHOME')):
-                    print('--> Installing project...')
+                    print('--> Installing project')
                     subprocess.check_call(
-                        [which('pip'), 'install', '-q', '--find-links', links_dir, '--no-deps', repo_dir]
+                        [
+                            which('pip'),
+                            'install',
+                            '-q',
+                            '--disable-pip-version-check',
+                            '--no-python-version-warning',
+                            '--find-links',
+                            links_dir,
+                            '--no-deps',
+                            repo_dir,
+                        ]
                     )
 
-                    print('--> Installing dependencies...')
-                    subprocess.check_call([which('pip'), 'install', '-q', repo_dir])
+                    print('--> Installing dependencies')
+                    subprocess.check_call(
+                        [
+                            which('pip'),
+                            'install',
+                            '-q',
+                            '--disable-pip-version-check',
+                            '--no-python-version-warning',
+                            repo_dir,
+                        ]
+                    )
 
-                    print('--> Testing package...')
+                    print('--> Testing package')
                     for statement in test_data['statements']:
                         subprocess.check_call([which('python'), '-c', statement])
 
                     scripts = project_config['project'].get('scripts', {})
                     if scripts:
-                        print('--> Testing scripts...')
+                        print('--> Testing scripts')
                         for script in scripts:
                             if not which(script):
                                 sys.exit('--> Could not locate script: {}'.format(script))
