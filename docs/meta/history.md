@@ -96,6 +96,8 @@ This is the first release candidate for Hatch v1, a complete rewrite.
 
 ### Unreleased
 
+### [0.11.0](https://github.com/ofek/hatch/releases/tag/hatchling-v0.11.0) - 2022-02-04 ### {: #hatchling-v0.11.0 }
+
 ***Added:***
 
 - Switch project to a `src`-layout structure
