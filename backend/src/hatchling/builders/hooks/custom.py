@@ -8,7 +8,7 @@ class CustomBuildHook:
     PLUGIN_NAME = 'custom'
 
     def __new__(cls, root, config, *args, **kwargs):
-        build_script = config.get('path', 'build.py')
+        build_script = config.get('path', 'hatch_build.py')
         if not isinstance(build_script, str):
             raise TypeError('Option `path` for build hook `{}` must be a string'.format(cls.PLUGIN_NAME))
         elif not build_script:

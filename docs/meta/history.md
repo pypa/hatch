@@ -99,6 +99,10 @@ This is the first release candidate for Hatch v1, a complete rewrite.
 
 ### Unreleased
 
+***Fixed:***
+
+- Change the default location of custom build scripts from `build.py` to `hatch_build.py` so the packaging tool [build](https://github.com/pypa/build) can be used (if desired) at the project root
+
 ### [0.11.0](https://github.com/ofek/hatch/releases/tag/hatchling-v0.11.0) - 2022-02-04 ### {: #hatchling-v0.11.0 }
 
 ***Added:***

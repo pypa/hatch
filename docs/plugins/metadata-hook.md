@@ -26,11 +26,11 @@ The metadata hook plugin name is `custom`.
     [metadata.custom]
     ```
 
-An option `path` is used to specify the path of the Python file, defaulting to `build.py`.
+An option `path` is used to specify the path of the Python file, defaulting to `hatch_build.py`.
 
 #### Example
 
-=== ":octicons-file-code-16: build.py"
+=== ":octicons-file-code-16: hatch_build.py"
 
     ```python
     from hatchling.metadata.plugin.interface import MetadataHookInterface

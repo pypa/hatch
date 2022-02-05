@@ -29,7 +29,7 @@ def test_nonexistent(isolation):
 def test_default(temp_dir, helpers):
     config = {}
 
-    file_path = temp_dir / 'build.py'
+    file_path = temp_dir / 'hatch_build.py'
     file_path.write_text(
         helpers.dedent(
             """
@@ -49,9 +49,9 @@ def test_default(temp_dir, helpers):
 
 
 def test_explicit_path(temp_dir, helpers):
-    config = {'path': 'foo/build.py'}
+    config = {'path': 'foo/hatch_build.py'}
 
-    file_path = temp_dir / 'foo' / 'build.py'
+    file_path = temp_dir / 'foo' / 'hatch_build.py'
     file_path.ensure_parent_dir_exists()
     file_path.write_text(
         helpers.dedent(
@@ -72,9 +72,9 @@ def test_explicit_path(temp_dir, helpers):
 
 
 def test_no_subclass(temp_dir, helpers):
-    config = {'path': 'foo/build.py'}
+    config = {'path': 'foo/hatch_build.py'}
 
-    file_path = temp_dir / 'foo' / 'build.py'
+    file_path = temp_dir / 'foo' / 'hatch_build.py'
     file_path.ensure_parent_dir_exists()
     file_path.write_text(
         helpers.dedent(
@@ -92,7 +92,7 @@ def test_no_subclass(temp_dir, helpers):
 
     with pytest.raises(
         ValueError,
-        match=re.escape(f'Unable to find a subclass of `MetadataHookInterface` in `foo/build.py`: {temp_dir}'),
+        match=re.escape(f'Unable to find a subclass of `MetadataHookInterface` in `foo/hatch_build.py`: {temp_dir}'),
     ):
         with temp_dir.as_cwd():
             CustomMetadataHook(str(temp_dir), config)

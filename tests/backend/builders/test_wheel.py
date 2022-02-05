@@ -464,7 +464,7 @@ class TestBuildStandard:
 
         project_path = temp_dir / 'my-app'
 
-        build_script = project_path / 'build.py'
+        build_script = project_path / 'hatch_build.py'
         build_script.write_text(
             helpers.dedent(
                 """
@@ -483,7 +483,7 @@ class TestBuildStandard:
                     'version': {'path': 'my_app/__about__.py'},
                     'build': {
                         'targets': {'wheel': {'versions': ['standard']}},
-                        'hooks': {'custom': {'path': 'build.py'}},
+                        'hooks': {'custom': {'path': 'hatch_build.py'}},
                     },
                 },
             },
@@ -528,7 +528,7 @@ class TestBuildStandard:
 
         project_path = temp_dir / 'my-app'
 
-        build_script = project_path / 'build.py'
+        build_script = project_path / 'hatch_build.py'
         build_script.write_text(
             helpers.dedent(
                 """
@@ -548,7 +548,7 @@ class TestBuildStandard:
                     'version': {'path': 'my_app/__about__.py'},
                     'build': {
                         'targets': {'wheel': {'versions': ['standard']}},
-                        'hooks': {'custom': {'path': 'build.py'}},
+                        'hooks': {'custom': {'path': 'hatch_build.py'}},
                     },
                 },
             },
@@ -596,7 +596,7 @@ class TestBuildStandard:
         vcs_ignore_file = project_path / '.gitignore'
         vcs_ignore_file.write_text('*.pyc\n*.so\n*.h')
 
-        build_script = project_path / 'build.py'
+        build_script = project_path / 'hatch_build.py'
         build_script.write_text(
             helpers.dedent(
                 """
@@ -623,7 +623,7 @@ class TestBuildStandard:
                     'build': {
                         'targets': {'wheel': {'versions': ['standard']}},
                         'artifacts': ['my_app/lib.so'],
-                        'hooks': {'custom': {'path': 'build.py'}},
+                        'hooks': {'custom': {'path': 'hatch_build.py'}},
                     },
                 },
             },
@@ -675,7 +675,7 @@ class TestBuildStandard:
         vcs_ignore_file = project_path / '.gitignore'
         vcs_ignore_file.write_text('*.pyc\n*.so\n*.h')
 
-        build_script = project_path / 'build.py'
+        build_script = project_path / 'hatch_build.py'
         build_script.write_text(
             helpers.dedent(
                 """
@@ -702,7 +702,7 @@ class TestBuildStandard:
                     'version': {'path': 'my_app/__about__.py'},
                     'build': {
                         'targets': {'wheel': {'versions': ['standard']}},
-                        'hooks': {'custom': {'path': 'build.py'}},
+                        'hooks': {'custom': {'path': 'hatch_build.py'}},
                     },
                 },
             },
@@ -757,7 +757,7 @@ class TestBuildStandard:
         vcs_ignore_file = project_path / '.gitignore'
         vcs_ignore_file.write_text('*.pyc\n*.so\n*.pyd\n*.h')
 
-        build_script = project_path / 'build.py'
+        build_script = project_path / 'hatch_build.py'
         build_script.write_text(
             helpers.dedent(
                 """
@@ -785,7 +785,7 @@ class TestBuildStandard:
                     'version': {'path': 'src/my_app/__about__.py'},
                     'build': {
                         'targets': {'wheel': {'versions': ['standard']}},
-                        'hooks': {'custom': {'path': 'build.py'}},
+                        'hooks': {'custom': {'path': 'hatch_build.py'}},
                     },
                 },
             },
