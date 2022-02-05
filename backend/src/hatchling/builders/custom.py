@@ -5,7 +5,7 @@ from ..plugin.utils import load_plugin_from_script
 from .plugin.interface import BuilderInterface
 
 
-class CustomBuilder:
+class CustomBuilder(object):
     PLUGIN_NAME = 'custom'
 
     def __new__(cls, root, plugin_manager=None, config=None, metadata=None, app=None):

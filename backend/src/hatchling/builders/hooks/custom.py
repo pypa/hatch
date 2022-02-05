@@ -4,7 +4,7 @@ from ...plugin.utils import load_plugin_from_script
 from .plugin.interface import BuildHookInterface
 
 
-class CustomBuildHook:
+class CustomBuildHook(object):
     PLUGIN_NAME = 'custom'
 
     def __new__(cls, root, config, *args, **kwargs):
