@@ -193,7 +193,7 @@ def main():
 
                 venv_dir = os.path.join(d, '.venv')
                 print('--> Creating virtual environment')
-                cli_run([venv_dir, '--no-download', '--no-periodic-update', '--pip', 'embed'])
+                cli_run([venv_dir, '--no-download', '--no-periodic-update'])
 
                 env_vars = dict(test_data.get('env_vars', {}))
                 env_vars['VIRTUAL_ENV'] = venv_dir
