@@ -103,6 +103,8 @@ This is the first release candidate for Hatch v1, a complete rewrite.
 
 ### Unreleased
 
+### [0.11.3](https://github.com/ofek/hatch/releases/tag/hatchling-v0.11.3) - 2022-02-13 ### {: #hatchling-v0.11.3 }
+
 ***Fixed:***
 
 - Replace the build data `zip_safe` with `pure_python`
