@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Unreleased
 
+***Added:***
+
+- Update dependencies
+
 ### [1.0.0rc12](https://github.com/ofek/hatch/releases/tag/hatch-v1.0.0rc12) - 2022-02-05 ### {: #hatch-v1.0.0rc12 }
 
 ***Added:***
