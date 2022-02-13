@@ -56,4 +56,3 @@ include = [
 ]
 
 [tool.hatch.build.targets.wheel]
-zip-safe = false

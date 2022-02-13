@@ -30,11 +30,8 @@ The builder plugin name is `wheel`.
 
 | Option | Default | Description |
 | --- | --- | --- |
-| `zip-safe` | `true` | Whether or not to write metadata indicating that the package is able to run directly as a ZIP file; can be [overriden by build hooks](#build-data) |
-| `core-metadata-version` | `"2.3"` | The version of [core metadata](https://packaging.python.org/specifications/core-metadata/) to use |
 
-!!! tip
-    The `zip-safe` option must be set to `false` for packages that indicate [PEP 561](https://www.python.org/dev/peps/pep-0561/) typing support with a `py.typed` file.
+| `core-metadata-version` | `"2.3"` | The version of [core metadata](https://packaging.python.org/specifications/core-metadata/) to use |
 
 ##### Versions
 
@@ -63,7 +60,7 @@ This is data that can be modified by [build hooks](build-hook.md).
 | --- | --- | --- |
 | `tag` | | The full [tag](https://www.python.org/dev/peps/pep-0425/) part of the filename (e.g. `py3-none-any`), defaulting to a cross-platform wheel with the supported major versions of Python based on [project metadata](../config/metadata.md#python-support) |
 | `infer_tag` | `#!python False` | When `tag` is not set, this may be enabled to use the one most specific to the platform, Python interpreter, and ABI |
-| `zip_safe` | | Whether or not to write metadata indicating that the package is able to run directly as a ZIP file, defaulting to the `zip-safe` [option](#options) |
+| `pure_python` | `#!python True` | Whether or not to write metadata indicating that the package does not contain any platform-specific files |
 
 ### Source distribution
 
