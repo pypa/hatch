@@ -139,10 +139,6 @@ The only caveat is that currently there is no support for re-creating an environ
           "/src",
           "/tests",
         ]
-
-        [tool.hatch.build.targets.wheel]
-        packages = ["src/foo"]
-        zip-safe = false
         ```
 
 ### Environments

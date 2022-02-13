@@ -202,7 +202,6 @@ class WheelBuilder(BuilderInterface):
         super(WheelBuilder, self).__init__(*args, **kwargs)
 
         self.__core_metadata_constructor = None
-        self.__zip_safe = None
 
     def get_version_api(self):
         return {'standard': self.build_standard, 'editable': self.build_editable}
@@ -387,7 +386,7 @@ class WheelBuilder(BuilderInterface):
         from packaging.tags import parse_tag
 
         metadata = 'Wheel-Version: 1.0\nGenerator: hatch {}\nRoot-Is-Purelib: {}\n'.format(
-            __version__, 'true' if build_data.get('zip_safe', self.zip_safe) else 'false'
+            __version__, 'true' if build_data['pure_python'] else 'false'
         )
 
         for tag in sorted(map(str, parse_tag(build_data['tag']))):
@@ -446,7 +445,7 @@ class WheelBuilder(BuilderInterface):
         return '{}-none-any'.format('.'.join(supported_python_versions))
 
     def get_default_build_data(self):
-        return {'infer_tag': False}
+        return {'infer_tag': False, 'pure_python': True}
 
     @property
     def core_metadata_constructor(self):
@@ -469,13 +468,6 @@ class WheelBuilder(BuilderInterface):
             self.__core_metadata_constructor = constructors[core_metadata_version]
 
         return self.__core_metadata_constructor
-
-    @property
-    def zip_safe(self):
-        if self.__zip_safe is None:
-            self.__zip_safe = bool(self.target_config.get('zip-safe', True))
-
-        return self.__zip_safe
 
     @classmethod
     def get_config_class(cls):

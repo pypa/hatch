@@ -25,19 +25,6 @@ def test_default_versions(isolation):
     assert builder.get_default_versions() == ['standard']
 
 
-class TestZipSafe:
-    def test_default(self, isolation):
-        builder = WheelBuilder(str(isolation))
-
-        assert builder.zip_safe is builder.zip_safe is True
-
-    def test_target(self, isolation):
-        config = {'tool': {'hatch': {'build': {'targets': {'wheel': {'zip-safe': False}}}}}}
-        builder = WheelBuilder(str(isolation), config=config)
-
-        assert builder.zip_safe is builder.zip_safe is False
-
-
 class TestCoreMetadataConstructor:
     def test_default(self, isolation):
         builder = WheelBuilder(str(isolation))
@@ -606,7 +593,7 @@ class TestBuildStandard:
 
                 class CustomHook(BuildHookInterface):
                     def initialize(self, version, build_data):
-                        build_data['zip_safe'] = False
+                        build_data['pure_python'] = False
                         build_data['infer_tag'] = True
 
                         pathlib.Path('my_app', 'lib.so').touch()
@@ -685,7 +672,7 @@ class TestBuildStandard:
 
                 class CustomHook(BuildHookInterface):
                     def initialize(self, version, build_data):
-                        build_data['zip_safe'] = False
+                        build_data['pure_python'] = False
                         build_data['infer_tag'] = True
                         build_data['artifacts'] = ['my_app/lib.so']
 
@@ -767,7 +754,7 @@ class TestBuildStandard:
 
                 class CustomHook(BuildHookInterface):
                     def initialize(self, version, build_data):
-                        build_data['zip_safe'] = False
+                        build_data['pure_python'] = False
                         build_data['infer_tag'] = True
                         build_data['artifacts'] = ['src/my_app/lib.so', 'src/lib.pyd']
 
