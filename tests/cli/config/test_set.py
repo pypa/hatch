@@ -70,7 +70,6 @@ def test_standard_hidden(hatch, config_file, helpers):
     assert result.output == helpers.dedent(
         """
         New setting:
-        [publish]
         [publish.pypi]
         auth = "<...>"
         """
@@ -104,7 +103,6 @@ def test_prompt_hidden(hatch, config_file, helpers):
         f"""
         Value for `publish.pypi.auth`:{' '}
         New setting:
-        [publish]
         [publish.pypi]
         auth = "<...>"
         """
@@ -166,7 +164,6 @@ def test_resolve_project_location_complex(hatch, config_file, helpers, temp_dir)
     assert result.output == helpers.dedent(
         f"""
         New setting:
-        [projects]
         [projects.foo]
         location = "{path}"
         """
@@ -209,8 +206,6 @@ def test_project_location_complex_set_first_project(hatch, config_file, helpers,
         f"""
         New setting:
         project = "foo"
-
-        [projects]
         [projects.foo]
         location = "{path}"
         """

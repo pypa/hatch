@@ -43,13 +43,13 @@ dependencies = [
   "httpx>=0.22.0",
   "keyring>=23.5.0",
   "pexpect~=4.8",
-  "platformdirs>=2.4.1",
+  "platformdirs>=2.5.0",
   "pyperclip>=1.8.2",
-  "rich>=11.1.0",
+  "rich>=11.2.0",
   "tomli-w>=1.0",
-  "tomlkit~=0.9",
+  "tomlkit>=0.9.2",
   "userpath~=1.8",
-  "virtualenv~=20.13",
+  "virtualenv>=20.13.1",
 ]
 dynamic = ["version"]
 
