@@ -47,7 +47,7 @@ class VirtualEnv:
 
         self.directory.ensure_parent_dir_exists()
 
-        command = [str(self.directory), '--no-download', '--no-periodic-update', '--pip', 'embed', '--python', python]
+        command = [str(self.directory), '--no-download', '--no-periodic-update', '--python', python]
 
         if allow_system_packages:
             command.append('--system-site-packages')

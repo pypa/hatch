@@ -2,4 +2,4 @@ build
 packaging
 requests
 toml
-virtualenv
+virtualenv>=20.13.1
