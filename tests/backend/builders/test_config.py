@@ -105,6 +105,50 @@ class TestIgnoreVCS:
         assert builder.config.ignore_vcs is False
 
 
+class TestOnlyPackages:
+    def test_default(self, isolation):
+        builder = BuilderInterface(str(isolation))
+
+        assert builder.config.only_packages is builder.config.only_packages is False
+
+    def test_target(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'only-packages': True}}}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        assert builder.config.only_packages is True
+
+    def test_target_not_boolean(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'only-packages': 9000}}}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        with pytest.raises(TypeError, match='Field `tool.hatch.build.targets.foo.only-packages` must be a boolean'):
+            _ = builder.config.only_packages
+
+    def test_global(self, isolation):
+        config = {'tool': {'hatch': {'build': {'only-packages': True}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        assert builder.config.only_packages is True
+
+    def test_global_not_boolean(self, isolation):
+        config = {'tool': {'hatch': {'build': {'only-packages': 9000}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        with pytest.raises(TypeError, match='Field `tool.hatch.build.only-packages` must be a boolean'):
+            _ = builder.config.only_packages
+
+    def test_target_overrides_global(self, isolation):
+        config = {'tool': {'hatch': {'build': {'only-packages': True, 'targets': {'foo': {'only-packages': False}}}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        assert builder.config.only_packages is False
+
+
 class TestReproducible:
     def test_default(self, isolation):
         builder = BuilderInterface(str(isolation))

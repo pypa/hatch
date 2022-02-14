@@ -36,6 +36,7 @@ class BuilderConfig(object):
         # Common options
         self.__directory = None
         self.__ignore_vcs = None
+        self.__only_packages = None
         self.__reproducible = None
         self.__dev_mode_dirs = None
 
@@ -59,11 +60,14 @@ class BuilderConfig(object):
     def target_config(self):
         return self.__target_config
 
-    def include_path(self, relative_path):
+    def include_path(self, relative_path, is_package=True):
         return (
             self.path_is_build_artifact(relative_path)
             or self.path_is_artifact(relative_path)
-            or (self.path_is_included(relative_path) and not self.path_is_excluded(relative_path))
+            or (
+                not (self.only_packages and not is_package)
+                and (self.path_is_included(relative_path) and not self.path_is_excluded(relative_path))
+            )
         )
 
     def path_is_included(self, relative_path):
@@ -276,6 +280,27 @@ class BuilderConfig(object):
             self.__ignore_vcs = ignore_vcs
 
         return self.__ignore_vcs
+
+    @property
+    def only_packages(self):
+        """
+        Whether or not the target should ignore non-artifact files that do not reside within a Python package.
+        """
+        if self.__only_packages is None:
+            if 'only-packages' in self.target_config:
+                only_packages = self.target_config['only-packages']
+                if not isinstance(only_packages, bool):
+                    raise TypeError(
+                        'Field `tool.hatch.build.targets.{}.only-packages` must be a boolean'.format(self.plugin_name)
+                    )
+            else:
+                only_packages = self.build_config.get('only-packages', False)
+                if not isinstance(only_packages, bool):
+                    raise TypeError('Field `tool.hatch.build.only-packages` must be a boolean')
+
+            self.__only_packages = only_packages
+
+        return self.__only_packages
 
     @property
     def reproducible(self):
