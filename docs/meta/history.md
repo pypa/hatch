@@ -109,6 +109,10 @@ This is the first release candidate for Hatch v1, a complete rewrite.
 
 ### Unreleased
 
+***Added:***
+
+- Add option to exclude non-artifact files that do not reside within a Python package
+
 ### [0.11.3](https://github.com/ofek/hatch/releases/tag/hatchling-v0.11.3) - 2022-02-13 ### {: #hatchling-v0.11.3 }
 
 ***Fixed:***

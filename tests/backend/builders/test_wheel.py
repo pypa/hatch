@@ -395,6 +395,113 @@ class TestBuildStandard:
         )
         helpers.assert_files(extraction_directory, expected_files, check_contents=True)
 
+    def test_default_only_packages(self, hatch, helpers, temp_dir):
+        project_name = 'My App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / 'my-app'
+        tests_path = project_path / 'tests'
+        (tests_path / '__init__.py').replace(tests_path / 'foo.py')
+
+        config = {
+            'project': {'name': 'my__app', 'dynamic': ['version']},
+            'tool': {
+                'hatch': {
+                    'version': {'path': 'my_app/__about__.py'},
+                    'build': {
+                        'targets': {
+                            'wheel': {'versions': ['standard'], 'include': ['my_app', 'tests'], 'only-packages': True}
+                        },
+                    },
+                },
+            },
+        }
+        builder = WheelBuilder(str(project_path), config=config)
+
+        build_path = project_path / 'dist'
+        build_path.mkdir()
+
+        with project_path.as_cwd():
+            artifacts = list(builder.build(str(build_path)))
+
+        assert len(artifacts) == 1
+        expected_artifact = artifacts[0]
+
+        build_artifacts = list(build_path.iterdir())
+        assert len(build_artifacts) == 1
+        assert expected_artifact == str(build_artifacts[0])
+        assert expected_artifact == str(build_path / f'{builder.project_id}-{get_python_versions_tag()}-none-any.whl')
+
+        extraction_directory = temp_dir / '_archive'
+        extraction_directory.mkdir()
+
+        with zipfile.ZipFile(str(expected_artifact), 'r') as zip_archive:
+            zip_archive.extractall(str(extraction_directory))
+
+        metadata_directory = f'{builder.project_id}.dist-info'
+        expected_files = helpers.get_template_files(
+            'wheel.standard_default_license_single', project_name, metadata_directory=metadata_directory
+        )
+        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+
+    def test_default_only_packages_artifact_override(self, hatch, helpers, temp_dir):
+        project_name = 'My App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / 'my-app'
+        tests_path = project_path / 'tests'
+        (tests_path / '__init__.py').replace(tests_path / 'foo.py')
+
+        config = {
+            'project': {'name': 'my__app', 'dynamic': ['version']},
+            'tool': {
+                'hatch': {
+                    'version': {'path': 'my_app/__about__.py'},
+                    'build': {
+                        'artifacts': ['foo.py'],
+                        'targets': {
+                            'wheel': {'versions': ['standard'], 'include': ['my_app', 'tests'], 'only-packages': True}
+                        },
+                    },
+                },
+            },
+        }
+        builder = WheelBuilder(str(project_path), config=config)
+
+        build_path = project_path / 'dist'
+        build_path.mkdir()
+
+        with project_path.as_cwd():
+            artifacts = list(builder.build(str(build_path)))
+
+        assert len(artifacts) == 1
+        expected_artifact = artifacts[0]
+
+        build_artifacts = list(build_path.iterdir())
+        assert len(build_artifacts) == 1
+        assert expected_artifact == str(build_artifacts[0])
+        assert expected_artifact == str(build_path / f'{builder.project_id}-{get_python_versions_tag()}-none-any.whl')
+
+        extraction_directory = temp_dir / '_archive'
+        extraction_directory.mkdir()
+
+        with zipfile.ZipFile(str(expected_artifact), 'r') as zip_archive:
+            zip_archive.extractall(str(extraction_directory))
+
+        metadata_directory = f'{builder.project_id}.dist-info'
+        expected_files = helpers.get_template_files(
+            'wheel.standard_only_packages_artifact_override', project_name, metadata_directory=metadata_directory
+        )
+        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+
     def test_default_python_constraint(self, hatch, helpers, temp_dir):
         project_name = 'My App'
 

@@ -173,9 +173,11 @@ class BuilderInterface(object):
                 if not self.config.path_is_excluded('{}/'.format(os.path.join(relative_path, d)))
             )
 
-            for f in sorted(files):
+            files = sorted(files)
+            is_package = '__init__.py' in files
+            for f in files:
                 relative_file_path = os.path.join(relative_path, f)
-                if self.config.include_path(relative_file_path):
+                if self.config.include_path(relative_file_path, is_package=is_package):
                     yield IncludedFile(
                         os.path.join(root, f), relative_file_path, self.config.get_distribution_path(relative_file_path)
                     )

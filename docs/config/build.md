@@ -140,6 +140,24 @@ If you want to include files that are [ignored by your VCS](#vcs), such as those
 
 If no file selection options are provided, then what gets included is determined by each [build target](#build-targets).
 
+### Excluding files outside packages
+
+If you want to exclude non-[artifact](#artifacts) files that do not reside within a Python package, set `only-packages` to `true`:
+
+=== ":octicons-file-code-16: pyproject.toml"
+
+    ```toml
+    [tool.hatch.build]
+    only-packages = true
+    ```
+
+=== ":octicons-file-code-16: hatch.toml"
+
+    ```toml
+    [build]
+    only-packages = true
+    ```
+
 ## Reproducible builds
 
 By default, [build targets](#build-targets) will build in a reproducible manner provided that they support that behavior. To disable this, set `reproducible` to `false`:
