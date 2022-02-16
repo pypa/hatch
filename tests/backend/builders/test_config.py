@@ -762,7 +762,7 @@ class TestFileSelectionDefaults:
     def test_global_exclude(self, isolation):
         builder = BuilderInterface(str(isolation))
 
-        assert builder.config.default_global_exclude() == ['.git']
+        assert builder.config.default_global_exclude() == ['.git', '__pycache__', '*.pyc']
 
 
 class TestPatternInclude:
