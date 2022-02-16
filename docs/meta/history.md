@@ -109,6 +109,10 @@ This is the first release candidate for Hatch v1, a complete rewrite.
 
 ### Unreleased
 
+***Fixed:***
+
+- Also exclude compiled Python extensions by default for cases where there is no `.gitignore`
+
 ### [0.13.0](https://github.com/ofek/hatch/releases/tag/hatchling-v0.13.0) - 2022-02-16 ### {: #hatchling-v0.13.0 }
 
 ***Added:***

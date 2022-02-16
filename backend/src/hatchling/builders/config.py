@@ -543,7 +543,7 @@ class BuilderConfig(object):
         return []
 
     def default_global_exclude(self):
-        return ['.git', '__pycache__', '*.pyc']
+        return ['.git', '__pycache__', '*.py[cod]']
 
     @contextmanager
     def set_build_data(self, build_data):
