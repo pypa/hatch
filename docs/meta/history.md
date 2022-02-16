@@ -109,6 +109,8 @@ This is the first release candidate for Hatch v1, a complete rewrite.
 
 ### Unreleased
 
+### [0.13.0](https://github.com/ofek/hatch/releases/tag/hatchling-v0.13.0) - 2022-02-16 ### {: #hatchling-v0.13.0 }
+
 ***Added:***
 
 - Exclude Python byte code files by default for cases where there is no Git checkout and therefore no `.gitignore` file providing default exclusion patterns
