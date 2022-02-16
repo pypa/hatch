@@ -109,6 +109,10 @@ This is the first release candidate for Hatch v1, a complete rewrite.
 
 ### Unreleased
 
+***Added:***
+
+- Exclude Python byte code files by default for cases where there is no Git checkout and therefore no `.gitignore` file providing default exclusion patterns
+
 ***Fixed:***
 
 - Fix metadata handling of non-ASCII characters in README files on Python 2
