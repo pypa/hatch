@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 DEFAULT_METADATA_VERSION = '2.1'
 
 

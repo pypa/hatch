@@ -19,12 +19,20 @@ if sys.version_info[0] < 3:  # no cov
             # this is to support any `isinstance(metadata_entry, str)`
             return byteify_object(toml.loads(f.read()))
 
+    def ensure_string(obj):
+        if not isinstance(obj, bytes):
+            return obj.encode('utf-8')
+        return obj
+
 else:
     import tomli
 
     def load_toml(path):
         with open(path, 'r', encoding='utf-8') as f:
             return tomli.loads(f.read())
+
+    def ensure_string(obj):
+        return obj
 
 
 class ProjectMetadata(object):
@@ -379,6 +387,8 @@ class CoreMetadata(object):
                 self._readme_path = readme_path
             else:
                 raise TypeError('Field `project.readme` must be a string or a table')
+
+            self._readme = ensure_string(self._readme)
 
         return self._readme
 
