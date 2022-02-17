@@ -12,6 +12,10 @@
 
 See the documentation for [versioning](../version.md).
 
+#### Updates
+
+Setting the version is supported.
+
 #### Configuration
 
 The version source plugin name is `regex`.
@@ -36,6 +40,37 @@ The version source plugin name is `regex`.
 | --- | --- |
 | `path` (required) | A relative path to a file containing the project's version |
 | `pattern` | A regular expression that has a named group called `version` that represents the version |
+
+### Code
+
+#### Updates
+
+Setting the version is not supported.
+
+#### Configuration
+
+The version source plugin name is `code`.
+
+=== ":octicons-file-code-16: pyproject.toml"
+
+    ```toml
+    [tool.hatch.version]
+    source = "code"
+    ```
+
+=== ":octicons-file-code-16: hatch.toml"
+
+    ```toml
+    [version]
+    source = "code"
+    ```
+
+##### Options
+
+| Option | Description |
+| --- | --- |
+| `path` (required) | A relative path to a Python file that will be loaded |
+| `expression` | A Python expression that when evaluated in the context of the loaded file returns the version. The default expression is simply `__version__`. |
 
 ::: hatchling.version.source.plugin.interface.VersionSourceInterface
     selection:

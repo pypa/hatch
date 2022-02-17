@@ -109,6 +109,10 @@ This is the first release candidate for Hatch v1, a complete rewrite.
 
 ### Unreleased
 
+***Added:***
+
+- Add `code` version source that can load arbitrary Python code
+
 ***Fixed:***
 
 - Also exclude compiled Python extensions by default for cases where there is no `.gitignore`
