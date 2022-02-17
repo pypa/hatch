@@ -109,6 +109,8 @@ This is the first release candidate for Hatch v1, a complete rewrite.
 
 ### Unreleased
 
+### [0.14.0](https://github.com/ofek/hatch/releases/tag/hatchling-v0.14.0) - 2022-02-16 ### {: #hatchling-v0.14.0 }
+
 ***Added:***
 
 - Add `code` version source that can load arbitrary Python code
