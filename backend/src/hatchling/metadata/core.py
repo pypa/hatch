@@ -259,7 +259,13 @@ class CoreMetadata(object):
         https://www.python.org/dev/peps/pep-0621/#name
         """
         if self._name is None:
-            name = self.config.get('name')
+            if 'name' in self.dynamic:
+                raise ValueError('Static metadata field `name` cannot be present in field `project.dynamic`')
+            elif 'name' in self.config:
+                name = self.config['name']
+            else:
+                name = ''
+
             if not name:
                 raise ValueError('Missing required field `project.name`')
             elif not isinstance(name, str):
@@ -290,6 +296,12 @@ class CoreMetadata(object):
                         'if `version` is in field `project.dynamic`'
                     )
             else:
+                if 'version' in self.dynamic:
+                    raise ValueError(
+                        'Metadata field `version` cannot be both statically defined and '
+                        'listed in field `project.dynamic`'
+                    )
+
                 version = self.config['version']
                 if not isinstance(version, str):
                     raise TypeError('Field `project.version` must be a string')
@@ -304,7 +316,16 @@ class CoreMetadata(object):
         https://www.python.org/dev/peps/pep-0621/#description
         """
         if self._description is None:
-            description = self.config.get('description', '')
+            if 'description' in self.config:
+                description = self.config['description']
+                if 'description' in self.dynamic:
+                    raise ValueError(
+                        'Metadata field `description` cannot be both statically defined and '
+                        'listed in field `project.dynamic`'
+                    )
+            else:
+                description = ''
+
             if not isinstance(description, str):
                 raise TypeError('Field `project.description` must be a string')
 
@@ -318,7 +339,16 @@ class CoreMetadata(object):
         https://www.python.org/dev/peps/pep-0621/#readme
         """
         if self._readme is None:
-            readme = self.config.get('readme')
+            if 'readme' in self.config:
+                readme = self.config['readme']
+                if 'readme' in self.dynamic:
+                    raise ValueError(
+                        'Metadata field `readme` cannot be both statically defined and '
+                        'listed in field `project.dynamic`'
+                    )
+            else:
+                readme = None
+
             if readme is None:
                 self._readme = ''
                 self._readme_content_type = 'text/markdown'
@@ -420,7 +450,16 @@ class CoreMetadata(object):
         if self._requires_python is None:
             from packaging.specifiers import InvalidSpecifier, SpecifierSet
 
-            requires_python = self.config.get('requires-python', '')
+            if 'requires-python' in self.config:
+                requires_python = self.config['requires-python']
+                if 'requires-python' in self.dynamic:
+                    raise ValueError(
+                        'Metadata field `requires-python` cannot be both statically defined and '
+                        'listed in field `project.dynamic`'
+                    )
+            else:
+                requires_python = ''
+
             if not isinstance(requires_python, str):
                 raise TypeError('Field `project.requires-python` must be a string')
 
@@ -446,7 +485,16 @@ class CoreMetadata(object):
         https://www.python.org/dev/peps/pep-0621/#license
         """
         if self._license is None:
-            data = self.config.get('license')
+            if 'license' in self.config:
+                data = self.config['license']
+                if 'license' in self.dynamic:
+                    raise ValueError(
+                        'Metadata field `license` cannot be both statically defined and '
+                        'listed in field `project.dynamic`'
+                    )
+            else:
+                data = None
+
             if data is None:
                 self._license = ''
                 self._license_expression = ''
@@ -503,6 +551,12 @@ class CoreMetadata(object):
             if 'license-files' not in self.config:
                 data = {'globs': ['LICEN[CS]E*', 'COPYING*', 'NOTICE*', 'AUTHORS*']}
             else:
+                if 'license-files' in self.dynamic:
+                    raise ValueError(
+                        'Metadata field `license-files` cannot be both statically defined and '
+                        'listed in field `project.dynamic`'
+                    )
+
                 data = self.config['license-files']
                 if not isinstance(data, dict):
                     raise TypeError('Field `project.license-files` must be a table')
@@ -558,7 +612,16 @@ class CoreMetadata(object):
         https://www.python.org/dev/peps/pep-0621/#authors-maintainers
         """
         if self._authors is None:
-            authors = self.config.get('authors', [])
+            if 'authors' in self.config:
+                authors = self.config['authors']
+                if 'authors' in self.dynamic:
+                    raise ValueError(
+                        'Metadata field `authors` cannot be both statically defined and '
+                        'listed in field `project.dynamic`'
+                    )
+            else:
+                authors = []
+
             if not isinstance(authors, list):
                 raise TypeError('Field `project.authors` must be an array')
 
@@ -619,7 +682,16 @@ class CoreMetadata(object):
         https://www.python.org/dev/peps/pep-0621/#authors-maintainers
         """
         if self._maintainers is None:
-            maintainers = self.config.get('maintainers', [])
+            if 'maintainers' in self.config:
+                maintainers = self.config['maintainers']
+                if 'maintainers' in self.dynamic:
+                    raise ValueError(
+                        'Metadata field `maintainers` cannot be both statically defined and '
+                        'listed in field `project.dynamic`'
+                    )
+            else:
+                maintainers = []
+
             if not isinstance(maintainers, list):
                 raise TypeError('Field `project.maintainers` must be an array')
 
@@ -680,7 +752,16 @@ class CoreMetadata(object):
         https://www.python.org/dev/peps/pep-0621/#keywords
         """
         if self._keywords is None:
-            keywords = self.config.get('keywords', [])
+            if 'keywords' in self.config:
+                keywords = self.config['keywords']
+                if 'keywords' in self.dynamic:
+                    raise ValueError(
+                        'Metadata field `keywords` cannot be both statically defined and '
+                        'listed in field `project.dynamic`'
+                    )
+            else:
+                keywords = []
+
             if not isinstance(keywords, list):
                 raise TypeError('Field `project.keywords` must be an array')
 
@@ -702,7 +783,16 @@ class CoreMetadata(object):
         https://www.python.org/dev/peps/pep-0621/#classifiers
         """
         if self._classifiers is None:
-            classifiers = self.config.get('classifiers', [])
+            if 'classifiers' in self.config:
+                classifiers = self.config['classifiers']
+                if 'classifiers' in self.dynamic:
+                    raise ValueError(
+                        'Metadata field `classifiers` cannot be both statically defined and '
+                        'listed in field `project.dynamic`'
+                    )
+            else:
+                classifiers = []
+
             if not isinstance(classifiers, list):
                 raise TypeError('Field `project.classifiers` must be an array')
 
@@ -724,7 +814,15 @@ class CoreMetadata(object):
         https://www.python.org/dev/peps/pep-0621/#urls
         """
         if self._urls is None:
-            urls = self.config.get('urls', {})
+            if 'urls' in self.config:
+                urls = self.config['urls']
+                if 'urls' in self.dynamic:
+                    raise ValueError(
+                        'Metadata field `urls` cannot be both statically defined and listed in field `project.dynamic`'
+                    )
+            else:
+                urls = {}
+
             if not isinstance(urls, dict):
                 raise TypeError('Field `project.urls` must be a table')
 
@@ -746,7 +844,16 @@ class CoreMetadata(object):
         https://www.python.org/dev/peps/pep-0621/#entry-points
         """
         if self._scripts is None:
-            scripts = self.config.get('scripts', {})
+            if 'scripts' in self.config:
+                scripts = self.config['scripts']
+                if 'scripts' in self.dynamic:
+                    raise ValueError(
+                        'Metadata field `scripts` cannot be both statically defined and '
+                        'listed in field `project.dynamic`'
+                    )
+            else:
+                scripts = {}
+
             if not isinstance(scripts, dict):
                 raise TypeError('Field `project.scripts` must be a table')
 
@@ -768,7 +875,16 @@ class CoreMetadata(object):
         https://www.python.org/dev/peps/pep-0621/#entry-points
         """
         if self._gui_scripts is None:
-            gui_scripts = self.config.get('gui-scripts', {})
+            if 'gui-scripts' in self.config:
+                gui_scripts = self.config['gui-scripts']
+                if 'gui-scripts' in self.dynamic:
+                    raise ValueError(
+                        'Metadata field `gui-scripts` cannot be both statically defined and '
+                        'listed in field `project.dynamic`'
+                    )
+            else:
+                gui_scripts = {}
+
             if not isinstance(gui_scripts, dict):
                 raise TypeError('Field `project.gui-scripts` must be a table')
 
@@ -792,7 +908,16 @@ class CoreMetadata(object):
         https://www.python.org/dev/peps/pep-0621/#entry-points
         """
         if self._entry_points is None:
-            defined_entry_point_groups = self.config.get('entry-points', {})
+            if 'entry-points' in self.config:
+                defined_entry_point_groups = self.config['entry-points']
+                if 'entry-points' in self.dynamic:
+                    raise ValueError(
+                        'Metadata field `entry-points` cannot be both statically defined and '
+                        'listed in field `project.dynamic`'
+                    )
+            else:
+                defined_entry_point_groups = {}
+
             if not isinstance(defined_entry_point_groups, dict):
                 raise TypeError('Field `project.entry-points` must be a table')
 
@@ -835,7 +960,16 @@ class CoreMetadata(object):
         if self._dependencies_complex is None:
             from packaging.requirements import InvalidRequirement, Requirement
 
-            dependencies = self.config.get('dependencies', [])
+            if 'dependencies' in self.config:
+                dependencies = self.config['dependencies']
+                if 'dependencies' in self.dynamic:
+                    raise ValueError(
+                        'Metadata field `dependencies` cannot be both statically defined and '
+                        'listed in field `project.dynamic`'
+                    )
+            else:
+                dependencies = []
+
             if not isinstance(dependencies, list):
                 raise TypeError('Field `project.dependencies` must be an array')
 
@@ -872,7 +1006,16 @@ class CoreMetadata(object):
         if self._optional_dependencies is None:
             from packaging.requirements import InvalidRequirement, Requirement
 
-            optional_dependencies = self.config.get('optional-dependencies', {})
+            if 'optional-dependencies' in self.config:
+                optional_dependencies = self.config['optional-dependencies']
+                if 'optional-dependencies' in self.dynamic:
+                    raise ValueError(
+                        'Metadata field `optional-dependencies` cannot be both statically defined and '
+                        'listed in field `project.dynamic`'
+                    )
+            else:
+                optional_dependencies = {}
+
             if not isinstance(optional_dependencies, dict):
                 raise TypeError('Field `project.optional-dependencies` must be a table')
 
@@ -920,20 +1063,18 @@ class CoreMetadata(object):
             if not isinstance(dynamic, list):
                 raise TypeError('Field `project.dynamic` must be an array')
 
-            if 'name' in dynamic:
-                raise ValueError('Static metadata field `name` cannot be present in field `project.dynamic`')
-
-            unique_fields = set()
-
             for i, field in enumerate(dynamic, 1):
                 if not isinstance(field, str):
                     raise TypeError('Field #{} of field `project.dynamic` must be a string'.format(i))
 
-                unique_fields.add(field)
-
-            self._dynamic = unique_fields
+            self._dynamic = dynamic
 
         return self._dynamic
+
+    def validate_fields(self):
+        # Trigger validation for everything
+        for attribute in dir(self):
+            getattr(self, attribute)
 
 
 class HatchMetadata(object):

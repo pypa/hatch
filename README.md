@@ -13,12 +13,12 @@ Hatch is a modern, extensible Python project manager.
 
 ## Features
 
-- Standardized build system with reproducible builds by default
-- Robust environment management with support for custom scripts
-- Easy publishing to PyPI or other sources
-- Version management
-- Configurable project generation with sane defaults
-- Responsive CLI, ~2-3x faster than equivalent tools
+- Standardized [build system](https://ofek.dev/hatch/latest/build/#packaging-ecosystem) with reproducible builds by default
+- Robust [environment management](https://ofek.dev/hatch/latest/environment/) with support for custom scripts
+- Easy [publishing](https://ofek.dev/hatch/latest/publish/) to PyPI or other sources
+- [Version](https://ofek.dev/hatch/latest/version/) management
+- Configurable [project generation](https://ofek.dev/hatch/latest/config/project-templates/) with sane defaults
+- Responsive [CLI](https://ofek.dev/hatch/latest/cli/about/), ~2-3x faster than equivalent tools
 
 ## Documentation
 
