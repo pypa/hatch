@@ -64,6 +64,7 @@ class MetadataHookInterface(object):  # no cov
         """
         :material-align-horizontal-left: **REQUIRED** :material-align-horizontal-right:
 
-        This updates the metadata mapping in-place.
+        This updates the metadata mapping of the `project` table in-place. If you are setting a
+        field that has been listed as dynamic, you must also remove it from the list.
         """
         raise NotImplementedError

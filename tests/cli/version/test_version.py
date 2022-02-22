@@ -53,6 +53,7 @@ def test_show_static(hatch, temp_dir):
     project = Project(path)
     config = dict(project.raw_config)
     config['project']['version'] = '1.2.3'
+    config['project']['dynamic'].remove('version')
     project.save_config(config)
 
     with path.as_cwd():
@@ -73,6 +74,7 @@ def test_set_static(hatch, helpers, temp_dir):
     project = Project(path)
     config = dict(project.raw_config)
     config['project']['version'] = '1.2.3'
+    config['project']['dynamic'].remove('version')
     project.save_config(config)
 
     with path.as_cwd():

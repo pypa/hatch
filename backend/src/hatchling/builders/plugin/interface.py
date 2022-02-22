@@ -72,6 +72,9 @@ class BuilderInterface(object):
         clean_hooks_after=None,
         clean_only=False,
     ):
+        # Fail early for invalid project metadata
+        self.metadata.core.validate_fields()
+
         if directory is None:
             if BuildEnvVars.LOCATION in os.environ:
                 directory = self.config.normalize_build_directory(os.environ[BuildEnvVars.LOCATION])
