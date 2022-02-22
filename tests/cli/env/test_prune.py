@@ -71,7 +71,7 @@ def test_all(hatch, helpers, temp_dir_data, config_file, default_virtualenv_inst
     assert len(hash_part) == 8
 
     env_dirs = list(storage_path.iterdir())
-    assert len(env_dirs) == 2, env_dirs
+    assert len(env_dirs) == 2
 
     with project_path.as_cwd():
         result = hatch('env', 'prune')
