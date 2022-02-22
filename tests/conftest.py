@@ -15,6 +15,7 @@ from hatch.utils.ci import running_in_ci
 from hatch.utils.fs import Path, temp_directory
 from hatch.utils.platform import Platform
 from hatch.utils.structures import EnvVars
+from hatch.venv.core import TempVirtualEnv
 from hatchling.cli import hatchling
 
 from .helpers.templates.licenses import MIT, Apache_2_0
@@ -147,6 +148,20 @@ def config_file(tmp_path) -> ConfigFile:
     config = ConfigFile(path)
     config.restore()
     return config
+
+
+@pytest.fixture(scope='session')
+def default_virtualenv_installed_packages():
+    # PyPy installs extra packages by default
+    from virtualenv import cli_run
+
+    with temp_directory() as d:
+        cli_run([str(d / 'venv'), '--no-download', '--no-periodic-update', '-qqq'])
+        with TempVirtualEnv(sys.executable, PLATFORM):
+            output = PLATFORM.run_command(['pip', 'freeze'], check=True, capture_output=True).stdout.decode('utf-8')
+            lines = output.strip().splitlines()
+
+    yield lines
 
 
 @pytest.fixture

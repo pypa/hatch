@@ -98,7 +98,7 @@ def test_activation_path_env_var_missing(temp_dir, platform):
             assert os.environ[env_var] == 'foo'
 
 
-def test_context_manager(temp_dir, platform):
+def test_context_manager(temp_dir, platform, default_virtualenv_installed_packages):
     venv_dir = temp_dir / 'venv'
     venv = VirtualEnv(venv_dir, platform)
     venv.create(sys.executable)
@@ -117,7 +117,7 @@ def test_context_manager(temp_dir, platform):
 
             # Run here while we have cleanup
             output = platform.run_command(['pip', 'freeze'], check=True, capture_output=True).stdout.decode('utf-8')
-            assert output.strip().count('==') == 0
+            assert output.strip().count('==') == len(default_virtualenv_installed_packages)
 
         assert os.environ['PATH'] == str(temp_dir)
         assert os.environ['VIRTUAL_ENV'] == 'foo'

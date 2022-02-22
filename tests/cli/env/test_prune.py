@@ -31,7 +31,7 @@ def test_unknown_type(hatch, helpers, temp_dir_data, config_file):
     )
 
 
-def test_all(hatch, helpers, temp_dir_data, config_file):
+def test_all(hatch, helpers, temp_dir_data, config_file, default_virtualenv_installed_packages):
     project_name = 'My App'
 
     with temp_dir_data.as_cwd():
@@ -71,7 +71,7 @@ def test_all(hatch, helpers, temp_dir_data, config_file):
     assert len(hash_part) == 8
 
     env_dirs = list(storage_path.iterdir())
-    assert len(env_dirs) == 2
+    assert len(env_dirs) == 2, env_dirs
 
     with project_path.as_cwd():
         result = hatch('env', 'prune')
