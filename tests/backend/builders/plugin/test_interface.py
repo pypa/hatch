@@ -113,15 +113,33 @@ class TestProjectID:
         assert builder.project_id == builder.project_id == 'my_app-1.0.0rc1'
 
 
-class TestVersions:
-    def test_build_validation(self, isolation):
-        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'versions': ['1']}}}}}}
+class TestBuildValidation:
+    def test_unknown_version(self, isolation):
+        config = {
+            'project': {'name': 'foo', 'version': '0.1.0'},
+            'tool': {'hatch': {'build': {'targets': {'foo': {'versions': ['1']}}}}},
+        }
         builder = BuilderInterface(str(isolation), config=config)
         builder.PLUGIN_NAME = 'foo'
         builder.get_version_api = lambda: {'1': str}
 
         with pytest.raises(ValueError, match='Unknown versions for target `foo`: 42, 9000'):
             next(builder.build(str(isolation), versions=['9000', '42']))
+
+    def test_invalid_metadata(self, isolation):
+        config = {
+            'project': {'name': 'foo', 'version': '0.1.0', 'dynamic': ['version']},
+            'tool': {'hatch': {'build': {'targets': {'foo': {'versions': ['1']}}}}},
+        }
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+        builder.get_version_api = lambda: {'1': lambda *args, **kwargs: ''}
+
+        with pytest.raises(
+            ValueError,
+            match='Metadata field `version` cannot be both statically defined and listed in field `project.dynamic`',
+        ):
+            next(builder.build(str(isolation)))
 
 
 class TestHookConfig:

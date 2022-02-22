@@ -84,21 +84,23 @@ class TestDynamic:
         with pytest.raises(TypeError, match='Field #1 of field `project.dynamic` must be a string'):
             _ = metadata.core.dynamic
 
-    def test_defined_name(self, isolation):
-        metadata = ProjectMetadata(str(isolation), None, {'project': {'dynamic': ['name']}})
+    def test_correct(self, isolation):
+        dynamic = ['version']
+        metadata = ProjectMetadata(str(isolation), None, {'project': {'dynamic': dynamic}})
+
+        assert metadata.core.dynamic is dynamic
+        assert metadata.core.dynamic == ['version']
+
+
+class TestName:
+    def test_dynamic(self, isolation):
+        metadata = ProjectMetadata(str(isolation), None, {'project': {'name': 9000, 'dynamic': ['name']}})
 
         with pytest.raises(
             ValueError, match='Static metadata field `name` cannot be present in field `project.dynamic`'
         ):
-            _ = metadata.core.dynamic
+            _ = metadata.core.name
 
-    def test_type(self, isolation):
-        metadata = ProjectMetadata(str(isolation), None, {'project': {'dynamic': ['version', 'version']}})
-
-        assert metadata.core.dynamic == metadata.core.dynamic == {'version'}
-
-
-class TestName:
     def test_missing(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {'project': {}})
 
@@ -131,6 +133,15 @@ class TestName:
 
 
 class TestVersion:
+    def test_dynamic(self, isolation):
+        metadata = ProjectMetadata(str(isolation), None, {'project': {'version': 9000, 'dynamic': ['version']}})
+
+        with pytest.raises(
+            ValueError,
+            match='Metadata field `version` cannot be both statically defined and listed in field `project.dynamic`',
+        ):
+            _ = metadata.core.version
+
     def test_static_missing(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {'project': {}})
 
@@ -223,6 +234,17 @@ class TestVersion:
 
 
 class TestDescription:
+    def test_dynamic(self, isolation):
+        metadata = ProjectMetadata(str(isolation), None, {'project': {'description': 9000, 'dynamic': ['description']}})
+
+        with pytest.raises(
+            ValueError,
+            match=(
+                'Metadata field `description` cannot be both statically defined and listed in field `project.dynamic`'
+            ),
+        ):
+            _ = metadata.core.description
+
     def test_not_string(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {'project': {'description': 9000}})
 
@@ -241,6 +263,15 @@ class TestDescription:
 
 
 class TestReadme:
+    def test_dynamic(self, isolation):
+        metadata = ProjectMetadata(str(isolation), None, {'project': {'readme': 9000, 'dynamic': ['readme']}})
+
+        with pytest.raises(
+            ValueError,
+            match='Metadata field `readme` cannot be both statically defined and listed in field `project.dynamic`',
+        ):
+            _ = metadata.core.readme
+
     @pytest.mark.parametrize('attribute', ['readme', 'readme_content_type'])
     def test_unknown_type(self, isolation, attribute):
         metadata = ProjectMetadata(str(isolation), None, {'project': {'readme': 9000}})
@@ -369,6 +400,20 @@ class TestReadme:
 
 
 class TestRequiresPython:
+    def test_dynamic(self, isolation):
+        metadata = ProjectMetadata(
+            str(isolation), None, {'project': {'requires-python': 9000, 'dynamic': ['requires-python']}}
+        )
+
+        with pytest.raises(
+            ValueError,
+            match=(
+                'Metadata field `requires-python` cannot be both statically defined and '
+                'listed in field `project.dynamic`'
+            ),
+        ):
+            _ = metadata.core.requires_python
+
     @pytest.mark.parametrize('attribute', ['requires_python', 'python_constraint'])
     def test_not_string(self, isolation, attribute):
         metadata = ProjectMetadata(str(isolation), None, {'project': {'requires-python': 9000}})
@@ -398,6 +443,15 @@ class TestRequiresPython:
 
 
 class TestLicense:
+    def test_dynamic(self, isolation):
+        metadata = ProjectMetadata(str(isolation), None, {'project': {'license': 9000, 'dynamic': ['license']}})
+
+        with pytest.raises(
+            ValueError,
+            match='Metadata field `license` cannot be both statically defined and listed in field `project.dynamic`',
+        ):
+            _ = metadata.core.license
+
     def test_invalid_type(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {'project': {'license': 9000}})
 
@@ -461,6 +515,20 @@ class TestLicense:
 
 
 class TestLicenseFiles:
+    def test_dynamic(self, isolation):
+        metadata = ProjectMetadata(
+            str(isolation), None, {'project': {'license-files': 9000, 'dynamic': ['license-files']}}
+        )
+
+        with pytest.raises(
+            ValueError,
+            match=(
+                'Metadata field `license-files` cannot be both statically defined and '
+                'listed in field `project.dynamic`'
+            ),
+        ):
+            _ = metadata.core.license_files
+
     def test_not_table(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {'project': {'license-files': 9000}})
 
@@ -578,6 +646,15 @@ class TestLicenseFiles:
 
 
 class TestAuthors:
+    def test_dynamic(self, isolation):
+        metadata = ProjectMetadata(str(isolation), None, {'project': {'authors': 9000, 'dynamic': ['authors']}})
+
+        with pytest.raises(
+            ValueError,
+            match='Metadata field `authors` cannot be both statically defined and listed in field `project.dynamic`',
+        ):
+            _ = metadata.core.authors
+
     def test_not_array(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {'project': {'authors': 'foo'}})
 
@@ -647,6 +724,17 @@ class TestAuthors:
 
 
 class TestMaintainers:
+    def test_dynamic(self, isolation):
+        metadata = ProjectMetadata(str(isolation), None, {'project': {'maintainers': 9000, 'dynamic': ['maintainers']}})
+
+        with pytest.raises(
+            ValueError,
+            match=(
+                'Metadata field `maintainers` cannot be both statically defined and listed in field `project.dynamic`'
+            ),
+        ):
+            _ = metadata.core.maintainers
+
     def test_not_array(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {'project': {'maintainers': 'foo'}})
 
@@ -719,6 +807,15 @@ class TestMaintainers:
 
 
 class TestKeywords:
+    def test_dynamic(self, isolation):
+        metadata = ProjectMetadata(str(isolation), None, {'project': {'keywords': 9000, 'dynamic': ['keywords']}})
+
+        with pytest.raises(
+            ValueError,
+            match='Metadata field `keywords` cannot be both statically defined and listed in field `project.dynamic`',
+        ):
+            _ = metadata.core.keywords
+
     def test_not_array(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {'project': {'keywords': 10}})
 
@@ -738,6 +835,17 @@ class TestKeywords:
 
 
 class TestClassifiers:
+    def test_dynamic(self, isolation):
+        metadata = ProjectMetadata(str(isolation), None, {'project': {'classifiers': 9000, 'dynamic': ['classifiers']}})
+
+        with pytest.raises(
+            ValueError,
+            match=(
+                'Metadata field `classifiers` cannot be both statically defined and listed in field `project.dynamic`'
+            ),
+        ):
+            _ = metadata.core.classifiers
+
     def test_not_array(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {'project': {'classifiers': 10}})
 
@@ -757,6 +865,15 @@ class TestClassifiers:
 
 
 class TestURLs:
+    def test_dynamic(self, isolation):
+        metadata = ProjectMetadata(str(isolation), None, {'project': {'urls': 9000, 'dynamic': ['urls']}})
+
+        with pytest.raises(
+            ValueError,
+            match='Metadata field `urls` cannot be both statically defined and listed in field `project.dynamic`',
+        ):
+            _ = metadata.core.urls
+
     def test_not_table(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {'project': {'urls': 10}})
 
@@ -776,6 +893,15 @@ class TestURLs:
 
 
 class TestScripts:
+    def test_dynamic(self, isolation):
+        metadata = ProjectMetadata(str(isolation), None, {'project': {'scripts': 9000, 'dynamic': ['scripts']}})
+
+        with pytest.raises(
+            ValueError,
+            match='Metadata field `scripts` cannot be both statically defined and listed in field `project.dynamic`',
+        ):
+            _ = metadata.core.scripts
+
     def test_not_table(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {'project': {'scripts': 10}})
 
@@ -795,6 +921,17 @@ class TestScripts:
 
 
 class TestGUIScripts:
+    def test_dynamic(self, isolation):
+        metadata = ProjectMetadata(str(isolation), None, {'project': {'gui-scripts': 9000, 'dynamic': ['gui-scripts']}})
+
+        with pytest.raises(
+            ValueError,
+            match=(
+                'Metadata field `gui-scripts` cannot be both statically defined and listed in field `project.dynamic`'
+            ),
+        ):
+            _ = metadata.core.gui_scripts
+
     def test_not_table(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {'project': {'gui-scripts': 10}})
 
@@ -814,6 +951,19 @@ class TestGUIScripts:
 
 
 class TestEntryPoints:
+    def test_dynamic(self, isolation):
+        metadata = ProjectMetadata(
+            str(isolation), None, {'project': {'entry-points': 9000, 'dynamic': ['entry-points']}}
+        )
+
+        with pytest.raises(
+            ValueError,
+            match=(
+                'Metadata field `entry-points` cannot be both statically defined and listed in field `project.dynamic`'
+            ),
+        ):
+            _ = metadata.core.entry_points
+
     def test_not_table(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {'project': {'entry-points': 10}})
 
@@ -871,6 +1021,19 @@ class TestEntryPoints:
 
 
 class TestDependencies:
+    def test_dynamic(self, isolation):
+        metadata = ProjectMetadata(
+            str(isolation), None, {'project': {'dependencies': 9000, 'dynamic': ['dependencies']}}
+        )
+
+        with pytest.raises(
+            ValueError,
+            match=(
+                'Metadata field `dependencies` cannot be both statically defined and listed in field `project.dynamic`'
+            ),
+        ):
+            _ = metadata.core.dependencies
+
     def test_not_array(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {'project': {'dependencies': 10}})
 
@@ -897,6 +1060,20 @@ class TestDependencies:
 
 
 class TestOptionalDependencies:
+    def test_dynamic(self, isolation):
+        metadata = ProjectMetadata(
+            str(isolation), None, {'project': {'optional-dependencies': 9000, 'dynamic': ['optional-dependencies']}}
+        )
+
+        with pytest.raises(
+            ValueError,
+            match=(
+                'Metadata field `optional-dependencies` cannot be both statically defined and '
+                'listed in field `project.dynamic`'
+            ),
+        ):
+            _ = metadata.core.optional_dependencies
+
     def test_not_table(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {'project': {'optional-dependencies': 10}})
 
@@ -976,6 +1153,7 @@ class TestHook:
                     def update(self, metadata):
                         metadata['description'] = metadata['name'] + 'bar'
                         metadata['version'] = metadata['version'] + 'rc0'
+                        metadata['dynamic'].remove('version')
                 """
             )
         )
