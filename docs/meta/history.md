@@ -114,6 +114,8 @@ This is the first release candidate for Hatch v1, a complete rewrite.
 
 ### Unreleased
 
+### [0.15.0](https://github.com/ofek/hatch/releases/tag/hatchling-v0.15.0) - 2022-02-23 ### {: #hatchling-v0.15.0 }
+
 ***Added:***
 
 - Fail builds early for invalid project metadata
