@@ -3,6 +3,7 @@ dependencies = [
   "coverage[toml]>=6.2",
   "pytest",
   "pytest-cov",
+  "pytest-mock",
   "pytest-randomly",
   "pytest-rerunfailures",
 ]
