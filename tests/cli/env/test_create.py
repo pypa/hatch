@@ -640,7 +640,9 @@ def test_incompatible_matrix_partial(hatch, helpers, temp_dir, config_file):
     assert env_dirs[0].name == 'test.42'
 
 
-def test_install_project_default_dev_mode(hatch, helpers, temp_dir, platform, config_file):
+def test_install_project_default_dev_mode(
+    hatch, helpers, temp_dir, platform, config_file, default_virtualenv_installed_packages
+):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
@@ -693,6 +695,8 @@ def test_install_project_default_dev_mode(hatch, helpers, temp_dir, platform, co
     with VirtualEnv(env_path, platform):
         output = platform.run_command(['pip', 'freeze'], check=True, capture_output=True).stdout.decode('utf-8')
         lines = output.strip().splitlines()
+        for package in default_virtualenv_installed_packages:
+            lines.remove(package)
 
         assert len(lines) == 3
         assert lines[0].startswith('editables==')
@@ -700,7 +704,9 @@ def test_install_project_default_dev_mode(hatch, helpers, temp_dir, platform, co
         assert lines[2].lower() == f'-e {str(project_path).lower()}'
 
 
-def test_install_project_no_dev_mode(hatch, helpers, temp_dir, platform, config_file):
+def test_install_project_no_dev_mode(
+    hatch, helpers, temp_dir, platform, config_file, default_virtualenv_installed_packages
+):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
@@ -754,6 +760,8 @@ def test_install_project_no_dev_mode(hatch, helpers, temp_dir, platform, config_
     with VirtualEnv(env_path, platform):
         output = platform.run_command(['pip', 'freeze'], check=True, capture_output=True).stdout.decode('utf-8')
         lines = output.strip().splitlines()
+        for package in default_virtualenv_installed_packages:
+            lines.remove(package)
 
         assert len(lines) == 1
         assert lines[0].startswith('my-app @')
@@ -912,7 +920,7 @@ def test_post_install_commands_error(hatch, helpers, temp_dir, config_file):
     )
 
 
-def test_sync_dependencies(hatch, helpers, temp_dir, platform, config_file):
+def test_sync_dependencies(hatch, helpers, temp_dir, platform, config_file, default_virtualenv_installed_packages):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
@@ -977,6 +985,8 @@ def test_sync_dependencies(hatch, helpers, temp_dir, platform, config_file):
     with VirtualEnv(env_path, platform):
         output = platform.run_command(['pip', 'freeze'], check=True, capture_output=True).stdout.decode('utf-8')
         lines = output.strip().splitlines()
+        for package in default_virtualenv_installed_packages:
+            lines.remove(package)
 
         assert len(lines) == 4
         assert lines[0].startswith('binary==')
@@ -985,7 +995,7 @@ def test_sync_dependencies(hatch, helpers, temp_dir, platform, config_file):
         assert lines[3].lower() == f'-e {str(project_path).lower()}'
 
 
-def test_features(hatch, helpers, temp_dir, platform, config_file):
+def test_features(hatch, helpers, temp_dir, platform, config_file, default_virtualenv_installed_packages):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
@@ -1042,6 +1052,8 @@ def test_features(hatch, helpers, temp_dir, platform, config_file):
     with VirtualEnv(env_path, platform):
         output = platform.run_command(['pip', 'freeze'], check=True, capture_output=True).stdout.decode('utf-8')
         lines = output.strip().splitlines()
+        for package in default_virtualenv_installed_packages:
+            lines.remove(package)
 
         assert len(lines) == 4
         assert lines[0].startswith('binary==')

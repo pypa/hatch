@@ -10,6 +10,12 @@ from hatchling.builders.utils import get_known_python_major_versions
 from hatchling.builders.wheel import WheelBuilder
 from hatchling.metadata.utils import DEFAULT_METADATA_VERSION, get_core_metadata_constructors
 
+# https://github.com/python/cpython/pull/26184
+fixed_pathlib_resolution = pytest.mark.skipif(
+    platform.system() == 'Windows' and (sys.version_info < (3, 8) or sys.implementation.name == 'pypy'),
+    reason='pathlib.Path.resolve has bug on Windows',
+)
+
 
 def get_python_versions_tag():
     return '.'.join(f'py{major_version}' for major_version in get_known_python_major_versions())
@@ -918,9 +924,7 @@ class TestBuildStandard:
         )
         helpers.assert_files(extraction_directory, expected_files, check_contents=True)
 
-    @pytest.mark.skipif(
-        platform.system() == 'Windows' and sys.version_info < (3, 8), reason='pathlib.Path.resolve has bug on Windows'
-    )
+    @fixed_pathlib_resolution
     def test_editable_standard(self, hatch, helpers, temp_dir):
         project_name = 'My App'
 
@@ -977,9 +981,7 @@ class TestBuildStandard:
             zip_info = zip_archive.getinfo(f'{metadata_directory}/WHEEL')
             assert zip_info.date_time == (2020, 2, 2, 0, 0, 0)
 
-    @pytest.mark.skipif(
-        platform.system() == 'Windows' and sys.version_info < (3, 8), reason='pathlib.Path.resolve has bug on Windows'
-    )
+    @fixed_pathlib_resolution
     def test_editable_pth(self, hatch, helpers, temp_dir):
         project_name = 'My App'
 

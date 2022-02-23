@@ -4,12 +4,14 @@ dependencies = [
   "pytest",
   "pytest-cov",
   "pytest-mock",
+  "pytest-randomly",
+  "pytest-rerunfailures",
 ]
 post-install-commands = [
   "python -m pip install --disable-pip-version-check -q -e ./backend",
 ]
 [envs.default.scripts]
-full = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=src/hatch --cov=backend/src/hatchling --cov=tests"
+full = "pytest --reruns 5 --reruns-delay 1 --cov-report=term-missing --cov-config=pyproject.toml --cov=src/hatch --cov=backend/src/hatchling --cov=tests"
 dev = "pytest --no-cov"
 
 [[envs.test.matrix]]
