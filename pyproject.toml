@@ -54,10 +54,10 @@ dependencies = [
 dynamic = ["version"]
 
 [project.urls]
-Documentation = "https://ofek.dev/hatch/latest/"
+Homepage = "https://ofek.dev/hatch/latest/"
 Funding = "https://github.com/sponsors/ofek"
 History = "https://ofek.dev/hatch/dev/meta/history/"
-Issues = "https://github.com/ofek/hatch/issues"
+Tracker = "https://github.com/ofek/hatch/issues"
 Source = "https://github.com/ofek/hatch"
 
 [project.scripts]

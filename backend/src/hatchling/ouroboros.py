@@ -3,14 +3,14 @@ import os
 CONFIG = {
     'project': {
         'name': 'hatchling',
-        'description': 'The build backend used by Hatch',
+        'description': 'Modern, extensible Python build backend',
         'readme': 'README.md',
         'authors': [{'name': 'Ofek Lev', 'email': 'oss@ofek.dev'}],
         'urls': {
-            'Documentation': 'https://ofek.dev/hatch/latest/',
+            'Homepage': 'https://ofek.dev/hatch/latest/',
             'Funding': 'https://github.com/sponsors/ofek',
             'History': 'https://ofek.dev/hatch/dev/meta/history/',
-            'Issues': 'https://github.com/ofek/hatch/issues',
+            'Tracker': 'https://github.com/ofek/hatch/issues',
             'Source': 'https://github.com/ofek/hatch/tree/master/backend',
         },
         'license': 'MIT',
