@@ -62,36 +62,6 @@ def test_backend_not_build_dependency(hatch, temp_dir, helpers):
     )
 
 
-def test_no_targets(hatch, temp_dir, helpers):
-    project_name = 'My App'
-
-    with temp_dir.as_cwd():
-        result = hatch('new', project_name)
-        assert result.exit_code == 0, result.output
-
-    path = temp_dir / 'my-app'
-
-    project = Project(path)
-    config = dict(project.raw_config)
-    config['tool']['hatch']['build'].pop('targets')
-    project.save_config(config)
-
-    with path.as_cwd():
-        result = hatch('build')
-
-    assert result.exit_code == 1, result.output
-    assert result.output == helpers.dedent(
-        """
-        No targets defined in project configuration.
-        Add one or more of the following build targets to pyproject.toml:
-
-        [tool.hatch.build.targets.custom]
-        [tool.hatch.build.targets.sdist]
-        [tool.hatch.build.targets.wheel]
-        """
-    )
-
-
 def test_unknown_targets(hatch, temp_dir, helpers):
     project_name = 'My App'
 
@@ -142,6 +112,47 @@ def test_default(hatch, temp_dir, helpers):
         assert result.exit_code == 0, result.output
 
     path = temp_dir / 'my-app'
+
+    with path.as_cwd():
+        result = hatch('build')
+
+    assert result.exit_code == 0, result.output
+
+    build_directory = path / 'dist'
+    assert build_directory.is_dir()
+
+    artifacts = list(build_directory.iterdir())
+    assert len(artifacts) == 2
+
+    sdist_path = [artifact for artifact in artifacts if artifact.name.endswith('.tar.gz')][0]
+    wheel_path = [artifact for artifact in artifacts if artifact.name.endswith('.whl')][0]
+
+    assert result.output == helpers.dedent(
+        f"""
+        Setting up build environment
+        [sdist]
+        {sdist_path.relative_to(path)}
+
+        Setting up build environment
+        [wheel]
+        {wheel_path.relative_to(path)}
+        """
+    )
+
+
+def test_no_targets_default(hatch, temp_dir, helpers):
+    project_name = 'My App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+        assert result.exit_code == 0, result.output
+
+    path = temp_dir / 'my-app'
+
+    project = Project(path)
+    config = dict(project.raw_config)
+    config['tool']['hatch']['build'].pop('targets')
+    project.save_config(config)
 
     with path.as_cwd():
         result = hatch('build')

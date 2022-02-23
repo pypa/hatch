@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ***Added:***
 
+- When building with no targets defined in config, default to `-t sdist -t wheel` rather than raising an error
 - Update project metadata
 
 ### [1.0.0rc13](https://github.com/ofek/hatch/releases/tag/hatch-v1.0.0rc13) - 2022-02-13 ### {: #hatch-v1.0.0rc13 }
@@ -116,6 +117,7 @@ This is the first release candidate for Hatch v1, a complete rewrite.
 ***Added:***
 
 - Fail builds early for invalid project metadata
+- When building with no targets defined in config, default to `-t sdist -t wheel` rather than raising an error
 - Update project metadata
 
 ### [0.14.0](https://github.com/ofek/hatch/releases/tag/hatchling-v0.14.0) - 2022-02-16 ### {: #hatchling-v0.14.0 }

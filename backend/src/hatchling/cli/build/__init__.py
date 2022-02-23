@@ -32,18 +32,9 @@ def build_impl(called_by_app, directory, targets, hooks_only, no_hooks, clean, c
             versions = version_data.split(',') if version_data else []
             target_data.setdefault(target_name, []).extend(versions)
     else:  # no cov
-        for target_name in metadata.hatch.build_targets:
+        targets = metadata.hatch.build_targets or ['sdist', 'wheel']
+        for target_name in targets:
             target_data[target_name] = []
-
-    if not target_data:  # no cov
-        app.display_error('No targets defined in project configuration.')
-        app.display_error('Add one or more of the following build targets to pyproject.toml:\n')
-
-        builders = plugin_manager.builder.collect()
-        for target_name in sorted(builders):
-            app.display_error('[tool.hatch.build.targets.{}]'.format(target_name))
-
-        app.abort()
 
     builders = OrderedDict()
     unknown_targets = []

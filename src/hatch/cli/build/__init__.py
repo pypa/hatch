@@ -71,17 +71,7 @@ def build(app, location, targets, hooks_only, no_hooks, ext, clean, clean_hooks_
         hooks_only = True
         targets = ('wheel',)
     elif not targets:
-        targets = tuple(app.project.metadata.hatch.build_targets)
-
-    if not targets:
-        app.display_error('No targets defined in project configuration.')
-        app.display_error('Add one or more of the following build targets to pyproject.toml:\n')
-
-        builders = app.plugins.builder.collect(include_third_party=False)
-        for target_name in sorted(builders):
-            app.display_error(f'[tool.hatch.build.targets.{target_name}]')
-
-        app.abort()
+        targets = tuple(app.project.metadata.hatch.build_targets or ['sdist', 'wheel'])
 
     env_vars = {}
     if no_hooks:
