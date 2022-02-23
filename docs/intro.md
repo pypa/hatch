@@ -59,7 +59,10 @@ All project-specific configuration recognized by Hatch can be defined in either 
     [tool.hatch]
     option = "..."
 
-    [tool.hatch.table]
+    [tool.hatch.table1]
+    option = "..."
+
+    [tool.hatch.table2]
     option = "..."
     ```
 
@@ -68,8 +71,31 @@ All project-specific configuration recognized by Hatch can be defined in either 
     ```toml
     option = "..."
 
-    [table]
+    [table1]
+    option = "..."
+
+    [table2]
     option = "..."
     ```
 
 Top level keys in the latter file take precedence when defined in both.
+
+!!! tip
+    If you want to make your file more compact, you can use [dotted keys](https://toml.io/en/v1.0.0#table), turning the above example into:
+
+    === ":octicons-file-code-16: pyproject.toml"
+
+        ```toml
+        [tool.hatch]
+        option = "..."
+        table1.option = "..."
+        table2.option = "..."
+        ```
+
+    === ":octicons-file-code-16: hatch.toml"
+
+        ```toml
+        option = "..."
+        table1.option = "..."
+        table2.option = "..."
+        ```

@@ -96,8 +96,8 @@ plugins:
             show_signature_annotations: true
             show_source: true
       watch:
-        - backend/hatchling
-        - hatch
+        - backend/src/hatchling
+        - src/hatch
 
 markdown_extensions:
   # Built-in

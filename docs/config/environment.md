@@ -16,6 +16,8 @@ All environments are defined as sections within the `tool.hatch.envs` table.
     [envs.<ENV_NAME>]
     ```
 
+The [storage location](hatch.md#environments) for environments is completely configurable.
+
 Unless an environment is explicitly selected on the command line, the `default` environment will be used. The [type](#type) of this environment defaults to `virtual`.
 
 ## Inheritance
