@@ -47,7 +47,7 @@ jobs:
     - name: Run tests
       env:
         HATCH_CI_PUBLISHER_TOKEN: ${{ secrets.HATCH_CI_PUBLISHER_TOKEN }}
-      run: hatch run full
+      run: hatch run full tests/cli/env/test_remove.py::test_single
 
   downstream:
     name: Downstream builds with Python ${{ matrix.python-version }}
