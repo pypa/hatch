@@ -153,13 +153,9 @@ def config_file(tmp_path) -> ConfigFile:
 @pytest.fixture(scope='session')
 def default_virtualenv_installed_packages():
     # PyPy installs extra packages by default
-    from virtualenv import cli_run
-
-    with temp_directory() as d:
-        cli_run([str(d / 'venv'), '--no-download', '--no-periodic-update', '-qqq'])
-        with TempVirtualEnv(sys.executable, PLATFORM):
-            output = PLATFORM.run_command(['pip', 'freeze'], check=True, capture_output=True).stdout.decode('utf-8')
-            lines = output.strip().splitlines()
+    with TempVirtualEnv(sys.executable, PLATFORM):
+        output = PLATFORM.run_command(['pip', 'freeze'], check=True, capture_output=True).stdout.decode('utf-8')
+        lines = output.strip().splitlines()
 
     yield lines
 
