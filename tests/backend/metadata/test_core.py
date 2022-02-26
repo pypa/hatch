@@ -1135,7 +1135,7 @@ class TestHook:
             str(temp_dir),
             PluginManager(),
             {
-                'project': {'name': 'foo', 'dynamic': ['version']},
+                'project': {'name': 'foo', 'dynamic': ['version', 'description']},
                 'tool': {'hatch': {'version': {'path': 'a/b'}, 'metadata': {'custom': {}}}},
             },
         )
@@ -1154,7 +1154,6 @@ class TestHook:
                     def update(self, metadata):
                         metadata['description'] = metadata['name'] + 'bar'
                         metadata['version'] = metadata['version'] + 'rc0'
-                        metadata['dynamic'].remove('version')
                 """
             )
         )
@@ -1163,6 +1162,39 @@ class TestHook:
         assert metadata.core.name == 'foo'
         assert metadata.core.description == 'foobar'
         assert metadata.core.version == '0.0.1rc0'
+
+    def test_custom_missing_dynamic(self, temp_dir, helpers):
+        metadata = ProjectMetadata(
+            str(temp_dir),
+            PluginManager(),
+            {
+                'project': {'name': 'foo', 'dynamic': ['version']},
+                'tool': {'hatch': {'version': {'path': 'a/b'}, 'metadata': {'custom': {}}}},
+            },
+        )
+
+        file_path = temp_dir / 'a' / 'b'
+        file_path.ensure_parent_dir_exists()
+        file_path.write_text('__version__ = "0.0.1"')
+
+        file_path = temp_dir / DEFAULT_BUILD_SCRIPT
+        file_path.write_text(
+            helpers.dedent(
+                """
+                from hatchling.metadata.plugin.interface import MetadataHookInterface
+
+                class CustomHook(MetadataHookInterface):
+                    def update(self, metadata):
+                        metadata['description'] = metadata['name'] + 'bar'
+                """
+            )
+        )
+
+        with pytest.raises(
+            ValueError,
+            match='The field `description` was set dynamically and therefore must be listed in `project.dynamic`',
+        ):
+            _ = metadata.core
 
 
 class TestHatchPersonalProjectConfigFile:

@@ -98,11 +98,22 @@ class ProjectMetadata(object):
 
             metadata_hooks = self.hatch.metadata_hooks
             if metadata_hooks:
+                static_fields = set(core_metadata)
                 self._set_version(metadata)
                 core_metadata['version'] = self.version
 
                 for metadata_hook in metadata_hooks.values():
                     metadata_hook.update(core_metadata)
+
+                new_fields = set(core_metadata) - set(static_fields)
+                for new_field in new_fields:
+                    if new_field in metadata.dynamic:
+                        metadata.dynamic.remove(new_field)
+                    else:
+                        raise ValueError(
+                            'The field `{}` was set dynamically and therefore must '
+                            'be listed in `project.dynamic`'.format(new_field)
+                        )
 
             self._core = metadata
 
