@@ -114,6 +114,10 @@ This is the first release candidate for Hatch v1, a complete rewrite.
 
 ### Unreleased
 
+***Fixed:***
+
+- Fix metadata handling of non-ASCII characters in README files for source distributions on Python 2
+
 ### [0.16.0](https://github.com/ofek/hatch/releases/tag/hatchling-v0.16.0) - 2022-02-26 ### {: #hatchling-v0.16.0 }
 
 ***Added:***

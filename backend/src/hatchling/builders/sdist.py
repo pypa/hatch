@@ -33,7 +33,9 @@ class SdistArchive(object):
         self.gettarinfo = lambda *args, **kwargs: self.normalize_tar_metadata(self.tf.gettarinfo(*args, **kwargs))
 
     def create_file(self, contents, *relative_paths):
-        contents = contents.encode('utf-8')
+        # TODO: remove condition when we drop Python 2
+        if not isinstance(contents, bytes):
+            contents = contents.encode('utf-8')
         tar_info = tarfile.TarInfo(normalize_archive_path(os.path.join(self.name, *relative_paths)))
         tar_info.mtime = self.timestamp if self.reproducible else int(get_current_timestamp())
         tar_info.size = len(contents)
