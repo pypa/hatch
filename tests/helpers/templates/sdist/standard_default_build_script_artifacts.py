@@ -1,5 +1,6 @@
 from hatch.template import File
 from hatch.utils.fs import Path
+from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT
 
 from ..new.default import get_files as get_template_files
 from .utils import DEFAULT_METADATA_VERSION
@@ -25,7 +26,7 @@ def get_files(**kwargs):
     )
     files.append(
         File(
-            Path(relative_root, 'hatch_build.py'),
+            Path(relative_root, DEFAULT_BUILD_SCRIPT),
             """\
 import pathlib
 

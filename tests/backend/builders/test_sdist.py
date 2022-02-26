@@ -7,6 +7,7 @@ from hatchling.builders.plugin.interface import BuilderInterface
 from hatchling.builders.sdist import SdistBuilder
 from hatchling.builders.utils import get_reproducible_timestamp
 from hatchling.metadata.utils import get_core_metadata_constructors
+from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT
 
 
 def test_class():
@@ -736,7 +737,7 @@ class TestBuildStandard:
         vcs_ignore_file = project_path / '.gitignore'
         vcs_ignore_file.write_text('*.pyc\n*.so\n*.h\n')
 
-        build_script = project_path / 'hatch_build.py'
+        build_script = project_path / DEFAULT_BUILD_SCRIPT
         build_script.write_text(
             helpers.dedent(
                 """
@@ -760,7 +761,7 @@ class TestBuildStandard:
                     'build': {
                         'targets': {'sdist': {'versions': ['standard']}},
                         'artifacts': ['my_app/lib.so'],
-                        'hooks': {'custom': {'path': 'hatch_build.py'}},
+                        'hooks': {'custom': {'path': DEFAULT_BUILD_SCRIPT}},
                     },
                 },
             },

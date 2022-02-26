@@ -1,6 +1,7 @@
 import pytest
 
 from hatch.project.core import Project
+from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT
 
 
 @pytest.fixture(autouse=True)
@@ -20,7 +21,7 @@ def test(hatch, temp_dir, helpers):
 
     path = temp_dir / 'my-app'
 
-    build_script = path / 'hatch_build.py'
+    build_script = path / DEFAULT_BUILD_SCRIPT
     build_script.write_text(
         helpers.dedent(
             """

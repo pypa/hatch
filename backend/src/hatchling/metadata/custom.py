@@ -1,6 +1,7 @@
 import os
 
 from ..plugin.utils import load_plugin_from_script
+from ..utils.constants import DEFAULT_BUILD_SCRIPT
 from .plugin.interface import MetadataHookInterface
 
 
@@ -8,7 +9,7 @@ class CustomMetadataHook(object):
     PLUGIN_NAME = 'custom'
 
     def __new__(cls, root, config, *args, **kwargs):
-        build_script = config.get('path', 'hatch_build.py')
+        build_script = config.get('path', DEFAULT_BUILD_SCRIPT)
         if not isinstance(build_script, str):
             raise TypeError('Option `path` for metadata hook `{}` must be a string'.format(cls.PLUGIN_NAME))
         elif not build_script:

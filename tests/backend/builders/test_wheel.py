@@ -9,6 +9,7 @@ from hatchling.builders.plugin.interface import BuilderInterface
 from hatchling.builders.utils import get_known_python_major_versions
 from hatchling.builders.wheel import WheelBuilder
 from hatchling.metadata.utils import DEFAULT_METADATA_VERSION, get_core_metadata_constructors
+from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT
 
 # https://github.com/python/cpython/pull/26184
 fixed_pathlib_resolution = pytest.mark.skipif(
@@ -564,7 +565,7 @@ class TestBuildStandard:
 
         project_path = temp_dir / 'my-app'
 
-        build_script = project_path / 'hatch_build.py'
+        build_script = project_path / DEFAULT_BUILD_SCRIPT
         build_script.write_text(
             helpers.dedent(
                 """
@@ -583,7 +584,7 @@ class TestBuildStandard:
                     'version': {'path': 'my_app/__about__.py'},
                     'build': {
                         'targets': {'wheel': {'versions': ['standard']}},
-                        'hooks': {'custom': {'path': 'hatch_build.py'}},
+                        'hooks': {'custom': {'path': DEFAULT_BUILD_SCRIPT}},
                     },
                 },
             },
@@ -628,7 +629,7 @@ class TestBuildStandard:
 
         project_path = temp_dir / 'my-app'
 
-        build_script = project_path / 'hatch_build.py'
+        build_script = project_path / DEFAULT_BUILD_SCRIPT
         build_script.write_text(
             helpers.dedent(
                 """
@@ -648,7 +649,7 @@ class TestBuildStandard:
                     'version': {'path': 'my_app/__about__.py'},
                     'build': {
                         'targets': {'wheel': {'versions': ['standard']}},
-                        'hooks': {'custom': {'path': 'hatch_build.py'}},
+                        'hooks': {'custom': {'path': DEFAULT_BUILD_SCRIPT}},
                     },
                 },
             },
@@ -696,7 +697,7 @@ class TestBuildStandard:
         vcs_ignore_file = project_path / '.gitignore'
         vcs_ignore_file.write_text('*.pyc\n*.so\n*.h')
 
-        build_script = project_path / 'hatch_build.py'
+        build_script = project_path / DEFAULT_BUILD_SCRIPT
         build_script.write_text(
             helpers.dedent(
                 """
@@ -723,7 +724,7 @@ class TestBuildStandard:
                     'build': {
                         'targets': {'wheel': {'versions': ['standard']}},
                         'artifacts': ['my_app/lib.so'],
-                        'hooks': {'custom': {'path': 'hatch_build.py'}},
+                        'hooks': {'custom': {'path': DEFAULT_BUILD_SCRIPT}},
                     },
                 },
             },
@@ -775,7 +776,7 @@ class TestBuildStandard:
         vcs_ignore_file = project_path / '.gitignore'
         vcs_ignore_file.write_text('*.pyc\n*.so\n*.h')
 
-        build_script = project_path / 'hatch_build.py'
+        build_script = project_path / DEFAULT_BUILD_SCRIPT
         build_script.write_text(
             helpers.dedent(
                 """
@@ -802,7 +803,7 @@ class TestBuildStandard:
                     'version': {'path': 'my_app/__about__.py'},
                     'build': {
                         'targets': {'wheel': {'versions': ['standard']}},
-                        'hooks': {'custom': {'path': 'hatch_build.py'}},
+                        'hooks': {'custom': {'path': DEFAULT_BUILD_SCRIPT}},
                     },
                 },
             },
@@ -857,7 +858,7 @@ class TestBuildStandard:
         vcs_ignore_file = project_path / '.gitignore'
         vcs_ignore_file.write_text('*.pyc\n*.so\n*.pyd\n*.h')
 
-        build_script = project_path / 'hatch_build.py'
+        build_script = project_path / DEFAULT_BUILD_SCRIPT
         build_script.write_text(
             helpers.dedent(
                 """
@@ -885,7 +886,7 @@ class TestBuildStandard:
                     'version': {'path': 'src/my_app/__about__.py'},
                     'build': {
                         'targets': {'wheel': {'versions': ['standard']}},
-                        'hooks': {'custom': {'path': 'hatch_build.py'}},
+                        'hooks': {'custom': {'path': DEFAULT_BUILD_SCRIPT}},
                     },
                 },
             },

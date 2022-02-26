@@ -2,6 +2,7 @@ import pytest
 
 from hatch.project.core import Project
 from hatchling.builders.constants import BuildEnvVars
+from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT
 
 
 @pytest.fixture(autouse=True)
@@ -291,7 +292,7 @@ def test_clean(hatch, temp_dir, helpers):
 
     path = temp_dir / 'my-app'
 
-    build_script = path / 'hatch_build.py'
+    build_script = path / DEFAULT_BUILD_SCRIPT
     build_script.write_text(
         helpers.dedent(
             """
@@ -432,7 +433,7 @@ def test_clean_only(hatch, temp_dir, helpers):
 
     path = temp_dir / 'my-app'
 
-    build_script = path / 'hatch_build.py'
+    build_script = path / DEFAULT_BUILD_SCRIPT
     build_script.write_text(
         helpers.dedent(
             """
@@ -496,7 +497,7 @@ def test_clean_only_hooks_only(hatch, temp_dir, helpers):
 
     path = temp_dir / 'my-app'
 
-    build_script = path / 'hatch_build.py'
+    build_script = path / DEFAULT_BUILD_SCRIPT
     build_script.write_text(
         helpers.dedent(
             """
@@ -560,7 +561,7 @@ def test_clean_hooks_after(hatch, temp_dir, helpers):
 
     path = temp_dir / 'my-app'
 
-    build_script = path / 'hatch_build.py'
+    build_script = path / DEFAULT_BUILD_SCRIPT
     build_script.write_text(
         helpers.dedent(
             """
@@ -621,7 +622,7 @@ def test_clean_hooks_after_env_var(hatch, temp_dir, helpers):
 
     path = temp_dir / 'my-app'
 
-    build_script = path / 'hatch_build.py'
+    build_script = path / DEFAULT_BUILD_SCRIPT
     build_script.write_text(
         helpers.dedent(
             """
@@ -682,7 +683,7 @@ def test_clean_only_no_hooks(hatch, temp_dir, helpers):
 
     path = temp_dir / 'my-app'
 
-    build_script = path / 'hatch_build.py'
+    build_script = path / DEFAULT_BUILD_SCRIPT
     build_script.write_text(
         helpers.dedent(
             """
@@ -746,7 +747,7 @@ def test_hooks_only(hatch, temp_dir, helpers):
 
     path = temp_dir / 'my-app'
 
-    build_script = path / 'hatch_build.py'
+    build_script = path / DEFAULT_BUILD_SCRIPT
     build_script.write_text(
         helpers.dedent(
             """
@@ -798,7 +799,7 @@ def test_hooks_only_env_var(hatch, temp_dir, helpers):
 
     path = temp_dir / 'my-app'
 
-    build_script = path / 'hatch_build.py'
+    build_script = path / DEFAULT_BUILD_SCRIPT
     build_script.write_text(
         helpers.dedent(
             """
@@ -850,7 +851,7 @@ def test_extensions_only(hatch, temp_dir, helpers):
 
     path = temp_dir / 'my-app'
 
-    build_script = path / 'hatch_build.py'
+    build_script = path / DEFAULT_BUILD_SCRIPT
     build_script.write_text(
         helpers.dedent(
             """
@@ -902,7 +903,7 @@ def test_no_hooks(hatch, temp_dir, helpers):
 
     path = temp_dir / 'my-app'
 
-    build_script = path / 'hatch_build.py'
+    build_script = path / DEFAULT_BUILD_SCRIPT
     build_script.write_text(
         helpers.dedent(
             """
@@ -955,7 +956,7 @@ def test_no_hooks_env_var(hatch, temp_dir, helpers):
 
     path = temp_dir / 'my-app'
 
-    build_script = path / 'hatch_build.py'
+    build_script = path / DEFAULT_BUILD_SCRIPT
     build_script.write_text(
         helpers.dedent(
             """
@@ -1078,7 +1079,7 @@ def test_build_dependencies(hatch, temp_dir, helpers):
 
     path = temp_dir / 'my-app'
 
-    build_script = path / 'hatch_build.py'
+    build_script = path / DEFAULT_BUILD_SCRIPT
     build_script.write_text(
         helpers.dedent(
             """
@@ -1100,7 +1101,7 @@ def test_build_dependencies(hatch, temp_dir, helpers):
 
     project = Project(path)
     config = dict(project.raw_config)
-    config['tool']['hatch']['build']['targets'] = {'custom': {'dependencies': ['binary'], 'path': 'hatch_build.py'}}
+    config['tool']['hatch']['build']['targets'] = {'custom': {'dependencies': ['binary'], 'path': DEFAULT_BUILD_SCRIPT}}
     project.save_config(config)
 
     with path.as_cwd():

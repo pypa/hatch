@@ -2,6 +2,7 @@ import pytest
 
 from hatchling.metadata.core import BuildMetadata, CoreMetadata, HatchMetadata, ProjectMetadata
 from hatchling.plugin.manager import PluginManager
+from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT
 from hatchling.version.source.regex import RegexSource
 
 
@@ -1143,7 +1144,7 @@ class TestHook:
         file_path.ensure_parent_dir_exists()
         file_path.write_text('__version__ = "0.0.1"')
 
-        file_path = temp_dir / 'hatch_build.py'
+        file_path = temp_dir / DEFAULT_BUILD_SCRIPT
         file_path.write_text(
             helpers.dedent(
                 """
