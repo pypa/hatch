@@ -8,6 +8,7 @@ from io import BytesIO
 from time import time as get_current_timestamp
 
 from ..metadata.utils import DEFAULT_METADATA_VERSION, get_core_metadata_constructors
+from ..utils.constants import DEFAULT_BUILD_SCRIPT
 from .plugin.interface import BuilderInterface
 from .utils import get_reproducible_timestamp, normalize_archive_path, normalize_file_permissions, replace_file
 
@@ -239,6 +240,7 @@ class SdistBuilder(BuilderInterface):
                 if not self.config.include_path(license_file):
                     build_data['artifacts'].append('/{}'.format(license_file))
 
+        build_data['artifacts'].append('/{}'.format(DEFAULT_BUILD_SCRIPT))
         return build_data
 
     @property
