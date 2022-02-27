@@ -114,6 +114,10 @@ This is the first release candidate for Hatch v1, a complete rewrite.
 
 ### Unreleased
 
+***Added:***
+
+- Always include any root `.gitignore` file for source distributions so recursive builds are guaranteed to be identical
+
 ***Fixed:***
 
 - Fix metadata handling of non-ASCII characters in README files for source distributions on Python 2

@@ -759,7 +759,9 @@ class TestBuildStandard:
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
                     'build': {
-                        'targets': {'sdist': {'versions': ['standard'], 'exclude': [DEFAULT_BUILD_SCRIPT]}},
+                        'targets': {
+                            'sdist': {'versions': ['standard'], 'exclude': [DEFAULT_BUILD_SCRIPT, '.gitignore']}
+                        },
                         'artifacts': ['my_app/lib.so'],
                         'hooks': {'custom': {'path': DEFAULT_BUILD_SCRIPT}},
                     },

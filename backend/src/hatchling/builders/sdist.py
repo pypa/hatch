@@ -228,6 +228,7 @@ class SdistBuilder(BuilderInterface):
         return contents
 
     def get_default_build_data(self):
+        # Check for inclusion first to avoid redundant pattern matching
         build_data = {'artifacts': []}
         if not self.config.include_path('pyproject.toml'):
             build_data['artifacts'].append('/pyproject.toml')
@@ -242,7 +243,12 @@ class SdistBuilder(BuilderInterface):
                 if not self.config.include_path(license_file):
                     build_data['artifacts'].append('/{}'.format(license_file))
 
-        build_data['artifacts'].append('/{}'.format(DEFAULT_BUILD_SCRIPT))
+        if not self.config.include_path(DEFAULT_BUILD_SCRIPT):
+            build_data['artifacts'].append('/{}'.format(DEFAULT_BUILD_SCRIPT))
+
+        if not self.config.include_path('.gitignore'):
+            build_data['artifacts'].append('/.gitignore')
+
         return build_data
 
     @property
