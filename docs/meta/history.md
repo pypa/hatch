@@ -114,6 +114,8 @@ This is the first release candidate for Hatch v1, a complete rewrite.
 
 ### Unreleased
 
+### [0.17.0](https://github.com/ofek/hatch/releases/tag/hatchling-v0.17.0) - 2022-02-26 ### {: #hatchling-v0.17.0 }
+
 ***Added:***
 
 - Always include any root `.gitignore` file for source distributions so recursive builds are guaranteed to be identical
