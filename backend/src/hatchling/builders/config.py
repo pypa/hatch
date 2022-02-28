@@ -7,6 +7,7 @@ import pathspec
 
 from ..utils.fs import locate_file
 from .constants import DEFAULT_BUILD_DIRECTORY, BuildEnvVars
+from .utils import normalize_relative_directory, normalize_relative_path
 
 
 class BuilderConfig(object):
@@ -19,8 +20,8 @@ class BuilderConfig(object):
         self.__hook_config = None
         self.__versions = None
         self.__dependencies = None
+        self.__sources = None
         self.__packages = None
-        self.__package_sources = None
 
         # Possible pathspec.PathSpec
         self.__include_spec = None
@@ -455,6 +456,57 @@ class BuilderConfig(object):
         return self.__dependencies
 
     @property
+    def sources(self):
+        if self.__sources is None:
+            if 'sources' in self.target_config:
+                sources_config = self.target_config
+                sources_location = 'tool.hatch.build.targets.{}.sources'.format(self.plugin_name)
+            else:
+                sources_config = self.build_config
+                sources_location = 'tool.hatch.build.sources'
+
+            sources = {}
+
+            raw_sources = sources_config.get('sources', [])
+            if isinstance(raw_sources, list):
+                for i, source in enumerate(raw_sources, 1):
+                    if not isinstance(source, str):
+                        raise TypeError('Source #{} in field `{}` must be a string'.format(i, sources_location))
+                    elif not source:
+                        raise ValueError(
+                            'Source #{} in field `{}` cannot be an empty string'.format(i, sources_location)
+                        )
+
+                    sources[normalize_relative_directory(source)] = ''
+            elif isinstance(raw_sources, dict):
+                for i, (source, path) in enumerate(raw_sources.items(), 1):
+                    if not source:
+                        raise ValueError(
+                            'Source #{} in field `{}` cannot be an empty string'.format(i, sources_location)
+                        )
+                    elif not isinstance(path, str):
+                        raise TypeError(
+                            'Path for source `{}` in field `{}` must be a string'.format(source, sources_location)
+                        )
+
+                    normalized_path = normalize_relative_path(path)
+                    if normalized_path:
+                        normalized_path += os.path.sep
+
+                    sources[normalize_relative_directory(source)] = normalized_path
+            else:
+                raise TypeError('Field `{}` must be a mapping or array of strings'.format(sources_location))
+
+            for relative_path in self.packages:
+                source, package = os.path.split(relative_path)
+                if source and normalize_relative_directory(relative_path) not in sources:
+                    sources[normalize_relative_directory(source)] = ''
+
+            self.__sources = dict(sorted(sources.items()))
+
+        return self.__sources
+
+    @property
     def packages(self):
         if self.__packages is None:
             if 'packages' in self.target_config:
@@ -463,8 +515,6 @@ class BuilderConfig(object):
             else:
                 package_config = self.build_config
                 package_location = 'tool.hatch.build.packages'
-
-            all_packages = set()
 
             packages = package_config.get('packages', self.default_packages())
             if not isinstance(packages, list):
@@ -476,45 +526,15 @@ class BuilderConfig(object):
                 elif not package:
                     raise ValueError('Package #{} in field `{}` cannot be an empty string'.format(i, package_location))
 
-                all_packages.add(os.path.normpath(package).lstrip(os.path.sep))
-
-            unique_packages = {}
-            packages = []
-            package_sources = []
-
-            for relative_path in sorted(all_packages):
-                source, package = os.path.split(relative_path)
-                if package in unique_packages:
-                    raise ValueError(
-                        'Package `{}` of field `{}` is already defined by path `{}`'.format(
-                            package, package_location, unique_packages[package]
-                        )
-                    )
-
-                unique_packages[package] = relative_path
-
-                if source:
-                    package_sources.append(source + os.path.sep)
-
-                packages.append(relative_path)
-
-            self.__packages = packages
-            self.__package_sources = package_sources
+            self.__packages = sorted(normalize_relative_path(package) for package in packages)
 
         return self.__packages
 
-    @property
-    def package_sources(self):
-        if self.__package_sources is None:
-            _ = self.packages
-
-        return self.__package_sources
-
     def get_distribution_path(self, relative_path):
         # src/foo/bar.py -> foo/bar.py
-        for package_source in self.package_sources:
-            if relative_path.startswith(package_source):
-                return relative_path[len(package_source) :]
+        for source, replacement in self.sources.items():
+            if relative_path.startswith(source):
+                return relative_path.replace(source, replacement, 1)
 
         return relative_path
 

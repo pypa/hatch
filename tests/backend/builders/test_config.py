@@ -1,4 +1,3 @@
-import re
 from os.path import join as pjoin
 
 import pathspec
@@ -270,9 +269,7 @@ class TestPackages:
     def test_default(self, isolation):
         builder = BuilderInterface(str(isolation))
 
-        assert builder.config.package_sources == builder.config.package_sources == []
         assert builder.config.packages == builder.config.packages == []
-        assert builder.config.get_distribution_path(pjoin('src', 'foo', 'bar.py')) == pjoin('src', 'foo', 'bar.py')
 
     def test_global_invalid_type(self, isolation):
         config = {'tool': {'hatch': {'build': {'packages': ''}}}}
@@ -286,10 +283,7 @@ class TestPackages:
         builder = BuilderInterface(str(isolation), config=config)
 
         assert len(builder.config.packages) == 1
-        assert len(builder.config.package_sources) == 1
         assert builder.config.packages[0] == pjoin('src', 'foo')
-        assert builder.config.package_sources[0] == pjoin('src', '')
-        assert builder.config.get_distribution_path(pjoin('src', 'foo', 'bar.py')) == pjoin('foo', 'bar.py')
 
     def test_global_package_not_string(self, isolation):
         config = {'tool': {'hatch': {'build': {'packages': [0]}}}}
@@ -307,29 +301,13 @@ class TestPackages:
         ):
             _ = builder.config.packages
 
-    def test_global_duplicate_package_name(self, isolation):
-        config = {'tool': {'hatch': {'build': {'packages': ['src/foo', 'pkg/foo']}}}}
-        builder = BuilderInterface(str(isolation), config=config)
-
-        with pytest.raises(
-            ValueError,
-            match=re.escape(
-                f'Package `foo` of field `tool.hatch.build.packages` is already defined '
-                f'by path `{pjoin("pkg", "foo")}`'
-            ),
-        ):
-            _ = builder.config.packages
-
     def test_target(self, isolation):
         config = {'tool': {'hatch': {'build': {'targets': {'foo': {'packages': ['src/foo']}}}}}}
         builder = BuilderInterface(str(isolation), config=config)
         builder.PLUGIN_NAME = 'foo'
 
         assert len(builder.config.packages) == 1
-        assert len(builder.config.package_sources) == 1
         assert builder.config.packages[0] == pjoin('src', 'foo')
-        assert builder.config.package_sources[0] == pjoin('src', '')
-        assert builder.config.get_distribution_path(pjoin('src', 'foo', 'bar.py')) == pjoin('foo', 'bar.py')
 
     def test_target_package_not_string(self, isolation):
         config = {'tool': {'hatch': {'build': {'targets': {'foo': {'packages': [0]}}}}}}
@@ -351,20 +329,6 @@ class TestPackages:
         ):
             _ = builder.config.packages
 
-    def test_target_duplicate_package_name(self, isolation):
-        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'packages': ['src/foo', 'pkg/foo']}}}}}}
-        builder = BuilderInterface(str(isolation), config=config)
-        builder.PLUGIN_NAME = 'foo'
-
-        with pytest.raises(
-            ValueError,
-            match=re.escape(
-                f'Package `foo` of field `tool.hatch.build.targets.foo.packages` is already defined '
-                f'by path `{pjoin("pkg", "foo")}`'
-            ),
-        ):
-            _ = builder.config.packages
-
     def test_target_overrides_global(self, isolation):
         config = {
             'tool': {'hatch': {'build': {'packages': ['src/foo'], 'targets': {'foo': {'packages': ['pkg/foo']}}}}}
@@ -373,20 +337,170 @@ class TestPackages:
         builder.PLUGIN_NAME = 'foo'
 
         assert len(builder.config.packages) == 1
-        assert len(builder.config.package_sources) == 1
         assert builder.config.packages[0] == pjoin('pkg', 'foo')
-        assert builder.config.package_sources[0] == pjoin('pkg', '')
-        assert builder.config.get_distribution_path(pjoin('pkg', 'foo', 'bar.py')) == pjoin('foo', 'bar.py')
-        assert builder.config.get_distribution_path(pjoin('src', 'foo', 'bar.py')) == pjoin('src', 'foo', 'bar.py')
 
     def test_no_source(self, isolation):
         config = {'tool': {'hatch': {'build': {'packages': ['foo']}}}}
         builder = BuilderInterface(str(isolation), config=config)
 
         assert len(builder.config.packages) == 1
-        assert len(builder.config.package_sources) == 0
         assert builder.config.packages[0] == pjoin('foo')
+
+
+class TestSources:
+    def test_default(self, isolation):
+        builder = BuilderInterface(str(isolation))
+
+        assert builder.config.sources == builder.config.sources == {}
+        assert builder.config.get_distribution_path(pjoin('src', 'foo', 'bar.py')) == pjoin('src', 'foo', 'bar.py')
+
+    def test_global_invalid_type(self, isolation):
+        config = {'tool': {'hatch': {'build': {'sources': ''}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+
+        with pytest.raises(TypeError, match='Field `tool.hatch.build.sources` must be a mapping or array of strings'):
+            _ = builder.config.sources
+
+    def test_global_array(self, isolation):
+        config = {'tool': {'hatch': {'build': {'sources': ['src']}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+
+        assert len(builder.config.sources) == 1
+        assert builder.config.sources[pjoin('src', '')] == ''
+        assert builder.config.get_distribution_path(pjoin('src', 'foo', 'bar.py')) == pjoin('foo', 'bar.py')
+
+    def test_global_array_source_not_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'sources': [0]}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+
+        with pytest.raises(TypeError, match='Source #1 in field `tool.hatch.build.sources` must be a string'):
+            _ = builder.config.sources
+
+    def test_global_array_source_empty_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'sources': ['']}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+
+        with pytest.raises(ValueError, match='Source #1 in field `tool.hatch.build.sources` cannot be an empty string'):
+            _ = builder.config.sources
+
+    def test_global_mapping(self, isolation):
+        config = {'tool': {'hatch': {'build': {'sources': {'src/foo': 'renamed'}}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+
+        assert len(builder.config.sources) == 1
+        assert builder.config.sources[pjoin('src', 'foo', '')] == pjoin('renamed', '')
+        assert builder.config.get_distribution_path(pjoin('src', 'foo', 'bar.py')) == pjoin('renamed', 'bar.py')
+
+    def test_global_mapping_source_empty_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'sources': {'': 'renamed'}}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+
+        with pytest.raises(ValueError, match='Source #1 in field `tool.hatch.build.sources` cannot be an empty string'):
+            _ = builder.config.sources
+
+    def test_global_mapping_replacement_not_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'sources': {'src/foo': 0}}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+
+        with pytest.raises(
+            TypeError, match='Path for source `src/foo` in field `tool.hatch.build.sources` must be a string'
+        ):
+            _ = builder.config.sources
+
+    def test_target_invalid_type(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'sources': ''}}}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        with pytest.raises(
+            TypeError, match='Field `tool.hatch.build.targets.foo.sources` must be a mapping or array of strings'
+        ):
+            _ = builder.config.sources
+
+    def test_target_array(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'sources': ['src']}}}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        assert len(builder.config.sources) == 1
+        assert builder.config.sources[pjoin('src', '')] == ''
+        assert builder.config.get_distribution_path(pjoin('src', 'foo', 'bar.py')) == pjoin('foo', 'bar.py')
+
+    def test_target_array_source_not_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'sources': [0]}}}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        with pytest.raises(
+            TypeError, match='Source #1 in field `tool.hatch.build.targets.foo.sources` must be a string'
+        ):
+            _ = builder.config.sources
+
+    def test_target_array_source_empty_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'sources': ['']}}}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        with pytest.raises(
+            ValueError, match='Source #1 in field `tool.hatch.build.targets.foo.sources` cannot be an empty string'
+        ):
+            _ = builder.config.sources
+
+    def test_target_mapping(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'sources': {'src/foo': 'renamed'}}}}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        assert len(builder.config.sources) == 1
+        assert builder.config.sources[pjoin('src', 'foo', '')] == pjoin('renamed', '')
+        assert builder.config.get_distribution_path(pjoin('src', 'foo', 'bar.py')) == pjoin('renamed', 'bar.py')
+
+    def test_target_mapping_source_empty_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'sources': {'': 'renamed'}}}}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        with pytest.raises(
+            ValueError, match='Source #1 in field `tool.hatch.build.targets.foo.sources` cannot be an empty string'
+        ):
+            _ = builder.config.sources
+
+    def test_target_mapping_replacement_not_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'sources': {'src/foo': 0}}}}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        with pytest.raises(
+            TypeError,
+            match='Path for source `src/foo` in field `tool.hatch.build.targets.foo.sources` must be a string',
+        ):
+            _ = builder.config.sources
+
+    def test_target_overrides_global(self, isolation):
+        config = {'tool': {'hatch': {'build': {'sources': ['src'], 'targets': {'foo': {'sources': ['pkg']}}}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        assert len(builder.config.sources) == 1
+        assert builder.config.sources[pjoin('pkg', '')] == ''
+        assert builder.config.get_distribution_path(pjoin('pkg', 'foo', 'bar.py')) == pjoin('foo', 'bar.py')
+        assert builder.config.get_distribution_path(pjoin('src', 'foo', 'bar.py')) == pjoin('src', 'foo', 'bar.py')
+
+    def test_no_source(self, isolation):
+        config = {'tool': {'hatch': {'build': {'sources': ['bar']}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+
+        assert len(builder.config.sources) == 1
+        assert builder.config.sources[pjoin('bar', '')] == ''
         assert builder.config.get_distribution_path(pjoin('foo', 'bar.py')) == pjoin('foo', 'bar.py')
+
+    def test_compatible_with_packages(self, isolation):
+        config = {'tool': {'hatch': {'build': {'sources': {'src/foo': 'renamed'}, 'packages': ['src/foo']}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+
+        assert len(builder.config.sources) == 1
+        assert builder.config.sources[pjoin('src', 'foo', '')] == pjoin('renamed', '')
+        assert builder.config.get_distribution_path(pjoin('src', 'foo', 'bar.py')) == pjoin('renamed', 'bar.py')
 
 
 class TestVersions:

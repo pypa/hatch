@@ -158,6 +158,60 @@ If you want to exclude non-[artifact](#artifacts) files that do not reside withi
     only-packages = true
     ```
 
+### Rewriting paths
+
+You can rewrite relative paths to directories with the `sources` option. For example, the following configuration:
+
+=== ":octicons-file-code-16: pyproject.toml"
+
+    ```toml
+    [tool.hatch.build.sources]
+    "src/foo" = "bar"
+    ```
+
+=== ":octicons-file-code-16: hatch.toml"
+
+    ```toml
+    [build.sources]
+    "src/foo" = "bar"
+    ```
+
+would distribute the file `src/foo/file.ext` as `bar/file.ext`.
+
+If you want to remove path prefixes entirely, rather than setting each to an empty string, you can define `sources` as an array:
+
+=== ":octicons-file-code-16: pyproject.toml"
+
+    ```toml
+    [tool.hatch.build]
+    sources = ["src"]
+    ```
+
+=== ":octicons-file-code-16: hatch.toml"
+
+    ```toml
+    [build]
+    sources = ["src"]
+    ```
+
+The [packages](#packages) option itself relies on sources. Defining `#!toml packages = ["src/foo"]` for the `wheel` target is equivalent to the following:
+
+=== ":octicons-file-code-16: pyproject.toml"
+
+    ```toml
+    [tool.hatch.build.targets.wheel]
+    include = ["src/foo"]
+    sources = ["src"]
+    ```
+
+=== ":octicons-file-code-16: hatch.toml"
+
+    ```toml
+    [build.targets.wheel]
+    include = ["src/foo"]
+    sources = ["src"]
+    ```
+
 ## Reproducible builds
 
 By default, [build targets](#build-targets) will build in a reproducible manner provided that they support that behavior. To disable this, set `reproducible` to `false`:
