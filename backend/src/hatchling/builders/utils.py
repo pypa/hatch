@@ -24,6 +24,14 @@ def get_known_python_major_versions():
     return map(str, sorted((2, 3)))
 
 
+def normalize_relative_path(path):
+    return os.path.normpath(path).strip(os.path.sep)
+
+
+def normalize_relative_directory(path):
+    return normalize_relative_path(path) + os.path.sep
+
+
 def normalize_archive_path(path):
     if os.sep != '/':
         return path.replace(os.sep, '/')
