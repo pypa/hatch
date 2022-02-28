@@ -114,6 +114,8 @@ This is the first release candidate for Hatch v1, a complete rewrite.
 
 ### Unreleased
 
+### [0.18.0](https://github.com/ofek/hatch/releases/tag/hatchling-v0.18.0) - 2022-02-27 ### {: #hatchling-v0.18.0 }
+
 ***Added:***
 
 - Add ability to rewrite the distributed path of files
