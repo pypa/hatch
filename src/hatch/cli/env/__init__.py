@@ -17,7 +17,7 @@ def find(app, env_name):
         app.abort(f'Environment `{root_env_name}` is not defined by project config')
 
     if root_env_name in project_config.matrices:
-        environments = project_config.matrices[root_env_name]
+        environments = list(project_config.matrices[root_env_name]['envs'])
     else:
         environments = [root_env_name]
 
@@ -39,8 +39,8 @@ def show(app):
     project_config = app.project.config
 
     matrix_envs = set()
-    for env_names in project_config.matrices.values():
-        for env_name in env_names:
+    for matrix_data in project_config.matrices.values():
+        for env_name in matrix_data['envs']:
             matrix_envs.add(env_name)
 
     need_new_line = False
@@ -49,18 +49,18 @@ def show(app):
             need_new_line = True
             app.display_info(env_name)
 
-    for matrix, env_names in project_config.matrices.items():
+    for matrix, matrix_data in project_config.matrices.items():
         if need_new_line:
             app.display_info()
 
         if matrix == 'default':
-            for env_name in env_names:
+            for env_name in matrix_data['envs']:
                 app.display_info(env_name)
         else:
             app.display_mini_header(matrix)
 
             prefix_length = len(matrix) + 1
-            for env_name in env_names:
+            for env_name in matrix_data['envs']:
                 app.display_info(env_name[prefix_length:])
 
         need_new_line = True
@@ -77,7 +77,7 @@ def create(app, env_name):
         app.abort(f'Environment `{root_env_name}` is not defined by project config')
 
     if root_env_name in project_config.matrices:
-        environments = project_config.matrices[root_env_name]
+        environments = list(project_config.matrices[root_env_name]['envs'])
     else:
         environments = [root_env_name]
 
@@ -119,7 +119,7 @@ def remove(ctx, env_name):
         env_name = app.env
 
     if env_name in app.project.config.matrices:
-        environments = app.project.config.matrices[env_name]
+        environments = list(app.project.config.matrices[env_name]['envs'])
     else:
         environments = [env_name]
 
