@@ -154,7 +154,8 @@ class ProjectConfig:
                 if not isinstance(matrix_overrides, dict):
                     raise TypeError(f'Field `tool.hatch.envs.{env_name}.overrides.matrix` must be a table')
 
-                env_names = all_matrices[env_name] = []
+                matrix_data = all_matrices[env_name] = {'config': deepcopy(initial_config)}
+                all_envs = matrix_data['envs'] = {}
                 for i, matrix in enumerate(matrices, 1):
                     if not isinstance(matrix, dict):
                         raise TypeError(f'Entry #{i} in field `tool.hatch.envs.{env_name}.matrix` must be a table')
@@ -254,7 +255,7 @@ class ProjectConfig:
                             new_env_name = f'{env_name}.{new_env_name}'
 
                         # Save the generated environment
-                        env_names.append(new_env_name)
+                        all_envs[new_env_name] = variable_values
                         final_config[new_env_name] = new_config
                         cached_overrides[new_env_name] = {
                             'platform': current_cached_overrides['platform'],

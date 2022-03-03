@@ -33,7 +33,7 @@ def run(app, args):
     is_matrix = False
     if env_name in project.config.matrices:
         is_matrix = True
-        environments = project.config.matrices[env_name]
+        environments = list(project.config.matrices[env_name]['envs'])
     else:
         environments = [env_name]
 

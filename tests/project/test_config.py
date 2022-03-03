@@ -1,3 +1,5 @@
+from itertools import product
+
 import pytest
 
 from hatch.plugin.manager import PluginManager
@@ -11,6 +13,45 @@ ARRAY_OPTIONS = [o for o, t in RESERVED_OPTIONS.items() if t is list]
 BOOLEAN_OPTIONS = [o for o, t in RESERVED_OPTIONS.items() if t is bool]
 MAPPING_OPTIONS = [o for o, t in RESERVED_OPTIONS.items() if t is dict]
 STRING_OPTIONS = [o for o, t in RESERVED_OPTIONS.items() if t is str and o != 'matrix-name-format']
+
+
+def construct_matrix_data(env_name, config, overrides=None):
+    config = dict(config[env_name])
+    config.pop('overrides', None)
+    matrices = config.pop('matrix')
+    final_matrix_name_format = config.pop('matrix-name-format', '{value}')
+
+    # [{'version': ['9000']}, {'feature': ['bar']}]
+    envs = {}
+    for matrix in matrices:
+        matrix = dict(matrix)
+        variables = {}
+        python_selected = False
+        for variable in ('py', 'python'):
+            if variable in matrix:
+                python_selected = True
+                variables[variable] = matrix.pop(variable)
+                break
+        variables.update(matrix)
+
+        for result in product(*variables.values()):
+            variable_values = dict(zip(variables, result))
+            env_name_parts = []
+            for j, (variable, value) in enumerate(variable_values.items()):
+                if j == 0 and python_selected:
+                    env_name_parts.append(value if value.startswith('py') else f'py{value}')
+                else:
+                    env_name_parts.append(final_matrix_name_format.format(variable=variable, value=value))
+
+            new_env_name = '-'.join(env_name_parts)
+            if env_name != 'default':
+                new_env_name = f'{env_name}.{new_env_name}'
+
+            envs[new_env_name] = variable_values
+
+    config.update(overrides or {})
+    config.setdefault('type', 'virtual')
+    return {'config': config, 'envs': envs}
 
 
 class TestEnv:
@@ -258,7 +299,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     def test_matrix_simple_no_python_custom_name_format(self, isolation):
         env_config = {
@@ -277,7 +318,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     @pytest.mark.parametrize('indicator', ['py', 'python'])
     def test_matrix_simple_only_python(self, isolation, indicator):
@@ -291,7 +332,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     @pytest.mark.parametrize('indicator', ['py', 'python'])
     def test_matrix_simple(self, isolation, indicator):
@@ -307,7 +348,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     @pytest.mark.parametrize('indicator', ['py', 'python'])
     def test_matrix_simple_custom_name_format(self, isolation, indicator):
@@ -329,7 +370,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     def test_matrix_multiple_non_python(self, isolation):
         env_config = {
@@ -353,7 +394,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     def test_matrix_series(self, isolation):
         env_config = {
@@ -382,7 +423,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     def test_matrices_not_inherited(self, isolation):
         env_config = {
@@ -398,7 +439,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:2]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     def test_matrix_default_naming(self, isolation):
         env_config = {'default': {'option': True, 'matrix': [{'version': ['9000', '3.14']}]}}
@@ -410,7 +451,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['default'] == list(expected_envs)
+        assert project_config.matrices['default'] == construct_matrix_data('default', env_config)
 
     def test_matrix_pypy_naming(self, isolation):
         env_config = {'foo': {'option': True, 'matrix': [{'py': ['python3.9', 'pypy3']}]}}
@@ -423,7 +464,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     @pytest.mark.parametrize('option', MAPPING_OPTIONS)
     def test_overrides_matrix_mapping_invalid_type(self, isolation, option):
@@ -989,7 +1030,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     @pytest.mark.parametrize('option', MAPPING_OPTIONS)
     def test_overrides_matrix_mapping_string_without_value(self, isolation, option):
@@ -1008,7 +1049,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     @pytest.mark.parametrize('option', MAPPING_OPTIONS)
     def test_overrides_matrix_mapping_string_override(self, isolation, option):
@@ -1028,7 +1069,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     @pytest.mark.parametrize('option', MAPPING_OPTIONS)
     def test_overrides_matrix_mapping_array_string_with_value(self, isolation, option):
@@ -1047,7 +1088,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     @pytest.mark.parametrize('option', MAPPING_OPTIONS)
     def test_overrides_matrix_mapping_array_string_without_value(self, isolation, option):
@@ -1066,7 +1107,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     @pytest.mark.parametrize('option', MAPPING_OPTIONS)
     def test_overrides_matrix_mapping_array_string_override(self, isolation, option):
@@ -1086,7 +1127,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     @pytest.mark.parametrize('option', MAPPING_OPTIONS)
     def test_overrides_matrix_mapping_array_table_key_with_value(self, isolation, option):
@@ -1105,7 +1146,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     @pytest.mark.parametrize('option', MAPPING_OPTIONS)
     def test_overrides_matrix_mapping_array_table_key_without_value(self, isolation, option):
@@ -1124,7 +1165,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     @pytest.mark.parametrize('option', MAPPING_OPTIONS)
     def test_overrides_matrix_mapping_array_table_override(self, isolation, option):
@@ -1144,7 +1185,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     @pytest.mark.parametrize('option', MAPPING_OPTIONS)
     def test_overrides_matrix_mapping_array_table_conditional(self, isolation, option):
@@ -1165,7 +1206,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     @pytest.mark.parametrize('option', MAPPING_OPTIONS)
     def test_overrides_matrix_mapping_overwrite(self, isolation, option):
@@ -1185,7 +1226,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     @pytest.mark.parametrize('option', ARRAY_OPTIONS)
     def test_overrides_matrix_array_string(self, isolation, option):
@@ -1204,7 +1245,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     @pytest.mark.parametrize('option', ARRAY_OPTIONS)
     def test_overrides_matrix_array_string_existing_append(self, isolation, option):
@@ -1224,7 +1265,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     @pytest.mark.parametrize('option', ARRAY_OPTIONS)
     def test_overrides_matrix_array_table(self, isolation, option):
@@ -1243,7 +1284,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     @pytest.mark.parametrize('option', ARRAY_OPTIONS)
     def test_overrides_matrix_array_table_existing_append(self, isolation, option):
@@ -1263,7 +1304,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     @pytest.mark.parametrize('option', ARRAY_OPTIONS)
     def test_overrides_matrix_array_table_conditional(self, isolation, option):
@@ -1284,7 +1325,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     @pytest.mark.parametrize('option', ARRAY_OPTIONS)
     def test_overrides_matrix_array_overwrite(self, isolation, option):
@@ -1304,7 +1345,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     @pytest.mark.parametrize('option', STRING_OPTIONS)
     def test_overrides_matrix_string_string_create(self, isolation, option):
@@ -1323,7 +1364,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     @pytest.mark.parametrize('option', STRING_OPTIONS)
     def test_overrides_matrix_string_string_overwrite(self, isolation, option):
@@ -1343,7 +1384,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     @pytest.mark.parametrize('option', STRING_OPTIONS)
     def test_overrides_matrix_string_table_create(self, isolation, option):
@@ -1362,7 +1403,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     @pytest.mark.parametrize('option', STRING_OPTIONS)
     def test_overrides_matrix_string_table_override(self, isolation, option):
@@ -1382,7 +1423,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     @pytest.mark.parametrize('option', STRING_OPTIONS)
     def test_overrides_matrix_string_table_conditional(self, isolation, option):
@@ -1403,7 +1444,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     @pytest.mark.parametrize('option', STRING_OPTIONS)
     def test_overrides_matrix_string_array_table_create(self, isolation, option):
@@ -1422,7 +1463,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     @pytest.mark.parametrize('option', STRING_OPTIONS)
     def test_overrides_matrix_string_array_table_override(self, isolation, option):
@@ -1442,7 +1483,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     @pytest.mark.parametrize('option', STRING_OPTIONS)
     def test_overrides_matrix_string_array_table_conditional(self, isolation, option):
@@ -1463,7 +1504,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     @pytest.mark.parametrize('option', STRING_OPTIONS)
     def test_overrides_matrix_string_array_table_conditional_eager_string(self, isolation, option):
@@ -1484,7 +1525,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     @pytest.mark.parametrize('option', STRING_OPTIONS)
     def test_overrides_matrix_string_array_table_conditional_eager_table(self, isolation, option):
@@ -1505,7 +1546,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     @pytest.mark.parametrize('option', BOOLEAN_OPTIONS)
     def test_overrides_matrix_boolean_boolean_create(self, isolation, option):
@@ -1524,7 +1565,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     @pytest.mark.parametrize('option', BOOLEAN_OPTIONS)
     def test_overrides_matrix_boolean_boolean_overwrite(self, isolation, option):
@@ -1544,7 +1585,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     @pytest.mark.parametrize('option', BOOLEAN_OPTIONS)
     def test_overrides_matrix_boolean_table_create(self, isolation, option):
@@ -1563,7 +1604,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     @pytest.mark.parametrize('option', BOOLEAN_OPTIONS)
     def test_overrides_matrix_boolean_table_override(self, isolation, option):
@@ -1583,7 +1624,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     @pytest.mark.parametrize('option', BOOLEAN_OPTIONS)
     def test_overrides_matrix_boolean_table_conditional(self, isolation, option):
@@ -1604,7 +1645,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     @pytest.mark.parametrize('option', BOOLEAN_OPTIONS)
     def test_overrides_matrix_boolean_array_table_create(self, isolation, option):
@@ -1623,7 +1664,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     @pytest.mark.parametrize('option', BOOLEAN_OPTIONS)
     def test_overrides_matrix_boolean_array_table_override(self, isolation, option):
@@ -1643,7 +1684,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     @pytest.mark.parametrize('option', BOOLEAN_OPTIONS)
     def test_overrides_matrix_boolean_array_table_conditional(self, isolation, option):
@@ -1664,7 +1705,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     @pytest.mark.parametrize('option', BOOLEAN_OPTIONS)
     def test_overrides_matrix_boolean_array_table_conditional_eager_boolean(self, isolation, option):
@@ -1685,7 +1726,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     @pytest.mark.parametrize('option', BOOLEAN_OPTIONS)
     def test_overrides_matrix_boolean_array_table_conditional_eager_table(self, isolation, option):
@@ -1706,7 +1747,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     # We assert type coverage using matrix variable overrides, for the others just test one type
     def test_overrides_platform_boolean_boolean_create(self, isolation, current_platform):
@@ -1916,7 +1957,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config, {'skip-install': True})
 
     def test_overrides_matrix_precedence_over_env(self, isolation):
         env_var = 'OVERRIDES_ENV_FOO'
@@ -1941,7 +1982,7 @@ class TestEnvs:
 
         with EnvVars({env_var: 'any'}):
             assert project_config.envs == expected_envs
-            assert project_config.matrices['foo'] == list(expected_envs)[1:]
+            assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config, {'skip-install': True})
 
     def test_overrides_env_precedence_over_platform(self, isolation, current_platform):
         env_var = 'OVERRIDES_ENV_FOO'
@@ -1986,7 +2027,7 @@ class TestEnvs:
 
         with EnvVars({env_var: 'foo'}):
             assert project_config.envs == expected_envs
-            assert project_config.matrices['foo'] == list(expected_envs)[1:]
+            assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
         project_config.finalize_env_overrides({'foo': bool, 'bar': str, 'baz': dict})
 
@@ -1997,7 +2038,7 @@ class TestEnvs:
         }
 
         assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == list(expected_envs)[1:]
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
 
 class TestPublish:

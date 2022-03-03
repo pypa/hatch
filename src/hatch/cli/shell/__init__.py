@@ -12,7 +12,7 @@ def shell(app, shell_name, shell_path):  # no cov
 
     if app.env in app.project.config.matrices:
         app.display_error(f'Environment `{app.env}` defines a matrix, choose one of the following instead:\n')
-        for env_name in app.project.config.matrices[app.env]:
+        for env_name in app.project.config.matrices[app.env]['envs']:
             app.display_error(env_name)
 
         app.abort()
