@@ -390,6 +390,28 @@ The following platforms are supported:
 
 If unspecified, the environment is assumed to be compatible with all platforms.
 
+## Description
+
+The `description` option is purely informational and is displayed in the output of the [`env show`](../cli/reference.md#hatch-env-show) command:
+
+=== ":octicons-file-code-16: pyproject.toml"
+
+    ```toml
+    [tool.hatch.envs.<ENV_NAME>]
+    description = """
+    Lorem ipsum ...
+    """
+    ```
+
+=== ":octicons-file-code-16: hatch.toml"
+
+    ```toml
+    [envs.<ENV_NAME>]
+    description = """
+    Lorem ipsum ...
+    """
+    ```
+
 ## Type
 
 An environment's `type` determines which [environment plugin](../plugins/environment.md) will be used for management. The only built-in environment type is [virtual](../plugins/environment.md#virtual), which uses virtual Python environments.

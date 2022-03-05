@@ -307,7 +307,7 @@ class TestDevMode:
         assert environment.dev_mode is False
 
 
-class TestFeature:
+class TestFeatures:
     def test_default(self, isolation, data_dir, platform):
         config = {'project': {'name': 'my_app', 'version': '0.0.1'}}
         project = Project(isolation, config=config)
@@ -388,6 +388,43 @@ class TestFeature:
             ),
         ):
             _ = environment.features
+
+
+class TestDescription:
+    def test_default(self, isolation, data_dir, platform):
+        config = {'project': {'name': 'my_app', 'version': '0.0.1'}}
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation, project.metadata, 'default', project.config.envs['default'], data_dir, platform, 0
+        )
+
+        assert environment.description == environment.description == ''
+
+    def test_not_string(self, isolation, data_dir, platform):
+        config = {
+            'project': {'name': 'my_app', 'version': '0.0.1'},
+            'tool': {'hatch': {'envs': {'default': {'description': 9000}}}},
+        }
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation, project.metadata, 'default', project.config.envs['default'], data_dir, platform, 0
+        )
+
+        with pytest.raises(TypeError, match='Field `tool.hatch.envs.default.description` must be a string'):
+            _ = environment.description
+
+    def test_correct(self, isolation, data_dir, platform):
+        description = 'foo'
+        config = {
+            'project': {'name': 'my_app', 'version': '0.0.1'},
+            'tool': {'hatch': {'envs': {'default': {'description': description}}}},
+        }
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation, project.metadata, 'default', project.config.envs['default'], data_dir, platform, 0
+        )
+
+        assert environment.description is description
 
 
 class TestDependencies:
