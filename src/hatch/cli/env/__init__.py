@@ -36,34 +36,46 @@ def find(app, env_name):
 @click.pass_obj
 def show(app):
     """Show the available environments."""
+    from ...utils.dep import get_normalized_dependencies
+
     project_config = app.project.config
 
+    def set_available_columns(columns):
+        if config.get('dependencies'):
+            columns['Dependencies'][i] = '\n'.join(get_normalized_dependencies(config['dependencies']))
+
+        if config.get('env-vars'):
+            columns['Environment variables'][i] = '\n'.join(
+                sorted('='.join(item) for item in config['env-vars'].items())
+            )
+
+    matrix_columns = {'Name': {}, 'Type': {}, 'Envs': {}, 'Dependencies': {}, 'Environment variables': {}}
     matrix_envs = set()
-    for matrix_data in project_config.matrices.values():
+    for i, (matrix_name, matrix_data) in enumerate(project_config.matrices.items()):
         for env_name in matrix_data['envs']:
             matrix_envs.add(env_name)
 
-    need_new_line = False
-    for env_name in project_config.envs:
-        if env_name not in matrix_envs:
-            need_new_line = True
-            app.display_info(env_name)
+        config = matrix_data['config']
+        matrix_columns['Name'][i] = matrix_name
+        matrix_columns['Type'][i] = config['type']
+        matrix_columns['Envs'][i] = '\n'.join(matrix_data['envs'])
+        set_available_columns(matrix_columns)
 
-    for matrix, matrix_data in project_config.matrices.items():
-        if need_new_line:
-            app.display_info()
+    standalone_columns = {'Name': {}, 'Type': {}, 'Dependencies': {}, 'Environment variables': {}}
+    standalone_envs = (
+        (env_name, config) for env_name, config in project_config.envs.items() if env_name not in matrix_envs
+    )
+    for i, (env_name, config) in enumerate(standalone_envs):
+        standalone_columns['Name'][i] = env_name
+        standalone_columns['Type'][i] = config['type']
+        set_available_columns(standalone_columns)
 
-        if matrix == 'default':
-            for env_name in matrix_data['envs']:
-                app.display_info(env_name)
-        else:
-            app.display_mini_header(matrix)
+    column_options = {}
+    for title in matrix_columns:
+        column_options[title] = {'no_wrap': True}
 
-            prefix_length = len(matrix) + 1
-            for env_name in matrix_data['envs']:
-                app.display_info(env_name[prefix_length:])
-
-        need_new_line = True
+    app.display_table('Standalone', standalone_columns, show_lines=True, column_options=column_options)
+    app.display_table('Matrices', matrix_columns, show_lines=True, column_options=column_options)
 
 
 @env.command(short_help='Create environments')
