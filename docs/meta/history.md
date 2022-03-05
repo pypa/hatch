@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ***Added:***
 
 - When building with no targets defined in config, default to `-t sdist -t wheel` rather than raising an error
+- Improve the output format of the `env show` command
 - Upgrade `actions/setup-python` action of the CI option for new projects to `v3`
 - Update project metadata
 

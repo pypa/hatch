@@ -100,6 +100,40 @@ class Terminal:
     def display_header(self, title='', *, stderr=False):
         self.console.rule(Text(title, self._style_level_success))
 
+    def display_table(self, title, columns, show_lines=False, column_options=None, force_ascii=False, num_rows=0):
+        from rich.table import Table
+
+        if column_options is None:
+            column_options = {}
+
+        table_options = {}
+        if force_ascii:
+            from rich.box import ASCII_DOUBLE_HEAD
+
+            table_options['box'] = ASCII_DOUBLE_HEAD
+            table_options['safe_box'] = True
+
+        table = Table(title=title, show_lines=show_lines, **table_options)
+        columns = dict(columns)
+
+        for title, indices in list(columns.items()):
+            if indices:
+                table.add_column(title, style='bold', **column_options.get(title, {}))
+            else:
+                columns.pop(title)
+
+        if not columns:
+            return
+
+        for i in range(num_rows or len(next(iter(columns.values())))):
+            row = []
+            for indices in columns.values():
+                row.append(indices.get(i, ''))
+
+            table.add_row(*row)
+
+        self.display(table)
+
     @contextmanager
     def status_waiting(self, text='', final_text=None, **kwargs):
         if not self.interactive or not self.console.is_terminal:
