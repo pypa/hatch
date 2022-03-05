@@ -1,4 +1,13 @@
+import pytest
+
 from hatch.project.core import Project
+from hatch.utils.structures import EnvVars
+
+
+@pytest.fixture(scope='module', autouse=True)
+def local_builder():
+    with EnvVars({'COLUMNS': '200'}):
+        yield
 
 
 def test_default(hatch, helpers, temp_dir, config_file):
@@ -17,17 +26,17 @@ def test_default(hatch, helpers, temp_dir, config_file):
     data_path.mkdir()
 
     with project_path.as_cwd():
-        result = hatch('env', 'show')
+        result = hatch('env', 'show', '--ascii')
 
     assert result.exit_code == 0, result.output
     assert helpers.remove_trailing_spaces(result.output) == helpers.dedent(
         """
              Standalone
-        ┌─────────┬─────────┐
-        │ Name    │ Type    │
-        ├─────────┼─────────┤
-        │ default │ virtual │
-        └─────────┴─────────┘
+        +---------+---------+
+        | Name    | Type    |
+        +=========+=========+
+        | default | virtual |
+        +---------+---------+
         """
     )
 
@@ -52,21 +61,21 @@ def test_single_only(hatch, helpers, temp_dir, config_file):
     helpers.update_project_environment(project, 'bar', {})
 
     with project_path.as_cwd():
-        result = hatch('env', 'show')
+        result = hatch('env', 'show', '--ascii')
 
     assert result.exit_code == 0, result.output
     assert helpers.remove_trailing_spaces(result.output) == helpers.dedent(
         """
              Standalone
-        ┌─────────┬─────────┐
-        │ Name    │ Type    │
-        ├─────────┼─────────┤
-        │ default │ virtual │
-        ├─────────┼─────────┤
-        │ foo     │ virtual │
-        ├─────────┼─────────┤
-        │ bar     │ virtual │
-        └─────────┴─────────┘
+        +---------+---------+
+        | Name    | Type    |
+        +=========+=========+
+        | default | virtual |
+        +---------+---------+
+        | foo     | virtual |
+        +---------+---------+
+        | bar     | virtual |
+        +---------+---------+
         """
     )
 
@@ -90,26 +99,26 @@ def test_single_and_matrix(hatch, helpers, temp_dir, config_file):
     helpers.update_project_environment(project, 'foo', {'matrix': [{'version': ['9000', '3.14'], 'py': ['39', '310']}]})
 
     with project_path.as_cwd():
-        result = hatch('env', 'show')
+        result = hatch('env', 'show', '--ascii')
 
     assert result.exit_code == 0, result.output
     assert helpers.remove_trailing_spaces(result.output) == helpers.dedent(
         """
              Standalone
-        ┌─────────┬─────────┐
-        │ Name    │ Type    │
-        ├─────────┼─────────┤
-        │ default │ virtual │
-        └─────────┴─────────┘
+        +---------+---------+
+        | Name    | Type    |
+        +=========+=========+
+        | default | virtual |
+        +---------+---------+
                      Matrices
-        ┌──────┬─────────┬────────────────┐
-        │ Name │ Type    │ Envs           │
-        ├──────┼─────────┼────────────────┤
-        │ foo  │ virtual │ foo.py39-9000  │
-        │      │         │ foo.py39-3.14  │
-        │      │         │ foo.py310-9000 │
-        │      │         │ foo.py310-3.14 │
-        └──────┴─────────┴────────────────┘
+        +------+---------+----------------+
+        | Name | Type    | Envs           |
+        +======+=========+================+
+        | foo  | virtual | foo.py39-9000  |
+        |      |         | foo.py39-3.14  |
+        |      |         | foo.py310-9000 |
+        |      |         | foo.py310-3.14 |
+        +------+---------+----------------+
         """
     )
 
@@ -135,20 +144,20 @@ def test_default_matrix_only(hatch, helpers, temp_dir, config_file):
     )
 
     with project_path.as_cwd():
-        result = hatch('env', 'show')
+        result = hatch('env', 'show', '--ascii')
 
     assert result.exit_code == 0, result.output
     assert helpers.remove_trailing_spaces(result.output) == helpers.dedent(
         """
                      Matrices
-        ┌─────────┬─────────┬────────────┐
-        │ Name    │ Type    │ Envs       │
-        ├─────────┼─────────┼────────────┤
-        │ default │ virtual │ py39-9000  │
-        │         │         │ py39-3.14  │
-        │         │         │ py310-9000 │
-        │         │         │ py310-3.14 │
-        └─────────┴─────────┴────────────┘
+        +---------+---------+------------+
+        | Name    | Type    | Envs       |
+        +=========+=========+============+
+        | default | virtual | py39-9000  |
+        |         |         | py39-3.14  |
+        |         |         | py310-9000 |
+        |         |         | py310-3.14 |
+        +---------+---------+------------+
         """
     )
 
@@ -176,31 +185,31 @@ def test_all_matrix_types_with_single(hatch, helpers, temp_dir, config_file):
     helpers.update_project_environment(project, 'bar', {})
 
     with project_path.as_cwd():
-        result = hatch('env', 'show')
+        result = hatch('env', 'show', '--ascii')
 
     assert result.exit_code == 0, result.output
     assert helpers.remove_trailing_spaces(result.output) == helpers.dedent(
         """
             Standalone
-        ┌──────┬─────────┐
-        │ Name │ Type    │
-        ├──────┼─────────┤
-        │ bar  │ virtual │
-        └──────┴─────────┘
+        +------+---------+
+        | Name | Type    |
+        +======+=========+
+        | bar  | virtual |
+        +------+---------+
                        Matrices
-        ┌─────────┬─────────┬────────────────┐
-        │ Name    │ Type    │ Envs           │
-        ├─────────┼─────────┼────────────────┤
-        │ default │ virtual │ py39-9000      │
-        │         │         │ py39-3.14      │
-        │         │         │ py310-9000     │
-        │         │         │ py310-3.14     │
-        ├─────────┼─────────┼────────────────┤
-        │ foo     │ virtual │ foo.py39-9000  │
-        │         │         │ foo.py39-3.14  │
-        │         │         │ foo.py310-9000 │
-        │         │         │ foo.py310-3.14 │
-        └─────────┴─────────┴────────────────┘
+        +---------+---------+----------------+
+        | Name    | Type    | Envs           |
+        +=========+=========+================+
+        | default | virtual | py39-9000      |
+        |         |         | py39-3.14      |
+        |         |         | py310-9000     |
+        |         |         | py310-3.14     |
+        +---------+---------+----------------+
+        | foo     | virtual | foo.py39-9000  |
+        |         |         | foo.py39-3.14  |
+        |         |         | foo.py310-9000 |
+        |         |         | foo.py310-3.14 |
+        +---------+---------+----------------+
         """
     )
 
@@ -235,27 +244,27 @@ def test_optional_columns(hatch, helpers, temp_dir, config_file):
     helpers.update_project_environment(project, 'foo', {'dependencies': dependencies, 'env-vars': env_vars})
 
     with project_path.as_cwd():
-        result = hatch('env', 'show')
+        result = hatch('env', 'show', '--ascii')
 
     assert result.exit_code == 0, result.output
     assert helpers.remove_trailing_spaces(result.output) == helpers.dedent(
         """
                                        Standalone
-        ┌──────┬─────────┬─────────────────────────────┬───────────────────────┐
-        │ Name │ Type    │ Dependencies                │ Environment variables │
-        ├──────┼─────────┼─────────────────────────────┼───────────────────────┤
-        │ foo  │ virtual │ bar-baz[tls]>=1.2rc5        │ BAR=2                 │
-        │      │         │ foo; python_version < '3.8' │ FOO=1                 │
-        │      │         │ python-dateutil             │                       │
-        └──────┴─────────┴─────────────────────────────┴───────────────────────┘
-                                           Matrices
-        ┌───────┬───────┬──────────┬───────────────────────────┬─────────────────────┐
-        │ Name  │ Type  │ Envs     │ Dependencies              │ Environment variab… │
-        ├───────┼───────┼──────────┼───────────────────────────┼─────────────────────┤
-        │ defa… │ virt… │ py39-90… │ bar-baz[tls]>=1.2rc5      │ BAR=2               │
-        │       │       │ py39-3.… │ foo; python_version < '3… │ FOO=1               │
-        │       │       │ py310-9… │ python-dateutil           │                     │
-        │       │       │ py310-3… │                           │                     │
-        └───────┴───────┴──────────┴───────────────────────────┴─────────────────────┘
+        +------+---------+-----------------------------+-----------------------+
+        | Name | Type    | Dependencies                | Environment variables |
+        +======+=========+=============================+=======================+
+        | foo  | virtual | bar-baz[tls]>=1.2rc5        | BAR=2                 |
+        |      |         | foo; python_version < '3.8' | FOO=1                 |
+        |      |         | python-dateutil             |                       |
+        +------+---------+-----------------------------+-----------------------+
+                                                Matrices
+        +---------+---------+------------+-----------------------------+-----------------------+
+        | Name    | Type    | Envs       | Dependencies                | Environment variables |
+        +=========+=========+============+=============================+=======================+
+        | default | virtual | py39-9000  | bar-baz[tls]>=1.2rc5        | BAR=2                 |
+        |         |         | py39-3.14  | foo; python_version < '3.8' | FOO=1                 |
+        |         |         | py310-9000 | python-dateutil             |                       |
+        |         |         | py310-3.14 |                             |                       |
+        +---------+---------+------------+-----------------------------+-----------------------+
         """
     )

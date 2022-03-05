@@ -33,8 +33,9 @@ def find(app, env_name):
 
 
 @env.command(short_help='Show the available environments')
+@click.option('--ascii', 'force_ascii', is_flag=True, help='Whether or not to only use ASCII characters')
 @click.pass_obj
-def show(app):
+def show(app, force_ascii):
     """Show the available environments."""
     from ...utils.dep import get_normalized_dependencies
 
@@ -74,8 +75,12 @@ def show(app):
     for title in matrix_columns:
         column_options[title] = {'no_wrap': True}
 
-    app.display_table('Standalone', standalone_columns, show_lines=True, column_options=column_options)
-    app.display_table('Matrices', matrix_columns, show_lines=True, column_options=column_options)
+    app.display_table(
+        'Standalone', standalone_columns, show_lines=True, column_options=column_options, force_ascii=force_ascii
+    )
+    app.display_table(
+        'Matrices', matrix_columns, show_lines=True, column_options=column_options, force_ascii=force_ascii
+    )
 
 
 @env.command(short_help='Create environments')

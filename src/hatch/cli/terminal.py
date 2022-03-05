@@ -100,13 +100,20 @@ class Terminal:
     def display_header(self, title='', *, stderr=False):
         self.console.rule(Text(title, self._style_level_success))
 
-    def display_table(self, title, columns, show_lines=False, column_options=None, num_rows=0):
+    def display_table(self, title, columns, show_lines=False, column_options=None, force_ascii=False, num_rows=0):
         from rich.table import Table
 
         if column_options is None:
             column_options = {}
 
-        table = Table(title=title, show_lines=show_lines)
+        table_options = {}
+        if force_ascii:
+            from rich.box import ASCII_DOUBLE_HEAD
+
+            table_options['box'] = ASCII_DOUBLE_HEAD
+            table_options['safe_box'] = True
+
+        table = Table(title=title, show_lines=show_lines, **table_options)
         columns = dict(columns)
 
         for title, indices in list(columns.items()):
