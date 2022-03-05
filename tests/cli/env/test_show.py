@@ -6,7 +6,7 @@ from hatch.utils.structures import EnvVars
 
 @pytest.fixture(scope='module', autouse=True)
 def terminal_width():
-    with EnvVars({'COLUMNS': '200'}):
+    with EnvVars({'COLUMNS': '177'}):
         yield
 
 
@@ -214,7 +214,7 @@ def test_all_matrix_types_with_single(hatch, helpers, temp_dir, config_file):
     )
 
 
-def test_optional_columns(hatch, helpers, temp_dir, config_file):
+def test_optional_columns(hatch, helpers, temp_dir, config_file, legacy_windows_terminal):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
@@ -255,29 +255,32 @@ occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim 
     with project_path.as_cwd():
         result = hatch('env', 'show', '--ascii')
 
+    padding = '' if legacy_windows_terminal else '─'
     assert result.exit_code == 0, result.output
     assert helpers.remove_trailing_spaces(result.output) == helpers.dedent(
         """
-                                                                                                      Standalone
-        +------+---------+-----------------------------+-----------------------+-----------------------------------------------------------------------------------------------------------------------------+
-        | Name | Type    | Dependencies                | Environment variables | Description                                                                                                                 |
-        +======+=========+=============================+=======================+=============================================================================================================================+
-        | foo  | virtual | bar-baz[tls]>=1.2rc5        | BAR=2                 | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. |
-        |      |         | foo; python_version < '3.8' | FOO=1                 | Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure |
-        |      |         | python-dateutil             |                       | dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat    |
-        |      |         |                             |                       | non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.                                                |
-        |      |         |                             |                       |                                                                                                                             |
-        +------+---------+-----------------------------+-----------------------+-----------------------------------------------------------------------------------------------------------------------------+
-                                                                                                       Matrices
-        +---------+---------+------------+-----------------------------+-----------------------+-------------------------------------------------------------------------------------------------------------+
-        | Name    | Type    | Envs       | Dependencies                | Environment variables | Description                                                                                                 |
-        +=========+=========+============+=============================+=======================+=============================================================================================================+
-        | default | virtual | py39-9000  | bar-baz[tls]>=1.2rc5        | BAR=2                 | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et      |
-        |         |         | py39-3.14  | foo; python_version < '3.8' | FOO=1                 | dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex  |
-        |         |         | py310-9000 | python-dateutil             |                       | ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu       |
-        |         |         | py310-3.14 |                             |                       | fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt   |
-        |         |         |            |                             |                       | mollit anim id est laborum.                                                                                 |
-        |         |         |            |                             |                       |                                                                                                             |
-        +---------+---------+------------+-----------------------------+-----------------------+-------------------------------------------------------------------------------------------------------------+
+                                                                                          Standalone
+        +------+---------+-----------------------------+-----------------------+------------------------------------------------------------------------------------------------------+
+        | Name | Type    | Dependencies                | Environment variables | Description                                                                                          |
+        +======+=========+=============================+=======================+======================================================================================================+
+        | foo  | virtual | bar-baz[tls]>=1.2rc5        | BAR=2                 | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore  |
+        |      |         | foo; python_version < '3.8' | FOO=1                 | et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut   |
+        |      |         | python-dateutil             |                       | aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse      |
+        |      |         |                             |                       | cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in      |
+        |      |         |                             |                       | culpa qui officia deserunt mollit anim id est laborum.                                               |
+        |      |         |                             |                       |                                                                                                      |
+        +------+---------+-----------------------------+-----------------------+------------------------------------------------------------------------------------------------------+
+                                                                                           Matrices
+        +---------+---------+------------+-----------------------------+-----------------------+--------------------------------------------------------------------------------------+
+        | Name    | Type    | Envs       | Dependencies                | Environment variables | Description                                                                          |
+        +=========+=========+============+=============================+=======================+======================================================================================+
+        | default | virtual | py39-9000  | bar-baz[tls]>=1.2rc5        | BAR=2                 | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor       |
+        |         |         | py39-3.14  | foo; python_version < '3.8' | FOO=1                 | incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud   |
+        |         |         | py310-9000 | python-dateutil             |                       | exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute      |
+        |         |         | py310-3.14 |                             |                       | irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla   |
+        |         |         |            |                             |                       | pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia  |
+        |         |         |            |                             |                       | deserunt mollit anim id est laborum.                                                 |
+        |         |         |            |                             |                       |                                                                                      |
+        +---------+---------+------------+-----------------------------+-----------------------+--------------------------------------------------------------------------------------+
         """  # noqa: E501
     )
