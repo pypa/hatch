@@ -50,7 +50,17 @@ def show(app, force_ascii):
                 sorted('='.join(item) for item in config['env-vars'].items())
             )
 
-    matrix_columns = {'Name': {}, 'Type': {}, 'Envs': {}, 'Dependencies': {}, 'Environment variables': {}}
+        if config.get('description'):
+            columns['Description'][i] = config['description'].strip()
+
+    matrix_columns = {
+        'Name': {},
+        'Type': {},
+        'Envs': {},
+        'Dependencies': {},
+        'Environment variables': {},
+        'Description': {},
+    }
     matrix_envs = set()
     for i, (matrix_name, matrix_data) in enumerate(project_config.matrices.items()):
         for env_name in matrix_data['envs']:
@@ -62,7 +72,7 @@ def show(app, force_ascii):
         matrix_columns['Envs'][i] = '\n'.join(matrix_data['envs'])
         set_available_columns(matrix_columns)
 
-    standalone_columns = {'Name': {}, 'Type': {}, 'Dependencies': {}, 'Environment variables': {}}
+    standalone_columns = {'Name': {}, 'Type': {}, 'Dependencies': {}, 'Environment variables': {}, 'Description': {}}
     standalone_envs = (
         (env_name, config) for env_name, config in project_config.envs.items() if env_name not in matrix_envs
     )
@@ -73,7 +83,8 @@ def show(app, force_ascii):
 
     column_options = {}
     for title in matrix_columns:
-        column_options[title] = {'no_wrap': True}
+        if title != 'Description':
+            column_options[title] = {'no_wrap': True}
 
     app.display_table(
         'Standalone', standalone_columns, show_lines=True, column_options=column_options, force_ascii=force_ascii

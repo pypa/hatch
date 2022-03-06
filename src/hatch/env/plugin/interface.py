@@ -63,6 +63,7 @@ class EnvironmentInterface(ABC):
         self._skip_install = None
         self._dev_mode = None
         self._features = None
+        self._description = None
         self._scripts = None
         self._pre_install_commands = None
         self._post_install_commands = None
@@ -397,6 +398,32 @@ class EnvironmentInterface(ABC):
             self._features = list(features)
 
         return self._features
+
+    @property
+    def description(self) -> str:
+        """
+        === ":octicons-file-code-16: pyproject.toml"
+
+            ```toml
+            [tool.hatch.envs.<ENV_NAME>]
+            description = ...
+            ```
+
+        === ":octicons-file-code-16: hatch.toml"
+
+            ```toml
+            [envs.<ENV_NAME>]
+            description = ...
+            ```
+        """
+        if self._description is None:
+            description = self.config.get('description', '')
+            if not isinstance(description, str):
+                raise TypeError(f'Field `tool.hatch.envs.{self.name}.description` must be a string')
+
+            self._description = description
+
+        return self._description
 
     @property
     def scripts(self):

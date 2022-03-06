@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from contextlib import contextmanager
 from textwrap import indent as indent_text
 
@@ -15,7 +16,13 @@ class Terminal:
         self.verbosity = verbosity
         self.interactive = interactive
         self.console = Console(
-            force_terminal=enable_color, no_color=enable_color is False, markup=False, emoji=False, highlight=False
+            force_terminal=enable_color,
+            no_color=enable_color is False,
+            markup=False,
+            emoji=False,
+            highlight=False,
+            # Force consistent output for test assertions
+            legacy_windows=False if 'HATCH_SELF_TESTING' in os.environ else None,
         )
 
         # Set defaults so we can pretty print before loading user config

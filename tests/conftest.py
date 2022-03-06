@@ -70,6 +70,7 @@ def isolation() -> Generator[Path, None, None]:
             ConfigEnvVars.DATA: str(data_dir),
             ConfigEnvVars.CACHE: str(cache_dir),
             PublishEnvVars.REPO: 'test',
+            'HATCH_SELF_TESTING': 'true',
             'GIT_AUTHOR_NAME': 'Foo Bar',
             'GIT_AUTHOR_EMAIL': 'foo@bar.baz',
             'COLUMNS': '80',
@@ -108,13 +109,6 @@ def platform():
 @pytest.fixture(scope='session')
 def current_platform():
     return PLATFORM.name
-
-
-@pytest.fixture(scope='session')
-def legacy_windows_terminal():
-    from rich.console import detect_legacy_windows
-
-    return detect_legacy_windows()
 
 
 @pytest.fixture
