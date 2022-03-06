@@ -855,7 +855,7 @@ class TestDependencies:
                         'targets': {'foo': {'dependencies': ['baz'], 'hooks': {'foobar': {'dependencies': ['test2']}}}},
                     }
                 }
-            }
+            },
         }
         builder = BuilderInterface(str(isolation), config=config)
         builder.PLUGIN_NAME = 'foo'
@@ -953,7 +953,7 @@ class TestDependencies:
                         },
                     }
                 }
-            }
+            },
         }
         builder = BuilderInterface(str(isolation), config=config)
         builder.PLUGIN_NAME = 'foo'
@@ -976,7 +976,7 @@ class TestDependencies:
                         },
                     }
                 }
-            }
+            },
         }
         builder = BuilderInterface(str(isolation), config=config)
         builder.PLUGIN_NAME = 'foo'
