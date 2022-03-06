@@ -141,7 +141,9 @@ def test_optional_columns(hatch, helpers, temp_dir, config_file):
     project = Project(project_path)
     config = dict(project.raw_config)
     config['project']['dependencies'] = [
-        'python___dateutil', 'bAr.Baz[TLS, EdDSA]   >=1.2RC5', 'Foo;python_version<"3.8"'
+        'python___dateutil',
+        'bAr.Baz[TLS, EdDSA]   >=1.2RC5',
+        'Foo;python_version<"3.8"',
     ]
     project.save_config(config)
     helpers.update_project_environment(
