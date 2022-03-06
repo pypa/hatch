@@ -168,14 +168,14 @@ def test_optional_columns(hatch, helpers, temp_dir, config_file):
         | Name            | Versions | Markers                | Features   |
         +=================+==========+========================+============+
         | bar-baz         | >=1.2rc5 |                        | eddsa, tls |
-        | foo             |          | python_version < "3.8" |            |
+        | foo             |          | python_version < '3.8' |            |
         | python-dateutil |          |                        |            |
         +-----------------+----------+------------------------+------------+
                                                     Env: default
         +---------+----------------------------------------+----------+------------------------+------------+
         | Name    | URL                                    | Versions | Markers                | Features   |
         +=========+========================================+==========+========================+============+
-        | bar-baz |                                        | >=1.2rc5 | python_version < "3.8" | eddsa, tls |
+        | bar-baz |                                        | >=1.2rc5 | python_version < '3.8' | eddsa, tls |
         | proj    | git+https://github.com/org/proj.git@v1 |          |                        |            |
         +---------+----------------------------------------+----------+------------------------+------------+
         """

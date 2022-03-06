@@ -53,7 +53,7 @@ def table(app, project_only, env_only, show_lines, force_ascii):
     """Enumerate dependencies in a tabular format."""
     from packaging.requirements import Requirement
 
-    from ...utils.dep import get_normalized_dependencies
+    from ...utils.dep import get_normalized_dependencies, normalize_marker_quoting
 
     project_dependencies = []
     environment_dependencies = []
@@ -88,7 +88,7 @@ def table(app, project_only, env_only, show_lines, force_ascii):
                 columns['Versions'][i] = str(requirement.specifier)
 
             if requirement.marker:
-                columns['Markers'][i] = str(requirement.marker)
+                columns['Markers'][i] = normalize_marker_quoting(str(requirement.marker))
 
             if requirement.extras:
                 columns['Features'][i] = ', '.join(sorted(requirement.extras))
