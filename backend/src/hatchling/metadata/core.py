@@ -991,9 +991,16 @@ class CoreMetadata(object):
                     raise TypeError('Dependency #{} of field `project.dependencies` must be a string'.format(i))
 
                 try:
-                    dependencies_complex.append(Requirement(entry))
+                    dependency = Requirement(entry)
                 except InvalidRequirement as e:
                     raise ValueError('Dependency #{} of field `project.dependencies` is invalid: {}'.format(i, e))
+                else:
+                    if dependency.url:
+                        raise ValueError(
+                            'Dependency #{} of field `project.dependencies` cannot be a direct reference'.format(i)
+                        )
+
+                    dependencies_complex.append(dependency)
 
             self._dependencies_complex = dependencies_complex
 
@@ -1049,13 +1056,19 @@ class CoreMetadata(object):
                         )
 
                     try:
-                        Requirement(entry)
+                        dependency = Requirement(entry)
                     except InvalidRequirement as e:
                         raise ValueError(
                             'Dependency #{} of option `{}` of field `project.optional-dependencies` '
                             'is invalid: {}'.format(i, option, e)
                         )
                     else:
+                        if dependency.url:
+                            raise ValueError(
+                                'Dependency #{} of option `{}` of field `project.optional-dependencies` '
+                                'cannot be a direct reference'.format(i, option)
+                            )
+
                         entries.append(entry)
 
                 optional_dependency_entries[option] = sorted(entries, key=lambda s: s.lower())

@@ -117,6 +117,10 @@ This is the first release candidate for Hatch v1, a complete rewrite.
 
 ### Unreleased
 
+***Fixed:***
+
+- Disallow direct references for dependency definitions
+
 ### [0.18.0](https://github.com/ofek/hatch/releases/tag/hatchling-v0.18.0) - 2022-02-27 ### {: #hatchling-v0.18.0 }
 
 ***Added:***
