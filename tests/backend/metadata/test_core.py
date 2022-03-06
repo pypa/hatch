@@ -1047,10 +1047,20 @@ class TestDependencies:
         with pytest.raises(TypeError, match='Dependency #1 of field `project.dependencies` must be a string'):
             _ = metadata.core.dependencies
 
-    def test_invalid_specifier(self, isolation):
+    def test_invalid(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {'project': {'dependencies': ['foo^1']}})
 
         with pytest.raises(ValueError, match='Dependency #1 of field `project.dependencies` is invalid: .+'):
+            _ = metadata.core.dependencies
+
+    def test_direct_reference(self, isolation):
+        metadata = ProjectMetadata(
+            str(isolation), None, {'project': {'dependencies': ['proj @ git+https://github.com/org/proj.git@v1']}}
+        )
+
+        with pytest.raises(
+            ValueError, match='Dependency #1 of field `project.dependencies` cannot be a direct reference'
+        ):
             _ = metadata.core.dependencies
 
     def test_correct(self, isolation):
@@ -1081,7 +1091,7 @@ class TestOptionalDependencies:
         with pytest.raises(TypeError, match='Field `project.optional-dependencies` must be a table'):
             _ = metadata.core.optional_dependencies
 
-    def test_specifiers_not_array(self, isolation):
+    def test_definitions_not_array(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {'project': {'optional-dependencies': {'foo': 5}}})
 
         with pytest.raises(
@@ -1097,11 +1107,24 @@ class TestOptionalDependencies:
         ):
             _ = metadata.core.optional_dependencies
 
-    def test_invalid_specifier(self, isolation):
+    def test_invalid(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {'project': {'optional-dependencies': {'foo': ['bar^1']}}})
 
         with pytest.raises(
             ValueError, match='Dependency #1 of option `foo` of field `project.optional-dependencies` is invalid: .+'
+        ):
+            _ = metadata.core.optional_dependencies
+
+    def test_direct_reference(self, isolation):
+        metadata = ProjectMetadata(
+            str(isolation),
+            None,
+            {'project': {'optional-dependencies': {'foo': ['proj @ git+https://github.com/org/proj.git@v1']}}},
+        )
+
+        with pytest.raises(
+            ValueError,
+            match='Dependency #1 of option `foo` of field `project.optional-dependencies` cannot be a direct reference',
         ):
             _ = metadata.core.optional_dependencies
 

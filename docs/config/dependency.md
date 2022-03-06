@@ -160,8 +160,8 @@ Various version control systems (VCS) are [supported](#supported-vcs) as long as
 VCS direct references are defined using one of the following formats:
 
 ```
-<SCHEME>://<PATH>
-<SCHEME>://<PATH>@<REVISION>
+<NAME> @ <SCHEME>://<PATH>
+<NAME> @ <SCHEME>://<PATH>@<REVISION>
 ```
 
 You may also append a `#subdirectory=<PATH>` component for specifying the relative path to the Python package when it is not located at the root e.g. `#subdirectory=lib/foo`.
@@ -173,22 +173,22 @@ For more information, refer to [this](https://pip.pypa.io/en/stable/topics/vcs-s
 === "Git"
     | Executable | Schemes | Revisions | Example |
     | --- | --- | --- | --- |
-    | `git` | <ul><li><code>git+file</code></li><li><code>git+https</code></li><li><code>git+ssh</code></li><li><code>git+http</code> :warning:</li><li><code>git+git</code> :warning:</li><li><code>git</code> :warning:</li></ul> | <ul><li>Commit hash</li><li>Tag name</li><li>Branch name</li></ul> | `git+https://github.com/org/proj.git@v1` |
+    | `git` | <ul><li><code>git+file</code></li><li><code>git+https</code></li><li><code>git+ssh</code></li><li><code>git+http</code> :warning:</li><li><code>git+git</code> :warning:</li><li><code>git</code> :warning:</li></ul> | <ul><li>Commit hash</li><li>Tag name</li><li>Branch name</li></ul> | `proj @ git+https://github.com/org/proj.git@v1` |
 
 === "Mercurial"
     | Executable | Schemes | Revisions | Example |
     | --- | --- | --- | --- |
-    | `hg` | <ul><li><code>hg+file</code></li><li><code>hg+https</code></li><li><code>hg+ssh</code></li><li><code>hg+http</code> :warning:</li><li><code>hg+static-http</code> :warning:</li></ul> | <ul><li>Revision hash</li><li>Revision number</li><li>Tag name</li><li>Branch name</li></ul> | `hg+file:///path/to/proj@v1` |
+    | `hg` | <ul><li><code>hg+file</code></li><li><code>hg+https</code></li><li><code>hg+ssh</code></li><li><code>hg+http</code> :warning:</li><li><code>hg+static-http</code> :warning:</li></ul> | <ul><li>Revision hash</li><li>Revision number</li><li>Tag name</li><li>Branch name</li></ul> | `proj @ hg+file:///path/to/proj@v1` |
 
 === "Subversion"
     | Executable | Schemes | Revisions | Example |
     | --- | --- | --- | --- |
-    | `svn` | <ul><li><code>svn+https</code></li><li><code>svn+ssh</code></li><li><code>svn+http</code> :warning:</li><li><code>svn+svn</code> :warning:</li><li><code>svn</code> :warning:</li></ul> | <ul><li>Revision number</li></ul> | `svn+file:///path/to/proj` |
+    | `svn` | <ul><li><code>svn+https</code></li><li><code>svn+ssh</code></li><li><code>svn+http</code> :warning:</li><li><code>svn+svn</code> :warning:</li><li><code>svn</code> :warning:</li></ul> | <ul><li>Revision number</li></ul> | `proj @ svn+file:///path/to/proj` |
 
 === "Bazaar"
     | Executable | Schemes | Revisions | Example |
     | --- | --- | --- | --- |
-    | `bzr` | <ul><li><code>bzr+https</code></li><li><code>bzr+ssh</code></li><li><code>bzr+sftp</code></li><li><code>bzr+lp</code></li><li><code>bzr+http</code> :warning:</li><li><code>bzr+ftp</code> :warning:</li></ul> | <ul><li>Revision number</li><li>Tag name</li></ul> | `bzr+lp:proj@v1` |
+    | `bzr` | <ul><li><code>bzr+https</code></li><li><code>bzr+ssh</code></li><li><code>bzr+sftp</code></li><li><code>bzr+lp</code></li><li><code>bzr+http</code> :warning:</li><li><code>bzr+ftp</code> :warning:</li></ul> | <ul><li>Revision number</li><li>Tag name</li></ul> | `proj @ bzr+lp:proj@v1` |
 
 ### Local
 
@@ -208,12 +208,13 @@ The `<PATH>` can refer to a source archive, a wheel, or a directory containing a
 | Wheel | `file:///path/to/pkg.whl` | `file:///c:/path/to/pkg.whl` |
 | Directory | `file:///path/to/pkg` | `file:///c:/path/to/pkg` |
 
-You may also specify paths [relative](https://www.rfc-editor.org/rfc/rfc3986#section-4.2) to your project's root directory on all platforms by omitting the leading slashes and beginning the path with a dot:
+!!! tip
+    When running [commands](environment.md#commands) that invoke `pip` directly, you may also specify paths [relative](https://www.rfc-editor.org/rfc/rfc3986#section-4.2) to your project's root directory on all platforms by omitting the leading slashes and beginning the path with a dot:
 
-```
-file:./pkg_inside_project
-file:../pkg_alongside_project
-```
+    ```
+    file:./pkg_inside_project
+    file:../pkg_alongside_project
+    ```
 
 ### Remote
 
