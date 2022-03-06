@@ -51,7 +51,7 @@ def show(app, force_ascii):
             )
 
         if config.get('description'):
-            columns['Description'][i] = config['description']
+            columns['Description'][i] = config['description'].strip()
 
     matrix_columns = {
         'Name': {},
