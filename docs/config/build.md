@@ -296,6 +296,22 @@ You can specify additional dependencies that will be installed in each build env
     ]
     ```
 
+You can also declare dependence on the project's [runtime dependencies](metadata.md#required) with the `require-runtime-dependencies` option:
+
+=== ":octicons-file-code-16: pyproject.toml"
+
+    ```toml
+    [tool.hatch.build.targets.your-target-name]
+    require-runtime-dependencies = true
+    ```
+
+=== ":octicons-file-code-16: hatch.toml"
+
+    ```toml
+    [build.targets.your-target-name]
+    require-runtime-dependencies = true
+    ```
+
 ### Versions
 
 If a build target supports multiple build strategies or if there are major changes over time, you can specify exactly which versions you want to build using the `versions` option, which may be defined as either an array of strings or a comma-separated string:
@@ -372,6 +388,22 @@ You can specify additional dependencies that will be installed in each build env
     dependencies = [
       "your-build-hook-plugin"
     ]
+    ```
+
+You can also declare dependence on the project's [runtime dependencies](metadata.md#required) with the `require-runtime-dependencies` option:
+
+=== ":octicons-file-code-16: pyproject.toml"
+
+    ```toml
+    [tool.hatch.build.hooks.your-hook-name]
+    require-runtime-dependencies = true
+    ```
+
+=== ":octicons-file-code-16: hatch.toml"
+
+    ```toml
+    [build.hooks.your-hook-name]
+    require-runtime-dependencies = true
     ```
 
 ### Order of execution

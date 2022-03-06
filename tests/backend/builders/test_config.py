@@ -104,6 +104,62 @@ class TestIgnoreVCS:
         assert builder.config.ignore_vcs is False
 
 
+class TestRequireRuntimeDependencies:
+    def test_default(self, isolation):
+        builder = BuilderInterface(str(isolation))
+
+        assert builder.config.require_runtime_dependencies is builder.config.require_runtime_dependencies is False
+
+    def test_target(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'require-runtime-dependencies': True}}}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        assert builder.config.require_runtime_dependencies is True
+
+    def test_target_not_boolean(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'require-runtime-dependencies': 9000}}}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        with pytest.raises(
+            TypeError,
+            match='Field `tool.hatch.build.targets.foo.require-runtime-dependencies` must be a boolean',
+        ):
+            _ = builder.config.require_runtime_dependencies
+
+    def test_global(self, isolation):
+        config = {'tool': {'hatch': {'build': {'require-runtime-dependencies': True}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        assert builder.config.require_runtime_dependencies is True
+
+    def test_global_not_boolean(self, isolation):
+        config = {'tool': {'hatch': {'build': {'require-runtime-dependencies': 9000}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        with pytest.raises(TypeError, match='Field `tool.hatch.build.require-runtime-dependencies` must be a boolean'):
+            _ = builder.config.require_runtime_dependencies
+
+    def test_target_overrides_global(self, isolation):
+        config = {
+            'tool': {
+                'hatch': {
+                    'build': {
+                        'require-runtime-dependencies': True,
+                        'targets': {'foo': {'require-runtime-dependencies': False}},
+                    }
+                }
+            }
+        }
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        assert builder.config.require_runtime_dependencies is False
+
+
 class TestOnlyPackages:
     def test_default(self, isolation):
         builder = BuilderInterface(str(isolation))
@@ -742,7 +798,17 @@ class TestDependencies:
         with pytest.raises(TypeError, match='Dependency #1 of field `tool.hatch.build.dependencies` must be a string'):
             _ = builder.config.dependencies
 
-    def test_hook_not_array(self, isolation):
+    def test_hook_require_runtime_dependencies_not_boolean(self, isolation):
+        config = {'tool': {'hatch': {'build': {'hooks': {'foo': {'require-runtime-dependencies': 9000}}}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        with pytest.raises(
+            TypeError, match='Option `require-runtime-dependencies` of build hook `foo` must be a boolean'
+        ):
+            _ = builder.config.dependencies
+
+    def test_hook_dependencies_not_array(self, isolation):
         config = {'tool': {'hatch': {'build': {'hooks': {'foo': {'dependencies': 9000}}}}}}
         builder = BuilderInterface(str(isolation), config=config)
         builder.PLUGIN_NAME = 'foo'
@@ -776,6 +842,25 @@ class TestDependencies:
         builder.PLUGIN_NAME = 'foo'
 
         assert builder.config.dependencies == ['baz', 'bar', 'test2']
+
+    def test_require_runtime_dependencies(self, isolation):
+        config = {
+            'project': {'name': 'my-app', 'version': '0.0.1', 'dependencies': ['foo']},
+            'tool': {
+                'hatch': {
+                    'build': {
+                        'require-runtime-dependencies': True,
+                        'dependencies': ['bar'],
+                        'hooks': {'foobar': {'dependencies': ['test1']}},
+                        'targets': {'foo': {'dependencies': ['baz'], 'hooks': {'foobar': {'dependencies': ['test2']}}}},
+                    }
+                }
+            }
+        }
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        assert builder.config.dependencies == ['baz', 'bar', 'test2', 'foo']
 
     def test_env_var_no_hooks(self, isolation):
         config = {
@@ -855,6 +940,48 @@ class TestDependencies:
 
         with EnvVars({f'{BuildEnvVars.HOOK_ENABLE_PREFIX}FOO': 'true'}):
             assert builder.config.dependencies == ['foo', 'baz']
+
+    def test_hooks_require_runtime_dependencies(self, isolation):
+        config = {
+            'project': {'name': 'my-app', 'version': '0.0.1', 'dependencies': ['baz']},
+            'tool': {
+                'hatch': {
+                    'build': {
+                        'hooks': {
+                            'foo': {'dependencies': ['foo'], 'enable-by-default': False},
+                            'bar': {'dependencies': ['bar'], 'require-runtime-dependencies': True},
+                        },
+                    }
+                }
+            }
+        }
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        assert builder.config.dependencies == ['bar', 'baz']
+
+    def test_hooks_require_runtime_dependencies_disabled(self, isolation):
+        config = {
+            'project': {'name': 'my-app', 'version': '0.0.1', 'dependencies': ['baz']},
+            'tool': {
+                'hatch': {
+                    'build': {
+                        'hooks': {
+                            'foo': {
+                                'dependencies': ['foo'],
+                                'enable-by-default': False,
+                                'require-runtime-dependencies': True,
+                            },
+                            'bar': {'dependencies': ['bar']},
+                        },
+                    }
+                }
+            }
+        }
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        assert builder.config.dependencies == ['bar']
 
 
 class TestFileSelectionDefaults:

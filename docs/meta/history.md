@@ -117,6 +117,10 @@ This is the first release candidate for Hatch v1, a complete rewrite.
 
 ### Unreleased
 
+***Added:***
+
+- Add option for builds to declare dependence on a project's runtime dependencies
+
 ***Fixed:***
 
 - Disallow direct references for dependency definitions
