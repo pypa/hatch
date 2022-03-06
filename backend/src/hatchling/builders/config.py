@@ -40,6 +40,7 @@ class BuilderConfig(object):
         self.__only_packages = None
         self.__reproducible = None
         self.__dev_mode_dirs = None
+        self.__require_runtime_dependencies = None
 
     @property
     def builder(self):
@@ -283,6 +284,25 @@ class BuilderConfig(object):
         return self.__ignore_vcs
 
     @property
+    def require_runtime_dependencies(self):
+        if self.__require_runtime_dependencies is None:
+            if 'require-runtime-dependencies' in self.target_config:
+                require_runtime_dependencies = self.target_config['require-runtime-dependencies']
+                if not isinstance(require_runtime_dependencies, bool):
+                    raise TypeError(
+                        'Field `tool.hatch.build.targets.{}.require-runtime-dependencies` '
+                        'must be a boolean'.format(self.plugin_name)
+                    )
+            else:
+                require_runtime_dependencies = self.build_config.get('require-runtime-dependencies', False)
+                if not isinstance(require_runtime_dependencies, bool):
+                    raise TypeError('Field `tool.hatch.build.require-runtime-dependencies` must be a boolean')
+
+            self.__require_runtime_dependencies = require_runtime_dependencies
+
+        return self.__require_runtime_dependencies
+
+    @property
     def only_packages(self):
         """
         Whether or not the target should ignore non-artifact files that do not reside within a Python package.
@@ -436,7 +456,16 @@ class BuilderConfig(object):
 
                 dependencies[dependency] = None
 
+            require_runtime_dependencies = self.require_runtime_dependencies
             for hook_name, config in self.hook_config.items():
+                hook_require_runtime_dependencies = config.get('require-runtime-dependencies', False)
+                if not isinstance(hook_require_runtime_dependencies, bool):
+                    raise TypeError(
+                        'Option `require-runtime-dependencies` of build hook `{}` must be a boolean'.format(hook_name)
+                    )
+                elif hook_require_runtime_dependencies:
+                    require_runtime_dependencies = True
+
                 hook_dependencies = config.get('dependencies', [])
                 if not isinstance(hook_dependencies, list):
                     raise TypeError('Option `dependencies` of build hook `{}` must be an array'.format(hook_name))
@@ -449,6 +478,10 @@ class BuilderConfig(object):
                             )
                         )
 
+                    dependencies[dependency] = None
+
+            if require_runtime_dependencies:
+                for dependency in self.builder.metadata.core.dependencies:
                     dependencies[dependency] = None
 
             self.__dependencies = list(dependencies)
