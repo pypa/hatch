@@ -391,7 +391,7 @@ def test_error(hatch, helpers, temp_dir, config_file):
     assert not output_file.is_file()
 
 
-def test_matrix(hatch, helpers, temp_dir, config_file, legacy_windows_terminal):
+def test_matrix(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
@@ -415,13 +415,12 @@ def test_matrix(hatch, helpers, temp_dir, config_file, legacy_windows_terminal):
             'run', 'test:python', '-c', "import os,sys;open('test.txt', 'a').write(sys.executable+os.linesep[-1])"
         )
 
-    padding = '' if legacy_windows_terminal else '─'
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
-        f"""
-        {padding}───────────────────────────────── test.9000 ──────────────────────────────────{padding}
+        """
+        ────────────────────────────────── test.9000 ───────────────────────────────────
         Creating environment: test.9000
-        {padding}────────────────────────────────── test.42 ───────────────────────────────────{padding}
+        ─────────────────────────────────── test.42 ────────────────────────────────────
         Creating environment: test.42
         """
     )
@@ -531,7 +530,7 @@ def test_incompatible_matrix_full(hatch, helpers, temp_dir, config_file):
     assert not env_data_path.is_dir()
 
 
-def test_incompatible_matrix_partial(hatch, helpers, temp_dir, config_file, legacy_windows_terminal):
+def test_incompatible_matrix_partial(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
@@ -562,11 +561,10 @@ def test_incompatible_matrix_partial(hatch, helpers, temp_dir, config_file, lega
             'run', 'test:python', '-c', "import os,sys;open('test.txt', 'a').write(sys.executable+os.linesep[-1])"
         )
 
-    padding = '' if legacy_windows_terminal else '─'
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
-        f"""
-        {padding}────────────────────────────────── test.42 ───────────────────────────────────{padding}
+        """
+        ─────────────────────────────────── test.42 ────────────────────────────────────
         Creating environment: test.42
 
         Skipped 1 incompatible environment:
@@ -600,7 +598,7 @@ def test_incompatible_matrix_partial(hatch, helpers, temp_dir, config_file, lega
     assert str(env_path) in python_path
 
 
-def test_incompatible_missing_python(hatch, helpers, temp_dir, config_file, legacy_windows_terminal):
+def test_incompatible_missing_python(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
@@ -625,13 +623,14 @@ def test_incompatible_missing_python(hatch, helpers, temp_dir, config_file, lega
             'run', 'test:python', '-c', "import os,sys;open('test.txt', 'a').write(sys.executable+os.linesep[-1])"
         )
 
-    padding = '' if legacy_windows_terminal else '─'
-    left_pad = padding
-    right_pad = padding + ('─' if len(known_version) < 3 else '')
+    padding = '─'
+    if len(known_version) < 3:
+        padding += '─'
+
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
         f"""
-        {left_pad}───────────────────────────────── test.py{known_version} ─────────────────────────────────{right_pad}
+        ────────────────────────────────── test.py{known_version} ─────────────────────────────────{padding}
         Creating environment: test.py{known_version}
 
         Skipped 1 incompatible environment:
