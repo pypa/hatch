@@ -232,24 +232,24 @@ class EnvironmentInterface(ABC):
         if self._environment_dependencies_complex is None:
             from packaging.requirements import InvalidRequirement, Requirement
 
-            dependencies = self.config.get('dependencies', [])
-            if not isinstance(dependencies, list):
-                raise TypeError(f'Field `tool.hatch.envs.{self.name}.dependencies` must be an array')
-
             dependencies_complex = []
+            for option in ('dependencies', 'extra-dependencies'):
+                dependencies = self.config.get(option, [])
+                if not isinstance(dependencies, list):
+                    raise TypeError(f'Field `tool.hatch.envs.{self.name}.{option}` must be an array')
 
-            for i, entry in enumerate(dependencies, 1):
-                if not isinstance(entry, str):
-                    raise TypeError(
-                        f'Dependency #{i} of field `tool.hatch.envs.{self.name}.dependencies` must be a string'
-                    )
+                for i, entry in enumerate(dependencies, 1):
+                    if not isinstance(entry, str):
+                        raise TypeError(
+                            f'Dependency #{i} of field `tool.hatch.envs.{self.name}.{option}` must be a string'
+                        )
 
-                try:
-                    dependencies_complex.append(Requirement(entry))
-                except InvalidRequirement as e:
-                    raise ValueError(
-                        f'Dependency #{i} of field `tool.hatch.envs.{self.name}.dependencies` is invalid: {e}'
-                    )
+                    try:
+                        dependencies_complex.append(Requirement(entry))
+                    except InvalidRequirement as e:
+                        raise ValueError(
+                            f'Dependency #{i} of field `tool.hatch.envs.{self.name}.{option}` is invalid: {e}'
+                        )
 
             self._environment_dependencies_complex = dependencies_complex
 

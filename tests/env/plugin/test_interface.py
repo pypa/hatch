@@ -466,7 +466,7 @@ class TestDependencies:
         ):
             _ = environment.dependencies
 
-    def test_invalid_specifier(self, isolation, data_dir, platform):
+    def test_invalid(self, isolation, data_dir, platform):
         config = {
             'project': {'name': 'my_app', 'version': '0.0.1', 'dependencies': ['dep1']},
             'tool': {'hatch': {'envs': {'default': {'dependencies': ['foo^1']}}}},
@@ -481,41 +481,94 @@ class TestDependencies:
         ):
             _ = environment.dependencies
 
-    def test_full(self, isolation, data_dir, platform):
+    def test_extra_not_array(self, isolation, data_dir, platform):
         config = {
             'project': {'name': 'my_app', 'version': '0.0.1', 'dependencies': ['dep1']},
-            'tool': {'hatch': {'envs': {'default': {'dependencies': ['dep2']}}}},
+            'tool': {'hatch': {'envs': {'default': {'extra-dependencies': 9000}}}},
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
             isolation, project.metadata, 'default', project.config.envs['default'], data_dir, platform, 0
         )
 
-        assert environment.dependencies == ['dep2', 'dep1']
+        with pytest.raises(TypeError, match='Field `tool.hatch.envs.default.extra-dependencies` must be an array'):
+            _ = environment.dependencies
+
+    def test_extra_entry_not_string(self, isolation, data_dir, platform):
+        config = {
+            'project': {'name': 'my_app', 'version': '0.0.1', 'dependencies': ['dep1']},
+            'tool': {'hatch': {'envs': {'default': {'extra-dependencies': [9000]}}}},
+        }
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation, project.metadata, 'default', project.config.envs['default'], data_dir, platform, 0
+        )
+
+        with pytest.raises(
+            TypeError, match='Dependency #1 of field `tool.hatch.envs.default.extra-dependencies` must be a string'
+        ):
+            _ = environment.dependencies
+
+    def test_extra_invalid(self, isolation, data_dir, platform):
+        config = {
+            'project': {'name': 'my_app', 'version': '0.0.1', 'dependencies': ['dep1']},
+            'tool': {'hatch': {'envs': {'default': {'extra-dependencies': ['foo^1']}}}},
+        }
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation, project.metadata, 'default', project.config.envs['default'], data_dir, platform, 0
+        )
+
+        with pytest.raises(
+            ValueError, match='Dependency #1 of field `tool.hatch.envs.default.extra-dependencies` is invalid: .+'
+        ):
+            _ = environment.dependencies
+
+    def test_full(self, isolation, data_dir, platform):
+        config = {
+            'project': {'name': 'my_app', 'version': '0.0.1', 'dependencies': ['dep1']},
+            'tool': {'hatch': {'envs': {'default': {'dependencies': ['dep2'], 'extra-dependencies': ['dep3']}}}},
+        }
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation, project.metadata, 'default', project.config.envs['default'], data_dir, platform, 0
+        )
+
+        assert environment.dependencies == ['dep2', 'dep3', 'dep1']
 
     def test_full_skip_install(self, isolation, data_dir, platform):
         config = {
             'project': {'name': 'my_app', 'version': '0.0.1', 'dependencies': ['dep1']},
-            'tool': {'hatch': {'envs': {'default': {'dependencies': ['dep2'], 'skip-install': True}}}},
+            'tool': {
+                'hatch': {
+                    'envs': {
+                        'default': {'dependencies': ['dep2'], 'extra-dependencies': ['dep3'], 'skip-install': True}
+                    }
+                }
+            },
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
             isolation, project.metadata, 'default', project.config.envs['default'], data_dir, platform, 0
         )
 
-        assert environment.dependencies == ['dep2']
+        assert environment.dependencies == ['dep2', 'dep3']
 
     def test_full_dev_mode(self, isolation, data_dir, platform):
         config = {
             'project': {'name': 'my_app', 'version': '0.0.1', 'dependencies': ['dep1']},
-            'tool': {'hatch': {'envs': {'default': {'dependencies': ['dep2'], 'dev-mode': False}}}},
+            'tool': {
+                'hatch': {
+                    'envs': {'default': {'dependencies': ['dep2'], 'extra-dependencies': ['dep3'], 'dev-mode': False}}
+                }
+            },
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
             isolation, project.metadata, 'default', project.config.envs['default'], data_dir, platform, 0
         )
 
-        assert environment.dependencies == ['dep2']
+        assert environment.dependencies == ['dep2', 'dep3']
 
 
 class TestScripts:
