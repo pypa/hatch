@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Add `description` option to environments
 - Add `extra-dependencies` option to environments
 - Upgrade `actions/setup-python` action of the CI option for new projects to `v3`
+- Bump the minimum supported version of Hatchling
 - Update project metadata
 
 ### [1.0.0rc13](https://github.com/ofek/hatch/releases/tag/hatch-v1.0.0rc13) - 2022-02-13 ### {: #hatch-v1.0.0rc13 }
