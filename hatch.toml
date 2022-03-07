@@ -62,6 +62,10 @@ dependencies = [
   "mkpatcher~=1.0.2",
   # Necessary for syntax highlighting in code blocks
   "Pygments~=2.11.2",
+  # Fixes
+  #
+  # https://github.com/mkdocstrings/autorefs/issues/17
+  "mkdocs-autorefs!=0.4.0",
 ]
 [envs.docs.env-vars]
 SOURCE_DATE_EPOCH = "1580601600"
