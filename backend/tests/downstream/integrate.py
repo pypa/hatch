@@ -86,7 +86,7 @@ def temp_dir():
 
 
 def main():
-    original_backend_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(HERE))), 'backend')
+    original_backend_path = os.path.dirname(os.path.dirname(HERE))
     with temp_dir() as links_dir, temp_dir() as build_dir:
         print('<<<<< Copying backend >>>>>')
         backend_path = os.path.join(build_dir, 'backend')
