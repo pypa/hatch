@@ -267,24 +267,24 @@
         <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>_environment_dependencies_complex</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
             <span class=kn>from</span> <span class=nn>packaging.requirements</span> <span class=kn>import</span> <span class=n>InvalidRequirement</span><span class=p>,</span> <span class=n>Requirement</span>
 
-            <span class=n>dependencies</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>config</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=s1>&#39;dependencies&#39;</span><span class=p>,</span> <span class=p>[])</span>
-            <span class=k>if</span> <span class=ow>not</span> <span class=nb>isinstance</span><span class=p>(</span><span class=n>dependencies</span><span class=p>,</span> <span class=nb>list</span><span class=p>):</span>
-                <span class=k>raise</span> <span class=ne>TypeError</span><span class=p>(</span><span class=sa>f</span><span class=s1>&#39;Field `tool.hatch.envs.</span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>name</span><span class=si>}</span><span class=s1>.dependencies` must be an array&#39;</span><span class=p>)</span>
-
             <span class=n>dependencies_complex</span> <span class=o>=</span> <span class=p>[]</span>
+            <span class=k>for</span> <span class=n>option</span> <span class=ow>in</span> <span class=p>(</span><span class=s1>&#39;dependencies&#39;</span><span class=p>,</span> <span class=s1>&#39;extra-dependencies&#39;</span><span class=p>):</span>
+                <span class=n>dependencies</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>config</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=n>option</span><span class=p>,</span> <span class=p>[])</span>
+                <span class=k>if</span> <span class=ow>not</span> <span class=nb>isinstance</span><span class=p>(</span><span class=n>dependencies</span><span class=p>,</span> <span class=nb>list</span><span class=p>):</span>
+                    <span class=k>raise</span> <span class=ne>TypeError</span><span class=p>(</span><span class=sa>f</span><span class=s1>&#39;Field `tool.hatch.envs.</span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>name</span><span class=si>}</span><span class=s1>.</span><span class=si>{</span><span class=n>option</span><span class=si>}</span><span class=s1>` must be an array&#39;</span><span class=p>)</span>
 
-            <span class=k>for</span> <span class=n>i</span><span class=p>,</span> <span class=n>entry</span> <span class=ow>in</span> <span class=nb>enumerate</span><span class=p>(</span><span class=n>dependencies</span><span class=p>,</span> <span class=mi>1</span><span class=p>):</span>
-                <span class=k>if</span> <span class=ow>not</span> <span class=nb>isinstance</span><span class=p>(</span><span class=n>entry</span><span class=p>,</span> <span class=nb>str</span><span class=p>):</span>
-                    <span class=k>raise</span> <span class=ne>TypeError</span><span class=p>(</span>
-                        <span class=sa>f</span><span class=s1>&#39;Dependency #</span><span class=si>{</span><span class=n>i</span><span class=si>}</span><span class=s1> of field `tool.hatch.envs.</span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>name</span><span class=si>}</span><span class=s1>.dependencies` must be a string&#39;</span>
-                    <span class=p>)</span>
+                <span class=k>for</span> <span class=n>i</span><span class=p>,</span> <span class=n>entry</span> <span class=ow>in</span> <span class=nb>enumerate</span><span class=p>(</span><span class=n>dependencies</span><span class=p>,</span> <span class=mi>1</span><span class=p>):</span>
+                    <span class=k>if</span> <span class=ow>not</span> <span class=nb>isinstance</span><span class=p>(</span><span class=n>entry</span><span class=p>,</span> <span class=nb>str</span><span class=p>):</span>
+                        <span class=k>raise</span> <span class=ne>TypeError</span><span class=p>(</span>
+                            <span class=sa>f</span><span class=s1>&#39;Dependency #</span><span class=si>{</span><span class=n>i</span><span class=si>}</span><span class=s1> of field `tool.hatch.envs.</span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>name</span><span class=si>}</span><span class=s1>.</span><span class=si>{</span><span class=n>option</span><span class=si>}</span><span class=s1>` must be a string&#39;</span>
+                        <span class=p>)</span>
 
-                <span class=k>try</span><span class=p>:</span>
-                    <span class=n>dependencies_complex</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>Requirement</span><span class=p>(</span><span class=n>entry</span><span class=p>))</span>
-                <span class=k>except</span> <span class=n>InvalidRequirement</span> <span class=k>as</span> <span class=n>e</span><span class=p>:</span>
-                    <span class=k>raise</span> <span class=ne>ValueError</span><span class=p>(</span>
-                        <span class=sa>f</span><span class=s1>&#39;Dependency #</span><span class=si>{</span><span class=n>i</span><span class=si>}</span><span class=s1> of field `tool.hatch.envs.</span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>name</span><span class=si>}</span><span class=s1>.dependencies` is invalid: </span><span class=si>{</span><span class=n>e</span><span class=si>}</span><span class=s1>&#39;</span>
-                    <span class=p>)</span>
+                    <span class=k>try</span><span class=p>:</span>
+                        <span class=n>dependencies_complex</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>Requirement</span><span class=p>(</span><span class=n>entry</span><span class=p>))</span>
+                    <span class=k>except</span> <span class=n>InvalidRequirement</span> <span class=k>as</span> <span class=n>e</span><span class=p>:</span>
+                        <span class=k>raise</span> <span class=ne>ValueError</span><span class=p>(</span>
+                            <span class=sa>f</span><span class=s1>&#39;Dependency #</span><span class=si>{</span><span class=n>i</span><span class=si>}</span><span class=s1> of field `tool.hatch.envs.</span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>name</span><span class=si>}</span><span class=s1>.</span><span class=si>{</span><span class=n>option</span><span class=si>}</span><span class=s1>` is invalid: </span><span class=si>{</span><span class=n>e</span><span class=si>}</span><span class=s1>&#39;</span>
+                        <span class=p>)</span>
 
             <span class=bp>self</span><span class=o>.</span><span class=n>_environment_dependencies_complex</span> <span class=o>=</span> <span class=n>dependencies_complex</span>
 
