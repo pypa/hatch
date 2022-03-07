@@ -83,7 +83,7 @@ You can install [dependencies](dependency.md) in addition to the ones defined by
     ]
     ```
 
-If you define environments with dependencies that only slightly differ from their [inherited environment](#inheritance), you can use the `extra-dependencies` option to avoid redeclaring the `dependencies` option:
+If you define environments with dependencies that only slightly differ from their [inherited environments](#inheritance), you can use the `extra-dependencies` option to avoid redeclaring the `dependencies` option:
 
 === ":octicons-file-code-16: pyproject.toml"
 
