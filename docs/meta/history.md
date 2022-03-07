@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Unreleased
 
+### [1.0.0rc14](https://github.com/ofek/hatch/releases/tag/hatch-v1.0.0rc14) - 2022-03-06 ### {: #hatch-v1.0.0rc14 }
+
 ***Added:***
 
 - When building with no targets defined in config, default to `-t sdist -t wheel` rather than raising an error
