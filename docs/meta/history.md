@@ -121,6 +121,10 @@ This is the first release candidate for Hatch v1, a complete rewrite.
 
 ### Unreleased
 
+***Changed:***
+
+- In order to simplify configuration, metadata hooks are now configured under `tool.hatch.metadata.hooks` rather than directly under `tool.hatch.metadata`
+
 ### [0.20.1](https://github.com/ofek/hatch/releases/tag/hatchling-v0.20.1) - 2022-03-07 ### {: #hatchling-v0.20.1 }
 
 ***Fixed:***

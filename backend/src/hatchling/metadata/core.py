@@ -96,7 +96,7 @@ class ProjectMetadata(object):
 
             metadata = CoreMetadata(self.root, core_metadata)
 
-            metadata_hooks = self.hatch.metadata_hooks
+            metadata_hooks = self.hatch.metadata.hooks
             if metadata_hooks:
                 static_fields = set(core_metadata)
                 self._set_version(metadata)
@@ -1107,40 +1107,22 @@ class HatchMetadata(object):
         self.config = config
         self.plugin_manager = plugin_manager
 
-        self._metadata_config = None
-        self._metadata_hooks = None
+        self._metadata = None
         self._build_config = None
         self._build_targets = None
         self._version_source = None
         self._version = None
 
     @property
-    def metadata_config(self):
-        if self._metadata_config is None:
+    def metadata(self):
+        if self._metadata is None:
             metadata_config = self.config.get('metadata', {})
             if not isinstance(metadata_config, dict):
                 raise TypeError('Field `tool.hatch.metadata` must be a table')
 
-            self._metadata_config = metadata_config
+            self._metadata = HatchMetadataSettings(self.root, metadata_config, self.plugin_manager)
 
-        return self._metadata_config
-
-    @property
-    def metadata_hooks(self):
-        if self._metadata_hooks is None:
-            hook_config = self.metadata_config
-
-            configured_metadata_hooks = OrderedDict()
-            for hook_name, config in hook_config.items():
-                metadata_hook = self.plugin_manager.metadata_hook.get(hook_name)
-                if metadata_hook is None:
-                    raise ValueError('Unknown metadata hook: {}'.format(hook_name))
-
-                configured_metadata_hooks[hook_name] = metadata_hook(self.root, config)
-
-            self._metadata_hooks = configured_metadata_hooks
-
-        return self._metadata_hooks
+        return self._metadata
 
     @property
     def build_config(self):
@@ -1203,3 +1185,41 @@ class HatchMetadata(object):
             self._version_source = version_source(self.root, options)
 
         return self._version_source
+
+
+class HatchMetadataSettings(object):
+    def __init__(self, root, config, plugin_manager):
+        self.root = root
+        self.config = config
+        self.plugin_manager = plugin_manager
+
+        self._hook_config = None
+        self._hooks = None
+
+    @property
+    def hook_config(self):
+        if self._hook_config is None:
+            hook_config = self.config.get('hooks', {})
+            if not isinstance(hook_config, dict):
+                raise TypeError('Field `tool.hatch.metadata.hooks` must be a table')
+
+            self._hook_config = hook_config
+
+        return self._hook_config
+
+    @property
+    def hooks(self):
+        if self._hooks is None:
+            hook_config = self.hook_config
+
+            configured_hooks = OrderedDict()
+            for hook_name, config in hook_config.items():
+                metadata_hook = self.plugin_manager.metadata_hook.get(hook_name)
+                if metadata_hook is None:
+                    raise ValueError('Unknown metadata hook: {}'.format(hook_name))
+
+                configured_hooks[hook_name] = metadata_hook(self.root, config)
+
+            self._hooks = configured_hooks
+
+        return self._hooks

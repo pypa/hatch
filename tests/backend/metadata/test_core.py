@@ -1147,7 +1147,7 @@ class TestHook:
         metadata = ProjectMetadata(
             str(isolation),
             PluginManager(),
-            {'project': {'name': 'foo'}, 'tool': {'hatch': {'metadata': {'foo': {}}}}},
+            {'project': {'name': 'foo'}, 'tool': {'hatch': {'metadata': {'hooks': {'foo': {}}}}}},
         )
 
         with pytest.raises(ValueError, match='Unknown metadata hook: foo'):
@@ -1159,7 +1159,7 @@ class TestHook:
             PluginManager(),
             {
                 'project': {'name': 'foo', 'dynamic': ['version', 'description']},
-                'tool': {'hatch': {'version': {'path': 'a/b'}, 'metadata': {'custom': {}}}},
+                'tool': {'hatch': {'version': {'path': 'a/b'}, 'metadata': {'hooks': {'custom': {}}}}},
             },
         )
 
@@ -1181,7 +1181,7 @@ class TestHook:
             )
         )
 
-        assert 'custom' in metadata.hatch.metadata_hooks
+        assert 'custom' in metadata.hatch.metadata.hooks
         assert metadata.core.name == 'foo'
         assert metadata.core.description == 'foobar'
         assert metadata.core.version == '0.0.1rc0'
@@ -1192,7 +1192,7 @@ class TestHook:
             PluginManager(),
             {
                 'project': {'name': 'foo', 'dynamic': ['version']},
-                'tool': {'hatch': {'version': {'path': 'a/b'}, 'metadata': {'custom': {}}}},
+                'tool': {'hatch': {'version': {'path': 'a/b'}, 'metadata': {'hooks': {'custom': {}}}}},
             },
         )
 
