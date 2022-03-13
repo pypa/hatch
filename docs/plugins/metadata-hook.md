@@ -17,13 +17,13 @@ The metadata hook plugin name is `custom`.
 === ":octicons-file-code-16: pyproject.toml"
 
     ```toml
-    [tool.hatch.metadata.custom]
+    [tool.hatch.metadata.hooks.custom]
     ```
 
 === ":octicons-file-code-16: hatch.toml"
 
     ```toml
-    [metadata.custom]
+    [metadata.hooks.custom]
     ```
 
 An option `path` is used to specify the path of the Python file, defaulting to `hatch_build.py`.

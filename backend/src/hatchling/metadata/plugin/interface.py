@@ -49,13 +49,13 @@ class MetadataHookInterface(object):  # no cov
         === ":octicons-file-code-16: pyproject.toml"
 
             ```toml
-            [tool.hatch.metadata.<PLUGIN_NAME>]
+            [tool.hatch.metadata.hooks.<PLUGIN_NAME>]
             ```
 
         === ":octicons-file-code-16: hatch.toml"
 
             ```toml
-            [metadata.<PLUGIN_NAME>]
+            [metadata.hooks.<PLUGIN_NAME>]
             ```
         """
         return self.__config
