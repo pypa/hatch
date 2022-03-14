@@ -257,3 +257,23 @@ the project to advertise components it provides to be discovered and used by oth
     plugin-name1 = "pkg.subpkg1"
     plugin-name2 = "pkg.subpkg2:func"
     ```
+
+## Metadata options
+
+### Allowing direct references
+
+By default, [dependencies](#dependencies) are not allowed to define [direct references](https://www.python.org/dev/peps/pep-0440/#direct-references). To disable this check, set `allow-direct-references` to `true`:
+
+=== ":octicons-file-code-16: pyproject.toml"
+
+    ```toml
+    [tool.hatch.metadata]
+    allow-direct-references = true
+    ```
+
+=== ":octicons-file-code-16: hatch.toml"
+
+    ```toml
+    [metadata]
+    allow-direct-references = true
+    ```

@@ -64,3 +64,24 @@ class TestMetadata:
         metadata = HatchMetadata(str(isolation), config, None)
 
         assert metadata.metadata.config == metadata.metadata.config == {'option': True}
+
+
+class TestMetadataAllowDirectReferences:
+    def test_default(self, isolation):
+        config = {}
+        metadata = HatchMetadata(str(isolation), config, None)
+
+        assert metadata.metadata.allow_direct_references is metadata.metadata.allow_direct_references is False
+
+    def test_not_boolean(self, isolation):
+        config = {'metadata': {'allow-direct-references': 9000}}
+        metadata = HatchMetadata(str(isolation), config, None)
+
+        with pytest.raises(TypeError, match='Field `tool.hatch.metadata.allow-direct-references` must be a boolean'):
+            _ = metadata.metadata.allow_direct_references
+
+    def test_correct(self, isolation):
+        config = {'metadata': {'allow-direct-references': True}}
+        metadata = HatchMetadata(str(isolation), config, None)
+
+        assert metadata.metadata.allow_direct_references is True

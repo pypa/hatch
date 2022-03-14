@@ -1063,6 +1063,18 @@ class TestDependencies:
         ):
             _ = metadata.core.dependencies
 
+    def test_direct_reference_allowed(self, isolation):
+        metadata = ProjectMetadata(
+            str(isolation),
+            None,
+            {
+                'project': {'dependencies': ['proj @ git+https://github.com/org/proj.git@v1']},
+                'tool': {'hatch': {'metadata': {'allow-direct-references': True}}},
+            },
+        )
+
+        assert metadata.core.dependencies == ['proj@ git+https://github.com/org/proj.git@v1']
+
     def test_correct(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {'project': {'dependencies': ['foo', 'bar', 'Baz']}})
 
@@ -1127,6 +1139,18 @@ class TestOptionalDependencies:
             match='Dependency #1 of option `foo` of field `project.optional-dependencies` cannot be a direct reference',
         ):
             _ = metadata.core.optional_dependencies
+
+    def test_direct_reference_allowed(self, isolation):
+        metadata = ProjectMetadata(
+            str(isolation),
+            None,
+            {
+                'project': {'optional-dependencies': {'foo': ['proj @ git+https://github.com/org/proj.git@v1']}},
+                'tool': {'hatch': {'metadata': {'allow-direct-references': True}}},
+            },
+        )
+
+        assert metadata.core.optional_dependencies == {'foo': ['proj@ git+https://github.com/org/proj.git@v1']}
 
     def test_correct(self, isolation):
         metadata = ProjectMetadata(
