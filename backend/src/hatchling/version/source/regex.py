@@ -4,7 +4,7 @@ from io import open
 
 from .plugin.interface import VersionSourceInterface
 
-DEFAULT_PATTERN = r'^(__version__|VERSION) *= *([\'"])v?(?P<version>.+?)\2'
+DEFAULT_PATTERN = r'(?i)^(__version__|VERSION) *= *([\'"])v?(?P<version>.+?)\2'
 
 
 class RegexSource(VersionSourceInterface):
