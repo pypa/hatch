@@ -94,7 +94,7 @@ class ProjectMetadata(object):
             if not isinstance(core_metadata, dict):
                 raise TypeError('The `project` configuration must be a table')
 
-            metadata = CoreMetadata(self.root, core_metadata)
+            metadata = CoreMetadata(self.root, core_metadata, self.hatch.metadata)
 
             metadata_hooks = self.hatch.metadata.hooks
             if metadata_hooks:
@@ -234,9 +234,10 @@ class CoreMetadata(object):
     https://www.python.org/dev/peps/pep-0621/
     """
 
-    def __init__(self, root, config):
+    def __init__(self, root, config, hatch_metadata):
         self.root = root
         self.config = config
+        self.hatch_metadata = hatch_metadata
 
         self._name = None
         self._version = None
@@ -995,7 +996,7 @@ class CoreMetadata(object):
                 except InvalidRequirement as e:
                     raise ValueError('Dependency #{} of field `project.dependencies` is invalid: {}'.format(i, e))
                 else:
-                    if dependency.url:
+                    if dependency.url and not self.hatch_metadata.allow_direct_references:
                         raise ValueError(
                             'Dependency #{} of field `project.dependencies` cannot be a direct reference'.format(i)
                         )
@@ -1063,15 +1064,15 @@ class CoreMetadata(object):
                             'is invalid: {}'.format(i, option, e)
                         )
                     else:
-                        if dependency.url:
+                        if dependency.url and not self.hatch_metadata.allow_direct_references:
                             raise ValueError(
                                 'Dependency #{} of option `{}` of field `project.optional-dependencies` '
                                 'cannot be a direct reference'.format(i, option)
                             )
 
-                        entries.append(entry)
+                        entries.append(dependency)
 
-                optional_dependency_entries[option] = sorted(entries, key=lambda s: s.lower())
+                optional_dependency_entries[option] = sorted(map(str, entries), key=lambda s: s.lower())
 
             self._optional_dependencies = optional_dependency_entries
 
@@ -1193,8 +1194,20 @@ class HatchMetadataSettings(object):
         self.config = config
         self.plugin_manager = plugin_manager
 
+        self._allow_direct_references = None
         self._hook_config = None
         self._hooks = None
+
+    @property
+    def allow_direct_references(self):
+        if self._allow_direct_references is None:
+            allow_direct_references = self.config.get('allow-direct-references', False)
+            if not isinstance(allow_direct_references, bool):
+                raise TypeError('Field `tool.hatch.metadata.allow-direct-references` must be a boolean')
+
+            self._allow_direct_references = allow_direct_references
+
+        return self._allow_direct_references
 
     @property
     def hook_config(self):
