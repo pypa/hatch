@@ -4,7 +4,7 @@ import pytest
 
 from hatchling.version.source.regex import RegexSource
 
-DEFAULT_PATTERN_PRODUCTS = list(product(('__version__', 'VERSION'), ('"', "'"), ('', 'v')))
+DEFAULT_PATTERN_PRODUCTS = list(product(('__version__', 'VERSION', 'version'), ('"', "'"), ('', 'v')))
 
 
 def test_no_path(isolation):
