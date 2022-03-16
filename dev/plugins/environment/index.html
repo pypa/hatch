@@ -308,7 +308,7 @@
             <span class=c1># Ensure these are checked last to speed up initial environment creation since</span>
             <span class=c1># they will already be installed along with the project</span>
             <span class=k>if</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>skip_install</span> <span class=ow>and</span> <span class=bp>self</span><span class=o>.</span><span class=n>dev_mode</span><span class=p>:</span>
-                <span class=n>dependencies_complex</span><span class=o>.</span><span class=n>extend</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>metadata</span><span class=o>.</span><span class=n>core</span><span class=o>.</span><span class=n>dependencies_complex</span><span class=p>)</span>
+                <span class=n>dependencies_complex</span><span class=o>.</span><span class=n>extend</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>metadata</span><span class=o>.</span><span class=n>core</span><span class=o>.</span><span class=n>dependencies_complex</span><span class=o>.</span><span class=n>values</span><span class=p>())</span>
 
             <span class=bp>self</span><span class=o>.</span><span class=n>_dependencies_complex</span> <span class=o>=</span> <span class=n>dependencies_complex</span>
 
