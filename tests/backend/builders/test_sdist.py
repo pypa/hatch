@@ -6,7 +6,7 @@ import pytest
 from hatchling.builders.plugin.interface import BuilderInterface
 from hatchling.builders.sdist import SdistBuilder
 from hatchling.builders.utils import get_reproducible_timestamp
-from hatchling.metadata.utils import get_core_metadata_constructors
+from hatchling.metadata.spec import get_core_metadata_constructors
 from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT
 
 

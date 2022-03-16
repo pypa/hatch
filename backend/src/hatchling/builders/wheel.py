@@ -7,7 +7,7 @@ import zipfile
 from contextlib import closing
 
 from ..__about__ import __version__
-from ..metadata.utils import DEFAULT_METADATA_VERSION, get_core_metadata_constructors
+from ..metadata.spec import DEFAULT_METADATA_VERSION, get_core_metadata_constructors
 from .config import BuilderConfig
 from .plugin.interface import BuilderInterface
 from .utils import (

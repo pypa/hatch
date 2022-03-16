@@ -1,7 +1,7 @@
 import pytest
 
 from hatchling.metadata.core import ProjectMetadata
-from hatchling.metadata.utils import get_core_metadata_constructors
+from hatchling.metadata.spec import get_core_metadata_constructors
 
 
 @pytest.mark.parametrize('constructor', [get_core_metadata_constructors()['1.2']])
