@@ -1,7 +1,7 @@
 from hatch.template import File
 from hatch.utils.fs import Path
 from hatchling.__about__ import __version__
-from hatchling.metadata.utils import DEFAULT_METADATA_VERSION
+from hatchling.metadata.spec import DEFAULT_METADATA_VERSION
 
 from ..new.default import get_files as get_template_files
 from .utils import update_record_file_contents

@@ -8,7 +8,7 @@ from packaging.tags import sys_tags
 from hatchling.builders.plugin.interface import BuilderInterface
 from hatchling.builders.utils import get_known_python_major_versions
 from hatchling.builders.wheel import WheelBuilder
-from hatchling.metadata.utils import DEFAULT_METADATA_VERSION, get_core_metadata_constructors
+from hatchling.metadata.spec import DEFAULT_METADATA_VERSION, get_core_metadata_constructors
 from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT
 
 # https://github.com/python/cpython/pull/26184
