@@ -9,3 +9,8 @@ def is_valid_project_name(project_name):
 def normalize_project_name(project_name):
     # https://www.python.org/dev/peps/pep-0503/#normalized-names
     return re.sub(r'[-_.]+', '-', project_name).lower()
+
+
+def get_normalized_dependency(requirement):
+    requirement.name = normalize_project_name(requirement.name)
+    return str(requirement).lower()

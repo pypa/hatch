@@ -273,7 +273,7 @@ class EnvironmentInterface(ABC):
             # Ensure these are checked last to speed up initial environment creation since
             # they will already be installed along with the project
             if not self.skip_install and self.dev_mode:
-                dependencies_complex.extend(self.metadata.core.dependencies_complex)
+                dependencies_complex.extend(self.metadata.core.dependencies_complex.values())
 
             self._dependencies_complex = dependencies_complex
 

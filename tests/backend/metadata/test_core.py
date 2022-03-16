@@ -1076,9 +1076,30 @@ class TestDependencies:
         assert metadata.core.dependencies == ['proj@ git+https://github.com/org/proj.git@v1']
 
     def test_correct(self, isolation):
-        metadata = ProjectMetadata(str(isolation), None, {'project': {'dependencies': ['foo', 'bar', 'Baz']}})
+        metadata = ProjectMetadata(
+            str(isolation),
+            None,
+            {
+                'project': {
+                    'dependencies': [
+                        'python___dateutil',
+                        'bAr.Baz[TLS, EdDSA]   >=1.2RC5',
+                        'Foo;python_version<"3.8"',
+                        'fOO;     python_version<    "3.8"',
+                    ],
+                },
+            },
+        )
 
-        assert metadata.core.dependencies == metadata.core.dependencies == ['bar', 'Baz', 'foo']
+        assert (
+            metadata.core.dependencies
+            == metadata.core.dependencies
+            == [
+                'bar-baz[eddsa,tls]>=1.2rc5',
+                'foo; python_version < "3.8"',
+                'python-dateutil',
+            ]
+        )
         assert metadata.core.dependencies_complex is metadata.core.dependencies_complex
 
 
@@ -1156,13 +1177,28 @@ class TestOptionalDependencies:
         metadata = ProjectMetadata(
             str(isolation),
             None,
-            {'project': {'optional-dependencies': {'foo': ['foo', 'bar', 'Baz'], 'bar': ['foo', 'bar', 'Baz']}}},
+            {
+                'project': {
+                    'optional-dependencies': {
+                        'foo': [
+                            'python___dateutil',
+                            'bAr.Baz[TLS, EdDSA]   >=1.2RC5',
+                            'Foo;python_version<"3.8"',
+                            'fOO;     python_version<    "3.8"',
+                        ],
+                        'bar': ['foo', 'bar', 'Baz'],
+                    },
+                },
+            },
         )
 
         assert (
             metadata.core.optional_dependencies
             == metadata.core.optional_dependencies
-            == {'bar': ['bar', 'Baz', 'foo'], 'foo': ['bar', 'Baz', 'foo']}
+            == {
+                'bar': ['bar', 'baz', 'foo'],
+                'foo': ['bar-baz[eddsa,tls]>=1.2rc5', 'foo; python_version < "3.8"', 'python-dateutil'],
+            }
         )
 
 
