@@ -38,7 +38,9 @@ jobs:
       run: python -m pip install --upgrade pip
 
     - name: Install ourself
-      run: pip install -e .
+      run: |
+        pip install -e .
+        pip install -e ./backend
 
     - if: matrix.python-version == '3.9' && runner.os == 'Linux'
       name: Lint

@@ -36,7 +36,9 @@ jobs:
       run: python -m pip install --upgrade pip
 
     - name: Install ourself
-      run: pip install -e .
+      run: |
+        pip install -e .
+        pip install -e ./backend
 
     - name: Configure Git for GitHub Actions bot
       run: |
