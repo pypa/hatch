@@ -4,7 +4,7 @@ from collections import OrderedDict
 from copy import deepcopy
 
 from ..utils.fs import locate_file
-from .utils import is_valid_project_name, normalize_project_name
+from .utils import get_normalized_dependency, is_valid_project_name, normalize_project_name
 
 # TODO: remove when we drop Python 2
 if sys.version_info[0] < 3:  # no cov
@@ -983,23 +983,23 @@ class CoreMetadata(object):
             if not isinstance(dependencies, list):
                 raise TypeError('Field `project.dependencies` must be an array')
 
-            dependencies_complex = []
+            dependencies_complex = OrderedDict()
 
             for i, entry in enumerate(dependencies, 1):
                 if not isinstance(entry, str):
                     raise TypeError('Dependency #{} of field `project.dependencies` must be a string'.format(i))
 
                 try:
-                    dependency = Requirement(entry)
+                    requirement = Requirement(entry)
                 except InvalidRequirement as e:
                     raise ValueError('Dependency #{} of field `project.dependencies` is invalid: {}'.format(i, e))
                 else:
-                    if dependency.url and not self.hatch_metadata.allow_direct_references:
+                    if requirement.url and not self.hatch_metadata.allow_direct_references:
                         raise ValueError(
                             'Dependency #{} of field `project.dependencies` cannot be a direct reference'.format(i)
                         )
 
-                    dependencies_complex.append(dependency)
+                    dependencies_complex[get_normalized_dependency(requirement)] = requirement
 
             self._dependencies_complex = dependencies_complex
 
@@ -1011,7 +1011,7 @@ class CoreMetadata(object):
         https://www.python.org/dev/peps/pep-0621/#dependencies-optional-dependencies
         """
         if self._dependencies is None:
-            self._dependencies = sorted(map(str, self.dependencies_complex), key=lambda d: d.lower())
+            self._dependencies = sorted(self.dependencies_complex)
 
         return self._dependencies
 
@@ -1036,16 +1036,16 @@ class CoreMetadata(object):
             if not isinstance(optional_dependencies, dict):
                 raise TypeError('Field `project.optional-dependencies` must be a table')
 
-            optional_dependency_entries = OrderedDict()
+            optional_dependency_entries = {}
 
-            for option, dependencies in sorted(optional_dependencies.items()):
+            for option, dependencies in optional_dependencies.items():
                 if not isinstance(dependencies, list):
                     raise TypeError(
                         'Dependencies for option `{}` of field `project.optional-dependencies` '
                         'must be an array'.format(option)
                     )
 
-                entries = []
+                entries = set()
 
                 for i, entry in enumerate(dependencies, 1):
                     if not isinstance(entry, str):
@@ -1055,24 +1055,24 @@ class CoreMetadata(object):
                         )
 
                     try:
-                        dependency = Requirement(entry)
+                        requirement = Requirement(entry)
                     except InvalidRequirement as e:
                         raise ValueError(
                             'Dependency #{} of option `{}` of field `project.optional-dependencies` '
                             'is invalid: {}'.format(i, option, e)
                         )
                     else:
-                        if dependency.url and not self.hatch_metadata.allow_direct_references:
+                        if requirement.url and not self.hatch_metadata.allow_direct_references:
                             raise ValueError(
                                 'Dependency #{} of option `{}` of field `project.optional-dependencies` '
                                 'cannot be a direct reference'.format(i, option)
                             )
 
-                        entries.append(dependency)
+                        entries.add(get_normalized_dependency(requirement))
 
-                optional_dependency_entries[option] = sorted(map(str, entries), key=lambda s: s.lower())
+                optional_dependency_entries[option] = sorted(entries)
 
-            self._optional_dependencies = optional_dependency_entries
+            self._optional_dependencies = OrderedDict(sorted(optional_dependency_entries.items()))
 
         return self._optional_dependencies
 
