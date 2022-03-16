@@ -1124,6 +1124,18 @@ class TestOptionalDependencies:
         with pytest.raises(TypeError, match='Field `project.optional-dependencies` must be a table'):
             _ = metadata.core.optional_dependencies
 
+    def test_invalid_name(self, isolation):
+        metadata = ProjectMetadata(str(isolation), None, {'project': {'optional-dependencies': {'foo/bar': []}}})
+
+        with pytest.raises(
+            ValueError,
+            match=(
+                'Optional dependency group `foo/bar` of field `project.optional-dependencies` must only contain '
+                'ASCII letters/digits, underscores, hyphens, and periods.'
+            ),
+        ):
+            _ = metadata.core.optional_dependencies
+
     def test_definitions_not_array(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {'project': {'optional-dependencies': {'foo': 5}}})
 
@@ -1145,6 +1157,20 @@ class TestOptionalDependencies:
 
         with pytest.raises(
             ValueError, match='Dependency #1 of option `foo` of field `project.optional-dependencies` is invalid: .+'
+        ):
+            _ = metadata.core.optional_dependencies
+
+    def test_conflict(self, isolation):
+        metadata = ProjectMetadata(
+            str(isolation), None, {'project': {'optional-dependencies': {'foo_bar': [], 'foo.bar': []}}}
+        )
+
+        with pytest.raises(
+            ValueError,
+            match=(
+                'Optional dependency groups `foo_bar` and `foo.bar` of field `project.optional-dependencies` both '
+                'evaluate to `foo-bar`.'
+            ),
         ):
             _ = metadata.core.optional_dependencies
 
