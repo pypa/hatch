@@ -1,10 +1,10 @@
 import os
-import re
 import sys
 from collections import OrderedDict
 from copy import deepcopy
 
 from ..utils.fs import locate_file
+from .utils import is_valid_project_name, normalize_project_name
 
 # TODO: remove when we drop Python 2
 if sys.version_info[0] < 3:  # no cov
@@ -283,15 +283,13 @@ class CoreMetadata(object):
             elif not isinstance(name, str):
                 raise TypeError('Field `project.name` must be a string')
 
-            # https://www.python.org/dev/peps/pep-0508/#names
-            if not re.search('^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$', name, re.IGNORECASE):
+            if not is_valid_project_name(name):
                 raise ValueError(
                     'Required field `project.name` must only contain ASCII letters/digits, '
                     'underscores, hyphens, and periods.'
                 )
 
-            # https://www.python.org/dev/peps/pep-0503/#normalized-names
-            self._name = re.sub(r'[-_.]+', '-', name).lower()
+            self._name = normalize_project_name(name)
 
         return self._name
 
