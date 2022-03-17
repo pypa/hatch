@@ -286,7 +286,7 @@ class CoreMetadata(object):
             if not is_valid_project_name(name):
                 raise ValueError(
                     'Required field `project.name` must only contain ASCII letters/digits, '
-                    'underscores, hyphens, and periods.'
+                    'underscores, hyphens, and periods, and must begin with ASCII letters/digits.'
                 )
 
             self._name = normalize_project_name(name)
@@ -1036,10 +1036,17 @@ class CoreMetadata(object):
             if not isinstance(optional_dependencies, dict):
                 raise TypeError('Field `project.optional-dependencies` must be a table')
 
+            normalized_options = {}
             optional_dependency_entries = {}
 
             for option, dependencies in optional_dependencies.items():
-                if not isinstance(dependencies, list):
+                if not is_valid_project_name(option):
+                    raise ValueError(
+                        'Optional dependency group `{}` of field `project.optional-dependencies` must only contain '
+                        'ASCII letters/digits, underscores, hyphens, and periods, and must begin with ASCII '
+                        'letters/digits.'.format(option)
+                    )
+                elif not isinstance(dependencies, list):
                     raise TypeError(
                         'Dependencies for option `{}` of field `project.optional-dependencies` '
                         'must be an array'.format(option)
@@ -1070,7 +1077,15 @@ class CoreMetadata(object):
 
                         entries.add(get_normalized_dependency(requirement))
 
-                optional_dependency_entries[option] = sorted(entries)
+                normalized_option = normalize_project_name(option)
+                if normalized_option in normalized_options:
+                    raise ValueError(
+                        'Optional dependency groups `{}` and `{}` of field `project.optional-dependencies` both '
+                        'evaluate to `{}`.'.format(normalized_options[normalized_option], option, normalized_option)
+                    )
+
+                normalized_options[normalized_option] = option
+                optional_dependency_entries[normalized_option] = sorted(entries)
 
             self._optional_dependencies = OrderedDict(sorted(optional_dependency_entries.items()))
 
