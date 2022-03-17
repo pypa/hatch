@@ -286,7 +286,7 @@ class CoreMetadata(object):
             if not is_valid_project_name(name):
                 raise ValueError(
                     'Required field `project.name` must only contain ASCII letters/digits, '
-                    'underscores, hyphens, and periods.'
+                    'underscores, hyphens, and periods, and must begin with ASCII letters/digits.'
                 )
 
             self._name = normalize_project_name(name)
@@ -1043,7 +1043,8 @@ class CoreMetadata(object):
                 if not is_valid_project_name(option):
                     raise ValueError(
                         'Optional dependency group `{}` of field `project.optional-dependencies` must only contain '
-                        'ASCII letters/digits, underscores, hyphens, and periods.'.format(option)
+                        'ASCII letters/digits, underscores, hyphens, and periods, and must begin with ASCII '
+                        'letters/digits.'.format(option)
                     )
                 elif not isinstance(dependencies, list):
                     raise TypeError(

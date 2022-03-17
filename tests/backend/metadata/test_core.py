@@ -121,7 +121,7 @@ class TestName:
             ValueError,
             match=(
                 'Required field `project.name` must only contain ASCII letters/digits, '
-                'underscores, hyphens, and periods.'
+                'underscores, hyphens, and periods, and must begin with ASCII letters/digits.'
             ),
         ):
             _ = metadata.core.name
@@ -1131,7 +1131,7 @@ class TestOptionalDependencies:
             ValueError,
             match=(
                 'Optional dependency group `foo/bar` of field `project.optional-dependencies` must only contain '
-                'ASCII letters/digits, underscores, hyphens, and periods.'
+                'ASCII letters/digits, underscores, hyphens, and periods, and must begin with ASCII letters/digits.'
             ),
         ):
             _ = metadata.core.optional_dependencies
