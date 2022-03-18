@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Unreleased
 
+### [1.0.0rc15](https://github.com/ofek/hatch/releases/tag/hatch-v1.0.0rc15) - 2022-03-18 ### {: #hatch-v1.0.0rc15 }
+
 ***Added:***
 
 - Bump the minimum supported version of Hatchling
