@@ -613,11 +613,11 @@ class TestCoreMetadataV21:
             Name: my-app
             Version: 0.1.0
             Provides-Extra: feature1
-            Requires-Dist: bar==5; python_version < "3" and extra == "feature1"
-            Requires-Dist: foo==1; extra == "feature1"
+            Requires-Dist: bar==5; python_version < '3' and extra == 'feature1'
+            Requires-Dist: foo==1; extra == 'feature1'
             Provides-Extra: feature2
-            Requires-Dist: bar==5; extra == "feature2"
-            Requires-Dist: foo==1; python_version < "3" and extra == "feature2"
+            Requires-Dist: bar==5; extra == 'feature2'
+            Requires-Dist: foo==1; python_version < '3' and extra == 'feature2'
             """
         )
 
@@ -708,11 +708,11 @@ class TestCoreMetadataV21:
             Requires-Dist: bar==5
             Requires-Dist: foo==1
             Provides-Extra: feature1
-            Requires-Dist: bar==5; python_version < "3" and extra == "feature1"
-            Requires-Dist: foo==1; extra == "feature1"
+            Requires-Dist: bar==5; python_version < '3' and extra == 'feature1'
+            Requires-Dist: foo==1; extra == 'feature1'
             Provides-Extra: feature2
-            Requires-Dist: bar==5; extra == "feature2"
-            Requires-Dist: foo==1; python_version < "3" and extra == "feature2"
+            Requires-Dist: bar==5; extra == 'feature2'
+            Requires-Dist: foo==1; python_version < '3' and extra == 'feature2'
             Description-Content-Type: text/markdown
 
             test content
@@ -1005,11 +1005,11 @@ class TestCoreMetadataV22:
             Name: my-app
             Version: 0.1.0
             Provides-Extra: feature1
-            Requires-Dist: bar==5; python_version < "3" and extra == "feature1"
-            Requires-Dist: foo==1; extra == "feature1"
+            Requires-Dist: bar==5; python_version < '3' and extra == 'feature1'
+            Requires-Dist: foo==1; extra == 'feature1'
             Provides-Extra: feature2
-            Requires-Dist: bar==5; extra == "feature2"
-            Requires-Dist: foo==1; python_version < "3" and extra == "feature2"
+            Requires-Dist: bar==5; extra == 'feature2'
+            Requires-Dist: foo==1; python_version < '3' and extra == 'feature2'
             """
         )
 
@@ -1100,11 +1100,11 @@ class TestCoreMetadataV22:
             Requires-Dist: bar==5
             Requires-Dist: foo==1
             Provides-Extra: feature1
-            Requires-Dist: bar==5; python_version < "3" and extra == "feature1"
-            Requires-Dist: foo==1; extra == "feature1"
+            Requires-Dist: bar==5; python_version < '3' and extra == 'feature1'
+            Requires-Dist: foo==1; extra == 'feature1'
             Provides-Extra: feature2
-            Requires-Dist: bar==5; extra == "feature2"
-            Requires-Dist: foo==1; python_version < "3" and extra == "feature2"
+            Requires-Dist: bar==5; extra == 'feature2'
+            Requires-Dist: foo==1; python_version < '3' and extra == 'feature2'
             Description-Content-Type: text/markdown
 
             test content
@@ -1420,11 +1420,11 @@ class TestCoreMetadataV23:
             Name: my-app
             Version: 0.1.0
             Provides-Extra: feature1
-            Requires-Dist: bar==5; python_version < "3" and extra == "feature1"
-            Requires-Dist: foo==1; extra == "feature1"
+            Requires-Dist: bar==5; python_version < '3' and extra == 'feature1'
+            Requires-Dist: foo==1; extra == 'feature1'
             Provides-Extra: feature2
-            Requires-Dist: bar==5; extra == "feature2"
-            Requires-Dist: foo==1; python_version < "3" and extra == "feature2"
+            Requires-Dist: bar==5; extra == 'feature2'
+            Requires-Dist: foo==1; python_version < '3' and extra == 'feature2'
             """
         )
 
@@ -1522,11 +1522,11 @@ class TestCoreMetadataV23:
             Requires-Dist: bar==5
             Requires-Dist: foo==1
             Provides-Extra: feature1
-            Requires-Dist: bar==5; python_version < "3" and extra == "feature1"
-            Requires-Dist: foo==1; extra == "feature1"
+            Requires-Dist: bar==5; python_version < '3' and extra == 'feature1'
+            Requires-Dist: foo==1; extra == 'feature1'
             Provides-Extra: feature2
-            Requires-Dist: bar==5; extra == "feature2"
-            Requires-Dist: foo==1; python_version < "3" and extra == "feature2"
+            Requires-Dist: bar==5; extra == 'feature2'
+            Requires-Dist: foo==1; python_version < '3' and extra == 'feature2'
             Description-Content-Type: text/markdown
 
             test content

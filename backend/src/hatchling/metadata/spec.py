@@ -133,9 +133,9 @@ def construct_metadata_file_2_1(metadata, extra_dependencies=()):
             metadata_file += 'Provides-Extra: {}\n'.format(option)
             for dependency in dependencies:
                 if ';' in dependency:
-                    metadata_file += 'Requires-Dist: {} and extra == "{}"\n'.format(dependency, option)
+                    metadata_file += 'Requires-Dist: {} and extra == {!r}\n'.format(dependency, option)
                 else:
-                    metadata_file += 'Requires-Dist: {}; extra == "{}"\n'.format(dependency, option)
+                    metadata_file += 'Requires-Dist: {}; extra == {!r}\n'.format(dependency, option)
 
     if metadata.core.readme:
         metadata_file += 'Description-Content-Type: {}\n'.format(metadata.core.readme_content_type)
@@ -205,9 +205,9 @@ def construct_metadata_file_2_2(metadata, extra_dependencies=()):
             metadata_file += 'Provides-Extra: {}\n'.format(option)
             for dependency in dependencies:
                 if ';' in dependency:
-                    metadata_file += 'Requires-Dist: {} and extra == "{}"\n'.format(dependency, option)
+                    metadata_file += 'Requires-Dist: {} and extra == {!r}\n'.format(dependency, option)
                 else:
-                    metadata_file += 'Requires-Dist: {}; extra == "{}"\n'.format(dependency, option)
+                    metadata_file += 'Requires-Dist: {}; extra == {!r}\n'.format(dependency, option)
 
     if metadata.core.readme:
         metadata_file += 'Description-Content-Type: {}\n'.format(metadata.core.readme_content_type)
@@ -273,9 +273,9 @@ def construct_metadata_file_2_3(metadata, extra_dependencies=()):
             metadata_file += 'Provides-Extra: {}\n'.format(option)
             for dependency in dependencies:
                 if ';' in dependency:
-                    metadata_file += 'Requires-Dist: {} and extra == "{}"\n'.format(dependency, option)
+                    metadata_file += 'Requires-Dist: {} and extra == {!r}\n'.format(dependency, option)
                 else:
-                    metadata_file += 'Requires-Dist: {}; extra == "{}"\n'.format(dependency, option)
+                    metadata_file += 'Requires-Dist: {}; extra == {!r}\n'.format(dependency, option)
 
     if metadata.core.readme:
         metadata_file += 'Description-Content-Type: {}\n'.format(metadata.core.readme_content_type)

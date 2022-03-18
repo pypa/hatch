@@ -165,7 +165,7 @@ class SdistBuilder(BuilderInterface):
             contents += '    install_requires=[\n'
 
             for specifier in self.metadata.core.dependencies:
-                contents += '        {!r},\n'.format(specifier)
+                contents += '        {!r},\n'.format(specifier.replace("'", '"'))
 
             contents += '    ],\n'
 
@@ -179,7 +179,7 @@ class SdistBuilder(BuilderInterface):
                 contents += '        {!r}: [\n'.format(option)
 
                 for specifier in specifiers:
-                    contents += '            {!r},\n'.format(specifier)
+                    contents += '            {!r},\n'.format(specifier.replace("'", '"'))
 
                 contents += '        ],\n'
 

@@ -1083,7 +1083,7 @@ class TestDependencies:
                 'project': {
                     'dependencies': [
                         'python___dateutil',
-                        'bAr.Baz[TLS, EdDSA]   >=1.2RC5',
+                        'bAr.Baz[TLS, Zu.Bat, EdDSA, Zu_Bat]   >=1.2RC5',
                         'Foo;python_version<"3.8"',
                         'fOO;     python_version<    "3.8"',
                     ],
@@ -1095,8 +1095,8 @@ class TestDependencies:
             metadata.core.dependencies
             == metadata.core.dependencies
             == [
-                'bar-baz[eddsa,tls]>=1.2rc5',
-                'foo; python_version < "3.8"',
+                'bar-baz[eddsa,tls,zu-bat]>=1.2rc5',
+                "foo; python_version < '3.8'",
                 'python-dateutil',
             ]
         )
@@ -1209,7 +1209,7 @@ class TestOptionalDependencies:
                     'optional-dependencies': {
                         'foo': [
                             'python___dateutil',
-                            'bAr.Baz[TLS, EdDSA]   >=1.2RC5',
+                            'bAr.Baz[TLS, Zu.Bat, EdDSA, Zu_Bat]   >=1.2RC5',
                             'Foo;python_version<"3.8"',
                             'fOO;     python_version<    "3.8"',
                         ],
@@ -1224,7 +1224,7 @@ class TestOptionalDependencies:
             == metadata.core.optional_dependencies
             == {
                 'bar': ['bar', 'baz', 'foo'],
-                'foo': ['bar-baz[eddsa,tls]>=1.2rc5', 'foo; python_version < "3.8"', 'python-dateutil'],
+                'foo': ['bar-baz[eddsa,tls,zu-bat]>=1.2rc5', "foo; python_version < '3.8'", 'python-dateutil'],
             }
         )
 
