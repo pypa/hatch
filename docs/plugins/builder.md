@@ -58,7 +58,7 @@ This is data that can be modified by [build hooks](build-hook.md).
 
 | Data | Default | Description |
 | --- | --- | --- |
-| `tag` | | The full [tag](https://www.python.org/dev/peps/pep-0425/) part of the filename (e.g. `py3-none-any`), defaulting to a cross-platform wheel with the supported major versions of Python based on [project metadata](../config/metadata.md#python-support) |
+| `tag` | | The full [tag](https://peps.python.org/pep-0425/) part of the filename (e.g. `py3-none-any`), defaulting to a cross-platform wheel with the supported major versions of Python based on [project metadata](../config/metadata.md#python-support) |
 | `infer_tag` | `#!python False` | When `tag` is not set, this may be enabled to use the one most specific to the platform, Python interpreter, and ABI |
 | `pure_python` | `#!python True` | Whether or not to write metadata indicating that the package does not contain any platform-specific files |
 

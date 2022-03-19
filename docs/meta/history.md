@@ -142,7 +142,7 @@ This is the first release candidate for Hatch v1, a complete rewrite.
 - Add option to allow the use of direct references for dependencies
 - Make the default pattern for the `regex` version source case insensitive
 - Deduplicate and normalize dependency definitions before writing metadata for wheels and source distributions
-- Normalize the names of optional dependency groups to adhere to the newly-introduced [PEP 685](https://www.python.org/dev/peps/pep-0685/)
+- Normalize the names of optional dependency groups to adhere to the newly-introduced [PEP 685](https://peps.python.org/pep-0685/)
 
 ### [0.20.1](https://github.com/ofek/hatch/releases/tag/hatchling-v0.20.1) - 2022-03-07 ### {: #hatchling-v0.20.1 }
 

@@ -6,7 +6,7 @@
 
 ***Q***: What is the risk of lock-in?
 
-***A***: Not much! Other than the [plugin system](../plugins/about.md), everything uses Python's established standards by default. Project metadata is based entirely on [PEP 621][]/[PEP 631][], the build system is compatible with [PEP 517][]/[PEP 660][], versioning uses the scheme specified by [PEP 440](https://www.python.org/dev/peps/pep-0440/#public-version-identifiers), dependencies are defined with [PEP 508][] strings, and environments use [virtualenv](https://github.com/pypa/virtualenv).
+***A***: Not much! Other than the [plugin system](../plugins/about.md), everything uses Python's established standards by default. Project metadata is based entirely on [PEP 621][]/[PEP 631][], the build system is compatible with [PEP 517][]/[PEP 660][], versioning uses the scheme specified by [PEP 440](https://peps.python.org/pep-0440/#public-version-identifiers), dependencies are defined with [PEP 508][] strings, and environments use [virtualenv](https://github.com/pypa/virtualenv).
 
 ***Q***: Must one use all features?
 

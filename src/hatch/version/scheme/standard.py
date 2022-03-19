@@ -3,7 +3,7 @@ from .plugin.interface import VersionSchemeInterface
 
 class StandardScheme(VersionSchemeInterface):
     """
-    See https://www.python.org/dev/peps/pep-0440/
+    See https://peps.python.org/pep-0440/
     """
 
     PLUGIN_NAME = 'standard'

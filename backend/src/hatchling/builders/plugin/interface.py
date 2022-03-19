@@ -366,6 +366,6 @@ class BuilderInterface(object):
     @staticmethod
     def normalize_file_name_component(file_name):
         """
-        https://www.python.org/dev/peps/pep-0427/#escaping-and-unicode
+        https://peps.python.org/pep-0427/#escaping-and-unicode
         """
         return re.sub(r'[^\w\d.]+', '_', file_name, re.UNICODE)

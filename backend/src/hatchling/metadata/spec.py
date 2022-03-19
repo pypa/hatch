@@ -15,7 +15,7 @@ def get_core_metadata_constructors():
 
 def construct_metadata_file_1_2(metadata, extra_dependencies=()):
     """
-    https://www.python.org/dev/peps/pep-0345/
+    https://peps.python.org/pep-0345/
     """
     metadata_file = 'Metadata-Version: 1.2\n'
     metadata_file += 'Name: {}\n'.format(metadata.core.name)
@@ -74,7 +74,7 @@ def construct_metadata_file_1_2(metadata, extra_dependencies=()):
 
 def construct_metadata_file_2_1(metadata, extra_dependencies=()):
     """
-    https://www.python.org/dev/peps/pep-0566/
+    https://peps.python.org/pep-0566/
     """
     metadata_file = 'Metadata-Version: 2.1\n'
     metadata_file += 'Name: {}\n'.format(metadata.core.name)
@@ -146,7 +146,7 @@ def construct_metadata_file_2_1(metadata, extra_dependencies=()):
 
 def construct_metadata_file_2_2(metadata, extra_dependencies=()):
     """
-    https://www.python.org/dev/peps/pep-0643/
+    https://peps.python.org/pep-0643/
     """
     metadata_file = 'Metadata-Version: 2.2\n'
     metadata_file += 'Name: {}\n'.format(metadata.core.name)
@@ -218,7 +218,7 @@ def construct_metadata_file_2_2(metadata, extra_dependencies=()):
 
 def construct_metadata_file_2_3(metadata, extra_dependencies=()):
     """
-    https://www.python.org/dev/peps/pep-0639/
+    https://peps.python.org/pep-0639/
     """
     metadata_file = 'Metadata-Version: 2.3\n'
     metadata_file += 'Name: {}\n'.format(metadata.core.name)

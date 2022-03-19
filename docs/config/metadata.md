@@ -262,7 +262,7 @@ the project to advertise components it provides to be discovered and used by oth
 
 ### Allowing direct references
 
-By default, [dependencies](#dependencies) are not allowed to define [direct references](https://www.python.org/dev/peps/pep-0440/#direct-references). To disable this check, set `allow-direct-references` to `true`:
+By default, [dependencies](#dependencies) are not allowed to define [direct references](https://peps.python.org/pep-0440/#direct-references). To disable this check, set `allow-direct-references` to `true`:
 
 === ":octicons-file-code-16: pyproject.toml"
 

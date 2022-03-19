@@ -298,7 +298,7 @@ def recurse_artifacts(artifacts: list, root) -> Generator[Path, None, None]:
 
 
 def normalize_project_name(name):
-    # https://www.python.org/dev/peps/pep-0503/#normalized-names
+    # https://peps.python.org/pep-0503/#normalized-names
     return re.sub(r'[-_.]+', '-', name).lower()
 
 

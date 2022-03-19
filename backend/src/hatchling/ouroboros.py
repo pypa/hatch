@@ -55,7 +55,7 @@ CONFIG = {
 
 def build_sdist(sdist_directory, config_settings=None):
     """
-    https://www.python.org/dev/peps/pep-0517/#build-sdist
+    https://peps.python.org/pep-0517/#build-sdist
     """
     from .builders.sdist import SdistBuilder
 
@@ -65,7 +65,7 @@ def build_sdist(sdist_directory, config_settings=None):
 
 def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
     """
-    https://www.python.org/dev/peps/pep-0517/#build-wheel
+    https://peps.python.org/pep-0517/#build-wheel
     """
     from .builders.wheel import WheelBuilder
 
@@ -75,7 +75,7 @@ def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
 
 def build_editable(wheel_directory, config_settings=None, metadata_directory=None):
     """
-    https://www.python.org/dev/peps/pep-0660/#build-editable
+    https://peps.python.org/pep-0660/#build-editable
     """
     from .builders.wheel import WheelBuilder
 
@@ -85,20 +85,20 @@ def build_editable(wheel_directory, config_settings=None, metadata_directory=Non
 
 def get_requires_for_build_sdist(config_settings=None):
     """
-    https://www.python.org/dev/peps/pep-0517/#get-requires-for-build-sdist
+    https://peps.python.org/pep-0517/#get-requires-for-build-sdist
     """
     return CONFIG['project']['dependencies']
 
 
 def get_requires_for_build_wheel(config_settings=None):
     """
-    https://www.python.org/dev/peps/pep-0517/#get-requires-for-build-wheel
+    https://peps.python.org/pep-0517/#get-requires-for-build-wheel
     """
     return CONFIG['project']['dependencies']
 
 
 def get_requires_for_build_editable(config_settings=None):
     """
-    https://www.python.org/dev/peps/pep-0660/#get-requires-for-build-editable
+    https://peps.python.org/pep-0660/#get-requires-for-build-editable
     """
     return CONFIG['project']['dependencies']

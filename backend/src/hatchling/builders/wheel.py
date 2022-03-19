@@ -36,7 +36,7 @@ EDITABLES_MINIMUM_VERSION = '0.2'
 class WheelArchive(object):
     def __init__(self, metadata_directory, reproducible):
         """
-        https://www.python.org/dev/peps/pep-0427/#abstract
+        https://peps.python.org/pep-0427/#abstract
         """
         self.metadata_directory = metadata_directory
         self.reproducible = reproducible

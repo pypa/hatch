@@ -63,7 +63,7 @@ Old: 0.0.1
 New: 0.1.0
 ```
 
-The `scheme` option determines the [scheme](plugins/version-scheme.md) to use for parsing both the existing and new versions. The [standard](plugins/version-scheme.md#standard) scheme is used by default, which is based on [PEP 440](https://www.python.org/dev/peps/pep-0440/#public-version-identifiers).
+The `scheme` option determines the [scheme](plugins/version-scheme.md) to use for parsing both the existing and new versions. The [standard](plugins/version-scheme.md#standard) scheme is used by default, which is based on [PEP 440](https://peps.python.org/pep-0440/#public-version-identifiers).
 
 Rather than setting the version explicitly, you can select the name of a [segment](#supported-segments) used to increment the version:
 

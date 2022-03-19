@@ -40,7 +40,7 @@ def normalize_archive_path(path):
 
 
 def format_file_hash(digest):
-    # https://www.python.org/dev/peps/pep-0427/#signed-wheel-files
+    # https://peps.python.org/pep-0427/#signed-wheel-files
     return urlsafe_b64encode(digest).decode('ascii').rstrip('=')
 
 

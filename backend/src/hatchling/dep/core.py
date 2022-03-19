@@ -85,7 +85,7 @@ def dependency_in_sync(requirement, environment, installed_distributions):
                 commit_id = vcs_info['commit_id']
 
                 # Try a few variations, see:
-                # https://www.python.org/dev/peps/pep-0440/#direct-references
+                # https://peps.python.org/pep-0440/#direct-references
                 if requirement.url != '{}+{}@{}'.format(vcs, url, commit_id):
                     if 'requested_revision' in vcs_info:
                         requested_revision = vcs_info['requested_revision']

@@ -87,7 +87,7 @@ Though heavily discouraged, arbitrary equality comparisons allow for simple stri
 
 ## Environment markers
 
-[Environment markers](https://www.python.org/dev/peps/pep-0508/#environment-markers) allow for dependencies to only be installed when certain conditions are met.
+[Environment markers](https://peps.python.org/pep-0508/#environment-markers) allow for dependencies to only be installed when certain conditions are met.
 
 For example, if you need to install the latest version of `cryptography` that is available for a given Python major version you could define the following:
 
@@ -116,11 +116,11 @@ The available environment markers are as follows.
 | `python_version` | `#!python import platform`<br>`'.'.join(platform.python_version_tuple()[:2])` | <ul><li>2.7</li><li>3.10</li></ul> |
 | `python_full_version` | `#!python import platform`<br>`platform.python_version()` | <ul><li>2.7.18</li><li>3.11.0b1</li></ul> |
 | `implementation_name` | `#!python import sys`<br>`sys.implementation.name` | <ul><li>cpython</li></ul> |
-| `implementation_version` | See [here](https://www.python.org/dev/peps/pep-0508/#environment-markers) | <ul><li>2.7.18</li><li>3.11.0b1</li></ul> |
+| `implementation_version` | See [here](https://peps.python.org/pep-0508/#environment-markers) | <ul><li>2.7.18</li><li>3.11.0b1</li></ul> |
 
 ## Features
 
-You can select groups of [optional dependencies](dependency.md#optional-dependencies) to install using the [extras](https://www.python.org/dev/peps/pep-0508/#extras) syntax. For example, if a dependency named `foo` defined the following:
+You can select groups of [optional dependencies](dependency.md#optional-dependencies) to install using the [extras](https://peps.python.org/pep-0508/#extras) syntax. For example, if a dependency named `foo` defined the following:
 
 === ":octicons-file-code-16: pyproject.toml"
 
@@ -149,7 +149,7 @@ Note that the features come immediately after the package name, before any [vers
 
 ## Direct references
 
-Instead of using normal [version specifiers](#version-specifiers) and fetching packages from an index like PyPI, you can define exact sources using [direct references](https://www.python.org/dev/peps/pep-0440/#direct-references) with an explicit [URI](https://en.wikipedia.org/wiki/Uniform_Resource_Identifier#Syntax).
+Instead of using normal [version specifiers](#version-specifiers) and fetching packages from an index like PyPI, you can define exact sources using [direct references](https://peps.python.org/pep-0440/#direct-references) with an explicit [URI](https://en.wikipedia.org/wiki/Uniform_Resource_Identifier#Syntax).
 
 Direct references are not meant to be used for dependencies of a published project but rather are used for defining [dependencies for an environment](environment.md#dependencies).
 

@@ -54,7 +54,7 @@ class ProjectMetadata(object):
     @property
     def version(self):
         """
-        https://www.python.org/dev/peps/pep-0621/#version
+        https://peps.python.org/pep-0621/#version
         """
         if self._version is None:
             self._set_version()
@@ -159,7 +159,7 @@ class ProjectMetadata(object):
 
 class BuildMetadata(object):
     """
-    https://www.python.org/dev/peps/pep-0517/
+    https://peps.python.org/pep-0517/
     """
 
     def __init__(self, root, config):
@@ -231,7 +231,7 @@ class BuildMetadata(object):
 
 class CoreMetadata(object):
     """
-    https://www.python.org/dev/peps/pep-0621/
+    https://peps.python.org/pep-0621/
     """
 
     def __init__(self, root, config, hatch_metadata):
@@ -268,7 +268,7 @@ class CoreMetadata(object):
     @property
     def name(self):
         """
-        https://www.python.org/dev/peps/pep-0621/#name
+        https://peps.python.org/pep-0621/#name
         """
         if self._name is None:
             if 'name' in self.dynamic:
@@ -296,7 +296,7 @@ class CoreMetadata(object):
     @property
     def version(self):
         """
-        https://www.python.org/dev/peps/pep-0621/#version
+        https://peps.python.org/pep-0621/#version
         """
         if self._version is None:
             if 'version' not in self.config:
@@ -323,7 +323,7 @@ class CoreMetadata(object):
     @property
     def description(self):
         """
-        https://www.python.org/dev/peps/pep-0621/#description
+        https://peps.python.org/pep-0621/#description
         """
         if self._description is None:
             if 'description' in self.config:
@@ -346,7 +346,7 @@ class CoreMetadata(object):
     @property
     def readme(self):
         """
-        https://www.python.org/dev/peps/pep-0621/#readme
+        https://peps.python.org/pep-0621/#readme
         """
         if self._readme is None:
             if 'readme' in self.config:
@@ -435,7 +435,7 @@ class CoreMetadata(object):
     @property
     def readme_content_type(self):
         """
-        https://www.python.org/dev/peps/pep-0621/#readme
+        https://peps.python.org/pep-0621/#readme
         """
         if self._readme_content_type is None:
             _ = self.readme
@@ -445,7 +445,7 @@ class CoreMetadata(object):
     @property
     def readme_path(self):
         """
-        https://www.python.org/dev/peps/pep-0621/#readme
+        https://peps.python.org/pep-0621/#readme
         """
         if self._readme_path is None:
             _ = self.readme
@@ -455,7 +455,7 @@ class CoreMetadata(object):
     @property
     def requires_python(self):
         """
-        https://www.python.org/dev/peps/pep-0621/#requires-python
+        https://peps.python.org/pep-0621/#requires-python
         """
         if self._requires_python is None:
             from packaging.specifiers import InvalidSpecifier, SpecifierSet
@@ -492,7 +492,7 @@ class CoreMetadata(object):
     @property
     def license(self):
         """
-        https://www.python.org/dev/peps/pep-0621/#license
+        https://peps.python.org/pep-0621/#license
         """
         if self._license is None:
             if 'license' in self.config:
@@ -545,7 +545,7 @@ class CoreMetadata(object):
     @property
     def license_expression(self):
         """
-        https://www.python.org/dev/peps/pep-0639/
+        https://peps.python.org/pep-0639/
         """
         if self._license_expression is None:
             _ = self.license
@@ -555,7 +555,7 @@ class CoreMetadata(object):
     @property
     def license_files(self):
         """
-        https://www.python.org/dev/peps/pep-0639/
+        https://peps.python.org/pep-0639/
         """
         if self._license_files is None:
             if 'license-files' not in self.config:
@@ -619,7 +619,7 @@ class CoreMetadata(object):
     @property
     def authors(self):
         """
-        https://www.python.org/dev/peps/pep-0621/#authors-maintainers
+        https://peps.python.org/pep-0621/#authors-maintainers
         """
         if self._authors is None:
             if 'authors' in self.config:
@@ -679,7 +679,7 @@ class CoreMetadata(object):
     @property
     def authors_data(self):
         """
-        https://www.python.org/dev/peps/pep-0621/#authors-maintainers
+        https://peps.python.org/pep-0621/#authors-maintainers
         """
         if self._authors_data is None:
             _ = self.authors
@@ -689,7 +689,7 @@ class CoreMetadata(object):
     @property
     def maintainers(self):
         """
-        https://www.python.org/dev/peps/pep-0621/#authors-maintainers
+        https://peps.python.org/pep-0621/#authors-maintainers
         """
         if self._maintainers is None:
             if 'maintainers' in self.config:
@@ -749,7 +749,7 @@ class CoreMetadata(object):
     @property
     def maintainers_data(self):
         """
-        https://www.python.org/dev/peps/pep-0621/#authors-maintainers
+        https://peps.python.org/pep-0621/#authors-maintainers
         """
         if self._maintainers_data is None:
             _ = self.maintainers
@@ -759,7 +759,7 @@ class CoreMetadata(object):
     @property
     def keywords(self):
         """
-        https://www.python.org/dev/peps/pep-0621/#keywords
+        https://peps.python.org/pep-0621/#keywords
         """
         if self._keywords is None:
             if 'keywords' in self.config:
@@ -790,7 +790,7 @@ class CoreMetadata(object):
     @property
     def classifiers(self):
         """
-        https://www.python.org/dev/peps/pep-0621/#classifiers
+        https://peps.python.org/pep-0621/#classifiers
         """
         if self._classifiers is None:
             if 'classifiers' in self.config:
@@ -821,7 +821,7 @@ class CoreMetadata(object):
     @property
     def urls(self):
         """
-        https://www.python.org/dev/peps/pep-0621/#urls
+        https://peps.python.org/pep-0621/#urls
         """
         if self._urls is None:
             if 'urls' in self.config:
@@ -851,7 +851,7 @@ class CoreMetadata(object):
     @property
     def scripts(self):
         """
-        https://www.python.org/dev/peps/pep-0621/#entry-points
+        https://peps.python.org/pep-0621/#entry-points
         """
         if self._scripts is None:
             if 'scripts' in self.config:
@@ -882,7 +882,7 @@ class CoreMetadata(object):
     @property
     def gui_scripts(self):
         """
-        https://www.python.org/dev/peps/pep-0621/#entry-points
+        https://peps.python.org/pep-0621/#entry-points
         """
         if self._gui_scripts is None:
             if 'gui-scripts' in self.config:
@@ -915,7 +915,7 @@ class CoreMetadata(object):
     @property
     def entry_points(self):
         """
-        https://www.python.org/dev/peps/pep-0621/#entry-points
+        https://peps.python.org/pep-0621/#entry-points
         """
         if self._entry_points is None:
             if 'entry-points' in self.config:
@@ -965,7 +965,7 @@ class CoreMetadata(object):
     @property
     def dependencies_complex(self):
         """
-        https://www.python.org/dev/peps/pep-0621/#dependencies-optional-dependencies
+        https://peps.python.org/pep-0621/#dependencies-optional-dependencies
         """
         if self._dependencies_complex is None:
             from packaging.requirements import InvalidRequirement, Requirement
@@ -1008,7 +1008,7 @@ class CoreMetadata(object):
     @property
     def dependencies(self):
         """
-        https://www.python.org/dev/peps/pep-0621/#dependencies-optional-dependencies
+        https://peps.python.org/pep-0621/#dependencies-optional-dependencies
         """
         if self._dependencies is None:
             self._dependencies = sorted(self.dependencies_complex)
@@ -1018,7 +1018,7 @@ class CoreMetadata(object):
     @property
     def optional_dependencies(self):
         """
-        https://www.python.org/dev/peps/pep-0621/#dependencies-optional-dependencies
+        https://peps.python.org/pep-0621/#dependencies-optional-dependencies
         """
         if self._optional_dependencies is None:
             from packaging.requirements import InvalidRequirement, Requirement
@@ -1094,7 +1094,7 @@ class CoreMetadata(object):
     @property
     def dynamic(self):
         """
-        https://www.python.org/dev/peps/pep-0621/#dynamic
+        https://peps.python.org/pep-0621/#dynamic
         """
         if self._dynamic is None:
             dynamic = self.config.get('dynamic', [])

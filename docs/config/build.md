@@ -22,7 +22,7 @@ For each build target you may override any of the defaults set in the top-level 
 
 ## Build system
 
-To be compatible with the broader [Python packaging ecosystem](../build.md#packaging-ecosystem), you must define the [build system](https://www.python.org/dev/peps/pep-0517/#source-trees) as follows:
+To be compatible with the broader [Python packaging ecosystem](../build.md#packaging-ecosystem), you must define the [build system](https://peps.python.org/pep-0517/#source-trees) as follows:
 
 === ":octicons-file-code-16: pyproject.toml"
 

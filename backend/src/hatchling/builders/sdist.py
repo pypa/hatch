@@ -16,7 +16,7 @@ from .utils import get_reproducible_timestamp, normalize_archive_path, normalize
 class SdistArchive(object):
     def __init__(self, name, reproducible):
         """
-        https://www.python.org/dev/peps/pep-0517/#source-distributions
+        https://peps.python.org/pep-0517/#source-distributions
         """
         self.name = name
         self.reproducible = reproducible
