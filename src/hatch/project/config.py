@@ -255,13 +255,15 @@ class ProjectConfig:
                             new_env_name = f'{env_name}.{new_env_name}'
 
                         # Save the generated environment
-                        all_envs[new_env_name] = variable_values
                         final_config[new_env_name] = new_config
                         cached_overrides[new_env_name] = {
                             'platform': current_cached_overrides['platform'],
                             'env': current_cached_overrides['env'],
                             'matrix': cached_matrix_overrides,
                         }
+                        all_envs[new_env_name] = variable_values
+                        if 'py' in variable_values:
+                            all_envs[new_env_name] = {'python': variable_values.pop('py'), **variable_values}
 
                 # Remove the root matrix generator
                 del cached_overrides[env_name]
