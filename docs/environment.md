@@ -174,18 +174,26 @@ Every environment can define its own set of [matrices](config/environment.md#mat
 Using the [`env show`](cli/reference.md#hatch-env-show) command would then display:
 
 ```console
-$ hatch env show
-default
-
-[test]
-py27-42
-py27-3.14
-py38-42
-py38-3.14
-py38-9000-foo
-py38-9000-bar
-py39-9000-foo
-py39-9000-bar
+$ hatch env show --ascii
+     Standalone
++---------+---------+
+| Name    | Type    |
++=========+=========+
+| default | virtual |
++---------+---------+
+                       Matrices
++------+---------+--------------------+--------------+
+| Name | Type    | Envs               | Dependencies |
++======+=========+====================+==============+
+| test | virtual | test.py27-42       | pytest       |
+|      |         | test.py27-3.14     |              |
+|      |         | test.py38-42       |              |
+|      |         | test.py38-3.14     |              |
+|      |         | test.py38-9000-foo |              |
+|      |         | test.py38-9000-bar |              |
+|      |         | test.py39-9000-foo |              |
+|      |         | test.py39-9000-bar |              |
++------+---------+--------------------+--------------+
 ```
 
 ## Removal

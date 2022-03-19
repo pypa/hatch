@@ -391,6 +391,38 @@ def test_error(hatch, helpers, temp_dir, config_file):
     assert not output_file.is_file()
 
 
+def test_matrix_no_environments(hatch, helpers, temp_dir, config_file):
+    config_file.model.template.plugins['default']['tests'] = False
+    config_file.save()
+
+    project_name = 'My App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / 'my-app'
+    data_path = temp_dir / 'data'
+    data_path.mkdir()
+
+    project = Project(project_path)
+    helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
+    helpers.update_project_environment(project, 'test', {'matrix': []})
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch(
+            'run', 'test:python', '-c', "import os,sys;open('test.txt', 'a').write(sys.executable+os.linesep[-1])"
+        )
+
+    assert result.exit_code == 1, result.output
+    assert result.output == helpers.dedent(
+        """
+        No variables defined for matrix: test
+        """
+    )
+
+
 def test_matrix(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
@@ -806,3 +838,355 @@ def test_env_detection_override(hatch, helpers, temp_dir, config_file):
 
     python_path = str(output_file.read_text()).strip()
     assert str(env_dirs[1]) in python_path
+
+
+def test_matrix_variable_selection_no_command(hatch, helpers, temp_dir, config_file):
+    config_file.model.template.plugins['default']['tests'] = False
+    config_file.save()
+
+    project_name = 'My App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / 'my-app'
+    data_path = temp_dir / 'data'
+    data_path.mkdir()
+
+    project = Project(project_path)
+    helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
+    helpers.update_project_environment(project, 'test', {'matrix': [{'version': ['9000', '42']}]})
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch('run', '+version=9000')
+
+    assert result.exit_code == 1, result.output
+    assert result.output == helpers.dedent(
+        """
+        Missing argument `MATRIX:ARGS...`
+        """
+    )
+
+
+def test_matrix_variable_selection_duplicate_inclusion(hatch, helpers, temp_dir, config_file):
+    config_file.model.template.plugins['default']['tests'] = False
+    config_file.save()
+
+    project_name = 'My App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / 'my-app'
+    data_path = temp_dir / 'data'
+    data_path.mkdir()
+
+    project = Project(project_path)
+    helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
+    helpers.update_project_environment(project, 'test', {'matrix': [{'version': ['9000', '42']}]})
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch('run', '+version=9000', '+version=42')
+
+    assert result.exit_code == 1, result.output
+    assert result.output == helpers.dedent(
+        """
+        Duplicate included variable: version
+        """
+    )
+
+
+def test_matrix_variable_selection_duplicate_exclusion(hatch, helpers, temp_dir, config_file):
+    config_file.model.template.plugins['default']['tests'] = False
+    config_file.save()
+
+    project_name = 'My App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / 'my-app'
+    data_path = temp_dir / 'data'
+    data_path.mkdir()
+
+    project = Project(project_path)
+    helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
+    helpers.update_project_environment(project, 'test', {'matrix': [{'version': ['9000', '42']}]})
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch('run', '-version=9000', '-version=42')
+
+    assert result.exit_code == 1, result.output
+    assert result.output == helpers.dedent(
+        """
+        Duplicate excluded variable: version
+        """
+    )
+
+
+def test_matrix_variable_selection_python_alias(hatch, helpers, temp_dir, config_file):
+    config_file.model.template.plugins['default']['tests'] = False
+    config_file.save()
+
+    project_name = 'My App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / 'my-app'
+    data_path = temp_dir / 'data'
+    data_path.mkdir()
+
+    project = Project(project_path)
+    helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
+    helpers.update_project_environment(project, 'test', {'matrix': [{'python': ['9000', '42']}]})
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch('run', '+py=9000', '+python=42')
+
+    assert result.exit_code == 1, result.output
+    assert result.output == helpers.dedent(
+        """
+        Duplicate included variable: python
+        """
+    )
+
+
+def test_matrix_variable_selection_not_matrix(hatch, helpers, temp_dir, config_file):
+    config_file.model.template.plugins['default']['tests'] = False
+    config_file.save()
+
+    project_name = 'My App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / 'my-app'
+    data_path = temp_dir / 'data'
+    data_path.mkdir()
+
+    project = Project(project_path)
+    helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
+    helpers.update_project_environment(project, 'test', {'matrix': [{'version': ['9000', '42']}]})
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch(
+            'run',
+            '+version=9000',
+            'python',
+            '-c',
+            "import os,sys;open('test.txt', 'a').write(sys.executable+os.linesep[-1])",
+        )
+
+    assert result.exit_code == 1, result.output
+    assert result.output == helpers.dedent(
+        """
+        Variable selection is unsupported for non-matrix environment: default
+        """
+    )
+
+
+def test_matrix_variable_selection_inclusion(hatch, helpers, temp_dir, config_file):
+    config_file.model.template.plugins['default']['tests'] = False
+    config_file.save()
+
+    project_name = 'My App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / 'my-app'
+    data_path = temp_dir / 'data'
+    data_path.mkdir()
+
+    project = Project(project_path)
+    helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
+    helpers.update_project_environment(project, 'test', {'matrix': [{'version': ['9000', '42']}]})
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch(
+            'run',
+            '+version=9000',
+            'test:python',
+            '-c',
+            "import os,sys;open('test.txt', 'a').write(sys.executable+os.linesep[-1])",
+        )
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        """
+        ────────────────────────────────── test.9000 ───────────────────────────────────
+        Creating environment: test.9000
+        """
+    )
+    output_file = project_path / 'test.txt'
+    assert output_file.is_file()
+
+    env_data_path = data_path / 'env' / 'virtual'
+    assert env_data_path.is_dir()
+
+    storage_dirs = list(env_data_path.iterdir())
+    assert len(storage_dirs) == 1
+
+    storage_path = storage_dirs[0]
+
+    project_part = f'{project_path.name}-'
+    assert storage_path.name.startswith(project_part)
+
+    hash_part = storage_path.name[len(project_part) :]
+    assert len(hash_part) == 8
+
+    env_dirs = list(storage_path.iterdir())
+    assert len(env_dirs) == 1
+
+    env_path = env_dirs[0]
+    assert env_path.name == 'test.9000'
+
+    python_path = str(output_file.read_text()).strip()
+    assert str(env_path) in python_path
+
+
+def test_matrix_variable_selection_exclusion(hatch, helpers, temp_dir, config_file):
+    config_file.model.template.plugins['default']['tests'] = False
+    config_file.save()
+
+    project_name = 'My App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / 'my-app'
+    data_path = temp_dir / 'data'
+    data_path.mkdir()
+
+    project = Project(project_path)
+    helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
+    helpers.update_project_environment(project, 'test', {'matrix': [{'version': ['9000', '42']}]})
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch(
+            'run',
+            '-version=9000',
+            'test:python',
+            '-c',
+            "import os,sys;open('test.txt', 'a').write(sys.executable+os.linesep[-1])",
+        )
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        """
+        ─────────────────────────────────── test.42 ────────────────────────────────────
+        Creating environment: test.42
+        """
+    )
+    output_file = project_path / 'test.txt'
+    assert output_file.is_file()
+
+    env_data_path = data_path / 'env' / 'virtual'
+    assert env_data_path.is_dir()
+
+    storage_dirs = list(env_data_path.iterdir())
+    assert len(storage_dirs) == 1
+
+    storage_path = storage_dirs[0]
+
+    project_part = f'{project_path.name}-'
+    assert storage_path.name.startswith(project_part)
+
+    hash_part = storage_path.name[len(project_part) :]
+    assert len(hash_part) == 8
+
+    env_dirs = list(storage_path.iterdir())
+    assert len(env_dirs) == 1
+
+    env_path = env_dirs[0]
+    assert env_path.name == 'test.42'
+
+    python_path = str(output_file.read_text()).strip()
+    assert str(env_path) in python_path
+
+
+def test_matrix_variable_selection_exclude_all(hatch, helpers, temp_dir, config_file):
+    config_file.model.template.plugins['default']['tests'] = False
+    config_file.save()
+
+    project_name = 'My App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / 'my-app'
+    data_path = temp_dir / 'data'
+    data_path.mkdir()
+
+    project = Project(project_path)
+    helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
+    helpers.update_project_environment(project, 'test', {'matrix': [{'version': ['9000', '42']}]})
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch(
+            'run',
+            '-version',
+            'test:python',
+            '-c',
+            "import os,sys;open('test.txt', 'a').write(sys.executable+os.linesep[-1])",
+        )
+
+    assert result.exit_code == 1, result.output
+    assert result.output == helpers.dedent(
+        """
+        No environments were selected
+        """
+    )
+
+
+def test_matrix_variable_selection_include_none(hatch, helpers, temp_dir, config_file):
+    config_file.model.template.plugins['default']['tests'] = False
+    config_file.save()
+
+    project_name = 'My App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / 'my-app'
+    data_path = temp_dir / 'data'
+    data_path.mkdir()
+
+    project = Project(project_path)
+    helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
+    helpers.update_project_environment(project, 'test', {'matrix': [{'version': ['9000', '42']}]})
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch(
+            'run',
+            '+version=3.14',
+            'test:python',
+            '-c',
+            "import os,sys;open('test.txt', 'a').write(sys.executable+os.linesep[-1])",
+        )
+
+    assert result.exit_code == 1, result.output
+    assert result.output == helpers.dedent(
+        """
+        No environments were selected
+        """
+    )

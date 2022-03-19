@@ -48,6 +48,8 @@ def construct_matrix_data(env_name, config, overrides=None):
                 new_env_name = f'{env_name}.{new_env_name}'
 
             envs[new_env_name] = variable_values
+            if 'py' in variable_values:
+                envs[new_env_name] = {'python': variable_values.pop('py'), **variable_values}
 
     config.update(overrides or {})
     config.setdefault('type', 'virtual')
