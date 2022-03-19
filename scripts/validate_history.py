@@ -10,7 +10,7 @@ HEADER_PATTERN = (
 
 def main():
     project_root = Path(__file__).resolve().parent.parent
-    history_file = project_root / 'docs' / 'meta' / 'history.md'
+    history_file = project_root / 'docs' / 'history.md'
 
     current_pattern = ''
     with history_file.open('r', encoding='utf-8') as f:
