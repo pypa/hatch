@@ -9,7 +9,7 @@ CONFIG = {
         'urls': {
             'Homepage': 'https://ofek.dev/hatch/latest/',
             'Funding': 'https://github.com/sponsors/ofek',
-            'History': 'https://ofek.dev/hatch/dev/meta/history/',
+            'History': 'https://ofek.dev/hatch/dev/history/',
             'Tracker': 'https://github.com/ofek/hatch/issues',
             'Source': 'https://github.com/ofek/hatch/tree/master/backend',
         },

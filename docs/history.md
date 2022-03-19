@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ***Added:***
 
 - Add ability to select specific environments for command execution of matrices based on variables
+- Update project URLs metadata
 
 ### [1.0.0rc15](https://github.com/ofek/hatch/releases/tag/hatch-v1.0.0rc15) - 2022-03-18 ### {: #hatch-v1.0.0rc15 }
 
@@ -130,6 +131,10 @@ This is the first release candidate for Hatch v1, a complete rewrite.
 ## **Hatchling**
 
 ### Unreleased
+
+***Added:***
+
+- Update project URLs metadata
 
 ### [0.21.0](https://github.com/ofek/hatch/releases/tag/hatchling-v0.21.0) - 2022-03-17 ### {: #hatchling-v0.21.0 }
 

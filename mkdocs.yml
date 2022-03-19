@@ -38,6 +38,7 @@ theme:
         icon: material/weather-sunny
         name: Switch to dark mode
   features:
+    - navigation.sections
     - navigation.tabs
 
 nav:
@@ -50,6 +51,8 @@ nav:
     - Builds: build.md
     - Publishing: publish.md
     - Next steps: next-steps.md
+    - Status:
+      - History: history.md
   - Configuration:
     - Metadata: config/metadata.md
     - Dependencies: config/dependency.md
@@ -72,7 +75,6 @@ nav:
     - Version scheme: plugins/version-scheme.md
     - Utilities: plugins/utilities.md
   - Meta:
-    - History: meta/history.md
     - FAQ: meta/faq.md
     - Authors: meta/authors.md
 
