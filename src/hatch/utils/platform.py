@@ -129,7 +129,7 @@ class Platform:
         """
         if self.__default_shell is None:
             if self.windows:
-                self.__default_shell = os.environ.get('COMSPEC', 'cmd')
+                self.__default_shell = os.environ.get('SHELL', os.environ.get('COMSPEC', 'cmd'))
             else:
                 self.__default_shell = os.environ.get('SHELL', 'bash')
 
