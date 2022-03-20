@@ -108,8 +108,8 @@ If the executable name of your shell differs from the supported name, you can de
 
 ### Default
 
-On Windows systems Hatch will use the `COMSPEC` environment variable, defaulting to `cmd`.
-Otherwise the `SHELL` environment variable will be used, defaulting to `bash`.
+On Windows systems Hatch will use the `SHELL` environment variable, if present, followed by the `COMSPEC` environment variable, defaulting to `cmd`.
+On all other platforms only the `SHELL` environment variable will be used, defaulting to `bash`.
 
 ## Directories
 
