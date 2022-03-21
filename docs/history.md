@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ***Added:***
 
 - Add ability to select specific environments for command execution of matrices based on variables
+- Support a `HATCH_PYTHON` environment variable that, for example, environments may use before defaulting to the Python executable Hatch is running on
 - Also use the `SHELL` environment variable fallback on Windows systems
 - Update project URLs metadata
 

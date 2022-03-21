@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+import os
 import sys
 from abc import ABC, abstractmethod
 from contextlib import contextmanager
-from os.path import expandvars
+from os.path import expandvars, isabs
 
 from ...config.constants import AppEnvVars
 from ...utils.structures import EnvVars
@@ -128,7 +129,11 @@ class EnvironmentInterface(ABC):
     @property
     def system_python(self):
         if self._system_python is None:
-            self._system_python = self.platform._shutil.which('python') or sys.executable
+            system_python = os.environ.get(AppEnvVars.PYTHON, sys.executable)
+            if not isabs(system_python):
+                system_python = self.platform._shutil.which(system_python)
+
+            self._system_python = system_python
 
         return self._system_python
 

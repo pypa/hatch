@@ -124,8 +124,9 @@ class Platform:
         """
         Returns the default shell of the system.
 
-        On Windows systems the `COMSPEC` environment variable will be used, defaulting to `cmd`.
-        Otherwise the `SHELL` environment variable will be used, defaulting to `bash`.
+        On Windows systems first try the `SHELL` environment variable, if present, followed by
+        the `COMSPEC` environment variable, defaulting to `cmd`. On all other platforms only
+        the `SHELL` environment variable will be used, defaulting to `bash`.
         """
         if self.__default_shell is None:
             if self.windows:
