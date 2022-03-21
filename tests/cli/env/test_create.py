@@ -1,4 +1,4 @@
-from hatch.config.constants import ConfigEnvVars
+from hatch.config.constants import AppEnvVars, ConfigEnvVars
 from hatch.project.core import Project
 from hatch.utils.structures import EnvVars
 from hatch.venv.core import VirtualEnv
@@ -82,6 +82,69 @@ def test_new(hatch, helpers, temp_dir, config_file):
     helpers.update_project_environment(project, 'test', {})
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch('env', 'create', 'test')
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        """
+        Creating environment: test
+        """
+    )
+
+    project = Project(project_path)
+    assert project.config.envs == {
+        'default': {'type': 'virtual', 'skip-install': True},
+        'test': {'type': 'virtual', 'skip-install': True},
+    }
+    assert project.raw_config['tool']['hatch']['envs'] == {
+        'default': {'type': 'virtual', 'skip-install': True},
+        'test': {},
+    }
+
+    env_data_path = data_path / 'env' / 'virtual'
+    assert env_data_path.is_dir()
+
+    storage_dirs = list(env_data_path.iterdir())
+    assert len(storage_dirs) == 1
+
+    storage_path = storage_dirs[0]
+
+    project_part = f'{project_path.name}-'
+    assert storage_path.name.startswith(project_part)
+
+    hash_part = storage_path.name[len(project_part) :]
+    assert len(hash_part) == 8
+
+    env_dirs = list(storage_path.iterdir())
+    assert len(env_dirs) == 1
+
+    env_path = env_dirs[0]
+
+    assert env_path.name == 'test'
+
+
+def test_new_selected_python(hatch, helpers, temp_dir, config_file, mocker):
+    mocker.patch('sys.executable')
+
+    config_file.model.template.plugins['default']['tests'] = False
+    config_file.save()
+
+    project_name = 'My App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / 'my-app'
+    data_path = temp_dir / 'data'
+    data_path.mkdir()
+
+    project = Project(project_path)
+    helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
+    helpers.update_project_environment(project, 'test', {})
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path), AppEnvVars.PYTHON: 'python'}):
         result = hatch('env', 'create', 'test')
 
     assert result.exit_code == 0, result.output

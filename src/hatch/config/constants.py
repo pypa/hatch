@@ -4,6 +4,7 @@ class AppEnvVars:
     QUIET = 'HATCH_QUIET'
     VERBOSE = 'HATCH_VERBOSE'
     INTERACTIVE = 'HATCH_INTERACTIVE'
+    PYTHON = 'HATCH_PYTHON'
     # https://no-color.org
     NO_COLOR = 'NO_COLOR'
     FORCE_COLOR = 'FORCE_COLOR'
