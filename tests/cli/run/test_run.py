@@ -1,5 +1,7 @@
 import sys
 
+import pytest
+
 from hatch.config.constants import AppEnvVars, ConfigEnvVars
 from hatch.project.core import Project
 from hatch.utils.structures import EnvVars
@@ -119,6 +121,7 @@ def test_enter_project_directory(hatch, config_file, helpers, temp_dir):
     assert str(env_path) in str(output_file.read_text())
 
 
+@pytest.mark.requires_internet
 def test_sync_dependencies(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
@@ -313,6 +316,7 @@ def test_scripts_specific_environment(hatch, helpers, temp_dir, config_file):
     assert env_var_value == 'bar'
 
 
+@pytest.mark.requires_internet
 def test_scripts_no_environment(hatch, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()

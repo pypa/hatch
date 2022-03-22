@@ -1,3 +1,5 @@
+import pytest
+
 from hatch.config.constants import AppEnvVars, ConfigEnvVars
 from hatch.project.core import Project
 from hatch.utils.structures import EnvVars
@@ -703,6 +705,7 @@ def test_incompatible_matrix_partial(hatch, helpers, temp_dir, config_file):
     assert env_dirs[0].name == 'test.42'
 
 
+@pytest.mark.requires_internet
 def test_install_project_default_dev_mode(
     hatch, helpers, temp_dir, platform, config_file, default_virtualenv_installed_packages
 ):
@@ -767,6 +770,7 @@ def test_install_project_default_dev_mode(
         assert lines[2].lower() == f'-e {str(project_path).lower()}'
 
 
+@pytest.mark.requires_internet
 def test_install_project_no_dev_mode(
     hatch, helpers, temp_dir, platform, config_file, default_virtualenv_installed_packages
 ):
@@ -830,6 +834,7 @@ def test_install_project_no_dev_mode(
         assert lines[0].startswith('my-app @')
 
 
+@pytest.mark.requires_internet
 def test_pre_install_commands(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
@@ -906,6 +911,7 @@ def test_pre_install_commands_error(hatch, helpers, temp_dir, config_file):
     )
 
 
+@pytest.mark.requires_internet
 def test_post_install_commands(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
@@ -946,6 +952,7 @@ def test_post_install_commands(hatch, helpers, temp_dir, config_file):
     assert (project_path / 'test.txt').is_file()
 
 
+@pytest.mark.requires_internet
 def test_post_install_commands_error(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
@@ -983,6 +990,7 @@ def test_post_install_commands_error(hatch, helpers, temp_dir, config_file):
     )
 
 
+@pytest.mark.requires_internet
 def test_sync_dependencies(hatch, helpers, temp_dir, platform, config_file, default_virtualenv_installed_packages):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
@@ -1058,6 +1066,7 @@ def test_sync_dependencies(hatch, helpers, temp_dir, platform, config_file, defa
         assert lines[3].lower() == f'-e {str(project_path).lower()}'
 
 
+@pytest.mark.requires_internet
 def test_features(hatch, helpers, temp_dir, platform, config_file, default_virtualenv_installed_packages):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
