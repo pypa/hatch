@@ -15,10 +15,15 @@ def normalize_project_name(project_name):
 
 def get_normalized_dependency(requirement):
     # Changes to this function affect reproducibility between versions
+    from packaging.specifiers import SpecifierSet
+
     requirement.name = normalize_project_name(requirement.name)
+
+    if requirement.specifier:
+        requirement.specifier = SpecifierSet(str(requirement.specifier).lower())
 
     if requirement.extras:
         requirement.extras = {normalize_project_name(extra) for extra in requirement.extras}
 
     # All TOML writers use double quotes, so allow direct writing or copy/pasting to avoid escaping
-    return str(requirement).lower().replace('"', "'")
+    return str(requirement).replace('"', "'")

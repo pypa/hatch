@@ -1082,8 +1082,8 @@ class TestDependencies:
             {
                 'project': {
                     'dependencies': [
-                        'python___dateutil',
-                        'bAr.Baz[TLS, Zu.Bat, EdDSA, Zu_Bat]   >=1.2RC5',
+                        'python___dateutil;platform_python_implementation=="CPython"',
+                        'bAr.Baz[TLS, Zu.Bat, EdDSA, Zu_Bat]   >=1.2RC5 , <9000B1',
                         'Foo;python_version<"3.8"',
                         'fOO;     python_version<    "3.8"',
                     ],
@@ -1095,9 +1095,9 @@ class TestDependencies:
             metadata.core.dependencies
             == metadata.core.dependencies
             == [
-                'bar-baz[eddsa,tls,zu-bat]>=1.2rc5',
+                'bar-baz[eddsa,tls,zu-bat]<9000b1,>=1.2rc5',
                 "foo; python_version < '3.8'",
-                'python-dateutil',
+                "python-dateutil; platform_python_implementation == 'CPython'",
             ]
         )
         assert metadata.core.dependencies_complex is metadata.core.dependencies_complex
@@ -1208,8 +1208,8 @@ class TestOptionalDependencies:
                 'project': {
                     'optional-dependencies': {
                         'foo': [
-                            'python___dateutil',
-                            'bAr.Baz[TLS, Zu.Bat, EdDSA, Zu_Bat]   >=1.2RC5',
+                            'python___dateutil;platform_python_implementation=="CPython"',
+                            'bAr.Baz[TLS, Zu.Bat, EdDSA, Zu_Bat]   >=1.2RC5 , <9000B1',
                             'Foo;python_version<"3.8"',
                             'fOO;     python_version<    "3.8"',
                         ],
@@ -1224,7 +1224,11 @@ class TestOptionalDependencies:
             == metadata.core.optional_dependencies
             == {
                 'bar': ['bar', 'baz', 'foo'],
-                'foo': ['bar-baz[eddsa,tls,zu-bat]>=1.2rc5', "foo; python_version < '3.8'", 'python-dateutil'],
+                'foo': [
+                    'bar-baz[eddsa,tls,zu-bat]<9000b1,>=1.2rc5',
+                    "foo; python_version < '3.8'",
+                    "python-dateutil; platform_python_implementation == 'CPython'",
+                ],
             }
         )
 
