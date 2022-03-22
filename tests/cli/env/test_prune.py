@@ -1,3 +1,5 @@
+import pytest
+
 from hatch.config.constants import AppEnvVars
 from hatch.project.core import Project
 
@@ -31,6 +33,7 @@ def test_unknown_type(hatch, helpers, temp_dir_data, config_file):
     )
 
 
+@pytest.mark.requires_internet
 def test_all(hatch, helpers, temp_dir_data, config_file, default_virtualenv_installed_packages):
     project_name = 'My App'
 

@@ -1033,6 +1033,7 @@ def test_debug_verbosity(hatch, temp_dir, helpers):
 
 
 @pytest.mark.allow_backend_process
+@pytest.mark.requires_internet
 def test_shipped(hatch, temp_dir, helpers):
     project_name = 'My App'
 
@@ -1070,6 +1071,7 @@ def test_shipped(hatch, temp_dir, helpers):
 
 
 @pytest.mark.allow_backend_process
+@pytest.mark.requires_internet
 def test_build_dependencies(hatch, temp_dir, helpers):
     project_name = 'My App'
 
