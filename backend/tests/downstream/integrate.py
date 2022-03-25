@@ -127,6 +127,14 @@ def main():
             ]
         )
 
+        constraints = [
+            # Cap the version of setuptools until it supports PEP 639
+            'setuptools<61.0.0',
+        ]
+        constraints_file = os.path.join(build_dir, 'constraints.txt')
+        with open(constraints_file, 'w') as f:
+            f.write('\n'.join(constraints))
+
         for project in os.listdir(HERE):
             project_dir = os.path.join(HERE, project)
             if not os.path.isdir(project_dir):
@@ -200,6 +208,7 @@ def main():
                 env_vars['PATH'] = '{}{}{}'.format(
                     os.path.join(venv_dir, 'Scripts' if ON_WINDOWS else 'bin'), os.pathsep, os.environ['PATH']
                 )
+                env_vars['PIP_CONSTRAINT'] = constraints_file
                 with EnvVars(env_vars, ignore=('__PYVENV_LAUNCHER__', 'PYTHONHOME')):
                     print('--> Installing project')
                     subprocess.check_call(
