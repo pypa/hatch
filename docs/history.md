@@ -136,6 +136,14 @@ This is the first release candidate for Hatch v1, a complete rewrite.
 
 ### Unreleased
 
+***Added:***
+
+- Change the default dev mode mechanism to `pth` files for better compatibility with static analysis tools & IDEs (see https://github.com/microsoft/pylance-release/issues/2114)
+
+***Fixed:***
+
+- Fix downstream test suite to avoid versions of `setuptools` with support for PEP 621 without PEP 639
+
 ### [0.21.1](https://github.com/ofek/hatch/releases/tag/hatchling-v0.21.1) - 2022-03-22 ### {: #hatchling-v0.21.1 }
 
 ***Fixed:***

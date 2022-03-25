@@ -40,6 +40,7 @@ class BuilderConfig(object):
         self.__only_packages = None
         self.__reproducible = None
         self.__dev_mode_dirs = None
+        self.__dev_mode_exact = None
         self.__require_runtime_dependencies = None
 
     @property
@@ -376,6 +377,24 @@ class BuilderConfig(object):
             self.__dev_mode_dirs = all_dev_mode_dirs
 
         return self.__dev_mode_dirs
+
+    @property
+    def dev_mode_exact(self):
+        if self.__dev_mode_exact is None:
+            if 'dev-mode-exact' in self.target_config:
+                dev_mode_exact = self.target_config['dev-mode-exact']
+                if not isinstance(dev_mode_exact, bool):
+                    raise TypeError(
+                        'Field `tool.hatch.build.targets.{}.dev-mode-exact` must be a boolean'.format(self.plugin_name)
+                    )
+            else:
+                dev_mode_exact = self.build_config.get('dev-mode-exact', False)
+                if not isinstance(dev_mode_exact, bool):
+                    raise TypeError('Field `tool.hatch.build.dev-mode-exact` must be a boolean')
+
+            self.__dev_mode_exact = dev_mode_exact
+
+        return self.__dev_mode_exact
 
     @property
     def versions(self):
