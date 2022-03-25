@@ -252,9 +252,9 @@ When the output directory is not provided to the [`build`](../cli/reference.md#h
 
 ## Dev mode
 
-In most cases, [dev mode](environment.md#dev-mode) environment installations or [editable installs](https://pip.pypa.io/en/stable/cli/pip_install/#editable-installs) in general will work as expected. However, for some project layouts you need to explicitly define which directories to add to Python's search path, such as for [namespace packages](https://packaging.python.org/guides/packaging-namespace-packages/).
+By default for [dev mode](environment.md#dev-mode) environment installations or [editable installs](https://pip.pypa.io/en/stable/cli/pip_install/#editable-installs), the `wheel` target will determine which directories should be added to Python's search path based on the [selected files](#file-selection).
 
-You can do this with the `dev-mode-dirs` option:
+If you want to override this detection or perhaps instruct other build targets as well, you can use the `dev-mode-dirs` option:
 
 === ":octicons-file-code-16: pyproject.toml"
 
@@ -269,6 +269,25 @@ You can do this with the `dev-mode-dirs` option:
     [build]
     dev-mode-dirs = ["."]
     ```
+
+If you don't want to add entire directories to Python's search path, you can enable a more targeted mechanism with the mutually exclusive `dev-mode-exact` option:
+
+=== ":octicons-file-code-16: pyproject.toml"
+
+    ```toml
+    [tool.hatch.build]
+    dev-mode-exact = true
+    ```
+
+=== ":octicons-file-code-16: hatch.toml"
+
+    ```toml
+    [build]
+    dev-mode-exact = true
+    ```
+
+!!! warning
+    The `dev-mode-exact` mechanism is [not supported](https://github.com/microsoft/pylance-release/issues/2114) by static analysis tools & IDEs, therefore functionality such as autocompletion is unlikely to work.
 
 ## Build targets
 

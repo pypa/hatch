@@ -243,11 +243,11 @@ class WheelBuilder(BuilderInterface):
 
     def build_editable(self, directory, **build_data):
         if sys.version_info[0] < 3 or self.config.dev_mode_dirs:
-            return self.build_editable_pth(directory, **build_data)
+            return self.build_editable_explicit(directory, **build_data)
         else:
-            return self.build_editable_standard(directory, **build_data)
+            return self.build_editable_detection(directory, **build_data)
 
-    def build_editable_standard(self, directory, **build_data):
+    def build_editable_detection(self, directory, **build_data):
         build_data['tag'] = self.get_default_tag()
 
         metadata_directory = '{}.dist-info'.format(self.project_id)
@@ -279,8 +279,13 @@ class WheelBuilder(BuilderInterface):
                     )
 
             editable_project = EditableProject(self.metadata.core.name.replace('-', '_'), self.root)
-            for module, relative_path in exposed_packages.items():
-                editable_project.map(module, relative_path)
+
+            if self.config.dev_mode_exact:
+                for module, relative_path in exposed_packages.items():
+                    editable_project.map(module, relative_path)
+            else:
+                for relative_path in exposed_packages.values():
+                    editable_project.add_to_path(os.path.dirname(relative_path))
 
             for filename, content in sorted(editable_project.files()):
                 record = archive.write_file(filename, content)
@@ -305,66 +310,30 @@ class WheelBuilder(BuilderInterface):
         replace_file(archive.path, target)
         return target
 
-    if sys.version_info[0] >= 3:
+    def build_editable_explicit(self, directory, **build_data):
+        build_data['tag'] = self.get_default_tag()
 
-        def build_editable_pth(self, directory, **build_data):
-            build_data['tag'] = self.get_default_tag()
+        metadata_directory = '{}.dist-info'.format(self.project_id)
+        with WheelArchive(metadata_directory, self.config.reproducible) as archive, closing(StringIO()) as records:
+            directories = sorted(
+                os.path.normpath(os.path.join(self.root, relative_directory))
+                for relative_directory in self.config.dev_mode_dirs
+            )
 
-            metadata_directory = '{}.dist-info'.format(self.project_id)
-            with WheelArchive(metadata_directory, self.config.reproducible) as archive, closing(StringIO()) as records:
-                editable_project = EditableProject(self.metadata.core.name.replace('-', '_'), self.root)
+            record = archive.write_file(
+                '{}.pth'.format(self.metadata.core.name.replace('-', '_')), '\n'.join(directories)
+            )
+            records.write(self.format_record(record))
 
-                for relative_directory in self.config.dev_mode_dirs:
-                    editable_project.add_to_path(relative_directory)
+            self.write_metadata(archive, records, build_data)
 
-                for filename, content in sorted(editable_project.files()):
-                    record = archive.write_file(filename, content)
-                    records.write(self.format_record(record))
+            records.write(u'{}/RECORD,,\n'.format(metadata_directory))
+            archive.write_metadata('RECORD', records.getvalue())
 
-                extra_dependencies = []
-                for dependency in editable_project.dependencies():
-                    if dependency == 'editables':
-                        dependency += '~={}'.format(EDITABLES_MINIMUM_VERSION)
-                    else:  # no cov
-                        pass
+        target = os.path.join(directory, '{}-{}.whl'.format(self.project_id, build_data['tag']))
 
-                    extra_dependencies.append(dependency)
-
-                self.write_metadata(archive, records, build_data, extra_dependencies=extra_dependencies)
-
-                records.write(u'{}/RECORD,,\n'.format(metadata_directory))
-                archive.write_metadata('RECORD', records.getvalue())
-
-            target = os.path.join(directory, '{}-{}.whl'.format(self.project_id, build_data['tag']))
-
-            replace_file(archive.path, target)
-            return target
-
-    else:  # no cov
-
-        def build_editable_pth(self, directory, **build_data):
-            build_data['tag'] = self.get_default_tag()
-
-            metadata_directory = '{}.dist-info'.format(self.project_id)
-            with WheelArchive(metadata_directory, self.config.reproducible) as archive, closing(StringIO()) as records:
-                directories = []
-                for relative_directory in self.config.dev_mode_dirs:
-                    directories.append(os.path.normpath(os.path.join(self.root, relative_directory)))
-
-                record = archive.write_file(
-                    '{}.pth'.format(self.metadata.core.name.replace('-', '_')), '\n'.join(directories)
-                )
-                records.write(self.format_record(record))
-
-                self.write_metadata(archive, records, build_data)
-
-                records.write(u'{}/RECORD,,\n'.format(metadata_directory))
-                archive.write_metadata('RECORD', records.getvalue())
-
-            target = os.path.join(directory, '{}-{}.whl'.format(self.project_id, build_data['tag']))
-
-            replace_file(archive.path, target)
-            return target
+        replace_file(archive.path, target)
+        return target
 
     def write_metadata(self, archive, records, build_data, extra_dependencies=()):
         # <<< IMPORTANT >>>

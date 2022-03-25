@@ -321,6 +321,50 @@ class TestDevModeDirs:
         assert builder.config.dev_mode_dirs == ['bar']
 
 
+class TestDevModeExact:
+    def test_default(self, isolation):
+        builder = BuilderInterface(str(isolation))
+
+        assert builder.config.dev_mode_exact is builder.config.dev_mode_exact is False
+
+    def test_target(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'dev-mode-exact': True}}}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        assert builder.config.dev_mode_exact is True
+
+    def test_target_not_boolean(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'dev-mode-exact': 9000}}}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        with pytest.raises(TypeError, match='Field `tool.hatch.build.targets.foo.dev-mode-exact` must be a boolean'):
+            _ = builder.config.dev_mode_exact
+
+    def test_global(self, isolation):
+        config = {'tool': {'hatch': {'build': {'dev-mode-exact': True}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        assert builder.config.dev_mode_exact is True
+
+    def test_global_not_boolean(self, isolation):
+        config = {'tool': {'hatch': {'build': {'dev-mode-exact': 9000}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        with pytest.raises(TypeError, match='Field `tool.hatch.build.dev-mode-exact` must be a boolean'):
+            _ = builder.config.dev_mode_exact
+
+    def test_target_overrides_global(self, isolation):
+        config = {'tool': {'hatch': {'build': {'dev-mode-exact': True, 'targets': {'foo': {'dev-mode-exact': False}}}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        assert builder.config.dev_mode_exact is False
+
+
 class TestPackages:
     def test_default(self, isolation):
         builder = BuilderInterface(str(isolation))
