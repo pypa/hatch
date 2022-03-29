@@ -165,7 +165,7 @@
         <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>_system_python</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
             <span class=n>system_python</span> <span class=o>=</span> <span class=n>os</span><span class=o>.</span><span class=n>environ</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=n>AppEnvVars</span><span class=o>.</span><span class=n>PYTHON</span><span class=p>,</span> <span class=n>sys</span><span class=o>.</span><span class=n>executable</span><span class=p>)</span>
             <span class=k>if</span> <span class=ow>not</span> <span class=n>isabs</span><span class=p>(</span><span class=n>system_python</span><span class=p>):</span>
-                <span class=n>system_python</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>platform</span><span class=o>.</span><span class=n>_shutil</span><span class=o>.</span><span class=n>which</span><span class=p>(</span><span class=n>system_python</span><span class=p>)</span>
+                <span class=n>system_python</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>platform</span><span class=o>.</span><span class=n>modules</span><span class=o>.</span><span class=n>shutil</span><span class=o>.</span><span class=n>which</span><span class=p>(</span><span class=n>system_python</span><span class=p>)</span>
 
             <span class=bp>self</span><span class=o>.</span><span class=n>_system_python</span> <span class=o>=</span> <span class=n>system_python</span>
 
