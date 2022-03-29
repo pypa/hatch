@@ -163,6 +163,11 @@ def extract_installed_requirements(helpers, default_virtualenv_installed_require
     ]
 
 
+@pytest.fixture(scope='session')
+def python_on_path():
+    return sys.executable.split(os.sep)[-1]
+
+
 @pytest.fixture
 def mock_backend_process(request, mocker):
     if 'allow_backend_process' in request.keywords:

@@ -125,7 +125,7 @@ def test_new(hatch, helpers, temp_dir, config_file):
     assert env_path.name == 'test'
 
 
-def test_new_selected_python(hatch, helpers, temp_dir, config_file, mocker):
+def test_new_selected_python(hatch, helpers, temp_dir, config_file, python_on_path, mocker):
     mocker.patch('sys.executable')
 
     config_file.model.template.plugins['default']['tests'] = False
@@ -146,7 +146,7 @@ def test_new_selected_python(hatch, helpers, temp_dir, config_file, mocker):
     helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
     helpers.update_project_environment(project, 'test', {})
 
-    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path), AppEnvVars.PYTHON: 'python'}):
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path), AppEnvVars.PYTHON: python_on_path}):
         result = hatch('env', 'create', 'test')
 
     assert result.exit_code == 0, result.output
