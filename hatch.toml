@@ -22,11 +22,11 @@ python = ["37", "38", "39", "310"]
 skip-install = true
 dependencies = [
   "flake8>=4.0.1",
-  "flake8-bugbear>=22.1.11",
+  "flake8-bugbear>=22.3.23",
   "flake8-quotes>=3.3.1",
-  "black>=22.1.0",
+  "black>=22.3.0",
   "isort>=5.10.1",
-  "mypy>=0.931",
+  "mypy>=0.942",
 ]
 [envs.lint.scripts]
 typing = "mypy --install-types --non-interactive src/hatch tests"
