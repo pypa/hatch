@@ -98,7 +98,7 @@ def test_activation_path_env_var_missing(temp_dir, platform):
             assert os.environ[env_var] == 'foo'
 
 
-def test_context_manager(temp_dir, platform, default_virtualenv_installed_packages):
+def test_context_manager(temp_dir, platform, extract_installed_requirements):
     venv_dir = temp_dir / 'venv'
     venv = VirtualEnv(venv_dir, platform)
     venv.create(sys.executable)
@@ -117,7 +117,7 @@ def test_context_manager(temp_dir, platform, default_virtualenv_installed_packag
 
             # Run here while we have cleanup
             output = platform.run_command(['pip', 'freeze'], check=True, capture_output=True).stdout.decode('utf-8')
-            assert output.strip().count('==') == len(default_virtualenv_installed_packages)
+            assert not extract_installed_requirements(output.splitlines())
 
         assert os.environ['PATH'] == str(temp_dir)
         assert os.environ['VIRTUAL_ENV'] == 'foo'
@@ -125,7 +125,7 @@ def test_context_manager(temp_dir, platform, default_virtualenv_installed_packag
             assert os.environ[env_var] == 'foo'
 
 
-def test_creation_allow_system_packages(temp_dir, platform):
+def test_creation_allow_system_packages(temp_dir, platform, extract_installed_requirements):
     venv_dir = temp_dir / 'venv'
     venv = VirtualEnv(venv_dir, platform)
     venv.create(sys.executable, allow_system_packages=True)
@@ -133,7 +133,7 @@ def test_creation_allow_system_packages(temp_dir, platform):
     with venv:
         output = platform.run_command(['pip', 'freeze'], check=True, capture_output=True).stdout.decode('utf-8')
 
-        assert output.strip().count('==') > 0
+        assert len(extract_installed_requirements(output.splitlines())) > 0
 
 
 def test_python_data(temp_dir, platform):

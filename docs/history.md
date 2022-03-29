@@ -10,6 +10,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Unreleased
 
+***Added:***
+
+- Bump the minimum supported version of Hatchling
+- Upgrade `tomlkit` for better formatting
+
 ### [1.0.0rc16](https://github.com/ofek/hatch/releases/tag/hatch-v1.0.0rc16) - 2022-03-20 ### {: #hatch-v1.0.0rc16 }
 
 ***Added:***
