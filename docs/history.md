@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ***Added:***
 
+- Expose helper for lazily loading modules
 - Bump the minimum supported version of Hatchling
 - Upgrade `tomlkit` for better formatting
 

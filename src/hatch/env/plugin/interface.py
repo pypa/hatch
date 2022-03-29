@@ -131,7 +131,7 @@ class EnvironmentInterface(ABC):
         if self._system_python is None:
             system_python = os.environ.get(AppEnvVars.PYTHON, sys.executable)
             if not isabs(system_python):
-                system_python = self.platform._shutil.which(system_python)
+                system_python = self.platform.modules.shutil.which(system_python)
 
             self._system_python = system_python
 
