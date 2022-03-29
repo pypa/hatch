@@ -34,7 +34,7 @@ def test_unknown_type(hatch, helpers, temp_dir_data, config_file):
 
 
 @pytest.mark.requires_internet
-def test_all(hatch, helpers, temp_dir_data, config_file, default_virtualenv_installed_packages):
+def test_all(hatch, helpers, temp_dir_data, config_file):
     project_name = 'My App'
 
     with temp_dir_data.as_cwd():

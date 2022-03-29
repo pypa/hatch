@@ -18,6 +18,13 @@ def remove_trailing_spaces(text):
     return ''.join(f'{line.rstrip()}\n' for line in text.splitlines(True))
 
 
+def extract_requirements(lines):
+    for line in lines:
+        line = line.rstrip()
+        if line and not line.startswith('#'):
+            yield line
+
+
 def get_current_timestamp():
     return datetime.now(timezone.utc).timestamp()
 

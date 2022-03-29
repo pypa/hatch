@@ -707,7 +707,7 @@ def test_incompatible_matrix_partial(hatch, helpers, temp_dir, config_file):
 
 @pytest.mark.requires_internet
 def test_install_project_default_dev_mode(
-    hatch, helpers, temp_dir, platform, config_file, default_virtualenv_installed_packages
+    hatch, helpers, temp_dir, platform, config_file, extract_installed_requirements
 ):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
@@ -760,20 +760,14 @@ def test_install_project_default_dev_mode(
 
     with VirtualEnv(env_path, platform):
         output = platform.run_command(['pip', 'freeze'], check=True, capture_output=True).stdout.decode('utf-8')
-        lines = output.strip().splitlines()
-        for package in default_virtualenv_installed_packages:
-            lines.remove(package)
+        requirements = extract_installed_requirements(output.splitlines())
 
-        assert len(lines) == 3
-        assert lines[0].startswith('editables==')
-        assert lines[1] == '# Editable install with no version control (my-app==0.0.1)'
-        assert lines[2].lower() == f'-e {str(project_path).lower()}'
+        assert len(requirements) == 1
+        assert requirements[0].lower() == f'-e {str(project_path).lower()}'
 
 
 @pytest.mark.requires_internet
-def test_install_project_no_dev_mode(
-    hatch, helpers, temp_dir, platform, config_file, default_virtualenv_installed_packages
-):
+def test_install_project_no_dev_mode(hatch, helpers, temp_dir, platform, config_file, extract_installed_requirements):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
@@ -826,12 +820,10 @@ def test_install_project_no_dev_mode(
 
     with VirtualEnv(env_path, platform):
         output = platform.run_command(['pip', 'freeze'], check=True, capture_output=True).stdout.decode('utf-8')
-        lines = output.strip().splitlines()
-        for package in default_virtualenv_installed_packages:
-            lines.remove(package)
+        requirements = extract_installed_requirements(output.splitlines())
 
-        assert len(lines) == 1
-        assert lines[0].startswith('my-app @')
+        assert len(requirements) == 1
+        assert requirements[0].startswith('my-app @')
 
 
 @pytest.mark.requires_internet
@@ -991,7 +983,7 @@ def test_post_install_commands_error(hatch, helpers, temp_dir, config_file):
 
 
 @pytest.mark.requires_internet
-def test_sync_dependencies(hatch, helpers, temp_dir, platform, config_file, default_virtualenv_installed_packages):
+def test_sync_dependencies(hatch, helpers, temp_dir, platform, config_file, extract_installed_requirements):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
@@ -1055,19 +1047,15 @@ def test_sync_dependencies(hatch, helpers, temp_dir, platform, config_file, defa
 
     with VirtualEnv(env_path, platform):
         output = platform.run_command(['pip', 'freeze'], check=True, capture_output=True).stdout.decode('utf-8')
-        lines = output.strip().splitlines()
-        for package in default_virtualenv_installed_packages:
-            lines.remove(package)
+        requirements = extract_installed_requirements(output.splitlines())
 
-        assert len(lines) == 4
-        assert lines[0].startswith('binary==')
-        assert lines[1].startswith('editables==')
-        assert lines[2] == '# Editable install with no version control (my-app==0.0.1)'
-        assert lines[3].lower() == f'-e {str(project_path).lower()}'
+        assert len(requirements) == 2
+        assert requirements[0].startswith('binary==')
+        assert requirements[1].lower() == f'-e {str(project_path).lower()}'
 
 
 @pytest.mark.requires_internet
-def test_features(hatch, helpers, temp_dir, platform, config_file, default_virtualenv_installed_packages):
+def test_features(hatch, helpers, temp_dir, platform, config_file, extract_installed_requirements):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
@@ -1123,12 +1111,8 @@ def test_features(hatch, helpers, temp_dir, platform, config_file, default_virtu
 
     with VirtualEnv(env_path, platform):
         output = platform.run_command(['pip', 'freeze'], check=True, capture_output=True).stdout.decode('utf-8')
-        lines = output.strip().splitlines()
-        for package in default_virtualenv_installed_packages:
-            lines.remove(package)
+        requirements = extract_installed_requirements(output.splitlines())
 
-        assert len(lines) == 4
-        assert lines[0].startswith('binary==')
-        assert lines[1].startswith('editables==')
-        assert lines[2] == '# Editable install with no version control (my-app==0.0.1)'
-        assert lines[3].lower() == f'-e {str(project_path).lower()}'
+        assert len(requirements) == 2
+        assert requirements[0].startswith('binary==')
+        assert requirements[1].lower() == f'-e {str(project_path).lower()}'

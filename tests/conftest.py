@@ -145,13 +145,22 @@ def config_file(tmp_path) -> ConfigFile:
 
 
 @pytest.fixture(scope='session')
-def default_virtualenv_installed_packages():
+def default_virtualenv_installed_requirements(helpers):
     # PyPy installs extra packages by default
     with TempVirtualEnv(sys.executable, PLATFORM):
         output = PLATFORM.run_command(['pip', 'freeze'], check=True, capture_output=True).stdout.decode('utf-8')
-        lines = output.strip().splitlines()
+        requirements = helpers.extract_requirements(output.splitlines())
 
-    yield lines
+    yield frozenset(requirements)
+
+
+@pytest.fixture(scope='session')
+def extract_installed_requirements(helpers, default_virtualenv_installed_requirements):
+    yield lambda lines: [
+        requirement
+        for requirement in helpers.extract_requirements(lines)
+        if requirement not in default_virtualenv_installed_requirements
+    ]
 
 
 @pytest.fixture
