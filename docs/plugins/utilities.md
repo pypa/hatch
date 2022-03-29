@@ -46,6 +46,7 @@
       - capture_process
       - exit_with_command
       - default_shell
+      - modules
       - name
       - windows
       - macos

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import sys
+from importlib import import_module
 
 
 def normalize_platform_name(platform_name):
@@ -13,11 +14,6 @@ class Platform:
     def __init__(self, display_func=print):
         self.__display_func = display_func
 
-        # Lazy load modules that either take multiple milliseconds to import or are not used on all platforms
-        self.__shlex = None
-        self.__shutil = None
-        self.__subprocess = None
-
         # Lazily loaded constants
         self.__default_shell = None
         self.__format_file_uri = None
@@ -26,6 +22,16 @@ class Platform:
 
         # Whether or not an interactive status is being displayed
         self.displaying_status = False
+
+        self.__modules = LazilyLoadedModules()
+
+    @property
+    def modules(self):
+        """
+        Accessor for lazily loading modules that either take multiple milliseconds to import
+        (like `shutil` and `subprocess`) or are not used on all platforms (like `shlex`).
+        """
+        return self.__modules
 
     def format_for_subprocess(self, command: str | list[str], *, shell: bool):
         """
@@ -39,12 +45,12 @@ class Platform:
             #   https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-createprocessw
             if not shell and not isinstance(command, str):
                 executable = command[0]
-                new_command = [self._shutil.which(executable) or executable]
+                new_command = [self.modules.shutil.which(executable) or executable]
                 new_command.extend(command[1:])
                 return new_command
         else:
             if not shell and isinstance(command, str):
-                return self._shlex.split(command)
+                return self.modules.shlex.split(command)
 
         return command
 
@@ -58,7 +64,7 @@ class Platform:
 
             stdout, stderr = process.communicate()
 
-        return self._subprocess.CompletedProcess(process.args, process.poll(), stdout, stderr)
+        return self.modules.subprocess.CompletedProcess(process.args, process.poll(), stdout, stderr)
 
     def run_command(self, command: str | list[str], shell=False, **kwargs):
         """
@@ -70,7 +76,7 @@ class Platform:
         if self.displaying_status and not kwargs.get('capture_output'):
             return self._run_command_integrated(command, shell=shell, **kwargs)
 
-        return self._subprocess.run(self.format_for_subprocess(command, shell=shell), shell=shell, **kwargs)
+        return self.modules.subprocess.run(self.format_for_subprocess(command, shell=shell), shell=shell, **kwargs)
 
     def check_command(self, command: str | list[str], shell=False, **kwargs):
         """
@@ -105,11 +111,11 @@ class Platform:
         with all output captured by `stdout` and the command first being
         [properly formatted](utilities.md#hatch.utils.platform.Platform.format_for_subprocess).
         """
-        return self._subprocess.Popen(
+        return self.modules.subprocess.Popen(
             self.format_for_subprocess(command, shell=shell),
             shell=shell,
-            stdout=self._subprocess.PIPE,
-            stderr=self._subprocess.STDOUT,
+            stdout=self.modules.subprocess.PIPE,
+            stderr=self.modules.subprocess.STDOUT,
             **kwargs,
         )
 
@@ -140,12 +146,14 @@ class Platform:
     def join_command_args(self):
         if self.__join_command_args is None:
             if self.windows:
-                self.__join_command_args = self._subprocess.list2cmdline
+                self.__join_command_args = self.modules.subprocess.list2cmdline
             else:
                 try:
-                    self.__join_command_args = self._shlex.join
+                    self.__join_command_args = self.modules.shlex.join
                 except AttributeError:
-                    self.__join_command_args = lambda command_args: ' '.join(map(self._shlex.quote, command_args))
+                    self.__join_command_args = lambda command_args: ' '.join(
+                        map(self.modules.shlex.quote, command_args)
+                    )
 
         return self.__join_command_args
 
@@ -207,29 +215,9 @@ class Platform:
 
         return self.__name
 
-    @property
-    def _subprocess(self):
-        if self.__subprocess is None:
-            import subprocess as subprocess_
 
-            self.__subprocess = subprocess_
-
-        return self.__subprocess
-
-    @property
-    def _shlex(self):
-        if self.__shlex is None:
-            import shlex as shlex_
-
-            self.__shlex = shlex_
-
-        return self.__shlex
-
-    @property
-    def _shutil(self):
-        if self.__shutil is None:
-            import shutil as shutil_
-
-            self.__shutil = shutil_
-
-        return self.__shutil
+class LazilyLoadedModules:
+    def __getattr__(self, name):
+        module = import_module(name)
+        setattr(self, name, module)
+        return module
