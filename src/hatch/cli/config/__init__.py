@@ -32,7 +32,7 @@ def find(app, copy):
 
 
 @config.command(short_help='Show the contents of the config file')
-@click.option('--all', '-a', 'all_keys', is_flag=True, help='No not scrub secret fields')
+@click.option('--all', '-a', 'all_keys', is_flag=True, help='Do not scrub secret fields')
 @click.pass_obj
 def show(app, all_keys):
     """Show the contents of the config file."""
