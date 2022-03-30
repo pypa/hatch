@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ***Added:***
 
+- Add `--json` flag to the `env show` command
 - Add environment collector API method `finalize_config`
 - Expose helper for lazily loading modules
 - Bump the minimum supported version of Hatchling

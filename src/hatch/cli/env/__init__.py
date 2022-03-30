@@ -34,9 +34,16 @@ def find(app, env_name):
 
 @env.command(short_help='Show the available environments')
 @click.option('--ascii', 'force_ascii', is_flag=True, help='Whether or not to only use ASCII characters')
+@click.option('--json', 'as_json', is_flag=True, help='Whether or not to output in JSON format')
 @click.pass_obj
-def show(app, force_ascii):
+def show(app, force_ascii, as_json):
     """Show the available environments."""
+    if as_json:
+        import json
+
+        app.display_info(json.dumps(app.project.config.envs))
+        return
+
     from ...utils.dep import get_normalized_dependencies
 
     project_config = app.project.config
