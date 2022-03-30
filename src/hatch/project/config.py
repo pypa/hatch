@@ -68,6 +68,7 @@ class ProjectConfig:
                 raise TypeError('Field `tool.hatch.envs` must be a table')
 
             config = {}
+            environment_collectors = []
 
             for collector, collector_config in self.env_collectors.items():
                 collector_class = self.plugin_manager.environment_collector.get(collector)
@@ -75,7 +76,9 @@ class ProjectConfig:
                     raise ValueError(f'Unknown environment collector: {collector}')
 
                 environment_collector = collector_class(self.root, collector_config)
-                for env_name, data in environment_collector.get_environment_config().items():
+                environment_collectors.append(environment_collector)
+
+                for env_name, data in environment_collector.get_initial_config().items():
                     config.setdefault(env_name, data)
 
             for env_name, data in env_config.items():
@@ -83,6 +86,9 @@ class ProjectConfig:
                     raise TypeError(f'Field `tool.hatch.envs.{env_name}` must be a table')
 
                 config.setdefault(env_name, {}).update(data)
+
+            for environment_collector in environment_collectors:
+                environment_collector.finalize_config(config)
 
             seen = set()
             active = []

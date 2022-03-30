@@ -2,7 +2,7 @@
 
 -----
 
-Environment collectors allow for adding environments beyond those defined in config. Users can override default values provided by each environment.
+Environment collectors allow for dynamically modifying environments or adding environments beyond those defined in config. Users can override default values provided by each environment.
 
 ## Built-in
 
@@ -32,4 +32,5 @@ The environment plugin name is `default`.
       - PLUGIN_NAME
       - root
       - config
-      - get_environment_config
+      - get_initial_config
+      - finalize_config
