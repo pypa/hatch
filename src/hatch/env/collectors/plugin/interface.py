@@ -1,4 +1,6 @@
-from abc import ABC, abstractmethod
+from __future__ import annotations
+
+from abc import ABC
 
 
 class EnvironmentCollectorInterface(ABC):
@@ -61,8 +63,15 @@ class EnvironmentCollectorInterface(ABC):
         """
         return self.__config
 
-    @abstractmethod
-    def get_environment_config(self) -> dict:
+    def get_initial_config(self) -> dict[str, dict]:
         """
-        Returns configuration for environments keyed by the environment name.
+        Returns configuration for environments keyed by the environment name. Users and any subsequent collectors
+        can override, but not remove, top level keys after this is called.
+        """
+        return {}
+
+    def finalize_config(self, config: dict[str, dict]):
+        """
+        Finalizes configuration for environments keyed by the environment name. This will override
+        any user-defined settings and any collectors that ran before this call.
         """

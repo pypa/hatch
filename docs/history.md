@@ -10,8 +10,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Unreleased
 
+***Changed:***
+
+- Rename environment collector API method `get_environment_config` to `get_initial_config` and do not make it required
+
 ***Added:***
 
+- Add environment collector API method `finalize_config`
 - Expose helper for lazily loading modules
 - Bump the minimum supported version of Hatchling
 - Upgrade `tomlkit` for better formatting
