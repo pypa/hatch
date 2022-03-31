@@ -2346,6 +2346,61 @@ class TestEnvs:
         assert project_config.envs == expected_envs
         assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
+    # Test environment collectors
+    def test_environment_collector_finalize_config(self, isolation, mocker):
+        def finalize_config(config):
+            config['default']['type'] = 'foo'
+
+        mocker.patch(
+            'hatch.env.collectors.default.DefaultEnvironmentCollector.finalize_config',
+            side_effect=finalize_config,
+        )
+
+        env_config = {
+            'foo': {
+                'matrix': [{'version': ['9000', '42']}, {'feature': ['bar']}],
+                'overrides': {'matrix': {'version': {'type': {'value': 'baz', 'if': ['42']}}}},
+            }
+        }
+        project_config = ProjectConfig(isolation, {'envs': env_config}, PluginManager())
+
+        expected_envs = {
+            'default': {'type': 'foo'},
+            'foo.9000': {'type': 'foo'},
+            'foo.42': {'type': 'baz'},
+            'foo.bar': {'type': 'foo'},
+        }
+
+        assert project_config.envs == expected_envs
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config, {'type': 'foo'})
+
+    def test_environment_collector_finalize_environments(self, isolation, mocker):
+        def finalize_environments(config):
+            config['foo.42']['type'] = 'foo'
+
+        mocker.patch(
+            'hatch.env.collectors.default.DefaultEnvironmentCollector.finalize_environments',
+            side_effect=finalize_environments,
+        )
+
+        env_config = {
+            'foo': {
+                'matrix': [{'version': ['9000', '42']}, {'feature': ['bar']}],
+                'overrides': {'matrix': {'version': {'type': {'value': 'baz', 'if': ['42']}}}},
+            }
+        }
+        project_config = ProjectConfig(isolation, {'envs': env_config}, PluginManager())
+
+        expected_envs = {
+            'default': {'type': 'virtual'},
+            'foo.9000': {'type': 'virtual'},
+            'foo.42': {'type': 'foo'},
+            'foo.bar': {'type': 'virtual'},
+        }
+
+        assert project_config.envs == expected_envs
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
+
 
 class TestPublish:
     def test_not_table(self, isolation):

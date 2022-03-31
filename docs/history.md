@@ -17,7 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ***Added:***
 
 - Add `--json` flag to the `env show` command
-- Add environment collector API method `finalize_config`
+- Add environment collector API methods `finalize_config` and `finalize_environments`
 - Add more conditions for environment option overrides
 - Allow for environment option overrides of unknown/untyped options
 - Expose helper for lazily loading modules

@@ -65,13 +65,22 @@ class EnvironmentCollectorInterface(ABC):
 
     def get_initial_config(self) -> dict[str, dict]:
         """
-        Returns configuration for environments keyed by the environment name. Users and any subsequent collectors
-        can override, but not remove, top level keys after this is called.
+        Returns configuration for environments keyed by the environment or matrix name.
         """
         return {}
 
     def finalize_config(self, config: dict[str, dict]):
         """
+        Finalizes configuration for environments keyed by the environment or matrix name. This will override
+        any user-defined settings and any collectors that ran before this call.
+
+        This is called before matrices are turned into concrete environments.
+        """
+
+    def finalize_environments(self, config: dict[str, dict]):
+        """
         Finalizes configuration for environments keyed by the environment name. This will override
         any user-defined settings and any collectors that ran before this call.
+
+        This is called after matrices are turned into concrete environments.
         """

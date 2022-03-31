@@ -88,6 +88,9 @@ class ProjectConfig:
             for environment_collector in environment_collectors:
                 environment_collector.finalize_config(config)
 
+            # Prevent plugins from removing the default environment
+            config.setdefault('default', {}).setdefault('type', 'virtual')
+
             seen = set()
             active = []
             for env_name, data in config.items():
@@ -271,6 +274,9 @@ class ProjectConfig:
 
                 # Remove the root matrix generator
                 del cached_overrides[env_name]
+
+            for environment_collector in environment_collectors:
+                environment_collector.finalize_environments(final_config)
 
             self._matrices = all_matrices
             self._envs = final_config

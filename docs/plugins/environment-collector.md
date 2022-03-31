@@ -34,3 +34,4 @@ The environment plugin name is `default`.
       - config
       - get_initial_config
       - finalize_config
+      - finalize_environments
