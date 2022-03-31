@@ -37,6 +37,14 @@ def apply_overrides(env_name, source, condition, condition_value, options, new_c
             TYPE_OVERRIDES[override_type](
                 env_name, option, data, source, condition, condition_value, new_config, overwrite
             )
+        elif isinstance(data, dict) and 'value' in data:
+            if _resolve_condition(env_name, option, source, condition, condition_value, data):
+                new_config[option] = data['value']
+        elif option_types is not RESERVED_OPTIONS:
+            raise ValueError(
+                f'Untyped option `tool.hatch.envs.{env_name}.overrides.{source}.{condition}.{option}` '
+                f'must be defined as a table with a `value` key'
+            )
 
 
 def _apply_override_to_mapping(env_name, option, data, source, condition, condition_value, new_config, overwrite):
@@ -292,7 +300,6 @@ def _resolve_condition(env_name, option, source, condition, condition_value, con
 
         for env_var, value in required_env_vars.items():
             if env_var not in environ or (value is not None and value != environ[env_var]):
-                print(env_var)
                 return False
 
     return True

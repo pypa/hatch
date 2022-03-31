@@ -1587,6 +1587,52 @@ class TestEnvs:
         assert project_config.envs == expected_envs
         assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
+    def test_overrides_matrix_set_with_no_type_information(self, isolation):
+        env_var = 'OVERRIDES_ENV_FOO'
+        env_config = {
+            'foo': {
+                'matrix': [{'version': ['9000', '42']}, {'feature': ['bar']}],
+                'overrides': {
+                    'matrix': {'version': {'bar': {'value': ['baz'], 'if': ['42'], 'env': [f'{env_var}=bar']}}}
+                },
+            }
+        }
+        project_config = ProjectConfig(isolation, {'envs': env_config}, PluginManager())
+
+        expected_envs = {
+            'default': {'type': 'virtual'},
+            'foo.9000': {'type': 'virtual'},
+            'foo.42': {'type': 'virtual', 'bar': ['baz']},
+            'foo.bar': {'type': 'virtual'},
+        }
+
+        with EnvVars({env_var: 'bar'}):
+            assert project_config.envs == expected_envs
+            assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
+
+    def test_overrides_matrix_set_with_no_type_information_not_table(self, isolation):
+        with pytest.raises(
+            ValueError,
+            match=(
+                'Untyped option `tool.hatch.envs.foo.9000.overrides.matrix.version.bar` '
+                'must be defined as a table with a `value` key'
+            ),
+        ):
+            project_config = ProjectConfig(
+                isolation,
+                {
+                    'envs': {
+                        'foo': {
+                            'matrix': [{'version': ['9000', '42']}, {'feature': ['bar']}],
+                            'overrides': {'matrix': {'version': {'bar': 9000}}},
+                        }
+                    }
+                },
+                PluginManager(),
+            )
+            _ = project_config.envs
+            project_config.finalize_env_overrides({})
+
     @pytest.mark.parametrize('option', ARRAY_OPTIONS)
     def test_overrides_matrix_array_overwrite(self, isolation, option):
         env_config = {
