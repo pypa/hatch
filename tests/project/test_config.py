@@ -1015,6 +1015,94 @@ class TestEnvs:
                 PluginManager(),
             ).envs
 
+    @pytest.mark.parametrize('option', BOOLEAN_OPTIONS)
+    def test_overrides_matrix_boolean_array_table_platform_not_array(self, isolation, option):
+        with pytest.raises(
+            TypeError,
+            match=(
+                f'Option `platform` in entry #1 in field `tool.hatch.envs.foo.overrides.matrix.version.{option}` '
+                f'must be an array'
+            ),
+        ):
+            _ = ProjectConfig(
+                isolation,
+                {
+                    'envs': {
+                        'foo': {
+                            'matrix': [{'version': ['9000']}],
+                            'overrides': {'matrix': {'version': {option: [{'value': True, 'platform': 9000}]}}},
+                        }
+                    }
+                },
+                PluginManager(),
+            ).envs
+
+    @pytest.mark.parametrize('option', BOOLEAN_OPTIONS)
+    def test_overrides_matrix_boolean_array_table_platform_item_not_string(self, isolation, option):
+        with pytest.raises(
+            TypeError,
+            match=(
+                f'Item #1 in option `platform` in entry #1 in field '
+                f'`tool.hatch.envs.foo.overrides.matrix.version.{option}` must be a string'
+            ),
+        ):
+            _ = ProjectConfig(
+                isolation,
+                {
+                    'envs': {
+                        'foo': {
+                            'matrix': [{'version': ['9000']}],
+                            'overrides': {'matrix': {'version': {option: [{'value': True, 'platform': [9000]}]}}},
+                        }
+                    }
+                },
+                PluginManager(),
+            ).envs
+
+    @pytest.mark.parametrize('option', BOOLEAN_OPTIONS)
+    def test_overrides_matrix_boolean_array_table_env_not_array(self, isolation, option):
+        with pytest.raises(
+            TypeError,
+            match=(
+                f'Option `env` in entry #1 in field `tool.hatch.envs.foo.overrides.matrix.version.{option}` '
+                f'must be an array'
+            ),
+        ):
+            _ = ProjectConfig(
+                isolation,
+                {
+                    'envs': {
+                        'foo': {
+                            'matrix': [{'version': ['9000']}],
+                            'overrides': {'matrix': {'version': {option: [{'value': True, 'env': 9000}]}}},
+                        }
+                    }
+                },
+                PluginManager(),
+            ).envs
+
+    @pytest.mark.parametrize('option', BOOLEAN_OPTIONS)
+    def test_overrides_matrix_boolean_array_table_env_item_not_string(self, isolation, option):
+        with pytest.raises(
+            TypeError,
+            match=(
+                f'Item #1 in option `env` in entry #1 in field '
+                f'`tool.hatch.envs.foo.overrides.matrix.version.{option}` must be a string'
+            ),
+        ):
+            _ = ProjectConfig(
+                isolation,
+                {
+                    'envs': {
+                        'foo': {
+                            'matrix': [{'version': ['9000']}],
+                            'overrides': {'matrix': {'version': {option: [{'value': True, 'env': [9000]}]}}},
+                        }
+                    }
+                },
+                PluginManager(),
+            ).envs
+
     @pytest.mark.parametrize('option', MAPPING_OPTIONS)
     def test_overrides_matrix_mapping_string_with_value(self, isolation, option):
         env_config = {
@@ -1323,6 +1411,176 @@ class TestEnvs:
             'default': {'type': 'virtual'},
             'foo.9000': {'type': 'virtual', option: ['run baz']},
             'foo.42': {'type': 'virtual', option: ['run baz', 'run foo']},
+            'foo.bar': {'type': 'virtual', option: ['run baz']},
+        }
+
+        assert project_config.envs == expected_envs
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
+
+    @pytest.mark.parametrize('option', ARRAY_OPTIONS)
+    def test_overrides_matrix_array_table_conditional_with_platform(self, isolation, option, current_platform):
+        env_config = {
+            'foo': {
+                option: ['run baz'],
+                'matrix': [{'version': ['9000', '42']}, {'feature': ['bar']}],
+                'overrides': {
+                    'matrix': {
+                        'version': {option: [{'value': 'run foo', 'if': ['42'], 'platform': [current_platform]}]}
+                    },
+                },
+            }
+        }
+        project_config = ProjectConfig(isolation, {'envs': env_config}, PluginManager())
+
+        expected_envs = {
+            'default': {'type': 'virtual'},
+            'foo.9000': {'type': 'virtual', option: ['run baz']},
+            'foo.42': {'type': 'virtual', option: ['run baz', 'run foo']},
+            'foo.bar': {'type': 'virtual', option: ['run baz']},
+        }
+
+        assert project_config.envs == expected_envs
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
+
+    @pytest.mark.parametrize('option', ARRAY_OPTIONS)
+    def test_overrides_matrix_array_table_conditional_with_wrong_platform(self, isolation, option):
+        env_config = {
+            'foo': {
+                option: ['run baz'],
+                'matrix': [{'version': ['9000', '42']}, {'feature': ['bar']}],
+                'overrides': {
+                    'matrix': {'version': {option: [{'value': 'run foo', 'if': ['42'], 'platform': ['bar']}]}},
+                },
+            }
+        }
+        project_config = ProjectConfig(isolation, {'envs': env_config}, PluginManager())
+
+        expected_envs = {
+            'default': {'type': 'virtual'},
+            'foo.9000': {'type': 'virtual', option: ['run baz']},
+            'foo.42': {'type': 'virtual', option: ['run baz']},
+            'foo.bar': {'type': 'virtual', option: ['run baz']},
+        }
+
+        assert project_config.envs == expected_envs
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
+
+    @pytest.mark.parametrize('option', ARRAY_OPTIONS)
+    def test_overrides_matrix_array_table_conditional_with_env_var_match(self, isolation, option):
+        env_var = 'OVERRIDES_ENV_FOO'
+        env_config = {
+            'foo': {
+                option: ['run baz'],
+                'matrix': [{'version': ['9000', '42']}, {'feature': ['bar']}],
+                'overrides': {
+                    'matrix': {'version': {option: [{'value': 'run foo', 'if': ['42'], 'env': [f'{env_var}=bar']}]}}
+                },
+            }
+        }
+        project_config = ProjectConfig(isolation, {'envs': env_config}, PluginManager())
+
+        expected_envs = {
+            'default': {'type': 'virtual'},
+            'foo.9000': {'type': 'virtual', option: ['run baz']},
+            'foo.42': {'type': 'virtual', option: ['run baz', 'run foo']},
+            'foo.bar': {'type': 'virtual', option: ['run baz']},
+        }
+
+        with EnvVars({env_var: 'bar'}):
+            assert project_config.envs == expected_envs
+            assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
+
+    @pytest.mark.parametrize('option', ARRAY_OPTIONS)
+    def test_overrides_matrix_array_table_conditional_with_env_var_match_empty_string(self, isolation, option):
+        env_var = 'OVERRIDES_ENV_FOO'
+        env_config = {
+            'foo': {
+                option: ['run baz'],
+                'matrix': [{'version': ['9000', '42']}, {'feature': ['bar']}],
+                'overrides': {
+                    'matrix': {'version': {option: [{'value': 'run foo', 'if': ['42'], 'env': [f'{env_var}=']}]}}
+                },
+            }
+        }
+        project_config = ProjectConfig(isolation, {'envs': env_config}, PluginManager())
+
+        expected_envs = {
+            'default': {'type': 'virtual'},
+            'foo.9000': {'type': 'virtual', option: ['run baz']},
+            'foo.42': {'type': 'virtual', option: ['run baz', 'run foo']},
+            'foo.bar': {'type': 'virtual', option: ['run baz']},
+        }
+
+        with EnvVars({env_var: ''}):
+            assert project_config.envs == expected_envs
+            assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
+
+    @pytest.mark.parametrize('option', ARRAY_OPTIONS)
+    def test_overrides_matrix_array_table_conditional_with_env_var_present(self, isolation, option):
+        env_var = 'OVERRIDES_ENV_FOO'
+        env_config = {
+            'foo': {
+                option: ['run baz'],
+                'matrix': [{'version': ['9000', '42']}, {'feature': ['bar']}],
+                'overrides': {'matrix': {'version': {option: [{'value': 'run foo', 'if': ['42'], 'env': [env_var]}]}}},
+            }
+        }
+        project_config = ProjectConfig(isolation, {'envs': env_config}, PluginManager())
+
+        expected_envs = {
+            'default': {'type': 'virtual'},
+            'foo.9000': {'type': 'virtual', option: ['run baz']},
+            'foo.42': {'type': 'virtual', option: ['run baz', 'run foo']},
+            'foo.bar': {'type': 'virtual', option: ['run baz']},
+        }
+
+        with EnvVars({env_var: 'any'}):
+            assert project_config.envs == expected_envs
+            assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
+
+    @pytest.mark.parametrize('option', ARRAY_OPTIONS)
+    def test_overrides_matrix_array_table_conditional_with_env_var_no_match(self, isolation, option):
+        env_var = 'OVERRIDES_ENV_FOO'
+        env_config = {
+            'foo': {
+                option: ['run baz'],
+                'matrix': [{'version': ['9000', '42']}, {'feature': ['bar']}],
+                'overrides': {
+                    'matrix': {'version': {option: [{'value': 'run foo', 'if': ['42'], 'env': [f'{env_var}=bar']}]}}
+                },
+            }
+        }
+        project_config = ProjectConfig(isolation, {'envs': env_config}, PluginManager())
+
+        expected_envs = {
+            'default': {'type': 'virtual'},
+            'foo.9000': {'type': 'virtual', option: ['run baz']},
+            'foo.42': {'type': 'virtual', option: ['run baz']},
+            'foo.bar': {'type': 'virtual', option: ['run baz']},
+        }
+
+        with EnvVars({env_var: 'baz'}):
+            assert project_config.envs == expected_envs
+            assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
+
+    @pytest.mark.parametrize('option', ARRAY_OPTIONS)
+    def test_overrides_matrix_array_table_conditional_with_env_var_missing(self, isolation, option):
+        env_var = 'OVERRIDES_ENV_FOO'
+        env_config = {
+            'foo': {
+                option: ['run baz'],
+                'matrix': [{'version': ['9000', '42']}, {'feature': ['bar']}],
+                'overrides': {
+                    'matrix': {'version': {option: [{'value': 'run foo', 'if': ['42'], 'env': [f'{env_var}=bar']}]}}
+                },
+            }
+        }
+        project_config = ProjectConfig(isolation, {'envs': env_config}, PluginManager())
+
+        expected_envs = {
+            'default': {'type': 'virtual'},
+            'foo.9000': {'type': 'virtual', option: ['run baz']},
+            'foo.42': {'type': 'virtual', option: ['run baz']},
             'foo.bar': {'type': 'virtual', option: ['run baz']},
         }
 

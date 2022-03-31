@@ -58,9 +58,7 @@ class ProjectConfig:
 
     @property
     def envs(self):
-        from platform import system as get_platform_name
-
-        from ..utils.platform import normalize_platform_name
+        from ..utils.platform import get_platform_name
 
         if self._envs is None:
             env_config = self.config.get('envs', {})
@@ -95,7 +93,7 @@ class ProjectConfig:
             for env_name, data in config.items():
                 _populate_default_env_values(env_name, data, config, seen, active)
 
-            current_platform = normalize_platform_name(get_platform_name())
+            current_platform = get_platform_name()
             all_matrices = {}
             final_config = {}
             cached_overrides = {}
@@ -347,6 +345,8 @@ class ProjectConfig:
         return self._version
 
     def finalize_env_overrides(self, option_types):
+        # We lazily apply overrides because we need type information potentially defined by
+        # environment plugins for their options
         if not self._cached_env_overrides:
             return
 

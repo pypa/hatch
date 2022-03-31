@@ -840,7 +840,7 @@ When overwriting entire options or keys within mappings, override sources are ap
 
 ### Conditions
 
-You may specify certain extra keys for any inline table that will determine whether or not to apply that entry.
+You may specify certain extra keys for any inline table that will determine whether or not to apply that entry. These modifiers may be combined with others and any negative evaluation will immediately cause the entry to be skipped.
 
 #### Allowed values
 
@@ -867,6 +867,70 @@ The `if` key represents the allowed values for that condition. If the value of t
     matrix.version.python = { value = "pypy", if = ["3.14"] }
     matrix.version.env-vars = [
       { key = "KEY1", value = "VALUE1", if = ["42"] },
+      { key = "KEY2", value = "VALUE2", if = ["3.14"] },
+    ]
+
+    [[envs.test.matrix]]
+    version = ["42", "3.14"]
+    ```
+
+#### Specific platforms
+
+The `platform` key represents the desired platforms. If the current platform is not listed, then that entry will not be applied:
+
+=== ":octicons-file-code-16: pyproject.toml"
+
+    ```toml
+    [tool.hatch.envs.test.overrides]
+    env.EXPERIMENTAL.python = { value = "pypy", if = ["1"], platform = ["macos"] }
+    matrix.version.env-vars = [
+      { key = "KEY1", value = "VALUE1", if = ["42"], platform = ["linux"] },
+      { key = "KEY2", value = "VALUE2", if = ["3.14"] },
+    ]
+
+    [[tool.hatch.envs.test.matrix]]
+    version = ["42", "3.14"]
+    ```
+
+=== ":octicons-file-code-16: hatch.toml"
+
+    ```toml
+    [envs.test.overrides]
+    env.EXPERIMENTAL.python = { value = "pypy", if = ["1"], platform = ["macos"] }
+    matrix.version.env-vars = [
+      { key = "KEY1", value = "VALUE1", if = ["42"], platform = ["linux"] },
+      { key = "KEY2", value = "VALUE2", if = ["3.14"] },
+    ]
+
+    [[envs.test.matrix]]
+    version = ["42", "3.14"]
+    ```
+
+#### Required environment variables
+
+The `env` key represents the required environment variables. If any of the listed environment variables are not set or the defined value does not match, then that entry will not be applied:
+
+=== ":octicons-file-code-16: pyproject.toml"
+
+    ```toml
+    [tool.hatch.envs.test.overrides]
+    platform.windows.python = { value = "pypy", env = ["EXPERIMENTAL"] }
+    matrix.version.env-vars = [
+      { key = "KEY1", value = "VALUE1", if = ["42"], env = ["FOO", "BAR=BAZ"] },
+      { key = "KEY2", value = "VALUE2", if = ["3.14"] },
+    ]
+
+    [[tool.hatch.envs.test.matrix]]
+    version = ["42", "3.14"]
+    ```
+
+=== ":octicons-file-code-16: hatch.toml"
+
+    ```toml
+    [envs.test.overrides]
+    platform.windows.python = { value = "pypy", env = ["EXPERIMENTAL"] }
+    matrix.version.env-vars = [
+      { key = "KEY1", value = "VALUE1", if = ["42"], env = ["FOO", "BAR=BAZ"] },
       { key = "KEY2", value = "VALUE2", if = ["3.14"] },
     ]
 

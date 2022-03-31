@@ -2,7 +2,15 @@ from __future__ import annotations
 
 import os
 import sys
+from functools import lru_cache
 from importlib import import_module
+
+
+@lru_cache(maxsize=None)
+def get_platform_name():
+    import platform
+
+    return normalize_platform_name(platform.system())
 
 
 def normalize_platform_name(platform_name):
@@ -209,9 +217,7 @@ class Platform:
         - `macos`
         """
         if self.__name is None:
-            import platform
-
-            self.__name = normalize_platform_name(platform.system())
+            self.__name = get_platform_name()
 
         return self.__name
 
