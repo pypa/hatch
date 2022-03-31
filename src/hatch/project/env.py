@@ -1,3 +1,7 @@
+from os import environ
+
+from ..utils.platform import get_platform_name
+
 RESERVED_OPTIONS = {
     'dependencies': list,
     'dev-mode': bool,
@@ -233,6 +237,7 @@ def _apply_override_to_boolean(env_name, option, data, source, condition, condit
 
 def _resolve_condition(env_name, option, source, condition, condition_value, condition_config, condition_index=None):
     location = 'field' if condition_index is None else f'entry #{condition_index} in field'
+
     if 'if' in condition_config:
         allowed_values = condition_config['if']
         if not isinstance(allowed_values, list):
@@ -240,8 +245,55 @@ def _resolve_condition(env_name, option, source, condition, condition_value, con
                 f'Option `if` in {location} `tool.hatch.envs.{env_name}.overrides.{source}.'
                 f'{condition}.{option}` must be an array'
             )
+
         if condition_value not in allowed_values:
             return False
+
+    if 'platform' in condition_config:
+        allowed_platforms = condition_config['platform']
+        if not isinstance(allowed_platforms, list):
+            raise TypeError(
+                f'Option `platform` in {location} `tool.hatch.envs.{env_name}.overrides.{source}.'
+                f'{condition}.{option}` must be an array'
+            )
+
+        for i, entry in enumerate(allowed_platforms, 1):
+            if not isinstance(entry, str):
+                raise TypeError(
+                    f'Item #{i} in option `platform` in {location} `tool.hatch.envs.{env_name}.overrides.{source}.'
+                    f'{condition}.{option}` must be a string'
+                )
+
+        if get_platform_name() not in allowed_platforms:
+            return False
+
+    if 'env' in condition_config:
+        env_vars = condition_config['env']
+        if not isinstance(env_vars, list):
+            raise TypeError(
+                f'Option `env` in {location} `tool.hatch.envs.{env_name}.overrides.{source}.'
+                f'{condition}.{option}` must be an array'
+            )
+
+        required_env_vars = {}
+        for i, entry in enumerate(env_vars, 1):
+            if not isinstance(entry, str):
+                raise TypeError(
+                    f'Item #{i} in option `env` in {location} `tool.hatch.envs.{env_name}.overrides.{source}.'
+                    f'{condition}.{option}` must be a string'
+                )
+
+            # Allow matching empty strings
+            if '=' in entry:
+                env_var, _, value = entry.partition('=')
+                required_env_vars[env_var] = value
+            else:
+                required_env_vars[entry] = None
+
+        for env_var, value in required_env_vars.items():
+            if env_var not in environ or (value is not None and value != environ[env_var]):
+                print(env_var)
+                return False
 
     return True
 
