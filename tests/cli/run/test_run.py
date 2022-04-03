@@ -894,7 +894,14 @@ def test_matrix_variable_selection_duplicate_inclusion(hatch, helpers, temp_dir,
     helpers.update_project_environment(project, 'test', {'matrix': [{'version': ['9000', '42']}]})
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('run', '+version=9000', '+version=42')
+        result = hatch(
+            'run',
+            '+version=9000',
+            '+version=42',
+            'python',
+            '-c',
+            "import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable)",
+        )
 
     assert result.exit_code == 1, result.output
     assert result.output == helpers.dedent(
@@ -924,7 +931,14 @@ def test_matrix_variable_selection_duplicate_exclusion(hatch, helpers, temp_dir,
     helpers.update_project_environment(project, 'test', {'matrix': [{'version': ['9000', '42']}]})
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('run', '-version=9000', '-version=42')
+        result = hatch(
+            'run',
+            '-version=9000',
+            '-version=42',
+            'python',
+            '-c',
+            "import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable)",
+        )
 
     assert result.exit_code == 1, result.output
     assert result.output == helpers.dedent(
@@ -954,7 +968,14 @@ def test_matrix_variable_selection_python_alias(hatch, helpers, temp_dir, config
     helpers.update_project_environment(project, 'test', {'matrix': [{'python': ['9000', '42']}]})
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('run', '+py=9000', '+python=42')
+        result = hatch(
+            'run',
+            '+py=9000',
+            '+python=42',
+            'python',
+            '-c',
+            "import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable)",
+        )
 
     assert result.exit_code == 1, result.output
     assert result.output == helpers.dedent(
@@ -995,7 +1016,7 @@ def test_matrix_variable_selection_not_matrix(hatch, helpers, temp_dir, config_f
     assert result.exit_code == 1, result.output
     assert result.output == helpers.dedent(
         """
-        Variable selection is unsupported for non-matrix environment: default
+        Variable selection is unsupported for non-matrix environments: default
         """
     )
 
