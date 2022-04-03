@@ -13,18 +13,26 @@ def show(app, force_ascii, as_json):
         app.display_info(json.dumps(app.project.config.envs))
         return
 
+    from hatchling.metadata.utils import normalize_project_name
+
     from ...utils.dep import get_normalized_dependencies
 
     project_config = app.project.config
 
     def set_available_columns(columns):
+        if config.get('features'):
+            columns['Features'][i] = '\n'.join(sorted(set(normalize_project_name(f) for f in config['features'])))
+
         if config.get('dependencies'):
             columns['Dependencies'][i] = '\n'.join(get_normalized_dependencies(config['dependencies']))
 
         if config.get('env-vars'):
             columns['Environment variables'][i] = '\n'.join(
-                sorted('='.join(item) for item in config['env-vars'].items())
+                '='.join(item) for item in sorted(config['env-vars'].items())
             )
+
+        if config.get('scripts'):
+            columns['Scripts'][i] = '\n'.join(sorted(config['scripts']))
 
         if config.get('description'):
             columns['Description'][i] = config['description'].strip()
@@ -33,8 +41,10 @@ def show(app, force_ascii, as_json):
         'Name': {},
         'Type': {},
         'Envs': {},
+        'Features': {},
         'Dependencies': {},
         'Environment variables': {},
+        'Scripts': {},
         'Description': {},
     }
     matrix_envs = set()
@@ -48,7 +58,15 @@ def show(app, force_ascii, as_json):
         matrix_columns['Envs'][i] = '\n'.join(matrix_data['envs'])
         set_available_columns(matrix_columns)
 
-    standalone_columns = {'Name': {}, 'Type': {}, 'Dependencies': {}, 'Environment variables': {}, 'Description': {}}
+    standalone_columns = {
+        'Name': {},
+        'Type': {},
+        'Features': {},
+        'Dependencies': {},
+        'Environment variables': {},
+        'Scripts': {},
+        'Description': {},
+    }
     standalone_envs = (
         (env_name, config) for env_name, config in project_config.envs.items() if env_name not in matrix_envs
     )

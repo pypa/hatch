@@ -272,6 +272,8 @@ occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim 
             'description': description,
             'dependencies': dependencies,
             'env-vars': env_vars,
+            'features': ['Foo...Bar', 'Baz', 'baZ'],
+            'scripts': {'test': 'pytest', 'build': 'python -m build'},
         },
     )
     helpers.update_project_environment(
@@ -285,23 +287,25 @@ occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim 
     assert helpers.remove_trailing_spaces(result.output) == helpers.dedent(
         """
                                                                                                        Standalone
-        +------+---------+-----------------------------+-----------------------+-------------------------------------------------------------------------------------------------------------------------------+
-        | Name | Type    | Dependencies                | Environment variables | Description                                                                                                                   |
-        +======+=========+=============================+=======================+===============================================================================================================================+
-        | foo  | virtual | bar-baz[tls]>=1.2rc5        | BAR=2                 | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.   |
-        |      |         | foo; python_version < '3.8' | FOO=1                 | Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure   |
-        |      |         | python-dateutil             |                       | dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non  |
-        |      |         |                             |                       | proident, sunt in culpa qui officia deserunt mollit anim id est laborum.                                                      |
-        +------+---------+-----------------------------+-----------------------+-------------------------------------------------------------------------------------------------------------------------------+
+        +------+---------+----------+-----------------------------+-----------------------+---------+----------------------------------------------------------------------------------------------------------+
+        | Name | Type    | Features | Dependencies                | Environment variables | Scripts | Description                                                                                              |
+        +======+=========+==========+=============================+=======================+=========+==========================================================================================================+
+        | foo  | virtual | baz      | bar-baz[tls]>=1.2rc5        | BAR=2                 | build   | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et   |
+        |      |         | foo-bar  | foo; python_version < '3.8' | FOO=1                 | test    | dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip  |
+        |      |         |          | python-dateutil             |                       |         | ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu |
+        |      |         |          |                             |                       |         | fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia         |
+        |      |         |          |                             |                       |         | deserunt mollit anim id est laborum.                                                                     |
+        +------+---------+----------+-----------------------------+-----------------------+---------+----------------------------------------------------------------------------------------------------------+
                                                                                                         Matrices
-        +---------+---------+------------+-----------------------------+-----------------------+---------------------------------------------------------------------------------------------------------------+
-        | Name    | Type    | Envs       | Dependencies                | Environment variables | Description                                                                                                   |
-        +=========+=========+============+=============================+=======================+===============================================================================================================+
-        | default | virtual | py39-9000  | bar-baz[tls]>=1.2rc5        | BAR=2                 | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore |
-        |         |         | py39-3.14  | foo; python_version < '3.8' | FOO=1                 | magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea        |
-        |         |         | py310-9000 | python-dateutil             |                       | commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat     |
-        |         |         | py310-3.14 |                             |                       | nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit     |
-        |         |         |            |                             |                       | anim id est laborum.                                                                                          |
-        +---------+---------+------------+-----------------------------+-----------------------+---------------------------------------------------------------------------------------------------------------+
+        +---------+---------+------------+----------+-----------------------------+-----------------------+---------+------------------------------------------------------------------------------------------+
+        | Name    | Type    | Envs       | Features | Dependencies                | Environment variables | Scripts | Description                                                                              |
+        +=========+=========+============+==========+=============================+=======================+=========+==========================================================================================+
+        | default | virtual | py39-9000  | baz      | bar-baz[tls]>=1.2rc5        | BAR=2                 | build   | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor           |
+        |         |         | py39-3.14  | foo-bar  | foo; python_version < '3.8' | FOO=1                 | test    | incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud       |
+        |         |         | py310-9000 |          | python-dateutil             |                       |         | exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure    |
+        |         |         | py310-3.14 |          |                             |                       |         | dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.   |
+        |         |         |            |          |                             |                       |         | Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt       |
+        |         |         |            |          |                             |                       |         | mollit anim id est laborum.                                                              |
+        +---------+---------+------------+----------+-----------------------------+-----------------------+---------+------------------------------------------------------------------------------------------+
         """  # noqa: E501
     )
