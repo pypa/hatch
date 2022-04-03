@@ -22,6 +22,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Add more conditions for environment option overrides
 - Allow for environment option overrides of unknown/untyped options
 - Expose helper for lazily loading modules
+- Normalize the names of environment features to adhere to the newly-introduced [PEP 685](https://peps.python.org/pep-0685/)
 - Bump the minimum supported version of Hatchling
 - Upgrade `tomlkit` for better formatting
 
