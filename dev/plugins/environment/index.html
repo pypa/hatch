@@ -417,10 +417,13 @@
     <span class=nd>@property</span>
     <span class=k>def</span> <span class=nf>features</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
         <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>_features</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
+            <span class=kn>from</span> <span class=nn>hatchling.metadata.utils</span> <span class=kn>import</span> <span class=n>normalize_project_name</span>
+
             <span class=n>features</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>config</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=s1>&#39;features&#39;</span><span class=p>,</span> <span class=p>[])</span>
             <span class=k>if</span> <span class=ow>not</span> <span class=nb>isinstance</span><span class=p>(</span><span class=n>features</span><span class=p>,</span> <span class=nb>list</span><span class=p>):</span>
                 <span class=k>raise</span> <span class=ne>TypeError</span><span class=p>(</span><span class=sa>f</span><span class=s1>&#39;Field `tool.hatch.envs.</span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>name</span><span class=si>}</span><span class=s1>.features` must be an array of strings&#39;</span><span class=p>)</span>
 
+            <span class=n>all_features</span> <span class=o>=</span> <span class=nb>set</span><span class=p>()</span>
             <span class=k>for</span> <span class=n>i</span><span class=p>,</span> <span class=n>feature</span> <span class=ow>in</span> <span class=nb>enumerate</span><span class=p>(</span><span class=n>features</span><span class=p>,</span> <span class=mi>1</span><span class=p>):</span>
                 <span class=k>if</span> <span class=ow>not</span> <span class=nb>isinstance</span><span class=p>(</span><span class=n>feature</span><span class=p>,</span> <span class=nb>str</span><span class=p>):</span>
                     <span class=k>raise</span> <span class=ne>TypeError</span><span class=p>(</span><span class=sa>f</span><span class=s1>&#39;Feature #</span><span class=si>{</span><span class=n>i</span><span class=si>}</span><span class=s1> of field `tool.hatch.envs.</span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>name</span><span class=si>}</span><span class=s1>.features` must be a string&#39;</span><span class=p>)</span>
@@ -428,13 +431,17 @@
                     <span class=k>raise</span> <span class=ne>ValueError</span><span class=p>(</span>
                         <span class=sa>f</span><span class=s1>&#39;Feature #</span><span class=si>{</span><span class=n>i</span><span class=si>}</span><span class=s1> of field `tool.hatch.envs.</span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>name</span><span class=si>}</span><span class=s1>.features` cannot be an empty string&#39;</span>
                     <span class=p>)</span>
-                <span class=k>elif</span> <span class=n>feature</span> <span class=ow>not</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>metadata</span><span class=o>.</span><span class=n>core</span><span class=o>.</span><span class=n>optional_dependencies</span><span class=p>:</span>
+
+                <span class=n>feature</span> <span class=o>=</span> <span class=n>normalize_project_name</span><span class=p>(</span><span class=n>feature</span><span class=p>)</span>
+                <span class=k>if</span> <span class=n>feature</span> <span class=ow>not</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>metadata</span><span class=o>.</span><span class=n>core</span><span class=o>.</span><span class=n>optional_dependencies</span><span class=p>:</span>
                     <span class=k>raise</span> <span class=ne>ValueError</span><span class=p>(</span>
                         <span class=sa>f</span><span class=s1>&#39;Feature `</span><span class=si>{</span><span class=n>feature</span><span class=si>}</span><span class=s1>` of field `tool.hatch.envs.</span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>name</span><span class=si>}</span><span class=s1>.features` is not &#39;</span>
                         <span class=sa>f</span><span class=s1>&#39;defined in field `project.optional-dependencies`&#39;</span>
                     <span class=p>)</span>
 
-            <span class=bp>self</span><span class=o>.</span><span class=n>_features</span> <span class=o>=</span> <span class=nb>list</span><span class=p>(</span><span class=n>features</span><span class=p>)</span>
+                <span class=n>all_features</span><span class=o>.</span><span class=n>add</span><span class=p>(</span><span class=n>feature</span><span class=p>)</span>
+
+            <span class=bp>self</span><span class=o>.</span><span class=n>_features</span> <span class=o>=</span> <span class=nb>sorted</span><span class=p>(</span><span class=n>all_features</span><span class=p>)</span>
 
         <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>_features</span>
 
