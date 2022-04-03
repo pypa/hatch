@@ -383,10 +383,13 @@ class EnvironmentInterface(ABC):
     @property
     def features(self):
         if self._features is None:
+            from hatchling.metadata.utils import normalize_project_name
+
             features = self.config.get('features', [])
             if not isinstance(features, list):
                 raise TypeError(f'Field `tool.hatch.envs.{self.name}.features` must be an array of strings')
 
+            all_features = set()
             for i, feature in enumerate(features, 1):
                 if not isinstance(feature, str):
                     raise TypeError(f'Feature #{i} of field `tool.hatch.envs.{self.name}.features` must be a string')
@@ -394,13 +397,17 @@ class EnvironmentInterface(ABC):
                     raise ValueError(
                         f'Feature #{i} of field `tool.hatch.envs.{self.name}.features` cannot be an empty string'
                     )
-                elif feature not in self.metadata.core.optional_dependencies:
+
+                feature = normalize_project_name(feature)
+                if feature not in self.metadata.core.optional_dependencies:
                     raise ValueError(
                         f'Feature `{feature}` of field `tool.hatch.envs.{self.name}.features` is not '
                         f'defined in field `project.optional-dependencies`'
                     )
 
-            self._features = list(features)
+                all_features.add(feature)
+
+            self._features = sorted(all_features)
 
         return self._features
 

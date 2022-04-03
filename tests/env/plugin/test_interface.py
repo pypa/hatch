@@ -332,15 +332,15 @@ class TestFeatures:
 
     def test_correct(self, isolation, data_dir, platform):
         config = {
-            'project': {'name': 'my_app', 'version': '0.0.1', 'optional-dependencies': {'foo': [], 'bar': []}},
-            'tool': {'hatch': {'envs': {'default': {'features': ['foo', 'bar']}}}},
+            'project': {'name': 'my_app', 'version': '0.0.1', 'optional-dependencies': {'foo-bar': [], 'baz': []}},
+            'tool': {'hatch': {'envs': {'default': {'features': ['Foo...Bar', 'Baz', 'baZ']}}}},
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
             isolation, project.metadata, 'default', project.config.envs['default'], data_dir, platform, 0
         )
 
-        assert environment.features == ['foo', 'bar']
+        assert environment.features == ['baz', 'foo-bar']
 
     def test_feature_not_string(self, isolation, data_dir, platform):
         config = {
