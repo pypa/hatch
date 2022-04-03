@@ -18,6 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Add the `env run` command as a more advanced form of the `run` command
 - Add `--json` flag to the `env show` command
+- Add features and scripts to the `env show` command
 - Add environment collector API methods `finalize_config` and `finalize_environments`
 - Add more conditions for environment option overrides
 - Allow for environment option overrides of unknown/untyped options
