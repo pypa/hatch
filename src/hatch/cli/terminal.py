@@ -132,12 +132,13 @@ class Terminal:
         if not columns:
             return
 
-        for i in range(num_rows or len(next(iter(columns.values())))):
+        for i in range(num_rows or max(map(max, columns.values())) + 1):
             row = []
             for indices in columns.values():
                 row.append(indices.get(i, ''))
 
-            table.add_row(*row)
+            if any(row):
+                table.add_row(*row)
 
         self.display(table)
 

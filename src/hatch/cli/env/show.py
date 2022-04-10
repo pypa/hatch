@@ -2,10 +2,11 @@ import click
 
 
 @click.command(short_help='Show the available environments')
+@click.argument('envs', required=False, nargs=-1)
 @click.option('--ascii', 'force_ascii', is_flag=True, help='Whether or not to only use ASCII characters')
 @click.option('--json', 'as_json', is_flag=True, help='Whether or not to output in JSON format')
 @click.pass_obj
-def show(app, force_ascii, as_json):
+def show(app, envs, force_ascii, as_json):
     """Show the available environments."""
     if as_json:
         import json
@@ -37,6 +38,12 @@ def show(app, force_ascii, as_json):
         if config.get('description'):
             columns['Description'][i] = config['description'].strip()
 
+    for env_name in envs:
+        if env_name not in project_config.envs and env_name not in project_config.matrices:
+            app.abort(f'Environment `{env_name}` is not defined by project config')
+
+    env_names = set(envs)
+
     matrix_columns = {
         'Name': {},
         'Type': {},
@@ -51,6 +58,9 @@ def show(app, force_ascii, as_json):
     for i, (matrix_name, matrix_data) in enumerate(project_config.matrices.items()):
         for env_name in matrix_data['envs']:
             matrix_envs.add(env_name)
+
+        if env_names and matrix_name not in env_names:
+            continue
 
         config = matrix_data['config']
         matrix_columns['Name'][i] = matrix_name
@@ -68,9 +78,14 @@ def show(app, force_ascii, as_json):
         'Description': {},
     }
     standalone_envs = (
-        (env_name, config) for env_name, config in project_config.envs.items() if env_name not in matrix_envs
+        (env_name, config)
+        for env_name, config in project_config.envs.items()
+        if env_names or env_name not in matrix_envs
     )
     for i, (env_name, config) in enumerate(standalone_envs):
+        if env_names and env_name not in env_names:
+            continue
+
         standalone_columns['Name'][i] = env_name
         standalone_columns['Type'][i] = config['type']
         set_available_columns(standalone_columns)
