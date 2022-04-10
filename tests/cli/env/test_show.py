@@ -240,6 +240,69 @@ def test_all_matrix_types_with_single(hatch, helpers, temp_dir, config_file):
     )
 
 
+def test_specific(hatch, helpers, temp_dir, config_file):
+    config_file.model.template.plugins['default']['tests'] = False
+    config_file.save()
+
+    project_name = 'My App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / 'my-app'
+    data_path = temp_dir / 'data'
+    data_path.mkdir()
+
+    project = Project(project_path)
+    helpers.update_project_environment(project, 'foo', {})
+    helpers.update_project_environment(project, 'bar', {})
+
+    with project_path.as_cwd():
+        result = hatch('env', 'show', 'bar', 'foo', '--ascii')
+
+    assert result.exit_code == 0, result.output
+    assert helpers.remove_trailing_spaces(result.output) == helpers.dedent(
+        """
+            Standalone
+        +------+---------+
+        | Name | Type    |
+        +======+=========+
+        | foo  | virtual |
+        +------+---------+
+        | bar  | virtual |
+        +------+---------+
+        """
+    )
+
+
+def test_specific_unknown(hatch, helpers, temp_dir, config_file):
+    config_file.model.template.plugins['default']['tests'] = False
+    config_file.save()
+
+    project_name = 'My App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / 'my-app'
+    data_path = temp_dir / 'data'
+    data_path.mkdir()
+
+    with project_path.as_cwd():
+        result = hatch('env', 'show', 'foo', '--ascii')
+
+    assert result.exit_code == 1, result.output
+    assert helpers.remove_trailing_spaces(result.output) == helpers.dedent(
+        """
+        Environment `foo` is not defined by project config
+        """
+    )
+
+
 def test_optional_columns(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
