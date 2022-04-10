@@ -17,8 +17,8 @@ def get_files(**kwargs):
             files.append(File(Path(metadata_directory, 'license_files', f.path), f.contents))
 
     pth_file_name = f"{kwargs['package_name']}.pth"
-    loader_file_name = f"_{kwargs['package_name']}.py"
-    files.append(File(Path(pth_file_name), f"import _{kwargs['package_name']}"))
+    loader_file_name = f"_editable_impl_{kwargs['package_name']}.py"
+    files.append(File(Path(pth_file_name), f"import _editable_impl_{kwargs['package_name']}"))
     files.append(
         File(
             Path(loader_file_name),
