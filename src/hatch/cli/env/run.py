@@ -32,13 +32,26 @@ def select_matrix_environments(environments, included_variables, excluded_variab
     return selected_environments
 
 
+def filter_environments(environments, filter_data):
+    selected_environments = []
+    for env_name, env_data in environments.items():
+        for key, value in filter_data.items():
+            if key not in env_data or env_data[key] != value:
+                break
+        else:
+            selected_environments.append(env_name)
+
+    return selected_environments
+
+
 @click.command(short_help='Run commands within project environments')
 @click.argument('args', required=True, nargs=-1)
 @click.option('--env', '-e', 'env_names', multiple=True, help='The environments to target')
 @click.option('--include', '-i', 'included_variable_specs', multiple=True, help='The matrix variables to include')
 @click.option('--exclude', '-x', 'excluded_variable_specs', multiple=True, help='The matrix variables to exclude')
+@click.option('--filter', '-f', 'filter_json', help='The JSON data used to select environments')
 @click.pass_obj
-def run(app, args, env_names, included_variable_specs, excluded_variable_specs):
+def run(app, args, env_names, included_variable_specs, excluded_variable_specs, filter_json):
     """
     Run commands within project environments.
 
@@ -113,6 +126,15 @@ def run(app, args, env_names, included_variable_specs, excluded_variable_specs):
             environments.extend(select_matrix_environments(env_data, included_variables, excluded_variables))
         else:
             environments.append(env_name)
+
+    if filter_json:
+        import json
+
+        filter_data = json.loads(filter_json)
+        if not isinstance(filter_data, dict):
+            app.abort('The --filter/-f option must be a JSON mapping')
+
+        environments[:] = filter_environments(project.config.envs, filter_data)
 
     if not environments:
         app.abort('No environments were selected')
