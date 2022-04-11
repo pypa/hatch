@@ -3,9 +3,12 @@ import pytest
 from hatch.config.constants import AppEnvVars
 from hatch.env.plugin.interface import EnvironmentInterface
 from hatch.project.core import Project
+from hatch.utils.structures import EnvVars
 
 
 class MockEnvironment(EnvironmentInterface):
+    PLUGIN_NAME = 'mock'
+
     def find(self):
         pass
 
@@ -837,3 +840,24 @@ class TestPostInstallCommands:
         )
 
         assert environment.post_install_commands == ['baz test']
+
+
+class TestEnvVarOption:
+    def test_unset(self, isolation, data_dir, platform):
+        config = {'project': {'name': 'my_app', 'version': '0.0.1'}}
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation, project.metadata, 'default', project.config.envs['default'], data_dir, platform, 0
+        )
+
+        assert environment.get_env_var_option('foo') == ''
+
+    def test_set(self, isolation, data_dir, platform):
+        config = {'project': {'name': 'my_app', 'version': '0.0.1'}}
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation, project.metadata, 'default', project.config.envs['default'], data_dir, platform, 0
+        )
+
+        with EnvVars({'HATCH_ENV_TYPE_MOCK_FOO': 'bar'}):
+            assert environment.get_env_var_option('foo') == 'bar'

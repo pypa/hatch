@@ -90,3 +90,4 @@ The environment plugin name is `virtual`.
       - join_command_args
       - check_compatibility
       - get_option_types
+      - get_env_var_option
