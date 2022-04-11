@@ -23,6 +23,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Add environment collector API methods `finalize_config` and `finalize_environments`
 - Add more conditions for environment option overrides
 - Allow for environment option overrides of unknown/untyped options
+- Add method to the environment interface for getting options from environment variables
 - Expose helper for lazily loading modules
 - Normalize the names of environment features to adhere to the newly-introduced [PEP 685](https://peps.python.org/pep-0685/)
 - Bump the minimum supported version of Hatchling

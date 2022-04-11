@@ -813,6 +813,12 @@ class EnvironmentInterface(ABC):
         """
         return {}
 
+    def get_env_var_option(self, option: str) -> str:
+        """
+        Returns the value of the upper-cased environment variable `HATCH_ENV_TYPE_<PLUGIN_NAME>_<option>`.
+        """
+        return os.environ.get(f'{AppEnvVars.ENV_OPTION_PREFIX}{self.PLUGIN_NAME}_{option}'.upper(), '')
+
     def __enter__(self):
         self.activate()
         return self
