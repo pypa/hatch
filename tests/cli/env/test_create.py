@@ -249,6 +249,51 @@ def test_selected_absolute_directory(hatch, helpers, temp_dir, config_file):
     assert env_path.name == 'test'
 
 
+def test_env_var_absolute_directory(hatch, helpers, temp_dir, config_file):
+    config_file.model.template.plugins['default']['tests'] = False
+    config_file.model.dirs.env = {'virtual': '$VENVS_DIR'}
+    config_file.save()
+
+    project_name = 'My App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / 'my-app'
+    env_data_path = temp_dir / '.venvs'
+    env_path = temp_dir / 'foo'
+
+    project = Project(project_path)
+    assert project.config.envs == {'default': {'type': 'virtual'}}
+    helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
+    helpers.update_project_environment(project, 'test', {})
+
+    with project_path.as_cwd({'VENVS_DIR': str(env_data_path), 'HATCH_ENV_TYPE_VIRTUAL_PATH': str(env_path)}):
+        result = hatch('env', 'create', 'test')
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        """
+        Creating environment: test
+        """
+    )
+
+    project = Project(project_path)
+    assert project.config.envs == {
+        'default': {'type': 'virtual', 'skip-install': True},
+        'test': {'type': 'virtual', 'skip-install': True},
+    }
+    assert project.raw_config['tool']['hatch']['envs'] == {
+        'default': {'type': 'virtual', 'skip-install': True},
+        'test': {},
+    }
+
+    assert not env_data_path.is_dir()
+    assert env_path.is_dir()
+
+
 def test_selected_local_directory(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.model.dirs.env = {'virtual': '$VENVS_DIR'}
@@ -308,6 +353,49 @@ def test_selected_local_directory(hatch, helpers, temp_dir, config_file):
     env_path = env_dirs[0]
 
     assert env_path.name == 'test'
+
+
+def test_env_var_local_directory(hatch, helpers, temp_dir, config_file):
+    config_file.model.template.plugins['default']['tests'] = False
+    config_file.model.dirs.env = {'virtual': '$VENVS_DIR'}
+    config_file.save()
+
+    project_name = 'My App'
+    env_data_path = temp_dir / '.venvs'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / 'my-app'
+
+    project = Project(project_path)
+    assert project.config.envs == {'default': {'type': 'virtual'}}
+    helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
+    helpers.update_project_environment(project, 'test', {})
+
+    with project_path.as_cwd({'VENVS_DIR': str(env_data_path), 'HATCH_ENV_TYPE_VIRTUAL_PATH': '.venv'}):
+        result = hatch('env', 'create', 'test')
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        """
+        Creating environment: test
+        """
+    )
+
+    project = Project(project_path)
+    assert project.config.envs == {
+        'default': {'type': 'virtual', 'skip-install': True},
+        'test': {'type': 'virtual', 'skip-install': True},
+    }
+    assert project.raw_config['tool']['hatch']['envs'] == {
+        'default': {'type': 'virtual', 'skip-install': True},
+        'test': {},
+    }
+    assert not env_data_path.is_dir()
+    assert (project_path / '.venv').is_dir()
 
 
 def test_enter_project_directory(hatch, config_file, helpers, temp_dir):
