@@ -47,6 +47,7 @@ The environment plugin name is `virtual`.
 | --- | --- | --- |
 | `system-packages` | `false` | Whether or not to give the virtual environment access to the system `site-packages` directory |
 | `python` | | The version of Python to find on your system and subsequently use to create the environment, defaulting to the `HATCH_PYTHON` environment variable, followed by the Python executable Hatch is running on. For more information, see the [documentation](https://virtualenv.pypa.io/en/latest/user_guide.html#python-discovery). |
+| `env:HATCH_ENV_TYPE_VIRTUAL_PATH` | | An explicit path to the virtual environment |
 
 ::: hatch.env.plugin.interface.EnvironmentInterface
     selection:

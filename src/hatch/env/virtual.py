@@ -1,7 +1,9 @@
 from base64 import urlsafe_b64encode
 from contextlib import contextmanager
 from hashlib import sha256
+from os.path import isabs
 
+from ..utils.fs import Path
 from ..utils.shells import ShellManager
 from ..venv.core import TempVirtualEnv, VirtualEnv
 from .plugin.interface import EnvironmentInterface
@@ -19,8 +21,12 @@ class VirtualEnvironment(EnvironmentInterface):
         checksum = urlsafe_b64encode(hashed_root).decode('utf-8')[:8]
         self.storage_path = self.data_directory / f'{project_name}-{checksum}'
 
-        directory = project_name if self.name == 'default' else self.name
-        self.virtual_env_path = self.storage_path / directory
+        chosen_directory = self.get_env_var_option('path')
+        if chosen_directory:
+            self.virtual_env_path = Path(chosen_directory) if isabs(chosen_directory) else self.root / chosen_directory
+        else:
+            directory = project_name if self.name == 'default' else self.name
+            self.virtual_env_path = self.storage_path / directory
 
         self.virtual_env = VirtualEnv(self.virtual_env_path, self.platform, self.verbosity)
         self.shells = ShellManager(self)
