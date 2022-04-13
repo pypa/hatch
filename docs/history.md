@@ -25,6 +25,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Allow for environment option overrides of unknown/untyped options
 - Add method to the environment interface for getting options from environment variables
 - Allow selecting an explicit path for `virtual` environments
+- Add `detached` option to environments
 - Expose helper for lazily loading modules
 - Normalize the names of environment features to adhere to the newly-introduced [PEP 685](https://peps.python.org/pep-0685/)
 - Bump the minimum supported version of Hatchling
