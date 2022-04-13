@@ -55,6 +55,42 @@ the environment `bar` will be of type `baz` with `skip-install` set to `false`.
 !!! note
     Environments do not inherit [matrices](#matrix).
 
+### Self-referential environments
+
+You can disable inheritance by setting `template` to the environment's own name:
+
+=== ":octicons-file-code-16: pyproject.toml"
+
+    ```toml
+    [tool.hatch.envs.foo]
+    template = "foo"
+    ```
+
+=== ":octicons-file-code-16: hatch.toml"
+
+    ```toml
+    [envs.foo]
+    template = "foo"
+    ```
+
+### Detached environments
+
+A common use case is standalone environments that do not require inheritance nor the installation of the project, such as for linting or sometimes building documentation. Enabling the `detached` option will make the environment [self-referential](#self-referential-environments) and will [skip project installation](#skip-install):
+
+=== ":octicons-file-code-16: pyproject.toml"
+
+    ```toml
+    [tool.hatch.envs.lint]
+    detached = true
+    ```
+
+=== ":octicons-file-code-16: hatch.toml"
+
+    ```toml
+    [envs.lint]
+    detached = true
+    ```
+
 ## Dependencies
 
 You can install [dependencies](dependency.md) in addition to the ones defined by your [project's metadata](metadata.md#dependencies).

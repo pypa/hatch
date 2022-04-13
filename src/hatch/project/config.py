@@ -2,6 +2,7 @@ from copy import deepcopy
 from itertools import product
 from os import environ
 
+from ..env.utils import ensure_valid_environment
 from .env import apply_overrides
 
 
@@ -89,7 +90,7 @@ class ProjectConfig:
                 environment_collector.finalize_config(config)
 
             # Prevent plugins from removing the default environment
-            config.setdefault('default', {}).setdefault('type', 'virtual')
+            ensure_valid_environment(config.setdefault('default', {}))
 
             seen = set()
             active = []
@@ -464,6 +465,10 @@ def expand_script_commands(script_name, commands, config, seen, active):
 def _populate_default_env_values(env_name, data, config, seen, active):
     if env_name in seen:
         return
+    elif data.get('detached', False):
+        ensure_valid_environment(data)
+        data['template'] = env_name
+        data['skip-install'] = True
 
     template_name = data.pop('template', 'default')
     if template_name not in config:

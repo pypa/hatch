@@ -176,6 +176,15 @@ class TestEnvs:
             'baz': {'type': 'virtual', 'scripts': {'cmd1': 'bar', 'cmd2': 'baz'}},
         }
 
+    def test_detached(self, isolation):
+        env_config = {'default': {'option1': 'foo'}, 'bar': {'detached': True}}
+        project_config = ProjectConfig(isolation, {'envs': env_config}, PluginManager())
+
+        assert project_config.envs == {
+            'default': {'type': 'virtual', 'option1': 'foo'},
+            'bar': {'type': 'virtual', 'detached': True, 'skip-install': True},
+        }
+
     def test_matrices_not_array(self, isolation):
         with pytest.raises(TypeError, match='Field `tool.hatch.envs.foo.matrix` must be an array'):
             _ = ProjectConfig(isolation, {'envs': {'foo': {'matrix': 9000}}}, PluginManager()).envs
