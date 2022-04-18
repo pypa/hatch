@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Unreleased
 
+### [1.0.0rc17](https://github.com/ofek/hatch/releases/tag/hatch-v1.0.0rc17) - 2022-04-18 ### {: #hatch-v1.0.0rc17 }
+
 ***Changed:***
 
 - Rename environment collector API method `get_environment_config` to `get_initial_config` and do not make it required
