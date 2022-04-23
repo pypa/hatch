@@ -161,6 +161,7 @@ For example, if there was a directory alongside the project root named `artifact
 !!! note
     - The contents of directory sources are recursively included.
     - Sources that do not exist are silently ignored.
+    - [Path rewriting](#rewriting-paths) has no effect on files included this way.
 
 !!! warning
     Files included using this option will overwrite any file path that was already included by other file selection options.
