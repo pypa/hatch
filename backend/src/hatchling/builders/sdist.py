@@ -9,6 +9,7 @@ from time import time as get_current_timestamp
 
 from ..metadata.spec import DEFAULT_METADATA_VERSION, get_core_metadata_constructors
 from ..utils.constants import DEFAULT_BUILD_SCRIPT, DEFAULT_CONFIG_FILE
+from .config import BuilderConfig
 from .plugin.interface import BuilderInterface
 from .utils import get_reproducible_timestamp, normalize_archive_path, normalize_file_permissions, replace_file
 
@@ -71,18 +72,49 @@ class SdistArchive(object):
         self.fd.close()
 
 
+class SdistBuilderConfig(BuilderConfig):
+    def __init__(self, *args, **kwargs):
+        super(SdistBuilderConfig, self).__init__(*args, **kwargs)
+
+        self.__core_metadata_constructor = None
+        self.__support_legacy = None
+
+    @property
+    def core_metadata_constructor(self):
+        if self.__core_metadata_constructor is None:
+            core_metadata_version = self.target_config.get('core-metadata-version', DEFAULT_METADATA_VERSION)
+            if not isinstance(core_metadata_version, str):
+                raise TypeError(
+                    'Field `tool.hatch.build.targets.{}.core-metadata-version` must be a string'.format(
+                        self.plugin_name
+                    )
+                )
+
+            constructors = get_core_metadata_constructors()
+            if core_metadata_version not in constructors:
+                raise ValueError(
+                    'Unknown metadata version `{}` for field `tool.hatch.build.targets.{}.core-metadata-version`. '
+                    'Available: {}'.format(core_metadata_version, self.plugin_name, ', '.join(sorted(constructors)))
+                )
+
+            self.__core_metadata_constructor = constructors[core_metadata_version]
+
+        return self.__core_metadata_constructor
+
+    @property
+    def support_legacy(self):
+        if self.__support_legacy is None:
+            self.__support_legacy = bool(self.target_config.get('support-legacy', False))
+
+        return self.__support_legacy
+
+
 class SdistBuilder(BuilderInterface):
     """
     Build an archive of the source files
     """
 
     PLUGIN_NAME = 'sdist'
-
-    def __init__(self, *args, **kwargs):
-        super(SdistBuilder, self).__init__(*args, **kwargs)
-
-        self.__core_metadata_constructor = None
-        self.__support_legacy = None
 
     def get_version_api(self):
         return {'standard': self.build_standard}
@@ -100,7 +132,7 @@ class SdistBuilder(BuilderInterface):
 
         with SdistArchive(self.project_id, self.config.reproducible) as archive:
             for included_file in self.recurse_project_files():
-                if self.support_legacy:
+                if self.config.support_legacy:
                     possible_package, file_name = os.path.split(included_file.relative_path)
                     if file_name == '__init__.py':
                         found_packages.add(possible_package)
@@ -117,9 +149,9 @@ class SdistBuilder(BuilderInterface):
                     # TODO: Investigate if this is necessary (for symlinks, etc.)
                     archive.addfile(tar_info)
 
-            archive.create_file(self.core_metadata_constructor(self.metadata), 'PKG-INFO')
+            archive.create_file(self.config.core_metadata_constructor(self.metadata), 'PKG-INFO')
 
-            if self.support_legacy:
+            if self.config.support_legacy:
                 archive.create_file(self.construct_setup_py_file(sorted(found_packages)), 'setup.py')
 
         target = os.path.join(directory, '{}.tar.gz'.format(self.project_id))
@@ -254,31 +286,6 @@ class SdistBuilder(BuilderInterface):
 
         return build_data
 
-    @property
-    def core_metadata_constructor(self):
-        if self.__core_metadata_constructor is None:
-            core_metadata_version = self.target_config.get('core-metadata-version', DEFAULT_METADATA_VERSION)
-            if not isinstance(core_metadata_version, str):
-                raise TypeError(
-                    'Field `tool.hatch.build.targets.{}.core-metadata-version` must be a string'.format(
-                        self.PLUGIN_NAME
-                    )
-                )
-
-            constructors = get_core_metadata_constructors()
-            if core_metadata_version not in constructors:
-                raise ValueError(
-                    'Unknown metadata version `{}` for field `tool.hatch.build.targets.{}.core-metadata-version`. '
-                    'Available: {}'.format(core_metadata_version, self.PLUGIN_NAME, ', '.join(sorted(constructors)))
-                )
-
-            self.__core_metadata_constructor = constructors[core_metadata_version]
-
-        return self.__core_metadata_constructor
-
-    @property
-    def support_legacy(self):
-        if self.__support_legacy is None:
-            self.__support_legacy = bool(self.target_config.get('support-legacy', False))
-
-        return self.__support_legacy
+    @classmethod
+    def get_config_class(cls):
+        return SdistBuilderConfig
