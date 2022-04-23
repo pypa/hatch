@@ -163,6 +163,10 @@ This is the first release candidate for Hatch v1, a complete rewrite.
 
 - Add option to force include files from arbitrary paths
 
+***Fixed:***
+
+- Always include the root `hatch.toml` config file, if present, for source distributions
+
 ### [0.22.0](https://github.com/ofek/hatch/releases/tag/hatchling-v0.22.0) - 2022-03-26 ### {: #hatchling-v0.22.0 }
 
 ***Added:***

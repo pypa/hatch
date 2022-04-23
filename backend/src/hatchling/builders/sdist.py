@@ -8,7 +8,7 @@ from io import BytesIO
 from time import time as get_current_timestamp
 
 from ..metadata.spec import DEFAULT_METADATA_VERSION, get_core_metadata_constructors
-from ..utils.constants import DEFAULT_BUILD_SCRIPT
+from ..utils.constants import DEFAULT_BUILD_SCRIPT, DEFAULT_CONFIG_FILE
 from .plugin.interface import BuilderInterface
 from .utils import get_reproducible_timestamp, normalize_archive_path, normalize_file_permissions, replace_file
 
@@ -245,6 +245,9 @@ class SdistBuilder(BuilderInterface):
 
         if not self.config.include_path(DEFAULT_BUILD_SCRIPT):
             build_data['artifacts'].append('/{}'.format(DEFAULT_BUILD_SCRIPT))
+
+        if not self.config.include_path(DEFAULT_CONFIG_FILE):
+            build_data['artifacts'].append('/{}'.format(DEFAULT_CONFIG_FILE))
 
         if not self.config.include_path('.gitignore'):
             build_data['artifacts'].append('/.gitignore')

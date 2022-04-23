@@ -3,6 +3,7 @@ import sys
 from collections import OrderedDict
 from copy import deepcopy
 
+from ..utils.constants import DEFAULT_CONFIG_FILE
 from ..utils.fs import locate_file
 from .utils import get_normalized_dependency, is_valid_project_name, normalize_project_name
 
@@ -131,9 +132,9 @@ class ProjectMetadata(object):
                 raise TypeError('The `tool.hatch` configuration must be a table')
 
             if self._project_file is not None:
-                hatch_file = os.path.join(os.path.dirname(self._project_file), 'hatch.toml')
+                hatch_file = os.path.join(os.path.dirname(self._project_file), DEFAULT_CONFIG_FILE)
             else:
-                hatch_file = locate_file(self.root, 'hatch.toml')
+                hatch_file = locate_file(self.root, DEFAULT_CONFIG_FILE)
 
             if hatch_file and os.path.isfile(hatch_file):
                 config = load_toml(hatch_file)
