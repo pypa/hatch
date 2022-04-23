@@ -159,7 +159,8 @@ For example, if there was a directory alongside the project root named `artifact
     ```
 
 !!! note
-    Directory contents are recursively included.
+    - The contents of directory sources are recursively included.
+    - Sources that do not exist are silently ignored.
 
 !!! warning
     Files included using this option will overwrite any file path that was already included by other file selection options.

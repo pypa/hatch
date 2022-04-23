@@ -168,6 +168,8 @@ class TestDirectoryRecursion:
                                 '../external1.txt': 'nested/target2.txt',
                                 '../external2.txt': 'nested/target1.txt',
                                 '../external': 'nested',
+                                # Should be silently ignored
+                                '../missing': 'missing',
                             },
                         }
                     }
