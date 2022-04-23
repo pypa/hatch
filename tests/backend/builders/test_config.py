@@ -1,3 +1,4 @@
+import os
 from os.path import join as pjoin
 
 import pathspec
@@ -601,6 +602,144 @@ class TestSources:
         assert len(builder.config.sources) == 1
         assert builder.config.sources[pjoin('src', 'foo', '')] == pjoin('renamed', '')
         assert builder.config.get_distribution_path(pjoin('src', 'foo', 'bar.py')) == pjoin('renamed', 'bar.py')
+
+
+class TestForceInclude:
+    def test_default(self, isolation):
+        builder = BuilderInterface(str(isolation))
+
+        assert builder.config.force_include == builder.config.force_include == {}
+
+    def test_global_invalid_type(self, isolation):
+        config = {'tool': {'hatch': {'build': {'force-include': ''}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+
+        with pytest.raises(TypeError, match='Field `tool.hatch.build.force-include` must be a mapping'):
+            _ = builder.config.force_include
+
+    def test_global_absolute(self, isolation):
+        config = {'tool': {'hatch': {'build': {'force-include': {str(isolation / 'source'): '/target/'}}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+
+        assert builder.config.force_include == {str(isolation / 'source'): 'target'}
+
+    def test_global_relative(self, isolation):
+        config = {'tool': {'hatch': {'build': {'force-include': {'../source': '/target/'}}}}}
+        builder = BuilderInterface(str(isolation / 'foo'), config=config)
+
+        assert builder.config.force_include == {str(isolation / 'source'): 'target'}
+
+    def test_global_source_empty_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'force-include': {'': '/target/'}}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+
+        with pytest.raises(
+            ValueError, match='Source #1 in field `tool.hatch.build.force-include` cannot be an empty string'
+        ):
+            _ = builder.config.force_include
+
+    def test_global_relative_path_not_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'force-include': {'source': 0}}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+
+        with pytest.raises(
+            TypeError, match='Path for source `source` in field `tool.hatch.build.force-include` must be a string'
+        ):
+            _ = builder.config.force_include
+
+    def test_global_relative_path_empty_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'force-include': {'source': ''}}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+
+        with pytest.raises(
+            ValueError,
+            match='Path for source `source` in field `tool.hatch.build.force-include` cannot be an empty string',
+        ):
+            _ = builder.config.force_include
+
+    def test_target_invalid_type(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'force-include': ''}}}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        with pytest.raises(TypeError, match='Field `tool.hatch.build.targets.foo.force-include` must be a mapping'):
+            _ = builder.config.force_include
+
+    def test_target_absolute(self, isolation):
+        config = {
+            'tool': {
+                'hatch': {'build': {'targets': {'foo': {'force-include': {str(isolation / 'source'): '/target/'}}}}}
+            }
+        }
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        assert builder.config.force_include == {str(isolation / 'source'): 'target'}
+
+    def test_target_relative(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'force-include': {'../source': '/target/'}}}}}}}
+        builder = BuilderInterface(str(isolation / 'foo'), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        assert builder.config.force_include == {str(isolation / 'source'): 'target'}
+
+    def test_target_source_empty_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'force-include': {'': '/target/'}}}}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        with pytest.raises(
+            ValueError,
+            match='Source #1 in field `tool.hatch.build.targets.foo.force-include` cannot be an empty string',
+        ):
+            _ = builder.config.force_include
+
+    def test_target_relative_path_not_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'force-include': {'source': 0}}}}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        with pytest.raises(
+            TypeError,
+            match='Path for source `source` in field `tool.hatch.build.targets.foo.force-include` must be a string',
+        ):
+            _ = builder.config.force_include
+
+    def test_target_relative_path_empty_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'force-include': {'source': ''}}}}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        with pytest.raises(
+            ValueError,
+            match=(
+                'Path for source `source` in field `tool.hatch.build.targets.foo.force-include` '
+                'cannot be an empty string'
+            ),
+        ):
+            _ = builder.config.force_include
+
+    def test_order(self, isolation):
+        config = {
+            'tool': {
+                'hatch': {
+                    'build': {
+                        'force-include': {
+                            '../very-nested': 'target1/embedded',
+                            '../source1': '/target2/',
+                            '../source2': '/target1/',
+                        }
+                    }
+                }
+            }
+        }
+        builder = BuilderInterface(str(isolation / 'foo'), config=config)
+
+        assert builder.config.force_include == {
+            str(isolation / 'source2'): 'target1',
+            str(isolation / 'very-nested'): f'target1{os.path.sep}embedded',
+            str(isolation / 'source1'): 'target2',
+        }
 
 
 class TestVersions:

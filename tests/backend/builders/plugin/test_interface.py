@@ -153,7 +153,10 @@ class TestHookConfig:
 
 class TestDirectoryRecursion:
     def test_order(self, temp_dir):
-        with temp_dir.as_cwd():
+        project_dir = temp_dir / 'project'
+        project_dir.ensure_dir_exists()
+
+        with project_dir.as_cwd():
             config = {
                 'tool': {
                     'hatch': {
@@ -161,30 +164,49 @@ class TestDirectoryRecursion:
                             'packages': ['src/foo'],
                             'include': ['bar', 'README.md', 'tox.ini'],
                             'exclude': ['**/foo/baz.txt'],
+                            'force-include': {
+                                '../external1.txt': 'nested/target2.txt',
+                                '../external2.txt': 'nested/target1.txt',
+                                '../external': 'nested',
+                                # Should be silently ignored
+                                '../missing': 'missing',
+                            },
                         }
                     }
                 }
             }
-            builder = BuilderInterface(str(temp_dir), config=config)
+            builder = BuilderInterface(str(project_dir), config=config)
 
-            foo = temp_dir / 'src' / 'foo'
+            foo = project_dir / 'src' / 'foo'
             foo.ensure_dir_exists()
             (foo / 'bar.txt').touch()
             (foo / 'baz.txt').touch()
 
-            bar = temp_dir / 'bar'
+            bar = project_dir / 'bar'
             bar.ensure_dir_exists()
             (bar / 'foo.txt').touch()
 
-            (temp_dir / 'README.md').touch()
-            (temp_dir / 'tox.ini').touch()
+            (project_dir / 'README.md').touch()
+            (project_dir / 'tox.ini').touch()
+
+            (temp_dir / 'external1.txt').touch()
+            (temp_dir / 'external2.txt').touch()
+
+            external = temp_dir / 'external'
+            external.ensure_dir_exists()
+            (external / 'external1.txt').touch()
+            (external / 'external2.txt').touch()
 
             assert [(f.path, f.distribution_path) for f in builder.recurse_project_files()] == [
-                (str(temp_dir / 'README.md'), 'README.md'),
-                (str(temp_dir / 'tox.ini'), 'tox.ini'),
+                (str(project_dir / 'README.md'), 'README.md'),
+                (str(project_dir / 'tox.ini'), 'tox.ini'),
                 (
-                    str(temp_dir / 'bar' / 'foo.txt'),
+                    str(project_dir / 'bar' / 'foo.txt'),
                     f'bar{path_sep}foo.txt',
                 ),
-                (str(temp_dir / 'src' / 'foo' / 'bar.txt'), f'foo{path_sep}bar.txt'),
+                (str(project_dir / 'src' / 'foo' / 'bar.txt'), f'foo{path_sep}bar.txt'),
+                (str(temp_dir / 'external' / 'external1.txt'), f'nested{path_sep}external1.txt'),
+                (str(temp_dir / 'external' / 'external2.txt'), f'nested{path_sep}external2.txt'),
+                (str(temp_dir / 'external2.txt'), f'nested{path_sep}target1.txt'),
+                (str(temp_dir / 'external1.txt'), f'nested{path_sep}target2.txt'),
             ]

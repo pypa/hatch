@@ -7,7 +7,7 @@ import pathspec
 
 from ..utils.fs import locate_file
 from .constants import DEFAULT_BUILD_DIRECTORY, BuildEnvVars
-from .utils import normalize_relative_directory, normalize_relative_path
+from .utils import normalize_inclusion_map, normalize_relative_directory, normalize_relative_path
 
 
 class BuilderConfig(object):
@@ -22,17 +22,21 @@ class BuilderConfig(object):
         self.__dependencies = None
         self.__sources = None
         self.__packages = None
+        self.__force_include = None
 
         # Possible pathspec.PathSpec
         self.__include_spec = None
         self.__exclude_spec = None
         self.__artifact_spec = None
-        self.build_artifact_spec = None
 
         # These are used to create the pathspecs and will never be `None` after the first match attempt
         self.__include_patterns = None
         self.__exclude_patterns = None
         self.__artifact_patterns = None
+
+        # Modified at build time
+        self.build_artifact_spec = None
+        self.build_force_include = {}
 
         # Common options
         self.__directory = None
@@ -582,6 +586,40 @@ class BuilderConfig(object):
 
         return self.__packages
 
+    @property
+    def force_include(self):
+        if self.__force_include is None:
+            if 'force-include' in self.target_config:
+                force_include_config = self.target_config
+                force_include_location = 'tool.hatch.build.targets.{}.force-include'.format(self.plugin_name)
+            else:
+                force_include_config = self.build_config
+                force_include_location = 'tool.hatch.build.force-include'
+
+            force_include = force_include_config.get('force-include', {})
+            if not isinstance(force_include, dict):
+                raise TypeError('Field `{}` must be a mapping'.format(force_include_location))
+
+            for i, (source, relative_path) in enumerate(force_include.items(), 1):
+                if not source:
+                    raise ValueError(
+                        'Source #{} in field `{}` cannot be an empty string'.format(i, force_include_location)
+                    )
+                elif not isinstance(relative_path, str):
+                    raise TypeError(
+                        'Path for source `{}` in field `{}` must be a string'.format(source, force_include_location)
+                    )
+                elif not relative_path:
+                    raise ValueError(
+                        'Path for source `{}` in field `{}` cannot be an empty string'.format(
+                            source, force_include_location
+                        )
+                    )
+
+            self.__force_include = normalize_inclusion_map(force_include, self.root)
+
+        return self.__force_include
+
     def get_distribution_path(self, relative_path):
         # src/foo/bar.py -> foo/bar.py
         for source, replacement in self.sources.items():
@@ -617,6 +655,11 @@ class BuilderConfig(object):
     def default_global_exclude(self):
         return ['.git', '__pycache__', '*.py[cod]']
 
+    def get_force_include(self):
+        force_include = self.force_include.copy()
+        force_include.update(self.build_force_include)
+        return force_include
+
     @contextmanager
     def set_build_data(self, build_data):
         try:
@@ -627,9 +670,12 @@ class BuilderConfig(object):
                     pathspec.patterns.GitWildMatchPattern, build_artifacts
                 )
 
+            self.build_force_include.update(normalize_inclusion_map(build_data['force-include'], self.root))
+
             yield
         finally:
             self.build_artifact_spec = None
+            self.build_force_include.clear()
 
 
 def env_var_enabled(env_var, default=False):

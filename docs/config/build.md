@@ -136,6 +136,36 @@ If you want to include files that are [ignored by your VCS](#vcs), such as those
     ]
     ```
 
+### Explicit selection
+
+The `force-include` option allows you to select specific files or directories from anywhere on the file system that should be included and map them to the desired relative distribution path.
+
+For example, if there was a directory alongside the project root named `artifacts` containing a file named `lib.so` and a file named `lib.h` in your home directory, you could ship both files in a `pkg` directory with the following configuration:
+
+=== ":octicons-file-code-16: pyproject.toml"
+
+    ```toml
+    [tool.hatch.build.force-include]
+    "../artifacts" = "pkg"
+    "~/lib.h" = "pkg/lib.h"
+    ```
+
+=== ":octicons-file-code-16: hatch.toml"
+
+    ```toml
+    [build.force-include]
+    "../artifacts" = "pkg"
+    "~/lib.h" = "pkg/lib.h"
+    ```
+
+!!! note
+    - The contents of directory sources are recursively included.
+    - Sources that do not exist are silently ignored.
+    - [Path rewriting](#rewriting-paths) has no effect on files included this way.
+
+!!! warning
+    Files included using this option will overwrite any file path that was already included by other file selection options.
+
 ### Default file selection
 
 If no file selection options are provided, then what gets included is determined by each [build target](#build-targets).

@@ -258,8 +258,10 @@ class WheelBuilder(BuilderInterface):
                     continue
 
                 relative_path = included_file.relative_path
-                distribution_path = included_file.distribution_path
+                if not relative_path:
+                    continue
 
+                distribution_path = included_file.distribution_path
                 path_parts = relative_path.split(os.sep)
 
                 # Root file
