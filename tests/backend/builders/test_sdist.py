@@ -24,21 +24,21 @@ class TestSupportLegacy:
     def test_default(self, isolation):
         builder = SdistBuilder(str(isolation))
 
-        assert builder.support_legacy is builder.support_legacy is False
+        assert builder.config.support_legacy is builder.config.support_legacy is False
 
     def test_target(self, isolation):
         config = {'tool': {'hatch': {'build': {'targets': {'sdist': {'support-legacy': True}}}}}}
         builder = SdistBuilder(str(isolation), config=config)
 
-        assert builder.support_legacy is builder.support_legacy is True
+        assert builder.config.support_legacy is builder.config.support_legacy is True
 
 
 class TestCoreMetadataConstructor:
     def test_default(self, isolation):
         builder = SdistBuilder(str(isolation))
 
-        assert builder.core_metadata_constructor is builder.core_metadata_constructor
-        assert builder.core_metadata_constructor is get_core_metadata_constructors()['2.1']
+        assert builder.config.core_metadata_constructor is builder.config.core_metadata_constructor
+        assert builder.config.core_metadata_constructor is get_core_metadata_constructors()['2.1']
 
     def test_not_string(self, isolation):
         config = {'tool': {'hatch': {'build': {'targets': {'sdist': {'core-metadata-version': 42}}}}}}
@@ -47,7 +47,7 @@ class TestCoreMetadataConstructor:
         with pytest.raises(
             TypeError, match='Field `tool.hatch.build.targets.sdist.core-metadata-version` must be a string'
         ):
-            _ = builder.core_metadata_constructor
+            _ = builder.config.core_metadata_constructor
 
     def test_unknown(self, isolation):
         config = {'tool': {'hatch': {'build': {'targets': {'sdist': {'core-metadata-version': '9000'}}}}}}
@@ -60,7 +60,7 @@ class TestCoreMetadataConstructor:
                 f'Available: {", ".join(sorted(get_core_metadata_constructors()))}'
             ),
         ):
-            _ = builder.core_metadata_constructor
+            _ = builder.config.core_metadata_constructor
 
 
 class TestConstructSetupPyFile:

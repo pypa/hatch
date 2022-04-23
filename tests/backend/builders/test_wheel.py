@@ -36,8 +36,8 @@ class TestCoreMetadataConstructor:
     def test_default(self, isolation):
         builder = WheelBuilder(str(isolation))
 
-        assert builder.core_metadata_constructor is builder.core_metadata_constructor
-        assert builder.core_metadata_constructor is get_core_metadata_constructors()[DEFAULT_METADATA_VERSION]
+        assert builder.config.core_metadata_constructor is builder.config.core_metadata_constructor
+        assert builder.config.core_metadata_constructor is get_core_metadata_constructors()[DEFAULT_METADATA_VERSION]
 
     def test_not_string(self, isolation):
         config = {'tool': {'hatch': {'build': {'targets': {'wheel': {'core-metadata-version': 42}}}}}}
@@ -46,7 +46,7 @@ class TestCoreMetadataConstructor:
         with pytest.raises(
             TypeError, match='Field `tool.hatch.build.targets.wheel.core-metadata-version` must be a string'
         ):
-            _ = builder.core_metadata_constructor
+            _ = builder.config.core_metadata_constructor
 
     def test_unknown(self, isolation):
         config = {'tool': {'hatch': {'build': {'targets': {'wheel': {'core-metadata-version': '9000'}}}}}}
@@ -59,7 +59,7 @@ class TestCoreMetadataConstructor:
                 f'Available: {", ".join(sorted(get_core_metadata_constructors()))}'
             ),
         ):
-            _ = builder.core_metadata_constructor
+            _ = builder.config.core_metadata_constructor
 
 
 class TestConstructEntryPointsFile:

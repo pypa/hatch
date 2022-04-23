@@ -151,6 +151,8 @@ class WheelBuilderConfig(BuilderConfig):
         self.__exclude = []
         self.__packages = []
 
+        self.__core_metadata_constructor = None
+
     def set_default_file_selection(self):
         if self.__include or self.__exclude or self.__packages:
             return
@@ -190,6 +192,28 @@ class WheelBuilderConfig(BuilderConfig):
 
         return self.__packages
 
+    @property
+    def core_metadata_constructor(self):
+        if self.__core_metadata_constructor is None:
+            core_metadata_version = self.target_config.get('core-metadata-version', DEFAULT_METADATA_VERSION)
+            if not isinstance(core_metadata_version, str):
+                raise TypeError(
+                    'Field `tool.hatch.build.targets.{}.core-metadata-version` must be a string'.format(
+                        self.plugin_name
+                    )
+                )
+
+            constructors = get_core_metadata_constructors()
+            if core_metadata_version not in constructors:
+                raise ValueError(
+                    'Unknown metadata version `{}` for field `tool.hatch.build.targets.{}.core-metadata-version`. '
+                    'Available: {}'.format(core_metadata_version, self.plugin_name, ', '.join(sorted(constructors)))
+                )
+
+            self.__core_metadata_constructor = constructors[core_metadata_version]
+
+        return self.__core_metadata_constructor
+
 
 class WheelBuilder(BuilderInterface):
     """
@@ -197,11 +221,6 @@ class WheelBuilder(BuilderInterface):
     """
 
     PLUGIN_NAME = 'wheel'
-
-    def __init__(self, *args, **kwargs):
-        super(WheelBuilder, self).__init__(*args, **kwargs)
-
-        self.__core_metadata_constructor = None
 
     def get_version_api(self):
         return {'standard': self.build_standard, 'editable': self.build_editable}
@@ -372,7 +391,7 @@ class WheelBuilder(BuilderInterface):
 
     def write_project_metadata(self, archive, records, extra_dependencies=()):
         record = archive.write_metadata(
-            'METADATA', self.core_metadata_constructor(self.metadata, extra_dependencies=extra_dependencies)
+            'METADATA', self.config.core_metadata_constructor(self.metadata, extra_dependencies=extra_dependencies)
         )
         records.write(self.format_record(record))
 
@@ -417,28 +436,6 @@ class WheelBuilder(BuilderInterface):
 
     def get_default_build_data(self):
         return {'infer_tag': False, 'pure_python': True}
-
-    @property
-    def core_metadata_constructor(self):
-        if self.__core_metadata_constructor is None:
-            core_metadata_version = self.target_config.get('core-metadata-version', DEFAULT_METADATA_VERSION)
-            if not isinstance(core_metadata_version, str):
-                raise TypeError(
-                    'Field `tool.hatch.build.targets.{}.core-metadata-version` must be a string'.format(
-                        self.PLUGIN_NAME
-                    )
-                )
-
-            constructors = get_core_metadata_constructors()
-            if core_metadata_version not in constructors:
-                raise ValueError(
-                    'Unknown metadata version `{}` for field `tool.hatch.build.targets.{}.core-metadata-version`. '
-                    'Available: {}'.format(core_metadata_version, self.PLUGIN_NAME, ', '.join(sorted(constructors)))
-                )
-
-            self.__core_metadata_constructor = constructors[core_metadata_version]
-
-        return self.__core_metadata_constructor
 
     @classmethod
     def get_config_class(cls):
