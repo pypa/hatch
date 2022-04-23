@@ -7,7 +7,7 @@ from hatchling.builders.plugin.interface import BuilderInterface
 from hatchling.builders.sdist import SdistBuilder
 from hatchling.builders.utils import get_reproducible_timestamp
 from hatchling.metadata.spec import get_core_metadata_constructors
-from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT
+from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT, DEFAULT_CONFIG_FILE
 
 
 def test_class():
@@ -892,6 +892,66 @@ class TestBuildStandard:
 
         expected_files = helpers.get_template_files(
             'sdist.standard_include', project_name, relative_root=builder.project_id
+        )
+        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+
+        stat = os.stat(str(extraction_directory / builder.project_id / 'PKG-INFO'))
+        assert stat.st_mtime == get_reproducible_timestamp()
+
+    def test_config_file_always_included(self, hatch, helpers, temp_dir):
+        project_name = 'My App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / 'my-app'
+        config = {
+            'project': {'name': 'my__app', 'dynamic': ['version'], 'readme': 'README.md'},
+            'tool': {
+                'hatch': {
+                    'version': {'path': 'my_app/__about__.py'},
+                    'build': {
+                        'targets': {
+                            'sdist': {
+                                'versions': ['standard'],
+                                'include': ['my_app/'],
+                                'exclude': [DEFAULT_CONFIG_FILE],
+                            },
+                        },
+                    },
+                },
+            },
+        }
+        builder = SdistBuilder(str(project_path), config=config)
+
+        (project_path / DEFAULT_CONFIG_FILE).touch()
+
+        # Ensure that only the root config file is forcibly included
+        (project_path / 'my_app' / DEFAULT_CONFIG_FILE).touch()
+
+        build_path = project_path / 'dist'
+
+        with project_path.as_cwd():
+            artifacts = list(builder.build())
+
+        assert len(artifacts) == 1
+        expected_artifact = artifacts[0]
+
+        build_artifacts = list(build_path.iterdir())
+        assert len(build_artifacts) == 1
+        assert expected_artifact == str(build_artifacts[0])
+        assert expected_artifact == str(build_path / f'{builder.project_id}.tar.gz')
+
+        extraction_directory = temp_dir / '_archive'
+        extraction_directory.mkdir()
+
+        with tarfile.open(str(expected_artifact), 'r:gz') as tar_archive:
+            tar_archive.extractall(str(extraction_directory))
+
+        expected_files = helpers.get_template_files(
+            'sdist.standard_include_config_file', project_name, relative_root=builder.project_id
         )
         helpers.assert_files(extraction_directory, expected_files, check_contents=True)
 
