@@ -159,6 +159,10 @@ This is the first release candidate for Hatch v1, a complete rewrite.
 
 ### Unreleased
 
+***Added:***
+
+- Add option to force include files from arbitrary paths
+
 ### [0.22.0](https://github.com/ofek/hatch/releases/tag/hatchling-v0.22.0) - 2022-03-26 ### {: #hatchling-v0.22.0 }
 
 ***Added:***

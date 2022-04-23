@@ -127,6 +127,7 @@ class BuilderInterface(object):
 
             # Make sure reserved fields are set
             build_data.setdefault('artifacts', [])
+            build_data.setdefault('force-include', {})
 
             # Pass all the configured build hooks for future unforeseen scenarios needing ultimate control
             build_data['configured_build_hooks'] = configured_build_hooks
@@ -159,7 +160,7 @@ class BuilderInterface(object):
         object has three `str` attributes:
 
         - `path` - the absolute path
-        - `relative_path` - the path relative to the project root
+        - `relative_path` - the path relative to the project root; will be an empty string for external files
         - `distribution_path` - the path to be distributed as
         """
         for root, dirs, files in os.walk(self.root):
@@ -184,6 +185,29 @@ class BuilderInterface(object):
                     yield IncludedFile(
                         os.path.join(root, f), relative_file_path, self.config.get_distribution_path(relative_file_path)
                     )
+
+        for source, target_path in self.config.get_force_include().items():
+            external = not source.startswith(self.root)
+            if os.path.isfile(source):
+                yield IncludedFile(source, '' if external else os.path.relpath(source, self.root), target_path)
+            elif os.path.isdir(source):
+                for root, dirs, files in os.walk(source):
+                    relative_path = os.path.relpath(root, source)
+
+                    # First iteration
+                    if relative_path == '.':
+                        relative_path = ''
+
+                    dirs.sort()
+                    files.sort()
+
+                    for f in files:
+                        relative_file_path = os.path.join(relative_path, f)
+                        yield IncludedFile(
+                            os.path.join(root, f),
+                            '' if external else os.path.relpath(relative_file_path, self.root),
+                            os.path.join(target_path, relative_file_path),
+                        )
 
     @property
     def root(self):

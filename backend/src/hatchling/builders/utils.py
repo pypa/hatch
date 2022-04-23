@@ -2,6 +2,7 @@ import os
 import shutil
 import sys
 from base64 import urlsafe_b64encode
+from collections import OrderedDict
 
 if sys.version_info[0] >= 3:
 
@@ -30,6 +31,21 @@ def normalize_relative_path(path):
 
 def normalize_relative_directory(path):
     return normalize_relative_path(path) + os.path.sep
+
+
+def normalize_inclusion_map(inclusion_map, root):
+    normalized_inclusion_map = {}
+
+    for source, relative_path in inclusion_map.items():
+        source = os.path.expanduser(os.path.normpath(source))
+        if not os.path.isabs(source):
+            source = os.path.abspath(os.path.join(root, source))
+
+        normalized_inclusion_map[source] = normalize_relative_path(relative_path)
+
+    return OrderedDict(
+        sorted(normalized_inclusion_map.items(), key=lambda item: (item[1].count(os.path.sep), item[1], item[0]))
+    )
 
 
 def normalize_archive_path(path):
