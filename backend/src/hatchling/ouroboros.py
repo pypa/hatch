@@ -32,7 +32,7 @@ CONFIG = {
             'Topic :: Software Development :: Libraries :: Python Modules',
         ],
         'dependencies': [
-            'editables>=0.2; python_version > "3"',
+            'editables>=0.3; python_version > "3"',
             'importlib-metadata; python_version < "3.8"',
             'packaging>=21.3; python_version > "3"',
             'packaging~=20.9; python_version < "3"',

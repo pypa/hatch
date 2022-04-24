@@ -31,7 +31,7 @@ try:
 except ImportError:  # no cov
     EditableProject = None
 
-EDITABLES_MINIMUM_VERSION = '0.2'
+EDITABLES_MINIMUM_VERSION = '0.3'
 
 
 class WheelArchive(object):
@@ -372,7 +372,7 @@ class WheelBuilder(BuilderInterface):
                         '{}{}'.format(relative_path[: relative_path.index(distribution_path)], distribution_module),
                     )
 
-            editable_project = EditableProject(self.metadata.core.name.replace('-', '_'), self.root)
+            editable_project = EditableProject(self.metadata.core.name, self.root)
 
             if self.config.dev_mode_exact:
                 for module, relative_path in exposed_packages.items():

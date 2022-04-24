@@ -48,7 +48,7 @@ Tag: py3-none-any
 Metadata-Version: {DEFAULT_METADATA_VERSION}
 Name: {kwargs['project_name_normalized']}
 Version: 0.0.1
-Requires-Dist: editables~=0.2
+Requires-Dist: editables~=0.3
 """,
         )
     )
