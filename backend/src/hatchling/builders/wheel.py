@@ -121,8 +121,14 @@ class WheelArchive(object):
         return self.write_file(relative_path, contents)
 
     def add_shared_file(self, shared_file):
-        shared_file.distribution_path = os.path.join(self.shared_data_directory, shared_file.distribution_path)
+        shared_file.distribution_path = '{}/{}'.format(self.shared_data_directory, shared_file.distribution_path)
         return self.add_file(shared_file)
+
+    def add_extra_metadata_file(self, extra_metadata_file):
+        extra_metadata_file.distribution_path = '{}/extra_metadata/{}'.format(
+            self.metadata_directory, extra_metadata_file.distribution_path
+        )
+        return self.add_file(extra_metadata_file)
 
     def write_file(self, relative_path, contents):
         if not isinstance(contents, bytes):
@@ -160,6 +166,7 @@ class WheelBuilderConfig(BuilderConfig):
 
         self.__core_metadata_constructor = None
         self.__shared_data = None
+        self.__extra_metadata = None
 
     def set_default_file_selection(self):
         if self.__include or self.__exclude or self.__packages:
@@ -251,6 +258,36 @@ class WheelBuilderConfig(BuilderConfig):
             self.__shared_data = normalize_inclusion_map(shared_data, self.root)
 
         return self.__shared_data
+
+    @property
+    def extra_metadata(self):
+        if self.__extra_metadata is None:
+            extra_metadata = self.target_config.get('extra-metadata', {})
+            if not isinstance(extra_metadata, dict):
+                raise TypeError(
+                    'Field `tool.hatch.build.targets.{}.extra-metadata` must be a mapping'.format(self.plugin_name)
+                )
+
+            for i, (source, relative_path) in enumerate(extra_metadata.items(), 1):
+                if not source:
+                    raise ValueError(
+                        'Source #{} in field `tool.hatch.build.targets.{}.extra-metadata` '
+                        'cannot be an empty string'.format(i, self.plugin_name)
+                    )
+                elif not isinstance(relative_path, str):
+                    raise TypeError(
+                        'Path for source `{}` in field `tool.hatch.build.targets.{}.extra-metadata` '
+                        'must be a string'.format(source, self.plugin_name)
+                    )
+                elif not relative_path:
+                    raise ValueError(
+                        'Path for source `{}` in field `tool.hatch.build.targets.{}.extra-metadata` '
+                        'cannot be an empty string'.format(source, self.plugin_name)
+                    )
+
+            self.__extra_metadata = normalize_inclusion_map(extra_metadata, self.root)
+
+        return self.__extra_metadata
 
 
 class WheelBuilder(BuilderInterface):
@@ -418,6 +455,9 @@ class WheelBuilder(BuilderInterface):
         # license_files/
         self.add_licenses(archive, records)
 
+        # extra_metadata/ - write last
+        self.add_extra_metadata(archive, records)
+
     def write_archive_metadata(self, archive, records, build_data):
         from packaging.tags import parse_tag
 
@@ -447,6 +487,11 @@ class WheelBuilder(BuilderInterface):
             with open(license_file, 'rb') as f:
                 record = archive.write_metadata('license_files/{}'.format(relative_path), f.read())
                 records.write(self.format_record(record))
+
+    def add_extra_metadata(self, archive, records):
+        for extra_metadata_file in self.recurse_explicit_files(self.config.extra_metadata):
+            record = archive.add_extra_metadata_file(extra_metadata_file)
+            records.write(self.format_record(record))
 
     def construct_entry_points_file(self):
         core_metadata = self.metadata.core
