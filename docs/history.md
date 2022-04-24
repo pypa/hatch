@@ -162,6 +162,7 @@ This is the first release candidate for Hatch v1, a complete rewrite.
 ***Added:***
 
 - Add option to force include files from arbitrary paths
+- Add option to the `wheel` builder to ship files that will be installed globally
 
 ***Fixed:***
 

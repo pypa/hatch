@@ -197,7 +197,7 @@ class TestDirectoryRecursion:
             (external / 'external1.txt').touch()
             (external / 'external2.txt').touch()
 
-            assert [(f.path, f.distribution_path) for f in builder.recurse_project_files()] == [
+            assert [(f.path, f.distribution_path) for f in builder.recurse_included_files()] == [
                 (str(project_dir / 'README.md'), 'README.md'),
                 (str(project_dir / 'tox.ini'), 'tox.ini'),
                 (

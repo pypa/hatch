@@ -131,7 +131,7 @@ class SdistBuilder(BuilderInterface):
         found_packages = set()
 
         with SdistArchive(self.project_id, self.config.reproducible) as archive:
-            for included_file in self.recurse_project_files():
+            for included_file in self.recurse_included_files():
                 if self.config.support_legacy:
                     possible_package, file_name = os.path.split(included_file.relative_path)
                     if file_name == '__init__.py':

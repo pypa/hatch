@@ -154,7 +154,7 @@ class BuilderInterface(object):
 
             yield artifact
 
-    def recurse_project_files(self):
+    def recurse_included_files(self):
         """
         Returns a consistently generated series of file objects for every file that should be distributed. Each file
         object has three `str` attributes:
@@ -163,6 +163,13 @@ class BuilderInterface(object):
         - `relative_path` - the path relative to the project root; will be an empty string for external files
         - `distribution_path` - the path to be distributed as
         """
+        for project_file in self.recurse_project_files():
+            yield project_file
+
+        for explicit_file in self.recurse_explicit_files(self.config.get_force_include()):
+            yield explicit_file
+
+    def recurse_project_files(self):
         for root, dirs, files in os.walk(self.root):
             relative_path = os.path.relpath(root, self.root)
 
@@ -186,7 +193,8 @@ class BuilderInterface(object):
                         os.path.join(root, f), relative_file_path, self.config.get_distribution_path(relative_file_path)
                     )
 
-        for source, target_path in self.config.get_force_include().items():
+    def recurse_explicit_files(self, inclusion_map):
+        for source, target_path in inclusion_map.items():
             external = not source.startswith(self.root)
             if os.path.isfile(source):
                 yield IncludedFile(source, '' if external else os.path.relpath(source, self.root), target_path)

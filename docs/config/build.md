@@ -159,7 +159,9 @@ For example, if there was a directory alongside the project root named `artifact
     ```
 
 !!! note
+    - Files must be mapped exactly to their desired paths, not to directories.
     - The contents of directory sources are recursively included.
+    - To map directory contents directly to the root use `/` (a forward slash).
     - Sources that do not exist are silently ignored.
     - [Path rewriting](#rewriting-paths) has no effect on files included this way.
 
