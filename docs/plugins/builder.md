@@ -31,6 +31,7 @@ The builder plugin name is `wheel`.
 | Option | Default | Description |
 | --- | --- | --- |
 | `core-metadata-version` | `"2.1"` | The version of [core metadata](https://packaging.python.org/specifications/core-metadata/) to use |
+| `shared-data` | | A mapping similar to the [explicit selection](../config/build.md#explicit-selection) option corresponding to [data](https://peps.python.org/pep-0427/#the-data-directory) that will be installed globally in a given Python environment, usually under `#!python sys.prefix` |
 
 ##### Versions
 
@@ -154,5 +155,5 @@ If multiple subclasses are found, you must define a function named `get_builder`
       - get_version_api
       - get_default_versions
       - clean
-      - recurse_project_files
+      - recurse_included_files
       - get_default_build_data

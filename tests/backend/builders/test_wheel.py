@@ -1,3 +1,4 @@
+import os
 import platform
 import sys
 import zipfile
@@ -60,6 +61,95 @@ class TestCoreMetadataConstructor:
             ),
         ):
             _ = builder.config.core_metadata_constructor
+
+
+class TestSharedData:
+    def test_default(self, isolation):
+        builder = WheelBuilder(str(isolation))
+
+        assert builder.config.shared_data == builder.config.shared_data == {}
+
+    def test_invalid_type(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'wheel': {'shared-data': 42}}}}}}
+        builder = WheelBuilder(str(isolation), config=config)
+
+        with pytest.raises(TypeError, match='Field `tool.hatch.build.targets.wheel.shared-data` must be a mapping'):
+            _ = builder.config.shared_data
+
+    def test_absolute(self, isolation):
+        config = {
+            'tool': {
+                'hatch': {'build': {'targets': {'wheel': {'shared-data': {str(isolation / 'source'): '/target/'}}}}}
+            }
+        }
+        builder = WheelBuilder(str(isolation), config=config)
+
+        assert builder.config.shared_data == {str(isolation / 'source'): 'target'}
+
+    def test_relative(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'wheel': {'shared-data': {'../source': '/target/'}}}}}}}
+        builder = WheelBuilder(str(isolation / 'foo'), config=config)
+
+        assert builder.config.shared_data == {str(isolation / 'source'): 'target'}
+
+    def test_source_empty_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'wheel': {'shared-data': {'': '/target/'}}}}}}}
+        builder = WheelBuilder(str(isolation), config=config)
+
+        with pytest.raises(
+            ValueError,
+            match='Source #1 in field `tool.hatch.build.targets.wheel.shared-data` cannot be an empty string',
+        ):
+            _ = builder.config.shared_data
+
+    def test_relative_path_not_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'wheel': {'shared-data': {'source': 0}}}}}}}
+        builder = WheelBuilder(str(isolation), config=config)
+
+        with pytest.raises(
+            TypeError,
+            match='Path for source `source` in field `tool.hatch.build.targets.wheel.shared-data` must be a string',
+        ):
+            _ = builder.config.shared_data
+
+    def test_relative_path_empty_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'wheel': {'shared-data': {'source': ''}}}}}}}
+        builder = WheelBuilder(str(isolation), config=config)
+
+        with pytest.raises(
+            ValueError,
+            match=(
+                'Path for source `source` in field `tool.hatch.build.targets.wheel.shared-data` '
+                'cannot be an empty string'
+            ),
+        ):
+            _ = builder.config.shared_data
+
+    def test_order(self, isolation):
+        config = {
+            'tool': {
+                'hatch': {
+                    'build': {
+                        'targets': {
+                            'wheel': {
+                                'shared-data': {
+                                    '../very-nested': 'target1/embedded',
+                                    '../source1': '/target2/',
+                                    '../source2': '/target1/',
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        builder = WheelBuilder(str(isolation / 'foo'), config=config)
+
+        assert builder.config.shared_data == {
+            str(isolation / 'source2'): 'target1',
+            str(isolation / 'very-nested'): f'target1{os.path.sep}embedded',
+            str(isolation / 'source1'): 'target2',
+        }
 
 
 class TestConstructEntryPointsFile:
@@ -1003,6 +1093,63 @@ class TestBuildStandard:
             project_name,
             metadata_directory=metadata_directory,
             tag=tag,
+        )
+        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+
+    def test_default_shared_data(self, hatch, helpers, temp_dir):
+        project_name = 'My App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / 'my-app'
+
+        shared_data_path = temp_dir / 'data'
+        shared_data_path.ensure_dir_exists()
+        (shared_data_path / 'foo.txt').touch()
+        nested_data_path = shared_data_path / 'nested'
+        nested_data_path.ensure_dir_exists()
+        (nested_data_path / 'bar.txt').touch()
+
+        config = {
+            'project': {'name': 'my__app', 'requires-python': '>3', 'dynamic': ['version']},
+            'tool': {
+                'hatch': {
+                    'version': {'path': 'my_app/__about__.py'},
+                    'build': {'targets': {'wheel': {'versions': ['standard'], 'shared-data': {'../data': '/'}}}},
+                },
+            },
+        }
+        builder = WheelBuilder(str(project_path), config=config)
+
+        build_path = project_path / 'dist'
+        build_path.mkdir()
+
+        with project_path.as_cwd():
+            artifacts = list(builder.build(str(build_path)))
+
+        assert len(artifacts) == 1
+        expected_artifact = artifacts[0]
+
+        build_artifacts = list(build_path.iterdir())
+        assert len(build_artifacts) == 1
+        assert expected_artifact == str(build_artifacts[0])
+
+        extraction_directory = temp_dir / '_archive'
+        extraction_directory.mkdir()
+
+        with zipfile.ZipFile(str(expected_artifact), 'r') as zip_archive:
+            zip_archive.extractall(str(extraction_directory))
+
+        metadata_directory = f'{builder.project_id}.dist-info'
+        shared_data_directory = f'{builder.project_id}.data'
+        expected_files = helpers.get_template_files(
+            'wheel.standard_default_shared_data',
+            project_name,
+            metadata_directory=metadata_directory,
+            shared_data_directory=shared_data_directory,
         )
         helpers.assert_files(extraction_directory, expected_files, check_contents=True)
 

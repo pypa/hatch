@@ -16,6 +16,7 @@ from .utils import (
     get_reproducible_timestamp,
     normalize_archive_path,
     normalize_file_permissions,
+    normalize_inclusion_map,
     replace_file,
     set_zip_info_mode,
 )
@@ -34,11 +35,13 @@ EDITABLES_MINIMUM_VERSION = '0.2'
 
 
 class WheelArchive(object):
-    def __init__(self, metadata_directory, reproducible):
+    def __init__(self, project_id, reproducible):
         """
         https://peps.python.org/pep-0427/#abstract
         """
-        self.metadata_directory = metadata_directory
+        self.metadata_directory = '{}.dist-info'.format(project_id)
+        self.shared_data_directory = '{}.data'.format(project_id)
+
         self.reproducible = reproducible
         if self.reproducible:
             self.time_tuple = self.get_reproducible_time_tuple()
@@ -117,6 +120,10 @@ class WheelArchive(object):
         relative_path = '{}/{}'.format(self.metadata_directory, normalize_archive_path(relative_path))
         return self.write_file(relative_path, contents)
 
+    def add_shared_file(self, shared_file):
+        shared_file.distribution_path = os.path.join(self.shared_data_directory, shared_file.distribution_path)
+        return self.add_file(shared_file)
+
     def write_file(self, relative_path, contents):
         if not isinstance(contents, bytes):
             contents = contents.encode('utf-8')
@@ -152,6 +159,7 @@ class WheelBuilderConfig(BuilderConfig):
         self.__packages = []
 
         self.__core_metadata_constructor = None
+        self.__shared_data = None
 
     def set_default_file_selection(self):
         if self.__include or self.__exclude or self.__packages:
@@ -214,6 +222,36 @@ class WheelBuilderConfig(BuilderConfig):
 
         return self.__core_metadata_constructor
 
+    @property
+    def shared_data(self):
+        if self.__shared_data is None:
+            shared_data = self.target_config.get('shared-data', {})
+            if not isinstance(shared_data, dict):
+                raise TypeError(
+                    'Field `tool.hatch.build.targets.{}.shared-data` must be a mapping'.format(self.plugin_name)
+                )
+
+            for i, (source, relative_path) in enumerate(shared_data.items(), 1):
+                if not source:
+                    raise ValueError(
+                        'Source #{} in field `tool.hatch.build.targets.{}.shared-data` '
+                        'cannot be an empty string'.format(i, self.plugin_name)
+                    )
+                elif not isinstance(relative_path, str):
+                    raise TypeError(
+                        'Path for source `{}` in field `tool.hatch.build.targets.{}.shared-data` '
+                        'must be a string'.format(source, self.plugin_name)
+                    )
+                elif not relative_path:
+                    raise ValueError(
+                        'Path for source `{}` in field `tool.hatch.build.targets.{}.shared-data` '
+                        'cannot be an empty string'.format(source, self.plugin_name)
+                    )
+
+            self.__shared_data = normalize_inclusion_map(shared_data, self.root)
+
+        return self.__shared_data
+
 
 class WheelBuilder(BuilderInterface):
     """
@@ -244,15 +282,14 @@ class WheelBuilder(BuilderInterface):
             else:
                 build_data['tag'] = self.get_default_tag()
 
-        metadata_directory = '{}.dist-info'.format(self.project_id)
-        with WheelArchive(metadata_directory, self.config.reproducible) as archive, closing(StringIO()) as records:
-            for included_file in self.recurse_project_files():
+        with WheelArchive(self.project_id, self.config.reproducible) as archive, closing(StringIO()) as records:
+            for included_file in self.recurse_included_files():
                 record = archive.add_file(included_file)
                 records.write(self.format_record(record))
 
-            self.write_metadata(archive, records, build_data)
+            self.write_data(archive, records, build_data)
 
-            records.write(u'{}/RECORD,,\n'.format(metadata_directory))
+            records.write(u'{}/RECORD,,\n'.format(archive.metadata_directory))
             archive.write_metadata('RECORD', records.getvalue())
 
         target = os.path.join(directory, '{}-{}.whl'.format(self.project_id, build_data['tag']))
@@ -269,10 +306,9 @@ class WheelBuilder(BuilderInterface):
     def build_editable_detection(self, directory, **build_data):
         build_data['tag'] = self.get_default_tag()
 
-        metadata_directory = '{}.dist-info'.format(self.project_id)
-        with WheelArchive(metadata_directory, self.config.reproducible) as archive, closing(StringIO()) as records:
+        with WheelArchive(self.project_id, self.config.reproducible) as archive, closing(StringIO()) as records:
             exposed_packages = {}
-            for included_file in self.recurse_project_files():
+            for included_file in self.recurse_included_files():
                 if not included_file.path.endswith('.py'):
                     continue
 
@@ -321,9 +357,9 @@ class WheelBuilder(BuilderInterface):
 
                 extra_dependencies.append(dependency)
 
-            self.write_metadata(archive, records, build_data, extra_dependencies=extra_dependencies)
+            self.write_data(archive, records, build_data, extra_dependencies=extra_dependencies)
 
-            records.write(u'{}/RECORD,,\n'.format(metadata_directory))
+            records.write(u'{}/RECORD,,\n'.format(archive.metadata_directory))
             archive.write_metadata('RECORD', records.getvalue())
 
         target = os.path.join(directory, '{}-{}.whl'.format(self.project_id, build_data['tag']))
@@ -334,8 +370,7 @@ class WheelBuilder(BuilderInterface):
     def build_editable_explicit(self, directory, **build_data):
         build_data['tag'] = self.get_default_tag()
 
-        metadata_directory = '{}.dist-info'.format(self.project_id)
-        with WheelArchive(metadata_directory, self.config.reproducible) as archive, closing(StringIO()) as records:
+        with WheelArchive(self.project_id, self.config.reproducible) as archive, closing(StringIO()) as records:
             directories = sorted(
                 os.path.normpath(os.path.join(self.root, relative_directory))
                 for relative_directory in self.config.dev_mode_dirs
@@ -346,15 +381,26 @@ class WheelBuilder(BuilderInterface):
             )
             records.write(self.format_record(record))
 
-            self.write_metadata(archive, records, build_data)
+            self.write_data(archive, records, build_data)
 
-            records.write(u'{}/RECORD,,\n'.format(metadata_directory))
+            records.write(u'{}/RECORD,,\n'.format(archive.metadata_directory))
             archive.write_metadata('RECORD', records.getvalue())
 
         target = os.path.join(directory, '{}-{}.whl'.format(self.project_id, build_data['tag']))
 
         replace_file(archive.path, target)
         return target
+
+    def write_data(self, archive, records, build_data, extra_dependencies=()):
+        self.add_shared_data(archive, records)
+
+        # Ensure metadata is written last, see https://peps.python.org/pep-0427/#recommended-archiver-features
+        self.write_metadata(archive, records, build_data, extra_dependencies=extra_dependencies)
+
+    def add_shared_data(self, archive, records):
+        for shared_file in self.recurse_explicit_files(self.config.shared_data):
+            record = archive.add_shared_file(shared_file)
+            records.write(self.format_record(record))
 
     def write_metadata(self, archive, records, build_data, extra_dependencies=()):
         # <<< IMPORTANT >>>
