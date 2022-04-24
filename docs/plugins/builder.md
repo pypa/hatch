@@ -32,6 +32,7 @@ The builder plugin name is `wheel`.
 | --- | --- | --- |
 | `core-metadata-version` | `"2.1"` | The version of [core metadata](https://packaging.python.org/specifications/core-metadata/) to use |
 | `shared-data` | | A mapping similar to the [explicit selection](../config/build.md#explicit-selection) option corresponding to [data](https://peps.python.org/pep-0427/#the-data-directory) that will be installed globally in a given Python environment, usually under `#!python sys.prefix` |
+| `extra-metadata` | | A mapping similar to the [explicit selection](../config/build.md#explicit-selection) option corresponding to extra [metadata](https://peps.python.org/pep-0427/#the-dist-info-directory) that will be shipped in a directory named `extra_metadata` |
 
 ##### Versions
 

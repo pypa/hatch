@@ -152,6 +152,95 @@ class TestSharedData:
         }
 
 
+class TestExtraMetadata:
+    def test_default(self, isolation):
+        builder = WheelBuilder(str(isolation))
+
+        assert builder.config.extra_metadata == builder.config.extra_metadata == {}
+
+    def test_invalid_type(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'wheel': {'extra-metadata': 42}}}}}}
+        builder = WheelBuilder(str(isolation), config=config)
+
+        with pytest.raises(TypeError, match='Field `tool.hatch.build.targets.wheel.extra-metadata` must be a mapping'):
+            _ = builder.config.extra_metadata
+
+    def test_absolute(self, isolation):
+        config = {
+            'tool': {
+                'hatch': {'build': {'targets': {'wheel': {'extra-metadata': {str(isolation / 'source'): '/target/'}}}}}
+            }
+        }
+        builder = WheelBuilder(str(isolation), config=config)
+
+        assert builder.config.extra_metadata == {str(isolation / 'source'): 'target'}
+
+    def test_relative(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'wheel': {'extra-metadata': {'../source': '/target/'}}}}}}}
+        builder = WheelBuilder(str(isolation / 'foo'), config=config)
+
+        assert builder.config.extra_metadata == {str(isolation / 'source'): 'target'}
+
+    def test_source_empty_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'wheel': {'extra-metadata': {'': '/target/'}}}}}}}
+        builder = WheelBuilder(str(isolation), config=config)
+
+        with pytest.raises(
+            ValueError,
+            match='Source #1 in field `tool.hatch.build.targets.wheel.extra-metadata` cannot be an empty string',
+        ):
+            _ = builder.config.extra_metadata
+
+    def test_relative_path_not_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'wheel': {'extra-metadata': {'source': 0}}}}}}}
+        builder = WheelBuilder(str(isolation), config=config)
+
+        with pytest.raises(
+            TypeError,
+            match='Path for source `source` in field `tool.hatch.build.targets.wheel.extra-metadata` must be a string',
+        ):
+            _ = builder.config.extra_metadata
+
+    def test_relative_path_empty_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'wheel': {'extra-metadata': {'source': ''}}}}}}}
+        builder = WheelBuilder(str(isolation), config=config)
+
+        with pytest.raises(
+            ValueError,
+            match=(
+                'Path for source `source` in field `tool.hatch.build.targets.wheel.extra-metadata` '
+                'cannot be an empty string'
+            ),
+        ):
+            _ = builder.config.extra_metadata
+
+    def test_order(self, isolation):
+        config = {
+            'tool': {
+                'hatch': {
+                    'build': {
+                        'targets': {
+                            'wheel': {
+                                'extra-metadata': {
+                                    '../very-nested': 'target1/embedded',
+                                    '../source1': '/target2/',
+                                    '../source2': '/target1/',
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        builder = WheelBuilder(str(isolation / 'foo'), config=config)
+
+        assert builder.config.extra_metadata == {
+            str(isolation / 'source2'): 'target1',
+            str(isolation / 'very-nested'): f'target1{os.path.sep}embedded',
+            str(isolation / 'source1'): 'target2',
+        }
+
+
 class TestConstructEntryPointsFile:
     def test_default(self, isolation):
         config = {'project': {}}
@@ -1150,6 +1239,61 @@ class TestBuildStandard:
             project_name,
             metadata_directory=metadata_directory,
             shared_data_directory=shared_data_directory,
+        )
+        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+
+    def test_default_extra_metadata(self, hatch, helpers, temp_dir):
+        project_name = 'My App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / 'my-app'
+
+        extra_metadata_path = temp_dir / 'data'
+        extra_metadata_path.ensure_dir_exists()
+        (extra_metadata_path / 'foo.txt').touch()
+        nested_data_path = extra_metadata_path / 'nested'
+        nested_data_path.ensure_dir_exists()
+        (nested_data_path / 'bar.txt').touch()
+
+        config = {
+            'project': {'name': 'my__app', 'requires-python': '>3', 'dynamic': ['version']},
+            'tool': {
+                'hatch': {
+                    'version': {'path': 'my_app/__about__.py'},
+                    'build': {'targets': {'wheel': {'versions': ['standard'], 'extra-metadata': {'../data': '/'}}}},
+                },
+            },
+        }
+        builder = WheelBuilder(str(project_path), config=config)
+
+        build_path = project_path / 'dist'
+        build_path.mkdir()
+
+        with project_path.as_cwd():
+            artifacts = list(builder.build(str(build_path)))
+
+        assert len(artifacts) == 1
+        expected_artifact = artifacts[0]
+
+        build_artifacts = list(build_path.iterdir())
+        assert len(build_artifacts) == 1
+        assert expected_artifact == str(build_artifacts[0])
+
+        extraction_directory = temp_dir / '_archive'
+        extraction_directory.mkdir()
+
+        with zipfile.ZipFile(str(expected_artifact), 'r') as zip_archive:
+            zip_archive.extractall(str(extraction_directory))
+
+        metadata_directory = f'{builder.project_id}.dist-info'
+        expected_files = helpers.get_template_files(
+            'wheel.standard_default_extra_metadata',
+            project_name,
+            metadata_directory=metadata_directory,
         )
         helpers.assert_files(extraction_directory, expected_files, check_contents=True)
 
