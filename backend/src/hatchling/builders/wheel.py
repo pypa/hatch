@@ -121,7 +121,7 @@ class WheelArchive(object):
         return self.write_file(relative_path, contents)
 
     def add_shared_file(self, shared_file):
-        shared_file.distribution_path = '{}/{}'.format(self.shared_data_directory, shared_file.distribution_path)
+        shared_file.distribution_path = '{}/data/{}'.format(self.shared_data_directory, shared_file.distribution_path)
         return self.add_file(shared_file)
 
     def add_extra_metadata_file(self, extra_metadata_file):
