@@ -1,4 +1,4 @@
-DEFAULT_METADATA_VERSION = '2.1'
+DEFAULT_METADATA_VERSION = '2.2'
 
 
 def get_core_metadata_constructors():
