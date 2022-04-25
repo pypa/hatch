@@ -6,7 +6,7 @@ import pytest
 from hatchling.builders.plugin.interface import BuilderInterface
 from hatchling.builders.sdist import SdistBuilder
 from hatchling.builders.utils import get_reproducible_timestamp
-from hatchling.metadata.spec import get_core_metadata_constructors
+from hatchling.metadata.spec import DEFAULT_METADATA_VERSION, get_core_metadata_constructors
 from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT, DEFAULT_CONFIG_FILE
 
 
@@ -38,7 +38,7 @@ class TestCoreMetadataConstructor:
         builder = SdistBuilder(str(isolation))
 
         assert builder.config.core_metadata_constructor is builder.config.core_metadata_constructor
-        assert builder.config.core_metadata_constructor is get_core_metadata_constructors()['2.1']
+        assert builder.config.core_metadata_constructor is get_core_metadata_constructors()[DEFAULT_METADATA_VERSION]
 
     def test_not_string(self, isolation):
         config = {'tool': {'hatch': {'build': {'targets': {'sdist': {'core-metadata-version': 42}}}}}}
