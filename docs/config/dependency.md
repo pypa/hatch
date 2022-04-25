@@ -243,3 +243,13 @@ It is recommended that only hashes which are unconditionally provided by the lat
 - `sha512`
 - `blake2b`
 - `blake2s`
+
+### Complex syntax
+
+The following is an example that uses [features](#features) and [environment markers](#environment-markers):
+
+```
+pkg[feature1,feature2] @ <REFERENCE> ; python_version < "3.7"
+```
+
+Note that the space before the semicolon is required.
