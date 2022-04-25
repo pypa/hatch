@@ -152,6 +152,27 @@ class TestHookConfig:
 
 
 class TestDirectoryRecursion:
+    @pytest.mark.requires_unix
+    def test_infinite_loop_prevention(self, temp_dir):
+        project_dir = temp_dir / 'project'
+        project_dir.ensure_dir_exists()
+
+        with project_dir.as_cwd():
+            config = {'tool': {'hatch': {'build': {'include': ['foo', 'README.md']}}}}
+            builder = BuilderInterface(str(project_dir), config=config)
+
+            (project_dir / 'README.md').touch()
+            foo = project_dir / 'foo'
+            foo.ensure_dir_exists()
+            (foo / 'bar.txt').touch()
+
+            (foo / 'baz').symlink_to(project_dir)
+
+            assert [f.path for f in builder.recurse_included_files()] == [
+                str(project_dir / 'README.md'),
+                str(project_dir / 'foo' / 'bar.txt'),
+            ]
+
     def test_order(self, temp_dir):
         project_dir = temp_dir / 'project'
         project_dir.ensure_dir_exists()

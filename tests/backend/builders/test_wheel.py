@@ -1297,6 +1297,89 @@ class TestBuildStandard:
         )
         helpers.assert_files(extraction_directory, expected_files, check_contents=True)
 
+    @pytest.mark.requires_unix
+    def test_default_symlink(self, hatch, helpers, temp_dir):
+        project_name = 'My App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / 'my-app'
+
+        vcs_ignore_file = project_path / '.gitignore'
+        vcs_ignore_file.write_text('*.pyc\n*.so\n*.h')
+
+        (temp_dir / 'foo.so').write_bytes(b'data')
+
+        build_script = project_path / DEFAULT_BUILD_SCRIPT
+        build_script.write_text(
+            helpers.dedent(
+                """
+                import os
+                import pathlib
+
+                from hatchling.builders.hooks.plugin.interface import BuildHookInterface
+
+                class CustomHook(BuildHookInterface):
+                    def initialize(self, version, build_data):
+                        build_data['pure_python'] = False
+                        build_data['infer_tag'] = True
+
+                        pathlib.Path('my_app', 'lib.so').symlink_to(os.path.abspath(os.path.join('..', 'foo.so')))
+                        pathlib.Path('my_app', 'lib.h').touch()
+                """
+            )
+        )
+
+        config = {
+            'project': {'name': 'my__app', 'requires-python': '>3', 'dynamic': ['version']},
+            'tool': {
+                'hatch': {
+                    'version': {'path': 'my_app/__about__.py'},
+                    'build': {
+                        'targets': {'wheel': {'versions': ['standard']}},
+                        'artifacts': ['my_app/lib.so'],
+                        'hooks': {'custom': {'path': DEFAULT_BUILD_SCRIPT}},
+                    },
+                },
+            },
+        }
+        builder = WheelBuilder(str(project_path), config=config)
+
+        build_path = project_path / 'dist'
+        build_path.mkdir()
+
+        with project_path.as_cwd():
+            artifacts = list(builder.build(str(build_path)))
+
+        assert len(artifacts) == 1
+        expected_artifact = artifacts[0]
+
+        build_artifacts = list(build_path.iterdir())
+        assert len(build_artifacts) == 1
+        assert expected_artifact == str(build_artifacts[0])
+
+        best_matching_tag = next(sys_tags())
+        tag = f'{best_matching_tag.interpreter}-{best_matching_tag.abi}-{best_matching_tag.platform}'
+        assert expected_artifact == str(build_path / f'{builder.project_id}-{tag}.whl')
+
+        extraction_directory = temp_dir / '_archive'
+        extraction_directory.mkdir()
+
+        with zipfile.ZipFile(str(expected_artifact), 'r') as zip_archive:
+            zip_archive.extractall(str(extraction_directory))
+
+        metadata_directory = f'{builder.project_id}.dist-info'
+        expected_files = helpers.get_template_files(
+            'wheel.standard_default_symlink',
+            project_name,
+            metadata_directory=metadata_directory,
+            tag=tag,
+        )
+        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+
     @fixed_pathlib_resolution
     def test_editable_default(self, hatch, helpers, temp_dir, config_file):
         config_file.model.template.plugins['default']['src-layout'] = True

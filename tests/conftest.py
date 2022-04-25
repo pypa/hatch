@@ -227,11 +227,15 @@ def pytest_runtest_setup(item):
         if marker.name == 'requires_linux' and not PLATFORM.linux:
             pytest.skip('Not running on Linux')
 
+        if marker.name == 'requires_unix' and PLATFORM.windows:
+            pytest.skip('Not running on a Linux-based platform')
+
 
 def pytest_configure(config):
     config.addinivalue_line('markers', 'requires_windows: Tests intended for Windows operating systems')
     config.addinivalue_line('markers', 'requires_macos: Tests intended for macOS operating systems')
     config.addinivalue_line('markers', 'requires_linux: Tests intended for Linux operating systems')
+    config.addinivalue_line('markers', 'requires_unix: Tests intended for Linux-based operating systems')
     config.addinivalue_line('markers', 'requires_internet: Tests that require access to the internet')
 
     config.addinivalue_line('markers', 'allow_backend_process: Force the use of backend communication')
