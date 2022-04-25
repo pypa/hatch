@@ -53,6 +53,7 @@ nav:
     - Next steps: next-steps.md
     - Status:
       - History: history.md
+      - Users: users.md
   - Configuration:
     - Metadata: config/metadata.md
     - Dependencies: config/dependency.md
