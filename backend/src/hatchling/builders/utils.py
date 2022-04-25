@@ -21,6 +21,19 @@ else:  # no cov
         os.remove(src)
 
 
+def safe_walk(path):
+    seen = set()
+    for root, dirs, files in os.walk(path, followlinks=True):
+        stat = os.stat(root)
+        identifier = stat.st_dev, stat.st_ino
+        if identifier in seen:
+            del dirs[:]
+            continue
+
+        seen.add(identifier)
+        yield root, dirs, files
+
+
 def get_known_python_major_versions():
     return map(str, sorted((2, 3)))
 

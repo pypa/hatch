@@ -4,6 +4,7 @@ from collections import OrderedDict
 
 from ..config import BuilderConfig, env_var_enabled
 from ..constants import BuildEnvVars
+from ..utils import safe_walk
 
 
 class IncludedFile(object):
@@ -170,7 +171,7 @@ class BuilderInterface(object):
             yield explicit_file
 
     def recurse_project_files(self):
-        for root, dirs, files in os.walk(self.root):
+        for root, dirs, files in safe_walk(self.root):
             relative_path = os.path.relpath(root, self.root)
 
             # First iteration
@@ -199,7 +200,7 @@ class BuilderInterface(object):
             if os.path.isfile(source):
                 yield IncludedFile(source, '' if external else os.path.relpath(source, self.root), target_path)
             elif os.path.isdir(source):
-                for root, dirs, files in os.walk(source):
+                for root, dirs, files in safe_walk(source):
                     relative_path = os.path.relpath(root, source)
 
                     # First iteration
