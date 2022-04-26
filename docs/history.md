@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Unreleased
 
+***Added:***
+
+- Use `tomllib` on Python 3.11+
+
 ### [1.0.0rc17](https://github.com/ofek/hatch/releases/tag/hatch-v1.0.0rc17) - 2022-04-18 ### {: #hatch-v1.0.0rc17 }
 
 ***Changed:***
@@ -167,6 +171,7 @@ This is the first release candidate for Hatch v1, a complete rewrite.
 - Support symlinks
 - Update default core metadata version to 2.2
 - Upgrade `editables` dependency
+- Use `tomllib` on Python 3.11+
 
 ***Fixed:***
 

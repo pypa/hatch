@@ -26,11 +26,14 @@ if sys.version_info[0] < 3:  # no cov
         return obj
 
 else:
-    import tomli
+    try:
+        import tomllib
+    except ImportError:
+        import tomli as tomllib
 
     def load_toml(path):
         with open(path, 'r', encoding='utf-8') as f:
-            return tomli.loads(f.read())
+            return tomllib.loads(f.read())
 
     def ensure_string(obj):
         return obj

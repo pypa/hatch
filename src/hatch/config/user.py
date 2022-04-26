@@ -1,8 +1,7 @@
 from typing import Optional, cast
 
-import tomli
-
 from ..utils.fs import Path
+from ..utils.toml import load_toml_data
 from .model import RootConfig
 
 
@@ -34,7 +33,7 @@ class ConfigFile:
             f.write(content)
 
     def load(self):
-        self.model = RootConfig(tomli.loads(self.read()))
+        self.model = RootConfig(load_toml_data(self.read()))
 
     def read(self) -> str:
         return self.path.read_text('utf-8')
@@ -42,7 +41,7 @@ class ConfigFile:
     def read_scrubbed(self) -> str:
         import tomli_w
 
-        config = RootConfig(tomli.loads(self.read()))
+        config = RootConfig(load_toml_data(self.read()))
         config.raw_data.pop('publish', None)
         return tomli_w.dumps(config.raw_data)
 

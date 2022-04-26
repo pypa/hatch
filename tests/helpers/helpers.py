@@ -4,10 +4,10 @@ from datetime import datetime, timezone
 from functools import lru_cache
 from textwrap import dedent as _dedent
 
-import tomli
 import tomli_w
 
 from hatch.config.user import RootConfig
+from hatch.utils.toml import load_toml_file
 
 
 def dedent(text):
@@ -79,8 +79,7 @@ def __load_template_module(template_name):
 
 def update_project_environment(project, name, config):
     project_file = project.root / 'pyproject.toml'
-    with open(str(project_file), 'r', encoding='utf-8') as f:
-        raw_config = tomli.loads(f.read())
+    raw_config = load_toml_file(str(project_file))
 
     env_config = raw_config.setdefault('tool', {}).setdefault('hatch', {}).setdefault('envs', {}).setdefault(name, {})
     env_config.update(config)

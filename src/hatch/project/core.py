@@ -112,10 +112,9 @@ class Project:
             if self.root is None or self._project_file_path is None:
                 self._raw_config = {}
             else:
-                import tomli
+                from ..utils.toml import load_toml_file
 
-                with open(str(self._project_file_path), 'r', encoding='utf-8') as f:
-                    self._raw_config = tomli.loads(f.read())
+                self._raw_config = load_toml_file(str(self._project_file_path))
 
         return self._raw_config
 

@@ -40,7 +40,7 @@ CONFIG = {
             'pluggy>=1.0.0; python_version > "3"',
             'pluggy~=0.13; python_version < "3"',
             'toml~=0.10.2; python_version < "3"',
-            'tomli>=1.2.2; python_version > "3"',
+            'tomli>=1.2.2; python_version > "3" and python_version < "3.11"',
         ],
         'scripts': {'hatchling': 'hatchling.cli:hatchling'},
         'dynamic': ['version'],
