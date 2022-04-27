@@ -101,3 +101,48 @@ def table(app, project_only, env_only, show_lines, force_ascii):
         app.display_table(
             table_title, columns, show_lines=show_lines, column_options=column_options, force_ascii=force_ascii
         )
+
+
+@show.command(short_help='Enumerate dependencies as a list of requirements')
+@click.option('--project-only', '-p', is_flag=True, help='Whether or not to exclude environment dependencies')
+@click.option('--env-only', '-e', is_flag=True, help='Whether or not to exclude project dependencies')
+@click.option(
+    '--feature',
+    '-f',
+    'features',
+    multiple=True,
+    help='Whether or not to only show the dependencies of the specified features',
+)
+@click.option('--all', 'all_features', is_flag=True, help='Whether or not to include the dependencies of all features')
+@click.pass_obj
+def requirements(app, project_only, env_only, features, all_features):
+    """Enumerate dependencies as a list of requirements."""
+    from hatchling.metadata.utils import normalize_project_name
+
+    from ...utils.dep import get_normalized_dependencies
+
+    dependencies = []
+    if features:
+        for feature in features:
+            feature = normalize_project_name(feature)
+            if feature not in app.project.metadata.core.optional_dependencies:
+                app.abort(f'Feature `{feature}` is not defined in field `project.optional-dependencies`')
+
+            dependencies.extend(app.project.metadata.core.optional_dependencies[feature])
+    elif project_only:
+        dependencies.extend(app.project.metadata.core.dependencies)
+    elif env_only:
+        environment = app.get_environment()
+        dependencies.extend(environment.environment_dependencies)
+    else:
+        dependencies.extend(app.project.metadata.core.dependencies)
+
+        environment = app.get_environment()
+        dependencies.extend(environment.environment_dependencies)
+
+    if not features and all_features:
+        for optional_dependencies in app.project.metadata.core.optional_dependencies.values():
+            dependencies.extend(optional_dependencies)
+
+    for dependency in get_normalized_dependencies(dependencies):
+        app.display_info(dependency)
