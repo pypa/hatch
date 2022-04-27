@@ -57,7 +57,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['2.7', '3.7', '3.8', '3.9', '3.10', '3.11.0-alpha.7 - 3.11']
+        # https://github.com/mypyc/mypyc/issues/923
+        # python-version: ['2.7', '3.7', '3.8', '3.9', '3.10', '3.11.0-alpha.7 - 3.11']
+        python-version: ['2.7', '3.7', '3.8', '3.9', '3.10']
 
     steps:
     - uses: actions/checkout@v2
