@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Add `dep show requirements` command
 - Automatically run `version` commands in a build environment if dependencies are unavailable
 - Use `tomllib` on Python 3.11+
+- Bump the minimum supported version of Hatchling
 
 ### [1.0.0rc17](https://github.com/ofek/hatch/releases/tag/hatch-v1.0.0rc17) - 2022-04-18 ### {: #hatch-v1.0.0rc17 }
 

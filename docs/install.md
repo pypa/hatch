@@ -7,7 +7,7 @@
 [pipx](https://github.com/pypa/pipx) allows for the global installation of Python applications in isolated environments.
 
 ```
-pipx install --pip-args "--upgrade --pre" hatch
+pipx install hatch
 ```
 
 ## pip
@@ -15,7 +15,7 @@ pipx install --pip-args "--upgrade --pre" hatch
 Hatch is available on PyPI and can be installed with [pip](https://pip.pypa.io).
 
 ```
-pip install --upgrade --pre --user hatch
+pip install hatch
 ```
 
 !!! warning
