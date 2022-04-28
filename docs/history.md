@@ -178,7 +178,6 @@ This is the first release candidate for Hatch v1, a complete rewrite.
 - Add option to the `wheel` builder to ship files that will be installed globally
 - Add option to the `wheel` builder to ship extra metadata files
 - Support symlinks
-- Update default core metadata version to 2.2
 - Upgrade `editables` dependency
 - Use `tomllib` on Python 3.11+
 
