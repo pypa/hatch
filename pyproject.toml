@@ -75,6 +75,15 @@ exclude = [
 
 [tool.hatch.build.targets.wheel]
 
+[tool.mypy]
+disallow_untyped_defs = false
+follow_imports = "normal"
+ignore_missing_imports = true
+pretty = true
+show_column_numbers = true
+warn_no_return = false
+warn_unused_ignores = true
+
 [tool.black]
 include = '\.pyi?$'
 line-length = 120
@@ -98,7 +107,6 @@ omit = [
   "backend/src/hatchling/utils/compat.py",
   "backend/src/hatchling/ouroboros.py",
   "src/hatch/__main__.py",
-  "src/hatch/config/models/user/previous/*",
   "src/hatch/utils/shells.py",
 ]
 
