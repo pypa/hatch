@@ -18,7 +18,6 @@ class ProjectConfig:
         self._envs = None
         self._publish = None
         self._scripts = None
-        self._version = None
         self._cached_env_overrides = {}
 
     @property
@@ -72,7 +71,9 @@ class ProjectConfig:
             for collector, collector_config in self.env_collectors.items():
                 collector_class = self.plugin_manager.environment_collector.get(collector)
                 if collector_class is None:
-                    raise ValueError(f'Unknown environment collector: {collector}')
+                    from hatchling.plugin.exceptions import UnknownPluginError
+
+                    raise UnknownPluginError(f'Unknown environment collector: {collector}')
 
                 environment_collector = collector_class(self.root, collector_config)
                 environment_collectors.append(environment_collector)
@@ -337,20 +338,6 @@ class ProjectConfig:
 
         return self._scripts
 
-    @property
-    def version(self):
-        if self._version is None:
-            if 'version' not in self.config:
-                raise ValueError('Missing `tool.hatch.version` configuration')
-
-            config = self.config['version']
-            if not isinstance(config, dict):
-                raise TypeError('Field `tool.hatch.version` must be a table')
-
-            self._version = VersionConfig(self.root, config, self.plugin_manager)
-
-        return self._version
-
     def finalize_env_overrides(self, option_types):
         # We lazily apply overrides because we need type information potentially defined by
         # environment plugins for their options
@@ -363,74 +350,6 @@ class ProjectConfig:
                     apply_overrides(env_name, override_name, condition, condition_value, options, config, option_types)
 
         self._cached_env_overrides.clear()
-
-
-class VersionConfig:
-    def __init__(self, root, config, plugin_manager):
-        self.root = root
-        self.config = config
-        self.plugin_manager = plugin_manager
-
-        self._source_name = None
-        self._scheme_name = None
-        self._source = None
-        self._scheme = None
-
-    @property
-    def source_name(self):
-        if self._source_name is None:
-            source = self.config.get('source', 'regex')
-            if not source:
-                raise ValueError(
-                    'The `source` option under the `tool.hatch.version` table must not be empty if defined'
-                )
-            elif not isinstance(source, str):
-                raise TypeError('Field `tool.hatch.version.source` must be a string')
-
-            self._source_name = source
-
-        return self._source_name
-
-    @property
-    def scheme_name(self):
-        if self._scheme_name is None:
-            scheme = self.config.get('scheme', 'standard')
-            if not scheme:
-                raise ValueError(
-                    'The `scheme` option under the `tool.hatch.version` table must not be empty if defined'
-                )
-            elif not isinstance(scheme, str):
-                raise TypeError('Field `tool.hatch.version.scheme` must be a string')
-
-            self._scheme_name = scheme
-
-        return self._scheme_name
-
-    @property
-    def source(self):
-        if self._source is None:
-            from copy import deepcopy
-
-            version_source = self.plugin_manager.version_source.get(self.source_name)
-            if version_source is None:
-                raise ValueError(f'Unknown version source: {self.source_name}')
-
-            self._source = version_source(str(self.root), deepcopy(self.config))
-
-        return self._source
-
-    @property
-    def scheme(self):
-        if self._scheme is None:
-            from copy import deepcopy
-
-            version_scheme = self.plugin_manager.version_scheme.get(self.scheme_name)
-            if version_scheme is None:
-                raise ValueError(f'Unknown version scheme: {self.scheme_name}')
-
-            self._scheme = version_scheme(self.root, deepcopy(self.config))
-
-        return self._scheme
 
 
 def expand_script_commands(script_name, commands, config, seen, active):

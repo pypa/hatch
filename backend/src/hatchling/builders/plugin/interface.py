@@ -348,7 +348,9 @@ class BuilderInterface(object):
         for hook_name, config in self.config.hook_config.items():
             build_hook = self.plugin_manager.build_hook.get(hook_name)
             if build_hook is None:
-                raise ValueError('Unknown build hook: {}'.format(hook_name))
+                from ...plugin.exceptions import UnknownPluginError
+
+                raise UnknownPluginError('Unknown build hook: {}'.format(hook_name))
 
             configured_build_hooks[hook_name] = build_hook(
                 self.root, config, self.config, self.metadata, directory, self.PLUGIN_NAME, self.app

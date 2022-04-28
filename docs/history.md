@@ -10,9 +10,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Unreleased
 
+***Changed:***
+
+- Moved the version scheme plugin interface to Hatchling for the ability to use version management without requiring a heavy CLI installation
+
 ***Added:***
 
 - Add `dep show requirements` command
+- Automatically run `version` commands in a build environment if dependencies are unavailable
 - Use `tomllib` on Python 3.11+
 
 ### [1.0.0rc17](https://github.com/ofek/hatch/releases/tag/hatch-v1.0.0rc17) - 2022-04-18 ### {: #hatch-v1.0.0rc17 }
@@ -166,6 +171,7 @@ This is the first release candidate for Hatch v1, a complete rewrite.
 
 ***Added:***
 
+- Add a `version` command
 - Add option to force include files from arbitrary paths
 - Add option to the `wheel` builder to ship files that will be installed globally
 - Add option to the `wheel` builder to ship extra metadata files

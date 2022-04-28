@@ -19,11 +19,6 @@ class PluginManager(_PluginManager):
 
         self.manager.register(hooks)
 
-    def hatch_register_version_scheme(self):
-        from ..version.scheme.plugin import hooks
-
-        self.manager.register(hooks)
-
     def hatch_register_publisher(self):
         from ..publish.plugin import hooks
 

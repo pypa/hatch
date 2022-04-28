@@ -1,14 +1,11 @@
-from abc import ABC, abstractmethod
-
-
-class VersionSchemeInterface(ABC):  # no cov
+class VersionSchemeInterface(object):  # no cov
     """
     Example usage:
 
     === ":octicons-file-code-16: plugin.py"
 
         ```python
-        from hatch.version.scheme.plugin.interface import VersionSchemeInterface
+        from hatchling.version.scheme.plugin.interface import VersionSchemeInterface
 
 
         class SpecialVersionScheme(VersionSchemeInterface):
@@ -40,12 +37,12 @@ class VersionSchemeInterface(ABC):  # no cov
     @property
     def root(self):
         """
-        The root of the project tree as a path-like object.
+        The root of the project tree as a string.
         """
         return self.__root
 
     @property
-    def config(self) -> dict:
+    def config(self):
         """
         === ":octicons-file-code-16: pyproject.toml"
 
@@ -61,11 +58,11 @@ class VersionSchemeInterface(ABC):  # no cov
         """
         return self.__config
 
-    @abstractmethod
-    def update(self, desired_version: str, original_version: str, version_data: dict):
+    def update(self, desired_version, original_version, version_data):
         """
         :material-align-horizontal-left: **REQUIRED** :material-align-horizontal-right:
 
         This should return a normalized form of the desired version and verify that it
         is higher than the original version.
         """
+        raise NotImplementedError

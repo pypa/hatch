@@ -31,6 +31,11 @@ class PluginManager(object):
 
         self.manager.register(hooks)
 
+    def hatch_register_version_scheme(self):
+        from ..version.scheme.plugin import hooks
+
+        self.manager.register(hooks)
+
     def hatch_register_builder(self):
         from ..builders.plugin import hooks
 

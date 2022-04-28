@@ -26,7 +26,7 @@ The version scheme plugin name is `standard`.
     scheme = "standard"
     ```
 
-::: hatch.version.scheme.plugin.interface.VersionSchemeInterface
+::: hatchling.version.scheme.plugin.interface.VersionSchemeInterface
     selection:
       members:
       - PLUGIN_NAME

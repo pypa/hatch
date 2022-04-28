@@ -5,18 +5,12 @@ def build_impl(called_by_app, directory, targets, hooks_only, no_hooks, clean, c
     import os
     from collections import OrderedDict
 
+    from ...bridge.app import get_application
     from ...builders.constants import BuildEnvVars
     from ...metadata.core import ProjectMetadata
     from ...plugin.manager import PluginManager
 
-    if called_by_app:
-        from ...bridge.app import InvokedApplication
-
-        app = InvokedApplication()
-    else:  # no cov
-        from ...bridge.app import Application
-
-        app = Application()
+    app = get_application(called_by_app)
 
     if hooks_only and no_hooks:
         app.abort('Cannot use both --hooks-only and --no-hooks together')
