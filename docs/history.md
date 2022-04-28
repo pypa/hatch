@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Unreleased
 
+### [1.0.0rc18](https://github.com/ofek/hatch/releases/tag/hatch-v1.0.0rc18) - 2022-04-28 ### {: #hatch-v1.0.0rc18 }
+
 ***Changed:***
 
 - Moved the version scheme plugin interface to Hatchling for the ability to use version management without requiring a heavy CLI installation
