@@ -461,7 +461,7 @@ class WheelBuilder(BuilderInterface):
     def write_archive_metadata(self, archive, records, build_data):
         from packaging.tags import parse_tag
 
-        metadata = 'Wheel-Version: 1.0\nGenerator: hatch {}\nRoot-Is-Purelib: {}\n'.format(
+        metadata = 'Wheel-Version: 1.0\nGenerator: hatchling {}\nRoot-Is-Purelib: {}\n'.format(
             __version__, 'true' if build_data['pure_python'] else 'false'
         )
 

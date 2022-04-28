@@ -26,7 +26,7 @@ def get_files(**kwargs):
             Path(metadata_directory, 'WHEEL'),
             f"""\
 Wheel-Version: 1.0
-Generator: hatch {__version__}
+Generator: hatchling {__version__}
 Root-Is-Purelib: true
 Tag: py2-none-any
 Tag: py3-none-any

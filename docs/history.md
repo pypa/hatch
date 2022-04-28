@@ -176,6 +176,10 @@ This is the first release candidate for Hatch v1, a complete rewrite.
 
 ### Unreleased
 
+***Added:***
+
+- Change the `Generator` name of wheel metadata from `hatch` to `hatchling` to be more precise
+
 ### [0.23.0](https://github.com/ofek/hatch/releases/tag/hatchling-v0.23.0) - 2022-04-28 ### {: #hatchling-v0.23.0 }
 
 ***Added:***
