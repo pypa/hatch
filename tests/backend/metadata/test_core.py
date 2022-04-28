@@ -186,7 +186,7 @@ class TestVersion:
         with pytest.raises(
             ValueError, match='The `source` option under the `tool.hatch.version` table must not be empty if defined'
         ):
-            _ = metadata.version
+            _ = metadata.version.cached
 
     def test_dynamic_source_not_string(self, isolation):
         metadata = ProjectMetadata(
@@ -194,7 +194,7 @@ class TestVersion:
         )
 
         with pytest.raises(TypeError, match='Field `tool.hatch.version.source` must be a string'):
-            _ = metadata.version
+            _ = metadata.version.cached
 
     def test_dynamic_unknown_source(self, isolation):
         metadata = ProjectMetadata(
@@ -204,7 +204,7 @@ class TestVersion:
         )
 
         with pytest.raises(ValueError, match='Unknown version source: foo'):
-            _ = metadata.version
+            _ = metadata.version.cached
 
     def test_dynamic_source_regex(self, temp_dir):
         metadata = ProjectMetadata(
@@ -217,9 +217,9 @@ class TestVersion:
         file_path.ensure_parent_dir_exists()
         file_path.write_text('__version__ = "0.0.1"')
 
-        assert metadata.hatch.version_source is metadata.hatch.version_source
-        assert isinstance(metadata.hatch.version_source, RegexSource)
-        assert metadata.hatch.version == metadata.hatch.version == '0.0.1'
+        assert metadata.hatch.version.source is metadata.hatch.version.source
+        assert isinstance(metadata.hatch.version.source, RegexSource)
+        assert metadata.hatch.version.cached == metadata.hatch.version.cached == '0.0.1'
 
     def test_dynamic_error(self, isolation):
         metadata = ProjectMetadata(
@@ -231,7 +231,7 @@ class TestVersion:
         with pytest.raises(
             ValueError, match='Error getting the version from source `regex`: option `path` must be specified'
         ):
-            _ = metadata.version
+            _ = metadata.version.cached
 
 
 class TestDescription:

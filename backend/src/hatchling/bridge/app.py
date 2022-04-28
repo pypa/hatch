@@ -131,6 +131,10 @@ else:
         return '__HATCH__:{}'.format(''.join('%02x' % ord(c) for c in procedure))
 
 
+def get_application(called_by_app):
+    return InvokedApplication() if called_by_app else Application()
+
+
 def send_app_command(method, *args, **kwargs):
     _send_app_command(format_app_command(method, *args, **kwargs))
 

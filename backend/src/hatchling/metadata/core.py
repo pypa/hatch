@@ -154,7 +154,7 @@ class ProjectMetadata(object):
 
         version = core_metadata.version
         if version is None:
-            version = self.hatch.version
+            version = self.hatch.version.cached
 
         from packaging.version import Version
 
@@ -1128,7 +1128,6 @@ class HatchMetadata(object):
         self._metadata = None
         self._build_config = None
         self._build_targets = None
-        self._version_source = None
         self._version = None
 
     @property
@@ -1167,18 +1166,6 @@ class HatchMetadata(object):
     @property
     def version(self):
         if self._version is None:
-            try:
-                self._version = self.version_source.get_version_data()['version']
-            except Exception as e:
-                raise type(e)(
-                    'Error getting the version from source `{}`: {}'.format(self.version_source.PLUGIN_NAME, e)
-                )  # TODO: from None
-
-        return self._version
-
-    @property
-    def version_source(self):
-        if self._version_source is None:
             if 'version' not in self.config:
                 raise ValueError('Missing `tool.hatch.version` configuration')
 
@@ -1186,9 +1173,39 @@ class HatchMetadata(object):
             if not isinstance(options, dict):
                 raise TypeError('Field `tool.hatch.version` must be a table')
 
-            options = deepcopy(options)
+            self._version = HatchVersionConfig(self.root, deepcopy(options), self.plugin_manager)
 
-            source = options.get('source', 'regex')
+        return self._version
+
+
+class HatchVersionConfig:
+    def __init__(self, root, config, plugin_manager):
+        self.root = root
+        self.config = config
+        self.plugin_manager = plugin_manager
+
+        self._cached = None
+        self._source_name = None
+        self._scheme_name = None
+        self._source = None
+        self._scheme = None
+
+    @property
+    def cached(self):
+        if self._cached is None:
+            try:
+                self._cached = self.source.get_version_data()['version']
+            except Exception as e:
+                raise type(e)(
+                    'Error getting the version from source `{}`: {}'.format(self.source.PLUGIN_NAME, e)
+                )  # TODO: from None
+
+        return self._cached
+
+    @property
+    def source_name(self):
+        if self._source_name is None:
+            source = self.config.get('source', 'regex')
             if not source:
                 raise ValueError(
                     'The `source` option under the `tool.hatch.version` table must not be empty if defined'
@@ -1196,13 +1213,56 @@ class HatchMetadata(object):
             elif not isinstance(source, str):
                 raise TypeError('Field `tool.hatch.version.source` must be a string')
 
-            version_source = self.plugin_manager.version_source.get(source)
+            self._source_name = source
+
+        return self._source_name
+
+    @property
+    def scheme_name(self):
+        if self._scheme_name is None:
+            scheme = self.config.get('scheme', 'standard')
+            if not scheme:
+                raise ValueError(
+                    'The `scheme` option under the `tool.hatch.version` table must not be empty if defined'
+                )
+            elif not isinstance(scheme, str):
+                raise TypeError('Field `tool.hatch.version.scheme` must be a string')
+
+            self._scheme_name = scheme
+
+        return self._scheme_name
+
+    @property
+    def source(self):
+        if self._source is None:
+            from copy import deepcopy
+
+            source_name = self.source_name
+            version_source = self.plugin_manager.version_source.get(source_name)
             if version_source is None:
-                raise ValueError('Unknown version source: {}'.format(source))
+                from ..plugin.exceptions import UnknownPluginError
 
-            self._version_source = version_source(self.root, options)
+                raise UnknownPluginError('Unknown version source: {}'.format(source_name))
 
-        return self._version_source
+            self._source = version_source(self.root, deepcopy(self.config))
+
+        return self._source
+
+    @property
+    def scheme(self):
+        if self._scheme is None:
+            from copy import deepcopy
+
+            scheme_name = self.scheme_name
+            version_scheme = self.plugin_manager.version_scheme.get(scheme_name)
+            if version_scheme is None:
+                from ..plugin.exceptions import UnknownPluginError
+
+                raise UnknownPluginError('Unknown version scheme: {}'.format(scheme_name))
+
+            self._scheme = version_scheme(self.root, deepcopy(self.config))
+
+        return self._scheme
 
 
 class HatchMetadataSettings(object):
@@ -1246,7 +1306,9 @@ class HatchMetadataSettings(object):
             for hook_name, config in hook_config.items():
                 metadata_hook = self.plugin_manager.metadata_hook.get(hook_name)
                 if metadata_hook is None:
-                    raise ValueError('Unknown metadata hook: {}'.format(hook_name))
+                    from ..plugin.exceptions import UnknownPluginError
+
+                    raise UnknownPluginError('Unknown metadata hook: {}'.format(hook_name))
 
                 configured_hooks[hook_name] = metadata_hook(self.root, config)
 

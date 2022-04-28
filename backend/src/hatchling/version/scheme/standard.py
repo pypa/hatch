@@ -8,7 +8,7 @@ class StandardScheme(VersionSchemeInterface):
 
     PLUGIN_NAME = 'standard'
 
-    def update(self, desired_version, original_version, version_data) -> str:
+    def update(self, desired_version, original_version, version_data):
         from packaging.version import Version, _parse_letter_version
 
         original = Version(original_version)
@@ -46,7 +46,7 @@ class StandardScheme(VersionSchemeInterface):
                 next_version = Version(version)
                 if next_version <= original:
                     raise ValueError(
-                        f'Version `{version}` is not higher than the original version `{original_version}`'
+                        'Version `{}` is not higher than the original version `{}`'.format(version, original_version)
                     )
                 else:
                     return str(next_version)

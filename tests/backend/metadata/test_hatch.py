@@ -1,6 +1,9 @@
 import pytest
 
 from hatchling.metadata.core import HatchMetadata
+from hatchling.plugin.manager import PluginManager
+from hatchling.version.scheme.standard import StandardScheme
+from hatchling.version.source.regex import RegexSource
 
 
 class TestBuildConfig:
@@ -43,6 +46,74 @@ class TestBuildTargets:
         metadata = HatchMetadata(str(isolation), config, None)
 
         assert metadata.build_targets == metadata.build_targets == {'wheel': {'versions': ['standard']}}
+
+
+class TestVersionSourceName:
+    def test_empty(self, isolation):
+        with pytest.raises(
+            ValueError, match='The `source` option under the `tool.hatch.version` table must not be empty if defined'
+        ):
+            _ = HatchMetadata(isolation, {'version': {'source': ''}}, None).version.source_name
+
+    def test_not_table(self, isolation):
+        with pytest.raises(TypeError, match='Field `tool.hatch.version.source` must be a string'):
+            _ = HatchMetadata(isolation, {'version': {'source': 9000}}, None).version.source_name
+
+    def test_correct(self, isolation):
+        metadata = HatchMetadata(isolation, {'version': {'source': 'foo'}}, None)
+
+        assert metadata.version.source_name == metadata.version.source_name == 'foo'
+
+    def test_default(self, isolation):
+        metadata = HatchMetadata(isolation, {'version': {}}, None)
+
+        assert metadata.version.source_name == metadata.version.source_name == 'regex'
+
+
+class TestVersionSchemeName:
+    def test_missing(self, isolation):
+        with pytest.raises(
+            ValueError, match='The `scheme` option under the `tool.hatch.version` table must not be empty if defined'
+        ):
+            _ = HatchMetadata(isolation, {'version': {'scheme': ''}}, None).version.scheme_name
+
+    def test_not_table(self, isolation):
+        with pytest.raises(TypeError, match='Field `tool.hatch.version.scheme` must be a string'):
+            _ = HatchMetadata(isolation, {'version': {'scheme': 9000}}, None).version.scheme_name
+
+    def test_correct(self, isolation):
+        metadata = HatchMetadata(isolation, {'version': {'scheme': 'foo'}}, None)
+
+        assert metadata.version.scheme_name == metadata.version.scheme_name == 'foo'
+
+    def test_default(self, isolation):
+        metadata = HatchMetadata(isolation, {'version': {}}, None)
+
+        assert metadata.version.scheme_name == metadata.version.scheme_name == 'standard'
+
+
+class TestVersionSource:
+    def test_unknown(self, isolation):
+        with pytest.raises(ValueError, match='Unknown version source: foo'):
+            _ = HatchMetadata(isolation, {'version': {'source': 'foo'}}, PluginManager()).version.source
+
+    def test_cached(self, isolation):
+        metadata = HatchMetadata(isolation, {'version': {}}, PluginManager())
+
+        assert metadata.version.source is metadata.version.source
+        assert isinstance(metadata.version.source, RegexSource)
+
+
+class TestVersionScheme:
+    def test_unknown(self, isolation):
+        with pytest.raises(ValueError, match='Unknown version scheme: foo'):
+            _ = HatchMetadata(isolation, {'version': {'scheme': 'foo'}}, PluginManager()).version.scheme
+
+    def test_cached(self, isolation):
+        metadata = HatchMetadata(isolation, {'version': {}}, PluginManager())
+
+        assert metadata.version.scheme is metadata.version.scheme
+        assert isinstance(metadata.version.scheme, StandardScheme)
 
 
 class TestMetadata:

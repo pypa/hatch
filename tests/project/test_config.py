@@ -6,8 +6,6 @@ from hatch.plugin.manager import PluginManager
 from hatch.project.config import ProjectConfig
 from hatch.project.env import RESERVED_OPTIONS
 from hatch.utils.structures import EnvVars
-from hatch.version.scheme.standard import StandardScheme
-from hatchling.version.source.regex import RegexSource
 
 ARRAY_OPTIONS = [o for o, t in RESERVED_OPTIONS.items() if t is list]
 BOOLEAN_OPTIONS = [o for o, t in RESERVED_OPTIONS.items() if t is bool]
@@ -2525,86 +2523,3 @@ class TestScripts:
             ValueError, match='Circular expansion detected for field `tool.hatch.scripts`: foo -> bar -> foo'
         ):
             _ = project_config.scripts
-
-
-class TestVersionConfig:
-    def test_missing(self, isolation):
-        with pytest.raises(ValueError, match='Missing `tool.hatch.version` configuration'):
-            _ = ProjectConfig(isolation, {}).version
-
-    def test_not_table(self, isolation):
-        with pytest.raises(TypeError, match='Field `tool.hatch.version` must be a table'):
-            _ = ProjectConfig(isolation, {'version': 9000}).version
-
-    def test_parse(self, isolation):
-        project_config = ProjectConfig(isolation, {'version': {'foo': 'bar'}})
-
-        assert project_config.version.config == project_config.version.config == {'foo': 'bar'}
-
-
-class TestVersionSourceName:
-    def test_empty(self, isolation):
-        with pytest.raises(
-            ValueError, match='The `source` option under the `tool.hatch.version` table must not be empty if defined'
-        ):
-            _ = ProjectConfig(isolation, {'version': {'source': ''}}).version.source_name
-
-    def test_not_table(self, isolation):
-        with pytest.raises(TypeError, match='Field `tool.hatch.version.source` must be a string'):
-            _ = ProjectConfig(isolation, {'version': {'source': 9000}}).version.source_name
-
-    def test_correct(self, isolation):
-        project_config = ProjectConfig(isolation, {'version': {'source': 'foo'}})
-
-        assert project_config.version.source_name == project_config.version.source_name == 'foo'
-
-    def test_default(self, isolation):
-        project_config = ProjectConfig(isolation, {'version': {}})
-
-        assert project_config.version.source_name == project_config.version.source_name == 'regex'
-
-
-class TestVersionSchemeName:
-    def test_missing(self, isolation):
-        with pytest.raises(
-            ValueError, match='The `scheme` option under the `tool.hatch.version` table must not be empty if defined'
-        ):
-            _ = ProjectConfig(isolation, {'version': {'scheme': ''}}).version.scheme_name
-
-    def test_not_table(self, isolation):
-        with pytest.raises(TypeError, match='Field `tool.hatch.version.scheme` must be a string'):
-            _ = ProjectConfig(isolation, {'version': {'scheme': 9000}}).version.scheme_name
-
-    def test_correct(self, isolation):
-        project_config = ProjectConfig(isolation, {'version': {'scheme': 'foo'}})
-
-        assert project_config.version.scheme_name == project_config.version.scheme_name == 'foo'
-
-    def test_default(self, isolation):
-        project_config = ProjectConfig(isolation, {'version': {}})
-
-        assert project_config.version.scheme_name == project_config.version.scheme_name == 'standard'
-
-
-class TestVersionSource:
-    def test_unknown(self, isolation):
-        with pytest.raises(ValueError, match='Unknown version source: foo'):
-            _ = ProjectConfig(isolation, {'version': {'source': 'foo'}}, PluginManager()).version.source
-
-    def test_cached(self, isolation):
-        project_config = ProjectConfig(isolation, {'version': {}}, PluginManager())
-
-        assert project_config.version.source is project_config.version.source
-        assert isinstance(project_config.version.source, RegexSource)
-
-
-class TestVersionScheme:
-    def test_unknown(self, isolation):
-        with pytest.raises(ValueError, match='Unknown version scheme: foo'):
-            _ = ProjectConfig(isolation, {'version': {'scheme': 'foo'}}, PluginManager()).version.scheme
-
-    def test_cached(self, isolation):
-        project_config = ProjectConfig(isolation, {'version': {}}, PluginManager())
-
-        assert project_config.version.scheme is project_config.version.scheme
-        assert isinstance(project_config.version.scheme, StandardScheme)

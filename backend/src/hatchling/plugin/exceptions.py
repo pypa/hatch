@@ -1,0 +1,2 @@
+class UnknownPluginError(ValueError):
+    pass
