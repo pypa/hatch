@@ -414,7 +414,7 @@ You can run commands immediately after environments [install](#skip-install) you
 
 ## Python version
 
-The `python` option selects which version of Python to use:
+The `python` option specifies which version of Python to use, or an absolute path to a Python interpreter:
 
 === ":octicons-file-code-16: pyproject.toml"
 
