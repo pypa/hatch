@@ -62,6 +62,21 @@ You'll need to define your project as a [Python plugin](../config/metadata.md#pl
 
 The name of the plugin should be the project name (excluding any `hatch-` prefix) and the path should represent the module that contains the registration hooks.
 
+### Classifier
+
+Add [`Framework :: Hatch`](https://pypi.org/search/?c=Framework+%3A%3A+Hatch) to your project's [classifiers](../config/metadata.md#classifiers) to make it easy to search for Hatch plugins:
+
+=== ":octicons-file-code-16: pyproject.toml"
+
+    ```toml
+    [project]
+    classifiers = [
+      ...
+      "Framework :: Hatch",
+      ...
+    ]
+    ```
+
 ## Types
 
 ### Hatchling
