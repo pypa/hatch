@@ -87,6 +87,7 @@ These are all involved in building projects and therefore any defined dependenci
 - [Build hook](build-hook.md)
 - [Metadata hook](metadata-hook.md)
 - [Version source](version-source.md)
+- [Version scheme](version-scheme.md)
 
 ### Hatch
 
@@ -95,4 +96,3 @@ These must be manually installed in the same environment as Hatch itself.
 - [Environment](environment.md)
 - [Environment collector](environment-collector.md)
 - [Publisher](publisher.md)
-- [Version scheme](version-scheme.md)
