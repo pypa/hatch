@@ -3,7 +3,7 @@ import sys
 from pathlib import Path
 
 HEADER_PATTERN = (
-    r'^\[([a-z0-9.]+)\]\(https://github\.com/ofek/hatch/releases/tag/({package}-v\1)\)'
+    r'^\[([a-z0-9.]+)\]\(https://github\.com/pypa/hatch/releases/tag/({package}-v\1)\)'
     r' - [0-9]{{4}}-[0-9]{{2}}-[0-9]{{2}} ### \{{: #\2 \}}$'
 )
 

@@ -17,7 +17,7 @@ code { font-family: 'Fira Code', monospace; }
   code { font-family: 'Fira Code VF', monospace; }
 }
 
-/* https://github.com/ofek/hatch/issues/104 */
+/* https://github.com/pypa/hatch/issues/104 */
 :root {
   font-variant-ligatures: none;
 }

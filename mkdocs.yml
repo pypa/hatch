@@ -1,9 +1,9 @@
 site_name: Hatch
 site_description: Modern, extensible Python project management
 site_author: Ofek Lev
-site_url: https://ofek.dev/hatch/latest/
-repo_name: ofek/hatch
-repo_url: https://github.com/ofek/hatch
+site_url: https://hatch.pypa.io/latest/
+repo_name: pypa/hatch
+repo_url: https://github.com/pypa/hatch
 # https://github.com/squidfunk/mkdocs-material/issues/3394
 # edit_uri: blob/master/docs
 edit_uri: ''
@@ -140,7 +140,7 @@ markdown_extensions:
       social_url_shorthand: true
       normalize_issue_symbols: true
       provider: github
-      user: ofek
+      user: pypa
       repo: hatch
   - pymdownx.mark:
   - pymdownx.progressbar:
