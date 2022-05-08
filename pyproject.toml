@@ -54,11 +54,10 @@ dependencies = [
 dynamic = ["version"]
 
 [project.urls]
-Homepage = "https://ofek.dev/hatch/latest/"
-Funding = "https://github.com/sponsors/ofek"
-History = "https://ofek.dev/hatch/dev/history/"
-Tracker = "https://github.com/ofek/hatch/issues"
-Source = "https://github.com/ofek/hatch"
+Homepage = "https://hatch.pypa.io/latest/"
+History = "https://hatch.pypa.io/dev/history/"
+Tracker = "https://github.com/pypa/hatch/issues"
+Source = "https://github.com/pypa/hatch"
 
 [project.scripts]
 hatch = "hatch.cli:main"
