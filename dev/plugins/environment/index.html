@@ -86,6 +86,8 @@
         <span class=bp>self</span><span class=o>.</span><span class=n>verbosity</span> <span class=o>=</span> <span class=n>verbosity</span>
         <span class=bp>self</span><span class=o>.</span><span class=n>__app</span> <span class=o>=</span> <span class=n>app</span>
 
+        <span class=bp>self</span><span class=o>.</span><span class=n>_context</span> <span class=o>=</span> <span class=kc>None</span>
+
         <span class=bp>self</span><span class=o>.</span><span class=n>_system_python</span> <span class=o>=</span> <span class=kc>None</span>
         <span class=bp>self</span><span class=o>.</span><span class=n>_env_vars</span> <span class=o>=</span> <span class=kc>None</span>
         <span class=bp>self</span><span class=o>.</span><span class=n>_env_include</span> <span class=o>=</span> <span class=kc>None</span>
@@ -159,6 +161,15 @@
 <span class=sd>            ```</span>
 <span class=sd>        &quot;&quot;&quot;</span>
         <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>__config</span>
+
+    <span class=nd>@property</span>
+    <span class=k>def</span> <span class=nf>context</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+        <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>_context</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
+            <span class=kn>from</span> <span class=nn>...utils.context</span> <span class=kn>import</span> <span class=n>Context</span>
+
+            <span class=bp>self</span><span class=o>.</span><span class=n>_context</span> <span class=o>=</span> <span class=n>Context</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>root</span><span class=p>)</span>
+
+        <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>_context</span>
 
     <span class=nd>@property</span>
     <span class=k>def</span> <span class=nf>system_python</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
@@ -732,14 +743,15 @@
     <span class=k>def</span> <span class=nf>expand_command</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>command</span><span class=p>):</span>
         <span class=n>possible_script</span><span class=p>,</span> <span class=n>_</span><span class=p>,</span> <span class=n>remaining</span> <span class=o>=</span> <span class=n>command</span><span class=o>.</span><span class=n>partition</span><span class=p>(</span><span class=s1>&#39; &#39;</span><span class=p>)</span>
 
+        <span class=c1># Indicate undefined</span>
+        <span class=k>if</span> <span class=ow>not</span> <span class=n>remaining</span><span class=p>:</span>
+            <span class=n>remaining</span> <span class=o>=</span> <span class=kc>None</span>
+
         <span class=k>if</span> <span class=n>possible_script</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>scripts</span><span class=p>:</span>
-            <span class=k>if</span> <span class=n>remaining</span><span class=p>:</span>
-                <span class=k>for</span> <span class=n>cmd</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>scripts</span><span class=p>[</span><span class=n>possible_script</span><span class=p>]:</span>
-                    <span class=k>yield</span> <span class=sa>f</span><span class=s1>&#39;</span><span class=si>{</span><span class=n>cmd</span><span class=si>}</span><span class=s1> </span><span class=si>{</span><span class=n>remaining</span><span class=si>}</span><span class=s1>&#39;</span>
-            <span class=k>else</span><span class=p>:</span>
-                <span class=k>yield from</span> <span class=bp>self</span><span class=o>.</span><span class=n>scripts</span><span class=p>[</span><span class=n>possible_script</span><span class=p>]</span>
+            <span class=k>for</span> <span class=n>cmd</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>scripts</span><span class=p>[</span><span class=n>possible_script</span><span class=p>]:</span>
+                <span class=k>yield</span> <span class=bp>self</span><span class=o>.</span><span class=n>context</span><span class=o>.</span><span class=n>format</span><span class=p>(</span><span class=n>cmd</span><span class=p>,</span> <span class=n>args</span><span class=o>=</span><span class=n>remaining</span><span class=p>)</span><span class=o>.</span><span class=n>strip</span><span class=p>()</span>
         <span class=k>else</span><span class=p>:</span>
-            <span class=k>yield</span> <span class=n>command</span>
+            <span class=k>yield</span> <span class=bp>self</span><span class=o>.</span><span class=n>context</span><span class=o>.</span><span class=n>format</span><span class=p>(</span><span class=n>command</span><span class=p>,</span> <span class=n>args</span><span class=o>=</span><span class=n>remaining</span><span class=p>)</span><span class=o>.</span><span class=n>strip</span><span class=p>()</span>
 
     <span class=k>def</span> <span class=nf>construct_build_command</span><span class=p>(</span>
         <span class=bp>self</span><span class=p>,</span>
