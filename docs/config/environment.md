@@ -484,6 +484,50 @@ The `description` option is purely informational and is displayed in the output 
 
 An environment's `type` determines which [environment plugin](../plugins/environment.md) will be used for management. The only built-in environment type is [virtual](../plugins/environment.md#virtual), which uses virtual Python environments.
 
+## Context formatting
+
+You can populate configuration with the values of certain supported fields using the syntax of Python's [format strings](https://docs.python.org/3/library/string.html#formatstrings). Each field interprets the modifier part after the colon differently, if at all.
+
+### Context fields
+
+| Field | Modifier | Description |
+| --- | --- | --- |
+| `root` | | The root project directory |
+| `home` | | The user's home directory |
+| `/` | | Cross-platform path separator (`\` on Windows, `/` otherwise) |
+| `;` | | Cross-platform directory separator (`;` on Windows, `:` otherwise) |
+| `env` | `name[:default]` | The value of the environment variable with an optional default value if it is not set |
+| `args` | `default` | Any extra command line arguments for [executed commands](../environment.md#command-execution) with an optional default if none were provided |
+
+The following shows the support for each field by feature:
+
+| Field | [<u>Scripts</u>](#scripts) | [<u>Commands</u>](#commands) |
+| --- | --- | --- |
+| `root` | :white_check_mark: | :white_check_mark: |
+| `home` | :white_check_mark: | :white_check_mark: |
+| `/` | :white_check_mark: | :white_check_mark: |
+| `;` | :white_check_mark: | :white_check_mark: |
+| `env` | :white_check_mark: | :white_check_mark: |
+| `args` | :white_check_mark: | :x: |
+
+### Field nesting
+
+You can insert fields within others. For example, if you wanted a [script](#scripts) that displays the value of the environment variable `FOO`, with a fallback to the environment variable `BAR`, with its own fallback to the user's home directory, you could do the following:
+
+=== ":octicons-file-code-16: pyproject.toml"
+
+    ```toml
+    [tool.hatch.envs.test.scripts]
+    display = "echo {env:FOO:{env:BAR:{home}}}"
+    ```
+
+=== ":octicons-file-code-16: hatch.toml"
+
+    ```toml
+    [envs.test.scripts]
+    display = "echo {env:FOO:{env:BAR:{home}}}"
+    ```
+
 ## Matrix
 
 Environments can define a series of matrices with the `matrix` option:

@@ -52,6 +52,8 @@ class EnvironmentInterface(ABC):
         self.verbosity = verbosity
         self.__app = app
 
+        self._context = None
+
         self._system_python = None
         self._env_vars = None
         self._env_include = None
@@ -125,6 +127,15 @@ class EnvironmentInterface(ABC):
             ```
         """
         return self.__config
+
+    @property
+    def context(self):
+        if self._context is None:
+            from ...utils.context import Context
+
+            self._context = Context(self.root)
+
+        return self._context
 
     @property
     def system_python(self):
@@ -698,14 +709,15 @@ class EnvironmentInterface(ABC):
     def expand_command(self, command):
         possible_script, _, remaining = command.partition(' ')
 
+        # Indicate undefined
+        if not remaining:
+            remaining = None
+
         if possible_script in self.scripts:
-            if remaining:
-                for cmd in self.scripts[possible_script]:
-                    yield f'{cmd} {remaining}'
-            else:
-                yield from self.scripts[possible_script]
+            for cmd in self.scripts[possible_script]:
+                yield self.context.format(cmd, args=remaining).strip()
         else:
-            yield command
+            yield self.context.format(command, args=remaining).strip()
 
     def construct_build_command(
         self,

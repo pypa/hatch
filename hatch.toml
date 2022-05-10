@@ -12,8 +12,8 @@ post-install-commands = [
   "python -m pip install --disable-pip-version-check -q -e ./backend",
 ]
 [envs.default.scripts]
-full = "pytest -n auto --reruns 5 --reruns-delay 1 --cov-report=term-missing --cov-config=pyproject.toml --cov=src/hatch --cov=backend/src/hatchling --cov=tests"
-dev = "pytest --no-cov"
+full = "pytest -n auto --reruns 5 --reruns-delay 1 --cov-report=term-missing --cov-config=pyproject.toml --cov=src/hatch --cov=backend/src/hatchling --cov=tests {args:tests}"
+dev = "pytest --no-cov {args:tests}"
 
 [[envs.test.matrix]]
 python = ["37", "38", "39", "310"]
@@ -29,15 +29,15 @@ dependencies = [
   "mypy>=0.942",
 ]
 [envs.lint.scripts]
-typing = "mypy --install-types --non-interactive src/hatch tests"
+typing = "mypy --install-types --non-interactive {args:src/hatch tests}"
 style = [
-  "flake8 .",
-  "black --check --diff .",
-  "isort --check-only --diff .",
+  "flake8 {args:.}",
+  "black --check --diff {args:.}",
+  "isort --check-only --diff {args:.}",
 ]
 fmt = [
-  "isort .",
-  "black .",
+  "isort {args:.}",
+  "black {args:.}",
   "style",
 ]
 all = [
@@ -67,9 +67,9 @@ dependencies = [
 SOURCE_DATE_EPOCH = "1580601600"
 PYTHONWARNINGS = "ignore::UserWarning:mkdocstrings.handlers.python"
 [envs.docs.scripts]
-build = "mkdocs build --clean --strict"
-serve = "mkdocs serve --dev-addr localhost:8000"
-ci-build = "mike deploy --no-redirect --update-aliases"
+build = "mkdocs build --clean --strict {args}"
+serve = "mkdocs serve --dev-addr localhost:8000 {args}"
+ci-build = "mike deploy --no-redirect --update-aliases {args}"
 
 [envs.backend]
 skip-install = true
