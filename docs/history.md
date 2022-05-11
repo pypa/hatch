@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ***Added:***
 
 - Add the ability to insert values into configuration like environment variables and command line arguments
+- Add `--show-headers` option to the `env run` command to always display headers, even for single environments
 - Update project metadata to reflect the adoption by PyPA
 
 ### [1.0.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.0.0) - 2022-04-28 ### {: #hatch-v1.0.0 }
