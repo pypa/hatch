@@ -169,10 +169,7 @@ def run(app, args, env_names, included_variable_specs, excluded_variable_specs, 
                 environment.exists = lambda: True
 
             app.prepare_environment(environment)
-
-            for process in environment.run_shell_commands([environment.join_command_args(args)]):
-                if process.returncode:
-                    app.abort(code=process.returncode)
+            app.run_shell_commands(environment, [environment.join_command_args(args)], show_code_on_error=False)
 
     if incompatible:
         num_incompatible = len(incompatible)

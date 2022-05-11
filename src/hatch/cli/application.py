@@ -73,9 +73,7 @@ class Application(Terminal):
             if not environment.skip_install:
                 if environment.pre_install_commands:
                     with self.status_waiting('Running pre-installation commands'):
-                        for process in environment.run_shell_commands(environment.pre_install_commands):
-                            if process.returncode:
-                                self.abort(f'Failed with exit code: {process.returncode}', code=process.returncode)
+                        self.run_shell_commands(environment, environment.pre_install_commands)
 
                 if environment.dev_mode:
                     with self.status_waiting('Installing project in development mode'):
@@ -86,13 +84,21 @@ class Application(Terminal):
 
                 if environment.post_install_commands:
                     with self.status_waiting('Running post-installation commands'):
-                        for process in environment.run_shell_commands(environment.post_install_commands):
-                            if process.returncode:
-                                self.abort(f'Failed with exit code: {process.returncode}', code=process.returncode)
+                        self.run_shell_commands(environment, environment.post_install_commands)
 
         if not environment.dependencies_in_sync():
             with self.status_waiting('Syncing dependencies'):
                 environment.sync_dependencies()
+
+    def run_shell_commands(self, environment, commands: list[str], show_code_on_error=True):
+        with environment.command_context():
+            for command in environment.resolve_commands(commands):
+                process = environment.run_shell_command(command)
+                if process.returncode:
+                    if show_code_on_error:
+                        self.abort(f'Failed with exit code: {process.returncode}', code=process.returncode)
+                    else:
+                        self.abort(code=process.returncode)
 
     def get_env_directory(self, environment_type):
         directories = self.config.dirs.env
