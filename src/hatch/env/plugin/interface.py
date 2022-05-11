@@ -4,7 +4,7 @@ import os
 import sys
 from abc import ABC, abstractmethod
 from contextlib import contextmanager
-from os.path import expandvars, isabs
+from os.path import isabs
 
 from ...config.constants import AppEnvVars
 from ...utils.structures import EnvVars
@@ -692,23 +692,9 @@ class EnvironmentInterface(ABC):
         """
         This expands each command into one or more commands based on any
         [scripts](../config/environment.md#scripts) that the user defined.
-        Each expanded command is then
-        [finalized](environment.md#hatch.env.plugin.interface.EnvironmentInterface.finalize_command).
         """
         for command in commands:
-            expanded_commands = self.expand_command(command)
-
-            for expanded_command in expanded_commands:
-                yield self.finalize_command(expanded_command)
-
-    def finalize_command(self, command: str):
-        """
-        Called for every
-        [resolved command](environment.md#hatch.env.plugin.interface.EnvironmentInterface.resolve_commands)
-        with the default behavior being equivalent to the standard library's
-        [os.path.expandvars](https://docs.python.org/3/library/os.path.html#os.path.expandvars).
-        """
-        return expandvars(command)
+            yield from self.expand_command(command)
 
     def expand_command(self, command):
         possible_script, _, remaining = command.partition(' ')

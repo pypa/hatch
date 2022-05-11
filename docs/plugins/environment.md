@@ -85,7 +85,6 @@ The environment plugin name is `virtual`.
       - enter_shell
       - run_shell_command
       - resolve_commands
-      - finalize_command
       - get_env_vars
       - apply_features
       - construct_pip_install_command

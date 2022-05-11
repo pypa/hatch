@@ -13,10 +13,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ***Changed:***
 
 - In order to simplify the implementation of command execution for environment plugins, the `run_shell_commands` method has been replaced by the singular `run_shell_command`. A new `command_context` method has been added to more easily satisfy complex use cases.
+- The `finalize_command` environment plugin method has been removed in favor of the newly introduced context formatting functionality.
 
 ***Added:***
 
-- Add the ability to insert values into configuration like environment variables and command line arguments
+- Add context formatting functionality i.e. the ability to insert values into configuration like environment variables and command line arguments
 - Add `--show-headers` option to the `env run` command to always display headers, even for single environments
 - Update project metadata to reflect the adoption by PyPA
 
