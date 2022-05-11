@@ -91,10 +91,10 @@ class VirtualEnvironment(EnvironmentInterface):
 
             yield
 
-    def run_shell_commands(self, commands: list):
+    @contextmanager
+    def command_context(self):
         with self.safe_activation():
-            for command in self.resolve_commands(commands):
-                yield self.platform.run_command(command, shell=True)
+            yield
 
     def enter_shell(self, name, path):
         shell_executor = getattr(self.shells, f'enter_{name}', None)

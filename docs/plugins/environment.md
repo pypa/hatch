@@ -81,8 +81,9 @@ The environment plugin name is `virtual`.
       - build_environment
       - get_build_process
       - construct_build_command
+      - command_context
       - enter_shell
-      - run_shell_commands
+      - run_shell_command
       - resolve_commands
       - finalize_command
       - get_env_vars

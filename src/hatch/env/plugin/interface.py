@@ -658,22 +658,27 @@ class EnvironmentInterface(ABC):
         """
         Spawn a [shell](../config/hatch.md#shell) within the environment.
 
-        The shell should reflect any
-        [environment variables](environment.md#hatch.env.plugin.interface.EnvironmentInterface.get_env_vars)
-        the user defined either currently or at the time of
-        [creation](environment.md#hatch.env.plugin.interface.EnvironmentInterface.create).
+        This should either use
+        [command_context](environment.md#hatch.env.plugin.interface.EnvironmentInterface.command_context)
+        directly or provide the same guarantee.
         """
-        with self.get_env_vars():
+        with self.command_context():
             self.platform.exit_with_command([path])
 
-    def run_shell_commands(self, commands: list[str]):
+    def run_shell_command(self, command: str):
         """
-        This should yield the standard library's
+        This should return the standard library's
         [subprocess.CompletedProcess](https://docs.python.org/3/library/subprocess.html#subprocess.CompletedProcess)
-        for each command. Additionally, the commands must first be
-        [resolved](environment.md#hatch.env.plugin.interface.EnvironmentInterface.resolve_commands).
+        and will always be called when the
+        [command_context](environment.md#hatch.env.plugin.interface.EnvironmentInterface.command_context)
+        is active, with the expectation of providing the same guarantee.
+        """
+        return self.platform.run_command(command, shell=True)
 
-        The command execution should reflect any
+    @contextmanager
+    def command_context(self):
+        """
+        A context manager that when active should make executed shell commands reflect any
         [environment variables](environment.md#hatch.env.plugin.interface.EnvironmentInterface.get_env_vars)
         the user defined either currently or at the time of
         [creation](environment.md#hatch.env.plugin.interface.EnvironmentInterface.create).
@@ -681,8 +686,7 @@ class EnvironmentInterface(ABC):
         For an example, open the default implementation below:
         """
         with self.get_env_vars():
-            for command in self.resolve_commands(commands):
-                yield self.platform.run_command(command, shell=True)
+            yield
 
     def resolve_commands(self, commands: list[str]):
         """
