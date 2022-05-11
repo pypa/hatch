@@ -93,6 +93,10 @@ class Application(Terminal):
     def run_shell_commands(self, environment, commands: list[str], show_code_on_error=True):
         with environment.command_context():
             for command in environment.resolve_commands(commands):
+                if command.startswith('-'):
+                    environment.run_shell_command(command[1:].strip())
+                    continue
+
                 process = environment.run_shell_command(command)
                 if process.returncode:
                     if show_code_on_error:
