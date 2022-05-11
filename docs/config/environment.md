@@ -361,12 +361,36 @@ Scripts can also be defined as an array of strings.
     ]
     ```
 
+You can ignore the exit code of commands that start with `-` (a hyphen). For example, the script `error` defined by the following configuration would halt after the second command with `3` as the exit code:
+
+=== ":octicons-file-code-16: pyproject.toml"
+
+    ```toml
+    [tool.hatch.envs.test.scripts]
+    error = [
+      "- exit 1",
+      "exit 3",
+      "exit 0",
+    ]
+    ```
+
+=== ":octicons-file-code-16: hatch.toml"
+
+    ```toml
+    [envs.test.scripts]
+    error = [
+      "- exit 1",
+      "exit 3",
+      "exit 0",
+    ]
+    ```
+
 !!! tip
-    Scripts [inherit](#inheritance) from parent environments just like options.
+    Individual scripts [inherit](#inheritance) from parent environments just like options.
 
 ## Commands
 
-All commands are able to use any defined [scripts](#scripts).
+All commands are able to use any defined [scripts](#scripts). Also like scripts, the exit code of commands that start with a hyphen will be ignored.
 
 ### Pre-install
 
