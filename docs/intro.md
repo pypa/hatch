@@ -39,7 +39,7 @@ To initialize an existing project, enter the directory containing the project an
 hatch new --init
 ```
 
-This will interactively guide you through the setup process.
+If your project has a `setup.py` file the command will automatically migrate `setuptools` configuration for you. Otherwise, this will interactively guide you through the setup process.
 
 ## Project metadata
 

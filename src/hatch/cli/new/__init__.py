@@ -7,8 +7,9 @@ import click
 @click.option('--interactive', '-i', 'interactive', is_flag=True, help='Interactively choose details about the project')
 @click.option('--cli', 'feature_cli', is_flag=True, help='Give the project a command line interface')
 @click.option('--init', 'initialize', is_flag=True, help='Initialize an existing project')
+@click.option('-so', 'setuptools_options', multiple=True, hidden=True)
 @click.pass_obj
-def new(app, name, location, interactive, feature_cli, initialize):
+def new(app, name, location, interactive, feature_cli, initialize, setuptools_options):
     """Create or initialize a project."""
     from copy import deepcopy
     from datetime import datetime, timezone
@@ -18,8 +19,13 @@ def new(app, name, location, interactive, feature_cli, initialize):
     from ...template import File
     from ...utils.fs import Path
 
+    migration_possible = False
     if initialize:
         interactive = True
+        if (Path.cwd() / 'setup.py').is_file():
+            migration_possible = True
+            if not name:
+                name = 'temporary'
 
     if not name:
         if not interactive:
@@ -44,6 +50,18 @@ def new(app, name, location, interactive, feature_cli, initialize):
             app.abort(f'Directory `{location}` is not empty.')
 
         needs_config_update = (location / 'pyproject.toml').is_file()
+
+    if migration_possible:
+        from .migrate import migrate
+
+        try:
+            migrate(str(location), setuptools_options)
+        except Exception as e:
+            app.display_error(f'Could not automatically migrate from setuptools: {e}')
+            if name == 'temporary':
+                name = app.prompt('Project name')
+        else:
+            return
 
     default_config = {
         'description': '',

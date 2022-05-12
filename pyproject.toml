@@ -106,6 +106,7 @@ omit = [
   "backend/src/hatchling/utils/compat.py",
   "backend/src/hatchling/ouroboros.py",
   "src/hatch/__main__.py",
+  "src/hatch/cli/new/migrate.py",
   "src/hatch/utils/shells.py",
 ]
 
