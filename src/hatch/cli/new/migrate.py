@@ -272,6 +272,6 @@ def migrate(root, setuptools_options):
 
             old_project_file = os.path.join(root, 'pyproject.toml')
             new_project_file = os.path.join(repo_dir, 'pyproject.toml')
-            os.replace(new_project_file, old_project_file)
+            shutil.copyfile(new_project_file, old_project_file)
         finally:
             os.chdir(root)
