@@ -24,7 +24,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Every executed command is now displayed when running multiple commands or when verbosity is enabled
 - Similar to `make`, ignore the exit code of executed commands that start with `-` (a hyphen)
 - Add ability for the `--init` flag of the `new` command to automatically migrate `setuptools` configuration
-- Update project metadata to reflect the adoption by PyPA
+- Update project metadata to reflect the adoption by PyPA and production stability
 
 ### [1.0.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.0.0) - 2022-04-28 ### {: #hatch-v1.0.0 }
 
