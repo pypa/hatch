@@ -73,7 +73,7 @@ class Application(Terminal):
             if not environment.skip_install:
                 if environment.pre_install_commands:
                     with self.status_waiting('Running pre-installation commands'):
-                        self.run_shell_commands(environment, environment.pre_install_commands)
+                        self.run_shell_commands(environment, environment.pre_install_commands, source='pre-install')
 
                 if environment.dev_mode:
                     with self.status_waiting('Installing project in development mode'):
@@ -84,15 +84,24 @@ class Application(Terminal):
 
                 if environment.post_install_commands:
                     with self.status_waiting('Running post-installation commands'):
-                        self.run_shell_commands(environment, environment.post_install_commands)
+                        self.run_shell_commands(environment, environment.post_install_commands, source='post-install')
 
         if not environment.dependencies_in_sync():
             with self.status_waiting('Syncing dependencies'):
                 environment.sync_dependencies()
 
-    def run_shell_commands(self, environment, commands: list[str], show_code_on_error=True):
+    def run_shell_commands(self, environment, commands: list[str], source='cmd', show_code_on_error=True):
         with environment.command_context():
-            for command in environment.resolve_commands(commands):
+            try:
+                resolved_commands = list(environment.resolve_commands(commands))
+            except Exception as e:
+                self.abort(str(e))
+
+            should_display_command = self.verbose or len(resolved_commands) > 1
+            for i, command in enumerate(resolved_commands, 1):
+                if should_display_command:
+                    self.display_always(f'{source} [{i}] | {command}')
+
                 if command.startswith('-'):
                     environment.run_shell_command(command[1:].strip())
                     continue

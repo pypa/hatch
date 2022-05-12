@@ -50,11 +50,8 @@ def filter_environments(environments, filter_data):
 @click.option('--include', '-i', 'included_variable_specs', multiple=True, help='The matrix variables to include')
 @click.option('--exclude', '-x', 'excluded_variable_specs', multiple=True, help='The matrix variables to exclude')
 @click.option('--filter', '-f', 'filter_json', help='The JSON data used to select environments')
-@click.option(
-    '--show-headers', is_flag=True, help='Whether or not to always display headers, even for single environments'
-)
 @click.pass_obj
-def run(app, args, env_names, included_variable_specs, excluded_variable_specs, filter_json, show_headers):
+def run(app, args, env_names, included_variable_specs, excluded_variable_specs, filter_json):
     """
     Run commands within project environments.
 
@@ -144,7 +141,7 @@ def run(app, args, env_names, included_variable_specs, excluded_variable_specs, 
     elif not matrix_selected and (included_variables or excluded_variables):
         app.abort(f'Variable selection is unsupported for non-matrix environments: {", ".join(env_names)}')
 
-    should_display_header = show_headers or matrix_selected or len(environments) > 1
+    should_display_header = app.verbose or matrix_selected or len(environments) > 1
 
     any_compatible = False
     incompatible = {}
