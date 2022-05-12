@@ -60,6 +60,8 @@ New setting:
 project = "proj2"
 ```
 
+The project can be selected on a per-command basis with the `-p`/`--project` (environment variable `HATCH_PROJECT`) [root option](../cli/reference.md#hatch).
+
 ### Aware
 
 === ":octicons-file-code-16: config.toml"

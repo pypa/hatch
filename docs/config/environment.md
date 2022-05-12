@@ -361,7 +361,7 @@ Scripts can also be defined as an array of strings.
     ]
     ```
 
-You can ignore the exit code of commands that start with `-` (a hyphen). For example, the script `error` defined by the following configuration would halt after the second command with `3` as the exit code:
+Similar to [make](https://www.gnu.org/software/make/manual/html_node/Errors.html), you can ignore the exit code of commands that start with `-` (a hyphen). For example, the script `error` defined by the following configuration would halt after the second command with `3` as the exit code:
 
 === ":octicons-file-code-16: pyproject.toml"
 

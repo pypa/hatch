@@ -24,6 +24,7 @@ def run(ctx, app, args):
 
     === ":octicons-file-code-16: pyproject.toml"
 
+        \b
         ```toml
         [[tool.hatch.envs.test.matrix]]
         python = ["39", "310"]
@@ -32,6 +33,7 @@ def run(ctx, app, args):
 
     === ":octicons-file-code-16: hatch.toml"
 
+        \b
         ```toml
         [[envs.test.matrix]]
         python = ["39", "310"]
@@ -40,6 +42,7 @@ def run(ctx, app, args):
 
     then running:
 
+    \b
     ```
     hatch run +py=310 -version=9000 test:pytest
     ```

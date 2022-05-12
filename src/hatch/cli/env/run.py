@@ -63,6 +63,7 @@ def run(app, args, env_names, included_variable_specs, excluded_variable_specs, 
 
     === ":octicons-file-code-16: pyproject.toml"
 
+        \b
         ```toml
         [[tool.hatch.envs.test.matrix]]
         python = ["39", "310"]
@@ -71,6 +72,7 @@ def run(app, args, env_names, included_variable_specs, excluded_variable_specs, 
 
     === ":octicons-file-code-16: hatch.toml"
 
+        \b
         ```toml
         [[envs.test.matrix]]
         python = ["39", "310"]
@@ -79,6 +81,7 @@ def run(app, args, env_names, included_variable_specs, excluded_variable_specs, 
 
     then running:
 
+    \b
     ```
     hatch env run -i py=310 -x version=9000 test:pytest
     ```
