@@ -6,7 +6,7 @@
         <span class=k>if</span> <span class=ow>not</span> <span class=n>environment</span><span class=o>.</span><span class=n>skip_install</span><span class=p>:</span>
             <span class=k>if</span> <span class=n>environment</span><span class=o>.</span><span class=n>pre_install_commands</span><span class=p>:</span>
                 <span class=k>with</span> <span class=bp>self</span><span class=o>.</span><span class=n>status_waiting</span><span class=p>(</span><span class=s1>&#39;Running pre-installation commands&#39;</span><span class=p>):</span>
-                    <span class=bp>self</span><span class=o>.</span><span class=n>run_shell_commands</span><span class=p>(</span><span class=n>environment</span><span class=p>,</span> <span class=n>environment</span><span class=o>.</span><span class=n>pre_install_commands</span><span class=p>)</span>
+                    <span class=bp>self</span><span class=o>.</span><span class=n>run_shell_commands</span><span class=p>(</span><span class=n>environment</span><span class=p>,</span> <span class=n>environment</span><span class=o>.</span><span class=n>pre_install_commands</span><span class=p>,</span> <span class=n>source</span><span class=o>=</span><span class=s1>&#39;pre-install&#39;</span><span class=p>)</span>
 
             <span class=k>if</span> <span class=n>environment</span><span class=o>.</span><span class=n>dev_mode</span><span class=p>:</span>
                 <span class=k>with</span> <span class=bp>self</span><span class=o>.</span><span class=n>status_waiting</span><span class=p>(</span><span class=s1>&#39;Installing project in development mode&#39;</span><span class=p>):</span>
@@ -17,7 +17,7 @@
 
             <span class=k>if</span> <span class=n>environment</span><span class=o>.</span><span class=n>post_install_commands</span><span class=p>:</span>
                 <span class=k>with</span> <span class=bp>self</span><span class=o>.</span><span class=n>status_waiting</span><span class=p>(</span><span class=s1>&#39;Running post-installation commands&#39;</span><span class=p>):</span>
-                    <span class=bp>self</span><span class=o>.</span><span class=n>run_shell_commands</span><span class=p>(</span><span class=n>environment</span><span class=p>,</span> <span class=n>environment</span><span class=o>.</span><span class=n>post_install_commands</span><span class=p>)</span>
+                    <span class=bp>self</span><span class=o>.</span><span class=n>run_shell_commands</span><span class=p>(</span><span class=n>environment</span><span class=p>,</span> <span class=n>environment</span><span class=o>.</span><span class=n>post_install_commands</span><span class=p>,</span> <span class=n>source</span><span class=o>=</span><span class=s1>&#39;post-install&#39;</span><span class=p>)</span>
 
     <span class=k>if</span> <span class=ow>not</span> <span class=n>environment</span><span class=o>.</span><span class=n>dependencies_in_sync</span><span class=p>():</span>
         <span class=k>with</span> <span class=bp>self</span><span class=o>.</span><span class=n>status_waiting</span><span class=p>(</span><span class=s1>&#39;Syncing dependencies&#39;</span><span class=p>):</span>
