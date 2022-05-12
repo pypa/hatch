@@ -185,6 +185,9 @@ class Terminal:
     def display_raw(self, text='', **kwargs):
         self.console.print(text, overflow='ignore', no_wrap=True, crop=False, **kwargs)
 
+    def display_always(self, text='', **kwargs):
+        self.console.print(text, style=self._style_level_info, overflow='ignore', no_wrap=True, crop=False, **kwargs)
+
     @staticmethod
     def prompt(text, **kwargs):
         return click.prompt(text, **kwargs)
