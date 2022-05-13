@@ -41,7 +41,7 @@ Rather than specifying the full URL of a repository, you can use a named reposit
     ...
     ```
 
-The following repository names are reserved by Hatch and cannot be overriden:
+The following repository names are reserved by Hatch and cannot be overridden:
 
 | Name | Repository |
 | --- | --- |
