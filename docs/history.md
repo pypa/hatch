@@ -44,6 +44,7 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 
 ***Added:***
 
+- Allow build data to add additional project dependencies for `wheel` and `sdist` build targets
 - Update project metadata to reflect the adoption by PyPA
 
 ### [0.24.0](https://github.com/pypa/hatch/releases/tag/hatchling-v0.24.0) - 2022-04-28 ### {: #hatchling-v0.24.0 }

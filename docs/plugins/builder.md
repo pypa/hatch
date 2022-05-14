@@ -39,6 +39,7 @@ The builder plugin name is `wheel`.
 | Version | Description |
 | --- | --- |
 | `standard` (default) | The latest standardized format |
+| `editable`           | A wheel that only ships `.pth` files or import hooks for real-time development |
 
 #### Default file selection
 
@@ -62,6 +63,7 @@ This is data that can be modified by [build hooks](build-hook.md).
 | `tag` | | The full [tag](https://peps.python.org/pep-0425/) part of the filename (e.g. `py3-none-any`), defaulting to a cross-platform wheel with the supported major versions of Python based on [project metadata](../config/metadata.md#python-support) |
 | `infer_tag` | `#!python False` | When `tag` is not set, this may be enabled to use the one most specific to the platform, Python interpreter, and ABI |
 | `pure_python` | `#!python True` | Whether or not to write metadata indicating that the package does not contain any platform-specific files |
+| `dependencies` | | Extra [project dependencies](../config/metadata.md#required) |
 
 ### Source distribution
 
@@ -87,8 +89,8 @@ The builder plugin name is `sdist`.
 
 | Option | Default | Description |
 | --- | --- | --- |
-| `support-legacy` | `false` | Whether or not to include a `setup.py` file to support legacy installation mechanisms |
 | `core-metadata-version` | `"2.1"` | The version of [core metadata](https://packaging.python.org/specifications/core-metadata/) to use |
+| `support-legacy` | `false` | Whether or not to include a `setup.py` file to support legacy installation mechanisms |
 
 ##### Versions
 
@@ -103,6 +105,14 @@ When the user has not set any [file selection](../config/build.md#file-selection
 #### Reproducibility
 
 [Reproducible builds](../config/build.md#reproducible-builds) are supported.
+
+#### Build data
+
+This is data that can be modified by [build hooks](build-hook.md).
+
+| Data | Default | Description |
+| --- | --- | --- |
+| `dependencies` | | Extra [project dependencies](../config/metadata.md#required) |
 
 ### Custom
 

@@ -149,17 +149,23 @@ class SdistBuilder(BuilderInterface):
                     # TODO: Investigate if this is necessary (for symlinks, etc.)
                     archive.addfile(tar_info)
 
-            archive.create_file(self.config.core_metadata_constructor(self.metadata), 'PKG-INFO')
+            archive.create_file(
+                self.config.core_metadata_constructor(self.metadata, extra_dependencies=build_data['dependencies']),
+                'PKG-INFO',
+            )
 
             if self.config.support_legacy:
-                archive.create_file(self.construct_setup_py_file(sorted(found_packages)), 'setup.py')
+                archive.create_file(
+                    self.construct_setup_py_file(sorted(found_packages), extra_dependencies=build_data['dependencies']),
+                    'setup.py',
+                )
 
         target = os.path.join(directory, '{}.tar.gz'.format(self.project_id))
 
         replace_file(archive.path, target)
         return target
 
-    def construct_setup_py_file(self, packages):
+    def construct_setup_py_file(self, packages, extra_dependencies=()):
         contents = '# -*- coding: utf-8 -*-\nfrom setuptools import setup\n\n'
 
         contents += 'setup(\n'
@@ -193,10 +199,12 @@ class SdistBuilder(BuilderInterface):
 
             contents += '    ],\n'
 
-        if self.metadata.core.dependencies:
+        dependencies = list(self.metadata.core.dependencies)
+        dependencies.extend(extra_dependencies)
+        if dependencies:
             contents += '    install_requires=[\n'
 
-            for specifier in self.metadata.core.dependencies:
+            for specifier in dependencies:
                 contents += '        {!r},\n'.format(specifier.replace("'", '"'))
 
             contents += '    ],\n'
@@ -261,7 +269,7 @@ class SdistBuilder(BuilderInterface):
 
     def get_default_build_data(self):
         # Check for inclusion first to avoid redundant pattern matching
-        build_data = {'artifacts': []}
+        build_data = {'artifacts': [], 'dependencies': []}
         if not self.config.include_path('pyproject.toml'):
             build_data['artifacts'].append('/pyproject.toml')
 

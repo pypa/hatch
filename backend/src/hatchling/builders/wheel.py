@@ -324,7 +324,7 @@ class WheelBuilder(BuilderInterface):
                 record = archive.add_file(included_file)
                 records.write(self.format_record(record))
 
-            self.write_data(archive, records, build_data)
+            self.write_data(archive, records, build_data, build_data['dependencies'])
 
             records.write(u'{}/RECORD,,\n'.format(archive.metadata_directory))
             archive.write_metadata('RECORD', records.getvalue())
@@ -385,7 +385,7 @@ class WheelBuilder(BuilderInterface):
                 record = archive.write_file(filename, content)
                 records.write(self.format_record(record))
 
-            extra_dependencies = []
+            extra_dependencies = list(build_data['dependencies'])
             for dependency in editable_project.dependencies():
                 if dependency == 'editables':
                     dependency += '~={}'.format(EDITABLES_MINIMUM_VERSION)
@@ -394,7 +394,7 @@ class WheelBuilder(BuilderInterface):
 
                 extra_dependencies.append(dependency)
 
-            self.write_data(archive, records, build_data, extra_dependencies=extra_dependencies)
+            self.write_data(archive, records, build_data, extra_dependencies)
 
             records.write(u'{}/RECORD,,\n'.format(archive.metadata_directory))
             archive.write_metadata('RECORD', records.getvalue())
@@ -418,7 +418,7 @@ class WheelBuilder(BuilderInterface):
             )
             records.write(self.format_record(record))
 
-            self.write_data(archive, records, build_data)
+            self.write_data(archive, records, build_data, build_data['dependencies'])
 
             records.write(u'{}/RECORD,,\n'.format(archive.metadata_directory))
             archive.write_metadata('RECORD', records.getvalue())
@@ -428,7 +428,7 @@ class WheelBuilder(BuilderInterface):
         replace_file(archive.path, target)
         return target
 
-    def write_data(self, archive, records, build_data, extra_dependencies=()):
+    def write_data(self, archive, records, build_data, extra_dependencies):
         self.add_shared_data(archive, records)
 
         # Ensure metadata is written last, see https://peps.python.org/pep-0427/#recommended-archiver-features
@@ -526,7 +526,7 @@ class WheelBuilder(BuilderInterface):
         return '{}-none-any'.format('.'.join(supported_python_versions))
 
     def get_default_build_data(self):
-        return {'infer_tag': False, 'pure_python': True}
+        return {'infer_tag': False, 'pure_python': True, 'dependencies': []}
 
     @classmethod
     def get_config_class(cls):
