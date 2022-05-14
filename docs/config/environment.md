@@ -319,7 +319,7 @@ Scripts can also be defined as an array of strings.
 
     ```toml
     [tool.hatch.envs.style]
-    skip-install = true
+    detached = true
     dependencies = [
       "flake8",
       "black",
@@ -342,7 +342,7 @@ Scripts can also be defined as an array of strings.
 
     ```toml
     [envs.style]
-    skip-install = true
+    detached = true
     dependencies = [
       "flake8",
       "black",

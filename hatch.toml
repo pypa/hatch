@@ -19,7 +19,7 @@ dev = "pytest -p no:randomly --no-cov {args:tests}"
 python = ["37", "38", "39", "310"]
 
 [envs.lint]
-skip-install = true
+detached = true
 dependencies = [
   "flake8>=4.0.1",
   "flake8-bugbear>=22.3.23",
@@ -72,7 +72,7 @@ serve = "mkdocs serve --dev-addr localhost:8000 {args}"
 ci-build = "mike deploy --no-redirect --update-aliases {args}"
 
 [envs.backend]
-skip-install = true
+detached = true
 dependencies = [
   "build~=0.7.0",
   "httpx",
