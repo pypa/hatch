@@ -368,6 +368,31 @@ class TestConstructSetupPyFile:
             """
         )
 
+    def test_dependencies_extra(self, helpers, isolation):
+        config = {'project': {'name': 'my__app', 'version': '0.1.0', 'dependencies': ['foo==1', 'bar==5']}}
+        builder = SdistBuilder(str(isolation), config=config)
+
+        assert builder.construct_setup_py_file(['my_app', os.path.join('my_app', 'pkg')], ['baz==3']) == helpers.dedent(
+            """
+            # -*- coding: utf-8 -*-
+            from setuptools import setup
+
+            setup(
+                name='my-app',
+                version='0.1.0',
+                install_requires=[
+                    'bar==5',
+                    'foo==1',
+                    'baz==3',
+                ],
+                packages=[
+                    'my_app',
+                    'my_app.pkg',
+                ],
+            )
+            """
+        )
+
     def test_optional_dependencies(self, helpers, isolation):
         config = {
             'project': {
@@ -792,6 +817,78 @@ class TestBuildStandard:
 
         expected_files = helpers.get_template_files(
             'sdist.standard_default_build_script_artifacts', project_name, relative_root=builder.project_id
+        )
+        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+
+    def test_default_build_script_extra_dependencies(self, hatch, helpers, temp_dir):
+        project_name = 'My App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / 'my-app'
+
+        vcs_ignore_file = project_path / '.gitignore'
+        vcs_ignore_file.write_text('*.pyc\n*.so\n*.h\n')
+
+        build_script = project_path / DEFAULT_BUILD_SCRIPT
+        build_script.write_text(
+            helpers.dedent(
+                """
+                import pathlib
+
+                from hatchling.builders.hooks.plugin.interface import BuildHookInterface
+
+                class CustomHook(BuildHookInterface):
+                    def initialize(self, version, build_data):
+                        pathlib.Path('my_app', 'lib.so').touch()
+                        pathlib.Path('my_app', 'lib.h').touch()
+                        build_data['dependencies'].append('binary')
+                """
+            )
+        )
+
+        config = {
+            'project': {'name': 'my__app', 'dynamic': ['version']},
+            'tool': {
+                'hatch': {
+                    'version': {'path': 'my_app/__about__.py'},
+                    'build': {
+                        'targets': {
+                            'sdist': {'versions': ['standard'], 'exclude': [DEFAULT_BUILD_SCRIPT, '.gitignore']}
+                        },
+                        'artifacts': ['my_app/lib.so'],
+                        'hooks': {'custom': {'path': DEFAULT_BUILD_SCRIPT}},
+                    },
+                },
+            },
+        }
+        builder = SdistBuilder(str(project_path), config=config)
+
+        build_path = project_path / 'dist'
+        build_path.mkdir()
+
+        with project_path.as_cwd():
+            artifacts = list(builder.build(str(build_path)))
+
+        assert len(artifacts) == 1
+        expected_artifact = artifacts[0]
+
+        build_artifacts = list(build_path.iterdir())
+        assert len(build_artifacts) == 1
+        assert expected_artifact == str(build_artifacts[0])
+        assert expected_artifact == str(build_path / f'{builder.project_id}.tar.gz')
+
+        extraction_directory = temp_dir / '_archive'
+        extraction_directory.mkdir()
+
+        with tarfile.open(str(expected_artifact), 'r:gz') as tar_archive:
+            tar_archive.extractall(str(extraction_directory))
+
+        expected_files = helpers.get_template_files(
+            'sdist.standard_default_build_script_extra_dependencies', project_name, relative_root=builder.project_id
         )
         helpers.assert_files(extraction_directory, expected_files, check_contents=True)
 
