@@ -47,6 +47,7 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 - Add `skip-excluded-dirs` build option
 - Allow build data to add additional project dependencies for `wheel` and `sdist` build targets
 - Add `force_include_editable` build data for the `wheel` build target
+- Add `build_hooks` build data
 - Update project metadata to reflect the adoption by PyPA
 
 ***Fixed:***

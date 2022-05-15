@@ -130,8 +130,8 @@ class BuilderInterface(object):
             build_data.setdefault('artifacts', [])
             build_data.setdefault('force_include', {})
 
-            # Pass all the configured build hooks for future unforeseen scenarios needing ultimate control
-            build_data['configured_build_hooks'] = configured_build_hooks
+            # Allow inspection of configured build hooks and the order in which they run
+            build_data['build_hooks'] = tuple(configured_build_hooks)
 
             # Execute all `initialize` build hooks
             for build_hook in build_hooks:
