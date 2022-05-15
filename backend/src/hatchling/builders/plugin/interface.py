@@ -167,7 +167,7 @@ class BuilderInterface(object):
         for project_file in self.recurse_project_files():
             yield project_file
 
-        for explicit_file in self.recurse_explicit_files(self.config.get_force_include()):
+        for explicit_file in self.recurse_explicit_files():
             yield explicit_file
 
     def recurse_project_files(self):
@@ -194,7 +194,10 @@ class BuilderInterface(object):
                         os.path.join(root, f), relative_file_path, self.config.get_distribution_path(relative_file_path)
                     )
 
-    def recurse_explicit_files(self, inclusion_map):
+    def recurse_explicit_files(self, inclusion_map=None):
+        if inclusion_map is None:
+            inclusion_map = self.config.get_force_include()
+
         for source, target_path in inclusion_map.items():
             external = not source.startswith(self.root)
             if os.path.isfile(source):

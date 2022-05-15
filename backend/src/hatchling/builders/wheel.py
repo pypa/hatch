@@ -385,6 +385,11 @@ class WheelBuilder(BuilderInterface):
                 record = archive.write_file(filename, content)
                 records.write(self.format_record(record))
 
+            if build_data['force_include_editable']:
+                for included_file in self.recurse_explicit_files(build_data['force_include_editable']):
+                    record = archive.add_file(included_file)
+                    records.write(self.format_record(record))
+
             extra_dependencies = list(build_data['dependencies'])
             for dependency in editable_project.dependencies():
                 if dependency == 'editables':
@@ -417,6 +422,11 @@ class WheelBuilder(BuilderInterface):
                 '{}.pth'.format(self.metadata.core.name.replace('-', '_')), '\n'.join(directories)
             )
             records.write(self.format_record(record))
+
+            if build_data['force_include_editable']:
+                for included_file in self.recurse_explicit_files(build_data['force_include_editable']):
+                    record = archive.add_file(included_file)
+                    records.write(self.format_record(record))
 
             self.write_data(archive, records, build_data, build_data['dependencies'])
 
@@ -526,7 +536,7 @@ class WheelBuilder(BuilderInterface):
         return '{}-none-any'.format('.'.join(supported_python_versions))
 
     def get_default_build_data(self):
-        return {'infer_tag': False, 'pure_python': True, 'dependencies': []}
+        return {'infer_tag': False, 'pure_python': True, 'dependencies': [], 'force_include_editable': {}}
 
     @classmethod
     def get_config_class(cls):

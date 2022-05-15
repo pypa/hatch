@@ -45,6 +45,7 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 ***Added:***
 
 - Allow build data to add additional project dependencies for `wheel` and `sdist` build targets
+- Add `force_include_editable` build data for the `wheel` build target
 - Update project metadata to reflect the adoption by PyPA
 
 ***Fixed:***
