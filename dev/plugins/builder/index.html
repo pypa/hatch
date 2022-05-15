@@ -137,8 +137,8 @@
             <span class=n>build_data</span><span class=o>.</span><span class=n>setdefault</span><span class=p>(</span><span class=s1>&#39;artifacts&#39;</span><span class=p>,</span> <span class=p>[])</span>
             <span class=n>build_data</span><span class=o>.</span><span class=n>setdefault</span><span class=p>(</span><span class=s1>&#39;force_include&#39;</span><span class=p>,</span> <span class=p>{})</span>
 
-            <span class=c1># Pass all the configured build hooks for future unforeseen scenarios needing ultimate control</span>
-            <span class=n>build_data</span><span class=p>[</span><span class=s1>&#39;configured_build_hooks&#39;</span><span class=p>]</span> <span class=o>=</span> <span class=n>configured_build_hooks</span>
+            <span class=c1># Allow inspection of configured build hooks and the order in which they run</span>
+            <span class=n>build_data</span><span class=p>[</span><span class=s1>&#39;build_hooks&#39;</span><span class=p>]</span> <span class=o>=</span> <span class=nb>tuple</span><span class=p>(</span><span class=n>configured_build_hooks</span><span class=p>)</span>
 
             <span class=c1># Execute all `initialize` build hooks</span>
             <span class=k>for</span> <span class=n>build_hook</span> <span class=ow>in</span> <span class=n>build_hooks</span><span class=p>:</span>
