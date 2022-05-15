@@ -26,7 +26,7 @@ The following fields are always present and recognized by the build system itsel
 | `force_include` | `#!python dict[str, str]` | This is a mapping of extra [explicit paths](../config/build.md#explicit-selection) |
 
 !!! attention
-    While TOML user-facing options are hyphenated, build data fields should be named with underscores to allow plugins to use them as valid Python identifiers.
+    While user-facing TOML options are hyphenated, build data fields should be named with underscores to allow plugins to use them as valid Python identifiers.
 
 ## Built-in
 
