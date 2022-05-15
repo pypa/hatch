@@ -185,14 +185,17 @@
             <span class=k>if</span> <span class=n>relative_path</span> <span class=o>==</span> <span class=s1>&#39;.&#39;</span><span class=p>:</span>
                 <span class=n>relative_path</span> <span class=o>=</span> <span class=s1>&#39;&#39;</span>
 
-            <span class=n>dirs</span><span class=p>[:]</span> <span class=o>=</span> <span class=nb>sorted</span><span class=p>(</span>
-                <span class=n>d</span>
-                <span class=k>for</span> <span class=n>d</span> <span class=ow>in</span> <span class=n>dirs</span>
-                <span class=c1># The trailing slash is necessary so e.g. `bar/` matches `foo/bar`</span>
-                <span class=k>if</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>config</span><span class=o>.</span><span class=n>path_is_excluded</span><span class=p>(</span><span class=s1>&#39;</span><span class=si>{}</span><span class=s1>/&#39;</span><span class=o>.</span><span class=n>format</span><span class=p>(</span><span class=n>os</span><span class=o>.</span><span class=n>path</span><span class=o>.</span><span class=n>join</span><span class=p>(</span><span class=n>relative_path</span><span class=p>,</span> <span class=n>d</span><span class=p>)))</span>
-            <span class=p>)</span>
+            <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>config</span><span class=o>.</span><span class=n>skip_excluded_dirs</span><span class=p>:</span>
+                <span class=n>dirs</span><span class=p>[:]</span> <span class=o>=</span> <span class=nb>sorted</span><span class=p>(</span>
+                    <span class=n>d</span>
+                    <span class=k>for</span> <span class=n>d</span> <span class=ow>in</span> <span class=n>dirs</span>
+                    <span class=c1># The trailing slash is necessary so e.g. `bar/` matches `foo/bar`</span>
+                    <span class=k>if</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>config</span><span class=o>.</span><span class=n>path_is_excluded</span><span class=p>(</span><span class=s1>&#39;</span><span class=si>{}</span><span class=s1>/&#39;</span><span class=o>.</span><span class=n>format</span><span class=p>(</span><span class=n>os</span><span class=o>.</span><span class=n>path</span><span class=o>.</span><span class=n>join</span><span class=p>(</span><span class=n>relative_path</span><span class=p>,</span> <span class=n>d</span><span class=p>)))</span>
+                <span class=p>)</span>
+            <span class=k>else</span><span class=p>:</span>
+                <span class=n>dirs</span><span class=o>.</span><span class=n>sort</span><span class=p>()</span>
 
-            <span class=n>files</span> <span class=o>=</span> <span class=nb>sorted</span><span class=p>(</span><span class=n>files</span><span class=p>)</span>
+            <span class=n>files</span><span class=o>.</span><span class=n>sort</span><span class=p>()</span>
             <span class=n>is_package</span> <span class=o>=</span> <span class=s1>&#39;__init__.py&#39;</span> <span class=ow>in</span> <span class=n>files</span>
             <span class=k>for</span> <span class=n>f</span> <span class=ow>in</span> <span class=n>files</span><span class=p>:</span>
                 <span class=n>relative_file_path</span> <span class=o>=</span> <span class=n>os</span><span class=o>.</span><span class=n>path</span><span class=o>.</span><span class=n>join</span><span class=p>(</span><span class=n>relative_path</span><span class=p>,</span> <span class=n>f</span><span class=p>)</span>
