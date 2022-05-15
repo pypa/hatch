@@ -47,6 +47,10 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 - Allow build data to add additional project dependencies for `wheel` and `sdist` build targets
 - Update project metadata to reflect the adoption by PyPA
 
+***Fixed:***
+
+- Properly use underscores for the name of `force_include` build data
+
 ### [0.24.0](https://github.com/pypa/hatch/releases/tag/hatchling-v0.24.0) - 2022-04-28 ### {: #hatchling-v0.24.0 }
 
 This is the initial public release of the Hatchling build system. Support for Python 2 will be dropped in version 1.

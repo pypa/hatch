@@ -670,7 +670,7 @@ class BuilderConfig(object):
                     pathspec.patterns.GitWildMatchPattern, build_artifacts
                 )
 
-            self.build_force_include.update(normalize_inclusion_map(build_data['force-include'], self.root))
+            self.build_force_include.update(normalize_inclusion_map(build_data['force_include'], self.root))
 
             yield
         finally:

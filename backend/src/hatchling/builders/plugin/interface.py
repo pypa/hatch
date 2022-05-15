@@ -128,7 +128,7 @@ class BuilderInterface(object):
 
             # Make sure reserved fields are set
             build_data.setdefault('artifacts', [])
-            build_data.setdefault('force-include', {})
+            build_data.setdefault('force_include', {})
 
             # Pass all the configured build hooks for future unforeseen scenarios needing ultimate control
             build_data['configured_build_hooks'] = configured_build_hooks
