@@ -386,7 +386,9 @@ class WheelBuilder(BuilderInterface):
                 records.write(self.format_record(record))
 
             if build_data['force_include_editable']:
-                for included_file in self.recurse_explicit_files(build_data['force_include_editable']):
+                for included_file in self.recurse_explicit_files(
+                    normalize_inclusion_map(build_data['force_include_editable'], self.root)
+                ):
                     record = archive.add_file(included_file)
                     records.write(self.format_record(record))
 
@@ -424,7 +426,9 @@ class WheelBuilder(BuilderInterface):
             records.write(self.format_record(record))
 
             if build_data['force_include_editable']:
-                for included_file in self.recurse_explicit_files(build_data['force_include_editable']):
+                for included_file in self.recurse_explicit_files(
+                    normalize_inclusion_map(build_data['force_include_editable'], self.root)
+                ):
                     record = archive.add_file(included_file)
                     records.write(self.format_record(record))
 
