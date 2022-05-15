@@ -244,6 +244,27 @@ The [packages](#packages) option itself relies on sources. Defining `#!toml pack
     sources = ["src"]
     ```
 
+### Performance
+
+All encountered directories are traversed by default. To skip non-[artifact](#artifacts) directories that are excluded, set `skip-excluded-dirs` to `true`:
+
+=== ":octicons-file-code-16: pyproject.toml"
+
+    ```toml
+    [tool.hatch.build]
+    skip-excluded-dirs = true
+    ```
+
+=== ":octicons-file-code-16: hatch.toml"
+
+    ```toml
+    [build]
+    skip-excluded-dirs = true
+    ```
+
+!!! warning
+    This may result in not shipping desired files. For example, if you want to include the file `a/b/c.txt` but your [VCS ignores](#vcs) `a/b`, the file `c.txt` will not be seen because its parent directory will not be entered. In such cases you can use the [`force-include`](#explicit-selection) option.
+
 ## Reproducible builds
 
 By default, [build targets](#build-targets) will build in a reproducible manner provided that they support that behavior. To disable this, set `reproducible` to `false`:
