@@ -23,7 +23,8 @@ The following fields are always present and recognized by the build system itsel
 | Field | Type | Description |
 | --- | --- | --- |
 | `artifacts` | `#!python list[str]` | This is a list of extra paths to [artifacts](../config/build.md#artifacts) and should generally only be appended to |
-| `force_include` | `#!python dict[str, str]` | This is a mapping of extra [explicit paths](../config/build.md#explicit-selection) |
+| `force_include` | `#!python dict[str, str]` | This is a mapping of extra [explicit paths](../config/build.md#explicit-selection), with this mapping taking precedence in case of conflicts |
+| `build_hooks` | `#!python tuple[str, ...]` | This is an immutable sequence of the names of the configured build hooks and matches the order in which they run |
 
 !!! attention
     While user-facing TOML options are hyphenated, build data fields should be named with underscores to allow plugins to use them as valid Python identifiers.
