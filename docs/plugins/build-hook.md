@@ -16,14 +16,17 @@ The [initialization](#hatchling.builders.hooks.plugin.interface.BuildHookInterfa
 
 ## Build data
 
-Build data is a simple mapping whose contents can influence the behavior of builds. Which fields are recognized depends on each build target.
+Build data is a simple mapping whose contents can influence the behavior of builds. Which fields exist and are recognized depends on each build target.
 
 The following fields are always present and recognized by the build system itself:
 
 | Field | Type | Description |
 | --- | --- | --- |
 | `artifacts` | `#!python list[str]` | This is a list of extra paths to [artifacts](../config/build.md#artifacts) and should generally only be appended to |
-| `force-include` | `#!python dict[str, str]` | This is a mapping of extra [explicit paths](../config/build.md#explicit-selection) |
+| `force_include` | `#!python dict[str, str]` | This is a mapping of extra [explicit paths](../config/build.md#explicit-selection) |
+
+!!! attention
+    While TOML user-facing options are hyphenated, build data fields should be named with underscores to allow plugins to use them as valid Python identifiers.
 
 ## Built-in
 

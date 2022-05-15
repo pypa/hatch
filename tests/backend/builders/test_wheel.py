@@ -1126,7 +1126,7 @@ class TestBuildStandard:
                     def initialize(self, version, build_data):
                         build_data['pure_python'] = False
                         build_data['infer_tag'] = True
-                        build_data['force-include']['../artifacts'] = 'my_app'
+                        build_data['force_include']['../artifacts'] = 'my_app'
 
                         artifact_path = pathlib.Path('..', 'artifacts')
                         artifact_path.mkdir()
