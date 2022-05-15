@@ -61,6 +61,56 @@ class TestDirectory:
         assert builder.config.directory == absolute_path
 
 
+class TestSkipExcludedDirs:
+    def test_default(self, isolation):
+        builder = BuilderInterface(str(isolation))
+
+        assert builder.config.skip_excluded_dirs is builder.config.skip_excluded_dirs is False
+
+    def test_target(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'skip-excluded-dirs': True}}}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        assert builder.config.skip_excluded_dirs is True
+
+    def test_target_not_boolean(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'skip-excluded-dirs': 9000}}}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        with pytest.raises(
+            TypeError, match='Field `tool.hatch.build.targets.foo.skip-excluded-dirs` must be a boolean'
+        ):
+            _ = builder.config.skip_excluded_dirs
+
+    def test_global(self, isolation):
+        config = {'tool': {'hatch': {'build': {'skip-excluded-dirs': True}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        assert builder.config.skip_excluded_dirs is True
+
+    def test_global_not_boolean(self, isolation):
+        config = {'tool': {'hatch': {'build': {'skip-excluded-dirs': 9000}}}}
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        with pytest.raises(TypeError, match='Field `tool.hatch.build.skip-excluded-dirs` must be a boolean'):
+            _ = builder.config.skip_excluded_dirs
+
+    def test_target_overrides_global(self, isolation):
+        config = {
+            'tool': {
+                'hatch': {'build': {'skip-excluded-dirs': True, 'targets': {'foo': {'skip-excluded-dirs': False}}}}
+            }
+        }
+        builder = BuilderInterface(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        assert builder.config.skip_excluded_dirs is False
+
+
 class TestIgnoreVCS:
     def test_default(self, isolation):
         builder = BuilderInterface(str(isolation))

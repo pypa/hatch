@@ -40,6 +40,7 @@ class BuilderConfig(object):
 
         # Common options
         self.__directory = None
+        self.__skip_excluded_dirs = None
         self.__ignore_vcs = None
         self.__only_packages = None
         self.__reproducible = None
@@ -269,6 +270,26 @@ class BuilderConfig(object):
             self.__directory = self.normalize_build_directory(directory)
 
         return self.__directory
+
+    @property
+    def skip_excluded_dirs(self):
+        if self.__skip_excluded_dirs is None:
+            if 'skip-excluded-dirs' in self.target_config:
+                skip_excluded_dirs = self.target_config['skip-excluded-dirs']
+                if not isinstance(skip_excluded_dirs, bool):
+                    raise TypeError(
+                        'Field `tool.hatch.build.targets.{}.skip-excluded-dirs` must be a boolean'.format(
+                            self.plugin_name
+                        )
+                    )
+            else:
+                skip_excluded_dirs = self.build_config.get('skip-excluded-dirs', False)
+                if not isinstance(skip_excluded_dirs, bool):
+                    raise TypeError('Field `tool.hatch.build.skip-excluded-dirs` must be a boolean')
+
+            self.__skip_excluded_dirs = skip_excluded_dirs
+
+        return self.__skip_excluded_dirs
 
     @property
     def ignore_vcs(self):

@@ -15,6 +15,12 @@ post-install-commands = [
 full = "pytest -n auto --reruns 5 --reruns-delay 1 -r aR --cov-report=term-missing --cov-config=pyproject.toml --cov=src/hatch --cov=backend/src/hatchling --cov=tests {args:tests}"
 dev = "pytest -p no:randomly --no-cov {args:tests}"
 
+[envs.test.overrides]
+env.HERMETIC_TESTS.type = [
+  { value = "container", if = ["true"] },
+  "virtual",
+]
+
 [[envs.test.matrix]]
 python = ["37", "38", "39", "310"]
 

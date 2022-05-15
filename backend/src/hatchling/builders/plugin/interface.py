@@ -178,14 +178,17 @@ class BuilderInterface(object):
             if relative_path == '.':
                 relative_path = ''
 
-            dirs[:] = sorted(
-                d
-                for d in dirs
-                # The trailing slash is necessary so e.g. `bar/` matches `foo/bar`
-                if not self.config.path_is_excluded('{}/'.format(os.path.join(relative_path, d)))
-            )
+            if self.config.skip_excluded_dirs:
+                dirs[:] = sorted(
+                    d
+                    for d in dirs
+                    # The trailing slash is necessary so e.g. `bar/` matches `foo/bar`
+                    if not self.config.path_is_excluded('{}/'.format(os.path.join(relative_path, d)))
+                )
+            else:
+                dirs.sort()
 
-            files = sorted(files)
+            files.sort()
             is_package = '__init__.py' in files
             for f in files:
                 relative_file_path = os.path.join(relative_path, f)

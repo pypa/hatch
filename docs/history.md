@@ -44,6 +44,7 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 
 ***Added:***
 
+- Add `skip-excluded-dirs` build option
 - Allow build data to add additional project dependencies for `wheel` and `sdist` build targets
 - Add `force_include_editable` build data for the `wheel` build target
 - Update project metadata to reflect the adoption by PyPA
@@ -51,6 +52,7 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 ***Fixed:***
 
 - Properly use underscores for the name of `force_include` build data
+- No longer greedily skip excluded directories by default
 
 ### [0.24.0](https://github.com/pypa/hatch/releases/tag/hatchling-v0.24.0) - 2022-04-28 ### {: #hatchling-v0.24.0 }
 
