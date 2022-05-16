@@ -1449,7 +1449,7 @@ class TestPatternExclude:
         assert builder.config.exclude_spec.match_file(f'bar{separator}file.py')
 
     @pytest.mark.parametrize('separator', ['/', '\\'])
-    def test_vcs(self, temp_dir, separator, platform):
+    def test_vcs_git(self, temp_dir, separator, platform):
         if separator == '\\' and not platform.windows:
             pytest.skip('Not running on Windows')
 
@@ -1466,7 +1466,7 @@ class TestPatternExclude:
             assert not builder.config.exclude_spec.match_file(f'baz{separator}bar{separator}file.py')
 
     @pytest.mark.parametrize('separator', ['/', '\\'])
-    def test_ignore_vcs(self, temp_dir, separator, platform):
+    def test_ignore_vcs_git(self, temp_dir, separator, platform):
         if separator == '\\' and not platform.windows:
             pytest.skip('Not running on Windows')
 
@@ -1476,6 +1476,38 @@ class TestPatternExclude:
 
             vcs_ignore_file = temp_dir / '.gitignore'
             vcs_ignore_file.write_text('/bar\n*.pyc')
+
+            assert builder.config.exclude_spec.match_file(f'foo{separator}file.py')
+            assert not builder.config.exclude_spec.match_file(f'bar{separator}file.py')
+
+    @pytest.mark.parametrize('separator', ['/', '\\'])
+    def test_vcs_mercurial(self, temp_dir, separator, platform):
+        if separator == '\\' and not platform.windows:
+            pytest.skip('Not running on Windows')
+
+        with temp_dir.as_cwd():
+            config = {'tool': {'hatch': {'build': {'exclude': ['foo']}}}}
+            builder = BuilderInterface(str(temp_dir), config=config)
+
+            vcs_ignore_file = temp_dir / '.hgignore'
+            vcs_ignore_file.write_text('syntax: glob\n/bar\n*.pyc')
+
+            assert builder.config.exclude_spec.match_file(f'foo{separator}file.py')
+            assert builder.config.exclude_spec.match_file(f'bar{separator}file.py')
+            assert builder.config.exclude_spec.match_file(f'baz{separator}bar{separator}file.pyc')
+            assert not builder.config.exclude_spec.match_file(f'baz{separator}bar{separator}file.py')
+
+    @pytest.mark.parametrize('separator', ['/', '\\'])
+    def test_ignore_vcs_mercurial(self, temp_dir, separator, platform):
+        if separator == '\\' and not platform.windows:
+            pytest.skip('Not running on Windows')
+
+        with temp_dir.as_cwd():
+            config = {'tool': {'hatch': {'build': {'ignore-vcs': True, 'exclude': ['foo']}}}}
+            builder = BuilderInterface(str(temp_dir), config=config)
+
+            vcs_ignore_file = temp_dir / '.hgignore'
+            vcs_ignore_file.write_text('syntax: glob\n/bar\n*.pyc')
 
             assert builder.config.exclude_spec.match_file(f'foo{separator}file.py')
             assert not builder.config.exclude_spec.match_file(f'bar{separator}file.py')

@@ -1256,3 +1256,127 @@ class TestBuildStandard:
 
         stat = os.stat(str(extraction_directory / builder.project_id / 'PKG-INFO'))
         assert stat.st_mtime == get_reproducible_timestamp()
+
+    def test_default_vcs_git_exclusion_files(self, hatch, helpers, temp_dir):
+        project_name = 'My App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / 'my-app'
+
+        vcs_ignore_file = temp_dir / '.gitignore'
+        vcs_ignore_file.write_text('*.pyc\n*.so\n*.h\n')
+
+        (project_path / 'my_app' / 'lib.so').touch()
+        (project_path / 'my_app' / 'lib.h').touch()
+
+        config = {
+            'project': {'name': 'my__app', 'dynamic': ['version']},
+            'tool': {
+                'hatch': {
+                    'version': {'path': 'my_app/__about__.py'},
+                    'build': {
+                        'targets': {'sdist': {'versions': ['standard'], 'exclude': ['.gitignore']}},
+                        'artifacts': ['my_app/lib.so'],
+                    },
+                },
+            },
+        }
+        builder = SdistBuilder(str(project_path), config=config)
+
+        build_path = project_path / 'dist'
+        build_path.mkdir()
+
+        with project_path.as_cwd():
+            artifacts = list(builder.build(str(build_path)))
+
+        assert len(artifacts) == 1
+        expected_artifact = artifacts[0]
+
+        build_artifacts = list(build_path.iterdir())
+        assert len(build_artifacts) == 1
+        assert expected_artifact == str(build_artifacts[0])
+        assert expected_artifact == str(build_path / f'{builder.project_id}.tar.gz')
+
+        extraction_directory = temp_dir / '_archive'
+        extraction_directory.mkdir()
+
+        with tarfile.open(str(expected_artifact), 'r:gz') as tar_archive:
+            tar_archive.extractall(str(extraction_directory))
+
+        expected_files = helpers.get_template_files(
+            'sdist.standard_default_vcs_git_exclusion_files', project_name, relative_root=builder.project_id
+        )
+        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+
+    def test_default_vcs_mercurial_exclusion_files(self, hatch, helpers, temp_dir):
+        project_name = 'My App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / 'my-app'
+
+        vcs_ignore_file = temp_dir / '.hgignore'
+        vcs_ignore_file.write_text(
+            helpers.dedent(
+                """
+                syntax: glob
+                *.pyc
+
+                syntax: foo
+                README.md
+
+                syntax: glob
+                *.so
+                *.h
+                """
+            )
+        )
+
+        (project_path / 'my_app' / 'lib.so').touch()
+        (project_path / 'my_app' / 'lib.h').touch()
+
+        config = {
+            'project': {'name': 'my__app', 'dynamic': ['version']},
+            'tool': {
+                'hatch': {
+                    'version': {'path': 'my_app/__about__.py'},
+                    'build': {
+                        'targets': {'sdist': {'versions': ['standard'], 'exclude': ['.hgignore']}},
+                        'artifacts': ['my_app/lib.so'],
+                    },
+                },
+            },
+        }
+        builder = SdistBuilder(str(project_path), config=config)
+
+        build_path = project_path / 'dist'
+        build_path.mkdir()
+
+        with project_path.as_cwd():
+            artifacts = list(builder.build(str(build_path)))
+
+        assert len(artifacts) == 1
+        expected_artifact = artifacts[0]
+
+        build_artifacts = list(build_path.iterdir())
+        assert len(build_artifacts) == 1
+        assert expected_artifact == str(build_artifacts[0])
+        assert expected_artifact == str(build_path / f'{builder.project_id}.tar.gz')
+
+        extraction_directory = temp_dir / '_archive'
+        extraction_directory.mkdir()
+
+        with tarfile.open(str(expected_artifact), 'r:gz') as tar_archive:
+            tar_archive.extractall(str(extraction_directory))
+
+        expected_files = helpers.get_template_files(
+            'sdist.standard_default_vcs_mercurial_exclusion_files', project_name, relative_root=builder.project_id
+        )
+        helpers.assert_files(extraction_directory, expected_files, check_contents=True)

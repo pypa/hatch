@@ -40,7 +40,7 @@ Hatchling is a [PEP 517][]/[PEP 660][] compatible build system and is a dependen
 
 ### VCS
 
-By default, Hatch will respect any `.gitignore` file located at your project's root. Set `ignore-vcs` to `true` to disable this behavior:
+By default, Hatch will respect the first `.gitignore` or `.hgignore` file found in your project's root directory or parent directories. Set `ignore-vcs` to `true` to disable this behavior:
 
 === ":octicons-file-code-16: pyproject.toml"
 
