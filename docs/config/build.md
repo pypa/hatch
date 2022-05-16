@@ -56,6 +56,9 @@ By default, Hatch will respect the first `.gitignore` or `.hgignore` file found 
     ignore-vcs = true
     ```
 
+!!! note
+    For `.hgignore` files only glob syntax is supported.
+
 ### Patterns
 
 You can set the `include` and `exclude` options to select exactly which files will be shipped in each build, with `exclude` taking precedence. Every entry represents a [Git-style glob pattern](https://git-scm.com/docs/gitignore#_pattern_format).
