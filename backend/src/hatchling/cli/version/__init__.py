@@ -33,8 +33,8 @@ def version_impl(called_by_app, desired_version):
     updated_version = metadata.hatch.version.scheme.update(desired_version, original_version, version_data)
     source.set_version(updated_version, version_data)
 
-    app.display_info('Old: {}'.format(original_version))
-    app.display_info('New: {}'.format(updated_version))
+    app.display_info(f'Old: {original_version}')
+    app.display_info(f'New: {updated_version}')
 
 
 def version_command(subparsers, defaults):

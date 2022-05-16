@@ -1,4 +1,9 @@
-class VersionSourceInterface(object):  # no cov
+from __future__ import annotations
+
+from abc import ABC, abstractmethod
+
+
+class VersionSourceInterface(ABC):  # no cov
     """
     Example usage:
 
@@ -58,10 +63,9 @@ class VersionSourceInterface(object):  # no cov
         """
         return self.__config
 
-    def get_version_data(self):
+    @abstractmethod
+    def get_version_data(self) -> dict:
         """
-        :material-align-horizontal-left: **REQUIRED** :material-align-horizontal-right:
-
         This should return a mapping with a `version` key representing the current version of the project and will be
         displayed when invoking the [`version`](../cli/reference.md#hatch-version) command without any arguments.
 
@@ -69,9 +73,8 @@ class VersionSourceInterface(object):  # no cov
         [set_version](version-source.md#hatchling.version.source.plugin.interface.VersionSourceInterface.set_version)
         when updating the version.
         """
-        raise NotImplementedError
 
-    def set_version(self, version, version_data):
+    def set_version(self, version: str, version_data: dict):
         """
         This should update the version to the first argument with the data provided during retrieval.
         """

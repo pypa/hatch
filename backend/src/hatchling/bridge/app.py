@@ -3,7 +3,7 @@ import pickle
 import sys
 
 
-class InvokedApplication(object):
+class InvokedApplication:
     def display_info(self, *args, **kwargs):
         send_app_command('display_info', *args, **kwargs)
 
@@ -33,7 +33,7 @@ class InvokedApplication(object):
         return SafeApplication(self)
 
 
-class Application(object):
+class Application:
     """
     The way output is displayed can be [configured](../config/hatch.md#terminal) by users.
     """
@@ -88,7 +88,7 @@ class Application(object):
 
     def display_mini_header(self, message='', **kwargs):
         if self.__verbosity >= 0:
-            print('[{}]'.format(message))
+            print(f'[{message}]')
 
     def abort(self, message='', code=1, **kwargs):
         """
@@ -115,20 +115,10 @@ class SafeApplication:
         self.display_mini_header = app.display_mini_header
 
 
-if sys.version_info[0] >= 3:
+def format_app_command(method, *args, **kwargs):
+    procedure = pickle.dumps((method, args, kwargs), 4)
 
-    def format_app_command(method, *args, **kwargs):
-        # TODO: increase protocol version when Python 2 support is dropped
-        procedure = pickle.dumps((method, args, kwargs), 2)
-
-        return '__HATCH__:{}'.format(''.join('%02x' % i for i in procedure))
-
-else:
-
-    def format_app_command(method, *args, **kwargs):
-        procedure = pickle.dumps((method, args, kwargs), 2)
-
-        return '__HATCH__:{}'.format(''.join('%02x' % ord(c) for c in procedure))
+    return f"__HATCH__:{''.join('%02x' % i for i in procedure)}"
 
 
 def get_application(called_by_app):

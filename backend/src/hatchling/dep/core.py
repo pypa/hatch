@@ -7,7 +7,7 @@ from packaging.requirements import Requirement
 try:
     from importlib.metadata import Distribution, DistributionFinder
 except ImportError:  # no cov
-    from importlib_metadata import Distribution, DistributionFinder
+    from importlib_metadata import Distribution, DistributionFinder  # type: ignore
 
 
 class DistributionCache:
@@ -86,10 +86,10 @@ def dependency_in_sync(requirement, environment, installed_distributions):
 
                 # Try a few variations, see:
                 # https://peps.python.org/pep-0440/#direct-references
-                if requirement.url != '{}+{}@{}'.format(vcs, url, commit_id):
+                if requirement.url != f'{vcs}+{url}@{commit_id}':
                     if 'requested_revision' in vcs_info:
                         requested_revision = vcs_info['requested_revision']
-                        if requirement.url != '{}+{}@{}#{}'.format(vcs, url, requested_revision, commit_id):
+                        if requirement.url != f'{vcs}+{url}@{requested_revision}#{commit_id}':
                             return False
                     else:
                         return False

@@ -40,7 +40,7 @@ def build_impl(called_by_app, directory, targets, hooks_only, no_hooks, clean, c
             builders[target_name] = builder_class
 
     if unknown_targets:
-        app.abort('Unknown build targets: {}'.format(', '.join(sorted(unknown_targets))))
+        app.abort(f"Unknown build targets: {', '.join(sorted(unknown_targets))}")
 
     # We guarantee that builds occur within the project directory
     root = os.getcwd()

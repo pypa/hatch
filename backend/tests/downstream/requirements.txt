@@ -1,5 +1,5 @@
 build
 packaging
 requests
-toml
+tomli
 virtualenv>=20.13.1

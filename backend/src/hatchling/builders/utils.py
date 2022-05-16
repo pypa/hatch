@@ -1,22 +1,14 @@
 import os
 import shutil
-import sys
 from base64 import urlsafe_b64encode
 from collections import OrderedDict
 
-if sys.version_info[0] >= 3:
 
-    def replace_file(src, dst):
-        try:
-            os.replace(src, dst)
-        # Happens when on different filesystems like /tmp or caused by layering in containers
-        except OSError:
-            shutil.copy2(src, dst)
-            os.remove(src)
-
-else:  # no cov
-
-    def replace_file(src, dst):
+def replace_file(src, dst):
+    try:
+        os.replace(src, dst)
+    # Happens when on different filesystems like /tmp or caused by layering in containers
+    except OSError:
         shutil.copy2(src, dst)
         os.remove(src)
 

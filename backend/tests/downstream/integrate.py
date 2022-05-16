@@ -11,17 +11,10 @@ from contextlib import contextmanager
 from zipfile import ZipFile
 
 import requests
-import toml
+import tomli
 from packaging.requirements import Requirement
 from packaging.specifiers import SpecifierSet
 from virtualenv import cli_run
-
-try:
-    from shutil import which
-except ImportError:
-    from distutils import spawn
-
-    which = spawn.find_executable  # type: ignore
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ON_WINDOWS = platform.system() == 'Windows'
@@ -140,14 +133,14 @@ def main():
             if not os.path.isdir(project_dir):
                 continue
 
-            print('<<<<< Project: {} >>>>>'.format(project))
+            print(f'<<<<< Project: {project} >>>>>')
             project_config = {}
             potential_project_file = os.path.join(project_dir, 'pyproject.toml')
 
             # Not yet ported
             if os.path.isfile(potential_project_file):
                 with open(potential_project_file, 'r') as f:
-                    project_config.update(toml.loads(f.read()))
+                    project_config.update(tomli.loads(f.read()))
 
                 if not python_version_supported(project_config):
                     print('--> Unsupported version of Python, skipping')
@@ -162,7 +155,7 @@ def main():
                     repo_dir = os.path.join(d, 'repo')
                     subprocess.check_call(['git', 'clone', '-q', '--depth', '1', test_data['repo_url'], repo_dir])
                 else:
-                    archive_name = '{}.zip'.format(project)
+                    archive_name = f'{project}.zip'
                     archive_path = os.path.join(d, archive_name)
 
                     print('--> Downloading archive')
@@ -182,7 +175,7 @@ def main():
                         sys.exit('--> Missing file: pyproject.toml')
 
                     with open(project_file, 'r') as f:
-                        project_config.update(toml.loads(f.read()))
+                        project_config.update(tomli.loads(f.read()))
 
                     for requirement in project_config.get('build-system', {}).get('requires', []):
                         if Requirement(requirement).name == 'hatchling':
@@ -205,15 +198,15 @@ def main():
 
                 env_vars = dict(test_data.get('env_vars', {}))
                 env_vars['VIRTUAL_ENV'] = venv_dir
-                env_vars['PATH'] = '{}{}{}'.format(
-                    os.path.join(venv_dir, 'Scripts' if ON_WINDOWS else 'bin'), os.pathsep, os.environ['PATH']
-                )
+                env_vars[
+                    'PATH'
+                ] = f'{os.path.join(venv_dir, "Scripts" if ON_WINDOWS else "bin")}{os.pathsep}{os.environ["PATH"]}'
                 env_vars['PIP_CONSTRAINT'] = constraints_file
                 with EnvVars(env_vars, ignore=('__PYVENV_LAUNCHER__', 'PYTHONHOME')):
                     print('--> Installing project')
                     subprocess.check_call(
                         [
-                            which('pip'),
+                            shutil.which('pip'),
                             'install',
                             '-q',
                             '--disable-pip-version-check',
@@ -228,7 +221,7 @@ def main():
                     print('--> Installing dependencies')
                     subprocess.check_call(
                         [
-                            which('pip'),
+                            shutil.which('pip'),
                             'install',
                             '-q',
                             '--disable-pip-version-check',
@@ -239,14 +232,14 @@ def main():
 
                     print('--> Testing package')
                     for statement in test_data['statements']:
-                        subprocess.check_call([which('python'), '-c', statement])
+                        subprocess.check_call([shutil.which('python'), '-c', statement])
 
                     scripts = project_config['project'].get('scripts', {})
                     if scripts:
                         print('--> Testing scripts')
                         for script in scripts:
-                            if not which(script):
-                                sys.exit('--> Could not locate script: {}'.format(script))
+                            if not shutil.which(script):
+                                sys.exit(f'--> Could not locate script: {script}')
 
                     print('--> Success!')
 

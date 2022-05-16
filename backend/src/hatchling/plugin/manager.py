@@ -3,7 +3,7 @@ from collections import OrderedDict
 import pluggy
 
 
-class PluginManager(object):
+class PluginManager:
     def __init__(self):
         self.manager = pluggy.PluginManager('hatch')
         self.third_party_plugins = ThirdPartyPlugins(self.manager)
@@ -19,7 +19,7 @@ class PluginManager(object):
             self.initialize()
             self.initialized = True
 
-        hook_name = 'hatch_register_{}'.format(name)
+        hook_name = f'hatch_register_{name}'
         getattr(self, hook_name, None)()
 
         register = ClassRegister(getattr(self.manager.hook, hook_name), 'PLUGIN_NAME', self.third_party_plugins)
@@ -71,11 +71,11 @@ class ClassRegister:
             for registered_class in registered_classes:
                 name = getattr(registered_class, self.identifier, None)
                 if not name:  # no cov
-                    raise ValueError('Class `{}` does not have a {} attribute.'.format(registered_class.__name__, name))
+                    raise ValueError(f'Class `{registered_class.__name__}` does not have a {name} attribute.')
                 elif name in classes:  # no cov
                     raise ValueError(
-                        'Class `{}` defines its name as `{}` but that name is already used by '
-                        '`{}`.'.format(registered_class.__name__, name, classes[name].__name__)
+                        f'Class `{registered_class.__name__}` defines its name as `{name}` but '
+                        f'that name is already used by `{classes[name].__name__}`.'
                     )
 
                 classes[name] = registered_class
@@ -91,7 +91,7 @@ class ClassRegister:
         return self.collect().get(name)
 
 
-class ThirdPartyPlugins(object):
+class ThirdPartyPlugins:
     def __init__(self, manager):
         self.manager = manager
         self.loaded = False

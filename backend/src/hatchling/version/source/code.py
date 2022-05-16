@@ -1,5 +1,4 @@
 import os
-from io import open
 
 from .plugin.interface import VersionSourceInterface
 
@@ -16,7 +15,7 @@ class CodeSource(VersionSourceInterface):
 
         path = os.path.normpath(os.path.join(self.root, relative_path))
         if not os.path.isfile(path):
-            raise OSError('file does not exist: {}'.format(relative_path))
+            raise OSError(f'file does not exist: {relative_path}')
 
         expression = self.config.get('expression') or '__version__'
         if not isinstance(expression, str):

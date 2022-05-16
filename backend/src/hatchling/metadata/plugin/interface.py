@@ -1,4 +1,9 @@
-class MetadataHookInterface(object):  # no cov
+from __future__ import annotations
+
+from abc import ABC, abstractmethod
+
+
+class MetadataHookInterface(ABC):  # no cov
     """
     Example usage:
 
@@ -60,10 +65,8 @@ class MetadataHookInterface(object):  # no cov
         """
         return self.__config
 
-    def update(self, metadata):
+    @abstractmethod
+    def update(self, metadata: dict):
         """
-        :material-align-horizontal-left: **REQUIRED** :material-align-horizontal-right:
-
         This updates the metadata mapping of the `project` table in-place.
         """
-        raise NotImplementedError

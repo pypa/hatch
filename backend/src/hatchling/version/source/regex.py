@@ -1,6 +1,5 @@
 import os
 import re
-from io import open
 
 from .plugin.interface import VersionSourceInterface
 
@@ -19,7 +18,7 @@ class RegexSource(VersionSourceInterface):
 
         path = os.path.normpath(os.path.join(self.root, relative_path))
         if not os.path.isfile(path):
-            raise OSError('file does not exist: {}'.format(relative_path))
+            raise OSError(f'file does not exist: {relative_path}')
 
         pattern = self.config.get('pattern') or DEFAULT_PATTERN
         if not isinstance(pattern, str):
@@ -30,7 +29,7 @@ class RegexSource(VersionSourceInterface):
 
         match = re.search(pattern, contents, flags=re.MULTILINE)
         if not match:
-            raise ValueError('unable to parse the version from the file: {}'.format(relative_path))
+            raise ValueError(f'unable to parse the version from the file: {relative_path}')
 
         groups = match.groupdict()
         if 'version' not in groups:
@@ -43,5 +42,4 @@ class RegexSource(VersionSourceInterface):
         start, end = version_data['version_location']
 
         with open(self.config['path'], 'w', encoding='utf-8') as f:
-            # TODO: f.write(f'{file_contents[:start]}{version}{file_contents[end:]}')
-            f.write('{}{}{}'.format(file_contents[:start], version, file_contents[end:]))
+            f.write(f'{file_contents[:start]}{version}{file_contents[end:]}')

@@ -14,7 +14,7 @@ from .plugin.interface import BuilderInterface
 from .utils import get_reproducible_timestamp, normalize_archive_path, normalize_file_permissions, replace_file
 
 
-class SdistArchive(object):
+class SdistArchive:
     def __init__(self, name, reproducible):
         """
         https://peps.python.org/pep-0517/#source-distributions
@@ -34,9 +34,7 @@ class SdistArchive(object):
         self.gettarinfo = lambda *args, **kwargs: self.normalize_tar_metadata(self.tf.gettarinfo(*args, **kwargs))
 
     def create_file(self, contents, *relative_paths):
-        # TODO: remove condition when we drop Python 2
-        if not isinstance(contents, bytes):
-            contents = contents.encode('utf-8')
+        contents = contents.encode('utf-8')
         tar_info = tarfile.TarInfo(normalize_archive_path(os.path.join(self.name, *relative_paths)))
         tar_info.mtime = self.timestamp if self.reproducible else int(get_current_timestamp())
         tar_info.size = len(contents)
@@ -85,16 +83,15 @@ class SdistBuilderConfig(BuilderConfig):
             core_metadata_version = self.target_config.get('core-metadata-version', DEFAULT_METADATA_VERSION)
             if not isinstance(core_metadata_version, str):
                 raise TypeError(
-                    'Field `tool.hatch.build.targets.{}.core-metadata-version` must be a string'.format(
-                        self.plugin_name
-                    )
+                    f'Field `tool.hatch.build.targets.{self.plugin_name}.core-metadata-version` must be a string'
                 )
 
             constructors = get_core_metadata_constructors()
             if core_metadata_version not in constructors:
                 raise ValueError(
-                    'Unknown metadata version `{}` for field `tool.hatch.build.targets.{}.core-metadata-version`. '
-                    'Available: {}'.format(core_metadata_version, self.plugin_name, ', '.join(sorted(constructors)))
+                    f'Unknown metadata version `{core_metadata_version}` for field '
+                    f'`tool.hatch.build.targets.{self.plugin_name}.core-metadata-version`. '
+                    f'Available: {", ".join(sorted(constructors))}'
                 )
 
             self.__core_metadata_constructor = constructors[core_metadata_version]
@@ -160,7 +157,7 @@ class SdistBuilder(BuilderInterface):
                     'setup.py',
                 )
 
-        target = os.path.join(directory, '{}.tar.gz'.format(self.project_id))
+        target = os.path.join(directory, f'{self.project_id}.tar.gz')
 
         replace_file(archive.path, target)
         return target
@@ -170,32 +167,32 @@ class SdistBuilder(BuilderInterface):
 
         contents += 'setup(\n'
 
-        contents += '    name={!r},\n'.format(self.metadata.core.name)
-        contents += '    version={!r},\n'.format(self.metadata.version)
+        contents += f'    name={self.metadata.core.name!r},\n'
+        contents += f'    version={self.metadata.version!r},\n'
 
         if self.metadata.core.description:
-            contents += '    description={!r},\n'.format(self.metadata.core.description)
+            contents += f'    description={self.metadata.core.description!r},\n'
 
         if self.metadata.core.readme:
-            contents += '    long_description={!r},\n'.format(self.metadata.core.readme)
+            contents += f'    long_description={self.metadata.core.readme!r},\n'
 
         authors_data = self.metadata.core.authors_data
         if authors_data['name']:
-            contents += '    author={!r},\n'.format(', '.join(authors_data['name']))
+            contents += f"    author={', '.join(authors_data['name'])!r},\n"
         if authors_data['email']:
-            contents += '    author_email={!r},\n'.format(', '.join(authors_data['email']))
+            contents += f"    author_email={', '.join(authors_data['email'])!r},\n"
 
         maintainers_data = self.metadata.core.maintainers_data
         if maintainers_data['name']:
-            contents += '    maintainer={!r},\n'.format(', '.join(maintainers_data['name']))
+            contents += f"    maintainer={', '.join(maintainers_data['name'])!r},\n"
         if maintainers_data['email']:
-            contents += '    maintainer_email={!r},\n'.format(', '.join(maintainers_data['email']))
+            contents += f"    maintainer_email={', '.join(maintainers_data['email'])!r},\n"
 
         if self.metadata.core.classifiers:
             contents += '    classifiers=[\n'
 
             for classifier in self.metadata.core.classifiers:
-                contents += '        {!r},\n'.format(classifier)
+                contents += f'        {classifier!r},\n'
 
             contents += '    ],\n'
 
@@ -205,7 +202,8 @@ class SdistBuilder(BuilderInterface):
             contents += '    install_requires=[\n'
 
             for specifier in dependencies:
-                contents += '        {!r},\n'.format(specifier.replace("'", '"'))
+                specifier = specifier.replace("'", '"')
+                contents += f'        {specifier!r},\n'
 
             contents += '    ],\n'
 
@@ -216,10 +214,11 @@ class SdistBuilder(BuilderInterface):
                 if not specifiers:
                     continue
 
-                contents += '        {!r}: [\n'.format(option)
+                contents += f'        {option!r}: [\n'
 
                 for specifier in specifiers:
-                    contents += '            {!r},\n'.format(specifier.replace("'", '"'))
+                    specifier = specifier.replace("'", '"')
+                    contents += f'            {specifier!r},\n'
 
                 contents += '        ],\n'
 
@@ -232,7 +231,7 @@ class SdistBuilder(BuilderInterface):
                 contents += "        'console_scripts': [\n"
 
                 for name, object_ref in self.metadata.core.scripts.items():
-                    contents += '            {!r},\n'.format('{} = {}'.format(name, object_ref))
+                    contents += f"            '{name} = {object_ref}',\n"
 
                 contents += '        ],\n'
 
@@ -240,16 +239,16 @@ class SdistBuilder(BuilderInterface):
                 contents += "        'gui_scripts': [\n"
 
                 for name, object_ref in self.metadata.core.gui_scripts.items():
-                    contents += '            {!r},\n'.format('{} = {}'.format(name, object_ref))
+                    contents += f"            '{name} = {object_ref}',\n"
 
                 contents += '        ],\n'
 
             if self.metadata.core.entry_points:
                 for group, entry_points in self.metadata.core.entry_points.items():
-                    contents += '        {!r}: [\n'.format(group)
+                    contents += f'        {group!r}: [\n'
 
                     for name, object_ref in entry_points.items():
-                        contents += '            {!r},\n'.format('{} = {}'.format(name, object_ref))
+                        contents += f"            '{name} = {object_ref}',\n"
 
                     contents += '        ],\n'
 
@@ -259,7 +258,7 @@ class SdistBuilder(BuilderInterface):
             contents += '    packages=[\n'
 
             for package in packages:
-                contents += '        {!r},\n'.format(package.replace(os.path.sep, '.'))
+                contents += f"        {package.replace(os.path.sep, '.')!r},\n"
 
             contents += '    ],\n'
 
@@ -280,19 +279,19 @@ class SdistBuilder(BuilderInterface):
 
         readme_path = self.metadata.core.readme_path
         if readme_path and not self.config.include_path(readme_path):
-            build_data['artifacts'].append('/{}'.format(readme_path))
+            build_data['artifacts'].append(f'/{readme_path}')
 
         license_files = self.metadata.core.license_files
         if license_files:
             for license_file in license_files:
                 if not self.config.include_path(license_file):
-                    build_data['artifacts'].append('/{}'.format(license_file))
+                    build_data['artifacts'].append(f'/{license_file}')
 
         if not self.config.include_path(DEFAULT_BUILD_SCRIPT):
-            build_data['artifacts'].append('/{}'.format(DEFAULT_BUILD_SCRIPT))
+            build_data['artifacts'].append(f'/{DEFAULT_BUILD_SCRIPT}')
 
         if not self.config.include_path(DEFAULT_CONFIG_FILE):
-            build_data['artifacts'].append('/{}'.format(DEFAULT_CONFIG_FILE))
+            build_data['artifacts'].append(f'/{DEFAULT_CONFIG_FILE}')
 
         return build_data
 

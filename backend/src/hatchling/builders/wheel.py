@@ -1,10 +1,10 @@
 import hashlib
 import os
 import stat
-import sys
 import tempfile
 import zipfile
 from contextlib import closing
+from io import StringIO
 
 from ..__about__ import __version__
 from ..metadata.spec import DEFAULT_METADATA_VERSION, get_core_metadata_constructors
@@ -22,11 +22,6 @@ from .utils import (
 )
 
 try:
-    from io import StringIO
-except ImportError:  # no cov
-    from StringIO import StringIO
-
-try:
     from editables import EditableProject
 except ImportError:  # no cov
     EditableProject = None
@@ -34,13 +29,13 @@ except ImportError:  # no cov
 EDITABLES_MINIMUM_VERSION = '0.3'
 
 
-class WheelArchive(object):
+class WheelArchive:
     def __init__(self, project_id, reproducible):
         """
         https://peps.python.org/pep-0427/#abstract
         """
-        self.metadata_directory = '{}.dist-info'.format(project_id)
-        self.shared_data_directory = '{}.data'.format(project_id)
+        self.metadata_directory = f'{project_id}.dist-info'
+        self.shared_data_directory = f'{project_id}.data'
 
         self.reproducible = reproducible
         if self.reproducible:
@@ -52,81 +47,54 @@ class WheelArchive(object):
         self.fd = os.fdopen(raw_fd, 'w+b')
         self.zf = zipfile.ZipFile(self.fd, 'w', compression=zipfile.ZIP_DEFLATED)
 
-    if sys.version_info >= (3, 6):
+    @staticmethod
+    def get_reproducible_time_tuple():
+        from datetime import datetime, timezone
 
-        @staticmethod
-        def get_reproducible_time_tuple():
-            from datetime import datetime, timezone
+        d = datetime.fromtimestamp(get_reproducible_timestamp(), timezone.utc)
+        return d.year, d.month, d.day, d.hour, d.minute, d.second
 
-            d = datetime.fromtimestamp(get_reproducible_timestamp(), timezone.utc)
-            return d.year, d.month, d.day, d.hour, d.minute, d.second
+    def add_file(self, included_file):
+        relative_path = normalize_archive_path(included_file.distribution_path)
+        file_stat = os.stat(included_file.path)
 
-        def add_file(self, included_file):
-            relative_path = normalize_archive_path(included_file.distribution_path)
-            file_stat = os.stat(included_file.path)
+        if self.reproducible:
+            zip_info = zipfile.ZipInfo(relative_path, self.time_tuple)
 
-            if self.reproducible:
-                zip_info = zipfile.ZipInfo(relative_path, self.time_tuple)
+            # https://github.com/takluyver/flit/pull/66
+            new_mode = normalize_file_permissions(file_stat.st_mode)
+            set_zip_info_mode(zip_info, new_mode & 0xFFFF)
+            if stat.S_ISDIR(file_stat.st_mode):  # no cov
+                zip_info.external_attr |= 0x10
+        else:
+            zip_info = zipfile.ZipInfo.from_file(included_file.path, relative_path)
 
-                # https://github.com/takluyver/flit/pull/66
-                new_mode = normalize_file_permissions(file_stat.st_mode)
-                set_zip_info_mode(zip_info, new_mode & 0xFFFF)
-                if stat.S_ISDIR(file_stat.st_mode):  # no cov
-                    zip_info.external_attr |= 0x10
-            else:
-                zip_info = zipfile.ZipInfo.from_file(included_file.path, relative_path)
+        zip_info.compress_type = zipfile.ZIP_DEFLATED
 
-            zip_info.compress_type = zipfile.ZIP_DEFLATED
+        hash_obj = hashlib.sha256()
+        with open(included_file.path, 'rb') as in_file, self.zf.open(zip_info, 'w') as out_file:
+            while True:
+                chunk = in_file.read(16384)
+                if not chunk:
+                    break
 
-            hash_obj = hashlib.sha256()
-            with open(included_file.path, 'rb') as in_file, self.zf.open(zip_info, 'w') as out_file:
-                while True:
-                    chunk = in_file.read(16384)
-                    if not chunk:
-                        break
+                hash_obj.update(chunk)
+                out_file.write(chunk)
 
-                    hash_obj.update(chunk)
-                    out_file.write(chunk)
-
-            hash_digest = format_file_hash(hash_obj.digest())
-            return relative_path, hash_digest, file_stat.st_size
-
-    else:  # no cov
-
-        @staticmethod
-        def get_reproducible_time_tuple():
-            from datetime import datetime
-
-            d = datetime.utcfromtimestamp(get_reproducible_timestamp())
-            return d.year, d.month, d.day, d.hour, d.minute, d.second
-
-        def add_file(self, included_file):
-            relative_path = normalize_archive_path(included_file.distribution_path)
-            self.zf.write(included_file.path, arcname=relative_path)
-
-            hash_obj = hashlib.sha256()
-            with open(included_file.path, 'rb') as in_file:
-                while True:
-                    chunk = in_file.read(16384)
-                    if not chunk:
-                        break
-
-                    hash_obj.update(chunk)
-
-            hash_digest = format_file_hash(hash_obj.digest())
-            return relative_path, hash_digest, os.stat(included_file.path).st_size
+        hash_digest = format_file_hash(hash_obj.digest())
+        return relative_path, hash_digest, file_stat.st_size
 
     def write_metadata(self, relative_path, contents):
-        relative_path = '{}/{}'.format(self.metadata_directory, normalize_archive_path(relative_path))
+        relative_path = f'{self.metadata_directory}/{normalize_archive_path(relative_path)}'
         return self.write_file(relative_path, contents)
 
     def add_shared_file(self, shared_file):
-        shared_file.distribution_path = '{}/data/{}'.format(self.shared_data_directory, shared_file.distribution_path)
+        shared_file.distribution_path = f'{self.shared_data_directory}/data/{shared_file.distribution_path}'
         return self.add_file(shared_file)
 
     def add_extra_metadata_file(self, extra_metadata_file):
-        extra_metadata_file.distribution_path = '{}/extra_metadata/{}'.format(
-            self.metadata_directory, extra_metadata_file.distribution_path
+        extra_metadata_file.distribution_path = (
+            f'{self.metadata_directory}/extra_metadata/{extra_metadata_file.distribution_path}'
         )
         return self.add_file(extra_metadata_file)
 
@@ -174,9 +142,9 @@ class WheelBuilderConfig(BuilderConfig):
 
         project_name = self.builder.normalize_file_name_component(self.builder.metadata.core.name)
         if os.path.isfile(os.path.join(self.root, project_name, '__init__.py')):
-            self.__include.append('/{}'.format(project_name))
+            self.__include.append(f'/{project_name}')
         elif os.path.isfile(os.path.join(self.root, 'src', project_name, '__init__.py')):
-            self.__packages.append('src/{}'.format(project_name))
+            self.__packages.append(f'src/{project_name}')
         else:
             from glob import glob
 
@@ -184,7 +152,7 @@ class WheelBuilderConfig(BuilderConfig):
             if possible_namespace_packages:
                 relative_path = os.path.relpath(possible_namespace_packages[0], self.root)
                 namespace = relative_path.split(os.path.sep)[0]
-                self.__include.append('/{}'.format(namespace))
+                self.__include.append(f'/{namespace}')
             else:
                 self.__include.append('*.py')
                 self.__exclude.append('test*')
@@ -213,16 +181,15 @@ class WheelBuilderConfig(BuilderConfig):
             core_metadata_version = self.target_config.get('core-metadata-version', DEFAULT_METADATA_VERSION)
             if not isinstance(core_metadata_version, str):
                 raise TypeError(
-                    'Field `tool.hatch.build.targets.{}.core-metadata-version` must be a string'.format(
-                        self.plugin_name
-                    )
+                    f'Field `tool.hatch.build.targets.{self.plugin_name}.core-metadata-version` must be a string'
                 )
 
             constructors = get_core_metadata_constructors()
             if core_metadata_version not in constructors:
                 raise ValueError(
-                    'Unknown metadata version `{}` for field `tool.hatch.build.targets.{}.core-metadata-version`. '
-                    'Available: {}'.format(core_metadata_version, self.plugin_name, ', '.join(sorted(constructors)))
+                    f'Unknown metadata version `{core_metadata_version}` for field '
+                    f'`tool.hatch.build.targets.{self.plugin_name}.core-metadata-version`. '
+                    f'Available: {", ".join(sorted(constructors))}'
                 )
 
             self.__core_metadata_constructor = constructors[core_metadata_version]
@@ -234,25 +201,23 @@ class WheelBuilderConfig(BuilderConfig):
         if self.__shared_data is None:
             shared_data = self.target_config.get('shared-data', {})
             if not isinstance(shared_data, dict):
-                raise TypeError(
-                    'Field `tool.hatch.build.targets.{}.shared-data` must be a mapping'.format(self.plugin_name)
-                )
+                raise TypeError(f'Field `tool.hatch.build.targets.{self.plugin_name}.shared-data` must be a mapping')
 
             for i, (source, relative_path) in enumerate(shared_data.items(), 1):
                 if not source:
                     raise ValueError(
-                        'Source #{} in field `tool.hatch.build.targets.{}.shared-data` '
-                        'cannot be an empty string'.format(i, self.plugin_name)
+                        f'Source #{i} in field `tool.hatch.build.targets.{self.plugin_name}.shared-data` '
+                        f'cannot be an empty string'
                     )
                 elif not isinstance(relative_path, str):
                     raise TypeError(
-                        'Path for source `{}` in field `tool.hatch.build.targets.{}.shared-data` '
-                        'must be a string'.format(source, self.plugin_name)
+                        f'Path for source `{source}` in field '
+                        f'`tool.hatch.build.targets.{self.plugin_name}.shared-data` must be a string'
                     )
                 elif not relative_path:
                     raise ValueError(
-                        'Path for source `{}` in field `tool.hatch.build.targets.{}.shared-data` '
-                        'cannot be an empty string'.format(source, self.plugin_name)
+                        f'Path for source `{source}` in field '
+                        f'`tool.hatch.build.targets.{self.plugin_name}.shared-data` cannot be an empty string'
                     )
 
             self.__shared_data = normalize_inclusion_map(shared_data, self.root)
@@ -264,25 +229,23 @@ class WheelBuilderConfig(BuilderConfig):
         if self.__extra_metadata is None:
             extra_metadata = self.target_config.get('extra-metadata', {})
             if not isinstance(extra_metadata, dict):
-                raise TypeError(
-                    'Field `tool.hatch.build.targets.{}.extra-metadata` must be a mapping'.format(self.plugin_name)
-                )
+                raise TypeError(f'Field `tool.hatch.build.targets.{self.plugin_name}.extra-metadata` must be a mapping')
 
             for i, (source, relative_path) in enumerate(extra_metadata.items(), 1):
                 if not source:
                     raise ValueError(
-                        'Source #{} in field `tool.hatch.build.targets.{}.extra-metadata` '
-                        'cannot be an empty string'.format(i, self.plugin_name)
+                        f'Source #{i} in field `tool.hatch.build.targets.{self.plugin_name}.extra-metadata` '
+                        f'cannot be an empty string'
                     )
                 elif not isinstance(relative_path, str):
                     raise TypeError(
-                        'Path for source `{}` in field `tool.hatch.build.targets.{}.extra-metadata` '
-                        'must be a string'.format(source, self.plugin_name)
+                        f'Path for source `{source}` in field '
+                        f'`tool.hatch.build.targets.{self.plugin_name}.extra-metadata` must be a string'
                     )
                 elif not relative_path:
                     raise ValueError(
-                        'Path for source `{}` in field `tool.hatch.build.targets.{}.extra-metadata` '
-                        'cannot be an empty string'.format(source, self.plugin_name)
+                        f'Path for source `{source}` in field '
+                        f'`tool.hatch.build.targets.{self.plugin_name}.extra-metadata` cannot be an empty string'
                     )
 
             self.__extra_metadata = normalize_inclusion_map(extra_metadata, self.root)
@@ -326,16 +289,16 @@ class WheelBuilder(BuilderInterface):
 
             self.write_data(archive, records, build_data, build_data['dependencies'])
 
-            records.write(u'{}/RECORD,,\n'.format(archive.metadata_directory))
+            records.write(f'{archive.metadata_directory}/RECORD,,\n')
             archive.write_metadata('RECORD', records.getvalue())
 
-        target = os.path.join(directory, '{}-{}.whl'.format(self.project_id, build_data['tag']))
+        target = os.path.join(directory, f"{self.project_id}-{build_data['tag']}.whl")
 
         replace_file(archive.path, target)
         return target
 
     def build_editable(self, directory, **build_data):
-        if sys.version_info[0] < 3 or self.config.dev_mode_dirs:
+        if self.config.dev_mode_dirs:
             return self.build_editable_explicit(directory, **build_data)
         else:
             return self.build_editable_detection(directory, **build_data)
@@ -369,7 +332,7 @@ class WheelBuilder(BuilderInterface):
                     distribution_module = distribution_path.split(os.sep)[0]
                     exposed_packages[distribution_module] = os.path.join(
                         self.root,
-                        '{}{}'.format(relative_path[: relative_path.index(distribution_path)], distribution_module),
+                        f'{relative_path[:relative_path.index(distribution_path)]}{distribution_module}',
                     )
 
             editable_project = EditableProject(self.metadata.core.name, self.root)
@@ -395,7 +358,7 @@ class WheelBuilder(BuilderInterface):
             extra_dependencies = list(build_data['dependencies'])
             for dependency in editable_project.dependencies():
                 if dependency == 'editables':
-                    dependency += '~={}'.format(EDITABLES_MINIMUM_VERSION)
+                    dependency += f'~={EDITABLES_MINIMUM_VERSION}'
                 else:  # no cov
                     pass
 
@@ -403,10 +366,10 @@ class WheelBuilder(BuilderInterface):
 
             self.write_data(archive, records, build_data, extra_dependencies)
 
-            records.write(u'{}/RECORD,,\n'.format(archive.metadata_directory))
+            records.write(f'{archive.metadata_directory}/RECORD,,\n')
             archive.write_metadata('RECORD', records.getvalue())
 
-        target = os.path.join(directory, '{}-{}.whl'.format(self.project_id, build_data['tag']))
+        target = os.path.join(directory, f"{self.project_id}-{build_data['tag']}.whl")
 
         replace_file(archive.path, target)
         return target
@@ -420,9 +383,7 @@ class WheelBuilder(BuilderInterface):
                 for relative_directory in self.config.dev_mode_dirs
             )
 
-            record = archive.write_file(
-                '{}.pth'.format(self.metadata.core.name.replace('-', '_')), '\n'.join(directories)
-            )
+            record = archive.write_file(f"{self.metadata.core.name.replace('-', '_')}.pth", '\n'.join(directories))
             records.write(self.format_record(record))
 
             if build_data['force_include_editable']:
@@ -434,10 +395,10 @@ class WheelBuilder(BuilderInterface):
 
             self.write_data(archive, records, build_data, build_data['dependencies'])
 
-            records.write(u'{}/RECORD,,\n'.format(archive.metadata_directory))
+            records.write(f'{archive.metadata_directory}/RECORD,,\n')
             archive.write_metadata('RECORD', records.getvalue())
 
-        target = os.path.join(directory, '{}-{}.whl'.format(self.project_id, build_data['tag']))
+        target = os.path.join(directory, f"{self.project_id}-{build_data['tag']}.whl")
 
         replace_file(archive.path, target)
         return target
@@ -475,12 +436,14 @@ class WheelBuilder(BuilderInterface):
     def write_archive_metadata(self, archive, records, build_data):
         from packaging.tags import parse_tag
 
-        metadata = 'Wheel-Version: 1.0\nGenerator: hatchling {}\nRoot-Is-Purelib: {}\n'.format(
-            __version__, 'true' if build_data['pure_python'] else 'false'
-        )
+        metadata = f"""\
+Wheel-Version: 1.0
+Generator: hatchling {__version__}
+Root-Is-Purelib: {'true' if build_data['pure_python'] else 'false'}
+"""
 
         for tag in sorted(map(str, parse_tag(build_data['tag']))):
-            metadata += 'Tag: {}\n'.format(tag)
+            metadata += f'Tag: {tag}\n'
 
         record = archive.write_metadata('WHEEL', metadata)
         records.write(self.format_record(record))
@@ -499,7 +462,7 @@ class WheelBuilder(BuilderInterface):
         for relative_path in self.metadata.core.license_files:
             license_file = os.path.normpath(os.path.join(self.root, relative_path))
             with open(license_file, 'rb') as f:
-                record = archive.write_metadata('license_files/{}'.format(relative_path), f.read())
+                record = archive.write_metadata(f'license_files/{relative_path}', f.read())
                 records.write(self.format_record(record))
 
     def add_extra_metadata(self, archive, records):
@@ -514,18 +477,18 @@ class WheelBuilder(BuilderInterface):
         if core_metadata.scripts:
             metadata_file += '\n[console_scripts]\n'
             for name, object_ref in core_metadata.scripts.items():
-                metadata_file += '{} = {}\n'.format(name, object_ref)
+                metadata_file += f'{name} = {object_ref}\n'
 
         if core_metadata.gui_scripts:
             metadata_file += '\n[gui_scripts]\n'
             for name, object_ref in core_metadata.gui_scripts.items():
-                metadata_file += '{} = {}\n'.format(name, object_ref)
+                metadata_file += f'{name} = {object_ref}\n'
 
         if core_metadata.entry_points:
             for group, entry_points in core_metadata.entry_points.items():
-                metadata_file += '\n[{}]\n'.format(group)
+                metadata_file += f'\n[{group}]\n'
                 for name, object_ref in entry_points.items():
-                    metadata_file += '{} = {}\n'.format(name, object_ref)
+                    metadata_file += f'{name} = {object_ref}\n'
 
         return metadata_file.lstrip()
 
@@ -533,11 +496,11 @@ class WheelBuilder(BuilderInterface):
         supported_python_versions = []
         for major_version in get_known_python_major_versions():
             for minor_version in range(100):
-                if self.metadata.core.python_constraint.contains('{}.{}'.format(major_version, minor_version)):
-                    supported_python_versions.append('py{}'.format(major_version))
+                if self.metadata.core.python_constraint.contains(f'{major_version}.{minor_version}'):
+                    supported_python_versions.append(f'py{major_version}')
                     break
 
-        return '{}-none-any'.format('.'.join(supported_python_versions))
+        return f'{".".join(supported_python_versions)}-none-any'
 
     def get_default_build_data(self):
         return {'infer_tag': False, 'pure_python': True, 'dependencies': [], 'force_include_editable': {}}
@@ -548,4 +511,4 @@ class WheelBuilder(BuilderInterface):
 
     @staticmethod
     def format_record(record):
-        return u'{},sha256={},{}\n'.format(*record)
+        return '{},sha256={},{}\n'.format(*record)

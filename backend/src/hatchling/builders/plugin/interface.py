@@ -1,13 +1,17 @@
+from __future__ import annotations
+
 import os
 import re
+from abc import ABC, abstractmethod
 from collections import OrderedDict
+from typing import Callable, Generator
 
 from ..config import BuilderConfig, env_var_enabled
 from ..constants import BuildEnvVars
 from ..utils import safe_walk
 
 
-class IncludedFile(object):
+class IncludedFile:
     __slots__ = ('path', 'relative_path', 'distribution_path')
 
     def __init__(self, path, relative_path, distribution_path):
@@ -16,7 +20,7 @@ class IncludedFile(object):
         self.distribution_path = distribution_path
 
 
-class BuilderInterface(object):
+class BuilderInterface(ABC):
     """
     Example usage:
 
@@ -72,7 +76,7 @@ class BuilderInterface(object):
         clean=None,
         clean_hooks_after=None,
         clean_only=False,
-    ):
+    ) -> Generator[str, None, None]:
         # Fail early for invalid project metadata
         self.metadata.core.validate_fields()
 
@@ -93,9 +97,7 @@ class BuilderInterface(object):
             unknown_versions = set(versions) - set(version_api)
             if unknown_versions:
                 raise ValueError(
-                    'Unknown versions for target `{}`: {}'.format(
-                        self.PLUGIN_NAME, ', '.join(map(str, sorted(unknown_versions)))
-                    )
+                    f'Unknown versions for target `{self.PLUGIN_NAME}`: {", ".join(map(str, sorted(unknown_versions)))}'
                 )
 
         if hooks_only is None:
@@ -122,7 +124,7 @@ class BuilderInterface(object):
             clean_hooks_after = env_var_enabled(BuildEnvVars.CLEAN_HOOKS_AFTER)
 
         for version in versions:
-            self.app.display_debug('Building `{}` version `{}`'.format(self.PLUGIN_NAME, version))
+            self.app.display_debug(f'Building `{self.PLUGIN_NAME}` version `{version}`')
 
             build_data = self.get_default_build_data()
 
@@ -138,7 +140,7 @@ class BuilderInterface(object):
                 build_hook.initialize(version, build_data)
 
             if hooks_only:
-                self.app.display_debug('Only ran build hooks for `{}` version `{}`'.format(self.PLUGIN_NAME, version))
+                self.app.display_debug(f'Only ran build hooks for `{self.PLUGIN_NAME}` version `{version}`')
                 continue
 
             # Build the artifact
@@ -155,7 +157,7 @@ class BuilderInterface(object):
 
             yield artifact
 
-    def recurse_included_files(self):
+    def recurse_included_files(self) -> Generator[IncludedFile, None, None]:
         """
         Returns a consistently generated series of file objects for every file that should be distributed. Each file
         object has three `str` attributes:
@@ -170,7 +172,7 @@ class BuilderInterface(object):
         for explicit_file in self.recurse_explicit_files():
             yield explicit_file
 
-    def recurse_project_files(self):
+    def recurse_project_files(self) -> Generator[IncludedFile, None, None]:
         for root, dirs, files in safe_walk(self.root):
             relative_path = os.path.relpath(root, self.root)
 
@@ -183,7 +185,7 @@ class BuilderInterface(object):
                     d
                     for d in dirs
                     # The trailing slash is necessary so e.g. `bar/` matches `foo/bar`
-                    if not self.config.path_is_excluded('{}/'.format(os.path.join(relative_path, d)))
+                    if not self.config.path_is_excluded(f'{os.path.join(relative_path, d)}/')
                 )
             else:
                 dirs.sort()
@@ -197,7 +199,7 @@ class BuilderInterface(object):
                         os.path.join(root, f), relative_file_path, self.config.get_distribution_path(relative_file_path)
                     )
 
-    def recurse_explicit_files(self, inclusion_map=None):
+    def recurse_explicit_files(self, inclusion_map=None) -> Generator[IncludedFile, None, None]:
         if inclusion_map is None:
             inclusion_map = self.config.get_force_include()
 
@@ -332,7 +334,7 @@ class BuilderInterface(object):
         if self.__target_config is None:
             target_config = self.metadata.hatch.build_targets.get(self.PLUGIN_NAME, {})
             if not isinstance(target_config, dict):
-                raise TypeError('Field `tool.hatch.build.targets.{}` must be a table'.format(self.PLUGIN_NAME))
+                raise TypeError(f'Field `tool.hatch.build.targets.{self.PLUGIN_NAME}` must be a table')
 
             self.__target_config = target_config
 
@@ -341,11 +343,8 @@ class BuilderInterface(object):
     @property
     def project_id(self):
         if self.__project_id is None:
-            self.__project_id = '{}-{}'.format(
-                # https://discuss.python.org/t/clarify-naming-of-dist-info-directories/5565
-                self.normalize_file_name_component(self.metadata.core.name),
-                self.metadata.version,
-            )
+            # https://discuss.python.org/t/clarify-naming-of-dist-info-directories/5565
+            self.__project_id = f'{self.normalize_file_name_component(self.metadata.core.name)}-{self.metadata.version}'
 
         return self.__project_id
 
@@ -356,7 +355,7 @@ class BuilderInterface(object):
             if build_hook is None:
                 from ...plugin.exceptions import UnknownPluginError
 
-                raise UnknownPluginError('Unknown build hook: {}'.format(hook_name))
+                raise UnknownPluginError(f'Unknown build hook: {hook_name}')
 
             configured_build_hooks[hook_name] = build_hook(
                 self.root, config, self.config, self.metadata, directory, self.PLUGIN_NAME, self.app
@@ -364,10 +363,9 @@ class BuilderInterface(object):
 
         return configured_build_hooks
 
-    def get_version_api(self):
+    @abstractmethod
+    def get_version_api(self) -> dict[str, Callable]:
         """
-        :material-align-horizontal-left: **REQUIRED** :material-align-horizontal-right:
-
         A mapping of `str` versions to a callable that is used for building.
         Each callable must have the following signature:
 
@@ -377,7 +375,6 @@ class BuilderInterface(object):
 
         The return value must be the absolute path to the built artifact.
         """
-        raise NotImplementedError
 
     def get_default_versions(self):
         """

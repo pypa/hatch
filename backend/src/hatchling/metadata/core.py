@@ -1,5 +1,4 @@
 import os
-import sys
 from collections import OrderedDict
 from copy import deepcopy
 
@@ -7,39 +6,18 @@ from ..utils.constants import DEFAULT_CONFIG_FILE
 from ..utils.fs import locate_file
 from .utils import get_normalized_dependency, is_valid_project_name, normalize_project_name
 
-# TODO: remove when we drop Python 2
-if sys.version_info[0] < 3:  # no cov
-    from io import open
-
-    import toml
-
-    from ..utils.compat import byteify_object
-
-    def load_toml(path):
-        with open(path, 'r', encoding='utf-8') as f:
-            # this is to support any `isinstance(metadata_entry, str)`
-            return byteify_object(toml.loads(f.read()))
-
-    def ensure_string(obj):
-        if not isinstance(obj, bytes):
-            return obj.encode('utf-8')
-        return obj
-
-else:
-    try:
-        import tomllib
-    except ImportError:
-        import tomli as tomllib
-
-    def load_toml(path):
-        with open(path, 'r', encoding='utf-8') as f:
-            return tomllib.loads(f.read())
-
-    def ensure_string(obj):
-        return obj
+try:
+    import tomllib
+except ImportError:
+    import tomli as tomllib  # type: ignore
 
 
-class ProjectMetadata(object):
+def load_toml(path):
+    with open(path, 'r', encoding='utf-8') as f:
+        return tomllib.loads(f.read())
+
+
+class ProjectMetadata:
     def __init__(self, root, plugin_manager, config=None):
         self.root = root
         self.plugin_manager = plugin_manager
@@ -115,8 +93,8 @@ class ProjectMetadata(object):
                         metadata.dynamic.remove(new_field)
                     else:
                         raise ValueError(
-                            'The field `{}` was set dynamically and therefore must '
-                            'be listed in `project.dynamic`'.format(new_field)
+                            f'The field `{new_field}` was set dynamically and therefore must be '
+                            f'listed in `project.dynamic`'
                         )
 
             self._core = metadata
@@ -161,7 +139,7 @@ class ProjectMetadata(object):
         self._version = str(Version(version))
 
 
-class BuildMetadata(object):
+class BuildMetadata:
     """
     https://peps.python.org/pep-0517/
     """
@@ -188,12 +166,12 @@ class BuildMetadata(object):
 
             for i, entry in enumerate(requires, 1):
                 if not isinstance(entry, str):
-                    raise TypeError('Dependency #{} of field `build-system.requires` must be a string'.format(i))
+                    raise TypeError(f'Dependency #{i} of field `build-system.requires` must be a string')
 
                 try:
                     requires_complex.append(Requirement(entry))
                 except InvalidRequirement as e:
-                    raise ValueError('Dependency #{} of field `build-system.requires` is invalid: {}'.format(i, e))
+                    raise ValueError(f'Dependency #{i} of field `build-system.requires` is invalid: {e}')
 
             self._requires_complex = requires_complex
 
@@ -226,14 +204,14 @@ class BuildMetadata(object):
 
             for i, entry in enumerate(backend_path, 1):
                 if not isinstance(entry, str):
-                    raise TypeError('Entry #{} of field `build-system.backend-path` must be a string'.format(i))
+                    raise TypeError(f'Entry #{i} of field `build-system.backend-path` must be a string')
 
             self._backend_path = backend_path
 
         return self._backend_path
 
 
-class CoreMetadata(object):
+class CoreMetadata:
     """
     https://peps.python.org/pep-0621/
     """
@@ -377,12 +355,12 @@ class CoreMetadata(object):
                     content_type = 'text/plain'
                 else:
                     raise TypeError(
-                        'Unable to determine the content-type based on the extension of readme file: {}'.format(readme)
+                        f'Unable to determine the content-type based on the extension of readme file: {readme}'
                     )
 
                 readme_path = os.path.normpath(os.path.join(self.root, readme))
                 if not os.path.isfile(readme_path):
-                    raise OSError('Readme file does not exist: {}'.format(readme))
+                    raise OSError(f'Readme file does not exist: {readme}')
 
                 with open(readme_path, 'r', encoding='utf-8') as f:
                     self._readme = f.read()
@@ -411,7 +389,7 @@ class CoreMetadata(object):
 
                     path = os.path.normpath(os.path.join(self.root, relative_path))
                     if not os.path.isfile(path):
-                        raise OSError('Readme file does not exist: {}'.format(relative_path))
+                        raise OSError(f'Readme file does not exist: {relative_path}')
 
                     with open(path, 'r', encoding=readme.get('charset', 'utf-8')) as f:
                         contents = f.read()
@@ -432,7 +410,7 @@ class CoreMetadata(object):
             else:
                 raise TypeError('Field `project.readme` must be a string or a table')
 
-            self._readme = ensure_string(self._readme)
+            self._readme = self._readme
 
         return self._readme
 
@@ -480,7 +458,7 @@ class CoreMetadata(object):
             try:
                 self._python_constraint = SpecifierSet(requires_python)
             except InvalidSpecifier as e:
-                raise ValueError('Field `project.requires-python` is invalid: {}'.format(e))
+                raise ValueError(f'Field `project.requires-python` is invalid: {e}')
 
             self._requires_python = str(self._python_constraint)
 
@@ -528,7 +506,7 @@ class CoreMetadata(object):
 
                     path = os.path.normpath(os.path.join(self.root, relative_path))
                     if not os.path.isfile(path):
-                        raise OSError('License file does not exist: {}'.format(relative_path))
+                        raise OSError(f'License file does not exist: {relative_path}')
 
                     with open(path, 'r', encoding='utf-8') as f:
                         contents = f.read()
@@ -586,12 +564,12 @@ class CoreMetadata(object):
                 for i, relative_path in enumerate(paths, 1):
                     if not isinstance(relative_path, str):
                         raise TypeError(
-                            'Entry #{} in field `paths` in the `project.license-files` table must be a string'.format(i)
+                            f'Entry #{i} in field `paths` in the `project.license-files` table must be a string'
                         )
 
                     path = os.path.normpath(os.path.join(self.root, relative_path))
                     if not os.path.isfile(path):
-                        raise OSError('License file does not exist: {}'.format(relative_path))
+                        raise OSError(f'License file does not exist: {relative_path}')
 
                     license_files.append(os.path.relpath(path, self.root).replace('\\', '/'))
             elif 'globs' in data:
@@ -604,7 +582,7 @@ class CoreMetadata(object):
                 for i, pattern in enumerate(globs, 1):
                     if not isinstance(pattern, str):
                         raise TypeError(
-                            'Entry #{} in field `globs` in the `project.license-files` table must be a string'.format(i)
+                            f'Entry #{i} in field `globs` in the `project.license-files` table must be a string'
                         )
 
                     full_pattern = os.path.normpath(os.path.join(self.root, pattern))
@@ -639,30 +617,22 @@ class CoreMetadata(object):
             if not isinstance(authors, list):
                 raise TypeError('Field `project.authors` must be an array')
 
-            try:
-                from email.headerregistry import Address
-            # TODO: remove when we drop Python 2
-            except ImportError:  # no cov
-                Address = (
-                    lambda display_name='', addr_spec='': addr_spec
-                    if not display_name
-                    else '{} <{}>'.format(display_name, addr_spec)
-                )
+            from email.headerregistry import Address
 
             authors = deepcopy(authors)
             authors_data = {'name': [], 'email': []}
 
             for i, data in enumerate(authors, 1):
                 if not isinstance(data, dict):
-                    raise TypeError('Author #{} of field `project.authors` must be an inline table'.format(i))
+                    raise TypeError(f'Author #{i} of field `project.authors` must be an inline table')
 
                 name = data.get('name', '')
                 if not isinstance(name, str):
-                    raise TypeError('Name of author #{} of field `project.authors` must be a string'.format(i))
+                    raise TypeError(f'Name of author #{i} of field `project.authors` must be a string')
 
                 email = data.get('email', '')
                 if not isinstance(email, str):
-                    raise TypeError('Email of author #{} of field `project.authors` must be a string'.format(i))
+                    raise TypeError(f'Email of author #{i} of field `project.authors` must be a string')
 
                 if name and email:
                     authors_data['email'].append(str(Address(display_name=name, addr_spec=email)))
@@ -671,9 +641,7 @@ class CoreMetadata(object):
                 elif name:
                     authors_data['name'].append(name)
                 else:
-                    raise ValueError(
-                        'Author #{} of field `project.authors` must specify either `name` or `email`'.format(i)
-                    )
+                    raise ValueError(f'Author #{i} of field `project.authors` must specify either `name` or `email`')
 
             self._authors = authors
             self._authors_data = authors_data
@@ -709,30 +677,22 @@ class CoreMetadata(object):
             if not isinstance(maintainers, list):
                 raise TypeError('Field `project.maintainers` must be an array')
 
-            try:
-                from email.headerregistry import Address
-            # TODO: remove when we drop Python 2
-            except ImportError:  # no cov
-                Address = (
-                    lambda display_name='', addr_spec='': addr_spec
-                    if not display_name
-                    else '{} <{}>'.format(display_name, addr_spec)
-                )
+            from email.headerregistry import Address
 
             maintainers = deepcopy(maintainers)
             maintainers_data = {'name': [], 'email': []}
 
             for i, data in enumerate(maintainers, 1):
                 if not isinstance(data, dict):
-                    raise TypeError('Maintainer #{} of field `project.maintainers` must be an inline table'.format(i))
+                    raise TypeError(f'Maintainer #{i} of field `project.maintainers` must be an inline table')
 
                 name = data.get('name', '')
                 if not isinstance(name, str):
-                    raise TypeError('Name of maintainer #{} of field `project.maintainers` must be a string'.format(i))
+                    raise TypeError(f'Name of maintainer #{i} of field `project.maintainers` must be a string')
 
                 email = data.get('email', '')
                 if not isinstance(email, str):
-                    raise TypeError('Email of maintainer #{} of field `project.maintainers` must be a string'.format(i))
+                    raise TypeError(f'Email of maintainer #{i} of field `project.maintainers` must be a string')
 
                 if name and email:
                     maintainers_data['email'].append(str(Address(display_name=name, addr_spec=email)))
@@ -742,7 +702,7 @@ class CoreMetadata(object):
                     maintainers_data['name'].append(name)
                 else:
                     raise ValueError(
-                        'Maintainer #{} of field `project.maintainers` must specify either `name` or `email`'.format(i)
+                        f'Maintainer #{i} of field `project.maintainers` must specify either `name` or `email`'
                     )
 
             self._maintainers = maintainers
@@ -783,7 +743,7 @@ class CoreMetadata(object):
 
             for i, keyword in enumerate(keywords, 1):
                 if not isinstance(keyword, str):
-                    raise TypeError('Keyword #{} of field `project.keywords` must be a string'.format(i))
+                    raise TypeError(f'Keyword #{i} of field `project.keywords` must be a string')
 
                 unique_keywords.add(keyword)
 
@@ -814,7 +774,7 @@ class CoreMetadata(object):
 
             for i, classifier in enumerate(classifiers, 1):
                 if not isinstance(classifier, str):
-                    raise TypeError('Classifier #{} of field `project.classifiers` must be a string'.format(i))
+                    raise TypeError(f'Classifier #{i} of field `project.classifiers` must be a string')
 
                 unique_classifiers.add(classifier)
 
@@ -844,7 +804,7 @@ class CoreMetadata(object):
 
             for label, url in sorted(urls.items()):
                 if not isinstance(url, str):
-                    raise TypeError('URL `{}` of field `project.urls` must be a string'.format(label))
+                    raise TypeError(f'URL `{label}` of field `project.urls` must be a string')
 
                 sorted_urls[label] = url
 
@@ -875,7 +835,7 @@ class CoreMetadata(object):
 
             for name, object_ref in sorted(scripts.items()):
                 if not isinstance(object_ref, str):
-                    raise TypeError('Object reference `{}` of field `project.scripts` must be a string'.format(name))
+                    raise TypeError(f'Object reference `{name}` of field `project.scripts` must be a string')
 
                 sorted_scripts[name] = object_ref
 
@@ -906,9 +866,7 @@ class CoreMetadata(object):
 
             for name, object_ref in sorted(gui_scripts.items()):
                 if not isinstance(object_ref, str):
-                    raise TypeError(
-                        'Object reference `{}` of field `project.gui-scripts` must be a string'.format(name)
-                    )
+                    raise TypeError(f'Object reference `{name}` of field `project.gui-scripts` must be a string')
 
                 sorted_gui_scripts[name] = object_ref
 
@@ -938,23 +896,22 @@ class CoreMetadata(object):
             for forbidden_field in ('scripts', 'gui-scripts'):
                 if forbidden_field in defined_entry_point_groups:
                     raise ValueError(
-                        'Field `{0}` must be defined as `project.{0}` instead of in '
-                        'the `project.entry-points` table'.format(forbidden_field)
+                        f'Field `{forbidden_field}` must be defined as `project.{forbidden_field}` '
+                        f'instead of in the `project.entry-points` table'
                     )
 
             entry_point_groups = OrderedDict()
 
             for group, entry_point_data in sorted(defined_entry_point_groups.items()):
                 if not isinstance(entry_point_data, dict):
-                    raise TypeError('Field `project.entry-points.{}` must be a table'.format(group))
+                    raise TypeError(f'Field `project.entry-points.{group}` must be a table')
 
                 entry_points = OrderedDict()
 
                 for name, object_ref in sorted(entry_point_data.items()):
                     if not isinstance(object_ref, str):
                         raise TypeError(
-                            'Object reference `{}` of field `project.entry-points.{}` '
-                            'must be a string'.format(name, group)
+                            f'Object reference `{name}` of field `project.entry-points.{group}` must be a string'
                         )
 
                     entry_points[name] = object_ref
@@ -991,16 +948,16 @@ class CoreMetadata(object):
 
             for i, entry in enumerate(dependencies, 1):
                 if not isinstance(entry, str):
-                    raise TypeError('Dependency #{} of field `project.dependencies` must be a string'.format(i))
+                    raise TypeError(f'Dependency #{i} of field `project.dependencies` must be a string')
 
                 try:
                     requirement = Requirement(entry)
                 except InvalidRequirement as e:
-                    raise ValueError('Dependency #{} of field `project.dependencies` is invalid: {}'.format(i, e))
+                    raise ValueError(f'Dependency #{i} of field `project.dependencies` is invalid: {e}')
                 else:
                     if requirement.url and not self.hatch_metadata.allow_direct_references:
                         raise ValueError(
-                            'Dependency #{} of field `project.dependencies` cannot be a direct reference'.format(i)
+                            f'Dependency #{i} of field `project.dependencies` cannot be a direct reference'
                         )
 
                     dependencies_complex[get_normalized_dependency(requirement)] = requirement
@@ -1046,14 +1003,13 @@ class CoreMetadata(object):
             for option, dependencies in optional_dependencies.items():
                 if not is_valid_project_name(option):
                     raise ValueError(
-                        'Optional dependency group `{}` of field `project.optional-dependencies` must only contain '
-                        'ASCII letters/digits, underscores, hyphens, and periods, and must begin and end with '
-                        'ASCII letters/digits.'.format(option)
+                        f'Optional dependency group `{option}` of field `project.optional-dependencies` must only '
+                        f'contain ASCII letters/digits, underscores, hyphens, and periods, and must begin and end with '
+                        f'ASCII letters/digits.'
                     )
                 elif not isinstance(dependencies, list):
                     raise TypeError(
-                        'Dependencies for option `{}` of field `project.optional-dependencies` '
-                        'must be an array'.format(option)
+                        f'Dependencies for option `{option}` of field `project.optional-dependencies` must be an array'
                     )
 
                 entries = set()
@@ -1061,22 +1017,22 @@ class CoreMetadata(object):
                 for i, entry in enumerate(dependencies, 1):
                     if not isinstance(entry, str):
                         raise TypeError(
-                            'Dependency #{} of option `{}` of field `project.optional-dependencies` '
-                            'must be a string'.format(i, option)
+                            f'Dependency #{i} of option `{option}` of field `project.optional-dependencies` '
+                            f'must be a string'
                         )
 
                     try:
                         requirement = Requirement(entry)
                     except InvalidRequirement as e:
                         raise ValueError(
-                            'Dependency #{} of option `{}` of field `project.optional-dependencies` '
-                            'is invalid: {}'.format(i, option, e)
+                            f'Dependency #{i} of option `{option}` of field `project.optional-dependencies` '
+                            f'is invalid: {e}'
                         )
                     else:
                         if requirement.url and not self.hatch_metadata.allow_direct_references:
                             raise ValueError(
-                                'Dependency #{} of option `{}` of field `project.optional-dependencies` '
-                                'cannot be a direct reference'.format(i, option)
+                                f'Dependency #{i} of option `{option}` of field `project.optional-dependencies` '
+                                f'cannot be a direct reference'
                             )
 
                         entries.add(get_normalized_dependency(requirement))
@@ -1084,8 +1040,8 @@ class CoreMetadata(object):
                 normalized_option = normalize_project_name(option)
                 if normalized_option in normalized_options:
                     raise ValueError(
-                        'Optional dependency groups `{}` and `{}` of field `project.optional-dependencies` both '
-                        'evaluate to `{}`.'.format(normalized_options[normalized_option], option, normalized_option)
+                        f'Optional dependency groups `{normalized_options[normalized_option]}` and `{option}` of '
+                        f'field `project.optional-dependencies` both evaluate to `{normalized_option}`.'
                     )
 
                 normalized_options[normalized_option] = option
@@ -1107,7 +1063,7 @@ class CoreMetadata(object):
 
             for i, field in enumerate(dynamic, 1):
                 if not isinstance(field, str):
-                    raise TypeError('Field #{} of field `project.dynamic` must be a string'.format(i))
+                    raise TypeError(f'Field #{i} of field `project.dynamic` must be a string')
 
             self._dynamic = dynamic
 
@@ -1119,7 +1075,7 @@ class CoreMetadata(object):
             getattr(self, attribute)
 
 
-class HatchMetadata(object):
+class HatchMetadata:
     def __init__(self, root, config, plugin_manager):
         self.root = root
         self.config = config
@@ -1196,9 +1152,7 @@ class HatchVersionConfig:
             try:
                 self._cached = self.source.get_version_data()['version']
             except Exception as e:
-                raise type(e)(
-                    'Error getting the version from source `{}`: {}'.format(self.source.PLUGIN_NAME, e)
-                )  # TODO: from None
+                raise type(e)(f'Error getting the version from source `{self.source.PLUGIN_NAME}`: {e}') from None
 
         return self._cached
 
@@ -1242,7 +1196,7 @@ class HatchVersionConfig:
             if version_source is None:
                 from ..plugin.exceptions import UnknownPluginError
 
-                raise UnknownPluginError('Unknown version source: {}'.format(source_name))
+                raise UnknownPluginError(f'Unknown version source: {source_name}')
 
             self._source = version_source(self.root, deepcopy(self.config))
 
@@ -1258,14 +1212,14 @@ class HatchVersionConfig:
             if version_scheme is None:
                 from ..plugin.exceptions import UnknownPluginError
 
-                raise UnknownPluginError('Unknown version scheme: {}'.format(scheme_name))
+                raise UnknownPluginError(f'Unknown version scheme: {scheme_name}')
 
             self._scheme = version_scheme(self.root, deepcopy(self.config))
 
         return self._scheme
 
 
-class HatchMetadataSettings(object):
+class HatchMetadataSettings:
     def __init__(self, root, config, plugin_manager):
         self.root = root
         self.config = config
@@ -1308,7 +1262,7 @@ class HatchMetadataSettings(object):
                 if metadata_hook is None:
                     from ..plugin.exceptions import UnknownPluginError
 
-                    raise UnknownPluginError('Unknown metadata hook: {}'.format(hook_name))
+                    raise UnknownPluginError(f'Unknown metadata hook: {hook_name}')
 
                 configured_hooks[hook_name] = metadata_hook(self.root, config)
 

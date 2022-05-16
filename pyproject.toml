@@ -103,7 +103,6 @@ branch = true
 omit = [
   "backend/src/hatchling/__main__.py",
   "backend/src/hatchling/bridge/*",
-  "backend/src/hatchling/utils/compat.py",
   "backend/src/hatchling/ouroboros.py",
   "src/hatch/__main__.py",
   "src/hatch/cli/new/migrate.py",

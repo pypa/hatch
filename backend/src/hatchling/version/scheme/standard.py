@@ -46,7 +46,7 @@ class StandardScheme(VersionSchemeInterface):
                 next_version = Version(version)
                 if next_version <= original:
                     raise ValueError(
-                        'Version `{}` is not higher than the original version `{}`'.format(version, original_version)
+                        f'Version `{version}` is not higher than the original version `{original_version}`'
                     )
                 else:
                     return str(next_version)

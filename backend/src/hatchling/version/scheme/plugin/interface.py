@@ -1,4 +1,9 @@
-class VersionSchemeInterface(object):  # no cov
+from __future__ import annotations
+
+from abc import ABC, abstractmethod
+
+
+class VersionSchemeInterface(ABC):  # no cov
     """
     Example usage:
 
@@ -58,11 +63,9 @@ class VersionSchemeInterface(object):  # no cov
         """
         return self.__config
 
-    def update(self, desired_version, original_version, version_data):
+    @abstractmethod
+    def update(self, desired_version: str, original_version: str, version_data: dict):
         """
-        :material-align-horizontal-left: **REQUIRED** :material-align-horizontal-right:
-
         This should return a normalized form of the desired version and verify that it
         is higher than the original version.
         """
-        raise NotImplementedError

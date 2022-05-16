@@ -37,6 +37,9 @@ def test_default(temp_dir, helpers):
             from hatchling.metadata.plugin.interface import MetadataHookInterface
 
             class CustomHook(MetadataHookInterface):
+                def update(self, metadata):
+                    pass
+
                 def foo(self):
                     return self.PLUGIN_NAME, self.root
             """
@@ -60,6 +63,9 @@ def test_explicit_path(temp_dir, helpers):
             from hatchling.metadata.plugin.interface import MetadataHookInterface
 
             class CustomHook(MetadataHookInterface):
+                def update(self, metadata):
+                    pass
+
                 def foo(self):
                     return self.PLUGIN_NAME, self.root
             """

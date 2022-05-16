@@ -1,4 +1,4 @@
-class BuildHookInterface(object):  # no cov
+class BuildHookInterface:  # no cov
     """
     Example usage:
 

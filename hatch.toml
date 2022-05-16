@@ -35,7 +35,7 @@ dependencies = [
   "mypy>=0.942",
 ]
 [envs.lint.scripts]
-typing = "mypy --install-types --non-interactive {args:src/hatch tests}"
+typing = "mypy --install-types --non-interactive {args:backend/src/hatchling src/hatch tests}"
 style = [
   "flake8 {args:.}",
   "black --check --diff {args:.}",

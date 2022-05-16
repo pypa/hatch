@@ -77,6 +77,10 @@ def build(app, location, targets, hooks_only, no_hooks, ext, clean, clean_hooks_
     if no_hooks:
         env_vars[BuildEnvVars.NO_HOOKS] = 'true'
 
+    class Builder(BuilderInterface):
+        def get_version_api(self):
+            return {}
+
     with app.project.location.as_cwd(env_vars):
         environment = app.get_environment()
 
@@ -86,7 +90,7 @@ def build(app, location, targets, hooks_only, no_hooks, ext, clean, clean_hooks_
                 app.display_info()
 
             target_name, _, _ = target.partition(':')
-            builder = BuilderInterface(str(app.project.location))
+            builder = Builder(str(app.project.location))
             builder.PLUGIN_NAME = target_name
 
             dependencies = list(app.project.metadata.build.requires)
