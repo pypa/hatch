@@ -23,6 +23,7 @@ class BuilderConfig(object):
         self.__sources = None
         self.__packages = None
         self.__force_include = None
+        self.__vcs_exclusion_files = None
 
         # Possible pathspec.PathSpec
         self.__include_spec = None
@@ -165,7 +166,7 @@ class BuilderConfig(object):
                 all_exclude_patterns.append(exclude_pattern)
 
             if not self.ignore_vcs:
-                all_exclude_patterns.extend(self.load_vcs_ignore_patterns())
+                all_exclude_patterns.extend(self.load_vcs_exclusion_patterns())
 
             if all_exclude_patterns:
                 self.__exclude_spec = pathspec.PathSpec.from_lines(
@@ -649,14 +650,47 @@ class BuilderConfig(object):
 
         return relative_path
 
-    def load_vcs_ignore_patterns(self):
-        # https://git-scm.com/docs/gitignore#_pattern_format
-        default_exclusion_file = locate_file(self.root, '.gitignore')
-        if default_exclusion_file is None:
-            return []
+    @property
+    def vcs_exclusion_files(self):
+        if self.__vcs_exclusion_files is None:
+            exclusion_files = {'git': [], 'hg': []}
 
-        with open(default_exclusion_file, 'r', encoding='utf-8') as f:
-            return f.readlines()
+            local_gitignore = locate_file(self.root, '.gitignore')
+            if local_gitignore is not None:
+                exclusion_files['git'].append(local_gitignore)
+
+            local_hgignore = locate_file(self.root, '.hgignore')
+            if local_hgignore is not None:
+                exclusion_files['hg'].append(local_hgignore)
+
+            self.__vcs_exclusion_files = exclusion_files
+
+        return self.__vcs_exclusion_files
+
+    def load_vcs_exclusion_patterns(self):
+        patterns = []
+
+        # https://git-scm.com/docs/gitignore#_pattern_format
+        for exclusion_file in self.vcs_exclusion_files['git']:
+            with open(exclusion_file, 'r', encoding='utf-8') as f:
+                patterns.extend(f.readlines())
+
+        # https://linux.die.net/man/5/hgignore
+        for exclusion_file in self.vcs_exclusion_files['hg']:
+            with open(exclusion_file, 'r', encoding='utf-8') as f:
+                glob_mode = False
+                for line in f:
+                    exact_line = line.strip()
+                    if exact_line == 'syntax: glob':
+                        glob_mode = True
+                        continue
+                    elif exact_line.startswith('syntax: '):
+                        glob_mode = False
+                        continue
+                    elif glob_mode:
+                        patterns.append(line)
+
+        return patterns
 
     def normalize_build_directory(self, build_directory):
         if not os.path.isabs(build_directory):

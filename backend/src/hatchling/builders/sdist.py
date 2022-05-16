@@ -268,8 +268,13 @@ class SdistBuilder(BuilderInterface):
         return contents
 
     def get_default_build_data(self):
+        build_data = {'artifacts': [], 'force_include': {}, 'dependencies': []}
+
+        for exclusion_files in self.config.vcs_exclusion_files.values():
+            for exclusion_file in exclusion_files:
+                build_data['force_include'][exclusion_file] = os.path.basename(exclusion_file)
+
         # Check for inclusion first to avoid redundant pattern matching
-        build_data = {'artifacts': [], 'dependencies': []}
         if not self.config.include_path('pyproject.toml'):
             build_data['artifacts'].append('/pyproject.toml')
 
@@ -288,9 +293,6 @@ class SdistBuilder(BuilderInterface):
 
         if not self.config.include_path(DEFAULT_CONFIG_FILE):
             build_data['artifacts'].append('/{}'.format(DEFAULT_CONFIG_FILE))
-
-        if not self.config.include_path('.gitignore'):
-            build_data['artifacts'].append('/.gitignore')
 
         return build_data
 
