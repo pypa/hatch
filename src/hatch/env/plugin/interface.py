@@ -44,7 +44,7 @@ class EnvironmentInterface(ABC):
 
     def __init__(self, root, metadata, name, config, data_directory, platform, verbosity, app=None):
         self.__root = root
-        self.metadata = metadata
+        self.__metadata = metadata
         self.__name = name
         self.__config = config
         self.__data_directory = data_directory
@@ -91,6 +91,10 @@ class EnvironmentInterface(ABC):
         return self.__root
 
     @property
+    def metadata(self):
+        return self.__metadata
+
+    @property
     def name(self) -> str:
         """
         The name of the environment.
@@ -127,15 +131,6 @@ class EnvironmentInterface(ABC):
             ```
         """
         return self.__config
-
-    @property
-    def context(self):
-        if self._context is None:
-            from ...utils.context import Context
-
-            self._context = Context(self.root)
-
-        return self._context
 
     @property
     def system_python(self):
@@ -705,9 +700,9 @@ class EnvironmentInterface(ABC):
 
         if possible_script in self.scripts:
             for cmd in self.scripts[possible_script]:
-                yield self.context.format(cmd, args=remaining).strip()
+                yield self.metadata.context.format(cmd, args=remaining).strip()
         else:
-            yield self.context.format(command, args=remaining).strip()
+            yield self.metadata.context.format(command, args=remaining).strip()
 
     def construct_build_command(
         self,

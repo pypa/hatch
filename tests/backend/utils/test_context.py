@@ -2,8 +2,8 @@ import os
 
 import pytest
 
-from hatch.utils.context import Context
 from hatch.utils.structures import EnvVars
+from hatchling.utils.context import Context
 
 
 def test_normal(isolation):
