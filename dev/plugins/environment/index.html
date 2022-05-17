@@ -74,7 +74,7 @@
 
     <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>root</span><span class=p>,</span> <span class=n>metadata</span><span class=p>,</span> <span class=n>name</span><span class=p>,</span> <span class=n>config</span><span class=p>,</span> <span class=n>data_directory</span><span class=p>,</span> <span class=n>platform</span><span class=p>,</span> <span class=n>verbosity</span><span class=p>,</span> <span class=n>app</span><span class=o>=</span><span class=kc>None</span><span class=p>):</span>
         <span class=bp>self</span><span class=o>.</span><span class=n>__root</span> <span class=o>=</span> <span class=n>root</span>
-        <span class=bp>self</span><span class=o>.</span><span class=n>metadata</span> <span class=o>=</span> <span class=n>metadata</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>__metadata</span> <span class=o>=</span> <span class=n>metadata</span>
         <span class=bp>self</span><span class=o>.</span><span class=n>__name</span> <span class=o>=</span> <span class=n>name</span>
         <span class=bp>self</span><span class=o>.</span><span class=n>__config</span> <span class=o>=</span> <span class=n>config</span>
         <span class=bp>self</span><span class=o>.</span><span class=n>__data_directory</span> <span class=o>=</span> <span class=n>data_directory</span>
@@ -121,6 +121,10 @@
         <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>__root</span>
 
     <span class=nd>@property</span>
+    <span class=k>def</span> <span class=nf>metadata</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+        <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>__metadata</span>
+
+    <span class=nd>@property</span>
     <span class=k>def</span> <span class=nf>name</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>str</span><span class=p>:</span>
         <span class=sd>&quot;&quot;&quot;</span>
 <span class=sd>        The name of the environment.</span>
@@ -157,15 +161,6 @@
 <span class=sd>            ```</span>
 <span class=sd>        &quot;&quot;&quot;</span>
         <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>__config</span>
-
-    <span class=nd>@property</span>
-    <span class=k>def</span> <span class=nf>context</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
-        <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>_context</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
-            <span class=kn>from</span> <span class=nn>...utils.context</span> <span class=kn>import</span> <span class=n>Context</span>
-
-            <span class=bp>self</span><span class=o>.</span><span class=n>_context</span> <span class=o>=</span> <span class=n>Context</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>root</span><span class=p>)</span>
-
-        <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>_context</span>
 
     <span class=nd>@property</span>
     <span class=k>def</span> <span class=nf>system_python</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
@@ -735,9 +730,9 @@
 
         <span class=k>if</span> <span class=n>possible_script</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>scripts</span><span class=p>:</span>
             <span class=k>for</span> <span class=n>cmd</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>scripts</span><span class=p>[</span><span class=n>possible_script</span><span class=p>]:</span>
-                <span class=k>yield</span> <span class=bp>self</span><span class=o>.</span><span class=n>context</span><span class=o>.</span><span class=n>format</span><span class=p>(</span><span class=n>cmd</span><span class=p>,</span> <span class=n>args</span><span class=o>=</span><span class=n>remaining</span><span class=p>)</span><span class=o>.</span><span class=n>strip</span><span class=p>()</span>
+                <span class=k>yield</span> <span class=bp>self</span><span class=o>.</span><span class=n>metadata</span><span class=o>.</span><span class=n>context</span><span class=o>.</span><span class=n>format</span><span class=p>(</span><span class=n>cmd</span><span class=p>,</span> <span class=n>args</span><span class=o>=</span><span class=n>remaining</span><span class=p>)</span><span class=o>.</span><span class=n>strip</span><span class=p>()</span>
         <span class=k>else</span><span class=p>:</span>
-            <span class=k>yield</span> <span class=bp>self</span><span class=o>.</span><span class=n>context</span><span class=o>.</span><span class=n>format</span><span class=p>(</span><span class=n>command</span><span class=p>,</span> <span class=n>args</span><span class=o>=</span><span class=n>remaining</span><span class=p>)</span><span class=o>.</span><span class=n>strip</span><span class=p>()</span>
+            <span class=k>yield</span> <span class=bp>self</span><span class=o>.</span><span class=n>metadata</span><span class=o>.</span><span class=n>context</span><span class=o>.</span><span class=n>format</span><span class=p>(</span><span class=n>command</span><span class=p>,</span> <span class=n>args</span><span class=o>=</span><span class=n>remaining</span><span class=p>)</span><span class=o>.</span><span class=n>strip</span><span class=p>()</span>
 
     <span class=k>def</span> <span class=nf>construct_build_command</span><span class=p>(</span>
         <span class=bp>self</span><span class=p>,</span>
