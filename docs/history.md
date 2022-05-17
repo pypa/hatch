@@ -46,6 +46,10 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 
 - Drop support for Python 2
 
+***Added:***
+
+- Improve error messaging for invalid versions
+
 ### [0.25.0](https://github.com/pypa/hatch/releases/tag/hatchling-v0.25.0) - 2022-05-15 ### {: #hatchling-v0.25.0 }
 
 ***Added:***

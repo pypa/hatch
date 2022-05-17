@@ -133,10 +133,25 @@ class ProjectMetadata:
         version = core_metadata.version
         if version is None:
             version = self.hatch.version.cached
+            source = f'source `{self.hatch.version.source_name}`'
+        else:
+            source = 'field `project.version`'
 
-        from packaging.version import Version
+        from packaging.version import InvalidVersion, Version
 
-        self._version = str(Version(version))
+        try:
+            normalized_version = str(Version(version))
+        except InvalidVersion:
+            raise ValueError(
+                # Put text on its own line to prevent mostly duplicate output
+                f'Invalid version `{version}` from {source}, see https://peps.python.org/pep-0440/'
+            )
+        else:
+            self._version = normalized_version
+
+    def validate_fields(self):
+        _ = self.version
+        self.core.validate_fields()
 
 
 class BuildMetadata:
