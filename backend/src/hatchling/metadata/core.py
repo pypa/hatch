@@ -22,6 +22,7 @@ class ProjectMetadata:
         self.root = root
         self.plugin_manager = plugin_manager
         self._config = config
+        self._context = None
         self._build = None
         self._core = None
         self._hatch = None
@@ -32,6 +33,15 @@ class ProjectMetadata:
         # App already loaded config
         if config is not None and root is not None:
             self._project_file = os.path.join(root, 'pyproject.toml')
+
+    @property
+    def context(self):
+        if self._context is None:
+            from ..utils.context import Context
+
+            self._context = Context(self.root)
+
+        return self._context
 
     @property
     def version(self):
