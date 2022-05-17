@@ -78,7 +78,7 @@ class BuilderInterface(ABC):
         clean_only=False,
     ) -> Generator[str, None, None]:
         # Fail early for invalid project metadata
-        self.metadata.core.validate_fields()
+        self.metadata.validate_fields()
 
         if directory is None:
             if BuildEnvVars.LOCATION in os.environ:

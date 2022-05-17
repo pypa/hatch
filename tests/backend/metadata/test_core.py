@@ -158,6 +158,15 @@ class TestVersion:
         with pytest.raises(TypeError, match='Field `project.version` must be a string'):
             _ = metadata.version
 
+    def test_static_invalid(self, isolation):
+        metadata = ProjectMetadata(str(isolation), None, {'project': {'version': '0..0'}})
+
+        with pytest.raises(
+            ValueError,
+            match='Invalid version `0..0` from field `project.version`, see https://peps.python.org/pep-0440/',
+        ):
+            _ = metadata.version
+
     def test_static_normalization(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {'project': {'version': '0.1.0.0-rc.1'}})
 
@@ -220,6 +229,22 @@ class TestVersion:
         assert metadata.hatch.version.source is metadata.hatch.version.source
         assert isinstance(metadata.hatch.version.source, RegexSource)
         assert metadata.hatch.version.cached == metadata.hatch.version.cached == '0.0.1'
+
+    def test_dynamic_source_regex_invalid(self, temp_dir):
+        metadata = ProjectMetadata(
+            str(temp_dir),
+            PluginManager(),
+            {'project': {'dynamic': ['version']}, 'tool': {'hatch': {'version': {'source': 'regex', 'path': 'a/b'}}}},
+        )
+
+        file_path = temp_dir / 'a' / 'b'
+        file_path.ensure_parent_dir_exists()
+        file_path.write_text('__version__ = "0..0"')
+
+        with pytest.raises(
+            ValueError, match='Invalid version `0..0` from source `regex`, see https://peps.python.org/pep-0440/'
+        ):
+            _ = metadata.version
 
     def test_dynamic_error(self, isolation):
         metadata = ProjectMetadata(
