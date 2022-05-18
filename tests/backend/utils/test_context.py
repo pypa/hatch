@@ -12,14 +12,6 @@ def test_normal(isolation):
 
 
 class TestStatic:
-    def test_root(self, isolation):
-        context = Context(isolation)
-        assert context.format('foo {root}') == f'foo {isolation}'
-
-    def test_home(self, isolation):
-        context = Context(isolation)
-        assert context.format('foo {home}') == f'foo {os.path.expanduser("~")}'
-
     def test_directory_separator(self, isolation):
         context = Context(isolation)
         assert context.format('foo {/}') == f'foo {os.path.sep}'
@@ -27,6 +19,46 @@ class TestStatic:
     def test_path_separator(self, isolation):
         context = Context(isolation)
         assert context.format('foo {;}') == f'foo {os.pathsep}'
+
+
+class TestRoot:
+    def test_default(self, isolation):
+        context = Context(isolation)
+        assert context.format('foo {root}') == f'foo {isolation}'
+
+    def test_uri(self, isolation):
+        context = Context(isolation)
+        assert context.format('foo {root:uri}') == f'foo file://{str(isolation).replace(os.sep, "/")}'
+
+    def test_real(self, isolation):
+        context = Context(isolation)
+        assert context.format('foo {root:real}') == f'foo {os.path.realpath(isolation)}'
+
+    def test_unknown_modifier(self, isolation):
+        context = Context(isolation)
+
+        with pytest.raises(ValueError, match='Unknown path modifier: bar'):
+            context.format('foo {root:bar}')
+
+
+class TestHome:
+    def test_default(self, isolation):
+        context = Context(isolation)
+        assert context.format('foo {home}') == f'foo {os.path.expanduser("~")}'
+
+    def test_uri(self, isolation):
+        context = Context(isolation)
+        assert context.format('foo {home:uri}') == f'foo file://{os.path.expanduser("~").replace(os.sep, "/")}'
+
+    def test_real(self, isolation):
+        context = Context(isolation)
+        assert context.format('foo {home:real}') == f'foo {os.path.realpath(os.path.expanduser("~"))}'
+
+    def test_unknown_modifier(self, isolation):
+        context = Context(isolation)
+
+        with pytest.raises(ValueError, match='Unknown path modifier: bar'):
+            context.format('foo {home:bar}')
 
 
 class TestEnvVars:

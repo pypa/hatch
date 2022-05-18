@@ -1,10 +1,117 @@
 import os
 import string
+from abc import ABC, abstractmethod
 from collections import ChainMap
 from contextlib import contextmanager
 
+from .fs import path_to_uri
 
-class ContextFormatter(string.Formatter):
+
+class ContextFormatter(ABC):
+    @abstractmethod
+    def get_formatters(self):
+        """
+        A mapping of supported field names to their respective formatting functions. Each function
+        accepts 2 arguments:
+
+        - the value that was passed to the format call, defaulting to `None`
+        - the modifier, defaulting to an empty string
+        """
+
+    @classmethod
+    def format_path(cls, path, modifier):
+        if not modifier:
+            return os.path.normpath(path)
+        elif modifier == 'uri':
+            return path_to_uri(path)
+        elif modifier == 'real':
+            return os.path.realpath(path)
+        else:
+            raise ValueError(f'Unknown path modifier: {modifier}')
+
+
+class DefaultContextFormatter(ContextFormatter):
+    CONTEXT_NAME = 'default'
+
+    def __init__(self, root):
+        self.__root = root
+
+    def get_formatters(self):
+        return {
+            '/': self.__format_directory_separator,
+            ';': self.__format_path_separator,
+            'args': self.__format_args,
+            'env': self.__format_env,
+            'home': self.__format_home,
+            'root': self.__format_root,
+        }
+
+    def __format_directory_separator(self, value, data):
+        return os.path.sep
+
+    def __format_path_separator(self, value, data):
+        return os.pathsep
+
+    def __format_root(self, value, data):
+        return self.format_path(self.__root, data)
+
+    def __format_home(self, value, data):
+        return self.format_path(os.path.expanduser('~'), data)
+
+    def __format_env(self, value, data):
+        env_var, separator, default = data.partition(':')
+        if env_var in os.environ:
+            return os.environ[env_var]
+        elif not separator:
+            raise ValueError(f'Environment variable without default must be set: {env_var}')
+        else:
+            return default
+
+    def __format_args(self, value, data):
+        if value is not None:
+            return value
+        else:
+            return data or ''
+
+
+class Context:
+    def __init__(self, root):
+        self.__root = str(root)
+
+        # Allow callers to define their own formatters with precedence
+        self.__formatters = ChainMap()
+        self.__configured_contexts = set()
+        self.__formatter = ContextStringFormatter(self.__formatters)
+
+        self.add_context(DefaultContextFormatter(self.__root))
+
+    def format(self, *args, **kwargs):
+        return self.__formatter.format(*args, **kwargs)
+
+    def add_context(self, context):
+        if context.CONTEXT_NAME in self.__configured_contexts:
+            return
+
+        self.__add_formatters(context.get_formatters())
+        self.__configured_contexts.add(context.CONTEXT_NAME)
+
+    @contextmanager
+    def apply_context(self, context):
+        self.__add_formatters(context.get_formatters())
+        try:
+            yield
+        finally:
+            self.__remove_formatters()
+
+    def __add_formatters(self, formatters):
+        return self.__formatters.maps.insert(0, formatters)
+
+    def __remove_formatters(self):
+        if len(self.__formatters.maps) > 1:
+            self.__formatters.maps.pop(0)
+
+
+class ContextStringFormatter(string.Formatter):
     def __init__(self, formatters):
         super().__init__()
 
@@ -40,76 +147,3 @@ class ContextFormatter(string.Formatter):
                 yield literal_text, field_name, f'{field_name}:{format_spec}', conversion
             else:
                 yield literal_text, field_name, format_spec, conversion
-
-
-class Context:
-    def __init__(self, root):
-        self.__root = str(root)
-
-        # Allow callers to define their own formatters with precedence
-        self.__formatters = ChainMap()
-        self.__add_formatters(
-            {
-                '/': self.__format_directory_separator,
-                ';': self.__format_path_separator,
-                'args': self.__format_args,
-                'env': self.__format_env,
-                'home': self.__format_home,
-                'root': self.__format_root,
-            }
-        )
-
-        self.__configured_contexts = set()
-        self.__formatter = ContextFormatter(self.__formatters)
-
-    def format(self, *args, **kwargs):
-        return self.__formatter.format(*args, **kwargs)
-
-    def add_context(self, context):
-        if context.CONTEXT_NAME in self.__configured_contexts:
-            return
-
-        self.__add_formatters(context.get_formatters())
-        self.__configured_contexts.add(context.CONTEXT_NAME)
-
-    @contextmanager
-    def apply_context(self, context):
-        self.add_context(context)
-        try:
-            yield
-        finally:
-            self.__remove_formatters()
-
-    def __add_formatters(self, formatters):
-        return self.__formatters.maps.insert(0, formatters)
-
-    def __remove_formatters(self):
-        if len(self.__formatters.maps) > 1:
-            self.__formatters.maps.pop(0)
-
-    def __format_directory_separator(self, value, data):
-        return os.path.sep
-
-    def __format_path_separator(self, value, data):
-        return os.pathsep
-
-    def __format_root(self, value, data):
-        return self.__root
-
-    def __format_home(self, value, data):
-        return os.path.expanduser('~')
-
-    def __format_env(self, value, data):
-        env_var, separator, default = data.partition(':')
-        if env_var in os.environ:
-            return os.environ[env_var]
-        elif not separator:
-            raise ValueError(f'Environment variable without default must be set: {env_var}')
-        else:
-            return default
-
-    def __format_args(self, value, data):
-        if value is not None:
-            return value
-        else:
-            return data or ''
