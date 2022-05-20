@@ -86,7 +86,7 @@ class ProjectMetadata:
             if not isinstance(core_metadata, dict):
                 raise TypeError('The `project` configuration must be a table')
 
-            metadata = CoreMetadata(self.root, core_metadata, self.hatch.metadata)
+            metadata = CoreMetadata(self.root, core_metadata, self.hatch.metadata, self.context)
 
             metadata_hooks = self.hatch.metadata.hooks
             if metadata_hooks:
@@ -241,10 +241,11 @@ class CoreMetadata:
     https://peps.python.org/pep-0621/
     """
 
-    def __init__(self, root, config, hatch_metadata):
+    def __init__(self, root, config, hatch_metadata, context):
         self.root = root
         self.config = config
         self.hatch_metadata = hatch_metadata
+        self.context = context
 
         self._name = None
         self._version = None
@@ -976,7 +977,7 @@ class CoreMetadata:
                     raise TypeError(f'Dependency #{i} of field `project.dependencies` must be a string')
 
                 try:
-                    requirement = Requirement(entry)
+                    requirement = Requirement(self.context.format(entry))
                 except InvalidRequirement as e:
                     raise ValueError(f'Dependency #{i} of field `project.dependencies` is invalid: {e}')
                 else:
@@ -1047,7 +1048,7 @@ class CoreMetadata:
                         )
 
                     try:
-                        requirement = Requirement(entry)
+                        requirement = Requirement(self.context.format(entry))
                     except InvalidRequirement as e:
                         raise ValueError(
                             f'Dependency #{i} of option `{option}` of field `project.optional-dependencies` '
