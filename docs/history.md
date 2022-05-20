@@ -47,6 +47,8 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 
 ### Unreleased
 
+### [1.2.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.2.0) - 2022-05-20 ### {: #hatchling-v1.2.0 }
+
 ***Added:***
 
 - Allow context formatting for `project.dependencies` and `project.optional-dependencies`
