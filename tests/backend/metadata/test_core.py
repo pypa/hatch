@@ -1100,6 +1100,19 @@ class TestDependencies:
 
         assert metadata.core.dependencies == ['proj@ git+https://github.com/org/proj.git@v1']
 
+    def test_context_formatting(self, isolation):
+        metadata = ProjectMetadata(
+            str(isolation),
+            None,
+            {
+                'project': {'dependencies': ['proj @ {root:uri}']},
+                'tool': {'hatch': {'metadata': {'allow-direct-references': True}}},
+            },
+        )
+
+        normalized_path = str(isolation).replace('\\', '/')
+        assert metadata.core.dependencies == [f'proj@ file://{normalized_path}']
+
     def test_correct(self, isolation):
         metadata = ProjectMetadata(
             str(isolation),
@@ -1212,6 +1225,19 @@ class TestOptionalDependencies:
             match='Dependency #1 of option `foo` of field `project.optional-dependencies` cannot be a direct reference',
         ):
             _ = metadata.core.optional_dependencies
+
+    def test_context_formatting(self, isolation):
+        metadata = ProjectMetadata(
+            str(isolation),
+            None,
+            {
+                'project': {'optional-dependencies': {'foo': ['proj @ {root:uri}']}},
+                'tool': {'hatch': {'metadata': {'allow-direct-references': True}}},
+            },
+        )
+
+        normalized_path = str(isolation).replace('\\', '/')
+        assert metadata.core.optional_dependencies == {'foo': [f'proj@ file://{normalized_path}']}
 
     def test_direct_reference_allowed(self, isolation):
         metadata = ProjectMetadata(
