@@ -40,7 +40,6 @@ class DefaultContextFormatter(ContextFormatter):
         return {
             '/': self.__format_directory_separator,
             ';': self.__format_path_separator,
-            'args': self.__format_args,
             'env': self.__format_env,
             'home': self.__format_home,
             'root': self.__format_root,
@@ -66,12 +65,6 @@ class DefaultContextFormatter(ContextFormatter):
             raise ValueError(f'Environment variable without default must be set: {env_var}')
         else:
             return default
-
-    def __format_args(self, value, data):
-        if value is not None:
-            return value
-        else:
-            return data or ''
 
 
 class Context:

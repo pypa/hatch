@@ -49,10 +49,9 @@ class EnvironmentInterface(ABC):
         self.__config = config
         self.__data_directory = data_directory
         self.__platform = platform
-        self.verbosity = verbosity
+        self.__verbosity = verbosity
         self.__app = app
-
-        self._context = None
+        self.__context = None
 
         self._system_python = None
         self._env_vars = None
@@ -82,6 +81,17 @@ class EnvironmentInterface(ABC):
             self.__app = Application().get_safe_application()
 
         return self.__app
+
+    @property
+    def context(self):
+        if self.__context is None:
+            self.__context = self.get_context()
+
+        return self.__context
+
+    @property
+    def verbosity(self):
+        return self.__verbosity
 
     @property
     def root(self):
@@ -256,7 +266,7 @@ class EnvironmentInterface(ABC):
                         )
 
                     try:
-                        dependencies_complex.append(Requirement(entry))
+                        dependencies_complex.append(Requirement(self.metadata.context.format(entry)))
                     except InvalidRequirement as e:
                         raise ValueError(
                             f'Dependency #{i} of field `tool.hatch.envs.{self.name}.{option}` is invalid: {e}'
@@ -698,11 +708,12 @@ class EnvironmentInterface(ABC):
         if not remaining:
             remaining = None
 
-        if possible_script in self.scripts:
-            for cmd in self.scripts[possible_script]:
-                yield self.metadata.context.format(cmd, args=remaining).strip()
-        else:
-            yield self.metadata.context.format(command, args=remaining).strip()
+        with self.metadata.context.apply_context(self.context):
+            if possible_script in self.scripts:
+                for cmd in self.scripts[possible_script]:
+                    yield self.metadata.context.format(cmd, args=remaining).strip()
+            else:
+                yield self.metadata.context.format(command, args=remaining).strip()
 
     def construct_build_command(
         self,
@@ -802,6 +813,19 @@ class EnvironmentInterface(ABC):
         """
         return EnvVars(self.env_vars, self.env_include, self.env_exclude)
 
+    def get_env_var_option(self, option: str) -> str:
+        """
+        Returns the value of the upper-cased environment variable `HATCH_ENV_TYPE_<PLUGIN_NAME>_<option>`.
+        """
+        return os.environ.get(f'{AppEnvVars.ENV_OPTION_PREFIX}{self.PLUGIN_NAME}_{option}'.upper(), '')
+
+    def get_context(self):
+        """
+        """
+        from ..context import EnvironmentContextFormatter
+
+        return EnvironmentContextFormatter(self)
+
     @staticmethod
     def get_option_types() -> dict:
         """
@@ -809,12 +833,6 @@ class EnvironmentInterface(ABC):
         [overrides](../config/environment.md#option-overrides).
         """
         return {}
-
-    def get_env_var_option(self, option: str) -> str:
-        """
-        Returns the value of the upper-cased environment variable `HATCH_ENV_TYPE_<PLUGIN_NAME>_<option>`.
-        """
-        return os.environ.get(f'{AppEnvVars.ENV_OPTION_PREFIX}{self.PLUGIN_NAME}_{option}'.upper(), '')
 
     def __enter__(self):
         self.activate()

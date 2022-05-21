@@ -539,6 +539,21 @@ class TestDependencies:
 
         assert environment.dependencies == ['dep2', 'dep3', 'dep1']
 
+    def test_context_formatting(self, isolation, data_dir, platform):
+        config = {
+            'project': {'name': 'my_app', 'version': '0.0.1', 'dependencies': ['dep1']},
+            'tool': {
+                'hatch': {'envs': {'default': {'dependencies': ['dep2'], 'extra-dependencies': ['proj @ {root:uri}']}}}
+            },
+        }
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation, project.metadata, 'default', project.config.envs['default'], data_dir, platform, 0
+        )
+
+        normalized_path = str(isolation).replace('\\', '/')
+        assert environment.dependencies == ['dep2', f'proj@ file://{normalized_path}', 'dep1']
+
     def test_full_skip_install(self, isolation, data_dir, platform):
         config = {
             'project': {'name': 'my_app', 'version': '0.0.1', 'dependencies': ['dep1']},
@@ -861,3 +876,65 @@ class TestEnvVarOption:
 
         with EnvVars({'HATCH_ENV_TYPE_MOCK_FOO': 'bar'}):
             assert environment.get_env_var_option('foo') == 'bar'
+
+
+class TestContextFormatting:
+    def test_env_name(self, isolation, data_dir, platform):
+        config = {
+            'project': {'name': 'my_app', 'version': '0.0.1'},
+            'tool': {'hatch': {'envs': {'default': {'scripts': {'foo': 'command {env_name}'}}}}},
+        }
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation, project.metadata, 'default', project.config.envs['default'], data_dir, platform, 0
+        )
+
+        assert list(environment.expand_command('foo')) == ['command default']
+
+    def test_verbosity(self, isolation, data_dir, platform):
+        config = {
+            'project': {'name': 'my_app', 'version': '0.0.1'},
+            'tool': {'hatch': {'envs': {'default': {'scripts': {'foo': 'command -v={verbosity}'}}}}},
+        }
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation, project.metadata, 'default', project.config.envs['default'], data_dir, platform, 9000
+        )
+
+        assert list(environment.expand_command('foo')) == ['command -v=9000']
+
+    def test_args_undefined(self, isolation, data_dir, platform):
+        config = {
+            'project': {'name': 'my_app', 'version': '0.0.1'},
+            'tool': {'hatch': {'envs': {'default': {'scripts': {'foo': 'command {args}'}}}}},
+        }
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation, project.metadata, 'default', project.config.envs['default'], data_dir, platform, 0
+        )
+
+        assert list(environment.expand_command('foo')) == ['command']
+
+    def test_args_default(self, isolation, data_dir, platform):
+        config = {
+            'project': {'name': 'my_app', 'version': '0.0.1'},
+            'tool': {'hatch': {'envs': {'default': {'scripts': {'foo': 'command {args: -bar > /dev/null}'}}}}},
+        }
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation, project.metadata, 'default', project.config.envs['default'], data_dir, platform, 0
+        )
+
+        assert list(environment.expand_command('foo')) == ['command  -bar > /dev/null']
+
+    def test_args_default_override(self, isolation, data_dir, platform):
+        config = {
+            'project': {'name': 'my_app', 'version': '0.0.1'},
+            'tool': {'hatch': {'envs': {'default': {'scripts': {'foo': 'command {args: -bar > /dev/null}'}}}}},
+        }
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation, project.metadata, 'default', project.config.envs['default'], data_dir, platform, 0
+        )
+
+        assert list(environment.expand_command('foo baz')) == ['command baz']

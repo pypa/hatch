@@ -151,7 +151,13 @@ Note that the features come immediately after the package name, before any [vers
 
 Instead of using normal [version specifiers](#version-specifiers) and fetching packages from an index like PyPI, you can define exact sources using [direct references](https://peps.python.org/pep-0440/#direct-references) with an explicit [URI](https://en.wikipedia.org/wiki/Uniform_Resource_Identifier#Syntax).
 
-Direct references are not meant to be used for dependencies of a published project but rather are used for defining [dependencies for an environment](environment.md#dependencies).
+Direct references are usually not meant to be used for dependencies of a published project but rather are used for defining [dependencies for an environment](environment.md#dependencies).
+
+All direct reference types are prefixed by the package name like:
+
+```
+<NAME> @ <REFERENCE>
+```
 
 ### Version control systems
 
@@ -195,7 +201,7 @@ For more information, refer to [this](https://pip.pypa.io/en/stable/topics/vcs-s
 You can install local packages with the `file` scheme in the following format:
 
 ```
-file://<HOST>/<PATH>
+<NAME> @ file://<HOST>/<PATH>
 ```
 
 The `<HOST>` is only used on Windows systems, where it can refer to a network share. If omitted it is assumed to be `localhost` and the third slash must still be present.
@@ -204,16 +210,16 @@ The `<PATH>` can refer to a source archive, a wheel, or a directory containing a
 
 | Type | Unix | Windows |
 | --- | --- | --- |
-| Source archive | `file:///path/to/pkg.tar.gz` | `file:///c:/path/to/pkg.tar.gz` |
-| Wheel | `file:///path/to/pkg.whl` | `file:///c:/path/to/pkg.whl` |
-| Directory | `file:///path/to/pkg` | `file:///c:/path/to/pkg` |
+| Source archive | `proj @ file:///path/to/pkg.tar.gz` | `proj @ file:///c:/path/to/pkg.tar.gz` |
+| Wheel | `proj @ file:///path/to/pkg.whl` | `proj @ file:///c:/path/to/pkg.whl` |
+| Directory | `proj @ file:///path/to/pkg` | `proj @ file:///c:/path/to/pkg` |
 
 !!! tip
-    When running [commands](environment.md#commands) that invoke `pip` directly, you may also specify paths [relative](https://www.rfc-editor.org/rfc/rfc3986#section-4.2) to your project's root directory on all platforms by omitting the leading slashes and beginning the path with a dot:
+    You may also specify paths relative to your project's root directory on all platforms by using [context formatting](context.md#paths):
 
     ```
-    file:./pkg_inside_project
-    file:../pkg_alongside_project
+    proj @ {root:uri}/pkg_inside_project
+    proj @ {root:uri}/../pkg_alongside_project
     ```
 
 ### Remote
@@ -221,14 +227,14 @@ The `<PATH>` can refer to a source archive, a wheel, or a directory containing a
 You can install source archives and wheels by simply referring to a URL:
 
 ```
-https://github.com/psf/black/archive/refs/tags/21.10b0.zip
-https://download.pytorch.org/whl/cu102/torch-1.10.0%2Bcu102-cp39-cp39-linux_x86_64.whl
+black @ https://github.com/psf/black/archive/refs/tags/21.10b0.zip
+pytorch @ https://download.pytorch.org/whl/cu102/torch-1.10.0%2Bcu102-cp39-cp39-linux_x86_64.whl
 ```
 
 An expected hash value may be specified by appending a `#<HASH_ALGORITHM>=<EXPECTED_HASH>` component:
 
 ```
-https://github.com/psf/requests/archive/refs/tags/v2.26.0.zip#sha256=eb729a757f01c10546ebd179ae2aec852dd0d7f8ada2328ccf4558909d859985
+requests @ https://github.com/psf/requests/archive/refs/tags/v2.26.0.zip#sha256=eb729a757f01c10546ebd179ae2aec852dd0d7f8ada2328ccf4558909d859985
 ```
 
 If the hash differs from the expected hash, the installation will fail.

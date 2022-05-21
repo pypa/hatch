@@ -94,20 +94,3 @@ class TestEnvVars:
 
         with pytest.raises(ValueError, match='Environment variable without default must be set: BAR'):
             context.format('foo {env:BAR}')
-
-
-class TestArgs:
-    def test_undefined(self, isolation):
-        context = Context(isolation)
-
-        assert context.format('foo {args}') == 'foo '
-
-    def test_default(self, isolation):
-        context = Context(isolation)
-
-        assert context.format('foo {args: -bar > /dev/null}') == 'foo  -bar > /dev/null'
-
-    def test_default_override(self, isolation):
-        context = Context(isolation)
-
-        assert context.format('foo {args: -bar > /dev/null}', args='baz') == 'foo baz'
