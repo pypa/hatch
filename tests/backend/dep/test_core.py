@@ -1,7 +1,6 @@
 import sys
 
 import pytest
-
 from packaging.requirements import Requirement
 
 from hatch.venv.core import TempVirtualEnv
