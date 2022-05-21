@@ -218,8 +218,8 @@ The `<PATH>` can refer to a source archive, a wheel, or a directory containing a
     You may also specify paths relative to your project's root directory on all platforms by using [context formatting](context.md#paths):
 
     ```
-    proj @ {root:uri}/pkg_inside_project
-    proj @ {root:uri}/../pkg_alongside_project
+    <NAME> @ {root:uri}/pkg_inside_project
+    <NAME> @ {root:uri}/../pkg_alongside_project
     ```
 
 ### Remote

@@ -821,6 +821,7 @@ class EnvironmentInterface(ABC):
 
     def get_context(self):
         """
+        Returns a subclass of [EnvironmentContextFormatter](utilities.md#hatch.env.context.EnvironmentContextFormatter).
         """
         from ..context import EnvironmentContextFormatter
 

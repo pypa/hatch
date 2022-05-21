@@ -11,11 +11,11 @@ class ContextFormatter(ABC):
     @abstractmethod
     def get_formatters(self):
         """
-        A mapping of supported field names to their respective formatting functions. Each function
+        This returns a mapping of supported field names to their respective formatting functions. Each function
         accepts 2 arguments:
 
-        - the value that was passed to the format call, defaulting to `None`
-        - the modifier, defaulting to an empty string
+        - the `value` that was passed to the format call, defaulting to `None`
+        - the modifier `data`, defaulting to an empty string
         """
 
     @classmethod
