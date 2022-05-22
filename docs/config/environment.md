@@ -93,7 +93,7 @@ A common use case is standalone environments that do not require inheritance nor
 
 ## Dependencies
 
-You can install [dependencies](dependency.md) in addition to the ones defined by your [project's metadata](metadata.md#dependencies). Entries support [context formatting](context.md).
+You can install [dependencies](dependency.md) in addition to the ones defined by your [project's metadata](metadata.md#dependencies). Entries support [context formatting](#context-formatting).
 
 === ":octicons-file-code-16: pyproject.toml"
 
@@ -506,7 +506,7 @@ The `description` option is purely informational and is displayed in the output 
 
 ## Type
 
-An environment's `type` determines which [environment plugin](../plugins/environment.md) will be used for management. The only built-in environment type is [virtual](../plugins/environment.md#virtual), which uses virtual Python environments.
+An environment's `type` determines which [environment plugin](../plugins/environment.md) will be used for management. The only built-in environment type is [`virtual`](../plugins/environment.md#virtual), which uses virtual Python environments.
 
 ## Context formatting
 
@@ -515,6 +515,8 @@ All environments support the following extra [context formatting](context.md) fi
 | Field | Description |
 | --- | --- |
 | `env_name` | The name of the environment |
+| `env_type` | The [type](#type) of environment |
+| `matrix` | Its modifier selects the value of that matrix variable. If the environment is not part of a matrix or was not generated with the variable, you must specify a default value as an additional modifier e.g. `{matrix:version:v1.0.0}`. |
 | `verbosity` | The integer verbosity value of Hatch. A `flag` modifier is supported that will render the value as a CLI flag e.g. `-2` becomes `-qq`, `1` becomes `-v`, and `0` becomes an empty string. An additional flag integer modifier may be used to adjust the verbosity level. For example, if you wanted to make a command quiet by default, you could use `{verbosity:flag:-1}` within the command. |
 | `args` | For [executed commands](../environment.md#command-execution) only, any extra command line arguments with an optional default modifier if none were provided |
 

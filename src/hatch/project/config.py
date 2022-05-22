@@ -16,6 +16,7 @@ class ProjectConfig:
         self._env = None
         self._env_collectors = None
         self._envs = None
+        self._matrix_variables = None
         self._publish = None
         self._scripts = None
         self._cached_env_overrides = {}
@@ -55,6 +56,13 @@ class ProjectConfig:
             _ = self.envs
 
         return self._matrices
+
+    @property
+    def matrix_variables(self):
+        if self._matrix_variables is None:
+            _ = self.envs
+
+        return self._matrix_variables
 
     @property
     def envs(self):
@@ -100,6 +108,7 @@ class ProjectConfig:
 
             current_platform = get_platform_name()
             all_matrices = {}
+            generated_envs = {}
             final_config = {}
             cached_overrides = {}
             for env_name, initial_config in config.items():
@@ -277,11 +286,15 @@ class ProjectConfig:
                 # Remove the root matrix generator
                 del cached_overrides[env_name]
 
+                # Save the variables used to generate the environments
+                generated_envs.update(all_envs)
+
             for environment_collector in environment_collectors:
                 environment_collector.finalize_environments(final_config)
 
             self._matrices = all_matrices
             self._envs = final_config
+            self._matrix_variables = generated_envs
             self._cached_env_overrides.update(cached_overrides)
 
         return self._envs

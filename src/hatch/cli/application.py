@@ -57,6 +57,7 @@ class Application(Terminal):
             self.project.metadata,
             env_name,
             config,
+            self.project.config.matrix_variables.get(env_name, {}),
             data_dir,
             self.platform,
             self.verbosity,

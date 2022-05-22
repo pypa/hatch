@@ -43,11 +43,12 @@ class EnvironmentInterface(ABC):
     PLUGIN_NAME = ''
     """The name used for selection."""
 
-    def __init__(self, root, metadata, name, config, data_directory, platform, verbosity, app=None):
+    def __init__(self, root, metadata, name, config, matrix_variables, data_directory, platform, verbosity, app=None):
         self.__root = root
         self.__metadata = metadata
         self.__name = name
         self.__config = config
+        self.__matrix_variables = matrix_variables
         self.__data_directory = data_directory
         self.__platform = platform
         self.__verbosity = verbosity
@@ -70,6 +71,10 @@ class EnvironmentInterface(ABC):
         self._scripts = None
         self._pre_install_commands = None
         self._post_install_commands = None
+
+    @property
+    def matrix_variables(self):
+        return self.__matrix_variables
 
     @property
     def app(self):
@@ -255,23 +260,24 @@ class EnvironmentInterface(ABC):
             from packaging.requirements import InvalidRequirement, Requirement
 
             dependencies_complex = []
-            for option in ('dependencies', 'extra-dependencies'):
-                dependencies = self.config.get(option, [])
-                if not isinstance(dependencies, list):
-                    raise TypeError(f'Field `tool.hatch.envs.{self.name}.{option}` must be an array')
+            with self.metadata.context.apply_context(self.context):
+                for option in ('dependencies', 'extra-dependencies'):
+                    dependencies = self.config.get(option, [])
+                    if not isinstance(dependencies, list):
+                        raise TypeError(f'Field `tool.hatch.envs.{self.name}.{option}` must be an array')
 
-                for i, entry in enumerate(dependencies, 1):
-                    if not isinstance(entry, str):
-                        raise TypeError(
-                            f'Dependency #{i} of field `tool.hatch.envs.{self.name}.{option}` must be a string'
-                        )
+                    for i, entry in enumerate(dependencies, 1):
+                        if not isinstance(entry, str):
+                            raise TypeError(
+                                f'Dependency #{i} of field `tool.hatch.envs.{self.name}.{option}` must be a string'
+                            )
 
-                    try:
-                        dependencies_complex.append(Requirement(self.metadata.context.format(entry)))
-                    except InvalidRequirement as e:
-                        raise ValueError(
-                            f'Dependency #{i} of field `tool.hatch.envs.{self.name}.{option}` is invalid: {e}'
-                        )
+                        try:
+                            dependencies_complex.append(Requirement(self.metadata.context.format(entry)))
+                        except InvalidRequirement as e:
+                            raise ValueError(
+                                f'Dependency #{i} of field `tool.hatch.envs.{self.name}.{option}` is invalid: {e}'
+                            )
 
             self._environment_dependencies_complex = dependencies_complex
 

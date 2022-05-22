@@ -20,7 +20,14 @@ def prune(app):
         data_dir = app.get_env_directory(environment_type)
 
         environment = environment_types[environment_type](
-            app.project.location, app.project.metadata, env_name, config, data_dir, app.platform, app.verbosity
+            app.project.location,
+            app.project.metadata,
+            env_name,
+            config,
+            app.project.config.matrix_variables.get(env_name, {}),
+            data_dir,
+            app.platform,
+            app.verbosity,
         )
 
         try:

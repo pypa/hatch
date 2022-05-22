@@ -31,6 +31,7 @@ class EnvironmentContextFormatter(EnvironmentContextFormatterBase):
             'args': self.__format_args,
             'env_name': self.__format_env_name,
             'env_type': self.__format_env_type,
+            'matrix': self.__format_matrix,
             'verbosity': self.__format_verbosity,
         }
         formatters.update(self.formatters())
@@ -48,6 +49,18 @@ class EnvironmentContextFormatter(EnvironmentContextFormatterBase):
     def __format_env_type(self, value, data):
         return self.environment.PLUGIN_NAME
 
+    def __format_matrix(self, value, data):
+        if not data:
+            raise ValueError('The `matrix` context formatting field requires a modifier')
+
+        variable, separator, default = data.partition(':')
+        if variable in self.environment.matrix_variables:
+            return self.environment.matrix_variables[variable]
+        elif not separator:
+            raise ValueError(f'Nonexistent matrix variable must set a default: {variable}')
+        else:
+            return default
+
     def __format_verbosity(self, value, data):
         if not data:
             return str(self.environment.verbosity)
@@ -61,6 +74,6 @@ class EnvironmentContextFormatter(EnvironmentContextFormatterBase):
         try:
             adjustment = int(adjustment)
         except ValueError:
-            raise ValueError(f'Verbosity flag adjustment must be an integer: {adjustment}') from None
+            raise TypeError(f'Verbosity flag adjustment must be an integer: {adjustment}') from None
 
         return get_verbosity_flag(self.environment.verbosity, adjustment=adjustment)

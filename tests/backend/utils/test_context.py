@@ -89,8 +89,14 @@ class TestEnvVars:
 
         assert context.format('foo {env:BAR:{env:BAZ:{home}}}') == f'foo {os.path.expanduser("~")}'
 
+    def test_no_selection(self, isolation):
+        context = Context(isolation)
+
+        with pytest.raises(ValueError, match='The `env` context formatting field requires a modifier'):
+            context.format('foo {env}')
+
     def test_unset_without_default(self, isolation):
         context = Context(isolation)
 
-        with pytest.raises(ValueError, match='Environment variable without default must be set: BAR'):
+        with pytest.raises(ValueError, match='Nonexistent environment variable must set a default: BAR'):
             context.format('foo {env:BAR}')

@@ -58,11 +58,14 @@ class DefaultContextFormatter(ContextFormatter):
         return self.format_path(os.path.expanduser('~'), data)
 
     def __format_env(self, value, data):
+        if not data:
+            raise ValueError('The `env` context formatting field requires a modifier')
+
         env_var, separator, default = data.partition(':')
         if env_var in os.environ:
             return os.environ[env_var]
         elif not separator:
-            raise ValueError(f'Environment variable without default must be set: {env_var}')
+            raise ValueError(f'Nonexistent environment variable must set a default: {env_var}')
         else:
             return default
 
