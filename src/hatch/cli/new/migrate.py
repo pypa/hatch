@@ -5,8 +5,6 @@ FILE = os.path.abspath(__file__)
 HERE = os.path.dirname(FILE)
 ENV_VAR_PREFIX = '_HATCHLING_PORT_ADD_'
 
-__version__ = '9000.0.0'
-
 
 def _apply_env_vars(kwargs):
     from ast import literal_eval
