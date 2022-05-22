@@ -498,7 +498,7 @@ def test_command_expansion_error(hatch, helpers, temp_dir, config_file):
     assert result.output == helpers.dedent(
         """
         Creating environment: default
-        Environment variable without default must be set: FOOBAR
+        Nonexistent environment variable must set a default: FOOBAR
         """
     )
     output_file = project_path / 'test.txt'
