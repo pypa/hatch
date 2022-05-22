@@ -8,6 +8,7 @@ from os.path import isabs
 
 from ...config.constants import AppEnvVars
 from ...utils.structures import EnvVars
+from ..utils import add_verbosity_flag
 
 
 class EnvironmentInterface(ABC):
@@ -42,17 +43,17 @@ class EnvironmentInterface(ABC):
     PLUGIN_NAME = ''
     """The name used for selection."""
 
-    def __init__(self, root, metadata, name, config, data_directory, platform, verbosity, app=None):
+    def __init__(self, root, metadata, name, config, matrix_variables, data_directory, platform, verbosity, app=None):
         self.__root = root
         self.__metadata = metadata
         self.__name = name
         self.__config = config
+        self.__matrix_variables = matrix_variables
         self.__data_directory = data_directory
         self.__platform = platform
-        self.verbosity = verbosity
+        self.__verbosity = verbosity
         self.__app = app
-
-        self._context = None
+        self.__context = None
 
         self._system_python = None
         self._env_vars = None
@@ -72,6 +73,10 @@ class EnvironmentInterface(ABC):
         self._post_install_commands = None
 
     @property
+    def matrix_variables(self):
+        return self.__matrix_variables
+
+    @property
     def app(self):
         """
         An instance of [Application](utilities.md#hatchling.bridge.app.Application).
@@ -82,6 +87,17 @@ class EnvironmentInterface(ABC):
             self.__app = Application().get_safe_application()
 
         return self.__app
+
+    @property
+    def context(self):
+        if self.__context is None:
+            self.__context = self.get_context()
+
+        return self.__context
+
+    @property
+    def verbosity(self):
+        return self.__verbosity
 
     @property
     def root(self):
@@ -244,23 +260,24 @@ class EnvironmentInterface(ABC):
             from packaging.requirements import InvalidRequirement, Requirement
 
             dependencies_complex = []
-            for option in ('dependencies', 'extra-dependencies'):
-                dependencies = self.config.get(option, [])
-                if not isinstance(dependencies, list):
-                    raise TypeError(f'Field `tool.hatch.envs.{self.name}.{option}` must be an array')
+            with self.metadata.context.apply_context(self.context):
+                for option in ('dependencies', 'extra-dependencies'):
+                    dependencies = self.config.get(option, [])
+                    if not isinstance(dependencies, list):
+                        raise TypeError(f'Field `tool.hatch.envs.{self.name}.{option}` must be an array')
 
-                for i, entry in enumerate(dependencies, 1):
-                    if not isinstance(entry, str):
-                        raise TypeError(
-                            f'Dependency #{i} of field `tool.hatch.envs.{self.name}.{option}` must be a string'
-                        )
+                    for i, entry in enumerate(dependencies, 1):
+                        if not isinstance(entry, str):
+                            raise TypeError(
+                                f'Dependency #{i} of field `tool.hatch.envs.{self.name}.{option}` must be a string'
+                            )
 
-                    try:
-                        dependencies_complex.append(Requirement(entry))
-                    except InvalidRequirement as e:
-                        raise ValueError(
-                            f'Dependency #{i} of field `tool.hatch.envs.{self.name}.{option}` is invalid: {e}'
-                        )
+                        try:
+                            dependencies_complex.append(Requirement(self.metadata.context.format(entry)))
+                        except InvalidRequirement as e:
+                            raise ValueError(
+                                f'Dependency #{i} of field `tool.hatch.envs.{self.name}.{option}` is invalid: {e}'
+                            )
 
             self._environment_dependencies_complex = dependencies_complex
 
@@ -698,11 +715,12 @@ class EnvironmentInterface(ABC):
         if not remaining:
             remaining = None
 
-        if possible_script in self.scripts:
-            for cmd in self.scripts[possible_script]:
-                yield self.metadata.context.format(cmd, args=remaining).strip()
-        else:
-            yield self.metadata.context.format(command, args=remaining).strip()
+        with self.metadata.context.apply_context(self.context):
+            if possible_script in self.scripts:
+                for cmd in self.scripts[possible_script]:
+                    yield self.metadata.context.format(cmd, args=remaining).strip()
+            else:
+                yield self.metadata.context.format(command, args=remaining).strip()
 
     def construct_build_command(
         self,
@@ -745,24 +763,17 @@ class EnvironmentInterface(ABC):
 
         return command
 
-    def construct_pip_install_command(self, args: list[str], verbosity=None):
+    def construct_pip_install_command(self, args: list[str]):
         """
         A convenience method for constructing a [`pip install`](https://pip.pypa.io/en/stable/cli/pip_install/)
         command with the given verbosity. The default verbosity is set to one less than Hatch's verbosity.
         """
-        if verbosity is None:
-            # Default to -1 verbosity
-            verbosity = self.verbosity - 1
-
         command = ['python', '-u', '-m', 'pip', 'install', '--disable-pip-version-check', '--no-python-version-warning']
 
-        if verbosity < 0:
-            command.append(f"-{'q' * abs(verbosity)}")
-        elif verbosity > 0:
-            command.append(f"-{'v' * abs(verbosity)}")
+        # Default to -1 verbosity
+        add_verbosity_flag(command, self.verbosity, adjustment=-1)
 
         command.extend(args)
-
         return command
 
     def join_command_args(self, args: list[str]):
@@ -802,6 +813,20 @@ class EnvironmentInterface(ABC):
         """
         return EnvVars(self.env_vars, self.env_include, self.env_exclude)
 
+    def get_env_var_option(self, option: str) -> str:
+        """
+        Returns the value of the upper-cased environment variable `HATCH_ENV_TYPE_<PLUGIN_NAME>_<option>`.
+        """
+        return os.environ.get(f'{AppEnvVars.ENV_OPTION_PREFIX}{self.PLUGIN_NAME}_{option}'.upper(), '')
+
+    def get_context(self):
+        """
+        Returns a subclass of [EnvironmentContextFormatter](utilities.md#hatch.env.context.EnvironmentContextFormatter).
+        """
+        from ..context import EnvironmentContextFormatter
+
+        return EnvironmentContextFormatter(self)
+
     @staticmethod
     def get_option_types() -> dict:
         """
@@ -809,12 +834,6 @@ class EnvironmentInterface(ABC):
         [overrides](../config/environment.md#option-overrides).
         """
         return {}
-
-    def get_env_var_option(self, option: str) -> str:
-        """
-        Returns the value of the upper-cased environment variable `HATCH_ENV_TYPE_<PLUGIN_NAME>_<option>`.
-        """
-        return os.environ.get(f'{AppEnvVars.ENV_OPTION_PREFIX}{self.PLUGIN_NAME}_{option}'.upper(), '')
 
     def __enter__(self):
         self.activate()

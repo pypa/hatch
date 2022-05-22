@@ -51,3 +51,10 @@
       - windows
       - macos
       - linux
+
+::: hatch.env.context.EnvironmentContextFormatter
+    rendering:
+      show_source: false
+    selection:
+      members:
+      - formatters

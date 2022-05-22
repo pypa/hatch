@@ -199,6 +199,8 @@ A table of URLs where the key is the URL label and the value is the URL itself.
 
 The format is based on [PEP 631][]. See the [dependency specification](dependency.md) section for more information.
 
+Entries support [context formatting](context.md) and [disallow direct references](#allowing-direct-references) by default.
+
 ### Required
 
 === ":octicons-file-code-16: pyproject.toml"

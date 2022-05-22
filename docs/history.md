@@ -10,6 +10,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Unreleased
 
+***Added:***
+
+- Allow context string formatting for environment dependencies
+- Add environment context string formatting fields `env_name`, `env_type`, `matrix`, `verbosity`, and `args`
+
 ### [1.1.2](https://github.com/pypa/hatch/releases/tag/hatch-v1.1.2) - 2022-05-20 ### {: #hatch-v1.1.2 }
 
 ***Fixed:***
@@ -48,6 +53,14 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 ## **Hatchling**
 
 ### Unreleased
+
+***Removed:***
+
+- Remove unused global `args` context string formatting field
+
+***Added:***
+
+- Improve error messages for the `env` context string formatting field
 
 ### [1.2.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.2.0) - 2022-05-20 ### {: #hatchling-v1.2.0 }
 

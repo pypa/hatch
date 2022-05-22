@@ -57,6 +57,7 @@ nav:
     - Dependencies: config/dependency.md
     - Build: config/build.md
     - Environments: config/environment.md
+    - Context formatting: config/context.md
     - Project templates: config/project-templates.md
     - Hatch: config/hatch.md
   - CLI:

@@ -93,7 +93,7 @@ A common use case is standalone environments that do not require inheritance nor
 
 ## Dependencies
 
-You can install [dependencies](dependency.md) in addition to the ones defined by your [project's metadata](metadata.md#dependencies).
+You can install [dependencies](dependency.md) in addition to the ones defined by your [project's metadata](metadata.md#dependencies). Entries support [context formatting](#context-formatting).
 
 === ":octicons-file-code-16: pyproject.toml"
 
@@ -273,7 +273,7 @@ Exclusion patterns take precedence but will never affect [defined](#defined) env
 
 ## Scripts
 
-You can define named scripts that may be [executed](../environment.md#command-execution) or referenced at the beginning of other scripts.
+You can define named scripts that may be [executed](../environment.md#command-execution) or referenced at the beginning of other scripts. [Context formatting](#context-formatting) is supported.
 
 For example, in the following configuration:
 
@@ -390,7 +390,7 @@ Similar to [make](https://www.gnu.org/software/make/manual/html_node/Errors.html
 
 ## Commands
 
-All commands are able to use any defined [scripts](#scripts). Also like scripts, the exit code of commands that start with a hyphen will be ignored.
+All commands are able to use any defined [scripts](#scripts). Also like scripts, [context formatting](#context-formatting) is supported and the exit code of commands that start with a hyphen will be ignored.
 
 ### Pre-install
 
@@ -506,51 +506,19 @@ The `description` option is purely informational and is displayed in the output 
 
 ## Type
 
-An environment's `type` determines which [environment plugin](../plugins/environment.md) will be used for management. The only built-in environment type is [virtual](../plugins/environment.md#virtual), which uses virtual Python environments.
+An environment's `type` determines which [environment plugin](../plugins/environment.md) will be used for management. The only built-in environment type is [`virtual`](../plugins/environment.md#virtual), which uses virtual Python environments.
 
 ## Context formatting
 
-You can populate configuration with the values of certain supported fields using the syntax of Python's [format strings](https://docs.python.org/3/library/string.html#formatstrings). Each field interprets the modifier part after the colon differently, if at all.
+All environments support the following extra [context formatting](context.md) fields:
 
-### Context fields
-
-| Field | Modifier | Description |
-| --- | --- | --- |
-| `root` | | The root project directory |
-| `home` | | The user's home directory |
-| `/` | | Cross-platform path separator (`\` on Windows, `/` otherwise) |
-| `;` | | Cross-platform directory separator (`;` on Windows, `:` otherwise) |
-| `env` | `name[:default]` | The value of the environment variable with an optional default value if it is not set |
-| `args` | `default` | Any extra command line arguments for [executed commands](../environment.md#command-execution) with an optional default if none were provided |
-
-The following shows the support for each field by feature:
-
-| Field | [<u>Scripts</u>](#scripts) | [<u>Commands</u>](#commands) |
-| --- | --- | --- |
-| `root` | :white_check_mark: | :white_check_mark: |
-| `home` | :white_check_mark: | :white_check_mark: |
-| `/` | :white_check_mark: | :white_check_mark: |
-| `;` | :white_check_mark: | :white_check_mark: |
-| `env` | :white_check_mark: | :white_check_mark: |
-| `args` | :white_check_mark: | :x: |
-
-### Field nesting
-
-You can insert fields within others. For example, if you wanted a [script](#scripts) that displays the value of the environment variable `FOO`, with a fallback to the environment variable `BAR`, with its own fallback to the user's home directory, you could do the following:
-
-=== ":octicons-file-code-16: pyproject.toml"
-
-    ```toml
-    [tool.hatch.envs.test.scripts]
-    display = "echo {env:FOO:{env:BAR:{home}}}"
-    ```
-
-=== ":octicons-file-code-16: hatch.toml"
-
-    ```toml
-    [envs.test.scripts]
-    display = "echo {env:FOO:{env:BAR:{home}}}"
-    ```
+| Field | Description |
+| --- | --- |
+| `env_name` | The name of the environment |
+| `env_type` | The [type](#type) of environment |
+| `matrix` | Its modifier selects the value of that matrix variable. If the environment is not part of a matrix or was not generated with the variable, you must specify a default value as an additional modifier e.g. `{matrix:version:v1.0.0}`. |
+| `verbosity` | The integer verbosity value of Hatch. A `flag` modifier is supported that will render the value as a CLI flag e.g. `-2` becomes `-qq`, `1` becomes `-v`, and `0` becomes an empty string. An additional flag integer modifier may be used to adjust the verbosity level. For example, if you wanted to make a command quiet by default, you could use `{verbosity:flag:-1}` within the command. |
+| `args` | For [executed commands](../environment.md#command-execution) only, any extra command line arguments with an optional default modifier if none were provided |
 
 ## Matrix
 
