@@ -891,7 +891,19 @@ class TestContextFormatting:
 
         assert list(environment.expand_command('foo')) == ['command default']
 
-    def test_verbosity(self, isolation, data_dir, platform):
+    def test_env_type(self, isolation, data_dir, platform):
+        config = {
+            'project': {'name': 'my_app', 'version': '0.0.1'},
+            'tool': {'hatch': {'envs': {'default': {'scripts': {'foo': 'command {env_type}'}}}}},
+        }
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation, project.metadata, 'default', project.config.envs['default'], data_dir, platform, 0
+        )
+
+        assert list(environment.expand_command('foo')) == ['command mock']
+
+    def test_verbosity_default(self, isolation, data_dir, platform):
         config = {
             'project': {'name': 'my_app', 'version': '0.0.1'},
             'tool': {'hatch': {'envs': {'default': {'scripts': {'foo': 'command -v={verbosity}'}}}}},
@@ -902,6 +914,84 @@ class TestContextFormatting:
         )
 
         assert list(environment.expand_command('foo')) == ['command -v=9000']
+
+    def test_verbosity_unknown_modifier(self, isolation, data_dir, platform):
+        config = {
+            'project': {'name': 'my_app', 'version': '0.0.1'},
+            'tool': {'hatch': {'envs': {'default': {'scripts': {'foo': 'command {verbosity:bar}'}}}}},
+        }
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation, project.metadata, 'default', project.config.envs['default'], data_dir, platform, 0
+        )
+
+        with pytest.raises(ValueError, match='Unknown verbosity modifier: bar'):
+            next(environment.expand_command('foo'))
+
+    def test_verbosity_flag_adjustment_not_integer(self, isolation, data_dir, platform):
+        config = {
+            'project': {'name': 'my_app', 'version': '0.0.1'},
+            'tool': {'hatch': {'envs': {'default': {'scripts': {'foo': 'command {verbosity:flag:-1.0}'}}}}},
+        }
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation, project.metadata, 'default', project.config.envs['default'], data_dir, platform, 0
+        )
+
+        with pytest.raises(ValueError, match='Verbosity flag adjustment must be an integer: -1.0'):
+            next(environment.expand_command('foo'))
+
+    @pytest.mark.parametrize(
+        'verbosity, command',
+        (
+            (-9000, 'command -qqq'),
+            (-3, 'command -qqq'),
+            (-2, 'command -qq'),
+            (-1, 'command -q'),
+            (0, 'command'),
+            (1, 'command -v'),
+            (2, 'command -vv'),
+            (3, 'command -vvv'),
+            (9000, 'command -vvv'),
+        ),
+    )
+    def test_verbosity_flag_default(self, isolation, data_dir, platform, verbosity, command):
+        config = {
+            'project': {'name': 'my_app', 'version': '0.0.1'},
+            'tool': {'hatch': {'envs': {'default': {'scripts': {'foo': 'command {verbosity:flag}'}}}}},
+        }
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation, project.metadata, 'default', project.config.envs['default'], data_dir, platform, verbosity
+        )
+
+        assert list(environment.expand_command('foo')) == [command]
+
+    @pytest.mark.parametrize(
+        'adjustment, command',
+        (
+            (-9000, 'command -qqq'),
+            (-3, 'command -qqq'),
+            (-2, 'command -qq'),
+            (-1, 'command -q'),
+            (0, 'command'),
+            (1, 'command -v'),
+            (2, 'command -vv'),
+            (3, 'command -vvv'),
+            (9000, 'command -vvv'),
+        ),
+    )
+    def test_verbosity_flag_adjustment(self, isolation, data_dir, platform, adjustment, command):
+        config = {
+            'project': {'name': 'my_app', 'version': '0.0.1'},
+            'tool': {'hatch': {'envs': {'default': {'scripts': {'foo': f'command {{verbosity:flag:{adjustment}}}'}}}}},
+        }
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation, project.metadata, 'default', project.config.envs['default'], data_dir, platform, 0
+        )
+
+        assert list(environment.expand_command('foo')) == [command]
 
     def test_args_undefined(self, isolation, data_dir, platform):
         config = {

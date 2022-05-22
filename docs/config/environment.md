@@ -515,7 +515,7 @@ All environments support the following extra [context formatting](context.md) fi
 | Field | Description |
 | --- | --- |
 | `env_name` | The name of the environment |
-| `verbosity` | The integer verbosity value of Hatch |
+| `verbosity` | The integer verbosity value of Hatch. A `flag` modifier is supported that will render the value as a CLI flag e.g. `-2` becomes `-qq`, `1` becomes `-v`, and `0` becomes an empty string. An additional flag integer modifier may be used to adjust the verbosity level. For example, if you wanted to make a command quiet by default, you could use `{verbosity:flag:-1}` within the command. |
 | `args` | For [executed commands](../environment.md#command-execution) only, any extra command line arguments with an optional default modifier if none were provided |
 
 ## Matrix

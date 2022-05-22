@@ -1,9 +1,10 @@
 import os
 from tempfile import TemporaryDirectory
 
+from ..env.utils import add_verbosity_flag
 from ..utils.env import PythonInfo
 from ..utils.fs import Path
-from .utils import get_random_venv_name, handle_verbosity_flag
+from .utils import get_random_venv_name
 
 
 class VirtualEnv:
@@ -52,7 +53,8 @@ class VirtualEnv:
         if allow_system_packages:
             command.append('--system-site-packages')
 
-        handle_verbosity_flag(command, self.verbosity)
+        # Decrease verbosity since the virtualenv CLI defaults to something like +2 verbosity
+        add_verbosity_flag(command, self.verbosity, adjustment=-1)
 
         cli_run(command)
 

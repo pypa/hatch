@@ -2,6 +2,8 @@ from abc import ABC, abstractmethod
 
 from hatchling.utils.context import ContextFormatter
 
+from .utils import get_verbosity_flag
+
 
 class EnvironmentContextFormatterBase(ContextFormatter, ABC):
     @abstractmethod
@@ -28,6 +30,7 @@ class EnvironmentContextFormatter(EnvironmentContextFormatterBase):
         formatters = {
             'args': self.__format_args,
             'env_name': self.__format_env_name,
+            'env_type': self.__format_env_type,
             'verbosity': self.__format_verbosity,
         }
         formatters.update(self.formatters())
@@ -42,5 +45,22 @@ class EnvironmentContextFormatter(EnvironmentContextFormatterBase):
     def __format_env_name(self, value, data):
         return self.environment.name
 
+    def __format_env_type(self, value, data):
+        return self.environment.PLUGIN_NAME
+
     def __format_verbosity(self, value, data):
-        return str(self.environment.verbosity)
+        if not data:
+            return str(self.environment.verbosity)
+
+        modifier, _, adjustment = data.partition(':')
+        if modifier != 'flag':
+            raise ValueError(f'Unknown verbosity modifier: {modifier}')
+        elif not adjustment:
+            adjustment = '0'
+
+        try:
+            adjustment = int(adjustment)
+        except ValueError:
+            raise ValueError(f'Verbosity flag adjustment must be an integer: {adjustment}') from None
+
+        return get_verbosity_flag(self.environment.verbosity, adjustment=adjustment)

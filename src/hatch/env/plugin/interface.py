@@ -8,6 +8,7 @@ from os.path import isabs
 
 from ...config.constants import AppEnvVars
 from ...utils.structures import EnvVars
+from ..utils import add_verbosity_flag
 
 
 class EnvironmentInterface(ABC):
@@ -756,24 +757,17 @@ class EnvironmentInterface(ABC):
 
         return command
 
-    def construct_pip_install_command(self, args: list[str], verbosity=None):
+    def construct_pip_install_command(self, args: list[str]):
         """
         A convenience method for constructing a [`pip install`](https://pip.pypa.io/en/stable/cli/pip_install/)
         command with the given verbosity. The default verbosity is set to one less than Hatch's verbosity.
         """
-        if verbosity is None:
-            # Default to -1 verbosity
-            verbosity = self.verbosity - 1
-
         command = ['python', '-u', '-m', 'pip', 'install', '--disable-pip-version-check', '--no-python-version-warning']
 
-        if verbosity < 0:
-            command.append(f"-{'q' * abs(verbosity)}")
-        elif verbosity > 0:
-            command.append(f"-{'v' * abs(verbosity)}")
+        # Default to -1 verbosity
+        add_verbosity_flag(command, self.verbosity, adjustment=-1)
 
         command.extend(args)
-
         return command
 
     def join_command_args(self, args: list[str]):

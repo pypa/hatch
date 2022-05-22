@@ -13,7 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ***Added:***
 
 - Allow context string formatting for environment dependencies
-- Add environment context string formatting fields `env_name`, `verbosity`, and `args`
+- Add environment context string formatting fields `env_name`, `env_type`, `verbosity`, and `args`
 
 ### [1.1.2](https://github.com/pypa/hatch/releases/tag/hatch-v1.1.2) - 2022-05-20 ### {: #hatch-v1.1.2 }
 
