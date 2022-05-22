@@ -230,7 +230,7 @@ def setup(**kwargs):
         shared_data = {}
         for shared_directory, relative_paths in kwargs['data_files']:
             for relative_path in relative_paths:
-                shared_data[relative_path] = f'{shared_directory}/{relative_path}'
+                shared_data[relative_path] = f'{shared_directory}/{os.path.basename(relative_path)}'
 
         build_targets.setdefault('wheel', {})['shared-data'] = shared_data
 
