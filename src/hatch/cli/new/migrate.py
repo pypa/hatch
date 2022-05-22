@@ -74,12 +74,25 @@ def _parse_setup_cfg(kwargs):
             kwargs['install_requires'] = options['install_requires'].strip().splitlines()
 
         if 'packages' in options and 'packages' not in kwargs:
-            kwargs['packages'] = options['packages'].strip().splitlines()
+            packages = []
+            for package in options['packages'].strip().splitlines():
+                package = package.replace('find:', '', 1).strip()
+                if package:
+                    packages.append(package)
+
+            if packages:
+                kwargs['packages'] = packages
 
         if 'package_dir' in options and 'package_dir' not in kwargs:
             kwargs['package_dir'] = dict(
                 d.replace(' = ', '=', 1).split('=') for d in options['package_dir'].strip().splitlines()
             )
+
+    if setup_cfg.has_section('options.extras_require') and 'extras_require' not in kwargs:
+        kwargs['extras_require'] = {
+            feature: dependencies.strip().splitlines()
+            for feature, dependencies in setup_cfg['options.extras_require'].items()
+        }
 
     if setup_cfg.has_section('options.entry_points') and 'entry_points' not in kwargs:
         kwargs['entry_points'] = {
@@ -211,11 +224,24 @@ def setup(**kwargs):
         package_path = f'{package_source}/{package}'
 
         if package_path != f'src/{package_name}':
-            build_targets['wheel'] = {
-                'packages': [
-                    package_path,
-                ]
-            }
+            build_targets.setdefault('wheel', {})['packages'] = [package_path]
+
+    if kwargs.get('data_files', []):
+        shared_data = {}
+        for shared_directory, relative_paths in kwargs['data_files']:
+            relative_files = {}
+            for relative_path in relative_paths:
+                relative_directory, filename = os.path.split(relative_path)
+                relative_files.setdefault(relative_directory, []).append(filename)
+
+            for relative_directory, files in sorted(relative_files.items()):
+                if not os.path.isdir(relative_directory) or set(os.listdir(relative_directory)) != set(files):
+                    for filename in sorted(files):
+                        shared_data[f'{relative_directory}/{filename}'] = f'{shared_directory}/{filename}'
+                else:
+                    shared_data[relative_directory] = shared_directory
+
+        build_targets.setdefault('wheel', {})['shared-data'] = shared_data
 
     build_targets['sdist'] = {
         'include': [
@@ -239,16 +265,20 @@ def setup(**kwargs):
         f.write(tomli_w.dumps(project_data))
 
 
-def find_packages(*args, **kwargs):
-    del sys.modules['setuptools']
-    current_directory = sys.path.pop(0)
+if __name__ == 'setuptools':
+    __this_shim = sys.modules.pop('setuptools')
+    __current_directory = sys.path.pop(0)
 
-    try:
-        import setuptools
+    import setuptools as __real_setuptools
 
-        return setuptools.find_packages(*args, **kwargs)
-    finally:
-        sys.path.insert(0, current_directory)
+    sys.path.insert(0, __current_directory)
+    sys.modules['setuptools'] = __this_shim
+
+    def __getattr__(name):
+        return getattr(__real_setuptools, name)
+
+    del __this_shim
+    del __current_directory
 
 
 def migrate(root, setuptools_options):
