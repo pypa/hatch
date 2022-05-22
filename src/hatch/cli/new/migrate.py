@@ -256,16 +256,20 @@ def setup(**kwargs):
         f.write(tomli_w.dumps(project_data))
 
 
-def find_packages(*args, **kwargs):
-    del sys.modules['setuptools']
-    current_directory = sys.path.pop(0)
+if __name__ == 'setuptools':
+    __this_shim = sys.modules.pop('setuptools')
+    __current_directory = sys.path.pop(0)
 
-    try:
-        import setuptools
+    import setuptools as __real_setuptools
 
-        return setuptools.find_packages(*args, **kwargs)
-    finally:
-        sys.path.insert(0, current_directory)
+    sys.path.insert(0, __current_directory)
+    sys.modules['setuptools'] = __this_shim
+
+    def __getattr__(name):
+        return getattr(__real_setuptools, name)
+
+    del __this_shim
+    del __current_directory
 
 
 def migrate(root, setuptools_options):
