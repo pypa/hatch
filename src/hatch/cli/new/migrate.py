@@ -229,8 +229,17 @@ def setup(**kwargs):
     if kwargs.get('data_files', []):
         shared_data = {}
         for shared_directory, relative_paths in kwargs['data_files']:
+            relative_files = {}
             for relative_path in relative_paths:
-                shared_data[relative_path] = f'{shared_directory}/{os.path.basename(relative_path)}'
+                relative_directory, filename = os.path.split(relative_path)
+                relative_files.setdefault(relative_directory, []).append(filename)
+
+            for relative_directory, files in sorted(relative_files.items()):
+                if not os.path.isdir(relative_directory) or set(os.listdir(relative_directory)) != set(files):
+                    for filename in sorted(files):
+                        shared_data[f'{relative_directory}/{filename}'] = f'{shared_directory}/{filename}'
+                else:
+                    shared_data[relative_directory] = shared_directory
 
         build_targets.setdefault('wheel', {})['shared-data'] = shared_data
 
