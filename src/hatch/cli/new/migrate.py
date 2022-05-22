@@ -81,6 +81,12 @@ def _parse_setup_cfg(kwargs):
                 d.replace(' = ', '=', 1).split('=') for d in options['package_dir'].strip().splitlines()
             )
 
+    if setup_cfg.has_section('options.extras_require') and 'extras_require' not in kwargs:
+        kwargs['extras_require'] = {
+            feature: dependencies.strip().splitlines()
+            for feature, dependencies in setup_cfg['options.extras_require'].items()
+        }
+
     if setup_cfg.has_section('options.entry_points') and 'entry_points' not in kwargs:
         kwargs['entry_points'] = {
             entry_point: definitions.strip().splitlines()

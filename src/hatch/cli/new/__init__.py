@@ -19,10 +19,14 @@ def new(app, name, location, interactive, feature_cli, initialize, setuptools_op
     from ...template import File
     from ...utils.fs import Path
 
+    if location:
+        location = Path(location).resolve()
+
     migration_possible = False
     if initialize:
         interactive = True
-        if (Path.cwd() / 'setup.py').is_file():
+        location = location or Path.cwd()
+        if (location / 'setup.py').is_file():
             migration_possible = True
             if not name:
                 name = 'temporary'
@@ -34,12 +38,7 @@ def new(app, name, location, interactive, feature_cli, initialize, setuptools_op
         name = app.prompt('Project name')
 
     normalized_name = Project.canonicalize_name(name, strict=False)
-
-    if location:
-        location = Path(location).resolve()
-    elif initialize:
-        location = Path.cwd()
-    else:
+    if not location:
         location = Path(normalized_name).resolve()
 
     needs_config_update = False
