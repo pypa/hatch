@@ -111,6 +111,11 @@ def current_platform():
     return PLATFORM.name
 
 
+@pytest.fixture(scope='session')
+def uri_slash_prefix():
+    return '//' if os.sep == '/' else '///'
+
+
 @pytest.fixture
 def temp_dir() -> Generator[Path, None, None]:
     with temp_directory() as d:

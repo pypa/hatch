@@ -1100,7 +1100,7 @@ class TestDependencies:
 
         assert metadata.core.dependencies == ['proj@ git+https://github.com/org/proj.git@v1']
 
-    def test_context_formatting(self, isolation):
+    def test_context_formatting(self, isolation, uri_slash_prefix):
         metadata = ProjectMetadata(
             str(isolation),
             None,
@@ -1111,7 +1111,7 @@ class TestDependencies:
         )
 
         normalized_path = str(isolation).replace('\\', '/')
-        assert metadata.core.dependencies == [f'proj@ file://{normalized_path}']
+        assert metadata.core.dependencies == [f'proj@ file:{uri_slash_prefix}{normalized_path}']
 
     def test_correct(self, isolation):
         metadata = ProjectMetadata(
@@ -1226,7 +1226,7 @@ class TestOptionalDependencies:
         ):
             _ = metadata.core.optional_dependencies
 
-    def test_context_formatting(self, isolation):
+    def test_context_formatting(self, isolation, uri_slash_prefix):
         metadata = ProjectMetadata(
             str(isolation),
             None,
@@ -1237,7 +1237,7 @@ class TestOptionalDependencies:
         )
 
         normalized_path = str(isolation).replace('\\', '/')
-        assert metadata.core.optional_dependencies == {'foo': [f'proj@ file://{normalized_path}']}
+        assert metadata.core.optional_dependencies == {'foo': [f'proj@ file:{uri_slash_prefix}{normalized_path}']}
 
     def test_direct_reference_allowed(self, isolation):
         metadata = ProjectMetadata(

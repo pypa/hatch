@@ -539,7 +539,7 @@ class TestDependencies:
 
         assert environment.dependencies == ['dep2', 'dep3', 'dep1']
 
-    def test_context_formatting(self, isolation, data_dir, platform):
+    def test_context_formatting(self, isolation, data_dir, platform, uri_slash_prefix):
         config = {
             'project': {'name': 'my_app', 'version': '0.0.1', 'dependencies': ['dep1']},
             'tool': {
@@ -552,7 +552,7 @@ class TestDependencies:
         )
 
         normalized_path = str(isolation).replace('\\', '/')
-        assert environment.dependencies == ['dep2', f'proj@ file://{normalized_path}', 'dep1']
+        assert environment.dependencies == ['dep2', f'proj@ file:{uri_slash_prefix}{normalized_path}', 'dep1']
 
     def test_full_skip_install(self, isolation, data_dir, platform):
         config = {

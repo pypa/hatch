@@ -26,9 +26,10 @@ class TestRoot:
         context = Context(isolation)
         assert context.format('foo {root}') == f'foo {isolation}'
 
-    def test_uri(self, isolation):
+    def test_uri(self, isolation, uri_slash_prefix):
         context = Context(isolation)
-        assert context.format('foo {root:uri}') == f'foo file://{str(isolation).replace(os.sep, "/")}'
+        normalized_path = str(isolation).replace(os.sep, '/')
+        assert context.format('foo {root:uri}') == f'foo file:{uri_slash_prefix}{normalized_path}'
 
     def test_real(self, isolation):
         context = Context(isolation)
@@ -46,9 +47,10 @@ class TestHome:
         context = Context(isolation)
         assert context.format('foo {home}') == f'foo {os.path.expanduser("~")}'
 
-    def test_uri(self, isolation):
+    def test_uri(self, isolation, uri_slash_prefix):
         context = Context(isolation)
-        assert context.format('foo {home:uri}') == f'foo file://{os.path.expanduser("~").replace(os.sep, "/")}'
+        normalized_path = os.path.expanduser('~').replace(os.sep, '/')
+        assert context.format('foo {home:uri}') == f'foo file:{uri_slash_prefix}{normalized_path}'
 
     def test_real(self, isolation):
         context = Context(isolation)
