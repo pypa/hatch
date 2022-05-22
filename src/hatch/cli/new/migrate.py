@@ -74,7 +74,14 @@ def _parse_setup_cfg(kwargs):
             kwargs['install_requires'] = options['install_requires'].strip().splitlines()
 
         if 'packages' in options and 'packages' not in kwargs:
-            kwargs['packages'] = options['packages'].strip().splitlines()
+            packages = []
+            for package in options['packages'].strip().splitlines():
+                package = package.replace('find:', '', 1).strip()
+                if package:
+                    packages.append(package)
+
+            if packages:
+                kwargs['packages'] = packages
 
         if 'package_dir' in options and 'package_dir' not in kwargs:
             kwargs['package_dir'] = dict(
@@ -217,11 +224,15 @@ def setup(**kwargs):
         package_path = f'{package_source}/{package}'
 
         if package_path != f'src/{package_name}':
-            build_targets['wheel'] = {
-                'packages': [
-                    package_path,
-                ]
-            }
+            build_targets.setdefault('wheel', {})['packages'] = [package_path]
+
+    if kwargs.get('data_files', []):
+        shared_data = {}
+        for shared_directory, relative_paths in kwargs['data_files']:
+            for relative_path in relative_paths:
+                shared_data[relative_path] = f'{shared_directory}/{relative_path}'
+
+        build_targets.setdefault('wheel', {})['shared-data'] = shared_data
 
     build_targets['sdist'] = {
         'include': [
