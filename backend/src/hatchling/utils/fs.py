@@ -16,6 +16,6 @@ def locate_file(root, file_name):
 
 def path_to_uri(path):
     if os.sep == '/':
-        return f'file://{os.path.normpath(path)}'
+        return f'file://{os.path.abspath(path)}'
     else:
-        return f'file://{os.path.normpath(path).replace(os.sep, "/")}'
+        return f'file:///{os.path.abspath(path).replace(os.sep, "/")}'

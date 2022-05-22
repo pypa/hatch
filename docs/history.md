@@ -66,6 +66,10 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 
 - Improve error messages for the `env` context string formatting field
 
+***Fixed:***
+
+- Fix `uri` context string formatting modifier on Windows
+
 ### [1.2.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.2.0) - 2022-05-20 ### {: #hatchling-v1.2.0 }
 
 ***Added:***
