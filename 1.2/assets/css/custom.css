@@ -1,0 +1,32 @@
+/* https://github.com/squidfunk/mkdocs-material/issues/1522 */
+.md-typeset h5 {
+  color: var(--md-default-fg-color);
+  text-transform: none;
+}
+
+/* Brighter links for dark mode */
+[data-md-color-scheme=slate] {
+  /* https://github.com/squidfunk/mkdocs-material/blob/7.3.6/src/assets/stylesheets/main/_colors.scss */
+  --md-typeset-a-color: var(--md-primary-fg-color--light);
+}
+
+/* FiraCode https://github.com/tonsky/FiraCode */
+code { font-family: 'Fira Code', monospace; }
+
+@supports (font-variation-settings: normal) {
+  code { font-family: 'Fira Code VF', monospace; }
+}
+
+/* https://github.com/pypa/hatch/issues/104 */
+:root {
+  font-variant-ligatures: none;
+}
+
+/* Everything below is from https://mkdocstrings.github.io/handlers/python/#recommended-style-material */
+
+/* Indentation. */
+div.doc-contents:not(.first) {
+  padding-left: 25px;
+  border-left: 4px solid rgba(230, 230, 230);
+  margin-bottom: 80px;
+}
