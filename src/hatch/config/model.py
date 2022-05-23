@@ -239,6 +239,7 @@ class ShellConfig(LazilyParsedConfig):
 
         self._field_name = FIELD_TO_PARSE
         self._field_path = FIELD_TO_PARSE
+        self._field_args = FIELD_TO_PARSE
 
     @property
     def name(self):
@@ -277,6 +278,29 @@ class ShellConfig(LazilyParsedConfig):
     def path(self, value):
         self.raw_data['path'] = value
         self._field_path = FIELD_TO_PARSE
+
+    @property
+    def args(self):
+        if self._field_args is FIELD_TO_PARSE:
+            if 'args' in self.raw_data:
+                args = self.raw_data['args']
+                if not isinstance(args, list):
+                    self.raise_error('must be an array')
+
+                for i, entry in enumerate(args, 1):
+                    if not isinstance(entry, str):
+                        self.raise_error('must be a string', extra_steps=(str(i),))
+
+                self._field_args = args
+            else:
+                self._field_args = self.raw_data['args'] = []
+
+        return self._field_args
+
+    @args.setter
+    def args(self, value):
+        self.raw_data['args'] = value
+        self._field_args = FIELD_TO_PARSE
 
 
 class DirsConfig(LazilyParsedConfig):

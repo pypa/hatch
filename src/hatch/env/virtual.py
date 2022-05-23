@@ -96,15 +96,15 @@ class VirtualEnvironment(EnvironmentInterface):
         with self.safe_activation():
             yield
 
-    def enter_shell(self, name, path):
+    def enter_shell(self, name, path, args):
         shell_executor = getattr(self.shells, f'enter_{name}', None)
         if shell_executor is None:
             # Manually activate in lieu of an activation script
             with self.safe_activation():
-                self.platform.exit_with_command([path])
+                self.platform.exit_with_command([path, *args])
         else:
             with self.get_env_vars():
-                shell_executor(path, self.virtual_env.executables_directory)
+                shell_executor(path, args, self.virtual_env.executables_directory)
 
     def check_compatibility(self):
         super().check_compatibility()

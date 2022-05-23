@@ -666,7 +666,7 @@ class EnvironmentInterface(ABC):
         """
         return self.platform.capture_process(self.construct_build_command(**kwargs))
 
-    def enter_shell(self, name, path):
+    def enter_shell(self, name, path, args):
         """
         Spawn a [shell](../config/hatch.md#shell) within the environment.
 
@@ -675,7 +675,7 @@ class EnvironmentInterface(ABC):
         directly or provide the same guarantee.
         """
         with self.command_context():
-            self.platform.exit_with_command([path])
+            self.platform.exit_with_command([path, *args])
 
     def run_shell_command(self, command: str):
         """
