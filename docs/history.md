@@ -10,10 +10,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Unreleased
 
+***Changed:***
+
+- The `enter_shell` environment plugin method now accepts an additional `args` parameter
+
 ***Added:***
 
 - Allow context string formatting for environment dependencies
 - Add environment context string formatting fields `env_name`, `env_type`, `matrix`, `verbosity`, and `args`
+- Support overriding the default arguments used to spawn shells on non-Windows systems
 
 ***Fixed:***
 

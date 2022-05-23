@@ -4,8 +4,9 @@ import click
 @click.command(short_help="Enter a shell within a project's environment")
 @click.argument('shell_name', required=False)
 @click.argument('shell_path', required=False)
+@click.argument('shell_args', required=False, nargs=-1)
 @click.pass_obj
-def shell(app, shell_name, shell_path):  # no cov
+def shell(app, shell_name, shell_path, shell_args):  # no cov
     """Enter a shell within a project's environment."""
     if app.env == app.env_active:
         app.abort(f'Already in environment: {app.env}')
@@ -21,6 +22,8 @@ def shell(app, shell_name, shell_path):  # no cov
         shell_name = app.config.shell.name
     if not shell_path:
         shell_path = app.config.shell.path
+    if not shell_args:
+        shell_args = app.config.shell.args
 
     if not shell_path:
         from ...utils.fs import Path
@@ -32,4 +35,4 @@ def shell(app, shell_name, shell_path):  # no cov
         environment = app.get_environment()
         app.prepare_environment(environment)
 
-        environment.enter_shell(shell_name, shell_path)
+        environment.enter_shell(shell_name, shell_path, shell_args)

@@ -152,6 +152,7 @@ class TestShell:
 
         assert config.shell.name == config.shell.name == ''
         assert config.shell.path == config.shell.path == ''
+        assert config.shell.args == config.shell.args == []
         assert config.raw_data == {'shell': ''}
 
     def test_invalid_type(self, helpers):
@@ -173,6 +174,7 @@ class TestShell:
 
         assert config.shell.name == 'foo'
         assert config.shell.path == 'foo'
+        assert config.shell.args == []
         assert config.raw_data == {'shell': 'foo'}
 
     def test_table(self):
@@ -180,14 +182,24 @@ class TestShell:
 
         assert config.shell.name == 'foo'
         assert config.shell.path == 'foo'
-        assert config.raw_data == {'shell': {'name': 'foo', 'path': 'foo'}}
+        assert config.shell.args == []
+        assert config.raw_data == {'shell': {'name': 'foo', 'path': 'foo', 'args': []}}
 
     def test_table_with_path(self):
         config = RootConfig({'shell': {'name': 'foo', 'path': 'bar'}})
 
         assert config.shell.name == 'foo'
         assert config.shell.path == 'bar'
-        assert config.raw_data == {'shell': {'name': 'foo', 'path': 'bar'}}
+        assert config.shell.args == []
+        assert config.raw_data == {'shell': {'name': 'foo', 'path': 'bar', 'args': []}}
+
+    def test_table_with_path_and_args(self):
+        config = RootConfig({'shell': {'name': 'foo', 'path': 'bar', 'args': ['baz']}})
+
+        assert config.shell.name == 'foo'
+        assert config.shell.path == 'bar'
+        assert config.shell.args == ['baz']
+        assert config.raw_data == {'shell': {'name': 'foo', 'path': 'bar', 'args': ['baz']}}
 
     def test_table_no_name(self, helpers):
         config = RootConfig({'shell': {}})
@@ -230,6 +242,34 @@ class TestShell:
             ),
         ):
             _ = config.shell.path
+
+    def test_table_args_not_array(self, helpers):
+        config = RootConfig({'shell': {'args': 9000}})
+
+        with pytest.raises(
+            ConfigurationError,
+            match=helpers.dedent(
+                """
+                Error parsing config:
+                shell -> args
+                  must be an array"""
+            ),
+        ):
+            _ = config.shell.args
+
+    def test_table_args_entry_not_string(self, helpers):
+        config = RootConfig({'shell': {'args': [9000]}})
+
+        with pytest.raises(
+            ConfigurationError,
+            match=helpers.dedent(
+                """
+                Error parsing config:
+                shell -> args -> 1
+                  must be a string"""
+            ),
+        ):
+            _ = config.shell.args
 
     def test_set_lazy_error(self, helpers):
         config = RootConfig({})
@@ -281,6 +321,23 @@ class TestShell:
             ),
         ):
             _ = config.shell.path
+
+    def test_table_args_set_lazy_error(self, helpers):
+        config = RootConfig({'shell': {'name': 'foo'}})
+
+        config.shell.args = 9000
+        assert config.raw_data == {'shell': {'name': 'foo', 'args': 9000}}
+
+        with pytest.raises(
+            ConfigurationError,
+            match=helpers.dedent(
+                """
+                Error parsing config:
+                shell -> args
+                  must be an array"""
+            ),
+        ):
+            _ = config.shell.args
 
 
 class TestDirs:

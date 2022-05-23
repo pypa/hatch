@@ -2,13 +2,13 @@ class ShellManager:
     def __init__(self, environment):
         self.environment = environment
 
-    def enter_cmd(self, shell_path, exe_dir):
-        self.environment.platform.exit_with_command([shell_path or 'cmd', '/k', str(exe_dir / 'activate.bat')])
+    def enter_cmd(self, path, args, exe_dir):
+        self.environment.platform.exit_with_command([path or 'cmd', '/k', str(exe_dir / 'activate.bat')])
 
-    def enter_powershell(self, shell_path, exe_dir):
+    def enter_powershell(self, path, args, exe_dir):
         self.environment.platform.exit_with_command(
             [
-                shell_path or 'powershell',
+                path or 'powershell',
                 '-executionpolicy',
                 'bypass',
                 '-NoExit',
@@ -18,53 +18,53 @@ class ShellManager:
             ]
         )
 
-    def enter_xonsh(self, shell_path, exe_dir):
+    def enter_xonsh(self, path, args, exe_dir):
         if self.environment.platform.windows:
             with self.environment:
                 self.environment.platform.exit_with_command(
-                    [shell_path or 'xonsh', '-i', '-D', f'VIRTUAL_ENV={exe_dir.parent.name}']
+                    [path or 'xonsh', '-i', '-D', f'VIRTUAL_ENV={exe_dir.parent.name}']
                 )
         else:
             self.spawn_linux_shell(
-                shell_path or 'xonsh',
+                path or 'xonsh',
                 ['-i', '-D', f'VIRTUAL_ENV={exe_dir.parent.name}'],
                 # Just in case pyenv works with xonsh, supersede it.
                 callback=lambda terminal: terminal.sendline(f'$PATH.insert(0, {str(exe_dir)!r})'),
             )
 
-    def enter_bash(self, shell_path, exe_dir):
-        self.spawn_linux_shell(shell_path or 'bash', ['-i'], script=exe_dir / 'activate')
+    def enter_bash(self, path, args, exe_dir):
+        self.spawn_linux_shell(path or 'bash', args or ['-i'], script=exe_dir / 'activate')
 
-    def enter_fish(self, shell_path, exe_dir):
-        self.spawn_linux_shell(shell_path or 'fish', ['-i'], script=exe_dir / 'activate.fish')
+    def enter_fish(self, path, args, exe_dir):
+        self.spawn_linux_shell(path or 'fish', args or ['-i'], script=exe_dir / 'activate.fish')
 
-    def enter_zsh(self, shell_path, exe_dir):
-        self.spawn_linux_shell(shell_path or 'zsh', ['-i'], script=exe_dir / 'activate')
+    def enter_zsh(self, path, args, exe_dir):
+        self.spawn_linux_shell(path or 'zsh', args or ['-i'], script=exe_dir / 'activate')
 
-    def enter_nu(self, shell_path, exe_dir):
-        executable = shell_path or 'nu'
+    def enter_nu(self, path, args, exe_dir):
+        executable = path or 'nu'
         activation_script = exe_dir / 'activate.nu'
         if self.environment.platform.windows:
             self.environment.platform.exit_with_command(
                 [executable, '-c', f'source "{activation_script}"; "{executable}"']
             )
         else:
-            self.spawn_linux_shell(executable, None, script=activation_script)
+            self.spawn_linux_shell(executable, args or None, script=activation_script)
 
-    def enter_tcsh(self, shell_path, exe_dir):
-        self.spawn_linux_shell(shell_path or 'tcsh', ['-i'], script=exe_dir / 'activate.csh')
+    def enter_tcsh(self, path, args, exe_dir):
+        self.spawn_linux_shell(path or 'tcsh', args or ['-i'], script=exe_dir / 'activate.csh')
 
-    def enter_csh(self, shell_path, exe_dir):
-        self.spawn_linux_shell(shell_path or 'csh', ['-i'], script=exe_dir / 'activate.csh')
+    def enter_csh(self, path, args, exe_dir):
+        self.spawn_linux_shell(path or 'csh', args or ['-i'], script=exe_dir / 'activate.csh')
 
-    def spawn_linux_shell(self, shell_path, args, *, script=None, callback=None):
+    def spawn_linux_shell(self, path, args, *, script=None, callback=None):
         import shutil
         import signal
 
         import pexpect
 
         columns, lines = shutil.get_terminal_size()
-        terminal = pexpect.spawn(shell_path, args=args, dimensions=(lines, columns))
+        terminal = pexpect.spawn(path, args=args, dimensions=(lines, columns))
 
         def sigwinch_passthrough(sig, data):
             terminal.setwinsize(lines, columns)

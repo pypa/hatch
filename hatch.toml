@@ -12,7 +12,7 @@ post-install-commands = [
   "python -m pip install --disable-pip-version-check {verbosity:flag:-1} -e ./backend",
 ]
 [envs.default.scripts]
-full = "pytest -n auto --reruns 5 --reruns-delay 1 -r aR --cov-report=term-missing --cov-config=pyproject.toml --cov=src/hatch --cov=backend/src/hatchling --cov=tests {args:tests}"
+full = "pytest -n auto --reruns 5 --reruns-delay 3 -r aR --cov-report=term-missing --cov-config=pyproject.toml --cov=src/hatch --cov=backend/src/hatchling --cov=tests {args:tests}"
 dev = "pytest -p no:randomly --no-cov {args:tests}"
 
 [envs.test.overrides]

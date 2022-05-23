@@ -94,19 +94,29 @@ If the executable name of your shell differs from the supported name, you can de
     path = "pwsh"
     ```
 
+On non-Windows systems, you can change the default arguments used to spawn most shells with the `args` key. The default for such supported shells is usually `["-i"]`.
+
+=== ":octicons-file-code-16: config.toml"
+
+    ```toml
+    [shell]
+    name = "bash"
+    args = ["--login"]
+    ```
+
 ### Supported
 
-| Shell | Name | macOS | Windows | Unix |
-| --- | --- | --- | --- | --- |
-| [Bash](https://www.gnu.org/software/bash/) | `bash` | :white_check_mark: | | :white_check_mark: |
-| [Command Prompt](https://en.wikipedia.org/wiki/Cmd.exe) | `cmd` | | :white_check_mark: | |
-| [C shell](https://en.wikipedia.org/wiki/C_shell) | `csh` | :white_check_mark: | | :white_check_mark: |
-| [fish](https://github.com/fish-shell/fish-shell) | `fish` | :white_check_mark: | | :white_check_mark: |
-| [Nushell](https://github.com/nushell/nushell) | `nu` | :white_check_mark: | :white_check_mark: | :white_check_mark: |
-| [PowerShell](https://github.com/PowerShell/PowerShell) | `powershell` | :white_check_mark: | :white_check_mark: | :white_check_mark: |
-| [tcsh](https://en.wikipedia.org/wiki/Tcsh) | `tcsh` | :white_check_mark: | | :white_check_mark: |
-| [xonsh](https://github.com/xonsh/xonsh) | `xonsh` | :white_check_mark: | :white_check_mark: | :white_check_mark: |
-| [Z shell](https://en.wikipedia.org/wiki/Z_shell) | `zsh` | :white_check_mark: | | :white_check_mark: |
+| Shell | Name | Arguments | macOS | Windows | Unix |
+| --- | --- | --- | --- | --- | --- |
+| [Bash](https://www.gnu.org/software/bash/) | `bash` | `["-i"]` | :white_check_mark: | | :white_check_mark: |
+| [Command Prompt](https://en.wikipedia.org/wiki/Cmd.exe) | `cmd` | | | :white_check_mark: | |
+| [C shell](https://en.wikipedia.org/wiki/C_shell) | `csh` | `["-i"]` | :white_check_mark: | | :white_check_mark: |
+| [fish](https://github.com/fish-shell/fish-shell) | `fish` | `["-i"]` | :white_check_mark: | | :white_check_mark: |
+| [Nushell](https://github.com/nushell/nushell) | `nu` | `[]` | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| [PowerShell](https://github.com/PowerShell/PowerShell) | `powershell` | | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| [tcsh](https://en.wikipedia.org/wiki/Tcsh) | `tcsh` | `["-i"]` | :white_check_mark: | | :white_check_mark: |
+| [xonsh](https://github.com/xonsh/xonsh) | `xonsh` | | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| [Z shell](https://en.wikipedia.org/wiki/Z_shell) | `zsh` | `["-i"]` | :white_check_mark: | | :white_check_mark: |
 
 ### Default
 
