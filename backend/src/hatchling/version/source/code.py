@@ -24,7 +24,9 @@ class CodeSource(VersionSourceInterface):
         with open(path, 'r', encoding='utf-8') as f:
             contents = f.read()
 
-        global_variables = {}
+        # Ensure predefined module attributes are available.
+        # https://docs.python.org/3/reference/datamodel.html#the-standard-type-hierarchy.
+        global_variables = {'__file__': path, '__annotations__': dict()}
 
         # Load the file
         exec(contents, global_variables)
