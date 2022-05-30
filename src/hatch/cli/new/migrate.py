@@ -235,7 +235,8 @@ def setup(**kwargs):
             for relative_directory, files in sorted(relative_files.items()):
                 if not os.path.isdir(relative_directory) or set(os.listdir(relative_directory)) != set(files):
                     for filename in sorted(files):
-                        shared_data[f'{relative_directory}/{filename}'] = f'{shared_directory}/{filename}'
+                        local_path = os.path.join(relative_directory, filename)
+                        shared_data[local_path] = f'{shared_directory}/{filename}'
                 else:
                     shared_data[relative_directory] = shared_directory
 
