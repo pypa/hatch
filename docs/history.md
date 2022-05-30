@@ -66,6 +66,12 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 
 ### Unreleased
 
+### [1.3.1](https://github.com/pypa/hatch/releases/tag/hatchling-v1.3.1) - 2022-05-30 ### {: #hatchling-v1.3.1 }
+
+***Fixed:***
+
+- Better populate global variables for the `code` version source
+
 ### [1.3.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.3.0) - 2022-05-22 ### {: #hatchling-v1.3.0 }
 
 ***Removed:***
