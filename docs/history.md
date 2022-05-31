@@ -10,6 +10,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Unreleased
 
+### [1.2.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.2.1) - 2022-05-30 ### {: #hatch-v1.2.1 }
+
+***Fixed:***
+
+- Fix handling of top level `data_files` in `setuptools` migration script
+
 ### [1.2.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.2.0) - 2022-05-22 ### {: #hatch-v1.2.0 }
 
 ***Changed:***
