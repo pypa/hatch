@@ -131,7 +131,7 @@ generic ones.
     artifacts = [
       "*.so",
       "*.dll",
-      "!/foo/*.so"
+      "!/foo/*.so",
     ]
     ```
 
@@ -142,7 +142,7 @@ generic ones.
     artifacts = [
       "*.so",
       "*.dll",
-      "!/foo/*.so"
+      "!/foo/*.so",
     ]
     ```
 
