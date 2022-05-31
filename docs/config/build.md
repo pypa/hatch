@@ -118,10 +118,11 @@ So for example, if you want to ship a package `foo` that is stored in a director
 ### Artifacts
 
 If you want to include files that are [ignored by your VCS](#vcs), such as those that might be created by [build hooks](#build-hooks), you can use the `artifacts` option. This option is semantically equivalent to `include`.
-Note that artifacts are not affected by the `exclude` option.  Artifacts can
-be excluded by using more explicit paths or using the `!` negate operator.
-When using the `!` operator, the negated pattern must come after the more
-generic pattern.
+
+Note that artifacts are not affected by the `exclude` option. Artifacts can
+be excluded by using more explicit paths or by using the `!` negation operator.
+When using the `!` operator, the negated pattern(s) must come after the more
+generic ones.
 
 === ":octicons-file-code-16: pyproject.toml"
 
