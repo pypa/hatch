@@ -38,6 +38,7 @@ theme:
   features:
     - navigation.sections
     - navigation.tabs
+    - navigation.instant
 
 nav:
   - Home:
