@@ -13,17 +13,34 @@ def replace_file(src, dst):
         os.remove(src)
 
 
-def safe_walk(path):
-    seen = set()
-    for root, dirs, files in os.walk(path, followlinks=True):
-        stat = os.stat(root)
-        identifier = stat.st_dev, stat.st_ino
-        if identifier in seen:
-            del dirs[:]
-            continue
+def _safe_walk(root, followed_links=set()):
+    dirs = []
+    files = []
+    for entry in os.scandir(root):
+        try:
+            is_dir = entry.is_dir()
+        except OSError:
+            is_dir = False
 
-        seen.add(identifier)
-        yield root, dirs, files
+        if is_dir:
+            if entry.is_symlink():
+                # Don't get stuck in cycle
+                if entry.path in followed_links:
+                    continue
+                followed_links = followed_links | { entry.path }
+
+            dirs.append(entry.name)
+        else:
+            files.append(entry.name)
+
+    yield root, dirs, files
+    for name in dirs:
+        path = os.path.join(root, name)
+        yield from _safe_walk(path, followed_links)
+
+
+def safe_walk(path):
+    return _safe_walk(path)
 
 
 def get_known_python_major_versions():
