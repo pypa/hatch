@@ -119,6 +119,12 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 - Improve error messaging for invalid versions
 - Update project metadata to reflect support for Python 3.11
 
+### [0.25.1](https://github.com/pypa/hatch/releases/tag/hatchling-v0.25.1) - 2022-06-14 ### {: #hatchling-v0.25.1 }
+
+***Fixed:***
+
+- Fix support for Windows on Python 2 by removing its support for symlinks
+
 ### [0.25.0](https://github.com/pypa/hatch/releases/tag/hatchling-v0.25.0) - 2022-05-15 ### {: #hatchling-v0.25.0 }
 
 ***Added:***
