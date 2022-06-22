@@ -352,7 +352,7 @@
         <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>__project_id</span>
 
     <span class=k>def</span> <span class=nf>get_build_hooks</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>directory</span><span class=p>):</span>
-        <span class=n>configured_build_hooks</span> <span class=o>=</span> <span class=n>OrderedDict</span><span class=p>()</span>
+        <span class=n>configured_build_hooks</span> <span class=o>=</span> <span class=p>{}</span>
         <span class=k>for</span> <span class=n>hook_name</span><span class=p>,</span> <span class=n>config</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>config</span><span class=o>.</span><span class=n>hook_config</span><span class=o>.</span><span class=n>items</span><span class=p>():</span>
             <span class=n>build_hook</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>plugin_manager</span><span class=o>.</span><span class=n>build_hook</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=n>hook_name</span><span class=p>)</span>
             <span class=k>if</span> <span class=n>build_hook</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
