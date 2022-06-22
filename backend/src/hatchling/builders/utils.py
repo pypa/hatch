@@ -1,7 +1,6 @@
 import os
 import shutil
 from base64 import urlsafe_b64encode
-from collections import OrderedDict
 
 
 def replace_file(src, dst):
@@ -48,7 +47,7 @@ def normalize_inclusion_map(inclusion_map, root):
 
         normalized_inclusion_map[source] = normalize_relative_path(relative_path)
 
-    return OrderedDict(
+    return dict(
         sorted(normalized_inclusion_map.items(), key=lambda item: (item[1].count(os.path.sep), item[1], item[0]))
     )
 

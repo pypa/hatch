@@ -1,5 +1,3 @@
-from collections import OrderedDict
-
 import pluggy
 
 
@@ -62,7 +60,7 @@ class ClassRegister:
         if include_third_party and not self.third_party_plugins.loaded:
             self.third_party_plugins.load()
 
-        classes = OrderedDict()
+        classes = {}
 
         for registered_classes in self.registration_method():
             if not isinstance(registered_classes, list):

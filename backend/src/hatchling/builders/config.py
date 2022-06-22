@@ -1,5 +1,4 @@
 import os
-from collections import OrderedDict
 from contextlib import contextmanager
 
 import pathspec
@@ -212,7 +211,7 @@ class BuilderConfig:
     @property
     def hook_config(self):
         if self.__hook_config is None:
-            hook_config = OrderedDict()
+            hook_config = {}
 
             target_hook_config = self.target_config.get('hooks', {})
             if not isinstance(target_hook_config, dict):
@@ -236,7 +235,7 @@ class BuilderConfig:
 
                 hook_config.setdefault(hook_name, config)
 
-            final_hook_config = OrderedDict()
+            final_hook_config = {}
             if not env_var_enabled(BuildEnvVars.NO_HOOKS):
                 all_hooks_enabled = env_var_enabled(BuildEnvVars.HOOKS_ENABLE)
                 for hook_name, config in hook_config.items():
@@ -415,7 +414,7 @@ class BuilderConfig:
     def versions(self):
         if self.__versions is None:
             # Used as an ordered set
-            all_versions = OrderedDict()
+            all_versions = {}
 
             versions = self.target_config.get('versions', [])
             if not isinstance(versions, list):
@@ -456,7 +455,7 @@ class BuilderConfig:
     def dependencies(self):
         if self.__dependencies is None:
             # Used as an ordered set
-            dependencies = OrderedDict()
+            dependencies = {}
 
             target_dependencies = self.target_config.get('dependencies', [])
             if not isinstance(target_dependencies, list):

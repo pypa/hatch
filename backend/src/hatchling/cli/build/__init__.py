@@ -3,7 +3,6 @@ import argparse
 
 def build_impl(called_by_app, directory, targets, hooks_only, no_hooks, clean, clean_hooks_after, clean_only):
     import os
-    from collections import OrderedDict
 
     from ...bridge.app import get_application
     from ...builders.constants import BuildEnvVars
@@ -19,7 +18,7 @@ def build_impl(called_by_app, directory, targets, hooks_only, no_hooks, clean, c
     plugin_manager = PluginManager()
     metadata = ProjectMetadata(root, plugin_manager)
 
-    target_data = OrderedDict()
+    target_data = {}
     if targets:
         for data in targets:
             target_name, _, version_data = data.partition(':')
@@ -30,7 +29,7 @@ def build_impl(called_by_app, directory, targets, hooks_only, no_hooks, clean, c
         for target_name in targets:
             target_data[target_name] = []
 
-    builders = OrderedDict()
+    builders = {}
     unknown_targets = []
     for target_name in target_data:
         builder_class = plugin_manager.builder.get(target_name)
