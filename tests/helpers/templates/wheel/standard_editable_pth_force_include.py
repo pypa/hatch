@@ -20,7 +20,6 @@ def get_files(**kwargs):
 
     pth_file_name = f"{kwargs['package_name']}.pth"
     files.append(File(Path(pth_file_name), '\n'.join(package_paths)))
-    files.append(File(Path(metadata_directory, 'entry_points.txt'), ''))
     files.append(
         File(
             Path(metadata_directory, 'WHEEL'),

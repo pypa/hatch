@@ -23,7 +23,6 @@ def get_files(**kwargs):
 
     files.append(File(Path(shared_data_directory, 'data', 'foo.txt'), ''))
     files.append(File(Path(shared_data_directory, 'data', 'nested', 'bar.txt'), ''))
-    files.append(File(Path(metadata_directory, 'entry_points.txt'), ''))
     files.append(
         File(
             Path(metadata_directory, 'WHEEL'),

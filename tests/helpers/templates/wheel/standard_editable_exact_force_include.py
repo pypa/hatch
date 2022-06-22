@@ -30,7 +30,6 @@ F.install()
 F.map_module({kwargs['package_name']!r}, {package_root!r})""",
         )
     )
-    files.append(File(Path(metadata_directory, 'entry_points.txt'), ''))
     files.append(
         File(
             Path(metadata_directory, 'WHEEL'),
