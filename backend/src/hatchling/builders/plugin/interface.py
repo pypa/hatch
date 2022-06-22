@@ -3,7 +3,6 @@ from __future__ import annotations
 import os
 import re
 from abc import ABC, abstractmethod
-from collections import OrderedDict
 from typing import Callable, Generator
 
 from ..config import BuilderConfig, env_var_enabled
@@ -349,7 +348,7 @@ class BuilderInterface(ABC):
         return self.__project_id
 
     def get_build_hooks(self, directory):
-        configured_build_hooks = OrderedDict()
+        configured_build_hooks = {}
         for hook_name, config in self.config.hook_config.items():
             build_hook = self.plugin_manager.build_hook.get(hook_name)
             if build_hook is None:

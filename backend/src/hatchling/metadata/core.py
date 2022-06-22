@@ -1,5 +1,4 @@
 import os
-from collections import OrderedDict
 from copy import deepcopy
 
 from ..utils.constants import DEFAULT_CONFIG_FILE
@@ -270,6 +269,7 @@ class CoreMetadata:
         self._entry_points = None
         self._dependencies_complex = None
         self._dependencies = None
+        self._optional_dependencies_complex = None
         self._optional_dependencies = None
         self._dynamic = None
 
@@ -826,7 +826,7 @@ class CoreMetadata:
             if not isinstance(urls, dict):
                 raise TypeError('Field `project.urls` must be a table')
 
-            sorted_urls = OrderedDict()
+            sorted_urls = {}
 
             for label, url in sorted(urls.items()):
                 if not isinstance(url, str):
@@ -857,7 +857,7 @@ class CoreMetadata:
             if not isinstance(scripts, dict):
                 raise TypeError('Field `project.scripts` must be a table')
 
-            sorted_scripts = OrderedDict()
+            sorted_scripts = {}
 
             for name, object_ref in sorted(scripts.items()):
                 if not isinstance(object_ref, str):
@@ -888,7 +888,7 @@ class CoreMetadata:
             if not isinstance(gui_scripts, dict):
                 raise TypeError('Field `project.gui-scripts` must be a table')
 
-            sorted_gui_scripts = OrderedDict()
+            sorted_gui_scripts = {}
 
             for name, object_ref in sorted(gui_scripts.items()):
                 if not isinstance(object_ref, str):
@@ -926,13 +926,13 @@ class CoreMetadata:
                         f'instead of in the `project.entry-points` table'
                     )
 
-            entry_point_groups = OrderedDict()
+            entry_point_groups = {}
 
             for group, entry_point_data in sorted(defined_entry_point_groups.items()):
                 if not isinstance(entry_point_data, dict):
                     raise TypeError(f'Field `project.entry-points.{group}` must be a table')
 
-                entry_points = OrderedDict()
+                entry_points = {}
 
                 for name, object_ref in sorted(entry_point_data.items()):
                     if not isinstance(object_ref, str):
@@ -970,7 +970,7 @@ class CoreMetadata:
             if not isinstance(dependencies, list):
                 raise TypeError('Field `project.dependencies` must be an array')
 
-            dependencies_complex = OrderedDict()
+            dependencies_complex = {}
 
             for i, entry in enumerate(dependencies, 1):
                 if not isinstance(entry, str):
@@ -988,7 +988,7 @@ class CoreMetadata:
 
                     dependencies_complex[get_normalized_dependency(requirement)] = requirement
 
-            self._dependencies_complex = dependencies_complex
+            self._dependencies_complex = dict(sorted(dependencies_complex.items()))
 
         return self._dependencies_complex
 
@@ -998,16 +998,16 @@ class CoreMetadata:
         https://peps.python.org/pep-0621/#dependencies-optional-dependencies
         """
         if self._dependencies is None:
-            self._dependencies = sorted(self.dependencies_complex)
+            self._dependencies = list(self.dependencies_complex)
 
         return self._dependencies
 
     @property
-    def optional_dependencies(self):
+    def optional_dependencies_complex(self):
         """
         https://peps.python.org/pep-0621/#dependencies-optional-dependencies
         """
-        if self._optional_dependencies is None:
+        if self._optional_dependencies_complex is None:
             from packaging.requirements import InvalidRequirement, Requirement
 
             if 'optional-dependencies' in self.config:
@@ -1038,7 +1038,7 @@ class CoreMetadata:
                         f'Dependencies for option `{option}` of field `project.optional-dependencies` must be an array'
                     )
 
-                entries = set()
+                entries = {}
 
                 for i, entry in enumerate(dependencies, 1):
                     if not isinstance(entry, str):
@@ -1061,7 +1061,7 @@ class CoreMetadata:
                                 f'cannot be a direct reference'
                             )
 
-                        entries.add(get_normalized_dependency(requirement))
+                        entries[get_normalized_dependency(requirement)] = requirement
 
                 normalized_option = normalize_project_name(option)
                 if normalized_option in normalized_options:
@@ -1071,9 +1071,21 @@ class CoreMetadata:
                     )
 
                 normalized_options[normalized_option] = option
-                optional_dependency_entries[normalized_option] = sorted(entries)
+                optional_dependency_entries[normalized_option] = dict(sorted(entries.items()))
 
-            self._optional_dependencies = OrderedDict(sorted(optional_dependency_entries.items()))
+            self._optional_dependencies_complex = dict(sorted(optional_dependency_entries.items()))
+
+        return self._optional_dependencies_complex
+
+    @property
+    def optional_dependencies(self):
+        """
+        https://peps.python.org/pep-0621/#dependencies-optional-dependencies
+        """
+        if self._optional_dependencies is None:
+            self._optional_dependencies = {
+                option: list(entries) for option, entries in self.optional_dependencies_complex.items()
+            }
 
         return self._optional_dependencies
 
@@ -1282,7 +1294,7 @@ class HatchMetadataSettings:
         if self._hooks is None:
             hook_config = self.hook_config
 
-            configured_hooks = OrderedDict()
+            configured_hooks = {}
             for hook_name, config in hook_config.items():
                 metadata_hook = self.plugin_manager.metadata_hook.get(hook_name)
                 if metadata_hook is None:
