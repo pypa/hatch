@@ -76,6 +76,10 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 
 - Support PEP 561
 
+***Fixed:***
+
+- Don't write empty entry points file for `wheel` targets if there are no entry points defined
+
 ### [1.3.1](https://github.com/pypa/hatch/releases/tag/hatchling-v1.3.1) - 2022-05-30 ### {: #hatchling-v1.3.1 }
 
 ***Fixed:***

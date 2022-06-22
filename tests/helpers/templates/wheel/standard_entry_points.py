@@ -20,16 +20,25 @@ def get_files(**kwargs):
 
         files.append(f)
 
-    files.append(File(Path(kwargs['package_name'], 'lib.so'), ''))
-    files.append(File(Path(kwargs['package_name'], 'lib.h'), ''))
+    files.append(
+        File(
+            Path(metadata_directory, 'entry_points.txt'),
+            """\
+[console_scripts]
+bar = pkg:foo
+foo = pkg:bar
+""",
+        )
+    )
     files.append(
         File(
             Path(metadata_directory, 'WHEEL'),
             f"""\
 Wheel-Version: 1.0
 Generator: hatchling {__version__}
-Root-Is-Purelib: false
-Tag: {kwargs.get('tag', '')}
+Root-Is-Purelib: true
+Tag: py2-none-any
+Tag: py3-none-any
 """,
         )
     )
@@ -40,7 +49,6 @@ Tag: {kwargs.get('tag', '')}
 Metadata-Version: {DEFAULT_METADATA_VERSION}
 Name: {kwargs['project_name_normalized']}
 Version: 0.0.1
-Requires-Python: >3
 """,
         )
     )

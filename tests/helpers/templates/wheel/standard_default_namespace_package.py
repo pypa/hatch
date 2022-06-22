@@ -22,7 +22,6 @@ def get_files(**kwargs):
         f.path = Path(namespace_package, f.path)
         files.append(f)
 
-    files.append(File(Path(metadata_directory, 'entry_points.txt'), ''))
     files.append(
         File(
             Path(metadata_directory, 'WHEEL'),

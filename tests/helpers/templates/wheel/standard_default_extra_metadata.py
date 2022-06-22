@@ -22,7 +22,6 @@ def get_files(**kwargs):
 
     files.append(File(Path(metadata_directory, 'extra_metadata', 'foo.txt'), ''))
     files.append(File(Path(metadata_directory, 'extra_metadata', 'nested', 'bar.txt'), ''))
-    files.append(File(Path(metadata_directory, 'entry_points.txt'), ''))
     files.append(
         File(
             Path(metadata_directory, 'WHEEL'),

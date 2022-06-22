@@ -449,8 +449,10 @@ Root-Is-Purelib: {'true' if build_data['pure_python'] else 'false'}
         records.write(self.format_record(record))
 
     def write_entry_points_file(self, archive, records):
-        record = archive.write_metadata('entry_points.txt', self.construct_entry_points_file())
-        records.write(self.format_record(record))
+        entry_points_file = self.construct_entry_points_file()
+        if entry_points_file:
+            record = archive.write_metadata('entry_points.txt', entry_points_file)
+            records.write(self.format_record(record))
 
     def write_project_metadata(self, archive, records, extra_dependencies=()):
         record = archive.write_metadata(
