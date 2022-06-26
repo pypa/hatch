@@ -2,7 +2,7 @@
 
 -----
 
-[Environments](config/environment.md) are designed to allow for isolated workspaces for testing, building documentation, or anything else projects need.
+[Environments](config/environment/overview.md) are designed to allow for isolated workspaces for testing, building documentation, or anything else projects need.
 
 Unless an environment is chosen explicitly, Hatch will use the `default` environment.
 
@@ -57,7 +57,7 @@ hatch run python -c "import sys;print(sys.executable)"
 
 ## Scripts
 
-You can also run any [scripts](config/environment.md#scripts) that have been defined.
+You can also run any [scripts](config/environment/overview.md#scripts) that have been defined.
 
 You'll notice that in the `pyproject.toml` file there are already scripts defined in the `default` environment. Try running the `cov` command, which invokes [pytest](https://github.com/pytest-dev/pytest) with some flags for tracking [coverage](https://github.com/nedbat/coveragepy):
 
@@ -73,7 +73,7 @@ hatch run cov -VV
 
 ## Dependencies
 
-Hatch ensures that environments are always compatible with the currently defined [project dependencies](config/metadata.md#dependencies) (if [installed](config/environment.md#skip-install) and in [dev mode](config/environment.md#dev-mode)) and [environment dependencies](config/environment.md#dependencies).
+Hatch ensures that environments are always compatible with the currently defined [project dependencies](config/metadata.md#dependencies) (if [installed](config/environment/overview.md#skip-install) and in [dev mode](config/environment/overview.md#dev-mode)) and [environment dependencies](config/environment/overview.md#dependencies).
 
 For example, add `cowsay` as a dependency then try to run it:
 
@@ -133,7 +133,7 @@ hatch run docs:serve
 
 ## Matrix
 
-Every environment can define its own set of [matrices](config/environment.md#matrix):
+Every environment can define its own set of [matrices](config/environment/advanced.md#matrix):
 
 === ":octicons-file-code-16: pyproject.toml"
 

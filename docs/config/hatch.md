@@ -172,7 +172,7 @@ You can select a custom path to the directory using the `--cache-dir` [root opti
     <ENV_TYPE> = "..."
     ```
 
-This determines where to store environments, with every key being the [type of environment](environment.md#type) and the value being the desired storage location.
+This determines where to store environments, with every key being the [type of environment](environment/overview.md#type) and the value being the desired storage location.
 
 For example, if you wanted to store [virtual environments](../plugins/environment.md#virtual) in a `.virtualenvs` directory within your home directory, you could specify the following:
 

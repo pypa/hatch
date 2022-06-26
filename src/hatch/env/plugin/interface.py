@@ -286,7 +286,7 @@ class EnvironmentInterface(ABC):
     @property
     def environment_dependencies(self) -> list[str]:
         """
-        The list of all [environment dependencies](../config/environment.md#dependencies).
+        The list of all [environment dependencies](../config/environment/overview.md#dependencies).
         """
         if self._environment_dependencies is None:
             self._environment_dependencies = [str(dependency) for dependency in self.environment_dependencies_complex]
@@ -311,8 +311,8 @@ class EnvironmentInterface(ABC):
     def dependencies(self) -> list[str]:
         """
         The list of all [project dependencies](../config/metadata.md#dependencies) (if
-        [installed](../config/environment.md#skip-install) and in [dev mode](../config/environment.md#dev-mode)) and
-        [environment dependencies](../config/environment.md#dependencies).
+        [installed](../config/environment/overview.md#skip-install) and in [dev mode](../config/environment/overview.md#dev-mode)) and
+        [environment dependencies](../config/environment/overview.md#dependencies).
         """
         if self._dependencies is None:
             self._dependencies = [str(dependency) for dependency in self.dependencies_complex]
@@ -703,7 +703,7 @@ class EnvironmentInterface(ABC):
     def resolve_commands(self, commands: list[str]):
         """
         This expands each command into one or more commands based on any
-        [scripts](../config/environment.md#scripts) that the user defined.
+        [scripts](../config/environment/overview.md#scripts) that the user defined.
         """
         for command in commands:
             yield from self.expand_command(command)
@@ -785,7 +785,7 @@ class EnvironmentInterface(ABC):
 
     def apply_features(self, requirement: str):
         """
-        A convenience method that applies any user defined [features](../config/environment.md#features)
+        A convenience method that applies any user defined [features](../config/environment/overview.md#features)
         to the given requirement.
         """
         if self.features:
@@ -797,7 +797,7 @@ class EnvironmentInterface(ABC):
     def check_compatibility(self):
         """
         This raises an exception if the environment is not compatible with the user's setup.
-        The default behavior checks for [platform compatibility](../config/environment.md#supported-platforms)
+        The default behavior checks for [platform compatibility](../config/environment/overview.md#supported-platforms)
         and any method override should keep this check.
         """
         if self.platforms and self.platform.name not in self.platforms:
@@ -831,7 +831,7 @@ class EnvironmentInterface(ABC):
     def get_option_types() -> dict:
         """
         Returns a mapping of supported options to their respective types so that they can be used by
-        [overrides](../config/environment.md#option-overrides).
+        [overrides](../config/environment/advanced.md#option-overrides).
         """
         return {}
 

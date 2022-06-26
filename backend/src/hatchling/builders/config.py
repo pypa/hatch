@@ -364,7 +364,7 @@ class BuilderConfig:
     @property
     def dev_mode_dirs(self):
         """
-        Directories which must be added to Python's search path in [dev mode](../config/environment.md#dev-mode).
+        Directories which must be added to Python's search path in [dev mode](../config/environment/overview.md#dev-mode).
         """
         if self.__dev_mode_dirs is None:
             if 'dev-mode-dirs' in self.target_config:
