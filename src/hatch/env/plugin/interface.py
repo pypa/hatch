@@ -311,7 +311,8 @@ class EnvironmentInterface(ABC):
     def dependencies(self) -> list[str]:
         """
         The list of all [project dependencies](../config/metadata.md#dependencies) (if
-        [installed](../config/environment/overview.md#skip-install) and in [dev mode](../config/environment/overview.md#dev-mode)) and
+        [installed](../config/environment/overview.md#skip-install) and in
+        [dev mode](../config/environment/overview.md#dev-mode)) and
         [environment dependencies](../config/environment/overview.md#dependencies).
         """
         if self._dependencies is None:
