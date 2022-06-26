@@ -315,7 +315,7 @@ When the output directory is not provided to the [`build`](../cli/reference.md#h
 
 ## Dev mode
 
-By default for [dev mode](environment.md#dev-mode) environment installations or [editable installs](https://pip.pypa.io/en/stable/cli/pip_install/#editable-installs), the `wheel` target will determine which directories should be added to Python's search path based on the [selected files](#file-selection).
+By default for [dev mode](environment/overview.md#dev-mode) environment installations or [editable installs](https://pip.pypa.io/en/stable/cli/pip_install/#editable-installs), the `wheel` target will determine which directories should be added to Python's search path based on the [selected files](#file-selection).
 
 If you want to override this detection or perhaps instruct other build targets as well, you can use the `dev-mode-dirs` option:
 

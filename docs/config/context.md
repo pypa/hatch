@@ -35,7 +35,7 @@ The `env` field and its modifier allow you to select the value of an environment
 
 ## Field nesting
 
-You can insert fields within others. For example, if you wanted a [script](environment.md#scripts) that displays the value of the environment variable `FOO`, with a fallback to the environment variable `BAR`, with its own fallback to the user's home directory, you could do the following:
+You can insert fields within others. For example, if you wanted a [script](environment/overview.md#scripts) that displays the value of the environment variable `FOO`, with a fallback to the environment variable `BAR`, with its own fallback to the user's home directory, you could do the following:
 
 === ":octicons-file-code-16: pyproject.toml"
 

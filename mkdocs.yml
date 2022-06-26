@@ -36,8 +36,10 @@ theme:
         icon: material/weather-sunny
         name: Switch to dark mode
   features:
-    - navigation.sections
+    # - navigation.sections
+    - navigation.expand
     - navigation.tabs
+    - navigation.tabs.sticky
     - navigation.instant
 
 nav:
@@ -57,7 +59,9 @@ nav:
     - Metadata: config/metadata.md
     - Dependencies: config/dependency.md
     - Build: config/build.md
-    - Environments: config/environment.md
+    - Environments:
+      - Overview: config/environment/overview.md
+      - Advanced: config/environment/advanced.md
     - Context formatting: config/context.md
     - Project templates: config/project-templates.md
     - Hatch: config/hatch.md
@@ -101,6 +105,9 @@ plugins:
       watch:
         - backend/src/hatchling
         - src/hatch
+  - redirects:
+      redirect_maps:
+        config/environment.md: config/environment/overview.md
 
 markdown_extensions:
   # Built-in

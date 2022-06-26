@@ -151,7 +151,7 @@ Note that the features come immediately after the package name, before any [vers
 
 Instead of using normal [version specifiers](#version-specifiers) and fetching packages from an index like PyPI, you can define exact sources using [direct references](https://peps.python.org/pep-0440/#direct-references) with an explicit [URI](https://en.wikipedia.org/wiki/Uniform_Resource_Identifier#Syntax).
 
-Direct references are usually not meant to be used for dependencies of a published project but rather are used for defining [dependencies for an environment](environment.md#dependencies).
+Direct references are usually not meant to be used for dependencies of a published project but rather are used for defining [dependencies for an environment](environment/overview.md#dependencies).
 
 All direct reference types are prefixed by the package name like:
 

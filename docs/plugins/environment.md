@@ -2,7 +2,7 @@
 
 -----
 
-See the documentation for [environment configuration](../config/environment.md).
+See the documentation for [environment configuration](../config/environment/overview.md).
 
 ## Known third-party
 

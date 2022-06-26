@@ -33,7 +33,7 @@ The following fields are always present and recognized by the build system itsel
 
 ### Version
 
-This is a custom class in a given Python file that inherits from the [BuildHookInterface](#hatchling.builders.hooks.plugin.interface.BuildHookInterface).
+This writes the project's version to a file.
 
 #### Configuration
 

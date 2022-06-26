@@ -8,7 +8,7 @@ Environment collectors allow for dynamically modifying environments or adding en
 
 ### Default
 
-This adds the `default` environment with [type](../config/environment.md#type) set to [virtual](environment.md#virtual) and will always be applied.
+This adds the `default` environment with [type](../config/environment/overview.md#type) set to [virtual](environment.md#virtual) and will always be applied.
 
 #### Configuration
 
