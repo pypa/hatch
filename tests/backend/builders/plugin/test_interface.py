@@ -215,6 +215,17 @@ class TestDirectoryRecursion:
             (external / 'external1.txt').touch()
             (external / 'external2.txt').touch()
 
+            # Excluded
+            (external / 'external.pyc').touch()
+            (external / 'external.pyd').touch()
+            (external / 'external.pyo').touch()
+            excluded_dir1 = external / '.git'
+            excluded_dir1.ensure_dir_exists()
+            (excluded_dir1 / 'foo.txt').touch()
+            excluded_dir2 = external / '__pycache__'
+            excluded_dir2.ensure_dir_exists()
+            (excluded_dir2 / 'foo.txt').touch()
+
             assert [(f.path, f.distribution_path) for f in builder.recurse_included_files()] == [
                 (str(project_dir / 'README.md'), 'README.md'),
                 (str(project_dir / 'tox.ini'), 'tox.ini'),

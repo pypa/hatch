@@ -81,6 +81,7 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 
 - Don't write empty entry points file for `wheel` targets if there are no entry points defined
 - Allow metadata hooks to set the `version` in all cases
+- Exclude guaranteed undesirable patterns like `__pycache__` for entries found with the `force-include` option
 
 ### [1.3.1](https://github.com/pypa/hatch/releases/tag/hatchling-v1.3.1) - 2022-05-30 ### {: #hatchling-v1.3.1 }
 

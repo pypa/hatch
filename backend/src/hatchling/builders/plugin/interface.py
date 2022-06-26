@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 from typing import Callable, Generator
 
 from ..config import BuilderConfig, env_var_enabled
-from ..constants import BuildEnvVars
+from ..constants import EXCLUDED_DIRECTORIES, EXCLUDED_FILE_EXTENSIONS, BuildEnvVars
 from ..utils import safe_walk
 
 
@@ -214,8 +214,8 @@ class BuilderInterface(ABC):
                     if relative_path == '.':
                         relative_path = ''
 
-                    dirs.sort()
-                    files.sort()
+                    dirs[:] = sorted(d for d in dirs if d not in EXCLUDED_DIRECTORIES)
+                    files = sorted(f for f in files if not f.endswith(EXCLUDED_FILE_EXTENSIONS))
 
                     for f in files:
                         relative_file_path = os.path.join(relative_path, f)
