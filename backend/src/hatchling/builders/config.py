@@ -4,7 +4,7 @@ from contextlib import contextmanager
 import pathspec
 
 from ..utils.fs import locate_file
-from .constants import DEFAULT_BUILD_DIRECTORY, BuildEnvVars
+from .constants import DEFAULT_BUILD_DIRECTORY, EXCLUDED_DIRECTORIES, EXCLUDED_FILE_EXTENSIONS, BuildEnvVars
 from .utils import normalize_inclusion_map, normalize_relative_directory, normalize_relative_path
 
 
@@ -674,7 +674,9 @@ class BuilderConfig:
         return []
 
     def default_global_exclude(self):
-        return ['.git', '__pycache__', '*.py[cod]']
+        patterns = [*EXCLUDED_DIRECTORIES, *EXCLUDED_FILE_EXTENSIONS]
+        patterns.sort()
+        return patterns
 
     def get_force_include(self):
         force_include = self.force_include.copy()
