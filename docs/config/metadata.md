@@ -234,6 +234,8 @@ the project to advertise components it provides to be discovered and used by oth
 
 ### CLI
 
+After installing projects that define CLI scripts, each key will be available along your `PATH` as a command that will call its associated object.
+
 === ":octicons-file-code-16: pyproject.toml"
 
     ```toml
@@ -241,7 +243,19 @@ the project to advertise components it provides to be discovered and used by oth
     cli-name = "pkg.subpkg:func"
     ```
 
+Using the above example, running `cli-name` would essentially execute the following Python script:
+
+```python
+import sys
+
+from pkg.subpkg import func
+
+sys.exit(func())
+```
+
 ### GUI
+
+GUI scripts are exactly the same as CLI scripts except on Windows, where they are handled specially so that they can be started without a console.
 
 === ":octicons-file-code-16: pyproject.toml"
 
