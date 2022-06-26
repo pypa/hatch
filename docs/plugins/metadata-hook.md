@@ -26,7 +26,11 @@ The metadata hook plugin name is `custom`.
     [metadata.hooks.custom]
     ```
 
-An option `path` is used to specify the path of the Python file, defaulting to `hatch_build.py`.
+##### Options
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `path` | `hatch_build.py` | The path of the Python file |
 
 #### Example
 

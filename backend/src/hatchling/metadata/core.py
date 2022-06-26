@@ -90,13 +90,14 @@ class ProjectMetadata:
             metadata_hooks = self.hatch.metadata.hooks
             if metadata_hooks:
                 static_fields = set(core_metadata)
-                self._set_version(metadata)
-                core_metadata['version'] = self.version
+                if 'version' in self.hatch.config:
+                    self._set_version(metadata)
+                    core_metadata['version'] = self.version
 
                 for metadata_hook in metadata_hooks.values():
                     metadata_hook.update(core_metadata)
 
-                new_fields = set(core_metadata) - set(static_fields)
+                new_fields = set(core_metadata) - static_fields
                 for new_field in new_fields:
                     if new_field in metadata.dynamic:
                         metadata.dynamic.remove(new_field)

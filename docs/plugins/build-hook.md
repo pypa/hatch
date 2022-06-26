@@ -31,6 +31,36 @@ The following fields are always present and recognized by the build system itsel
 
 ## Built-in
 
+### Version
+
+This is a custom class in a given Python file that inherits from the [BuildHookInterface](#hatchling.builders.hooks.plugin.interface.BuildHookInterface).
+
+#### Configuration
+
+The build hook plugin name is `version`.
+
+=== ":octicons-file-code-16: pyproject.toml"
+
+    ```toml
+    [tool.hatch.build.hooks.version]
+    [tool.hatch.build.targets.<TARGET_NAME>.hooks.version]
+    ```
+
+=== ":octicons-file-code-16: hatch.toml"
+
+    ```toml
+    [build.hooks.version]
+    [build.targets.<TARGET_NAME>.hooks.version]
+    ```
+
+##### Options
+
+| Option | Description |
+| --- | --- |
+| `path` (required) | A relative path to the desired file |
+| `template` | A string representing the entire contents of `path` that will be formatted with a `version` variable |
+| `pattern` | Rather than updating the entire file, a regular expression may be used that has a named group called `version` that represents the version. If set to `true`, a pattern will be used that looks for a variable named `__version__` or `VERSION` that is set to a string containing the version, optionally prefixed with the lowercase letter `v`. |
+
 ### Custom
 
 This is a custom class in a given Python file that inherits from the [BuildHookInterface](#hatchling.builders.hooks.plugin.interface.BuildHookInterface).
@@ -53,7 +83,11 @@ The build hook plugin name is `custom`.
     [build.targets.<TARGET_NAME>.hooks.custom]
     ```
 
-An option `path` is used to specify the path of the Python file, defaulting to `hatch_build.py`.
+##### Options
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `path` | `hatch_build.py` | The path of the Python file |
 
 #### Example
 
