@@ -36,7 +36,7 @@ theme:
         icon: material/weather-sunny
         name: Switch to dark mode
   features:
-    # - navigation.sections
+    - navigation.sections
     - navigation.expand
     - navigation.tabs
     - navigation.tabs.sticky

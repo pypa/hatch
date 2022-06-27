@@ -4,7 +4,7 @@
 
 After your project is [built](build.md), you can distribute it using the [`publish`](cli/reference.md#hatch-publish) command.
 
-The `-p`/`--publisher` option controls which publisher to use, with the default being [pypi](plugins/publisher/reference.md#pypi).
+The `-p`/`--publisher` option controls which publisher to use, with the default being [pypi](plugins/publisher/pypi.md).
 
 ## Artifact selection
 
