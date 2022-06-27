@@ -1,14 +1,10 @@
-# Publisher plugins
+# PyPI publisher
 
 -----
 
-## Built-in
+See the documentation for [publishing](../../publish.md).
 
-### PyPI
-
-See the documentation for [publishing](../publish.md).
-
-#### Configuration
+## Configuration
 
 The publisher plugin name is `pypi`.
 
@@ -18,7 +14,7 @@ The publisher plugin name is `pypi`.
     [publish.pypi]
     ```
 
-##### Options
+### Options
 
 | Flag | Config name | Description |
 | --- | --- | --- |
@@ -26,14 +22,3 @@ The publisher plugin name is `pypi`.
 | `-a`/`--auth` | `auth` | The credentials to use for authentication |
 | `-r`/`--repo` | `repo` | The repository with which to publish artifacts |
 | | `repos` | A table of named repositories to their respective URLs |
-
-::: hatch.publish.plugin.interface.PublisherInterface
-    selection:
-      members:
-      - PLUGIN_NAME
-      - app
-      - root
-      - cache_dir
-      - project_config
-      - plugin_config
-      - publish

@@ -83,16 +83,16 @@ Add [`Framework :: Hatch`](https://pypi.org/search/?c=Framework+%3A%3A+Hatch) to
 
 These are all involved in building projects and therefore any defined dependencies are automatically installed in each build environment.
 
-- [Builder](builder.md)
-- [Build hook](build-hook.md)
-- [Metadata hook](metadata-hook.md)
-- [Version source](version-source.md)
-- [Version scheme](version-scheme.md)
+- [Builder](builder/reference.md)
+- [Build hook](build-hook/reference.md)
+- [Metadata hook](metadata-hook/reference.md)
+- [Version source](version-source/reference.md)
+- [Version scheme](version-scheme/reference.md)
 
 ### Hatch
 
 These must be manually installed in the same environment as Hatch itself.
 
-- [Environment](environment.md)
-- [Environment collector](environment-collector.md)
-- [Publisher](publisher.md)
+- [Environment](environment/reference.md)
+- [Environment collector](environment-collector/reference.md)
+- [Publisher](publisher/reference.md)

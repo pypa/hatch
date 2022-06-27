@@ -89,7 +89,7 @@ The full description of the project.
             ```
 
 !!! note
-    If this is defined as a file, then it will always be included in [source distributions](../plugins/builder.md#source-distribution) for consistent builds.
+    If this is defined as a file, then it will always be included in [source distributions](../plugins/builder/sdist.md) for consistent builds.
 
 ## Python support
 

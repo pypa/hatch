@@ -79,7 +79,7 @@ class EnvironmentInterface(ABC):
     @property
     def app(self):
         """
-        An instance of [Application](utilities.md#hatchling.bridge.app.Application).
+        An instance of [Application](../utilities.md#hatchling.bridge.app.Application).
         """
         if self.__app is None:
             from hatchling.bridge.app import Application
@@ -120,14 +120,14 @@ class EnvironmentInterface(ABC):
     @property
     def platform(self):
         """
-        An instance of [Platform](utilities.md#hatch.utils.platform.Platform).
+        An instance of [Platform](../utilities.md#hatch.utils.platform.Platform).
         """
         return self.__platform
 
     @property
     def data_directory(self):
         """
-        The [directory](../config/hatch.md#environments) reserved exclusively for this plugin as a path-like object.
+        The [directory](../../config/hatch.md#environments) reserved exclusively for this plugin as a path-like object.
         """
         return self.__data_directory
 
@@ -286,7 +286,7 @@ class EnvironmentInterface(ABC):
     @property
     def environment_dependencies(self) -> list[str]:
         """
-        The list of all [environment dependencies](../config/environment/overview.md#dependencies).
+        The list of all [environment dependencies](../../config/environment/overview.md#dependencies).
         """
         if self._environment_dependencies is None:
             self._environment_dependencies = [str(dependency) for dependency in self.environment_dependencies_complex]
@@ -310,10 +310,10 @@ class EnvironmentInterface(ABC):
     @property
     def dependencies(self) -> list[str]:
         """
-        The list of all [project dependencies](../config/metadata.md#dependencies) (if
-        [installed](../config/environment/overview.md#skip-install) and in
-        [dev mode](../config/environment/overview.md#dev-mode)) and
-        [environment dependencies](../config/environment/overview.md#dependencies).
+        The list of all [project dependencies](../../config/metadata.md#dependencies) (if
+        [installed](../../config/environment/overview.md#skip-install) and in
+        [dev mode](../../config/environment/overview.md#dev-mode)) and
+        [environment dependencies](../../config/environment/overview.md#dependencies).
         """
         if self._dependencies is None:
             self._dependencies = [str(dependency) for dependency in self.dependencies_complex]
@@ -580,8 +580,8 @@ class EnvironmentInterface(ABC):
         :material-align-horizontal-left: **REQUIRED** :material-align-horizontal-right:
 
         This should perform the necessary steps to completely remove the environment from the system and will only
-        be triggered manually by users with the [`env remove`](../cli/reference.md#hatch-env-remove) or
-        [`env prune`](../cli/reference.md#hatch-env-prune) commands.
+        be triggered manually by users with the [`env remove`](../../cli/reference.md#hatch-env-remove) or
+        [`env prune`](../../cli/reference.md#hatch-env-prune) commands.
         """
 
     @abstractmethod
@@ -615,7 +615,7 @@ class EnvironmentInterface(ABC):
         :material-align-horizontal-left: **REQUIRED** :material-align-horizontal-right:
 
         This should indicate whether or not the environment is compatible with the current
-        [dependencies](environment.md#hatch.env.plugin.interface.EnvironmentInterface.dependencies).
+        [dependencies](reference.md#hatch.env.plugin.interface.EnvironmentInterface.dependencies).
         """
 
     @abstractmethod
@@ -624,14 +624,14 @@ class EnvironmentInterface(ABC):
         :material-align-horizontal-left: **REQUIRED** :material-align-horizontal-right:
 
         This should install the
-        [dependencies](environment.md#hatch.env.plugin.interface.EnvironmentInterface.dependencies)
+        [dependencies](reference.md#hatch.env.plugin.interface.EnvironmentInterface.dependencies)
         in the environment.
         """
 
     @contextmanager
     def build_environment(self, dependencies: list[str]):
         """
-        This should set up an isolated environment in which to [`build`](../cli/reference.md#hatch-build) the project
+        This should set up an isolated environment in which to [`build`](../../cli/reference.md#hatch-build) the project
         given a set of dependencies and must be a context manager:
 
         ```python
@@ -640,9 +640,9 @@ class EnvironmentInterface(ABC):
         ```
 
         The build environment should reflect any
-        [environment variables](environment.md#hatch.env.plugin.interface.EnvironmentInterface.get_env_vars)
+        [environment variables](reference.md#hatch.env.plugin.interface.EnvironmentInterface.get_env_vars)
         the user defined either currently or at the time of
-        [creation](environment.md#hatch.env.plugin.interface.EnvironmentInterface.create).
+        [creation](reference.md#hatch.env.plugin.interface.EnvironmentInterface.create).
         """
         with self.get_env_vars():
             yield
@@ -650,7 +650,7 @@ class EnvironmentInterface(ABC):
     def get_build_process(self, build_environment, **kwargs):
         """
         This will be called when the
-        [build environment](environment.md#hatch.env.plugin.interface.EnvironmentInterface.build_environment)
+        [build environment](reference.md#hatch.env.plugin.interface.EnvironmentInterface.build_environment)
         is active:
 
         ```python
@@ -661,7 +661,7 @@ class EnvironmentInterface(ABC):
         This should return the standard library's
         [subprocess.Popen](https://docs.python.org/3/library/subprocess.html#subprocess.Popen)
         with all output captured by `stdout`. The command is constructed by passing all keyword arguments to
-        [construct_build_command](environment.md#hatch.env.plugin.interface.EnvironmentInterface.construct_build_command).
+        [construct_build_command](reference.md#hatch.env.plugin.interface.EnvironmentInterface.construct_build_command).
 
         For an example, open the default implementation below:
         """
@@ -669,10 +669,10 @@ class EnvironmentInterface(ABC):
 
     def enter_shell(self, name, path, args):
         """
-        Spawn a [shell](../config/hatch.md#shell) within the environment.
+        Spawn a [shell](../../config/hatch.md#shell) within the environment.
 
         This should either use
-        [command_context](environment.md#hatch.env.plugin.interface.EnvironmentInterface.command_context)
+        [command_context](reference.md#hatch.env.plugin.interface.EnvironmentInterface.command_context)
         directly or provide the same guarantee.
         """
         with self.command_context():
@@ -683,7 +683,7 @@ class EnvironmentInterface(ABC):
         This should return the standard library's
         [subprocess.CompletedProcess](https://docs.python.org/3/library/subprocess.html#subprocess.CompletedProcess)
         and will always be called when the
-        [command_context](environment.md#hatch.env.plugin.interface.EnvironmentInterface.command_context)
+        [command_context](reference.md#hatch.env.plugin.interface.EnvironmentInterface.command_context)
         is active, with the expectation of providing the same guarantee.
         """
         return self.platform.run_command(command, shell=True)
@@ -692,9 +692,9 @@ class EnvironmentInterface(ABC):
     def command_context(self):
         """
         A context manager that when active should make executed shell commands reflect any
-        [environment variables](environment.md#hatch.env.plugin.interface.EnvironmentInterface.get_env_vars)
+        [environment variables](reference.md#hatch.env.plugin.interface.EnvironmentInterface.get_env_vars)
         the user defined either currently or at the time of
-        [creation](environment.md#hatch.env.plugin.interface.EnvironmentInterface.create).
+        [creation](reference.md#hatch.env.plugin.interface.EnvironmentInterface.create).
 
         For an example, open the default implementation below:
         """
@@ -704,7 +704,7 @@ class EnvironmentInterface(ABC):
     def resolve_commands(self, commands: list[str]):
         """
         This expands each command into one or more commands based on any
-        [scripts](../config/environment/overview.md#scripts) that the user defined.
+        [scripts](../../config/environment/overview.md#scripts) that the user defined.
         """
         for command in commands:
             yield from self.expand_command(command)
@@ -735,8 +735,8 @@ class EnvironmentInterface(ABC):
         clean_only=False,
     ):
         """
-        This is the canonical way [`build`](../cli/reference.md#hatch-build) command options are translated to
-        a subprocess command issued to [builders](builder.md).
+        This is the canonical way [`build`](../../cli/reference.md#hatch-build) command options are translated to
+        a subprocess command issued to [builders](../builder/reference.md).
         """
         command = ['python', '-u', '-m', 'hatchling', 'build', '--app']
 
@@ -779,14 +779,14 @@ class EnvironmentInterface(ABC):
 
     def join_command_args(self, args: list[str]):
         """
-        This is used by the [`run`](../cli/reference.md#hatch-run) command to construct the root command string
+        This is used by the [`run`](../../cli/reference.md#hatch-run) command to construct the root command string
         from the received arguments.
         """
         return self.platform.join_command_args(args)
 
     def apply_features(self, requirement: str):
         """
-        A convenience method that applies any user defined [features](../config/environment/overview.md#features)
+        A convenience method that applies any user defined [features](../../config/environment/overview.md#features)
         to the given requirement.
         """
         if self.features:
@@ -797,8 +797,8 @@ class EnvironmentInterface(ABC):
 
     def check_compatibility(self):
         """
-        This raises an exception if the environment is not compatible with the user's setup.
-        The default behavior checks for [platform compatibility](../config/environment/overview.md#supported-platforms)
+        This raises an exception if the environment is not compatible with the user's setup. The default behavior
+        checks for [platform compatibility](../../config/environment/overview.md#supported-platforms)
         and any method override should keep this check.
         """
         if self.platforms and self.platform.name not in self.platforms:
@@ -822,7 +822,8 @@ class EnvironmentInterface(ABC):
 
     def get_context(self):
         """
-        Returns a subclass of [EnvironmentContextFormatter](utilities.md#hatch.env.context.EnvironmentContextFormatter).
+        Returns a subclass of
+        [EnvironmentContextFormatter](../utilities.md#hatch.env.context.EnvironmentContextFormatter).
         """
         from ..context import EnvironmentContextFormatter
 
@@ -832,7 +833,7 @@ class EnvironmentInterface(ABC):
     def get_option_types() -> dict:
         """
         Returns a mapping of supported options to their respective types so that they can be used by
-        [overrides](../config/environment/advanced.md#option-overrides).
+        [overrides](../../config/environment/advanced.md#option-overrides).
         """
         return {}
 

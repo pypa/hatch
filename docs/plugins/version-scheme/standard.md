@@ -1,12 +1,8 @@
-# Version scheme plugins
+# Standard version scheme
 
 -----
 
-## Built-in
-
-### Standard
-
-See the documentation for [versioning](../version.md#updating).
+See the documentation for [versioning](../../version.md#updating).
 
 #### Configuration
 
@@ -26,10 +22,6 @@ The version scheme plugin name is `standard`.
     scheme = "standard"
     ```
 
-::: hatchling.version.scheme.plugin.interface.VersionSchemeInterface
-    selection:
-      members:
-      - PLUGIN_NAME
-      - root
-      - config
-      - update
+### Options
+
+There are no options available currently.

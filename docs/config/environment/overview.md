@@ -506,4 +506,4 @@ The `description` option is purely informational and is displayed in the output 
 
 ## Type
 
-An environment's `type` determines which [environment plugin](../../plugins/environment.md) will be used for management. The only built-in environment type is [`virtual`](../../plugins/environment.md#virtual), which uses virtual Python environments.
+An environment's `type` determines which [environment plugin](../../plugins/environment/reference.md) will be used for management. The only built-in environment type is [`virtual`](../../plugins/environment/virtual.md), which uses virtual Python environments.
