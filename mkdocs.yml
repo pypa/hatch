@@ -70,14 +70,34 @@ nav:
     - Reference: cli/reference.md
   - Plugins:
     - About: plugins/about.md
-    - Builder: plugins/builder.md
-    - Build hook: plugins/build-hook.md
-    - Metadata hook: plugins/metadata-hook.md
-    - Environment: plugins/environment.md
-    - Environment collector: plugins/environment-collector.md
-    - Publisher: plugins/publisher.md
-    - Version source: plugins/version-source.md
-    - Version scheme: plugins/version-scheme.md
+    - Builder:
+      - Reference: plugins/builder/reference.md
+      - Wheel: plugins/builder/wheel.md
+      - Source distribution: plugins/builder/sdist.md
+      - Custom: plugins/builder/custom.md
+    - Build hook:
+      - Reference: plugins/build-hook/reference.md
+      - Version: plugins/build-hook/version.md
+      - Custom: plugins/build-hook/custom.md
+    - Metadata hook:
+      - Reference: plugins/metadata-hook/reference.md
+      - Custom: plugins/metadata-hook/custom.md
+    - Environment:
+      - Reference: plugins/environment/reference.md
+      - Virtual: plugins/environment/virtual.md
+    - Environment collector:
+      - Reference: plugins/environment-collector/reference.md
+      - Default: plugins/environment-collector/default.md
+    - Publisher:
+      - Reference: plugins/publisher/reference.md
+      - PyPI: plugins/publisher/pypi.md
+    - Version source:
+      - Reference: plugins/version-source/reference.md
+      - Regex: plugins/version-source/regex.md
+      - Code: plugins/version-source/code.md
+    - Version scheme:
+      - Reference: plugins/version-scheme/reference.md
+      - Standard: plugins/version-scheme/standard.md
     - Utilities: plugins/utilities.md
   - Meta:
     - FAQ: meta/faq.md
@@ -108,6 +128,14 @@ plugins:
   - redirects:
       redirect_maps:
         config/environment.md: config/environment/overview.md
+        plugins/builder.md: plugins/builder/reference.md
+        plugins/build-hook.md: plugins/build-hook/reference.md
+        plugins/metadata-hook.md: plugins/metadata-hook/reference.md
+        plugins/environment.md: plugins/environment/reference.md
+        plugins/environment-collector.md: plugins/environment-collector/reference.md
+        plugins/publisher.md: plugins/publisher/reference.md
+        plugins/version-source.md: plugins/version-source/reference.md
+        plugins/version-scheme.md: plugins/version-scheme/reference.md
 
 markdown_extensions:
   # Built-in

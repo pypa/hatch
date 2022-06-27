@@ -67,10 +67,10 @@ class VersionSourceInterface(ABC):  # no cov
     def get_version_data(self) -> dict:
         """
         This should return a mapping with a `version` key representing the current version of the project and will be
-        displayed when invoking the [`version`](../cli/reference.md#hatch-version) command without any arguments.
+        displayed when invoking the [`version`](../../cli/reference.md#hatch-version) command without any arguments.
 
         The mapping can contain anything else and will be passed to
-        [set_version](version-source.md#hatchling.version.source.plugin.interface.VersionSourceInterface.set_version)
+        [set_version](reference.md#hatchling.version.source.plugin.interface.VersionSourceInterface.set_version)
         when updating the version.
         """
 

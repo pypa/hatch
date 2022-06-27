@@ -45,7 +45,7 @@ class PublisherInterface(ABC):
     @property
     def app(self):
         """
-        An instance of [Application](utilities.md#hatchling.bridge.app.Application).
+        An instance of [Application](../utilities.md#hatchling.bridge.app.Application).
         """
         return self.__app
 
@@ -83,7 +83,7 @@ class PublisherInterface(ABC):
     @property
     def plugin_config(self) -> dict:
         """
-        This is defined in Hatch's [config file](../config/hatch.md).
+        This is defined in Hatch's [config file](../../config/hatch.md).
 
         === ":octicons-file-code-16: config.toml"
 
@@ -98,6 +98,6 @@ class PublisherInterface(ABC):
         """
         :material-align-horizontal-left: **REQUIRED** :material-align-horizontal-right:
 
-        This is called directly by the [`publish`](../cli/reference.md#hatch-publish) command
+        This is called directly by the [`publish`](../../cli/reference.md#hatch-publish) command
         with the arguments and options it receives.
         """

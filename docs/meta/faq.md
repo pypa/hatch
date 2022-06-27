@@ -16,7 +16,7 @@
 
 ***Q***: Are workflows for both libraries and applications supported?
 
-***A***: Yes, mostly! Applications can utilize environment management just like libraries, and plugins can be used to [build](../plugins/builder.md) projects in arbitrary formats or [publish](../plugins/publisher.md) artifacts to arbitrary destinations.
+***A***: Yes, mostly! Applications can utilize environment management just like libraries, and plugins can be used to [build](../plugins/builder/reference.md) projects in arbitrary formats or [publish](../plugins/publisher/reference.md) artifacts to arbitrary destinations.
 
 The only caveat is that currently there is no support for re-creating an environment given a set of dependencies in a reproducible manner. Although a standard lock file format may be far off since [PEP 665][] was rejected, resolving capabilities are [coming to pip](https://github.com/pypa/pip/pull/10748). When that is stabilized, Hatch will add locking functionality and dedicated documentation for managing applications.
 

@@ -354,7 +354,7 @@ If you don't want to add entire directories to Python's search path, you can ena
 
 ## Build targets
 
-A build target can be provided by any [builder plugin](../plugins/builder.md). There are three built-in build targets: [wheel](../plugins/builder.md#wheel), [sdist](../plugins/builder.md#source-distribution), and [custom](../plugins/builder.md#custom).
+A build target can be provided by any [builder plugin](../plugins/builder/reference.md). There are three built-in build targets: [wheel](../plugins/builder/wheel.md), [sdist](../plugins/builder/sdist.md), and [custom](../plugins/builder/custom.md).
 
 ### Dependencies
 
@@ -420,7 +420,7 @@ If a build target supports multiple build strategies or if there are major chang
 
 ## Build hooks
 
-A build hook defines code that will be executed at various stages of the build process and can be provided by any [build hook plugin](../plugins/build-hook.md). There is one built-in build hook: [custom](../plugins/build-hook.md#custom).
+A build hook defines code that will be executed at various stages of the build process and can be provided by any [build hook plugin](../plugins/build-hook/reference.md). There is one built-in build hook: [custom](../plugins/build-hook/custom.md).
 
 Build hooks can be applied either globally:
 

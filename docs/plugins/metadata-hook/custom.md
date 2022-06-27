@@ -1,16 +1,10 @@
-# Metadata hook plugins
+# Custom metadata hook
 
 -----
 
-Metadata hooks allow for the modification of [project metadata](../config/metadata.md) after it has been loaded.
+This is a custom class in a given Python file that inherits from the [MetadataHookInterface](reference.md#hatchling.metadata.plugin.interface.MetadataHookInterface).
 
-## Built-in
-
-### Custom
-
-This is a custom class in a given Python file that inherits from the [MetadataHookInterface](#hatchling.metadata.plugin.interface.MetadataHookInterface).
-
-#### Configuration
+## Configuration
 
 The metadata hook plugin name is `custom`.
 
@@ -26,13 +20,13 @@ The metadata hook plugin name is `custom`.
     [metadata.hooks.custom]
     ```
 
-##### Options
+### Options
 
 | Option | Default | Description |
 | --- | --- | --- |
 | `path` | `hatch_build.py` | The path of the Python file |
 
-#### Example
+## Example
 
 === ":octicons-file-code-16: hatch_build.py"
 
@@ -47,12 +41,4 @@ The metadata hook plugin name is `custom`.
 If multiple subclasses are found, you must define a function named `get_metadata_hook` that returns the desired build hook.
 
 !!! note
-    Any defined [PLUGIN_NAME](#hatchling.metadata.plugin.interface.MetadataHookInterface.PLUGIN_NAME) is ignored and will always be `custom`.
-
-::: hatchling.metadata.plugin.interface.MetadataHookInterface
-    selection:
-      members:
-      - PLUGIN_NAME
-      - root
-      - config
-      - update
+    Any defined [PLUGIN_NAME](reference.md#hatchling.metadata.plugin.interface.MetadataHookInterface.PLUGIN_NAME) is ignored and will always be `custom`.

@@ -253,7 +253,7 @@ class BuilderInterface(ABC):
     @property
     def app(self):
         """
-        An instance of [Application](utilities.md#hatchling.bridge.app.Application).
+        An instance of [Application](../utilities.md#hatchling.bridge.app.Application).
         """
         if self.__app is None:
             from ...bridge.app import Application
@@ -286,7 +286,7 @@ class BuilderInterface(ABC):
     @property
     def config(self):
         """
-        An instance of [BuilderConfig](utilities.md#hatchling.builders.config.BuilderConfig).
+        An instance of [BuilderConfig](../utilities.md#hatchling.builders.config.BuilderConfig).
         """
         if self.__config is None:
             self.__config = self.get_config_class()(
@@ -383,20 +383,20 @@ class BuilderInterface(ABC):
 
     def get_default_build_data(self):
         """
-        A mapping that can be modified by [build hooks](build-hook.md) to influence the behavior of builds.
+        A mapping that can be modified by [build hooks](../build-hook/reference.md) to influence the behavior of builds.
         """
         return {}
 
     def clean(self, directory, versions):
         """
         Called before builds if the `-c`/`--clean` flag was passed to the
-        [`build`](../cli/reference.md#hatch-build) command.
+        [`build`](../../cli/reference.md#hatch-build) command.
         """
 
     @classmethod
     def get_config_class(cls):
         """
-        Must return a subclass of [BuilderConfig](utilities.md#hatchling.builders.config.BuilderConfig).
+        Must return a subclass of [BuilderConfig](../utilities.md#hatchling.builders.config.BuilderConfig).
         """
         return BuilderConfig
 

@@ -42,7 +42,7 @@ class BuildHookInterface:  # no cov
     @property
     def app(self):
         """
-        An instance of [Application](utilities.md#hatchling.bridge.app.Application).
+        An instance of [Application](../utilities.md#hatchling.bridge.app.Application).
         """
         if self.__app is None:
             from ....bridge.app import Application
@@ -87,7 +87,7 @@ class BuildHookInterface:  # no cov
     @property
     def build_config(self):
         """
-        An instance of [BuilderConfig](utilities.md#hatchling.builders.config.BuilderConfig).
+        An instance of [BuilderConfig](../utilities.md#hatchling.builders.config.BuilderConfig).
         """
         return self.__build_config
 
@@ -108,8 +108,8 @@ class BuildHookInterface:  # no cov
     def clean(self, versions):
         """
         This occurs before the build process if the `-c`/`--clean` flag was passed to
-        the [`build`](../cli/reference.md#hatch-build) command, or when invoking
-        the [`clean`](../cli/reference.md#hatch-clean) command.
+        the [`build`](../../cli/reference.md#hatch-build) command, or when invoking
+        the [`clean`](../../cli/reference.md#hatch-clean) command.
         """
 
     def initialize(self, version, build_data):
@@ -122,7 +122,7 @@ class BuildHookInterface:  # no cov
     def finalize(self, version, build_data, artifact_path):
         """
         This occurs immediately after each build and will not run if the `--hooks-only` flag
-        was passed to the [`build`](../cli/reference.md#hatch-build) command.
+        was passed to the [`build`](../../cli/reference.md#hatch-build) command.
 
         The build data will reflect any modifications done by the target during the build.
         """

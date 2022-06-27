@@ -4,7 +4,7 @@
 
 ## Configuration
 
-When the version is not [statically set](config/metadata.md#version), configuration is defined in the `tool.hatch.version` table. The `source` option determines the [source](plugins/version-source.md) to use for [retrieving](#display) and [updating](#updating) the version. The [regex](plugins/version-source.md#regex) source is used by default.
+When the version is not [statically set](config/metadata.md#version), configuration is defined in the `tool.hatch.version` table. The `source` option determines the [source](plugins/version-source/reference.md) to use for [retrieving](#display) and [updating](#updating) the version. The [regex](plugins/version-source/regex.md) source is used by default.
 
 The `regex` source requires an option `path` that represents a relative path to a file containing the project's version:
 
@@ -63,7 +63,7 @@ Old: 0.0.1
 New: 0.1.0
 ```
 
-The `scheme` option determines the [scheme](plugins/version-scheme.md) to use for parsing both the existing and new versions. The [standard](plugins/version-scheme.md#standard) scheme is used by default, which is based on [PEP 440](https://peps.python.org/pep-0440/#public-version-identifiers).
+The `scheme` option determines the [scheme](plugins/version-scheme/reference.md) to use for parsing both the existing and new versions. The [standard](plugins/version-scheme/standard.md) scheme is used by default, which is based on [PEP 440](https://peps.python.org/pep-0440/#public-version-identifiers).
 
 Rather than setting the version explicitly, you can select the name of a [segment](#supported-segments) used to increment the version:
 
