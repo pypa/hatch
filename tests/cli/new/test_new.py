@@ -420,7 +420,7 @@ def test_no_project_name_error(hatch, helpers, temp_dir):
 
 def test_interactive(hatch, helpers, temp_dir):
     project_name = 'My App'
-    description = 'foo'
+    description = 'foo \u2764'
 
     with temp_dir.as_cwd():
         result = hatch('new', '-i', input=f'{project_name}\n{description}')

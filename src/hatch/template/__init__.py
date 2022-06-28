@@ -16,7 +16,7 @@ class File:
 
         path = root / self.path
         path.ensure_parent_dir_exists()
-        path.write_text(self.contents)
+        path.write_text(self.contents, encoding='utf-8')
 
 
 def find_template_files(module):
