@@ -36,6 +36,7 @@ class BuilderConfig:
         # Modified at build time
         self.build_artifact_spec = None
         self.build_force_include = {}
+        self.build_reserved_paths = set()
 
         # Common options
         self.__directory = None
@@ -73,7 +74,9 @@ class BuilderConfig:
             or self.path_is_artifact(relative_path)
             or (
                 not (self.only_packages and not is_package)
-                and (self.path_is_included(relative_path) and not self.path_is_excluded(relative_path))
+                and not self.path_is_reserved(relative_path)
+                and not self.path_is_excluded(relative_path)
+                and self.path_is_included(relative_path)
             )
         )
 
@@ -100,6 +103,16 @@ class BuilderConfig:
             return False
 
         return self.build_artifact_spec.match_file(relative_path)
+
+    def path_is_reserved(self, relative_path):
+        return relative_path in self.build_reserved_paths
+
+    def directory_is_excluded(self, relative_directory):
+        return (
+            self.path_is_reserved(relative_directory)
+            # The trailing slash is necessary so e.g. `bar/` matches `foo/bar`
+            or (self.skip_excluded_dirs and self.path_is_excluded(f'{relative_directory}/'))
+        )
 
     @property
     def include_spec(self):
@@ -695,10 +708,23 @@ class BuilderConfig:
 
             self.build_force_include.update(normalize_inclusion_map(build_data['force_include'], self.root))
 
+            for inclusion_map in (self.force_include, self.build_force_include):
+                for source, target in inclusion_map.items():
+                    # Ignore source
+                    # old/ -> new/
+                    # old.ext -> new.ext
+                    if source.startswith(f'{self.root}{os.sep}'):
+                        self.build_reserved_paths.add(os.path.relpath(source, self.root))
+                    # Ignore target files only
+                    # ../out.ext -> ../in.ext
+                    elif os.path.isfile(source):
+                        self.build_reserved_paths.add(target)
+
             yield
         finally:
             self.build_artifact_spec = None
             self.build_force_include.clear()
+            self.build_reserved_paths.clear()
 
 
 def env_var_enabled(env_var, default=False):

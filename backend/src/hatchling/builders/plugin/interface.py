@@ -126,10 +126,7 @@ class BuilderInterface(ABC):
             self.app.display_debug(f'Building `{self.PLUGIN_NAME}` version `{version}`')
 
             build_data = self.get_default_build_data()
-
-            # Make sure reserved fields are set
-            build_data.setdefault('artifacts', [])
-            build_data.setdefault('force_include', {})
+            self.set_build_data_defaults(build_data)
 
             # Allow inspection of configured build hooks and the order in which they run
             build_data['build_hooks'] = tuple(configured_build_hooks)
@@ -179,15 +176,7 @@ class BuilderInterface(ABC):
             if relative_path == '.':
                 relative_path = ''
 
-            if self.config.skip_excluded_dirs:
-                dirs[:] = sorted(
-                    d
-                    for d in dirs
-                    # The trailing slash is necessary so e.g. `bar/` matches `foo/bar`
-                    if not self.config.path_is_excluded(f'{os.path.join(relative_path, d)}/')
-                )
-            else:
-                dirs.sort()
+            dirs[:] = sorted(d for d in dirs if not self.config.directory_is_excluded(os.path.join(relative_path, d)))
 
             files.sort()
             is_package = '__init__.py' in files
@@ -219,11 +208,13 @@ class BuilderInterface(ABC):
 
                     for f in files:
                         relative_file_path = os.path.join(relative_path, f)
-                        yield IncludedFile(
-                            os.path.join(root, f),
-                            '' if external else os.path.relpath(relative_file_path, self.root),
-                            os.path.join(target_path, relative_file_path),
-                        )
+                        distribution_path = os.path.join(target_path, relative_file_path)
+                        if not self.config.path_is_reserved(distribution_path):
+                            yield IncludedFile(
+                                os.path.join(root, f),
+                                '' if external else os.path.relpath(relative_file_path, self.root),
+                                distribution_path,
+                            )
 
     @property
     def root(self):
@@ -386,6 +377,10 @@ class BuilderInterface(ABC):
         A mapping that can be modified by [build hooks](../build-hook/reference.md) to influence the behavior of builds.
         """
         return {}
+
+    def set_build_data_defaults(self, build_data):
+        build_data.setdefault('artifacts', [])
+        build_data.setdefault('force_include', {})
 
     def clean(self, directory, versions):
         """

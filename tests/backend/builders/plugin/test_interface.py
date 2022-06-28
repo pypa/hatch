@@ -170,6 +170,42 @@ class TestDirectoryRecursion:
                 str(project_dir / 'foo' / 'bar.txt'),
             ]
 
+    def test_no_duplication(self, temp_dir):
+        project_dir = temp_dir / 'project'
+        project_dir.ensure_dir_exists()
+
+        with project_dir.as_cwd():
+            config = {
+                'tool': {
+                    'hatch': {
+                        'build': {
+                            'force-include': {
+                                '../external.txt': 'new/target2.txt',
+                                'old': 'new',
+                            },
+                        }
+                    }
+                }
+            }
+            builder = Builder(str(project_dir), config=config)
+
+            (project_dir / 'foo.txt').touch()
+            old = project_dir / 'old'
+            old.ensure_dir_exists()
+            (old / 'target1.txt').touch()
+            (old / 'target2.txt').touch()
+
+            (temp_dir / 'external.txt').touch()
+
+            build_data = builder.get_default_build_data()
+            builder.set_build_data_defaults(build_data)
+            with builder.config.set_build_data(build_data):
+                assert [(f.path, f.distribution_path) for f in builder.recurse_included_files()] == [
+                    (str(project_dir / 'foo.txt'), 'foo.txt'),
+                    (str(project_dir / 'old' / 'target1.txt'), f'new{path_sep}target1.txt'),
+                    (str(temp_dir / 'external.txt'), f'new{path_sep}target2.txt'),
+                ]
+
     def test_order(self, temp_dir):
         project_dir = temp_dir / 'project'
         project_dir.ensure_dir_exists()
