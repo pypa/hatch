@@ -119,10 +119,7 @@
             <span class=bp>self</span><span class=o>.</span><span class=n>app</span><span class=o>.</span><span class=n>display_debug</span><span class=p>(</span><span class=sa>f</span><span class=s1>&#39;Building `</span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>PLUGIN_NAME</span><span class=si>}</span><span class=s1>` version `</span><span class=si>{</span><span class=n>version</span><span class=si>}</span><span class=s1>`&#39;</span><span class=p>)</span>
 
             <span class=n>build_data</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>get_default_build_data</span><span class=p>()</span>
-
-            <span class=c1># Make sure reserved fields are set</span>
-            <span class=n>build_data</span><span class=o>.</span><span class=n>setdefault</span><span class=p>(</span><span class=s1>&#39;artifacts&#39;</span><span class=p>,</span> <span class=p>[])</span>
-            <span class=n>build_data</span><span class=o>.</span><span class=n>setdefault</span><span class=p>(</span><span class=s1>&#39;force_include&#39;</span><span class=p>,</span> <span class=p>{})</span>
+            <span class=bp>self</span><span class=o>.</span><span class=n>set_build_data_defaults</span><span class=p>(</span><span class=n>build_data</span><span class=p>)</span>
 
             <span class=c1># Allow inspection of configured build hooks and the order in which they run</span>
             <span class=n>build_data</span><span class=p>[</span><span class=s1>&#39;build_hooks&#39;</span><span class=p>]</span> <span class=o>=</span> <span class=nb>tuple</span><span class=p>(</span><span class=n>configured_build_hooks</span><span class=p>)</span>
@@ -172,15 +169,7 @@
             <span class=k>if</span> <span class=n>relative_path</span> <span class=o>==</span> <span class=s1>&#39;.&#39;</span><span class=p>:</span>
                 <span class=n>relative_path</span> <span class=o>=</span> <span class=s1>&#39;&#39;</span>
 
-            <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>config</span><span class=o>.</span><span class=n>skip_excluded_dirs</span><span class=p>:</span>
-                <span class=n>dirs</span><span class=p>[:]</span> <span class=o>=</span> <span class=nb>sorted</span><span class=p>(</span>
-                    <span class=n>d</span>
-                    <span class=k>for</span> <span class=n>d</span> <span class=ow>in</span> <span class=n>dirs</span>
-                    <span class=c1># The trailing slash is necessary so e.g. `bar/` matches `foo/bar`</span>
-                    <span class=k>if</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>config</span><span class=o>.</span><span class=n>path_is_excluded</span><span class=p>(</span><span class=sa>f</span><span class=s1>&#39;</span><span class=si>{</span><span class=n>os</span><span class=o>.</span><span class=n>path</span><span class=o>.</span><span class=n>join</span><span class=p>(</span><span class=n>relative_path</span><span class=p>,</span> <span class=n>d</span><span class=p>)</span><span class=si>}</span><span class=s1>/&#39;</span><span class=p>)</span>
-                <span class=p>)</span>
-            <span class=k>else</span><span class=p>:</span>
-                <span class=n>dirs</span><span class=o>.</span><span class=n>sort</span><span class=p>()</span>
+            <span class=n>dirs</span><span class=p>[:]</span> <span class=o>=</span> <span class=nb>sorted</span><span class=p>(</span><span class=n>d</span> <span class=k>for</span> <span class=n>d</span> <span class=ow>in</span> <span class=n>dirs</span> <span class=k>if</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>config</span><span class=o>.</span><span class=n>directory_is_excluded</span><span class=p>(</span><span class=n>os</span><span class=o>.</span><span class=n>path</span><span class=o>.</span><span class=n>join</span><span class=p>(</span><span class=n>relative_path</span><span class=p>,</span> <span class=n>d</span><span class=p>)))</span>
 
             <span class=n>files</span><span class=o>.</span><span class=n>sort</span><span class=p>()</span>
             <span class=n>is_package</span> <span class=o>=</span> <span class=s1>&#39;__init__.py&#39;</span> <span class=ow>in</span> <span class=n>files</span>
@@ -212,11 +201,13 @@
 
                     <span class=k>for</span> <span class=n>f</span> <span class=ow>in</span> <span class=n>files</span><span class=p>:</span>
                         <span class=n>relative_file_path</span> <span class=o>=</span> <span class=n>os</span><span class=o>.</span><span class=n>path</span><span class=o>.</span><span class=n>join</span><span class=p>(</span><span class=n>relative_path</span><span class=p>,</span> <span class=n>f</span><span class=p>)</span>
-                        <span class=k>yield</span> <span class=n>IncludedFile</span><span class=p>(</span>
-                            <span class=n>os</span><span class=o>.</span><span class=n>path</span><span class=o>.</span><span class=n>join</span><span class=p>(</span><span class=n>root</span><span class=p>,</span> <span class=n>f</span><span class=p>),</span>
-                            <span class=s1>&#39;&#39;</span> <span class=k>if</span> <span class=n>external</span> <span class=k>else</span> <span class=n>os</span><span class=o>.</span><span class=n>path</span><span class=o>.</span><span class=n>relpath</span><span class=p>(</span><span class=n>relative_file_path</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>root</span><span class=p>),</span>
-                            <span class=n>os</span><span class=o>.</span><span class=n>path</span><span class=o>.</span><span class=n>join</span><span class=p>(</span><span class=n>target_path</span><span class=p>,</span> <span class=n>relative_file_path</span><span class=p>),</span>
-                        <span class=p>)</span>
+                        <span class=n>distribution_path</span> <span class=o>=</span> <span class=n>os</span><span class=o>.</span><span class=n>path</span><span class=o>.</span><span class=n>join</span><span class=p>(</span><span class=n>target_path</span><span class=p>,</span> <span class=n>relative_file_path</span><span class=p>)</span>
+                        <span class=k>if</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>config</span><span class=o>.</span><span class=n>path_is_reserved</span><span class=p>(</span><span class=n>distribution_path</span><span class=p>):</span>
+                            <span class=k>yield</span> <span class=n>IncludedFile</span><span class=p>(</span>
+                                <span class=n>os</span><span class=o>.</span><span class=n>path</span><span class=o>.</span><span class=n>join</span><span class=p>(</span><span class=n>root</span><span class=p>,</span> <span class=n>f</span><span class=p>),</span>
+                                <span class=s1>&#39;&#39;</span> <span class=k>if</span> <span class=n>external</span> <span class=k>else</span> <span class=n>os</span><span class=o>.</span><span class=n>path</span><span class=o>.</span><span class=n>relpath</span><span class=p>(</span><span class=n>relative_file_path</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>root</span><span class=p>),</span>
+                                <span class=n>distribution_path</span><span class=p>,</span>
+                            <span class=p>)</span>
 
     <span class=nd>@property</span>
     <span class=k>def</span> <span class=nf>root</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
@@ -379,6 +370,10 @@
 <span class=sd>        A mapping that can be modified by [build hooks](../build-hook/reference.md) to influence the behavior of builds.</span>
 <span class=sd>        &quot;&quot;&quot;</span>
         <span class=k>return</span> <span class=p>{}</span>
+
+    <span class=k>def</span> <span class=nf>set_build_data_defaults</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>build_data</span><span class=p>):</span>
+        <span class=n>build_data</span><span class=o>.</span><span class=n>setdefault</span><span class=p>(</span><span class=s1>&#39;artifacts&#39;</span><span class=p>,</span> <span class=p>[])</span>
+        <span class=n>build_data</span><span class=o>.</span><span class=n>setdefault</span><span class=p>(</span><span class=s1>&#39;force_include&#39;</span><span class=p>,</span> <span class=p>{})</span>
 
     <span class=k>def</span> <span class=nf>clean</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>directory</span><span class=p>,</span> <span class=n>versions</span><span class=p>):</span>
         <span class=sd>&quot;&quot;&quot;</span>
