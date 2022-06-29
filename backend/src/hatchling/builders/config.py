@@ -4,7 +4,7 @@ from contextlib import contextmanager
 import pathspec
 
 from ..utils.fs import locate_file
-from .constants import DEFAULT_BUILD_DIRECTORY, EXCLUDED_DIRECTORIES, EXCLUDED_FILE_EXTENSIONS, BuildEnvVars
+from .constants import DEFAULT_BUILD_DIRECTORY, EXCLUDED_DIRECTORIES, BuildEnvVars
 from .utils import normalize_inclusion_map, normalize_relative_directory, normalize_relative_path
 
 
@@ -78,6 +78,13 @@ class BuilderConfig:
                 and not self.path_is_excluded(relative_path)
                 and self.path_is_included(relative_path)
             )
+        )
+
+    def include_forced_path(self, distribution_path):
+        return (
+            self.path_is_build_artifact(distribution_path)
+            or self.path_is_artifact(distribution_path)
+            or (not self.path_is_reserved(distribution_path) and not self.path_is_excluded(distribution_path))
         )
 
     def path_is_included(self, relative_path):
@@ -687,7 +694,7 @@ class BuilderConfig:
         return []
 
     def default_global_exclude(self):
-        patterns = [*EXCLUDED_DIRECTORIES, *EXCLUDED_FILE_EXTENSIONS]
+        patterns = ['*.py[cdo]', *EXCLUDED_DIRECTORIES]
         patterns.sort()
         return patterns
 
