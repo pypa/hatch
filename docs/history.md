@@ -80,6 +80,7 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 
 - Add `version` build hook
 - Support PEP 561
+- The `editable` version of `wheel` targets now respects the `force-include` option by default
 
 ***Fixed:***
 
