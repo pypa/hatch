@@ -58,4 +58,4 @@ This is data that can be modified by [build hooks](../build-hook/reference.md).
 | `infer_tag` | `#!python False` | When `tag` is not set, this may be enabled to use the one most specific to the platform, Python interpreter, and ABI |
 | `pure_python` | `#!python True` | Whether or not to write metadata indicating that the package does not contain any platform-specific files |
 | `dependencies` | | Extra [project dependencies](../../config/metadata.md#required) |
-| `force_include_editable` | | Similar to the [`force_include` option](../build-hook/reference.md#build-data) but specifically for the `editable` [version](#versions) |
+| `force_include_editable` | | Similar to the [`force_include` option](../build-hook/reference.md#build-data) but specifically for the `editable` [version](#versions) and takes precedence |

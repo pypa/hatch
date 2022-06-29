@@ -308,14 +308,11 @@ class WheelBuilder(BuilderInterface):
 
         with WheelArchive(self.project_id, self.config.reproducible) as archive, closing(StringIO()) as records:
             exposed_packages = {}
-            for included_file in self.recurse_included_files():
+            for included_file in self.recurse_project_files():
                 if not included_file.path.endswith('.py'):
                     continue
 
                 relative_path = included_file.relative_path
-                if not relative_path:
-                    continue
-
                 distribution_path = included_file.distribution_path
                 path_parts = relative_path.split(os.sep)
 
@@ -348,12 +345,9 @@ class WheelBuilder(BuilderInterface):
                 record = archive.write_file(filename, content)
                 records.write(self.format_record(record))
 
-            if build_data['force_include_editable']:
-                for included_file in self.recurse_explicit_files(
-                    normalize_inclusion_map(build_data['force_include_editable'], self.root)
-                ):
-                    record = archive.add_file(included_file)
-                    records.write(self.format_record(record))
+            for included_file in self.recurse_explicit_files(self.get_forced_inclusion_map(build_data)):
+                record = archive.add_file(included_file)
+                records.write(self.format_record(record))
 
             extra_dependencies = list(build_data['dependencies'])
             for dependency in editable_project.dependencies():
@@ -386,12 +380,9 @@ class WheelBuilder(BuilderInterface):
             record = archive.write_file(f"{self.metadata.core.name.replace('-', '_')}.pth", '\n'.join(directories))
             records.write(self.format_record(record))
 
-            if build_data['force_include_editable']:
-                for included_file in self.recurse_explicit_files(
-                    normalize_inclusion_map(build_data['force_include_editable'], self.root)
-                ):
-                    record = archive.add_file(included_file)
-                    records.write(self.format_record(record))
+            for included_file in self.recurse_explicit_files(self.get_forced_inclusion_map(build_data)):
+                record = archive.add_file(included_file)
+                records.write(self.format_record(record))
 
             self.write_data(archive, records, build_data, build_data['dependencies'])
 
@@ -506,6 +497,13 @@ Root-Is-Purelib: {'true' if build_data['pure_python'] else 'false'}
 
     def get_default_build_data(self):
         return {'infer_tag': False, 'pure_python': True, 'dependencies': [], 'force_include_editable': {}}
+
+    def get_forced_inclusion_map(self, build_data):
+        if not build_data['force_include_editable']:
+            # Default value triggering the standard option
+            return None
+
+        return normalize_inclusion_map(build_data['force_include_editable'], self.root)
 
     @classmethod
     def get_config_class(cls):
