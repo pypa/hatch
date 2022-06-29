@@ -30,11 +30,11 @@ def get_known_python_major_versions():
 
 
 def normalize_relative_path(path):
-    return os.path.normpath(path).strip(os.path.sep)
+    return os.path.normpath(path).strip(os.sep)
 
 
 def normalize_relative_directory(path):
-    return normalize_relative_path(path) + os.path.sep
+    return normalize_relative_path(path) + os.sep
 
 
 def normalize_inclusion_map(inclusion_map, root):
@@ -47,9 +47,7 @@ def normalize_inclusion_map(inclusion_map, root):
 
         normalized_inclusion_map[source] = normalize_relative_path(relative_path)
 
-    return dict(
-        sorted(normalized_inclusion_map.items(), key=lambda item: (item[1].count(os.path.sep), item[1], item[0]))
-    )
+    return dict(sorted(normalized_inclusion_map.items(), key=lambda item: (item[1].count(os.sep), item[1], item[0])))
 
 
 def normalize_archive_path(path):

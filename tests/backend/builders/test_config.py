@@ -792,7 +792,7 @@ class TestForceInclude:
 
         assert builder.config.force_include == {
             str(isolation / 'source2'): 'target1',
-            str(isolation / 'very-nested'): f'target1{os.path.sep}embedded',
+            str(isolation / 'very-nested'): f'target1{os.sep}embedded',
             str(isolation / 'source1'): 'target2',
         }
 

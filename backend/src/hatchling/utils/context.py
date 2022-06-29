@@ -46,7 +46,7 @@ class DefaultContextFormatter(ContextFormatter):
         }
 
     def __format_directory_separator(self, value, data):
-        return os.path.sep
+        return os.sep
 
     def __format_path_separator(self, value, data):
         return os.pathsep

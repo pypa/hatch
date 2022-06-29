@@ -258,7 +258,7 @@ class SdistBuilder(BuilderInterface):
             contents += '    packages=[\n'
 
             for package in packages:
-                contents += f"        {package.replace(os.path.sep, '.')!r},\n"
+                contents += f"        {package.replace(os.sep, '.')!r},\n"
 
             contents += '    ],\n'
 

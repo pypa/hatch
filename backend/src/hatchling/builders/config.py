@@ -148,7 +148,7 @@ class BuilderConfig:
             for relative_path in self.packages:
                 # Matching only at the root requires a forward slash, back slashes do not work. As such,
                 # normalize to forward slashes for consistency.
-                all_include_patterns.append(f"/{relative_path.replace(os.path.sep, '/')}/")
+                all_include_patterns.append(f"/{relative_path.replace(os.sep, '/')}/")
 
             if all_include_patterns:
                 self.__include_spec = pathspec.PathSpec.from_lines(
@@ -561,7 +561,7 @@ class BuilderConfig:
 
                     normalized_path = normalize_relative_path(path)
                     if normalized_path:
-                        normalized_path += os.path.sep
+                        normalized_path += os.sep
 
                     sources[normalize_relative_directory(source)] = normalized_path
             else:

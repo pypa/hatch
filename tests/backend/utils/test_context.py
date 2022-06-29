@@ -14,7 +14,7 @@ def test_normal(isolation):
 class TestStatic:
     def test_directory_separator(self, isolation):
         context = Context(isolation)
-        assert context.format('foo {/}') == f'foo {os.path.sep}'
+        assert context.format('foo {/}') == f'foo {os.sep}'
 
     def test_path_separator(self, isolation):
         context = Context(isolation)

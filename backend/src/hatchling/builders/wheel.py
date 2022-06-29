@@ -151,7 +151,7 @@ class WheelBuilderConfig(BuilderConfig):
             possible_namespace_packages = glob(os.path.join(self.root, '*', project_name, '__init__.py'))
             if possible_namespace_packages:
                 relative_path = os.path.relpath(possible_namespace_packages[0], self.root)
-                namespace = relative_path.split(os.path.sep)[0]
+                namespace = relative_path.split(os.sep)[0]
                 self.__include.append(f'/{namespace}')
             else:
                 self.__include.append('*.py')

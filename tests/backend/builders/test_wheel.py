@@ -147,7 +147,7 @@ class TestSharedData:
 
         assert builder.config.shared_data == {
             str(isolation / 'source2'): 'target1',
-            str(isolation / 'very-nested'): f'target1{os.path.sep}embedded',
+            str(isolation / 'very-nested'): f'target1{os.sep}embedded',
             str(isolation / 'source1'): 'target2',
         }
 
@@ -236,7 +236,7 @@ class TestExtraMetadata:
 
         assert builder.config.extra_metadata == {
             str(isolation / 'source2'): 'target1',
-            str(isolation / 'very-nested'): f'target1{os.path.sep}embedded',
+            str(isolation / 'very-nested'): f'target1{os.sep}embedded',
             str(isolation / 'source1'): 'target2',
         }
 
