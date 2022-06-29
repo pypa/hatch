@@ -1,7 +1,6 @@
 DEFAULT_BUILD_DIRECTORY = 'dist'
 
 EXCLUDED_DIRECTORIES = frozenset(('.git', '__pycache__'))
-EXCLUDED_FILE_EXTENSIONS = ('.pyc', '.pyd', '.pyo')
 
 
 class BuildEnvVars:

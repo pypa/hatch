@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 from typing import Callable, Generator
 
 from ..config import BuilderConfig, env_var_enabled
-from ..constants import EXCLUDED_DIRECTORIES, EXCLUDED_FILE_EXTENSIONS, BuildEnvVars
+from ..constants import EXCLUDED_DIRECTORIES, BuildEnvVars
 from ..utils import safe_walk
 
 
@@ -204,12 +204,12 @@ class BuilderInterface(ABC):
                         relative_path = ''
 
                     dirs[:] = sorted(d for d in dirs if d not in EXCLUDED_DIRECTORIES)
-                    files = sorted(f for f in files if not f.endswith(EXCLUDED_FILE_EXTENSIONS))
 
+                    files.sort()
                     for f in files:
                         relative_file_path = os.path.join(relative_path, f)
                         distribution_path = os.path.join(target_path, relative_file_path)
-                        if not self.config.path_is_reserved(distribution_path):
+                        if self.config.include_forced_path(distribution_path):
                             yield IncludedFile(
                                 os.path.join(root, f),
                                 '' if external else os.path.relpath(relative_file_path, self.root),
