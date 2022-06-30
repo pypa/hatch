@@ -114,7 +114,11 @@ class BuilderConfig:
     def path_is_reserved(self, relative_path):
         return relative_path in self.build_reserved_paths
 
-    def directory_is_excluded(self, relative_directory):
+    def directory_is_excluded(self, name, relative_path):
+        if name in EXCLUDED_DIRECTORIES:
+            return True
+
+        relative_directory = os.path.join(relative_path, name)
         return (
             self.path_is_reserved(relative_directory)
             # The trailing slash is necessary so e.g. `bar/` matches `foo/bar`

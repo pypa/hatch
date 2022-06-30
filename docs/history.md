@@ -82,6 +82,7 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 - Support PEP 561
 - The `editable` version of `wheel` targets now respects the `force-include` option by default
 - The `force-include` option now respects exclusion and artifact patterns
+- Improve performance by never entering directories that are guaranteed to be undesirable like `__pycache__` rather than excluding individual files within
 
 ***Fixed:***
 
