@@ -176,7 +176,7 @@ class BuilderInterface(ABC):
             if relative_path == '.':
                 relative_path = ''
 
-            dirs[:] = sorted(d for d in dirs if not self.config.directory_is_excluded(os.path.join(relative_path, d)))
+            dirs[:] = sorted(d for d in dirs if not self.config.directory_is_excluded(d, relative_path))
 
             files.sort()
             is_package = '__init__.py' in files
