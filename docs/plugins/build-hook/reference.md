@@ -22,14 +22,26 @@ The following fields are always present and recognized by the build system itsel
 
 | Field | Type | Description |
 | --- | --- | --- |
-| `artifacts` | `#!python list[str]` | This is a list of extra paths to [artifacts](../../config/build.md#artifacts) and should generally only be appended to |
+| `artifacts` | `#!python list[str]` | This is a list of extra [`artifact` patterns](../../config/build.md#artifacts) and should generally only be appended to |
 | `force_include` | `#!python dict[str, str]` | This is a mapping of extra [forced inclusion paths](../../config/build.md#forced-inclusion), with this mapping taking precedence in case of conflicts |
 | `build_hooks` | `#!python tuple[str, ...]` | This is an immutable sequence of the names of the configured build hooks and matches the order in which they run |
 
 !!! attention
     While user-facing TOML options are hyphenated, build data fields should be named with underscores to allow plugins to use them as valid Python identifiers.
 
-## Built-in
+## Notes
+
+In some cases it may be necessary to use `force_include` rather than `artifacts`. For example, say that you want to install a `lib.so` directly at the root of `site-packages` and a project defines a [package](../../config/build.md#packages) `src/foo`. If you create `src/lib.so`, there will never be a match because the directory traversal starts at `src/foo` rather than `src`. In that case you must do either:
+
+```python
+build_data['force_include']['src/lib.so'] = 'src/lib.so'
+```
+
+or
+
+```python
+build_data['force_include']['/absolute/path/to/src/lib.so'] = 'src/lib.so'
+```
 
 ::: hatchling.builders.hooks.plugin.interface.BuildHookInterface
     selection:
