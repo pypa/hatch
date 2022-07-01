@@ -20,6 +20,7 @@ class BuilderConfig:
         self.__dependencies = None
         self.__sources = None
         self.__packages = None
+        self.__only_include = None
         self.__force_include = None
         self.__vcs_exclusion_files = None
 
@@ -68,7 +69,7 @@ class BuilderConfig:
     def target_config(self):
         return self.__target_config
 
-    def include_path(self, relative_path, is_package=True):
+    def include_path(self, relative_path, *, explicit=False, is_package=True):
         return (
             self.path_is_build_artifact(relative_path)
             or self.path_is_artifact(relative_path)
@@ -76,15 +77,8 @@ class BuilderConfig:
                 not (self.only_packages and not is_package)
                 and not self.path_is_reserved(relative_path)
                 and not self.path_is_excluded(relative_path)
-                and self.path_is_included(relative_path)
+                and (explicit or self.path_is_included(relative_path))
             )
-        )
-
-    def include_forced_path(self, distribution_path):
-        return (
-            self.path_is_build_artifact(distribution_path)
-            or self.path_is_artifact(distribution_path)
-            or (not self.path_is_reserved(distribution_path) and not self.path_is_excluded(distribution_path))
         )
 
     def path_is_included(self, relative_path):
@@ -631,6 +625,38 @@ class BuilderConfig:
             self.__force_include = normalize_inclusion_map(force_include, self.root)
 
         return self.__force_include
+
+    @property
+    def only_include(self):
+        if self.__only_include is None:
+            if 'only-include' in self.target_config:
+                only_include_config = self.target_config
+                only_include_location = f'tool.hatch.build.targets.{self.plugin_name}.only-include'
+            else:
+                only_include_config = self.build_config
+                only_include_location = 'tool.hatch.build.only-include'
+
+            only_include = only_include_config.get('only-include', []) or self.packages
+            if not isinstance(only_include, list):
+                raise TypeError(f'Field `{only_include_location}` must be an array')
+
+            inclusion_map = {}
+
+            for i, relative_path in enumerate(only_include, 1):
+                if not isinstance(relative_path, str):
+                    raise TypeError(f'Path #{i} in field `{only_include_location}` must be a string')
+
+                normalized_path = normalize_relative_path(relative_path)
+                if not normalized_path or normalized_path.startswith(('~', '..')):
+                    raise ValueError(f'Path #{i} in field `{only_include_location}` must be relative: {relative_path}')
+                elif normalized_path in inclusion_map:
+                    raise ValueError(f'Duplicate path in field `{only_include_location}`: {normalized_path}')
+
+                inclusion_map[normalized_path] = normalized_path
+
+            self.__only_include = normalize_inclusion_map(inclusion_map, self.root)
+
+        return self.__only_include
 
     def get_distribution_path(self, relative_path):
         # src/foo/bar.py -> foo/bar.py

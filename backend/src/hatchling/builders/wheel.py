@@ -127,6 +127,7 @@ class WheelBuilderConfig(BuilderConfig):
         self.__include_defined = bool(
             self.target_config.get('include', self.build_config.get('include'))
             or self.target_config.get('packages', self.build_config.get('packages'))
+            or self.target_config.get('only-include', self.build_config.get('only-include'))
         )
         self.__include = []
         self.__exclude = []
@@ -142,7 +143,7 @@ class WheelBuilderConfig(BuilderConfig):
 
         project_name = self.builder.normalize_file_name_component(self.builder.metadata.core.name)
         if os.path.isfile(os.path.join(self.root, project_name, '__init__.py')):
-            self.__include.append(f'/{project_name}')
+            self.__packages.append(project_name)
         elif os.path.isfile(os.path.join(self.root, 'src', project_name, '__init__.py')):
             self.__packages.append(f'src/{project_name}')
         else:
@@ -152,7 +153,7 @@ class WheelBuilderConfig(BuilderConfig):
             if possible_namespace_packages:
                 relative_path = os.path.relpath(possible_namespace_packages[0], self.root)
                 namespace = relative_path.split(os.sep)[0]
-                self.__include.append(f'/{namespace}')
+                self.__packages.append(namespace)
             else:
                 self.__include.append('*.py')
                 self.__exclude.append('test*')
@@ -345,7 +346,7 @@ class WheelBuilder(BuilderInterface):
                 record = archive.write_file(filename, content)
                 records.write(self.format_record(record))
 
-            for included_file in self.recurse_explicit_files(self.get_forced_inclusion_map(build_data)):
+            for included_file in self.recurse_forced_files(self.get_forced_inclusion_map(build_data)):
                 record = archive.add_file(included_file)
                 records.write(self.format_record(record))
 
@@ -380,7 +381,7 @@ class WheelBuilder(BuilderInterface):
             record = archive.write_file(f"{self.metadata.core.name.replace('-', '_')}.pth", '\n'.join(directories))
             records.write(self.format_record(record))
 
-            for included_file in self.recurse_explicit_files(self.get_forced_inclusion_map(build_data)):
+            for included_file in self.recurse_forced_files(self.get_forced_inclusion_map(build_data)):
                 record = archive.add_file(included_file)
                 records.write(self.format_record(record))
 
@@ -500,8 +501,7 @@ Root-Is-Purelib: {'true' if build_data['pure_python'] else 'false'}
 
     def get_forced_inclusion_map(self, build_data):
         if not build_data['force_include_editable']:
-            # Default value triggering the standard option
-            return None
+            return self.config.get_force_include()
 
         return normalize_inclusion_map(build_data['force_include_editable'], self.root)
 

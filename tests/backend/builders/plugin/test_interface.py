@@ -171,6 +171,21 @@ class TestDirectoryRecursion:
                 str(project_dir / 'foo' / 'bar.txt'),
             ]
 
+    def test_only_include(self, temp_dir):
+        project_dir = temp_dir / 'project'
+        project_dir.ensure_dir_exists()
+
+        with project_dir.as_cwd():
+            config = {'tool': {'hatch': {'build': {'only-include': ['foo'], 'artifacts': ['README.md']}}}}
+            builder = Builder(str(project_dir), config=config)
+
+            (project_dir / 'README.md').touch()
+            foo = project_dir / 'foo'
+            foo.ensure_dir_exists()
+            (foo / 'bar.txt').touch()
+
+            assert [f.path for f in builder.recurse_included_files()] == [str(project_dir / 'foo' / 'bar.txt')]
+
     def test_no_duplication(self, temp_dir):
         project_dir = temp_dir / 'project'
         project_dir.ensure_dir_exists()
@@ -216,8 +231,8 @@ class TestDirectoryRecursion:
                 'tool': {
                     'hatch': {
                         'build': {
-                            'packages': ['src/foo'],
-                            'include': ['bar', 'README.md', 'tox.ini'],
+                            'sources': ['src'],
+                            'include': ['src/foo', 'bar', 'README.md', 'tox.ini'],
                             'exclude': ['**/foo/baz.txt'],
                             'force-include': {
                                 '../external1.txt': 'nested/target2.txt',
@@ -259,9 +274,6 @@ class TestDirectoryRecursion:
             (external / 'external2.txt').touch()
 
             # Excluded
-            (external / 'external.pyc').touch()
-            (external / 'external.pyd').touch()
-            (external / 'external.pyo').touch()
             for name in EXCLUDED_DIRECTORIES:
                 excluded_dir = external / name
                 excluded_dir.ensure_dir_exists()

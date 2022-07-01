@@ -29,6 +29,16 @@ def get_known_python_major_versions():
     return map(str, sorted((2, 3)))
 
 
+def get_relative_path(path, start):
+    relative_path = os.path.relpath(path, start)
+
+    # First iteration of `os.walk`
+    if relative_path == '.':
+        return ''
+
+    return relative_path
+
+
 def normalize_relative_path(path):
     return os.path.normpath(path).strip(os.sep)
 

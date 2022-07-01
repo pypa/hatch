@@ -10,6 +10,7 @@ def update_record_file_contents(record_file, files, generated_files=()):
         key=lambda f: (
             f.path.parts[0].endswith('.dist-info'),
             f.path.parts[0].endswith('.dist-info') and f.path.parts[1] == 'extra_metadata',
+            f.path.parts[0].startswith('z'),
             len(f.path.parts),
             f.path.parts,
         ),

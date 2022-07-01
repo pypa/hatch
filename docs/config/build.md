@@ -95,26 +95,6 @@ For example, the following configuration:
 
 will exclude every file with a `.json` extension, and will include everything under a `tests` directory located at the root and every file with a `.py` extension that is directly under a `pkg` directory located at the root except for `_compat.py`.
 
-### Packages
-
-The `packages` option can be used to include specific Python packages. This option is semantically equivalent to `include` except that every entry is a simple relative path and the shipped path will be collapsed to only include the final component.
-
-So for example, if you want to ship a package `foo` that is stored in a directory `src` you would do:
-
-=== ":octicons-file-code-16: pyproject.toml"
-
-    ```toml
-    [tool.hatch.build.targets.wheel]
-    packages = ["src/foo"]
-    ```
-
-=== ":octicons-file-code-16: hatch.toml"
-
-    ```toml
-    [build.targets.wheel]
-    packages = ["src/foo"]
-    ```
-
 ### Artifacts
 
 If you want to include files that are [ignored by your VCS](#vcs), such as those that might be created by [build hooks](#build-hooks), you can use the `artifacts` option. This option is semantically equivalent to `include`.
@@ -148,6 +128,46 @@ generic ones.
 
 ### Explicit selection
 
+#### Generic
+
+You can use the `only-include` option to prevent directory traversal starting at the project root and only select specific relative paths to directories or files. Using this option ignores any defined [`include` patterns](#patterns).
+
+=== ":octicons-file-code-16: pyproject.toml"
+
+    ```toml
+    [tool.hatch.build.targets.wheel]
+    only-include = ["pkg", "tests/unit"]
+    ```
+
+=== ":octicons-file-code-16: hatch.toml"
+
+    ```toml
+    [build.targets.wheel]
+    only-include = ["pkg", "tests/unit"]
+    ```
+
+#### Packages
+
+The `packages` option is semantically equivalent to `only-include` (which takes precedence) except that the shipped path will be collapsed to only include the final component.
+
+So for example, if you want to ship a package `foo` that is stored in a directory `src` you would do:
+
+=== ":octicons-file-code-16: pyproject.toml"
+
+    ```toml
+    [tool.hatch.build.targets.wheel]
+    packages = ["src/foo"]
+    ```
+
+=== ":octicons-file-code-16: hatch.toml"
+
+    ```toml
+    [build.targets.wheel]
+    packages = ["src/foo"]
+    ```
+
+### Forced inclusion
+
 The `force-include` option allows you to select specific files or directories from anywhere on the file system that should be included and map them to the desired relative distribution path.
 
 For example, if there was a directory alongside the project root named `artifacts` containing a file named `lib.so` and a file named `lib.h` in your home directory, you could ship both files in a `pkg` directory with the following configuration:
@@ -173,7 +193,6 @@ For example, if there was a directory alongside the project root named `artifact
     - The contents of directory sources are recursively included.
     - To map directory contents directly to the root use `/` (a forward slash).
     - Sources that do not exist are silently ignored.
-    - [Path rewriting](#rewriting-paths) has no effect on files included this way.
 
 !!! warning
     Files included using this option will overwrite any file path that was already included by other file selection options.
@@ -242,7 +261,7 @@ The [packages](#packages) option itself relies on sources. Defining `#!toml pack
 
     ```toml
     [tool.hatch.build.targets.wheel]
-    include = ["src/foo"]
+    only-include = ["src/foo"]
     sources = ["src"]
     ```
 
@@ -250,7 +269,7 @@ The [packages](#packages) option itself relies on sources. Defining `#!toml pack
 
     ```toml
     [build.targets.wheel]
-    include = ["src/foo"]
+    only-include = ["src/foo"]
     sources = ["src"]
     ```
 
@@ -273,7 +292,7 @@ All encountered directories are traversed by default. To skip non-[artifact](#ar
     ```
 
 !!! warning
-    This may result in not shipping desired files. For example, if you want to include the file `a/b/c.txt` but your [VCS ignores](#vcs) `a/b`, the file `c.txt` will not be seen because its parent directory will not be entered. In such cases you can use the [`force-include`](#explicit-selection) option.
+    This may result in not shipping desired files. For example, if you want to include the file `a/b/c.txt` but your [VCS ignores](#vcs) `a/b`, the file `c.txt` will not be seen because its parent directory will not be entered. In such cases you can use the [`force-include`](#forced-inclusion) option.
 
 ## Reproducible builds
 

@@ -21,7 +21,7 @@ def get_files(**kwargs):
         files.append(f)
 
     files.append(File(Path(kwargs['package_name'], 'lib.so'), ''))
-    files.append(File(Path('lib.pyd'), ''))
+    files.append(File(Path('zlib.pyd'), ''))
     files.append(
         File(
             Path(metadata_directory, 'WHEEL'),
