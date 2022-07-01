@@ -1,4 +1,5 @@
 import os
+import re
 from os.path import join as pjoin
 
 import pathspec
@@ -795,6 +796,99 @@ class TestForceInclude:
             str(isolation / 'very-nested'): f'target1{os.sep}embedded',
             str(isolation / 'source1'): 'target2',
         }
+
+
+class TestIncludeOnly:
+    def test_default(self, isolation):
+        builder = Builder(str(isolation))
+
+        assert builder.config.only_include == builder.config.only_include == {}
+
+    def test_global_invalid_type(self, isolation):
+        config = {'tool': {'hatch': {'build': {'only-include': 9000}}}}
+        builder = Builder(str(isolation), config=config)
+
+        with pytest.raises(TypeError, match='Field `tool.hatch.build.only-include` must be an array'):
+            _ = builder.config.only_include
+
+    def test_global_path_not_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'only-include': [9000]}}}}
+        builder = Builder(str(isolation), config=config)
+
+        with pytest.raises(TypeError, match='Path #1 in field `tool.hatch.build.only-include` must be a string'):
+            _ = builder.config.only_include
+
+    @pytest.mark.parametrize('path', ['/', '~/foo', '../foo'])
+    def test_global_not_relative(self, isolation, path):
+        config = {'tool': {'hatch': {'build': {'only-include': [path]}}}}
+        builder = Builder(str(isolation), config=config)
+
+        with pytest.raises(
+            ValueError, match=f'Path #1 in field `tool.hatch.build.only-include` must be relative: {path}'
+        ):
+            _ = builder.config.only_include
+
+    def test_global_duplicate(self, isolation):
+        config = {'tool': {'hatch': {'build': {'only-include': ['/foo//bar', 'foo//bar/']}}}}
+        builder = Builder(str(isolation), config=config)
+
+        with pytest.raises(
+            ValueError, match=re.escape(f'Duplicate path in field `tool.hatch.build.only-include`: foo{os.sep}bar')
+        ):
+            _ = builder.config.only_include
+
+    def test_global_correct(self, isolation):
+        config = {'tool': {'hatch': {'build': {'only-include': ['/foo//bar/']}}}}
+        builder = Builder(str(isolation), config=config)
+
+        assert builder.config.only_include == {f'{isolation}{os.sep}foo{os.sep}bar': f'foo{os.sep}bar'}
+
+    def test_target_invalid_type(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'only-include': 9000}}}}}}
+        builder = Builder(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        with pytest.raises(TypeError, match='Field `tool.hatch.build.targets.foo.only-include` must be an array'):
+            _ = builder.config.only_include
+
+    def test_target_path_not_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'only-include': [9000]}}}}}}
+        builder = Builder(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        with pytest.raises(
+            TypeError, match='Path #1 in field `tool.hatch.build.targets.foo.only-include` must be a string'
+        ):
+            _ = builder.config.only_include
+
+    @pytest.mark.parametrize('path', ['/', '~/foo', '../foo'])
+    def test_target_not_relative(self, isolation, path):
+        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'only-include': [path]}}}}}}
+        builder = Builder(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        with pytest.raises(
+            ValueError, match=f'Path #1 in field `tool.hatch.build.targets.foo.only-include` must be relative: {path}'
+        ):
+            _ = builder.config.only_include
+
+    def test_target_duplicate(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'only-include': ['/foo//bar', 'foo//bar/']}}}}}}
+        builder = Builder(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        with pytest.raises(
+            ValueError,
+            match=re.escape(f'Duplicate path in field `tool.hatch.build.targets.foo.only-include`: foo{os.sep}bar'),
+        ):
+            _ = builder.config.only_include
+
+    def test_target_correct(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'only-include': ['/foo//bar/']}}}}}}
+        builder = Builder(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        assert builder.config.only_include == {f'{isolation}{os.sep}foo{os.sep}bar': f'foo{os.sep}bar'}
 
 
 class TestVersions:

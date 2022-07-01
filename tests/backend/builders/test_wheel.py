@@ -1290,11 +1290,12 @@ class TestBuildStandard:
                     def initialize(self, version, build_data):
                         build_data['pure_python'] = False
                         build_data['infer_tag'] = True
-                        build_data['artifacts'] = ['src/my_app/lib.so', 'src/lib.pyd']
+                        build_data['artifacts'] = ['src/my_app/lib.so']
+                        build_data['force_include']['src/zlib.pyd'] = 'src/zlib.pyd'
 
                         pathlib.Path('src', 'my_app', 'lib.so').touch()
                         pathlib.Path('src', 'lib.h').touch()
-                        pathlib.Path('src', 'lib.pyd').touch()
+                        pathlib.Path('src', 'zlib.pyd').touch()
                 """
             )
         )
@@ -2331,5 +2332,60 @@ class TestBuildStandard:
         metadata_directory = f'{builder.project_id}.dist-info'
         expected_files = helpers.get_template_files(
             'wheel.standard_entry_points', project_name, metadata_directory=metadata_directory
+        )
+        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+
+    def test_explicit_selection_with_src_layout(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = True
+        config_file.save()
+
+        project_name = 'My App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / 'my-app'
+
+        config = {
+            'project': {'name': 'my__app', 'dynamic': ['version']},
+            'tool': {
+                'hatch': {
+                    'version': {'path': 'src/my_app/__about__.py'},
+                    'build': {
+                        'targets': {
+                            'wheel': {'versions': ['standard'], 'only-include': ['src/my_app'], 'sources': ['src']}
+                        },
+                    },
+                },
+            },
+        }
+        builder = WheelBuilder(str(project_path), config=config)
+
+        build_path = project_path / 'dist'
+        build_path.mkdir()
+
+        with project_path.as_cwd():
+            artifacts = list(builder.build(str(build_path)))
+
+        assert len(artifacts) == 1
+        expected_artifact = artifacts[0]
+
+        build_artifacts = list(build_path.iterdir())
+        assert len(build_artifacts) == 1
+        assert expected_artifact == str(build_artifacts[0])
+
+        extraction_directory = temp_dir / '_archive'
+        extraction_directory.mkdir()
+
+        with zipfile.ZipFile(str(expected_artifact), 'r') as zip_archive:
+            zip_archive.extractall(str(extraction_directory))
+
+        metadata_directory = f'{builder.project_id}.dist-info'
+        expected_files = helpers.get_template_files(
+            'wheel.standard_default_license_single',
+            project_name,
+            metadata_directory=metadata_directory,
         )
         helpers.assert_files(extraction_directory, expected_files, check_contents=True)

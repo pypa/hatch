@@ -7,7 +7,7 @@ from typing import Callable, Generator
 
 from ..config import BuilderConfig, env_var_enabled
 from ..constants import EXCLUDED_DIRECTORIES, BuildEnvVars
-from ..utils import safe_walk
+from ..utils import get_relative_path, safe_walk
 
 
 class IncludedFile:
@@ -162,19 +162,19 @@ class BuilderInterface(ABC):
         - `relative_path` - the path relative to the project root; will be an empty string for external files
         - `distribution_path` - the path to be distributed as
         """
-        for project_file in self.recurse_project_files():
-            yield project_file
+        if self.config.only_include:
+            for explicit_file in self.recurse_explicit_files(self.config.only_include):
+                yield explicit_file
+        else:
+            for project_file in self.recurse_project_files():
+                yield project_file
 
-        for explicit_file in self.recurse_explicit_files():
+        for explicit_file in self.recurse_forced_files(self.config.get_force_include()):
             yield explicit_file
 
     def recurse_project_files(self) -> Generator[IncludedFile, None, None]:
         for root, dirs, files in safe_walk(self.root):
-            relative_path = os.path.relpath(root, self.root)
-
-            # First iteration
-            if relative_path == '.':
-                relative_path = ''
+            relative_path = get_relative_path(root, self.root)
 
             dirs[:] = sorted(d for d in dirs if not self.config.directory_is_excluded(d, relative_path))
 
@@ -187,21 +187,18 @@ class BuilderInterface(ABC):
                         os.path.join(root, f), relative_file_path, self.config.get_distribution_path(relative_file_path)
                     )
 
-    def recurse_explicit_files(self, inclusion_map=None) -> Generator[IncludedFile, None, None]:
-        if inclusion_map is None:
-            inclusion_map = self.config.get_force_include()
-
+    def recurse_forced_files(self, inclusion_map) -> Generator[IncludedFile, None, None]:
         for source, target_path in inclusion_map.items():
             external = not source.startswith(self.root)
             if os.path.isfile(source):
-                yield IncludedFile(source, '' if external else os.path.relpath(source, self.root), target_path)
+                yield IncludedFile(
+                    source,
+                    '' if external else os.path.relpath(source, self.root),
+                    self.config.get_distribution_path(target_path),
+                )
             elif os.path.isdir(source):
                 for root, dirs, files in safe_walk(source):
-                    relative_path = os.path.relpath(root, source)
-
-                    # First iteration
-                    if relative_path == '.':
-                        relative_path = ''
+                    relative_path = get_relative_path(root, source)
 
                     dirs[:] = sorted(d for d in dirs if d not in EXCLUDED_DIRECTORIES)
 
@@ -209,11 +206,38 @@ class BuilderInterface(ABC):
                     for f in files:
                         relative_file_path = os.path.join(relative_path, f)
                         distribution_path = os.path.join(target_path, relative_file_path)
-                        if self.config.include_forced_path(distribution_path):
+                        if not self.config.path_is_reserved(distribution_path):
                             yield IncludedFile(
                                 os.path.join(root, f),
                                 '' if external else os.path.relpath(relative_file_path, self.root),
-                                distribution_path,
+                                self.config.get_distribution_path(distribution_path),
+                            )
+
+    def recurse_explicit_files(self, inclusion_map) -> Generator[IncludedFile, None, None]:
+        for source, target_path in inclusion_map.items():
+            external = not source.startswith(self.root)
+            if os.path.isfile(source):
+                yield IncludedFile(
+                    source,
+                    '' if external else os.path.relpath(source, self.root),
+                    self.config.get_distribution_path(target_path),
+                )
+            elif os.path.isdir(source):
+                for root, dirs, files in safe_walk(source):
+                    relative_path = get_relative_path(root, source)
+
+                    dirs[:] = sorted(d for d in dirs if d not in EXCLUDED_DIRECTORIES)
+
+                    files.sort()
+                    is_package = '__init__.py' in files
+                    for f in files:
+                        relative_file_path = os.path.join(relative_path, f)
+                        distribution_path = os.path.join(target_path, relative_file_path)
+                        if self.config.include_path(distribution_path, explicit=True, is_package=is_package):
+                            yield IncludedFile(
+                                os.path.join(root, f),
+                                '' if external else os.path.relpath(relative_file_path, self.root),
+                                self.config.get_distribution_path(distribution_path),
                             )
 
     @property

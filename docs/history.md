@@ -76,12 +76,18 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 
 ### Unreleased
 
+***Changed:***
+
+- The `packages` option uses the new `only-include` option to provide targeted inclusion, since that is desired most of the time. You can retain the old behavior by using the `include` and `sources` options together.
+
 ***Added:***
 
+- Support PEP 561 type hinting
 - Add `version` build hook
-- Support PEP 561
+- Add `only-include` option
 - The `editable` version of `wheel` targets now respects the `force-include` option by default
-- The `force-include` option now respects exclusion and artifact patterns
+- The `force-include` option now supports path rewriting with the `sources` option
+- The `wheel` target `shared-data` and `extra-metadata` options now respect file selection options
 - Improve performance by never entering directories that are guaranteed to be undesirable like `__pycache__` rather than excluding individual files within
 
 ***Fixed:***
