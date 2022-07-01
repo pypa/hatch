@@ -151,6 +151,9 @@ If you define environments with dependencies that only slightly differ from thei
     ]
     ```
 
+!!! tip
+    Hatch uses [pip](https://pip.pypa.io) to install dependencies so any [configuration](https://pip.pypa.io/en/stable/topics/configuration/) it supports Hatch does as well. For example, if you wanted to only use a private repository you could set the `PIP_INDEX_URL` [environment variable](#environment-variables).
+
 ## Installation
 
 ### Features
