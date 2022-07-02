@@ -243,7 +243,7 @@
 <span class=linenos data-linenos="250 "></span>    <span class=nd>@property</span>
 <span class=linenos data-linenos="251 "></span>    <span class=k>def</span> <span class=nf>plugin_manager</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
 <span class=linenos data-linenos="252 "></span>        <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>__plugin_manager</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
-<span class=linenos data-linenos="253 "></span>            <span class=kn>from</span> <span class=nn>...plugin.manager</span> <span class=kn>import</span> <span class=n>PluginManager</span>
+<span class=linenos data-linenos="253 "></span>            <span class=kn>from</span> <span class=nn>hatchling.plugin.manager</span> <span class=kn>import</span> <span class=n>PluginManager</span>
 <span class=linenos data-linenos="254 "></span>
 <span class=linenos data-linenos="255 "></span>            <span class=bp>self</span><span class=o>.</span><span class=n>__plugin_manager</span> <span class=o>=</span> <span class=n>PluginManager</span><span class=p>()</span>
 <span class=linenos data-linenos="256 "></span>
@@ -252,7 +252,7 @@
 <span class=linenos data-linenos="259 "></span>    <span class=nd>@property</span>
 <span class=linenos data-linenos="260 "></span>    <span class=k>def</span> <span class=nf>metadata</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
 <span class=linenos data-linenos="261 "></span>        <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>__metadata</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
-<span class=linenos data-linenos="262 "></span>            <span class=kn>from</span> <span class=nn>...metadata.core</span> <span class=kn>import</span> <span class=n>ProjectMetadata</span>
+<span class=linenos data-linenos="262 "></span>            <span class=kn>from</span> <span class=nn>hatchling.metadata.core</span> <span class=kn>import</span> <span class=n>ProjectMetadata</span>
 <span class=linenos data-linenos="263 "></span>
 <span class=linenos data-linenos="264 "></span>            <span class=bp>self</span><span class=o>.</span><span class=n>__metadata</span> <span class=o>=</span> <span class=n>ProjectMetadata</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>root</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>plugin_manager</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>__raw_config</span><span class=p>)</span>
 <span class=linenos data-linenos="265 "></span>
@@ -264,7 +264,7 @@
 <span class=linenos data-linenos="271 "></span><span class=sd>        An instance of [Application](../utilities.md#hatchling.bridge.app.Application).</span>
 <span class=linenos data-linenos="272 "></span><span class=sd>        &quot;&quot;&quot;</span>
 <span class=linenos data-linenos="273 "></span>        <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>__app</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
-<span class=linenos data-linenos="274 "></span>            <span class=kn>from</span> <span class=nn>...bridge.app</span> <span class=kn>import</span> <span class=n>Application</span>
+<span class=linenos data-linenos="274 "></span>            <span class=kn>from</span> <span class=nn>hatchling.bridge.app</span> <span class=kn>import</span> <span class=n>Application</span>
 <span class=linenos data-linenos="275 "></span>
 <span class=linenos data-linenos="276 "></span>            <span class=bp>self</span><span class=o>.</span><span class=n>__app</span> <span class=o>=</span> <span class=n>Application</span><span class=p>()</span><span class=o>.</span><span class=n>get_safe_application</span><span class=p>()</span>
 <span class=linenos data-linenos="277 "></span>
@@ -360,7 +360,7 @@
 <span class=linenos data-linenos="367 "></span>        <span class=k>for</span> <span class=n>hook_name</span><span class=p>,</span> <span class=n>config</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>config</span><span class=o>.</span><span class=n>hook_config</span><span class=o>.</span><span class=n>items</span><span class=p>():</span>
 <span class=linenos data-linenos="368 "></span>            <span class=n>build_hook</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>plugin_manager</span><span class=o>.</span><span class=n>build_hook</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=n>hook_name</span><span class=p>)</span>
 <span class=linenos data-linenos="369 "></span>            <span class=k>if</span> <span class=n>build_hook</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
-<span class=linenos data-linenos="370 "></span>                <span class=kn>from</span> <span class=nn>...plugin.exceptions</span> <span class=kn>import</span> <span class=n>UnknownPluginError</span>
+<span class=linenos data-linenos="370 "></span>                <span class=kn>from</span> <span class=nn>hatchling.plugin.exceptions</span> <span class=kn>import</span> <span class=n>UnknownPluginError</span>
 <span class=linenos data-linenos="371 "></span>
 <span class=linenos data-linenos="372 "></span>                <span class=k>raise</span> <span class=n>UnknownPluginError</span><span class=p>(</span><span class=sa>f</span><span class=s1>&#39;Unknown build hook: </span><span class=si>{</span><span class=n>hook_name</span><span class=si>}</span><span class=s1>&#39;</span><span class=p>)</span>
 <span class=linenos data-linenos="373 "></span>
@@ -424,7 +424,7 @@
 <span class=linenos data-linenos="271 "></span><span class=sd>    An instance of [Application](../utilities.md#hatchling.bridge.app.Application).</span>
 <span class=linenos data-linenos="272 "></span><span class=sd>    &quot;&quot;&quot;</span>
 <span class=linenos data-linenos="273 "></span>    <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>__app</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
-<span class=linenos data-linenos="274 "></span>        <span class=kn>from</span> <span class=nn>...bridge.app</span> <span class=kn>import</span> <span class=n>Application</span>
+<span class=linenos data-linenos="274 "></span>        <span class=kn>from</span> <span class=nn>hatchling.bridge.app</span> <span class=kn>import</span> <span class=n>Application</span>
 <span class=linenos data-linenos="275 "></span>
 <span class=linenos data-linenos="276 "></span>        <span class=bp>self</span><span class=o>.</span><span class=n>__app</span> <span class=o>=</span> <span class=n>Application</span><span class=p>()</span><span class=o>.</span><span class=n>get_safe_application</span><span class=p>()</span>
 <span class=linenos data-linenos="277 "></span>
