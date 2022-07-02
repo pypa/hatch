@@ -2,8 +2,8 @@ from copy import deepcopy
 from itertools import product
 from os import environ
 
-from ..env.utils import ensure_valid_environment
-from .env import apply_overrides
+from hatch.env.utils import ensure_valid_environment
+from hatch.project.env import apply_overrides
 
 
 class ProjectConfig:
@@ -66,7 +66,7 @@ class ProjectConfig:
 
     @property
     def envs(self):
-        from ..utils.platform import get_platform_name
+        from hatch.utils.platform import get_platform_name
 
         if self._envs is None:
             env_config = self.config.get('envs', {})

@@ -1,4 +1,4 @@
-from .plugin.interface import VersionSchemeInterface
+from hatchling.version.scheme.plugin.interface import VersionSchemeInterface
 
 
 class StandardScheme(VersionSchemeInterface):

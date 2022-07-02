@@ -1,6 +1,6 @@
 import os
 
-from .plugin.interface import VersionSourceInterface
+from hatchling.version.source.plugin.interface import VersionSourceInterface
 
 
 class CodeSource(VersionSourceInterface):

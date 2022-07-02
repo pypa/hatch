@@ -2,23 +2,23 @@ import os
 
 import click
 
-from ..__about__ import __version__
-from ..config.constants import AppEnvVars, ConfigEnvVars
-from ..project.core import Project
-from ..utils.ci import running_in_ci
-from ..utils.fs import Path
-from .application import Application
-from .build import build
-from .clean import clean
-from .config import config
-from .dep import dep
-from .env import env
-from .new import new
-from .publish import publish
-from .run import run
-from .shell import shell
-from .status import status
-from .version import version
+from hatch.__about__ import __version__
+from hatch.cli.application import Application
+from hatch.cli.build import build
+from hatch.cli.clean import clean
+from hatch.cli.config import config
+from hatch.cli.dep import dep
+from hatch.cli.env import env
+from hatch.cli.new import new
+from hatch.cli.publish import publish
+from hatch.cli.run import run
+from hatch.cli.shell import shell
+from hatch.cli.status import status
+from hatch.cli.version import version
+from hatch.config.constants import AppEnvVars, ConfigEnvVars
+from hatch.project.core import Project
+from hatch.utils.ci import running_in_ci
+from hatch.utils.fs import Path
 
 
 @click.group(context_settings={'help_option_names': ['-h', '--help']}, invoke_without_command=True)

@@ -14,9 +14,8 @@ def show(app, envs, force_ascii, as_json):
         app.display_info(json.dumps(app.project.config.envs))
         return
 
+    from hatch.utils.dep import get_normalized_dependencies
     from hatchling.metadata.utils import normalize_project_name
-
-    from ...utils.dep import get_normalized_dependencies
 
     project_config = app.project.config
 

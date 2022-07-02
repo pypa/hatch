@@ -1,5 +1,5 @@
-from ..utils.fs import Path
-from . import File
+from hatch.template import File
+from hatch.utils.fs import Path
 
 
 class PackageRoot(File):

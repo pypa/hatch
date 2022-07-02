@@ -6,11 +6,10 @@ import zipfile
 from contextlib import closing
 from io import StringIO
 
-from ..__about__ import __version__
-from ..metadata.spec import DEFAULT_METADATA_VERSION, get_core_metadata_constructors
-from .config import BuilderConfig
-from .plugin.interface import BuilderInterface
-from .utils import (
+from hatchling.__about__ import __version__
+from hatchling.builders.config import BuilderConfig
+from hatchling.builders.plugin.interface import BuilderInterface
+from hatchling.builders.utils import (
     format_file_hash,
     get_known_python_major_versions,
     get_reproducible_timestamp,
@@ -20,6 +19,7 @@ from .utils import (
     replace_file,
     set_zip_info_mode,
 )
+from hatchling.metadata.spec import DEFAULT_METADATA_VERSION, get_core_metadata_constructors
 
 try:
     from editables import EditableProject

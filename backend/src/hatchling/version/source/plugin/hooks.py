@@ -1,6 +1,6 @@
-from ....plugin import hookimpl
-from ..code import CodeSource
-from ..regex import RegexSource
+from hatchling.plugin import hookimpl
+from hatchling.version.source.code import CodeSource
+from hatchling.version.source.regex import RegexSource
 
 
 @hookimpl

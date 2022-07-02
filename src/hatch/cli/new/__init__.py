@@ -14,10 +14,10 @@ def new(app, name, location, interactive, feature_cli, initialize, setuptools_op
     from copy import deepcopy
     from datetime import datetime, timezone
 
-    from ...config.model import TemplateConfig
-    from ...project.core import Project
-    from ...template import File
-    from ...utils.fs import Path
+    from hatch.config.model import TemplateConfig
+    from hatch.project.core import Project
+    from hatch.template import File
+    from hatch.utils.fs import Path
 
     if location:
         location = Path(location).resolve()
@@ -51,7 +51,7 @@ def new(app, name, location, interactive, feature_cli, initialize, setuptools_op
         needs_config_update = (location / 'pyproject.toml').is_file()
 
     if migration_possible:
-        from .migrate import migrate
+        from hatch.cli.new.migrate import migrate
 
         try:
             migrate(str(location), setuptools_options)

@@ -1,8 +1,8 @@
 import os
 
-from ...plugin.utils import load_plugin_from_script
-from ...utils.constants import DEFAULT_BUILD_SCRIPT
-from .plugin.interface import BuildHookInterface
+from hatchling.builders.hooks.plugin.interface import BuildHookInterface
+from hatchling.plugin.utils import load_plugin_from_script
+from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT
 
 
 class CustomBuildHook:

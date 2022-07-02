@@ -1,10 +1,10 @@
 import os
 from tempfile import TemporaryDirectory
 
-from ..env.utils import add_verbosity_flag
-from ..utils.env import PythonInfo
-from ..utils.fs import Path
-from .utils import get_random_venv_name
+from hatch.env.utils import add_verbosity_flag
+from hatch.utils.env import PythonInfo
+from hatch.utils.fs import Path
+from hatch.venv.utils import get_random_venv_name
 
 
 class VirtualEnv:

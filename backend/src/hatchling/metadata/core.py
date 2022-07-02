@@ -1,9 +1,9 @@
 import os
 from copy import deepcopy
 
-from ..utils.constants import DEFAULT_CONFIG_FILE
-from ..utils.fs import locate_file
-from .utils import get_normalized_dependency, is_valid_project_name, normalize_project_name
+from hatchling.metadata.utils import get_normalized_dependency, is_valid_project_name, normalize_project_name
+from hatchling.utils.constants import DEFAULT_CONFIG_FILE
+from hatchling.utils.fs import locate_file
 
 try:
     import tomllib
@@ -36,7 +36,7 @@ class ProjectMetadata:
     @property
     def context(self):
         if self._context is None:
-            from ..utils.context import Context
+            from hatchling.utils.context import Context
 
             self._context = Context(self.root)
 
@@ -518,7 +518,7 @@ class CoreMetadata:
                 self._license = ''
                 self._license_expression = ''
             elif isinstance(data, str):
-                from ..licenses.parse import normalize_license_expression
+                from hatchling.licenses.parse import normalize_license_expression
 
                 self._license_expression = normalize_license_expression(data)
                 self._license = ''
@@ -1233,7 +1233,7 @@ class HatchVersionConfig:
             source_name = self.source_name
             version_source = self.plugin_manager.version_source.get(source_name)
             if version_source is None:
-                from ..plugin.exceptions import UnknownPluginError
+                from hatchling.plugin.exceptions import UnknownPluginError
 
                 raise UnknownPluginError(f'Unknown version source: {source_name}')
 
@@ -1249,7 +1249,7 @@ class HatchVersionConfig:
             scheme_name = self.scheme_name
             version_scheme = self.plugin_manager.version_scheme.get(scheme_name)
             if version_scheme is None:
-                from ..plugin.exceptions import UnknownPluginError
+                from hatchling.plugin.exceptions import UnknownPluginError
 
                 raise UnknownPluginError(f'Unknown version scheme: {scheme_name}')
 
@@ -1299,7 +1299,7 @@ class HatchMetadataSettings:
             for hook_name, config in hook_config.items():
                 metadata_hook = self.plugin_manager.metadata_hook.get(hook_name)
                 if metadata_hook is None:
-                    from ..plugin.exceptions import UnknownPluginError
+                    from hatchling.plugin.exceptions import UnknownPluginError
 
                     raise UnknownPluginError(f'Unknown metadata hook: {hook_name}')
 

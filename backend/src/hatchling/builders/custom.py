@@ -1,9 +1,9 @@
 import os
 
-from ..metadata.core import ProjectMetadata
-from ..plugin.utils import load_plugin_from_script
-from ..utils.constants import DEFAULT_BUILD_SCRIPT
-from .plugin.interface import BuilderInterface
+from hatchling.builders.plugin.interface import BuilderInterface
+from hatchling.metadata.core import ProjectMetadata
+from hatchling.plugin.utils import load_plugin_from_script
+from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT
 
 
 class CustomBuilder:

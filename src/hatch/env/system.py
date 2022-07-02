@@ -1,7 +1,7 @@
 import os
 
-from ..utils.env import PythonInfo
-from .plugin.interface import EnvironmentInterface
+from hatch.env.plugin.interface import EnvironmentInterface
+from hatch.utils.env import PythonInfo
 
 
 class SystemEnvironment(EnvironmentInterface):

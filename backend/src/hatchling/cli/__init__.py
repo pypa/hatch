@@ -1,8 +1,8 @@
 import argparse
 
-from .build import build_command
-from .dep import dep_command
-from .version import version_command
+from hatchling.cli.build import build_command
+from hatchling.cli.dep import dep_command
+from hatchling.cli.version import version_command
 
 
 def hatchling():

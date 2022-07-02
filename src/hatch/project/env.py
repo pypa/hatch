@@ -1,6 +1,6 @@
 from os import environ
 
-from ..utils.platform import get_platform_name
+from hatch.utils.platform import get_platform_name
 
 RESERVED_OPTIONS = {
     'dependencies': list,

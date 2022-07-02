@@ -4,9 +4,9 @@ import argparse
 def version_impl(called_by_app, desired_version):
     import os
 
-    from ...bridge.app import get_application
-    from ...metadata.core import ProjectMetadata
-    from ...plugin.manager import PluginManager
+    from hatchling.bridge.app import get_application
+    from hatchling.metadata.core import ProjectMetadata
+    from hatchling.plugin.manager import PluginManager
 
     app = get_application(called_by_app)
 

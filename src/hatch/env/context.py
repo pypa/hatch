@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
 
+from hatch.env.utils import get_verbosity_flag
 from hatchling.utils.context import ContextFormatter
-
-from .utils import get_verbosity_flag
 
 
 class EnvironmentContextFormatterBase(ContextFormatter, ABC):

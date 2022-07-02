@@ -1,6 +1,5 @@
+from hatch.env.collectors.default import DefaultEnvironmentCollector
 from hatchling.plugin import hookimpl
-
-from ..default import DefaultEnvironmentCollector
 
 
 @hookimpl

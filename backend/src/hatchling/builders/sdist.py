@@ -7,11 +7,16 @@ from copy import copy
 from io import BytesIO
 from time import time as get_current_timestamp
 
-from ..metadata.spec import DEFAULT_METADATA_VERSION, get_core_metadata_constructors
-from ..utils.constants import DEFAULT_BUILD_SCRIPT, DEFAULT_CONFIG_FILE
-from .config import BuilderConfig
-from .plugin.interface import BuilderInterface
-from .utils import get_reproducible_timestamp, normalize_archive_path, normalize_file_permissions, replace_file
+from hatchling.builders.config import BuilderConfig
+from hatchling.builders.plugin.interface import BuilderInterface
+from hatchling.builders.utils import (
+    get_reproducible_timestamp,
+    normalize_archive_path,
+    normalize_file_permissions,
+    replace_file,
+)
+from hatchling.metadata.spec import DEFAULT_METADATA_VERSION, get_core_metadata_constructors
+from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT, DEFAULT_CONFIG_FILE
 
 
 class SdistArchive:

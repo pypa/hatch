@@ -14,7 +14,7 @@ def hash_dependencies(app, project_only, env_only):
     """Output a hash of the currently defined dependencies."""
     from hashlib import sha256
 
-    from ...utils.dep import get_normalized_dependencies
+    from hatch.utils.dep import get_normalized_dependencies
 
     all_dependencies = []
     if project_only:
@@ -53,7 +53,7 @@ def table(app, project_only, env_only, show_lines, force_ascii):
     """Enumerate dependencies in a tabular format."""
     from packaging.requirements import Requirement
 
-    from ...utils.dep import get_normalized_dependencies, normalize_marker_quoting
+    from hatch.utils.dep import get_normalized_dependencies, normalize_marker_quoting
 
     project_dependencies = []
     environment_dependencies = []
@@ -117,9 +117,8 @@ def table(app, project_only, env_only, show_lines, force_ascii):
 @click.pass_obj
 def requirements(app, project_only, env_only, features, all_features):
     """Enumerate dependencies as a list of requirements."""
+    from hatch.utils.dep import get_normalized_dependencies
     from hatchling.metadata.utils import normalize_project_name
-
-    from ...utils.dep import get_normalized_dependencies
 
     dependencies = []
     if features:

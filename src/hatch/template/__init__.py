@@ -1,7 +1,7 @@
 from contextlib import suppress
 from typing import Optional
 
-from ..utils.fs import Path
+from hatch.utils.fs import Path
 
 
 class File:

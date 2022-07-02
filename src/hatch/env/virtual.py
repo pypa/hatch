@@ -3,10 +3,10 @@ from contextlib import contextmanager
 from hashlib import sha256
 from os.path import isabs
 
-from ..utils.fs import Path
-from ..utils.shells import ShellManager
-from ..venv.core import TempVirtualEnv, VirtualEnv
-from .plugin.interface import EnvironmentInterface
+from hatch.env.plugin.interface import EnvironmentInterface
+from hatch.utils.fs import Path
+from hatch.utils.shells import ShellManager
+from hatch.venv.core import TempVirtualEnv, VirtualEnv
 
 
 class VirtualEnvironment(EnvironmentInterface):

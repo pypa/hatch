@@ -50,8 +50,8 @@ def build(app, location, targets, hooks_only, no_hooks, ext, clean, clean_hooks_
     from hatchling.builders.constants import BuildEnvVars
     from hatchling.builders.plugin.interface import BuilderInterface
 
-    from ...utils.fs import Path
-    from ...utils.structures import EnvVars
+    from hatch.utils.fs import Path
+    from hatch.utils.structures import EnvVars
 
     if app.project.metadata.build.build_backend != 'hatchling.build':
         app.abort('Field `build-system.build-backend` must be set to `hatchling.build`')

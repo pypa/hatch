@@ -1,11 +1,11 @@
 import click
 
-from .create import create
-from .find import find
-from .prune import prune
-from .remove import remove
-from .run import run
-from .show import show
+from hatch.cli.env.create import create
+from hatch.cli.env.find import find
+from hatch.cli.env.prune import prune
+from hatch.cli.env.remove import remove
+from hatch.cli.env.run import run
+from hatch.cli.env.show import show
 
 
 @click.group(short_help='Manage project environments')

@@ -1,6 +1,6 @@
 import click
 
-from ...config.constants import PublishEnvVars
+from hatch.config.constants import PublishEnvVars
 
 
 @click.command(short_help='Publish build artifacts')

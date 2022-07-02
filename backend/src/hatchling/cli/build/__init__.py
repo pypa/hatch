@@ -4,10 +4,10 @@ import argparse
 def build_impl(called_by_app, directory, targets, hooks_only, no_hooks, clean, clean_hooks_after, clean_only):
     import os
 
-    from ...bridge.app import get_application
-    from ...builders.constants import BuildEnvVars
-    from ...metadata.core import ProjectMetadata
-    from ...plugin.manager import PluginManager
+    from hatchling.bridge.app import get_application
+    from hatchling.builders.constants import BuildEnvVars
+    from hatchling.metadata.core import ProjectMetadata
+    from hatchling.plugin.manager import PluginManager
 
     app = get_application(called_by_app)
 
