@@ -11,11 +11,7 @@ The following is not intended to be a complete enumeration. Be sure to view the 
 
 ## Industry
 
-- [Datadog](https://www.datadoghq.com)
-    - [datadogpy](https://github.com/DataDog/datadogpy/blob/63d0c01b5bbcb8158cf3ddab153639951ab44945/pyproject.toml#L1-L3)
-    - [integrations-core](https://github.com/DataDog/integrations-core/pulls?q=is%3Apr+author%3Aofek+in%3Atitle+Add+pyproject.toml+file)
-    - [integrations-extras](https://github.com/DataDog/integrations-extras/pulls?q=is%3Apr+author%3Aofek+in%3Atitle+Add+pyproject.toml+file)
-    - [mkdocs-click](https://github.com/DataDog/mkdocs-click/blob/434925323f3bb187595d4c7f6a2c80b790015109/pyproject.toml#L1-L3)
+- [Datadog](https://www.datadoghq.com) <sup>\[[1](https://github.com/DataDog/datadogpy/blob/63d0c01b5bbcb8158cf3ddab153639951ab44945/pyproject.toml#L1-L3)|[2](https://github.com/DataDog/integrations-core/pulls?q=is%3Apr+author%3Aofek+in%3Atitle+Add+pyproject.toml+file)|[3](https://github.com/DataDog/integrations-extras/pulls?q=is%3Apr+author%3Aofek+in%3Atitle+Add+pyproject.toml+file)|[4](https://github.com/DataDog/mkdocs-click/blob/434925323f3bb187595d4c7f6a2c80b790015109/pyproject.toml#L1-L3)\]</sup>
 
 ## Academia
 
