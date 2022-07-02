@@ -88,6 +88,7 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 - The `editable` version of `wheel` targets now respects the `force-include` option by default
 - The `force-include` option now supports path rewriting with the `sources` option
 - The `wheel` target `shared-data` and `extra-metadata` options now respect file selection options
+- The `wheel` target now auto-detects single module layouts
 - Improve performance by never entering directories that are guaranteed to be undesirable like `__pycache__` rather than excluding individual files within
 
 ***Fixed:***
