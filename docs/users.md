@@ -6,6 +6,7 @@ The following is not intended to be a complete enumeration. Be sure to view the 
 
 ## Notable projects
 
+- [Colorama](https://github.com/tartley/colorama/blob/cd653d75be52f4d8c3953eb6942fe597375f8b97/pyproject.toml#L1-L5)
 - [pipx](https://github.com/pypa/pipx/blob/bc7dd03c4d872c443257685109a650ec3d524814/pyproject.toml#L1-L3)
 - [tox](https://github.com/tox-dev/tox/pull/2369)
 
