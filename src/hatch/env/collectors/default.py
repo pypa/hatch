@@ -1,5 +1,5 @@
-from ...env.utils import ensure_valid_environment
-from .plugin.interface import EnvironmentCollectorInterface
+from hatch.env.collectors.plugin.interface import EnvironmentCollectorInterface
+from hatch.env.utils import ensure_valid_environment
 
 
 class DefaultEnvironmentCollector(EnvironmentCollectorInterface):

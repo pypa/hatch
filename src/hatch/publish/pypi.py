@@ -3,8 +3,8 @@ from __future__ import annotations
 import re
 from typing import Generator
 
-from ..utils.fs import Path
-from .plugin.interface import PublisherInterface
+from hatch.publish.plugin.interface import PublisherInterface
+from hatch.utils.fs import Path
 
 MULTIPLE_USE_METADATA_FIELDS = {
     'classifier',

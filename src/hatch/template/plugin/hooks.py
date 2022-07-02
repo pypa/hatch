@@ -1,6 +1,5 @@
+from hatch.template.default import DefaultTemplate
 from hatchling.plugin import hookimpl
-
-from ..default import DefaultTemplate
 
 
 @hookimpl

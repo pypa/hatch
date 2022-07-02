@@ -8,7 +8,7 @@ class PluginManager:
         self.initialized = False
 
     def initialize(self):
-        from . import specs
+        from hatchling.plugin import specs
 
         self.manager.add_hookspecs(specs)
 
@@ -25,27 +25,27 @@ class PluginManager:
         return register
 
     def hatch_register_version_source(self):
-        from ..version.source.plugin import hooks
+        from hatchling.version.source.plugin import hooks
 
         self.manager.register(hooks)
 
     def hatch_register_version_scheme(self):
-        from ..version.scheme.plugin import hooks
+        from hatchling.version.scheme.plugin import hooks
 
         self.manager.register(hooks)
 
     def hatch_register_builder(self):
-        from ..builders.plugin import hooks
+        from hatchling.builders.plugin import hooks
 
         self.manager.register(hooks)
 
     def hatch_register_build_hook(self):
-        from ..builders.hooks.plugin import hooks
+        from hatchling.builders.hooks.plugin import hooks
 
         self.manager.register(hooks)
 
     def hatch_register_metadata_hook(self):
-        from ..metadata.plugin import hooks
+        from hatchling.metadata.plugin import hooks
 
         self.manager.register(hooks)
 

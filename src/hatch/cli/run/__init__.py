@@ -50,7 +50,7 @@ def run(ctx, app, args):
     would execute `pytest` in the environments `test.py310-42` and `test.py310-3.14`.
     Note that `py` may be used as an alias for `python`.
     """
-    from ..env.run import run as run_command
+    from hatch.cli.env.run import run as run_command
 
     command_start = 0
     included_variables = []

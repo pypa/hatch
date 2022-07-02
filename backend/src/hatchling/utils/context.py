@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from collections import ChainMap
 from contextlib import contextmanager
 
-from .fs import path_to_uri
+from hatchling.utils.fs import path_to_uri
 
 
 class ContextFormatter(ABC):

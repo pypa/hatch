@@ -2,7 +2,7 @@ import tomlkit
 from atomicwrites import atomic_write
 from tomlkit.toml_document import TOMLDocument
 
-from ..utils.fs import Path
+from hatch.utils.fs import Path
 
 
 def save_toml_document(document: TOMLDocument, path: Path):

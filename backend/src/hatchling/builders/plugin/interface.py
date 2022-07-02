@@ -5,9 +5,9 @@ import re
 from abc import ABC, abstractmethod
 from typing import Callable, Generator
 
-from ..config import BuilderConfig, env_var_enabled
-from ..constants import EXCLUDED_DIRECTORIES, BuildEnvVars
-from ..utils import get_relative_path, safe_walk
+from hatchling.builders.config import BuilderConfig, env_var_enabled
+from hatchling.builders.constants import EXCLUDED_DIRECTORIES, BuildEnvVars
+from hatchling.builders.utils import get_relative_path, safe_walk
 
 
 class IncludedFile:
@@ -250,7 +250,7 @@ class BuilderInterface(ABC):
     @property
     def plugin_manager(self):
         if self.__plugin_manager is None:
-            from ...plugin.manager import PluginManager
+            from hatchling.plugin.manager import PluginManager
 
             self.__plugin_manager = PluginManager()
 
@@ -259,7 +259,7 @@ class BuilderInterface(ABC):
     @property
     def metadata(self):
         if self.__metadata is None:
-            from ...metadata.core import ProjectMetadata
+            from hatchling.metadata.core import ProjectMetadata
 
             self.__metadata = ProjectMetadata(self.root, self.plugin_manager, self.__raw_config)
 
@@ -271,7 +271,7 @@ class BuilderInterface(ABC):
         An instance of [Application](../utilities.md#hatchling.bridge.app.Application).
         """
         if self.__app is None:
-            from ...bridge.app import Application
+            from hatchling.bridge.app import Application
 
             self.__app = Application().get_safe_application()
 
@@ -367,7 +367,7 @@ class BuilderInterface(ABC):
         for hook_name, config in self.config.hook_config.items():
             build_hook = self.plugin_manager.build_hook.get(hook_name)
             if build_hook is None:
-                from ...plugin.exceptions import UnknownPluginError
+                from hatchling.plugin.exceptions import UnknownPluginError
 
                 raise UnknownPluginError(f'Unknown build hook: {hook_name}')
 

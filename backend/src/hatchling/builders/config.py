@@ -3,9 +3,9 @@ from contextlib import contextmanager
 
 import pathspec
 
-from ..utils.fs import locate_file
-from .constants import DEFAULT_BUILD_DIRECTORY, EXCLUDED_DIRECTORIES, BuildEnvVars
-from .utils import normalize_inclusion_map, normalize_relative_directory, normalize_relative_path
+from hatchling.builders.constants import DEFAULT_BUILD_DIRECTORY, EXCLUDED_DIRECTORIES, BuildEnvVars
+from hatchling.builders.utils import normalize_inclusion_map, normalize_relative_directory, normalize_relative_path
+from hatchling.utils.fs import locate_file
 
 
 class BuilderConfig:

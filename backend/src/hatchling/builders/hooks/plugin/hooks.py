@@ -1,6 +1,6 @@
-from ....plugin import hookimpl
-from ..custom import CustomBuildHook
-from ..version import VersionBuildHook
+from hatchling.builders.hooks.custom import CustomBuildHook
+from hatchling.builders.hooks.version import VersionBuildHook
+from hatchling.plugin import hookimpl
 
 
 @hookimpl

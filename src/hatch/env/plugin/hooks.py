@@ -1,7 +1,6 @@
+from hatch.env.system import SystemEnvironment
+from hatch.env.virtual import VirtualEnvironment
 from hatchling.plugin import hookimpl
-
-from ..system import SystemEnvironment
-from ..virtual import VirtualEnvironment
 
 
 @hookimpl

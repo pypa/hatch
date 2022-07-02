@@ -1,7 +1,7 @@
-from ..utils.fs import Path
-from ..utils.network import download_file
-from . import File, files_default, find_template_files
-from .plugin.interface import TemplateInterface
+from hatch.template import File, files_default, find_template_files
+from hatch.template.plugin.interface import TemplateInterface
+from hatch.utils.fs import Path
+from hatch.utils.network import download_file
 
 
 class DefaultTemplate(TemplateInterface):
@@ -90,17 +90,17 @@ class DefaultTemplate(TemplateInterface):
                     files.append(File(Path('LICENSES', f'{license_id}.txt'), license_text))
 
         if config['args']['cli']:
-            from . import files_feature_cli
+            from hatch.template import files_feature_cli
 
             files.extend(find_template_files(files_feature_cli))
 
         if self.plugin_config['tests']:
-            from . import files_feature_tests
+            from hatch.template import files_feature_tests
 
             files.extend(find_template_files(files_feature_tests))
 
         if self.plugin_config['ci']:
-            from . import files_feature_ci
+            from hatch.template import files_feature_ci
 
             files.extend(find_template_files(files_feature_ci))
 

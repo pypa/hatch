@@ -45,7 +45,7 @@ class BuildHookInterface:  # no cov
         An instance of [Application](../utilities.md#hatchling.bridge.app.Application).
         """
         if self.__app is None:
-            from ....bridge.app import Application
+            from hatchling.bridge.app import Application
 
             self.__app = Application().get_safe_application()
 

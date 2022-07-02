@@ -1,8 +1,8 @@
 from typing import Optional, cast
 
-from ..utils.fs import Path
-from ..utils.toml import load_toml_data
-from .model import RootConfig
+from hatch.config.model import RootConfig
+from hatch.utils.fs import Path
+from hatch.utils.toml import load_toml_data
 
 
 class ConfigFile:

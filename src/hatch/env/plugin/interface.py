@@ -6,9 +6,9 @@ from abc import ABC, abstractmethod
 from contextlib import contextmanager
 from os.path import isabs
 
-from ...config.constants import AppEnvVars
-from ...utils.structures import EnvVars
-from ..utils import add_verbosity_flag
+from hatch.config.constants import AppEnvVars
+from hatch.env.utils import add_verbosity_flag
+from hatch.utils.structures import EnvVars
 
 
 class EnvironmentInterface(ABC):
@@ -825,7 +825,7 @@ class EnvironmentInterface(ABC):
         Returns a subclass of
         [EnvironmentContextFormatter](../utilities.md#hatch.env.context.EnvironmentContextFormatter).
         """
-        from ..context import EnvironmentContextFormatter
+        from hatch.env.context import EnvironmentContextFormatter
 
         return EnvironmentContextFormatter(self)
 

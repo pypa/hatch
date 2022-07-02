@@ -1,5 +1,5 @@
-from ...plugin import hookimpl
-from ..custom import CustomMetadataHook
+from hatchling.metadata.custom import CustomMetadataHook
+from hatchling.plugin import hookimpl
 
 
 @hookimpl

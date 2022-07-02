@@ -1,6 +1,5 @@
 from hatchling.plugin import hookimpl
-
-from ..standard import StandardScheme
+from hatchling.version.scheme.standard import StandardScheme
 
 
 @hookimpl

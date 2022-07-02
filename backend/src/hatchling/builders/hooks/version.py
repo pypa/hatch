@@ -1,6 +1,5 @@
 from hatchling.builders.hooks.plugin.interface import BuildHookInterface
-
-from ...version.core import VersionFile
+from hatchling.version.core import VersionFile
 
 
 class VersionBuildHook(BuildHookInterface):

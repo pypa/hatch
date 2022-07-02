@@ -6,7 +6,7 @@ import sys
 from contextlib import contextmanager
 from typing import Generator
 
-from .structures import EnvVars
+from hatch.utils.structures import EnvVars
 
 # There is special recognition in Mypy for `sys.platform`, not `os.name`
 # https://github.com/python/cpython/blob/09d7319bfe0006d9aa3fc14833b69c24ccafdca6/Lib/pathlib.py#L957

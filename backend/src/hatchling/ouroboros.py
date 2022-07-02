@@ -54,7 +54,7 @@ def build_sdist(sdist_directory, config_settings=None):
     """
     https://peps.python.org/pep-0517/#build-sdist
     """
-    from .builders.sdist import SdistBuilder
+    from hatchling.builders.sdist import SdistBuilder
 
     builder = SdistBuilder(os.getcwd(), config=CONFIG)
     return os.path.basename(next(builder.build(sdist_directory, ['standard'])))
@@ -64,7 +64,7 @@ def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
     """
     https://peps.python.org/pep-0517/#build-wheel
     """
-    from .builders.wheel import WheelBuilder
+    from hatchling.builders.wheel import WheelBuilder
 
     builder = WheelBuilder(os.getcwd(), config=CONFIG)
     return os.path.basename(next(builder.build(wheel_directory, ['standard'])))
@@ -74,7 +74,7 @@ def build_editable(wheel_directory, config_settings=None, metadata_directory=Non
     """
     https://peps.python.org/pep-0660/#build-editable
     """
-    from .builders.wheel import WheelBuilder
+    from hatchling.builders.wheel import WheelBuilder
 
     builder = WheelBuilder(os.getcwd(), config=CONFIG)
     return os.path.basename(next(builder.build(wheel_directory, ['editable'])))

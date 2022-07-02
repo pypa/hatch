@@ -3,11 +3,11 @@ from __future__ import annotations
 from os.path import expanduser, expandvars, isabs
 from typing import Optional
 
-from ..config.user import ConfigFile, RootConfig
-from ..project.core import Project
-from ..utils.fs import Path
-from ..utils.platform import Platform
-from .terminal import Terminal
+from hatch.cli.terminal import Terminal
+from hatch.config.user import ConfigFile, RootConfig
+from hatch.project.core import Project
+from hatch.utils.fs import Path
+from hatch.utils.platform import Platform
 
 
 class Application(Terminal):

@@ -1,7 +1,7 @@
-from ...plugin import hookimpl
-from ..custom import CustomBuilder
-from ..sdist import SdistBuilder
-from ..wheel import WheelBuilder
+from hatchling.builders.custom import CustomBuilder
+from hatchling.builders.sdist import SdistBuilder
+from hatchling.builders.wheel import WheelBuilder
+from hatchling.plugin import hookimpl
 
 
 @hookimpl

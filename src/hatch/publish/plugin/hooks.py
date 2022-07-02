@@ -1,6 +1,5 @@
+from hatch.publish.pypi import PyPIPublisher
 from hatchling.plugin import hookimpl
-
-from ..pypi import PyPIPublisher
 
 
 @hookimpl

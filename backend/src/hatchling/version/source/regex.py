@@ -1,5 +1,5 @@
-from ..core import VersionFile
-from .plugin.interface import VersionSourceInterface
+from hatchling.version.core import VersionFile
+from hatchling.version.source.plugin.interface import VersionSourceInterface
 
 
 class RegexSource(VersionSourceInterface):

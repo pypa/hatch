@@ -26,7 +26,7 @@ def shell(app, shell_name, shell_path, shell_args):  # no cov
         shell_args = app.config.shell.args
 
     if not shell_path:
-        from ...utils.fs import Path
+        from hatch.utils.fs import Path
 
         shell_path = app.platform.default_shell
         shell_name = Path(shell_path).stem

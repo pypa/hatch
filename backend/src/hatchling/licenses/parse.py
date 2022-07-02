@@ -1,4 +1,4 @@
-from .supported import EXCEPTIONS, LICENSES
+from hatchling.licenses.supported import EXCEPTIONS, LICENSES
 
 
 def normalize_license_expression(license_expression):

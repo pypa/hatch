@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import re
 
-from ..config.model import RootConfig
-from ..utils.fs import Path
+from hatch.config.model import RootConfig
+from hatch.utils.fs import Path
 
 
 class Project:
@@ -26,7 +26,7 @@ class Project:
     @property
     def plugin_manager(self):
         if self._plugin_manager is None:
-            from ..plugin.manager import PluginManager
+            from hatch.plugin.manager import PluginManager
 
             self._plugin_manager = PluginManager()
 
@@ -35,7 +35,7 @@ class Project:
     @property
     def config(self):
         if self._config is None:
-            from .config import ProjectConfig
+            from hatch.project.config import ProjectConfig
 
             self._config = ProjectConfig(self.location, self.metadata.hatch.config, self.plugin_manager)
 
@@ -112,7 +112,7 @@ class Project:
             if self.root is None or self._project_file_path is None:
                 self._raw_config = {}
             else:
-                from ..utils.toml import load_toml_file
+                from hatch.utils.toml import load_toml_file
 
                 self._raw_config = load_toml_file(str(self._project_file_path))
 
