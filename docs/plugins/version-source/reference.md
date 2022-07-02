@@ -8,7 +8,7 @@
 - [hatch-nodejs-version](https://github.com/agoose77/hatch-nodejs-version) - uses the `version` field of NodeJS `package.json` files
 
 ::: hatchling.version.source.plugin.interface.VersionSourceInterface
-    selection:
+    options:
       members:
       - PLUGIN_NAME
       - root

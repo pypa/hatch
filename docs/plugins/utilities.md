@@ -3,13 +3,12 @@
 -----
 
 ::: hatchling.builders.utils.get_reproducible_timestamp
-    rendering:
+    options:
       show_root_full_path: true
 
 ::: hatchling.builders.config.BuilderConfig
-    rendering:
+    options:
       show_source: false
-    selection:
       members:
       - directory
       - ignore_vcs
@@ -22,9 +21,8 @@
       - default_packages
 
 ::: hatchling.bridge.app.Application
-    rendering:
+    options:
       show_source: false
-    selection:
       members:
       - abort
       - display_debug
@@ -35,9 +33,8 @@
       - display_warning
 
 ::: hatch.utils.platform.Platform
-    rendering:
+    options:
       show_source: false
-    selection:
       members:
       - format_for_subprocess
       - run_command
@@ -53,8 +50,7 @@
       - linux
 
 ::: hatch.env.context.EnvironmentContextFormatter
-    rendering:
+    options:
       show_source: false
-    selection:
       members:
       - formatters

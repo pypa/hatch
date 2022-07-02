@@ -9,7 +9,7 @@ Metadata hooks allow for the modification of [project metadata](../../config/met
 - [hatch-requirements-txt](https://github.com/repo-helper/hatch-requirements-txt) - read project dependencies from `requirements.txt` files
 
 ::: hatchling.metadata.plugin.interface.MetadataHookInterface
-    selection:
+    options:
       members:
       - PLUGIN_NAME
       - root

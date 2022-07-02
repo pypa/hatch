@@ -44,7 +44,7 @@ build_data['force_include']['/absolute/path/to/src/lib.so'] = 'src/lib.so'
 ```
 
 ::: hatchling.builders.hooks.plugin.interface.BuildHookInterface
-    selection:
+    options:
       members:
       - PLUGIN_NAME
       - app

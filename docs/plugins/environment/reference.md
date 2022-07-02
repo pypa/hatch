@@ -13,12 +13,12 @@ See the documentation for [environment configuration](../../config/environment/o
 Whenever an environment is used, the following logic is performed:
 
 ::: hatch.cli.application.Application.prepare_environment
-    rendering:
+    options:
       show_root_heading: false
       show_root_toc_entry: false
 
 ::: hatch.env.plugin.interface.EnvironmentInterface
-    selection:
+    options:
       members:
       - PLUGIN_NAME
       - app

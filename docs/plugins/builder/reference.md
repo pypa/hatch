@@ -5,7 +5,7 @@
 See the documentation for [build configuration](../../config/build.md).
 
 ::: hatchling.builders.plugin.interface.BuilderInterface
-    selection:
+    options:
       members:
       - PLUGIN_NAME
       - app

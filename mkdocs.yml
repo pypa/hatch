@@ -116,12 +116,18 @@ plugins:
       default_handler: python
       handlers:
         python:
-          rendering:
-            show_if_no_docstring: true
+          paths:
+            - src
+          options:
+            # Headings
             show_root_heading: true
             show_root_full_path: false
+            # Docstrings
+            show_if_no_docstring: true
+            # Signatures/annotations
             show_signature_annotations: true
-            show_source: true
+            # Other
+            show_bases: false
       watch:
         - backend/src/hatchling
         - src/hatch
@@ -149,8 +155,6 @@ markdown_extensions:
       permalink: true
   # Extra
   - mkdocs-click:
-  - mkpatcher:
-      location: docs/.scripts
   - pymdownx.arithmatex:
   - pymdownx.betterem:
       smart_enable: all
@@ -185,6 +189,9 @@ markdown_extensions:
       check_paths: true
       base_path:
         - docs/.snippets
+      auto_append:
+        - links.txt
+        - abbrs.txt
   - pymdownx.superfences:
   - pymdownx.tabbed:
       alternate_style: true
