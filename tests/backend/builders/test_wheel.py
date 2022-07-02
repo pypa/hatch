@@ -33,6 +33,90 @@ def test_default_versions(isolation):
     assert builder.get_default_versions() == ['standard']
 
 
+class TestDefaultFileSelection:
+    def test_flat_layout(self, temp_dir):
+        config = {'project': {'name': 'my-app', 'version': '0.0.1'}}
+        builder = WheelBuilder(str(temp_dir), config=config)
+
+        flat_root = temp_dir / 'my_app' / '__init__.py'
+        flat_root.ensure_parent_dir_exists()
+        flat_root.touch()
+
+        src_root = temp_dir / 'src' / 'my_app' / '__init__.py'
+        src_root.ensure_parent_dir_exists()
+        src_root.touch()
+
+        single_module_root = temp_dir / 'my_app.py'
+        single_module_root.touch()
+
+        namespace_root = temp_dir / 'ns' / 'my_app' / '__init__.py'
+        namespace_root.ensure_parent_dir_exists()
+        namespace_root.touch()
+
+        assert builder.config.default_include() == []
+        assert builder.config.default_exclude() == []
+        assert builder.config.default_packages() == ['my_app']
+
+    def test_src_layout(self, temp_dir):
+        config = {'project': {'name': 'my-app', 'version': '0.0.1'}}
+        builder = WheelBuilder(str(temp_dir), config=config)
+
+        src_root = temp_dir / 'src' / 'my_app' / '__init__.py'
+        src_root.ensure_parent_dir_exists()
+        src_root.touch()
+
+        single_module_root = temp_dir / 'my_app.py'
+        single_module_root.touch()
+
+        namespace_root = temp_dir / 'ns' / 'my_app' / '__init__.py'
+        namespace_root.ensure_parent_dir_exists()
+        namespace_root.touch()
+
+        assert builder.config.default_include() == []
+        assert builder.config.default_exclude() == []
+        assert builder.config.default_packages() == ['src/my_app']
+
+    def test_single_module(self, temp_dir):
+        config = {'project': {'name': 'my-app', 'version': '0.0.1'}}
+        builder = WheelBuilder(str(temp_dir), config=config)
+
+        single_module_root = temp_dir / 'my_app.py'
+        single_module_root.touch()
+
+        namespace_root = temp_dir / 'ns' / 'my_app' / '__init__.py'
+        namespace_root.ensure_parent_dir_exists()
+        namespace_root.touch()
+
+        assert builder.config.default_include() == []
+        assert builder.config.default_exclude() == []
+        assert builder.config.default_packages() == ['my_app.py']
+
+    def test_namespace(self, temp_dir):
+        config = {'project': {'name': 'my-app', 'version': '0.0.1'}}
+        builder = WheelBuilder(str(temp_dir), config=config)
+
+        namespace_root = temp_dir / 'ns' / 'my_app' / '__init__.py'
+        namespace_root.ensure_parent_dir_exists()
+        namespace_root.touch()
+
+        assert builder.config.default_include() == []
+        assert builder.config.default_exclude() == []
+        assert builder.config.default_packages() == ['ns']
+
+    def test_default(self, temp_dir):
+        config = {'project': {'name': 'my-app', 'version': '0.0.1'}}
+        builder = WheelBuilder(str(temp_dir), config=config)
+
+        for i in range(2):
+            namespace_root = temp_dir / f'ns{i}' / 'my_app' / '__init__.py'
+            namespace_root.ensure_parent_dir_exists()
+            namespace_root.touch()
+
+        assert builder.config.default_include() == ['*.py']
+        assert builder.config.default_exclude() == ['test*']
+        assert builder.config.default_packages() == []
+
+
 class TestCoreMetadataConstructor:
     def test_default(self, isolation):
         builder = WheelBuilder(str(isolation))
@@ -2355,7 +2439,12 @@ class TestBuildStandard:
                     'version': {'path': 'src/my_app/__about__.py'},
                     'build': {
                         'targets': {
-                            'wheel': {'versions': ['standard'], 'only-include': ['src/my_app'], 'sources': ['src']}
+                            'wheel': {
+                                'versions': ['standard'],
+                                'artifacts': ['README.md'],
+                                'only-include': ['src/my_app'],
+                                'sources': ['src'],
+                            }
                         },
                     },
                 },
@@ -2385,6 +2474,48 @@ class TestBuildStandard:
         metadata_directory = f'{builder.project_id}.dist-info'
         expected_files = helpers.get_template_files(
             'wheel.standard_default_license_single',
+            project_name,
+            metadata_directory=metadata_directory,
+        )
+        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+
+    def test_single_module(self, hatch, helpers, temp_dir, config_file):
+        project_name = 'My App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / 'my-app'
+        (project_path / 'my_app').remove()
+        (project_path / 'my_app.py').touch()
+
+        config = {'project': {'name': 'my__app', 'version': '0.0.1'}}
+        builder = WheelBuilder(str(project_path), config=config)
+
+        build_path = project_path / 'dist'
+        build_path.mkdir()
+
+        with project_path.as_cwd():
+            artifacts = list(builder.build(str(build_path)))
+
+        assert len(artifacts) == 1
+        expected_artifact = artifacts[0]
+
+        build_artifacts = list(build_path.iterdir())
+        assert len(build_artifacts) == 1
+        assert expected_artifact == str(build_artifacts[0])
+
+        extraction_directory = temp_dir / '_archive'
+        extraction_directory.mkdir()
+
+        with zipfile.ZipFile(str(expected_artifact), 'r') as zip_archive:
+            zip_archive.extractall(str(extraction_directory))
+
+        metadata_directory = f'{builder.project_id}.dist-info'
+        expected_files = helpers.get_template_files(
+            'wheel.standard_default_single_module',
             project_name,
             metadata_directory=metadata_directory,
         )

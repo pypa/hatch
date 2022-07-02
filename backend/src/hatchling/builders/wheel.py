@@ -146,11 +146,13 @@ class WheelBuilderConfig(BuilderConfig):
             self.__packages.append(project_name)
         elif os.path.isfile(os.path.join(self.root, 'src', project_name, '__init__.py')):
             self.__packages.append(f'src/{project_name}')
+        elif os.path.isfile(os.path.join(self.root, f'{project_name}.py')):
+            self.__packages.append(f'{project_name}.py')
         else:
             from glob import glob
 
             possible_namespace_packages = glob(os.path.join(self.root, '*', project_name, '__init__.py'))
-            if possible_namespace_packages:
+            if len(possible_namespace_packages) == 1:
                 relative_path = os.path.relpath(possible_namespace_packages[0], self.root)
                 namespace = relative_path.split(os.sep)[0]
                 self.__packages.append(namespace)
