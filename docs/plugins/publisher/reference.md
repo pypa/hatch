@@ -3,7 +3,7 @@
 -----
 
 ::: hatch.publish.plugin.interface.PublisherInterface
-    selection:
+    options:
       members:
       - PLUGIN_NAME
       - app

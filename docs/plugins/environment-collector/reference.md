@@ -5,7 +5,7 @@
 Environment collectors allow for dynamically modifying environments or adding environments beyond those defined in config. Users can override default values provided by each environment.
 
 ::: hatch.env.collectors.plugin.interface.EnvironmentCollectorInterface
-    selection:
+    options:
       members:
       - PLUGIN_NAME
       - root
