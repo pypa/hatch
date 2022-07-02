@@ -20,6 +20,6 @@ The environment plugin name is `default`.
     [env.collectors.default]
     ```
 
-### Options
+## Options
 
 There are no options available currently.

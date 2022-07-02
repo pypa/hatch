@@ -22,7 +22,7 @@ The build hook plugin name is `custom`.
     [build.targets.<TARGET_NAME>.hooks.custom]
     ```
 
-### Options
+## Options
 
 | Option | Default | Description |
 | --- | --- | --- |
