@@ -20,7 +20,7 @@ The metadata hook plugin name is `custom`.
     [metadata.hooks.custom]
     ```
 
-### Options
+## Options
 
 | Option | Default | Description |
 | --- | --- | --- |

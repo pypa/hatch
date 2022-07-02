@@ -14,7 +14,7 @@ The publisher plugin name is `pypi`.
     [publish.pypi]
     ```
 
-### Options
+## Options
 
 | Flag | Config name | Description |
 | --- | --- | --- |

@@ -24,7 +24,7 @@ The version source plugin name is `code`.
     source = "code"
     ```
 
-### Options
+## Options
 
 | Option | Description |
 | --- | --- |

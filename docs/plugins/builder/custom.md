@@ -20,7 +20,7 @@ The builder plugin name is `custom`.
     [build.targets.custom]
     ```
 
-### Options
+## Options
 
 | Option | Default | Description |
 | --- | --- | --- |

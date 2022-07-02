@@ -22,7 +22,7 @@ The build hook plugin name is `version`.
     [build.targets.<TARGET_NAME>.hooks.version]
     ```
 
-### Options
+## Options
 
 | Option | Description |
 | --- | --- |

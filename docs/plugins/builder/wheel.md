@@ -20,7 +20,7 @@ The builder plugin name is `wheel`.
     [build.targets.wheel]
     ```
 
-### Options
+## Options
 
 | Option | Default | Description |
 | --- | --- | --- |

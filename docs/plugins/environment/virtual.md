@@ -22,7 +22,7 @@ The environment plugin name is `virtual`.
     type = "virtual"
     ```
 
-### Options
+## Options
 
 | Option | Default | Description |
 | --- | --- | --- |

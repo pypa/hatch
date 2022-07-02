@@ -26,7 +26,7 @@ The version source plugin name is `regex`.
     source = "regex"
     ```
 
-### Options
+## Options
 
 | Option | Description |
 | --- | --- |

@@ -20,7 +20,7 @@ The builder plugin name is `sdist`.
     [build.targets.sdist]
     ```
 
-### Options
+## Options
 
 | Option | Default | Description |
 | --- | --- | --- |

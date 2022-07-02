@@ -22,6 +22,6 @@ The version scheme plugin name is `standard`.
     scheme = "standard"
     ```
 
-### Options
+## Options
 
 There are no options available currently.
