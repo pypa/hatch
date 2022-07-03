@@ -112,6 +112,7 @@ plugins:
   - git-revision-date-localized:
       type: date
   - mike:
+      alias_type: copy
   - mkdocstrings:
       default_handler: python
       handlers:

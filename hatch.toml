@@ -60,8 +60,9 @@ dependencies = [
   "mkdocs-minify-plugin~=0.5.0",
   "mkdocs-git-revision-date-localized-plugin~=1.0.1",
   "mkdocstrings-python~=0.7.1",
-  "mike~=1.1.2",
   "mkdocs-redirects~=1.0.4",
+  # https://github.com/jimporter/mike/issues/82#issuecomment-1172913929
+  "mike @ https://github.com/jimporter/mike/archive/392d57b8bb9d14bcedf2451a0dc302709f8055eb.zip",
   # Extensions
   "mkdocs-click~=0.8.0",
   "pymdown-extensions~=9.5.0",
@@ -74,7 +75,7 @@ SOURCE_DATE_EPOCH = "1580601600"
 [envs.docs.scripts]
 build = "mkdocs build --clean --strict {args}"
 serve = "mkdocs serve --dev-addr localhost:8000 {args}"
-ci-build = "mike deploy --no-redirect --update-aliases {args}"
+ci-build = "mike deploy --update-aliases {args}"
 
 [envs.backend]
 detached = true

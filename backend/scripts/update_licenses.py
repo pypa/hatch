@@ -6,7 +6,7 @@ from io import StringIO
 
 import httpx
 
-VERSION = '3.15'
+VERSION = '3.17'
 
 LICENSES_URL = f'https://raw.githubusercontent.com/spdx/license-list-data/v{VERSION}/json/licenses.json'
 EXCEPTIONS_URL = f'https://raw.githubusercontent.com/spdx/license-list-data/v{VERSION}/json/exceptions.json'
@@ -40,7 +40,7 @@ def main():
         exceptions[exception_id.lower()] = {'id': exception_id, 'deprecated': deprecated}
 
     project_root = pathlib.Path(__file__).resolve().parent.parent
-    data_file = project_root / 'hatchling' / 'licenses' / 'supported.py'
+    data_file = project_root / 'src' / 'hatchling' / 'licenses' / 'supported.py'
 
     with closing(StringIO()) as file_contents:
         file_contents.write(f'VERSION = {VERSION!r}\n\nLICENSES = {{\n')
