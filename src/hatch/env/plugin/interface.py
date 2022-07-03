@@ -370,7 +370,7 @@ class EnvironmentInterface(ABC):
             ```
         """
         if self._skip_install is None:
-            skip_install = self.config.get('skip-install', False)
+            skip_install = self.config.get('skip-install', not self.metadata.has_project_file())
             if not isinstance(skip_install, bool):
                 raise TypeError(f'Field `tool.hatch.envs.{self.name}.skip-install` must be a boolean')
 
