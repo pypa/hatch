@@ -39,10 +39,11 @@ The builder plugin name is `wheel`.
 
 When the user has not set any [file selection](../../config/build.md#file-selection) options, the [project name](../../config/metadata.md#name) will be used to determine the package to ship in the following heuristic order:
 
-1. `<PACKAGE>/__init__.py`
-2. `src/<PACKAGE>/__init__.py`
-3. `<NAMESPACE>/<PACKAGE>/__init__.py`
-4. Otherwise, every Python package and file that does not start with the word `test` will be included
+1. `<NAME>/__init__.py`
+2. `src/<NAME>/__init__.py`
+3. `<NAME>.py`
+4. `<NAMESPACE>/<NAME>/__init__.py`
+5. Otherwise, every Python package and file that does not start with the word `test` will be included
 
 ## Reproducibility
 
