@@ -12,7 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ***Added:***
 
-- Support the absence of `pyproject.toml` files, as is the case for apps
+- Support the absence of `pyproject.toml` files, as is the case for apps and non-Python projects
 
 ***Fixed:***
 
@@ -94,6 +94,7 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 - The `wheel` target `shared-data` and `extra-metadata` options now respect file selection options
 - The `wheel` target now auto-detects single module layouts
 - Improve performance by never entering directories that are guaranteed to be undesirable like `__pycache__` rather than excluding individual files within
+- Update SPDX license information to version 3.17
 
 ***Fixed:***
 

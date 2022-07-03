@@ -10,6 +10,7 @@ CONFIG = {
         'authors': [{'name': 'Ofek Lev', 'email': 'oss@ofek.dev'}],
         'urls': {
             'Homepage': 'https://hatch.pypa.io/latest/',
+            'Funding': 'https://github.com/sponsors/ofek',
             'History': 'https://hatch.pypa.io/dev/history/',
             'Tracker': 'https://github.com/pypa/hatch/issues',
             'Source': 'https://github.com/pypa/hatch/tree/master/backend',
