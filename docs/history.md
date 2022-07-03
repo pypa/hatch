@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Unreleased
 
+***Added:***
+
+- Support the absence of `pyproject.toml` files, as is the case for apps
+
 ***Fixed:***
 
 - Use `utf-8` for all files generated for new projects

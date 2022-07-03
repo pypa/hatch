@@ -239,14 +239,25 @@ class TestPlatforms:
 
 
 class TestSkipInstall:
-    def test_default(self, isolation, data_dir, platform):
+    def test_default_project(self, temp_dir, data_dir, platform):
+        config = {'project': {'name': 'my_app', 'version': '0.0.1'}}
+        project = Project(temp_dir, config=config)
+        environment = MockEnvironment(
+            temp_dir, project.metadata, 'default', project.config.envs['default'], {}, data_dir, platform, 0
+        )
+        (temp_dir / 'pyproject.toml').touch()
+
+        with temp_dir.as_cwd():
+            assert environment.skip_install is environment.skip_install is False
+
+    def test_default_no_project(self, isolation, data_dir, platform):
         config = {'project': {'name': 'my_app', 'version': '0.0.1'}}
         project = Project(isolation, config=config)
         environment = MockEnvironment(
             isolation, project.metadata, 'default', project.config.envs['default'], {}, data_dir, platform, 0
         )
 
-        assert environment.skip_install is environment.skip_install is False
+        assert environment.skip_install is environment.skip_install is True
 
     def test_not_boolean(self, isolation, data_dir, platform):
         config = {
@@ -432,7 +443,10 @@ class TestDescription:
 
 class TestDependencies:
     def test_default(self, isolation, data_dir, platform):
-        config = {'project': {'name': 'my_app', 'version': '0.0.1', 'dependencies': ['dep1']}}
+        config = {
+            'project': {'name': 'my_app', 'version': '0.0.1', 'dependencies': ['dep1']},
+            'tool': {'hatch': {'envs': {'default': {'skip-install': False}}}},
+        }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
             isolation, project.metadata, 'default', project.config.envs['default'], {}, data_dir, platform, 0
@@ -530,7 +544,13 @@ class TestDependencies:
     def test_full(self, isolation, data_dir, platform):
         config = {
             'project': {'name': 'my_app', 'version': '0.0.1', 'dependencies': ['dep1']},
-            'tool': {'hatch': {'envs': {'default': {'dependencies': ['dep2'], 'extra-dependencies': ['dep3']}}}},
+            'tool': {
+                'hatch': {
+                    'envs': {
+                        'default': {'skip-install': False, 'dependencies': ['dep2'], 'extra-dependencies': ['dep3']}
+                    }
+                }
+            },
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
@@ -543,7 +563,15 @@ class TestDependencies:
         config = {
             'project': {'name': 'my_app', 'version': '0.0.1', 'dependencies': ['dep1']},
             'tool': {
-                'hatch': {'envs': {'default': {'dependencies': ['dep2'], 'extra-dependencies': ['proj @ {root:uri}']}}}
+                'hatch': {
+                    'envs': {
+                        'default': {
+                            'skip-install': False,
+                            'dependencies': ['dep2'],
+                            'extra-dependencies': ['proj @ {root:uri}'],
+                        }
+                    }
+                }
             },
         }
         project = Project(isolation, config=config)

@@ -110,7 +110,8 @@ class Project:
     def raw_config(self):
         if self._raw_config is None:
             if self.root is None or self._project_file_path is None:
-                self._raw_config = {}
+                # Assume no pyproject.toml e.g. environment management only
+                self._raw_config = {'project': {'name': self.location.name}}
             else:
                 from hatch.utils.toml import load_toml_file
 

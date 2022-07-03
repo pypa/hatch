@@ -33,6 +33,10 @@ class ProjectMetadata:
         if config is not None and root is not None:
             self._project_file = os.path.join(root, 'pyproject.toml')
 
+    def has_project_file(self):
+        _ = self.config
+        return os.path.isfile(self._project_file)
+
     @property
     def context(self):
         if self._context is None:
