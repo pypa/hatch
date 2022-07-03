@@ -437,6 +437,8 @@ If a build target supports multiple build strategies or if there are major chang
     ]
     ```
 
+See the [wheel](../plugins/builder/wheel.md#versions) target for a real world example.
+
 ## Build hooks
 
 A build hook defines code that will be executed at various stages of the build process and can be provided by any [build hook plugin](../plugins/build-hook/reference.md). There is one built-in build hook: [custom](../plugins/build-hook/custom.md).
