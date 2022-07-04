@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ***Added:***
 
 - Support the absence of `pyproject.toml` files, as is the case for apps and non-Python projects
+- Hide scripts that start with an underscore for the `env show` command by default
 - Bump the minimum supported version of Hatchling to 1.4.0
 
 ***Fixed:***

@@ -336,7 +336,7 @@ occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim 
             'dependencies': dependencies,
             'env-vars': env_vars,
             'features': ['Foo...Bar', 'Baz', 'baZ'],
-            'scripts': {'test': 'pytest', 'build': 'python -m build'},
+            'scripts': {'test': 'pytest', 'build': 'python -m build', '_foo': 'test'},
         },
     )
     helpers.update_project_environment(
