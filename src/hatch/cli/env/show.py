@@ -32,7 +32,9 @@ def show(app, envs, force_ascii, as_json):
             )
 
         if config.get('scripts'):
-            columns['Scripts'][i] = '\n'.join(sorted(config['scripts']))
+            columns['Scripts'][i] = '\n'.join(
+                sorted(script for script in config['scripts'] if app.verbose or not script.startswith('_'))
+            )
 
         if config.get('description'):
             columns['Description'][i] = config['description'].strip()
