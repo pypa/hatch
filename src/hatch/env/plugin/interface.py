@@ -302,6 +302,8 @@ class EnvironmentInterface(ABC):
             # they will already be installed along with the project
             if not self.skip_install and self.dev_mode:
                 dependencies_complex.extend(self.metadata.core.dependencies_complex.values())
+                for feature in self.features:
+                    dependencies_complex.extend(self.metadata.core.optional_dependencies_complex[feature].values())
 
             self._dependencies_complex = dependencies_complex
 

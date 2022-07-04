@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ***Fixed:***
 
+- Keep environments in sync with the dependencies of the selected features
 - Use `utf-8` for all files generated for new projects
 - Normalize the package name to lowercase in `setuptools` migration script
 
