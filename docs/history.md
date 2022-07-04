@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ***Added:***
 
 - Support the absence of `pyproject.toml` files, as is the case for apps and non-Python projects
+- Bump the minimum supported version of Hatchling to 1.4.0
 
 ***Fixed:***
 
