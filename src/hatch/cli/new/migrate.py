@@ -119,9 +119,8 @@ def setup(**kwargs):
 
     name = kwargs['name']
     project_name = name.replace('_', '-')
-    package_name = package_path = package_source = sorted(kwargs.get('packages') or [name.replace('-', '_')])[0].split(
-        '.'
-    )[0].lower()
+    packages = sorted(kwargs.get('packages') or [name.replace('-', '_')])
+    package_name = package_path = package_source = packages[0].split('.')[0].lower()
 
     project_metadata['name'] = project_name
 

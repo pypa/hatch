@@ -120,10 +120,7 @@ def main():
             ]
         )
 
-        constraints = [
-            # Cap the version of setuptools until it supports PEP 639
-            'setuptools<61.0.0',
-        ]
+        constraints = []
         constraints_file = os.path.join(build_dir, 'constraints.txt')
         with open(constraints_file, 'w') as f:
             f.write('\n'.join(constraints))
