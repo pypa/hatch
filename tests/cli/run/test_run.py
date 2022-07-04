@@ -196,6 +196,158 @@ def test_sync_dependencies(hatch, helpers, temp_dir, config_file):
     assert str(output_file.read_text()) == "(1.0, 'KiB')"
 
 
+@pytest.mark.requires_internet
+def test_sync_project_dependencies(hatch, helpers, temp_dir, config_file):
+    config_file.model.template.plugins['default']['tests'] = False
+    config_file.save()
+
+    project_name = 'My App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / 'my-app'
+    data_path = temp_dir / 'data'
+    data_path.mkdir()
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch('env', 'create', 'default')
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        """
+        Creating environment: default
+        Installing project in development mode
+        """
+    )
+
+    env_data_path = data_path / 'env' / 'virtual'
+    assert env_data_path.is_dir()
+
+    storage_dirs = list(env_data_path.iterdir())
+    assert len(storage_dirs) == 1
+
+    storage_path = storage_dirs[0]
+
+    project_part = f'{project_path.name}-'
+    assert storage_path.name.startswith(project_part)
+
+    hash_part = storage_path.name[len(project_part) :]
+    assert len(hash_part) == 8
+
+    env_dirs = list(storage_path.iterdir())
+    assert len(env_dirs) == 1
+
+    env_path = env_dirs[0]
+
+    assert env_path.name == project_path.name
+
+    project = Project(project_path)
+    config = dict(project.raw_config)
+    config['project']['dependencies'] = ['binary']
+    project.save_config(config)
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch(
+            'run',
+            'python',
+            '-c',
+            "import binary,pathlib,sys;pathlib.Path('test.txt').write_text(str(binary.convert_units(1024)))",
+        )
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        """
+        Syncing dependencies
+        """
+    )
+    output_file = project_path / 'test.txt'
+    assert output_file.is_file()
+
+    assert str(output_file.read_text()) == "(1.0, 'KiB')"
+
+
+@pytest.mark.requires_internet
+def test_sync_project_features(hatch, helpers, temp_dir, config_file):
+    config_file.model.template.plugins['default']['tests'] = False
+    config_file.save()
+
+    project_name = 'My App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / 'my-app'
+    data_path = temp_dir / 'data'
+    data_path.mkdir()
+
+    project = Project(project_path)
+    config = dict(project.raw_config)
+    config['project']['optional-dependencies'] = {'foo': []}
+    project.save_config(config)
+    helpers.update_project_environment(project, 'default', {'features': ['foo'], **project.config.envs['default']})
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch('env', 'create', 'default')
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        """
+        Creating environment: default
+        Installing project in development mode
+        """
+    )
+
+    env_data_path = data_path / 'env' / 'virtual'
+    assert env_data_path.is_dir()
+
+    storage_dirs = list(env_data_path.iterdir())
+    assert len(storage_dirs) == 1
+
+    storage_path = storage_dirs[0]
+
+    project_part = f'{project_path.name}-'
+    assert storage_path.name.startswith(project_part)
+
+    hash_part = storage_path.name[len(project_part) :]
+    assert len(hash_part) == 8
+
+    env_dirs = list(storage_path.iterdir())
+    assert len(env_dirs) == 1
+
+    env_path = env_dirs[0]
+
+    assert env_path.name == project_path.name
+
+    project = Project(project_path)
+    config = dict(project.raw_config)
+    config['project']['optional-dependencies']['foo'].append('binary')
+    project.save_config(config)
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch(
+            'run',
+            'python',
+            '-c',
+            "import binary,pathlib,sys;pathlib.Path('test.txt').write_text(str(binary.convert_units(1024)))",
+        )
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        """
+        Syncing dependencies
+        """
+    )
+    output_file = project_path / 'test.txt'
+    assert output_file.is_file()
+
+    assert str(output_file.read_text()) == "(1.0, 'KiB')"
+
+
 def test_scripts(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
