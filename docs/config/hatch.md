@@ -94,7 +94,7 @@ If the executable name of your shell differs from the supported name, you can de
     path = "/bin/ash"
     ```
 
-On non-Windows systems, you can change the default arguments used to spawn most shells with the `args` key. The default for such supported shells is usually `["-i"]`.
+You can change the default arguments used to spawn most shells with the `args` key. The default for such supported shells is usually `["-i"]`.
 
 === ":octicons-file-code-16: config.toml"
 
@@ -115,7 +115,7 @@ On non-Windows systems, you can change the default arguments used to spawn most 
 | [Nushell](https://github.com/nushell/nushell) | `nu` | `[]` | :white_check_mark: | :white_check_mark: | :white_check_mark: |
 | [PowerShell](https://github.com/PowerShell/PowerShell) | `pwsh`, `powershell` | | :white_check_mark: | :white_check_mark: | :white_check_mark: |
 | [tcsh](https://en.wikipedia.org/wiki/Tcsh) | `tcsh` | `["-i"]` | :white_check_mark: | | :white_check_mark: |
-| [xonsh](https://github.com/xonsh/xonsh) | `xonsh` | | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| [xonsh](https://github.com/xonsh/xonsh) | `xonsh` | `["-i"]` | :white_check_mark: | :white_check_mark: | :white_check_mark: |
 | [Z shell](https://en.wikipedia.org/wiki/Z_shell) | `zsh` | `["-i"]` | :white_check_mark: | | :white_check_mark: |
 
 ### Default
