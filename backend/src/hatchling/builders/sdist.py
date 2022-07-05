@@ -13,6 +13,7 @@ from hatchling.builders.utils import (
     get_reproducible_timestamp,
     normalize_archive_path,
     normalize_file_permissions,
+    normalize_relative_path,
     replace_file,
 )
 from hatchling.metadata.spec import DEFAULT_METADATA_VERSION, get_core_metadata_constructors
@@ -272,31 +273,27 @@ class SdistBuilder(BuilderInterface):
         return contents
 
     def get_default_build_data(self):
-        build_data = {'artifacts': [], 'force_include': {}, 'dependencies': []}
+        force_include = {}
+        build_data = {'force_include': force_include, 'dependencies': []}
 
         for exclusion_files in self.config.vcs_exclusion_files.values():
             for exclusion_file in exclusion_files:
-                build_data['force_include'][exclusion_file] = os.path.basename(exclusion_file)
+                force_include[exclusion_file] = os.path.basename(exclusion_file)
 
-        # Check for inclusion first to avoid redundant pattern matching
-        if not self.config.include_path('pyproject.toml'):
-            build_data['artifacts'].append('/pyproject.toml')
+        force_include[os.path.join(self.root, 'pyproject.toml')] = 'pyproject.toml'
+        force_include[os.path.join(self.root, DEFAULT_BUILD_SCRIPT)] = DEFAULT_BUILD_SCRIPT
+        force_include[os.path.join(self.root, DEFAULT_CONFIG_FILE)] = DEFAULT_CONFIG_FILE
 
         readme_path = self.metadata.core.readme_path
-        if readme_path and not self.config.include_path(readme_path):
-            build_data['artifacts'].append(f'/{readme_path}')
+        if readme_path:
+            readme_path = normalize_relative_path(readme_path)
+            force_include[os.path.join(self.root, readme_path)] = readme_path
 
         license_files = self.metadata.core.license_files
         if license_files:
             for license_file in license_files:
-                if not self.config.include_path(license_file):
-                    build_data['artifacts'].append(f'/{license_file}')
-
-        if not self.config.include_path(DEFAULT_BUILD_SCRIPT):
-            build_data['artifacts'].append(f'/{DEFAULT_BUILD_SCRIPT}')
-
-        if not self.config.include_path(DEFAULT_CONFIG_FILE):
-            build_data['artifacts'].append(f'/{DEFAULT_CONFIG_FILE}')
+                license_file = normalize_relative_path(license_file)
+                force_include[os.path.join(self.root, license_file)] = license_file
 
         return build_data
 

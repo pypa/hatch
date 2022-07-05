@@ -43,8 +43,8 @@ class TestCoreMetadataV12:
             Metadata-Version: 1.2
             Name: my-app
             Version: 0.1.0
-            Project-URL: bar, baz
             Project-URL: foo, bar
+            Project-URL: bar, baz
             """
         )
 
@@ -312,8 +312,8 @@ class TestCoreMetadataV12:
             Name: my-app
             Version: 0.1.0
             Summary: foo
-            Project-URL: bar, baz
             Project-URL: foo, bar
+            Project-URL: bar, baz
             Author-email: foo <bar@domain>
             Maintainer-email: foo <bar@domain>
             License: foo
@@ -367,8 +367,8 @@ class TestCoreMetadataV21:
             Metadata-Version: 2.1
             Name: my-app
             Version: 0.1.0
-            Project-URL: bar, baz
             Project-URL: foo, bar
+            Project-URL: bar, baz
             """
         )
 
@@ -695,8 +695,8 @@ class TestCoreMetadataV21:
             Name: my-app
             Version: 0.1.0
             Summary: foo
-            Project-URL: bar, baz
             Project-URL: foo, bar
+            Project-URL: bar, baz
             Author-email: foo <bar@domain>
             Maintainer-email: foo <bar@domain>
             License: foo
@@ -759,8 +759,8 @@ class TestCoreMetadataV22:
             Metadata-Version: 2.2
             Name: my-app
             Version: 0.1.0
-            Project-URL: bar, baz
             Project-URL: foo, bar
+            Project-URL: bar, baz
             """
         )
 
@@ -1087,8 +1087,8 @@ class TestCoreMetadataV22:
             Name: my-app
             Version: 0.1.0
             Summary: foo
-            Project-URL: bar, baz
             Project-URL: foo, bar
+            Project-URL: bar, baz
             Author-email: foo <bar@domain>
             Maintainer-email: foo <bar@domain>
             License: foo
@@ -1151,8 +1151,8 @@ class TestCoreMetadataV23:
             Metadata-Version: 2.3
             Name: my-app
             Version: 0.1.0
-            Project-URL: bar, baz
             Project-URL: foo, bar
+            Project-URL: bar, baz
             """
         )
 
@@ -1508,8 +1508,8 @@ class TestCoreMetadataV23:
             Name: my-app
             Version: 0.1.0
             Summary: foo
-            Project-URL: bar, baz
             Project-URL: foo, bar
+            Project-URL: bar, baz
             Author-email: foo <bar@domain>
             Maintainer-email: foo <bar@domain>
             License-Expression: MIT OR Apache-2.0

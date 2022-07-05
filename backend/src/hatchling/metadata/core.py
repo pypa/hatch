@@ -833,7 +833,7 @@ class CoreMetadata:
 
             sorted_urls = {}
 
-            for label, url in sorted(urls.items()):
+            for label, url in urls.items():
                 if not isinstance(url, str):
                     raise TypeError(f'URL `{label}` of field `project.urls` must be a string')
 

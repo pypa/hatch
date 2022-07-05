@@ -957,7 +957,11 @@ class TestBuildStandard:
                     'version': {'path': 'my_app/__about__.py'},
                     'build': {
                         'targets': {
-                            'sdist': {'versions': ['standard'], 'include': ['my_app/'], 'exclude': ['pyproject.toml']},
+                            'sdist': {
+                                'versions': ['standard'],
+                                'only-include': ['my_app'],
+                                'exclude': ['pyproject.toml'],
+                            },
                         },
                     },
                 },
@@ -1013,7 +1017,7 @@ class TestBuildStandard:
                         'targets': {
                             'sdist': {
                                 'versions': ['standard'],
-                                'include': ['my_app/'],
+                                'only-include': ['my_app'],
                                 'exclude': [DEFAULT_CONFIG_FILE],
                             },
                         },
@@ -1118,7 +1122,7 @@ class TestBuildStandard:
                     'version': {'path': 'my_app/__about__.py'},
                     'build': {
                         'targets': {
-                            'sdist': {'versions': ['standard'], 'include': ['my_app/'], 'exclude': ['README.md']},
+                            'sdist': {'versions': ['standard'], 'only-include': ['my_app'], 'exclude': ['README.md']},
                         },
                     },
                 },
@@ -1219,7 +1223,7 @@ class TestBuildStandard:
                     'version': {'path': 'my_app/__about__.py'},
                     'build': {
                         'targets': {
-                            'sdist': {'versions': ['standard'], 'include': ['my_app/'], 'exclude': ['LICENSE.txt']},
+                            'sdist': {'versions': ['standard'], 'only-include': ['my_app'], 'exclude': ['LICENSE.txt']},
                         },
                     },
                 },

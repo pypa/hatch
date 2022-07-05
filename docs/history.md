@@ -84,6 +84,13 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 
 ### Unreleased
 
+### [1.4.1](https://github.com/pypa/hatch/releases/tag/hatchling-v1.4.1) - 2022-07-04 ### {: #hatchling-v1.4.1 }
+
+***Fixed:***
+
+- Fix forced inclusion of important files like licenses for `sdist` targets when using the explicit selection options
+- Don't sort project URL metadata so that the rendered order on PyPI can be controlled
+
 ### [1.4.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.4.0) - 2022-07-03 ### {: #hatchling-v1.4.0 }
 
 ***Changed:***
