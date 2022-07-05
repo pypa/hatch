@@ -26,10 +26,20 @@ def shell(app, shell_name, shell_path, shell_args):  # no cov
         shell_args = app.config.shell.args
 
     if not shell_path:
-        from hatch.utils.fs import Path
+        import shellingham
 
-        shell_path = app.platform.default_shell
-        shell_name = Path(shell_path).stem
+        try:
+            shell_name, command = shellingham.detect_shell()
+        except shellingham.ShellDetectionFailure:
+            from hatch.utils.fs import Path
+
+            shell_path = app.platform.default_shell
+            shell_name = Path(shell_path).stem
+        else:
+            if app.platform.windows:
+                shell_path = command
+            else:
+                shell_path, *shell_args = app.platform.modules.shlex.split(command)
 
     with app.project.location.as_cwd():
         environment = app.get_environment()

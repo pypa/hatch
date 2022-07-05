@@ -47,6 +47,7 @@ dependencies = [
   "platformdirs>=2.5.0",
   "pyperclip>=1.8.2",
   "rich>=11.2.0",
+  "shellingham>=1.4.0",
   "tomli-w>=1.0",
   "tomlkit>=0.10.1",
   "userpath~=1.8",

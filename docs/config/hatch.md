@@ -90,8 +90,8 @@ If the executable name of your shell differs from the supported name, you can de
 
     ```toml
     [shell]
-    name = "powershell"
-    path = "pwsh"
+    name = "bash"
+    path = "/bin/ash"
     ```
 
 On non-Windows systems, you can change the default arguments used to spawn most shells with the `args` key. The default for such supported shells is usually `["-i"]`.
@@ -113,15 +113,14 @@ On non-Windows systems, you can change the default arguments used to spawn most 
 | [C shell](https://en.wikipedia.org/wiki/C_shell) | `csh` | `["-i"]` | :white_check_mark: | | :white_check_mark: |
 | [fish](https://github.com/fish-shell/fish-shell) | `fish` | `["-i"]` | :white_check_mark: | | :white_check_mark: |
 | [Nushell](https://github.com/nushell/nushell) | `nu` | `[]` | :white_check_mark: | :white_check_mark: | :white_check_mark: |
-| [PowerShell](https://github.com/PowerShell/PowerShell) | `powershell` | | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| [PowerShell](https://github.com/PowerShell/PowerShell) | `pwsh`, `powershell` | | :white_check_mark: | :white_check_mark: | :white_check_mark: |
 | [tcsh](https://en.wikipedia.org/wiki/Tcsh) | `tcsh` | `["-i"]` | :white_check_mark: | | :white_check_mark: |
 | [xonsh](https://github.com/xonsh/xonsh) | `xonsh` | | :white_check_mark: | :white_check_mark: | :white_check_mark: |
 | [Z shell](https://en.wikipedia.org/wiki/Z_shell) | `zsh` | `["-i"]` | :white_check_mark: | | :white_check_mark: |
 
 ### Default
 
-On Windows systems Hatch will use the `SHELL` environment variable, if present, followed by the `COMSPEC` environment variable, defaulting to `cmd`.
-On all other platforms only the `SHELL` environment variable will be used, defaulting to `bash`.
+Hatch will attempt to use the current shell based on parent processes. If the shell cannot be determined, then on Windows systems Hatch will use the `SHELL` environment variable, if present, followed by the `COMSPEC` environment variable, defaulting to `cmd`. On all other platforms only the `SHELL` environment variable will be used, defaulting to `bash`.
 
 ## Directories
 
