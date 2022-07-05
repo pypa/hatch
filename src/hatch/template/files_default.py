@@ -99,6 +99,9 @@ path = "{package_metadata_file_path}"
 """
 
     def __init__(self, template_config: dict, plugin_config: dict):
+        template_config = dict(template_config)
+        template_config['name'] = repr(template_config['name'])[1:-1]
+
         project_url_data = ''
         if 'project_urls' in plugin_config:
             project_urls = plugin_config['project_urls']

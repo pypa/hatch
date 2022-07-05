@@ -14,14 +14,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Support the absence of `pyproject.toml` files, as is the case for apps and non-Python projects
 - Hide scripts that start with an underscore for the `env show` command by default
-- Bump the minimum supported version of Hatchling to 1.4.0
 - When shell configuration has not been defined, attempt to use the current shell based on parent processes before resorting to the defaults
 - The shell name `pwsh` is now an alias for `powershell`
+- Bump the minimum supported version of Hatchling to 1.4.0
 
 ***Fixed:***
 
 - Keep environments in sync with the dependencies of the selected features
 - Use `utf-8` for all files generated for new projects
+- Escape special characters Git may return in the user name when writing generated files for new projects
 - Normalize the package name to lowercase in `setuptools` migration script
 
 ### [1.2.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.2.1) - 2022-05-30 ### {: #hatch-v1.2.1 }
