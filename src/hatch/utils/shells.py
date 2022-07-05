@@ -18,16 +18,19 @@ class ShellManager:
             ]
         )
 
+    def enter_pwsh(self, path, args, exe_dir):
+        self.enter_powershell(path or 'pwsh', args, exe_dir)
+
     def enter_xonsh(self, path, args, exe_dir):
         if self.environment.platform.windows:
             with self.environment:
                 self.environment.platform.exit_with_command(
-                    [path or 'xonsh', '-i', '-D', f'VIRTUAL_ENV={exe_dir.parent.name}']
+                    [path or 'xonsh', *(args or ['-i']), '-D', f'VIRTUAL_ENV={exe_dir.parent.name}']
                 )
         else:
             self.spawn_linux_shell(
                 path or 'xonsh',
-                ['-i', '-D', f'VIRTUAL_ENV={exe_dir.parent.name}'],
+                [*(args or ['-i']), '-D', f'VIRTUAL_ENV={exe_dir.parent.name}'],
                 # Just in case pyenv works with xonsh, supersede it.
                 callback=lambda terminal: terminal.sendline(f'$PATH.insert(0, {str(exe_dir)!r})'),
             )
