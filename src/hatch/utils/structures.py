@@ -4,7 +4,7 @@ from fnmatch import fnmatch
 
 class EnvVars(dict):
     def __init__(self, env_vars=None, include=None, exclude=None):
-        super(EnvVars, self).__init__(os.environ)
+        super().__init__(os.environ)
         self.old_env = dict(self)
 
         if include:

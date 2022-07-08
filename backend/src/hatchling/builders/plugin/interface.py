@@ -163,14 +163,11 @@ class BuilderInterface(ABC):
         - `distribution_path` - the path to be distributed as
         """
         if self.config.only_include:
-            for explicit_file in self.recurse_explicit_files(self.config.only_include):
-                yield explicit_file
+            yield from self.recurse_explicit_files(self.config.only_include)
         else:
-            for project_file in self.recurse_project_files():
-                yield project_file
+            yield from self.recurse_project_files()
 
-        for explicit_file in self.recurse_forced_files(self.config.get_force_include()):
-            yield explicit_file
+        yield from self.recurse_forced_files(self.config.get_force_include())
 
     def recurse_project_files(self) -> Generator[IncludedFile, None, None]:
         for root, dirs, files in safe_walk(self.root):

@@ -21,11 +21,11 @@ class Application(Terminal):
         self.verbose = self.verbosity > 0
 
         # Lazily set these as we acquire more knowledge about the environment
-        self.data_dir: Optional[Path] = None
-        self.cache_dir: Optional[Path] = None
-        self.project: Optional[Project] = None
-        self.env: Optional[str] = None
-        self.env_active: Optional[str] = None
+        self.data_dir: Path | None = None
+        self.cache_dir: Path | None = None
+        self.project: Project | None = None
+        self.env: str | None = None
+        self.env_active: str | None = None
 
     @property
     def plugins(self):

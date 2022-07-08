@@ -12,7 +12,7 @@ except ImportError:
 
 
 def load_toml(path):
-    with open(path, 'r', encoding='utf-8') as f:
+    with open(path, encoding='utf-8') as f:
         return tomllib.loads(f.read())
 
 
@@ -393,7 +393,7 @@ class CoreMetadata:
                 if not os.path.isfile(readme_path):
                     raise OSError(f'Readme file does not exist: {readme}')
 
-                with open(readme_path, 'r', encoding='utf-8') as f:
+                with open(readme_path, encoding='utf-8') as f:
                     self._readme = f.read()
 
                 self._readme_content_type = content_type
@@ -422,7 +422,7 @@ class CoreMetadata:
                     if not os.path.isfile(path):
                         raise OSError(f'Readme file does not exist: {relative_path}')
 
-                    with open(path, 'r', encoding=readme.get('charset', 'utf-8')) as f:
+                    with open(path, encoding=readme.get('charset', 'utf-8')) as f:
                         contents = f.read()
 
                     readme_path = relative_path
@@ -539,7 +539,7 @@ class CoreMetadata:
                     if not os.path.isfile(path):
                         raise OSError(f'License file does not exist: {relative_path}')
 
-                    with open(path, 'r', encoding='utf-8') as f:
+                    with open(path, encoding='utf-8') as f:
                         contents = f.read()
                 elif 'text' in data:
                     contents = data['text']

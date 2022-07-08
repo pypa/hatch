@@ -21,7 +21,7 @@ class CodeSource(VersionSourceInterface):
         if not isinstance(expression, str):
             raise TypeError('option `expression` must be a string')
 
-        with open(path, 'r', encoding='utf-8') as f:
+        with open(path, encoding='utf-8') as f:
             contents = f.read()
 
         # Ensure predefined module attributes are available.

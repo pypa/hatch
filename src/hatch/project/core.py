@@ -129,7 +129,7 @@ class Project:
     def initialize(project_file_path, template_config):
         import tomlkit
 
-        with open(str(project_file_path), 'r', encoding='utf-8') as f:
+        with open(str(project_file_path), encoding='utf-8') as f:
             raw_config = tomlkit.parse(f.read())
 
         # https://github.com/sdispater/tomlkit/issues/49

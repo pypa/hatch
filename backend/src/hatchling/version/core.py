@@ -23,7 +23,7 @@ class VersionFile:
         if not os.path.isfile(self.__path):
             raise OSError(f'file does not exist: {self.__relative_path}')
 
-        with open(self.__path, 'r', encoding='utf-8') as f:
+        with open(self.__path, encoding='utf-8') as f:
             contents = f.read()
 
         if not pattern or pattern is True:

@@ -251,7 +251,7 @@ def setup(**kwargs):
 
     project_file = os.path.join(HERE, 'pyproject.toml')
     if os.path.isfile(project_file):
-        with open(project_file, 'r', encoding='utf-8') as f:
+        with open(project_file, encoding='utf-8') as f:
             old_project_data = tomli.loads(f.read())
             tool_metadata.update(old_project_data.get('tool', {}))
             old_project_data.pop('build-system', None)

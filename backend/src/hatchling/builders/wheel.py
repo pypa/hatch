@@ -122,7 +122,7 @@ class WheelArchive:
 
 class WheelBuilderConfig(BuilderConfig):
     def __init__(self, *args, **kwargs):
-        super(WheelBuilderConfig, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.__include_defined = bool(
             self.target_config.get('include', self.build_config.get('include'))
