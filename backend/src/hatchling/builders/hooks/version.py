@@ -41,9 +41,7 @@ class VersionBuildHook(BuildHookInterface):
         if self.__config_pattern is None:
             pattern = self.config.get('pattern', '')
             if not isinstance(pattern, (str, bool)):
-                raise TypeError(
-                    f'Option `pattern` for build hook `{self.PLUGIN_NAME}` must be a string or boolean'
-                )
+                raise TypeError(f'Option `pattern` for build hook `{self.PLUGIN_NAME}` must be a string or boolean')
 
             self.__config_pattern = pattern
 
