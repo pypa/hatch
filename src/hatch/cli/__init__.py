@@ -199,4 +199,11 @@ hatch.add_command(version)
 
 
 def main():  # no cov
-    return hatch(windows_expand_args=False)
+    try:
+        return hatch(windows_expand_args=False)
+    except Exception:
+        from rich.console import Console
+
+        console = Console()
+        console.print_exception(suppress=[click])
+        return 1
