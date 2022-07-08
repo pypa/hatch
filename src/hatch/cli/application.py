@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from os.path import expanduser, expandvars, isabs
-from typing import Optional
 
 from hatch.cli.terminal import Terminal
 from hatch.config.user import ConfigFile, RootConfig
