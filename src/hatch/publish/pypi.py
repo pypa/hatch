@@ -235,20 +235,23 @@ def get_wheel_form_data(app, artifact):
 
 def get_sdist_form_data(app, artifact):
     import tarfile
+    import os.path
 
     with tarfile.open(str(artifact), 'r:gz') as tar_archive:
-        pkg_info_dir_parts = []
+        # This should be invalid.  Being invalid will trigger a failure below
+        # while attempting to extract the contents.
+        pkg_info_path = "PKG-INFO"
         for tar_info in tar_archive:
             if tar_info.isfile():
-                pkg_info_dir_parts.append(tar_info.name.split('/', 1)[0])
-                break
+                # Find the first instance of PKG-INFO within the tarball.
+                if "PKG-INFO" == os.path.basename(tar_info.name):
+                    pkg_info_path = tar_info.name
+                    break
             else:  # no cov
                 pass
         else:  # no cov
             app.abort(f'Could not find any files in sdist: {artifact}')
 
-        pkg_info_dir_parts.append('PKG-INFO')
-        pkg_info_path = '/'.join(pkg_info_dir_parts)
         try:
             with tar_archive.extractfile(pkg_info_path) as tar_file:
                 metadata_file_contents = tar_file.read().decode('utf-8')
