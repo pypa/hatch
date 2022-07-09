@@ -688,12 +688,12 @@ class BuilderConfig:
 
         # https://git-scm.com/docs/gitignore#_pattern_format
         for exclusion_file in self.vcs_exclusion_files['git']:
-            with open(exclusion_file, 'r', encoding='utf-8') as f:
+            with open(exclusion_file, encoding='utf-8') as f:
                 patterns.extend(f.readlines())
 
         # https://linux.die.net/man/5/hgignore
         for exclusion_file in self.vcs_exclusion_files['hg']:
-            with open(exclusion_file, 'r', encoding='utf-8') as f:
+            with open(exclusion_file, encoding='utf-8') as f:
                 glob_mode = False
                 for line in f:
                     exact_line = line.strip()

@@ -21,7 +21,7 @@ def show(app, envs, force_ascii, as_json):
 
     def set_available_columns(columns):
         if config.get('features'):
-            columns['Features'][i] = '\n'.join(sorted(set(normalize_project_name(f) for f in config['features'])))
+            columns['Features'][i] = '\n'.join(sorted({normalize_project_name(f) for f in config['features']}))
 
         if config.get('dependencies'):
             columns['Dependencies'][i] = '\n'.join(get_normalized_dependencies(config['dependencies']))

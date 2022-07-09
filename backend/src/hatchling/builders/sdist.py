@@ -78,7 +78,7 @@ class SdistArchive:
 
 class SdistBuilderConfig(BuilderConfig):
     def __init__(self, *args, **kwargs):
-        super(SdistBuilderConfig, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.__core_metadata_constructor = None
         self.__support_legacy = None

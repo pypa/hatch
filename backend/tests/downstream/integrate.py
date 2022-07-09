@@ -31,7 +31,7 @@ def handle_remove_readonly(func, path, exc):  # no cov
 
 class EnvVars(dict):
     def __init__(self, env_vars=None, ignore=None):
-        super(EnvVars, self).__init__(os.environ)
+        super().__init__(os.environ)
         self.old_env = dict(self)
 
         if env_vars is not None:
@@ -87,7 +87,7 @@ def main():
 
         # Increment the minor version
         version_file = os.path.join(backend_path, 'src', 'hatchling', '__about__.py')
-        with open(version_file, 'r') as f:
+        with open(version_file) as f:
             lines = f.readlines()
 
         for i, line in enumerate(lines):
@@ -136,14 +136,14 @@ def main():
 
             # Not yet ported
             if os.path.isfile(potential_project_file):
-                with open(potential_project_file, 'r') as f:
+                with open(potential_project_file) as f:
                     project_config.update(tomli.loads(f.read()))
 
                 if not python_version_supported(project_config):
                     print('--> Unsupported version of Python, skipping')
                     continue
 
-            with open(os.path.join(project_dir, 'data.json'), 'r') as f:
+            with open(os.path.join(project_dir, 'data.json')) as f:
                 test_data = json.loads(f.read())
 
             with temp_dir() as d:
@@ -171,7 +171,7 @@ def main():
                     if not os.path.isfile(project_file):
                         sys.exit('--> Missing file: pyproject.toml')
 
-                    with open(project_file, 'r') as f:
+                    with open(project_file) as f:
                         project_config.update(tomli.loads(f.read()))
 
                     for requirement in project_config.get('build-system', {}).get('requires', []):

@@ -17,9 +17,9 @@ class VersionBuildHook(BuildHookInterface):
         if self.__config_path is None:
             path = self.config.get('path', '')
             if not isinstance(path, str):
-                raise TypeError('Option `path` for build hook `{}` must be a string'.format(self.PLUGIN_NAME))
+                raise TypeError(f'Option `path` for build hook `{self.PLUGIN_NAME}` must be a string')
             elif not path:
-                raise ValueError('Option `path` for build hook `{}` is required'.format(self.PLUGIN_NAME))
+                raise ValueError(f'Option `path` for build hook `{self.PLUGIN_NAME}` is required')
 
             self.__config_path = path
 
@@ -30,7 +30,7 @@ class VersionBuildHook(BuildHookInterface):
         if self.__config_template is None:
             template = self.config.get('template', '')
             if not isinstance(template, str):
-                raise TypeError('Option `template` for build hook `{}` must be a string'.format(self.PLUGIN_NAME))
+                raise TypeError(f'Option `template` for build hook `{self.PLUGIN_NAME}` must be a string')
 
             self.__config_template = template
 
@@ -41,9 +41,7 @@ class VersionBuildHook(BuildHookInterface):
         if self.__config_pattern is None:
             pattern = self.config.get('pattern', '')
             if not isinstance(pattern, (str, bool)):
-                raise TypeError(
-                    'Option `pattern` for build hook `{}` must be a string or boolean'.format(self.PLUGIN_NAME)
-                )
+                raise TypeError(f'Option `pattern` for build hook `{self.PLUGIN_NAME}` must be a string or boolean')
 
             self.__config_pattern = pattern
 
@@ -57,4 +55,4 @@ class VersionBuildHook(BuildHookInterface):
         else:
             version_file.write(self.metadata.version, self.config_template)
 
-        build_data['artifacts'].append('/{}'.format(self.config_path))
+        build_data['artifacts'].append(f'/{self.config_path}')

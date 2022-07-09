@@ -228,7 +228,7 @@ def get_wheel_form_data(app, artifact):
     # cryptography-3.4.7-pp37-pypy37_pp73-manylinux2014_x86_64.whl -> pp37
     # hatchling-1rc1-py2.py3-none-any.whl -> py2.py3
     tag_component = '-'.join(artifact.stem.split('-')[-3:])
-    data['pyversion'] = '.'.join(sorted(set(tag.interpreter for tag in parse_tag(tag_component))))
+    data['pyversion'] = '.'.join(sorted({tag.interpreter for tag in parse_tag(tag_component)}))
 
     return data
 

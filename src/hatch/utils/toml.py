@@ -9,5 +9,5 @@ def load_toml_data(data):
 
 
 def load_toml_file(path):
-    with open(path, 'r', encoding='utf-8') as f:
+    with open(path, encoding='utf-8') as f:
         return tomllib.loads(f.read())
