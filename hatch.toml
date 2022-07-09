@@ -27,17 +27,19 @@ python = ["37", "38", "39", "310"]
 [envs.lint]
 detached = true
 dependencies = [
+  "bandit>=1.7.4",
+  "black>=22.3.0",
   "flake8>=4.0.1",
   "flake8-bugbear>=22.3.23",
   "flake8-quotes>=3.3.1",
   "flake8-tidy-imports>=4.8.0",
-  "black>=22.3.0",
   "isort>=5.10.1",
   "mypy>=0.942",
 ]
 [envs.lint.scripts]
 typing = "mypy --install-types --non-interactive {args:backend/src/hatchling src/hatch tests}"
 style = [
+  "bandit --recursive --skip B101,B102,B105,B110,B112,B301,B307,B324,B403,B404,B603,B604,B606,B607 {args:.}",
   "flake8 {args:.}",
   "black --check --diff {args:.}",
   "isort --check-only --diff {args:.}",

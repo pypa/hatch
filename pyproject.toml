@@ -86,6 +86,10 @@ show_column_numbers = true
 warn_no_return = false
 warn_unused_ignores = true
 
+[tool.bandit]
+recursive = true
+skip = ["B101", "B102", "B105", "B110", "B112", "B301", "B307", "B324", "B403", "B404", "B603", "B604", "B606", "B607"]
+
 [tool.black]
 include = '\.pyi?$'
 line-length = 120
