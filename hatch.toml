@@ -38,8 +38,8 @@ dependencies = [
 ]
 [envs.lint.scripts]
 typing = "mypy --install-types --non-interactive {args:backend/src/hatchling src/hatch tests}"
+security = "bandit --quiet --recursive --skip B101,B102,B105,B110,B112,B301,B307,B324,B403,B404,B603,B604,B606,B607 {args:.}"
 style = [
-  "bandit --recursive --skip B101,B102,B105,B110,B112,B301,B307,B324,B403,B404,B603,B604,B606,B607 {args:.}",
   "flake8 {args:.}",
   "black --check --diff {args:.}",
   "isort --check-only --diff {args:.}",
@@ -52,6 +52,7 @@ fmt = [
 all = [
   "style",
   "typing",
+  "security",
 ]
 
 [envs.docs]
