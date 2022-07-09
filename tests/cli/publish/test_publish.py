@@ -20,6 +20,14 @@ pytestmark = [
 
 
 @pytest.fixture(autouse=True)
+def local_builder(mock_backend_process, mocker):
+    if mock_backend_process:
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.build_environment')
+
+    yield
+
+
+@pytest.fixture(autouse=True)
 def keyring_store(mocker):
     mock_store = defaultdict(dict)
     mocker.patch('keyring.get_password', side_effect=lambda system, user: mock_store[system].get(user))
@@ -470,7 +478,7 @@ class TestSourceDistribution:
         metadata_file_path.write_text(remove_metadata_field(field, metadata_file_path.read_text()))
 
         with tarfile.open(artifact_path, 'w:gz') as tar_archive:
-            tar_archive.add(extraction_directory)
+            tar_archive.add(extraction_directory, arcname='')
 
         with path.as_cwd():
             result = hatch('publish', '--user', '__token__', '--auth', 'foo')
