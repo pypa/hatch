@@ -2499,6 +2499,22 @@ class TestScripts:
             'bar': ['command4', 'command3', 'command2'],
         }
 
+    def test_command_expansion_multiple_nested_ignore_exit_code(self, isolation):
+        config = {
+            'scripts': {
+                'foo': 'command3',
+                'baz': ['command5', '- bar', 'foo', 'command1'],
+                'bar': ['command4', '- foo', 'command2'],
+            }
+        }
+        project_config = ProjectConfig(isolation, config)
+
+        assert project_config.scripts == {
+            'foo': ['command3'],
+            'baz': ['command5', '- command4', '- command3', '- command2', 'command3', 'command1'],
+            'bar': ['command4', '- command3', 'command2'],
+        }
+
     def test_command_expansion_modification(self, isolation):
         config = {
             'scripts': {

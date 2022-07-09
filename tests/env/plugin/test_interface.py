@@ -745,6 +745,27 @@ class TestScripts:
             'bar': ['command4', 'command3', 'command2'],
         }
 
+    def test_command_expansion_multiple_nested_ignore_exit_code(self, isolation, data_dir, platform):
+        script_config = {
+            'foo': 'command3',
+            'baz': ['command5', '- bar', 'foo', 'command1'],
+            'bar': ['command4', '- foo', 'command2'],
+        }
+        config = {
+            'project': {'name': 'my_app', 'version': '0.0.1'},
+            'tool': {'hatch': {'envs': {'default': {'scripts': script_config}}}},
+        }
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation, project.metadata, 'default', project.config.envs['default'], {}, data_dir, platform, 0
+        )
+
+        assert environment.scripts == {
+            'foo': ['command3'],
+            'baz': ['command5', '- command4', '- command3', '- command2', 'command3', 'command1'],
+            'bar': ['command4', '- command3', 'command2'],
+        }
+
     def test_command_expansion_modification(self, isolation, data_dir, platform):
         script_config = {
             'foo': 'command3',

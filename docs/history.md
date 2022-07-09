@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Support the absence of `pyproject.toml` files, as is the case for apps and non-Python projects
 - Hide scripts that start with an underscore for the `env show` command by default
+- Ignoring the exit codes of commands by prefixing with hyphens now works with entire named scripts
 - Make tracebacks colorful and less verbose
 - When shell configuration has not been defined, attempt to use the current shell based on parent processes before resorting to the defaults
 - The shell name `pwsh` is now an alias for `powershell`

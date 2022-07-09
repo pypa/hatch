@@ -8,6 +8,7 @@ from os.path import isabs
 
 from hatch.config.constants import AppEnvVars
 from hatch.env.utils import add_verbosity_flag
+from hatch.project.utils import format_script_commands
 from hatch.utils.structures import EnvVars
 
 
@@ -862,13 +863,20 @@ def expand_script_commands(env_name, script_name, commands, config, seen, active
 
     for command in commands:
         possible_script, _, remaining = command.partition(' ')
+        if possible_script == '-':
+            ignore_exit_code = True
+            possible_script, _, remaining = remaining.partition(' ')
+        else:
+            ignore_exit_code = False
 
         if possible_script in config:
-            cmds = expand_script_commands(env_name, possible_script, config[possible_script], config, seen, active)
-            if remaining:
-                expanded_commands.extend(f'{cmd} {remaining}' for cmd in cmds)
-            else:
-                expanded_commands.extend(cmds)
+            expanded_commands.extend(
+                format_script_commands(
+                    expand_script_commands(env_name, possible_script, config[possible_script], config, seen, active),
+                    ignore_exit_code,
+                    remaining,
+                )
+            )
         else:
             expanded_commands.append(command)
 
