@@ -23,14 +23,12 @@ class ConfigFile:
 
     def save(self, content=None):
         import tomli_w
-        from atomicwrites import atomic_write
 
         if not content:
-            content = tomli_w.dumps(self.model.raw_data).encode('utf-8')
+            content = tomli_w.dumps(self.model.raw_data)
 
         self.path.ensure_parent_dir_exists()
-        with atomic_write(str(self.path), mode='wb', overwrite=True) as f:
-            f.write(content)
+        self.path.write_atomic(content, 'w')
 
     def load(self):
         self.model = RootConfig(load_toml_data(self.read()))
@@ -51,7 +49,7 @@ class ConfigFile:
         config = RootConfig({})
         config.parse_fields()
 
-        content = tomli_w.dumps(config.raw_data).encode('utf-8')
+        content = tomli_w.dumps(config.raw_data)
         self.save(content)
 
         self.model = config

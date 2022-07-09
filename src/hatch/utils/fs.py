@@ -35,6 +35,17 @@ class Path(_PathBase):
 
             shutil.rmtree(self, ignore_errors=False)
 
+    def write_atomic(self, data: str | bytes, *args, **kwargs) -> None:
+        from tempfile import mkstemp
+
+        fd, path = mkstemp(dir=self.parent)
+        with os.fdopen(fd, *args, **kwargs) as f:
+            f.write(data)
+            f.flush()
+            os.fsync(fd)
+
+        os.replace(path, self)
+
     @contextmanager
     def as_cwd(self, *args, **kwargs) -> Generator[Path, None, None]:
         origin = os.getcwd()
