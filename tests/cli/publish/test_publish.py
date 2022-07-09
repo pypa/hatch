@@ -20,6 +20,14 @@ pytestmark = [
 
 
 @pytest.fixture(autouse=True)
+def local_builder(mock_backend_process, mocker):
+    if mock_backend_process:
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.build_environment')
+
+    yield
+
+
+@pytest.fixture(autouse=True)
 def keyring_store(mocker):
     mock_store = defaultdict(dict)
     mocker.patch('keyring.get_password', side_effect=lambda system, user: mock_store[system].get(user))
