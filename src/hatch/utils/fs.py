@@ -15,6 +15,17 @@ if sys.platform == 'win32':
 else:
     _PathBase = pathlib.PosixPath
 
+disk_sync = os.fsync
+# https://mjtsai.com/blog/2022/02/17/apple-ssd-benchmarks-and-f_fullsync/
+# https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/fsync.2.html
+if sys.platform == 'darwin':
+    import fcntl
+
+    if hasattr(fcntl, 'F_FULLFSYNC'):
+
+        def disk_sync(fd):
+            fcntl.fcntl(fd, fcntl.F_FULLFSYNC)
+
 
 class Path(_PathBase):
     def ensure_dir_exists(self):
@@ -34,6 +45,17 @@ class Path(_PathBase):
             import shutil
 
             shutil.rmtree(self, ignore_errors=False)
+
+    def write_atomic(self, data: str | bytes, *args, **kwargs) -> None:
+        from tempfile import mkstemp
+
+        fd, path = mkstemp(dir=self.parent)
+        with os.fdopen(fd, *args, **kwargs) as f:
+            f.write(data)
+            f.flush()
+            disk_sync(fd)
+
+        os.replace(path, self)
 
     @contextmanager
     def as_cwd(self, *args, **kwargs) -> Generator[Path, None, None]:

@@ -38,7 +38,6 @@ classifiers = [
   "Topic :: Software Development :: Build Tools",
 ]
 dependencies = [
-  "atomicwrites~=1.4",
   "click>=8.0.3",
   "hatchling>=1.4.1",
   "httpx>=0.22.0",
