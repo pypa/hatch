@@ -15,7 +15,7 @@ PUBLISHER_TOKEN = os.environ.get('HATCH_CI_PUBLISHER_TOKEN')
 
 pytestmark = [
     pytest.mark.skipif(not PUBLISHER_TOKEN, reason='Publishing tests are only executed within CI environments'),
-    pytest.mark.xfail(reason='Test PyPI can be flaky'),
+    # pytest.mark.xfail(reason='Test PyPI can be flaky'),
 ]
 
 
@@ -470,7 +470,7 @@ class TestSourceDistribution:
         metadata_file_path.write_text(remove_metadata_field(field, metadata_file_path.read_text()))
 
         with tarfile.open(artifact_path, 'w:gz') as tar_archive:
-            tar_archive.add(extraction_directory)
+            tar_archive.add(extraction_directory, arcname='')
 
         with path.as_cwd():
             result = hatch('publish', '--user', '__token__', '--auth', 'foo')

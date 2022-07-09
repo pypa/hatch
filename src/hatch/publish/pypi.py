@@ -240,7 +240,7 @@ def get_sdist_form_data(app, artifact):
         pkg_info_dir_parts = []
         for tar_info in tar_archive:
             if tar_info.isfile():
-                pkg_info_dir_parts.extend(tar_info.name.split('/')[:-1])
+                pkg_info_dir_parts.append(tar_info.name.split('/', 1)[0])
                 break
             else:  # no cov
                 pass
