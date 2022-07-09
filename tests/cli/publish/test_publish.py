@@ -15,7 +15,7 @@ PUBLISHER_TOKEN = os.environ.get('HATCH_CI_PUBLISHER_TOKEN')
 
 pytestmark = [
     pytest.mark.skipif(not PUBLISHER_TOKEN, reason='Publishing tests are only executed within CI environments'),
-    # pytest.mark.xfail(reason='Test PyPI can be flaky'),
+    pytest.mark.xfail(reason='Test PyPI can be flaky'),
 ]
 
 
