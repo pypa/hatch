@@ -28,7 +28,7 @@ class ConfigFile:
             content = tomli_w.dumps(self.model.raw_data)
 
         self.path.ensure_parent_dir_exists()
-        self.path.write_atomic(content, 'w')
+        self.path.write_atomic(content, 'w', encoding='utf-8')
 
     def load(self):
         self.model = RootConfig(load_toml_data(self.read()))
