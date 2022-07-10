@@ -192,6 +192,10 @@ class Terminal:
     def prompt(text, **kwargs):
         return click.prompt(text, **kwargs)
 
+    @staticmethod
+    def confirm(text, **kwargs):
+        return click.confirm(text, **kwargs)
+
 
 class MockStatus:
     def stop(self):

@@ -11,4 +11,5 @@
       - cache_dir
       - project_config
       - plugin_config
+      - disable
       - publish

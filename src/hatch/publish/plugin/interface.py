@@ -42,6 +42,8 @@ class PublisherInterface(ABC):
         self.__project_config = project_config
         self.__plugin_config = plugin_config
 
+        self.__disable = None
+
     @property
     def app(self):
         """
@@ -92,6 +94,30 @@ class PublisherInterface(ABC):
             ```
         """
         return self.__plugin_config
+
+    @property
+    def disable(self):
+        """
+        Whether this plugin is disabled, thus requiring confirmation when publishing. Local
+        [project configuration](reference.md#hatch.publish.plugin.interface.PublisherInterface.project_config)
+        takes precedence over global
+        [plugin configuration](reference.md#hatch.publish.plugin.interface.PublisherInterface.plugin_config).
+        """
+        if self.__disable is None:
+            if 'disable' in self.project_config:
+                disable = self.project_config['disable']
+                if not isinstance(disable, bool):
+                    raise TypeError(f'Field `tool.hatch.publish.{self.PLUGIN_NAME}.disable` must be a boolean')
+            else:
+                disable = self.plugin_config.get('disable', False)
+                if not isinstance(disable, bool):
+                    raise TypeError(
+                        f'Global plugin configuration `publish.{self.PLUGIN_NAME}.disable` must be a boolean'
+                    )
+
+            self.__disable = disable
+
+        return self.__disable
 
     @abstractmethod
     def publish(self, artifacts: list[str], options: dict):

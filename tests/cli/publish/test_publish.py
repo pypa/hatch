@@ -130,6 +130,25 @@ def test_unknown_publisher(hatch, temp_dir):
     assert result.output == 'Unknown publisher: foo\n'
 
 
+def test_disabled(hatch, temp_dir, config_file):
+    config_file.model.publish['pypi']['disable'] = True
+    config_file.save()
+
+    project_name = 'My App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+        assert result.exit_code == 0, result.output
+
+    path = temp_dir / 'my-app'
+
+    with path.as_cwd():
+        result = hatch('publish', '-n')
+
+    assert result.exit_code == 1, result.output
+    assert result.output == 'Publisher is disabled: pypi\n'
+
+
 def test_missing_user(hatch, temp_dir):
     project_name = 'My App'
 
@@ -402,6 +421,87 @@ def test_no_artifacts(hatch, temp_dir_cache, helpers, published_project_name):
     assert result.output == helpers.dedent(
         """
         No artifacts found
+        """
+    )
+
+
+def test_enable_with_flag(hatch, temp_dir_cache, helpers, published_project_name, config_file):
+    config_file.model.publish['pypi']['user'] = '__token__'
+    config_file.model.publish['pypi']['auth'] = PUBLISHER_TOKEN
+    config_file.model.publish['pypi']['repo'] = 'test'
+    config_file.model.publish['pypi']['disable'] = True
+    config_file.save()
+
+    with temp_dir_cache.as_cwd():
+        result = hatch('new', published_project_name)
+        assert result.exit_code == 0, result.output
+
+    path = temp_dir_cache / published_project_name
+
+    with path.as_cwd():
+        del os.environ[PublishEnvVars.REPO]
+
+        current_version = timestamp_to_version(helpers.get_current_timestamp())
+        result = hatch('version', current_version)
+        assert result.exit_code == 0, result.output
+
+        result = hatch('build')
+        assert result.exit_code == 0, result.output
+
+        build_directory = path / 'dist'
+        artifacts = list(build_directory.iterdir())
+
+        result = hatch('publish', '-y')
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        f"""
+        {artifacts[0].relative_to(path)} ... success
+        {artifacts[1].relative_to(path)} ... success
+
+        [{published_project_name}]
+        https://test.pypi.org/project/{published_project_name}/{current_version}/
+        """
+    )
+
+
+def test_enable_with_prompt(hatch, temp_dir_cache, helpers, published_project_name, config_file):
+    config_file.model.publish['pypi']['user'] = '__token__'
+    config_file.model.publish['pypi']['auth'] = PUBLISHER_TOKEN
+    config_file.model.publish['pypi']['repo'] = 'test'
+    config_file.model.publish['pypi']['disable'] = True
+    config_file.save()
+
+    with temp_dir_cache.as_cwd():
+        result = hatch('new', published_project_name)
+        assert result.exit_code == 0, result.output
+
+    path = temp_dir_cache / published_project_name
+
+    with path.as_cwd():
+        del os.environ[PublishEnvVars.REPO]
+
+        current_version = timestamp_to_version(helpers.get_current_timestamp())
+        result = hatch('version', current_version)
+        assert result.exit_code == 0, result.output
+
+        result = hatch('build')
+        assert result.exit_code == 0, result.output
+
+        build_directory = path / 'dist'
+        artifacts = list(build_directory.iterdir())
+
+        result = hatch('publish', input='y\n')
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        f"""
+        Confirm `pypi` publishing [y/N]: y
+        {artifacts[0].relative_to(path)} ... success
+        {artifacts[1].relative_to(path)} ... success
+
+        [{published_project_name}]
+        https://test.pypi.org/project/{published_project_name}/{current_version}/
         """
     )
 
