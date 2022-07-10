@@ -22,8 +22,8 @@ MULTIPLE_USE_METADATA_FIELDS = {
 RENAMED_METADATA_FIELDS = {'classifier': 'classifiers', 'project_url': 'project_urls'}
 
 
-class PyPIPublisher(PublisherInterface):
-    PLUGIN_NAME = 'pypi'
+class IndexPublisher(PublisherInterface):
+    PLUGIN_NAME = 'index'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

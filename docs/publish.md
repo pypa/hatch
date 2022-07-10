@@ -4,7 +4,7 @@
 
 After your project is [built](build.md), you can distribute it using the [`publish`](cli/reference.md#hatch-publish) command.
 
-The `-p`/`--publisher` option controls which publisher to use, with the default being [pypi](plugins/publisher/pypi.md).
+The `-p`/`--publisher` option controls which publisher to use, with the default being [index](plugins/publisher/index.md).
 
 ## Artifact selection
 
@@ -29,14 +29,14 @@ Only files ending with `.whl` or `.tar.gz` will be published.
 
 ## Repository
 
-You can select the repository (package index) with which to upload using the `-r`/`--repo` option or by setting the `HATCH_PYPI_REPO` environment variable.
+You can select the repository with which to upload using the `-r`/`--repo` option or by setting the `HATCH_INDEX_REPO` environment variable.
 
-Rather than specifying the full URL of a repository, you can use a named repository from a `publish.pypi.repos` table defined in Hatch's [config file](config/hatch.md):
+Rather than specifying the full URL of a repository, you can use a named repository from a `publish.index.repos` table defined in Hatch's [config file](config/hatch.md):
 
 === ":octicons-file-code-16: config.toml"
 
     ```toml
-    [publish.pypi.repos]
+    [publish.index.repos]
     repo1 = "url1"
     ...
     ```
@@ -52,7 +52,7 @@ The `main` repository is used by default.
 
 ## Authentication
 
-The first time you publish to a repository you need to authenticate using the `-u`/`--user` (environment variable `HATCH_PYPI_USER`) and `-a`/`--auth` (environment variable `HATCH_PYPI_AUTH`) options. You will be prompted if either option is not provided.
+The first time you publish to a repository you need to authenticate using the `-u`/`--user` (environment variable `HATCH_INDEX_USER`) and `-a`/`--auth` (environment variable `HATCH_INDEX_AUTH`) options. You will be prompted if either option is not provided.
 
 The user that most recently published to the chosen repository is [cached](config/hatch.md#cache), with their credentials saved to the system [keyring](https://github.com/jaraco/keyring), so that they will no longer need to provide authentication information.
 
@@ -65,20 +65,20 @@ You can require a confirmation prompt or use of the `-y`/`--yes` flag by setting
 === ":octicons-file-code-16: config.toml"
 
     ```toml
-    [publish.pypi]
+    [publish.index]
     disable = true
     ```
 
 === ":octicons-file-code-16: pyproject.toml"
 
     ```toml
-    [tool.hatch.publish.pypi]
+    [tool.hatch.publish.index]
     disable = true
     ```
 
 === ":octicons-file-code-16: hatch.toml"
 
     ```toml
-    [publish.pypi]
+    [publish.index]
     disable = true
     ```

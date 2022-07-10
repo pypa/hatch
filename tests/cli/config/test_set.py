@@ -64,19 +64,19 @@ def test_standard_complex_map(hatch, config_file, helpers):
 
 
 def test_standard_hidden(hatch, config_file, helpers):
-    result = hatch('config', 'set', 'publish.pypi.auth', 'foo')
+    result = hatch('config', 'set', 'publish.index.auth', 'foo')
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
         """
         New setting:
-        [publish.pypi]
+        [publish.index]
         auth = "<...>"
         """
     )
 
     config_file.load()
-    assert config_file.model.publish['pypi']['auth'] == 'foo'
+    assert config_file.model.publish['index']['auth'] == 'foo'
 
 
 def test_prompt(hatch, config_file, helpers):
@@ -96,20 +96,20 @@ def test_prompt(hatch, config_file, helpers):
 
 
 def test_prompt_hidden(hatch, config_file, helpers):
-    result = hatch('config', 'set', 'publish.pypi.auth', input='foo')
+    result = hatch('config', 'set', 'publish.index.auth', input='foo')
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
         f"""
-        Value for `publish.pypi.auth`:{' '}
+        Value for `publish.index.auth`:{' '}
         New setting:
-        [publish.pypi]
+        [publish.index]
         auth = "<...>"
         """
     )
 
     config_file.load()
-    assert config_file.model.publish['pypi']['auth'] == 'foo'
+    assert config_file.model.publish['index']['auth'] == 'foo'
 
 
 def test_prevent_invalid_config(hatch, config_file, helpers):
