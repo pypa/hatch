@@ -50,8 +50,9 @@ def filter_environments(environments, filter_data):
 @click.option('--include', '-i', 'included_variable_specs', multiple=True, help='The matrix variables to include')
 @click.option('--exclude', '-x', 'excluded_variable_specs', multiple=True, help='The matrix variables to exclude')
 @click.option('--filter', '-f', 'filter_json', help='The JSON data used to select environments')
+@click.option('--force-continue', help='Run every command and if there were any errors exit with the first code')
 @click.pass_obj
-def run(app, args, env_names, included_variable_specs, excluded_variable_specs, filter_json):
+def run(app, args, env_names, included_variable_specs, excluded_variable_specs, filter_json, force_continue):
     """
     Run commands within project environments.
 
@@ -169,7 +170,12 @@ def run(app, args, env_names, included_variable_specs, excluded_variable_specs, 
                 environment.exists = lambda: True
 
             app.prepare_environment(environment)
-            app.run_shell_commands(environment, [environment.join_command_args(args)], show_code_on_error=False)
+            app.run_shell_commands(
+                environment,
+                [environment.join_command_args(args)],
+                force_continue=force_continue,
+                show_code_on_error=False,
+            )
 
     if incompatible:
         num_incompatible = len(incompatible)

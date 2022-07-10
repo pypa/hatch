@@ -90,28 +90,38 @@ class Application(Terminal):
             with self.status_waiting('Syncing dependencies'):
                 environment.sync_dependencies()
 
-    def run_shell_commands(self, environment, commands: list[str], source='cmd', show_code_on_error=True):
+    def run_shell_commands(
+        self, environment, commands: list[str], source='cmd', force_continue=False, show_code_on_error=True
+    ):
         with environment.command_context():
             try:
                 resolved_commands = list(environment.resolve_commands(commands))
             except Exception as e:
                 self.abort(str(e))
 
+            first_error_code = None
             should_display_command = self.verbose or len(resolved_commands) > 1
             for i, command in enumerate(resolved_commands, 1):
                 if should_display_command:
                     self.display_always(f'{source} [{i}] | {command}')
 
-                if command.startswith('-'):
-                    environment.run_shell_command(command[1:].strip())
-                    continue
+                continue_on_error = force_continue
+                if command.startswith('- '):
+                    continue_on_error = True
+                    command = command[2:]
 
                 process = environment.run_shell_command(command)
                 if process.returncode:
-                    if show_code_on_error:
+                    first_error_code = first_error_code or process.returncode
+                    if continue_on_error:
+                        continue
+                    elif show_code_on_error:
                         self.abort(f'Failed with exit code: {process.returncode}', code=process.returncode)
                     else:
                         self.abort(code=process.returncode)
+
+            if first_error_code and force_continue:
+                self.abort(code=first_error_code)
 
     def get_env_directory(self, environment_type):
         directories = self.config.dirs.env
