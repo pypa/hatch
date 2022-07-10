@@ -20,7 +20,7 @@ from hatch.config.constants import PublishEnvVars
     envvar=PublishEnvVars.REPO,
     help='The repository with which to publish artifacts [env var: `HATCH_PYPI_REPO`]',
 )
-@click.option('--no-prompt', '-n', is_flag=True, help='Do not prompt for missing required fields')
+@click.option('--no-prompt', '-n', is_flag=True, help='Disable prompts, such as for missing required fields')
 @click.option(
     '--publisher',
     '-p',
@@ -40,8 +40,9 @@ from hatch.config.constants import PublishEnvVars
         'times e.g. `-o foo=bar -o baz=23` [env var: `HATCH_PUBLISHER_OPTIONS`]'
     ),
 )
+@click.option('--yes', '-y', is_flag=True, help='Confirm without prompting when the plugin is disabled')
 @click.pass_obj
-def publish(app, artifacts, user, auth, repo, no_prompt, publisher_name, options):
+def publish(app, artifacts, user, auth, repo, no_prompt, publisher_name, options, yes):
     """Publish build artifacts."""
     option_map = {'no_prompt': no_prompt}
     if publisher_name == 'pypi':
@@ -70,4 +71,7 @@ def publish(app, artifacts, user, auth, repo, no_prompt, publisher_name, options
         app.project.config.publish.get(publisher_name, {}),
         app.config.publish.get(publisher_name, {}),
     )
+    if publisher.disable and not (yes or (not no_prompt and app.confirm(f'Confirm `{publisher_name}` publishing'))):
+        app.abort(f'Publisher is disabled: {publisher_name}')
+
     publisher.publish(list(artifacts), option_map)

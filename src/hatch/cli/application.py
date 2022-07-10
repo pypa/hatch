@@ -156,4 +156,5 @@ class SafeApplication:
         self.display_mini_header = app.display_mini_header
         # Divergence from what the backend provides
         self.prompt = app.prompt
+        self.confirm = app.confirm
         self.status_waiting = app.status_waiting

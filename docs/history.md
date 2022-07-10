@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Support the absence of `pyproject.toml` files, as is the case for apps and non-Python projects
 - Hide scripts that start with an underscore for the `env show` command by default
 - Ignoring the exit codes of commands by prefixing with hyphens now works with entire named scripts
+- Add a way to require confirmation for publishing
 - Add `--force-continue` flag to the `env run` command
 - Make tracebacks colorful and less verbose
 - When shell configuration has not been defined, attempt to use the current shell based on parent processes before resorting to the defaults
