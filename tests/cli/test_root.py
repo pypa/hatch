@@ -2,6 +2,7 @@ import os
 
 from hatch.config.constants import ConfigEnvVars
 from hatch.config.user import ConfigFile
+from hatch.utils.structures import EnvVars
 
 
 class TestFreshInstallation:
@@ -11,19 +12,21 @@ Success! Please see `hatch config`.
 """
 
     def test_config_file_creation_default(self, hatch):
-        os.environ.pop(ConfigEnvVars.CONFIG, None)
-        with ConfigFile.get_default_location().temp_hide():
-            result = hatch()
-            assert self.INSTALL_MESSAGE not in result.output
+        with EnvVars():
+            os.environ.pop(ConfigEnvVars.CONFIG, None)
+            with ConfigFile.get_default_location().temp_hide():
+                result = hatch()
+                assert self.INSTALL_MESSAGE not in result.output
 
     def test_config_file_creation_verbose(self, hatch):
-        os.environ.pop(ConfigEnvVars.CONFIG, None)
-        with ConfigFile.get_default_location().temp_hide():
-            result = hatch('-v')
-            assert self.INSTALL_MESSAGE in result.output
+        with EnvVars():
+            os.environ.pop(ConfigEnvVars.CONFIG, None)
+            with ConfigFile.get_default_location().temp_hide():
+                result = hatch('-v')
+                assert self.INSTALL_MESSAGE in result.output
 
-            result = hatch('-v')
-            assert self.INSTALL_MESSAGE not in result.output
+                result = hatch('-v')
+                assert self.INSTALL_MESSAGE not in result.output
 
 
 def test_no_subcommand_shows_help(hatch):
