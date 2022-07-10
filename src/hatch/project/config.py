@@ -4,7 +4,7 @@ from os import environ
 
 from hatch.env.utils import ensure_valid_environment
 from hatch.project.env import apply_overrides
-from hatch.project.utils import format_script_commands
+from hatch.project.utils import format_script_commands, parse_script_command
 
 
 class ProjectConfig:
@@ -378,19 +378,14 @@ def expand_script_commands(script_name, commands, config, seen, active):
     expanded_commands = []
 
     for command in commands:
-        possible_script, _, remaining = command.partition(' ')
-        if possible_script == '-':
-            ignore_exit_code = True
-            possible_script, _, remaining = remaining.partition(' ')
-        else:
-            ignore_exit_code = False
+        possible_script, args, ignore_exit_code = parse_script_command(command)
 
         if possible_script in config:
             expanded_commands.extend(
                 format_script_commands(
                     expand_script_commands(possible_script, config[possible_script], config, seen, active),
+                    args,
                     ignore_exit_code,
-                    remaining,
                 )
             )
         else:

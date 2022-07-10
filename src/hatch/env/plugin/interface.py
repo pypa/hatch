@@ -8,7 +8,7 @@ from os.path import isabs
 
 from hatch.config.constants import AppEnvVars
 from hatch.env.utils import add_verbosity_flag
-from hatch.project.utils import format_script_commands
+from hatch.project.utils import format_script_commands, parse_script_command
 from hatch.utils.structures import EnvVars
 
 
@@ -713,18 +713,18 @@ class EnvironmentInterface(ABC):
             yield from self.expand_command(command)
 
     def expand_command(self, command):
-        possible_script, _, remaining = command.partition(' ')
+        possible_script, args, ignore_exit_code = parse_script_command(command)
 
         # Indicate undefined
-        if not remaining:
-            remaining = None
+        if not args:
+            args = None
 
         with self.metadata.context.apply_context(self.context):
             if possible_script in self.scripts:
                 for cmd in self.scripts[possible_script]:
-                    yield self.metadata.context.format(cmd, args=remaining).strip()
+                    yield self.metadata.context.format(cmd, args=args).strip()
             else:
-                yield self.metadata.context.format(command, args=remaining).strip()
+                yield self.metadata.context.format(command, args=args).strip()
 
     def construct_build_command(
         self,
@@ -862,19 +862,14 @@ def expand_script_commands(env_name, script_name, commands, config, seen, active
     expanded_commands = []
 
     for command in commands:
-        possible_script, _, remaining = command.partition(' ')
-        if possible_script == '-':
-            ignore_exit_code = True
-            possible_script, _, remaining = remaining.partition(' ')
-        else:
-            ignore_exit_code = False
+        possible_script, args, ignore_exit_code = parse_script_command(command)
 
         if possible_script in config:
             expanded_commands.extend(
                 format_script_commands(
                     expand_script_commands(env_name, possible_script, config[possible_script], config, seen, active),
+                    args,
                     ignore_exit_code,
-                    remaining,
                 )
             )
         else:
