@@ -49,7 +49,7 @@ dependencies = [
   "shellingham>=1.4.0",
   "tomli-w>=1.0",
   "tomlkit>=0.10.1",
-  "userpath~=1.8",
+  "userpath~=1.7",
   "virtualenv>=20.13.1",
 ]
 dynamic = ["version"]

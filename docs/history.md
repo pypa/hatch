@@ -25,6 +25,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - When shell configuration has not been defined, attempt to use the current shell based on parent processes before resorting to the defaults
 - The shell name `pwsh` is now an alias for `powershell`
 - Remove `atomicwrites` dependency
+- Relax constraint on `userpath` dependency
 - Bump the minimum supported version of Hatchling to 1.4.1
 
 ***Fixed:***
