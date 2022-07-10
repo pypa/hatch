@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Unreleased
 
+***Changed:***
+
+- Rename the default publishing plugin from `pypi` to the more generic `index`
+
 ***Added:***
 
 - Support the absence of `pyproject.toml` files, as is the case for apps and non-Python projects

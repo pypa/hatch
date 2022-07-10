@@ -110,7 +110,7 @@ def test_explicit_options(hatch, temp_dir):
 
     assert result.exit_code == 1, result.output
     assert result.output == (
-        'Use the standard CLI flags rather than passing explicit options when using the `pypi` plugin\n'
+        'Use the standard CLI flags rather than passing explicit options when using the `index` plugin\n'
     )
 
 
@@ -131,7 +131,7 @@ def test_unknown_publisher(hatch, temp_dir):
 
 
 def test_disabled(hatch, temp_dir, config_file):
-    config_file.model.publish['pypi']['disable'] = True
+    config_file.model.publish['index']['disable'] = True
     config_file.save()
 
     project_name = 'My App'
@@ -146,7 +146,7 @@ def test_disabled(hatch, temp_dir, config_file):
         result = hatch('publish', '-n')
 
     assert result.exit_code == 1, result.output
-    assert result.output == 'Publisher is disabled: pypi\n'
+    assert result.output == 'Publisher is disabled: index\n'
 
 
 def test_missing_user(hatch, temp_dir):
@@ -216,9 +216,9 @@ def test_flags(hatch, temp_dir_cache, helpers, published_project_name):
 
 
 def test_plugin_config(hatch, temp_dir_cache, helpers, published_project_name, config_file):
-    config_file.model.publish['pypi']['user'] = '__token__'
-    config_file.model.publish['pypi']['auth'] = PUBLISHER_TOKEN
-    config_file.model.publish['pypi']['repo'] = 'test'
+    config_file.model.publish['index']['user'] = '__token__'
+    config_file.model.publish['index']['auth'] = PUBLISHER_TOKEN
+    config_file.model.publish['index']['repo'] = 'test'
     config_file.save()
 
     with temp_dir_cache.as_cwd():
@@ -426,10 +426,10 @@ def test_no_artifacts(hatch, temp_dir_cache, helpers, published_project_name):
 
 
 def test_enable_with_flag(hatch, temp_dir_cache, helpers, published_project_name, config_file):
-    config_file.model.publish['pypi']['user'] = '__token__'
-    config_file.model.publish['pypi']['auth'] = PUBLISHER_TOKEN
-    config_file.model.publish['pypi']['repo'] = 'test'
-    config_file.model.publish['pypi']['disable'] = True
+    config_file.model.publish['index']['user'] = '__token__'
+    config_file.model.publish['index']['auth'] = PUBLISHER_TOKEN
+    config_file.model.publish['index']['repo'] = 'test'
+    config_file.model.publish['index']['disable'] = True
     config_file.save()
 
     with temp_dir_cache.as_cwd():
@@ -466,10 +466,10 @@ def test_enable_with_flag(hatch, temp_dir_cache, helpers, published_project_name
 
 
 def test_enable_with_prompt(hatch, temp_dir_cache, helpers, published_project_name, config_file):
-    config_file.model.publish['pypi']['user'] = '__token__'
-    config_file.model.publish['pypi']['auth'] = PUBLISHER_TOKEN
-    config_file.model.publish['pypi']['repo'] = 'test'
-    config_file.model.publish['pypi']['disable'] = True
+    config_file.model.publish['index']['user'] = '__token__'
+    config_file.model.publish['index']['auth'] = PUBLISHER_TOKEN
+    config_file.model.publish['index']['repo'] = 'test'
+    config_file.model.publish['index']['disable'] = True
     config_file.save()
 
     with temp_dir_cache.as_cwd():
@@ -496,7 +496,7 @@ def test_enable_with_prompt(hatch, temp_dir_cache, helpers, published_project_na
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
         f"""
-        Confirm `pypi` publishing [y/N]: y
+        Confirm `index` publishing [y/N]: y
         {artifacts[0].relative_to(path)} ... success
         {artifacts[1].relative_to(path)} ... success
 

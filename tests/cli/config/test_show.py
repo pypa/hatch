@@ -1,6 +1,6 @@
 def test_default_scrubbed(hatch, config_file, helpers, default_cache_dir, default_data_dir):
     config_file.model.project = 'foo'
-    config_file.model.publish['pypi']['auth'] = 'bar'
+    config_file.model.publish['index']['auth'] = 'bar'
     config_file.save()
 
     result = hatch('config', 'show')
@@ -54,7 +54,7 @@ def test_default_scrubbed(hatch, config_file, helpers, default_cache_dir, defaul
 
 def test_reveal(hatch, config_file, helpers, default_cache_dir, default_data_dir):
     config_file.model.project = 'foo'
-    config_file.model.publish['pypi']['auth'] = 'bar'
+    config_file.model.publish['index']['auth'] = 'bar'
     config_file.save()
 
     result = hatch('config', 'show', '-a')
@@ -79,7 +79,7 @@ def test_reveal(hatch, config_file, helpers, default_cache_dir, default_data_dir
 
         [projects]
 
-        [publish.pypi]
+        [publish.index]
         user = ""
         auth = "bar"
 

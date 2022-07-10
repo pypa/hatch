@@ -21,7 +21,7 @@ def test_default(default_cache_dir, default_data_dir):
             'cache': str(default_cache_dir),
         },
         'projects': {},
-        'publish': {'pypi': {'user': '', 'auth': ''}},
+        'publish': {'index': {'user': '', 'auth': ''}},
         'template': {
             'name': 'Foo Bar',
             'email': 'foo@bar.baz',
@@ -722,8 +722,8 @@ class TestPublish:
     def test_default(self):
         config = RootConfig({})
 
-        assert config.publish == config.publish == {'pypi': {'user': '', 'auth': ''}}
-        assert config.raw_data == {'publish': {'pypi': {'user': '', 'auth': ''}}}
+        assert config.publish == config.publish == {'index': {'user': '', 'auth': ''}}
+        assert config.raw_data == {'publish': {'index': {'user': '', 'auth': ''}}}
 
     def test_defined(self):
         config = RootConfig({'publish': {'foo': {'username': '', 'password': ''}}})

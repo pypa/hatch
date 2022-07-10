@@ -6,19 +6,19 @@ from hatch.config.constants import PublishEnvVars
 @click.command(short_help='Publish build artifacts')
 @click.argument('artifacts', nargs=-1)
 @click.option(
-    '--user', '-u', envvar=PublishEnvVars.USER, help='The user with which to authenticate [env var: `HATCH_PYPI_USER`]'
+    '--user', '-u', envvar=PublishEnvVars.USER, help='The user with which to authenticate [env var: `HATCH_INDEX_USER`]'
 )
 @click.option(
     '--auth',
     '-a',
     envvar=PublishEnvVars.AUTH,
-    help='The credentials to use for authentication [env var: `HATCH_PYPI_AUTH`]',
+    help='The credentials to use for authentication [env var: `HATCH_INDEX_AUTH`]',
 )
 @click.option(
     '--repo',
     '-r',
     envvar=PublishEnvVars.REPO,
-    help='The repository with which to publish artifacts [env var: `HATCH_PYPI_REPO`]',
+    help='The repository with which to publish artifacts [env var: `HATCH_INDEX_REPO`]',
 )
 @click.option('--no-prompt', '-n', is_flag=True, help='Disable prompts, such as for missing required fields')
 @click.option(
@@ -26,8 +26,8 @@ from hatch.config.constants import PublishEnvVars
     '-p',
     'publisher_name',
     envvar=PublishEnvVars.PUBLISHER,
-    default='pypi',
-    help='The publisher plugin to use (default is `pypi`) [env var: `HATCH_PUBLISHER`]',
+    default='index',
+    help='The publisher plugin to use (default is `index`) [env var: `HATCH_PUBLISHER`]',
 )
 @click.option(
     '--option',
@@ -45,9 +45,9 @@ from hatch.config.constants import PublishEnvVars
 def publish(app, artifacts, user, auth, repo, no_prompt, publisher_name, options, yes):
     """Publish build artifacts."""
     option_map = {'no_prompt': no_prompt}
-    if publisher_name == 'pypi':
+    if publisher_name == 'index':
         if options:
-            app.abort('Use the standard CLI flags rather than passing explicit options when using the `pypi` plugin')
+            app.abort('Use the standard CLI flags rather than passing explicit options when using the `index` plugin')
 
         if user:
             option_map['user'] = user

@@ -1,4 +1,4 @@
-# PyPI publisher
+# Index publisher
 
 -----
 
@@ -6,12 +6,12 @@ See the documentation for [publishing](../../publish.md).
 
 ## Configuration
 
-The publisher plugin name is `pypi`.
+The publisher plugin name is `index`.
 
 === ":octicons-file-code-16: config.toml"
 
     ```toml
-    [publish.pypi]
+    [publish.index]
     ```
 
 ## Options

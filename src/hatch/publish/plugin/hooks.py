@@ -1,7 +1,7 @@
-from hatch.publish.pypi import PyPIPublisher
+from hatch.publish.index import IndexPublisher
 from hatchling.plugin import hookimpl
 
 
 @hookimpl
 def hatch_register_publisher():
-    return PyPIPublisher
+    return IndexPublisher
