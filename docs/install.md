@@ -29,6 +29,20 @@ See the [formula](https://formulae.brew.sh/formula/hatch) for more details.
 brew install hatch
 ```
 
+## Conda
+
+See the [feedstock](https://github.com/conda-forge/hatch-feedstock) for more details.
+
+```
+conda install -c conda-forge hatch
+```
+
+or with [mamba](https://github.com/mamba-org/mamba):
+
+```
+mamba install hatch
+```
+
 ## MacPorts
 
 See the [port](https://ports.macports.org/port/hatch/) for more details.
