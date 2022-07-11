@@ -15,7 +15,7 @@ def get_files(**kwargs):
         first_part = f.path.parts[0]
 
         if first_part == 'LICENSES':
-            files.append(File(Path(metadata_directory, 'license_files', 'LICENSES', f.path.parts[1]), f.contents))
+            files.append(File(Path(metadata_directory, 'licenses', 'LICENSES', f.path.parts[1]), f.contents))
 
         if first_part != kwargs['package_name']:
             continue
