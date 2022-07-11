@@ -63,6 +63,45 @@ class TestCoreMetadataConstructor:
             _ = builder.config.core_metadata_constructor
 
 
+class TestStrictNaming:
+    def test_default(self, isolation):
+        builder = SdistBuilder(str(isolation))
+
+        assert builder.config.strict_naming is builder.config.strict_naming is True
+
+    def test_target(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'sdist': {'strict-naming': False}}}}}}
+        builder = SdistBuilder(str(isolation), config=config)
+
+        assert builder.config.strict_naming is False
+
+    def test_target_not_boolean(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'sdist': {'strict-naming': 9000}}}}}}
+        builder = SdistBuilder(str(isolation), config=config)
+
+        with pytest.raises(TypeError, match='Field `tool.hatch.build.targets.sdist.strict-naming` must be a boolean'):
+            _ = builder.config.strict_naming
+
+    def test_global(self, isolation):
+        config = {'tool': {'hatch': {'build': {'strict-naming': False}}}}
+        builder = SdistBuilder(str(isolation), config=config)
+
+        assert builder.config.strict_naming is False
+
+    def test_global_not_boolean(self, isolation):
+        config = {'tool': {'hatch': {'build': {'strict-naming': 9000}}}}
+        builder = SdistBuilder(str(isolation), config=config)
+
+        with pytest.raises(TypeError, match='Field `tool.hatch.build.strict-naming` must be a boolean'):
+            _ = builder.config.strict_naming
+
+    def test_target_overrides_global(self, isolation):
+        config = {'tool': {'hatch': {'build': {'strict-naming': False, 'targets': {'sdist': {'strict-naming': True}}}}}}
+        builder = SdistBuilder(str(isolation), config=config)
+
+        assert builder.config.strict_naming is True
+
+
 class TestConstructSetupPyFile:
     def test_default(self, helpers, isolation):
         config = {'project': {'name': 'My.App', 'version': '0.1.0'}}
@@ -1384,3 +1423,50 @@ class TestBuildStandard:
             'sdist.standard_default_vcs_mercurial_exclusion_files', project_name, relative_root=builder.project_id
         )
         helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+
+    def test_no_strict_naming(self, hatch, helpers, temp_dir):
+        project_name = 'My.App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / 'my-app'
+        config = {
+            'project': {'name': project_name, 'dynamic': ['version']},
+            'tool': {
+                'hatch': {
+                    'version': {'path': 'my_app/__about__.py'},
+                    'build': {'targets': {'sdist': {'versions': ['standard'], 'strict-naming': False}}},
+                },
+            },
+        }
+        builder = SdistBuilder(str(project_path), config=config)
+
+        build_path = project_path / 'dist'
+
+        with project_path.as_cwd():
+            artifacts = list(builder.build())
+
+        assert len(artifacts) == 1
+        expected_artifact = artifacts[0]
+
+        build_artifacts = list(build_path.iterdir())
+        assert len(build_artifacts) == 1
+        assert expected_artifact == str(build_artifacts[0])
+        assert expected_artifact == str(build_path / f'{builder.artifact_project_id}.tar.gz')
+
+        extraction_directory = temp_dir / '_archive'
+        extraction_directory.mkdir()
+
+        with tarfile.open(str(expected_artifact), 'r:gz') as tar_archive:
+            tar_archive.extractall(str(extraction_directory))
+
+        expected_files = helpers.get_template_files(
+            'sdist.standard_default', project_name, relative_root=builder.project_id
+        )
+        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+
+        stat = os.stat(str(extraction_directory / builder.project_id / 'PKG-INFO'))
+        assert stat.st_mtime == get_reproducible_timestamp()

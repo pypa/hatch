@@ -103,6 +103,7 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 ***Added:***
 
 - Support the final draft of PEP 639
+- Add `strict-naming` option for  `sdist` and `wheel` targets
 
 ***Fixed:***
 

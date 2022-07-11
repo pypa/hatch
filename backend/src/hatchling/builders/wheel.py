@@ -136,6 +136,7 @@ class WheelBuilderConfig(BuilderConfig):
         self.__core_metadata_constructor = None
         self.__shared_data = None
         self.__extra_metadata = None
+        self.__strict_naming = None
 
     def set_default_file_selection(self):
         if self.__include or self.__exclude or self.__packages:
@@ -255,6 +256,24 @@ class WheelBuilderConfig(BuilderConfig):
 
         return self.__extra_metadata
 
+    @property
+    def strict_naming(self):
+        if self.__strict_naming is None:
+            if 'strict-naming' in self.target_config:
+                strict_naming = self.target_config['strict-naming']
+                if not isinstance(strict_naming, bool):
+                    raise TypeError(
+                        f'Field `tool.hatch.build.targets.{self.plugin_name}.strict-naming` must be a boolean'
+                    )
+            else:
+                strict_naming = self.build_config.get('strict-naming', True)
+                if not isinstance(strict_naming, bool):
+                    raise TypeError('Field `tool.hatch.build.strict-naming` must be a boolean')
+
+            self.__strict_naming = strict_naming
+
+        return self.__strict_naming
+
 
 class WheelBuilder(BuilderInterface):
     """
@@ -295,7 +314,7 @@ class WheelBuilder(BuilderInterface):
             records.write(f'{archive.metadata_directory}/RECORD,,\n')
             archive.write_metadata('RECORD', records.getvalue())
 
-        target = os.path.join(directory, f"{self.project_id}-{build_data['tag']}.whl")
+        target = os.path.join(directory, f"{self.artifact_project_id}-{build_data['tag']}.whl")
 
         replace_file(archive.path, target)
         return target
@@ -366,7 +385,7 @@ class WheelBuilder(BuilderInterface):
             records.write(f'{archive.metadata_directory}/RECORD,,\n')
             archive.write_metadata('RECORD', records.getvalue())
 
-        target = os.path.join(directory, f"{self.project_id}-{build_data['tag']}.whl")
+        target = os.path.join(directory, f"{self.artifact_project_id}-{build_data['tag']}.whl")
 
         replace_file(archive.path, target)
         return target
@@ -392,7 +411,7 @@ class WheelBuilder(BuilderInterface):
             records.write(f'{archive.metadata_directory}/RECORD,,\n')
             archive.write_metadata('RECORD', records.getvalue())
 
-        target = os.path.join(directory, f"{self.project_id}-{build_data['tag']}.whl")
+        target = os.path.join(directory, f"{self.artifact_project_id}-{build_data['tag']}.whl")
 
         replace_file(archive.path, target)
         return target
@@ -506,6 +525,14 @@ Root-Is-Purelib: {'true' if build_data['pure_python'] else 'false'}
             return self.config.get_force_include()
 
         return normalize_inclusion_map(build_data['force_include_editable'], self.root)
+
+    @property
+    def artifact_project_id(self):
+        return (
+            self.project_id
+            if self.config.strict_naming
+            else f'{self.normalize_file_name_component(self.metadata.core.raw_name)}-{self.metadata.version}'
+        )
 
     @classmethod
     def get_config_class(cls):

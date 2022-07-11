@@ -81,6 +81,7 @@ class SdistBuilderConfig(BuilderConfig):
         super().__init__(*args, **kwargs)
 
         self.__core_metadata_constructor = None
+        self.__strict_naming = None
         self.__support_legacy = None
 
     @property
@@ -103,6 +104,24 @@ class SdistBuilderConfig(BuilderConfig):
             self.__core_metadata_constructor = constructors[core_metadata_version]
 
         return self.__core_metadata_constructor
+
+    @property
+    def strict_naming(self):
+        if self.__strict_naming is None:
+            if 'strict-naming' in self.target_config:
+                strict_naming = self.target_config['strict-naming']
+                if not isinstance(strict_naming, bool):
+                    raise TypeError(
+                        f'Field `tool.hatch.build.targets.{self.plugin_name}.strict-naming` must be a boolean'
+                    )
+            else:
+                strict_naming = self.build_config.get('strict-naming', True)
+                if not isinstance(strict_naming, bool):
+                    raise TypeError('Field `tool.hatch.build.strict-naming` must be a boolean')
+
+            self.__strict_naming = strict_naming
+
+        return self.__strict_naming
 
     @property
     def support_legacy(self):
@@ -163,10 +182,18 @@ class SdistBuilder(BuilderInterface):
                     'setup.py',
                 )
 
-        target = os.path.join(directory, f'{self.project_id}.tar.gz')
+        target = os.path.join(directory, f'{self.artifact_project_id}.tar.gz')
 
         replace_file(archive.path, target)
         return target
+
+    @property
+    def artifact_project_id(self):
+        return (
+            self.project_id
+            if self.config.strict_naming
+            else f'{self.normalize_file_name_component(self.metadata.core.raw_name)}-{self.metadata.version}'
+        )
 
     def construct_setup_py_file(self, packages, extra_dependencies=()):
         contents = '# -*- coding: utf-8 -*-\nfrom setuptools import setup\n\n'
