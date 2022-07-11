@@ -251,6 +251,7 @@ class CoreMetadata:
         self.hatch_metadata = hatch_metadata
         self.context = context
 
+        self._raw_name = None
         self._name = None
         self._version = None
         self._description = None
@@ -279,30 +280,40 @@ class CoreMetadata:
         self._dynamic = None
 
     @property
-    def name(self):
+    def raw_name(self):
         """
         https://peps.python.org/pep-0621/#name
         """
-        if self._name is None:
+        if self._raw_name is None:
             if 'name' in self.dynamic:
                 raise ValueError('Static metadata field `name` cannot be present in field `project.dynamic`')
             elif 'name' in self.config:
-                name = self.config['name']
+                raw_name = self.config['name']
             else:
-                name = ''
+                raw_name = ''
 
-            if not name:
+            if not raw_name:
                 raise ValueError('Missing required field `project.name`')
-            elif not isinstance(name, str):
+            elif not isinstance(raw_name, str):
                 raise TypeError('Field `project.name` must be a string')
 
-            if not is_valid_project_name(name):
+            if not is_valid_project_name(raw_name):
                 raise ValueError(
                     'Required field `project.name` must only contain ASCII letters/digits, underscores, '
                     'hyphens, and periods, and must begin and end with ASCII letters/digits.'
                 )
 
-            self._name = normalize_project_name(name)
+            self._raw_name = raw_name
+
+        return self._raw_name
+
+    @property
+    def name(self):
+        """
+        https://peps.python.org/pep-0621/#name
+        """
+        if self._name is None:
+            self._name = normalize_project_name(self.raw_name)
 
         return self._name
 

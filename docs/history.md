@@ -100,6 +100,10 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 
 ### Unreleased
 
+***Fixed:***
+
+- Project names are now stored in `sdist` and `wheel` target core metadata exactly as defined in `pyproject.toml` without normalization to allow control of how PyPI displays them
+
 ### [1.4.1](https://github.com/pypa/hatch/releases/tag/hatchling-v1.4.1) - 2022-07-04 ### {: #hatchling-v1.4.1 }
 
 ***Fixed:***

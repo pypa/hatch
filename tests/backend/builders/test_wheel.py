@@ -415,7 +415,7 @@ class TestConstructEntryPointsFile:
 
 class TestBuildStandard:
     def test_default_auto_detection(self, hatch, helpers, temp_dir):
-        project_name = 'My App'
+        project_name = 'My.App'
 
         with temp_dir.as_cwd():
             result = hatch('new', project_name)
@@ -425,7 +425,7 @@ class TestBuildStandard:
         project_path = temp_dir / 'my-app'
 
         config = {
-            'project': {'name': 'my__app', 'dynamic': ['version']},
+            'project': {'name': project_name, 'dynamic': ['version']},
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
@@ -467,7 +467,7 @@ class TestBuildStandard:
             assert zip_info.date_time == (2020, 2, 2, 0, 0, 0)
 
     def test_default_reproducible_timestamp(self, hatch, helpers, temp_dir):
-        project_name = 'My App'
+        project_name = 'My.App'
 
         with temp_dir.as_cwd():
             result = hatch('new', project_name)
@@ -476,7 +476,7 @@ class TestBuildStandard:
 
         project_path = temp_dir / 'my-app'
         config = {
-            'project': {'name': 'my__app', 'dynamic': ['version']},
+            'project': {'name': project_name, 'dynamic': ['version']},
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
@@ -517,7 +517,7 @@ class TestBuildStandard:
             assert zip_info.date_time == (2020, 2, 2, 0, 1, 40)
 
     def test_default_no_reproducible(self, hatch, helpers, temp_dir):
-        project_name = 'My App'
+        project_name = 'My.App'
 
         with temp_dir.as_cwd():
             result = hatch('new', project_name)
@@ -526,7 +526,7 @@ class TestBuildStandard:
 
         project_path = temp_dir / 'my-app'
         config = {
-            'project': {'name': 'my__app', 'dynamic': ['version']},
+            'project': {'name': project_name, 'dynamic': ['version']},
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
@@ -567,7 +567,7 @@ class TestBuildStandard:
             assert zip_info.date_time == (2020, 2, 2, 0, 0, 0)
 
     def test_default_multiple_licenses(self, hatch, helpers, config_file, temp_dir):
-        project_name = 'My App'
+        project_name = 'My.App'
         config_file.model.template.licenses.default = ['MIT', 'Apache-2.0']
         config_file.save()
 
@@ -582,7 +582,7 @@ class TestBuildStandard:
         (project_path / 'LICENSES' / 'test').mkdir()
 
         config = {
-            'project': {'name': 'my__app', 'dynamic': ['version'], 'license-files': {'globs': ['LICENSES/*']}},
+            'project': {'name': project_name, 'dynamic': ['version'], 'license-files': {'globs': ['LICENSES/*']}},
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
@@ -619,7 +619,7 @@ class TestBuildStandard:
         helpers.assert_files(extraction_directory, expected_files, check_contents=True)
 
     def test_default_include(self, hatch, helpers, temp_dir):
-        project_name = 'My App'
+        project_name = 'My.App'
 
         with temp_dir.as_cwd():
             result = hatch('new', project_name)
@@ -629,7 +629,7 @@ class TestBuildStandard:
         project_path = temp_dir / 'my-app'
 
         config = {
-            'project': {'name': 'my__app', 'dynamic': ['version']},
+            'project': {'name': project_name, 'dynamic': ['version']},
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
@@ -666,7 +666,7 @@ class TestBuildStandard:
         helpers.assert_files(extraction_directory, expected_files, check_contents=True)
 
     def test_default_only_packages(self, hatch, helpers, temp_dir):
-        project_name = 'My App'
+        project_name = 'My.App'
 
         with temp_dir.as_cwd():
             result = hatch('new', project_name)
@@ -678,7 +678,7 @@ class TestBuildStandard:
         (tests_path / '__init__.py').replace(tests_path / 'foo.py')
 
         config = {
-            'project': {'name': 'my__app', 'dynamic': ['version']},
+            'project': {'name': project_name, 'dynamic': ['version']},
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
@@ -719,7 +719,7 @@ class TestBuildStandard:
         helpers.assert_files(extraction_directory, expected_files, check_contents=True)
 
     def test_default_only_packages_artifact_override(self, hatch, helpers, temp_dir):
-        project_name = 'My App'
+        project_name = 'My.App'
 
         with temp_dir.as_cwd():
             result = hatch('new', project_name)
@@ -731,7 +731,7 @@ class TestBuildStandard:
         (tests_path / '__init__.py').replace(tests_path / 'foo.py')
 
         config = {
-            'project': {'name': 'my__app', 'dynamic': ['version']},
+            'project': {'name': project_name, 'dynamic': ['version']},
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
@@ -773,7 +773,7 @@ class TestBuildStandard:
         helpers.assert_files(extraction_directory, expected_files, check_contents=True)
 
     def test_default_python_constraint(self, hatch, helpers, temp_dir):
-        project_name = 'My App'
+        project_name = 'My.App'
 
         with temp_dir.as_cwd():
             result = hatch('new', project_name)
@@ -782,7 +782,7 @@ class TestBuildStandard:
 
         project_path = temp_dir / 'my-app'
         config = {
-            'project': {'name': 'my__app', 'requires-python': '>3', 'dynamic': ['version']},
+            'project': {'name': project_name, 'requires-python': '>3', 'dynamic': ['version']},
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
@@ -819,7 +819,7 @@ class TestBuildStandard:
         helpers.assert_files(extraction_directory, expected_files, check_contents=True)
 
     def test_default_build_script_default_tag(self, hatch, helpers, temp_dir):
-        project_name = 'My App'
+        project_name = 'My.App'
 
         with temp_dir.as_cwd():
             result = hatch('new', project_name)
@@ -841,7 +841,7 @@ class TestBuildStandard:
         )
 
         config = {
-            'project': {'name': 'my__app', 'requires-python': '>3', 'dynamic': ['version']},
+            'project': {'name': project_name, 'requires-python': '>3', 'dynamic': ['version']},
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
@@ -883,7 +883,7 @@ class TestBuildStandard:
         helpers.assert_files(extraction_directory, expected_files, check_contents=True)
 
     def test_default_build_script_set_tag(self, hatch, helpers, temp_dir):
-        project_name = 'My App'
+        project_name = 'My.App'
 
         with temp_dir.as_cwd():
             result = hatch('new', project_name)
@@ -906,7 +906,7 @@ class TestBuildStandard:
         )
 
         config = {
-            'project': {'name': 'my__app', 'requires-python': '>3', 'dynamic': ['version']},
+            'project': {'name': project_name, 'requires-python': '>3', 'dynamic': ['version']},
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
@@ -948,7 +948,7 @@ class TestBuildStandard:
         helpers.assert_files(extraction_directory, expected_files, check_contents=True)
 
     def test_default_build_script_known_artifacts(self, hatch, helpers, temp_dir):
-        project_name = 'My App'
+        project_name = 'My.App'
 
         with temp_dir.as_cwd():
             result = hatch('new', project_name)
@@ -980,7 +980,7 @@ class TestBuildStandard:
         )
 
         config = {
-            'project': {'name': 'my__app', 'requires-python': '>3', 'dynamic': ['version']},
+            'project': {'name': project_name, 'requires-python': '>3', 'dynamic': ['version']},
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
@@ -1027,7 +1027,7 @@ class TestBuildStandard:
         helpers.assert_files(extraction_directory, expected_files, check_contents=True)
 
     def test_default_build_script_configured_build_hooks(self, hatch, helpers, temp_dir):
-        project_name = 'My App'
+        project_name = 'My.App'
 
         with temp_dir.as_cwd():
             result = hatch('new', project_name)
@@ -1059,7 +1059,7 @@ class TestBuildStandard:
         )
 
         config = {
-            'project': {'name': 'my__app', 'requires-python': '>3', 'dynamic': ['version']},
+            'project': {'name': project_name, 'requires-python': '>3', 'dynamic': ['version']},
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
@@ -1106,7 +1106,7 @@ class TestBuildStandard:
         helpers.assert_files(extraction_directory, expected_files, check_contents=True)
 
     def test_default_build_script_extra_dependencies(self, hatch, helpers, temp_dir):
-        project_name = 'My App'
+        project_name = 'My.App'
 
         with temp_dir.as_cwd():
             result = hatch('new', project_name)
@@ -1139,7 +1139,7 @@ class TestBuildStandard:
         )
 
         config = {
-            'project': {'name': 'my__app', 'requires-python': '>3', 'dynamic': ['version']},
+            'project': {'name': project_name, 'requires-python': '>3', 'dynamic': ['version']},
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
@@ -1186,7 +1186,7 @@ class TestBuildStandard:
         helpers.assert_files(extraction_directory, expected_files, check_contents=True)
 
     def test_default_build_script_dynamic_artifacts(self, hatch, helpers, temp_dir):
-        project_name = 'My App'
+        project_name = 'My.App'
 
         with temp_dir.as_cwd():
             result = hatch('new', project_name)
@@ -1219,7 +1219,7 @@ class TestBuildStandard:
         )
 
         config = {
-            'project': {'name': 'my__app', 'requires-python': '>3', 'dynamic': ['version']},
+            'project': {'name': project_name, 'requires-python': '>3', 'dynamic': ['version']},
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
@@ -1265,7 +1265,7 @@ class TestBuildStandard:
         helpers.assert_files(extraction_directory, expected_files, check_contents=True)
 
     def test_default_build_script_dynamic_force_include(self, hatch, helpers, temp_dir):
-        project_name = 'My App'
+        project_name = 'My.App'
 
         with temp_dir.as_cwd():
             result = hatch('new', project_name)
@@ -1301,7 +1301,7 @@ class TestBuildStandard:
         )
 
         config = {
-            'project': {'name': 'my__app', 'requires-python': '>3', 'dynamic': ['version']},
+            'project': {'name': project_name, 'requires-python': '>3', 'dynamic': ['version']},
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
@@ -1350,7 +1350,7 @@ class TestBuildStandard:
         config_file.model.template.plugins['default']['src-layout'] = True
         config_file.save()
 
-        project_name = 'My App'
+        project_name = 'My.App'
 
         with temp_dir.as_cwd():
             result = hatch('new', project_name)
@@ -1385,7 +1385,7 @@ class TestBuildStandard:
         )
 
         config = {
-            'project': {'name': 'my__app', 'requires-python': '>3', 'dynamic': ['version']},
+            'project': {'name': project_name, 'requires-python': '>3', 'dynamic': ['version']},
             'tool': {
                 'hatch': {
                     'version': {'path': 'src/my_app/__about__.py'},
@@ -1431,7 +1431,7 @@ class TestBuildStandard:
         helpers.assert_files(extraction_directory, expected_files, check_contents=True)
 
     def test_default_shared_data(self, hatch, helpers, temp_dir):
-        project_name = 'My App'
+        project_name = 'My.App'
 
         with temp_dir.as_cwd():
             result = hatch('new', project_name)
@@ -1448,7 +1448,7 @@ class TestBuildStandard:
         (nested_data_path / 'bar.txt').touch()
 
         config = {
-            'project': {'name': 'my__app', 'requires-python': '>3', 'dynamic': ['version']},
+            'project': {'name': project_name, 'requires-python': '>3', 'dynamic': ['version']},
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
@@ -1488,7 +1488,7 @@ class TestBuildStandard:
         helpers.assert_files(extraction_directory, expected_files, check_contents=True)
 
     def test_default_extra_metadata(self, hatch, helpers, temp_dir):
-        project_name = 'My App'
+        project_name = 'My.App'
 
         with temp_dir.as_cwd():
             result = hatch('new', project_name)
@@ -1505,7 +1505,7 @@ class TestBuildStandard:
         (nested_data_path / 'bar.txt').touch()
 
         config = {
-            'project': {'name': 'my__app', 'requires-python': '>3', 'dynamic': ['version']},
+            'project': {'name': project_name, 'requires-python': '>3', 'dynamic': ['version']},
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
@@ -1544,7 +1544,7 @@ class TestBuildStandard:
 
     @pytest.mark.requires_unix
     def test_default_symlink(self, hatch, helpers, temp_dir):
-        project_name = 'My App'
+        project_name = 'My.App'
 
         with temp_dir.as_cwd():
             result = hatch('new', project_name)
@@ -1579,7 +1579,7 @@ class TestBuildStandard:
         )
 
         config = {
-            'project': {'name': 'my__app', 'requires-python': '>3', 'dynamic': ['version']},
+            'project': {'name': project_name, 'requires-python': '>3', 'dynamic': ['version']},
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
@@ -1630,7 +1630,7 @@ class TestBuildStandard:
         config_file.model.template.plugins['default']['src-layout'] = True
         config_file.save()
 
-        project_name = 'My App'
+        project_name = 'My.App'
 
         with temp_dir.as_cwd():
             result = hatch('new', project_name)
@@ -1640,7 +1640,7 @@ class TestBuildStandard:
         project_path = temp_dir / 'my-app'
 
         config = {
-            'project': {'name': 'my__app', 'dynamic': ['version']},
+            'project': {'name': project_name, 'dynamic': ['version']},
             'tool': {
                 'hatch': {
                     'version': {'path': 'src/my_app/__about__.py'},
@@ -1690,7 +1690,7 @@ class TestBuildStandard:
         config_file.model.template.plugins['default']['src-layout'] = True
         config_file.save()
 
-        project_name = 'My App'
+        project_name = 'My.App'
 
         with temp_dir.as_cwd():
             result = hatch('new', project_name)
@@ -1715,7 +1715,7 @@ class TestBuildStandard:
         )
 
         config = {
-            'project': {'name': 'my__app', 'dynamic': ['version']},
+            'project': {'name': project_name, 'dynamic': ['version']},
             'tool': {
                 'hatch': {
                     'version': {'path': 'src/my_app/__about__.py'},
@@ -1765,7 +1765,7 @@ class TestBuildStandard:
         config_file.model.template.plugins['default']['src-layout'] = True
         config_file.save()
 
-        project_name = 'My App'
+        project_name = 'My.App'
 
         with temp_dir.as_cwd():
             result = hatch('new', project_name)
@@ -1791,7 +1791,7 @@ class TestBuildStandard:
         )
 
         config = {
-            'project': {'name': 'my__app', 'dynamic': ['version']},
+            'project': {'name': project_name, 'dynamic': ['version']},
             'tool': {
                 'hatch': {
                     'version': {'path': 'src/my_app/__about__.py'},
@@ -1841,7 +1841,7 @@ class TestBuildStandard:
         config_file.model.template.plugins['default']['src-layout'] = True
         config_file.save()
 
-        project_name = 'My App'
+        project_name = 'My.App'
 
         with temp_dir.as_cwd():
             result = hatch('new', project_name)
@@ -1851,7 +1851,7 @@ class TestBuildStandard:
         project_path = temp_dir / 'my-app'
 
         config = {
-            'project': {'name': 'my__app', 'dynamic': ['version']},
+            'project': {'name': project_name, 'dynamic': ['version']},
             'tool': {
                 'hatch': {
                     'version': {'path': 'src/my_app/__about__.py'},
@@ -1905,7 +1905,7 @@ class TestBuildStandard:
 
     @fixed_pathlib_resolution
     def test_editable_exact(self, hatch, helpers, temp_dir):
-        project_name = 'My App'
+        project_name = 'My.App'
 
         with temp_dir.as_cwd():
             result = hatch('new', project_name)
@@ -1915,7 +1915,7 @@ class TestBuildStandard:
         project_path = temp_dir / 'my-app'
 
         config = {
-            'project': {'name': 'my__app', 'dynamic': ['version']},
+            'project': {'name': project_name, 'dynamic': ['version']},
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
@@ -1962,7 +1962,7 @@ class TestBuildStandard:
 
     @fixed_pathlib_resolution
     def test_editable_exact_extra_dependencies(self, hatch, helpers, temp_dir):
-        project_name = 'My App'
+        project_name = 'My.App'
 
         with temp_dir.as_cwd():
             result = hatch('new', project_name)
@@ -1987,7 +1987,7 @@ class TestBuildStandard:
         )
 
         config = {
-            'project': {'name': 'my__app', 'dynamic': ['version']},
+            'project': {'name': project_name, 'dynamic': ['version']},
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
@@ -2038,7 +2038,7 @@ class TestBuildStandard:
 
     @fixed_pathlib_resolution
     def test_editable_exact_force_include(self, hatch, helpers, temp_dir):
-        project_name = 'My App'
+        project_name = 'My.App'
 
         with temp_dir.as_cwd():
             result = hatch('new', project_name)
@@ -2064,7 +2064,7 @@ class TestBuildStandard:
         )
 
         config = {
-            'project': {'name': 'my__app', 'dynamic': ['version']},
+            'project': {'name': project_name, 'dynamic': ['version']},
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
@@ -2115,7 +2115,7 @@ class TestBuildStandard:
 
     @fixed_pathlib_resolution
     def test_editable_exact_force_include_option(self, hatch, helpers, temp_dir):
-        project_name = 'My App'
+        project_name = 'My.App'
 
         with temp_dir.as_cwd():
             result = hatch('new', project_name)
@@ -2125,7 +2125,7 @@ class TestBuildStandard:
         project_path = temp_dir / 'my-app'
 
         config = {
-            'project': {'name': 'my__app', 'dynamic': ['version']},
+            'project': {'name': project_name, 'dynamic': ['version']},
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
@@ -2180,7 +2180,7 @@ class TestBuildStandard:
 
     @fixed_pathlib_resolution
     def test_editable_exact_force_include_build_data_precedence(self, hatch, helpers, temp_dir):
-        project_name = 'My App'
+        project_name = 'My.App'
 
         with temp_dir.as_cwd():
             result = hatch('new', project_name)
@@ -2206,7 +2206,7 @@ class TestBuildStandard:
         )
 
         config = {
-            'project': {'name': 'my__app', 'dynamic': ['version']},
+            'project': {'name': project_name, 'dynamic': ['version']},
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
@@ -2265,7 +2265,7 @@ class TestBuildStandard:
         config_file.model.template.plugins['default']['src-layout'] = True
         config_file.save()
 
-        project_name = 'My App'
+        project_name = 'My.App'
 
         with temp_dir.as_cwd():
             result = hatch('new', project_name)
@@ -2275,7 +2275,7 @@ class TestBuildStandard:
         project_path = temp_dir / 'my-app'
 
         config = {
-            'project': {'name': 'my__app', 'dynamic': ['version']},
+            'project': {'name': project_name, 'dynamic': ['version']},
             'tool': {
                 'hatch': {
                     'version': {'path': 'src/my_app/__about__.py'},
@@ -2321,7 +2321,7 @@ class TestBuildStandard:
             assert zip_info.date_time == (2020, 2, 2, 0, 0, 0)
 
     def test_default_namespace_package(self, hatch, helpers, temp_dir):
-        project_name = 'My App'
+        project_name = 'My.App'
 
         with temp_dir.as_cwd():
             result = hatch('new', project_name)
@@ -2335,7 +2335,7 @@ class TestBuildStandard:
         package_path.replace(namespace_path / 'my_app')
 
         config = {
-            'project': {'name': 'my__app', 'dynamic': ['version']},
+            'project': {'name': project_name, 'dynamic': ['version']},
             'tool': {
                 'hatch': {
                     'version': {'path': 'namespace/my_app/__about__.py'},
@@ -2374,7 +2374,7 @@ class TestBuildStandard:
         helpers.assert_files(extraction_directory, expected_files, check_contents=True)
 
     def test_default_entry_points(self, hatch, helpers, temp_dir):
-        project_name = 'My App'
+        project_name = 'My.App'
 
         with temp_dir.as_cwd():
             result = hatch('new', project_name)
@@ -2384,7 +2384,7 @@ class TestBuildStandard:
         project_path = temp_dir / 'my-app'
 
         config = {
-            'project': {'name': 'my__app', 'dynamic': ['version'], 'scripts': {'foo': 'pkg:bar', 'bar': 'pkg:foo'}},
+            'project': {'name': project_name, 'dynamic': ['version'], 'scripts': {'foo': 'pkg:bar', 'bar': 'pkg:foo'}},
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
@@ -2423,7 +2423,7 @@ class TestBuildStandard:
         config_file.model.template.plugins['default']['src-layout'] = True
         config_file.save()
 
-        project_name = 'My App'
+        project_name = 'My.App'
 
         with temp_dir.as_cwd():
             result = hatch('new', project_name)
@@ -2433,7 +2433,7 @@ class TestBuildStandard:
         project_path = temp_dir / 'my-app'
 
         config = {
-            'project': {'name': 'my__app', 'dynamic': ['version']},
+            'project': {'name': project_name, 'dynamic': ['version']},
             'tool': {
                 'hatch': {
                     'version': {'path': 'src/my_app/__about__.py'},
@@ -2480,7 +2480,7 @@ class TestBuildStandard:
         helpers.assert_files(extraction_directory, expected_files, check_contents=True)
 
     def test_single_module(self, hatch, helpers, temp_dir, config_file):
-        project_name = 'My App'
+        project_name = 'My.App'
 
         with temp_dir.as_cwd():
             result = hatch('new', project_name)
@@ -2491,7 +2491,7 @@ class TestBuildStandard:
         (project_path / 'my_app').remove()
         (project_path / 'my_app.py').touch()
 
-        config = {'project': {'name': 'my__app', 'version': '0.0.1'}}
+        config = {'project': {'name': project_name, 'version': '0.0.1'}}
         builder = WheelBuilder(str(project_path), config=config)
 
         build_path = project_path / 'dist'

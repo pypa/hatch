@@ -2,7 +2,7 @@ from hatchling.build import build_editable, build_sdist, build_wheel
 
 
 def test_sdist(hatch, helpers, temp_dir):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -40,7 +40,7 @@ def test_sdist(hatch, helpers, temp_dir):
 
 
 def test_wheel(hatch, helpers, temp_dir):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -78,7 +78,7 @@ def test_wheel(hatch, helpers, temp_dir):
 
 
 def test_editable(hatch, helpers, temp_dir):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)

@@ -65,7 +65,7 @@ class TestCoreMetadataConstructor:
 
 class TestConstructSetupPyFile:
     def test_default(self, helpers, isolation):
-        config = {'project': {'name': 'my__app', 'version': '0.1.0'}}
+        config = {'project': {'name': 'My.App', 'version': '0.1.0'}}
         builder = SdistBuilder(str(isolation), config=config)
 
         assert builder.construct_setup_py_file([]) == helpers.dedent(
@@ -81,7 +81,7 @@ class TestConstructSetupPyFile:
         )
 
     def test_packages(self, helpers, isolation):
-        config = {'project': {'name': 'my__app', 'version': '0.1.0'}}
+        config = {'project': {'name': 'My.App', 'version': '0.1.0'}}
         builder = SdistBuilder(str(isolation), config=config)
 
         assert builder.construct_setup_py_file(['my_app', os.path.join('my_app', 'pkg')]) == helpers.dedent(
@@ -101,7 +101,7 @@ class TestConstructSetupPyFile:
         )
 
     def test_description(self, helpers, isolation):
-        config = {'project': {'name': 'my__app', 'version': '0.1.0', 'description': 'foo'}}
+        config = {'project': {'name': 'My.App', 'version': '0.1.0', 'description': 'foo'}}
         builder = SdistBuilder(str(isolation), config=config)
 
         assert builder.construct_setup_py_file(['my_app', os.path.join('my_app', 'pkg')]) == helpers.dedent(
@@ -124,7 +124,7 @@ class TestConstructSetupPyFile:
     def test_readme(self, helpers, isolation):
         config = {
             'project': {
-                'name': 'my__app',
+                'name': 'My.App',
                 'version': '0.1.0',
                 'readme': {'content-type': 'text/markdown', 'text': 'test content\n'},
             }
@@ -149,7 +149,7 @@ class TestConstructSetupPyFile:
         )
 
     def test_authors_name(self, helpers, isolation):
-        config = {'project': {'name': 'my__app', 'version': '0.1.0', 'authors': [{'name': 'foo'}]}}
+        config = {'project': {'name': 'My.App', 'version': '0.1.0', 'authors': [{'name': 'foo'}]}}
         builder = SdistBuilder(str(isolation), config=config)
 
         assert builder.construct_setup_py_file(['my_app', os.path.join('my_app', 'pkg')]) == helpers.dedent(
@@ -170,7 +170,7 @@ class TestConstructSetupPyFile:
         )
 
     def test_authors_email(self, helpers, isolation):
-        config = {'project': {'name': 'my__app', 'version': '0.1.0', 'authors': [{'email': 'foo@domain'}]}}
+        config = {'project': {'name': 'My.App', 'version': '0.1.0', 'authors': [{'email': 'foo@domain'}]}}
         builder = SdistBuilder(str(isolation), config=config)
 
         assert builder.construct_setup_py_file(['my_app', os.path.join('my_app', 'pkg')]) == helpers.dedent(
@@ -192,7 +192,7 @@ class TestConstructSetupPyFile:
 
     def test_authors_name_and_email(self, helpers, isolation):
         config = {
-            'project': {'name': 'my__app', 'version': '0.1.0', 'authors': [{'email': 'bar@domain', 'name': 'foo'}]}
+            'project': {'name': 'My.App', 'version': '0.1.0', 'authors': [{'email': 'bar@domain', 'name': 'foo'}]}
         }
         builder = SdistBuilder(str(isolation), config=config)
 
@@ -214,7 +214,7 @@ class TestConstructSetupPyFile:
         )
 
     def test_authors_multiple(self, helpers, isolation):
-        config = {'project': {'name': 'my__app', 'version': '0.1.0', 'authors': [{'name': 'foo'}, {'name': 'bar'}]}}
+        config = {'project': {'name': 'My.App', 'version': '0.1.0', 'authors': [{'name': 'foo'}, {'name': 'bar'}]}}
         builder = SdistBuilder(str(isolation), config=config)
 
         assert builder.construct_setup_py_file(['my_app', os.path.join('my_app', 'pkg')]) == helpers.dedent(
@@ -235,7 +235,7 @@ class TestConstructSetupPyFile:
         )
 
     def test_maintainers_name(self, helpers, isolation):
-        config = {'project': {'name': 'my__app', 'version': '0.1.0', 'maintainers': [{'name': 'foo'}]}}
+        config = {'project': {'name': 'My.App', 'version': '0.1.0', 'maintainers': [{'name': 'foo'}]}}
         builder = SdistBuilder(str(isolation), config=config)
 
         assert builder.construct_setup_py_file(['my_app', os.path.join('my_app', 'pkg')]) == helpers.dedent(
@@ -256,7 +256,7 @@ class TestConstructSetupPyFile:
         )
 
     def test_maintainers_email(self, helpers, isolation):
-        config = {'project': {'name': 'my__app', 'version': '0.1.0', 'maintainers': [{'email': 'foo@domain'}]}}
+        config = {'project': {'name': 'My.App', 'version': '0.1.0', 'maintainers': [{'email': 'foo@domain'}]}}
         builder = SdistBuilder(str(isolation), config=config)
 
         assert builder.construct_setup_py_file(['my_app', os.path.join('my_app', 'pkg')]) == helpers.dedent(
@@ -278,7 +278,7 @@ class TestConstructSetupPyFile:
 
     def test_maintainers_name_and_email(self, helpers, isolation):
         config = {
-            'project': {'name': 'my__app', 'version': '0.1.0', 'maintainers': [{'email': 'bar@domain', 'name': 'foo'}]}
+            'project': {'name': 'My.App', 'version': '0.1.0', 'maintainers': [{'email': 'bar@domain', 'name': 'foo'}]}
         }
         builder = SdistBuilder(str(isolation), config=config)
 
@@ -300,7 +300,7 @@ class TestConstructSetupPyFile:
         )
 
     def test_maintainers_multiple(self, helpers, isolation):
-        config = {'project': {'name': 'my__app', 'version': '0.1.0', 'maintainers': [{'name': 'foo'}, {'name': 'bar'}]}}
+        config = {'project': {'name': 'My.App', 'version': '0.1.0', 'maintainers': [{'name': 'foo'}, {'name': 'bar'}]}}
         builder = SdistBuilder(str(isolation), config=config)
 
         assert builder.construct_setup_py_file(['my_app', os.path.join('my_app', 'pkg')]) == helpers.dedent(
@@ -321,7 +321,7 @@ class TestConstructSetupPyFile:
         )
 
     def test_classifiers(self, helpers, isolation):
-        config = {'project': {'name': 'my__app', 'version': '0.1.0', 'classifiers': ['foo', 'bar']}}
+        config = {'project': {'name': 'My.App', 'version': '0.1.0', 'classifiers': ['foo', 'bar']}}
         builder = SdistBuilder(str(isolation), config=config)
 
         assert builder.construct_setup_py_file(['my_app', os.path.join('my_app', 'pkg')]) == helpers.dedent(
@@ -345,7 +345,7 @@ class TestConstructSetupPyFile:
         )
 
     def test_dependencies(self, helpers, isolation):
-        config = {'project': {'name': 'my__app', 'version': '0.1.0', 'dependencies': ['foo==1', 'bar==5']}}
+        config = {'project': {'name': 'My.App', 'version': '0.1.0', 'dependencies': ['foo==1', 'bar==5']}}
         builder = SdistBuilder(str(isolation), config=config)
 
         assert builder.construct_setup_py_file(['my_app', os.path.join('my_app', 'pkg')]) == helpers.dedent(
@@ -369,7 +369,7 @@ class TestConstructSetupPyFile:
         )
 
     def test_dependencies_extra(self, helpers, isolation):
-        config = {'project': {'name': 'my__app', 'version': '0.1.0', 'dependencies': ['foo==1', 'bar==5']}}
+        config = {'project': {'name': 'My.App', 'version': '0.1.0', 'dependencies': ['foo==1', 'bar==5']}}
         builder = SdistBuilder(str(isolation), config=config)
 
         assert builder.construct_setup_py_file(['my_app', os.path.join('my_app', 'pkg')], ['baz==3']) == helpers.dedent(
@@ -396,7 +396,7 @@ class TestConstructSetupPyFile:
     def test_optional_dependencies(self, helpers, isolation):
         config = {
             'project': {
-                'name': 'my__app',
+                'name': 'My.App',
                 'version': '0.1.0',
                 'optional-dependencies': {
                     'feature2': ['foo==1; python_version < "3"', 'bar==5'],
@@ -433,7 +433,7 @@ class TestConstructSetupPyFile:
         )
 
     def test_scripts(self, helpers, isolation):
-        config = {'project': {'name': 'my__app', 'version': '0.1.0', 'scripts': {'foo': 'pkg:bar', 'bar': 'pkg:foo'}}}
+        config = {'project': {'name': 'My.App', 'version': '0.1.0', 'scripts': {'foo': 'pkg:bar', 'bar': 'pkg:foo'}}}
         builder = SdistBuilder(str(isolation), config=config)
 
         assert builder.construct_setup_py_file(['my_app', os.path.join('my_app', 'pkg')]) == helpers.dedent(
@@ -460,7 +460,7 @@ class TestConstructSetupPyFile:
 
     def test_gui_scripts(self, helpers, isolation):
         config = {
-            'project': {'name': 'my__app', 'version': '0.1.0', 'gui-scripts': {'foo': 'pkg:bar', 'bar': 'pkg:foo'}}
+            'project': {'name': 'My.App', 'version': '0.1.0', 'gui-scripts': {'foo': 'pkg:bar', 'bar': 'pkg:foo'}}
         }
         builder = SdistBuilder(str(isolation), config=config)
 
@@ -489,7 +489,7 @@ class TestConstructSetupPyFile:
     def test_entry_points(self, helpers, isolation):
         config = {
             'project': {
-                'name': 'my__app',
+                'name': 'My.App',
                 'version': '0.1.0',
                 'entry-points': {
                     'foo': {'bar': 'pkg:foo', 'foo': 'pkg:bar'},
@@ -528,7 +528,7 @@ class TestConstructSetupPyFile:
     def test_all(self, helpers, isolation):
         config = {
             'project': {
-                'name': 'my__app',
+                'name': 'My.App',
                 'version': '0.1.0',
                 'description': 'foo',
                 'readme': {'content-type': 'text/markdown', 'text': 'test content\n'},
@@ -610,7 +610,7 @@ class TestConstructSetupPyFile:
 
 class TestBuildStandard:
     def test_default(self, hatch, helpers, temp_dir):
-        project_name = 'My App'
+        project_name = 'My.App'
 
         with temp_dir.as_cwd():
             result = hatch('new', project_name)
@@ -619,7 +619,7 @@ class TestBuildStandard:
 
         project_path = temp_dir / 'my-app'
         config = {
-            'project': {'name': 'my__app', 'dynamic': ['version']},
+            'project': {'name': project_name, 'dynamic': ['version']},
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
@@ -657,7 +657,7 @@ class TestBuildStandard:
         assert stat.st_mtime == get_reproducible_timestamp()
 
     def test_default_no_reproducible(self, hatch, helpers, temp_dir):
-        project_name = 'My App'
+        project_name = 'My.App'
 
         with temp_dir.as_cwd():
             result = hatch('new', project_name)
@@ -666,7 +666,7 @@ class TestBuildStandard:
 
         project_path = temp_dir / 'my-app'
         config = {
-            'project': {'name': 'my__app', 'dynamic': ['version']},
+            'project': {'name': project_name, 'dynamic': ['version']},
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
@@ -705,7 +705,7 @@ class TestBuildStandard:
         assert stat.st_mtime != get_reproducible_timestamp()
 
     def test_default_support_legacy(self, hatch, helpers, temp_dir):
-        project_name = 'My App'
+        project_name = 'My.App'
 
         with temp_dir.as_cwd():
             result = hatch('new', project_name)
@@ -714,7 +714,7 @@ class TestBuildStandard:
 
         project_path = temp_dir / 'my-app'
         config = {
-            'project': {'name': 'my__app', 'dynamic': ['version']},
+            'project': {'name': project_name, 'dynamic': ['version']},
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
@@ -750,7 +750,7 @@ class TestBuildStandard:
         helpers.assert_files(extraction_directory, expected_files, check_contents=True)
 
     def test_default_build_script_artifacts(self, hatch, helpers, temp_dir):
-        project_name = 'My App'
+        project_name = 'My.App'
 
         with temp_dir.as_cwd():
             result = hatch('new', project_name)
@@ -779,7 +779,7 @@ class TestBuildStandard:
         )
 
         config = {
-            'project': {'name': 'my__app', 'dynamic': ['version']},
+            'project': {'name': project_name, 'dynamic': ['version']},
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
@@ -821,7 +821,7 @@ class TestBuildStandard:
         helpers.assert_files(extraction_directory, expected_files, check_contents=True)
 
     def test_default_build_script_extra_dependencies(self, hatch, helpers, temp_dir):
-        project_name = 'My App'
+        project_name = 'My.App'
 
         with temp_dir.as_cwd():
             result = hatch('new', project_name)
@@ -851,7 +851,7 @@ class TestBuildStandard:
         )
 
         config = {
-            'project': {'name': 'my__app', 'dynamic': ['version']},
+            'project': {'name': project_name, 'dynamic': ['version']},
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
@@ -893,7 +893,7 @@ class TestBuildStandard:
         helpers.assert_files(extraction_directory, expected_files, check_contents=True)
 
     def test_include_project_file(self, hatch, helpers, temp_dir):
-        project_name = 'My App'
+        project_name = 'My.App'
 
         with temp_dir.as_cwd():
             result = hatch('new', project_name)
@@ -902,7 +902,7 @@ class TestBuildStandard:
 
         project_path = temp_dir / 'my-app'
         config = {
-            'project': {'name': 'my__app', 'dynamic': ['version'], 'readme': 'README.md'},
+            'project': {'name': project_name, 'dynamic': ['version'], 'readme': 'README.md'},
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
@@ -942,7 +942,7 @@ class TestBuildStandard:
         assert stat.st_mtime == get_reproducible_timestamp()
 
     def test_project_file_always_included(self, hatch, helpers, temp_dir):
-        project_name = 'My App'
+        project_name = 'My.App'
 
         with temp_dir.as_cwd():
             result = hatch('new', project_name)
@@ -951,7 +951,7 @@ class TestBuildStandard:
 
         project_path = temp_dir / 'my-app'
         config = {
-            'project': {'name': 'my__app', 'dynamic': ['version'], 'readme': 'README.md'},
+            'project': {'name': project_name, 'dynamic': ['version'], 'readme': 'README.md'},
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
@@ -1000,7 +1000,7 @@ class TestBuildStandard:
         assert stat.st_mtime == get_reproducible_timestamp()
 
     def test_config_file_always_included(self, hatch, helpers, temp_dir):
-        project_name = 'My App'
+        project_name = 'My.App'
 
         with temp_dir.as_cwd():
             result = hatch('new', project_name)
@@ -1009,7 +1009,7 @@ class TestBuildStandard:
 
         project_path = temp_dir / 'my-app'
         config = {
-            'project': {'name': 'my__app', 'dynamic': ['version'], 'readme': 'README.md'},
+            'project': {'name': project_name, 'dynamic': ['version'], 'readme': 'README.md'},
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
@@ -1060,7 +1060,7 @@ class TestBuildStandard:
         assert stat.st_mtime == get_reproducible_timestamp()
 
     def test_include_readme(self, hatch, helpers, temp_dir):
-        project_name = 'My App'
+        project_name = 'My.App'
 
         with temp_dir.as_cwd():
             result = hatch('new', project_name)
@@ -1069,7 +1069,7 @@ class TestBuildStandard:
 
         project_path = temp_dir / 'my-app'
         config = {
-            'project': {'name': 'my__app', 'dynamic': ['version'], 'readme': 'README.md'},
+            'project': {'name': project_name, 'dynamic': ['version'], 'readme': 'README.md'},
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
@@ -1107,7 +1107,7 @@ class TestBuildStandard:
         assert stat.st_mtime == get_reproducible_timestamp()
 
     def test_readme_always_included(self, hatch, helpers, temp_dir):
-        project_name = 'My App'
+        project_name = 'My.App'
 
         with temp_dir.as_cwd():
             result = hatch('new', project_name)
@@ -1116,7 +1116,7 @@ class TestBuildStandard:
 
         project_path = temp_dir / 'my-app'
         config = {
-            'project': {'name': 'my__app', 'dynamic': ['version'], 'readme': 'README.md'},
+            'project': {'name': project_name, 'dynamic': ['version'], 'readme': 'README.md'},
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
@@ -1161,7 +1161,7 @@ class TestBuildStandard:
         assert stat.st_mtime == get_reproducible_timestamp()
 
     def test_include_license_files(self, hatch, helpers, temp_dir):
-        project_name = 'My App'
+        project_name = 'My.App'
 
         with temp_dir.as_cwd():
             result = hatch('new', project_name)
@@ -1170,7 +1170,7 @@ class TestBuildStandard:
 
         project_path = temp_dir / 'my-app'
         config = {
-            'project': {'name': 'my__app', 'dynamic': ['version'], 'readme': 'README.md'},
+            'project': {'name': project_name, 'dynamic': ['version'], 'readme': 'README.md'},
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
@@ -1208,7 +1208,7 @@ class TestBuildStandard:
         assert stat.st_mtime == get_reproducible_timestamp()
 
     def test_license_files_always_included(self, hatch, helpers, temp_dir):
-        project_name = 'My App'
+        project_name = 'My.App'
 
         with temp_dir.as_cwd():
             result = hatch('new', project_name)
@@ -1217,7 +1217,7 @@ class TestBuildStandard:
 
         project_path = temp_dir / 'my-app'
         config = {
-            'project': {'name': 'my__app', 'dynamic': ['version'], 'readme': 'README.md'},
+            'project': {'name': project_name, 'dynamic': ['version'], 'readme': 'README.md'},
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
@@ -1262,7 +1262,7 @@ class TestBuildStandard:
         assert stat.st_mtime == get_reproducible_timestamp()
 
     def test_default_vcs_git_exclusion_files(self, hatch, helpers, temp_dir):
-        project_name = 'My App'
+        project_name = 'My.App'
 
         with temp_dir.as_cwd():
             result = hatch('new', project_name)
@@ -1278,7 +1278,7 @@ class TestBuildStandard:
         (project_path / 'my_app' / 'lib.h').touch()
 
         config = {
-            'project': {'name': 'my__app', 'dynamic': ['version']},
+            'project': {'name': project_name, 'dynamic': ['version']},
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
@@ -1317,7 +1317,7 @@ class TestBuildStandard:
         helpers.assert_files(extraction_directory, expected_files, check_contents=True)
 
     def test_default_vcs_mercurial_exclusion_files(self, hatch, helpers, temp_dir):
-        project_name = 'My App'
+        project_name = 'My.App'
 
         with temp_dir.as_cwd():
             result = hatch('new', project_name)
@@ -1347,7 +1347,7 @@ class TestBuildStandard:
         (project_path / 'my_app' / 'lib.h').touch()
 
         config = {
-            'project': {'name': 'my__app', 'dynamic': ['version']},
+            'project': {'name': project_name, 'dynamic': ['version']},
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},

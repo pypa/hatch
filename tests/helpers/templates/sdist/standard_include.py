@@ -19,11 +19,11 @@ def get_files(**kwargs):
             Path(relative_root, 'PKG-INFO'),
             f"""\
 Metadata-Version: {DEFAULT_METADATA_VERSION}
-Name: {kwargs["project_name_normalized"]}
+Name: {kwargs['project_name']}
 Version: 0.0.1
 Description-Content-Type: text/markdown
 
-# My App
+# My.App
 
 [![PyPI - Version](https://img.shields.io/pypi/v/my-app.svg)](https://pypi.org/project/my-app)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/my-app.svg)](https://pypi.org/project/my-app)

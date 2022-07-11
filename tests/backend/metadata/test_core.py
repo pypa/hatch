@@ -93,26 +93,26 @@ class TestDynamic:
         assert metadata.core.dynamic == ['version']
 
 
-class TestName:
+class TestRawName:
     def test_dynamic(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {'project': {'name': 9000, 'dynamic': ['name']}})
 
         with pytest.raises(
             ValueError, match='Static metadata field `name` cannot be present in field `project.dynamic`'
         ):
-            _ = metadata.core.name
+            _ = metadata.core.raw_name
 
     def test_missing(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {'project': {}})
 
         with pytest.raises(ValueError, match='Missing required field `project.name`'):
-            _ = metadata.core.name
+            _ = metadata.core.raw_name
 
     def test_not_string(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {'project': {'name': 9000}})
 
         with pytest.raises(TypeError, match='Field `project.name` must be a string'):
-            _ = metadata.core.name
+            _ = metadata.core.raw_name
 
     def test_invalid(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {'project': {'name': 'my app'}})
@@ -124,9 +124,17 @@ class TestName:
                 'hyphens, and periods, and must begin and end with ASCII letters/digits.'
             ),
         ):
-            _ = metadata.core.name
+            _ = metadata.core.raw_name
 
-    @pytest.mark.parametrize('name', ['my--app', 'my__app', 'my..app'])
+    def test_correct(self, isolation):
+        name = 'My.App'
+        metadata = ProjectMetadata(str(isolation), None, {'project': {'name': name}})
+
+        assert metadata.core.raw_name is metadata.core.raw_name is name
+
+
+class TestName:
+    @pytest.mark.parametrize('name', ['My--App', 'My__App', 'My..App'])
     def test_normalization(self, isolation, name):
         metadata = ProjectMetadata(str(isolation), None, {'project': {'name': name}})
 

@@ -7,25 +7,25 @@ from hatchling.metadata.spec import get_core_metadata_constructors
 @pytest.mark.parametrize('constructor', [get_core_metadata_constructors()['1.2']])
 class TestCoreMetadataV12:
     def test_default(self, constructor, isolation, helpers):
-        metadata = ProjectMetadata(str(isolation), None, {'project': {'name': 'my__app', 'version': '0.1.0'}})
+        metadata = ProjectMetadata(str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0'}})
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 1.2
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             """
         )
 
     def test_description(self, constructor, isolation, helpers):
         metadata = ProjectMetadata(
-            str(isolation), None, {'project': {'name': 'my__app', 'version': '0.1.0', 'description': 'foo'}}
+            str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0', 'description': 'foo'}}
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 1.2
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Summary: foo
             """
@@ -35,13 +35,13 @@ class TestCoreMetadataV12:
         metadata = ProjectMetadata(
             str(isolation),
             None,
-            {'project': {'name': 'my__app', 'version': '0.1.0', 'urls': {'foo': 'bar', 'bar': 'baz'}}},
+            {'project': {'name': 'My.App', 'version': '0.1.0', 'urls': {'foo': 'bar', 'bar': 'baz'}}},
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 1.2
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Project-URL: foo, bar
             Project-URL: bar, baz
@@ -50,13 +50,13 @@ class TestCoreMetadataV12:
 
     def test_authors_name(self, constructor, isolation, helpers):
         metadata = ProjectMetadata(
-            str(isolation), None, {'project': {'name': 'my__app', 'version': '0.1.0', 'authors': [{'name': 'foo'}]}}
+            str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0', 'authors': [{'name': 'foo'}]}}
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 1.2
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Author: foo
             """
@@ -66,13 +66,13 @@ class TestCoreMetadataV12:
         metadata = ProjectMetadata(
             str(isolation),
             None,
-            {'project': {'name': 'my__app', 'version': '0.1.0', 'authors': [{'email': 'foo@domain'}]}},
+            {'project': {'name': 'My.App', 'version': '0.1.0', 'authors': [{'email': 'foo@domain'}]}},
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 1.2
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Author-email: foo@domain
             """
@@ -82,13 +82,13 @@ class TestCoreMetadataV12:
         metadata = ProjectMetadata(
             str(isolation),
             None,
-            {'project': {'name': 'my__app', 'version': '0.1.0', 'authors': [{'email': 'bar@domain', 'name': 'foo'}]}},
+            {'project': {'name': 'My.App', 'version': '0.1.0', 'authors': [{'email': 'bar@domain', 'name': 'foo'}]}},
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 1.2
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Author-email: foo <bar@domain>
             """
@@ -98,13 +98,13 @@ class TestCoreMetadataV12:
         metadata = ProjectMetadata(
             str(isolation),
             None,
-            {'project': {'name': 'my__app', 'version': '0.1.0', 'authors': [{'name': 'foo'}, {'name': 'bar'}]}},
+            {'project': {'name': 'My.App', 'version': '0.1.0', 'authors': [{'name': 'foo'}, {'name': 'bar'}]}},
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 1.2
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Author: foo, bar
             """
@@ -112,13 +112,13 @@ class TestCoreMetadataV12:
 
     def test_maintainers_name(self, constructor, isolation, helpers):
         metadata = ProjectMetadata(
-            str(isolation), None, {'project': {'name': 'my__app', 'version': '0.1.0', 'maintainers': [{'name': 'foo'}]}}
+            str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0', 'maintainers': [{'name': 'foo'}]}}
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 1.2
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Maintainer: foo
             """
@@ -128,13 +128,13 @@ class TestCoreMetadataV12:
         metadata = ProjectMetadata(
             str(isolation),
             None,
-            {'project': {'name': 'my__app', 'version': '0.1.0', 'maintainers': [{'email': 'foo@domain'}]}},
+            {'project': {'name': 'My.App', 'version': '0.1.0', 'maintainers': [{'email': 'foo@domain'}]}},
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 1.2
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Maintainer-email: foo@domain
             """
@@ -146,7 +146,7 @@ class TestCoreMetadataV12:
             None,
             {
                 'project': {
-                    'name': 'my__app',
+                    'name': 'My.App',
                     'version': '0.1.0',
                     'maintainers': [{'email': 'bar@domain', 'name': 'foo'}],
                 }
@@ -156,7 +156,7 @@ class TestCoreMetadataV12:
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 1.2
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Maintainer-email: foo <bar@domain>
             """
@@ -166,13 +166,13 @@ class TestCoreMetadataV12:
         metadata = ProjectMetadata(
             str(isolation),
             None,
-            {'project': {'name': 'my__app', 'version': '0.1.0', 'maintainers': [{'name': 'foo'}, {'name': 'bar'}]}},
+            {'project': {'name': 'My.App', 'version': '0.1.0', 'maintainers': [{'name': 'foo'}, {'name': 'bar'}]}},
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 1.2
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Maintainer: foo, bar
             """
@@ -180,13 +180,13 @@ class TestCoreMetadataV12:
 
     def test_license(self, constructor, isolation, helpers):
         metadata = ProjectMetadata(
-            str(isolation), None, {'project': {'name': 'my__app', 'version': '0.1.0', 'license': {'text': 'foo\nbar'}}}
+            str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0', 'license': {'text': 'foo\nbar'}}}
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 1.2
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             License: foo
                     bar
@@ -195,13 +195,13 @@ class TestCoreMetadataV12:
 
     def test_keywords_single(self, constructor, isolation, helpers):
         metadata = ProjectMetadata(
-            str(isolation), None, {'project': {'name': 'my__app', 'version': '0.1.0', 'keywords': ['foo']}}
+            str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0', 'keywords': ['foo']}}
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 1.2
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Keywords: foo
             """
@@ -209,13 +209,13 @@ class TestCoreMetadataV12:
 
     def test_keywords_multiple(self, constructor, isolation, helpers):
         metadata = ProjectMetadata(
-            str(isolation), None, {'project': {'name': 'my__app', 'version': '0.1.0', 'keywords': ['foo', 'bar']}}
+            str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0', 'keywords': ['foo', 'bar']}}
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 1.2
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Keywords: bar,foo
             """
@@ -223,13 +223,13 @@ class TestCoreMetadataV12:
 
     def test_classifiers(self, constructor, isolation, helpers):
         metadata = ProjectMetadata(
-            str(isolation), None, {'project': {'name': 'my__app', 'version': '0.1.0', 'classifiers': ['foo', 'bar']}}
+            str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0', 'classifiers': ['foo', 'bar']}}
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 1.2
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Classifier: bar
             Classifier: foo
@@ -238,13 +238,13 @@ class TestCoreMetadataV12:
 
     def test_requires_python(self, constructor, isolation, helpers):
         metadata = ProjectMetadata(
-            str(isolation), None, {'project': {'name': 'my__app', 'version': '0.1.0', 'requires-python': '>=1,<2'}}
+            str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0', 'requires-python': '>=1,<2'}}
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 1.2
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Requires-Python: <2,>=1
             """
@@ -254,13 +254,13 @@ class TestCoreMetadataV12:
         metadata = ProjectMetadata(
             str(isolation),
             None,
-            {'project': {'name': 'my__app', 'version': '0.1.0', 'dependencies': ['foo==1', 'bar==5']}},
+            {'project': {'name': 'My.App', 'version': '0.1.0', 'dependencies': ['foo==1', 'bar==5']}},
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 1.2
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Requires-Dist: bar==5
             Requires-Dist: foo==1
@@ -271,13 +271,13 @@ class TestCoreMetadataV12:
         metadata = ProjectMetadata(
             str(isolation),
             None,
-            {'project': {'name': 'my__app', 'version': '0.1.0', 'dependencies': ['foo==1', 'bar==5']}},
+            {'project': {'name': 'My.App', 'version': '0.1.0', 'dependencies': ['foo==1', 'bar==5']}},
         )
 
         assert constructor(metadata, extra_dependencies=['baz==9']) == helpers.dedent(
             """
             Metadata-Version: 1.2
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Requires-Dist: bar==5
             Requires-Dist: foo==1
@@ -291,7 +291,7 @@ class TestCoreMetadataV12:
             None,
             {
                 'project': {
-                    'name': 'my__app',
+                    'name': 'My.App',
                     'version': '0.1.0',
                     'description': 'foo',
                     'urls': {'foo': 'bar', 'bar': 'baz'},
@@ -309,7 +309,7 @@ class TestCoreMetadataV12:
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 1.2
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Summary: foo
             Project-URL: foo, bar
@@ -331,25 +331,25 @@ class TestCoreMetadataV12:
 @pytest.mark.parametrize('constructor', [get_core_metadata_constructors()['2.1']])
 class TestCoreMetadataV21:
     def test_default(self, constructor, isolation, helpers):
-        metadata = ProjectMetadata(str(isolation), None, {'project': {'name': 'my__app', 'version': '0.1.0'}})
+        metadata = ProjectMetadata(str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0'}})
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.1
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             """
         )
 
     def test_description(self, constructor, isolation, helpers):
         metadata = ProjectMetadata(
-            str(isolation), None, {'project': {'name': 'my__app', 'version': '0.1.0', 'description': 'foo'}}
+            str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0', 'description': 'foo'}}
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.1
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Summary: foo
             """
@@ -359,13 +359,13 @@ class TestCoreMetadataV21:
         metadata = ProjectMetadata(
             str(isolation),
             None,
-            {'project': {'name': 'my__app', 'version': '0.1.0', 'urls': {'foo': 'bar', 'bar': 'baz'}}},
+            {'project': {'name': 'My.App', 'version': '0.1.0', 'urls': {'foo': 'bar', 'bar': 'baz'}}},
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.1
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Project-URL: foo, bar
             Project-URL: bar, baz
@@ -374,13 +374,13 @@ class TestCoreMetadataV21:
 
     def test_authors_name(self, constructor, isolation, helpers):
         metadata = ProjectMetadata(
-            str(isolation), None, {'project': {'name': 'my__app', 'version': '0.1.0', 'authors': [{'name': 'foo'}]}}
+            str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0', 'authors': [{'name': 'foo'}]}}
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.1
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Author: foo
             """
@@ -390,13 +390,13 @@ class TestCoreMetadataV21:
         metadata = ProjectMetadata(
             str(isolation),
             None,
-            {'project': {'name': 'my__app', 'version': '0.1.0', 'authors': [{'email': 'foo@domain'}]}},
+            {'project': {'name': 'My.App', 'version': '0.1.0', 'authors': [{'email': 'foo@domain'}]}},
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.1
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Author-email: foo@domain
             """
@@ -406,13 +406,13 @@ class TestCoreMetadataV21:
         metadata = ProjectMetadata(
             str(isolation),
             None,
-            {'project': {'name': 'my__app', 'version': '0.1.0', 'authors': [{'email': 'bar@domain', 'name': 'foo'}]}},
+            {'project': {'name': 'My.App', 'version': '0.1.0', 'authors': [{'email': 'bar@domain', 'name': 'foo'}]}},
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.1
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Author-email: foo <bar@domain>
             """
@@ -422,13 +422,13 @@ class TestCoreMetadataV21:
         metadata = ProjectMetadata(
             str(isolation),
             None,
-            {'project': {'name': 'my__app', 'version': '0.1.0', 'authors': [{'name': 'foo'}, {'name': 'bar'}]}},
+            {'project': {'name': 'My.App', 'version': '0.1.0', 'authors': [{'name': 'foo'}, {'name': 'bar'}]}},
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.1
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Author: foo, bar
             """
@@ -436,13 +436,13 @@ class TestCoreMetadataV21:
 
     def test_maintainers_name(self, constructor, isolation, helpers):
         metadata = ProjectMetadata(
-            str(isolation), None, {'project': {'name': 'my__app', 'version': '0.1.0', 'maintainers': [{'name': 'foo'}]}}
+            str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0', 'maintainers': [{'name': 'foo'}]}}
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.1
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Maintainer: foo
             """
@@ -452,13 +452,13 @@ class TestCoreMetadataV21:
         metadata = ProjectMetadata(
             str(isolation),
             None,
-            {'project': {'name': 'my__app', 'version': '0.1.0', 'maintainers': [{'email': 'foo@domain'}]}},
+            {'project': {'name': 'My.App', 'version': '0.1.0', 'maintainers': [{'email': 'foo@domain'}]}},
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.1
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Maintainer-email: foo@domain
             """
@@ -470,7 +470,7 @@ class TestCoreMetadataV21:
             None,
             {
                 'project': {
-                    'name': 'my__app',
+                    'name': 'My.App',
                     'version': '0.1.0',
                     'maintainers': [{'email': 'bar@domain', 'name': 'foo'}],
                 }
@@ -480,7 +480,7 @@ class TestCoreMetadataV21:
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.1
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Maintainer-email: foo <bar@domain>
             """
@@ -490,13 +490,13 @@ class TestCoreMetadataV21:
         metadata = ProjectMetadata(
             str(isolation),
             None,
-            {'project': {'name': 'my__app', 'version': '0.1.0', 'maintainers': [{'name': 'foo'}, {'name': 'bar'}]}},
+            {'project': {'name': 'My.App', 'version': '0.1.0', 'maintainers': [{'name': 'foo'}, {'name': 'bar'}]}},
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.1
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Maintainer: foo, bar
             """
@@ -504,13 +504,13 @@ class TestCoreMetadataV21:
 
     def test_license(self, constructor, isolation, helpers):
         metadata = ProjectMetadata(
-            str(isolation), None, {'project': {'name': 'my__app', 'version': '0.1.0', 'license': {'text': 'foo\nbar'}}}
+            str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0', 'license': {'text': 'foo\nbar'}}}
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.1
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             License: foo
                     bar
@@ -519,13 +519,13 @@ class TestCoreMetadataV21:
 
     def test_keywords_single(self, constructor, isolation, helpers):
         metadata = ProjectMetadata(
-            str(isolation), None, {'project': {'name': 'my__app', 'version': '0.1.0', 'keywords': ['foo']}}
+            str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0', 'keywords': ['foo']}}
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.1
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Keywords: foo
             """
@@ -533,13 +533,13 @@ class TestCoreMetadataV21:
 
     def test_keywords_multiple(self, constructor, isolation, helpers):
         metadata = ProjectMetadata(
-            str(isolation), None, {'project': {'name': 'my__app', 'version': '0.1.0', 'keywords': ['foo', 'bar']}}
+            str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0', 'keywords': ['foo', 'bar']}}
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.1
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Keywords: bar,foo
             """
@@ -547,13 +547,13 @@ class TestCoreMetadataV21:
 
     def test_classifiers(self, constructor, isolation, helpers):
         metadata = ProjectMetadata(
-            str(isolation), None, {'project': {'name': 'my__app', 'version': '0.1.0', 'classifiers': ['foo', 'bar']}}
+            str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0', 'classifiers': ['foo', 'bar']}}
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.1
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Classifier: bar
             Classifier: foo
@@ -562,13 +562,13 @@ class TestCoreMetadataV21:
 
     def test_requires_python(self, constructor, isolation, helpers):
         metadata = ProjectMetadata(
-            str(isolation), None, {'project': {'name': 'my__app', 'version': '0.1.0', 'requires-python': '>=1,<2'}}
+            str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0', 'requires-python': '>=1,<2'}}
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.1
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Requires-Python: <2,>=1
             """
@@ -578,13 +578,13 @@ class TestCoreMetadataV21:
         metadata = ProjectMetadata(
             str(isolation),
             None,
-            {'project': {'name': 'my__app', 'version': '0.1.0', 'dependencies': ['foo==1', 'bar==5']}},
+            {'project': {'name': 'My.App', 'version': '0.1.0', 'dependencies': ['foo==1', 'bar==5']}},
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.1
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Requires-Dist: bar==5
             Requires-Dist: foo==1
@@ -597,7 +597,7 @@ class TestCoreMetadataV21:
             None,
             {
                 'project': {
-                    'name': 'my__app',
+                    'name': 'My.App',
                     'version': '0.1.0',
                     'optional-dependencies': {
                         'feature2': ['foo==1; python_version < "3"', 'bar==5'],
@@ -610,7 +610,7 @@ class TestCoreMetadataV21:
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.1
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Provides-Extra: feature1
             Requires-Dist: bar==5; python_version < '3' and extra == 'feature1'
@@ -625,13 +625,13 @@ class TestCoreMetadataV21:
         metadata = ProjectMetadata(
             str(isolation),
             None,
-            {'project': {'name': 'my__app', 'version': '0.1.0', 'dependencies': ['foo==1', 'bar==5']}},
+            {'project': {'name': 'My.App', 'version': '0.1.0', 'dependencies': ['foo==1', 'bar==5']}},
         )
 
         assert constructor(metadata, extra_dependencies=['baz==9']) == helpers.dedent(
             """
             Metadata-Version: 2.1
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Requires-Dist: bar==5
             Requires-Dist: foo==1
@@ -645,7 +645,7 @@ class TestCoreMetadataV21:
             None,
             {
                 'project': {
-                    'name': 'my__app',
+                    'name': 'My.App',
                     'version': '0.1.0',
                     'readme': {'content-type': 'text/markdown', 'text': 'test content\n'},
                 }
@@ -655,7 +655,7 @@ class TestCoreMetadataV21:
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.1
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Description-Content-Type: text/markdown
 
@@ -669,7 +669,7 @@ class TestCoreMetadataV21:
             None,
             {
                 'project': {
-                    'name': 'my__app',
+                    'name': 'My.App',
                     'version': '0.1.0',
                     'description': 'foo',
                     'urls': {'foo': 'bar', 'bar': 'baz'},
@@ -692,7 +692,7 @@ class TestCoreMetadataV21:
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.1
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Summary: foo
             Project-URL: foo, bar
@@ -723,25 +723,25 @@ class TestCoreMetadataV21:
 @pytest.mark.parametrize('constructor', [get_core_metadata_constructors()['2.2']])
 class TestCoreMetadataV22:
     def test_default(self, constructor, isolation, helpers):
-        metadata = ProjectMetadata(str(isolation), None, {'project': {'name': 'my__app', 'version': '0.1.0'}})
+        metadata = ProjectMetadata(str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0'}})
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.2
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             """
         )
 
     def test_description(self, constructor, isolation, helpers):
         metadata = ProjectMetadata(
-            str(isolation), None, {'project': {'name': 'my__app', 'version': '0.1.0', 'description': 'foo'}}
+            str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0', 'description': 'foo'}}
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.2
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Summary: foo
             """
@@ -751,13 +751,13 @@ class TestCoreMetadataV22:
         metadata = ProjectMetadata(
             str(isolation),
             None,
-            {'project': {'name': 'my__app', 'version': '0.1.0', 'urls': {'foo': 'bar', 'bar': 'baz'}}},
+            {'project': {'name': 'My.App', 'version': '0.1.0', 'urls': {'foo': 'bar', 'bar': 'baz'}}},
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.2
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Project-URL: foo, bar
             Project-URL: bar, baz
@@ -766,13 +766,13 @@ class TestCoreMetadataV22:
 
     def test_authors_name(self, constructor, isolation, helpers):
         metadata = ProjectMetadata(
-            str(isolation), None, {'project': {'name': 'my__app', 'version': '0.1.0', 'authors': [{'name': 'foo'}]}}
+            str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0', 'authors': [{'name': 'foo'}]}}
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.2
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Author: foo
             """
@@ -782,13 +782,13 @@ class TestCoreMetadataV22:
         metadata = ProjectMetadata(
             str(isolation),
             None,
-            {'project': {'name': 'my__app', 'version': '0.1.0', 'authors': [{'email': 'foo@domain'}]}},
+            {'project': {'name': 'My.App', 'version': '0.1.0', 'authors': [{'email': 'foo@domain'}]}},
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.2
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Author-email: foo@domain
             """
@@ -798,13 +798,13 @@ class TestCoreMetadataV22:
         metadata = ProjectMetadata(
             str(isolation),
             None,
-            {'project': {'name': 'my__app', 'version': '0.1.0', 'authors': [{'email': 'bar@domain', 'name': 'foo'}]}},
+            {'project': {'name': 'My.App', 'version': '0.1.0', 'authors': [{'email': 'bar@domain', 'name': 'foo'}]}},
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.2
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Author-email: foo <bar@domain>
             """
@@ -814,13 +814,13 @@ class TestCoreMetadataV22:
         metadata = ProjectMetadata(
             str(isolation),
             None,
-            {'project': {'name': 'my__app', 'version': '0.1.0', 'authors': [{'name': 'foo'}, {'name': 'bar'}]}},
+            {'project': {'name': 'My.App', 'version': '0.1.0', 'authors': [{'name': 'foo'}, {'name': 'bar'}]}},
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.2
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Author: foo, bar
             """
@@ -828,13 +828,13 @@ class TestCoreMetadataV22:
 
     def test_maintainers_name(self, constructor, isolation, helpers):
         metadata = ProjectMetadata(
-            str(isolation), None, {'project': {'name': 'my__app', 'version': '0.1.0', 'maintainers': [{'name': 'foo'}]}}
+            str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0', 'maintainers': [{'name': 'foo'}]}}
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.2
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Maintainer: foo
             """
@@ -844,13 +844,13 @@ class TestCoreMetadataV22:
         metadata = ProjectMetadata(
             str(isolation),
             None,
-            {'project': {'name': 'my__app', 'version': '0.1.0', 'maintainers': [{'email': 'foo@domain'}]}},
+            {'project': {'name': 'My.App', 'version': '0.1.0', 'maintainers': [{'email': 'foo@domain'}]}},
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.2
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Maintainer-email: foo@domain
             """
@@ -862,7 +862,7 @@ class TestCoreMetadataV22:
             None,
             {
                 'project': {
-                    'name': 'my__app',
+                    'name': 'My.App',
                     'version': '0.1.0',
                     'maintainers': [{'email': 'bar@domain', 'name': 'foo'}],
                 }
@@ -872,7 +872,7 @@ class TestCoreMetadataV22:
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.2
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Maintainer-email: foo <bar@domain>
             """
@@ -882,13 +882,13 @@ class TestCoreMetadataV22:
         metadata = ProjectMetadata(
             str(isolation),
             None,
-            {'project': {'name': 'my__app', 'version': '0.1.0', 'maintainers': [{'name': 'foo'}, {'name': 'bar'}]}},
+            {'project': {'name': 'My.App', 'version': '0.1.0', 'maintainers': [{'name': 'foo'}, {'name': 'bar'}]}},
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.2
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Maintainer: foo, bar
             """
@@ -896,13 +896,13 @@ class TestCoreMetadataV22:
 
     def test_license(self, constructor, isolation, helpers):
         metadata = ProjectMetadata(
-            str(isolation), None, {'project': {'name': 'my__app', 'version': '0.1.0', 'license': {'text': 'foo\nbar'}}}
+            str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0', 'license': {'text': 'foo\nbar'}}}
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.2
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             License: foo
                     bar
@@ -911,13 +911,13 @@ class TestCoreMetadataV22:
 
     def test_keywords_single(self, constructor, isolation, helpers):
         metadata = ProjectMetadata(
-            str(isolation), None, {'project': {'name': 'my__app', 'version': '0.1.0', 'keywords': ['foo']}}
+            str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0', 'keywords': ['foo']}}
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.2
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Keywords: foo
             """
@@ -925,13 +925,13 @@ class TestCoreMetadataV22:
 
     def test_keywords_multiple(self, constructor, isolation, helpers):
         metadata = ProjectMetadata(
-            str(isolation), None, {'project': {'name': 'my__app', 'version': '0.1.0', 'keywords': ['foo', 'bar']}}
+            str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0', 'keywords': ['foo', 'bar']}}
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.2
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Keywords: bar,foo
             """
@@ -939,13 +939,13 @@ class TestCoreMetadataV22:
 
     def test_classifiers(self, constructor, isolation, helpers):
         metadata = ProjectMetadata(
-            str(isolation), None, {'project': {'name': 'my__app', 'version': '0.1.0', 'classifiers': ['foo', 'bar']}}
+            str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0', 'classifiers': ['foo', 'bar']}}
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.2
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Classifier: bar
             Classifier: foo
@@ -954,13 +954,13 @@ class TestCoreMetadataV22:
 
     def test_requires_python(self, constructor, isolation, helpers):
         metadata = ProjectMetadata(
-            str(isolation), None, {'project': {'name': 'my__app', 'version': '0.1.0', 'requires-python': '>=1,<2'}}
+            str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0', 'requires-python': '>=1,<2'}}
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.2
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Requires-Python: <2,>=1
             """
@@ -970,13 +970,13 @@ class TestCoreMetadataV22:
         metadata = ProjectMetadata(
             str(isolation),
             None,
-            {'project': {'name': 'my__app', 'version': '0.1.0', 'dependencies': ['foo==1', 'bar==5']}},
+            {'project': {'name': 'My.App', 'version': '0.1.0', 'dependencies': ['foo==1', 'bar==5']}},
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.2
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Requires-Dist: bar==5
             Requires-Dist: foo==1
@@ -989,7 +989,7 @@ class TestCoreMetadataV22:
             None,
             {
                 'project': {
-                    'name': 'my__app',
+                    'name': 'My.App',
                     'version': '0.1.0',
                     'optional-dependencies': {
                         'feature2': ['foo==1; python_version < "3"', 'bar==5'],
@@ -1002,7 +1002,7 @@ class TestCoreMetadataV22:
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.2
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Provides-Extra: feature1
             Requires-Dist: bar==5; python_version < '3' and extra == 'feature1'
@@ -1017,13 +1017,13 @@ class TestCoreMetadataV22:
         metadata = ProjectMetadata(
             str(isolation),
             None,
-            {'project': {'name': 'my__app', 'version': '0.1.0', 'dependencies': ['foo==1', 'bar==5']}},
+            {'project': {'name': 'My.App', 'version': '0.1.0', 'dependencies': ['foo==1', 'bar==5']}},
         )
 
         assert constructor(metadata, extra_dependencies=['baz==9']) == helpers.dedent(
             """
             Metadata-Version: 2.2
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Requires-Dist: bar==5
             Requires-Dist: foo==1
@@ -1037,7 +1037,7 @@ class TestCoreMetadataV22:
             None,
             {
                 'project': {
-                    'name': 'my__app',
+                    'name': 'My.App',
                     'version': '0.1.0',
                     'readme': {'content-type': 'text/markdown', 'text': 'test content\n'},
                 }
@@ -1047,7 +1047,7 @@ class TestCoreMetadataV22:
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.2
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Description-Content-Type: text/markdown
 
@@ -1061,7 +1061,7 @@ class TestCoreMetadataV22:
             None,
             {
                 'project': {
-                    'name': 'my__app',
+                    'name': 'My.App',
                     'version': '0.1.0',
                     'description': 'foo',
                     'urls': {'foo': 'bar', 'bar': 'baz'},
@@ -1084,7 +1084,7 @@ class TestCoreMetadataV22:
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.2
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Summary: foo
             Project-URL: foo, bar
@@ -1115,25 +1115,25 @@ class TestCoreMetadataV22:
 @pytest.mark.parametrize('constructor', [get_core_metadata_constructors()['2.3']])
 class TestCoreMetadataV23:
     def test_default(self, constructor, isolation, helpers):
-        metadata = ProjectMetadata(str(isolation), None, {'project': {'name': 'my__app', 'version': '0.1.0'}})
+        metadata = ProjectMetadata(str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0'}})
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.3
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             """
         )
 
     def test_description(self, constructor, isolation, helpers):
         metadata = ProjectMetadata(
-            str(isolation), None, {'project': {'name': 'my__app', 'version': '0.1.0', 'description': 'foo'}}
+            str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0', 'description': 'foo'}}
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.3
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Summary: foo
             """
@@ -1143,13 +1143,13 @@ class TestCoreMetadataV23:
         metadata = ProjectMetadata(
             str(isolation),
             None,
-            {'project': {'name': 'my__app', 'version': '0.1.0', 'urls': {'foo': 'bar', 'bar': 'baz'}}},
+            {'project': {'name': 'My.App', 'version': '0.1.0', 'urls': {'foo': 'bar', 'bar': 'baz'}}},
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.3
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Project-URL: foo, bar
             Project-URL: bar, baz
@@ -1158,13 +1158,13 @@ class TestCoreMetadataV23:
 
     def test_authors_name(self, constructor, isolation, helpers):
         metadata = ProjectMetadata(
-            str(isolation), None, {'project': {'name': 'my__app', 'version': '0.1.0', 'authors': [{'name': 'foo'}]}}
+            str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0', 'authors': [{'name': 'foo'}]}}
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.3
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Author: foo
             """
@@ -1174,13 +1174,13 @@ class TestCoreMetadataV23:
         metadata = ProjectMetadata(
             str(isolation),
             None,
-            {'project': {'name': 'my__app', 'version': '0.1.0', 'authors': [{'email': 'foo@domain'}]}},
+            {'project': {'name': 'My.App', 'version': '0.1.0', 'authors': [{'email': 'foo@domain'}]}},
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.3
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Author-email: foo@domain
             """
@@ -1190,13 +1190,13 @@ class TestCoreMetadataV23:
         metadata = ProjectMetadata(
             str(isolation),
             None,
-            {'project': {'name': 'my__app', 'version': '0.1.0', 'authors': [{'email': 'bar@domain', 'name': 'foo'}]}},
+            {'project': {'name': 'My.App', 'version': '0.1.0', 'authors': [{'email': 'bar@domain', 'name': 'foo'}]}},
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.3
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Author-email: foo <bar@domain>
             """
@@ -1206,13 +1206,13 @@ class TestCoreMetadataV23:
         metadata = ProjectMetadata(
             str(isolation),
             None,
-            {'project': {'name': 'my__app', 'version': '0.1.0', 'authors': [{'name': 'foo'}, {'name': 'bar'}]}},
+            {'project': {'name': 'My.App', 'version': '0.1.0', 'authors': [{'name': 'foo'}, {'name': 'bar'}]}},
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.3
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Author: foo, bar
             """
@@ -1220,13 +1220,13 @@ class TestCoreMetadataV23:
 
     def test_maintainers_name(self, constructor, isolation, helpers):
         metadata = ProjectMetadata(
-            str(isolation), None, {'project': {'name': 'my__app', 'version': '0.1.0', 'maintainers': [{'name': 'foo'}]}}
+            str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0', 'maintainers': [{'name': 'foo'}]}}
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.3
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Maintainer: foo
             """
@@ -1236,13 +1236,13 @@ class TestCoreMetadataV23:
         metadata = ProjectMetadata(
             str(isolation),
             None,
-            {'project': {'name': 'my__app', 'version': '0.1.0', 'maintainers': [{'email': 'foo@domain'}]}},
+            {'project': {'name': 'My.App', 'version': '0.1.0', 'maintainers': [{'email': 'foo@domain'}]}},
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.3
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Maintainer-email: foo@domain
             """
@@ -1254,7 +1254,7 @@ class TestCoreMetadataV23:
             None,
             {
                 'project': {
-                    'name': 'my__app',
+                    'name': 'My.App',
                     'version': '0.1.0',
                     'maintainers': [{'email': 'bar@domain', 'name': 'foo'}],
                 }
@@ -1264,7 +1264,7 @@ class TestCoreMetadataV23:
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.3
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Maintainer-email: foo <bar@domain>
             """
@@ -1274,13 +1274,13 @@ class TestCoreMetadataV23:
         metadata = ProjectMetadata(
             str(isolation),
             None,
-            {'project': {'name': 'my__app', 'version': '0.1.0', 'maintainers': [{'name': 'foo'}, {'name': 'bar'}]}},
+            {'project': {'name': 'My.App', 'version': '0.1.0', 'maintainers': [{'name': 'foo'}, {'name': 'bar'}]}},
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.3
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Maintainer: foo, bar
             """
@@ -1290,13 +1290,13 @@ class TestCoreMetadataV23:
         metadata = ProjectMetadata(
             str(isolation),
             None,
-            {'project': {'name': 'my__app', 'version': '0.1.0', 'license': 'mit or apache-2.0'}},
+            {'project': {'name': 'My.App', 'version': '0.1.0', 'license': 'mit or apache-2.0'}},
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.3
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             License-Expression: MIT OR Apache-2.0
             """
@@ -1306,7 +1306,7 @@ class TestCoreMetadataV23:
         metadata = ProjectMetadata(
             str(temp_dir),
             None,
-            {'project': {'name': 'my__app', 'version': '0.1.0', 'license-files': {'globs': ['LICENSES/*']}}},
+            {'project': {'name': 'My.App', 'version': '0.1.0', 'license-files': {'globs': ['LICENSES/*']}}},
         )
 
         licenses_dir = temp_dir / 'LICENSES'
@@ -1317,7 +1317,7 @@ class TestCoreMetadataV23:
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.3
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             License-File: LICENSES/Apache-2.0.txt
             License-File: LICENSES/MIT.txt
@@ -1326,13 +1326,13 @@ class TestCoreMetadataV23:
 
     def test_keywords_single(self, constructor, isolation, helpers):
         metadata = ProjectMetadata(
-            str(isolation), None, {'project': {'name': 'my__app', 'version': '0.1.0', 'keywords': ['foo']}}
+            str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0', 'keywords': ['foo']}}
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.3
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Keywords: foo
             """
@@ -1340,13 +1340,13 @@ class TestCoreMetadataV23:
 
     def test_keywords_multiple(self, constructor, isolation, helpers):
         metadata = ProjectMetadata(
-            str(isolation), None, {'project': {'name': 'my__app', 'version': '0.1.0', 'keywords': ['foo', 'bar']}}
+            str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0', 'keywords': ['foo', 'bar']}}
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.3
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Keywords: bar,foo
             """
@@ -1354,13 +1354,13 @@ class TestCoreMetadataV23:
 
     def test_classifiers(self, constructor, isolation, helpers):
         metadata = ProjectMetadata(
-            str(isolation), None, {'project': {'name': 'my__app', 'version': '0.1.0', 'classifiers': ['foo', 'bar']}}
+            str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0', 'classifiers': ['foo', 'bar']}}
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.3
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Classifier: bar
             Classifier: foo
@@ -1369,13 +1369,13 @@ class TestCoreMetadataV23:
 
     def test_requires_python(self, constructor, isolation, helpers):
         metadata = ProjectMetadata(
-            str(isolation), None, {'project': {'name': 'my__app', 'version': '0.1.0', 'requires-python': '>=1,<2'}}
+            str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0', 'requires-python': '>=1,<2'}}
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.3
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Requires-Python: <2,>=1
             """
@@ -1385,13 +1385,13 @@ class TestCoreMetadataV23:
         metadata = ProjectMetadata(
             str(isolation),
             None,
-            {'project': {'name': 'my__app', 'version': '0.1.0', 'dependencies': ['foo==1', 'bar==5']}},
+            {'project': {'name': 'My.App', 'version': '0.1.0', 'dependencies': ['foo==1', 'bar==5']}},
         )
 
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.3
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Requires-Dist: bar==5
             Requires-Dist: foo==1
@@ -1404,7 +1404,7 @@ class TestCoreMetadataV23:
             None,
             {
                 'project': {
-                    'name': 'my__app',
+                    'name': 'My.App',
                     'version': '0.1.0',
                     'optional-dependencies': {
                         'feature2': ['foo==1; python_version < "3"', 'bar==5'],
@@ -1417,7 +1417,7 @@ class TestCoreMetadataV23:
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.3
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Provides-Extra: feature1
             Requires-Dist: bar==5; python_version < '3' and extra == 'feature1'
@@ -1432,13 +1432,13 @@ class TestCoreMetadataV23:
         metadata = ProjectMetadata(
             str(isolation),
             None,
-            {'project': {'name': 'my__app', 'version': '0.1.0', 'dependencies': ['foo==1', 'bar==5']}},
+            {'project': {'name': 'My.App', 'version': '0.1.0', 'dependencies': ['foo==1', 'bar==5']}},
         )
 
         assert constructor(metadata, extra_dependencies=['baz==9']) == helpers.dedent(
             """
             Metadata-Version: 2.3
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Requires-Dist: bar==5
             Requires-Dist: foo==1
@@ -1452,7 +1452,7 @@ class TestCoreMetadataV23:
             None,
             {
                 'project': {
-                    'name': 'my__app',
+                    'name': 'My.App',
                     'version': '0.1.0',
                     'readme': {'content-type': 'text/markdown', 'text': 'test content\n'},
                 }
@@ -1462,7 +1462,7 @@ class TestCoreMetadataV23:
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.3
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Description-Content-Type: text/markdown
 
@@ -1476,7 +1476,7 @@ class TestCoreMetadataV23:
             None,
             {
                 'project': {
-                    'name': 'my__app',
+                    'name': 'My.App',
                     'version': '0.1.0',
                     'description': 'foo',
                     'urls': {'foo': 'bar', 'bar': 'baz'},
@@ -1505,7 +1505,7 @@ class TestCoreMetadataV23:
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.3
-            Name: my-app
+            Name: My.App
             Version: 0.1.0
             Summary: foo
             Project-URL: foo, bar

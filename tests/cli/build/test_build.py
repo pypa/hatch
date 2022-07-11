@@ -14,7 +14,7 @@ def local_builder(mock_backend_process, mocker):
 
 
 def test_backend_not_build_system(hatch, temp_dir, helpers):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -39,7 +39,7 @@ def test_backend_not_build_system(hatch, temp_dir, helpers):
 
 
 def test_backend_not_build_dependency(hatch, temp_dir, helpers):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -64,7 +64,7 @@ def test_backend_not_build_dependency(hatch, temp_dir, helpers):
 
 
 def test_unknown_targets(hatch, temp_dir, helpers):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -85,7 +85,7 @@ def test_unknown_targets(hatch, temp_dir, helpers):
 
 
 def test_mutually_exclusive_hook_options(hatch, temp_dir, helpers):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -106,7 +106,7 @@ def test_mutually_exclusive_hook_options(hatch, temp_dir, helpers):
 
 
 def test_default(hatch, temp_dir, helpers):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -142,7 +142,7 @@ def test_default(hatch, temp_dir, helpers):
 
 
 def test_no_targets_default(hatch, temp_dir, helpers):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -183,7 +183,7 @@ def test_no_targets_default(hatch, temp_dir, helpers):
 
 
 def test_explicit_targets(hatch, temp_dir, helpers):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -214,7 +214,7 @@ def test_explicit_targets(hatch, temp_dir, helpers):
 
 
 def test_explicit_directory(hatch, temp_dir, helpers):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -249,7 +249,7 @@ def test_explicit_directory(hatch, temp_dir, helpers):
 
 
 def test_explicit_directory_env_var(hatch, temp_dir, helpers):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -284,7 +284,7 @@ def test_explicit_directory_env_var(hatch, temp_dir, helpers):
 
 
 def test_clean(hatch, temp_dir, helpers):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -367,7 +367,7 @@ def test_clean(hatch, temp_dir, helpers):
 
 
 def test_clean_env_var(hatch, temp_dir, helpers):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -425,7 +425,7 @@ def test_clean_env_var(hatch, temp_dir, helpers):
 
 
 def test_clean_only(hatch, temp_dir, helpers):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -489,7 +489,7 @@ def test_clean_only(hatch, temp_dir, helpers):
 
 
 def test_clean_only_hooks_only(hatch, temp_dir, helpers):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -553,7 +553,7 @@ def test_clean_only_hooks_only(hatch, temp_dir, helpers):
 
 
 def test_clean_hooks_after(hatch, temp_dir, helpers):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -614,7 +614,7 @@ def test_clean_hooks_after(hatch, temp_dir, helpers):
 
 
 def test_clean_hooks_after_env_var(hatch, temp_dir, helpers):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -675,7 +675,7 @@ def test_clean_hooks_after_env_var(hatch, temp_dir, helpers):
 
 
 def test_clean_only_no_hooks(hatch, temp_dir, helpers):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -739,7 +739,7 @@ def test_clean_only_no_hooks(hatch, temp_dir, helpers):
 
 
 def test_hooks_only(hatch, temp_dir, helpers):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -791,7 +791,7 @@ def test_hooks_only(hatch, temp_dir, helpers):
 
 
 def test_hooks_only_env_var(hatch, temp_dir, helpers):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -843,7 +843,7 @@ def test_hooks_only_env_var(hatch, temp_dir, helpers):
 
 
 def test_extensions_only(hatch, temp_dir, helpers):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -895,7 +895,7 @@ def test_extensions_only(hatch, temp_dir, helpers):
 
 
 def test_no_hooks(hatch, temp_dir, helpers):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -948,7 +948,7 @@ def test_no_hooks(hatch, temp_dir, helpers):
 
 
 def test_no_hooks_env_var(hatch, temp_dir, helpers):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -1001,7 +1001,7 @@ def test_no_hooks_env_var(hatch, temp_dir, helpers):
 
 
 def test_debug_verbosity(hatch, temp_dir, helpers):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -1035,7 +1035,7 @@ def test_debug_verbosity(hatch, temp_dir, helpers):
 @pytest.mark.allow_backend_process
 @pytest.mark.requires_internet
 def test_shipped(hatch, temp_dir, helpers):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -1073,7 +1073,7 @@ def test_shipped(hatch, temp_dir, helpers):
 @pytest.mark.allow_backend_process
 @pytest.mark.requires_internet
 def test_build_dependencies(hatch, temp_dir, helpers):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
