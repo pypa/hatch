@@ -100,6 +100,8 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 
 ### Unreleased
 
+### [1.5.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.5.0) - 2022-07-11 ### {: #hatchling-v1.5.0 }
+
 ***Added:***
 
 - Support the final draft of PEP 639
