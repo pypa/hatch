@@ -325,6 +325,45 @@ class TestExtraMetadata:
         }
 
 
+class TestStrictNaming:
+    def test_default(self, isolation):
+        builder = WheelBuilder(str(isolation))
+
+        assert builder.config.strict_naming is builder.config.strict_naming is True
+
+    def test_target(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'wheel': {'strict-naming': False}}}}}}
+        builder = WheelBuilder(str(isolation), config=config)
+
+        assert builder.config.strict_naming is False
+
+    def test_target_not_boolean(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'wheel': {'strict-naming': 9000}}}}}}
+        builder = WheelBuilder(str(isolation), config=config)
+
+        with pytest.raises(TypeError, match='Field `tool.hatch.build.targets.wheel.strict-naming` must be a boolean'):
+            _ = builder.config.strict_naming
+
+    def test_global(self, isolation):
+        config = {'tool': {'hatch': {'build': {'strict-naming': False}}}}
+        builder = WheelBuilder(str(isolation), config=config)
+
+        assert builder.config.strict_naming is False
+
+    def test_global_not_boolean(self, isolation):
+        config = {'tool': {'hatch': {'build': {'strict-naming': 9000}}}}
+        builder = WheelBuilder(str(isolation), config=config)
+
+        with pytest.raises(TypeError, match='Field `tool.hatch.build.strict-naming` must be a boolean'):
+            _ = builder.config.strict_naming
+
+    def test_target_overrides_global(self, isolation):
+        config = {'tool': {'hatch': {'build': {'strict-naming': False, 'targets': {'wheel': {'strict-naming': True}}}}}}
+        builder = WheelBuilder(str(isolation), config=config)
+
+        assert builder.config.strict_naming is True
+
+
 class TestConstructEntryPointsFile:
     def test_default(self, isolation):
         config = {'project': {}}
@@ -2518,5 +2557,53 @@ class TestBuildStandard:
             'wheel.standard_default_single_module',
             project_name,
             metadata_directory=metadata_directory,
+        )
+        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+
+    def test_no_strict_naming(self, hatch, helpers, temp_dir):
+        project_name = 'My.App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / 'my-app'
+
+        config = {
+            'project': {'name': project_name, 'dynamic': ['version']},
+            'tool': {
+                'hatch': {
+                    'version': {'path': 'my_app/__about__.py'},
+                    'build': {'targets': {'wheel': {'versions': ['standard'], 'strict-naming': False}}},
+                },
+            },
+        }
+        builder = WheelBuilder(str(project_path), config=config)
+
+        build_path = project_path / 'dist'
+
+        with project_path.as_cwd():
+            artifacts = list(builder.build())
+
+        assert len(artifacts) == 1
+        expected_artifact = artifacts[0]
+
+        build_artifacts = list(build_path.iterdir())
+        assert len(build_artifacts) == 1
+        assert expected_artifact == str(build_artifacts[0])
+        assert expected_artifact == str(
+            build_path / f'{builder.artifact_project_id}-{get_python_versions_tag()}-none-any.whl'
+        )
+
+        extraction_directory = temp_dir / '_archive'
+        extraction_directory.mkdir()
+
+        with zipfile.ZipFile(str(expected_artifact), 'r') as zip_archive:
+            zip_archive.extractall(str(extraction_directory))
+
+        metadata_directory = f'{builder.project_id}.dist-info'
+        expected_files = helpers.get_template_files(
+            'wheel.standard_default_license_single', project_name, metadata_directory=metadata_directory
         )
         helpers.assert_files(extraction_directory, expected_files, check_contents=True)

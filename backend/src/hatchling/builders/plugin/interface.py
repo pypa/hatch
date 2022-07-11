@@ -354,7 +354,6 @@ class BuilderInterface(ABC):
     @property
     def project_id(self):
         if self.__project_id is None:
-            # https://discuss.python.org/t/clarify-naming-of-dist-info-directories/5565
             self.__project_id = f'{self.normalize_file_name_component(self.metadata.core.name)}-{self.metadata.version}'
 
         return self.__project_id
