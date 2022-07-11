@@ -90,7 +90,7 @@ nav:
       - Default: plugins/environment-collector/default.md
     - Publisher:
       - Reference: plugins/publisher/reference.md
-      - Index: plugins/publisher/index.md
+      - Index: plugins/publisher/package-index.md
     - Version source:
       - Reference: plugins/version-source/reference.md
       - Regex: plugins/version-source/regex.md

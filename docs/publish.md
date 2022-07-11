@@ -4,7 +4,7 @@
 
 After your project is [built](build.md), you can distribute it using the [`publish`](cli/reference.md#hatch-publish) command.
 
-The `-p`/`--publisher` option controls which publisher to use, with the default being [index](plugins/publisher/index.md).
+The `-p`/`--publisher` option controls which publisher to use, with the default being [index](plugins/publisher/package-index.md).
 
 ## Artifact selection
 
