@@ -7,6 +7,16 @@ from hatch.project.core import Project
 from hatch.utils.structures import EnvVars
 
 
+def test_help(hatch):
+    short = hatch('run', '-h')
+    assert short.exit_code == 0, short.output
+
+    long = hatch('run', '--help')
+    assert long.exit_code == 0, long.output
+
+    assert short.output == long.output
+
+
 def test_automatic_creation(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
