@@ -421,7 +421,7 @@ class WheelBuilder(BuilderInterface):
         # entry_points.txt
         self.write_entry_points_file(archive, records)
 
-        # license_files/
+        # licenses/
         self.add_licenses(archive, records)
 
         # extra_metadata/ - write last
@@ -458,7 +458,7 @@ Root-Is-Purelib: {'true' if build_data['pure_python'] else 'false'}
         for relative_path in self.metadata.core.license_files:
             license_file = os.path.normpath(os.path.join(self.root, relative_path))
             with open(license_file, 'rb') as f:
-                record = archive.write_metadata(f'license_files/{relative_path}', f.read())
+                record = archive.write_metadata(f'licenses/{relative_path}', f.read())
                 records.write(self.format_record(record))
 
     def add_extra_metadata(self, archive, records):

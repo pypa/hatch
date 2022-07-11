@@ -13,7 +13,7 @@ def get_files(**kwargs):
     files = []
     for f in get_template_files(**kwargs):
         if str(f.path) == 'LICENSE.txt':
-            files.append(File(Path(metadata_directory, 'license_files', f.path), f.contents))
+            files.append(File(Path(metadata_directory, 'licenses', f.path), f.contents))
 
         if f.path.parts[0] != kwargs['package_name']:
             continue
