@@ -50,6 +50,10 @@ def run(ctx, app, args):
     would execute `pytest` in the environments `test.py310-42` and `test.py310-3.14`.
     Note that `py` may be used as an alias for `python`.
     """
+    if args[0] in ('-h', '--help'):
+        app.display_info(ctx.get_help())
+        return
+
     from hatch.cli.env.run import run as run_command
 
     command_start = 0
