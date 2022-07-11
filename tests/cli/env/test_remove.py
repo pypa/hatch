@@ -5,7 +5,7 @@ from hatch.project.core import Project
 
 
 def test_unknown(hatch, temp_dir_data, helpers, config_file):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir_data.as_cwd():
         result = hatch('new', project_name)
@@ -26,7 +26,7 @@ def test_unknown(hatch, temp_dir_data, helpers, config_file):
 
 
 def test_nonexistent(hatch, temp_dir_data, config_file):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir_data.as_cwd():
         result = hatch('new', project_name)
@@ -44,7 +44,7 @@ def test_nonexistent(hatch, temp_dir_data, config_file):
 
 @pytest.mark.requires_internet
 def test_single(hatch, helpers, temp_dir_data, config_file):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir_data.as_cwd():
         result = hatch('new', project_name)
@@ -103,7 +103,7 @@ def test_single(hatch, helpers, temp_dir_data, config_file):
 
 @pytest.mark.requires_internet
 def test_all(hatch, helpers, temp_dir_data, config_file):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir_data.as_cwd():
         result = hatch('new', project_name)
@@ -167,7 +167,7 @@ def test_all(hatch, helpers, temp_dir_data, config_file):
 
 @pytest.mark.requires_internet
 def test_matrix_all(hatch, helpers, temp_dir_data, config_file):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir_data.as_cwd():
         result = hatch('new', project_name)
@@ -218,7 +218,7 @@ def test_matrix_all(hatch, helpers, temp_dir_data, config_file):
 
 
 def test_incompatible_ok(hatch, helpers, temp_dir_data, config_file):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir_data.as_cwd():
         result = hatch('new', project_name)
@@ -240,7 +240,7 @@ def test_incompatible_ok(hatch, helpers, temp_dir_data, config_file):
 
 
 def test_active(hatch, temp_dir_data, helpers, config_file):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir_data.as_cwd():
         result = hatch('new', project_name)
@@ -262,7 +262,7 @@ def test_active(hatch, temp_dir_data, helpers, config_file):
 
 @pytest.mark.requires_internet
 def test_active_override(hatch, helpers, temp_dir_data, config_file):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir_data.as_cwd():
         result = hatch('new', project_name)

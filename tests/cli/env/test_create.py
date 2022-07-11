@@ -10,7 +10,7 @@ def test_undefined(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -36,7 +36,7 @@ def test_unknown_type(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -68,7 +68,7 @@ def test_new(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -131,7 +131,7 @@ def test_new_selected_python(hatch, helpers, temp_dir, config_file, python_on_pa
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -193,7 +193,7 @@ def test_selected_absolute_directory(hatch, helpers, temp_dir, config_file):
     config_file.model.dirs.env = {'virtual': '$VENVS_DIR'}
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -254,7 +254,7 @@ def test_env_var_absolute_directory(hatch, helpers, temp_dir, config_file):
     config_file.model.dirs.env = {'virtual': '$VENVS_DIR'}
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -299,7 +299,7 @@ def test_selected_local_directory(hatch, helpers, temp_dir, config_file):
     config_file.model.dirs.env = {'virtual': '$VENVS_DIR'}
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -360,7 +360,7 @@ def test_env_var_local_directory(hatch, helpers, temp_dir, config_file):
     config_file.model.dirs.env = {'virtual': '$VENVS_DIR'}
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
     env_data_path = temp_dir / '.venvs'
 
     with temp_dir.as_cwd():
@@ -402,7 +402,7 @@ def test_enter_project_directory(hatch, config_file, helpers, temp_dir):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -459,7 +459,7 @@ def test_already_created(hatch, config_file, helpers, temp_dir):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -520,7 +520,7 @@ def test_default(hatch, config_file, helpers, temp_dir):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -570,7 +570,7 @@ def test_matrix(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -632,7 +632,7 @@ def test_incompatible_single(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -677,7 +677,7 @@ def test_incompatible_matrix_full(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -725,7 +725,7 @@ def test_incompatible_matrix_partial(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -800,7 +800,7 @@ def test_install_project_default_dev_mode(
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -859,7 +859,7 @@ def test_install_project_no_dev_mode(hatch, helpers, temp_dir, platform, config_
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -919,7 +919,7 @@ def test_pre_install_commands(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -959,7 +959,7 @@ def test_pre_install_commands_error(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -996,7 +996,7 @@ def test_post_install_commands(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -1037,7 +1037,7 @@ def test_post_install_commands_error(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -1075,7 +1075,7 @@ def test_sync_dependencies(hatch, helpers, temp_dir, platform, config_file, extr
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -1147,7 +1147,7 @@ def test_features(hatch, helpers, temp_dir, platform, config_file, extract_insta
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -1210,7 +1210,7 @@ def test_no_project_file(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)

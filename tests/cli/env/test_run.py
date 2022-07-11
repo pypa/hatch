@@ -6,7 +6,7 @@ def test_filter_not_mapping(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -48,7 +48,7 @@ def test_filter(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -122,7 +122,7 @@ def test_force_continue(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)

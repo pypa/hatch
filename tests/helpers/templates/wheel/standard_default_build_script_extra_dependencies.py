@@ -37,7 +37,7 @@ Tag: {kwargs.get('tag', '')}
             Path(metadata_directory, 'METADATA'),
             f"""\
 Metadata-Version: {DEFAULT_METADATA_VERSION}
-Name: {kwargs['project_name_normalized']}
+Name: {kwargs['project_name']}
 Version: 0.0.1
 Requires-Python: >3
 Requires-Dist: binary

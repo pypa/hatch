@@ -4,7 +4,7 @@ from hatch.project.core import Project
 
 
 def test_all(hatch, helpers, temp_dir):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -32,7 +32,7 @@ def test_all(hatch, helpers, temp_dir):
 
 
 def test_project_only(hatch, helpers, temp_dir):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)

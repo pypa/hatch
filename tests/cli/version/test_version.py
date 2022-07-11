@@ -2,7 +2,7 @@ from hatch.project.core import Project
 
 
 def test_show_dynamic(hatch, temp_dir):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         hatch('new', project_name)
@@ -17,7 +17,7 @@ def test_show_dynamic(hatch, temp_dir):
 
 
 def test_set_dynamic(hatch, helpers, temp_dir):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         hatch('new', project_name)
@@ -43,7 +43,7 @@ def test_set_dynamic(hatch, helpers, temp_dir):
 
 
 def test_show_static(hatch, temp_dir):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         hatch('new', project_name)
@@ -64,7 +64,7 @@ def test_show_static(hatch, temp_dir):
 
 
 def test_set_static(hatch, helpers, temp_dir):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         hatch('new', project_name)

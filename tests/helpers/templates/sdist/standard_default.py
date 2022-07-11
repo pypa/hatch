@@ -17,7 +17,7 @@ def get_files(**kwargs):
             Path(relative_root, 'PKG-INFO'),
             f"""\
 Metadata-Version: {DEFAULT_METADATA_VERSION}
-Name: {kwargs["project_name_normalized"]}
+Name: {kwargs['project_name']}
 Version: 0.0.1
 """,
         )

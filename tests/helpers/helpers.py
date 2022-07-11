@@ -60,7 +60,7 @@ def assert_files(directory, expected_files, check_contents=False):
 
 def get_template_files(template_name, project_name, **kwargs):
     kwargs['project_name'] = project_name
-    kwargs['project_name_normalized'] = project_name.lower().replace(' ', '-')
+    kwargs['project_name_normalized'] = project_name.lower().replace('.', '-')
     kwargs['package_name'] = kwargs['project_name_normalized'].replace('-', '_')
 
     config = RootConfig({})

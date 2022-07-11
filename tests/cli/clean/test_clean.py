@@ -13,7 +13,7 @@ def local_builder(mock_backend_process, mocker):
 
 
 def test(hatch, temp_dir, helpers):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)

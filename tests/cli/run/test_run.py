@@ -11,7 +11,7 @@ def test_automatic_creation(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -65,7 +65,7 @@ def test_enter_project_directory(hatch, config_file, helpers, temp_dir):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -126,7 +126,7 @@ def test_sync_dependencies(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -201,7 +201,7 @@ def test_sync_project_dependencies(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -274,7 +274,7 @@ def test_sync_project_features(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -352,7 +352,7 @@ def test_scripts(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -410,7 +410,7 @@ def test_scripts_specific_environment(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -477,7 +477,7 @@ def test_scripts_no_environment(hatch, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -511,7 +511,7 @@ def test_error(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -556,7 +556,7 @@ def test_ignore_error(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -625,7 +625,7 @@ def test_command_expansion_error(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -661,7 +661,7 @@ def test_verbosity(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -737,7 +737,7 @@ def test_matrix_no_environments(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -769,7 +769,7 @@ def test_matrix(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -828,7 +828,7 @@ def test_incompatible_single(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -867,7 +867,7 @@ def test_incompatible_matrix_full(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -908,7 +908,7 @@ def test_incompatible_matrix_partial(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -976,7 +976,7 @@ def test_incompatible_missing_python(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -1042,7 +1042,7 @@ def test_env_detection(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -1113,7 +1113,7 @@ def test_env_detection_override(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -1186,7 +1186,7 @@ def test_matrix_variable_selection_no_command(hatch, helpers, temp_dir, config_f
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -1216,7 +1216,7 @@ def test_matrix_variable_selection_duplicate_inclusion(hatch, helpers, temp_dir,
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -1253,7 +1253,7 @@ def test_matrix_variable_selection_duplicate_exclusion(hatch, helpers, temp_dir,
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -1290,7 +1290,7 @@ def test_matrix_variable_selection_python_alias(hatch, helpers, temp_dir, config
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -1327,7 +1327,7 @@ def test_matrix_variable_selection_not_matrix(hatch, helpers, temp_dir, config_f
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -1363,7 +1363,7 @@ def test_matrix_variable_selection_inclusion(hatch, helpers, temp_dir, config_fi
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -1425,7 +1425,7 @@ def test_matrix_variable_selection_exclusion(hatch, helpers, temp_dir, config_fi
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -1487,7 +1487,7 @@ def test_matrix_variable_selection_exclude_all(hatch, helpers, temp_dir, config_
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -1523,7 +1523,7 @@ def test_matrix_variable_selection_include_none(hatch, helpers, temp_dir, config
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -1559,7 +1559,7 @@ def test_context_formatting_recursion(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)

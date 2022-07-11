@@ -97,7 +97,7 @@ def test_timestamp_to_version():
 
 
 def test_explicit_options(hatch, temp_dir):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -115,7 +115,7 @@ def test_explicit_options(hatch, temp_dir):
 
 
 def test_unknown_publisher(hatch, temp_dir):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -134,7 +134,7 @@ def test_disabled(hatch, temp_dir, config_file):
     config_file.model.publish['index']['disable'] = True
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -150,7 +150,7 @@ def test_disabled(hatch, temp_dir, config_file):
 
 
 def test_missing_user(hatch, temp_dir):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -166,7 +166,7 @@ def test_missing_user(hatch, temp_dir):
 
 
 def test_missing_auth(hatch, temp_dir):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)

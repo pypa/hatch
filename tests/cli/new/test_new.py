@@ -29,7 +29,7 @@ class TestErrors:
         assert result.output == f'Directory `{path}` is not empty.\n'
 
     def test_no_plugins_found(self, hatch, config_file, temp_dir):
-        project_name = 'My App'
+        project_name = 'My.App'
         config_file.model.template.plugins = {'foo': {}}
         config_file.save()
 
@@ -40,7 +40,7 @@ class TestErrors:
         assert result.output == 'None of the defined plugins were found: foo\n'
 
     def test_some_not_plugins_found(self, hatch, config_file, temp_dir):
-        project_name = 'My App'
+        project_name = 'My.App'
         config_file.model.template.plugins['foo'] = {}
         config_file.save()
 
@@ -52,7 +52,7 @@ class TestErrors:
 
 
 def test_default(hatch, helpers, temp_dir):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -79,7 +79,7 @@ def test_default(hatch, helpers, temp_dir):
 
 
 def test_default_explicit_path(hatch, helpers, temp_dir):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name, '.')
@@ -103,7 +103,7 @@ def test_default_explicit_path(hatch, helpers, temp_dir):
 
 
 def test_default_empty_plugins_table(hatch, helpers, config_file, temp_dir):
-    project_name = 'My App'
+    project_name = 'My.App'
     config_file.model.template.plugins = {}
     config_file.save()
 
@@ -133,7 +133,7 @@ def test_default_empty_plugins_table(hatch, helpers, config_file, temp_dir):
 
 @pytest.mark.requires_internet
 def test_default_no_license_cache(hatch, helpers, temp_dir):
-    project_name = 'My App'
+    project_name = 'My.App'
     cache_dir = temp_dir / 'cache'
     cache_dir.mkdir()
 
@@ -162,7 +162,7 @@ def test_default_no_license_cache(hatch, helpers, temp_dir):
 
 
 def test_licenses_multiple(hatch, helpers, config_file, temp_dir):
-    project_name = 'My App'
+    project_name = 'My.App'
     config_file.model.template.licenses.default = ['MIT', 'Apache-2.0']
     config_file.save()
 
@@ -193,7 +193,7 @@ def test_licenses_multiple(hatch, helpers, config_file, temp_dir):
 
 
 def test_licenses_empty(hatch, helpers, config_file, temp_dir):
-    project_name = 'My App'
+    project_name = 'My.App'
     config_file.model.template.licenses.default = []
     config_file.save()
 
@@ -221,7 +221,7 @@ def test_licenses_empty(hatch, helpers, config_file, temp_dir):
 
 
 def test_projects_urls_space_in_label(hatch, helpers, config_file, temp_dir):
-    project_name = 'My App'
+    project_name = 'My.App'
     config_file.model.template.plugins['default']['project_urls'] = {
         'Documentation': 'https://github.com/unknown/{project_name_normalized}#readme',
         'Source': 'https://github.com/unknown/{project_name_normalized}',
@@ -254,7 +254,7 @@ def test_projects_urls_space_in_label(hatch, helpers, config_file, temp_dir):
 
 
 def test_projects_urls_empty(hatch, helpers, config_file, temp_dir):
-    project_name = 'My App'
+    project_name = 'My.App'
     config_file.model.template.plugins['default']['project_urls'] = {}
     config_file.save()
 
@@ -283,7 +283,7 @@ def test_projects_urls_empty(hatch, helpers, config_file, temp_dir):
 
 
 def test_feature_cli(hatch, helpers, temp_dir):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name, '--cli')
@@ -316,7 +316,7 @@ def test_feature_ci(hatch, helpers, config_file, temp_dir):
     config_file.model.template.plugins['default']['ci'] = True
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -349,7 +349,7 @@ def test_feature_src_layout(hatch, helpers, config_file, temp_dir):
     config_file.model.template.plugins['default']['src-layout'] = True
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -380,7 +380,7 @@ def test_feature_tests_disable(hatch, helpers, config_file, temp_dir):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -417,7 +417,7 @@ def test_no_project_name_error(hatch, helpers, temp_dir):
 
 
 def test_interactive(hatch, helpers, temp_dir):
-    project_name = 'My App'
+    project_name = 'My.App'
     description = 'foo \u2764'
 
     with temp_dir.as_cwd():
@@ -448,7 +448,7 @@ def test_interactive(hatch, helpers, temp_dir):
 
 
 def test_no_project_name_enables_interactive(hatch, helpers, temp_dir):
-    project_name = 'My App'
+    project_name = 'My.App'
     description = 'foo'
 
     with temp_dir.as_cwd():
@@ -479,7 +479,7 @@ def test_no_project_name_enables_interactive(hatch, helpers, temp_dir):
 
 
 def test_initialize_fresh(hatch, helpers, temp_dir):
-    project_name = 'My App'
+    project_name = 'My.App'
     description = 'foo'
 
     with temp_dir.as_cwd():
@@ -510,7 +510,7 @@ def test_initialize_fresh(hatch, helpers, temp_dir):
 
 
 def test_initialize_update(hatch, helpers, temp_dir):
-    project_name = 'My App'
+    project_name = 'My.App'
     description = 'foo'
 
     project_file = temp_dir / 'pyproject.toml'

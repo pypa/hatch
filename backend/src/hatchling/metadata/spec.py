@@ -18,7 +18,7 @@ def construct_metadata_file_1_2(metadata, extra_dependencies=()):
     https://peps.python.org/pep-0345/
     """
     metadata_file = 'Metadata-Version: 1.2\n'
-    metadata_file += f'Name: {metadata.core.name}\n'
+    metadata_file += f'Name: {metadata.core.raw_name}\n'
     metadata_file += f'Version: {metadata.version}\n'
 
     if metadata.core.description:
@@ -77,7 +77,7 @@ def construct_metadata_file_2_1(metadata, extra_dependencies=()):
     https://peps.python.org/pep-0566/
     """
     metadata_file = 'Metadata-Version: 2.1\n'
-    metadata_file += f'Name: {metadata.core.name}\n'
+    metadata_file += f'Name: {metadata.core.raw_name}\n'
     metadata_file += f'Version: {metadata.version}\n'
 
     if metadata.core.description:
@@ -149,7 +149,7 @@ def construct_metadata_file_2_2(metadata, extra_dependencies=()):
     https://peps.python.org/pep-0643/
     """
     metadata_file = 'Metadata-Version: 2.2\n'
-    metadata_file += f'Name: {metadata.core.name}\n'
+    metadata_file += f'Name: {metadata.core.raw_name}\n'
     metadata_file += f'Version: {metadata.version}\n'
 
     if metadata.core.description:
@@ -221,7 +221,7 @@ def construct_metadata_file_2_3(metadata, extra_dependencies=()):
     https://peps.python.org/pep-0639/
     """
     metadata_file = 'Metadata-Version: 2.3\n'
-    metadata_file += f'Name: {metadata.core.name}\n'
+    metadata_file += f'Name: {metadata.core.raw_name}\n'
     metadata_file += f'Version: {metadata.version}\n'
 
     if metadata.core.description:

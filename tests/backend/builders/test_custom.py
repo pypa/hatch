@@ -42,7 +42,7 @@ def test_nonexistent(isolation):
 
 
 def test_default(hatch, helpers, temp_dir):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -52,7 +52,7 @@ def test_default(hatch, helpers, temp_dir):
     project_path = temp_dir / 'my-app'
 
     config = {
-        'project': {'name': 'my__app', 'dynamic': ['version']},
+        'project': {'name': project_name, 'dynamic': ['version']},
         'tool': {
             'hatch': {
                 'version': {'path': 'my_app/__about__.py'},
@@ -117,7 +117,7 @@ def test_default(hatch, helpers, temp_dir):
 
 
 def test_explicit_path(hatch, helpers, temp_dir):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -127,7 +127,7 @@ def test_explicit_path(hatch, helpers, temp_dir):
     project_path = temp_dir / 'my-app'
 
     config = {
-        'project': {'name': 'my__app', 'dynamic': ['version']},
+        'project': {'name': project_name, 'dynamic': ['version']},
         'tool': {
             'hatch': {
                 'version': {'path': 'my_app/__about__.py'},
@@ -193,7 +193,7 @@ def test_explicit_path(hatch, helpers, temp_dir):
 
 
 def test_no_subclass(hatch, helpers, temp_dir):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -203,7 +203,7 @@ def test_no_subclass(hatch, helpers, temp_dir):
     project_path = temp_dir / 'my-app'
 
     config = {
-        'project': {'name': 'my__app', 'dynamic': ['version']},
+        'project': {'name': project_name, 'dynamic': ['version']},
         'tool': {
             'hatch': {
                 'version': {'path': 'my_app/__about__.py'},
@@ -237,7 +237,7 @@ def test_no_subclass(hatch, helpers, temp_dir):
 
 
 def test_multiple_subclasses(hatch, helpers, temp_dir):
-    project_name = 'My App'
+    project_name = 'My.App'
 
     with temp_dir.as_cwd():
         result = hatch('new', project_name)
@@ -247,7 +247,7 @@ def test_multiple_subclasses(hatch, helpers, temp_dir):
     project_path = temp_dir / 'my-app'
 
     config = {
-        'project': {'name': 'my__app', 'dynamic': ['version']},
+        'project': {'name': project_name, 'dynamic': ['version']},
         'tool': {
             'hatch': {
                 'version': {'path': 'my_app/__about__.py'},
