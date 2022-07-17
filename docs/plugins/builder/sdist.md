@@ -38,6 +38,16 @@ The builder plugin name is `sdist`.
 
 When the user has not set any [file selection](../../config/build.md#file-selection) options, all files that are not [ignored by your VCS](../../config/build.md#vcs) will be included.
 
+!!! note
+    The following files are always included and cannot be excluded:
+
+    - `/pyproject.toml`
+    - `/hatch.toml`
+    - `/hatch_build.py`
+    - `/.gitignore` or `/.hgignore`
+    - Any defined [`readme`](../../config/metadata.md#readme) file
+    - All defined [`license-files`](../../config/metadata.md#license)
+
 ## Reproducibility
 
 [Reproducible builds](../../config/build.md#reproducible-builds) are supported.
