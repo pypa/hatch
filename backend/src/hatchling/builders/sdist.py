@@ -300,16 +300,16 @@ class SdistBuilder(BuilderInterface):
         return contents
 
     def get_default_build_data(self):
-        force_include = {}
+        force_include = {
+            os.path.join(self.root, 'pyproject.toml'): 'pyproject.toml',
+            os.path.join(self.root, DEFAULT_CONFIG_FILE): DEFAULT_CONFIG_FILE,
+            os.path.join(self.root, DEFAULT_BUILD_SCRIPT): DEFAULT_BUILD_SCRIPT,
+        }
         build_data = {'force_include': force_include, 'dependencies': []}
 
         for exclusion_files in self.config.vcs_exclusion_files.values():
             for exclusion_file in exclusion_files:
                 force_include[exclusion_file] = os.path.basename(exclusion_file)
-
-        force_include[os.path.join(self.root, 'pyproject.toml')] = 'pyproject.toml'
-        force_include[os.path.join(self.root, DEFAULT_BUILD_SCRIPT)] = DEFAULT_BUILD_SCRIPT
-        force_include[os.path.join(self.root, DEFAULT_CONFIG_FILE)] = DEFAULT_CONFIG_FILE
 
         readme_path = self.metadata.core.readme_path
         if readme_path:
