@@ -106,6 +106,10 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 
 ### Unreleased
 
+***Fixed:***
+
+- Fix removing `sources` using an empty string value in the mapping
+
 ### [1.5.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.5.0) - 2022-07-11 ### {: #hatchling-v1.5.0 }
 
 ***Added:***
