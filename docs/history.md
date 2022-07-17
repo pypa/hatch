@@ -106,6 +106,10 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 
 ### Unreleased
 
+***Changed:***
+
+- When no build targets are specified on the command line, now default to `sdist` and `wheel` targets rather than what happens to be defined in config
+
 ***Fixed:***
 
 - Fix removing `sources` using an empty string value in the mapping
@@ -115,7 +119,7 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 ***Added:***
 
 - Support the final draft of PEP 639
-- Add `strict-naming` option for  `sdist` and `wheel` targets
+- Add `strict-naming` option for `sdist` and `wheel` targets
 
 ***Fixed:***
 
