@@ -558,7 +558,9 @@ class BuilderConfig:
                         raise TypeError(f'Path for source `{source}` in field `{sources_location}` must be a string')
 
                     normalized_path = normalize_relative_path(path)
-                    if normalized_path:
+                    if normalized_path == '.':
+                        normalized_path = ''
+                    else:
                         normalized_path += os.sep
 
                     sources[normalize_relative_directory(source)] = normalized_path

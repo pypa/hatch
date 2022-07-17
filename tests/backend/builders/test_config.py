@@ -555,6 +555,14 @@ class TestSources:
         with pytest.raises(ValueError, match='Source #1 in field `tool.hatch.build.sources` cannot be an empty string'):
             _ = builder.config.sources
 
+    def test_global_mapping_path_empty_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'sources': {'src/foo': ''}}}}}
+        builder = Builder(str(isolation), config=config)
+
+        assert len(builder.config.sources) == 1
+        assert builder.config.sources[pjoin('src', 'foo', '')] == ''
+        assert builder.config.get_distribution_path(pjoin('src', 'foo', 'bar.py')) == 'bar.py'
+
     def test_global_mapping_replacement_not_string(self, isolation):
         config = {'tool': {'hatch': {'build': {'sources': {'src/foo': 0}}}}}
         builder = Builder(str(isolation), config=config)
@@ -621,6 +629,15 @@ class TestSources:
             ValueError, match='Source #1 in field `tool.hatch.build.targets.foo.sources` cannot be an empty string'
         ):
             _ = builder.config.sources
+
+    def test_target_mapping_path_empty_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'sources': {'src/foo': ''}}}}}}}
+        builder = Builder(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        assert len(builder.config.sources) == 1
+        assert builder.config.sources[pjoin('src', 'foo', '')] == ''
+        assert builder.config.get_distribution_path(pjoin('src', 'foo', 'bar.py')) == 'bar.py'
 
     def test_target_mapping_replacement_not_string(self, isolation):
         config = {'tool': {'hatch': {'build': {'targets': {'foo': {'sources': {'src/foo': 0}}}}}}}
