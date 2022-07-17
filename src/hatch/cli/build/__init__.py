@@ -71,7 +71,7 @@ def build(app, location, targets, hooks_only, no_hooks, ext, clean, clean_hooks_
         hooks_only = True
         targets = ('wheel',)
     elif not targets:
-        targets = tuple(app.project.metadata.hatch.build_targets or ['sdist', 'wheel'])
+        targets = ('sdist', 'wheel')
 
     env_vars = {}
     if no_hooks:

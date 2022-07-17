@@ -25,9 +25,8 @@ def build_impl(called_by_app, directory, targets, hooks_only, no_hooks, clean, c
             versions = version_data.split(',') if version_data else []
             target_data.setdefault(target_name, []).extend(versions)
     else:  # no cov
-        targets = metadata.hatch.build_targets or ['sdist', 'wheel']
-        for target_name in targets:
-            target_data[target_name] = []
+        target_data['sdist'] = []
+        target_data['wheel'] = []
 
     builders = {}
     unknown_targets = []

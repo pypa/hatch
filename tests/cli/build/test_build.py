@@ -114,6 +114,11 @@ def test_default(hatch, temp_dir, helpers):
 
     path = temp_dir / 'my-app'
 
+    project = Project(path)
+    config = dict(project.raw_config)
+    config['tool']['hatch']['build']['targets'] = {}
+    project.save_config(config)
+
     with path.as_cwd():
         result = hatch('build')
 
@@ -1107,7 +1112,7 @@ def test_build_dependencies(hatch, temp_dir, helpers):
     project.save_config(config)
 
     with path.as_cwd():
-        result = hatch('build')
+        result = hatch('build', '-t', 'custom')
 
     assert result.exit_code == 0, result.output
 
