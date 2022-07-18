@@ -28,5 +28,6 @@ The version source plugin name is `code`.
 
 | Option | Description |
 | --- | --- |
-| `path` (required) | A relative path to a Python file that will be loaded |
+| `path` (required) | A relative path to a Python file or extension module that will be loaded |
 | `expression` | A Python expression that when evaluated in the context of the loaded file returns the version. The default expression is simply `__version__`. |
+| `search-paths` | A list of directories that will be prepended to Python's search path |
