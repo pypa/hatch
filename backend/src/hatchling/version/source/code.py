@@ -7,6 +7,9 @@ class CodeSource(VersionSourceInterface):
     PLUGIN_NAME = 'code'
 
     def get_version_data(self):
+        import importlib
+        import sys
+
         relative_path = self.config.get('path')
         if not relative_path:
             raise ValueError('option `path` must be specified')
@@ -21,18 +24,29 @@ class CodeSource(VersionSourceInterface):
         if not isinstance(expression, str):
             raise TypeError('option `expression` must be a string')
 
-        with open(path, encoding='utf-8') as f:
-            contents = f.read()
+        search_paths = self.config.get('search-paths', [])
+        if not isinstance(search_paths, list):
+            raise TypeError('option `search-paths` must be an array')
 
-        # Ensure predefined module attributes are available.
-        # https://docs.python.org/3/reference/datamodel.html#the-standard-type-hierarchy.
-        global_variables = {'__file__': path, '__annotations__': dict()}
+        absolute_search_paths = []
+        for i, search_path in enumerate(search_paths, 1):
+            if not isinstance(search_path, str):
+                raise TypeError(f'entry #{i} of option `search-paths` must be a string')
 
-        # Load the file
-        exec(contents, global_variables)
+            absolute_search_paths.append(os.path.normpath(os.path.join(self.root, search_path)))
+
+        spec = importlib.util.spec_from_file_location(os.path.splitext(path)[0], path)
+        module = importlib.util.module_from_spec(spec)
+
+        old_search_paths = list(sys.path)
+        try:
+            sys.path[:] = [*absolute_search_paths, *old_search_paths]
+            spec.loader.exec_module(module)
+        finally:
+            sys.path[:] = old_search_paths
 
         # Execute the expression to determine the version
-        version = eval(expression, global_variables)
+        version = eval(expression, vars(module))
 
         return {'version': version}
 
