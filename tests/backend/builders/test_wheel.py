@@ -2602,8 +2602,8 @@ class TestBuildStandard:
         with zipfile.ZipFile(str(expected_artifact), 'r') as zip_archive:
             zip_archive.extractall(str(extraction_directory))
 
-        metadata_directory = f'{builder.project_id}.dist-info'
+        metadata_directory = f'{builder.artifact_project_id}.dist-info'
         expected_files = helpers.get_template_files(
-            'wheel.standard_default_license_single', project_name, metadata_directory=metadata_directory
+            'wheel.standard_no_strict_naming', project_name, metadata_directory=metadata_directory
         )
         helpers.assert_files(extraction_directory, expected_files, check_contents=True)
