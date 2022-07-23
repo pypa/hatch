@@ -106,6 +106,8 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 
 ### Unreleased
 
+### [1.6.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.6.0) - 2022-07-23 ### {: #hatchling-v1.6.0 }
+
 ***Changed:***
 
 - When no build targets are specified on the command line, now default to `sdist` and `wheel` targets rather than what happens to be defined in config
