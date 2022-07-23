@@ -1023,6 +1023,19 @@ class TestHookConfig:
 
         assert builder.config.hook_config['foo']['bar'] == 'baz'
 
+    def test_order(self, isolation):
+        config = {
+            'tool': {
+                'hatch': {
+                    'build': {'hooks': {'foo': {'bar': 'baz'}}, 'targets': {'foo': {'hooks': {'baz': {'foo': 'bar'}}}}}
+                }
+            },
+        }
+        builder = Builder(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        assert builder.config.hook_config == {'foo': {'bar': 'baz'}, 'baz': {'foo': 'bar'}}
+
     def test_target_overrides_global(self, isolation):
         config = {
             'tool': {

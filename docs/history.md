@@ -110,6 +110,7 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 
 - When no build targets are specified on the command line, now default to `sdist` and `wheel` targets rather than what happens to be defined in config
 - The `code` version source now only supports files with known extensions
+- Global build hooks now run before target-specific build hooks to better match expected behavior
 
 ***Added:***
 

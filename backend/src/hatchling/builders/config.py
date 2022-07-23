@@ -231,6 +231,16 @@ class BuilderConfig:
         if self.__hook_config is None:
             hook_config = {}
 
+            global_hook_config = self.build_config.get('hooks', {})
+            if not isinstance(global_hook_config, dict):
+                raise TypeError('Field `tool.hatch.build.hooks` must be a table')
+
+            for hook_name, config in global_hook_config.items():
+                if not isinstance(config, dict):
+                    raise TypeError(f'Field `tool.hatch.build.hooks.{hook_name}` must be a table')
+
+                hook_config.setdefault(hook_name, config)
+
             target_hook_config = self.target_config.get('hooks', {})
             if not isinstance(target_hook_config, dict):
                 raise TypeError(f'Field `tool.hatch.build.targets.{self.plugin_name}.hooks` must be a table')
@@ -242,16 +252,6 @@ class BuilderConfig:
                     )
 
                 hook_config[hook_name] = config
-
-            global_hook_config = self.build_config.get('hooks', {})
-            if not isinstance(global_hook_config, dict):
-                raise TypeError('Field `tool.hatch.build.hooks` must be a table')
-
-            for hook_name, config in global_hook_config.items():
-                if not isinstance(config, dict):
-                    raise TypeError(f'Field `tool.hatch.build.hooks.{hook_name}` must be a table')
-
-                hook_config.setdefault(hook_name, config)
 
             final_hook_config = {}
             if not env_var_enabled(BuildEnvVars.NO_HOOKS):
