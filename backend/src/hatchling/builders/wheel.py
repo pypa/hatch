@@ -304,7 +304,9 @@ class WheelBuilder(BuilderInterface):
             else:
                 build_data['tag'] = self.get_default_tag()
 
-        with WheelArchive(self.project_id, self.config.reproducible) as archive, closing(StringIO()) as records:
+        with WheelArchive(self.artifact_project_id, self.config.reproducible) as archive, closing(
+            StringIO()
+        ) as records:
             for included_file in self.recurse_included_files():
                 record = archive.add_file(included_file)
                 records.write(self.format_record(record))
@@ -328,7 +330,9 @@ class WheelBuilder(BuilderInterface):
     def build_editable_detection(self, directory, **build_data):
         build_data['tag'] = self.get_default_tag()
 
-        with WheelArchive(self.project_id, self.config.reproducible) as archive, closing(StringIO()) as records:
+        with WheelArchive(self.artifact_project_id, self.config.reproducible) as archive, closing(
+            StringIO()
+        ) as records:
             exposed_packages = {}
             for included_file in self.recurse_project_files():
                 if not included_file.path.endswith('.py'):
@@ -393,7 +397,9 @@ class WheelBuilder(BuilderInterface):
     def build_editable_explicit(self, directory, **build_data):
         build_data['tag'] = self.get_default_tag()
 
-        with WheelArchive(self.project_id, self.config.reproducible) as archive, closing(StringIO()) as records:
+        with WheelArchive(self.artifact_project_id, self.config.reproducible) as archive, closing(
+            StringIO()
+        ) as records:
             directories = sorted(
                 os.path.normpath(os.path.join(self.root, relative_directory))
                 for relative_directory in self.config.dev_mode_dirs

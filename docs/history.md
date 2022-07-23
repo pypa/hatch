@@ -119,6 +119,7 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 ***Fixed:***
 
 - Fix removing `sources` using an empty string value in the mapping
+- The `strict-naming` option now also applies to the metadata directory of `wheel` targets
 
 ### [1.5.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.5.0) - 2022-07-11 ### {: #hatchling-v1.5.0 }
 
