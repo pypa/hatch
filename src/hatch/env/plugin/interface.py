@@ -186,9 +186,13 @@ class EnvironmentInterface(ABC):
                         f'Environment variable `{key}` of field `tool.hatch.envs.{self.name}.env-vars` must be a string'
                     )
 
-            env_vars = env_vars.copy()
-            env_vars[AppEnvVars.ENV_ACTIVE] = self.name
-            self._env_vars = env_vars
+            new_env_vars = {}
+            with self.metadata.context.apply_context(self.context):
+                for key, value in env_vars.items():
+                    new_env_vars[key] = self.metadata.context.format(value)
+
+            new_env_vars[AppEnvVars.ENV_ACTIVE] = self.name
+            self._env_vars = new_env_vars
 
         return self._env_vars
 
