@@ -84,6 +84,19 @@ class TestEnvVars:
 
         assert environment.env_vars == {AppEnvVars.ENV_ACTIVE: 'default', 'foo': 'bar'}
 
+    def test_context_formatting(self, isolation, data_dir, platform):
+        config = {
+            'project': {'name': 'my_app', 'version': '0.0.1'},
+            'tool': {'hatch': {'envs': {'default': {'env-vars': {'foo': '{env:FOOBAZ}-{matrix:bar}'}}}}},
+        }
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation, project.metadata, 'default', project.config.envs['default'], {'bar': '42'}, data_dir, platform, 0
+        )
+
+        with EnvVars({'FOOBAZ': 'baz'}):
+            assert environment.env_vars == {AppEnvVars.ENV_ACTIVE: 'default', 'foo': 'baz-42'}
+
 
 class TestEnvInclude:
     def test_default(self, isolation, data_dir, platform):

@@ -244,6 +244,8 @@ You can define environment variables with the `env-vars` option:
     SOURCE_DATE_EPOCH = "1580601600"
     ```
 
+Values support [context formatting](advanced.md#context-formatting).
+
 ### Filters
 
 By default, environments will have access to all environment variables. You can filter with wildcard patterns using the `env-include`/`env-exclude` options:
