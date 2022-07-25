@@ -83,7 +83,7 @@ test.42-foo
 test.42-bar
 ```
 
-The two exceptions to this format are described below.
+The exceptions to this format are described below.
 
 #### Python variables
 
@@ -302,6 +302,30 @@ The [matrix](#matrix) variables used to generate each environment can be used to
     auth = ["oauth2", "kerberos", "noauth"]
     ```
 
+### Name overrides
+
+When a [matrix](#matrix) is defined, the `name` source can be used for regular expression matching on the generated name, minus the prefix for non-[default](#default-environment) environments.
+
+=== ":octicons-file-code-16: pyproject.toml"
+
+    ```toml
+    [tool.hatch.envs.test.overrides]
+    name."^0".env-vars = "TESTING_UNSTABLE=true"
+
+    [[tool.hatch.envs.test.matrix]]
+    version = ["0.1.0", "0.2.0", "1.0.0"]
+    ```
+
+=== ":octicons-file-code-16: hatch.toml"
+
+    ```toml
+    [envs.test.overrides]
+    name."^0".env-vars = "TESTING_UNSTABLE=true"
+
+    [[envs.test.matrix]]
+    version = ["0.1.0", "0.2.0", "1.0.0"]
+    ```
+
 ### Types
 
 - Literal types like strings for the [Python version](overview.md#python-version) or booleans for [skipping installation](overview.md#skip-install) can be set using the value itself, an inline table, or an array. For example:
@@ -403,6 +427,7 @@ When overwriting entire options or keys within mappings, override sources are ap
 1. [platform](#platform-overrides)
 2. [environment variables](#environment-variable-overrides)
 3. [matrix variables](#matrix-variable-overrides)
+4. [names](#name-overrides)
 
 ### Conditions
 
