@@ -44,6 +44,9 @@ class ShellManager:
     def enter_zsh(self, path, args, exe_dir):
         self.spawn_linux_shell(path or 'zsh', args or ['-i'], script=exe_dir / 'activate')
 
+    def enter_ash(self, path, args, exe_dir):
+        self.spawn_linux_shell(path or 'ash', args or ['-i'], script=exe_dir / 'activate')
+
     def enter_nu(self, path, args, exe_dir):
         executable = path or 'nu'
         activation_script = exe_dir / 'activate.nu'
