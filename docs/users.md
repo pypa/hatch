@@ -18,6 +18,7 @@ The following is not intended to be a complete enumeration. Be sure to view the 
 
 - [Anaconda](https://anaconda.org)
     - [Incubator](https://github.com/conda-incubator) <sup>\[[1](https://github.com/conda-incubator/ensureconda/blob/b20dbcf7166009ff4e9270f35ed75da7afc3db60/pyproject.toml#L1-L3)\]</sup>
+- [Smithsonian Institution](https://www.si.edu) <sup>\[[1](https://github.com/Smithsonian/ngehtutil/blob/02921f3a2ce11eb3f1555a0b9d3b177592d2be37/pyproject.toml#L1-L3)\]</sup>
 
 ## Academia
 
