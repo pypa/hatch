@@ -279,6 +279,14 @@ class TestEnvs:
                 PluginManager(),
             ).envs
 
+    def test_overrides_name_not_table(self, isolation):
+        with pytest.raises(TypeError, match='Field `tool.hatch.envs.foo.overrides.name` must be a table'):
+            _ = ProjectConfig(
+                isolation,
+                {'envs': {'foo': {'matrix': [{'version': ['9000']}], 'overrides': {'name': 9000}}}},
+                PluginManager(),
+            ).envs
+
     def test_overrides_platform_entry_not_table(self, isolation):
         with pytest.raises(TypeError, match='Field `tool.hatch.envs.foo.overrides.platform.bar` must be a table'):
             _ = ProjectConfig(
@@ -294,6 +302,14 @@ class TestEnvs:
             _ = ProjectConfig(
                 isolation,
                 {'envs': {'foo': {'matrix': [{'version': ['9000']}], 'overrides': {'matrix': {'bar': 9000}}}}},
+                PluginManager(),
+            ).envs
+
+    def test_overrides_name_entry_not_table(self, isolation):
+        with pytest.raises(TypeError, match='Field `tool.hatch.envs.foo.overrides.name.bar` must be a table'):
+            _ = ProjectConfig(
+                isolation,
+                {'envs': {'foo': {'matrix': [{'version': ['9000']}], 'overrides': {'name': {'bar': 9000}}}}},
                 PluginManager(),
             ).envs
 
@@ -2248,7 +2264,100 @@ class TestEnvs:
         with EnvVars({env_var_exists: 'foo'}):
             assert project_config.envs == expected_envs
 
+    def test_overrides_name_boolean_boolean_create(self, isolation):
+        env_config = {
+            'foo': {
+                'matrix': [{'version': ['9000']}, {'feature': ['bar']}],
+                'overrides': {'name': {'bar$': {'skip-install': True}}},
+            }
+        }
+        project_config = ProjectConfig(isolation, {'envs': env_config}, PluginManager())
+
+        expected_envs = {
+            'default': {'type': 'virtual'},
+            'foo.9000': {'type': 'virtual'},
+            'foo.bar': {'type': 'virtual', 'skip-install': True},
+        }
+
+        assert project_config.envs == expected_envs
+
+    def test_overrides_name_boolean_boolean_overwrite(self, isolation):
+        env_config = {
+            'foo': {
+                'skip-install': True,
+                'matrix': [{'version': ['9000']}, {'feature': ['bar']}],
+                'overrides': {'name': {'bar$': {'skip-install': False}}},
+            }
+        }
+        project_config = ProjectConfig(isolation, {'envs': env_config}, PluginManager())
+
+        expected_envs = {
+            'default': {'type': 'virtual'},
+            'foo.9000': {'type': 'virtual', 'skip-install': True},
+            'foo.bar': {'type': 'virtual', 'skip-install': False},
+        }
+
+        assert project_config.envs == expected_envs
+
+    def test_overrides_name_boolean_table_create(self, isolation):
+        env_config = {
+            'foo': {
+                'matrix': [{'version': ['9000']}, {'feature': ['bar']}],
+                'overrides': {'name': {'bar$': {'skip-install': [{'value': True}]}}},
+            }
+        }
+        project_config = ProjectConfig(isolation, {'envs': env_config}, PluginManager())
+
+        expected_envs = {
+            'default': {'type': 'virtual'},
+            'foo.9000': {'type': 'virtual'},
+            'foo.bar': {'type': 'virtual', 'skip-install': True},
+        }
+
+        assert project_config.envs == expected_envs
+
+    def test_overrides_name_boolean_table_overwrite(self, isolation):
+        env_config = {
+            'foo': {
+                'skip-install': True,
+                'matrix': [{'version': ['9000']}, {'feature': ['bar']}],
+                'overrides': {'name': {'bar$': {'skip-install': [{'value': False}]}}},
+            }
+        }
+        project_config = ProjectConfig(isolation, {'envs': env_config}, PluginManager())
+
+        expected_envs = {
+            'default': {'type': 'virtual'},
+            'foo.9000': {'type': 'virtual', 'skip-install': True},
+            'foo.bar': {'type': 'virtual', 'skip-install': False},
+        }
+
+        assert project_config.envs == expected_envs
+
     # Tests for source precedence
+    def test_overrides_name_precedence_over_matrix(self, isolation):
+        env_config = {
+            'foo': {
+                'skip-install': False,
+                'matrix': [{'version': ['9000', '42']}, {'feature': ['bar']}],
+                'overrides': {
+                    'name': {'42$': {'skip-install': False}},
+                    'matrix': {'version': {'skip-install': [{'value': True, 'if': ['42']}]}},
+                },
+            }
+        }
+        project_config = ProjectConfig(isolation, {'envs': env_config}, PluginManager())
+
+        expected_envs = {
+            'default': {'type': 'virtual'},
+            'foo.9000': {'type': 'virtual', 'skip-install': False},
+            'foo.42': {'type': 'virtual', 'skip-install': False},
+            'foo.bar': {'type': 'virtual', 'skip-install': False},
+        }
+
+        assert project_config.envs == expected_envs
+        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config, {'skip-install': False})
+
     def test_overrides_matrix_precedence_over_platform(self, isolation, current_platform):
         env_config = {
             'foo': {

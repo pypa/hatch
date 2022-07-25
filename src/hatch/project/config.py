@@ -1,3 +1,4 @@
+import re
 from copy import deepcopy
 from itertools import product
 from os import environ
@@ -113,7 +114,12 @@ class ProjectConfig:
             final_config = {}
             cached_overrides = {}
             for env_name, initial_config in config.items():
-                current_cached_overrides = cached_overrides[env_name] = {'platform': [], 'env': [], 'matrix': []}
+                current_cached_overrides = cached_overrides[env_name] = {
+                    'platform': [],
+                    'env': [],
+                    'matrix': [],
+                    'name': [],
+                }
 
                 # Only shallow copying is necessary since we just want to modify keys
                 initial_config = initial_config.copy()
@@ -172,6 +178,10 @@ class ProjectConfig:
                 matrix_overrides = overrides.get('matrix', {})
                 if not isinstance(matrix_overrides, dict):
                     raise TypeError(f'Field `tool.hatch.envs.{env_name}.overrides.matrix` must be a table')
+
+                name_overrides = overrides.get('name', {})
+                if not isinstance(name_overrides, dict):
+                    raise TypeError(f'Field `tool.hatch.envs.{env_name}.overrides.name` must be a table')
 
                 matrix_data = all_matrices[env_name] = {'config': deepcopy(initial_config)}
                 all_envs = matrix_data['envs'] = {}
@@ -270,6 +280,21 @@ class ProjectConfig:
                                 env_name_parts.append(final_matrix_name_format.format(variable=variable, value=value))
 
                         new_env_name = '-'.join(env_name_parts)
+
+                        cached_name_overrides = []
+
+                        # Apply any configuration based on the final name, minus the prefix for non-default environments
+                        for pattern, options in name_overrides.items():
+                            if not isinstance(options, dict):
+                                raise TypeError(
+                                    f'Field `tool.hatch.envs.{env_name}.overrides.name.{pattern}` must be a table'
+                                )
+                            elif not re.search(pattern, new_env_name):
+                                continue
+
+                            apply_overrides(env_name, 'name', pattern, new_env_name, options, new_config)
+                            cached_name_overrides.append((pattern, new_env_name, options))
+
                         if env_name != 'default':
                             new_env_name = f'{env_name}.{new_env_name}'
 
@@ -279,6 +304,7 @@ class ProjectConfig:
                             'platform': current_cached_overrides['platform'],
                             'env': current_cached_overrides['env'],
                             'matrix': cached_matrix_overrides,
+                            'name': cached_name_overrides,
                         }
                         all_envs[new_env_name] = variable_values
                         if 'py' in variable_values:

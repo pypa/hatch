@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ***Added:***
 
 - Values for environment `env-vars` now support context formatting
+- Add `name` override for environments to allow for regular expression matching
 
 ### [1.3.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.3.1) - 2022-07-11 ### {: #hatch-v1.3.1 }
 
