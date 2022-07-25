@@ -108,6 +108,7 @@ You can change the default arguments used to spawn most shells with the `args` k
 
 | Shell | Name | Arguments | macOS | Windows | Unix |
 | --- | --- | --- | --- | --- | --- |
+| [Almquist shell](https://en.wikipedia.org/wiki/Almquist_shell) | `ash` | `["-i"]` | :white_check_mark: | | :white_check_mark: |
 | [Bash](https://www.gnu.org/software/bash/) | `bash` | `["-i"]` | :white_check_mark: | | :white_check_mark: |
 | [Command Prompt](https://en.wikipedia.org/wiki/Cmd.exe) | `cmd` | | | :white_check_mark: | |
 | [C shell](https://en.wikipedia.org/wiki/C_shell) | `csh` | `["-i"]` | :white_check_mark: | | :white_check_mark: |
