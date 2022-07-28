@@ -67,7 +67,7 @@ class VirtualEnv:
     @property
     def executables_directory(self):
         if self._executables_directory is None:
-            exe_dir = self.directory / 'Scripts' if self.platform.windows else self.directory / 'bin'
+            exe_dir = self.directory / ('Scripts' if self.platform.windows else 'bin')
             if exe_dir.is_dir():
                 self._executables_directory = exe_dir
             # PyPy
@@ -76,9 +76,16 @@ class VirtualEnv:
                 if exe_dir.is_dir():
                     self._executables_directory = exe_dir
                 else:
-                    raise OSError('Unable to locate executables directory')
+                    raise OSError(f'Unable to locate executables directory within: {self.directory}')
+            # Debian
+            elif (self.directory / 'local').is_dir():  # no cov
+                exe_dir = self.directory / 'local' / 'bin'
+                if exe_dir.is_dir():
+                    self._executables_directory = exe_dir
+                else:
+                    raise OSError(f'Unable to locate executables directory within: {self.directory}')
             else:
-                raise OSError('Unable to locate executables directory')
+                raise OSError(f'Unable to locate executables directory within: {self.directory}')
 
         return self._executables_directory
 

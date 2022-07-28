@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import sys
 
 import pytest
@@ -14,7 +15,7 @@ def test_initialization_does_not_create(temp_dir, platform):
 
     assert not venv.exists()
 
-    with pytest.raises(OSError, match='Unable to locate executables directory'):
+    with pytest.raises(OSError, match=f'Unable to locate executables directory within: {re.escape(str(venv_dir))}'):
         _ = venv.executables_directory
 
 
