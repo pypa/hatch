@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Add `name` override for environments to allow for regular expression matching
 - Display help text the first time the `shell` command is executed
 - Add support for Almquist (`ash`) shells
+- Bump the minimum supported version of `virtualenv` to 20.16.2
 
 ***Fixed:***
 
