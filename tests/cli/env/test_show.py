@@ -318,7 +318,8 @@ def test_optional_columns(hatch, helpers, temp_dir, config_file):
     data_path = temp_dir / 'data'
     data_path.mkdir()
 
-    dependencies = ['python___dateutil', 'bAr.Baz[TLS]   >=1.2RC5', 'Foo;python_version<"3.8"']
+    dependencies = ['python___dateutil', 'bAr.Baz[TLS]   >=1.2RC5']
+    extra_dependencies = ['Foo;python_version<"3.8"']
     env_vars = {'FOO': '1', 'BAR': '2'}
     description = """
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna \
@@ -334,13 +335,21 @@ occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim 
             'matrix': [{'version': ['9000', '3.14'], 'py': ['39', '310']}],
             'description': description,
             'dependencies': dependencies,
+            'extra-dependencies': extra_dependencies,
             'env-vars': env_vars,
             'features': ['Foo...Bar', 'Baz', 'baZ'],
             'scripts': {'test': 'pytest', 'build': 'python -m build', '_foo': 'test'},
         },
     )
     helpers.update_project_environment(
-        project, 'foo', {'description': description, 'dependencies': dependencies, 'env-vars': env_vars}
+        project,
+        'foo',
+        {
+            'description': description,
+            'dependencies': dependencies,
+            'extra-dependencies': extra_dependencies,
+            'env-vars': env_vars,
+        },
     )
 
     with project_path.as_cwd():
