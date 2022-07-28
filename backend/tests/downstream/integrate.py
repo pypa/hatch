@@ -78,6 +78,28 @@ def temp_dir():
         shutil.rmtree(d, ignore_errors=False, onerror=handle_remove_readonly)
 
 
+def get_venv_exe_dir(venv_dir):
+    exe_dir = os.path.join(venv_dir, 'Scripts' if ON_WINDOWS else 'bin')
+    if os.path.isdir(exe_dir):
+        return exe_dir
+    # PyPy
+    elif ON_WINDOWS:
+        exe_dir = os.path.join(venv_dir, 'bin')
+        if os.path.isdir(exe_dir):
+            return exe_dir
+        else:
+            raise OSError(f'Unable to locate executables directory within: {venv_dir}')
+    # Debian
+    elif os.path.isdir(os.path.join(venv_dir, 'local')):
+        exe_dir = os.path.join(venv_dir, 'local', 'bin')
+        if os.path.isdir(exe_dir):
+            return exe_dir
+        else:
+            raise OSError(f'Unable to locate executables directory within: {venv_dir}')
+    else:
+        raise OSError(f'Unable to locate executables directory within: {venv_dir}')
+
+
 def main():
     original_backend_path = os.path.dirname(os.path.dirname(HERE))
     with temp_dir() as links_dir, temp_dir() as build_dir:
@@ -195,9 +217,7 @@ def main():
 
                 env_vars = dict(test_data.get('env_vars', {}))
                 env_vars['VIRTUAL_ENV'] = venv_dir
-                env_vars[
-                    'PATH'
-                ] = f'{os.path.join(venv_dir, "Scripts" if ON_WINDOWS else "bin")}{os.pathsep}{os.environ["PATH"]}'
+                env_vars['PATH'] = f'{get_venv_exe_dir(venv_dir)}{os.pathsep}{os.environ["PATH"]}'
                 env_vars['PIP_CONSTRAINT'] = constraints_file
                 with EnvVars(env_vars, ignore=('__PYVENV_LAUNCHER__', 'PYTHONHOME')):
                     print('--> Installing project')
