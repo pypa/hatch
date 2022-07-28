@@ -23,8 +23,13 @@ def show(app, envs, force_ascii, as_json):
         if config.get('features'):
             columns['Features'][i] = '\n'.join(sorted({normalize_project_name(f) for f in config['features']}))
 
+        dependencies = []
         if config.get('dependencies'):
-            columns['Dependencies'][i] = '\n'.join(get_normalized_dependencies(config['dependencies']))
+            dependencies.extend(config['dependencies'])
+        if config.get('extra-dependencies'):
+            dependencies.extend(config['extra-dependencies'])
+        if dependencies:
+            columns['Dependencies'][i] = '\n'.join(get_normalized_dependencies(dependencies))
 
         if config.get('env-vars'):
             columns['Environment variables'][i] = '\n'.join(
