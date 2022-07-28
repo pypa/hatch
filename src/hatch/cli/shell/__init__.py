@@ -45,4 +45,13 @@ def shell(app, shell_name, shell_path, shell_args):  # no cov
         environment = app.get_environment()
         app.prepare_environment(environment)
 
+        first_run_indicator = app.cache_dir / 'shell' / 'first_run'
+        if not first_run_indicator.is_file():
+            app.display_waiting(
+                'You are about to enter a new shell, exit as you usually would e.g. '
+                'by typing `exit` or pressing `ctrl+d`...'
+            )
+            first_run_indicator.parent.ensure_dir_exists()
+            first_run_indicator.touch()
+
         environment.enter_shell(shell_name, shell_path, shell_args)

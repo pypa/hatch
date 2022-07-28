@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from os.path import expanduser, expandvars, isabs
+from typing import cast
 
 from hatch.cli.terminal import Terminal
 from hatch.config.user import ConfigFile, RootConfig
@@ -20,11 +21,11 @@ class Application(Terminal):
         self.verbose = self.verbosity > 0
 
         # Lazily set these as we acquire more knowledge about the environment
-        self.data_dir: Path | None = None
-        self.cache_dir: Path | None = None
-        self.project: Project | None = None
-        self.env: str | None = None
-        self.env_active: str | None = None
+        self.data_dir = cast(Path, None)
+        self.cache_dir = cast(Path, None)
+        self.project = cast(Project, None)
+        self.env = cast(str, None)
+        self.env_active = cast(str, None)
 
     @property
     def plugins(self):
