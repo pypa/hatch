@@ -12,7 +12,9 @@ The following is not intended to be a complete enumeration. Be sure to view the 
 
 ## Industry
 
+- [Bloomberg](https://www.bloomberg.com) <sup>\[[1](https://github.com/bloomberg/pytest-memray/blob/4ea6a7608adb0de4572d35768fbd370aee016627/pyproject.toml#L1-L3)\]</sup>
 - [Datadog](https://www.datadoghq.com) <sup>\[[1](https://github.com/DataDog/datadogpy/blob/63d0c01b5bbcb8158cf3ddab153639951ab44945/pyproject.toml#L1-L3)|[2](https://github.com/DataDog/integrations-core/pulls?q=is%3Apr+author%3Aofek+in%3Atitle+Add+pyproject.toml+file)|[3](https://github.com/DataDog/integrations-extras/pulls?q=is%3Apr+author%3Aofek+in%3Atitle+Add+pyproject.toml+file)|[4](https://github.com/DataDog/mkdocs-click/blob/434925323f3bb187595d4c7f6a2c80b790015109/pyproject.toml#L1-L3)\]</sup>
+- [Elastic](https://www.elastic.co) <sup>\[[1](https://github.com/elastic/rally/pull/1551)\]</sup>
 
 ## Organizations
 
@@ -22,6 +24,7 @@ The following is not intended to be a complete enumeration. Be sure to view the 
 
 ## Academia
 
+- [Clariah](https://www.clariah.nl) <sup>\[[1](https://github.com/CLARIAH/pure3d/blob/00e6e4c6052adc8dff28cb62eb393066d2cf1f27/tools/jyconvert/pyproject.toml#L1-L3)\]</sup>
 - [Stanford University](https://www.stanford.edu)
     - [Empirical Security Research Group](https://esrg.stanford.edu/) <sup>\[[1](https://github.com/stanford-esrg/gps/blob/66f803bfd4726cd9d1b3e1724abfd34a36079530/pyproject.toml#L1-L3)\]</sup>
 - [University of Toronto Scarborough](https://www.utsc.utoronto.ca/home/)
