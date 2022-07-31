@@ -1,6 +1,7 @@
 FROM python:alpine
 
-RUN pip install -U devpi-server devpi-client devpi-web
+RUN apk add --update build-base && \
+    pip install -U devpi-server devpi-client devpi-web
 
 EXPOSE 3141
 

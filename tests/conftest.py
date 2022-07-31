@@ -207,7 +207,7 @@ def devpi(tmp_path_factory, worker_id):
     with FileLock(lock_file):
         if not any(devpi_started_sessions.iterdir()):
             with EnvVars(env_vars):
-                subprocess.check_output(['docker', 'compose', '-f', compose_file, 'up', '--build', '-d'])
+                subprocess.check_call(['docker', 'compose', '-f', compose_file, 'up', '--build', '-d'])
 
             for _ in range(30):
                 output = subprocess.check_output(['docker', 'logs', 'hatch-devpi']).decode('utf-8')
