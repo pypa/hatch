@@ -1,12 +1,17 @@
+import json
 import os
+import shutil
 import subprocess
 import sys
+import time
+from collections import namedtuple
 from functools import lru_cache
 from io import BytesIO
 from typing import Generator
 
 import pytest
 from click.testing import CliRunner as __CliRunner
+from filelock import FileLock
 from platformdirs import user_cache_dir, user_data_dir
 
 from hatch.config.constants import AppEnvVars, ConfigEnvVars, PublishEnvVars
@@ -21,6 +26,7 @@ from hatchling.cli import hatchling
 from .helpers.templates.licenses import MIT, Apache_2_0
 
 PLATFORM = Platform()
+DEVPI = namedtuple('DEVPI', ('repo', 'index', 'user', 'auth'))
 
 
 class CliRunner(__CliRunner):
@@ -69,7 +75,7 @@ def isolation() -> Generator[Path, None, None]:
             AppEnvVars.NO_COLOR: '1',
             ConfigEnvVars.DATA: str(data_dir),
             ConfigEnvVars.CACHE: str(cache_dir),
-            PublishEnvVars.REPO: 'test',
+            PublishEnvVars.REPO: 'dev',
             'HATCH_SELF_TESTING': 'true',
             'GIT_AUTHOR_NAME': 'Foo Bar',
             'GIT_AUTHOR_EMAIL': 'foo@bar.baz',
@@ -171,6 +177,59 @@ def extract_installed_requirements(helpers, default_virtualenv_installed_require
 @pytest.fixture(scope='session')
 def python_on_path():
     return sys.executable.split(os.sep)[-1]
+
+
+@pytest.fixture(scope='session')
+def devpi(tmp_path_factory, worker_id):
+    if not shutil.which('docker') or (running_in_ci() and not PLATFORM.linux):
+        pytest.skip('Not testing publishing')
+
+    # This fixture is affected by https://github.com/pytest-dev/pytest-xdist/issues/271
+    root_tmp_dir = Path(tmp_path_factory.getbasetemp().parent)
+
+    devpi_data_file = root_tmp_dir / 'devpi_data.json'
+    lock_file = f'{devpi_data_file}.lock'
+    devpi_started_sessions = root_tmp_dir / 'devpi_started_sessions'
+    devpi_ended_sessions = root_tmp_dir / 'devpi_ended_sessions'
+    with FileLock(lock_file):
+        if devpi_data_file.is_file():
+            data = json.loads(devpi_data_file.read_text())
+        else:
+            data = {'password': os.urandom(16).hex()}
+            devpi_data_file.write_atomic(json.dumps(data), 'w', encoding='utf-8')
+            devpi_started_sessions.mkdir()
+            devpi_ended_sessions.mkdir()
+
+    dp = DEVPI('http://localhost:3141/hatch/testing/', 'testing', 'hatch', data['password'])
+    env_vars = {'DEVPI_INDEX_NAME': dp.index, 'DEVPI_USERNAME': dp.user, 'DEVPI_PASSWORD': dp.auth}
+
+    compose_file = str(Path(__file__).resolve().parent / 'publish' / 'server' / 'docker-compose.yaml')
+    with FileLock(lock_file):
+        if not any(devpi_started_sessions.iterdir()):
+            with EnvVars(env_vars):
+                subprocess.check_call(['docker', 'compose', '-f', compose_file, 'up', '--build', '-d'])
+
+            for _ in range(30):
+                output = subprocess.check_output(['docker', 'logs', 'hatch-devpi']).decode('utf-8')
+                if f'Serving index {dp.user}/{dp.index}' in output:
+                    break
+
+                time.sleep(1)
+
+        (devpi_started_sessions / worker_id).touch()
+
+    try:
+        yield dp
+    finally:
+        with FileLock(lock_file):
+            (devpi_ended_sessions / worker_id).touch()
+            if len(list(devpi_started_sessions.iterdir())) == len(list(devpi_ended_sessions.iterdir())):
+                devpi_data_file.unlink()
+                shutil.rmtree(devpi_started_sessions)
+                shutil.rmtree(devpi_ended_sessions)
+
+                with EnvVars(env_vars):
+                    subprocess.run(['docker', 'compose', '-f', compose_file, 'down', '-t', '0'], capture_output=True)
 
 
 @pytest.fixture

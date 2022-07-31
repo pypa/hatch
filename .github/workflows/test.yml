@@ -47,8 +47,6 @@ jobs:
       run: hatch run lint:all
 
     - name: Run tests
-      env:
-        HATCH_CI_PUBLISHER_TOKEN: ${{ secrets.HATCH_CI_PUBLISHER_TOKEN }}
       run: hatch run full
 
   downstream:
