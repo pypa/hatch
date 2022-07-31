@@ -1,3 +1,4 @@
+import json
 import os
 import shutil
 import subprocess
@@ -10,6 +11,7 @@ from typing import Generator
 
 import pytest
 from click.testing import CliRunner as __CliRunner
+from filelock import FileLock
 from platformdirs import user_cache_dir, user_data_dir
 
 from hatch.config.constants import AppEnvVars, ConfigEnvVars, PublishEnvVars
@@ -178,29 +180,51 @@ def python_on_path():
 
 
 @pytest.fixture(scope='session')
-def devpi():
+def devpi(tmp_path_factory, worker_id):
     if not shutil.which('docker') or (running_in_ci() and not PLATFORM.linux):
         pytest.skip('Not testing publishing')
 
-    dp = DEVPI('http://localhost:3141/hatch/testing/', 'testing', 'hatch', os.urandom(16).hex())
+    # This fixture is affected by https://github.com/pytest-dev/pytest-xdist/issues/271
+    root_tmp_dir = tmp_path_factory.getbasetemp().parent
+
+    devpi_data_file = root_tmp_dir / 'devpi_data.json'
+    lock_file = f'{devpi_data_file}.lock'
+    devpi_sessions = root_tmp_dir / 'devpi_sessions'
+    devpi_session = devpi_sessions / worker_id
+    with FileLock(lock_file):
+        if devpi_data_file.is_file():
+            data = json.loads(devpi_data_file.read_text())
+        else:
+            data = {'password': os.urandom(16).hex()}
+            devpi_data_file.write_text(json.dumps(data))
+            devpi_sessions.mkdir()
+
+    dp = DEVPI('http://localhost:3141/hatch/testing/', 'testing', 'hatch', data['password'])
     env_vars = {'DEVPI_INDEX_NAME': dp.index, 'DEVPI_USERNAME': dp.user, 'DEVPI_PASSWORD': dp.auth}
 
     compose_file = str(Path(__file__).resolve().parent / 'publish' / 'server' / 'docker-compose.yaml')
-    with EnvVars(env_vars):
-        subprocess.check_output(['docker', 'compose', '-f', compose_file, 'up', '--build', '-d'])
+    with FileLock(lock_file):
+        if not any(devpi_sessions.iterdir()):
+            with EnvVars(env_vars):
+                subprocess.check_output(['docker', 'compose', '-f', compose_file, 'up', '--build', '-d'])
+
+            for _ in range(30):
+                output = subprocess.check_output(['docker', 'logs', 'hatch-devpi']).decode('utf-8')
+                if f'Serving index {dp.user}/{dp.index}' in output:
+                    break
+
+                time.sleep(1)
+
+        devpi_session.touch()
 
     try:
-        for _ in range(30):
-            output = subprocess.check_output(['docker', 'logs', 'hatch-devpi']).decode('utf-8')
-            if f'Serving index {dp.user}/{dp.index}' in output:
-                break
-
-            time.sleep(1)
-
         yield dp
     finally:
-        with EnvVars(env_vars):
-            subprocess.run(['docker', 'compose', '-f', compose_file, 'down', '-t', '0'], capture_output=True)
+        with FileLock(lock_file):
+            devpi_session.unlink()
+            if not any(devpi_sessions.iterdir()):
+                with EnvVars(env_vars):
+                    subprocess.run(['docker', 'compose', '-f', compose_file, 'down', '-t', '0'], capture_output=True)
 
 
 @pytest.fixture

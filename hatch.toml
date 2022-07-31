@@ -1,6 +1,7 @@
 [envs.default]
 dependencies = [
   "coverage[toml]>=6.2",
+  "filelock>=3.7.1",
   "pytest",
   "pytest-cov",
   "pytest-mock",
