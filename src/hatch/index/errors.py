@@ -1,0 +1,2 @@
+class ArtifactMetadataError(Exception):
+    pass
