@@ -29,13 +29,13 @@ python = ["37", "38", "39", "310"]
 detached = true
 dependencies = [
   "bandit>=1.7.4",
-  "black>=22.3.0",
-  "flake8>=4.0.1",
-  "flake8-bugbear>=22.3.23",
+  "black>=22.6.0",
+  "flake8>=5.0.0",
+  "flake8-bugbear>=22.7.1",
   "flake8-quotes>=3.3.1",
   "flake8-tidy-imports>=4.8.0",
   "isort>=5.10.1",
-  "mypy>=0.942",
+  "mypy>=0.971",
 ]
 [envs.lint.scripts]
 typing = "mypy --install-types --non-interactive {args:backend/src/hatchling src/hatch tests}"
