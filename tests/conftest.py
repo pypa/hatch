@@ -185,7 +185,7 @@ def devpi(tmp_path_factory, worker_id):
         pytest.skip('Not testing publishing')
 
     # This fixture is affected by https://github.com/pytest-dev/pytest-xdist/issues/271
-    root_tmp_dir = tmp_path_factory.getbasetemp().parent
+    root_tmp_dir = Path(tmp_path_factory.getbasetemp().parent)
 
     devpi_data_file = root_tmp_dir / 'devpi_data.json'
     lock_file = f'{devpi_data_file}.lock'
@@ -196,7 +196,7 @@ def devpi(tmp_path_factory, worker_id):
             data = json.loads(devpi_data_file.read_text())
         else:
             data = {'password': os.urandom(16).hex()}
-            devpi_data_file.write_text(json.dumps(data))
+            devpi_data_file.write_atomic(json.dumps(data), 'w', encoding='utf-8')
             devpi_started_sessions.mkdir()
             devpi_ended_sessions.mkdir()
 
@@ -227,6 +227,7 @@ def devpi(tmp_path_factory, worker_id):
                 devpi_data_file.unlink()
                 shutil.rmtree(devpi_started_sessions)
                 shutil.rmtree(devpi_ended_sessions)
+
                 with EnvVars(env_vars):
                     subprocess.run(['docker', 'compose', '-f', compose_file, 'down', '-t', '0'], capture_output=True)
 
