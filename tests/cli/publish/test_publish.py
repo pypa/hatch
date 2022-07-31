@@ -1,22 +1,14 @@
 import os
 import secrets
 import tarfile
-import time
 import zipfile
 from collections import defaultdict
 
-import httpx
 import pytest
 
 from hatch.config.constants import PublishEnvVars
-from hatch.utils.ci import running_in_ci
 
-PUBLISHER_TOKEN = os.environ.get('HATCH_CI_PUBLISHER_TOKEN')
-
-pytestmark = [
-    pytest.mark.skipif(not PUBLISHER_TOKEN, reason='Publishing tests are only executed within CI environments'),
-    pytest.mark.xfail(reason='Test PyPI can be flaky'),
-]
+pytestmark = [pytest.mark.usefixtures('devpi')]
 
 
 @pytest.fixture(autouse=True)
@@ -40,28 +32,6 @@ def keyring_store(mocker):
 @pytest.fixture
 def published_project_name():
     return f'c4880cdbe05de9a28415fbad{secrets.choice(range(100))}'
-
-
-def wait_for_artifacts(project_name, *artifacts):
-    index_url = f'https://test.pypi.org/simple/{project_name}/'
-    artifact_names = [artifact.name for artifact in artifacts]
-
-    for _ in range(120):
-        try:
-            response = httpx.get(index_url)
-            response.raise_for_status()
-        except Exception:  # no cov
-            pass
-        else:
-            for artifact_name in artifact_names:
-                if artifact_name not in response.text:
-                    break
-            else:
-                break
-
-        time.sleep(1)
-    else:  # no cov
-        raise Exception(f'Could not find artifacts at {index_url}: {", ".join(artifact_names)}')
 
 
 def remove_metadata_field(field: str, metadata_file_contents: str):
@@ -181,7 +151,7 @@ def test_missing_auth(hatch, temp_dir):
     assert result.output == 'Missing required option: auth\n'
 
 
-def test_flags(hatch, temp_dir_cache, helpers, published_project_name):
+def test_flags(hatch, devpi, temp_dir_cache, helpers, published_project_name):
     with temp_dir_cache.as_cwd():
         result = hatch('new', published_project_name)
         assert result.exit_code == 0, result.output
@@ -199,9 +169,7 @@ def test_flags(hatch, temp_dir_cache, helpers, published_project_name):
         build_directory = path / 'dist'
         artifacts = list(build_directory.iterdir())
 
-        result = hatch(
-            'publish', '--user', '__token__', '--auth', PUBLISHER_TOKEN, '--repo', 'https://test.pypi.org/legacy/'
-        )
+        result = hatch('publish', '--user', devpi.user, '--auth', devpi.auth, '--repo', devpi.repo)
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -210,15 +178,16 @@ def test_flags(hatch, temp_dir_cache, helpers, published_project_name):
         {artifacts[1].relative_to(path)} ... success
 
         [{published_project_name}]
-        https://test.pypi.org/project/{published_project_name}/{current_version}/
+        {devpi.repo}{published_project_name}/{current_version}/
         """
     )
 
 
-def test_plugin_config(hatch, temp_dir_cache, helpers, published_project_name, config_file):
-    config_file.model.publish['index']['user'] = '__token__'
-    config_file.model.publish['index']['auth'] = PUBLISHER_TOKEN
-    config_file.model.publish['index']['repo'] = 'test'
+def test_plugin_config(hatch, devpi, temp_dir_cache, helpers, published_project_name, config_file):
+    config_file.model.publish['index']['user'] = devpi.user
+    config_file.model.publish['index']['auth'] = devpi.auth
+    config_file.model.publish['index']['repo'] = 'dev'
+    config_file.model.publish['index']['repos'] = {'dev': devpi.repo}
     config_file.save()
 
     with temp_dir_cache.as_cwd():
@@ -249,12 +218,16 @@ def test_plugin_config(hatch, temp_dir_cache, helpers, published_project_name, c
         {artifacts[1].relative_to(path)} ... success
 
         [{published_project_name}]
-        https://test.pypi.org/project/{published_project_name}/{current_version}/
+        {devpi.repo}{published_project_name}/{current_version}/
         """
     )
 
 
-def test_prompt(hatch, temp_dir_cache, helpers, published_project_name):
+def test_prompt(hatch, devpi, temp_dir_cache, helpers, published_project_name, config_file):
+    config_file.model.publish['index']['repo'] = 'dev'
+    config_file.model.publish['index']['repos'] = {'dev': devpi.repo}
+    config_file.save()
+
     with temp_dir_cache.as_cwd():
         result = hatch('new', published_project_name)
         assert result.exit_code == 0, result.output
@@ -272,11 +245,11 @@ def test_prompt(hatch, temp_dir_cache, helpers, published_project_name):
         build_directory = path / 'dist'
         artifacts = list(build_directory.iterdir())
 
-        result = hatch('publish', input='__token__\nfoo')
+        result = hatch('publish', input=f'{devpi.user}\nfoo')
 
     assert result.exit_code == 1, result.output
-    assert '403' in result.output
-    assert 'Invalid or non-existent authentication information' in result.output
+    assert '401' in result.output
+    assert 'Unauthorized' in result.output
 
     # Ensure nothing is saved for errors
     with path.as_cwd():
@@ -287,17 +260,17 @@ def test_prompt(hatch, temp_dir_cache, helpers, published_project_name):
 
     # Trigger save
     with path.as_cwd():
-        result = hatch('publish', str(artifacts[0]), input=f'__token__\n{PUBLISHER_TOKEN}')
+        result = hatch('publish', str(artifacts[0]), input=f'{devpi.user}\n{devpi.auth}')
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
         f"""
-        Enter your username: __token__
+        Enter your username: {devpi.user}
         Enter your credentials:{' '}
         {artifacts[0].relative_to(path)} ... success
 
         [{published_project_name}]
-        https://test.pypi.org/project/{published_project_name}/{current_version}/
+        {devpi.repo}{published_project_name}/{current_version}/
         """
     )
 
@@ -311,12 +284,16 @@ def test_prompt(hatch, temp_dir_cache, helpers, published_project_name):
         {artifacts[1].relative_to(path)} ... success
 
         [{published_project_name}]
-        https://test.pypi.org/project/{published_project_name}/{current_version}/
+        {devpi.repo}{published_project_name}/{current_version}/
         """
     )
 
 
-def test_external_artifact_path(hatch, temp_dir_cache, helpers, published_project_name):
+def test_external_artifact_path(hatch, devpi, temp_dir_cache, helpers, published_project_name, config_file):
+    config_file.model.publish['index']['repo'] = 'dev'
+    config_file.model.publish['index']['repos'] = {'dev': devpi.repo}
+    config_file.save()
+
     with temp_dir_cache.as_cwd():
         result = hatch('new', published_project_name)
         assert result.exit_code == 0, result.output
@@ -340,9 +317,7 @@ def test_external_artifact_path(hatch, temp_dir_cache, helpers, published_projec
         internal_build_directory = path / 'dist'
         internal_artifacts = list(internal_build_directory.iterdir())
 
-        result = hatch(
-            'publish', '--user', '__token__', '--auth', PUBLISHER_TOKEN, 'dist', str(external_build_directory)
-        )
+        result = hatch('publish', '--user', devpi.user, '--auth', devpi.auth, 'dist', str(external_build_directory))
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -351,12 +326,16 @@ def test_external_artifact_path(hatch, temp_dir_cache, helpers, published_projec
         {external_artifacts[0]} ... success
 
         [{published_project_name}]
-        https://test.pypi.org/project/{published_project_name}/{current_version}/
+        {devpi.repo}{published_project_name}/{current_version}/
         """
     )
 
 
-def test_already_exists(hatch, temp_dir_cache, helpers, published_project_name):
+def test_already_exists(hatch, devpi, temp_dir_cache, helpers, published_project_name, config_file):
+    config_file.model.publish['index']['repo'] = 'dev'
+    config_file.model.publish['index']['repos'] = {'dev': devpi.repo}
+    config_file.save()
+
     with temp_dir_cache.as_cwd():
         result = hatch('new', published_project_name)
         assert result.exit_code == 0, result.output
@@ -374,7 +353,7 @@ def test_already_exists(hatch, temp_dir_cache, helpers, published_project_name):
         build_directory = path / 'dist'
         artifacts = list(build_directory.iterdir())
 
-        result = hatch('publish', '--user', '__token__', '--auth', PUBLISHER_TOKEN)
+        result = hatch('publish', '--user', devpi.user, '--auth', devpi.auth)
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -383,16 +362,12 @@ def test_already_exists(hatch, temp_dir_cache, helpers, published_project_name):
         {artifacts[1].relative_to(path)} ... success
 
         [{published_project_name}]
-        https://test.pypi.org/project/{published_project_name}/{current_version}/
+        {devpi.repo}{published_project_name}/{current_version}/
         """
     )
 
-    for _ in range(30 if running_in_ci() else 5):
-        wait_for_artifacts(published_project_name, *artifacts)
-        time.sleep(1)
-
     with path.as_cwd():
-        result = hatch('publish', '--user', '__token__', '--auth', PUBLISHER_TOKEN)
+        result = hatch('publish', '--user', devpi.user, '--auth', devpi.auth)
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -415,7 +390,7 @@ def test_no_artifacts(hatch, temp_dir_cache, helpers, published_project_name):
         directory.mkdir()
         (directory / 'test.txt').touch()
 
-        result = hatch('publish', 'dir1', 'dir2', '--user', '__token__', '--auth', 'foo')
+        result = hatch('publish', 'dir1', 'dir2', '--user', 'foo', '--auth', 'bar')
 
     assert result.exit_code == 1, result.output
     assert result.output == helpers.dedent(
@@ -425,10 +400,11 @@ def test_no_artifacts(hatch, temp_dir_cache, helpers, published_project_name):
     )
 
 
-def test_enable_with_flag(hatch, temp_dir_cache, helpers, published_project_name, config_file):
-    config_file.model.publish['index']['user'] = '__token__'
-    config_file.model.publish['index']['auth'] = PUBLISHER_TOKEN
-    config_file.model.publish['index']['repo'] = 'test'
+def test_enable_with_flag(hatch, devpi, temp_dir_cache, helpers, published_project_name, config_file):
+    config_file.model.publish['index']['user'] = devpi.user
+    config_file.model.publish['index']['auth'] = devpi.auth
+    config_file.model.publish['index']['repo'] = 'dev'
+    config_file.model.publish['index']['repos'] = {'dev': devpi.repo}
     config_file.model.publish['index']['disable'] = True
     config_file.save()
 
@@ -460,15 +436,16 @@ def test_enable_with_flag(hatch, temp_dir_cache, helpers, published_project_name
         {artifacts[1].relative_to(path)} ... success
 
         [{published_project_name}]
-        https://test.pypi.org/project/{published_project_name}/{current_version}/
+        {devpi.repo}{published_project_name}/{current_version}/
         """
     )
 
 
-def test_enable_with_prompt(hatch, temp_dir_cache, helpers, published_project_name, config_file):
-    config_file.model.publish['index']['user'] = '__token__'
-    config_file.model.publish['index']['auth'] = PUBLISHER_TOKEN
-    config_file.model.publish['index']['repo'] = 'test'
+def test_enable_with_prompt(hatch, devpi, temp_dir_cache, helpers, published_project_name, config_file):
+    config_file.model.publish['index']['user'] = devpi.user
+    config_file.model.publish['index']['auth'] = devpi.auth
+    config_file.model.publish['index']['repo'] = 'dev'
+    config_file.model.publish['index']['repos'] = {'dev': devpi.repo}
     config_file.model.publish['index']['disable'] = True
     config_file.save()
 
@@ -501,7 +478,7 @@ def test_enable_with_prompt(hatch, temp_dir_cache, helpers, published_project_na
         {artifacts[1].relative_to(path)} ... success
 
         [{published_project_name}]
-        https://test.pypi.org/project/{published_project_name}/{current_version}/
+        {devpi.repo}{published_project_name}/{current_version}/
         """
     )
 
@@ -538,7 +515,7 @@ class TestWheel:
                 metadata_file.write(remove_metadata_field(field, metadata_file_contents).encode('utf-8'))
 
         with path.as_cwd():
-            result = hatch('publish', '--user', '__token__', '--auth', 'foo')
+            result = hatch('publish', '--user', 'foo', '--auth', 'bar')
 
         assert result.exit_code == 1, result.output
         assert result.output == helpers.dedent(
@@ -581,7 +558,7 @@ class TestSourceDistribution:
             tar_archive.add(extraction_directory, arcname='')
 
         with path.as_cwd():
-            result = hatch('publish', '--user', '__token__', '--auth', 'foo')
+            result = hatch('publish', '--user', 'foo', '--auth', 'bar')
 
         assert result.exit_code == 1, result.output
         assert result.output == helpers.dedent(
