@@ -189,22 +189,23 @@ def devpi(tmp_path_factory, worker_id):
 
     devpi_data_file = root_tmp_dir / 'devpi_data.json'
     lock_file = f'{devpi_data_file}.lock'
-    devpi_sessions = root_tmp_dir / 'devpi_sessions'
-    devpi_session = devpi_sessions / worker_id
+    devpi_started_sessions = root_tmp_dir / 'devpi_started_sessions'
+    devpi_ended_sessions = root_tmp_dir / 'devpi_ended_sessions'
     with FileLock(lock_file):
         if devpi_data_file.is_file():
             data = json.loads(devpi_data_file.read_text())
         else:
             data = {'password': os.urandom(16).hex()}
             devpi_data_file.write_text(json.dumps(data))
-            devpi_sessions.mkdir()
+            devpi_started_sessions.mkdir()
+            devpi_ended_sessions.mkdir()
 
     dp = DEVPI('http://localhost:3141/hatch/testing/', 'testing', 'hatch', data['password'])
     env_vars = {'DEVPI_INDEX_NAME': dp.index, 'DEVPI_USERNAME': dp.user, 'DEVPI_PASSWORD': dp.auth}
 
     compose_file = str(Path(__file__).resolve().parent / 'publish' / 'server' / 'docker-compose.yaml')
     with FileLock(lock_file):
-        if not any(devpi_sessions.iterdir()):
+        if not any(devpi_started_sessions.iterdir()):
             with EnvVars(env_vars):
                 subprocess.check_output(['docker', 'compose', '-f', compose_file, 'up', '--build', '-d'])
 
@@ -215,14 +216,17 @@ def devpi(tmp_path_factory, worker_id):
 
                 time.sleep(1)
 
-        devpi_session.touch()
+        (devpi_started_sessions / worker_id).touch()
 
     try:
         yield dp
     finally:
         with FileLock(lock_file):
-            devpi_session.unlink()
-            if not any(devpi_sessions.iterdir()):
+            (devpi_ended_sessions / worker_id).touch()
+            if len(list(devpi_started_sessions.iterdir())) == len(list(devpi_ended_sessions.iterdir())):
+                devpi_data_file.unlink()
+                shutil.rmtree(devpi_started_sessions)
+                shutil.rmtree(devpi_ended_sessions)
                 with EnvVars(env_vars):
                     subprocess.run(['docker', 'compose', '-f', compose_file, 'down', '-t', '0'], capture_output=True)
 
