@@ -49,7 +49,7 @@ dependencies = [
   "rich>=11.2.0",
   "shellingham>=1.4.0",
   "tomli-w>=1.0",
-  "tomlkit>=0.10.1",
+  "tomlkit>=0.11.1",
   "userpath~=1.7",
   "virtualenv>=20.16.2",
 ]
