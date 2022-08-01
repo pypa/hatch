@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import httpx
 import hyperlink
 
 from hatch.utils.fs import Path
@@ -23,17 +24,23 @@ class IndexURLs:
 
 
 class PackageIndex:
-    def __init__(self, repo: str, *, user='', auth=''):
+    def __init__(self, repo: str, *, user='', auth='', ca_cert=None, client_cert=None, client_key=None):
         self.urls = IndexURLs(repo)
         self.repo = str(self.urls.repo)
         self.user = user
         self.auth = auth
 
+        cert = None
+        if client_cert:
+            cert = client_cert
+            if client_key:
+                cert = (client_cert, client_key)
+
+        self.tls_context = httpx.create_ssl_context(verify=ca_cert or True, cert=cert)
+
     def upload_artifact(self, artifact: Path, data: dict):
         import hashlib
         import io
-
-        import httpx
 
         data[':action'] = 'file_upload'
         data['protocol_version'] = '1'
@@ -64,5 +71,14 @@ class PackageIndex:
                 data=data,
                 files={'content': (artifact.name, f, 'application/octet-stream')},
                 auth=(self.user, self.auth),
+                verify=self.tls_context,
             )
             response.raise_for_status()
+
+    def get_simple_api(self, project: str) -> httpx.Response:
+        return httpx.get(
+            str(self.urls.simple.child(project, '')),
+            headers={'Cache-Control': 'no-cache'},
+            auth=(self.user, self.auth),
+            verify=self.tls_context,
+        )

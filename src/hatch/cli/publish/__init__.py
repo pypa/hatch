@@ -6,6 +6,12 @@ from hatch.config.constants import PublishEnvVars
 @click.command(short_help='Publish build artifacts')
 @click.argument('artifacts', nargs=-1)
 @click.option(
+    '--repo',
+    '-r',
+    envvar=PublishEnvVars.REPO,
+    help='The repository with which to publish artifacts [env var: `HATCH_INDEX_REPO`]',
+)
+@click.option(
     '--user', '-u', envvar=PublishEnvVars.USER, help='The user with which to authenticate [env var: `HATCH_INDEX_USER`]'
 )
 @click.option(
@@ -15,10 +21,19 @@ from hatch.config.constants import PublishEnvVars
     help='The credentials to use for authentication [env var: `HATCH_INDEX_AUTH`]',
 )
 @click.option(
-    '--repo',
-    '-r',
-    envvar=PublishEnvVars.REPO,
-    help='The repository with which to publish artifacts [env var: `HATCH_INDEX_REPO`]',
+    '--ca-cert',
+    envvar=PublishEnvVars.CA_CERT,
+    help='The path to a CA bundle [env var: `HATCH_INDEX_CA_CERT`]',
+)
+@click.option(
+    '--client-cert',
+    envvar=PublishEnvVars.CLIENT_CERT,
+    help='The path to a client certificate, optionally containing the private key [env var: `HATCH_INDEX_CLIENT_CERT`]',
+)
+@click.option(
+    '--client-key',
+    envvar=PublishEnvVars.CLIENT_KEY,
+    help="The path to the client certificate's private key [env var: `HATCH_INDEX_CLIENT_KEY`]",
 )
 @click.option('--no-prompt', '-n', is_flag=True, help='Disable prompts, such as for missing required fields')
 @click.option(
@@ -42,19 +57,27 @@ from hatch.config.constants import PublishEnvVars
 )
 @click.option('--yes', '-y', is_flag=True, help='Confirm without prompting when the plugin is disabled')
 @click.pass_obj
-def publish(app, artifacts, user, auth, repo, no_prompt, publisher_name, options, yes):
+def publish(
+    app, artifacts, repo, user, auth, ca_cert, client_cert, client_key, no_prompt, publisher_name, options, yes
+):
     """Publish build artifacts."""
     option_map = {'no_prompt': no_prompt}
     if publisher_name == 'index':
         if options:
             app.abort('Use the standard CLI flags rather than passing explicit options when using the `index` plugin')
 
+        if repo:
+            option_map['repo'] = repo
         if user:
             option_map['user'] = user
         if auth:
             option_map['auth'] = auth
-        if repo:
-            option_map['repo'] = repo
+        if ca_cert:
+            option_map['ca_cert'] = ca_cert
+        if client_cert:
+            option_map['client_cert'] = client_cert
+        if client_key:
+            option_map['client_key'] = client_key
     else:  # no cov
         for option in options:
             key, _, value = option.partition('=')

@@ -26,7 +26,7 @@ from hatchling.cli import hatchling
 from .helpers.templates.licenses import MIT, Apache_2_0
 
 PLATFORM = Platform()
-DEVPI = namedtuple('DEVPI', ('repo', 'index', 'user', 'auth'))
+DEVPI = namedtuple('DEVPI', ('repo', 'index', 'user', 'auth', 'ca_cert'))
 
 
 class CliRunner(__CliRunner):
@@ -191,19 +191,46 @@ def devpi(tmp_path_factory, worker_id):
     lock_file = f'{devpi_data_file}.lock'
     devpi_started_sessions = root_tmp_dir / 'devpi_started_sessions'
     devpi_ended_sessions = root_tmp_dir / 'devpi_ended_sessions'
+    devpi_data = root_tmp_dir / 'devpi_data'
+    devpi_docker_data = devpi_data / 'docker'
     with FileLock(lock_file):
         if devpi_data_file.is_file():
             data = json.loads(devpi_data_file.read_text())
         else:
-            data = {'password': os.urandom(16).hex()}
-            devpi_data_file.write_atomic(json.dumps(data), 'w', encoding='utf-8')
+            import trustme
+
             devpi_started_sessions.mkdir()
             devpi_ended_sessions.mkdir()
+            devpi_data.mkdir()
 
-    dp = DEVPI('http://localhost:3141/hatch/testing/', 'testing', 'hatch', data['password'])
+            shutil.copytree(Path(__file__).resolve().parent / 'index' / 'server', devpi_docker_data)
+
+            # https://github.com/python-trio/trustme/blob/master/trustme/_cli.py
+            # Generate the CA certificate
+            ca = trustme.CA()
+            cert = ca.issue_cert('localhost', '127.0.0.1', '::1')
+
+            # Write the certificate and private key the server should use
+            server_config_dir = devpi_docker_data / 'nginx'
+            server_key = str(server_config_dir / 'server.key')
+            server_cert = str(server_config_dir / 'server.pem')
+            cert.private_key_pem.write_to_path(path=server_key)
+            with open(server_cert, mode='w') as f:
+                f.truncate()
+            for blob in cert.cert_chain_pems:
+                blob.write_to_path(path=server_cert, append=True)
+
+            # Write the certificate the client should trust
+            client_cert = str(devpi_data / 'client.pem')
+            ca.cert_pem.write_to_path(path=client_cert)
+
+            data = {'password': os.urandom(16).hex(), 'ca_cert': client_cert}
+            devpi_data_file.write_atomic(json.dumps(data), 'w', encoding='utf-8')
+
+    dp = DEVPI('https://localhost:8443/hatch/testing/', 'testing', 'hatch', data['password'], data['ca_cert'])
     env_vars = {'DEVPI_INDEX_NAME': dp.index, 'DEVPI_USERNAME': dp.user, 'DEVPI_PASSWORD': dp.auth}
 
-    compose_file = str(Path(__file__).resolve().parent / 'publish' / 'server' / 'docker-compose.yaml')
+    compose_file = str(devpi_docker_data / 'docker-compose.yaml')
     with FileLock(lock_file):
         if not any(devpi_started_sessions.iterdir()):
             with EnvVars(env_vars):
@@ -230,6 +257,8 @@ def devpi(tmp_path_factory, worker_id):
 
                 with EnvVars(env_vars):
                     subprocess.run(['docker', 'compose', '-f', compose_file, 'down', '-t', '0'], capture_output=True)
+
+                shutil.rmtree(devpi_data)
 
 
 @pytest.fixture
