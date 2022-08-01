@@ -20,6 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Add support for Almquist (`ash`) shells
 - Add `hyperlink` as a dependency for better handling of package index URLs
 - Bump the minimum supported version of `virtualenv` to 20.16.2
+- Bump the minimum supported version of `tomlkit` to 0.11.1
 
 ***Fixed:***
 
