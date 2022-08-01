@@ -73,7 +73,8 @@ class ShellManager:
         terminal = pexpect.spawn(path, args=args, dimensions=(lines, columns))
 
         def sigwinch_passthrough(sig, data):
-            terminal.setwinsize(lines, columns)
+            new_columns, new_lines = shutil.get_terminal_size()
+            terminal.setwinsize(new_lines, new_columns)
 
         signal.signal(signal.SIGWINCH, sigwinch_passthrough)
 

@@ -25,6 +25,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Acknowledge `extra-dependencies` for the `env show` command
 - Fix locating executables within virtual environments on Debian
+- Fix managing the terminal size inside the `shell` command
 
 ### [1.3.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.3.1) - 2022-07-11 ### {: #hatch-v1.3.1 }
 
