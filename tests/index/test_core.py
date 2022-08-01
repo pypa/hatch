@@ -36,3 +36,29 @@ class TestURLs:
         index = PackageIndex(repo_url)
 
         assert str(index.urls.project) == expected_url
+
+
+class TestTLS:
+    def test_default(self, mocker):
+        mock = mocker.patch('httpx.create_ssl_context')
+        _ = PackageIndex('https://foo.internal/a/b/')
+
+        mock.assert_called_once_with(verify=True, cert=None)
+
+    def test_ca_cert(self, mocker):
+        mock = mocker.patch('httpx.create_ssl_context')
+        _ = PackageIndex('https://foo.internal/a/b/', ca_cert='foo')
+
+        mock.assert_called_once_with(verify='foo', cert=None)
+
+    def test_client_cert(self, mocker):
+        mock = mocker.patch('httpx.create_ssl_context')
+        _ = PackageIndex('https://foo.internal/a/b/', client_cert='foo')
+
+        mock.assert_called_once_with(verify=True, cert='foo')
+
+    def test_client_cert_with_key(self, mocker):
+        mock = mocker.patch('httpx.create_ssl_context')
+        _ = PackageIndex('https://foo.internal/a/b/', client_cert='foo', client_key='bar')
+
+        mock.assert_called_once_with(verify=True, cert=('foo', 'bar'))

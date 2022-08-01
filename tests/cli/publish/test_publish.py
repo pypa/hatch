@@ -169,7 +169,9 @@ def test_flags(hatch, devpi, temp_dir_cache, helpers, published_project_name):
         build_directory = path / 'dist'
         artifacts = list(build_directory.iterdir())
 
-        result = hatch('publish', '--user', devpi.user, '--auth', devpi.auth, '--repo', devpi.repo)
+        result = hatch(
+            'publish', '--repo', devpi.repo, '--user', devpi.user, '--auth', devpi.auth, '--ca-cert', devpi.ca_cert
+        )
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -186,6 +188,7 @@ def test_flags(hatch, devpi, temp_dir_cache, helpers, published_project_name):
 def test_plugin_config(hatch, devpi, temp_dir_cache, helpers, published_project_name, config_file):
     config_file.model.publish['index']['user'] = devpi.user
     config_file.model.publish['index']['auth'] = devpi.auth
+    config_file.model.publish['index']['ca-cert'] = devpi.ca_cert
     config_file.model.publish['index']['repo'] = 'dev'
     config_file.model.publish['index']['repos'] = {'dev': devpi.repo}
     config_file.save()
@@ -224,6 +227,7 @@ def test_plugin_config(hatch, devpi, temp_dir_cache, helpers, published_project_
 
 
 def test_prompt(hatch, devpi, temp_dir_cache, helpers, published_project_name, config_file):
+    config_file.model.publish['index']['ca-cert'] = devpi.ca_cert
     config_file.model.publish['index']['repo'] = 'dev'
     config_file.model.publish['index']['repos'] = {'dev': devpi.repo}
     config_file.save()
@@ -290,6 +294,7 @@ def test_prompt(hatch, devpi, temp_dir_cache, helpers, published_project_name, c
 
 
 def test_external_artifact_path(hatch, devpi, temp_dir_cache, helpers, published_project_name, config_file):
+    config_file.model.publish['index']['ca-cert'] = devpi.ca_cert
     config_file.model.publish['index']['repo'] = 'dev'
     config_file.model.publish['index']['repos'] = {'dev': devpi.repo}
     config_file.save()
@@ -332,6 +337,7 @@ def test_external_artifact_path(hatch, devpi, temp_dir_cache, helpers, published
 
 
 def test_already_exists(hatch, devpi, temp_dir_cache, helpers, published_project_name, config_file):
+    config_file.model.publish['index']['ca-cert'] = devpi.ca_cert
     config_file.model.publish['index']['repo'] = 'dev'
     config_file.model.publish['index']['repos'] = {'dev': devpi.repo}
     config_file.save()
@@ -403,6 +409,7 @@ def test_no_artifacts(hatch, temp_dir_cache, helpers, published_project_name):
 def test_enable_with_flag(hatch, devpi, temp_dir_cache, helpers, published_project_name, config_file):
     config_file.model.publish['index']['user'] = devpi.user
     config_file.model.publish['index']['auth'] = devpi.auth
+    config_file.model.publish['index']['ca-cert'] = devpi.ca_cert
     config_file.model.publish['index']['repo'] = 'dev'
     config_file.model.publish['index']['repos'] = {'dev': devpi.repo}
     config_file.model.publish['index']['disable'] = True
@@ -444,6 +451,7 @@ def test_enable_with_flag(hatch, devpi, temp_dir_cache, helpers, published_proje
 def test_enable_with_prompt(hatch, devpi, temp_dir_cache, helpers, published_project_name, config_file):
     config_file.model.publish['index']['user'] = devpi.user
     config_file.model.publish['index']['auth'] = devpi.auth
+    config_file.model.publish['index']['ca-cert'] = devpi.ca_cert
     config_file.model.publish['index']['repo'] = 'dev'
     config_file.model.publish['index']['repos'] = {'dev': devpi.repo}
     config_file.model.publish['index']['disable'] = True

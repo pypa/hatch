@@ -24,8 +24,6 @@ class IndexPublisher(PublisherInterface):
         """
         from collections import defaultdict
 
-        import httpx
-
         from hatch.index.core import PackageIndex
         from hatch.index.publish import get_sdist_form_data, get_wheel_form_data
 
@@ -42,7 +40,12 @@ class IndexPublisher(PublisherInterface):
         if repo in self.repos:
             repo = self.repos[repo]
 
-        index = PackageIndex(repo)
+        index = PackageIndex(
+            repo,
+            ca_cert=options.get('ca_cert', self.plugin_config.get('ca-cert')),
+            client_cert=options.get('client_cert', self.plugin_config.get('client-cert')),
+            client_key=options.get('client_key', self.plugin_config.get('client-key')),
+        )
 
         cached_user_file = CachedUserFile(self.cache_dir)
         updated_user = None
@@ -105,7 +108,7 @@ class IndexPublisher(PublisherInterface):
             project_name = normalize_project_name(data['name'])
             if project_name not in existing_artifacts:
                 try:
-                    response = httpx.get(str(index.urls.simple.child(project_name, '')))
+                    response = index.get_simple_api(project_name)
                     response.raise_for_status()
                 except Exception:  # no cov
                     existing_artifacts[project_name] = set()

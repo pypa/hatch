@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  devpi:
+    container_name: hatch-devpi
+    build:
+      context: devpi
+    ports:
+    - "3141:3141"
+    environment:
+    - DEVPI_INDEX_NAME
+    - DEVPI_USERNAME
+    - DEVPI_PASSWORD
+
+  nginx:
+    container_name: hatch-nginx
+    image: nginx:alpine
+    ports:
+    - "8080:80"
+    - "8443:443"
+    volumes:
+    - ./nginx:/etc/nginx
+    depends_on:
+    - devpi

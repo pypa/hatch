@@ -18,7 +18,10 @@ The publisher plugin name is `index`.
 
 | Flag | Config name | Description |
 | --- | --- | --- |
+| `-r`/`--repo` | `repo` | The repository with which to publish artifacts |
 | `-u`/`--user` | `user` | The user with which to authenticate |
 | `-a`/`--auth` | `auth` | The credentials to use for authentication |
-| `-r`/`--repo` | `repo` | The repository with which to publish artifacts |
+| `--ca-cert` | `ca-cert` | The path to a CA bundle |
+| `--client-cert` | `client-cert` | The path to a client certificate, optionally containing the private key |
+| `--client-key` | `client-key` | The path to the client certificate's private key |
 | | `repos` | A table of named repositories to their respective URLs |

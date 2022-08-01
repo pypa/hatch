@@ -56,7 +56,7 @@ The first time you publish to a repository you need to authenticate using the `-
 
 The user that most recently published to the chosen repository is [cached](config/hatch.md#cache), with their credentials saved to the system [keyring](https://github.com/jaraco/keyring), so that they will no longer need to provide authentication information.
 
-For automated releases, it is recommended that you use per-project [API tokens](https://pypi.org/help/#apitoken).
+For automated releasing to PyPI, it is recommended that you use per-project [API tokens](https://pypi.org/help/#apitoken).
 
 ## Confirmation
 
