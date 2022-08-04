@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ***Added:***
 
+- The default Python for `virtual` environments now checks PATH before using the one Hatch is running on
 - Values for environment `env-vars` now support context formatting
 - Add `name` override for environments to allow for regular expression matching
 - The `index` publisher now better supports non-PyPI indices
