@@ -122,7 +122,7 @@ python = ["37", "38", "39", "310"]
 branch = true
 parallel = true
 omit = [
-  "{kwargs['package_name']}/__about__.py",
+  "src/{kwargs['package_name']}/__about__.py",
 ]
 
 [tool.coverage.report]
