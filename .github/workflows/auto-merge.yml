@@ -1,4 +1,4 @@
-name: Enable auto-merge for Dependabot
+name: auto-merge
 
 on:
   pull_request_target:
@@ -10,7 +10,7 @@ on:
     - master
 
 jobs:
-  enable:
+  dependabot:
     runs-on: ubuntu-latest
     if: ${{ github.actor == 'dependabot[bot]' }}
 
