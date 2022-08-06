@@ -99,6 +99,9 @@ nav:
       - Reference: plugins/version-scheme/reference.md
       - Standard: plugins/version-scheme/standard.md
     - Utilities: plugins/utilities.md
+  - How-to:
+    - Plugins:
+      - Testing builds: how-to/plugins/testing-builds.md
   - Meta:
     - FAQ: meta/faq.md
     - Authors: meta/authors.md
