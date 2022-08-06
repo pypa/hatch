@@ -6,6 +6,7 @@ Metadata hooks allow for the modification of [project metadata](../../config/met
 
 ## Known third-party
 
+- [hatch-fancy-pypi-readme](https://github.com/hynek/hatch-fancy-pypi-readme) - dynamically construct the README
 - [hatch-requirements-txt](https://github.com/repo-helper/hatch-requirements-txt) - read project dependencies from `requirements.txt` files
 
 ::: hatchling.metadata.plugin.interface.MetadataHookInterface

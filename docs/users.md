@@ -4,11 +4,9 @@
 
 The following is not intended to be a complete enumeration. Be sure to view the [development version](/dev/users/) of this page for an up-to-date listing.
 
-## Notable projects
+## Projects
 
-- [Colorama](https://github.com/tartley/colorama/blob/cd653d75be52f4d8c3953eb6942fe597375f8b97/pyproject.toml#L1-L5)
-- [pipx](https://github.com/pypa/pipx/blob/bc7dd03c4d872c443257685109a650ec3d524814/pyproject.toml#L1-L3)
-- [tox](https://github.com/tox-dev/tox/pull/2369)
+[Colorama](https://github.com/tartley/colorama/blob/cd653d75be52f4d8c3953eb6942fe597375f8b97/pyproject.toml#L1-L5) | [iCalendar for Humans](https://github.com/ics-py/ics-py/blob/133a0955f6efbb83ff0eae45ad0bbe6902a8f2f1/pyproject.toml#L61-L63) | [PyMdown Extensions](https://github.com/facelessuser/pymdown-extensions/blob/72390ce2d0b40df638e31b75f1f02f45659724de/pyproject.toml#L1-L5) | [Python JSON Schema](https://github.com/python-jsonschema/jsonschema/blob/afc22f09e74d696ab00be8a711bbc5c2a15327b7/pyproject.toml#L1-L3) | [pipx](https://github.com/pypa/pipx/blob/bc7dd03c4d872c443257685109a650ec3d524814/pyproject.toml#L1-L3) | [structlog](https://github.com/hynek/structlog/blob/6e2e8c6025fb90484c5e6c5ff2fd3e96a61854cf/pyproject.toml#L3-L5) | [tox](https://github.com/tox-dev/tox/pull/2369)
 
 ## Industry
 
@@ -21,6 +19,11 @@ The following is not intended to be a complete enumeration. Be sure to view the 
 - [Anaconda](https://anaconda.org)
     - [Incubator](https://github.com/conda-incubator) <sup>\[[1](https://github.com/conda-incubator/ensureconda/blob/b20dbcf7166009ff4e9270f35ed75da7afc3db60/pyproject.toml#L1-L3)\]</sup>
 - [Smithsonian Institution](https://www.si.edu) <sup>\[[1](https://github.com/Smithsonian/ngehtutil/blob/02921f3a2ce11eb3f1555a0b9d3b177592d2be37/pyproject.toml#L1-L3)\]</sup>
+
+## Government
+
+- [United States](https://en.wikipedia.org/wiki/United_States)
+    - [National Telecommunications and Information Administration](https://www.ntia.gov) <sup>\[[1](https://github.com/NTIA/scos-tekrsa/pull/20)|[2](https://github.com/NTIA/tekrsa-api-wrap/blob/00cd1f537ec9bba1d063200c2cdde7481b085901/pyproject.toml#L1-L3)\]</sup>
 
 ## Academia
 
@@ -38,14 +41,9 @@ The following is not intended to be a complete enumeration. Be sure to view the 
     - [JupyterLab](https://github.com/jupyterlab) <sup>\[[1](https://github.com/jupyterlab/hatch_jupyter_builder)|[2](https://github.com/jupyterlab/jupyterlab/pull/12606)|[3](https://github.com/jupyterlab/maintainer-tools/blob/0e95a837469f5325e5a840bd194fe8273087d2f6/pyproject.toml#L1-L3)|[4](https://github.com/jupyterlab/pytest-check-links/blob/b07e705d590e9fce22dc21191018f4f72ec7215b/pyproject.toml#L1-L3)|[5](https://github.com/jupyterlab/extension-cookiecutter-js/pull/41)\]</sup>
     - [Jupyter Server](https://github.com/jupyter-server) <sup>\[[1](https://github.com/jupyter-server/jupyter_server/blob/061d846fbd0cf2f0be50d12c4a15feffd3214774/pyproject.toml#L1-L3)|[2](https://github.com/jupyter-server/enterprise_gateway/blob/b45a81ae70680be7f8e0d1e3daed1df3063667fa/pyproject.toml#L1-L3)|[3](https://github.com/jupyter-server/jupyter_server_terminals/blob/4b32ceb34b9b6ae9c677424cc65c9c3bfe243719/pyproject.toml#L1-L3)|[4](https://github.com/jupyter-server/synchronizer/blob/5809e9ffd188beff743874a434884662867bb573/pyproject.toml#L1-L3)\]</sup>
 - [Scikit-HEP](https://scikit-hep.org) <sup>\[[1](https://github.com/scikit-hep/uproot-browser/blob/f41ce3f3887057f5ec9a6cd164c3c41d1ec3d633/pyproject.toml#L1-L3)|[2](https://github.com/scikit-hep/uhi/blob/95ad870218a6fd7f2ab02f3d2b5c421e93a1f03f/pyproject.toml#L1-L3)|[3](https://github.com/scikit-hep/repo-review/blob/007026a62c6c61914ec49e111be587104f59b8ae/pyproject.toml#L1-L3)|[4](https://github.com/scikit-hep/hist/blob/768ea7de75f20c06caa6ded72d70bd132e4c9467/pyproject.toml#L1-L3)|[5](https://github.com/scikit-hep/vector/blob/cac88a2e0f1c4bf7bceaafbea6e234b3147e3ca3/pyproject.toml#L1-L6)\]</sup>
+- [Spyder](https://www.spyder-ide.org) <sup>\[[1](https://github.com/spyder-ide/env-manager/blob/9c487532cbb4804c94d7cf23dcec9404b2a1c7ec/pyproject.toml#L1-L3)\]</sup>
 
 ## Security
 
 - [in-toto](https://github.com/in-toto/in-toto/blob/2768904b8a3892529aba8f8a605461fd178d9a58/pyproject.toml#L1-L3)
 - [The Update Framework](https://github.com/theupdateframework/python-tuf/blob/72424a958b60817155fcacfed1216163790b26f7/pyproject.toml#L2-L4)
-
-## Other
-
-- [iCalendar for Humans](https://github.com/ics-py/ics-py/blob/133a0955f6efbb83ff0eae45ad0bbe6902a8f2f1/pyproject.toml#L61-L63)
-- [PyMdown Extensions](https://github.com/facelessuser/pymdown-extensions/blob/72390ce2d0b40df638e31b75f1f02f45659724de/pyproject.toml#L1-L5)
-- [Python JSON Schema](https://github.com/python-jsonschema/jsonschema/blob/afc22f09e74d696ab00be8a711bbc5c2a15327b7/pyproject.toml#L1-L3)
