@@ -42,7 +42,7 @@ def test(hatch, temp_dir, helpers):
 
     project = Project(path)
     config = dict(project.raw_config)
-    config['tool']['hatch']['build']['hooks'] = {'custom': {'path': build_script.name}}
+    config['tool']['hatch']['build'] = {'hooks': {'custom': {'path': build_script.name}}}
     project.save_config(config)
 
     with path.as_cwd():

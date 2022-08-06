@@ -79,6 +79,7 @@ classifiers = [
   "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
@@ -92,9 +93,6 @@ Source = "https://github.com/unknown/{kwargs['project_name_normalized']}"
 
 [tool.hatch.version]
 path = "{kwargs['package_name']}/__about__.py"
-
-[tool.hatch.build.targets.sdist]
-[tool.hatch.build.targets.wheel]
 """,
         ),
     ]  # noqa: E501

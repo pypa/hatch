@@ -83,6 +83,7 @@ classifiers = [
   "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
@@ -92,10 +93,7 @@ dynamic = ["version"]
 [project.urls]{project_url_data}{cli_scripts}
 
 [tool.hatch.version]
-path = "{package_metadata_file_path}"
-
-[tool.hatch.build.targets.sdist]
-[tool.hatch.build.targets.wheel]{tests_section}
+path = "{package_metadata_file_path}"{tests_section}
 """
 
     def __init__(self, template_config: dict, plugin_config: dict):
@@ -146,7 +144,7 @@ cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov={packa
 no-cov = "cov --no-cov"
 
 [[tool.hatch.envs.test.matrix]]
-python = ["37", "38", "39", "310"]
+python = ["37", "38", "39", "310", "311"]
 
 [tool.coverage.run]
 branch = true
