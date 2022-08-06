@@ -36,6 +36,10 @@ class InvokedApplication:
 class Application:
     """
     The way output is displayed can be [configured](../config/hatch.md#terminal) by users.
+
+    !!! important
+        Never import this directly; Hatch judiciously decides if a type of plugin requires
+        the capabilities herein and will grant access via an attribute.
     """
 
     def __init__(self):
