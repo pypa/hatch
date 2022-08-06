@@ -80,7 +80,12 @@ def test_all(hatch, helpers, temp_dir_data, config_file):
         result = hatch('env', 'prune')
 
     assert result.exit_code == 0, result.output
-    assert not result.output
+    assert result.output == helpers.dedent(
+        """
+        Removing environment: foo
+        Removing environment: bar
+        """
+    )
 
     assert not storage_path.is_dir()
 

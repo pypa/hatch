@@ -15,7 +15,7 @@ def prune(app):
     for env_name, config in environments.items():
         environment_type = config['type']
         if environment_type not in environment_types:
-            app.abort(f'Environment `{app.env}` has unknown type: {environment_type}')
+            app.abort(f'Environment `{env_name}` has unknown type: {environment_type}')
 
         data_dir = app.get_env_directory(environment_type)
 
@@ -36,4 +36,5 @@ def prune(app):
             continue
 
         if environment.exists():
-            environment.remove()
+            with app.status_waiting(f'Removing environment: {env_name}'):
+                environment.remove()

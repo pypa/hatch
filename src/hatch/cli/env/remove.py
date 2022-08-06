@@ -28,4 +28,5 @@ def remove(ctx, env_name):
             continue
 
         if environment.exists():
-            environment.remove()
+            with app.status_waiting(f'Removing environment: {env_name}'):
+                environment.remove()

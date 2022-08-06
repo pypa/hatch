@@ -48,6 +48,7 @@ def test_single(hatch, helpers, temp_dir_data, config_file):
     assert result.output == helpers.dedent(
         """
         Creating environment: default
+        Checking dependencies
         """
     )
 
@@ -102,6 +103,7 @@ def test_matrix(hatch, helpers, temp_dir_data, config_file):
     assert result.output == helpers.dedent(
         """
         Creating environment: test.42
+        Checking dependencies
         Skipped 1 incompatible environment:
         test.9000 -> unsupported platform
         """

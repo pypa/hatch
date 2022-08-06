@@ -90,6 +90,7 @@ def test_new(hatch, helpers, temp_dir, config_file):
     assert result.output == helpers.dedent(
         """
         Creating environment: test
+        Checking dependencies
         """
     )
 
@@ -153,6 +154,7 @@ def test_new_selected_python(hatch, helpers, temp_dir, config_file, python_on_pa
     assert result.output == helpers.dedent(
         """
         Creating environment: test
+        Checking dependencies
         """
     )
 
@@ -215,6 +217,7 @@ def test_selected_absolute_directory(hatch, helpers, temp_dir, config_file):
     assert result.output == helpers.dedent(
         """
         Creating environment: test
+        Checking dependencies
         """
     )
 
@@ -277,6 +280,7 @@ def test_env_var_absolute_directory(hatch, helpers, temp_dir, config_file):
     assert result.output == helpers.dedent(
         """
         Creating environment: test
+        Checking dependencies
         """
     )
 
@@ -320,6 +324,7 @@ def test_selected_local_directory(hatch, helpers, temp_dir, config_file):
     assert result.output == helpers.dedent(
         """
         Creating environment: test
+        Checking dependencies
         """
     )
 
@@ -382,6 +387,7 @@ def test_env_var_local_directory(hatch, helpers, temp_dir, config_file):
     assert result.output == helpers.dedent(
         """
         Creating environment: test
+        Checking dependencies
         """
     )
 
@@ -430,6 +436,7 @@ def test_enter_project_directory(hatch, config_file, helpers, temp_dir):
     assert result.output == helpers.dedent(
         """
         Creating environment: test
+        Checking dependencies
         """
     )
 
@@ -481,6 +488,7 @@ def test_already_created(hatch, config_file, helpers, temp_dir):
     assert result.output == helpers.dedent(
         """
         Creating environment: test
+        Checking dependencies
         """
     )
 
@@ -541,6 +549,7 @@ def test_default(hatch, config_file, helpers, temp_dir):
     assert result.output == helpers.dedent(
         """
         Creating environment: default
+        Checking dependencies
         """
     )
 
@@ -592,7 +601,9 @@ def test_matrix(hatch, helpers, temp_dir, config_file):
     assert result.output == helpers.dedent(
         """
         Creating environment: test.9000
+        Checking dependencies
         Creating environment: test.42
+        Checking dependencies
         """
     )
 
@@ -754,6 +765,7 @@ def test_incompatible_matrix_partial(hatch, helpers, temp_dir, config_file):
     assert result.output == helpers.dedent(
         """
         Creating environment: test.42
+        Checking dependencies
         Skipped 1 incompatible environment:
         test.9000 -> unsupported platform
         """
@@ -822,6 +834,7 @@ def test_install_project_default_dev_mode(
         """
         Creating environment: test
         Installing project in development mode
+        Checking dependencies
         """
     )
 
@@ -882,6 +895,7 @@ def test_install_project_no_dev_mode(hatch, helpers, temp_dir, platform, config_
         """
         Creating environment: test
         Installing project
+        Checking dependencies
         """
     )
 
@@ -950,6 +964,7 @@ def test_pre_install_commands(hatch, helpers, temp_dir, config_file):
         Creating environment: test
         Running pre-installation commands
         Installing project in development mode
+        Checking dependencies
         """
     )
     assert (project_path / 'test.txt').is_file()
@@ -1027,6 +1042,7 @@ def test_post_install_commands(hatch, helpers, temp_dir, config_file):
         Creating environment: test
         Installing project in development mode
         Running post-installation commands
+        Checking dependencies
         """
     )
     assert (project_path / 'test.txt').is_file()
@@ -1107,6 +1123,7 @@ def test_sync_dependencies(hatch, helpers, temp_dir, platform, config_file, extr
         Creating environment: test
         Installing project in development mode
         Running post-installation commands
+        Checking dependencies
         Syncing dependencies
         """
     )
@@ -1173,6 +1190,7 @@ def test_features(hatch, helpers, temp_dir, platform, config_file, extract_insta
         """
         Creating environment: test
         Installing project in development mode
+        Checking dependencies
         """
     )
 
@@ -1230,6 +1248,7 @@ def test_no_project_file(hatch, helpers, temp_dir, config_file):
     assert result.output == helpers.dedent(
         """
         Creating environment: default
+        Checking dependencies
         """
     )
 

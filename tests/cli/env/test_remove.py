@@ -95,7 +95,11 @@ def test_single(hatch, helpers, temp_dir_data, config_file):
         result = hatch('env', 'remove', 'bar')
 
     assert result.exit_code == 0, result.output
-    assert not result.output
+    assert result.output == helpers.dedent(
+        """
+        Removing environment: bar
+        """
+    )
 
     assert foo_env_path.is_dir()
     assert not bar_env_path.is_dir()
@@ -154,13 +158,21 @@ def test_all(hatch, helpers, temp_dir_data, config_file):
         result = hatch('env', 'remove', 'foo')
 
     assert result.exit_code == 0, result.output
-    assert not result.output
+    assert result.output == helpers.dedent(
+        """
+        Removing environment: foo
+        """
+    )
 
     with project_path.as_cwd():
         result = hatch('env', 'remove', 'bar')
 
     assert result.exit_code == 0, result.output
-    assert not result.output
+    assert result.output == helpers.dedent(
+        """
+        Removing environment: bar
+        """
+    )
 
     assert not storage_path.is_dir()
 
@@ -212,7 +224,12 @@ def test_matrix_all(hatch, helpers, temp_dir_data, config_file):
         result = hatch('env', 'remove', 'foo')
 
     assert result.exit_code == 0, result.output
-    assert not result.output
+    assert result.output == helpers.dedent(
+        """
+        Removing environment: foo.9000
+        Removing environment: foo.42
+        """
+    )
 
     assert not storage_path.is_dir()
 
@@ -303,6 +320,10 @@ def test_active_override(hatch, helpers, temp_dir_data, config_file):
         result = hatch('env', 'remove', 'default')
 
     assert result.exit_code == 0, result.output
-    assert not result.output
+    assert result.output == helpers.dedent(
+        """
+        Removing environment: default
+        """
+    )
 
     assert not storage_path.is_dir()

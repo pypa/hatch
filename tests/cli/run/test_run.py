@@ -42,6 +42,7 @@ def test_automatic_creation(hatch, helpers, temp_dir, config_file):
     assert result.output == helpers.dedent(
         """
         Creating environment: default
+        Checking dependencies
         """
     )
     output_file = project_path / 'test.txt'
@@ -102,6 +103,7 @@ def test_enter_project_directory(hatch, config_file, helpers, temp_dir):
     assert result.output == helpers.dedent(
         """
         Creating environment: default
+        Checking dependencies
         """
     )
     output_file = project_path / 'test.txt'
@@ -157,6 +159,7 @@ def test_sync_dependencies(hatch, helpers, temp_dir, config_file):
     assert result.output == helpers.dedent(
         """
         Creating environment: default
+        Checking dependencies
         """
     )
 
@@ -197,6 +200,7 @@ def test_sync_dependencies(hatch, helpers, temp_dir, config_file):
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
         """
+        Checking dependencies
         Syncing dependencies
         """
     )
@@ -230,6 +234,7 @@ def test_sync_project_dependencies(hatch, helpers, temp_dir, config_file):
         """
         Creating environment: default
         Installing project in development mode
+        Checking dependencies
         """
     )
 
@@ -270,6 +275,7 @@ def test_sync_project_dependencies(hatch, helpers, temp_dir, config_file):
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
         """
+        Checking dependencies
         Syncing dependencies
         """
     )
@@ -309,6 +315,7 @@ def test_sync_project_features(hatch, helpers, temp_dir, config_file):
         """
         Creating environment: default
         Installing project in development mode
+        Checking dependencies
         """
     )
 
@@ -349,6 +356,7 @@ def test_sync_project_features(hatch, helpers, temp_dir, config_file):
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
         """
+        Checking dependencies
         Syncing dependencies
         """
     )
@@ -387,6 +395,7 @@ def test_scripts(hatch, helpers, temp_dir, config_file):
     assert result.output == helpers.dedent(
         """
         Creating environment: default
+        Checking dependencies
         """
     )
     output_file = project_path / 'test.txt'
@@ -451,6 +460,7 @@ def test_scripts_specific_environment(hatch, helpers, temp_dir, config_file):
     assert result.output == helpers.dedent(
         """
         Creating environment: test
+        Checking dependencies
         """
     )
     output_file = project_path / 'test.txt'
@@ -483,7 +493,7 @@ def test_scripts_specific_environment(hatch, helpers, temp_dir, config_file):
 
 
 @pytest.mark.requires_internet
-def test_scripts_no_environment(hatch, temp_dir, config_file):
+def test_scripts_no_environment(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
@@ -507,7 +517,12 @@ def test_scripts_no_environment(hatch, temp_dir, config_file):
         result = hatch('run', ':py', "import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable)")
 
     assert result.exit_code == 0, result.output
-    assert not result.output
+    assert result.output == helpers.dedent(
+        """
+        Checking dependencies
+        """
+    )
+
     output_file = project_path / 'test.txt'
     assert output_file.is_file()
 
@@ -555,6 +570,7 @@ def test_error(hatch, helpers, temp_dir, config_file):
     assert result.output == helpers.dedent(
         """
         Creating environment: default
+        Checking dependencies
         cmd [1] | python -c "import sys;sys.exit(3)"
         """
     )
@@ -600,6 +616,7 @@ def test_ignore_error(hatch, helpers, temp_dir, config_file):
     assert result.output == helpers.dedent(
         """
         Creating environment: default
+        Checking dependencies
         cmd [1] | - python -c "import sys;sys.exit(3)"
         cmd [2] | python -c "import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable)"
         """
@@ -660,6 +677,7 @@ def test_command_expansion_error(hatch, helpers, temp_dir, config_file):
     assert result.output == helpers.dedent(
         """
         Creating environment: default
+        Checking dependencies
         Nonexistent environment variable must set a default: FOOBAR
         """
     )
@@ -707,6 +725,7 @@ def test_verbosity(hatch, helpers, temp_dir, config_file):
         """
         ─────────────────────────────────── default ────────────────────────────────────
         Creating environment: default
+        Checking dependencies
         cmd [1] | python -c "import pathlib,sys;pathlib.Path('test1.txt').write_text(sys.executable)"
         cmd [2] | python -c "import pathlib,sys;pathlib.Path('test2.txt').write_text(sys.executable)"
         cmd [3] | python -c "import pathlib,sys;pathlib.Path('test3.txt').write_text(sys.executable)"
@@ -804,8 +823,10 @@ def test_matrix(hatch, helpers, temp_dir, config_file):
         """
         ────────────────────────────────── test.9000 ───────────────────────────────────
         Creating environment: test.9000
+        Checking dependencies
         ─────────────────────────────────── test.42 ────────────────────────────────────
         Creating environment: test.42
+        Checking dependencies
         """
     )
     output_file = project_path / 'test.txt'
@@ -950,6 +971,7 @@ def test_incompatible_matrix_partial(hatch, helpers, temp_dir, config_file):
         """
         ─────────────────────────────────── test.42 ────────────────────────────────────
         Creating environment: test.42
+        Checking dependencies
 
         Skipped 1 incompatible environment:
         test.9000 -> unsupported platform
@@ -1016,6 +1038,7 @@ def test_incompatible_missing_python(hatch, helpers, temp_dir, config_file):
         f"""
         ────────────────────────────────── test.py{known_version} ─────────────────────────────────{padding}
         Creating environment: test.py{known_version}
+        Checking dependencies
 
         Skipped 1 incompatible environment:
         test.py9000 -> cannot locate Python: 9000
@@ -1074,6 +1097,7 @@ def test_env_detection(hatch, helpers, temp_dir, config_file):
     assert result.output == helpers.dedent(
         """
         Creating environment: default
+        Checking dependencies
         """
     )
 
@@ -1084,6 +1108,7 @@ def test_env_detection(hatch, helpers, temp_dir, config_file):
     assert result.output == helpers.dedent(
         """
         Creating environment: foo
+        Checking dependencies
         """
     )
 
@@ -1145,6 +1170,7 @@ def test_env_detection_override(hatch, helpers, temp_dir, config_file):
     assert result.output == helpers.dedent(
         """
         Creating environment: default
+        Checking dependencies
         """
     )
 
@@ -1155,6 +1181,7 @@ def test_env_detection_override(hatch, helpers, temp_dir, config_file):
     assert result.output == helpers.dedent(
         """
         Creating environment: foo
+        Checking dependencies
         """
     )
 
@@ -1402,6 +1429,7 @@ def test_matrix_variable_selection_inclusion(hatch, helpers, temp_dir, config_fi
         """
         ────────────────────────────────── test.9000 ───────────────────────────────────
         Creating environment: test.9000
+        Checking dependencies
         """
     )
     output_file = project_path / 'test.txt'
@@ -1464,6 +1492,7 @@ def test_matrix_variable_selection_exclusion(hatch, helpers, temp_dir, config_fi
         """
         ─────────────────────────────────── test.42 ────────────────────────────────────
         Creating environment: test.42
+        Checking dependencies
         """
     )
     output_file = project_path / 'test.txt'
@@ -1603,6 +1632,7 @@ def test_context_formatting_recursion(hatch, helpers, temp_dir, config_file):
     assert result.output == helpers.dedent(
         """
         Creating environment: default
+        Checking dependencies
         """
     )
     output_file = project_path / 'test.txt'
