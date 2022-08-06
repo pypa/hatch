@@ -152,7 +152,7 @@ python = ["37", "38", "39", "310"]
 branch = true
 parallel = true
 omit = [
-  "{template_config['package_name']}/__about__.py",
+  "{package_location}{template_config['package_name']}/__about__.py",
 ]
 
 [tool.coverage.report]
