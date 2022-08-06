@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Add `name` override for environments to allow for regular expression matching
 - The `index` publisher now better supports non-PyPI indices
 - Add certificate options to the `index` publisher
+- Display waiting text when checking dependencies and removing environments
 - Display help text the first time the `shell` command is executed
 - Add support for Almquist (`ash`) shells
 - Add `hyperlink` as a dependency for better handling of package index URLs

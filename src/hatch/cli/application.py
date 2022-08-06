@@ -87,7 +87,10 @@ class Application(Terminal):
                     with self.status_waiting('Running post-installation commands'):
                         self.run_shell_commands(environment, environment.post_install_commands, source='post-install')
 
-        if not environment.dependencies_in_sync():
+        with self.status_waiting('Checking dependencies'):
+            dependencies_in_sync = environment.dependencies_in_sync()
+
+        if not dependencies_in_sync:
             with self.status_waiting('Syncing dependencies'):
                 environment.sync_dependencies()
 

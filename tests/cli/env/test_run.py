@@ -89,6 +89,7 @@ def test_filter(hatch, helpers, temp_dir, config_file):
         """
         ─────────────────────────────────── test.42 ────────────────────────────────────
         Creating environment: test.42
+        Checking dependencies
         """
     )
     output_file = project_path / 'test.txt'
@@ -158,6 +159,7 @@ def test_force_continue(hatch, helpers, temp_dir, config_file):
     assert result.output == helpers.dedent(
         """
         Creating environment: default
+        Checking dependencies
         cmd [1] | python -c "import sys;sys.exit(2)"
         cmd [2] | - python -c "import sys;sys.exit(3)"
         cmd [3] | python -c "import sys;sys.exit(1)"
