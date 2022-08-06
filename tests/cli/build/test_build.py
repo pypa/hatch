@@ -114,52 +114,6 @@ def test_default(hatch, temp_dir, helpers):
 
     path = temp_dir / 'my-app'
 
-    project = Project(path)
-    config = dict(project.raw_config)
-    config['tool']['hatch']['build']['targets'] = {}
-    project.save_config(config)
-
-    with path.as_cwd():
-        result = hatch('build')
-
-    assert result.exit_code == 0, result.output
-
-    build_directory = path / 'dist'
-    assert build_directory.is_dir()
-
-    artifacts = list(build_directory.iterdir())
-    assert len(artifacts) == 2
-
-    sdist_path = [artifact for artifact in artifacts if artifact.name.endswith('.tar.gz')][0]
-    wheel_path = [artifact for artifact in artifacts if artifact.name.endswith('.whl')][0]
-
-    assert result.output == helpers.dedent(
-        f"""
-        Setting up build environment
-        [sdist]
-        {sdist_path.relative_to(path)}
-
-        Setting up build environment
-        [wheel]
-        {wheel_path.relative_to(path)}
-        """
-    )
-
-
-def test_no_targets_default(hatch, temp_dir, helpers):
-    project_name = 'My.App'
-
-    with temp_dir.as_cwd():
-        result = hatch('new', project_name)
-        assert result.exit_code == 0, result.output
-
-    path = temp_dir / 'my-app'
-
-    project = Project(path)
-    config = dict(project.raw_config)
-    config['tool']['hatch']['build'].pop('targets')
-    project.save_config(config)
-
     with path.as_cwd():
         result = hatch('build')
 
@@ -318,7 +272,7 @@ def test_clean(hatch, temp_dir, helpers):
 
     project = Project(path)
     config = dict(project.raw_config)
-    config['tool']['hatch']['build']['hooks'] = {'custom': {'path': build_script.name}}
+    config['tool']['hatch']['build'] = {'hooks': {'custom': {'path': build_script.name}}}
     project.save_config(config)
 
     with path.as_cwd():
@@ -459,7 +413,7 @@ def test_clean_only(hatch, temp_dir, helpers):
 
     project = Project(path)
     config = dict(project.raw_config)
-    config['tool']['hatch']['build']['hooks'] = {'custom': {'path': build_script.name}}
+    config['tool']['hatch']['build'] = {'hooks': {'custom': {'path': build_script.name}}}
     project.save_config(config)
 
     with path.as_cwd():
@@ -523,7 +477,7 @@ def test_clean_only_hooks_only(hatch, temp_dir, helpers):
 
     project = Project(path)
     config = dict(project.raw_config)
-    config['tool']['hatch']['build']['hooks'] = {'custom': {'path': build_script.name}}
+    config['tool']['hatch']['build'] = {'hooks': {'custom': {'path': build_script.name}}}
     project.save_config(config)
 
     with path.as_cwd():
@@ -587,7 +541,7 @@ def test_clean_hooks_after(hatch, temp_dir, helpers):
 
     project = Project(path)
     config = dict(project.raw_config)
-    config['tool']['hatch']['build']['hooks'] = {'custom': {'path': build_script.name}}
+    config['tool']['hatch']['build'] = {'hooks': {'custom': {'path': build_script.name}}}
     project.save_config(config)
 
     with path.as_cwd():
@@ -648,7 +602,7 @@ def test_clean_hooks_after_env_var(hatch, temp_dir, helpers):
 
     project = Project(path)
     config = dict(project.raw_config)
-    config['tool']['hatch']['build']['hooks'] = {'custom': {'path': build_script.name}}
+    config['tool']['hatch']['build'] = {'hooks': {'custom': {'path': build_script.name}}}
     project.save_config(config)
 
     with path.as_cwd({BuildEnvVars.CLEAN_HOOKS_AFTER: 'true'}):
@@ -709,7 +663,7 @@ def test_clean_only_no_hooks(hatch, temp_dir, helpers):
 
     project = Project(path)
     config = dict(project.raw_config)
-    config['tool']['hatch']['build']['hooks'] = {'custom': {'path': build_script.name}}
+    config['tool']['hatch']['build'] = {'hooks': {'custom': {'path': build_script.name}}}
     project.save_config(config)
 
     with path.as_cwd():
@@ -770,7 +724,7 @@ def test_hooks_only(hatch, temp_dir, helpers):
 
     project = Project(path)
     config = dict(project.raw_config)
-    config['tool']['hatch']['build']['hooks'] = {'custom': {'path': build_script.name}}
+    config['tool']['hatch']['build'] = {'hooks': {'custom': {'path': build_script.name}}}
     project.save_config(config)
 
     with path.as_cwd():
@@ -822,7 +776,7 @@ def test_hooks_only_env_var(hatch, temp_dir, helpers):
 
     project = Project(path)
     config = dict(project.raw_config)
-    config['tool']['hatch']['build']['hooks'] = {'custom': {'path': build_script.name}}
+    config['tool']['hatch']['build'] = {'hooks': {'custom': {'path': build_script.name}}}
     project.save_config(config)
 
     with path.as_cwd({BuildEnvVars.HOOKS_ONLY: 'true'}):
@@ -874,7 +828,7 @@ def test_extensions_only(hatch, temp_dir, helpers):
 
     project = Project(path)
     config = dict(project.raw_config)
-    config['tool']['hatch']['build']['hooks'] = {'custom': {'path': build_script.name}}
+    config['tool']['hatch']['build'] = {'hooks': {'custom': {'path': build_script.name}}}
     project.save_config(config)
 
     with path.as_cwd():
@@ -926,7 +880,7 @@ def test_no_hooks(hatch, temp_dir, helpers):
 
     project = Project(path)
     config = dict(project.raw_config)
-    config['tool']['hatch']['build']['hooks'] = {'custom': {'path': build_script.name}}
+    config['tool']['hatch']['build'] = {'hooks': {'custom': {'path': build_script.name}}}
     project.save_config(config)
 
     with path.as_cwd():
@@ -979,7 +933,7 @@ def test_no_hooks_env_var(hatch, temp_dir, helpers):
 
     project = Project(path)
     config = dict(project.raw_config)
-    config['tool']['hatch']['build']['hooks'] = {'custom': {'path': build_script.name}}
+    config['tool']['hatch']['build'] = {'hooks': {'custom': {'path': build_script.name}}}
     project.save_config(config)
 
     with path.as_cwd({BuildEnvVars.NO_HOOKS: 'true'}):
@@ -1108,7 +1062,9 @@ def test_build_dependencies(hatch, temp_dir, helpers):
 
     project = Project(path)
     config = dict(project.raw_config)
-    config['tool']['hatch']['build']['targets'] = {'custom': {'dependencies': ['binary'], 'path': DEFAULT_BUILD_SCRIPT}}
+    config['tool']['hatch']['build'] = {
+        'targets': {'custom': {'dependencies': ['binary'], 'path': DEFAULT_BUILD_SCRIPT}},
+    }
     project.save_config(config)
 
     with path.as_cwd():

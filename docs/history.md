@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Add certificate options to the `index` publisher
 - Display waiting text when checking dependencies and removing environments
 - Display help text the first time the `shell` command is executed
+- Update project templates with Python 3.11 and the latest versions of various GitHub Actions
 - Add support for Almquist (`ash`) shells
 - Add `hyperlink` as a dependency for better handling of package index URLs
 - Bump the minimum supported version of `virtualenv` to 20.16.2

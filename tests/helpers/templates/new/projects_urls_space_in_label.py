@@ -87,6 +87,7 @@ classifiers = [
   "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
@@ -101,9 +102,6 @@ Source = "https://github.com/unknown/{kwargs['project_name_normalized']}"
 [tool.hatch.version]
 path = "{kwargs['package_name']}/__about__.py"
 
-[tool.hatch.build.targets.sdist]
-[tool.hatch.build.targets.wheel]
-
 [tool.hatch.envs.default]
 dependencies = [
   "pytest",
@@ -114,7 +112,7 @@ cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov={kwarg
 no-cov = "cov --no-cov"
 
 [[tool.hatch.envs.test.matrix]]
-python = ["37", "38", "39", "310"]
+python = ["37", "38", "39", "310", "311"]
 
 [tool.coverage.run]
 branch = true
