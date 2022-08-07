@@ -174,9 +174,9 @@ def extract_installed_requirements(helpers, default_virtualenv_installed_require
     ]
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='session', autouse=True)
 def python_on_path():
-    return sys.executable.split(os.sep)[-1]
+    return Path(sys.executable).stem
 
 
 @pytest.fixture(scope='session')
