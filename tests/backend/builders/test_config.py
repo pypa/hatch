@@ -217,6 +217,142 @@ class TestRequireRuntimeDependencies:
         assert builder.config.require_runtime_dependencies is False
 
 
+class TestRequireRuntimeFeatures:
+    def test_default(self, isolation):
+        builder = Builder(str(isolation))
+
+        assert builder.config.require_runtime_features == builder.config.require_runtime_features == []
+
+    def test_target(self, isolation):
+        config = {
+            'project': {'name': 'my_app', 'version': '0.0.1', 'optional-dependencies': {'foo': [], 'bar': []}},
+            'tool': {'hatch': {'build': {'targets': {'foo': {'require-runtime-features': ['foo', 'bar']}}}}},
+        }
+        builder = Builder(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        assert builder.config.require_runtime_features == ['foo', 'bar']
+
+    def test_target_not_array(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'require-runtime-features': 9000}}}}}}
+        builder = Builder(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        with pytest.raises(
+            TypeError, match='Field `tool.hatch.build.targets.foo.require-runtime-features` must be an array'
+        ):
+            _ = builder.config.require_runtime_features
+
+    def test_target_feature_not_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'require-runtime-features': [9000]}}}}}}
+        builder = Builder(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        with pytest.raises(
+            TypeError,
+            match='Feature #1 of field `tool.hatch.build.targets.foo.require-runtime-features` must be a string',
+        ):
+            _ = builder.config.require_runtime_features
+
+    def test_target_feature_empty_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'foo': {'require-runtime-features': ['']}}}}}}
+        builder = Builder(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        with pytest.raises(
+            ValueError,
+            match=(
+                'Feature #1 of field `tool.hatch.build.targets.foo.require-runtime-features` cannot be an empty string'
+            ),
+        ):
+            _ = builder.config.require_runtime_features
+
+    def test_target_feature_unknown(self, isolation):
+        config = {
+            'project': {'name': 'my_app', 'version': '0.0.1'},
+            'tool': {'hatch': {'build': {'targets': {'foo': {'require-runtime-features': ['foo_bar']}}}}},
+        }
+        builder = Builder(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        with pytest.raises(
+            ValueError,
+            match=(
+                'Feature `foo-bar` of field `tool.hatch.build.targets.foo.require-runtime-features` is not defined in '
+                'field `project.optional-dependencies`'
+            ),
+        ):
+            _ = builder.config.require_runtime_features
+
+    def test_global(self, isolation):
+        config = {
+            'project': {'name': 'my_app', 'version': '0.0.1', 'optional-dependencies': {'foo': [], 'bar': []}},
+            'tool': {'hatch': {'build': {'require-runtime-features': ['foo', 'bar']}}},
+        }
+        builder = Builder(str(isolation), config=config)
+
+        assert builder.config.require_runtime_features == ['foo', 'bar']
+
+    def test_global_not_array(self, isolation):
+        config = {'tool': {'hatch': {'build': {'require-runtime-features': 9000}}}}
+        builder = Builder(str(isolation), config=config)
+
+        with pytest.raises(TypeError, match='Field `tool.hatch.build.require-runtime-features` must be an array'):
+            _ = builder.config.require_runtime_features
+
+    def test_global_feature_not_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'require-runtime-features': [9000]}}}}
+        builder = Builder(str(isolation), config=config)
+
+        with pytest.raises(
+            TypeError, match='Feature #1 of field `tool.hatch.build.require-runtime-features` must be a string'
+        ):
+            _ = builder.config.require_runtime_features
+
+    def test_global_feature_empty_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'require-runtime-features': ['']}}}}
+        builder = Builder(str(isolation), config=config)
+
+        with pytest.raises(
+            ValueError,
+            match='Feature #1 of field `tool.hatch.build.require-runtime-features` cannot be an empty string',
+        ):
+            _ = builder.config.require_runtime_features
+
+    def test_global_feature_unknown(self, isolation):
+        config = {
+            'project': {'name': 'my_app', 'version': '0.0.1'},
+            'tool': {'hatch': {'build': {'require-runtime-features': ['foo_bar']}}},
+        }
+        builder = Builder(str(isolation), config=config)
+
+        with pytest.raises(
+            ValueError,
+            match=(
+                'Feature `foo-bar` of field `tool.hatch.build.require-runtime-features` is not defined in '
+                'field `project.optional-dependencies`'
+            ),
+        ):
+            _ = builder.config.require_runtime_features
+
+    def test_target_overrides_global(self, isolation):
+        config = {
+            'project': {'name': 'my_app', 'version': '0.0.1', 'optional-dependencies': {'foo_bar': [], 'bar_baz': []}},
+            'tool': {
+                'hatch': {
+                    'build': {
+                        'require-runtime-features': ['bar_baz'],
+                        'targets': {'foo': {'require-runtime-features': ['foo_bar']}},
+                    }
+                }
+            },
+        }
+        builder = Builder(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        assert builder.config.require_runtime_features == ['foo-bar']
+
+
 class TestOnlyPackages:
     def test_default(self, isolation):
         builder = Builder(str(isolation))
@@ -1170,6 +1306,52 @@ class TestDependencies:
         ):
             _ = builder.config.dependencies
 
+    def test_hook_require_runtime_features_not_array(self, isolation):
+        config = {'tool': {'hatch': {'build': {'hooks': {'foo': {'require-runtime-features': 9000}}}}}}
+        builder = Builder(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        with pytest.raises(TypeError, match='Option `require-runtime-features` of build hook `foo` must be an array'):
+            _ = builder.config.dependencies
+
+    def test_hook_require_runtime_features_feature_not_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'hooks': {'foo': {'require-runtime-features': [9000]}}}}}}
+        builder = Builder(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        with pytest.raises(
+            TypeError, match='Feature #1 of option `require-runtime-features` of build hook `foo` must be a string'
+        ):
+            _ = builder.config.dependencies
+
+    def test_hook_require_runtime_features_feature_empty_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'hooks': {'foo': {'require-runtime-features': ['']}}}}}}
+        builder = Builder(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        with pytest.raises(
+            ValueError,
+            match='Feature #1 of option `require-runtime-features` of build hook `foo` cannot be an empty string',
+        ):
+            _ = builder.config.dependencies
+
+    def test_hook_require_runtime_features_feature_unknown(self, isolation):
+        config = {
+            'project': {'name': 'my_app', 'version': '0.0.1'},
+            'tool': {'hatch': {'build': {'hooks': {'foo': {'require-runtime-features': ['foo_bar']}}}}},
+        }
+        builder = Builder(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        with pytest.raises(
+            ValueError,
+            match=(
+                'Feature `foo-bar` of option `require-runtime-features` of build hook `foo` is not defined in '
+                'field `project.optional-dependencies`'
+            ),
+        ):
+            _ = builder.config.dependencies
+
     def test_hook_dependencies_not_array(self, isolation):
         config = {'tool': {'hatch': {'build': {'hooks': {'foo': {'dependencies': 9000}}}}}}
         builder = Builder(str(isolation), config=config)
@@ -1212,6 +1394,25 @@ class TestDependencies:
                 'hatch': {
                     'build': {
                         'require-runtime-dependencies': True,
+                        'dependencies': ['bar'],
+                        'hooks': {'foobar': {'dependencies': ['test1']}},
+                        'targets': {'foo': {'dependencies': ['baz'], 'hooks': {'foobar': {'dependencies': ['test2']}}}},
+                    }
+                }
+            },
+        }
+        builder = Builder(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        assert builder.config.dependencies == ['baz', 'bar', 'test2', 'foo']
+
+    def test_require_runtime_features(self, isolation):
+        config = {
+            'project': {'name': 'my-app', 'version': '0.0.1', 'optional-dependencies': {'bar_baz': ['foo']}},
+            'tool': {
+                'hatch': {
+                    'build': {
+                        'require-runtime-features': ['bar-baz'],
                         'dependencies': ['bar'],
                         'hooks': {'foobar': {'dependencies': ['test1']}},
                         'targets': {'foo': {'dependencies': ['baz'], 'hooks': {'foobar': {'dependencies': ['test2']}}}},
@@ -1333,6 +1534,48 @@ class TestDependencies:
                                 'dependencies': ['foo'],
                                 'enable-by-default': False,
                                 'require-runtime-dependencies': True,
+                            },
+                            'bar': {'dependencies': ['bar']},
+                        },
+                    }
+                }
+            },
+        }
+        builder = Builder(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        assert builder.config.dependencies == ['bar']
+
+    def test_hooks_require_runtime_features(self, isolation):
+        config = {
+            'project': {'name': 'my-app', 'version': '0.0.1', 'optional-dependencies': {'foo_bar': ['baz']}},
+            'tool': {
+                'hatch': {
+                    'build': {
+                        'hooks': {
+                            'foo': {'dependencies': ['foo'], 'enable-by-default': False},
+                            'bar': {'dependencies': ['bar'], 'require-runtime-features': ['foo-bar']},
+                        },
+                    }
+                }
+            },
+        }
+        builder = Builder(str(isolation), config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        assert builder.config.dependencies == ['bar', 'baz']
+
+    def test_hooks_require_runtime_features_disabled(self, isolation):
+        config = {
+            'project': {'name': 'my-app', 'version': '0.0.1', 'optional-dependencies': {'foo_bar': ['baz']}},
+            'tool': {
+                'hatch': {
+                    'build': {
+                        'hooks': {
+                            'foo': {
+                                'dependencies': ['foo'],
+                                'enable-by-default': False,
+                                'require-runtime-features': ['foo-bar'],
                             },
                             'bar': {'dependencies': ['bar']},
                         },

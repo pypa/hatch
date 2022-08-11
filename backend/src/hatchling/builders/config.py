@@ -5,6 +5,7 @@ import pathspec
 
 from hatchling.builders.constants import DEFAULT_BUILD_DIRECTORY, EXCLUDED_DIRECTORIES, BuildEnvVars
 from hatchling.builders.utils import normalize_inclusion_map, normalize_relative_directory, normalize_relative_path
+from hatchling.metadata.utils import normalize_project_name
 from hatchling.utils.fs import locate_file
 
 
@@ -48,6 +49,7 @@ class BuilderConfig:
         self.__dev_mode_dirs = None
         self.__dev_mode_exact = None
         self.__require_runtime_dependencies = None
+        self.__require_runtime_features = None
 
     @property
     def builder(self):
@@ -338,6 +340,40 @@ class BuilderConfig:
         return self.__require_runtime_dependencies
 
     @property
+    def require_runtime_features(self):
+        if self.__require_runtime_features is None:
+            if 'require-runtime-features' in self.target_config:
+                features_config = self.target_config
+                features_location = f'tool.hatch.build.targets.{self.plugin_name}.require-runtime-features'
+            else:
+                features_config = self.build_config
+                features_location = 'tool.hatch.build.require-runtime-features'
+
+            require_runtime_features = features_config.get('require-runtime-features', [])
+            if not isinstance(require_runtime_features, list):
+                raise TypeError(f'Field `{features_location}` must be an array')
+
+            all_features = {}
+            for i, feature in enumerate(require_runtime_features, 1):
+                if not isinstance(feature, str):
+                    raise TypeError(f'Feature #{i} of field `{features_location}` must be a string')
+                elif not feature:
+                    raise ValueError(f'Feature #{i} of field `{features_location}` cannot be an empty string')
+
+                feature = normalize_project_name(feature)
+                if feature not in self.builder.metadata.core.optional_dependencies:
+                    raise ValueError(
+                        f'Feature `{feature}` of field `{features_location}` is not defined in '
+                        f'field `project.optional-dependencies`'
+                    )
+
+                all_features[feature] = None
+
+            self.__require_runtime_features = list(all_features)
+
+        return self.__require_runtime_features
+
+    @property
     def only_packages(self):
         """
         Whether or not the target should ignore non-artifact files that do not reside within a Python package.
@@ -500,6 +536,7 @@ class BuilderConfig:
                 dependencies[dependency] = None
 
             require_runtime_dependencies = self.require_runtime_dependencies
+            require_runtime_features = {feature: None for feature in self.require_runtime_features}
             for hook_name, config in self.hook_config.items():
                 hook_require_runtime_dependencies = config.get('require-runtime-dependencies', False)
                 if not isinstance(hook_require_runtime_dependencies, bool):
@@ -508,6 +545,31 @@ class BuilderConfig:
                     )
                 elif hook_require_runtime_dependencies:
                     require_runtime_dependencies = True
+
+                hook_require_runtime_features = config.get('require-runtime-features', [])
+                if not isinstance(hook_require_runtime_features, list):
+                    raise TypeError(f'Option `require-runtime-features` of build hook `{hook_name}` must be an array')
+
+                for i, feature in enumerate(hook_require_runtime_features, 1):
+                    if not isinstance(feature, str):
+                        raise TypeError(
+                            f'Feature #{i} of option `require-runtime-features` of build hook `{hook_name}` '
+                            f'must be a string'
+                        )
+                    elif not feature:
+                        raise ValueError(
+                            f'Feature #{i} of option `require-runtime-features` of build hook `{hook_name}` '
+                            f'cannot be an empty string'
+                        )
+
+                    feature = normalize_project_name(feature)
+                    if feature not in self.builder.metadata.core.optional_dependencies:
+                        raise ValueError(
+                            f'Feature `{feature}` of option `require-runtime-features` of build hook `{hook_name}` '
+                            f'is not defined in field `project.optional-dependencies`'
+                        )
+
+                    require_runtime_features[feature] = None
 
                 hook_dependencies = config.get('dependencies', [])
                 if not isinstance(hook_dependencies, list):
@@ -524,6 +586,11 @@ class BuilderConfig:
             if require_runtime_dependencies:
                 for dependency in self.builder.metadata.core.dependencies:
                     dependencies[dependency] = None
+
+            if require_runtime_features:
+                for feature in require_runtime_features:
+                    for dependency in self.builder.metadata.core.optional_dependencies[feature]:
+                        dependencies[dependency] = None
 
             self.__dependencies = list(dependencies)
 
