@@ -413,6 +413,28 @@ You can also declare dependence on the project's [runtime dependencies](metadata
     require-runtime-dependencies = true
     ```
 
+Additionally, you may declare dependence on specific [runtime features](metadata.md#optional) of the project with the `require-runtime-features` option:
+
+=== ":octicons-file-code-16: pyproject.toml"
+
+    ```toml
+    [tool.hatch.build.targets.your-target-name]
+    require-runtime-features = [
+      "feature1",
+      "feature2",
+    ]
+    ```
+
+=== ":octicons-file-code-16: hatch.toml"
+
+    ```toml
+    [build.targets.your-target-name]
+    require-runtime-features = [
+      "feature1",
+      "feature2",
+    ]
+    ```
+
 ### Versions
 
 If a build target supports multiple build strategies or if there are major changes over time, you can specify exactly which versions you want to build using the `versions` option, which may be defined as either an array of strings or a comma-separated string:
@@ -507,6 +529,28 @@ You can also declare dependence on the project's [runtime dependencies](metadata
     ```toml
     [build.hooks.your-hook-name]
     require-runtime-dependencies = true
+    ```
+
+Additionally, you may declare dependence on specific [runtime features](metadata.md#optional) of the project with the `require-runtime-features` option:
+
+=== ":octicons-file-code-16: pyproject.toml"
+
+    ```toml
+    [tool.hatch.build.hooks.your-hook-name]
+    require-runtime-features = [
+      "feature1",
+      "feature2",
+    ]
+    ```
+
+=== ":octicons-file-code-16: hatch.toml"
+
+    ```toml
+    [build.hooks.your-hook-name]
+    require-runtime-features = [
+      "feature1",
+      "feature2",
+    ]
     ```
 
 ### Order of execution
