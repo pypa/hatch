@@ -34,7 +34,7 @@ To be compatible with the broader [Python packaging ecosystem](../build.md#packa
 
 The version of `hatchling` defined here will be used to build all targets.
 
-Hatchling is a [PEP 517][]/[PEP 660][] compatible build system and is a dependency of Hatch itself.
+Hatchling is a [PEP 517][]/[PEP 660][] compatible build backend and is a dependency of Hatch itself.
 
 ## File selection
 
@@ -555,29 +555,29 @@ Additionally, you may declare dependence on specific [runtime features](metadata
 
 ### Order of execution
 
-For each build target, build hooks execute in the order in which they are defined, starting with target-specific hooks.
+For each build target, build hooks execute in the order in which they are defined, starting with global hooks.
 
 As an example, for the following configuration:
 
 === ":octicons-file-code-16: pyproject.toml"
 
     ```toml
+    [tool.hatch.build.targets.foo.hooks.hook2]
+
     [tool.hatch.build.hooks.hook3]
     [tool.hatch.build.hooks.hook1]
-
-    [tool.hatch.build.targets.foo.hooks.hook2]
     ```
 
 === ":octicons-file-code-16: hatch.toml"
 
     ```toml
+    [build.targets.foo.hooks.hook2]
+
     [build.hooks.hook3]
     [build.hooks.hook1]
-
-    [build.targets.foo.hooks.hook2]
     ```
 
-When target `foo` is built, build hook `hook2` will be executed first, followed by `hook3`, and then finally `hook1`.
+When target `foo` is built, build hook `hook3` will be executed first, followed by `hook1`, and then finally `hook2`.
 
 ### Conditional execution
 

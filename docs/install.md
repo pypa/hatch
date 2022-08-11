@@ -67,6 +67,6 @@ xbps-install hatch
 
 ## Build system availability
 
-See Hatchling's [changelog](history.md#hatchling).
+Hatchling is Hatch's [build backend](config/build.md#build-system) which you will never need to install manually. See its [changelog](history.md#hatchling) for version information.
 
 [![Packaging status](https://repology.org/badge/vertical-allrepos/hatchling.svg){ loading=lazy }](https://repology.org/project/hatchling/versions)
