@@ -799,6 +799,8 @@ class CoreMetadata:
         https://peps.python.org/pep-0621/#classifiers
         """
         if self._classifiers is None:
+            from hatchling.metadata.classifiers import KNOWN_CLASSIFIERS, SORTED_CLASSIFIERS, is_private
+
             if 'classifiers' in self.config:
                 classifiers = self.config['classifiers']
                 if 'classifiers' in self.dynamic:
@@ -817,10 +819,12 @@ class CoreMetadata:
             for i, classifier in enumerate(classifiers, 1):
                 if not isinstance(classifier, str):
                     raise TypeError(f'Classifier #{i} of field `project.classifiers` must be a string')
+                elif not is_private(classifier) and classifier not in KNOWN_CLASSIFIERS:
+                    raise ValueError(f'Unknown classifier in field `project.classifiers`: {classifier}')
 
                 unique_classifiers.add(classifier)
 
-            self._classifiers = sorted(unique_classifiers)
+            self._classifiers = sorted(unique_classifiers, key=lambda c: is_private(c) or SORTED_CLASSIFIERS.index(c))
 
         return self._classifiers
 

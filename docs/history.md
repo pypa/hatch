@@ -133,6 +133,7 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 ***Added:***
 
 - Add `require-runtime-features` option for builders and build hooks
+- Check for unknown trove classifiers
 
 ***Fixed:***
 

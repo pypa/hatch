@@ -360,7 +360,11 @@ class TestConstructSetupPyFile:
         )
 
     def test_classifiers(self, helpers, isolation):
-        config = {'project': {'name': 'My.App', 'version': '0.1.0', 'classifiers': ['foo', 'bar']}}
+        classifiers = [
+            'Programming Language :: Python :: 3.11',
+            'Programming Language :: Python :: 3.9',
+        ]
+        config = {'project': {'name': 'My.App', 'version': '0.1.0', 'classifiers': classifiers}}
         builder = SdistBuilder(str(isolation), config=config)
 
         assert builder.construct_setup_py_file(['my_app', os.path.join('my_app', 'pkg')]) == helpers.dedent(
@@ -372,8 +376,8 @@ class TestConstructSetupPyFile:
                 name='my-app',
                 version='0.1.0',
                 classifiers=[
-                    'bar',
-                    'foo',
+                    'Programming Language :: Python :: 3.9',
+                    'Programming Language :: Python :: 3.11',
                 ],
                 packages=[
                     'my_app',
@@ -573,7 +577,10 @@ class TestConstructSetupPyFile:
                 'readme': {'content-type': 'text/markdown', 'text': 'test content\n'},
                 'authors': [{'email': 'bar@domain', 'name': 'foo'}],
                 'maintainers': [{'email': 'bar@domain', 'name': 'foo'}],
-                'classifiers': ['foo', 'bar'],
+                'classifiers': [
+                    'Programming Language :: Python :: 3.11',
+                    'Programming Language :: Python :: 3.9',
+                ],
                 'dependencies': ['foo==1', 'bar==5'],
                 'optional-dependencies': {
                     'feature2': ['foo==1; python_version < "3"', 'bar==5'],
@@ -603,8 +610,8 @@ class TestConstructSetupPyFile:
                 author_email='foo <bar@domain>',
                 maintainer_email='foo <bar@domain>',
                 classifiers=[
-                    'bar',
-                    'foo',
+                    'Programming Language :: Python :: 3.9',
+                    'Programming Language :: Python :: 3.11',
                 ],
                 install_requires=[
                     'bar==5',

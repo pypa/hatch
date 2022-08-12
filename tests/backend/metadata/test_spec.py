@@ -222,8 +222,12 @@ class TestCoreMetadataV12:
         )
 
     def test_classifiers(self, constructor, isolation, helpers):
+        classifiers = [
+            'Programming Language :: Python :: 3.11',
+            'Programming Language :: Python :: 3.9',
+        ]
         metadata = ProjectMetadata(
-            str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0', 'classifiers': ['foo', 'bar']}}
+            str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0', 'classifiers': classifiers}}
         )
 
         assert constructor(metadata) == helpers.dedent(
@@ -231,8 +235,8 @@ class TestCoreMetadataV12:
             Metadata-Version: 1.2
             Name: My.App
             Version: 0.1.0
-            Classifier: bar
-            Classifier: foo
+            Classifier: Programming Language :: Python :: 3.9
+            Classifier: Programming Language :: Python :: 3.11
             """
         )
 
@@ -299,7 +303,10 @@ class TestCoreMetadataV12:
                     'maintainers': [{'email': 'bar@domain', 'name': 'foo'}],
                     'license': {'text': 'foo\nbar'},
                     'keywords': ['foo', 'bar'],
-                    'classifiers': ['foo', 'bar'],
+                    'classifiers': [
+                        'Programming Language :: Python :: 3.11',
+                        'Programming Language :: Python :: 3.9',
+                    ],
                     'requires-python': '>=1,<2',
                     'dependencies': ['foo==1', 'bar==5'],
                 }
@@ -319,8 +326,8 @@ class TestCoreMetadataV12:
             License: foo
                     bar
             Keywords: bar,foo
-            Classifier: bar
-            Classifier: foo
+            Classifier: Programming Language :: Python :: 3.9
+            Classifier: Programming Language :: Python :: 3.11
             Requires-Python: <2,>=1
             Requires-Dist: bar==5
             Requires-Dist: foo==1
@@ -546,8 +553,12 @@ class TestCoreMetadataV21:
         )
 
     def test_classifiers(self, constructor, isolation, helpers):
+        classifiers = [
+            'Programming Language :: Python :: 3.11',
+            'Programming Language :: Python :: 3.9',
+        ]
         metadata = ProjectMetadata(
-            str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0', 'classifiers': ['foo', 'bar']}}
+            str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0', 'classifiers': classifiers}}
         )
 
         assert constructor(metadata) == helpers.dedent(
@@ -555,8 +566,8 @@ class TestCoreMetadataV21:
             Metadata-Version: 2.1
             Name: My.App
             Version: 0.1.0
-            Classifier: bar
-            Classifier: foo
+            Classifier: Programming Language :: Python :: 3.9
+            Classifier: Programming Language :: Python :: 3.11
             """
         )
 
@@ -677,7 +688,10 @@ class TestCoreMetadataV21:
                     'maintainers': [{'email': 'bar@domain', 'name': 'foo'}],
                     'license': {'text': 'foo\nbar'},
                     'keywords': ['foo', 'bar'],
-                    'classifiers': ['foo', 'bar'],
+                    'classifiers': [
+                        'Programming Language :: Python :: 3.11',
+                        'Programming Language :: Python :: 3.9',
+                    ],
                     'requires-python': '>=1,<2',
                     'dependencies': ['foo==1', 'bar==5'],
                     'optional-dependencies': {
@@ -702,8 +716,8 @@ class TestCoreMetadataV21:
             License: foo
                     bar
             Keywords: bar,foo
-            Classifier: bar
-            Classifier: foo
+            Classifier: Programming Language :: Python :: 3.9
+            Classifier: Programming Language :: Python :: 3.11
             Requires-Python: <2,>=1
             Requires-Dist: bar==5
             Requires-Dist: foo==1
@@ -938,8 +952,12 @@ class TestCoreMetadataV22:
         )
 
     def test_classifiers(self, constructor, isolation, helpers):
+        classifiers = [
+            'Programming Language :: Python :: 3.11',
+            'Programming Language :: Python :: 3.9',
+        ]
         metadata = ProjectMetadata(
-            str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0', 'classifiers': ['foo', 'bar']}}
+            str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0', 'classifiers': classifiers}}
         )
 
         assert constructor(metadata) == helpers.dedent(
@@ -947,8 +965,8 @@ class TestCoreMetadataV22:
             Metadata-Version: 2.2
             Name: My.App
             Version: 0.1.0
-            Classifier: bar
-            Classifier: foo
+            Classifier: Programming Language :: Python :: 3.9
+            Classifier: Programming Language :: Python :: 3.11
             """
         )
 
@@ -1069,7 +1087,10 @@ class TestCoreMetadataV22:
                     'maintainers': [{'email': 'bar@domain', 'name': 'foo'}],
                     'license': {'text': 'foo\nbar'},
                     'keywords': ['foo', 'bar'],
-                    'classifiers': ['foo', 'bar'],
+                    'classifiers': [
+                        'Programming Language :: Python :: 3.11',
+                        'Programming Language :: Python :: 3.9',
+                    ],
                     'requires-python': '>=1,<2',
                     'dependencies': ['foo==1', 'bar==5'],
                     'optional-dependencies': {
@@ -1094,8 +1115,8 @@ class TestCoreMetadataV22:
             License: foo
                     bar
             Keywords: bar,foo
-            Classifier: bar
-            Classifier: foo
+            Classifier: Programming Language :: Python :: 3.9
+            Classifier: Programming Language :: Python :: 3.11
             Requires-Python: <2,>=1
             Requires-Dist: bar==5
             Requires-Dist: foo==1
@@ -1353,8 +1374,12 @@ class TestCoreMetadataV23:
         )
 
     def test_classifiers(self, constructor, isolation, helpers):
+        classifiers = [
+            'Programming Language :: Python :: 3.11',
+            'Programming Language :: Python :: 3.9',
+        ]
         metadata = ProjectMetadata(
-            str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0', 'classifiers': ['foo', 'bar']}}
+            str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0', 'classifiers': classifiers}}
         )
 
         assert constructor(metadata) == helpers.dedent(
@@ -1362,8 +1387,8 @@ class TestCoreMetadataV23:
             Metadata-Version: 2.3
             Name: My.App
             Version: 0.1.0
-            Classifier: bar
-            Classifier: foo
+            Classifier: Programming Language :: Python :: 3.9
+            Classifier: Programming Language :: Python :: 3.11
             """
         )
 
@@ -1485,7 +1510,10 @@ class TestCoreMetadataV23:
                     'license': 'mit or apache-2.0',
                     'license-files': {'globs': ['LICENSES/*']},
                     'keywords': ['foo', 'bar'],
-                    'classifiers': ['foo', 'bar'],
+                    'classifiers': [
+                        'Programming Language :: Python :: 3.11',
+                        'Programming Language :: Python :: 3.9',
+                    ],
                     'requires-python': '>=1,<2',
                     'dependencies': ['foo==1', 'bar==5'],
                     'optional-dependencies': {
@@ -1516,8 +1544,8 @@ class TestCoreMetadataV23:
             License-File: LICENSES/Apache-2.0.txt
             License-File: LICENSES/MIT.txt
             Keywords: bar,foo
-            Classifier: bar
-            Classifier: foo
+            Classifier: Programming Language :: Python :: 3.9
+            Classifier: Programming Language :: Python :: 3.11
             Requires-Python: <2,>=1
             Requires-Dist: bar==5
             Requires-Dist: foo==1
