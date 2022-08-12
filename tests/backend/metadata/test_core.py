@@ -1092,7 +1092,11 @@ class TestDependencies:
         )
 
         with pytest.raises(
-            ValueError, match='Dependency #1 of field `project.dependencies` cannot be a direct reference'
+            ValueError,
+            match=(
+                'Dependency #1 of field `project.dependencies` cannot be a direct reference unless '
+                'field `tool.hatch.metadata.allow-direct-references` is set to `true`'
+            ),
         ):
             _ = metadata.core.dependencies
 
@@ -1230,7 +1234,10 @@ class TestOptionalDependencies:
 
         with pytest.raises(
             ValueError,
-            match='Dependency #1 of option `foo` of field `project.optional-dependencies` cannot be a direct reference',
+            match=(
+                'Dependency #1 of option `foo` of field `project.optional-dependencies` cannot be a direct reference '
+                'unless field `tool.hatch.metadata.allow-direct-references` is set to `true`'
+            ),
         ):
             _ = metadata.core.optional_dependencies
 

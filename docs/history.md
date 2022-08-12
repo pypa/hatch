@@ -137,6 +137,7 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 ***Fixed:***
 
 - Add better error message for `wheel` target dev mode installations that define path rewrites with the `sources` option
+- Note the `allow-direct-references` option in the relevant error messages
 
 ### [1.6.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.6.0) - 2022-07-23 ### {: #hatchling-v1.6.0 }
 
