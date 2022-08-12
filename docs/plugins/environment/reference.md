@@ -6,6 +6,7 @@ See the documentation for [environment configuration](../../config/environment/o
 
 ## Known third-party
 
+- [hatch-conda](https://github.com/OldGrumpyViking/hatch-conda) - environments backed by Conda/Mamba
 - [hatch-containers](https://github.com/ofek/hatch-containers) - environments run inside containers
 
 ## Life cycle
