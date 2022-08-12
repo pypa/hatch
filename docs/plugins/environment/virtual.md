@@ -1,4 +1,4 @@
-# Virtual environment plugins
+# Virtual environment
 
 -----
 

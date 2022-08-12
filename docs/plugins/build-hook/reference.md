@@ -6,6 +6,7 @@ A build hook provides code that will be executed at various stages of the build 
 
 ## Known third-party
 
+- [hatch-jupyter-builder](https://github.com/jupyterlab/hatch-jupyter-builder) - used for packages in the Project Jupyter ecosystem
 - [hatch-mypyc](https://github.com/ofek/hatch-mypyc) - compiles code with [Mypyc](https://github.com/mypyc/mypyc)
 
 ## Overview
