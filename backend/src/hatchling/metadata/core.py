@@ -999,7 +999,8 @@ class CoreMetadata:
                 else:
                     if requirement.url and not self.hatch_metadata.allow_direct_references:
                         raise ValueError(
-                            f'Dependency #{i} of field `project.dependencies` cannot be a direct reference'
+                            f'Dependency #{i} of field `project.dependencies` cannot be a direct reference unless '
+                            f'field `tool.hatch.metadata.allow-direct-references` is set to `true`'
                         )
 
                     dependencies_complex[get_normalized_dependency(requirement)] = requirement
@@ -1074,7 +1075,8 @@ class CoreMetadata:
                         if requirement.url and not self.hatch_metadata.allow_direct_references:
                             raise ValueError(
                                 f'Dependency #{i} of option `{option}` of field `project.optional-dependencies` '
-                                f'cannot be a direct reference'
+                                f'cannot be a direct reference unless field '
+                                f'`tool.hatch.metadata.allow-direct-references` is set to `true`'
                             )
 
                         entries[get_normalized_dependency(requirement)] = requirement
