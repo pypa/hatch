@@ -892,10 +892,32 @@ class TestClassifiers:
         with pytest.raises(TypeError, match='Classifier #1 of field `project.classifiers` must be a string'):
             _ = metadata.core.classifiers
 
-    def test_correct(self, isolation):
-        metadata = ProjectMetadata(str(isolation), None, {'project': {'classifiers': ['foo', 'foo', 'bar']}})
+    def test_entry_unknown(self, isolation):
+        metadata = ProjectMetadata(str(isolation), None, {'project': {'classifiers': ['foo']}})
 
-        assert metadata.core.classifiers == metadata.core.classifiers == ['bar', 'foo']
+        with pytest.raises(ValueError, match='Unknown classifier in field `project.classifiers`: foo'):
+            _ = metadata.core.classifiers
+
+    def test_correct(self, isolation):
+        classifiers = [
+            'Programming Language :: Python :: 3.11',
+            'Programming Language :: Python :: 3.11',
+            'Programming Language :: Python :: 3.9',
+            'Development Status :: 4 - Beta',
+            'Private :: Do Not Upload',
+        ]
+        metadata = ProjectMetadata(str(isolation), None, {'project': {'classifiers': classifiers}})
+
+        assert (
+            metadata.core.classifiers
+            == metadata.core.classifiers
+            == [
+                'Private :: Do Not Upload',
+                'Development Status :: 4 - Beta',
+                'Programming Language :: Python :: 3.9',
+                'Programming Language :: Python :: 3.11',
+            ]
+        )
 
 
 class TestURLs:
