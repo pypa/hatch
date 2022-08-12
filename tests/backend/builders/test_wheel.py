@@ -2607,3 +2607,49 @@ class TestBuildStandard:
             'wheel.standard_no_strict_naming', project_name, metadata_directory=metadata_directory
         )
         helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+
+    def test_editable_sources_rewrite_error(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = True
+        config_file.save()
+
+        project_name = 'My.App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / 'my-app'
+
+        config = {
+            'project': {'name': project_name, 'dynamic': ['version']},
+            'tool': {
+                'hatch': {
+                    'version': {'path': 'src/my_app/__about__.py'},
+                    'build': {
+                        'targets': {
+                            'wheel': {
+                                'versions': ['editable'],
+                                'only-include': ['src/my_app'],
+                                'sources': {'src/my_app': 'namespace/plugins/my_app'},
+                            }
+                        },
+                    },
+                },
+            },
+        }
+        builder = WheelBuilder(str(project_path), config=config)
+
+        build_path = project_path / 'dist'
+        build_path.mkdir()
+
+        with project_path.as_cwd():
+            with pytest.raises(
+                ValueError,
+                match=(
+                    'Dev mode installations are unsupported when any path rewrite in the `sources` option '
+                    'changes a prefix rather than removes it, see: '
+                    'https://github.com/pfmoore/editables/issues/20'
+                ),
+            ):
+                list(builder.build(str(build_path)))

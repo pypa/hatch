@@ -134,6 +134,10 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 
 - Add `require-runtime-features` option for builders and build hooks
 
+***Fixed:***
+
+- Add better error message for `wheel` target dev mode installations that define path rewrites with the `sources` option
+
 ### [1.6.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.6.0) - 2022-07-23 ### {: #hatchling-v1.6.0 }
 
 ***Changed:***

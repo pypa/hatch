@@ -353,10 +353,17 @@ class WheelBuilder(BuilderInterface):
                     exposed_packages[root_module] = os.path.join(self.root, root_module)
                 else:
                     distribution_module = distribution_path.split(os.sep)[0]
-                    exposed_packages[distribution_module] = os.path.join(
-                        self.root,
-                        f'{relative_path[:relative_path.index(distribution_path)]}{distribution_module}',
-                    )
+                    try:
+                        exposed_packages[distribution_module] = os.path.join(
+                            self.root,
+                            f'{relative_path[:relative_path.index(distribution_path)]}{distribution_module}',
+                        )
+                    except ValueError:
+                        raise ValueError(
+                            'Dev mode installations are unsupported when any path rewrite in the `sources` option '
+                            'changes a prefix rather than removes it, see: '
+                            'https://github.com/pfmoore/editables/issues/20'
+                        ) from None
 
             editable_project = EditableProject(self.metadata.core.name, self.root)
 
