@@ -6,10 +6,9 @@ from io import StringIO
 
 import httpx
 
-VERSION = '3.17'
-
-LICENSES_URL = f'https://raw.githubusercontent.com/spdx/license-list-data/v{VERSION}/json/licenses.json'
-EXCEPTIONS_URL = f'https://raw.githubusercontent.com/spdx/license-list-data/v{VERSION}/json/exceptions.json'
+LATEST_API = 'https://api.github.com/repos/spdx/license-list-data/releases/latest'
+LICENSES_URL = 'https://raw.githubusercontent.com/spdx/license-list-data/v{}/json/licenses.json'
+EXCEPTIONS_URL = 'https://raw.githubusercontent.com/spdx/license-list-data/v{}/json/exceptions.json'
 
 
 def download_data(url):
@@ -27,14 +26,16 @@ def download_data(url):
 
 
 def main():
+    latest_version = download_data(LATEST_API)['tag_name'][1:]
+
     licenses = {}
-    for license_data in download_data(LICENSES_URL)['licenses']:
+    for license_data in download_data(LICENSES_URL.format(latest_version))['licenses']:
         license_id = license_data['licenseId']
         deprecated = license_data['isDeprecatedLicenseId']
         licenses[license_id.lower()] = {'id': license_id, 'deprecated': deprecated}
 
     exceptions = {}
-    for exception_data in download_data(EXCEPTIONS_URL)['exceptions']:
+    for exception_data in download_data(EXCEPTIONS_URL.format(latest_version))['exceptions']:
         exception_id = exception_data['licenseExceptionId']
         deprecated = exception_data['isDeprecatedLicenseId']
         exceptions[exception_id.lower()] = {'id': exception_id, 'deprecated': deprecated}
@@ -43,7 +44,7 @@ def main():
     data_file = project_root / 'src' / 'hatchling' / 'licenses' / 'supported.py'
 
     with closing(StringIO()) as file_contents:
-        file_contents.write(f'VERSION = {VERSION!r}\n\nLICENSES = {{\n')
+        file_contents.write(f'VERSION = {latest_version!r}\n\nLICENSES = {{\n')
 
         for normalized_name, data in sorted(licenses.items()):
             file_contents.write(f'    {normalized_name!r}: {data!r},\n')

@@ -134,6 +134,7 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 
 - Add `require-runtime-features` option for builders and build hooks
 - Check for unknown trove classifiers
+- Update SPDX license information to version 3.18
 
 ***Fixed:***
 
