@@ -130,6 +130,8 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 
 ### Unreleased
 
+### [1.7.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.7.0) - 2022-08-12 ### {: #hatchling-v1.7.0 }
+
 ***Added:***
 
 - Add `require-runtime-features` option for builders and build hooks
