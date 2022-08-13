@@ -134,6 +134,8 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 
 ### Unreleased
 
+### [1.7.1](https://github.com/pypa/hatch/releases/tag/hatchling-v1.7.1) - 2022-08-13 ### {: #hatchling-v1.7.1 }
+
 ***Fixed:***
 
 - Fix the value the `relative_path` attribute of included files, that some build plugins may use, when selecting explicit paths
