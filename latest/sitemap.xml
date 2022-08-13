@@ -101,6 +101,11 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://hatch.pypa.io/latest/1.4/how-to/environment/package-indices/</loc>
+         <lastmod>2020-02-02</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://hatch.pypa.io/latest/1.4/how-to/plugins/testing-builds/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
