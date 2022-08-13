@@ -426,8 +426,7 @@ def expand_script_commands(script_name, commands, config, seen, active):
 def _populate_default_env_values(env_name, data, config, seen, active):
     if env_name in seen:
         return
-    elif data.get('detached', False):
-        ensure_valid_environment(data)
+    elif data.pop('detached', False):
         data['template'] = env_name
         data['skip-install'] = True
 
@@ -440,6 +439,7 @@ def _populate_default_env_values(env_name, data, config, seen, active):
         active.append(env_name)
         raise ValueError(f'Circular inheritance detected for field `tool.hatch.envs.*.template`: {" -> ".join(active)}')
     elif template_name == env_name:
+        ensure_valid_environment(data)
         seen.add(env_name)
         return
 

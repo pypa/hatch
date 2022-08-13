@@ -174,13 +174,22 @@ class TestEnvs:
             'baz': {'type': 'virtual', 'scripts': {'cmd1': 'bar', 'cmd2': 'baz'}},
         }
 
+    def test_self_referential(self, isolation):
+        env_config = {'default': {'option1': 'foo'}, 'bar': {'template': 'bar'}}
+        project_config = ProjectConfig(isolation, {'envs': env_config}, PluginManager())
+
+        assert project_config.envs == {
+            'default': {'type': 'virtual', 'option1': 'foo'},
+            'bar': {'type': 'virtual'},
+        }
+
     def test_detached(self, isolation):
         env_config = {'default': {'option1': 'foo'}, 'bar': {'detached': True}}
         project_config = ProjectConfig(isolation, {'envs': env_config}, PluginManager())
 
         assert project_config.envs == {
             'default': {'type': 'virtual', 'option1': 'foo'},
-            'bar': {'type': 'virtual', 'detached': True, 'skip-install': True},
+            'bar': {'type': 'virtual', 'skip-install': True},
         }
 
     def test_matrices_not_array(self, isolation):
