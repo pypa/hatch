@@ -93,6 +93,10 @@ HATCH_BUILD_CLEAN = "true"
 [envs.backend.scripts]
 build = "python -m build backend"
 publish = "hatch publish backend/dist"
+update-data = [
+  "update-classifiers",
+  "update-licenses",
+]
 update-licenses = "python backend/scripts/update_licenses.py"
 update-classifiers = [
   "pip install --upgrade trove-classifiers",
