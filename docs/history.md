@@ -140,6 +140,8 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 
 ### Unreleased
 
+### [1.8.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.8.0) - 2022-08-16 ### {: #hatchling-v1.8.0 }
+
 ***Added:***
 
 - Add `get_known_classifiers` method to metadata hooks
