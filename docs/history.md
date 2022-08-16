@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Unreleased
 
+### [1.4.2](https://github.com/pypa/hatch/releases/tag/hatch-v1.4.2) - 2022-08-16 ### {: #hatch-v1.4.2 }
+
 ***Fixed:***
 
 - Fix check for updating static versions with the `version` command when metadata hooks are in use
