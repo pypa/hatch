@@ -16,3 +16,4 @@ Metadata hooks allow for the modification of [project metadata](../../config/met
       - root
       - config
       - update
+      - get_known_classifiers
