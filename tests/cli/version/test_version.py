@@ -1,4 +1,5 @@
 from hatch.project.core import Project
+from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT
 
 
 def test_show_dynamic(hatch, temp_dir):
@@ -23,6 +24,24 @@ def test_set_dynamic(hatch, helpers, temp_dir):
         hatch('new', project_name)
 
     path = temp_dir / 'my-app'
+
+    project = Project(path)
+    config = dict(project.raw_config)
+    config['tool']['hatch']['metadata'] = {'hooks': {'custom': {}}}
+    project.save_config(config)
+
+    build_script = path / DEFAULT_BUILD_SCRIPT
+    build_script.write_text(
+        helpers.dedent(
+            """
+            from hatchling.metadata.plugin.interface import MetadataHookInterface
+
+            class CustomMetadataHook(MetadataHookInterface):
+                def update(self, metadata):
+                    pass
+            """
+        )
+    )
 
     with path.as_cwd():
         result = hatch('version', 'minor,rc')

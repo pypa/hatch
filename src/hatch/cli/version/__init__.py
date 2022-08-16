@@ -6,7 +6,7 @@ import click
 @click.pass_obj
 def version(app, desired_version):
     """View or set a project's version."""
-    if app.project.metadata.core.version is not None:
+    if 'version' in app.project.metadata.config.get('project', {}):
         if desired_version:
             app.abort('Cannot set version when it is statically defined by the `project.version` field')
         else:

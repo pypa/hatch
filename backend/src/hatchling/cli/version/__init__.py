@@ -14,7 +14,7 @@ def version_impl(called_by_app, desired_version):
     plugin_manager = PluginManager()
     metadata = ProjectMetadata(root, plugin_manager)
 
-    if metadata.core.version is not None:
+    if 'version' in metadata.config.get('project', {}):
         if desired_version:
             app.abort('Cannot set version when it is statically defined by the `project.version` field')
         else:
