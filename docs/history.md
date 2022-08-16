@@ -140,6 +140,10 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 
 ### Unreleased
 
+***Added:***
+
+- Add `get_known_classifiers` method to metadata hooks
+
 ***Fixed:***
 
 - Fix check for updating static versions with the `version` command when metadata hooks are in use

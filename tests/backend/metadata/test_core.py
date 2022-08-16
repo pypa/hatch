@@ -1333,11 +1333,19 @@ class TestHook:
             _ = metadata.core
 
     def test_custom(self, temp_dir, helpers):
+        classifiers = [
+            'Programming Language :: Python :: 3.11',
+            'Programming Language :: Python :: 3.11',
+            'Programming Language :: Python :: 3.9',
+            'Framework :: Foo',
+            'Development Status :: 4 - Beta',
+            'Private :: Do Not Upload',
+        ]
         metadata = ProjectMetadata(
             str(temp_dir),
             PluginManager(),
             {
-                'project': {'name': 'foo', 'dynamic': ['version', 'description']},
+                'project': {'name': 'foo', 'classifiers': classifiers, 'dynamic': ['version', 'description']},
                 'tool': {'hatch': {'version': {'path': 'a/b'}, 'metadata': {'hooks': {'custom': {}}}}},
             },
         )
@@ -1356,6 +1364,9 @@ class TestHook:
                     def update(self, metadata):
                         metadata['description'] = metadata['name'] + 'bar'
                         metadata['version'] = metadata['version'] + 'rc0'
+
+                    def get_known_classifiers(self):
+                        return ['Framework :: Foo']
                 """
             )
         )
@@ -1364,6 +1375,13 @@ class TestHook:
         assert metadata.core.name == 'foo'
         assert metadata.core.description == 'foobar'
         assert metadata.core.version == '0.0.1rc0'
+        assert metadata.core.classifiers == [
+            'Private :: Do Not Upload',
+            'Development Status :: 4 - Beta',
+            'Framework :: Foo',
+            'Programming Language :: Python :: 3.9',
+            'Programming Language :: Python :: 3.11',
+        ]
 
     def test_custom_missing_dynamic(self, temp_dir, helpers):
         metadata = ProjectMetadata(

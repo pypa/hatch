@@ -100,6 +100,7 @@ class ProjectMetadata:
 
                 for metadata_hook in metadata_hooks.values():
                     metadata_hook.update(core_metadata)
+                    metadata.add_known_classifiers(metadata_hook.get_known_classifiers())
 
                 new_fields = set(core_metadata) - static_fields
                 for new_field in new_fields:
@@ -269,6 +270,7 @@ class CoreMetadata:
         self._maintainers_data = None
         self._keywords = None
         self._classifiers = None
+        self._extra_classifiers = set()
         self._urls = None
         self._scripts = None
         self._gui_scripts = None
@@ -799,6 +801,8 @@ class CoreMetadata:
         https://peps.python.org/pep-0621/#classifiers
         """
         if self._classifiers is None:
+            import bisect
+
             from hatchling.metadata.classifiers import KNOWN_CLASSIFIERS, SORTED_CLASSIFIERS, is_private
 
             if 'classifiers' in self.config:
@@ -814,17 +818,24 @@ class CoreMetadata:
             if not isinstance(classifiers, list):
                 raise TypeError('Field `project.classifiers` must be an array')
 
+            known_classifiers = KNOWN_CLASSIFIERS | self._extra_classifiers
             unique_classifiers = set()
 
             for i, classifier in enumerate(classifiers, 1):
                 if not isinstance(classifier, str):
                     raise TypeError(f'Classifier #{i} of field `project.classifiers` must be a string')
-                elif not is_private(classifier) and classifier not in KNOWN_CLASSIFIERS:
+                elif not is_private(classifier) and classifier not in known_classifiers:
                     raise ValueError(f'Unknown classifier in field `project.classifiers`: {classifier}')
 
                 unique_classifiers.add(classifier)
 
-            self._classifiers = sorted(unique_classifiers, key=lambda c: is_private(c) or SORTED_CLASSIFIERS.index(c))
+            sorted_classifiers = list(SORTED_CLASSIFIERS)
+            for classifier in sorted(self._extra_classifiers - KNOWN_CLASSIFIERS):
+                bisect.insort(sorted_classifiers, classifier)
+
+            self._classifiers = sorted(
+                unique_classifiers, key=lambda c: -1 if is_private(c) else sorted_classifiers.index(c)
+            )
 
         return self._classifiers
 
@@ -1128,6 +1139,9 @@ class CoreMetadata:
             self._dynamic = dynamic
 
         return self._dynamic
+
+    def add_known_classifiers(self, classifiers):
+        self._extra_classifiers.update(classifiers)
 
     def validate_fields(self):
         # Trigger validation for everything
