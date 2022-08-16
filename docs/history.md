@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Unreleased
 
+***Fixed:***
+
+- Fix check for updating static versions with the `version` command when metadata hooks are in use
+
 ### [1.4.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.4.1) - 2022-08-13 ### {: #hatch-v1.4.1 }
 
 ***Fixed:***
@@ -135,6 +139,10 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 ## **Hatchling**
 
 ### Unreleased
+
+***Fixed:***
+
+- Fix check for updating static versions with the `version` command when metadata hooks are in use
 
 ### [1.7.1](https://github.com/pypa/hatch/releases/tag/hatchling-v1.7.1) - 2022-08-13 ### {: #hatchling-v1.7.1 }
 
