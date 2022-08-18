@@ -13,6 +13,7 @@ The following is not intended to be a complete enumeration. Be sure to view the 
 - [Bloomberg](https://www.bloomberg.com) <sup>\[[1](https://github.com/bloomberg/pytest-memray/blob/4ea6a7608adb0de4572d35768fbd370aee016627/pyproject.toml#L1-L3)\]</sup>
 - [Datadog](https://www.datadoghq.com) <sup>\[[1](https://github.com/DataDog/datadogpy/blob/63d0c01b5bbcb8158cf3ddab153639951ab44945/pyproject.toml#L1-L3)|[2](https://github.com/DataDog/integrations-core/pulls?q=is%3Apr+author%3Aofek+in%3Atitle+Add+pyproject.toml+file)|[3](https://github.com/DataDog/integrations-extras/pulls?q=is%3Apr+author%3Aofek+in%3Atitle+Add+pyproject.toml+file)|[4](https://github.com/DataDog/mkdocs-click/blob/434925323f3bb187595d4c7f6a2c80b790015109/pyproject.toml#L1-L3)\]</sup>
 - [Elastic](https://www.elastic.co) <sup>\[[1](https://github.com/elastic/rally/pull/1551)\]</sup>
+- [Virtru](https://www.virtru.com) <sup>\[[1](https://github.com/virtru/access-pdp/blob/46089e8a2ef691b80f92bbd6777bdfbcff1c1671/clients/python/accesspdp/pyproject.toml#L24-L26)|[2](https://github.com/virtru/access-pdp/blob/46089e8a2ef691b80f92bbd6777bdfbcff1c1671/clients/python/attributes/pyproject.toml#L21-L23)\]</sup>
 
 ## Organizations
 
