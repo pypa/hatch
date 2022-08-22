@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Unreleased
 
+***Fixed:***
+
+- Handle more edge cases in the `setuptools` migration script
+
 ### [1.4.2](https://github.com/pypa/hatch/releases/tag/hatch-v1.4.2) - 2022-08-16 ### {: #hatch-v1.4.2 }
 
 ***Fixed:***
@@ -156,7 +160,7 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 
 ***Fixed:***
 
-- Fix the value the `relative_path` attribute of included files, that some build plugins may use, when selecting explicit paths
+- Fix the value of the `relative_path` attribute of included files, that some build plugins may use, when selecting explicit paths
 
 ### [1.7.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.7.0) - 2022-08-12 ### {: #hatchling-v1.7.0 }
 

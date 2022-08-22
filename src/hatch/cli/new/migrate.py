@@ -14,6 +14,16 @@ def _apply_env_vars(kwargs):
             kwargs[key.replace(ENV_VAR_PREFIX, '', 1).lower()] = literal_eval(value)
 
 
+def _parse_dependencies(dependency_definition):
+    dependencies = []
+    for line in dependency_definition.splitlines():
+        line = line.split(' #', 1)[0].strip()
+        if line:
+            dependencies.append(line)
+
+    return dependencies
+
+
 def _parse_setup_cfg(kwargs):
     from configparser import ConfigParser
 
@@ -69,12 +79,12 @@ def _parse_setup_cfg(kwargs):
             kwargs['python_requires'] = options['python_requires']
 
         if 'install_requires' in options and 'install_requires' not in kwargs:
-            kwargs['install_requires'] = options['install_requires'].strip().splitlines()
+            kwargs['install_requires'] = _parse_dependencies(options['install_requires'])
 
         if 'packages' in options and 'packages' not in kwargs:
             packages = []
             for package in options['packages'].strip().splitlines():
-                package = package.replace('find:', '', 1).strip()
+                package = package.replace('find:', '', 1).replace('find_namespace:', '', 1).strip()
                 if package:
                     packages.append(package)
 
@@ -88,7 +98,7 @@ def _parse_setup_cfg(kwargs):
 
     if setup_cfg.has_section('options.extras_require') and 'extras_require' not in kwargs:
         kwargs['extras_require'] = {
-            feature: dependencies.strip().splitlines()
+            feature: _parse_dependencies(dependencies)
             for feature, dependencies in setup_cfg['options.extras_require'].items()
         }
 
@@ -123,6 +133,8 @@ def setup(**kwargs):
     package_name = package_path = package_source = packages[0].split('.')[0].lower()
 
     project_metadata['name'] = project_name
+
+    project_metadata['dynamic'] = ['version']
 
     if 'description' in kwargs:
         project_metadata['description'] = kwargs['description']
@@ -166,13 +178,19 @@ def setup(**kwargs):
             project_metadata['classifiers'].insert(final_index, project_metadata['classifiers'].pop(index - i))
 
     if 'install_requires' in kwargs:
-        project_metadata['dependencies'] = sorted(kwargs['install_requires'], key=lambda d: d.lower())
-
-    project_metadata['dynamic'] = ['version']
+        project_metadata['dependencies'] = sorted(
+            kwargs['install_requires']
+            if isinstance(kwargs['install_requires'], list)
+            else _parse_dependencies(kwargs['install_requires']),
+            key=lambda d: d.lower(),
+        )
 
     if 'extras_require' in kwargs:
         project_metadata['optional-dependencies'] = {
-            group: sorted(dependencies, key=lambda d: d.lower()) if isinstance(dependencies, list) else dependencies
+            group: sorted(
+                dependencies if isinstance(dependencies, list) else _parse_dependencies(dependencies),
+                key=lambda d: d.lower(),
+            )
             for group, dependencies in sorted(kwargs['extras_require'].items())
         }
 
