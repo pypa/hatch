@@ -4,6 +4,10 @@
 
 See the documentation for [build configuration](../../config/build.md).
 
+## Known third-party
+
+- [hatch-aws](https://github.com/aka-raccoon/hatch-aws) - used for building AWS Lambda functions with SAM
+
 ::: hatchling.builders.plugin.interface.BuilderInterface
     options:
       members:
