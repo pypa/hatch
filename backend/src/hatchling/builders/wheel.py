@@ -142,24 +142,31 @@ class WheelBuilderConfig(BuilderConfig):
         if self.__include or self.__exclude or self.__packages:
             return
 
-        project_name = self.builder.normalize_file_name_component(self.builder.metadata.core.name)
-        if os.path.isfile(os.path.join(self.root, project_name, '__init__.py')):
-            self.__packages.append(project_name)
-        elif os.path.isfile(os.path.join(self.root, 'src', project_name, '__init__.py')):
-            self.__packages.append(f'src/{project_name}')
-        elif os.path.isfile(os.path.join(self.root, f'{project_name}.py')):
-            self.__packages.append(f'{project_name}.py')
-        else:
-            from glob import glob
-
-            possible_namespace_packages = glob(os.path.join(self.root, '*', project_name, '__init__.py'))
-            if len(possible_namespace_packages) == 1:
-                relative_path = os.path.relpath(possible_namespace_packages[0], self.root)
-                namespace = relative_path.split(os.sep)[0]
-                self.__packages.append(namespace)
+        for project_name in (
+            self.builder.normalize_file_name_component(self.builder.metadata.core.raw_name),
+            self.builder.normalize_file_name_component(self.builder.metadata.core.name),
+        ):
+            if os.path.isfile(os.path.join(self.root, project_name, '__init__.py')):
+                self.__packages.append(project_name)
+                break
+            elif os.path.isfile(os.path.join(self.root, 'src', project_name, '__init__.py')):
+                self.__packages.append(f'src/{project_name}')
+                break
+            elif os.path.isfile(os.path.join(self.root, f'{project_name}.py')):
+                self.__packages.append(f'{project_name}.py')
+                break
             else:
-                self.__include.append('*.py')
-                self.__exclude.append('test*')
+                from glob import glob
+
+                possible_namespace_packages = glob(os.path.join(self.root, '*', project_name, '__init__.py'))
+                if len(possible_namespace_packages) == 1:
+                    relative_path = os.path.relpath(possible_namespace_packages[0], self.root)
+                    namespace = relative_path.split(os.sep)[0]
+                    self.__packages.append(namespace)
+                    break
+        else:
+            self.__include.append('*.py')
+            self.__exclude.append('test*')
 
     def default_include(self):
         if not self.__include_defined:
