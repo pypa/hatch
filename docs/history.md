@@ -146,6 +146,10 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 
 ### Unreleased
 
+***Fixed:***
+
+- Fix default file inclusion for `wheel` build targets when both the project name and package directory name are not normalized
+
 ### [1.8.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.8.0) - 2022-08-16 ### {: #hatchling-v1.8.0 }
 
 ***Added:***
