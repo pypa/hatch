@@ -36,8 +36,8 @@ Rather than specifying the full URL of a repository, you can use a named reposit
 === ":octicons-file-code-16: config.toml"
 
     ```toml
-    [publish.index.repos]
-    repo1 = "url1"
+    [publish.index.repos.private]
+    url = "..."
     ...
     ```
 

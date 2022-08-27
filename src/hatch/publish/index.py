@@ -11,12 +11,33 @@ from hatchling.metadata.utils import normalize_project_name
 class IndexPublisher(PublisherInterface):
     PLUGIN_NAME = 'index'
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def get_repos(self):
+        global_plugin_config = self.plugin_config.copy()
+        defined_repos = self.plugin_config.pop('repos', {})
+        self.plugin_config.pop('repo', None)
 
-        self.repos = self.plugin_config.get('repos', {}).copy()
-        self.repos['main'] = 'https://upload.pypi.org/legacy/'
-        self.repos['test'] = 'https://test.pypi.org/legacy/'
+        # Normalize type
+        repos = {}
+        for repo, data in defined_repos.items():
+            if isinstance(data, str):
+                data = {'url': data}
+            elif not isinstance(data, dict):
+                self.app.abort(f'Hatch config field `publish.index.repos.{repo}` must be a string or a mapping')
+            elif 'url' not in data:
+                self.app.abort(f'Hatch config field `publish.index.repos.{repo}` must define a `url` key')
+
+            repos[repo] = data
+
+        # Ensure PyPI correct
+        for repo, url in (('main', 'https://upload.pypi.org/legacy/'), ('test', 'https://test.pypi.org/legacy/')):
+            repos.setdefault(repo, {})['url'] = url
+
+        # Populate defaults
+        for config in repos.values():
+            for key, value in global_plugin_config.items():
+                config.setdefault(key, value)
+
+        return repos
 
     def publish(self, artifacts: list, options: dict):
         """
@@ -37,14 +58,18 @@ class IndexPublisher(PublisherInterface):
         else:
             repo = self.plugin_config.get('repo', 'main')
 
-        if repo in self.repos:
-            repo = self.repos[repo]
+        repos = self.get_repos()
+
+        if repo in repos:
+            repo_config = repos[repo]
+        else:
+            repo_config = {'url': repo}
 
         index = PackageIndex(
-            repo,
-            ca_cert=options.get('ca_cert', self.plugin_config.get('ca-cert')),
-            client_cert=options.get('client_cert', self.plugin_config.get('client-cert')),
-            client_key=options.get('client_key', self.plugin_config.get('client-key')),
+            repo_config['url'],
+            ca_cert=options.get('ca_cert', repo_config.get('ca-cert')),
+            client_cert=options.get('client_cert', repo_config.get('client-cert')),
+            client_key=options.get('client_key', repo_config.get('client-key')),
         )
 
         cached_user_file = CachedUserFile(self.cache_dir)
@@ -52,7 +77,7 @@ class IndexPublisher(PublisherInterface):
         if 'user' in options:
             user = options['user']
         else:
-            user = self.plugin_config.get('user', '')
+            user = repo_config.get('user', '')
             if not user:
                 user = cached_user_file.get_user(repo)
                 if user is None:
@@ -66,7 +91,7 @@ class IndexPublisher(PublisherInterface):
         if 'auth' in options:
             auth = options['auth']
         else:
-            auth = self.plugin_config.get('auth', '')
+            auth = repo_config.get('auth', '')
             if not auth:
                 import keyring
 
