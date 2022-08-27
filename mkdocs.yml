@@ -11,12 +11,12 @@ docs_dir: docs
 site_dir: site
 theme:
   name: material
+  custom_dir: docs/.overrides
   language: en
-  favicon: assets/images/favicon.ico
+  favicon: assets/images/logo.svg
   icon:
     repo: fontawesome/brands/github-alt
-    # best approximation of an egg hatching
-    logo: material/egg-easter
+    logo: material/egg
   font:
     text: Roboto
     code: Roboto Mono
