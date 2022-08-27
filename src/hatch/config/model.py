@@ -181,7 +181,7 @@ class RootConfig(LazilyParsedConfig):
 
                 self._field_publish = publish
             else:
-                self._field_publish = self.raw_data['publish'] = {'index': {'user': '', 'auth': ''}}
+                self._field_publish = self.raw_data['publish'] = {'index': {'repo': 'main'}}
 
         return self._field_publish
 

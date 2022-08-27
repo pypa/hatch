@@ -119,6 +119,44 @@ def test_disabled(hatch, temp_dir, config_file):
     assert result.output == 'Publisher is disabled: index\n'
 
 
+def test_repo_invalid_type(hatch, temp_dir, config_file):
+    config_file.model.publish['index']['repos'] = {'dev': 9000}
+    config_file.save()
+
+    project_name = 'My.App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+        assert result.exit_code == 0, result.output
+
+    path = temp_dir / 'my-app'
+
+    with path.as_cwd():
+        result = hatch('publish', '--user', 'foo', '--auth', 'bar')
+
+    assert result.exit_code == 1, result.output
+    assert result.output == 'Hatch config field `publish.index.repos.dev` must be a string or a mapping\n'
+
+
+def test_repo_missing_url(hatch, temp_dir, config_file):
+    config_file.model.publish['index']['repos'] = {'dev': {}}
+    config_file.save()
+
+    project_name = 'My.App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+        assert result.exit_code == 0, result.output
+
+    path = temp_dir / 'my-app'
+
+    with path.as_cwd():
+        result = hatch('publish', '--user', 'foo', '--auth', 'bar')
+
+    assert result.exit_code == 1, result.output
+    assert result.output == 'Hatch config field `publish.index.repos.dev` must define a `url` key\n'
+
+
 def test_missing_user(hatch, temp_dir):
     project_name = 'My.App'
 
@@ -191,6 +229,49 @@ def test_plugin_config(hatch, devpi, temp_dir_cache, helpers, published_project_
     config_file.model.publish['index']['ca-cert'] = devpi.ca_cert
     config_file.model.publish['index']['repo'] = 'dev'
     config_file.model.publish['index']['repos'] = {'dev': devpi.repo}
+    config_file.save()
+
+    with temp_dir_cache.as_cwd():
+        result = hatch('new', published_project_name)
+        assert result.exit_code == 0, result.output
+
+    path = temp_dir_cache / published_project_name
+
+    with path.as_cwd():
+        del os.environ[PublishEnvVars.REPO]
+
+        current_version = timestamp_to_version(helpers.get_current_timestamp())
+        result = hatch('version', current_version)
+        assert result.exit_code == 0, result.output
+
+        result = hatch('build')
+        assert result.exit_code == 0, result.output
+
+        build_directory = path / 'dist'
+        artifacts = list(build_directory.iterdir())
+
+        result = hatch('publish')
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        f"""
+        {artifacts[0].relative_to(path)} ... success
+        {artifacts[1].relative_to(path)} ... success
+
+        [{published_project_name}]
+        {devpi.repo}{published_project_name}/{current_version}/
+        """
+    )
+
+
+def test_plugin_config_repo_override(hatch, devpi, temp_dir_cache, helpers, published_project_name, config_file):
+    config_file.model.publish['index']['user'] = 'foo'
+    config_file.model.publish['index']['auth'] = 'bar'
+    config_file.model.publish['index']['ca-cert'] = 'cert'
+    config_file.model.publish['index']['repo'] = 'dev'
+    config_file.model.publish['index']['repos'] = {
+        'dev': {'url': devpi.repo, 'user': devpi.user, 'auth': devpi.auth, 'ca-cert': devpi.ca_cert},
+    }
     config_file.save()
 
     with temp_dir_cache.as_cwd():

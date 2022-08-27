@@ -80,7 +80,7 @@ def test_reveal(hatch, config_file, helpers, default_cache_dir, default_data_dir
         [projects]
 
         [publish.index]
-        user = ""
+        repo = "main"
         auth = "bar"
 
         [template]

@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Unreleased
 
+***Added:***
+
+- The `index` publisher now recognizes repository-specific options
+
 ***Fixed:***
 
 - Handle more edge cases in the `setuptools` migration script
