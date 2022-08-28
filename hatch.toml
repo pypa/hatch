@@ -67,8 +67,7 @@ dependencies = [
   "mkdocstrings-python~=0.7.1",
   "mkdocs-redirects~=1.1.0",
   # https://github.com/jimporter/mike/issues/82#issuecomment-1172913929
-  # "mike @ https://github.com/jimporter/mike/archive/392d57b8bb9d14bcedf2451a0dc302709f8055eb.zip",
-  "mike==1.1.2",
+  "mike @ https://github.com/jimporter/mike/archive/392d57b8bb9d14bcedf2451a0dc302709f8055eb.zip",
   # Extensions
   "mkdocs-click~=0.8.0",
   "pymdown-extensions~=9.5.0",
