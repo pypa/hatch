@@ -191,3 +191,51 @@ def test_force_continue(hatch, helpers, temp_dir, config_file):
     assert env_path.name == project_path.name
 
     assert str(env_path) in str(output_file.read_text())
+
+
+def test_ignore_compatibility(hatch, helpers, temp_dir, config_file):
+    config_file.model.template.plugins['default']['tests'] = False
+    config_file.save()
+
+    project_name = 'My.App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / 'my-app'
+    data_path = temp_dir / 'data'
+    data_path.mkdir()
+
+    project = Project(project_path)
+    helpers.update_project_environment(
+        project, 'default', {'skip-install': True, 'platforms': ['foo'], **project.config.envs['default']}
+    )
+    helpers.update_project_environment(project, 'test', {})
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch(
+            'env',
+            'run',
+            '--ignore-compat',
+            '--env',
+            'test',
+            '--',
+            'python',
+            '-c',
+            "import os,sys;open('test.txt', 'a').write(sys.executable+os.linesep[-1])",
+        )
+
+    assert result.exit_code == 0
+    assert result.output == helpers.dedent(
+        """
+        Skipped 1 incompatible environment:
+        test -> unsupported platform
+        """
+    )
+    output_file = project_path / 'test.txt'
+    assert not output_file.is_file()
+
+    env_data_path = data_path / 'env' / 'virtual'
+    assert not env_data_path.is_dir()
