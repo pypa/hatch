@@ -50,9 +50,21 @@ def filter_environments(environments, filter_data):
 @click.option('--include', '-i', 'included_variable_specs', multiple=True, help='The matrix variables to include')
 @click.option('--exclude', '-x', 'excluded_variable_specs', multiple=True, help='The matrix variables to exclude')
 @click.option('--filter', '-f', 'filter_json', help='The JSON data used to select environments')
-@click.option('--force-continue', help='Run every command and if there were any errors exit with the first code')
+@click.option(
+    '--force-continue', is_flag=True, help='Run every command and if there were any errors exit with the first code'
+)
+@click.option('--ignore-compat', is_flag=True, help='Ignore incompatibility when selecting specific environments')
 @click.pass_obj
-def run(app, args, env_names, included_variable_specs, excluded_variable_specs, filter_json, force_continue):
+def run(
+    app,
+    args,
+    env_names,
+    included_variable_specs,
+    excluded_variable_specs,
+    filter_json,
+    force_continue,
+    ignore_compat,
+):
     """
     Run commands within project environments.
 
@@ -156,7 +168,7 @@ def run(app, args, env_names, included_variable_specs, excluded_variable_specs, 
             try:
                 environment.check_compatibility()
             except Exception as e:
-                if matrix_selected:
+                if ignore_compat or matrix_selected:
                     incompatible[environment.name] = str(e)
                     continue
                 else:

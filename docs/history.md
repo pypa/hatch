@@ -13,9 +13,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ***Added:***
 
 - The `index` publisher now recognizes repository-specific options
+- Add the `--ignore-compat` flag to the `env run` command
 
 ***Fixed:***
 
+- Fix the `--force-continue` flag of the `env run` command
 - Handle more edge cases in the `setuptools` migration script
 
 ### [1.4.2](https://github.com/pypa/hatch/releases/tag/hatch-v1.4.2) - 2022-08-16 ### {: #hatch-v1.4.2 }
