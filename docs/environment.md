@@ -4,7 +4,7 @@
 
 [Environments](config/environment/overview.md) are designed to allow for isolated workspaces for testing, building documentation, or anything else projects need.
 
-Unless an environment is [chosen explicitly(#selection)], Hatch will use the `default` environment.
+Unless an environment is [chosen explicitly](#selection), Hatch will use the `default` environment.
 
 ## Creation
 
