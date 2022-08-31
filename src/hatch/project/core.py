@@ -132,10 +132,7 @@ class Project:
         with open(str(project_file_path), encoding='utf-8') as f:
             raw_config = tomlkit.parse(f.read())
 
-        # https://github.com/sdispater/tomlkit/issues/49
-        build_system_config = raw_config.get('build-system')
-        if build_system_config is None:
-            raw_config['build-system'] = build_system_config = {}
+        build_system_config = raw_config.setdefault('build-system', {})
 
         build_system_config.clear()
         build_system_config['requires'] = ['hatchling']
