@@ -14,7 +14,7 @@ from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT
 
 # https://github.com/python/cpython/pull/26184
 fixed_pathlib_resolution = pytest.mark.skipif(
-    platform.system() == 'Windows' and (sys.version_info < (3, 8) or sys.implementation.name == 'pypy'),
+    platform.system() == 'Windows' and (sys.version_info < (3, 6) or sys.implementation.name == 'pypy'),
     reason='pathlib.Path.resolve has bug on Windows',
 )
 
