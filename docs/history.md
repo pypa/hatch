@@ -155,6 +155,14 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 
 ### Unreleased
 
+***Added:***
+
+- Add `metadata` command to view PEP 621 project metadata
+
+***Fixed:***
+
+- Show the help text of the CLI when no subcommand is selected
+
 ### [1.8.1](https://github.com/pypa/hatch/releases/tag/hatchling-v1.8.1) - 2022-08-25 ### {: #hatchling-v1.8.1 }
 
 ***Fixed:***
