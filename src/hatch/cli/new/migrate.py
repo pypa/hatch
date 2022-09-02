@@ -179,8 +179,8 @@ def setup(**kwargs):
 
     if 'install_requires' in kwargs:
         project_metadata['dependencies'] = sorted(
-            kwargs['install_requires']
-            if isinstance(kwargs['install_requires'], list)
+            list(kwargs['install_requires'])
+            if isinstance(kwargs['install_requires'], (list, tuple))
             else _parse_dependencies(kwargs['install_requires']),
             key=lambda d: d.lower(),
         )
@@ -188,7 +188,7 @@ def setup(**kwargs):
     if 'extras_require' in kwargs:
         project_metadata['optional-dependencies'] = {
             group: sorted(
-                dependencies if isinstance(dependencies, list) else _parse_dependencies(dependencies),
+                list(dependencies) if isinstance(dependencies, (list, tuple)) else _parse_dependencies(dependencies),
                 key=lambda d: d.lower(),
             )
             for group, dependencies in sorted(kwargs['extras_require'].items())
