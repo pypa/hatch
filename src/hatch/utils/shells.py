@@ -36,7 +36,12 @@ class ShellManager:
             )
 
     def enter_bash(self, path, args, exe_dir):
-        self.spawn_linux_shell(path or 'bash', args or ['-i'], script=exe_dir / 'activate')
+        if self.environment.platform.windows:
+            self.environment.platform.exit_with_command(
+                [path or 'bash', '--init-file', exe_dir / 'activate', *(args or ['-i'])]
+            )
+        else:
+            self.spawn_linux_shell(path or 'bash', args or ['-i'], script=exe_dir / 'activate')
 
     def enter_fish(self, path, args, exe_dir):
         self.spawn_linux_shell(path or 'fish', args or ['-i'], script=exe_dir / 'activate.fish')
