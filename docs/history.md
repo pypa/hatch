@@ -10,6 +10,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Unreleased
 
+***Added:***
+
+- Support Bash on Windows for the `shell` command
+
+***Fixed:***
+
+- Handle more edge cases in the `setuptools` migration script
+
 ### [1.5.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.5.0) - 2022-08-28 ### {: #hatch-v1.5.0 }
 
 ***Added:***
