@@ -45,6 +45,9 @@ def test_unknown_license_exception():
         ('gpl-2.0-or-later with bison-exception-2.2', 'GPL-2.0-or-later WITH Bison-exception-2.2'),
         ('mit or apache-2.0 and (bsd-3-clause or mpl-2.0)', 'MIT OR Apache-2.0 AND (BSD-3-Clause OR MPL-2.0)'),
         ('mit and (apache-2.0+ or mpl-2.0+)', 'MIT AND (Apache-2.0+ OR MPL-2.0+)'),
+        # Valid non-SPDX values
+        ('licenseref-public-domain', 'LicenseRef-Public-Domain'),
+        ('licenseref-proprietary', 'LicenseRef-Proprietary'),
     ],
 )
 def test_normalization(raw, normalized):
