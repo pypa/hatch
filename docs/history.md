@@ -169,6 +169,7 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 
 ***Fixed:***
 
+- Allow the valid non-SPDX `license` values `LicenseRef-Public-Domain` and `LicenseRef-Proprietary`
 - Show the help text of the CLI when no subcommand is selected
 
 ### [1.8.1](https://github.com/pypa/hatch/releases/tag/hatchling-v1.8.1) - 2022-08-25 ### {: #hatchling-v1.8.1 }

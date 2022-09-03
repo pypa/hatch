@@ -1,9 +1,24 @@
 from hatchling.licenses.supported import EXCEPTIONS, LICENSES
 
 
+def get_valid_licenses():
+    valid_licenses = LICENSES.copy()
+
+    # https://peps.python.org/pep-0639/#should-custom-license-identifiers-be-allowed
+    public_license = 'LicenseRef-Public-Domain'
+    valid_licenses[public_license.lower()] = {'id': public_license, 'deprecated': False}
+
+    proprietary_license = 'LicenseRef-Proprietary'
+    valid_licenses[proprietary_license.lower()] = {'id': proprietary_license, 'deprecated': False}
+
+    return valid_licenses
+
+
 def normalize_license_expression(license_expression):
     if not license_expression:
         return license_expression
+
+    valid_licenses = get_valid_licenses()
 
     # First normalize to lower case so we can look up licenses/exceptions
     # and so boolean operators are Python-compatible
@@ -53,10 +68,10 @@ def normalize_license_expression(license_expression):
             else:
                 suffix = ''
 
-            if token not in LICENSES:
+            if token not in valid_licenses:
                 raise ValueError(f'Unknown license: {token}')
 
-            normalized_tokens.append(LICENSES[token]['id'] + suffix)
+            normalized_tokens.append(valid_licenses[token]['id'] + suffix)
 
     # Construct the normalized expression
     normalized_expression = ' '.join(normalized_tokens)
