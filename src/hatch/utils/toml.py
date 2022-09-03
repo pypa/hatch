@@ -1,7 +1,9 @@
-try:
+import sys
+
+if sys.version_info >= (3, 11):
     import tomllib
-except ImportError:
-    import tomli as tomllib  # type: ignore
+else:
+    import tomli as tomllib
 
 
 def load_toml_data(data):

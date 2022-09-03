@@ -4,10 +4,10 @@ import sys
 from packaging.markers import default_environment
 from packaging.requirements import Requirement
 
-try:
+if sys.version_info >= (3, 8):
     from importlib.metadata import Distribution, DistributionFinder
-except ImportError:  # no cov
-    from importlib_metadata import Distribution, DistributionFinder  # type: ignore
+else:
+    from importlib_metadata import Distribution, DistributionFinder
 
 
 class DistributionCache:

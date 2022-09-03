@@ -21,11 +21,6 @@ from hatchling.builders.utils import (
 )
 from hatchling.metadata.spec import DEFAULT_METADATA_VERSION, get_core_metadata_constructors
 
-try:
-    from editables import EditableProject
-except ImportError:  # no cov
-    EditableProject = None
-
 EDITABLES_MINIMUM_VERSION = '0.3'
 
 
@@ -335,6 +330,8 @@ class WheelBuilder(BuilderInterface):
             return self.build_editable_detection(directory, **build_data)
 
     def build_editable_detection(self, directory, **build_data):
+        from editables import EditableProject
+
         build_data['tag'] = self.get_default_tag()
 
         with WheelArchive(self.artifact_project_id, self.config.reproducible) as archive, closing(
