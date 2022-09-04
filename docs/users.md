@@ -23,6 +23,7 @@ The following is not intended to be a complete enumeration. Be sure to view the 
 
 ## Industry
 
+- [Anaconda](https://www.anaconda.com) <sup>\[[1](https://github.com/ContinuumIO/dask-awkward/blob/105275b1937cce9a80a352af0b200d4e264f27f7/pyproject.toml#L1-L3)|[2](https://github.com/conda-incubator/ensureconda/blob/b20dbcf7166009ff4e9270f35ed75da7afc3db60/pyproject.toml#L1-L3)\]</sup>
 - [Bloomberg](https://www.bloomberg.com) <sup>\[[1](https://github.com/bloomberg/pytest-memray/blob/4ea6a7608adb0de4572d35768fbd370aee016627/pyproject.toml#L1-L3)\]</sup>
 - [Datadog](https://www.datadoghq.com) <sup>\[[1](https://github.com/DataDog/datadogpy/blob/63d0c01b5bbcb8158cf3ddab153639951ab44945/pyproject.toml#L1-L3)|[2](https://github.com/DataDog/integrations-core/pulls?q=is%3Apr+author%3Aofek+in%3Atitle+Add+pyproject.toml+file)|[3](https://github.com/DataDog/integrations-extras/pulls?q=is%3Apr+author%3Aofek+in%3Atitle+Add+pyproject.toml+file)|[4](https://github.com/DataDog/mkdocs-click/blob/434925323f3bb187595d4c7f6a2c80b790015109/pyproject.toml#L1-L3)\]</sup>
 - [deepset](https://www.deepset.ai) <sup>\[[1](https://github.com/deepset-ai/haystack/blob/e92ea4fccb31001156dece6c1509e3e162a9de00/pyproject.toml#L1-L5)\]</sup>
@@ -31,8 +32,7 @@ The following is not intended to be a complete enumeration. Be sure to view the 
 
 ## Organizations
 
-- [Anaconda](https://anaconda.org)
-    - [Incubator](https://github.com/conda-incubator) <sup>\[[1](https://github.com/conda-incubator/ensureconda/blob/b20dbcf7166009ff4e9270f35ed75da7afc3db60/pyproject.toml#L1-L3)\]</sup>
+- [OpenTelemetry](https://opentelemetry.io) <sup>\[[1](https://github.com/open-telemetry/opentelemetry-python/issues/2884#issuecomment-1229539511)|[2](https://github.com/open-telemetry/opentelemetry-python-contrib/issues/1259#issuecomment-1235028860)\]</sup>
 - [Smithsonian Institution](https://www.si.edu) <sup>\[[1](https://github.com/Smithsonian/ngehtutil/blob/02921f3a2ce11eb3f1555a0b9d3b177592d2be37/pyproject.toml#L1-L3)\]</sup>
 
 ## Government
@@ -42,7 +42,7 @@ The following is not intended to be a complete enumeration. Be sure to view the 
 
 ## Academia
 
-- [Clariah](https://www.clariah.nl) <sup>\[[1](https://github.com/CLARIAH/pure3d/blob/00e6e4c6052adc8dff28cb62eb393066d2cf1f27/tools/jyconvert/pyproject.toml#L1-L3)\]</sup>
+- [Clariah](https://www.clariah.nl) <sup>\[[1](https://github.com/CLARIAH/pure3d/blob/3f93d62cb1f5223836c9ebf4c058e6f491de71b9/pyproject.toml#L1-L3)\]</sup>
 - [Stanford University](https://www.stanford.edu)
     - [Empirical Security Research Group](https://esrg.stanford.edu/) <sup>\[[1](https://github.com/stanford-esrg/gps/blob/66f803bfd4726cd9d1b3e1724abfd34a36079530/pyproject.toml#L1-L3)\]</sup>
 - [University of Toronto Scarborough](https://www.utsc.utoronto.ca/home/)
