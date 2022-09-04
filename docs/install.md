@@ -11,7 +11,7 @@ pip install hatch
 ```
 
 !!! warning
-    This method modifies the Python environment in which you choose to install.
+    This method modifies the Python environment in which you choose to install. Consider instead using [pipx](#pipx) to avoid dependency conflicts.
 
 ## pipx
 
@@ -42,6 +42,9 @@ or with [mamba](https://github.com/mamba-org/mamba):
 ```
 mamba install hatch
 ```
+
+!!! warning
+    This method modifies the Conda environment in which you choose to install. Consider instead using [pipx](#pipx) or [condax](https://github.com/mariusvniekerk/condax) to avoid dependency conflicts.
 
 ## MacPorts
 
