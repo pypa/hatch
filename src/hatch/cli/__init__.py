@@ -6,6 +6,7 @@ from hatch.__about__ import __version__
 from hatch.cli.application import Application
 from hatch.cli.build import build
 from hatch.cli.clean import clean
+from hatch.cli.compatibility import check_click_supports_windows_expand_args
 from hatch.cli.config import config
 from hatch.cli.dep import dep
 from hatch.cli.env import env
@@ -199,8 +200,12 @@ hatch.add_command(version)
 
 
 def main():  # no cov
+    if check_click_supports_windows_expand_args():
+        kwargs = {'windows_expand_args': False}
+    else:
+        kwargs = {}
     try:
-        return hatch(windows_expand_args=False)
+        return hatch(**kwargs)
     except Exception:
         from rich.console import Console
 

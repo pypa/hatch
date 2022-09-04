@@ -38,7 +38,7 @@ classifiers = [
   "Topic :: Software Development :: Build Tools",
 ]
 dependencies = [
-  "click>=8.0.3",
+  "click>=7",
   "hatchling>=1.4.1",
   "httpx>=0.22.0",
   "hyperlink>=21.0.0",
