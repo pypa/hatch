@@ -10,9 +10,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Unreleased
 
+***Changed:***
+
+- The `run_shell_command` environment interface method now accepts arbitrary `subprocess.Popen` keyword arguments. This is not strictly breaking, but will be utilized in upcoming features.
+
 ***Added:***
 
 - Support Bash on Windows for the `shell` command
+- Add the `run_build_shell_command` environment interface method
 
 ***Fixed:***
 
