@@ -45,8 +45,6 @@ import click
 @click.pass_obj
 def build(app, location, targets, hooks_only, no_hooks, ext, clean, clean_hooks_after, clean_only):
     """Build a project."""
-    import pickle
-
     from hatchling.builders.constants import BuildEnvVars
     from hatchling.builders.plugin.interface import BuilderInterface
 
@@ -101,7 +99,7 @@ def build(app, location, targets, hooks_only, no_hooks, ext, clean, clean_hooks_
                 with environment.build_environment(dependencies) as build_environment:
                     status.stop()
 
-                    build_process = environment.get_build_process(
+                    process = environment.get_build_process(
                         build_environment,
                         directory=path,
                         targets=(target,),
@@ -111,19 +109,4 @@ def build(app, location, targets, hooks_only, no_hooks, ext, clean, clean_hooks_
                         clean_hooks_after=clean_hooks_after,
                         clean_only=clean_only,
                     )
-
-                    with build_process:
-                        for line in app.platform.stream_process_output(build_process):
-                            indicator, _, procedure = line.partition(':')
-                            if indicator != '__HATCH__':  # no cov
-                                app.display_info(line, end='')
-                                continue
-
-                            method, args, kwargs = pickle.loads(bytes.fromhex(procedure.rstrip()))
-                            if method == 'abort':
-                                build_process.communicate()
-
-                            getattr(app, method)(*args, **kwargs)
-
-                    if build_process.returncode:
-                        app.abort(code=build_process.returncode)
+                    app.attach_builder(process)

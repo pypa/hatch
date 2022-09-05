@@ -127,6 +127,44 @@ class Application(Terminal):
             if first_error_code and force_continue:
                 self.abort(code=first_error_code)
 
+    def attach_builder(self, process):
+        import pickle
+
+        with process:
+            for line in self.platform.stream_process_output(process):
+                indicator, _, procedure = line.partition(':')
+                if indicator != '__HATCH__':  # no cov
+                    self.display_info(line, end='')
+                    continue
+
+                method, args, kwargs = pickle.loads(bytes.fromhex(procedure.rstrip()))
+                if method == 'abort':
+                    process.communicate()
+
+                getattr(self, method)(*args, **kwargs)
+
+        if process.returncode:
+            self.abort(code=process.returncode)
+
+    def read_builder(self, process):
+        import pickle
+
+        lines = []
+        with process:
+            for line in self.platform.stream_process_output(process):
+                indicator, _, procedure = line.partition(':')
+                if indicator != '__HATCH__':  # no cov
+                    lines.append(line)
+                else:
+                    _, args, _ = pickle.loads(bytes.fromhex(procedure))
+                    lines.append(args[0])
+
+        output = ''.join(lines)
+        if process.returncode:
+            self.abort(output, code=process.returncode)
+
+        return output
+
     def get_env_directory(self, environment_type):
         directories = self.config.dirs.env
 

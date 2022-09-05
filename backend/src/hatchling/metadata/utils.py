@@ -27,3 +27,25 @@ def get_normalized_dependency(requirement):
 
     # All TOML writers use double quotes, so allow direct writing or copy/pasting to avoid escaping
     return str(requirement).replace('"', "'")
+
+
+def resolve_metadata_fields(metadata):
+    # https://packaging.python.org/en/latest/specifications/declaring-project-metadata/
+    return {
+        'name': metadata.core.name,
+        'version': metadata.version,
+        'description': metadata.core.description,
+        'readme': {'content-type': metadata.core.readme_content_type, 'text': metadata.core.readme},
+        'requires-python': metadata.core.requires_python,
+        'license': metadata.core.license_expression or metadata.core.license,
+        'authors': metadata.core.authors,
+        'maintainers': metadata.core.maintainers,
+        'keywords': metadata.core.keywords,
+        'classifiers': metadata.core.classifiers,
+        'urls': metadata.core.urls,
+        'scripts': metadata.core.scripts,
+        'gui-scripts': metadata.core.gui_scripts,
+        'entry-points': metadata.core.entry_points,
+        'dependencies': metadata.core.dependencies,
+        'optional-dependencies': metadata.core.optional_dependencies,
+    }

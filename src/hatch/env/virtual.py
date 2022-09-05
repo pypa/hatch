@@ -15,7 +15,7 @@ class VirtualEnvironment(EnvironmentInterface):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        project_name = self.metadata.core.name
+        project_name = self.metadata.name
 
         hashed_root = sha256(str(self.root).encode('utf-8')).digest()
         checksum = urlsafe_b64encode(hashed_root).decode('utf-8')[:8]

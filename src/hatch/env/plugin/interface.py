@@ -705,17 +705,6 @@ class EnvironmentInterface(ABC):
         kwargs.setdefault('shell', True)
         return self.platform.run_command(command, **kwargs)
 
-    def run_build_shell_command(self, command: str, **kwargs):
-        """
-        This should return the standard library's
-        [subprocess.CompletedProcess](https://docs.python.org/3/library/subprocess.html#subprocess.CompletedProcess)
-        and will always be called when the
-        [build_environment](reference.md#hatch.env.plugin.interface.EnvironmentInterface.build_environment)
-        is active.
-        """
-        kwargs.setdefault('shell', True)
-        return self.platform.run_command(command, **kwargs)
-
     @contextmanager
     def command_context(self):
         """

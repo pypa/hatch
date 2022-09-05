@@ -107,6 +107,11 @@ class Terminal:
     def display_header(self, title='', *, stderr=False):
         self.console.rule(Text(title, self._style_level_success))
 
+    def display_markdown(self, text, **kwargs):  # no cov
+        from rich.markdown import Markdown
+
+        self.display_raw(Markdown(text), **kwargs)
+
     def display_table(self, title, columns, show_lines=False, column_options=None, force_ascii=False, num_rows=0):
         from rich.table import Table
 
@@ -182,7 +187,7 @@ class Terminal:
             finally:
                 self.console.stderr = False
 
-    def display_raw(self, text='', **kwargs):
+    def display_raw(self, text, **kwargs):
         self.console.print(text, overflow='ignore', no_wrap=True, crop=False, **kwargs)
 
     def display_always(self, text='', **kwargs):

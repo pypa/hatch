@@ -10,6 +10,7 @@ from hatch.cli.config import config
 from hatch.cli.dep import dep
 from hatch.cli.env import env
 from hatch.cli.new import new
+from hatch.cli.project import project
 from hatch.cli.publish import publish
 from hatch.cli.run import run
 from hatch.cli.shell import shell
@@ -191,6 +192,7 @@ hatch.add_command(config)
 hatch.add_command(dep)
 hatch.add_command(env)
 hatch.add_command(new)
+hatch.add_command(project)
 hatch.add_command(publish)
 hatch.add_command(run)
 hatch.add_command(shell)
