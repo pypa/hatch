@@ -1,4 +1,8 @@
-class AppEnvVars:
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
+class AppEnvVarsCls:
     ENV = 'HATCH_ENV'
     ENV_ACTIVE = 'HATCH_ENV_ACTIVE'
     ENV_OPTION_PREFIX = 'HATCH_ENV_TYPE_'
@@ -11,14 +15,22 @@ class AppEnvVars:
     FORCE_COLOR = 'FORCE_COLOR'
 
 
-class ConfigEnvVars:
+AppEnvVars = AppEnvVarsCls()
+
+
+@dataclass(frozen=True)
+class ConfigEnvVarsCls:
     PROJECT = 'HATCH_PROJECT'
     DATA = 'HATCH_DATA_DIR'
     CACHE = 'HATCH_CACHE_DIR'
     CONFIG = 'HATCH_CONFIG'
 
 
-class PublishEnvVars:
+ConfigEnvVars = ConfigEnvVarsCls()
+
+
+@dataclass(frozen=True)
+class PublishEnvVarsCls:
     USER = 'HATCH_INDEX_USER'
     AUTH = 'HATCH_INDEX_AUTH'
     REPO = 'HATCH_INDEX_REPO'
@@ -27,3 +39,6 @@ class PublishEnvVars:
     CLIENT_KEY = 'HATCH_INDEX_CLIENT_KEY'
     PUBLISHER = 'HATCH_PUBLISHER'
     OPTIONS = 'HATCH_PUBLISHER_OPTIONS'
+
+
+PublishEnvVars = PublishEnvVarsCls()
