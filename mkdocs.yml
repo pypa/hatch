@@ -108,6 +108,10 @@ nav:
     - FAQ: meta/faq.md
     - Authors: meta/authors.md
 
+watch:
+- backend/src/hatchling
+- src/hatch
+
 plugins:
   # Built-in
   - search:
@@ -134,9 +138,6 @@ plugins:
             show_signature_annotations: true
             # Other
             show_bases: false
-      watch:
-        - backend/src/hatchling
-        - src/hatch
   - redirects:
       redirect_maps:
         config/environment.md: config/environment/overview.md
