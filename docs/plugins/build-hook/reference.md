@@ -9,6 +9,7 @@ A build hook provides code that will be executed at various stages of the build 
 - [hatch-autorun](https://github.com/ofek/hatch-autorun) - used to inject code into an installation that will automatically run before the first import
 - [hatch-jupyter-builder](https://github.com/jupyterlab/hatch-jupyter-builder) - used for packages in the Project Jupyter ecosystem
 - [hatch-mypyc](https://github.com/ofek/hatch-mypyc) - compiles code with [Mypyc](https://github.com/mypyc/mypyc)
+- [hatch-odoo](https://github.com/acsone/hatch-odoo) - package Odoo add-ons into the appropriate namespace
 
 ## Overview
 
