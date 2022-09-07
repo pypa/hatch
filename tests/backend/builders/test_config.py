@@ -1621,7 +1621,7 @@ class TestPatternInclude:
         config = {'tool': {'hatch': {'build': {'include': ['foo']}}}}
         builder = Builder(str(isolation), config=config)
 
-        assert isinstance(builder.config.include_spec, pathspec.PathSpec)
+        assert isinstance(builder.config.include_spec, pathspec.GitIgnoreSpec)
 
     def test_global_invalid_type(self, isolation):
         config = {'tool': {'hatch': {'build': {'include': ''}}}}
@@ -1737,7 +1737,7 @@ class TestPatternExclude:
 
         builder = Builder(str(isolation))
 
-        assert isinstance(builder.config.exclude_spec, pathspec.PathSpec)
+        assert isinstance(builder.config.exclude_spec, pathspec.GitIgnoreSpec)
         assert builder.config.exclude_spec.match_file(f'.git{separator}file.py')
 
     def test_global_invalid_type(self, isolation):
@@ -1902,7 +1902,7 @@ class TestPatternArtifacts:
         config = {'tool': {'hatch': {'build': {'artifacts': ['foo']}}}}
         builder = Builder(str(isolation), config=config)
 
-        assert isinstance(builder.config.artifact_spec, pathspec.PathSpec)
+        assert isinstance(builder.config.artifact_spec, pathspec.GitIgnoreSpec)
 
     def test_global_invalid_type(self, isolation):
         config = {'tool': {'hatch': {'build': {'artifacts': ''}}}}
