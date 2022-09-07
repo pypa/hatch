@@ -171,6 +171,7 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 ***Added:***
 
 - Add `metadata` command to view PEP 621 project metadata
+- Improve error messages for SPDX license errors
 
 ***Fixed:***
 
