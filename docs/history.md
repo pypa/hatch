@@ -16,8 +16,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ***Added:***
 
+- Add `project` command group to view details about the project like PEP 621 metadata
 - Support Bash on Windows for the `shell` command
-- Add the `run_build_shell_command` environment interface method
 
 ***Fixed:***
 

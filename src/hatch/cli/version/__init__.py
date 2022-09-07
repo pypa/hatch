@@ -13,60 +13,36 @@ def version(app, desired_version):
             app.display_info(app.project.metadata.core.version)
             return
 
-    from hatchling.plugin.exceptions import UnknownPluginError
-
-    try:
-        source = app.project.metadata.hatch.version.source
-
-        version_data = source.get_version_data()
-        original_version = version_data['version']
-
-        if not desired_version:
-            app.display_info(original_version)
-            return
-
-        updated_version = app.project.metadata.hatch.version.scheme.update(
-            desired_version, original_version, version_data
-        )
-        source.set_version(updated_version, version_data)
-    except UnknownPluginError:
-        get_version_from_build_environment(app, desired_version)
-    else:
-        app.display_info(f'Old: {original_version}')
-        app.display_info(f'New: {updated_version}')
-
-
-def get_version_from_build_environment(app, desired_version):
-    import pickle
+    from hatchling.dep.core import dependencies_in_sync
 
     with app.project.location.as_cwd():
-        environment = app.get_environment()
+        if dependencies_in_sync(app.project.metadata.build.requires_complex):
+            source = app.project.metadata.hatch.version.source
 
-        # These are likely missing from the current environment
-        dependencies = list(app.project.metadata.build.requires)
+            version_data = source.get_version_data()
+            original_version = version_data['version']
 
-        with app.status_waiting('Setting up build environment for missing build dependencies') as status:
-            with environment.build_environment(dependencies):
-                status.stop()
+            if not desired_version:
+                app.display_info(original_version)
+                return
 
-                command = ['python', '-u', '-m', 'hatchling', 'version', '--app']
-                if desired_version:
-                    command.append(desired_version)
+            updated_version = app.project.metadata.hatch.version.scheme.update(
+                desired_version, original_version, version_data
+            )
+            source.set_version(updated_version, version_data)
 
-                process = app.platform.capture_process(command)
+            app.display_info(f'Old: {original_version}')
+            app.display_info(f'New: {updated_version}')
+        else:
+            environment = app.get_environment()
 
-                with process:
-                    for line in app.platform.stream_process_output(process):
-                        indicator, _, procedure = line.partition(':')
-                        if indicator != '__HATCH__':  # no cov
-                            app.display_info(line, end='')
-                            continue
+            with app.status_waiting('Setting up build environment for missing build dependencies') as status:
+                with environment.build_environment(app.project.metadata.build.requires):
+                    status.stop()
 
-                        method, args, kwargs = pickle.loads(bytes.fromhex(procedure.rstrip()))
-                        if method == 'abort':
-                            process.communicate()
+                    command = ['python', '-u', '-m', 'hatchling', 'version', '--app']
+                    if desired_version:
+                        command.append(desired_version)
 
-                        getattr(app, method)(*args, **kwargs)
-
-                if process.returncode:
-                    app.abort(code=process.returncode)
+                    process = app.platform.capture_process(command)
+                    app.attach_builder(process)

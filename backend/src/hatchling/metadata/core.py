@@ -27,6 +27,8 @@ class ProjectMetadata:
         self._core = None
         self._hatch = None
 
+        self._core_raw_metadata = None
+        self._name = None
         self._version = None
         self._project_file = None
 
@@ -46,6 +48,33 @@ class ProjectMetadata:
             self._context = Context(self.root)
 
         return self._context
+
+    @property
+    def core_raw_metadata(self):
+        if self._core_raw_metadata is None:
+            if 'project' not in self.config:
+                raise ValueError('Missing `project` metadata table in configuration')
+
+            core_raw_metadata = self.config['project']
+            if not isinstance(core_raw_metadata, dict):
+                raise TypeError('The `project` configuration must be a table')
+
+            self._core_raw_metadata = core_raw_metadata
+
+        return self._core_raw_metadata
+
+    @property
+    def name(self):
+        # Duplicate the name parsing here for situations where it's
+        # needed but metadata plugins might not be available
+        if self._name is None:
+            name = self.core_raw_metadata.get('name', '')
+            if not name:
+                raise ValueError('Missing required field `project.name`')
+
+            self._name = normalize_project_name(name)
+
+        return self._name
 
     @property
     def version(self):
@@ -83,27 +112,20 @@ class ProjectMetadata:
     @property
     def core(self):
         if self._core is None:
-            if 'project' not in self.config:
-                raise ValueError('Missing `project` metadata table in configuration')
-
-            core_metadata = self.config['project']
-            if not isinstance(core_metadata, dict):
-                raise TypeError('The `project` configuration must be a table')
-
-            metadata = CoreMetadata(self.root, core_metadata, self.hatch.metadata, self.context)
+            metadata = CoreMetadata(self.root, self.core_raw_metadata, self.hatch.metadata, self.context)
 
             metadata_hooks = self.hatch.metadata.hooks
             if metadata_hooks:
-                static_fields = set(core_metadata)
+                static_fields = set(self.core_raw_metadata)
                 if 'version' in self.hatch.config:
                     self._set_version(metadata)
-                    core_metadata['version'] = self.version
+                    self.core_raw_metadata['version'] = self.version
 
                 for metadata_hook in metadata_hooks.values():
-                    metadata_hook.update(core_metadata)
+                    metadata_hook.update(self.core_raw_metadata)
                     metadata.add_known_classifiers(metadata_hook.get_known_classifiers())
 
-                new_fields = set(core_metadata) - static_fields
+                new_fields = set(self.core_raw_metadata) - static_fields
                 for new_field in new_fields:
                     if new_field in metadata.dynamic:
                         metadata.dynamic.remove(new_field)
