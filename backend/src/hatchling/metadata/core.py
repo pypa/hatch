@@ -560,7 +560,11 @@ class CoreMetadata:
             elif isinstance(data, str):
                 from hatchling.licenses.parse import normalize_license_expression
 
-                self._license_expression = normalize_license_expression(data)
+                try:
+                    self._license_expression = normalize_license_expression(data)
+                except ValueError as e:
+                    raise ValueError(f'Error parsing field `project.license` - {e}') from None
+
                 self._license = ''
             elif isinstance(data, dict):
                 if 'file' in data and 'text' in data:

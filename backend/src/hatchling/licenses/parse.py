@@ -14,15 +14,15 @@ def get_valid_licenses():
     return valid_licenses
 
 
-def normalize_license_expression(license_expression):
-    if not license_expression:
-        return license_expression
+def normalize_license_expression(raw_license_expression):
+    if not raw_license_expression:
+        return raw_license_expression
 
     valid_licenses = get_valid_licenses()
 
     # First normalize to lower case so we can look up licenses/exceptions
     # and so boolean operators are Python-compatible
-    license_expression = license_expression.lower()
+    license_expression = raw_license_expression.lower()
 
     # Then pad parentheses so tokenization can be achieved by merely splitting on white space
     license_expression = license_expression.replace('(', ' ( ').replace(')', ' ) ')
@@ -40,7 +40,7 @@ def normalize_license_expression(license_expression):
         elif token == 'with':
             python_tokens.append('or')
         elif token == '(' and python_tokens and python_tokens[-1] not in ('or', 'and'):
-            raise ValueError('Invalid license expression')
+            raise ValueError(f'invalid license expression: {raw_license_expression}')
         else:
             python_tokens.append(token)
 
@@ -48,7 +48,7 @@ def normalize_license_expression(license_expression):
     try:
         assert eval(python_expression) is False
     except Exception:
-        raise ValueError('Invalid license expression')
+        raise ValueError(f'invalid license expression: {raw_license_expression}') from None
 
     # Take a final pass to check for unknown licenses/exceptions
     normalized_tokens = []
@@ -59,7 +59,8 @@ def normalize_license_expression(license_expression):
 
         if normalized_tokens and normalized_tokens[-1] == 'WITH':
             if token not in EXCEPTIONS:
-                raise ValueError(f'Unknown license exception: {token}')
+                raise ValueError(f'unknown license exception: {token}')
+
             normalized_tokens.append(EXCEPTIONS[token]['id'])
         else:
             if token.endswith('+'):
@@ -69,7 +70,7 @@ def normalize_license_expression(license_expression):
                 suffix = ''
 
             if token not in valid_licenses:
-                raise ValueError(f'Unknown license: {token}')
+                raise ValueError(f'unknown license: {token}')
 
             normalized_tokens.append(valid_licenses[token]['id'] + suffix)
 

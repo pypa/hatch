@@ -1,3 +1,5 @@
+import re
+
 import pytest
 
 from hatchling.licenses.parse import normalize_license_expression
@@ -22,17 +24,17 @@ from hatchling.licenses.parse import normalize_license_expression
     ],
 )
 def test_syntax_errors(expression):
-    with pytest.raises(ValueError, match='Invalid license expression'):
+    with pytest.raises(ValueError, match=re.escape(f'invalid license expression: {expression}')):
         normalize_license_expression(expression)
 
 
 def test_unknown_license():
-    with pytest.raises(ValueError, match='Unknown license: foo'):
+    with pytest.raises(ValueError, match='unknown license: foo'):
         normalize_license_expression('mit or foo')
 
 
 def test_unknown_license_exception():
-    with pytest.raises(ValueError, match='Unknown license exception: foo'):
+    with pytest.raises(ValueError, match='unknown license exception: foo'):
         normalize_license_expression('mit with foo')
 
 
