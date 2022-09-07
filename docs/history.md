@@ -168,11 +168,16 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 
 ### Unreleased
 
+***Changed:***
+
+- File pattern matching now more closely resembles Git's behavior
+
 ***Added:***
 
 - Add `metadata` command to view PEP 621 project metadata
 - Improve error messages for SPDX license errors
 - Retroactively support `License-File` for core metadata starting at version 2.1
+- Bump the minimum supported version of `pathspec` to 0.10.1
 
 ***Fixed:***
 

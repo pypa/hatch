@@ -36,7 +36,7 @@ CONFIG = {
             'editables>=0.3',
             'importlib-metadata; python_version < "3.8"',
             'packaging>=21.3',
-            'pathspec>=0.9',
+            'pathspec>=0.10.1',
             'pluggy>=1.0.0',
             'tomli>=1.2.2; python_version < "3.11"',
         ],

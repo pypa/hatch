@@ -25,7 +25,7 @@ class BuilderConfig:
         self.__force_include = None
         self.__vcs_exclusion_files = None
 
-        # Possible pathspec.PathSpec
+        # Possible pathspec.GitIgnoreSpec
         self.__include_spec = None
         self.__exclude_spec = None
         self.__artifact_spec = None
@@ -151,9 +151,7 @@ class BuilderConfig:
                 all_include_patterns.append(f"/{relative_path.replace(os.sep, '/')}/")
 
             if all_include_patterns:
-                self.__include_spec = pathspec.PathSpec.from_lines(
-                    pathspec.patterns.GitWildMatchPattern, all_include_patterns
-                )
+                self.__include_spec = pathspec.GitIgnoreSpec.from_lines(all_include_patterns)
 
             self.__include_patterns = all_include_patterns
 
@@ -187,9 +185,7 @@ class BuilderConfig:
                 all_exclude_patterns.extend(self.load_vcs_exclusion_patterns())
 
             if all_exclude_patterns:
-                self.__exclude_spec = pathspec.PathSpec.from_lines(
-                    pathspec.patterns.GitWildMatchPattern, all_exclude_patterns
-                )
+                self.__exclude_spec = pathspec.GitIgnoreSpec.from_lines(all_exclude_patterns)
 
             self.__exclude_patterns = all_exclude_patterns
 
@@ -220,9 +216,7 @@ class BuilderConfig:
                 all_artifact_patterns.append(artifact_pattern)
 
             if all_artifact_patterns:
-                self.__artifact_spec = pathspec.PathSpec.from_lines(
-                    pathspec.patterns.GitWildMatchPattern, all_artifact_patterns
-                )
+                self.__artifact_spec = pathspec.GitIgnoreSpec.from_lines(all_artifact_patterns)
 
             self.__artifact_patterns = all_artifact_patterns
 
@@ -808,9 +802,7 @@ class BuilderConfig:
             # Include anything the hooks indicate
             build_artifacts = build_data['artifacts']
             if build_artifacts:
-                self.build_artifact_spec = pathspec.PathSpec.from_lines(
-                    pathspec.patterns.GitWildMatchPattern, build_artifacts
-                )
+                self.build_artifact_spec = pathspec.GitIgnoreSpec.from_lines(build_artifacts)
 
             self.build_force_include.update(normalize_inclusion_map(build_data['force_include'], self.root))
 
