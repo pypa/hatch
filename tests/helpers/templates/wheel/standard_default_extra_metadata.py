@@ -40,6 +40,7 @@ Tag: py3-none-any
 Metadata-Version: {DEFAULT_METADATA_VERSION}
 Name: {kwargs['project_name']}
 Version: 0.0.1
+License-File: LICENSE.txt
 Requires-Python: >3
 """,
         )

@@ -110,6 +110,10 @@ def construct_metadata_file_2_1(metadata, extra_dependencies=()):
             else:
                 metadata_file += f'{indent}{line}\n'
 
+    if metadata.core.license_files:
+        for license_file in metadata.core.license_files:
+            metadata_file += f'License-File: {license_file}\n'
+
     if metadata.core.keywords:
         metadata_file += f"Keywords: {','.join(metadata.core.keywords)}\n"
 
@@ -181,6 +185,10 @@ def construct_metadata_file_2_2(metadata, extra_dependencies=()):
                 metadata_file += f'{line}\n'
             else:
                 metadata_file += f'{indent}{line}\n'
+
+    if metadata.core.license_files:
+        for license_file in metadata.core.license_files:
+            metadata_file += f'License-File: {license_file}\n'
 
     if metadata.core.keywords:
         metadata_file += f"Keywords: {','.join(metadata.core.keywords)}\n"
