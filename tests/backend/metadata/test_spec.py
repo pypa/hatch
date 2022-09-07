@@ -674,9 +674,9 @@ class TestCoreMetadataV21:
             """
         )
 
-    def test_all(self, constructor, isolation, helpers):
+    def test_all(self, constructor, isolation, helpers, temp_dir):
         metadata = ProjectMetadata(
-            str(isolation),
+            str(temp_dir),
             None,
             {
                 'project': {
@@ -703,6 +703,8 @@ class TestCoreMetadataV21:
             },
         )
 
+        (temp_dir / 'LICENSE.txt').touch()
+
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.1
@@ -715,6 +717,7 @@ class TestCoreMetadataV21:
             Maintainer-email: foo <bar@domain>
             License: foo
                     bar
+            License-File: LICENSE.txt
             Keywords: bar,foo
             Classifier: Programming Language :: Python :: 3.9
             Classifier: Programming Language :: Python :: 3.11
@@ -1073,9 +1076,9 @@ class TestCoreMetadataV22:
             """
         )
 
-    def test_all(self, constructor, isolation, helpers):
+    def test_all(self, constructor, isolation, helpers, temp_dir):
         metadata = ProjectMetadata(
-            str(isolation),
+            str(temp_dir),
             None,
             {
                 'project': {
@@ -1102,6 +1105,8 @@ class TestCoreMetadataV22:
             },
         )
 
+        (temp_dir / 'LICENSE.txt').touch()
+
         assert constructor(metadata) == helpers.dedent(
             """
             Metadata-Version: 2.2
@@ -1114,6 +1119,7 @@ class TestCoreMetadataV22:
             Maintainer-email: foo <bar@domain>
             License: foo
                     bar
+            License-File: LICENSE.txt
             Keywords: bar,foo
             Classifier: Programming Language :: Python :: 3.9
             Classifier: Programming Language :: Python :: 3.11
