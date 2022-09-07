@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<img src="docs/assets/images/logo.svg" alt="Hatch logo" width="500" role="img">
+<img src="https://raw.githubusercontent.com/pypa/hatch/master/docs/assets/images/logo.svg" alt="Hatch logo" width="500" role="img">
 
 | | |
 | --- | --- |
