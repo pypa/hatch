@@ -174,6 +174,7 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 
 ***Added:***
 
+- Implement a minimal version of `prepare_metadata_for_build_wheel` and `prepare_metadata_for_build_editable` for non-frontend tools that only need to inspect a project's metadata
 - Add `metadata` command to view PEP 621 project metadata
 - Improve error messages for SPDX license errors
 - Retroactively support `License-File` for core metadata starting at version 2.1
