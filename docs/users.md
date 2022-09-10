@@ -11,6 +11,7 @@ The following is not intended to be a complete enumeration. Be sure to view the 
 | [HTTPX](https://github.com/encode/httpx/blob/45b7cfaad3a8987ea35fa5bf092bbdda485444fd/pyproject.toml#L1-L3)
 | [iCalendar for Humans](https://github.com/ics-py/ics-py/blob/133a0955f6efbb83ff0eae45ad0bbe6902a8f2f1/pyproject.toml#L61-L63)
 | [LinkChecker](https://github.com/linkchecker/linkchecker/blob/de40321b57a2271e90e696b5320c0409faaa895d/pyproject.toml#L29-L34)
+| [Material for MkDocs](https://github.com/squidfunk/mkdocs-material/blob/9603c71adafe5959e57584a4982ee03d340a7be3/pyproject.toml#L1-L3)
 | [pipx](https://github.com/pypa/pipx/blob/bc7dd03c4d872c443257685109a650ec3d524814/pyproject.toml#L1-L3)
 | [platformdirs](https://github.com/platformdirs/platformdirs/blob/382e961c436f9974e56dc69ce105b6fd8945c343/pyproject.toml#L1-L3)
 | [Pydantic](https://github.com/pydantic/pydantic/blob/f341049b9e5538a125751d75b4e44c1609b53df6/pyproject.toml#L1-L3)
