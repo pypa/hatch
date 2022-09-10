@@ -168,6 +168,8 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 
 ### Unreleased
 
+### [1.9.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.9.0) - 2022-09-09 ### {: #hatchling-v1.9.0 }
+
 ***Changed:***
 
 - File pattern matching now more closely resembles Git's behavior
