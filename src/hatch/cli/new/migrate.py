@@ -110,6 +110,8 @@ def _parse_setup_cfg(kwargs):
 
 
 def setup(**kwargs):
+    import itertools
+
     import tomli
     import tomli_w
 
@@ -149,13 +151,28 @@ def setup(**kwargs):
     if 'python_requires' in kwargs:
         project_metadata['requires-python'] = kwargs['python_requires']
 
-    author = {}
-    if 'author' in kwargs:
-        author['name'] = kwargs['author']
-    if 'author_email' in kwargs:
-        author['email'] = kwargs['author_email']
-    if author:
-        project_metadata['authors'] = [author]
+    for collaborator in ('author', 'maintainer'):
+        collaborators = []
+        collaborator_names = []
+        collaborator_emails = []
+        if collaborator in kwargs:
+            for collaborator_name in kwargs[collaborator].split(','):
+                collaborator_names.append(collaborator_name.strip())
+        if f'{collaborator}_email' in kwargs:
+            for collaborator_email in kwargs[f'{collaborator}_email'].split(','):
+                collaborator_emails.append(collaborator_email.strip())
+
+        for collaborator_name, collaborator_email in itertools.zip_longest(collaborator_names, collaborator_emails):
+            data = {}
+            if collaborator_name is not None:
+                data['name'] = collaborator_name
+            if collaborator_email is not None:
+                data['email'] = collaborator_email
+            if data:
+                collaborators.append(data)
+
+        if collaborators:
+            project_metadata[f'{collaborator}s'] = collaborators
 
     if 'keywords' in kwargs:
         keywords = kwargs['keywords']
@@ -179,7 +196,7 @@ def setup(**kwargs):
 
     if 'install_requires' in kwargs:
         project_metadata['dependencies'] = sorted(
-            list(kwargs['install_requires'])
+            [entry.strip() for entry in kwargs['install_requires']]
             if isinstance(kwargs['install_requires'], (list, tuple))
             else _parse_dependencies(kwargs['install_requires']),
             key=lambda d: d.lower(),
@@ -188,7 +205,9 @@ def setup(**kwargs):
     if 'extras_require' in kwargs:
         project_metadata['optional-dependencies'] = {
             group: sorted(
-                list(dependencies) if isinstance(dependencies, (list, tuple)) else _parse_dependencies(dependencies),
+                [entry.strip() for entry in dependencies]
+                if isinstance(dependencies, (list, tuple))
+                else _parse_dependencies(dependencies),
                 key=lambda d: d.lower(),
             )
             for group, dependencies in sorted(kwargs['extras_require'].items())
