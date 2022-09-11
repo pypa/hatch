@@ -24,6 +24,17 @@ def _parse_dependencies(dependency_definition):
     return dependencies
 
 
+def _collapse_data(output, data):
+    import tomli_w
+
+    expected_output = new_output = tomli_w.dumps(data)
+    new_output = new_output.replace('    ', '')
+    new_output = new_output.replace('[\n', '[')
+    new_output = new_output.replace('",\n]', '"]')
+
+    return output.replace(expected_output, new_output, 1)
+
+
 def _parse_setup_cfg(kwargs):
     from configparser import ConfigParser
 
@@ -111,17 +122,15 @@ def _parse_setup_cfg(kwargs):
 
 def setup(**kwargs):
     import itertools
+    import re
 
-    import tomli
     import tomli_w
-
-    from hatchling.__about__ import __version__
 
     project_metadata = {}
     hatch_metadata = {}
     tool_metadata = {'hatch': hatch_metadata}
     project_data = {
-        'build-system': {'requires': [f'hatchling>={__version__}'], 'build-backend': 'hatchling.build'},
+        'build-system': {'requires': ['hatchling'], 'build-backend': 'hatchling.build'},
         'project': project_metadata,
         'tool': tool_metadata,
     }
@@ -286,18 +295,23 @@ def setup(**kwargs):
 
     hatch_metadata['build'] = build_data
 
+    output = tomli_w.dumps(project_data)
+    output = _collapse_data(output, {'requires': project_data['build-system']['requires']})
+    output = _collapse_data(output, {'dynamic': project_data['project']['dynamic']})
+
     project_file = os.path.join(HERE, 'pyproject.toml')
     if os.path.isfile(project_file):
         with open(project_file, encoding='utf-8') as f:
-            old_project_data = tomli.loads(f.read())
-            tool_metadata.update(old_project_data.get('tool', {}))
-            old_project_data.pop('build-system', None)
-            old_project_data.pop('project', None)
-            old_project_data.pop('tool', None)
-            project_data.update(old_project_data)
+            current_contents = f.read()
+
+        for section in ('build-system', 'project'):
+            for pattern in (fr'^\[{section}].*?(?=^\[)', fr'^\[{section}].*'):
+                current_contents = re.sub(pattern, '', current_contents, flags=re.MULTILINE | re.DOTALL)
+
+        output += f'\n{current_contents}'
 
     with open(project_file, 'w', encoding='utf-8') as f:
-        f.write(tomli_w.dumps(project_data))
+        f.write(output)
 
 
 if __name__ == 'setuptools':
