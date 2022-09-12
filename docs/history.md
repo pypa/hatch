@@ -19,10 +19,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Add `project` command group to view details about the project like PEP 621 metadata
 - Support Bash on Windows for the `shell` command
 - The `setuptools` migration script no longer modifies the formatting of existing `pyproject.toml` configuration
+- Bump the minimum supported version of Hatchling to 1.9.0
 
 ***Fixed:***
 
 - Handle more edge cases in the `setuptools` migration script
+- Depend on `packaging` explicitly rather than relying on it being a transitive dependency of Hatchling
 
 ### [1.5.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.5.0) - 2022-08-28 ### {: #hatch-v1.5.0 }
 
