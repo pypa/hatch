@@ -8,6 +8,8 @@ The following is not intended to be a complete enumeration. Be sure to view the 
 
 [argon2-cffi](https://github.com/hynek/argon2-cffi/blob/59c7470af1a65b3b71e18fbf9abeca2cca3d707a/pyproject.toml#L3-L5)
 | [Colorama](https://github.com/tartley/colorama/blob/cd653d75be52f4d8c3953eb6942fe597375f8b97/pyproject.toml#L1-L5)
+| [FastAPI](https://github.com/tiangolo/fastapi/blob/1073062c7f2c48bcc28bcedbdc009c18c171f6fb/pyproject.toml#L1-L3)
+| [Gradio](https://github.com/gradio-app/gradio/blob/f43481c18ac6468fbf30bf9a80981b7eab453961/pyproject.toml#L1-L3)
 | [HTTPX](https://github.com/encode/httpx/blob/45b7cfaad3a8987ea35fa5bf092bbdda485444fd/pyproject.toml#L1-L3)
 | [iCalendar for Humans](https://github.com/ics-py/ics-py/blob/133a0955f6efbb83ff0eae45ad0bbe6902a8f2f1/pyproject.toml#L61-L63)
 | [LinkChecker](https://github.com/linkchecker/linkchecker/blob/de40321b57a2271e90e696b5320c0409faaa895d/pyproject.toml#L29-L34)
