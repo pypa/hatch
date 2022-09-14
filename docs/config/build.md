@@ -175,7 +175,7 @@ For example, if there was a directory alongside the project root named `artifact
 === ":octicons-file-code-16: pyproject.toml"
 
     ```toml
-    [tool.hatch.build.force-include]
+    [tool.hatch.build.targets.wheel.force-include]
     "../artifacts" = "pkg"
     "~/lib.h" = "pkg/lib.h"
     ```
@@ -183,7 +183,7 @@ For example, if there was a directory alongside the project root named `artifact
 === ":octicons-file-code-16: hatch.toml"
 
     ```toml
-    [build.force-include]
+    [build.targets.wheel.force-include]
     "../artifacts" = "pkg"
     "~/lib.h" = "pkg/lib.h"
     ```
