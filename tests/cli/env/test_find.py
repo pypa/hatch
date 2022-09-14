@@ -55,7 +55,10 @@ def test_single(hatch, helpers, temp_dir_data, config_file):
     env_data_path = temp_dir_data / 'data' / 'env' / 'virtual'
     assert env_data_path.is_dir()
 
-    storage_dirs = list(env_data_path.iterdir())
+    project_data_path = env_data_path / project_path.name
+    assert project_data_path.is_dir()
+
+    storage_dirs = list(project_data_path.iterdir())
     assert len(storage_dirs) == 1
 
     storage_path = storage_dirs[0]
@@ -112,7 +115,10 @@ def test_matrix(hatch, helpers, temp_dir_data, config_file):
     env_data_path = temp_dir_data / 'data' / 'env' / 'virtual'
     assert env_data_path.is_dir()
 
-    storage_dirs = list(env_data_path.iterdir())
+    project_data_path = env_data_path / project_path.name
+    assert project_data_path.is_dir()
+
+    storage_dirs = list(project_data_path.iterdir())
     assert len(storage_dirs) == 1
 
     storage_path = storage_dirs[0]

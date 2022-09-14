@@ -59,19 +59,17 @@ def test_all(hatch, helpers, temp_dir_data, config_file):
 
     assert result.exit_code == 0, result.output
 
-    env_cache_path = temp_dir_data / 'data' / 'env' / 'virtual'
-    assert env_cache_path.is_dir()
+    env_data_path = temp_dir_data / 'data' / 'env' / 'virtual'
+    assert env_data_path.is_dir()
 
-    storage_dirs = list(env_cache_path.iterdir())
+    project_data_path = env_data_path / project_path.name
+    assert project_data_path.is_dir()
+
+    storage_dirs = list(project_data_path.iterdir())
     assert len(storage_dirs) == 1
 
     storage_path = storage_dirs[0]
-
-    project_part = f'{project_path.name}-'
-    assert storage_path.name.startswith(project_part)
-
-    hash_part = storage_path.name[len(project_part) :]
-    assert len(hash_part) == 8
+    assert len(storage_path.name) == 8
 
     env_dirs = list(storage_path.iterdir())
     assert len(env_dirs) == 2
