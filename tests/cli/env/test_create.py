@@ -107,16 +107,14 @@ def test_new(hatch, helpers, temp_dir, config_file):
     env_data_path = data_path / 'env' / 'virtual'
     assert env_data_path.is_dir()
 
-    storage_dirs = list(env_data_path.iterdir())
+    project_data_path = env_data_path / project_path.name
+    assert project_data_path.is_dir()
+
+    storage_dirs = list(project_data_path.iterdir())
     assert len(storage_dirs) == 1
 
     storage_path = storage_dirs[0]
-
-    project_part = f'{project_path.name}-'
-    assert storage_path.name.startswith(project_part)
-
-    hash_part = storage_path.name[len(project_part) :]
-    assert len(hash_part) == 8
+    assert len(storage_path.name) == 8
 
     env_dirs = list(storage_path.iterdir())
     assert len(env_dirs) == 1
@@ -171,16 +169,14 @@ def test_new_selected_python(hatch, helpers, temp_dir, config_file, python_on_pa
     env_data_path = data_path / 'env' / 'virtual'
     assert env_data_path.is_dir()
 
-    storage_dirs = list(env_data_path.iterdir())
+    project_data_path = env_data_path / project_path.name
+    assert project_data_path.is_dir()
+
+    storage_dirs = list(project_data_path.iterdir())
     assert len(storage_dirs) == 1
 
     storage_path = storage_dirs[0]
-
-    project_part = f'{project_path.name}-'
-    assert storage_path.name.startswith(project_part)
-
-    hash_part = storage_path.name[len(project_part) :]
-    assert len(hash_part) == 8
+    assert len(storage_path.name) == 8
 
     env_dirs = list(storage_path.iterdir())
     assert len(env_dirs) == 1
@@ -233,16 +229,14 @@ def test_selected_absolute_directory(hatch, helpers, temp_dir, config_file):
 
     assert env_data_path.is_dir()
 
-    storage_dirs = list(env_data_path.iterdir())
+    project_data_path = env_data_path / project_path.name
+    assert project_data_path.is_dir()
+
+    storage_dirs = list(project_data_path.iterdir())
     assert len(storage_dirs) == 1
 
     storage_path = storage_dirs[0]
-
-    project_part = f'{project_path.name}-'
-    assert storage_path.name.startswith(project_part)
-
-    hash_part = storage_path.name[len(project_part) :]
-    assert len(hash_part) == 8
+    assert len(storage_path.name) == 8
 
     env_dirs = list(storage_path.iterdir())
     assert len(env_dirs) == 1
@@ -341,16 +335,14 @@ def test_selected_local_directory(hatch, helpers, temp_dir, config_file):
     env_data_path = project_path / '.venvs'
     assert env_data_path.is_dir()
 
-    storage_dirs = list(env_data_path.iterdir())
+    project_data_path = env_data_path / project_path.name
+    assert project_data_path.is_dir()
+
+    storage_dirs = list(project_data_path.iterdir())
     assert len(storage_dirs) == 1
 
     storage_path = storage_dirs[0]
-
-    project_part = f'{project_path.name}-'
-    assert storage_path.name.startswith(project_part)
-
-    hash_part = storage_path.name[len(project_part) :]
-    assert len(hash_part) == 8
+    assert len(storage_path.name) == 8
 
     env_dirs = list(storage_path.iterdir())
     assert len(env_dirs) == 1
@@ -443,16 +435,14 @@ def test_enter_project_directory(hatch, config_file, helpers, temp_dir):
     env_data_path = data_path / 'env' / 'virtual'
     assert env_data_path.is_dir()
 
-    storage_dirs = list(env_data_path.iterdir())
+    project_data_path = env_data_path / project_path.name
+    assert project_data_path.is_dir()
+
+    storage_dirs = list(project_data_path.iterdir())
     assert len(storage_dirs) == 1
 
     storage_path = storage_dirs[0]
-
-    project_part = f'{project_path.name}-'
-    assert storage_path.name.startswith(project_part)
-
-    hash_part = storage_path.name[len(project_part) :]
-    assert len(hash_part) == 8
+    assert len(storage_path.name) == 8
 
     env_dirs = list(storage_path.iterdir())
     assert len(env_dirs) == 1
@@ -495,16 +485,14 @@ def test_already_created(hatch, config_file, helpers, temp_dir):
     env_data_path = data_path / 'env' / 'virtual'
     assert env_data_path.is_dir()
 
-    storage_dirs = list(env_data_path.iterdir())
+    project_data_path = env_data_path / project_path.name
+    assert project_data_path.is_dir()
+
+    storage_dirs = list(project_data_path.iterdir())
     assert len(storage_dirs) == 1
 
     storage_path = storage_dirs[0]
-
-    project_part = f'{project_path.name}-'
-    assert storage_path.name.startswith(project_part)
-
-    hash_part = storage_path.name[len(project_part) :]
-    assert len(hash_part) == 8
+    assert len(storage_path.name) == 8
 
     env_dirs = list(storage_path.iterdir())
     assert len(env_dirs) == 1
@@ -556,16 +544,14 @@ def test_default(hatch, config_file, helpers, temp_dir):
     env_data_path = data_path / 'env' / 'virtual'
     assert env_data_path.is_dir()
 
-    storage_dirs = list(env_data_path.iterdir())
+    project_data_path = env_data_path / project_path.name
+    assert project_data_path.is_dir()
+
+    storage_dirs = list(project_data_path.iterdir())
     assert len(storage_dirs) == 1
 
     storage_path = storage_dirs[0]
-
-    project_part = f'{project_path.name}-'
-    assert storage_path.name.startswith(project_part)
-
-    hash_part = storage_path.name[len(project_part) :]
-    assert len(hash_part) == 8
+    assert len(storage_path.name) == 8
 
     env_dirs = list(storage_path.iterdir())
     assert len(env_dirs) == 1
@@ -621,16 +607,14 @@ def test_matrix(hatch, helpers, temp_dir, config_file):
     env_data_path = data_path / 'env' / 'virtual'
     assert env_data_path.is_dir()
 
-    storage_dirs = list(env_data_path.iterdir())
+    project_data_path = env_data_path / project_path.name
+    assert project_data_path.is_dir()
+
+    storage_dirs = list(project_data_path.iterdir())
     assert len(storage_dirs) == 1
 
     storage_path = storage_dirs[0]
-
-    project_part = f'{project_path.name}-'
-    assert storage_path.name.startswith(project_part)
-
-    hash_part = storage_path.name[len(project_part) :]
-    assert len(hash_part) == 8
+    assert len(storage_path.name) == 8
 
     env_dirs = sorted(storage_path.iterdir(), key=lambda d: d.name)
     assert len(env_dirs) == 2
@@ -788,16 +772,14 @@ def test_incompatible_matrix_partial(hatch, helpers, temp_dir, config_file):
     env_data_path = data_path / 'env' / 'virtual'
     assert env_data_path.is_dir()
 
-    storage_dirs = list(env_data_path.iterdir())
+    project_data_path = env_data_path / project_path.name
+    assert project_data_path.is_dir()
+
+    storage_dirs = list(project_data_path.iterdir())
     assert len(storage_dirs) == 1
 
     storage_path = storage_dirs[0]
-
-    project_part = f'{project_path.name}-'
-    assert storage_path.name.startswith(project_part)
-
-    hash_part = storage_path.name[len(project_part) :]
-    assert len(hash_part) == 8
+    assert len(storage_path.name) == 8
 
     env_dirs = list(storage_path.iterdir())
     assert len(env_dirs) == 1
@@ -841,16 +823,14 @@ def test_install_project_default_dev_mode(
     env_data_path = data_path / 'env' / 'virtual'
     assert env_data_path.is_dir()
 
-    storage_dirs = list(env_data_path.iterdir())
+    project_data_path = env_data_path / project_path.name
+    assert project_data_path.is_dir()
+
+    storage_dirs = list(project_data_path.iterdir())
     assert len(storage_dirs) == 1
 
     storage_path = storage_dirs[0]
-
-    project_part = f'{project_path.name}-'
-    assert storage_path.name.startswith(project_part)
-
-    hash_part = storage_path.name[len(project_part) :]
-    assert len(hash_part) == 8
+    assert len(storage_path.name) == 8
 
     env_dirs = list(storage_path.iterdir())
     assert len(env_dirs) == 1
@@ -902,16 +882,14 @@ def test_install_project_no_dev_mode(hatch, helpers, temp_dir, platform, config_
     env_data_path = data_path / 'env' / 'virtual'
     assert env_data_path.is_dir()
 
-    storage_dirs = list(env_data_path.iterdir())
+    project_data_path = env_data_path / project_path.name
+    assert project_data_path.is_dir()
+
+    storage_dirs = list(project_data_path.iterdir())
     assert len(storage_dirs) == 1
 
     storage_path = storage_dirs[0]
-
-    project_part = f'{project_path.name}-'
-    assert storage_path.name.startswith(project_part)
-
-    hash_part = storage_path.name[len(project_part) :]
-    assert len(hash_part) == 8
+    assert len(storage_path.name) == 8
 
     env_dirs = list(storage_path.iterdir())
     assert len(env_dirs) == 1
@@ -1132,16 +1110,14 @@ def test_sync_dependencies(hatch, helpers, temp_dir, platform, config_file, extr
     env_data_path = data_path / 'env' / 'virtual'
     assert env_data_path.is_dir()
 
-    storage_dirs = list(env_data_path.iterdir())
+    project_data_path = env_data_path / project_path.name
+    assert project_data_path.is_dir()
+
+    storage_dirs = list(project_data_path.iterdir())
     assert len(storage_dirs) == 1
 
     storage_path = storage_dirs[0]
-
-    project_part = f'{project_path.name}-'
-    assert storage_path.name.startswith(project_part)
-
-    hash_part = storage_path.name[len(project_part) :]
-    assert len(hash_part) == 8
+    assert len(storage_path.name) == 8
 
     env_dirs = list(storage_path.iterdir())
     assert len(env_dirs) == 1
@@ -1197,16 +1173,14 @@ def test_features(hatch, helpers, temp_dir, platform, config_file, extract_insta
     env_data_path = data_path / 'env' / 'virtual'
     assert env_data_path.is_dir()
 
-    storage_dirs = list(env_data_path.iterdir())
+    project_data_path = env_data_path / project_path.name
+    assert project_data_path.is_dir()
+
+    storage_dirs = list(project_data_path.iterdir())
     assert len(storage_dirs) == 1
 
     storage_path = storage_dirs[0]
-
-    project_part = f'{project_path.name}-'
-    assert storage_path.name.startswith(project_part)
-
-    hash_part = storage_path.name[len(project_part) :]
-    assert len(hash_part) == 8
+    assert len(storage_path.name) == 8
 
     env_dirs = list(storage_path.iterdir())
     assert len(env_dirs) == 1
@@ -1255,16 +1229,14 @@ def test_no_project_file(hatch, helpers, temp_dir, config_file):
     env_data_path = data_path / 'env' / 'virtual'
     assert env_data_path.is_dir()
 
-    storage_dirs = list(env_data_path.iterdir())
+    project_data_path = env_data_path / project_path.name
+    assert project_data_path.is_dir()
+
+    storage_dirs = list(project_data_path.iterdir())
     assert len(storage_dirs) == 1
 
     storage_path = storage_dirs[0]
-
-    project_part = f'{project_path.name}-'
-    assert storage_path.name.startswith(project_part)
-
-    hash_part = storage_path.name[len(project_part) :]
-    assert len(hash_part) == 8
+    assert len(storage_path.name) == 8
 
     env_dirs = list(storage_path.iterdir())
     assert len(env_dirs) == 1

@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ***Changed:***
 
 - The `run_shell_command` environment interface method now accepts arbitrary `subprocess.Popen` keyword arguments. This is not strictly breaking, but will be utilized in upcoming features.
+- The internal directory structure for storing `virtual` environments is now more nested. This is not breaking, but any local environments will be created anew.
 
 ***Added:***
 

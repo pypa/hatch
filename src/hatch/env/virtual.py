@@ -19,7 +19,7 @@ class VirtualEnvironment(EnvironmentInterface):
 
         hashed_root = sha256(str(self.root).encode('utf-8')).digest()
         checksum = urlsafe_b64encode(hashed_root).decode('utf-8')[:8]
-        self.storage_path = self.data_directory / f'{project_name}-{checksum}'
+        self.storage_path = self.data_directory / project_name / checksum
 
         chosen_directory = self.get_env_var_option('path')
         if chosen_directory:
