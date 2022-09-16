@@ -402,7 +402,7 @@ def test_context_formatting_deps(hatch, helpers, temp_dir, config_file):
         project,
         'foo',
         {
-            'extra-dependencies': ['foo @ {root:uri}/foo'],
+            'extra-dependencies': ['bar @ {root:uri}/bar', 'baz'],
         },
     )
 
@@ -412,9 +412,9 @@ def test_context_formatting_deps(hatch, helpers, temp_dir, config_file):
     assert result.exit_code == 0, result.output
 
     row_length = len(result.output.split()[1])
-    row_start = "| foo     | virtual | foo@ "
+    row_start = "| foo     | virtual | bar@ "
     # Padding length is 1 less than required, as we add "|" to the end
-    uri = (project_path / "foo").as_uri().ljust(row_length - len(row_start) - 1)
+    uri = (project_path / "bar").as_uri().ljust(row_length - len(row_start) - 1)
     row = f"{row_start}{uri}|"
 
     assert helpers.remove_trailing_spaces(result.output) == helpers.dedent(
@@ -426,6 +426,7 @@ def test_context_formatting_deps(hatch, helpers, temp_dir, config_file):
         | default | virtual |                                         |
         +---------+---------+-----------------------------------------+
         {row}
+        |         |         | baz                                     |
         +---------+---------+-----------------------------------------+
         """  # noqa: E501
     )
