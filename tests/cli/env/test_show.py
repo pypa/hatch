@@ -381,3 +381,51 @@ occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim 
         +---------+---------+------------+----------+-----------------------------+-----------------------+---------+------------------------------------------------------------------------------------------+
         """  # noqa: E501
     )
+
+def test_context_formatting_deps(hatch, helpers, temp_dir, config_file):
+    config_file.model.template.plugins['default']['tests'] = False
+    config_file.save()
+
+    project_name = 'My.App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / 'my-app'
+    data_path = temp_dir / 'data'
+    data_path.mkdir()
+
+    project = Project(project_path, config={"dependencies": ['project @ {root:uri}']})
+    helpers.update_project_environment(
+        project,
+        'foo',
+        {
+            'extra-dependencies': ['foo @ {root:uri}/foo'],
+        },
+    )
+
+    with project_path.as_cwd():
+        result = hatch('env', 'show', '--ascii')
+
+    assert result.exit_code == 0, result.output
+
+    row_length = len(result.output.split()[1])
+    row_start = "| foo     | virtual | foo@ "
+    # Padding length is 1 less than required, as we add "|" to the end
+    uri = (project_path / "foo").as_uri().ljust(row_length - len(row_start) - 1)
+    row = f"{row_start}{uri}|"
+
+    assert helpers.remove_trailing_spaces(result.output) == helpers.dedent(
+        f"""
+                                  Standalone
+        +---------+---------+-----------------------------------------+
+        | Name    | Type    | Dependencies                            |
+        +=========+=========+=========================================+
+        | default | virtual |                                         |
+        +---------+---------+-----------------------------------------+
+        {row}
+        +---------+---------+-----------------------------------------+
+        """  # noqa: E501
+    )
