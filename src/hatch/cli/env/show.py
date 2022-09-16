@@ -29,7 +29,9 @@ def show(app, envs, force_ascii, as_json):
         if config.get('extra-dependencies'):
             dependencies.extend(config['extra-dependencies'])
         if dependencies:
-            columns['Dependencies'][i] = '\n'.join(get_normalized_dependencies(dependencies))
+            columns['Dependencies'][i] = '\n'.join(
+                get_normalized_dependencies(dependencies, context=app.project.metadata.context)
+            )
 
         if config.get('env-vars'):
             columns['Environment variables'][i] = '\n'.join(
