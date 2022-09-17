@@ -48,6 +48,7 @@ Whenever an environment is used, the following logic is performed:
       - dependencies_in_sync
       - sync_dependencies
       - build_environment
+      - build_environment_exists
       - get_build_process
       - construct_build_command
       - command_context

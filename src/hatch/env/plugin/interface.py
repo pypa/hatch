@@ -598,6 +598,10 @@ class EnvironmentInterface(ABC):
         This should perform the necessary steps to completely remove the environment from the system and will only
         be triggered manually by users with the [`env remove`](../../cli/reference.md#hatch-env-remove) or
         [`env prune`](../../cli/reference.md#hatch-env-prune) commands.
+
+        If the
+        [build environment](reference.md#hatch.env.plugin.interface.EnvironmentInterface.build_environment)
+        has a caching mechanism, this should remove that as well.
         """
 
     @abstractmethod
@@ -682,6 +686,14 @@ class EnvironmentInterface(ABC):
         For an example, open the default implementation below:
         """
         return self.platform.capture_process(self.construct_build_command(**kwargs))
+
+    def build_environment_exists(self):
+        """
+        If the
+        [build environment](reference.md#hatch.env.plugin.interface.EnvironmentInterface.build_environment)
+        has a caching mechanism, this should indicate whether or not it has already been created.
+        """
+        return False
 
     def enter_shell(self, name, path, args):
         """
