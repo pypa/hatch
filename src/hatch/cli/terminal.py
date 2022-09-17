@@ -148,9 +148,11 @@ class Terminal:
         self.display(table)
 
     @contextmanager
-    def status_waiting(self, text='', final_text=None, **kwargs):
-        if not self.interactive or not self.console.is_terminal:
-            self.display_waiting(text)
+    def status_waiting(self, text='', final_text=None, condition=True, **kwargs):
+        if not condition or not self.interactive or not self.console.is_terminal:
+            if condition:
+                self.display_waiting(text)
+
             with MockStatus() as status:
                 yield status
         else:

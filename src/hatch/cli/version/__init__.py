@@ -36,7 +36,10 @@ def version(app, desired_version):
         else:
             environment = app.get_environment()
 
-            with app.status_waiting('Setting up build environment for missing build dependencies') as status:
+            with app.status_waiting(
+                'Setting up build environment for missing build dependencies',
+                condition=not environment.build_environment_exists(),
+            ) as status:
                 with environment.build_environment(app.project.metadata.build.requires):
                     status.stop()
 

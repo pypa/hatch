@@ -1,5 +1,6 @@
 import pytest
 
+from hatch.config.constants import ConfigEnvVars
 from hatch.project.core import Project
 from hatchling.builders.constants import BuildEnvVars
 from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT
@@ -1000,14 +1001,35 @@ def test_shipped(hatch, temp_dir, helpers):
         result = hatch('new', project_name)
         assert result.exit_code == 0, result.output
 
-    path = temp_dir / 'my-app'
+    project_path = temp_dir / 'my-app'
+    data_path = temp_dir / 'data'
+    data_path.mkdir()
 
-    with path.as_cwd():
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
         result = hatch('build')
 
     assert result.exit_code == 0, result.output
 
-    build_directory = path / 'dist'
+    env_data_path = data_path / 'env' / 'virtual'
+    assert env_data_path.is_dir()
+
+    project_data_path = env_data_path / project_path.name
+    assert project_data_path.is_dir()
+
+    storage_dirs = list(project_data_path.iterdir())
+    assert len(storage_dirs) == 1
+
+    storage_path = storage_dirs[0]
+    assert len(storage_path.name) == 8
+
+    env_dirs = list(storage_path.iterdir())
+    assert len(env_dirs) == 1
+
+    env_path = env_dirs[0]
+
+    assert env_path.name == f'{project_path.name}-build'
+
+    build_directory = project_path / 'dist'
     assert build_directory.is_dir()
 
     artifacts = list(build_directory.iterdir())
@@ -1020,13 +1042,25 @@ def test_shipped(hatch, temp_dir, helpers):
         f"""
         Setting up build environment
         [sdist]
-        {sdist_path.relative_to(path)}
+        {sdist_path.relative_to(project_path)}
 
-        Setting up build environment
         [wheel]
-        {wheel_path.relative_to(path)}
+        {wheel_path.relative_to(project_path)}
         """
     )
+
+    # Test removal while we're here
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch('env', 'remove')
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        """
+        Removing environment: default
+        """
+    )
+
+    assert not storage_path.is_dir()
 
 
 @pytest.mark.allow_backend_process
@@ -1038,9 +1072,11 @@ def test_build_dependencies(hatch, temp_dir, helpers):
         result = hatch('new', project_name)
         assert result.exit_code == 0, result.output
 
-    path = temp_dir / 'my-app'
+    project_path = temp_dir / 'my-app'
+    data_path = temp_dir / 'data'
+    data_path.mkdir()
 
-    build_script = path / DEFAULT_BUILD_SCRIPT
+    build_script = project_path / DEFAULT_BUILD_SCRIPT
     build_script.write_text(
         helpers.dedent(
             """
@@ -1060,25 +1096,25 @@ def test_build_dependencies(hatch, temp_dir, helpers):
         )
     )
 
-    project = Project(path)
+    project = Project(project_path)
     config = dict(project.raw_config)
     config['tool']['hatch']['build'] = {
         'targets': {'custom': {'dependencies': ['binary'], 'path': DEFAULT_BUILD_SCRIPT}},
     }
     project.save_config(config)
 
-    with path.as_cwd():
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
         result = hatch('build', '-t', 'custom')
 
     assert result.exit_code == 0, result.output
 
-    build_directory = path / 'dist'
+    build_directory = project_path / 'dist'
     assert build_directory.is_dir()
 
     artifacts = list(build_directory.iterdir())
     assert len(artifacts) == 1
 
-    output_file = path / 'test.txt'
+    output_file = project_path / 'test.txt'
     assert output_file.is_file()
 
     assert str(output_file.read_text()) == "(1.0, 'KiB')"
@@ -1089,6 +1125,6 @@ def test_build_dependencies(hatch, temp_dir, helpers):
         f"""
         Setting up build environment
         [custom]
-        {wheel_path.relative_to(path)}
+        {wheel_path.relative_to(project_path)}
         """
     )

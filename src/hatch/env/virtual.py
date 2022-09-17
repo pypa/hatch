@@ -6,7 +6,7 @@ from os.path import isabs
 from hatch.env.plugin.interface import EnvironmentInterface
 from hatch.utils.fs import Path
 from hatch.utils.shells import ShellManager
-from hatch.venv.core import TempVirtualEnv, VirtualEnv
+from hatch.venv.core import VirtualEnv
 
 
 class VirtualEnvironment(EnvironmentInterface):
@@ -29,6 +29,9 @@ class VirtualEnvironment(EnvironmentInterface):
             self.virtual_env_path = self.storage_path / directory
 
         self.virtual_env = VirtualEnv(self.virtual_env_path, self.platform, self.verbosity)
+        self.build_virtual_env = VirtualEnv(
+            self.virtual_env_path.parent / f'{self.virtual_env_path.name}-build', self.platform, self.verbosity
+        )
         self.shells = ShellManager(self)
 
         self._parent_python = None
@@ -51,6 +54,7 @@ class VirtualEnvironment(EnvironmentInterface):
 
     def remove(self):
         self.virtual_env.remove()
+        self.build_virtual_env.remove()
 
         # Clean up root directory of all virtual environments belonging to the project
         if self.storage_path.is_dir() and not any(self.storage_path.iterdir()):
@@ -86,10 +90,25 @@ class VirtualEnvironment(EnvironmentInterface):
 
     @contextmanager
     def build_environment(self, dependencies):
-        with self.get_env_vars(), TempVirtualEnv(self.parent_python, self.platform, self.verbosity):
-            self.platform.check_command(self.construct_pip_install_command(dependencies))
+        from packaging.requirements import Requirement
+
+        from hatchling.dep.core import dependencies_in_sync
+
+        if not self.build_environment_exists():
+            self.build_virtual_env.create(self.parent_python)
+
+        with self.get_env_vars(), self.build_virtual_env:
+            if not dependencies_in_sync(
+                [Requirement(d) for d in dependencies],
+                sys_path=self.build_virtual_env.sys_path,
+                environment=self.build_virtual_env.environment,
+            ):
+                self.platform.check_command(self.construct_pip_install_command(dependencies))
 
             yield
+
+    def build_environment_exists(self):
+        return self.build_virtual_env.exists()
 
     @contextmanager
     def command_context(self):

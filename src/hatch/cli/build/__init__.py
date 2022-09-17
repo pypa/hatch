@@ -95,7 +95,9 @@ def build(app, location, targets, hooks_only, no_hooks, ext, clean, clean_hooks_
             with environment.get_env_vars(), EnvVars(env_vars):
                 dependencies.extend(builder.config.dependencies)
 
-            with app.status_waiting('Setting up build environment') as status:
+            with app.status_waiting(
+                'Setting up build environment', condition=not environment.build_environment_exists()
+            ) as status:
                 with environment.build_environment(dependencies) as build_environment:
                     status.stop()
 

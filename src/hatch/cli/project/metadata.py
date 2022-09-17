@@ -19,7 +19,10 @@ def metadata(app, field):
         with app.project.location.as_cwd():
             environment = app.get_environment()
 
-            with app.status_waiting('Setting up build environment for missing dependencies') as status:
+            with app.status_waiting(
+                'Setting up build environment for missing dependencies',
+                condition=not environment.build_environment_exists(),
+            ) as status:
                 with environment.build_environment(app.project.metadata.build.requires):
                     status.stop()
 
