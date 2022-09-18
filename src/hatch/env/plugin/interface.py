@@ -315,9 +315,50 @@ class EnvironmentInterface(ABC):
             # Ensure these are checked last to speed up initial environment creation since
             # they will already be installed along with the project
             if not self.skip_install and self.dev_mode:
-                dependencies_complex.extend(self.metadata.core.dependencies_complex.values())
-                for feature in self.features:
-                    dependencies_complex.extend(self.metadata.core.optional_dependencies_complex[feature].values())
+                from hatchling.dep.core import dependencies_in_sync
+
+                dynamic_fields = self.metadata.config.get('project', {}).get('dynamic', [])
+                if 'dependencies' not in dynamic_fields and 'optional-dependencies' not in dynamic_fields:
+                    dependencies_complex.extend(self.metadata.core.dependencies_complex.values())
+                    for feature in self.features:
+                        dependencies_complex.extend(self.metadata.core.optional_dependencies_complex[feature].values())
+                elif dependencies_in_sync(self.metadata.build.requires_complex):
+                    dependencies_complex.extend(self.metadata.core.dependencies_complex.values())
+
+                    optional_dependencies = self.metadata.core.optional_dependencies_complex
+                    for feature in self.features:
+                        if feature not in optional_dependencies:
+                            raise ValueError(
+                                f'Feature `{feature}` of field `tool.hatch.envs.{self.name}.features` is not '
+                                f'defined in the dynamic field `project.optional-dependencies`'
+                            )
+
+                        dependencies_complex.extend(optional_dependencies[feature].values())
+                else:
+                    import json
+
+                    from packaging.requirements import Requirement
+
+                    with self.root.as_cwd(), self.build_environment(self.metadata.build.requires):
+                        command = ['python', '-u', '-m', 'hatchling', 'metadata', '--app', '--compact']
+                        process = self.platform.capture_process(command)
+                        project_metadata = json.loads(self.app.read_builder(process))
+
+                        dependencies_complex.extend(
+                            Requirement(dependency) for dependency in project_metadata.get('dependencies', [])
+                        )
+
+                        optional_dependencies = project_metadata.get('optional-dependencies', {})
+                        for feature in self.features:
+                            if feature not in optional_dependencies:
+                                raise ValueError(
+                                    f'Feature `{feature}` of field `tool.hatch.envs.{self.name}.features` is not '
+                                    f'defined in the dynamic field `project.optional-dependencies`'
+                                )
+
+                            dependencies_complex.extend(
+                                Requirement(dependency) for dependency in optional_dependencies[feature].values()
+                            )
 
             self._dependencies_complex = dependencies_complex
 
@@ -429,6 +470,7 @@ class EnvironmentInterface(ABC):
             if not isinstance(features, list):
                 raise TypeError(f'Field `tool.hatch.envs.{self.name}.features` must be an array of strings')
 
+            dynamic_features = 'optional-dependencies' in self.metadata.config.get('project', {}).get('dynamic', [])
             all_features = set()
             for i, feature in enumerate(features, 1):
                 if not isinstance(feature, str):
@@ -439,7 +481,7 @@ class EnvironmentInterface(ABC):
                     )
 
                 feature = normalize_project_name(feature)
-                if feature not in self.metadata.core.optional_dependencies:
+                if not dynamic_features and feature not in self.metadata.core.optional_dependencies:
                     raise ValueError(
                         f'Feature `{feature}` of field `tool.hatch.envs.{self.name}.features` is not '
                         f'defined in field `project.optional-dependencies`'

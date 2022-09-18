@@ -26,6 +26,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ***Fixed:***
 
+- Environments now respect dynamically defined project dependencies
 - Handle more edge cases in the `setuptools` migration script
 - Depend on `packaging` explicitly rather than relying on it being a transitive dependency of Hatchling
 

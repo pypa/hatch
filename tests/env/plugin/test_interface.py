@@ -629,6 +629,25 @@ class TestDependencies:
 
         assert environment.dependencies == ['dep2', 'dep3']
 
+    def test_unknown_dynamic_feature(self, isolation, data_dir, platform):
+        config = {
+            'project': {'name': 'my_app', 'version': '0.0.1', 'dynamic': ['optional-dependencies']},
+            'tool': {'hatch': {'envs': {'default': {'skip-install': False, 'features': ['foo']}}}},
+        }
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation, project.metadata, 'default', project.config.envs['default'], {}, data_dir, platform, 0
+        )
+
+        with pytest.raises(
+            ValueError,
+            match=(
+                'Feature `foo` of field `tool.hatch.envs.default.features` is not defined in the dynamic '
+                'field `project.optional-dependencies`'
+            ),
+        ):
+            _ = environment.dependencies
+
 
 class TestScripts:
     def test_not_table(self, isolation, data_dir, platform):

@@ -4,6 +4,8 @@ from hatch.config.constants import AppEnvVars, ConfigEnvVars
 from hatch.project.core import Project
 from hatch.utils.structures import EnvVars
 from hatch.venv.core import VirtualEnv
+from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT
+from hatchling.utils.fs import path_to_uri
 
 
 def test_undefined(hatch, helpers, temp_dir, config_file):
@@ -1196,6 +1198,167 @@ def test_features(hatch, helpers, temp_dir, platform, config_file, extract_insta
         assert len(requirements) == 2
         assert requirements[0].startswith('binary==')
         assert requirements[1].lower() == f'-e {str(project_path).lower()}'
+
+
+@pytest.mark.requires_internet
+def test_sync_dynamic_dependencies(hatch, helpers, temp_dir, platform, config_file, extract_installed_requirements):
+    config_file.model.template.plugins['default']['tests'] = False
+    config_file.save()
+
+    project_name = 'My.App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+
+    assert result.exit_code == 0, result.output
+
+    for i in range(2):
+        with temp_dir.as_cwd():
+            result = hatch('new', f'{project_name}{i}')
+
+        assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / 'my-app'
+    data_path = temp_dir / 'data'
+    data_path.mkdir()
+
+    project = Project(project_path)
+    config = dict(project.raw_config)
+    config['project'].pop('dependencies')
+    config['project']['dynamic'].extend(('dependencies', 'optional-dependencies'))
+    config['tool']['hatch']['metadata'] = {'allow-direct-references': True, 'hooks': {'custom': {}}}
+    project.save_config(config)
+    helpers.update_project_environment(
+        project,
+        'default',
+        {
+            'dependencies': ['my-app1 @ {root:uri}/../my-app1'],
+            'features': ['foo'],
+            'post-install-commands': ["python -c \"with open('test.txt', 'w') as f: f.write('content')\""],
+            **project.config.envs['default'],
+        },
+    )
+    helpers.update_project_environment(project, 'test', {})
+
+    build_script = project_path / DEFAULT_BUILD_SCRIPT
+    build_script.write_text(
+        helpers.dedent(
+            """
+            from hatchling.metadata.plugin.interface import MetadataHookInterface
+
+            class CustomHook(MetadataHookInterface):
+                def update(self, metadata):
+                    metadata['dependencies'] = ['my-app0 @ {root:uri}/../my-app0']
+                    metadata['optional-dependencies'] = {'foo': ['binary']}
+            """
+        )
+    )
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch('env', 'create', 'test')
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        """
+        Creating environment: test
+        Installing project in development mode
+        Running post-installation commands
+        Checking dependencies
+        Syncing dependencies
+        """
+    )
+    assert (project_path / 'test.txt').is_file()
+
+    env_data_path = data_path / 'env' / 'virtual'
+    assert env_data_path.is_dir()
+
+    project_data_path = env_data_path / project_path.name
+    assert project_data_path.is_dir()
+
+    storage_dirs = list(project_data_path.iterdir())
+    assert len(storage_dirs) == 1
+
+    storage_path = storage_dirs[0]
+    assert len(storage_path.name) == 8
+
+    env_dirs = list(storage_path.iterdir())
+    assert len(env_dirs) == 1
+
+    env_path = env_dirs[0]
+
+    assert env_path.name == 'test'
+
+    with VirtualEnv(env_path, platform):
+        output = platform.run_command(['pip', 'freeze'], check=True, capture_output=True).stdout.decode('utf-8')
+        requirements = extract_installed_requirements(output.splitlines())
+
+        assert len(requirements) == 4
+        assert requirements[0].startswith('binary==')
+        assert requirements[1].lower() == f'-e {str(project_path).lower()}'
+        assert requirements[2].lower() == f'my-app0 @ {path_to_uri(project_path).lower()}/../my-app0'
+        assert requirements[3].lower() == f'my-app1 @ {path_to_uri(project_path).lower()}/../my-app1'
+
+
+@pytest.mark.requires_internet
+def test_unknown_dynamic_feature(hatch, helpers, temp_dir, platform, config_file, extract_installed_requirements):
+    config_file.model.template.plugins['default']['tests'] = False
+    config_file.save()
+
+    project_name = 'My.App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+
+    assert result.exit_code == 0, result.output
+
+    with temp_dir.as_cwd():
+        result = hatch('new', f'{project_name}1')
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / 'my-app'
+    data_path = temp_dir / 'data'
+    data_path.mkdir()
+
+    project = Project(project_path)
+    config = dict(project.raw_config)
+    config['build-system']['requires'].append(f'my-app1 @ {path_to_uri(project_path).lower()}/../my-app1')
+    config['project']['dynamic'].append('optional-dependencies')
+    config['tool']['hatch']['metadata'] = {'hooks': {'custom': {}}}
+    project.save_config(config)
+    helpers.update_project_environment(
+        project,
+        'default',
+        {
+            'features': ['foo'],
+            'post-install-commands': ["python -c \"with open('test.txt', 'w') as f: f.write('content')\""],
+            **project.config.envs['default'],
+        },
+    )
+    helpers.update_project_environment(project, 'test', {})
+
+    build_script = project_path / DEFAULT_BUILD_SCRIPT
+    build_script.write_text(
+        helpers.dedent(
+            """
+            from hatchling.metadata.plugin.interface import MetadataHookInterface
+
+            class CustomHook(MetadataHookInterface):
+                def update(self, metadata):
+                    metadata['optional-dependencies'] = {'bar': ['binary']}
+            """
+        )
+    )
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        with pytest.raises(
+            ValueError,
+            match=(
+                'Feature `foo` of field `tool.hatch.envs.test.features` is not defined in the dynamic '
+                'field `project.optional-dependencies`'
+            ),
+        ):
+            hatch('env', 'create', 'test')
 
 
 def test_no_project_file(hatch, helpers, temp_dir, config_file):
