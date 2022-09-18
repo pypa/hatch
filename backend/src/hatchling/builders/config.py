@@ -787,7 +787,7 @@ class BuilderConfig:
         return []
 
     def default_global_exclude(self):
-        patterns = ['*.py[cdo]', *EXCLUDED_DIRECTORIES]
+        patterns = ['*.py[cdo]', f'/{DEFAULT_BUILD_DIRECTORY}']
         patterns.sort()
         return patterns
 
