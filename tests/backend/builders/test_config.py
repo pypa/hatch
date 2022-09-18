@@ -1608,7 +1608,7 @@ class TestFileSelectionDefaults:
     def test_global_exclude(self, isolation):
         builder = Builder(str(isolation))
 
-        assert builder.config.default_global_exclude() == ['*.py[cdo]', '.git', '__pycache__']
+        assert builder.config.default_global_exclude() == ['*.py[cdo]', '/dist']
 
 
 class TestPatternInclude:
@@ -1738,7 +1738,7 @@ class TestPatternExclude:
         builder = Builder(str(isolation))
 
         assert isinstance(builder.config.exclude_spec, pathspec.GitIgnoreSpec)
-        assert builder.config.exclude_spec.match_file(f'.git{separator}file.py')
+        assert builder.config.exclude_spec.match_file(f'dist{separator}file.py')
 
     def test_global_invalid_type(self, isolation):
         config = {'tool': {'hatch': {'build': {'exclude': ''}}}}
