@@ -28,6 +28,7 @@ class ProjectMetadata:
         self._hatch = None
 
         self._core_raw_metadata = None
+        self._dynamic = None
         self._name = None
         self._version = None
         self._project_file = None
@@ -64,6 +65,22 @@ class ProjectMetadata:
         return self._core_raw_metadata
 
     @property
+    def dynamic(self):
+        # Keep track of the original dynamic fields before depopulation
+        if self._dynamic is None:
+            dynamic = self.core_raw_metadata.get('dynamic', [])
+            if not isinstance(dynamic, list):
+                raise TypeError('Field `project.dynamic` must be an array')
+
+            for i, field in enumerate(dynamic, 1):
+                if not isinstance(field, str):
+                    raise TypeError(f'Field #{i} of field `project.dynamic` must be a string')
+
+            self._dynamic = list(dynamic)
+
+        return self._dynamic
+
+    @property
     def name(self):
         # Duplicate the name parsing here for situations where it's
         # needed but metadata plugins might not be available
@@ -83,6 +100,8 @@ class ProjectMetadata:
         """
         if self._version is None:
             self._set_version()
+            if 'version' in self.dynamic and 'version' in self.core_raw_metadata['dynamic']:
+                self.core_raw_metadata['dynamic'].remove('version')
 
         return self._version
 
@@ -113,6 +132,9 @@ class ProjectMetadata:
     def core(self):
         if self._core is None:
             metadata = CoreMetadata(self.root, self.core_raw_metadata, self.hatch.metadata, self.context)
+
+            # Save the fields
+            _ = self.dynamic
 
             metadata_hooks = self.hatch.metadata.hooks
             if metadata_hooks:
@@ -172,6 +194,7 @@ class ProjectMetadata:
         if version is None:
             version = self.hatch.version.cached
             source = f'source `{self.hatch.version.source_name}`'
+            core_metadata._version_set = True
         else:
             source = 'field `project.version`'
 
@@ -304,6 +327,9 @@ class CoreMetadata:
         self._optional_dependencies = None
         self._dynamic = None
 
+        # Indicates that the version has been successfully set dynamically
+        self._version_set = False
+
     @property
     def raw_name(self):
         """
@@ -349,7 +375,7 @@ class CoreMetadata:
         """
         if self._version is None:
             if 'version' not in self.config:
-                if 'version' not in self.dynamic:
+                if not self._version_set and 'version' not in self.dynamic:
                     raise ValueError(
                         'Field `project.version` can only be resolved dynamically '
                         'if `version` is in field `project.dynamic`'
@@ -1155,15 +1181,7 @@ class CoreMetadata:
         https://peps.python.org/pep-0621/#dynamic
         """
         if self._dynamic is None:
-            dynamic = self.config.get('dynamic', [])
-            if not isinstance(dynamic, list):
-                raise TypeError('Field `project.dynamic` must be an array')
-
-            for i, field in enumerate(dynamic, 1):
-                if not isinstance(field, str):
-                    raise TypeError(f'Field #{i} of field `project.dynamic` must be a string')
-
-            self._dynamic = dynamic
+            self._dynamic = self.config.get('dynamic', [])
 
         return self._dynamic
 
