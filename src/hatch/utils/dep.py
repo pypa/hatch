@@ -8,7 +8,7 @@ def normalize_marker_quoting(text):
     return text.replace('"', "'")
 
 
-def get_normalized_dependencies(dependencies, context = None):
+def get_normalized_dependencies(dependencies, context=None):
     """Normalizes dependencies, optionally context can be provided to perform context
     formatting before normalization"""
     if context:

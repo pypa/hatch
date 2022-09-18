@@ -382,6 +382,7 @@ occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim 
         """  # noqa: E501
     )
 
+
 def test_context_formatting_deps(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
@@ -397,7 +398,7 @@ def test_context_formatting_deps(hatch, helpers, temp_dir, config_file):
     data_path = temp_dir / 'data'
     data_path.mkdir()
 
-    project = Project(project_path, config={"dependencies": ['project @ {root:uri}']})
+    project = Project(project_path, config={'dependencies': ['project @ {root:uri}']})
     helpers.update_project_environment(
         project,
         'foo',
@@ -409,6 +410,6 @@ def test_context_formatting_deps(hatch, helpers, temp_dir, config_file):
     with project_path.as_cwd():
         result = hatch('env', 'show', '--ascii')
 
-    uri = (project_path / "bar").as_uri()
+    uri = (project_path / 'bar').as_uri()
     assert result.exit_code == 0, result.output
     assert uri in result.output
