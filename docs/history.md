@@ -177,6 +177,7 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 
 ***Fixed:***
 
+- Improve tracking of dynamic metadata
 - Fix core metadata for entries in `project.optional-dependencies` that use direct references
 
 ### [1.9.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.9.0) - 2022-09-09 ### {: #hatchling-v1.9.0 }

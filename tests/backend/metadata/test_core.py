@@ -92,6 +92,49 @@ class TestDynamic:
         assert metadata.core.dynamic is dynamic
         assert metadata.core.dynamic == ['version']
 
+    def test_cache_not_array(self, isolation):
+        metadata = ProjectMetadata(str(isolation), None, {'project': {'dynamic': 10}})
+
+        with pytest.raises(TypeError, match='Field `project.dynamic` must be an array'):
+            _ = metadata.dynamic
+
+    def test_cache_entry_not_string(self, isolation):
+        metadata = ProjectMetadata(str(isolation), None, {'project': {'dynamic': [10]}})
+
+        with pytest.raises(TypeError, match='Field #1 of field `project.dynamic` must be a string'):
+            _ = metadata.dynamic
+
+    def test_cache_correct(self, temp_dir, helpers):
+        metadata = ProjectMetadata(
+            str(temp_dir),
+            PluginManager(),
+            {
+                'project': {'name': 'foo', 'dynamic': ['version', 'description']},
+                'tool': {'hatch': {'version': {'path': 'a/b'}, 'metadata': {'hooks': {'custom': {}}}}},
+            },
+        )
+
+        file_path = temp_dir / 'a' / 'b'
+        file_path.ensure_parent_dir_exists()
+        file_path.write_text('__version__ = "0.0.1"')
+
+        file_path = temp_dir / DEFAULT_BUILD_SCRIPT
+        file_path.write_text(
+            helpers.dedent(
+                """
+                from hatchling.metadata.plugin.interface import MetadataHookInterface
+
+                class CustomHook(MetadataHookInterface):
+                    def update(self, metadata):
+                        metadata['description'] = metadata['name'] + 'bar'
+                """
+            )
+        )
+
+        # Trigger hooks with `metadata.core` first
+        assert metadata.core.dynamic == []
+        assert metadata.dynamic == ['version', 'description']
+
 
 class TestRawName:
     def test_dynamic(self, isolation):
