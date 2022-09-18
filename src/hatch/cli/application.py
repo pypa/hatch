@@ -200,3 +200,4 @@ class SafeApplication:
         self.prompt = app.prompt
         self.confirm = app.confirm
         self.status_waiting = app.status_waiting
+        self.read_builder = app.read_builder
