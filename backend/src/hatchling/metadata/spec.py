@@ -138,6 +138,8 @@ def construct_metadata_file_2_1(metadata, extra_dependencies=()):
             for dependency in dependencies:
                 if ';' in dependency:
                     metadata_file += f'Requires-Dist: {dependency} and extra == {option!r}\n'
+                elif '@ ' in dependency:
+                    metadata_file += f'Requires-Dist: {dependency} ; extra == {option!r}\n'
                 else:
                     metadata_file += f'Requires-Dist: {dependency}; extra == {option!r}\n'
 
@@ -214,6 +216,8 @@ def construct_metadata_file_2_2(metadata, extra_dependencies=()):
             for dependency in dependencies:
                 if ';' in dependency:
                     metadata_file += f'Requires-Dist: {dependency} and extra == {option!r}\n'
+                elif '@ ' in dependency:
+                    metadata_file += f'Requires-Dist: {dependency} ; extra == {option!r}\n'
                 else:
                     metadata_file += f'Requires-Dist: {dependency}; extra == {option!r}\n'
 
@@ -282,6 +286,8 @@ def construct_metadata_file_2_3(metadata, extra_dependencies=()):
             for dependency in dependencies:
                 if ';' in dependency:
                     metadata_file += f'Requires-Dist: {dependency} and extra == {option!r}\n'
+                elif '@ ' in dependency:
+                    metadata_file += f'Requires-Dist: {dependency} ; extra == {option!r}\n'
                 else:
                     metadata_file += f'Requires-Dist: {dependency}; extra == {option!r}\n'
 

@@ -697,9 +697,11 @@ class TestCoreMetadataV21:
                     'optional-dependencies': {
                         'feature2': ['foo==1; python_version < "3"', 'bar==5'],
                         'feature1': ['foo==1', 'bar==5; python_version < "3"'],
+                        'feature3': ['baz @ file:///path/to/project'],
                     },
                     'readme': {'content-type': 'text/markdown', 'text': 'test content\n'},
-                }
+                },
+                'tool': {'hatch': {'metadata': {'allow-direct-references': True}}},
             },
         )
 
@@ -730,6 +732,8 @@ class TestCoreMetadataV21:
             Provides-Extra: feature2
             Requires-Dist: bar==5; extra == 'feature2'
             Requires-Dist: foo==1; python_version < '3' and extra == 'feature2'
+            Provides-Extra: feature3
+            Requires-Dist: baz@ file:///path/to/project ; extra == 'feature3'
             Description-Content-Type: text/markdown
 
             test content
@@ -1099,9 +1103,11 @@ class TestCoreMetadataV22:
                     'optional-dependencies': {
                         'feature2': ['foo==1; python_version < "3"', 'bar==5'],
                         'feature1': ['foo==1', 'bar==5; python_version < "3"'],
+                        'feature3': ['baz @ file:///path/to/project'],
                     },
                     'readme': {'content-type': 'text/markdown', 'text': 'test content\n'},
-                }
+                },
+                'tool': {'hatch': {'metadata': {'allow-direct-references': True}}},
             },
         )
 
@@ -1132,6 +1138,8 @@ class TestCoreMetadataV22:
             Provides-Extra: feature2
             Requires-Dist: bar==5; extra == 'feature2'
             Requires-Dist: foo==1; python_version < '3' and extra == 'feature2'
+            Provides-Extra: feature3
+            Requires-Dist: baz@ file:///path/to/project ; extra == 'feature3'
             Description-Content-Type: text/markdown
 
             test content
@@ -1525,9 +1533,11 @@ class TestCoreMetadataV23:
                     'optional-dependencies': {
                         'feature2': ['foo==1; python_version < "3"', 'bar==5'],
                         'feature1': ['foo==1', 'bar==5; python_version < "3"'],
+                        'feature3': ['baz @ file:///path/to/project'],
                     },
                     'readme': {'content-type': 'text/markdown', 'text': 'test content\n'},
-                }
+                },
+                'tool': {'hatch': {'metadata': {'allow-direct-references': True}}},
             },
         )
 
@@ -1561,6 +1571,8 @@ class TestCoreMetadataV23:
             Provides-Extra: feature2
             Requires-Dist: bar==5; extra == 'feature2'
             Requires-Dist: foo==1; python_version < '3' and extra == 'feature2'
+            Provides-Extra: feature3
+            Requires-Dist: baz@ file:///path/to/project ; extra == 'feature3'
             Description-Content-Type: text/markdown
 
             test content
