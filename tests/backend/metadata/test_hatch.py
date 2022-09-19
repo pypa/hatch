@@ -156,3 +156,24 @@ class TestMetadataAllowDirectReferences:
         metadata = HatchMetadata(str(isolation), config, None)
 
         assert metadata.metadata.allow_direct_references is True
+
+
+class TestMetadataAllowAmbiguousFeatures:
+    def test_default(self, isolation):
+        config = {}
+        metadata = HatchMetadata(str(isolation), config, None)
+
+        assert metadata.metadata.allow_ambiguous_features is metadata.metadata.allow_ambiguous_features is False
+
+    def test_not_boolean(self, isolation):
+        config = {'metadata': {'allow-ambiguous-features': 9000}}
+        metadata = HatchMetadata(str(isolation), config, None)
+
+        with pytest.raises(TypeError, match='Field `tool.hatch.metadata.allow-ambiguous-features` must be a boolean'):
+            _ = metadata.metadata.allow_ambiguous_features
+
+    def test_correct(self, isolation):
+        config = {'metadata': {'allow-ambiguous-features': True}}
+        metadata = HatchMetadata(str(isolation), config, None)
+
+        assert metadata.metadata.allow_ambiguous_features is True

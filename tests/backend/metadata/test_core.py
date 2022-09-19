@@ -1296,6 +1296,18 @@ class TestOptionalDependencies:
         ):
             _ = metadata.core.optional_dependencies
 
+    def test_allow_ambiguity(self, isolation):
+        metadata = ProjectMetadata(
+            str(isolation),
+            None,
+            {
+                'project': {'optional-dependencies': {'foo_bar': [], 'foo.bar': []}},
+                'tool': {'hatch': {'metadata': {'allow-ambiguous-features': True}}},
+            },
+        )
+
+        assert metadata.core.optional_dependencies == {'foo_bar': [], 'foo.bar': []}
+
     def test_direct_reference(self, isolation):
         metadata = ProjectMetadata(
             str(isolation),
