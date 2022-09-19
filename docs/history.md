@@ -175,6 +175,8 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 
 ### Unreleased
 
+### [1.10.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.10.0) - 2022-09-18 ### {: #hatchling-v1.10.0 }
+
 ***Added:***
 
 - Add the following to the list of directories that cannot be traversed: `__pypackages__`, `.hg`, `.hatch`, `.tox`, `.nox`
