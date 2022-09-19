@@ -13,7 +13,7 @@ The following is not intended to be a complete enumeration. Be sure to view the 
 | [HTTPX](https://github.com/encode/httpx/blob/45b7cfaad3a8987ea35fa5bf092bbdda485444fd/pyproject.toml#L1-L3)
 | [iCalendar for Humans](https://github.com/ics-py/ics-py/blob/133a0955f6efbb83ff0eae45ad0bbe6902a8f2f1/pyproject.toml#L61-L63)
 | [LinkChecker](https://github.com/linkchecker/linkchecker/blob/de40321b57a2271e90e696b5320c0409faaa895d/pyproject.toml#L29-L34)
-| [Material for MkDocs](https://github.com/squidfunk/mkdocs-material/blob/9603c71adafe5959e57584a4982ee03d340a7be3/pyproject.toml#L1-L3)
+| [Material for MkDocs](https://github.com/squidfunk/mkdocs-material/blob/e6d829556aaa78cff59f91433943708488fb290c/pyproject.toml#L21-L23)
 | [pipx](https://github.com/pypa/pipx/blob/bc7dd03c4d872c443257685109a650ec3d524814/pyproject.toml#L1-L3)
 | [platformdirs](https://github.com/platformdirs/platformdirs/blob/382e961c436f9974e56dc69ce105b6fd8945c343/pyproject.toml#L1-L3)
 | [Pydantic](https://github.com/pydantic/pydantic/blob/f341049b9e5538a125751d75b4e44c1609b53df6/pyproject.toml#L1-L3)
@@ -29,14 +29,16 @@ The following is not intended to be a complete enumeration. Be sure to view the 
 
 ## Industry
 
-- [Anaconda](https://www.anaconda.com) <sup>\[[1](https://github.com/ContinuumIO/dask-awkward/blob/105275b1937cce9a80a352af0b200d4e264f27f7/pyproject.toml#L1-L3)|[2](https://github.com/conda-incubator/ensureconda/blob/b20dbcf7166009ff4e9270f35ed75da7afc3db60/pyproject.toml#L1-L3)\]</sup>
+- [Anaconda](https://www.anaconda.com) <sup>\[[1](https://github.com/ContinuumIO/dask-awkward/blob/105275b1937cce9a80a352af0b200d4e264f27f7/pyproject.toml#L1-L3)|[2](https://github.com/conda-incubator/ensureconda/blob/b20dbcf7166009ff4e9270f35ed75da7afc3db60/pyproject.toml#L1-L3)|[3](https://github.com/conda-incubator/conda-lock/pull/239)\]</sup>
 - [Bloomberg](https://www.bloomberg.com) <sup>\[[1](https://github.com/bloomberg/pytest-memray/blob/4ea6a7608adb0de4572d35768fbd370aee016627/pyproject.toml#L1-L3)\]</sup>
 - [Datadog](https://www.datadoghq.com) <sup>\[[1](https://github.com/DataDog/datadogpy/blob/63d0c01b5bbcb8158cf3ddab153639951ab44945/pyproject.toml#L1-L3)|[2](https://github.com/DataDog/integrations-core/pulls?q=is%3Apr+author%3Aofek+in%3Atitle+Add+pyproject.toml+file)|[3](https://github.com/DataDog/integrations-extras/pulls?q=is%3Apr+author%3Aofek+in%3Atitle+Add+pyproject.toml+file)|[4](https://github.com/DataDog/mkdocs-click/blob/434925323f3bb187595d4c7f6a2c80b790015109/pyproject.toml#L1-L3)\]</sup>
 - [deepset](https://www.deepset.ai) <sup>\[[1](https://github.com/deepset-ai/haystack/blob/e92ea4fccb31001156dece6c1509e3e162a9de00/pyproject.toml#L1-L5)\]</sup>
 - [Elastic](https://www.elastic.co) <sup>\[[1](https://github.com/elastic/rally/blob/8ba7980bb25b85f25fe20f3fd5dd8e12b9b1214b/pyproject.toml#L1-L3)|[2](https://github.com/elastic/rally-tracks/blob/33840005cd3e2a6191d73a567e5c2c0858169270/pyproject.toml#L1-L3)\]</sup>
+- [Intel Corporation](https://www.intel.com) <sup>\[[1](https://github.com/intel/neural-compressor/blob/5f6f38b96d45d0253b8de239df51c09b2471a8fb/neural_coder/extensions/neurl_compressor_ext_lab_alibaba/pyproject.toml#L1-L3)\]</sup>
 - [Meta](https://about.facebook.com) <sup>\[[1](https://github.com/facebook/usort/blob/b3d1dc49abac0c06ac29f1ceb332d2b86a50e850/pyproject.toml#L1-L3)|[2](https://github.com/Instagram/Fixit/blob/c95b0ef9f8c02adfd6a541b55f22f0bd6a922706/pyproject.toml#L1-L3)\]</sup>
-- [Palo Alto Networks](https://www.paloaltonetworks.com) <sup>\[[1](https://github.com/PaloAltoNetworks/pc-python-integration/blob/08d6ed919f7b48b0e5663bc5fa8eb31213378585/pyproject.toml#L1-L2)\]</sup>
+- [Palo Alto Networks](https://www.paloaltonetworks.com) <sup>\[[1](https://github.com/PaloAltoNetworks/pc-python-integration/blob/a3e29d71c6704dfb07cf85d592dec15a9ea575b7/pyproject.toml#L1-L3)\]</sup>
 - [Virtru](https://www.virtru.com) <sup>\[[1](https://github.com/virtru/access-pdp/blob/46089e8a2ef691b80f92bbd6777bdfbcff1c1671/clients/python/accesspdp/pyproject.toml#L24-L26)|[2](https://github.com/virtru/access-pdp/blob/46089e8a2ef691b80f92bbd6777bdfbcff1c1671/clients/python/attributes/pyproject.toml#L21-L23)\]</sup>
+- [Volvo Group](https://www.volvogroup.com) <sup>\[[1](https://github.com/VolvoGroup/dymoval/blob/75261b85635dce594719b01c5fc33ad951ce55b0/pyproject.toml#L1-L3)\]</sup>
 
 ## Organizations
 
@@ -51,10 +53,16 @@ The following is not intended to be a complete enumeration. Be sure to view the 
 ## Academia
 
 - [Clariah](https://www.clariah.nl) <sup>\[[1](https://github.com/CLARIAH/pure3d/blob/3f93d62cb1f5223836c9ebf4c058e6f491de71b9/pyproject.toml#L1-L3)\]</sup>
+- [Heidelberg University](https://www.uni-heidelberg.de)
+    - [Center for Molecular Biology](https://www.zmbh.uni-heidelberg.de) <sup>\[[1](https://github.com/anders-biostat/pymetdense/blob/a1d210f2c03d2919b549f2fed1e4db986d01c8d5/pyproject.toml#L1-L3)\]</sup>
+- [Siberian Branch of the Russian Academy of Sciences](https://www.sbras.ru/en/)
+    - [Institute of Cytology and Genetics](https://www.icgbio.ru/en/) <sup>\[[1](https://github.com/genomech/FastContext/blob/f8ff7f4bbea9d6d3cdf2e3a361f72e9283b04f67/pyproject.toml#L1-L3)|[2](https://github.com/genomech/exoclasma-index/blob/2e0555c3e86d731f3aa8c978b23b586d3a0c492e/pyproject.toml#L1-L3)|[3](https://github.com/genomech/exoclasma-fastq/blob/80ea3eddf603d2b54bb02b5ada6d275a9436f287/pyproject.toml#L1-L3)|[4](https://github.com/genomech/exoclasma-pipe/blob/fbe365dd9301eec51879ef53b1704be66813bb8b/pyproject.toml#L1-L3)\]</sup>
 - [Stanford University](https://www.stanford.edu)
     - [Empirical Security Research Group](https://esrg.stanford.edu/) <sup>\[[1](https://github.com/stanford-esrg/gps/blob/66f803bfd4726cd9d1b3e1724abfd34a36079530/pyproject.toml#L1-L3)\]</sup>
 - [University of Toronto Scarborough](https://www.utsc.utoronto.ca/home/)
     - [utsc-networking](https://github.com/utsc-networking) <sup>\[[1](https://github.com/utsc-networking/utsc-tools/blob/02a79d48d133470a4394fced138b40c660cf111c/projects/core/pyproject.toml#L1-L3)|[2](https://github.com/utsc-networking/utsc-tools/blob/02a79d48d133470a4394fced138b40c660cf111c/projects/nautobot/pyproject.toml#L1-L3)|[3](https://github.com/utsc-networking/utsc-tools/blob/02a79d48d133470a4394fced138b40c660cf111c/projects/switchconfig/pyproject.toml#L1-L3)|[4](https://github.com/utsc-networking/utsc-tools/blob/02a79d48d133470a4394fced138b40c660cf111c/projects/scripts/pyproject.toml#L1-L3)\]</sup>
+- [University of Washington](https://www.washington.edu)
+    - [Virtual Brain Lab](https://github.com/VirtualBrainLab) <sup>\[[1](https://github.com/VirtualBrainLab/ephys-link/blob/ebdf3a1488f1010faa19f22397f10d6be4d29d6f/pyproject.toml#L1-L3)\]</sup>
 
 ## Research
 
