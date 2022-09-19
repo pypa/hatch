@@ -1149,7 +1149,10 @@ class CoreMetadata:
 
                         entries[get_normalized_dependency(requirement)] = requirement
 
-                normalized_option = normalize_project_name(option)
+                if self.hatch_metadata.allow_ambiguous_features:
+                    normalized_option = option
+                else:
+                    normalized_option = normalize_project_name(option)
                 if normalized_option in normalized_options:
                     raise ValueError(
                         f'Optional dependency groups `{normalized_options[normalized_option]}` and `{option}` of '
@@ -1345,6 +1348,7 @@ class HatchMetadataSettings:
         self.plugin_manager = plugin_manager
 
         self._allow_direct_references = None
+        self._allow_ambiguous_features = None
         self._hook_config = None
         self._hooks = None
 
@@ -1358,6 +1362,18 @@ class HatchMetadataSettings:
             self._allow_direct_references = allow_direct_references
 
         return self._allow_direct_references
+
+    @property
+    def allow_ambiguous_features(self):
+        # TODO: remove in the first minor release after Jan 1, 2024
+        if self._allow_ambiguous_features is None:
+            allow_ambiguous_features = self.config.get('allow-ambiguous-features', False)
+            if not isinstance(allow_ambiguous_features, bool):
+                raise TypeError('Field `tool.hatch.metadata.allow-ambiguous-features` must be a boolean')
+
+            self._allow_ambiguous_features = allow_ambiguous_features
+
+        return self._allow_ambiguous_features
 
     @property
     def hook_config(self):

@@ -293,3 +293,24 @@ By default, [dependencies](#dependencies) are not allowed to define [direct refe
     [metadata]
     allow-direct-references = true
     ```
+
+### Allowing ambiguous features
+
+By default, names of [optional dependencies](#optional) are normalized to prevent ambiguity. To disable this normalization, set `allow-ambiguous-features` to `true`:
+
+=== ":octicons-file-code-16: pyproject.toml"
+
+    ```toml
+    [tool.hatch.metadata]
+    allow-ambiguous-features = true
+    ```
+
+=== ":octicons-file-code-16: hatch.toml"
+
+    ```toml
+    [metadata]
+    allow-ambiguous-features = true
+    ```
+
+!!! danger "Deprecated"
+    This option temporarily exists to provide better interoperability with tools that do not yet support [PEP 685](https://peps.python.org/pep-0685/) and will be removed in the first minor release after Jan 1, 2024.

@@ -178,6 +178,7 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 ***Added:***
 
 - Add the following to the list of directories that cannot be traversed: `__pypackages__`, `.hg`, `.hatch`, `.tox`, `.nox`
+- Add deprecated option to allow ambiguous features
 
 ***Fixed:***
 
