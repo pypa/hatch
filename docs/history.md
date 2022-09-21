@@ -22,7 +22,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Add `build_environment_exists` method to the environment interface for implementations that cache the build environment
 - Support Bash on Windows for the `shell` command
 - The `setuptools` migration script no longer modifies the formatting of existing `pyproject.toml` configuration
-- Bump the minimum supported version of Hatchling to 1.9.0
+- Bump the minimum supported version of Hatchling to 1.10.0
 
 ***Fixed:***
 

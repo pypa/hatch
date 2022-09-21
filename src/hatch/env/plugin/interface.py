@@ -317,7 +317,7 @@ class EnvironmentInterface(ABC):
             if not self.skip_install and self.dev_mode:
                 from hatchling.dep.core import dependencies_in_sync
 
-                dynamic_fields = self.metadata.config.get('project', {}).get('dynamic', [])
+                dynamic_fields = self.metadata.dynamic
                 if 'dependencies' not in dynamic_fields and 'optional-dependencies' not in dynamic_fields:
                     dependencies_complex.extend(self.metadata.core.dependencies_complex.values())
                     for feature in self.features:
@@ -470,7 +470,7 @@ class EnvironmentInterface(ABC):
             if not isinstance(features, list):
                 raise TypeError(f'Field `tool.hatch.envs.{self.name}.features` must be an array of strings')
 
-            dynamic_features = 'optional-dependencies' in self.metadata.config.get('project', {}).get('dynamic', [])
+            dynamic_features = 'optional-dependencies' in self.metadata.dynamic
             all_features = set()
             for i, feature in enumerate(features, 1):
                 if not isinstance(feature, str):
@@ -480,7 +480,8 @@ class EnvironmentInterface(ABC):
                         f'Feature #{i} of field `tool.hatch.envs.{self.name}.features` cannot be an empty string'
                     )
 
-                feature = normalize_project_name(feature)
+                if not self.metadata.hatch.metadata.allow_ambiguous_features:
+                    feature = normalize_project_name(feature)
                 if not dynamic_features and feature not in self.metadata.core.optional_dependencies:
                     raise ValueError(
                         f'Feature `{feature}` of field `tool.hatch.envs.{self.name}.features` is not '
