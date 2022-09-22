@@ -62,7 +62,7 @@ def test_default_as_json(hatch, helpers, temp_dir, config_file):
     assert result.exit_code == 0, result.output
     assert helpers.remove_trailing_spaces(result.output) == helpers.dedent(
         """
-        {"default": {"type": "virtual"}}
+        {"default":{"type":"virtual"}}
         """
     )
 
@@ -327,7 +327,11 @@ aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi 
 Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint \
 occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 """
+
     project = Project(project_path)
+    config = dict(project.raw_config)
+    config['project']['optional-dependencies'] = {'foo_bar': [], 'baz': []}
+    project.save_config(config)
     helpers.update_project_environment(
         project,
         'default',
@@ -383,7 +387,7 @@ occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim 
     )
 
 
-def test_context_formatting_deps(hatch, helpers, temp_dir, config_file):
+def test_context_formatting(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
@@ -398,18 +402,48 @@ def test_context_formatting_deps(hatch, helpers, temp_dir, config_file):
     data_path = temp_dir / 'data'
     data_path.mkdir()
 
-    project = Project(project_path, config={'dependencies': ['project @ {root:uri}']})
+    project = Project(project_path)
+
+    # Without context formatting
+    helpers.update_project_environment(
+        project,
+        'default',
+        {
+            'matrix': [{'version': ['9000', '3.14'], 'py': ['39', '310']}],
+            'dependencies': ['foo @ {root:uri}/../foo'],
+        },
+    )
+
+    # With context formatting
     helpers.update_project_environment(
         project,
         'foo',
         {
-            'extra-dependencies': ['bar @ {root:uri}/bar', 'baz'],
+            'env-vars': {'BAR': '{env:FOO_BAZ}'},
+            'dependencies': ['pydantic'],
         },
     )
 
-    with project_path.as_cwd():
+    with project_path.as_cwd(env_vars={'FOO_BAZ': 'FOO_BAR'}):
         result = hatch('env', 'show', '--ascii')
 
-    uri = (project_path / 'bar').as_uri()
     assert result.exit_code == 0, result.output
-    assert uri in result.output
+    assert helpers.remove_trailing_spaces(result.output) == helpers.dedent(
+        """
+                               Standalone
+        +------+---------+--------------+-----------------------+
+        | Name | Type    | Dependencies | Environment variables |
+        +======+=========+==============+=======================+
+        | foo  | virtual | pydantic     | BAR=FOO_BAR           |
+        +------+---------+--------------+-----------------------+
+                                  Matrices
+        +---------+---------+------------+-------------------------+
+        | Name    | Type    | Envs       | Dependencies            |
+        +=========+=========+============+=========================+
+        | default | virtual | py39-9000  | foo @ {root:uri}/../foo |
+        |         |         | py39-3.14  |                         |
+        |         |         | py310-9000 |                         |
+        |         |         | py310-3.14 |                         |
+        +---------+---------+------------+-------------------------+
+        """
+    )
