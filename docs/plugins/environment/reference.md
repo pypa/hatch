@@ -18,6 +18,13 @@ Whenever an environment is used, the following logic is performed:
       show_root_heading: false
       show_root_toc_entry: false
 
+## Build environments
+
+All environment types should [offer support](#hatch.env.plugin.interface.EnvironmentInterface.build_environment) for a special sub-environment in which projects can be built. This environment is used in the following scenarios:
+
+- the [`build`](../../cli/reference.md#hatch-build) command
+- commands that read dependencies, like [`dep hash`](../../cli/reference.md#hatch-dep-hash), if any [project dependencies](../../config/metadata.md#dependencies) are [set dynamically](../../config/metadata.md#dynamic)
+
 ::: hatch.env.plugin.interface.EnvironmentInterface
     options:
       members:

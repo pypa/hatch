@@ -18,7 +18,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ***Added:***
 
 - Add `project` command group to view details about the project like PEP 621 metadata
-- The `env show` command and all `dep show` commands now honor context formatting
 - Build environments for the `virtual` environment type are now cached for improved performance
 - Add `build_environment_exists` method to the environment interface for implementations that cache the build environment
 - Support Bash on Windows for the `shell` command
@@ -28,7 +27,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ***Fixed:***
 
 - Environments now respect dynamically defined project dependencies
-- All `dep show` commands now respect dynamically defined project dependencies
+- The `dep hash` and all `dep show` commands now respect dynamically defined project dependencies
+- The `env show`, `dep hash`, and all `dep show` commands now honor context formatting
 - Handle more edge cases in the `setuptools` migration script
 - Depend on `packaging` explicitly rather than relying on it being a transitive dependency of Hatchling
 
