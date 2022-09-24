@@ -38,7 +38,7 @@ def hash_dependencies(app, project_only, env_only):
         )
     ).encode('utf-8')
 
-    app.display_info(sha256(data).hexdigest())
+    app.display_always(sha256(data).hexdigest())
 
 
 @dep.group(short_help='Display dependencies in various formats')
@@ -148,4 +148,4 @@ def requirements(app, project_only, env_only, features, all_features):
             all_requirements.extend(optional_dependencies.values())
 
     for dependency in get_normalized_dependencies(all_requirements):
-        app.display_info(dependency)
+        app.display_always(dependency)

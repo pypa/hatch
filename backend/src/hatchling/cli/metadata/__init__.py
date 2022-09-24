@@ -21,11 +21,11 @@ def metadata_impl(called_by_app, field, compact):
         if field not in metadata:
             app.abort(f'Unknown metadata field: {field}')
         elif field == 'readme':
-            app.display_info(metadata[field]['text'])
+            app.display_always(metadata[field]['text'])
         elif isinstance(metadata[field], str):
-            app.display_info(metadata[field])
+            app.display_always(metadata[field])
         else:
-            app.display_info(json.dumps(metadata[field], indent=4))
+            app.display_always(json.dumps(metadata[field], indent=4))
 
         return
 
@@ -34,9 +34,9 @@ def metadata_impl(called_by_app, field, compact):
             metadata.pop(key)
 
     if compact:
-        app.display_info(json.dumps(metadata, separators=(',', ':')))
+        app.display_always(json.dumps(metadata, separators=(',', ':')))
     else:  # no cov
-        app.display_info(json.dumps(metadata, indent=4))
+        app.display_always(json.dumps(metadata, indent=4))
 
 
 def metadata_command(subparsers, defaults):

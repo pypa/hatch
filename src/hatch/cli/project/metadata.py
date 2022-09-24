@@ -37,14 +37,14 @@ def metadata(app, field):
             if project_metadata[field]['content-type'] == 'text/markdown':  # no cov
                 app.display_markdown(project_metadata[field]['text'])
             else:
-                app.display_info(project_metadata[field]['text'])
+                app.display_always(project_metadata[field]['text'])
         elif isinstance(project_metadata[field], str):
-            app.display_info(project_metadata[field])
+            app.display_always(project_metadata[field])
         else:
-            app.display_info(json.dumps(project_metadata[field], indent=4))
+            app.display_always(json.dumps(project_metadata[field], indent=4))
     else:
         for key, value in list(project_metadata.items()):
             if not value:
                 project_metadata.pop(key)
 
-        app.display_info(json.dumps(project_metadata, indent=4))
+        app.display_always(json.dumps(project_metadata, indent=4))

@@ -29,6 +29,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Environments now respect dynamically defined project dependencies
 - The `dep hash` and all `dep show` commands now respect dynamically defined project dependencies
 - The `env show`, `dep hash`, and all `dep show` commands now honor context formatting
+- Decreasing verbosity now has no affect on output that should always be displayed
 - Handle more edge cases in the `setuptools` migration script
 - Depend on `packaging` explicitly rather than relying on it being a transitive dependency of Hatchling
 
@@ -176,6 +177,10 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 ## **Hatchling**
 
 ### Unreleased
+
+***Fixed:***
+
+- Decreasing verbosity now has no affect on output that should always be displayed
 
 ### [1.10.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.10.0) - 2022-09-18 ### {: #hatchling-v1.10.0 }
 
