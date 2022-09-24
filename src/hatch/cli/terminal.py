@@ -125,7 +125,7 @@ class Terminal:
             table_options['box'] = ASCII_DOUBLE_HEAD
             table_options['safe_box'] = True
 
-        table = Table(title=title, show_lines=show_lines, **table_options)
+        table = Table(title=title, show_lines=show_lines, title_style='', **table_options)
         columns = dict(columns)
 
         for title, indices in list(columns.items()):
