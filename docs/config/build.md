@@ -437,7 +437,7 @@ Additionally, you may declare dependence on specific [runtime features](metadata
 
 ### Versions
 
-If a build target supports multiple build strategies or if there are major changes over time, you can specify exactly which versions you want to build using the `versions` option, which may be defined as either an array of strings or a comma-separated string:
+If a build target supports multiple build strategies or if there are major changes over time, you can specify exactly which versions you want to build using the `versions` option:
 
 === ":octicons-file-code-16: pyproject.toml"
 
@@ -606,5 +606,5 @@ If you want to disable a build hook by default and control its use by [environme
 | `HATCH_BUILD_HOOKS_ONLY` | `false` | Whether or not to only execute build hooks |
 | `HATCH_BUILD_NO_HOOKS` | `false` | Whether or not to disable all build hooks; this takes precedence over other options |
 | `HATCH_BUILD_HOOKS_ENABLE` | `false` | Whether or not to enable all build hooks |
-| `HATCH_BUILD_HOOK_ENABLE_<HOOK_NAME>` | `false` |  |
+| `HATCH_BUILD_HOOK_ENABLE_<HOOK_NAME>` | `false` | Whether or not to enable the build hook named `<HOOK_NAME>` |
 | `HATCH_BUILD_LOCATION` | `dist` | The location with which to build the targets; only used by the [`build`](../cli/reference.md#hatch-build) command |

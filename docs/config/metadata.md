@@ -274,6 +274,20 @@ GUI scripts are exactly the same as CLI scripts except on Windows, where they ar
     plugin-name2 = "pkg.subpkg2:func"
     ```
 
+## Dynamic
+
+If any metadata fields are set dynamically, like the [`version`](#version) may be, then they must be listed here.
+
+=== ":octicons-file-code-16: pyproject.toml"
+
+    ```toml
+    [project]
+    ...
+    dynamic = [
+      "...",
+    ]
+    ```
+
 ## Metadata options
 
 ### Allowing direct references
