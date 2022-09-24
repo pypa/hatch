@@ -1,9 +1,11 @@
+from __future__ import annotations
+
+import csv
 import hashlib
 import os
 import stat
 import tempfile
 import zipfile
-from contextlib import closing
 from io import StringIO
 
 from hatchling.__about__ import __version__
@@ -22,6 +24,24 @@ from hatchling.builders.utils import (
 from hatchling.metadata.spec import DEFAULT_METADATA_VERSION, get_core_metadata_constructors
 
 EDITABLES_MINIMUM_VERSION = '0.3'
+
+
+class RecordFile:
+    def __init__(self):
+        self.__file_obj = StringIO()
+        self.__writer = csv.writer(self.__file_obj, delimiter=',', quotechar='"', lineterminator='\n')
+
+    def write(self, record: tuple[str, str, str]) -> None:
+        self.__writer.writerow(record)
+
+    def construct(self) -> str:
+        return self.__file_obj.getvalue()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.__file_obj.close()
 
 
 class WheelArchive:
@@ -77,7 +97,7 @@ class WheelArchive:
                 out_file.write(chunk)
 
         hash_digest = format_file_hash(hash_obj.digest())
-        return relative_path, hash_digest, file_stat.st_size
+        return relative_path, f'sha256={hash_digest}', str(file_stat.st_size)
 
     def write_metadata(self, relative_path, contents):
         relative_path = f'{self.metadata_directory}/{normalize_archive_path(relative_path)}'
@@ -105,7 +125,7 @@ class WheelArchive:
         hash_digest = format_file_hash(hash_obj.digest())
         self.zf.writestr(zip_info, contents, compress_type=zipfile.ZIP_DEFLATED)
 
-        return relative_path, hash_digest, len(contents)
+        return relative_path, f'sha256={hash_digest}', str(len(contents))
 
     def __enter__(self):
         return self
@@ -306,17 +326,15 @@ class WheelBuilder(BuilderInterface):
             else:
                 build_data['tag'] = self.get_default_tag()
 
-        with WheelArchive(self.artifact_project_id, self.config.reproducible) as archive, closing(
-            StringIO()
-        ) as records:
+        with WheelArchive(self.artifact_project_id, self.config.reproducible) as archive, RecordFile() as records:
             for included_file in self.recurse_included_files():
                 record = archive.add_file(included_file)
-                records.write(self.format_record(record))
+                records.write(record)
 
             self.write_data(archive, records, build_data, build_data['dependencies'])
 
-            records.write(f'{archive.metadata_directory}/RECORD,,\n')
-            archive.write_metadata('RECORD', records.getvalue())
+            records.write((f'{archive.metadata_directory}/RECORD', '', ''))
+            archive.write_metadata('RECORD', records.construct())
 
         target = os.path.join(directory, f"{self.artifact_project_id}-{build_data['tag']}.whl")
 
@@ -334,9 +352,7 @@ class WheelBuilder(BuilderInterface):
 
         build_data['tag'] = self.get_default_tag()
 
-        with WheelArchive(self.artifact_project_id, self.config.reproducible) as archive, closing(
-            StringIO()
-        ) as records:
+        with WheelArchive(self.artifact_project_id, self.config.reproducible) as archive, RecordFile() as records:
             exposed_packages = {}
             for included_file in self.recurse_project_files():
                 if not included_file.path.endswith('.py'):
@@ -380,11 +396,11 @@ class WheelBuilder(BuilderInterface):
 
             for filename, content in sorted(editable_project.files()):
                 record = archive.write_file(filename, content)
-                records.write(self.format_record(record))
+                records.write(record)
 
             for included_file in self.recurse_forced_files(self.get_forced_inclusion_map(build_data)):
                 record = archive.add_file(included_file)
-                records.write(self.format_record(record))
+                records.write(record)
 
             extra_dependencies = list(build_data['dependencies'])
             for dependency in editable_project.dependencies():
@@ -397,8 +413,8 @@ class WheelBuilder(BuilderInterface):
 
             self.write_data(archive, records, build_data, extra_dependencies)
 
-            records.write(f'{archive.metadata_directory}/RECORD,,\n')
-            archive.write_metadata('RECORD', records.getvalue())
+            records.write((f'{archive.metadata_directory}/RECORD', '', ''))
+            archive.write_metadata('RECORD', records.construct())
 
         target = os.path.join(directory, f"{self.artifact_project_id}-{build_data['tag']}.whl")
 
@@ -408,25 +424,23 @@ class WheelBuilder(BuilderInterface):
     def build_editable_explicit(self, directory, **build_data):
         build_data['tag'] = self.get_default_tag()
 
-        with WheelArchive(self.artifact_project_id, self.config.reproducible) as archive, closing(
-            StringIO()
-        ) as records:
+        with WheelArchive(self.artifact_project_id, self.config.reproducible) as archive, RecordFile() as records:
             directories = sorted(
                 os.path.normpath(os.path.join(self.root, relative_directory))
                 for relative_directory in self.config.dev_mode_dirs
             )
 
             record = archive.write_file(f"{self.metadata.core.name.replace('-', '_')}.pth", '\n'.join(directories))
-            records.write(self.format_record(record))
+            records.write(record)
 
             for included_file in self.recurse_forced_files(self.get_forced_inclusion_map(build_data)):
                 record = archive.add_file(included_file)
-                records.write(self.format_record(record))
+                records.write(record)
 
             self.write_data(archive, records, build_data, build_data['dependencies'])
 
-            records.write(f'{archive.metadata_directory}/RECORD,,\n')
-            archive.write_metadata('RECORD', records.getvalue())
+            records.write((f'{archive.metadata_directory}/RECORD', '', ''))
+            archive.write_metadata('RECORD', records.construct())
 
         target = os.path.join(directory, f"{self.artifact_project_id}-{build_data['tag']}.whl")
 
@@ -442,7 +456,7 @@ class WheelBuilder(BuilderInterface):
     def add_shared_data(self, archive, records):
         for shared_file in self.recurse_explicit_files(self.config.shared_data):
             record = archive.add_shared_file(shared_file)
-            records.write(self.format_record(record))
+            records.write(record)
 
     def write_metadata(self, archive, records, build_data, extra_dependencies=()):
         # <<< IMPORTANT >>>
@@ -476,31 +490,31 @@ Root-Is-Purelib: {'true' if build_data['pure_python'] else 'false'}
             metadata += f'Tag: {tag}\n'
 
         record = archive.write_metadata('WHEEL', metadata)
-        records.write(self.format_record(record))
+        records.write(record)
 
     def write_entry_points_file(self, archive, records):
         entry_points_file = self.construct_entry_points_file()
         if entry_points_file:
             record = archive.write_metadata('entry_points.txt', entry_points_file)
-            records.write(self.format_record(record))
+            records.write(record)
 
     def write_project_metadata(self, archive, records, extra_dependencies=()):
         record = archive.write_metadata(
             'METADATA', self.config.core_metadata_constructor(self.metadata, extra_dependencies=extra_dependencies)
         )
-        records.write(self.format_record(record))
+        records.write(record)
 
     def add_licenses(self, archive, records):
         for relative_path in self.metadata.core.license_files:
             license_file = os.path.normpath(os.path.join(self.root, relative_path))
             with open(license_file, 'rb') as f:
                 record = archive.write_metadata(f'licenses/{relative_path}', f.read())
-                records.write(self.format_record(record))
+                records.write(record)
 
     def add_extra_metadata(self, archive, records):
         for extra_metadata_file in self.recurse_explicit_files(self.config.extra_metadata):
             record = archive.add_extra_metadata_file(extra_metadata_file)
-            records.write(self.format_record(record))
+            records.write(record)
 
     def construct_entry_points_file(self):
         core_metadata = self.metadata.core
@@ -554,7 +568,3 @@ Root-Is-Purelib: {'true' if build_data['pure_python'] else 'false'}
     @classmethod
     def get_config_class(cls):
         return WheelBuilderConfig
-
-    @staticmethod
-    def format_record(record):
-        return '{},sha256={},{}\n'.format(*record)
