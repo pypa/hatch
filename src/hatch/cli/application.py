@@ -189,6 +189,7 @@ class Application(Terminal):
 class SafeApplication:
     def __init__(self, app: Application):
         self.abort = app.abort
+        self.display_always = app.display_always
         self.display_info = app.display_info
         self.display_error = app.display_error
         self.display_success = app.display_success

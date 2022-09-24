@@ -18,7 +18,7 @@ def version_impl(called_by_app, desired_version):
         if desired_version:
             app.abort('Cannot set version when it is statically defined by the `project.version` field')
         else:
-            app.display_info(app.project.metadata.core.version)
+            app.display_always(app.project.metadata.core.version)
             return
 
     source = metadata.hatch.version.source
@@ -27,7 +27,7 @@ def version_impl(called_by_app, desired_version):
     original_version = version_data['version']
 
     if not desired_version:
-        app.display_info(original_version)
+        app.display_always(original_version)
         return
 
     updated_version = metadata.hatch.version.scheme.update(desired_version, original_version, version_data)

@@ -4,6 +4,9 @@ import sys
 
 
 class InvokedApplication:
+    def display_always(self, *args, **kwargs):
+        send_app_command('display_always', *args, **kwargs)
+
     def display_info(self, *args, **kwargs):
         send_app_command('display_info', *args, **kwargs)
 
@@ -44,6 +47,10 @@ class Application:
 
     def __init__(self):
         self.__verbosity = int(os.environ.get('HATCH_VERBOSE', '0')) - int(os.environ.get('HATCH_QUIET', '0'))
+
+    def display_always(self, message='', **kwargs):
+        # Do not document
+        print(message)
 
     def display_info(self, message='', **kwargs):
         """
@@ -110,6 +117,7 @@ class Application:
 class SafeApplication:
     def __init__(self, app):
         self.abort = app.abort
+        self.display_always = app.display_always
         self.display_info = app.display_info
         self.display_error = app.display_error
         self.display_success = app.display_success
