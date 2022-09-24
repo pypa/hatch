@@ -155,10 +155,11 @@ class IndexPublisher(PublisherInterface):
                 existing_artifacts[project_name].add(artifact.name)
                 project_versions[project_name][data['version']] = None
 
-        if not artifacts_found:
-            self.app.abort('No artifacts found')
-        elif not project_versions:
-            self.app.abort(code=0)
+        if not options['initialize_auth']:
+            if not artifacts_found:
+                self.app.abort('No artifacts found')
+            elif not project_versions:
+                self.app.abort(code=0)
 
         for project_name, versions in project_versions.items():
             self.app.display_info()

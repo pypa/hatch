@@ -374,6 +374,56 @@ def test_prompt(hatch, devpi, temp_dir_cache, helpers, published_project_name, c
     )
 
 
+def test_initialize_auth(hatch, devpi, temp_dir_cache, helpers, published_project_name, config_file):
+    config_file.model.publish['index']['ca-cert'] = devpi.ca_cert
+    config_file.model.publish['index']['repo'] = 'dev'
+    config_file.model.publish['index']['repos'] = {'dev': devpi.repo}
+    config_file.save()
+
+    with temp_dir_cache.as_cwd():
+        result = hatch('new', published_project_name)
+        assert result.exit_code == 0, result.output
+
+    path = temp_dir_cache / published_project_name
+
+    # Trigger save
+    with path.as_cwd():
+        result = hatch('publish', '--initialize-auth', input=f'{devpi.user}\n{devpi.auth}')
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        f"""
+        Enter your username: {devpi.user}
+        Enter your credentials:{' '}
+        """
+    )
+
+    with path.as_cwd():
+        current_version = timestamp_to_version(helpers.get_current_timestamp())
+        result = hatch('version', current_version)
+        assert result.exit_code == 0, result.output
+
+        result = hatch('build', '-t', 'wheel')
+        assert result.exit_code == 0, result.output
+
+        build_directory = path / 'dist'
+        artifacts = list(build_directory.iterdir())
+
+    # Use saved results
+    with path.as_cwd():
+        result = hatch('publish', str(artifacts[0]))
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        f"""
+        {artifacts[0].relative_to(path)} ... success
+
+        [{published_project_name}]
+        {devpi.repo}{published_project_name}/{current_version}/
+        """
+    )
+
+
 def test_external_artifact_path(hatch, devpi, temp_dir_cache, helpers, published_project_name, config_file):
     config_file.model.publish['index']['ca-cert'] = devpi.ca_cert
     config_file.model.publish['index']['repo'] = 'dev'
