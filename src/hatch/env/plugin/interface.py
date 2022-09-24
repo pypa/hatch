@@ -310,57 +310,27 @@ class EnvironmentInterface(ABC):
     @property
     def dependencies_complex(self):
         if self._dependencies_complex is None:
-            dependencies_complex = list(self.environment_dependencies_complex)
+            all_dependencies_complex = list(self.environment_dependencies_complex)
 
             # Ensure these are checked last to speed up initial environment creation since
             # they will already be installed along with the project
             if not self.skip_install and self.dev_mode:
-                from hatchling.dep.core import dependencies_in_sync
+                from hatch.utils.dep import get_project_dependencies_complex
 
-                dynamic_fields = self.metadata.dynamic
-                if 'dependencies' not in dynamic_fields and 'optional-dependencies' not in dynamic_fields:
-                    dependencies_complex.extend(self.metadata.core.dependencies_complex.values())
-                    for feature in self.features:
-                        dependencies_complex.extend(self.metadata.core.optional_dependencies_complex[feature].values())
-                elif dependencies_in_sync(self.metadata.build.requires_complex):
-                    dependencies_complex.extend(self.metadata.core.dependencies_complex.values())
+                dependencies_complex, optional_dependencies_complex = get_project_dependencies_complex(self)
 
-                    optional_dependencies = self.metadata.core.optional_dependencies_complex
-                    for feature in self.features:
-                        if feature not in optional_dependencies:
-                            raise ValueError(
-                                f'Feature `{feature}` of field `tool.hatch.envs.{self.name}.features` is not '
-                                f'defined in the dynamic field `project.optional-dependencies`'
-                            )
+                all_dependencies_complex.extend(dependencies_complex.values())
 
-                        dependencies_complex.extend(optional_dependencies[feature].values())
-                else:
-                    import json
-
-                    from packaging.requirements import Requirement
-
-                    with self.root.as_cwd(), self.build_environment(self.metadata.build.requires):
-                        command = ['python', '-u', '-m', 'hatchling', 'metadata', '--app', '--compact']
-                        process = self.platform.capture_process(command)
-                        project_metadata = json.loads(self.app.read_builder(process))
-
-                        dependencies_complex.extend(
-                            Requirement(dependency) for dependency in project_metadata.get('dependencies', [])
+                for feature in self.features:
+                    if feature not in optional_dependencies_complex:
+                        raise ValueError(
+                            f'Feature `{feature}` of field `tool.hatch.envs.{self.name}.features` is not '
+                            f'defined in the dynamic field `project.optional-dependencies`'
                         )
 
-                        optional_dependencies = project_metadata.get('optional-dependencies', {})
-                        for feature in self.features:
-                            if feature not in optional_dependencies:
-                                raise ValueError(
-                                    f'Feature `{feature}` of field `tool.hatch.envs.{self.name}.features` is not '
-                                    f'defined in the dynamic field `project.optional-dependencies`'
-                                )
+                    all_dependencies_complex.extend(optional_dependencies_complex[feature].values())
 
-                            dependencies_complex.extend(
-                                Requirement(dependency) for dependency in optional_dependencies[feature].values()
-                            )
-
-            self._dependencies_complex = dependencies_complex
+            self._dependencies_complex = all_dependencies_complex
 
         return self._dependencies_complex
 

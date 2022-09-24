@@ -14,24 +14,27 @@ def hash_dependencies(app, project_only, env_only):
     """Output a hash of the currently defined dependencies."""
     from hashlib import sha256
 
-    from hatch.utils.dep import get_normalized_dependencies
+    from hatch.utils.dep import get_project_dependencies_complex
+    from hatchling.metadata.utils import get_normalized_dependency
 
-    all_dependencies = []
+    environment = app.get_environment()
+
+    all_requirements = []
     if project_only:
-        all_dependencies.extend(app.project.metadata.core.dependencies)
+        dependencies_complex, _ = get_project_dependencies_complex(environment)
+        all_requirements.extend(dependencies_complex.values())
     elif env_only:
-        environment = app.get_environment()
-        all_dependencies.extend(environment.environment_dependencies)
+        all_requirements.extend(environment.environment_dependencies_complex)
     else:
-        all_dependencies.extend(app.project.metadata.core.dependencies)
-        environment = app.get_environment()
-        all_dependencies.extend(environment.environment_dependencies)
+        dependencies_complex, _ = get_project_dependencies_complex(environment)
+        all_requirements.extend(dependencies_complex.values())
+        all_requirements.extend(environment.environment_dependencies_complex)
 
     data = ''.join(
         sorted(
             # Internal spacing is ignored by PEP 440
-            dependency.replace(' ', '')
-            for dependency in get_normalized_dependencies(all_dependencies)
+            normalized_dependency.replace(' ', '')
+            for normalized_dependency in {get_normalized_dependency(requirement) for requirement in all_requirements}
         )
     ).encode('utf-8')
 
@@ -53,32 +56,33 @@ def table(app, project_only, env_only, show_lines, force_ascii):
     """Enumerate dependencies in a tabular format."""
     from packaging.requirements import Requirement
 
-    from hatch.utils.dep import get_normalized_dependencies, normalize_marker_quoting
+    from hatch.utils.dep import get_normalized_dependencies, get_project_dependencies_complex, normalize_marker_quoting
 
-    project_dependencies = []
-    environment_dependencies = []
+    environment = app.get_environment()
+
+    project_requirements = []
+    environment_requirements = []
     if project_only:
-        project_dependencies.extend(app.project.metadata.core.dependencies)
+        dependencies_complex, _ = get_project_dependencies_complex(environment)
+        project_requirements.extend(dependencies_complex.values())
     elif env_only:
-        environment = app.get_environment()
-        environment_dependencies.extend(environment.environment_dependencies)
+        environment_requirements.extend(environment.environment_dependencies_complex)
     else:
-        project_dependencies.extend(app.project.metadata.core.dependencies)
+        dependencies_complex, _ = get_project_dependencies_complex(environment)
+        project_requirements.extend(dependencies_complex.values())
+        environment_requirements.extend(environment.environment_dependencies_complex)
 
-        environment = app.get_environment()
-        environment_dependencies.extend(environment.environment_dependencies)
-
-    for dependencies, table_title in (
-        (project_dependencies, 'Project'),
-        (environment_dependencies, f'Env: {app.env}'),
+    for all_requirements, table_title in (
+        (project_requirements, 'Project'),
+        (environment_requirements, f'Env: {app.env}'),
     ):
-        if not dependencies:
+        if not all_requirements:
             continue
 
-        requirements = [Requirement(d) for d in get_normalized_dependencies(dependencies)]
+        normalized_requirements = [Requirement(d) for d in get_normalized_dependencies(all_requirements)]
 
         columns = {'Name': {}, 'URL': {}, 'Versions': {}, 'Markers': {}, 'Features': {}}
-        for i, requirement in enumerate(requirements):
+        for i, requirement in enumerate(normalized_requirements):
             columns['Name'][i] = requirement.name
 
             if requirement.url:
@@ -117,31 +121,31 @@ def table(app, project_only, env_only, show_lines, force_ascii):
 @click.pass_obj
 def requirements(app, project_only, env_only, features, all_features):
     """Enumerate dependencies as a list of requirements."""
-    from hatch.utils.dep import get_normalized_dependencies
+    from hatch.utils.dep import get_normalized_dependencies, get_project_dependencies_complex
     from hatchling.metadata.utils import normalize_project_name
 
-    dependencies = []
+    environment = app.get_environment()
+    dependencies_complex, optional_dependencies_complex = get_project_dependencies_complex(environment)
+
+    all_requirements = []
     if features:
         for feature in features:
             feature = normalize_project_name(feature)
-            if feature not in app.project.metadata.core.optional_dependencies:
+            if feature not in optional_dependencies_complex:
                 app.abort(f'Feature `{feature}` is not defined in field `project.optional-dependencies`')
 
-            dependencies.extend(app.project.metadata.core.optional_dependencies[feature])
+            all_requirements.extend(optional_dependencies_complex[feature].values())
     elif project_only:
-        dependencies.extend(app.project.metadata.core.dependencies)
+        all_requirements.extend(dependencies_complex.values())
     elif env_only:
-        environment = app.get_environment()
-        dependencies.extend(environment.environment_dependencies)
+        all_requirements.extend(environment.environment_dependencies_complex)
     else:
-        dependencies.extend(app.project.metadata.core.dependencies)
-
-        environment = app.get_environment()
-        dependencies.extend(environment.environment_dependencies)
+        all_requirements.extend(dependencies_complex.values())
+        all_requirements.extend(environment.environment_dependencies_complex)
 
     if not features and all_features:
-        for optional_dependencies in app.project.metadata.core.optional_dependencies.values():
-            dependencies.extend(optional_dependencies)
+        for optional_dependencies in optional_dependencies_complex.values():
+            all_requirements.extend(optional_dependencies.values())
 
-    for dependency in get_normalized_dependencies(dependencies):
+    for dependency in get_normalized_dependencies(all_requirements):
         app.display_info(dependency)
