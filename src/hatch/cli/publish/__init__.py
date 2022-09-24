@@ -37,6 +37,9 @@ from hatch.config.constants import PublishEnvVars
 )
 @click.option('--no-prompt', '-n', is_flag=True, help='Disable prompts, such as for missing required fields')
 @click.option(
+    '--initialize-auth', is_flag=True, help='Save first-time authentication information even if nothing was published'
+)
+@click.option(
     '--publisher',
     '-p',
     'publisher_name',
@@ -58,10 +61,22 @@ from hatch.config.constants import PublishEnvVars
 @click.option('--yes', '-y', is_flag=True, help='Confirm without prompting when the plugin is disabled')
 @click.pass_obj
 def publish(
-    app, artifacts, repo, user, auth, ca_cert, client_cert, client_key, no_prompt, publisher_name, options, yes
+    app,
+    artifacts,
+    repo,
+    user,
+    auth,
+    ca_cert,
+    client_cert,
+    client_key,
+    no_prompt,
+    initialize_auth,
+    publisher_name,
+    options,
+    yes,
 ):
     """Publish build artifacts."""
-    option_map = {'no_prompt': no_prompt}
+    option_map = {'no_prompt': no_prompt, 'initialize_auth': initialize_auth}
     if publisher_name == 'index':
         if options:
             app.abort('Use the standard CLI flags rather than passing explicit options when using the `index` plugin')

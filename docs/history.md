@@ -20,6 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Add `project` command group to view details about the project like PEP 621 metadata
 - Build environments for the `virtual` environment type are now cached for improved performance
 - Add `build_environment_exists` method to the environment interface for implementations that cache the build environment
+- Add `--initialize-auth` flag to the `index` publisher to allow for the saving of authentication information before publishing
 - Support Bash on Windows for the `shell` command
 - The `setuptools` migration script no longer modifies the formatting of existing `pyproject.toml` configuration
 - Bump the minimum supported version of Hatchling to 1.10.0
