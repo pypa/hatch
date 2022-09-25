@@ -183,7 +183,16 @@ For example, if you wanted to store [virtual environments](../plugins/environmen
     virtual = "~/.virtualenvs"
     ```
 
-Any environment variables are also expanded. If the path is not absolute, then it will be relative to the project root.
+Any environment variables are also expanded.
+
+If the path is not absolute, then it will be relative to the project root. So if you wanted to use a directory named `.hatch` in each project directory, you could do:
+
+=== ":octicons-file-code-16: config.toml"
+
+    ```toml
+    [dirs.env]
+    virtual = ".hatch"
+    ```
 
 Any type of environment that is not explicitly defined will default to `<DATA_DIR>/env/<ENV_TYPE>`.
 

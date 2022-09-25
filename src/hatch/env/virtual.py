@@ -21,16 +21,20 @@ class VirtualEnvironment(EnvironmentInterface):
         checksum = urlsafe_b64encode(hashed_root).decode('utf-8')[:8]
         self.storage_path = self.data_directory / project_name / checksum
 
-        chosen_directory = self.get_env_var_option('path')
+        venv_name = project_name if self.name == 'default' else self.name
+        app_virtual_env_path = self.storage_path / venv_name
+
+        chosen_directory = self.get_env_var_option('path') or self.config.get('path', '')
         if chosen_directory:
-            self.virtual_env_path = Path(chosen_directory) if isabs(chosen_directory) else self.root / chosen_directory
+            self.virtual_env_path = (
+                Path(chosen_directory) if isabs(chosen_directory) else (self.root / chosen_directory).resolve()
+            )
         else:
-            directory = project_name if self.name == 'default' else self.name
-            self.virtual_env_path = self.storage_path / directory
+            self.virtual_env_path = app_virtual_env_path
 
         self.virtual_env = VirtualEnv(self.virtual_env_path, self.platform, self.verbosity)
         self.build_virtual_env = VirtualEnv(
-            self.virtual_env_path.parent / f'{self.virtual_env_path.name}-build', self.platform, self.verbosity
+            app_virtual_env_path.parent / f'{app_virtual_env_path.name}-build', self.platform, self.verbosity
         )
         self.shells = ShellManager(self)
 
@@ -38,7 +42,7 @@ class VirtualEnvironment(EnvironmentInterface):
 
     @staticmethod
     def get_option_types() -> dict:
-        return {'system-packages': bool}
+        return {'system-packages': bool, 'path': bool}
 
     def activate(self):
         self.virtual_env.activate()
