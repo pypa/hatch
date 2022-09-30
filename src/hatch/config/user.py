@@ -6,7 +6,7 @@ from hatch.utils.toml import load_toml_data
 
 
 class ConfigFile:
-    def __init__(self, path: Optional[Path] = None):
+    def __init__(self, path: Optional[Path] = None) -> None:
         self._path: Optional[Path] = path
         self.model = cast(RootConfig, None)
 
@@ -21,7 +21,7 @@ class ConfigFile:
     def path(self, value):
         self._path = value
 
-    def save(self, content=None):
+    def save(self, content: Optional[str]=None) -> None:
         import tomli_w
 
         if not content:
@@ -30,7 +30,7 @@ class ConfigFile:
         self.path.ensure_parent_dir_exists()
         self.path.write_atomic(content, 'w', encoding='utf-8')
 
-    def load(self):
+    def load(self) -> None:
         self.model = RootConfig(load_toml_data(self.read()))
 
     def read(self) -> str:
@@ -43,7 +43,7 @@ class ConfigFile:
         config.raw_data.pop('publish', None)
         return tomli_w.dumps(config.raw_data)
 
-    def restore(self):
+    def restore(self) -> None:
         import tomli_w
 
         config = RootConfig({})

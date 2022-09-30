@@ -45,5 +45,5 @@ jobs:
       run: hatch run cov
 """  # noqa: E501
 
-    def __init__(self, template_config: dict, plugin_config: dict):
+    def __init__(self, template_config: dict, plugin_config: dict) -> None:
         super().__init__(Path('.github', 'workflows', 'test.yml'), self.TEMPLATE)

@@ -3,16 +3,21 @@ from __future__ import annotations
 import os
 from contextlib import contextmanager
 from textwrap import indent as indent_text
+from typing import Any, Dict, Iterator, List, Optional, Union
 
 import click
 from rich.console import Console
 from rich.errors import StyleSyntaxError
 from rich.style import Style
+from rich.syntax import Syntax
 from rich.text import Text
+from rich.tree import Tree
+
+from hatch.utils.fs import Path
 
 
 class Terminal:
-    def __init__(self, verbosity, enable_color, interactive):
+    def __init__(self, verbosity: int, enable_color: bool, interactive: bool) -> None:
         self.verbosity = verbosity
         self.interactive = interactive
         self.console = Console(
@@ -37,7 +42,7 @@ class Terminal:
         # Chosen as the default since it's compatible everywhere and looks nice
         self._style_spinner = 'simpleDotsScrolling'
 
-    def initialize_styles(self, styles: dict):  # no cov
+    def initialize_styles(self, styles: dict) -> List[Any]:  # no cov
         # Lazily display errors so that they use the correct style
         errors = []
 
@@ -58,45 +63,130 @@ class Terminal:
 
         return errors
 
-    def display_error(self, text='', stderr=True, indent=None, link=None, **kwargs):
+    def display_error(
+        self,
+        text: str = '',
+        stderr: bool = True,
+        indent: Optional[int] = None,
+        link: None = None,
+        **kwargs,
+    ) -> None:
         if self.verbosity < -2:
             return
 
-        self.display(text, self._style_level_error, stderr=stderr, indent=indent, link=link, **kwargs)
+        self.display(
+            text,
+            self._style_level_error,
+            stderr=stderr,
+            indent=indent,
+            link=link,
+            **kwargs,
+        )
 
-    def display_warning(self, text='', stderr=False, indent=None, link=None, **kwargs):
+    def display_warning(
+        self,
+        text: str = '',
+        stderr: bool = False,
+        indent: Optional[int] = None,
+        link: None = None,
+        **kwargs,
+    ) -> None:
         if self.verbosity < -1:
             return
 
-        self.display(text, self._style_level_warning, stderr=stderr, indent=indent, link=link, **kwargs)
+        self.display(
+            text,
+            self._style_level_warning,
+            stderr=stderr,
+            indent=indent,
+            link=link,
+            **kwargs,
+        )
 
-    def display_info(self, text='', stderr=False, indent=None, link=None, **kwargs):
+    def display_info(
+        self,
+        text: str = '',
+        stderr: bool = False,
+        indent: Optional[int] = None,
+        link: Optional[str] = None,
+        **kwargs,
+    ) -> None:
         if self.verbosity < 0:
             return
 
-        self.display(text, self._style_level_info, stderr=stderr, indent=indent, link=link, **kwargs)
+        self.display(
+            text,
+            self._style_level_info,
+            stderr=stderr,
+            indent=indent,
+            link=link,
+            **kwargs,
+        )
 
-    def display_success(self, text='', stderr=False, indent=None, link=None, **kwargs):
+    def display_success(
+        self,
+        text: str = '',
+        stderr: bool = False,
+        indent: Optional[int] = None,
+        link: None = None,
+        **kwargs,
+    ) -> None:
         if self.verbosity < 0:
             return
 
-        self.display(text, self._style_level_success, stderr=stderr, indent=indent, link=link, **kwargs)
+        self.display(
+            text,
+            self._style_level_success,
+            stderr=stderr,
+            indent=indent,
+            link=link,
+            **kwargs,
+        )
 
-    def display_waiting(self, text='', stderr=False, indent=None, link=None, **kwargs):
+    def display_waiting(
+        self,
+        text: str = '',
+        stderr: bool = False,
+        indent: Optional[int] = None,
+        link: None = None,
+        **kwargs,
+    ) -> None:
         if self.verbosity < 0:
             return
 
-        self.display(text, self._style_level_waiting, stderr=stderr, indent=indent, link=link, **kwargs)
+        self.display(
+            text,
+            self._style_level_waiting,
+            stderr=stderr,
+            indent=indent,
+            link=link,
+            **kwargs,
+        )
 
-    def display_debug(self, text='', level=1, stderr=False, indent=None, link=None, **kwargs):
+    def display_debug(
+        self,
+        text: str = '',
+        level: int = 1,
+        stderr: bool = False,
+        indent: Optional[int] = None,
+        link: None = None,
+        **kwargs,
+    ) -> None:
         if not 1 <= level <= 3:
             raise ValueError('Debug output can only have verbosity levels between 1 and 3 (inclusive)')
         elif self.verbosity < level:
             return
 
-        self.display(text, self._style_level_debug, stderr=stderr, indent=indent, link=link, **kwargs)
+        self.display(
+            text,
+            self._style_level_debug,
+            stderr=stderr,
+            indent=indent,
+            link=link,
+            **kwargs,
+        )
 
-    def display_mini_header(self, text, *, stderr=False, indent=None, link=None):
+    def display_mini_header(self, text: str, *, stderr=False, indent=None, link=None) -> None:
         if self.verbosity < 0:
             return
 
@@ -104,7 +194,7 @@ class Terminal:
         self.display_success(text, stderr=stderr, link=link, end='')
         self.display_info(']', stderr=stderr)
 
-    def display_header(self, title='', *, stderr=False):
+    def display_header(self, title: str = '', *, stderr=False) -> None:
         self.console.rule(Text(title, self._style_level_success))
 
     def display_markdown(self, text, **kwargs):  # no cov
@@ -112,7 +202,15 @@ class Terminal:
 
         self.display_raw(Markdown(text), **kwargs)
 
-    def display_table(self, title, columns, show_lines=False, column_options=None, force_ascii=False, num_rows=0):
+    def display_table(
+        self,
+        title: str,
+        columns: Dict[str, Union[Dict[int, str], Dict[Any, Any]]],
+        show_lines: bool = False,
+        column_options: Optional[Dict[str, Dict[str, bool]]] = None,
+        force_ascii: bool = False,
+        num_rows: int = 0,
+    ) -> None:
         from rich.table import Table
 
         if column_options is None:
@@ -148,7 +246,9 @@ class Terminal:
         self.display(table)
 
     @contextmanager
-    def status_waiting(self, text='', final_text=None, condition=True, **kwargs):
+    def status_waiting(
+        self, text: str = '', final_text: None = None, condition: bool = True, **kwargs
+    ) -> Iterator[MockStatus]:
         if not condition or not self.interactive or not self.console.is_terminal:
             if condition:
                 self.display_waiting(text)
@@ -169,7 +269,16 @@ class Terminal:
                 finally:
                     self.platform.displaying_status = False
 
-    def display(self, text='', style=None, *, stderr=False, indent=None, link=None, **kwargs):
+    def display(
+        self,
+        text: Union[str, Syntax, Table, Tree] = '',
+        style: Optional[Union[str, Style]] = None,
+        *,
+        stderr=False,
+        indent=None,
+        link=None,
+        **kwargs,
+    ) -> None:
         kwargs.setdefault('overflow', 'ignore')
         kwargs.setdefault('no_wrap', True)
         kwargs.setdefault('crop', False)
@@ -189,27 +298,34 @@ class Terminal:
             finally:
                 self.console.stderr = False
 
-    def display_raw(self, text, **kwargs):
+    def display_raw(self, text: str, **kwargs):
         self.console.print(text, overflow='ignore', no_wrap=True, crop=False, **kwargs)
 
-    def display_always(self, text='', **kwargs):
-        self.console.print(text, style=self._style_level_info, overflow='ignore', no_wrap=True, crop=False, **kwargs)
+    def display_always(self, text: Union[str, Path] = '', **kwargs) -> None:
+        self.console.print(
+            text,
+            style=self._style_level_info,
+            overflow='ignore',
+            no_wrap=True,
+            crop=False,
+            **kwargs,
+        )
 
     @staticmethod
-    def prompt(text, **kwargs):
+    def prompt(text: str, **kwargs) -> str:
         return click.prompt(text, **kwargs)
 
     @staticmethod
-    def confirm(text, **kwargs):
+    def confirm(text: str, **kwargs):
         return click.confirm(text, **kwargs)
 
 
 class MockStatus:
-    def stop(self):
+    def stop(self) -> None:
         pass
 
-    def __enter__(self):
+    def __enter__(self) -> "MockStatus":
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
         pass

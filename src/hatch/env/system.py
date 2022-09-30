@@ -7,7 +7,7 @@ from hatch.utils.env import PythonInfo
 class SystemEnvironment(EnvironmentInterface):
     PLUGIN_NAME = 'system'
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
         self.python_info = PythonInfo(self.platform)
@@ -33,7 +33,7 @@ class SystemEnvironment(EnvironmentInterface):
             self.construct_pip_install_command(['--editable', self.apply_features(str(self.root))])
         )
 
-    def dependencies_in_sync(self):
+    def dependencies_in_sync(self) -> bool:
         if not self.dependencies:
             return True
 

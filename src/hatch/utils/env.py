@@ -1,17 +1,20 @@
 from ast import literal_eval
+from typing import Dict, List, Optional
+
+from hatch.utils.platform import Platform
 
 
 class PythonInfo:
-    def __init__(self, platform, executable='python'):
+    def __init__(self, platform: Platform, executable: str = 'python') -> None:
         self.platform = platform
         self.executable = executable
 
-        self.__dep_check_data = None
-        self.__environment = None
-        self.__sys_path = None
+        self.__dep_check_data: Optional[Dict] = None
+        self.__environment: Optional[Dict] = None
+        self.__sys_path: Optional[List[str]] = None
 
     @property
-    def dep_check_data(self):
+    def dep_check_data(self) -> Dict:
         if self.__dep_check_data is None:
             process = self.platform.check_command(
                 [self.executable, '-W', 'ignore', '-'], capture_output=True, input=DEP_CHECK_DATA_SCRIPT
@@ -22,14 +25,14 @@ class PythonInfo:
         return self.__dep_check_data
 
     @property
-    def environment(self):
+    def environment(self) -> Dict[str, str]:
         if self.__environment is None:
             self.__environment = self.dep_check_data['environment']
 
         return self.__environment
 
     @property
-    def sys_path(self):
+    def sys_path(self) -> List[str]:
         if self.__sys_path is None:
             self.__sys_path = self.dep_check_data['sys_path']
 

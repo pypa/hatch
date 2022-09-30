@@ -1,16 +1,16 @@
 from contextlib import suppress
-from typing import Optional
+from typing import Generator, Optional
 
 from hatch.utils.fs import Path
 
 
 class File:
-    def __init__(self, path: Optional[Path], contents: str = ''):
+    def __init__(self, path: Optional[Path], contents: str = '') -> None:
         self.path = path
         self.contents = contents
         self.feature = None
 
-    def write(self, root):
+    def write(self, root: Path) -> None:
         if self.path is None:  # no cov
             return
 
@@ -19,12 +19,12 @@ class File:
         path.write_text(self.contents, encoding='utf-8')
 
 
-def find_template_files(module):
+def find_template_files(module) -> Generator[File, None, None]:
     for name in dir(module):
         obj = getattr(module, name)
-        if obj is File:
+        if type(obj) is File:
             continue
 
         with suppress(TypeError):
-            if issubclass(obj, File):
+            if issubclass(type(obj), File):
                 yield obj

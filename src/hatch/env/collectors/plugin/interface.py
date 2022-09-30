@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+from typing import Any, Dict
+
+from hatch.utils.fs import Path
+
 
 class EnvironmentCollectorInterface:
     """
@@ -33,7 +37,7 @@ class EnvironmentCollectorInterface:
     PLUGIN_NAME = ''
     """The name used for selection."""
 
-    def __init__(self, root, config):
+    def __init__(self, root: Path, config: Dict[Any, Any]) -> None:
         self.__root = root
         self.__config = config
 
@@ -67,7 +71,7 @@ class EnvironmentCollectorInterface:
         """
         return {}
 
-    def finalize_config(self, config: dict[str, dict]):
+    def finalize_config(self, config: dict[str, dict]) -> None:
         """
         Finalizes configuration for environments keyed by the environment or matrix name. This will override
         any user-defined settings and any collectors that ran before this call.
@@ -75,7 +79,7 @@ class EnvironmentCollectorInterface:
         This is called before matrices are turned into concrete environments.
         """
 
-    def finalize_environments(self, config: dict[str, dict]):
+    def finalize_environments(self, config: dict[str, dict]) -> None:
         """
         Finalizes configuration for environments keyed by the environment name. This will override
         any user-defined settings and any collectors that ran before this call.

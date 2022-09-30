@@ -45,11 +45,10 @@ import click
 @click.pass_obj
 def build(app, location, targets, hooks_only, no_hooks, ext, clean, clean_hooks_after, clean_only):
     """Build a project."""
-    from hatchling.builders.constants import BuildEnvVars
-    from hatchling.builders.plugin.interface import BuilderInterface
-
     from hatch.utils.fs import Path
     from hatch.utils.structures import EnvVars
+    from hatchling.builders.constants import BuildEnvVars
+    from hatchling.builders.plugin.interface import BuilderInterface
 
     if app.project.metadata.build.build_backend != 'hatchling.build':
         app.abort('Field `build-system.build-backend` must be set to `hatchling.build`')

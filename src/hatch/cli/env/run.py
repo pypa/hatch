@@ -1,7 +1,9 @@
+from typing import Any, Dict, List, Set, Tuple, Union
+
 import click
 
 
-def parse_variable_spec(spec):
+def parse_variable_spec(spec: str) -> Union[Tuple[str, Set[str]], Tuple[str, Set[Any]]]:
     variable, _, values = spec.partition('=')
     if variable == 'py':
         variable = 'python'
@@ -10,7 +12,11 @@ def parse_variable_spec(spec):
     return variable, parsed_values
 
 
-def select_matrix_environments(environments, included_variables, excluded_variables):
+def select_matrix_environments(
+    environments: Dict[str, Dict[str, str]],
+    included_variables: Dict[str, Set[str]],
+    excluded_variables: Dict[str, Union[Set[str], Set[Any]]],
+) -> List[Union[str, Any]]:
     selected_environments = []
     for env_name, variables in environments.items():
         included = set(variables)
@@ -37,7 +43,9 @@ def select_matrix_environments(environments, included_variables, excluded_variab
     return selected_environments
 
 
-def filter_environments(environments, filter_data):
+def filter_environments(
+    environments: Dict[str, Dict[str, Union[bool, str]]], filter_data: Dict[str, bool]
+) -> List[str]:
     selected_environments = []
     for env_name, env_data in environments.items():
         for key, value in filter_data.items():

@@ -1,25 +1,27 @@
 import os
 from tempfile import TemporaryDirectory
+from typing import Dict, List, Optional, Union
 
 from hatch.env.utils import add_verbosity_flag
 from hatch.utils.env import PythonInfo
 from hatch.utils.fs import Path
+from hatch.utils.platform import Platform
 from hatch.venv.utils import get_random_venv_name
 
 
 class VirtualEnv:
     IGNORED_ENV_VARS = ('__PYVENV_LAUNCHER__', 'PYTHONHOME')
 
-    def __init__(self, directory, platform, verbosity=0):
+    def __init__(self, directory: Path, platform: Platform, verbosity: int=0) -> None:
         self.directory = directory
         self.platform = platform
         self.verbosity = verbosity
         self.python_info = PythonInfo(platform)
 
-        self._env_vars_to_restore = {}
-        self._executables_directory = None
+        self._env_vars_to_restore: Dict[str, Optional[str]] = {}
+        self._executables_directory: Optional[Path] = None
 
-    def activate(self):
+    def activate(self) -> None:
         self._env_vars_to_restore['VIRTUAL_ENV'] = os.environ.pop('VIRTUAL_ENV', None)
         os.environ['VIRTUAL_ENV'] = str(self.directory)
 
@@ -33,7 +35,7 @@ class VirtualEnv:
         for env_var in self.IGNORED_ENV_VARS:
             self._env_vars_to_restore[env_var] = os.environ.pop(env_var, None)
 
-    def deactivate(self):
+    def deactivate(self) -> None:
         for env_var, value in self._env_vars_to_restore.items():
             if value is None:
                 os.environ.pop(env_var, None)
@@ -42,7 +44,7 @@ class VirtualEnv:
 
         self._env_vars_to_restore.clear()
 
-    def create(self, python, allow_system_packages=False):
+    def create(self, python: str, allow_system_packages: bool=False) -> None:
         # WARNING: extremely slow import
         from virtualenv import cli_run
 
@@ -58,14 +60,14 @@ class VirtualEnv:
 
         cli_run(command)
 
-    def remove(self):
+    def remove(self) -> None:
         self.directory.remove()
 
-    def exists(self):
+    def exists(self) -> bool:
         return self.directory.is_dir()
 
     @property
-    def executables_directory(self):
+    def executables_directory(self) -> Path:
         if self._executables_directory is None:
             exe_dir = self.directory / ('Scripts' if self.platform.windows else 'bin')
             if exe_dir.is_dir():
@@ -90,37 +92,37 @@ class VirtualEnv:
         return self._executables_directory
 
     @property
-    def environment(self):
+    def environment(self) -> Dict[str, str]:
         return self.python_info.environment
 
     @property
-    def sys_path(self):
+    def sys_path(self) -> List[str]:
         return self.python_info.sys_path
 
-    def __enter__(self):
+    def __enter__(self) -> Union["VirtualEnv", "TempVirtualEnv"]:
         self.activate()
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
         self.deactivate()
 
 
 class TempVirtualEnv(VirtualEnv):
-    def __init__(self, parent_python, platform, verbosity=0):
+    def __init__(self, parent_python: str, platform: Platform, verbosity: int=0) -> None:
         self.parent_python = parent_python
         self.parent_dir = TemporaryDirectory()
         directory = Path(self.parent_dir.name).resolve() / get_random_venv_name()
 
         super().__init__(directory, platform, verbosity)
 
-    def remove(self):
+    def remove(self) -> None:
         super().remove()
         self.parent_dir.cleanup()
 
-    def __enter__(self):
+    def __enter__(self) -> "VirtualEnv":
         self.create(self.parent_python)
         return super().__enter__()
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
         super().__exit__(exc_type, exc_value, traceback)
         self.remove()

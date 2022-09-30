@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from typing import Dict, Optional, Union
+
+from hatch.utils.fs import Path
 
 
 class PublisherInterface(ABC):
@@ -35,14 +38,21 @@ class PublisherInterface(ABC):
     PLUGIN_NAME = ''
     """The name used for selection."""
 
-    def __init__(self, app, root, cache_dir, project_config, plugin_config):
+    def __init__(
+        self,
+        app: None,
+        root: Path,
+        cache_dir: None,
+        project_config: Dict[str, Union[int, bool]],
+        plugin_config: Dict[str, Union[int, bool]],
+    ) -> None:
         self.__app = app
         self.__root = root
         self.__cache_dir = cache_dir
         self.__project_config = project_config
         self.__plugin_config = plugin_config
 
-        self.__disable = None
+        self.__disable: Optional[bool] = None
 
     @property
     def app(self):
@@ -96,7 +106,7 @@ class PublisherInterface(ABC):
         return self.__plugin_config
 
     @property
-    def disable(self):
+    def disable(self) -> bool:
         """
         Whether this plugin is disabled, thus requiring confirmation when publishing. Local
         [project configuration](reference.md#hatch.publish.plugin.interface.PublisherInterface.project_config)

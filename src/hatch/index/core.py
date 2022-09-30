@@ -1,13 +1,16 @@
 from __future__ import annotations
+from typing import Optional, Tuple, Union
 
 import httpx
 import hyperlink
 
 from hatch.utils.fs import Path
 
+from httpx._types import VerifyTypes, CertTypes
+
 
 class IndexURLs:
-    def __init__(self, repo: str):
+    def __init__(self, repo: str) -> None:
         self.repo = hyperlink.parse(repo).normalize()
 
         # PyPI
@@ -24,13 +27,22 @@ class IndexURLs:
 
 
 class PackageIndex:
-    def __init__(self, repo: str, *, user='', auth='', ca_cert=None, client_cert=None, client_key=None):
+    def __init__(
+        self,
+        repo: str,
+        *,
+        user: str = '',
+        auth: str = '',
+        ca_cert: Optional[VerifyTypes] = None,
+        client_cert: Optional[str] = None,
+        client_key: Optional[str] = None,
+    ) -> None:
         self.urls = IndexURLs(repo)
         self.repo = str(self.urls.repo)
         self.user = user
         self.auth = auth
 
-        cert = None
+        cert: Union[str, Tuple[str, Optional[str]], None] = None
         if client_cert:
             cert = client_cert
             if client_key:

@@ -1,3 +1,6 @@
+from datetime import datetime
+from typing import Any, Dict, List, Set, Union
+
 from hatch.template import File, files_default, find_template_files
 from hatch.template.plugin.interface import TemplateInterface
 from hatch.utils.fs import Path
@@ -7,14 +10,14 @@ from hatch.utils.network import download_file
 class DefaultTemplate(TemplateInterface):
     PLUGIN_NAME = 'default'
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
         self.plugin_config.setdefault('ci', False)
         self.plugin_config.setdefault('src-layout', False)
         self.plugin_config.setdefault('tests', True)
 
-    def initialize_config(self, config):
+    def initialize_config(self, config: Dict) -> None:
         # Default values
         config['readme_file_path'] = 'README.md'
         config['package_metadata_file_path'] = f'{config["package_name"]}/__about__.py'
@@ -73,7 +76,7 @@ class DefaultTemplate(TemplateInterface):
         if self.plugin_config['src-layout']:
             config['package_metadata_file_path'] = f'src/{config["package_metadata_file_path"]}'
 
-    def get_files(self, config):
+    def get_files(self, config: Dict) -> List[Any]:
         files = list(find_template_files(files_default))
 
         # Add any licenses
@@ -106,19 +109,24 @@ class DefaultTemplate(TemplateInterface):
 
         return files
 
-    def finalize_files(self, config, files):
+    def finalize_files(self, config: Dict, files: List[File]) -> None:
         if config['licenses']['headers'] and config['license_data']:
             for template_file in files:
-                if template_file.path.name.endswith('.py'):
+                if template_file.path and template_file.path.name.endswith('.py'):
                     template_file.contents = config['license_header'] + template_file.contents
 
         if self.plugin_config['src-layout']:
             for template_file in files:
-                if template_file.path.parts[0] == config['package_name']:
+                if template_file.path and template_file.path.parts[0] == config['package_name']:
                     template_file.path = Path('src', template_file.path)
 
 
-def get_license_text(config, license_id, license_text, creation_time):
+def get_license_text(
+    config: Dict,
+    license_id: str,
+    license_text: str,
+    creation_time: datetime,
+) -> str:
     if license_id == 'MIT':
         license_text = license_text.replace('<year>', f'{creation_time.year}-present', 1)
         license_text = license_text.replace('<copyright holders>', f'{config["name"]} <{config["email"]}>', 1)

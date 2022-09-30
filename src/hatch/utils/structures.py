@@ -1,9 +1,15 @@
 import os
 from fnmatch import fnmatch
+from typing import Dict, Iterable, Optional
 
 
 class EnvVars(dict):
-    def __init__(self, env_vars=None, include=None, exclude=None):
+    def __init__(
+        self,
+        env_vars: Optional[Dict[str, str]] = None,
+        include: Optional[Iterable[str]] = None,
+        exclude: Optional[Iterable[str]] = None,
+    ) -> None:
         super().__init__(os.environ)
         self.old_env = dict(self)
 
@@ -25,10 +31,10 @@ class EnvVars(dict):
         if env_vars:
             self.update(env_vars)
 
-    def __enter__(self):
+    def __enter__(self) -> None:
         os.environ.clear()
         os.environ.update(self)
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
         os.environ.clear()
         os.environ.update(self.old_env)

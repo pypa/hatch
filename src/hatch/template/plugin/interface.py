@@ -1,8 +1,13 @@
+from datetime import datetime
+
+from hatch.utils.fs import Path
+
+
 class TemplateInterface:
     PLUGIN_NAME = ''
     PRIORITY = 100
 
-    def __init__(self, plugin_config: dict, cache_dir, creation_time):
+    def __init__(self, plugin_config: dict, cache_dir: Path, creation_time: datetime) -> None:
         self.plugin_config = plugin_config
         self.cache_dir = cache_dir
         self.creation_time = creation_time

@@ -2,14 +2,22 @@ import re
 from copy import deepcopy
 from itertools import product
 from os import environ
+from typing import Any, Dict, List, Optional, Set, Type, Union
 
 from hatch.env.utils import ensure_valid_environment
+from hatch.plugin.manager import PluginManager
 from hatch.project.env import apply_overrides
 from hatch.project.utils import format_script_commands, parse_script_command
+from hatch.utils.fs import Path
 
 
 class ProjectConfig:
-    def __init__(self, root, config, plugin_manager=None):
+    def __init__(
+        self,
+        root: Path,
+        config: Dict[str, Any],
+        plugin_manager: Optional[PluginManager] = None,
+    ) -> None:
         self.root = root
         self.config = config
         self.plugin_manager = plugin_manager
@@ -24,7 +32,9 @@ class ProjectConfig:
         self._cached_env_overrides = {}
 
     @property
-    def env(self):
+    def env(
+        self,
+    ) -> Dict[str, Union[Dict[str, Dict[Any, Any]], Dict[str, int], Dict[str, Dict[str, Dict[str, int]]], int]]:
         if self._env is None:
             config = self.config.get('env', {})
             if not isinstance(config, dict):
@@ -35,7 +45,7 @@ class ProjectConfig:
         return self._env
 
     @property
-    def env_collectors(self):
+    def env_collectors(self) -> Dict[str, Union[Dict[Any, Any], Dict[str, Dict[str, int]]]]:
         if self._env_collectors is None:
             collectors = self.env.get('collectors', {})
             if not isinstance(collectors, dict):
@@ -53,21 +63,21 @@ class ProjectConfig:
         return self._env_collectors
 
     @property
-    def matrices(self):
+    def matrices(self) -> Dict[str, Any]:
         if self._matrices is None:
             _ = self.envs
 
         return self._matrices
 
     @property
-    def matrix_variables(self):
+    def matrix_variables(self) -> Dict[str, Dict[str, str]]:
         if self._matrix_variables is None:
             _ = self.envs
 
         return self._matrix_variables
 
     @property
-    def envs(self):
+    def envs(self) -> Dict[str, Any]:
         from hatch.utils.platform import get_platform_name
 
         if self._envs is None:
@@ -327,7 +337,7 @@ class ProjectConfig:
         return self._envs
 
     @property
-    def publish(self):
+    def publish(self) -> Dict[str, Dict[str, str]]:
         if self._publish is None:
             config = self.config.get('publish', {})
             if not isinstance(config, dict):
@@ -342,7 +352,7 @@ class ProjectConfig:
         return self._publish
 
     @property
-    def scripts(self):
+    def scripts(self) -> Dict[str, List[str]]:
         if self._scripts is None:
             script_config = self.config.get('scripts', {})
             if not isinstance(script_config, dict):
@@ -378,7 +388,7 @@ class ProjectConfig:
 
         return self._scripts
 
-    def finalize_env_overrides(self, option_types):
+    def finalize_env_overrides(self, option_types: Dict[str, Union[Type[bool], Type[str], Type[dict]]]) -> None:
         # We lazily apply overrides because we need type information potentially defined by
         # environment plugins for their options
         if not self._cached_env_overrides:
@@ -392,7 +402,13 @@ class ProjectConfig:
         self._cached_env_overrides.clear()
 
 
-def expand_script_commands(script_name, commands, config, seen, active):
+def expand_script_commands(
+    script_name: str,
+    commands: List[str],
+    config: Dict[str, List[str]],
+    seen: Dict[str, List[str]],
+    active: List[Union[Any, str]],
+) -> List[str]:
     if script_name in seen:
         return seen[script_name]
     elif script_name in active:
@@ -423,7 +439,13 @@ def expand_script_commands(script_name, commands, config, seen, active):
     return expanded_commands
 
 
-def _populate_default_env_values(env_name, data, config, seen, active):
+def _populate_default_env_values(
+    env_name: str,
+    data: Dict[str, Any],
+    config: Dict[str, Any],
+    seen: Set[str],
+    active: List[Union[Any, str]],
+) -> None:
     if env_name in seen:
         return
     elif data.pop('detached', False):

@@ -1,4 +1,5 @@
 from os import environ
+from typing import Any, Dict, List, Optional, Type, Union
 
 from hatch.utils.platform import get_platform_name
 
@@ -21,7 +22,15 @@ RESERVED_OPTIONS = {
 }
 
 
-def apply_overrides(env_name, source, condition, condition_value, options, new_config, option_types=None):
+def apply_overrides(
+    env_name: str,
+    source: str,
+    condition: str,
+    condition_value: str,
+    options: Dict[str, Any],
+    new_config: Dict,
+    option_types: Optional[Dict[str, Type]] = None,
+) -> None:
     if option_types is None:
         option_types = RESERVED_OPTIONS
 
@@ -48,7 +57,16 @@ def apply_overrides(env_name, source, condition, condition_value, options, new_c
             )
 
 
-def _apply_override_to_mapping(env_name, option, data, source, condition, condition_value, new_config, overwrite):
+def _apply_override_to_mapping(
+    env_name: str,
+    option: str,
+    data: Any,
+    source: str,
+    condition: str,
+    condition_value: str,
+    new_config: Dict[str, Union[str, bool, Dict[str, str]]],
+    overwrite: bool,
+) -> None:
     new_mapping = {}
     if isinstance(data, str):
         key, separator, value = data.partition('=')
@@ -105,7 +123,16 @@ def _apply_override_to_mapping(env_name, option, data, source, condition, condit
         new_config[option] = new_mapping
 
 
-def _apply_override_to_array(env_name, option, data, source, condition, condition_value, new_config, overwrite):
+def _apply_override_to_array(
+    env_name: str,
+    option: str,
+    data: Any,
+    source: str,
+    condition: str,
+    condition_value: str,
+    new_config: Dict[str, Union[bool, List[str], str]],
+    overwrite: bool,
+) -> None:
     if not isinstance(data, list):
         raise TypeError(f'Field `tool.hatch.envs.{env_name}.overrides.{source}.{condition}.{option}` must be an array')
 
@@ -146,7 +173,16 @@ def _apply_override_to_array(env_name, option, data, source, condition, conditio
         new_config[option] = new_array
 
 
-def _apply_override_to_string(env_name, option, data, source, condition, condition_value, new_config, overwrite):
+def _apply_override_to_string(
+    env_name: str,
+    option: str,
+    data: Any,
+    source: str,
+    condition: str,
+    condition_value: str,
+    new_config: Dict[str, Union[str, bool]],
+    overwrite: bool,
+) -> None:
     if isinstance(data, str):
         new_config[option] = data
     elif isinstance(data, dict):
@@ -195,7 +231,16 @@ def _apply_override_to_string(env_name, option, data, source, condition, conditi
         )
 
 
-def _apply_override_to_boolean(env_name, option, data, source, condition, condition_value, new_config, overwrite):
+def _apply_override_to_boolean(
+    env_name: str,
+    option: str,
+    data: Any,
+    source: str,
+    condition: str,
+    condition_value: str,
+    new_config: Dict[str, Union[bool, List[Dict[str, List[str]]], str]],
+    overwrite: bool,
+) -> None:
     if isinstance(data, bool):
         new_config[option] = data
     elif isinstance(data, dict):
@@ -244,7 +289,15 @@ def _apply_override_to_boolean(env_name, option, data, source, condition, condit
         )
 
 
-def _resolve_condition(env_name, option, source, condition, condition_value, condition_config, condition_index=None):
+def _resolve_condition(
+    env_name: str,
+    option: str,
+    source: str,
+    condition: str,
+    condition_value: str,
+    condition_config: Dict[str, Union[bool, List[str], str, int, List[int]]],
+    condition_index: Optional[int] = None,
+) -> bool:
     location = 'field' if condition_index is None else f'entry #{condition_index} in field'
 
     if 'if' in condition_config:

@@ -1,18 +1,19 @@
 import os
+from typing import Any
 
 FIELD_TO_PARSE = object()
 
 
 class ConfigurationError(Exception):
-    def __init__(self, *args, location):
+    def __init__(self, *args, location) -> None:
         self.location = location
         super().__init__(*args)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'Error parsing config:\n{self.location}\n  {super().__str__()}'
 
 
-def parse_config(obj):
+def parse_config(obj: Any) -> None:
     if isinstance(obj, LazilyParsedConfig):
         obj.parse_fields()
     elif isinstance(obj, list):
@@ -24,17 +25,17 @@ def parse_config(obj):
 
 
 class LazilyParsedConfig:
-    def __init__(self, config: dict, steps: tuple = ()):
+    def __init__(self, config: dict, steps: tuple = ()) -> None:
         self.raw_data = config
         self.steps = steps
 
-    def parse_fields(self):
+    def parse_fields(self) -> None:
         for attribute in self.__dict__:
             _, prefix, name = attribute.partition('_field_')
             if prefix:
                 parse_config(getattr(self, name))
 
-    def raise_error(self, message, *, extra_steps=()):
+    def raise_error(self, message: str, *, extra_steps:tuple =()):
         import inspect
 
         field = inspect.currentframe().f_back.f_code.co_name
@@ -42,7 +43,7 @@ class LazilyParsedConfig:
 
 
 class RootConfig(LazilyParsedConfig):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
         self._field_mode = FIELD_TO_PARSE
@@ -234,7 +235,7 @@ class RootConfig(LazilyParsedConfig):
 
 
 class ShellConfig(LazilyParsedConfig):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
         self._field_name = FIELD_TO_PARSE
@@ -304,7 +305,7 @@ class ShellConfig(LazilyParsedConfig):
 
 
 class DirsConfig(LazilyParsedConfig):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
         self._field_project = FIELD_TO_PARSE
@@ -422,7 +423,7 @@ class DirsConfig(LazilyParsedConfig):
 
 
 class ProjectConfig(LazilyParsedConfig):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
         self._field_location = FIELD_TO_PARSE
@@ -448,7 +449,7 @@ class ProjectConfig(LazilyParsedConfig):
 
 
 class TemplateConfig(LazilyParsedConfig):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
         self._field_name = FIELD_TO_PARSE
@@ -560,7 +561,7 @@ class TemplateConfig(LazilyParsedConfig):
 
 
 class LicensesConfig(LazilyParsedConfig):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
         self._field_headers = FIELD_TO_PARSE
@@ -610,7 +611,7 @@ class LicensesConfig(LazilyParsedConfig):
 
 
 class TerminalConfig(LazilyParsedConfig):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
         self._field_styles = FIELD_TO_PARSE
@@ -638,7 +639,7 @@ class TerminalConfig(LazilyParsedConfig):
 
 
 class StylesConfig(LazilyParsedConfig):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
         self._field_info = FIELD_TO_PARSE
