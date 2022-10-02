@@ -356,17 +356,29 @@ def test_selected_local_directory(hatch, helpers, temp_dir, config_file):
     project_path = temp_dir / 'my-app'
 
     project = Project(project_path)
-    assert project.config.envs == {'default': {'type': 'virtual'}}
     helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
-    helpers.update_project_environment(project, 'test', {})
+    helpers.update_project_environment(project, 'test', {'matrix': [{'version': ['9000', '42']}]})
 
-    with project_path.as_cwd({'VENVS_DIR': '.venvs'}):
+    with project_path.as_cwd({'VENVS_DIR': '.hatch'}):
+        result = hatch('env', 'create')
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        """
+        Creating environment: default
+        Checking dependencies
+        """
+    )
+
+    with project_path.as_cwd({'VENVS_DIR': '.hatch'}):
         result = hatch('env', 'create', 'test')
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
         """
-        Creating environment: test
+        Creating environment: test.9000
+        Checking dependencies
+        Creating environment: test.42
         Checking dependencies
         """
     )
@@ -374,31 +386,21 @@ def test_selected_local_directory(hatch, helpers, temp_dir, config_file):
     project = Project(project_path)
     assert project.config.envs == {
         'default': {'type': 'virtual', 'skip-install': True},
-        'test': {'type': 'virtual', 'skip-install': True},
+        'test.9000': {'type': 'virtual', 'skip-install': True},
+        'test.42': {'type': 'virtual', 'skip-install': True},
     }
     assert project.raw_config['tool']['hatch']['envs'] == {
         'default': {'type': 'virtual', 'skip-install': True},
-        'test': {},
+        'test': {'matrix': [{'version': ['9000', '42']}]},
     }
 
-    env_data_path = project_path / '.venvs'
+    env_data_path = project_path / '.hatch'
     assert env_data_path.is_dir()
 
-    project_data_path = env_data_path / project_path.name
-    assert project_data_path.is_dir()
+    env_dirs = list(env_data_path.iterdir())
+    assert len(env_dirs) == 3
 
-    storage_dirs = list(project_data_path.iterdir())
-    assert len(storage_dirs) == 1
-
-    storage_path = storage_dirs[0]
-    assert len(storage_path.name) == 8
-
-    env_dirs = list(storage_path.iterdir())
-    assert len(env_dirs) == 1
-
-    env_path = env_dirs[0]
-
-    assert env_path.name == 'test'
+    assert sorted(d.name for d in env_dirs) == ['my-app', 'test.42', 'test.9000']
 
 
 def test_option_local_directory(hatch, helpers, temp_dir, config_file):
