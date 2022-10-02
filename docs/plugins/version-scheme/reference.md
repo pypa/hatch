@@ -3,7 +3,7 @@
 -----
 
 ::: hatchling.version.scheme.plugin.interface.VersionSchemeInterface
-    selection:
+    options:
       members:
       - PLUGIN_NAME
       - root
