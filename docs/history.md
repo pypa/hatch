@@ -18,6 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ***Added:***
 
 - Add `project` command group to view details about the project like PEP 621 metadata
+- Better support for auto-detection of environments by tools like Visual Studio Code now that the storage directory of `virtual` environments will be flat if Hatch's configured `virtual` environment directory resides somewhere within the project root or if it is set to a `.virtualenvs` directory within the user's home directory
 - Build environments for the `virtual` environment type are now cached for improved performance
 - Add `build_environment_exists` method to the environment interface for implementations that cache the build environment
 - Add `path` option to the `virtual` environment type
