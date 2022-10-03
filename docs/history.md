@@ -34,6 +34,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - The `env show`, `dep hash`, and all `dep show` commands now honor context formatting
 - Decreasing verbosity now has no affect on output that should always be displayed
 - Handle more edge cases in the `setuptools` migration script
+- Allow `extra-dependencies` in environment overrides
 - Depend on `packaging` explicitly rather than relying on it being a transitive dependency of Hatchling
 
 ### [1.5.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.5.0) - 2022-08-28 ### {: #hatch-v1.5.0 }

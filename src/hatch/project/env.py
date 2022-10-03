@@ -4,6 +4,7 @@ from hatch.utils.platform import get_platform_name
 
 RESERVED_OPTIONS = {
     'dependencies': list,
+    'extra-dependencies': list,
     'dev-mode': bool,
     'env-exclude': list,
     'env-include': list,
