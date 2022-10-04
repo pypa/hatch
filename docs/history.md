@@ -26,6 +26,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Support Bash on Windows for the `shell` command
 - The `setuptools` migration script no longer modifies the formatting of existing `pyproject.toml` configuration
 - Bump the minimum supported version of Hatchling to 1.10.0
+- Add `env` as version number source to retrieve the version from an environment variable.
 
 ***Fixed:***
 
