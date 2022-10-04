@@ -1159,3 +1159,26 @@ class TestContextFormatting:
         )
 
         assert environment.dependencies == ['pkg==42']
+
+    def test_env_vars_override(self, isolation, data_dir, platform):
+        config = {
+            'project': {'name': 'my_app', 'version': '0.0.1'},
+            'tool': {
+                'hatch': {
+                    'envs': {
+                        'default': {
+                            'dependencies': ['pkg{env:DEP_PIN}'],
+                            'env-vars': {'DEP_PIN': '==0.0.1'},
+                            'overrides': {'env': {'DEP_ANY': {'env-vars': 'DEP_PIN='}}},
+                        },
+                    },
+                },
+            },
+        }
+        with EnvVars({'DEP_ANY': 'true'}):
+            project = Project(isolation, config=config)
+            environment = MockEnvironment(
+                isolation, project.metadata, 'default', project.config.envs['default'], {}, data_dir, platform, 0
+            )
+
+            assert environment.dependencies == ['pkg']

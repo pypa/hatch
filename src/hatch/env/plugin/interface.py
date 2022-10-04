@@ -274,7 +274,7 @@ class EnvironmentInterface(ABC):
             from packaging.requirements import InvalidRequirement, Requirement
 
             dependencies_complex = []
-            with self.metadata.context.apply_context(self.context):
+            with self.apply_context():
                 for option in ('dependencies', 'extra-dependencies'):
                     dependencies = self.config.get(option, [])
                     if not isinstance(dependencies, list):
@@ -758,7 +758,7 @@ class EnvironmentInterface(ABC):
         if not args:
             args = None
 
-        with self.metadata.context.apply_context(self.context):
+        with self.apply_context():
             if possible_script in self.scripts:
                 for cmd in self.scripts[possible_script]:
                     yield self.metadata.context.format(cmd, args=args).strip()
@@ -878,6 +878,11 @@ class EnvironmentInterface(ABC):
         [overrides](../../config/environment/advanced.md#option-overrides).
         """
         return {}
+
+    @contextmanager
+    def apply_context(self):
+        with self.get_env_vars(), self.metadata.context.apply_context(self.context):
+            yield
 
     def __enter__(self):
         self.activate()
