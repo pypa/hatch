@@ -6,7 +6,7 @@ import click
 @click.option('--ascii', 'force_ascii', is_flag=True, help='Whether or not to only use ASCII characters')
 @click.option('--json', 'as_json', is_flag=True, help='Whether or not to output in JSON format')
 @click.pass_obj
-def show(app, envs, force_ascii, as_json):
+def show(app, envs, force_ascii, as_json) -> None:
     """Show the available environments."""
     from hatch.config.constants import AppEnvVars
 

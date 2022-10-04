@@ -21,7 +21,7 @@ class ConfigFile:
     def path(self, value):
         self._path = value
 
-    def save(self, content: Optional[str]=None) -> None:
+    def save(self, content: Optional[str] = None) -> None:
         import tomli_w
 
         if not content:
@@ -54,7 +54,7 @@ class ConfigFile:
 
         self.model = config
 
-    def update(self):  # no cov
+    def update(self) -> None:  # no cov
         self.model.parse_fields()
         self.save()
 

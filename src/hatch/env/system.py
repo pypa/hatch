@@ -16,19 +16,19 @@ class SystemEnvironment(EnvironmentInterface):
     def find(self):
         return os.path.dirname(os.path.dirname(self.system_python))
 
-    def create(self):
+    def create(self) -> None:
         self.install_indicator.touch()
 
-    def remove(self):
+    def remove(self) -> None:
         self.install_indicator.remove()
 
     def exists(self):
         return self.install_indicator.is_file()
 
-    def install_project(self):
+    def install_project(self) -> None:
         self.platform.check_command(self.construct_pip_install_command([self.apply_features(str(self.root))]))
 
-    def install_project_dev_mode(self):
+    def install_project_dev_mode(self) -> None:
         self.platform.check_command(
             self.construct_pip_install_command(['--editable', self.apply_features(str(self.root))])
         )
@@ -43,5 +43,5 @@ class SystemEnvironment(EnvironmentInterface):
             self.dependencies_complex, sys_path=self.python_info.sys_path, environment=self.python_info.environment
         )
 
-    def sync_dependencies(self):
+    def sync_dependencies(self) -> None:
         self.platform.check_command(self.construct_pip_install_command(self.dependencies))

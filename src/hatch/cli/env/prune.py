@@ -3,7 +3,7 @@ import click
 
 @click.command(short_help='Remove all environments')
 @click.pass_obj
-def prune(app):
+def prune(app) -> None:
     """Remove all environments."""
     environment_types = app.plugins.environment.collect()
 

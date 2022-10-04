@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from os.path import expanduser, expandvars, isabs
-from typing import cast
+from typing import TYPE_CHECKING, Callable, Optional, Union, cast
 
 from hatch.cli.terminal import Terminal
 from hatch.config.user import ConfigFile, RootConfig
@@ -9,9 +9,15 @@ from hatch.project.core import Project
 from hatch.utils.fs import Path
 from hatch.utils.platform import Platform
 
+if TYPE_CHECKING:
+    from subprocess import Popen
+
+    from hatch.env.system import SystemEnvironment
+    from hatch.env.virtual import VirtualEnvironment
+    from hatch.plugin.manager import PluginManager
 
 class Application(Terminal):
-    def __init__(self, exit_func, *args, **kwargs):
+    def __init__(self, exit_func: Callable, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.platform = Platform(self.display_raw)
         self.__exit_func = exit_func
@@ -28,14 +34,14 @@ class Application(Terminal):
         self.env_active = cast(str, None)
 
     @property
-    def plugins(self):
+    def plugins(self) -> "PluginManager":
         return self.project.plugin_manager
 
     @property
     def config(self) -> RootConfig:
         return self.config_file.model
 
-    def get_environment(self, env_name=None):
+    def get_environment(self, env_name: Optional[str] = None) -> Union["VirtualEnvironment", "SystemEnvironment"]:
         if env_name is None:
             env_name = self.env
 
@@ -66,7 +72,7 @@ class Application(Terminal):
 
     # Ensure that this method is clearly written since it is
     # used for documenting the life cycle of environments.
-    def prepare_environment(self, environment):
+    def prepare_environment(self, environment: Union["VirtualEnvironment", "SystemEnvironment"]) -> None:
         if not environment.exists():
             with self.status_waiting(f'Creating environment: {environment.name}'):
                 environment.create()
@@ -95,8 +101,13 @@ class Application(Terminal):
                 environment.sync_dependencies()
 
     def run_shell_commands(
-        self, environment, commands: list[str], source='cmd', force_continue=False, show_code_on_error=True
-    ):
+        self,
+        environment: Union["VirtualEnvironment", "SystemEnvironment"],
+        commands: list[str],
+        source: str = 'cmd',
+        force_continue: bool = False,
+        show_code_on_error: bool = True,
+    ) -> None:
         with environment.command_context():
             try:
                 resolved_commands = list(environment.resolve_commands(commands))
@@ -127,7 +138,7 @@ class Application(Terminal):
             if first_error_code and force_continue:
                 self.abort(code=first_error_code)
 
-    def attach_builder(self, process):
+    def attach_builder(self, process: "Popen") -> None:
         import pickle
 
         with process:
@@ -146,7 +157,7 @@ class Application(Terminal):
         if process.returncode:
             self.abort(code=process.returncode)
 
-    def read_builder(self, process):
+    def read_builder(self, process: "Popen") -> str:
         import pickle
 
         lines = []
@@ -165,7 +176,7 @@ class Application(Terminal):
 
         return output
 
-    def get_env_directory(self, environment_type):
+    def get_env_directory(self, environment_type: str) -> Path:
         directories = self.config.dirs.env
 
         if environment_type in directories:
@@ -177,7 +188,7 @@ class Application(Terminal):
         else:
             return self.data_dir / 'env' / environment_type
 
-    def abort(self, text='', code=1, **kwargs):
+    def abort(self, text: str = '', code: int = 1, **kwargs) -> None:
         if text:
             self.display_error(text, **kwargs)
         self.__exit_func(code)
@@ -187,7 +198,7 @@ class Application(Terminal):
 
 
 class SafeApplication:
-    def __init__(self, app: Application):
+    def __init__(self, app: Application) -> None:
         self.abort = app.abort
         self.display_always = app.display_always
         self.display_info = app.display_info

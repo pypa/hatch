@@ -1,3 +1,5 @@
+from typing import Tuple, Union
+
 import click
 
 
@@ -43,7 +45,17 @@ import click
 )
 @click.option('--clean-only', is_flag=True, hidden=True)
 @click.pass_obj
-def build(app, location, targets, hooks_only, no_hooks, ext, clean, clean_hooks_after, clean_only):
+def build(
+    app,
+    location,
+    targets: Union[Tuple[str], Tuple[str, str]],
+    hooks_only: bool,
+    no_hooks,
+    ext,
+    clean,
+    clean_hooks_after,
+    clean_only,
+) -> None:
     """Build a project."""
     from hatch.utils.fs import Path
     from hatch.utils.structures import EnvVars

@@ -9,7 +9,7 @@ import click
 @click.option('--init', 'initialize', is_flag=True, help='Initialize an existing project')
 @click.option('-so', 'setuptools_options', multiple=True, hidden=True)
 @click.pass_obj
-def new(app, name, location, interactive, feature_cli, initialize, setuptools_options):
+def new(app, name, location, interactive: bool, feature_cli, initialize, setuptools_options) -> None:
     """Create or initialize a project."""
     from copy import deepcopy
     from datetime import datetime, timezone

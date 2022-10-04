@@ -1,12 +1,14 @@
 from __future__ import annotations
-from typing import Optional, Tuple, Union
+
+from typing import TYPE_CHECKING, Optional, Tuple, Union
 
 import httpx
 import hyperlink
 
 from hatch.utils.fs import Path
 
-from httpx._types import VerifyTypes, CertTypes
+if TYPE_CHECKING:
+    from httpx._types import VerifyTypes
 
 
 class IndexURLs:
@@ -33,8 +35,8 @@ class PackageIndex:
         *,
         user: str = '',
         auth: str = '',
-        ca_cert: Optional[VerifyTypes] = None,
-        client_cert: Optional[str] = None,
+        ca_cert: Optional["VerifyTypes"] = None,
+        client_cert: Union[None, str, Tuple[str, Optional[str]], Tuple[str, Optional[str], Optional[str]]] = None,
         client_key: Optional[str] = None,
     ) -> None:
         self.urls = IndexURLs(repo)
@@ -50,7 +52,7 @@ class PackageIndex:
 
         self.tls_context = httpx.create_ssl_context(verify=ca_cert or True, cert=cert)
 
-    def upload_artifact(self, artifact: Path, data: dict):
+    def upload_artifact(self, artifact: Path, data: dict) -> None:
         import hashlib
         import io
 

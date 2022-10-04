@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import re
+from typing import Optional
 
 from hatch.config.model import RootConfig
 from hatch.utils.fs import Path
 
 
 class Project:
-    def __init__(self, path: Path, *, name: str = None, config=None):
+    def __init__(self, path: Path, *, name: Optional[str] = None, config=None) -> None:
         self._path = path
 
         # From app config
@@ -90,7 +91,7 @@ class Project:
             path = new_path
 
     @staticmethod
-    def canonicalize_name(name: str, strict=True) -> str:
+    def canonicalize_name(name: str, strict: bool = True) -> str:
         if strict:
             return re.sub(r'[-_.]+', '-', name).lower()
         else:
@@ -119,14 +120,14 @@ class Project:
 
         return self._raw_config
 
-    def save_config(self, config):
+    def save_config(self, config) -> None:
         import tomlkit
 
         with open(str(self._project_file_path), 'w', encoding='utf-8') as f:
             f.write(tomlkit.dumps(config))
 
     @staticmethod
-    def initialize(project_file_path, template_config):
+    def initialize(project_file_path, template_config) -> None:
         import tomlkit
 
         with open(str(project_file_path), encoding='utf-8') as f:

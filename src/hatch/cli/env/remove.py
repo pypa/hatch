@@ -4,7 +4,7 @@ import click
 @click.command(short_help='Remove environments')
 @click.argument('env_name', default='default')
 @click.pass_context
-def remove(ctx, env_name):
+def remove(ctx, env_name) -> None:
     """Remove environments."""
     app = ctx.obj
     if ctx.get_parameter_source('env_name').name == 'DEFAULT':

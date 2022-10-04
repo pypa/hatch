@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional, Type, Union
 
 from hatch.utils.platform import get_platform_name
 
-RESERVED_OPTIONS = {
+RESERVED_OPTIONS: Dict[str, Type[Union[bool, dict, list, str]]] = {
     'dependencies': list,
     'extra-dependencies': list,
     'dev-mode': bool,
@@ -28,8 +28,8 @@ def apply_overrides(
     condition: str,
     condition_value: str,
     options: Dict[str, Any],
-    new_config: Dict,
-    option_types: Optional[Dict[str, Type]] = None,
+    new_config: Dict[str, Union[bool, List[Dict[str, List[str]]], str, List[str], Dict[str, str]]],
+    option_types: Optional[Union[Dict[str, Union[Type[bool], Type[str], Type[dict]]], Dict[str, Type[bool]]]] = None,
 ) -> None:
     if option_types is None:
         option_types = RESERVED_OPTIONS
@@ -180,7 +180,7 @@ def _apply_override_to_string(
     source: str,
     condition: str,
     condition_value: str,
-    new_config: Dict[str, Union[str, bool]],
+    new_config: Dict[str, Union[bool, str]],
     overwrite: bool,
 ) -> None:
     if isinstance(data, str):
@@ -295,7 +295,7 @@ def _resolve_condition(
     source: str,
     condition: str,
     condition_value: str,
-    condition_config: Dict[str, Union[bool, List[str], str, int, List[int]]],
+    condition_config: Dict[str, Union[str, int, bool, List[str], List[int]]],
     condition_index: Optional[int] = None,
 ) -> bool:
     location = 'field' if condition_index is None else f'entry #{condition_index} in field'

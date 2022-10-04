@@ -2,22 +2,19 @@ import re
 from copy import deepcopy
 from itertools import product
 from os import environ
-from typing import Any, Dict, List, Optional, Set, Type, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Type, Union
 
 from hatch.env.utils import ensure_valid_environment
-from hatch.plugin.manager import PluginManager
 from hatch.project.env import apply_overrides
 from hatch.project.utils import format_script_commands, parse_script_command
-from hatch.utils.fs import Path
+
+if TYPE_CHECKING:
+    from hatch.plugin.manager import PluginManager
+    from hatch.utils.fs import Path
 
 
 class ProjectConfig:
-    def __init__(
-        self,
-        root: Path,
-        config: Dict[str, Any],
-        plugin_manager: Optional[PluginManager] = None,
-    ) -> None:
+    def __init__(self, root: "Path", config: Dict[str, Any], plugin_manager: Optional["PluginManager"] = None) -> None:
         self.root = root
         self.config = config
         self.plugin_manager = plugin_manager
@@ -34,7 +31,7 @@ class ProjectConfig:
     @property
     def env(
         self,
-    ) -> Dict[str, Union[Dict[str, Dict[Any, Any]], Dict[str, int], Dict[str, Dict[str, Dict[str, int]]], int]]:
+    ) -> Dict[str, Union[int, Dict[str, Dict[Any, Any]], Dict[str, int], Dict[str, Dict[str, Dict[str, int]]]]]:
         if self._env is None:
             config = self.config.get('env', {})
             if not isinstance(config, dict):
@@ -440,11 +437,7 @@ def expand_script_commands(
 
 
 def _populate_default_env_values(
-    env_name: str,
-    data: Dict[str, Any],
-    config: Dict[str, Any],
-    seen: Set[str],
-    active: List[Union[Any, str]],
+    env_name: str, data: Dict[str, Any], config: Dict[str, Any], seen: Set[str], active: List[Union[Any, str]],
 ) -> None:
     if env_name in seen:
         return

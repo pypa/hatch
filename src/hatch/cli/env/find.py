@@ -4,7 +4,7 @@ import click
 @click.command(short_help='Locate environments')
 @click.argument('env_name', default='default')
 @click.pass_obj
-def find(app, env_name):
+def find(app, env_name) -> None:
     """Locate environments."""
     root_env_name = env_name
     project_config = app.project.config

@@ -2,6 +2,7 @@ from base64 import urlsafe_b64encode
 from contextlib import contextmanager
 from hashlib import sha256
 from os.path import isabs
+from typing import Iterator, List
 
 from hatch.env.plugin.interface import EnvironmentInterface
 from hatch.utils.fs import Path
@@ -12,7 +13,7 @@ from hatch.venv.core import VirtualEnv
 class VirtualEnvironment(EnvironmentInterface):
     PLUGIN_NAME = 'virtual'
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
         project_name = self.metadata.name
@@ -52,13 +53,13 @@ class VirtualEnvironment(EnvironmentInterface):
     def get_option_types() -> dict:
         return {'system-packages': bool, 'path': bool}
 
-    def activate(self):
+    def activate(self) -> None:
         self.virtual_env.activate()
 
-    def deactivate(self):
+    def deactivate(self) -> None:
         self.virtual_env.deactivate()
 
-    def find(self):
+    def find(self) -> Path:
         return self.virtual_env_path
 
     def create(self):
@@ -77,7 +78,7 @@ class VirtualEnvironment(EnvironmentInterface):
 
         self.virtual_env.create(self.parent_python, allow_system_packages=self.config.get('system-packages', False))
 
-    def remove(self):
+    def remove(self) -> None:
         self.virtual_env.remove()
         self.build_virtual_env.remove()
 
@@ -87,20 +88,20 @@ class VirtualEnvironment(EnvironmentInterface):
             if not entries or (entries == ['.gitignore'] and self.root in self.storage_path.parents):
                 self.storage_path.remove()
 
-    def exists(self):
+    def exists(self) -> bool:
         return self.virtual_env.exists()
 
-    def install_project(self):
+    def install_project(self) -> None:
         with self.safe_activation():
             self.platform.check_command(self.construct_pip_install_command([self.apply_features(str(self.root))]))
 
-    def install_project_dev_mode(self):
+    def install_project_dev_mode(self) -> None:
         with self.safe_activation():
             self.platform.check_command(
                 self.construct_pip_install_command(['--editable', self.apply_features(str(self.root))])
             )
 
-    def dependencies_in_sync(self):
+    def dependencies_in_sync(self) -> bool:
         if not self.dependencies:
             return True
 
@@ -111,12 +112,12 @@ class VirtualEnvironment(EnvironmentInterface):
                 self.dependencies_complex, sys_path=self.virtual_env.sys_path, environment=self.virtual_env.environment
             )
 
-    def sync_dependencies(self):
+    def sync_dependencies(self) -> None:
         with self.safe_activation():
             self.platform.check_command(self.construct_pip_install_command(self.dependencies))
 
     @contextmanager
-    def build_environment(self, dependencies):
+    def build_environment(self, dependencies: List[str]) -> Iterator[None]:
         from packaging.requirements import Requirement
 
         from hatchling.dep.core import dependencies_in_sync
@@ -134,15 +135,15 @@ class VirtualEnvironment(EnvironmentInterface):
 
             yield
 
-    def build_environment_exists(self):
+    def build_environment_exists(self) -> bool:
         return self.build_virtual_env.exists()
 
     @contextmanager
-    def command_context(self):
+    def command_context(self) -> Iterator[None]:
         with self.safe_activation():
             yield
 
-    def enter_shell(self, name, path, args):
+    def enter_shell(self, name, path, args) -> None:
         shell_executor = getattr(self.shells, f'enter_{name}', None)
         if shell_executor is None:
             # Manually activate in lieu of an activation script
@@ -152,7 +153,7 @@ class VirtualEnvironment(EnvironmentInterface):
             with self.get_env_vars():
                 shell_executor(path, args, self.virtual_env.executables_directory)
 
-    def check_compatibility(self):
+    def check_compatibility(self) -> None:
         super().check_compatibility()
 
         python_choice = self.config.get('python')
@@ -168,7 +169,7 @@ class VirtualEnvironment(EnvironmentInterface):
         raise OSError(f'cannot locate Python: {python_choice}')
 
     @property
-    def parent_python(self):
+    def parent_python(self) -> str:
         if self._parent_python is None:
             python_choice = self.config.get('python')
             if not python_choice:
@@ -183,7 +184,7 @@ class VirtualEnvironment(EnvironmentInterface):
         return self._parent_python
 
     @contextmanager
-    def safe_activation(self):
+    def safe_activation(self) -> Iterator[None]:
         # Set user-defined environment variables first so ours take precedence
         with self.get_env_vars(), self:
             yield

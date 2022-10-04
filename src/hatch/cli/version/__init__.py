@@ -4,7 +4,7 @@ import click
 @click.command(short_help="View or set a project's version")
 @click.argument('desired_version', required=False)
 @click.pass_obj
-def version(app, desired_version):
+def version(app, desired_version: str) -> None:
     """View or set a project's version."""
     if 'version' in app.project.metadata.config.get('project', {}):
         if desired_version:

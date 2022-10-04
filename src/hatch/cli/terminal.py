@@ -3,17 +3,19 @@ from __future__ import annotations
 import os
 from contextlib import contextmanager
 from textwrap import indent as indent_text
-from typing import Any, Dict, Iterator, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, Iterator, List, Optional, Union
 
 import click
 from rich.console import Console
 from rich.errors import StyleSyntaxError
 from rich.style import Style
-from rich.syntax import Syntax
 from rich.text import Text
-from rich.tree import Tree
 
-from hatch.utils.fs import Path
+if TYPE_CHECKING:
+    from rich.syntax import Syntax
+    from rich.tree import Tree
+
+    from hatch.utils.fs import Path
 
 
 class Terminal:
@@ -64,129 +66,56 @@ class Terminal:
         return errors
 
     def display_error(
-        self,
-        text: str = '',
-        stderr: bool = True,
-        indent: Optional[int] = None,
-        link: None = None,
-        **kwargs,
+        self, text: str = '', stderr: bool = True, indent: None = None, link: None = None, **kwargs
     ) -> None:
         if self.verbosity < -2:
             return
 
-        self.display(
-            text,
-            self._style_level_error,
-            stderr=stderr,
-            indent=indent,
-            link=link,
-            **kwargs,
-        )
+        self.display(text, self._style_level_error, stderr=stderr, indent=indent, link=link, **kwargs)
 
     def display_warning(
-        self,
-        text: str = '',
-        stderr: bool = False,
-        indent: Optional[int] = None,
-        link: None = None,
-        **kwargs,
+        self, text: str = '', stderr: bool = False, indent: None = None, link: None = None, **kwargs
     ) -> None:
         if self.verbosity < -1:
             return
 
-        self.display(
-            text,
-            self._style_level_warning,
-            stderr=stderr,
-            indent=indent,
-            link=link,
-            **kwargs,
-        )
+        self.display(text, self._style_level_warning, stderr=stderr, indent=indent, link=link, **kwargs)
 
     def display_info(
-        self,
-        text: str = '',
-        stderr: bool = False,
-        indent: Optional[int] = None,
-        link: Optional[str] = None,
-        **kwargs,
+        self, text: str = '', stderr: bool = False, indent: None = None, link: Optional[str] = None, **kwargs
     ) -> None:
         if self.verbosity < 0:
             return
 
-        self.display(
-            text,
-            self._style_level_info,
-            stderr=stderr,
-            indent=indent,
-            link=link,
-            **kwargs,
-        )
+        self.display(text, self._style_level_info, stderr=stderr, indent=indent, link=link, **kwargs)
 
     def display_success(
-        self,
-        text: str = '',
-        stderr: bool = False,
-        indent: Optional[int] = None,
-        link: None = None,
-        **kwargs,
+        self, text: str = '', stderr: bool = False, indent: None = None, link: None = None, **kwargs
     ) -> None:
         if self.verbosity < 0:
             return
 
-        self.display(
-            text,
-            self._style_level_success,
-            stderr=stderr,
-            indent=indent,
-            link=link,
-            **kwargs,
-        )
+        self.display(text, self._style_level_success, stderr=stderr, indent=indent, link=link, **kwargs)
 
     def display_waiting(
-        self,
-        text: str = '',
-        stderr: bool = False,
-        indent: Optional[int] = None,
-        link: None = None,
-        **kwargs,
+        self, text: str = '', stderr: bool = False, indent: None = None, link: None = None, **kwargs
     ) -> None:
         if self.verbosity < 0:
             return
 
-        self.display(
-            text,
-            self._style_level_waiting,
-            stderr=stderr,
-            indent=indent,
-            link=link,
-            **kwargs,
-        )
+        self.display(text, self._style_level_waiting, stderr=stderr, indent=indent, link=link, **kwargs)
 
     def display_debug(
-        self,
-        text: str = '',
-        level: int = 1,
-        stderr: bool = False,
-        indent: Optional[int] = None,
-        link: None = None,
-        **kwargs,
+        self, text: str = '', level: int = 1, stderr: bool = False, indent: None = None, link: None = None, **kwargs
     ) -> None:
         if not 1 <= level <= 3:
             raise ValueError('Debug output can only have verbosity levels between 1 and 3 (inclusive)')
         elif self.verbosity < level:
             return
 
-        self.display(
-            text,
-            self._style_level_debug,
-            stderr=stderr,
-            indent=indent,
-            link=link,
-            **kwargs,
-        )
+        self.display(text, self._style_level_debug, stderr=stderr, indent=indent, link=link, **kwargs)
 
-    def display_mini_header(self, text: str, *, stderr=False, indent=None, link=None) -> None:
+    def display_mini_header(self, text: str, *, stderr: bool = False, indent=None, link=None) -> None:
         if self.verbosity < 0:
             return
 
@@ -194,10 +123,10 @@ class Terminal:
         self.display_success(text, stderr=stderr, link=link, end='')
         self.display_info(']', stderr=stderr)
 
-    def display_header(self, title: str = '', *, stderr=False) -> None:
+    def display_header(self, title: str = '', *, stderr: bool = False) -> None:
         self.console.rule(Text(title, self._style_level_success))
 
-    def display_markdown(self, text, **kwargs):  # no cov
+    def display_markdown(self, text, **kwargs) -> None:  # no cov
         from rich.markdown import Markdown
 
         self.display_raw(Markdown(text), **kwargs)
@@ -271,11 +200,11 @@ class Terminal:
 
     def display(
         self,
-        text: Union[str, Syntax, Table, Tree] = '',
-        style: Optional[Union[str, Style]] = None,
+        text: Union[str, "Table", "Tree", "Syntax"] = '',
+        style: Optional[Union[str, "Style"]] = None,
         *,
-        stderr=False,
-        indent=None,
+        stderr: bool = False,
+        indent: typing.Optional[str] = None,
         link=None,
         **kwargs,
     ) -> None:
@@ -298,25 +227,18 @@ class Terminal:
             finally:
                 self.console.stderr = False
 
-    def display_raw(self, text: str, **kwargs):
+    def display_raw(self, text, **kwargs) -> None:
         self.console.print(text, overflow='ignore', no_wrap=True, crop=False, **kwargs)
 
-    def display_always(self, text: Union[str, Path] = '', **kwargs) -> None:
-        self.console.print(
-            text,
-            style=self._style_level_info,
-            overflow='ignore',
-            no_wrap=True,
-            crop=False,
-            **kwargs,
-        )
+    def display_always(self, text: Union[str, "Path"] = '', **kwargs) -> None:
+        self.console.print(text, style=self._style_level_info, overflow='ignore', no_wrap=True, crop=False, **kwargs)
 
     @staticmethod
     def prompt(text: str, **kwargs) -> str:
         return click.prompt(text, **kwargs)
 
     @staticmethod
-    def confirm(text: str, **kwargs):
+    def confirm(text: str, **kwargs) -> bool:
         return click.confirm(text, **kwargs)
 
 
@@ -327,5 +249,5 @@ class MockStatus:
     def __enter__(self) -> "MockStatus":
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback) -> None:
+    def __exit__(self, exc_type: None, exc_value: None, traceback: None) -> None:
         pass

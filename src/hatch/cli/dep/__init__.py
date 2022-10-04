@@ -2,7 +2,7 @@ import click
 
 
 @click.group(short_help='Manage environment dependencies')
-def dep():
+def dep() -> None:
     pass
 
 
@@ -10,7 +10,7 @@ def dep():
 @click.option('--project-only', '-p', is_flag=True, help='Whether or not to exclude environment dependencies')
 @click.option('--env-only', '-e', is_flag=True, help='Whether or not to exclude project dependencies')
 @click.pass_obj
-def hash_dependencies(app, project_only, env_only):
+def hash_dependencies(app, project_only, env_only) -> None:
     """Output a hash of the currently defined dependencies."""
     from hashlib import sha256
 
@@ -42,7 +42,7 @@ def hash_dependencies(app, project_only, env_only):
 
 
 @dep.group(short_help='Display dependencies in various formats')
-def show():
+def show() -> None:
     pass
 
 
@@ -52,7 +52,7 @@ def show():
 @click.option('--lines', '-l', 'show_lines', is_flag=True, help='Whether or not to show lines between table rows')
 @click.option('--ascii', 'force_ascii', is_flag=True, help='Whether or not to only use ASCII characters')
 @click.pass_obj
-def table(app, project_only, env_only, show_lines, force_ascii):
+def table(app, project_only, env_only, show_lines, force_ascii) -> None:
     """Enumerate dependencies in a tabular format."""
     from packaging.requirements import Requirement
 
@@ -119,7 +119,7 @@ def table(app, project_only, env_only, show_lines, force_ascii):
 )
 @click.option('--all', 'all_features', is_flag=True, help='Whether or not to include the dependencies of all features')
 @click.pass_obj
-def requirements(app, project_only, env_only, features, all_features):
+def requirements(app, project_only, env_only, features, all_features) -> None:
     """Enumerate dependencies as a list of requirements."""
     from hatch.utils.dep import get_normalized_dependencies, get_project_dependencies_complex
     from hatchling.metadata.utils import normalize_project_name

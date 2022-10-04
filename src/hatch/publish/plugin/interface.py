@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Dict, Optional, Union
+from typing import TYPE_CHECKING, Dict, Optional, Union
 
-from hatch.utils.fs import Path
+if TYPE_CHECKING:
+    from hatch.utils.fs import Path
 
 
 class PublisherInterface(ABC):
@@ -41,7 +42,7 @@ class PublisherInterface(ABC):
     def __init__(
         self,
         app: None,
-        root: Path,
+        root: "Path",
         cache_dir: None,
         project_config: Dict[str, Union[int, bool]],
         plugin_config: Dict[str, Union[int, bool]],
@@ -55,7 +56,7 @@ class PublisherInterface(ABC):
         self.__disable: Optional[bool] = None
 
     @property
-    def app(self):
+    def app(self) -> None:
         """
         An instance of [Application](../utilities.md#hatchling.bridge.app.Application).
         """
@@ -69,7 +70,7 @@ class PublisherInterface(ABC):
         return self.__root
 
     @property
-    def cache_dir(self):
+    def cache_dir(self) -> None:
         """
         The directory reserved exclusively for this plugin as a path-like object.
         """

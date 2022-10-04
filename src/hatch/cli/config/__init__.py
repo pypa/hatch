@@ -4,13 +4,13 @@ import click
 
 
 @click.group(short_help='Manage the config file')
-def config():
+def config() -> None:
     pass
 
 
 @config.command(short_help='Open the config location in your file manager')
 @click.pass_obj
-def explore(app):
+def explore(app) -> None:
     """Open the config location in your file manager."""
     click.launch(str(app.config_file.path), locate=True)
 
@@ -18,7 +18,7 @@ def explore(app):
 @config.command(short_help='Show the location of the config file')
 @click.option('--copy', '-c', is_flag=True, help='Copy the path to the config file to the clipboard')
 @click.pass_obj
-def find(app, copy):
+def find(app, copy) -> None:
     """Show the location of the config file."""
     config_path = str(app.config_file.path)
     if copy:
@@ -34,7 +34,7 @@ def find(app, copy):
 @config.command(short_help='Show the contents of the config file')
 @click.option('--all', '-a', 'all_keys', is_flag=True, help='Do not scrub secret fields')
 @click.pass_obj
-def show(app, all_keys):
+def show(app, all_keys) -> None:
     """Show the contents of the config file."""
     if not app.config_file.path.is_file():  # no cov
         app.display_info('No config file found! Please try `hatch config restore`.')
@@ -47,7 +47,7 @@ def show(app, all_keys):
 
 @config.command(short_help='Update the config file with any new fields')
 @click.pass_obj
-def update(app):  # no cov
+def update(app) -> None:  # no cov
     """Update the config file with any new fields."""
     app.config_file.update()
     app.display_success('Settings were successfully updated.')
@@ -55,7 +55,7 @@ def update(app):  # no cov
 
 @config.command(short_help='Restore the config file to default settings')
 @click.pass_obj
-def restore(app):
+def restore(app) -> None:
     """Restore the config file to default settings."""
     app.config_file.restore()
     app.display_success('Settings were successfully restored.')
@@ -65,7 +65,7 @@ def restore(app):
 @click.argument('key')
 @click.argument('value', required=False)
 @click.pass_obj
-def set_value(app, key, value):
+def set_value(app, key, value) -> None:
     """
     Assign values to config file entries. If the value is omitted,
     you will be prompted, with the input hidden if it is sensitive.

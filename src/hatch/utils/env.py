@@ -1,11 +1,12 @@
 from ast import literal_eval
-from typing import Dict, List, Optional
+from typing import TYPE_CHECKING, Dict, List, Optional, Union
 
-from hatch.utils.platform import Platform
+if TYPE_CHECKING:
+    from hatch.utils.platform import Platform
 
 
 class PythonInfo:
-    def __init__(self, platform: Platform, executable: str = 'python') -> None:
+    def __init__(self, platform: "Platform", executable: str = 'python') -> None:
         self.platform = platform
         self.executable = executable
 
@@ -14,7 +15,7 @@ class PythonInfo:
         self.__sys_path: Optional[List[str]] = None
 
     @property
-    def dep_check_data(self) -> Dict:
+    def dep_check_data(self) -> Dict[str, Union[Dict[str, str], List[str]]]:
         if self.__dep_check_data is None:
             process = self.platform.check_command(
                 [self.executable, '-W', 'ignore', '-'], capture_output=True, input=DEP_CHECK_DATA_SCRIPT

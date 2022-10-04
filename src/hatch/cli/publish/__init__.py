@@ -74,7 +74,7 @@ def publish(
     publisher_name,
     options,
     yes,
-):
+) -> None:
     """Publish build artifacts."""
     option_map = {'no_prompt': no_prompt, 'initialize_auth': initialize_auth}
     if publisher_name == 'index':

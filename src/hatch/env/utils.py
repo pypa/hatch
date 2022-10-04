@@ -5,7 +5,7 @@ def ensure_valid_environment(env_config: dict) -> None:
     env_config.setdefault('type', 'virtual')
 
 
-def get_verbosity_flag(verbosity: int, *, adjustment: int=0) -> str:
+def get_verbosity_flag(verbosity: int, *, adjustment: int = 0) -> str:
     verbosity += adjustment
     if not verbosity:
         return ''
@@ -15,7 +15,7 @@ def get_verbosity_flag(verbosity: int, *, adjustment: int=0) -> str:
         return f'-{"q" * abs(max(verbosity, -3))}'
 
 
-def add_verbosity_flag(command: list[str], verbosity: int, *, adjustment: int=0) -> None:
+def add_verbosity_flag(command: list[str], verbosity: int, *, adjustment: int = 0) -> None:
     flag = get_verbosity_flag(verbosity, adjustment=adjustment)
     if flag:
         command.append(flag)

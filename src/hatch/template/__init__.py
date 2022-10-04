@@ -22,9 +22,9 @@ class File:
 def find_template_files(module) -> Generator[File, None, None]:
     for name in dir(module):
         obj = getattr(module, name)
-        if type(obj) is File:
+        if obj is File:
             continue
 
         with suppress(TypeError):
-            if issubclass(type(obj), File):
+            if issubclass(obj, File):
                 yield obj

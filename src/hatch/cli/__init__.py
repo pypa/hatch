@@ -83,7 +83,18 @@ from hatch.utils.fs import Path
 )
 @click.version_option(version=__version__, prog_name='Hatch')
 @click.pass_context
-def hatch(ctx: click.Context, env_name, project, color, interactive, verbose, quiet, data_dir, cache_dir, config_file):
+def hatch(
+    ctx: click.Context,
+    env_name,
+    project,
+    color: bool,
+    interactive: bool,
+    verbose,
+    quiet,
+    data_dir,
+    cache_dir,
+    config_file,
+) -> None:
     """
     \b
      _   _       _       _

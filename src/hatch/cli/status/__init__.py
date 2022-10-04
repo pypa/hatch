@@ -3,7 +3,7 @@ import click
 
 @click.command(short_help='Show information about the current environment')
 @click.pass_obj
-def status(app):
+def status(app) -> None:
     """Show information about the current environment."""
 
     def display_pair(key, value, display_func=None, link=None):

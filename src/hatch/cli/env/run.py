@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Set, Tuple, Union
 import click
 
 
-def parse_variable_spec(spec: str) -> Union[Tuple[str, Set[str]], Tuple[str, Set[Any]]]:
+def parse_variable_spec(spec: str) -> Union[Tuple[str, Set[Any]], Tuple[str, Set[str]]]:
     variable, _, values = spec.partition('=')
     if variable == 'py':
         variable = 'python'
@@ -16,7 +16,7 @@ def select_matrix_environments(
     environments: Dict[str, Dict[str, str]],
     included_variables: Dict[str, Set[str]],
     excluded_variables: Dict[str, Union[Set[str], Set[Any]]],
-) -> List[Union[str, Any]]:
+) -> List[Union[Any, str]]:
     selected_environments = []
     for env_name, variables in environments.items():
         included = set(variables)
@@ -74,10 +74,10 @@ def run(
     env_names,
     included_variable_specs,
     excluded_variable_specs,
-    filter_json,
+    filter_json: Union[bytes, str],
     force_continue,
     ignore_compat,
-):
+) -> None:
     """
     Run commands within project environments.
 

@@ -19,7 +19,7 @@ class PluginManager(_PluginManager):
 
         self.manager.register(hooks)
 
-    def hatch_register_publisher(self):
+    def hatch_register_publisher(self) -> None:
         from hatch.publish.plugin import hooks
 
         self.manager.register(hooks)

@@ -8,7 +8,7 @@ import click
 @click.argument('args', metavar='[ENV:]ARGS...', required=True, nargs=-1)
 @click.pass_obj
 @click.pass_context
-def run(ctx, app, args):
+def run(ctx, app, args) -> None:
     """
     Run commands within project environments.
     This is a convenience wrapper around the [`env run`](#hatch-env-run) command.

@@ -5,11 +5,24 @@ import sys
 from abc import ABC, abstractmethod
 from contextlib import contextmanager
 from os.path import isabs
+from typing import TYPE_CHECKING, Any, Dict, Iterator, List, Optional, Union
 
 from hatch.config.constants import AppEnvVars
 from hatch.env.utils import add_verbosity_flag
 from hatch.project.utils import format_script_commands, parse_script_command
 from hatch.utils.structures import EnvVars
+
+if TYPE_CHECKING:
+    from subprocess import CompletedProcess, Popen
+    from unittest.mock import MagicMock
+
+    from packaging.requirements import Requirement
+
+    from hatch.cli.application import SafeApplication
+    from hatch.env.virtual import VirtualEnvironment
+    from hatch.utils.fs import Path
+    from hatch.utils.platform import Platform
+    from hatchling.metadata.core import ProjectMetadata
 
 
 class EnvironmentInterface(ABC):
@@ -44,7 +57,18 @@ class EnvironmentInterface(ABC):
     PLUGIN_NAME = ''
     """The name used for selection."""
 
-    def __init__(self, root, metadata, name, config, matrix_variables, data_directory, platform, verbosity, app=None):
+    def __init__(
+        self,
+        root: "Path",
+        metadata: ProjectMetadata,
+        name: str,
+        config: Dict[str, Any],
+        matrix_variables: Dict[str, str],
+        data_directory: "Path",
+        platform: "Platform",
+        verbosity: int,
+        app: Optional["SafeApplication"] = None,
+    ) -> None:
         self.__root = root
         self.__metadata = metadata
         self.__name = name
@@ -74,11 +98,11 @@ class EnvironmentInterface(ABC):
         self._post_install_commands = None
 
     @property
-    def matrix_variables(self):
+    def matrix_variables(self) -> Dict[str, str]:
         return self.__matrix_variables
 
     @property
-    def app(self):
+    def app(self) -> "SafeApplication":
         """
         An instance of [Application](../utilities.md#hatchling.bridge.app.Application).
         """
@@ -90,25 +114,25 @@ class EnvironmentInterface(ABC):
         return self.__app
 
     @property
-    def context(self):
+    def context(self) -> "EnvironmentContextFormatter":
         if self.__context is None:
             self.__context = self.get_context()
 
         return self.__context
 
     @property
-    def verbosity(self):
+    def verbosity(self) -> int:
         return self.__verbosity
 
     @property
-    def root(self):
+    def root(self) -> Path:
         """
         The root of the project tree as a path-like object.
         """
         return self.__root
 
     @property
-    def metadata(self):
+    def metadata(self) -> "ProjectMetadata":
         return self.__metadata
 
     @property
@@ -119,14 +143,14 @@ class EnvironmentInterface(ABC):
         return self.__name
 
     @property
-    def platform(self):
+    def platform(self) -> "Platform":
         """
         An instance of [Platform](../utilities.md#hatch.utils.platform.Platform).
         """
         return self.__platform
 
     @property
-    def data_directory(self):
+    def data_directory(self) -> "Path":
         """
         The [directory](../../config/hatch.md#environments) reserved exclusively for this plugin as a path-like object.
         """
@@ -150,7 +174,7 @@ class EnvironmentInterface(ABC):
         return self.__config
 
     @property
-    def system_python(self):
+    def system_python(self) -> str:
         if self._system_python is None:
             system_python = os.environ.get(AppEnvVars.PYTHON)
             if system_python == 'self':
@@ -269,7 +293,7 @@ class EnvironmentInterface(ABC):
         return self._env_exclude
 
     @property
-    def environment_dependencies_complex(self):
+    def environment_dependencies_complex(self) -> List[Union["Requirement", Any]]:
         if self._environment_dependencies_complex is None:
             from packaging.requirements import InvalidRequirement, Requirement
 
@@ -308,7 +332,7 @@ class EnvironmentInterface(ABC):
         return self._environment_dependencies
 
     @property
-    def dependencies_complex(self):
+    def dependencies_complex(self) -> List[Union["Requirement", Any]]:
         if self._dependencies_complex is None:
             all_dependencies_complex = list(self.environment_dependencies_complex)
 
@@ -432,7 +456,7 @@ class EnvironmentInterface(ABC):
         return self._dev_mode
 
     @property
-    def features(self):
+    def features(self) -> List[Union[Any, str]]:
         if self._features is None:
             from hatchling.metadata.utils import normalize_project_name
 
@@ -491,7 +515,7 @@ class EnvironmentInterface(ABC):
         return self._description
 
     @property
-    def scripts(self):
+    def scripts(self) -> Dict[str, List[str]]:
         if self._scripts is None:
             script_config = self.config.get('scripts', {})
             if not isinstance(script_config, dict):
@@ -534,7 +558,7 @@ class EnvironmentInterface(ABC):
         return self._scripts
 
     @property
-    def pre_install_commands(self):
+    def pre_install_commands(self) -> List[Union[Any, str]]:
         if self._pre_install_commands is None:
             pre_install_commands = self.config.get('pre-install-commands', [])
             if not isinstance(pre_install_commands, list):
@@ -551,7 +575,7 @@ class EnvironmentInterface(ABC):
         return self._pre_install_commands
 
     @property
-    def post_install_commands(self):
+    def post_install_commands(self) -> List[Union[Any, str]]:
         if self._post_install_commands is None:
             post_install_commands = self.config.get('post-install-commands', [])
             if not isinstance(post_install_commands, list):
@@ -680,7 +704,7 @@ class EnvironmentInterface(ABC):
         with self.get_env_vars():
             yield
 
-    def get_build_process(self, build_environment, **kwargs):
+    def get_build_process(self, build_environment: Optional["MagicMock"], **kwargs) -> Union["MagicMock", "Popen"]:
         """
         This will be called when the
         [build environment](reference.md#hatch.env.plugin.interface.EnvironmentInterface.build_environment)
@@ -719,7 +743,7 @@ class EnvironmentInterface(ABC):
         with self.command_context():
             self.platform.exit_with_command([path, *args])
 
-    def run_shell_command(self, command: str, **kwargs):
+    def run_shell_command(self, command: str, **kwargs) -> "CompletedProcess":
         """
         This should return the standard library's
         [subprocess.CompletedProcess](https://docs.python.org/3/library/subprocess.html#subprocess.CompletedProcess)
@@ -731,7 +755,7 @@ class EnvironmentInterface(ABC):
         return self.platform.run_command(command, **kwargs)
 
     @contextmanager
-    def command_context(self):
+    def command_context(self) -> Iterator[None]:
         """
         A context manager that when active should make executed shell commands reflect any
         [environment variables](reference.md#hatch.env.plugin.interface.EnvironmentInterface.get_env_vars)
@@ -743,7 +767,7 @@ class EnvironmentInterface(ABC):
         with self.get_env_vars():
             yield
 
-    def resolve_commands(self, commands: list[str]):
+    def resolve_commands(self, commands: list[str]) -> None:
         """
         This expands each command into one or more commands based on any
         [scripts](../../config/environment/overview.md#scripts) that the user defined.
@@ -751,7 +775,7 @@ class EnvironmentInterface(ABC):
         for command in commands:
             yield from self.expand_command(command)
 
-    def expand_command(self, command):
+    def expand_command(self, command: str) -> Iterator[str]:
         possible_script, args, ignore_exit_code = parse_script_command(command)
 
         # Indicate undefined
@@ -775,7 +799,7 @@ class EnvironmentInterface(ABC):
         clean=False,
         clean_hooks_after=False,
         clean_only=False,
-    ):
+    ) -> List[str]:
         """
         This is the canonical way [`build`](../../cli/reference.md#hatch-build) command options are translated to
         a subprocess command issued to [builders](../builder/reference.md).
@@ -806,7 +830,7 @@ class EnvironmentInterface(ABC):
 
         return command
 
-    def construct_pip_install_command(self, args: list[str]):
+    def construct_pip_install_command(self, args: list[str]) -> List[str]:
         """
         A convenience method for constructing a [`pip install`](https://pip.pypa.io/en/stable/cli/pip_install/)
         command with the given verbosity. The default verbosity is set to one less than Hatch's verbosity.
@@ -819,14 +843,14 @@ class EnvironmentInterface(ABC):
         command.extend(args)
         return command
 
-    def join_command_args(self, args: list[str]):
+    def join_command_args(self, args: list[str]) -> str:
         """
         This is used by the [`run`](../../cli/reference.md#hatch-run) command to construct the root command string
         from the received arguments.
         """
         return self.platform.join_command_args(args)
 
-    def apply_features(self, requirement: str):
+    def apply_features(self, requirement: str) -> str:
         """
         A convenience method that applies any user defined [features](../../config/environment/overview.md#features)
         to the given requirement.
@@ -837,7 +861,7 @@ class EnvironmentInterface(ABC):
 
         return requirement
 
-    def check_compatibility(self):
+    def check_compatibility(self) -> None:
         """
         This raises an exception if the environment is not compatible with the user's setup. The default behavior
         checks for [platform compatibility](../../config/environment/overview.md#supported-platforms)
@@ -862,7 +886,7 @@ class EnvironmentInterface(ABC):
         """
         return os.environ.get(f'{AppEnvVars.ENV_OPTION_PREFIX}{self.PLUGIN_NAME}_{option}'.upper(), '')
 
-    def get_context(self):
+    def get_context(self) -> "EnvironmentContextFormatter":
         """
         Returns a subclass of
         [EnvironmentContextFormatter](../utilities.md#hatch.env.context.EnvironmentContextFormatter).
@@ -884,15 +908,22 @@ class EnvironmentInterface(ABC):
         with self.get_env_vars(), self.metadata.context.apply_context(self.context):
             yield
 
-    def __enter__(self):
+    def __enter__(self) -> "VirtualEnvironment":
         self.activate()
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, exc_type: None, exc_value: None, traceback: None) -> None:
         self.deactivate()
 
 
-def expand_script_commands(env_name, script_name, commands, config, seen, active):
+def expand_script_commands(
+    env_name: str,
+    script_name: str,
+    commands: List[str],
+    config: Dict[str, List[str]],
+    seen: Dict[str, List[str]],
+    active: List[Union[Any, str]],
+) -> List[str]:
     if script_name in seen:
         return seen[script_name]
     elif script_name in active:

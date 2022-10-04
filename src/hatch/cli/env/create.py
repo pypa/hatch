@@ -4,7 +4,7 @@ import click
 @click.command(short_help='Create environments')
 @click.argument('env_name', default='default')
 @click.pass_obj
-def create(app, env_name):
+def create(app, env_name) -> None:
     """Create environments."""
     root_env_name = env_name
     project_config = app.project.config

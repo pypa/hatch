@@ -1,3 +1,5 @@
+from typing import Any, Dict
+
 from hatch.index.errors import ArtifactMetadataError
 
 MULTIPLE_USE_METADATA_FIELDS = {
@@ -80,7 +82,7 @@ def get_sdist_form_data(artifact):
     return data
 
 
-def parse_headers(metadata_file_contents):
+def parse_headers(metadata_file_contents: str) -> Dict[str, Any]:
     import email
 
     message = email.message_from_string(metadata_file_contents)

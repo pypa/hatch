@@ -1,12 +1,14 @@
 import os
 import sys
+from types import ModuleType
+from typing import Any, Dict, Union
 
 FILE = os.path.abspath(__file__)
 HERE = os.path.dirname(FILE)
 ENV_VAR_PREFIX = '_HATCHLING_PORT_ADD_'
 
 
-def _apply_env_vars(kwargs):
+def _apply_env_vars(kwargs) -> None:
     from ast import literal_eval
 
     for key, value in os.environ.items():
@@ -24,7 +26,7 @@ def _parse_dependencies(dependency_definition):
     return dependencies
 
 
-def _collapse_data(output, data):
+def _collapse_data(output, data: Dict[str, Any]):
     import tomli_w
 
     expected_output = new_output = tomli_w.dumps(data)
@@ -35,7 +37,7 @@ def _collapse_data(output, data):
     return output.replace(expected_output, new_output, 1)
 
 
-def _parse_setup_cfg(kwargs):
+def _parse_setup_cfg(kwargs) -> None:
     from configparser import ConfigParser
 
     setup_cfg_file = os.path.join(HERE, 'setup.cfg')
@@ -120,7 +122,7 @@ def _parse_setup_cfg(kwargs):
         }
 
 
-def setup(**kwargs):
+def setup(**kwargs) -> None:
     import itertools
     import re
 
@@ -315,8 +317,8 @@ def setup(**kwargs):
 
 
 if __name__ == 'setuptools':
-    __this_shim = sys.modules.pop('setuptools')
-    __current_directory = sys.path.pop(0)
+    __this_shim: ModuleType = sys.modules.pop('setuptools')
+    __current_directory: str = sys.path.pop(0)
 
     import setuptools as __real_setuptools
 
@@ -330,7 +332,7 @@ if __name__ == 'setuptools':
     del __current_directory
 
 
-def migrate(root, setuptools_options):
+def migrate(root: Union[os.PathLike[str], str], setuptools_options) -> None:
     import shutil
     import subprocess
     from tempfile import TemporaryDirectory

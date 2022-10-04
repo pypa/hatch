@@ -9,7 +9,7 @@ from hatch.cli.env.show import show
 
 
 @click.group(short_help='Manage project environments')
-def env():
+def env() -> None:
     pass
 
 

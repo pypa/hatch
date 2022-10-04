@@ -32,7 +32,7 @@ import click
     ),
 )
 @click.pass_context
-def clean(ctx, location, targets, hooks_only, no_hooks, ext):
+def clean(ctx, location, targets, hooks_only, no_hooks, ext) -> None:
     """Remove build artifacts."""
     from hatch.cli.build import build
 

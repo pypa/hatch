@@ -4,7 +4,7 @@ from hatch.cli.project.metadata import metadata
 
 
 @click.group(short_help='View project information')
-def project():
+def project() -> None:
     pass
 
 

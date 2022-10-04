@@ -39,7 +39,7 @@ class IndexPublisher(PublisherInterface):
 
         return repos
 
-    def publish(self, artifacts: list, options: dict):
+    def publish(self, artifacts: list, options: dict) -> None:
         """
         https://warehouse.readthedocs.io/api-reference/legacy.html#upload-api
         """
@@ -194,7 +194,7 @@ def parse_artifacts(artifact_payload):
 
 
 class CachedUserFile:
-    def __init__(self, cache_dir: Path):
+    def __init__(self, cache_dir: Path) -> None:
         self.path = cache_dir / 'previous_working_users.json'
 
         self._data = None
@@ -202,7 +202,7 @@ class CachedUserFile:
     def get_user(self, repo: str):
         return self.data.get(repo)
 
-    def set_user(self, repo: str, user: str):
+    def set_user(self, repo: str, user: str) -> None:
         import json
 
         self.data[repo] = user
