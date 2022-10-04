@@ -1,7 +1,11 @@
 import os
+from typing import TYPE_CHECKING, Optional, Union
+
+if TYPE_CHECKING:
+    from hatch.utils.fs import Path
 
 
-def locate_file(root, file_name):
+def locate_file(root: str, file_name: str) -> Optional[str]:
     while True:
         file_path = os.path.join(root, file_name)
         if os.path.isfile(file_path):
@@ -14,7 +18,7 @@ def locate_file(root, file_name):
         root = new_root
 
 
-def path_to_uri(path):
+def path_to_uri(path: Union[str, "Path"]) -> str:
     if os.sep == '/':
         return f'file://{os.path.abspath(path)}'
     else:

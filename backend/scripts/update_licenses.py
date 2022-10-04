@@ -3,6 +3,7 @@ import pathlib
 import time
 from contextlib import closing
 from io import StringIO
+from typing import Union
 
 import httpx
 
@@ -11,7 +12,7 @@ LICENSES_URL = 'https://raw.githubusercontent.com/spdx/license-list-data/v{}/jso
 EXCEPTIONS_URL = 'https://raw.githubusercontent.com/spdx/license-list-data/v{}/json/exceptions.json'
 
 
-def download_data(url):
+def download_data(url: Union[httpx.URL, str]):
     for _ in range(600):
         try:
             response = httpx.get(url)
@@ -25,7 +26,7 @@ def download_data(url):
         raise Exception('Download failed')
 
 
-def main():
+def main() -> None:
     latest_version = download_data(LATEST_API)['tag_name'][1:]
 
     licenses = {}

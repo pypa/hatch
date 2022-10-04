@@ -1,4 +1,5 @@
 import os
+from typing import Dict
 
 from hatchling.version.source.plugin.interface import VersionSourceInterface
 
@@ -6,8 +7,8 @@ from hatchling.version.source.plugin.interface import VersionSourceInterface
 class CodeSource(VersionSourceInterface):
     PLUGIN_NAME = 'code'
 
-    def get_version_data(self):
-        import importlib
+    def get_version_data(self) -> Dict[str, str]:
+        import importlib.util
         import sys
 
         relative_path = self.config.get('path')

@@ -11,7 +11,7 @@ def get_requires_for_build_sdist(config_settings=None):
     return builder.config.dependencies
 
 
-def build_sdist(sdist_directory, config_settings=None):
+def build_sdist(sdist_directory: str, config_settings = None) -> str:
     """
     https://peps.python.org/pep-0517/#build-sdist
     """

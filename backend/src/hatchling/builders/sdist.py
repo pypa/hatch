@@ -6,6 +6,7 @@ from contextlib import closing
 from copy import copy
 from io import BytesIO
 from time import time as get_current_timestamp
+from typing import List, Type
 
 from hatchling.builders.config import BuilderConfig
 from hatchling.builders.plugin.interface import BuilderInterface
@@ -21,7 +22,7 @@ from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT, DEFAULT_CONFIG_FILE
 
 
 class SdistArchive:
-    def __init__(self, name, reproducible):
+    def __init__(self, name, reproducible) -> None:
         """
         https://peps.python.org/pep-0517/#source-distributions
         """
@@ -39,13 +40,13 @@ class SdistArchive:
         self.tf = tarfile.TarFile(fileobj=self.gz, mode='w', format=tarfile.PAX_FORMAT)
         self.gettarinfo = lambda *args, **kwargs: self.normalize_tar_metadata(self.tf.gettarinfo(*args, **kwargs))
 
-    def create_file(self, contents, *relative_paths):
-        contents = contents.encode('utf-8')
+    def create_file(self, contents: str, *relative_paths) -> None:
+        contents_bytes = contents.encode('utf-8')
         tar_info = tarfile.TarInfo(normalize_archive_path(os.path.join(self.name, *relative_paths)))
         tar_info.mtime = self.timestamp if self.reproducible else int(get_current_timestamp())
-        tar_info.size = len(contents)
+        tar_info.size = len(contents_bytes)
 
-        with closing(BytesIO(contents)) as buffer:
+        with closing(BytesIO(contents_bytes)) as buffer:
             self.tf.addfile(tar_info, buffer)
 
     def normalize_tar_metadata(self, tar_info):
@@ -62,22 +63,22 @@ class SdistArchive:
 
         return tar_info
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str):
         attr = getattr(self.tf, name)
         setattr(self, name, attr)
         return attr
 
-    def __enter__(self):
+    def __enter__(self) -> "SdistArchive":
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
         self.tf.close()
         self.gz.close()
         self.fd.close()
 
 
 class SdistBuilderConfig(BuilderConfig):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
         self.__core_metadata_constructor = None
@@ -137,14 +138,15 @@ class SdistBuilder(BuilderInterface):
     """
 
     PLUGIN_NAME = 'sdist'
+    config: SdistBuilderConfig
 
     def get_version_api(self):
         return {'standard': self.build_standard}
 
-    def get_default_versions(self):
+    def get_default_versions(self) -> List[str]:
         return ['standard']
 
-    def clean(self, directory, versions):
+    def clean(self, directory, versions) -> None:
         for filename in os.listdir(directory):
             if filename.endswith('.tar.gz'):
                 os.remove(os.path.join(directory, filename))
@@ -195,7 +197,7 @@ class SdistBuilder(BuilderInterface):
             else f'{self.normalize_file_name_component(self.metadata.core.raw_name)}-{self.metadata.version}'
         )
 
-    def construct_setup_py_file(self, packages, extra_dependencies=()):
+    def construct_setup_py_file(self, packages, extra_dependencies=()) -> str:
         contents = '# -*- coding: utf-8 -*-\nfrom setuptools import setup\n\n'
 
         contents += 'setup(\n'
@@ -210,16 +212,18 @@ class SdistBuilder(BuilderInterface):
             contents += f'    long_description={self.metadata.core.readme!r},\n'
 
         authors_data = self.metadata.core.authors_data
-        if authors_data['name']:
-            contents += f"    author={', '.join(authors_data['name'])!r},\n"
-        if authors_data['email']:
-            contents += f"    author_email={', '.join(authors_data['email'])!r},\n"
+        if authors_data:
+            if authors_data['name']:
+                contents += f"    author={', '.join(authors_data['name'])!r},\n"
+            if authors_data['email']:
+                contents += f"    author_email={', '.join(authors_data['email'])!r},\n"
 
         maintainers_data = self.metadata.core.maintainers_data
-        if maintainers_data['name']:
-            contents += f"    maintainer={', '.join(maintainers_data['name'])!r},\n"
-        if maintainers_data['email']:
-            contents += f"    maintainer_email={', '.join(maintainers_data['email'])!r},\n"
+        if maintainers_data:
+            if maintainers_data['name']:
+                contents += f"    maintainer={', '.join(maintainers_data['name'])!r},\n"
+            if maintainers_data['email']:
+                contents += f"    maintainer_email={', '.join(maintainers_data['email'])!r},\n"
 
         if self.metadata.core.classifiers:
             contents += '    classifiers=[\n'
@@ -325,5 +329,5 @@ class SdistBuilder(BuilderInterface):
         return build_data
 
     @classmethod
-    def get_config_class(cls):
+    def get_config_class(cls) -> Type[SdistBuilderConfig]:
         return SdistBuilderConfig

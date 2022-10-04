@@ -1,3 +1,5 @@
+from typing import Set
+
 VERSION = '2022.8.7'
 
 SORTED_CLASSIFIERS = [
@@ -807,8 +809,8 @@ SORTED_CLASSIFIERS = [
     'Typing :: Stubs Only',
     'Typing :: Typed',
 ]
-KNOWN_CLASSIFIERS = set(SORTED_CLASSIFIERS)
+KNOWN_CLASSIFIERS: Set[str] = set(SORTED_CLASSIFIERS)
 
 
-def is_private(classifier):
+def is_private(classifier: str) -> bool:
     return classifier.lower().startswith('private ::')

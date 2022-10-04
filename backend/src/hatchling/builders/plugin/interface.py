@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 import re
 from abc import ABC, abstractmethod
-from typing import Callable, Generator
+from typing import Callable, Generator, List
 
 from hatchling.builders.config import BuilderConfig, env_var_enabled
 from hatchling.builders.constants import EXCLUDED_DIRECTORIES, BuildEnvVars
@@ -13,7 +13,7 @@ from hatchling.builders.utils import get_relative_path, safe_walk
 class IncludedFile:
     __slots__ = ('path', 'relative_path', 'distribution_path')
 
-    def __init__(self, path, relative_path, distribution_path):
+    def __init__(self, path, relative_path, distribution_path) -> None:
         self.path = path
         self.relative_path = relative_path
         self.distribution_path = distribution_path
@@ -51,7 +51,7 @@ class BuilderInterface(ABC):
     PLUGIN_NAME = ''
     """The name used for selection."""
 
-    def __init__(self, root, plugin_manager=None, config=None, metadata=None, app=None):
+    def __init__(self, root, plugin_manager=None, config=None, metadata=None, app=None) -> None:
         self.__root = root
         self.__plugin_manager = plugin_manager
         self.__raw_config = config
@@ -74,7 +74,7 @@ class BuilderInterface(ABC):
         hooks_only=None,
         clean=None,
         clean_hooks_after=None,
-        clean_only=False,
+        clean_only: bool=False,
     ) -> Generator[str, None, None]:
         # Fail early for invalid project metadata
         self.metadata.validate_fields()
@@ -384,7 +384,7 @@ class BuilderInterface(ABC):
         The return value must be the absolute path to the built artifact.
         """
 
-    def get_default_versions(self):
+    def get_default_versions(self) -> List[str]:
         """
         A list of versions to build when users do not specify any, defaulting to all versions.
         """
@@ -396,11 +396,11 @@ class BuilderInterface(ABC):
         """
         return {}
 
-    def set_build_data_defaults(self, build_data):
+    def set_build_data_defaults(self, build_data) -> None:
         build_data.setdefault('artifacts', [])
         build_data.setdefault('force_include', {})
 
-    def clean(self, directory, versions):
+    def clean(self, directory, versions) -> None:
         """
         Called before builds if the `-c`/`--clean` flag was passed to the
         [`build`](../../cli/reference.md#hatch-build) command.
@@ -414,7 +414,7 @@ class BuilderInterface(ABC):
         return BuilderConfig
 
     @staticmethod
-    def normalize_file_name_component(file_name):
+    def normalize_file_name_component(file_name) -> str:
         """
         https://peps.python.org/pep-0427/#escaping-and-unicode
         """

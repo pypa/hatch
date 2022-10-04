@@ -30,7 +30,7 @@ class BuildHookInterface:  # no cov
     PLUGIN_NAME = ''
     """The name used for selection."""
 
-    def __init__(self, root, config, build_config, metadata, directory, target_name, app=None):
+    def __init__(self, root, config, build_config, metadata, directory, target_name, app=None) -> None:
         self.__root = root
         self.__config = config
         self.__build_config = build_config
@@ -105,21 +105,21 @@ class BuildHookInterface:  # no cov
         """
         return self.__target_name
 
-    def clean(self, versions):
+    def clean(self, versions) -> None:
         """
         This occurs before the build process if the `-c`/`--clean` flag was passed to
         the [`build`](../../cli/reference.md#hatch-build) command, or when invoking
         the [`clean`](../../cli/reference.md#hatch-clean) command.
         """
 
-    def initialize(self, version, build_data):
+    def initialize(self, version, build_data) -> None:
         """
         This occurs immediately before each build.
 
         Any modifications to the build data will be seen by the build target.
         """
 
-    def finalize(self, version, build_data, artifact_path):
+    def finalize(self, version, build_data, artifact_path) -> None:
         """
         This occurs immediately after each build and will not run if the `--hooks-only` flag
         was passed to the [`build`](../../cli/reference.md#hatch-build) command.

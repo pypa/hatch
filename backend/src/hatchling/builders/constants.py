@@ -1,6 +1,8 @@
+from typing import FrozenSet
+
 DEFAULT_BUILD_DIRECTORY = 'dist'
 
-EXCLUDED_DIRECTORIES = frozenset(
+EXCLUDED_DIRECTORIES: FrozenSet[str] = frozenset(
     (
         # Python bytecode
         '__pycache__',

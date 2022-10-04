@@ -1,5 +1,13 @@
-def load_plugin_from_script(path, script_name, plugin_class, plugin_id):
-    import importlib
+from typing import Type
+
+
+def load_plugin_from_script(
+    path: str,
+    script_name: str,
+    plugin_class: Type,
+    plugin_id: str,
+):
+    import importlib.util
 
     spec = importlib.util.spec_from_file_location(script_name, path)
     module = importlib.util.module_from_spec(spec)

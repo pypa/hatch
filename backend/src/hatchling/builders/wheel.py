@@ -73,7 +73,7 @@ class WheelArchive:
         relative_path = normalize_archive_path(included_file.distribution_path)
         file_stat = os.stat(included_file.path)
 
-        if self.reproducible:
+        if self.reproducible and self.time_tuple:
             zip_info = zipfile.ZipInfo(relative_path, self.time_tuple)
 
             # https://github.com/takluyver/flit/pull/66
@@ -310,6 +310,7 @@ class WheelBuilder(BuilderInterface):
     """
 
     PLUGIN_NAME = 'wheel'
+    config: WheelBuilderConfig
 
     def get_version_api(self):
         return {'standard': self.build_standard, 'editable': self.build_editable}

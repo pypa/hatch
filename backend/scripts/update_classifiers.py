@@ -6,7 +6,7 @@ from io import StringIO
 import trove_classifiers
 
 
-def main():
+def main() -> None:
     project_root = pathlib.Path(__file__).resolve().parent.parent
     data_file = project_root / 'src' / 'hatchling' / 'metadata' / 'classifiers.py'
 

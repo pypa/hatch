@@ -1,6 +1,10 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING, Dict, List, Union
+
+if TYPE_CHECKING:
+    from hatch.utils.fs import Path
 
 
 class VersionSourceInterface(ABC):  # no cov
@@ -35,19 +39,19 @@ class VersionSourceInterface(ABC):  # no cov
     PLUGIN_NAME = ''
     """The name used for selection."""
 
-    def __init__(self, root, config):
+    def __init__(self, root: Union[str, "Path"], config: Dict[str, Union[int, str, List[int], List[str]]]) -> None:
         self.__root = root
         self.__config = config
 
     @property
-    def root(self):
+    def root(self) -> str:
         """
         The root of the project tree as a string.
         """
-        return self.__root
+        return str(self.__root)
 
     @property
-    def config(self):
+    def config(self) -> Dict[str, Union[int, str, List[int], List[str]]]:
         """
         === ":octicons-file-code-16: pyproject.toml"
 

@@ -1,6 +1,7 @@
 import os
 import sys
 from copy import deepcopy
+from typing import Any, Dict
 
 from hatchling.metadata.utils import get_normalized_dependency, is_valid_project_name, normalize_project_name
 from hatchling.utils.constants import DEFAULT_CONFIG_FILE
@@ -12,13 +13,13 @@ else:
     import tomli as tomllib
 
 
-def load_toml(path):
+def load_toml(path) -> Dict[str, Any]:
     with open(path, encoding='utf-8') as f:
         return tomllib.loads(f.read())
 
 
 class ProjectMetadata:
-    def __init__(self, root, plugin_manager, config=None):
+    def __init__(self, root, plugin_manager, config=None) -> None:
         self.root = root
         self.plugin_manager = plugin_manager
         self._config = config
@@ -186,7 +187,7 @@ class ProjectMetadata:
 
         return self._hatch
 
-    def _set_version(self, core_metadata=None):
+    def _set_version(self, core_metadata=None) -> None:
         if core_metadata is None:
             core_metadata = self.core
 
@@ -210,7 +211,7 @@ class ProjectMetadata:
         else:
             self._version = normalized_version
 
-    def validate_fields(self):
+    def validate_fields(self) -> None:
         _ = self.version
         self.core.validate_fields()
 
@@ -220,7 +221,7 @@ class BuildMetadata:
     https://peps.python.org/pep-0517/
     """
 
-    def __init__(self, root, config):
+    def __init__(self, root, config) -> None:
         self.root = root
         self.config = config
 
@@ -292,7 +293,7 @@ class CoreMetadata:
     https://peps.python.org/pep-0621/
     """
 
-    def __init__(self, root, config, hatch_metadata, context):
+    def __init__(self, root, config, hatch_metadata, context) -> None:
         self.root = root
         self.config = config
         self.hatch_metadata = hatch_metadata
@@ -1188,17 +1189,17 @@ class CoreMetadata:
 
         return self._dynamic
 
-    def add_known_classifiers(self, classifiers):
+    def add_known_classifiers(self, classifiers) -> None:
         self._extra_classifiers.update(classifiers)
 
-    def validate_fields(self):
+    def validate_fields(self) -> None:
         # Trigger validation for everything
         for attribute in dir(self):
             getattr(self, attribute)
 
 
 class HatchMetadata:
-    def __init__(self, root, config, plugin_manager):
+    def __init__(self, root, config, plugin_manager) -> None:
         self.root = root
         self.config = config
         self.plugin_manager = plugin_manager
@@ -1257,7 +1258,7 @@ class HatchMetadata:
 
 
 class HatchVersionConfig:
-    def __init__(self, root, config, plugin_manager):
+    def __init__(self, root, config, plugin_manager) -> None:
         self.root = root
         self.config = config
         self.plugin_manager = plugin_manager
@@ -1342,7 +1343,7 @@ class HatchVersionConfig:
 
 
 class HatchMetadataSettings:
-    def __init__(self, root, config, plugin_manager):
+    def __init__(self, root, config, plugin_manager) -> None:
         self.root = root
         self.config = config
         self.plugin_manager = plugin_manager

@@ -1,11 +1,17 @@
 import os
-import string
 from abc import ABC, abstractmethod
 from collections import ChainMap
 from contextlib import contextmanager
+from string import Formatter
+from typing import TYPE_CHECKING, Callable, Dict, Iterator, Optional, Set, Tuple, Union
+
+from typing_extensions import LiteralString
 
 from hatchling.utils.fs import path_to_uri
 
+if TYPE_CHECKING:
+    from hatch.env.context import EnvironmentContextFormatter
+    from hatch.utils.fs import Path
 
 class ContextFormatter(ABC):
     @abstractmethod
@@ -19,7 +25,7 @@ class ContextFormatter(ABC):
         """
 
     @classmethod
-    def format_path(cls, path, modifier):
+    def format_path(cls, path: str, modifier: str) -> str:
         if not modifier:
             return os.path.normpath(path)
         elif modifier == 'uri':
@@ -33,10 +39,10 @@ class ContextFormatter(ABC):
 class DefaultContextFormatter(ContextFormatter):
     CONTEXT_NAME = 'default'
 
-    def __init__(self, root):
+    def __init__(self, root: str) -> None:
         self.__root = root
 
-    def get_formatters(self):
+    def get_formatters(self) -> Dict[str, Callable]:
         return {
             '/': self.__format_directory_separator,
             ';': self.__format_path_separator,
@@ -71,20 +77,20 @@ class DefaultContextFormatter(ContextFormatter):
 
 
 class Context:
-    def __init__(self, root):
+    def __init__(self, root: Union[str, "Path"]) -> None:
         self.__root = str(root)
 
         # Allow callers to define their own formatters with precedence
-        self.__formatters = ChainMap()
-        self.__configured_contexts = set()
+        self.__formatters: ChainMap = ChainMap()
+        self.__configured_contexts: Set = set()
         self.__formatter = ContextStringFormatter(self.__formatters)
 
         self.add_context(DefaultContextFormatter(self.__root))
 
-    def format(self, *args, **kwargs):
+    def format(self, *args, **kwargs) -> str:
         return self.__formatter.format(*args, **kwargs)
 
-    def add_context(self, context):
+    def add_context(self, context: DefaultContextFormatter) -> None:
         if context.CONTEXT_NAME in self.__configured_contexts:
             return
 
@@ -92,7 +98,7 @@ class Context:
         self.__configured_contexts.add(context.CONTEXT_NAME)
 
     @contextmanager
-    def apply_context(self, context):
+    def apply_context(self, context: "EnvironmentContextFormatter") -> Iterator[None]:
         self.__add_formatters(context.get_formatters())
         try:
             yield
@@ -107,20 +113,20 @@ class Context:
             self.__formatters.maps.pop(0)
 
 
-class ContextStringFormatter(string.Formatter):
-    def __init__(self, formatters):
-        super().__init__()
-
+class ContextStringFormatter(Formatter):
+    def __init__(self, formatters: ChainMap) -> None:
         self.__formatters = formatters
 
-    def vformat(self, format_string, args, kwargs):
+    def vformat(self, format_string: str, args: Union[Tuple[str], Tuple[()]], kwargs: Dict[str, Optional[str]]) -> LiteralString:
         # We override to increase the recursion limit from 2 to 10
         used_args = set()
         result, _ = self._vformat(format_string, args, kwargs, used_args, 10)
         self.check_unused_args(used_args, args, kwargs)
         return result
 
-    def get_value(self, key, args, kwargs):
+    def get_value(
+        self, key: Union[str, int], args: Union[Tuple[str], Tuple[()]], kwargs: Dict[str, Optional[str]]
+    ) -> Optional[str]:
         if key in self.__formatters:
             # Avoid hard look-up and rely on `None` to indicate that the field is undefined
             return kwargs.get(key)
@@ -130,14 +136,14 @@ class ContextStringFormatter(string.Formatter):
             except KeyError:
                 raise ValueError(f'Unknown context field `{key}`') from None
 
-    def format_field(self, value, format_spec):
+    def format_field(self, value: Optional[str], format_spec: str) -> str:
         formatter, _, data = format_spec.partition(':')
         if formatter in self.__formatters:
             return self.__formatters[formatter](value, data)
         else:
             return super().format_field(value, format_spec)
 
-    def parse(self, format_string):
+    def parse(self, format_string: str) -> Iterator[Union[Tuple[str, None, None, None], Tuple[str, str, str, None]]]:
         for literal_text, field_name, format_spec, conversion in super().parse(format_string):
             if field_name in self.__formatters:
                 yield literal_text, field_name, f'{field_name}:{format_spec}', conversion

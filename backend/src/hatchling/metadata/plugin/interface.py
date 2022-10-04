@@ -35,7 +35,7 @@ class MetadataHookInterface(ABC):  # no cov
     PLUGIN_NAME = ''
     """The name used for selection."""
 
-    def __init__(self, root, config):
+    def __init__(self, root, config) -> None:
         self.__root = root
         self.__config = config
 

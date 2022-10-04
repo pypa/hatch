@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 from contextlib import contextmanager
 
@@ -10,7 +12,7 @@ from hatchling.utils.fs import locate_file
 
 
 class BuilderConfig:
-    def __init__(self, builder, root, plugin_name, build_config, target_config):
+    def __init__(self, builder, root, plugin_name, build_config, target_config) -> None:
         self.__builder = builder
         self.__root = root
         self.__plugin_name = plugin_name
@@ -71,7 +73,7 @@ class BuilderConfig:
     def target_config(self):
         return self.__target_config
 
-    def include_path(self, relative_path, *, explicit=False, is_package=True):
+    def include_path(self, relative_path, *, explicit: bool=False, is_package: bool=True):
         return (
             self.path_is_build_artifact(relative_path)
             or self.path_is_artifact(relative_path)
@@ -746,7 +748,7 @@ class BuilderConfig:
 
         return self.__vcs_exclusion_files
 
-    def load_vcs_exclusion_patterns(self):
+    def load_vcs_exclusion_patterns(self) -> list[str]:
         patterns = []
 
         # https://git-scm.com/docs/gitignore#_pattern_format
@@ -789,7 +791,7 @@ class BuilderConfig:
     def default_only_include(self):
         return []
 
-    def default_global_exclude(self):
+    def default_global_exclude(self) -> list[str]:
         patterns = ['*.py[cdo]', f'/{DEFAULT_BUILD_DIRECTORY}']
         patterns.sort()
         return patterns
@@ -828,7 +830,7 @@ class BuilderConfig:
             self.build_reserved_paths.clear()
 
 
-def env_var_enabled(env_var, default=False):
+def env_var_enabled(env_var: str, default: bool=False):
     if env_var in os.environ:
         return os.environ[env_var] in ('1', 'true')
     else:

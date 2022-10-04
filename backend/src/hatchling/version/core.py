@@ -14,7 +14,7 @@ __version__ = VERSION = {version!r}
 
 
 class VersionFile:
-    def __init__(self, root: str, relative_path: str):
+    def __init__(self, root: str, relative_path: str) -> None:
         self.__relative_path = relative_path
         self.__path = os.path.normpath(os.path.join(root, relative_path))
         self.__cached_read_data: tuple | None = None
@@ -40,12 +40,12 @@ class VersionFile:
         self.__cached_read_data = groups['version'], contents, match.span('version')
         return self.__cached_read_data[0]
 
-    def set_version(self, version: str):
+    def set_version(self, version: str) -> None:
         old_version, file_contents, (start, end) = self.__cached_read_data  # type: ignore
         with open(self.__path, 'w', encoding='utf-8') as f:
             f.write(f'{file_contents[:start]}{version}{file_contents[end:]}')
 
-    def write(self, version: str, template: str = DEFAULT_TEMPLATE):
+    def write(self, version: str, template: str = DEFAULT_TEMPLATE) -> None:
         template = template or DEFAULT_TEMPLATE
 
         parent_dir = os.path.dirname(self.__path)

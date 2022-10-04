@@ -1,4 +1,11 @@
+from typing import TYPE_CHECKING, Dict, List, Tuple, Union
+
 from hatchling.version.scheme.plugin.interface import VersionSchemeInterface
+
+if TYPE_CHECKING:
+    from packaging.version import Version
+
+    from hatchling.version.core import VersionFile
 
 
 class StandardScheme(VersionSchemeInterface):
@@ -8,7 +15,9 @@ class StandardScheme(VersionSchemeInterface):
 
     PLUGIN_NAME = 'standard'
 
-    def update(self, desired_version, original_version, version_data):
+    def update(
+        self, desired_version: str, original_version: str, version_data: Dict[str, Union[str, "VersionFile"]]
+    ) -> str:
         from packaging.version import Version, _parse_letter_version
 
         original = Version(original_version)
@@ -54,7 +63,7 @@ class StandardScheme(VersionSchemeInterface):
         return str(original)
 
 
-def reset_version_parts(version, **kwargs):
+def reset_version_parts(version: "Version", **kwargs) -> None:
     # https://github.com/pypa/packaging/blob/20.9/packaging/version.py#L301-L310
     internal_version = version._version
     parts = {'epoch': 0}
@@ -73,7 +82,7 @@ def reset_version_parts(version, **kwargs):
     version._version = type(internal_version)(**parts)
 
 
-def update_release(original_version, new_release_parts):
+def update_release(original_version: "Version", new_release_parts: List[int]) -> Tuple[int, int, int]:
     # Retain release length
     for _ in range(len(original_version.release) - len(new_release_parts)):
         new_release_parts.append(0)

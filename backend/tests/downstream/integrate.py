@@ -15,12 +15,13 @@ import tomli
 from packaging.requirements import Requirement
 from packaging.specifiers import SpecifierSet
 from virtualenv import cli_run
+from typing import Union
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-ON_WINDOWS = platform.system() == 'Windows'
+ON_WINDOWS: bool = platform.system() == 'Windows'
 
 
-def handle_remove_readonly(func, path, exc):  # no cov
+def handle_remove_readonly(func, path: Union[os.PathLike[bytes], os.PathLike[str], bytes, int, str], exc) -> None:  # no cov
     # PermissionError: [WinError 5] Access is denied: '...\\.git\\...'
     if func in (os.rmdir, os.remove, os.unlink) and exc[1].errno == errno.EACCES:
         os.chmod(path, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
@@ -30,7 +31,7 @@ def handle_remove_readonly(func, path, exc):  # no cov
 
 
 class EnvVars(dict):
-    def __init__(self, env_vars=None, ignore=None):
+    def __init__(self, env_vars=None, ignore=None) -> None:
         super().__init__(os.environ)
         self.old_env = dict(self)
 
@@ -41,16 +42,16 @@ class EnvVars(dict):
             for env_var in ignore:
                 self.pop(env_var, None)
 
-    def __enter__(self):
+    def __enter__(self) -> None:
         os.environ.clear()
         os.environ.update(self)
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
         os.environ.clear()
         os.environ.update(self.old_env)
 
 
-def python_version_supported(project_config):
+def python_version_supported(project_config) -> bool:
     requires_python = project_config['project'].get('requires-python', '')
     if requires_python:
         python_constraint = SpecifierSet(requires_python)
@@ -60,7 +61,7 @@ def python_version_supported(project_config):
     return True
 
 
-def download_file(url, file_name):
+def download_file(url: Union[bytes, str], file_name) -> None:
     response = requests.get(url, stream=True)
     with open(file_name, 'wb') as f:
         for chunk in response.iter_content(16384):
@@ -100,7 +101,7 @@ def get_venv_exe_dir(venv_dir):
         raise OSError(f'Unable to locate executables directory within: {venv_dir}')
 
 
-def main():
+def main() -> None:
     original_backend_path = os.path.dirname(os.path.dirname(HERE))
     with temp_dir() as links_dir, temp_dir() as build_dir:
         print('<<<<< Copying backend >>>>>')

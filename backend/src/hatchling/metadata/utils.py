@@ -1,19 +1,25 @@
 import re
+from typing import TYPE_CHECKING, Dict, List, Union
+
+if TYPE_CHECKING:
+    from packaging.requirements import Requirement
+
+    from hatchling.metadata.core import ProjectMetadata
 
 # NOTE: this module should rarely be changed because it is likely to be used by other packages like Hatch
 
 
-def is_valid_project_name(project_name):
+def is_valid_project_name(project_name: str) -> bool:
     # https://peps.python.org/pep-0508/#names
     return re.search('^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$', project_name, re.IGNORECASE) is not None
 
 
-def normalize_project_name(project_name):
+def normalize_project_name(project_name: str) -> str:
     # https://peps.python.org/pep-0503/#normalized-names
     return re.sub(r'[-_.]+', '-', project_name).lower()
 
 
-def get_normalized_dependency(requirement):
+def get_normalized_dependency(requirement: "Requirement") -> str:
     # Changes to this function affect reproducibility between versions
     from packaging.specifiers import SpecifierSet
 
@@ -29,7 +35,9 @@ def get_normalized_dependency(requirement):
     return str(requirement).replace('"', "'")
 
 
-def resolve_metadata_fields(metadata):
+def resolve_metadata_fields(
+    metadata: "ProjectMetadata",
+) -> Dict[str, Union[str, Dict[str, str], List[Dict[str, str]], List[str]]]:
     # https://packaging.python.org/en/latest/specifications/declaring-project-metadata/
     return {
         'name': metadata.core.name,
