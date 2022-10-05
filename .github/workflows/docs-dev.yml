@@ -47,6 +47,8 @@ jobs:
 
     - name: Build documentation
       run: hatch run docs:ci-build dev
+      env:
+        GH_TOKEN_MKDOCS_MATERIAL_INSIDERS: ${{ secrets.GH_TOKEN_MKDOCS_MATERIAL_INSIDERS }}
 
     - name: Create archive
       run: git archive -o site.zip gh-pages

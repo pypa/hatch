@@ -49,8 +49,10 @@ jobs:
         git config --local user.name 'github-actions[bot]'
         git config --local user.email 'github-actions[bot]@users.noreply.github.com'
 
-    - name: Deploy documentation
+    - name: Build documentation
       run: hatch run docs:ci-build $HATCH_DOCS_VERSION latest
+      env:
+        GH_TOKEN_MKDOCS_MATERIAL_INSIDERS: ${{ secrets.GH_TOKEN_MKDOCS_MATERIAL_INSIDERS }}
 
     - name: Create archive
       run: git archive -o site.zip gh-pages
