@@ -1,0 +1,16 @@
+INHERIT: mkdocs.yml
+
+plugins:
+  blog:
+    categories_allowed:
+      - General
+      - News
+      - Release
+      - Roadmap
+    post_excerpt: required
+    post_slugify: !!python/object/apply:pymdownx.slugs.slugify
+      kwds:
+        case: lower
+    categories_slugify: !!python/object/apply:pymdownx.slugs.slugify
+      kwds:
+        case: lower

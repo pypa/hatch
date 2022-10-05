@@ -107,6 +107,8 @@ nav:
   - Meta:
     - FAQ: meta/faq.md
     - Authors: meta/authors.md
+  - Blog:
+    - blog/index.md
 
 watch:
 - backend/src/hatchling
@@ -114,41 +116,43 @@ watch:
 
 plugins:
   # Built-in
-  - search:
+  search: {}
   # Extra
-  - minify:
-      minify_html: true
-  - git-revision-date-localized:
-      type: date
-  - mike:
-      alias_type: copy
-  - mkdocstrings:
-      default_handler: python
-      handlers:
-        python:
-          paths:
-            - src
-          options:
-            # Headings
-            show_root_heading: true
-            show_root_full_path: false
-            # Docstrings
-            show_if_no_docstring: true
-            # Signatures/annotations
-            show_signature_annotations: true
-            # Other
-            show_bases: false
-  - redirects:
-      redirect_maps:
-        config/environment.md: config/environment/overview.md
-        plugins/builder.md: plugins/builder/reference.md
-        plugins/build-hook.md: plugins/build-hook/reference.md
-        plugins/metadata-hook.md: plugins/metadata-hook/reference.md
-        plugins/environment.md: plugins/environment/reference.md
-        plugins/environment-collector.md: plugins/environment-collector/reference.md
-        plugins/publisher.md: plugins/publisher/reference.md
-        plugins/version-source.md: plugins/version-source/reference.md
-        plugins/version-scheme.md: plugins/version-scheme/reference.md
+  minify:
+    minify_html: true
+  git-revision-date-localized:
+    type: date
+    # Required for blog plugin's generated indices
+    fallback_to_build_date: true
+  mike:
+    alias_type: copy
+  mkdocstrings:
+    default_handler: python
+    handlers:
+      python:
+        paths:
+          - src
+        options:
+          # Headings
+          show_root_heading: true
+          show_root_full_path: false
+          # Docstrings
+          show_if_no_docstring: true
+          # Signatures/annotations
+          show_signature_annotations: true
+          # Other
+          show_bases: false
+  redirects:
+    redirect_maps:
+      config/environment.md: config/environment/overview.md
+      plugins/builder.md: plugins/builder/reference.md
+      plugins/build-hook.md: plugins/build-hook/reference.md
+      plugins/metadata-hook.md: plugins/metadata-hook/reference.md
+      plugins/environment.md: plugins/environment/reference.md
+      plugins/environment-collector.md: plugins/environment-collector/reference.md
+      plugins/publisher.md: plugins/publisher/reference.md
+      plugins/version-source.md: plugins/version-source/reference.md
+      plugins/version-scheme.md: plugins/version-scheme/reference.md
 
 markdown_extensions:
   # Built-in

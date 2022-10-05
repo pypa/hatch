@@ -74,11 +74,18 @@ dependencies = [
   # Necessary for syntax highlighting in code blocks
   "pygments~=2.13.0",
 ]
+pre-install-commands = [
+  "python scripts/install_mkdocs_material_insiders.py",
+]
+[envs.docs.overrides]
+env.GH_TOKEN_MKDOCS_MATERIAL_INSIDERS.env-vars = "MKDOCS_CONFIG=mkdocs.insiders.yml"
 [envs.docs.env-vars]
 SOURCE_DATE_EPOCH = "1580601600"
+PYTHONUNBUFFERED = "1"
+MKDOCS_CONFIG = "mkdocs.yml"
 [envs.docs.scripts]
-build = "mkdocs build --clean --strict {args}"
-serve = "mkdocs serve --dev-addr localhost:8000 {args}"
+build = "mkdocs build --config-file {env:MKDOCS_CONFIG} --clean --strict {args}"
+serve = "mkdocs serve --config-file {env:MKDOCS_CONFIG} --dev-addr localhost:8000 {args}"
 ci-build = "mike deploy --update-aliases {args}"
 
 [envs.backend]
