@@ -26,7 +26,7 @@ The `mode` key controls how Hatch selects the project to work on.
     mode = "local"
     ```
 
-By default, Hatch will look for a `pyproject.toml` or `setup.py` file in the current working directory
+By default, Hatch will look for a `pyproject.toml` file in the current working directory
 and any parent directories. The directory storing the first found file will be considered the project root.
 
 ### Project
