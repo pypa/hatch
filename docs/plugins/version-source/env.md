@@ -6,7 +6,7 @@ Retrieves the version from an environment variable. This can be useful in build 
 
 ## Updates
 
-Setting the version is supported and modifies the environment variable. How long this actually persists depends on your operating environment. It is usually safer to just change the environment variable.
+Setting the version is not supported.
 
 ## Configuration
 
@@ -17,7 +17,6 @@ The version source plugin name is `env`.
     ```toml
     [tool.hatch.version]
     source = "env"
-    variable = "BUILD_TAG"
     ```
 
 === ":octicons-file-code-16: hatch.toml"
@@ -25,11 +24,10 @@ The version source plugin name is `env`.
     ```toml
     [version]
     source = "env"
-    variable = "BUILD_TAG"
     ```
 
 ## Options
 
 | Option | Description |
 | --- | --- |
-| `variable` (required) | The name of the environment variable. |
+| `variable` (required) | The name of the environment variable |

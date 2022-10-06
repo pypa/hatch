@@ -6,4 +6,4 @@ from hatchling.version.source.regex import RegexSource
 
 @hookimpl
 def hatch_register_version_source():
-    return [CodeSource, RegexSource, EnvSource]
+    return [CodeSource, EnvSource, RegexSource]
