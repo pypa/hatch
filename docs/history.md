@@ -191,6 +191,7 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 ***Fixed:***
 
 - Use proper CSV formatting for the `RECORD` metadata file of the `wheel` target to avoid warnings during installation by `pip` if, for example, file names contain commas
+- Fix installations with pip for build hooks that modify runtime dependencies
 - Decreasing verbosity now has no affect on output that should always be displayed
 
 ### [1.10.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.10.0) - 2022-09-18 ### {: #hatchling-v1.10.0 }
