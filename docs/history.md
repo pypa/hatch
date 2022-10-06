@@ -183,6 +183,10 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 
 ### Unreleased
 
+***Added:***
+
+- Add `env` version source to retrieve the version from an environment variable
+
 ***Fixed:***
 
 - Use proper CSV formatting for the `RECORD` metadata file of the `wheel` target to avoid warnings during installation by `pip` if, for example, file names contain commas

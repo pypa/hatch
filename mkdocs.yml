@@ -95,6 +95,7 @@ nav:
       - Reference: plugins/version-source/reference.md
       - Regex: plugins/version-source/regex.md
       - Code: plugins/version-source/code.md
+      - Environment: plugins/version-source/env.md
     - Version scheme:
       - Reference: plugins/version-scheme/reference.md
       - Standard: plugins/version-scheme/standard.md
