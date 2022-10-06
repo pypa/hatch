@@ -32,6 +32,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Environments now respect dynamically defined project dependencies
 - The `dep hash` and all `dep show` commands now respect dynamically defined project dependencies
 - The `env show`, `dep hash`, and all `dep show` commands now honor context formatting
+- Build environment compatibility is now checked before use
 - Decreasing verbosity now has no affect on output that should always be displayed
 - Handle more edge cases in the `setuptools` migration script
 - Environments now respect user defined environment variables for context formatting

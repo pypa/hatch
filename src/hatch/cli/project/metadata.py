@@ -18,6 +18,10 @@ def metadata(app, field):
     else:
         with app.project.location.as_cwd():
             environment = app.get_environment()
+            try:
+                environment.check_compatibility()
+            except Exception as e:
+                app.abort(f'Environment `{environment.name}` is incompatible: {e}')
 
             with app.status_waiting(
                 'Setting up build environment for missing dependencies',

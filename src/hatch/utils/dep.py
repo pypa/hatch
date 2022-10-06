@@ -25,6 +25,11 @@ def get_project_dependencies_complex(environment):
         dependencies_complex.update(environment.metadata.core.dependencies_complex)
         optional_dependencies_complex.update(environment.metadata.core.optional_dependencies_complex)
     else:
+        try:
+            environment.check_compatibility()
+        except Exception as e:
+            environment.app.abort(f'Environment `{environment.name}` is incompatible: {e}')
+
         import json
 
         from packaging.requirements import Requirement
