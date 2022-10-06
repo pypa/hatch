@@ -36,6 +36,10 @@ def version(app, desired_version):
             app.display_info(f'New: {updated_version}')
         else:
             environment = app.get_environment()
+            try:
+                environment.check_compatibility()
+            except Exception as e:
+                app.abort(f'Environment `{environment.name}` is incompatible: {e}')
 
             with app.status_waiting(
                 'Setting up build environment for missing build dependencies',

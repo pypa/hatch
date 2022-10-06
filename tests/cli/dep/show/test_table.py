@@ -10,6 +10,35 @@ def terminal_width():
         yield
 
 
+def test_incompatible_environment(hatch, temp_dir, helpers):
+    project_name = 'My.App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+        assert result.exit_code == 0, result.output
+
+    path = temp_dir / 'my-app'
+
+    project = Project(path)
+    config = dict(project.raw_config)
+    config['build-system']['requires'].append('foo')
+    config['project']['dynamic'].append('dependencies')
+    project.save_config(config)
+    helpers.update_project_environment(
+        project, 'default', {'skip-install': True, 'python': '9000', **project.config.envs['default']}
+    )
+
+    with path.as_cwd():
+        result = hatch('dep', 'show', 'table')
+
+    assert result.exit_code == 1, result.output
+    assert result.output == helpers.dedent(
+        """
+        Environment `default` is incompatible: cannot locate Python: 9000
+        """
+    )
+
+
 def test_project_only(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()

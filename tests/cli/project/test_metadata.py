@@ -143,6 +143,34 @@ class TestBuildDependenciesInstalled:
 
 
 class TestBuildDependenciesMissing:
+    @pytest.mark.allow_backend_process
+    def test_incompatible_environment(self, hatch, temp_dir, helpers):
+        project_name = 'My.App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+            assert result.exit_code == 0, result.output
+
+        path = temp_dir / 'my-app'
+
+        project = Project(path)
+        config = dict(project.raw_config)
+        config['build-system']['requires'].append('foo')
+        project.save_config(config)
+        helpers.update_project_environment(
+            project, 'default', {'skip-install': True, 'python': '9000', **project.config.envs['default']}
+        )
+
+        with path.as_cwd():
+            result = hatch('project', 'metadata')
+
+        assert result.exit_code == 1, result.output
+        assert result.output == helpers.dedent(
+            """
+            Environment `default` is incompatible: cannot locate Python: 9000
+            """
+        )
+
     def test_default_all(self, hatch, temp_dir, helpers):
         project_name = 'My.App'
 

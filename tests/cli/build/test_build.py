@@ -64,6 +64,32 @@ def test_backend_not_build_dependency(hatch, temp_dir, helpers):
     )
 
 
+@pytest.mark.allow_backend_process
+def test_incompatible_environment(hatch, temp_dir, helpers):
+    project_name = 'My.App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+        assert result.exit_code == 0, result.output
+
+    path = temp_dir / 'my-app'
+
+    project = Project(path)
+    helpers.update_project_environment(
+        project, 'default', {'skip-install': True, 'python': '9000', **project.config.envs['default']}
+    )
+
+    with path.as_cwd():
+        result = hatch('build')
+
+    assert result.exit_code == 1, result.output
+    assert result.output == helpers.dedent(
+        """
+        Environment `default` is incompatible: cannot locate Python: 9000
+        """
+    )
+
+
 def test_unknown_targets(hatch, temp_dir, helpers):
     project_name = 'My.App'
 
