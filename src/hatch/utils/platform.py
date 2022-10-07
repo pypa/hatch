@@ -48,7 +48,8 @@ class Platform:
         if self.windows:
             # Manually locate executables on Windows to avoid multiple cases in which `shell=True` is required:
             #
-            # - If the `PATH` environment variable has been modified, see: https://bugs.python.org/issue8557
+            # - If the `PATH` environment variable has been modified, see:
+            #   https://github.com/python/cpython/issues/52803
             # - Executables that do not have the extension `.exe`, see:
             #   https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-createprocessw
             if not shell and not isinstance(command, str):
