@@ -189,6 +189,7 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 ***Added:***
 
 - Add `env` version source to retrieve the version from an environment variable
+- Add `validate-bump` option to the `standard` version scheme
 
 ***Fixed:***
 

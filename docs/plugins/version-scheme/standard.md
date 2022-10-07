@@ -4,7 +4,7 @@
 
 See the documentation for [versioning](../../version.md#updating).
 
-#### Configuration
+## Configuration
 
 The version scheme plugin name is `standard`.
 
@@ -24,4 +24,6 @@ The version scheme plugin name is `standard`.
 
 ## Options
 
-There are no options available currently.
+| Option | Description |
+| --- | --- |
+| `validate-bump` | When setting a specific version, this determines whether to check that the new version is higher than the original. The default is `true`. |
