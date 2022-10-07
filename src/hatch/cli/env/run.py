@@ -13,20 +13,25 @@ def parse_variable_spec(spec):
 def select_matrix_environments(environments, included_variables, excluded_variables):
     selected_environments = []
     for env_name, variables in environments.items():
+        included = set(variables)
+        excluded = set()
+
         for variable, value in variables.items():
             if variable in excluded_variables:
                 excluded_values = excluded_variables[variable]
                 if not excluded_values or value in excluded_values:
+                    excluded.add(variable)
                     break
 
             if included_variables:
                 if variable not in included_variables:
-                    break
+                    included.remove(variable)
                 else:
                     included_values = included_variables[variable]
                     if included_values and value not in included_values:
-                        break
-        else:
+                        included.remove(variable)
+
+        if included and not excluded:
             selected_environments.append(env_name)
 
     return selected_environments
