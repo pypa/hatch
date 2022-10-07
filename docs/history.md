@@ -37,6 +37,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Decreasing verbosity now has no affect on output that should always be displayed
 - Handle more edge cases in the `setuptools` migration script
 - Environments now respect user defined environment variables for context formatting
+- Update the scripts in the generated test environment template for new projects to reflect the documentation
 - Allow `extra-dependencies` in environment overrides
 - Depend on `packaging` explicitly rather than relying on it being a transitive dependency of Hatchling
 
