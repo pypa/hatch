@@ -44,7 +44,7 @@ class StandardScheme(VersionSchemeInterface):
                     raise ValueError('Cannot specify multiple update operations with an explicit version')
 
                 next_version = Version(version)
-                if next_version <= original:
+                if self.config.get('validate-bump', True) and next_version <= original:
                     raise ValueError(
                         f'Version `{version}` is not higher than the original version `{original_version}`'
                     )
