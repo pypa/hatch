@@ -228,6 +228,51 @@ def test_matrix_all(hatch, helpers, temp_dir_data, config_file):
     assert not storage_path.is_dir()
 
 
+def test_matrix_all_local_directory(hatch, helpers, temp_dir_data, config_file):
+    config_file.model.template.plugins['default']['tests'] = False
+    config_file.model.dirs.env = {'virtual': '.hatch'}
+    config_file.save()
+
+    project_name = 'My.App'
+
+    with temp_dir_data.as_cwd():
+        result = hatch('new', project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir_data / 'my-app'
+
+    project = Project(project_path)
+    helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
+    helpers.update_project_environment(project, 'foo', {'matrix': [{'version': ['9000', '42']}]})
+
+    with project_path.as_cwd():
+        result = hatch('env', 'create', 'foo')
+
+    assert result.exit_code == 0, result.output
+
+    env_data_path = project_path / '.hatch'
+    assert env_data_path.is_dir()
+
+    env_dirs = list(env_data_path.iterdir())
+    assert len(env_dirs) == 3
+
+    assert sorted(entry.name for entry in env_dirs) == ['.gitignore', 'foo.42', 'foo.9000']
+
+    with project_path.as_cwd():
+        result = hatch('env', 'remove', 'foo')
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        """
+        Removing environment: foo.9000
+        Removing environment: foo.42
+        """
+    )
+
+    assert not env_data_path.is_dir()
+
+
 def test_incompatible_ok(hatch, helpers, temp_dir_data, config_file):
     project_name = 'My.App'
 

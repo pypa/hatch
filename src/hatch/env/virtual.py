@@ -62,6 +62,19 @@ class VirtualEnvironment(EnvironmentInterface):
         return self.virtual_env_path
 
     def create(self):
+        if self.root in self.storage_path.parents:
+            # Although it would be nice to support Mercurial, only Git supports multiple ignore files. See:
+            # https://github.com/pytest-dev/pytest/issues/3286#issuecomment-421439197
+            vcs_ignore_file = self.storage_path / '.gitignore'
+            if not vcs_ignore_file.is_file():
+                vcs_ignore_file.ensure_parent_dir_exists()
+                vcs_ignore_file.write_text(
+                    """\
+# This file was automatically created by Hatch
+*
+"""
+                )
+
         self.virtual_env.create(self.parent_python, allow_system_packages=self.config.get('system-packages', False))
 
     def remove(self):
@@ -69,8 +82,10 @@ class VirtualEnvironment(EnvironmentInterface):
         self.build_virtual_env.remove()
 
         # Clean up root directory of all virtual environments belonging to the project
-        if self.storage_path.is_dir() and not any(self.storage_path.iterdir()):
-            self.storage_path.remove()
+        if self.storage_path != Path.home() / '.virtualenvs' and self.storage_path.is_dir():
+            entries = [entry.name for entry in self.storage_path.iterdir()]
+            if not entries or (entries == ['.gitignore'] and self.root in self.storage_path.parents):
+                self.storage_path.remove()
 
     def exists(self):
         return self.virtual_env.exists()
