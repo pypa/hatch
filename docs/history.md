@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Unreleased
 
+### [1.6.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.6.0) - 2022-10-08 ### {: #hatch-v1.6.0 }
+
 ***Changed:***
 
 - The `run_shell_command` environment interface method now accepts arbitrary `subprocess.Popen` keyword arguments. This is not strictly breaking, but will be utilized in upcoming features.
@@ -25,7 +27,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Add `--initialize-auth` flag to the `index` publisher to allow for the saving of authentication information before publishing
 - Support Bash on Windows for the `shell` command
 - The `setuptools` migration script no longer modifies the formatting of existing `pyproject.toml` configuration
-- Bump the minimum supported version of Hatchling to 1.10.0
+- Bump the minimum supported version of Hatchling to 1.11.0
 
 ***Fixed:***
 

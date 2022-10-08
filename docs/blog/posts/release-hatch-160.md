@@ -1,5 +1,4 @@
 ---
-draft: true
 date: 2022-10-08
 authors: [ofek]
 description: >-
