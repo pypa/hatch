@@ -186,6 +186,8 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 
 ### Unreleased
 
+### [1.11.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.11.0) - 2022-10-08 ### {: #hatchling-v1.11.0 }
+
 ***Added:***
 
 - Add `env` version source to retrieve the version from an environment variable
