@@ -398,9 +398,9 @@ def test_selected_local_directory(hatch, helpers, temp_dir, config_file):
     assert env_data_path.is_dir()
 
     env_dirs = list(env_data_path.iterdir())
-    assert len(env_dirs) == 3
+    assert len(env_dirs) == 4
 
-    assert sorted(d.name for d in env_dirs) == ['my-app', 'test.42', 'test.9000']
+    assert sorted(entry.name for entry in env_dirs) == ['.gitignore', 'my-app', 'test.42', 'test.9000']
 
 
 def test_option_local_directory(hatch, helpers, temp_dir, config_file):
