@@ -119,6 +119,7 @@ plugins:
   # Built-in
   search: {}
   # Extra
+  glightbox: {}
   minify:
     minify_html: true
   git-revision-date-localized:
