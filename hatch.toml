@@ -87,7 +87,7 @@ MKDOCS_CONFIG = "mkdocs.yml"
 [envs.docs.scripts]
 build = "mkdocs build --config-file {env:MKDOCS_CONFIG} --clean --strict {args}"
 serve = "mkdocs serve --config-file {env:MKDOCS_CONFIG} --dev-addr localhost:8000 {args}"
-ci-build = "mike deploy --update-aliases {args}"
+ci-build = "mike deploy --config-file {env:MKDOCS_CONFIG} --update-aliases {args}"
 
 [envs.backend]
 detached = true
