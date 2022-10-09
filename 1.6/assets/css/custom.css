@@ -1,0 +1,52 @@
+/* https://github.com/squidfunk/mkdocs-material/issues/1522 */
+.md-typeset h5 {
+  color: var(--md-default-fg-color);
+  text-transform: none;
+}
+
+/* Brighter links for dark mode */
+[data-md-color-scheme=slate] {
+  /* https://github.com/squidfunk/mkdocs-material/blob/7.3.6/src/assets/stylesheets/main/_colors.scss */
+  --md-typeset-a-color: var(--md-primary-fg-color--light);
+}
+
+/* FiraCode https://github.com/tonsky/FiraCode */
+code { font-family: 'Fira Code', monospace; }
+
+@supports (font-variation-settings: normal) {
+  code { font-family: 'Fira Code VF', monospace; }
+}
+
+/* https://github.com/pypa/hatch/issues/104 */
+:root {
+  font-variant-ligatures: none;
+}
+
+/* Everything below is from https://mkdocstrings.github.io/python/customization/#recommended-style-material */
+
+/* Indentation. */
+div.doc-contents:not(.first) {
+  padding-left: 25px;
+  border-left: .05rem solid var(--md-typeset-table-color);
+}
+
+/* Mark external links as such. */
+a.autorefs-external::after {
+  /* https://primer.style/octicons/arrow-up-right-24 */
+  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="rgb(0, 0, 0)" d="M18.25 15.5a.75.75 0 00.75-.75v-9a.75.75 0 00-.75-.75h-9a.75.75 0 000 1.5h7.19L6.22 16.72a.75.75 0 101.06 1.06L17.5 7.56v7.19c0 .414.336.75.75.75z"></path></svg>');
+  content: ' ';
+
+  display: inline-block;
+  position: relative;
+  top: 0.1em;
+  margin-left: 0.2em;
+  margin-right: 0.1em;
+
+  height: 1em;
+  width: 1em;
+  border-radius: 100%;
+  background-color: var(--md-typeset-a-color);
+}
+a.autorefs-external:hover::after {
+  background-color: var(--md-accent-fg-color);
+}
