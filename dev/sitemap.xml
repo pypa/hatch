@@ -56,7 +56,7 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/dev/blog/posts/release-hatch-160/</loc>
+         <loc>https://hatch.pypa.io/latest/dev/blog/2022/10/08/hatch-v160/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
@@ -242,6 +242,16 @@
     </url>
     <url>
          <loc>https://hatch.pypa.io/latest/dev/plugins/version-source/regex/</loc>
+         <lastmod>2020-02-02</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://hatch.pypa.io/latest/dev/blog/archive/2022/</loc>
+         <lastmod>2020-02-02</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://hatch.pypa.io/latest/dev/blog/category/release/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
