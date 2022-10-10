@@ -13,9 +13,14 @@ dependencies = [
 post-install-commands = [
   "python -m pip install --disable-pip-version-check {verbosity:flag:-1} -e ./backend",
 ]
+[envs.default.overrides]
+env.GITHUB_ACTIONS.env-vars = "COVERAGE_REPORT="
 [envs.default.scripts]
-full = "pytest -n auto --reruns 5 --reruns-delay 3 -r aR --cov-report=term-missing --cov-config=pyproject.toml --cov=src/hatch --cov=backend/src/hatchling --cov=tests {args:tests}"
+# --cov must not come before an argument in order to use the sources defined by config
+_cov = "pytest --cov --cov-report={env:COVERAGE_REPORT:term-missing} --cov-config=pyproject.toml"
 dev = "pytest -p no:randomly --no-cov {args:tests}"
+cov = "_cov {args:tests}"
+full = "_cov -n auto --reruns 5 --reruns-delay 3 -r aR {args:tests}"
 
 [envs.test.overrides]
 env.HERMETIC_TESTS.type = [

@@ -1,5 +1,3 @@
-import pytest
-
 from hatch.config.constants import AppEnvVars
 from hatch.project.core import Project
 
@@ -33,8 +31,10 @@ def test_unknown_type(hatch, helpers, temp_dir_data, config_file):
     )
 
 
-@pytest.mark.requires_internet
 def test_all(hatch, helpers, temp_dir_data, config_file):
+    config_file.model.template.plugins['default']['tests'] = False
+    config_file.save()
+
     project_name = 'My.App'
 
     with temp_dir_data.as_cwd():
@@ -89,6 +89,9 @@ def test_all(hatch, helpers, temp_dir_data, config_file):
 
 
 def test_incompatible_ok(hatch, helpers, temp_dir_data, config_file):
+    config_file.model.template.plugins['default']['tests'] = False
+    config_file.save()
+
     project_name = 'My.App'
 
     with temp_dir_data.as_cwd():
@@ -111,6 +114,9 @@ def test_incompatible_ok(hatch, helpers, temp_dir_data, config_file):
 
 
 def test_active(hatch, temp_dir_data, helpers, config_file):
+    config_file.model.template.plugins['default']['tests'] = False
+    config_file.save()
+
     project_name = 'My.App'
 
     with temp_dir_data.as_cwd():

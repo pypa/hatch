@@ -108,6 +108,7 @@ use_parentheses = true
 
 [tool.coverage.run]
 branch = true
+source = ["src/hatch", "backend/src/hatchling", "tests"]
 omit = [
   "backend/src/hatchling/__main__.py",
   "backend/src/hatchling/bridge/*",
@@ -116,6 +117,11 @@ omit = [
   "src/hatch/cli/new/migrate.py",
   "src/hatch/utils/shells.py",
 ]
+
+[tool.coverage.paths]
+hatch = ["src", "*/hatch/src"]
+hatchling = ["backend/src", "*/hatch/backend/src"]
+tests = ["tests", "*/hatch/tests"]
 
 [tool.coverage.report]
 exclude_lines = [
