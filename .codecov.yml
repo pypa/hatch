@@ -1,0 +1,15 @@
+coverage:
+  status:
+    project:
+      informational: true
+    patch:
+      informational: true
+
+comment: false
+
+github_checks:
+  annotations: false
+
+fixes:
+- "src/hatch::hatch"
+- "backend/src/hatchling::hatchling"
