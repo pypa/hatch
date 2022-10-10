@@ -1,5 +1,3 @@
-import pytest
-
 from hatch.config.constants import AppEnvVars
 from hatch.project.core import Project
 
@@ -42,8 +40,10 @@ def test_nonexistent(hatch, temp_dir_data, config_file):
     assert not result.output
 
 
-@pytest.mark.requires_internet
 def test_single(hatch, helpers, temp_dir_data, config_file):
+    config_file.model.template.plugins['default']['tests'] = False
+    config_file.save()
+
     project_name = 'My.App'
 
     with temp_dir_data.as_cwd():
@@ -103,8 +103,10 @@ def test_single(hatch, helpers, temp_dir_data, config_file):
     assert not bar_env_path.is_dir()
 
 
-@pytest.mark.requires_internet
 def test_all(hatch, helpers, temp_dir_data, config_file):
+    config_file.model.template.plugins['default']['tests'] = False
+    config_file.save()
+
     project_name = 'My.App'
 
     with temp_dir_data.as_cwd():
@@ -173,8 +175,10 @@ def test_all(hatch, helpers, temp_dir_data, config_file):
     assert not storage_path.is_dir()
 
 
-@pytest.mark.requires_internet
 def test_matrix_all(hatch, helpers, temp_dir_data, config_file):
+    config_file.model.template.plugins['default']['tests'] = False
+    config_file.save()
+
     project_name = 'My.App'
 
     with temp_dir_data.as_cwd():
@@ -316,8 +320,10 @@ def test_active(hatch, temp_dir_data, helpers, config_file):
     )
 
 
-@pytest.mark.requires_internet
 def test_active_override(hatch, helpers, temp_dir_data, config_file):
+    config_file.model.template.plugins['default']['tests'] = False
+    config_file.save()
+
     project_name = 'My.App'
 
     with temp_dir_data.as_cwd():

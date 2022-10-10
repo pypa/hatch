@@ -49,6 +49,50 @@ jobs:
     - name: Run tests
       run: hatch run full
 
+    - name: Disambiguate coverage filename
+      run: mv .coverage ".coverage.${{ matrix.os }}.${{ matrix.python-version }}"
+
+    - name: Upload coverage data
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-data
+        path: .coverage.*
+
+  coverage:
+    name: Submit coverage to Codecov
+    runs-on: ubuntu-latest
+    needs:
+    - run
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install coverage dependency
+      run: pip install --upgrade coverage[toml]
+
+    - name: Download coverage data
+      uses: actions/download-artifact@v3
+      with:
+        name: coverage-data
+
+    - name: Combine coverage
+      run: |
+        coverage combine
+        coverage lcov
+
+    - name: Rewrite Hatchling coverage path
+      run: sed -i 's|backend/src/hatchling|hatchling|' coverage.lcov
+
+    - name: Upload report to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        files: coverage.lcov
+
   downstream:
     name: Downstream builds with Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
