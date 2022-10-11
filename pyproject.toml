@@ -108,7 +108,7 @@ use_parentheses = true
 
 [tool.coverage.run]
 branch = true
-source = ["src/hatch", "backend/src/hatchling", "tests"]
+source_pkgs = ["hatch", "hatchling", "tests"]
 omit = [
   "backend/src/hatchling/__main__.py",
   "backend/src/hatchling/bridge/*",
