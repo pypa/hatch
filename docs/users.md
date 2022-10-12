@@ -28,6 +28,8 @@ The following is not intended to be a complete enumeration. Be sure to view the 
 | [urllib3](https://github.com/urllib3/urllib3/blob/8dda1974ae51839304f8517ab7993006c0d9db2e/pyproject.toml#L3-L5)
 | [Uvicorn](https://github.com/encode/uvicorn/blob/ccd1aae48e49dd8c9365600fd79e886efe88be1d/pyproject.toml#L1-L3)
 | [Voilà](https://github.com/voila-dashboards/voila/blob/71292e4124b1f4a6f91c8b4e16ea9ad6b5ef500b/pyproject.toml#L1-L7)
+| [AuthX](https://github.com/yezz123/authx/blob/43ce2d0d195d5f67b7a1f0b75cfae9c5b85e7bc9/pyproject.toml#L1-L3)
+| [Ormdantic](https://github.com/yezz123/ormdantic/blob/28f94d612de8838aabb16e6e0e6888a65496899f/pyproject.toml#L1-L3)
 
 ## Industry
 
