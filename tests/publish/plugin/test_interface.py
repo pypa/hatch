@@ -3,7 +3,7 @@ import pytest
 from hatch.publish.plugin.interface import PublisherInterface
 
 
-class MockPublisher(PublisherInterface):
+class MockPublisher(PublisherInterface):  # no cov
     PLUGIN_NAME = 'mock'
 
     def publish(self, artifacts, options):

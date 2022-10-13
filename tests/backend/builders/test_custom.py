@@ -107,7 +107,7 @@ def test_default(hatch, helpers, temp_dir):
     expected_files = helpers.get_template_files(
         'wheel.standard_default_license_single', project_name, metadata_directory=metadata_directory
     )
-    helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+    helpers.assert_files(extraction_directory, expected_files)
 
     # Inspect the archive rather than the extracted files because on Windows they lose their metadata
     # https://stackoverflow.com/q/9813243
@@ -183,7 +183,7 @@ def test_explicit_path(hatch, helpers, temp_dir):
     expected_files = helpers.get_template_files(
         'wheel.standard_default_license_single', project_name, metadata_directory=metadata_directory
     )
-    helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+    helpers.assert_files(extraction_directory, expected_files)
 
     # Inspect the archive rather than the extracted files because on Windows they lose their metadata
     # https://stackoverflow.com/q/9813243

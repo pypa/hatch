@@ -507,7 +507,7 @@ class TestBuildStandard:
         expected_files = helpers.get_template_files(
             'wheel.standard_default_license_single', project_name, metadata_directory=metadata_directory
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
         # Inspect the archive rather than the extracted files because on Windows they lose their metadata
         # https://stackoverflow.com/q/9813243
@@ -559,7 +559,7 @@ class TestBuildStandard:
         expected_files = helpers.get_template_files(
             'wheel.standard_default_license_single', project_name, metadata_directory=metadata_directory
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
         with zipfile.ZipFile(str(expected_artifact), 'r') as zip_archive:
             zip_info = zip_archive.getinfo(f'{metadata_directory}/WHEEL')
@@ -609,7 +609,7 @@ class TestBuildStandard:
         expected_files = helpers.get_template_files(
             'wheel.standard_default_license_single', project_name, metadata_directory=metadata_directory
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
         with zipfile.ZipFile(str(expected_artifact), 'r') as zip_archive:
             zip_info = zip_archive.getinfo(f'{metadata_directory}/WHEEL')
@@ -665,7 +665,7 @@ class TestBuildStandard:
         expected_files = helpers.get_template_files(
             'wheel.standard_default_license_multiple', project_name, metadata_directory=metadata_directory
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
     def test_default_include(self, hatch, helpers, temp_dir):
         project_name = 'My.App'
@@ -712,7 +712,7 @@ class TestBuildStandard:
         expected_files = helpers.get_template_files(
             'wheel.standard_tests', project_name, metadata_directory=metadata_directory
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
     def test_default_only_packages(self, hatch, helpers, temp_dir):
         project_name = 'My.App'
@@ -765,7 +765,7 @@ class TestBuildStandard:
         expected_files = helpers.get_template_files(
             'wheel.standard_default_license_single', project_name, metadata_directory=metadata_directory
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
     def test_default_only_packages_artifact_override(self, hatch, helpers, temp_dir):
         project_name = 'My.App'
@@ -819,7 +819,7 @@ class TestBuildStandard:
         expected_files = helpers.get_template_files(
             'wheel.standard_only_packages_artifact_override', project_name, metadata_directory=metadata_directory
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
     def test_default_python_constraint(self, hatch, helpers, temp_dir):
         project_name = 'My.App'
@@ -865,7 +865,7 @@ class TestBuildStandard:
         expected_files = helpers.get_template_files(
             'wheel.standard_default_python_constraint', project_name, metadata_directory=metadata_directory
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
     def test_default_build_script_default_tag(self, hatch, helpers, temp_dir):
         project_name = 'My.App'
@@ -929,7 +929,7 @@ class TestBuildStandard:
         expected_files = helpers.get_template_files(
             'wheel.standard_default_build_script', project_name, metadata_directory=metadata_directory, tag=tag
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
     def test_default_build_script_set_tag(self, hatch, helpers, temp_dir):
         project_name = 'My.App'
@@ -994,7 +994,7 @@ class TestBuildStandard:
         expected_files = helpers.get_template_files(
             'wheel.standard_default_build_script', project_name, metadata_directory=metadata_directory, tag=tag
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
     def test_default_build_script_known_artifacts(self, hatch, helpers, temp_dir):
         project_name = 'My.App'
@@ -1073,7 +1073,7 @@ class TestBuildStandard:
             metadata_directory=metadata_directory,
             tag=tag,
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
     def test_default_build_script_configured_build_hooks(self, hatch, helpers, temp_dir):
         project_name = 'My.App'
@@ -1152,7 +1152,7 @@ class TestBuildStandard:
             metadata_directory=metadata_directory,
             tag=tag,
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
     def test_default_build_script_extra_dependencies(self, hatch, helpers, temp_dir):
         project_name = 'My.App'
@@ -1232,7 +1232,7 @@ class TestBuildStandard:
             metadata_directory=metadata_directory,
             tag=tag,
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
     def test_default_build_script_dynamic_artifacts(self, hatch, helpers, temp_dir):
         project_name = 'My.App'
@@ -1311,7 +1311,7 @@ class TestBuildStandard:
             metadata_directory=metadata_directory,
             tag=tag,
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
     def test_default_build_script_dynamic_force_include(self, hatch, helpers, temp_dir):
         project_name = 'My.App'
@@ -1393,7 +1393,7 @@ class TestBuildStandard:
             metadata_directory=metadata_directory,
             tag=tag,
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
     def test_default_build_script_dynamic_artifacts_with_src_layout(self, hatch, helpers, temp_dir, config_file):
         config_file.model.template.plugins['default']['src-layout'] = True
@@ -1477,7 +1477,7 @@ class TestBuildStandard:
             metadata_directory=metadata_directory,
             tag=tag,
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
     def test_default_shared_data(self, hatch, helpers, temp_dir):
         project_name = 'My.App'
@@ -1534,7 +1534,7 @@ class TestBuildStandard:
             metadata_directory=metadata_directory,
             shared_data_directory=shared_data_directory,
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
     def test_default_extra_metadata(self, hatch, helpers, temp_dir):
         project_name = 'My.App'
@@ -1589,7 +1589,7 @@ class TestBuildStandard:
             project_name,
             metadata_directory=metadata_directory,
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
     @pytest.mark.requires_unix
     def test_default_symlink(self, hatch, helpers, temp_dir):
@@ -1672,7 +1672,7 @@ class TestBuildStandard:
             metadata_directory=metadata_directory,
             tag=tag,
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
     @fixed_pathlib_resolution
     def test_editable_default(self, hatch, helpers, temp_dir, config_file):
@@ -1726,7 +1726,7 @@ class TestBuildStandard:
             metadata_directory=metadata_directory,
             package_paths=[str(project_path / 'src')],
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
         # Inspect the archive rather than the extracted files because on Windows they lose their metadata
         # https://stackoverflow.com/q/9813243
@@ -1801,7 +1801,7 @@ class TestBuildStandard:
             metadata_directory=metadata_directory,
             package_paths=[str(project_path / 'src')],
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
         # Inspect the archive rather than the extracted files because on Windows they lose their metadata
         # https://stackoverflow.com/q/9813243
@@ -1877,7 +1877,7 @@ class TestBuildStandard:
             metadata_directory=metadata_directory,
             package_paths=[str(project_path / 'src')],
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
         # Inspect the archive rather than the extracted files because on Windows they lose their metadata
         # https://stackoverflow.com/q/9813243
@@ -1944,7 +1944,7 @@ class TestBuildStandard:
             metadata_directory=metadata_directory,
             package_paths=[str(project_path / 'src')],
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
         # Inspect the archive rather than the extracted files because on Windows they lose their metadata
         # https://stackoverflow.com/q/9813243
@@ -2001,7 +2001,7 @@ class TestBuildStandard:
             metadata_directory=metadata_directory,
             package_root=str(project_path / 'my_app' / '__init__.py'),
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
         # Inspect the archive rather than the extracted files because on Windows they lose their metadata
         # https://stackoverflow.com/q/9813243
@@ -2077,7 +2077,7 @@ class TestBuildStandard:
             metadata_directory=metadata_directory,
             package_root=str(project_path / 'my_app' / '__init__.py'),
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
         # Inspect the archive rather than the extracted files because on Windows they lose their metadata
         # https://stackoverflow.com/q/9813243
@@ -2154,7 +2154,7 @@ class TestBuildStandard:
             metadata_directory=metadata_directory,
             package_root=str(project_path / 'my_app' / '__init__.py'),
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
         # Inspect the archive rather than the extracted files because on Windows they lose their metadata
         # https://stackoverflow.com/q/9813243
@@ -2219,7 +2219,7 @@ class TestBuildStandard:
             metadata_directory=metadata_directory,
             package_root=str(project_path / 'my_app' / '__init__.py'),
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
         # Inspect the archive rather than the extracted files because on Windows they lose their metadata
         # https://stackoverflow.com/q/9813243
@@ -2301,7 +2301,7 @@ class TestBuildStandard:
             metadata_directory=metadata_directory,
             package_root=str(project_path / 'my_app' / '__init__.py'),
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
         # Inspect the archive rather than the extracted files because on Windows they lose their metadata
         # https://stackoverflow.com/q/9813243
@@ -2361,7 +2361,7 @@ class TestBuildStandard:
             metadata_directory=metadata_directory,
             package_paths=[str(project_path)],
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
         # Inspect the archive rather than the extracted files because on Windows they lose their metadata
         # https://stackoverflow.com/q/9813243
@@ -2420,7 +2420,7 @@ class TestBuildStandard:
             metadata_directory=metadata_directory,
             namespace='namespace',
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
     def test_default_entry_points(self, hatch, helpers, temp_dir):
         project_name = 'My.App'
@@ -2466,7 +2466,7 @@ class TestBuildStandard:
         expected_files = helpers.get_template_files(
             'wheel.standard_entry_points', project_name, metadata_directory=metadata_directory
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
     def test_explicit_selection_with_src_layout(self, hatch, helpers, temp_dir, config_file):
         config_file.model.template.plugins['default']['src-layout'] = True
@@ -2526,7 +2526,7 @@ class TestBuildStandard:
             project_name,
             metadata_directory=metadata_directory,
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
     def test_single_module(self, hatch, helpers, temp_dir, config_file):
         project_name = 'My.App'
@@ -2568,7 +2568,7 @@ class TestBuildStandard:
             project_name,
             metadata_directory=metadata_directory,
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
     def test_no_strict_naming(self, hatch, helpers, temp_dir):
         project_name = 'My.App'
@@ -2616,7 +2616,7 @@ class TestBuildStandard:
         expected_files = helpers.get_template_files(
             'wheel.standard_no_strict_naming', project_name, metadata_directory=metadata_directory
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
     def test_editable_sources_rewrite_error(self, hatch, helpers, temp_dir, config_file):
         config_file.model.template.plugins['default']['src-layout'] = True

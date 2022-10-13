@@ -29,7 +29,7 @@ def get_current_timestamp():
     return datetime.now(timezone.utc).timestamp()
 
 
-def assert_files(directory, expected_files, check_contents=False):
+def assert_files(directory, expected_files, check_contents=True):
     start = str(directory)
     expected_relative_files = {str(f.path): f.contents for f in expected_files}
     seen_relative_file_paths = set()
@@ -48,6 +48,8 @@ def assert_files(directory, expected_files, check_contents=False):
             if check_contents and relative_file_path in expected_relative_files:
                 with open(os.path.join(start, relative_file_path), encoding='utf-8') as f:
                     assert f.read() == expected_relative_files[relative_file_path], relative_file_path
+            else:  # no cov
+                pass
 
     expected_relative_file_paths = set(expected_relative_files)
 

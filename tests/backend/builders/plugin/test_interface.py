@@ -3,44 +3,40 @@ from os.path import sep as path_sep
 import pytest
 
 from hatchling.builders.constants import EXCLUDED_DIRECTORIES
-from hatchling.builders.plugin.interface import BuilderInterface
 from hatchling.metadata.core import ProjectMetadata
 from hatchling.plugin.manager import PluginManager
 
-
-class Builder(BuilderInterface):
-    def get_version_api(self):
-        return {}
+from ..utils import MockBuilder
 
 
 class TestClean:
     def test_default(self, isolation):
-        builder = Builder(str(isolation))
+        builder = MockBuilder(str(isolation))
         builder.clean(None, None)
 
 
 class TestPluginManager:
     def test_default(self, isolation):
-        builder = Builder(str(isolation))
+        builder = MockBuilder(str(isolation))
 
         assert isinstance(builder.plugin_manager, PluginManager)
 
     def test_reuse(self, isolation):
         plugin_manager = PluginManager()
-        builder = Builder(str(isolation), plugin_manager=plugin_manager)
+        builder = MockBuilder(str(isolation), plugin_manager=plugin_manager)
 
         assert builder.plugin_manager is plugin_manager
 
 
 class TestRawConfig:
     def test_default(self, isolation):
-        builder = Builder(str(isolation))
+        builder = MockBuilder(str(isolation))
 
         assert builder.raw_config == builder.raw_config == {}
 
     def test_reuse(self, isolation):
         config = {}
-        builder = Builder(str(isolation), config=config)
+        builder = MockBuilder(str(isolation), config=config)
 
         assert builder.raw_config is builder.raw_config is config
 
@@ -49,7 +45,7 @@ class TestRawConfig:
         project_file.write_text('foo = 5')
 
         with temp_dir.as_cwd():
-            builder = Builder(str(temp_dir))
+            builder = MockBuilder(str(temp_dir))
 
             assert builder.raw_config == builder.raw_config == {'foo': 5}
 
@@ -57,46 +53,46 @@ class TestRawConfig:
 class TestMetadata:
     def test_base(self, isolation):
         config = {'project': {'name': 'foo'}}
-        builder = Builder(str(isolation), config=config)
+        builder = MockBuilder(str(isolation), config=config)
 
         assert isinstance(builder.metadata, ProjectMetadata)
         assert builder.metadata.core.name == 'foo'
 
     def test_core(self, isolation):
         config = {'project': {}}
-        builder = Builder(str(isolation), config=config)
+        builder = MockBuilder(str(isolation), config=config)
 
         assert builder.project_config is builder.project_config is config['project']
 
     def test_hatch(self, isolation):
         config = {'tool': {'hatch': {}}}
-        builder = Builder(str(isolation), config=config)
+        builder = MockBuilder(str(isolation), config=config)
 
         assert builder.hatch_config is builder.hatch_config is config['tool']['hatch']
 
     def test_build_config(self, isolation):
         config = {'tool': {'hatch': {'build': {}}}}
-        builder = Builder(str(isolation), config=config)
+        builder = MockBuilder(str(isolation), config=config)
 
         assert builder.build_config is builder.build_config is config['tool']['hatch']['build']
 
     def test_build_config_not_table(self, isolation):
         config = {'tool': {'hatch': {'build': 'foo'}}}
-        builder = Builder(str(isolation), config=config)
+        builder = MockBuilder(str(isolation), config=config)
 
         with pytest.raises(TypeError, match='Field `tool.hatch.build` must be a table'):
             _ = builder.build_config
 
     def test_target_config(self, isolation):
         config = {'tool': {'hatch': {'build': {'targets': {'foo': {}}}}}}
-        builder = Builder(str(isolation), config=config)
+        builder = MockBuilder(str(isolation), config=config)
         builder.PLUGIN_NAME = 'foo'
 
         assert builder.target_config is builder.target_config is config['tool']['hatch']['build']['targets']['foo']
 
     def test_target_config_not_table(self, isolation):
         config = {'tool': {'hatch': {'build': {'targets': {'foo': 'bar'}}}}}
-        builder = Builder(str(isolation), config=config)
+        builder = MockBuilder(str(isolation), config=config)
         builder.PLUGIN_NAME = 'foo'
 
         with pytest.raises(TypeError, match='Field `tool.hatch.build.targets.foo` must be a table'):
@@ -106,7 +102,7 @@ class TestMetadata:
 class TestProjectID:
     def test_normalization(self, isolation):
         config = {'project': {'name': 'my-app', 'version': '1.0.0-rc.1'}}
-        builder = Builder(str(isolation), config=config)
+        builder = MockBuilder(str(isolation), config=config)
 
         assert builder.project_id == builder.project_id == 'my_app-1.0.0rc1'
 
@@ -117,7 +113,7 @@ class TestBuildValidation:
             'project': {'name': 'foo', 'version': '0.1.0'},
             'tool': {'hatch': {'build': {'targets': {'foo': {'versions': ['1']}}}}},
         }
-        builder = Builder(str(isolation), config=config)
+        builder = MockBuilder(str(isolation), config=config)
         builder.PLUGIN_NAME = 'foo'
         builder.get_version_api = lambda: {'1': str}
 
@@ -129,7 +125,7 @@ class TestBuildValidation:
             'project': {'name': 'foo', 'version': '0.1.0', 'dynamic': ['version']},
             'tool': {'hatch': {'build': {'targets': {'foo': {'versions': ['1']}}}}},
         }
-        builder = Builder(str(isolation), config=config)
+        builder = MockBuilder(str(isolation), config=config)
         builder.PLUGIN_NAME = 'foo'
         builder.get_version_api = lambda: {'1': lambda *args, **kwargs: ''}
 
@@ -143,7 +139,7 @@ class TestBuildValidation:
 class TestHookConfig:
     def test_unknown(self, isolation):
         config = {'tool': {'hatch': {'build': {'hooks': {'foo': {'bar': 'baz'}}}}}}
-        builder = Builder(str(isolation), config=config)
+        builder = MockBuilder(str(isolation), config=config)
 
         with pytest.raises(ValueError, match='Unknown build hook: foo'):
             _ = builder.get_build_hooks(str(isolation))
@@ -157,7 +153,7 @@ class TestDirectoryRecursion:
 
         with project_dir.as_cwd():
             config = {'tool': {'hatch': {'build': {'include': ['foo', 'README.md']}}}}
-            builder = Builder(str(project_dir), config=config)
+            builder = MockBuilder(str(project_dir), config=config)
 
             (project_dir / 'README.md').touch()
             foo = project_dir / 'foo'
@@ -177,7 +173,7 @@ class TestDirectoryRecursion:
 
         with project_dir.as_cwd():
             config = {'tool': {'hatch': {'build': {'only-include': ['foo'], 'artifacts': ['README.md']}}}}
-            builder = Builder(str(project_dir), config=config)
+            builder = MockBuilder(str(project_dir), config=config)
 
             (project_dir / 'README.md').touch()
             foo = project_dir / 'foo'
@@ -203,7 +199,7 @@ class TestDirectoryRecursion:
                     }
                 }
             }
-            builder = Builder(str(project_dir), config=config)
+            builder = MockBuilder(str(project_dir), config=config)
 
             (project_dir / 'foo.txt').touch()
             old = project_dir / 'old'
@@ -245,7 +241,7 @@ class TestDirectoryRecursion:
                     }
                 }
             }
-            builder = Builder(str(project_dir), config=config)
+            builder = MockBuilder(str(project_dir), config=config)
 
             foo = project_dir / 'src' / 'foo'
             foo.ensure_dir_exists()
