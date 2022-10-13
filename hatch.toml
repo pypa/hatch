@@ -31,6 +31,19 @@ env.HERMETIC_TESTS.type = [
 [[envs.test.matrix]]
 python = ["37", "38", "39", "310"]
 
+[envs.coverage]
+detached = true
+dependencies = [
+  "coverage[toml]>=6.2",
+  "lxml",
+]
+[envs.coverage.scripts]
+combine = "coverage combine {args}"
+report-xml = "coverage xml"
+report-uncovered-html = "coverage html --skip-covered --skip-empty"
+generate-summary = "python scripts/generate_coverage_summary.py"
+write-summary-report = "python scripts/write_coverage_summary_report.py"
+
 [envs.lint]
 detached = true
 dependencies = [

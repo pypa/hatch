@@ -73,8 +73,8 @@ jobs:
       with:
         python-version: ${{ env.STABLE_PYTHON_VERSION }}
 
-    - name: Install coverage dependency
-      run: pip install --upgrade coverage[toml]
+    - name: Install Hatch
+      run: pip install hatch
 
     - name: Download coverage data
       uses: actions/download-artifact@v3
@@ -82,16 +82,31 @@ jobs:
         name: coverage-data
 
     - name: Combine coverage data
-      run: coverage combine --debug=pathmap
+      run: hatch run coverage:combine
 
-    - name: Write coverage report
-      run: python scripts/report_coverage.py
+    - name: Export coverage reports
+      run: |
+        hatch run coverage:report-xml
+        hatch run coverage:report-uncovered-html
+
+    - name: Upload uncovered HTML report
+      uses: actions/upload-artifact@v3
+      with:
+        name: uncovered-html-report
+        path: htmlcov
+
+    - name: Generate coverage summary
+      run: hatch run coverage:generate-summary
+
+    - name: Write coverage summary report
+      if: github.event_name == 'pull_request'
+      run: hatch run coverage:write-summary-report
 
     - name: Update coverage pull request comment
-      uses: marocchino/sticky-pull-request-comment@v2
       if: github.event_name == 'pull_request'
+      uses: marocchino/sticky-pull-request-comment@v2
       with:
-        path: coverage.md
+        path: coverage-report.md
 
   downstream:
     name: Downstream builds with Python ${{ matrix.python-version }}
