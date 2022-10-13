@@ -60,7 +60,7 @@ def test_default(hatch, helpers, temp_dir):
     path = temp_dir / 'my-app'
 
     expected_files = helpers.get_template_files('new.default', project_name)
-    helpers.assert_files(path, expected_files, check_contents=True)
+    helpers.assert_files(path, expected_files)
 
     assert result.exit_code == 0, result.output
     assert remove_trailing_spaces(result.output) == helpers.dedent(
@@ -85,7 +85,7 @@ def test_default_explicit_path(hatch, helpers, temp_dir):
         result = hatch('new', project_name, '.')
 
     expected_files = helpers.get_template_files('new.default', project_name)
-    helpers.assert_files(temp_dir, expected_files, check_contents=True)
+    helpers.assert_files(temp_dir, expected_files)
 
     assert result.exit_code == 0, result.output
     assert remove_trailing_spaces(result.output) == helpers.dedent(
@@ -113,7 +113,7 @@ def test_default_empty_plugins_table(hatch, helpers, config_file, temp_dir):
     path = temp_dir / 'my-app'
 
     expected_files = helpers.get_template_files('new.default', project_name)
-    helpers.assert_files(path, expected_files, check_contents=True)
+    helpers.assert_files(path, expected_files)
 
     assert result.exit_code == 0, result.output
     assert remove_trailing_spaces(result.output) == helpers.dedent(
@@ -143,7 +143,7 @@ def test_default_no_license_cache(hatch, helpers, temp_dir):
     path = temp_dir / 'my-app'
 
     expected_files = helpers.get_template_files('new.default', project_name)
-    helpers.assert_files(path, expected_files, check_contents=True)
+    helpers.assert_files(path, expected_files)
 
     assert result.exit_code == 0, result.output
     assert remove_trailing_spaces(result.output) == helpers.dedent(
@@ -172,7 +172,7 @@ def test_licenses_multiple(hatch, helpers, config_file, temp_dir):
     path = temp_dir / 'my-app'
 
     expected_files = helpers.get_template_files('new.licenses_multiple', project_name)
-    helpers.assert_files(path, expected_files, check_contents=True)
+    helpers.assert_files(path, expected_files)
 
     assert result.exit_code == 0, result.output
     assert remove_trailing_spaces(result.output) == helpers.dedent(
@@ -203,7 +203,7 @@ def test_licenses_empty(hatch, helpers, config_file, temp_dir):
     path = temp_dir / 'my-app'
 
     expected_files = helpers.get_template_files('new.licenses_empty', project_name)
-    helpers.assert_files(path, expected_files, check_contents=True)
+    helpers.assert_files(path, expected_files)
 
     assert result.exit_code == 0, result.output
     assert remove_trailing_spaces(result.output) == helpers.dedent(
@@ -235,7 +235,7 @@ def test_projects_urls_space_in_label(hatch, helpers, config_file, temp_dir):
     path = temp_dir / 'my-app'
 
     expected_files = helpers.get_template_files('new.projects_urls_space_in_label', project_name)
-    helpers.assert_files(path, expected_files, check_contents=True)
+    helpers.assert_files(path, expected_files)
 
     assert result.exit_code == 0, result.output
     assert remove_trailing_spaces(result.output) == helpers.dedent(
@@ -264,7 +264,7 @@ def test_projects_urls_empty(hatch, helpers, config_file, temp_dir):
     path = temp_dir / 'my-app'
 
     expected_files = helpers.get_template_files('new.projects_urls_empty', project_name)
-    helpers.assert_files(path, expected_files, check_contents=True)
+    helpers.assert_files(path, expected_files)
 
     assert result.exit_code == 0, result.output
     assert remove_trailing_spaces(result.output) == helpers.dedent(
@@ -291,7 +291,7 @@ def test_feature_cli(hatch, helpers, temp_dir):
     path = temp_dir / 'my-app'
 
     expected_files = helpers.get_template_files('new.feature_cli', project_name)
-    helpers.assert_files(path, expected_files, check_contents=True)
+    helpers.assert_files(path, expected_files)
 
     assert result.exit_code == 0, result.output
     assert remove_trailing_spaces(result.output) == helpers.dedent(
@@ -324,7 +324,7 @@ def test_feature_ci(hatch, helpers, config_file, temp_dir):
     path = temp_dir / 'my-app'
 
     expected_files = helpers.get_template_files('new.feature_ci', project_name)
-    helpers.assert_files(path, expected_files, check_contents=True)
+    helpers.assert_files(path, expected_files)
 
     assert result.exit_code == 0, result.output
     assert remove_trailing_spaces(result.output) == helpers.dedent(
@@ -357,7 +357,7 @@ def test_feature_src_layout(hatch, helpers, config_file, temp_dir):
     path = temp_dir / 'my-app'
 
     expected_files = helpers.get_template_files('new.feature_src_layout', project_name)
-    helpers.assert_files(path, expected_files, check_contents=True)
+    helpers.assert_files(path, expected_files)
 
     assert result.exit_code == 0, result.output
     assert remove_trailing_spaces(result.output) == helpers.dedent(
@@ -388,7 +388,7 @@ def test_feature_tests_disable(hatch, helpers, config_file, temp_dir):
     path = temp_dir / 'my-app'
 
     expected_files = helpers.get_template_files('new.basic', project_name)
-    helpers.assert_files(path, expected_files, check_contents=True)
+    helpers.assert_files(path, expected_files)
 
     assert result.exit_code == 0, result.output
     assert remove_trailing_spaces(result.output) == helpers.dedent(
@@ -426,7 +426,7 @@ def test_interactive(hatch, helpers, temp_dir):
     path = temp_dir / 'my-app'
 
     expected_files = helpers.get_template_files('new.default', project_name, description=description)
-    helpers.assert_files(path, expected_files, check_contents=True)
+    helpers.assert_files(path, expected_files)
 
     assert result.exit_code == 0, result.output
     assert remove_trailing_spaces(result.output) == helpers.dedent(
@@ -457,7 +457,7 @@ def test_no_project_name_enables_interactive(hatch, helpers, temp_dir):
     path = temp_dir / 'my-app'
 
     expected_files = helpers.get_template_files('new.default', project_name, description=description)
-    helpers.assert_files(path, expected_files, check_contents=True)
+    helpers.assert_files(path, expected_files)
 
     assert result.exit_code == 0, result.output
     assert remove_trailing_spaces(result.output) == helpers.dedent(
@@ -496,7 +496,7 @@ def test_initialize_fresh(hatch, helpers, temp_dir):
         result = hatch('new', '--init', input=f'{project_name}\n{description}')
 
     expected_files = helpers.get_template_files('new.default', project_name, description=description)
-    helpers.assert_files(path, expected_files, check_contents=True)
+    helpers.assert_files(path, expected_files)
 
     assert result.exit_code == 0, result.output
     assert remove_trailing_spaces(result.output) == helpers.dedent(

@@ -29,7 +29,7 @@ def main():
     total_statements_covered = total_data['statements_covered']
     total_statements = total_data['statements']
     total_rate = Decimal(total_statements_covered) / Decimal(total_statements) * 100
-    total_rate = rate.quantize(PRECISION, rounding=ROUND_DOWN)
+    total_rate = total_rate.quantize(PRECISION, rounding=ROUND_DOWN)
     color = 'ok' if float(total_rate) >= 95 else 'critical'
     lines.insert(0, f'![Code Coverage](https://img.shields.io/badge/coverage-{total_rate}%25-{color}?style=flat)\n')
 

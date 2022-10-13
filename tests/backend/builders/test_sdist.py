@@ -697,7 +697,7 @@ class TestBuildStandard:
         expected_files = helpers.get_template_files(
             'sdist.standard_default', project_name, relative_root=builder.project_id
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
         stat = os.stat(str(extraction_directory / builder.project_id / 'PKG-INFO'))
         assert stat.st_mtime == get_reproducible_timestamp()
@@ -745,7 +745,7 @@ class TestBuildStandard:
         expected_files = helpers.get_template_files(
             'sdist.standard_default', project_name, relative_root=builder.project_id
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
         stat = os.stat(str(extraction_directory / builder.project_id / 'PKG-INFO'))
         assert stat.st_mtime != get_reproducible_timestamp()
@@ -793,7 +793,7 @@ class TestBuildStandard:
         expected_files = helpers.get_template_files(
             'sdist.standard_default_support_legacy', project_name, relative_root=builder.project_id
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
     def test_default_build_script_artifacts(self, hatch, helpers, temp_dir):
         project_name = 'My.App'
@@ -864,7 +864,7 @@ class TestBuildStandard:
         expected_files = helpers.get_template_files(
             'sdist.standard_default_build_script_artifacts', project_name, relative_root=builder.project_id
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
     def test_default_build_script_extra_dependencies(self, hatch, helpers, temp_dir):
         project_name = 'My.App'
@@ -936,7 +936,7 @@ class TestBuildStandard:
         expected_files = helpers.get_template_files(
             'sdist.standard_default_build_script_extra_dependencies', project_name, relative_root=builder.project_id
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
     def test_include_project_file(self, hatch, helpers, temp_dir):
         project_name = 'My.App'
@@ -982,7 +982,7 @@ class TestBuildStandard:
         expected_files = helpers.get_template_files(
             'sdist.standard_include', project_name, relative_root=builder.project_id
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
         stat = os.stat(str(extraction_directory / builder.project_id / 'PKG-INFO'))
         assert stat.st_mtime == get_reproducible_timestamp()
@@ -1040,7 +1040,7 @@ class TestBuildStandard:
         expected_files = helpers.get_template_files(
             'sdist.standard_include', project_name, relative_root=builder.project_id
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
         stat = os.stat(str(extraction_directory / builder.project_id / 'PKG-INFO'))
         assert stat.st_mtime == get_reproducible_timestamp()
@@ -1100,7 +1100,7 @@ class TestBuildStandard:
         expected_files = helpers.get_template_files(
             'sdist.standard_include_config_file', project_name, relative_root=builder.project_id
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
         stat = os.stat(str(extraction_directory / builder.project_id / 'PKG-INFO'))
         assert stat.st_mtime == get_reproducible_timestamp()
@@ -1147,7 +1147,7 @@ class TestBuildStandard:
         expected_files = helpers.get_template_files(
             'sdist.standard_include', project_name, relative_root=builder.project_id
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
         stat = os.stat(str(extraction_directory / builder.project_id / 'PKG-INFO'))
         assert stat.st_mtime == get_reproducible_timestamp()
@@ -1201,7 +1201,7 @@ class TestBuildStandard:
         expected_files = helpers.get_template_files(
             'sdist.standard_include', project_name, relative_root=builder.project_id
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
         stat = os.stat(str(extraction_directory / builder.project_id / 'PKG-INFO'))
         assert stat.st_mtime == get_reproducible_timestamp()
@@ -1248,7 +1248,7 @@ class TestBuildStandard:
         expected_files = helpers.get_template_files(
             'sdist.standard_include', project_name, relative_root=builder.project_id
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
         stat = os.stat(str(extraction_directory / builder.project_id / 'PKG-INFO'))
         assert stat.st_mtime == get_reproducible_timestamp()
@@ -1302,7 +1302,7 @@ class TestBuildStandard:
         expected_files = helpers.get_template_files(
             'sdist.standard_include', project_name, relative_root=builder.project_id
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
         stat = os.stat(str(extraction_directory / builder.project_id / 'PKG-INFO'))
         assert stat.st_mtime == get_reproducible_timestamp()
@@ -1360,7 +1360,7 @@ class TestBuildStandard:
         expected_files = helpers.get_template_files(
             'sdist.standard_default_vcs_git_exclusion_files', project_name, relative_root=builder.project_id
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
     def test_default_vcs_mercurial_exclusion_files(self, hatch, helpers, temp_dir):
         project_name = 'My.App'
@@ -1429,7 +1429,7 @@ class TestBuildStandard:
         expected_files = helpers.get_template_files(
             'sdist.standard_default_vcs_mercurial_exclusion_files', project_name, relative_root=builder.project_id
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
     def test_no_strict_naming(self, hatch, helpers, temp_dir):
         project_name = 'My.App'
@@ -1473,7 +1473,7 @@ class TestBuildStandard:
         expected_files = helpers.get_template_files(
             'sdist.standard_default', project_name, relative_root=builder.project_id
         )
-        helpers.assert_files(extraction_directory, expected_files, check_contents=True)
+        helpers.assert_files(extraction_directory, expected_files)
 
         stat = os.stat(str(extraction_directory / builder.project_id / 'PKG-INFO'))
         assert stat.st_mtime == get_reproducible_timestamp()

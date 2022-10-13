@@ -88,13 +88,8 @@ def isolation() -> Generator[Path, None, None]:
 
 
 @pytest.fixture(scope='session')
-def data_dir() -> Generator[Path, None, None]:
+def isolated_data_dir() -> Generator[Path, None, None]:
     yield Path(os.environ[ConfigEnvVars.DATA])
-
-
-@pytest.fixture(scope='session')
-def cache_dir() -> Generator[Path, None, None]:
-    yield Path(os.environ[ConfigEnvVars.CACHE])
 
 
 @pytest.fixture(scope='session')
@@ -243,6 +238,8 @@ def devpi(tmp_path_factory, worker_id):
                     break
 
                 time.sleep(1)
+            else:  # no cov
+                pass
 
         (devpi_started_sessions / worker_id).touch()
 

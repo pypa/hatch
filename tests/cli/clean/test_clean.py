@@ -6,9 +6,7 @@ from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT
 
 @pytest.fixture(autouse=True)
 def local_builder(mock_backend_process, mocker):
-    if mock_backend_process:
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.build_environment')
-
+    mocker.patch('hatch.env.virtual.VirtualEnvironment.build_environment')
     yield
 
 
