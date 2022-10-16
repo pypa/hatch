@@ -27,6 +27,7 @@ class Platform:
         self.__format_file_uri = None
         self.__join_command_args = None
         self.__name = None
+        self.__home = None
 
         # Whether or not an interactive status is being displayed
         self.displaying_status = False
@@ -221,6 +222,18 @@ class Platform:
             self.__name = get_platform_name()
 
         return self.__name
+
+    @property
+    def home(self):
+        """
+        The user's home directory as a path-like object.
+        """
+        if self.__home is None:
+            from hatch.utils.fs import Path
+
+            self.__home = Path(os.path.expanduser('~'))
+
+        return self.__home
 
 
 class LazilyLoadedModules:

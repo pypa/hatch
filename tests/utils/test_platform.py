@@ -2,6 +2,7 @@ import os
 
 import pytest
 
+from hatch.utils.fs import Path
 from hatch.utils.platform import Platform
 
 
@@ -25,6 +26,11 @@ class TestWindows:
     def test_format_for_subprocess_string_shell(self):
         assert Platform().format_for_subprocess('foo bar', shell=True) == 'foo bar'
 
+    def test_home(self):
+        platform = Platform()
+
+        assert platform.home == platform.home == Path(os.path.expanduser('~'))
+
 
 @pytest.mark.requires_macos
 class TestMacOS:
@@ -46,6 +52,11 @@ class TestMacOS:
     def test_format_for_subprocess_string_shell(self):
         assert Platform().format_for_subprocess('foo bar', shell=True) == 'foo bar'
 
+    def test_home(self):
+        platform = Platform()
+
+        assert platform.home == platform.home == Path(os.path.expanduser('~'))
+
 
 @pytest.mark.requires_linux
 class TestLinux:
@@ -66,3 +77,8 @@ class TestLinux:
 
     def test_format_for_subprocess_string_shell(self):
         assert Platform().format_for_subprocess('foo bar', shell=True) == 'foo bar'
+
+    def test_home(self):
+        platform = Platform()
+
+        assert platform.home == platform.home == Path(os.path.expanduser('~'))
