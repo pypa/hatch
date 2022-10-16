@@ -37,7 +37,7 @@ The following is not intended to be a complete enumeration. Be sure to view the 
 - [Datadog](https://www.datadoghq.com) <sup>\[[1](https://github.com/DataDog/datadogpy/blob/63d0c01b5bbcb8158cf3ddab153639951ab44945/pyproject.toml#L1-L3)|[2](https://github.com/DataDog/integrations-core/pulls?q=is%3Apr+author%3Aofek+in%3Atitle+Add+pyproject.toml+file)|[3](https://github.com/DataDog/integrations-extras/pulls?q=is%3Apr+author%3Aofek+in%3Atitle+Add+pyproject.toml+file)|[4](https://github.com/DataDog/mkdocs-click/blob/434925323f3bb187595d4c7f6a2c80b790015109/pyproject.toml#L1-L3)\]</sup>
 - [deepset](https://www.deepset.ai) <sup>\[[1](https://github.com/deepset-ai/haystack/blob/e92ea4fccb31001156dece6c1509e3e162a9de00/pyproject.toml#L1-L5)\]</sup>
 - [Elastic](https://www.elastic.co) <sup>\[[1](https://github.com/elastic/rally/blob/8ba7980bb25b85f25fe20f3fd5dd8e12b9b1214b/pyproject.toml#L1-L3)|[2](https://github.com/elastic/rally-tracks/blob/33840005cd3e2a6191d73a567e5c2c0858169270/pyproject.toml#L1-L3)\]</sup>
-- [Google](https://about.google) <sup>\[[1](https://github.com/google/gcp_scanner/blob/93dc594a6d920d1aff9bc8fef780a32056c12e27/pyproject.toml#L1-L3)\]</sup>
+- [Google](https://about.google) <sup>\[[1](https://github.com/google/latexify_py/blob/9307e6e70df0d0a5f7d524833a85e2c25ffe66ef/pyproject.toml#L1-L5)|[2](https://github.com/google/gcp_scanner/blob/93dc594a6d920d1aff9bc8fef780a32056c12e27/pyproject.toml#L1-L3)\]</sup>
 - [Intel Corporation](https://www.intel.com) <sup>\[[1](https://github.com/intel/neural-compressor/blob/5f6f38b96d45d0253b8de239df51c09b2471a8fb/neural_coder/extensions/neurl_compressor_ext_lab_alibaba/pyproject.toml#L1-L3)|[2](https://github.com/intel/tdx-tools/blob/ba4ba1796f21388d15cb14ecf673747c303ea0ae/utils/ovmfkeyenroll/pyproject.toml#L1-L3)\]</sup>
 - [Meta](https://about.facebook.com) <sup>\[[1](https://github.com/facebook/usort/blob/b3d1dc49abac0c06ac29f1ceb332d2b86a50e850/pyproject.toml#L1-L3)|[2](https://github.com/Instagram/Fixit/blob/c95b0ef9f8c02adfd6a541b55f22f0bd6a922706/pyproject.toml#L1-L3)\]</sup>
 - [Palo Alto Networks](https://www.paloaltonetworks.com) <sup>\[[1](https://github.com/PaloAltoNetworks/pc-python-integration/blob/a3e29d71c6704dfb07cf85d592dec15a9ea575b7/pyproject.toml#L1-L3)\]</sup>
@@ -65,11 +65,14 @@ The following is not intended to be a complete enumeration. Be sure to view the 
 - [Leiden University](https://www.universiteitleiden.nl/en)
     - [Leiden University Libraries](https://www.library.universiteitleiden.nl) <sup>\[[1](https://github.com/LeidenUniversityLibrary/maps-tools/blob/d7a9fc683be919d4f5538f6a6c80319558064968/pyproject.toml#L3-L5)\]</sup>
 - [Massachusetts Institute of Technology](https://www.mit.edu)
+    - [Computer Science and Artificial Intelligence Laboratory](https://www.csail.mit.edu) <sup>\[[1](https://github.com/Learning-and-Intelligent-Systems/lisdf/blob/d49a85a3924909f1d10fef40463757b141f47f90/pyproject.toml#L1-L3)\]</sup>
     - [Digital Humanities](https://digitalhumanities.mit.edu) <sup>\[[1](https://github.com/cuthbertLab/music21/blob/5417b3ce6415ab016a39564e21e29799387263e9/pyproject.toml#L1-L5)\]</sup>
 - [Siberian Branch of the Russian Academy of Sciences](https://www.sbras.ru/en/)
     - [Institute of Cytology and Genetics](https://www.icgbio.ru/en/) <sup>\[[1](https://github.com/genomech/FastContext/blob/f8ff7f4bbea9d6d3cdf2e3a361f72e9283b04f67/pyproject.toml#L1-L3)|[2](https://github.com/genomech/exoclasma-index/blob/2e0555c3e86d731f3aa8c978b23b586d3a0c492e/pyproject.toml#L1-L3)|[3](https://github.com/genomech/exoclasma-fastq/blob/80ea3eddf603d2b54bb02b5ada6d275a9436f287/pyproject.toml#L1-L3)|[4](https://github.com/genomech/exoclasma-pipe/blob/fbe365dd9301eec51879ef53b1704be66813bb8b/pyproject.toml#L1-L3)\]</sup>
 - [Stanford University](https://www.stanford.edu)
     - [Empirical Security Research Group](https://esrg.stanford.edu/) <sup>\[[1](https://github.com/stanford-esrg/gps/blob/66f803bfd4726cd9d1b3e1724abfd34a36079530/pyproject.toml#L1-L3)\]</sup>
+- [University of California, Berkeley](https://www.berkeley.edu)
+    - [Center for Computational Biology](https://ccb.berkeley.edu) <sup>\[[1](https://github.com/YosefLab/scib-metrics/blob/4dcbf55d80e21cf141332ba718fc5c0eb012eac1/pyproject.toml#L1-L3)\]</sup>
 - [University of Freiburg](https://uni-freiburg.de)
     - [Freiburg Center for Data Analysis and Modeling](https://www.fdm.uni-freiburg.de) <sup>\[[1](https://github.com/Spatial-Systems-Biology-Freiburg/FisInMa/blob/b9c5a980ae03d6f577e17242e6bce7822f665f94/pyproject.toml#L1-L3)\]</sup>
 - [University of Illinois Urbana-Champaign](https://illinois.edu)
@@ -80,6 +83,7 @@ The following is not intended to be a complete enumeration. Be sure to view the 
     - [Virtual Brain Lab](https://github.com/VirtualBrainLab) <sup>\[[1](https://github.com/VirtualBrainLab/ephys-link/blob/ebdf3a1488f1010faa19f22397f10d6be4d29d6f/pyproject.toml#L1-L3)\]</sup>
 - [Waseda University](https://www.waseda.jp/top/en/)
     - [Tackeuchi Laboratory](https://www.f.waseda.jp/atacke/) <sup>\[[1](https://github.com/wasedatakeuchilab/python-project-template-hatch/blob/58949ab351d81b67f14aa45abf7c70b87394e2dc/pyproject.toml#L1-L3)|[2](https://github.com/wasedatakeuchilab/webapp-photo-luminescence/blob/864d1019650a2b057f761aa91ed9a6cbe6c1b455/pyproject.toml#L1-L3)|[3](https://github.com/wasedatakeuchilab/tlab-analysis/blob/72f0a710e35613e8996f473a80e5cb6c3f8c523e/pyproject.toml#L1-L3)|[4](https://github.com/wasedatakeuchilab/tlab-pptx/blob/ef331176906447dbbcf33e46f060b60ac3c007c5/pyproject.toml#L1-L3)|[5](https://github.com/wasedatakeuchilab/tlab-google/blob/53ae597611a146c90116b3b9277430832e1d04c9/pyproject.toml#L1-L3)\]</sup>
+- [Wellcome Sanger Institute](https://www.sanger.ac.uk) <sup>\[[1](https://github.com/sanger/lab-share-lib/blob/b3290b1922aabc29ac256dc034b8cfcc7b30f143/pyproject.toml#L25-L27)\]</sup>
 
 ## Research
 

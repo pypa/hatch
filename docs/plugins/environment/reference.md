@@ -8,6 +8,7 @@ See the documentation for [environment configuration](../../config/environment/o
 
 - [hatch-conda](https://github.com/OldGrumpyViking/hatch-conda) - environments backed by Conda/Mamba
 - [hatch-containers](https://github.com/ofek/hatch-containers) - environments run inside containers
+- [hatch-pip-deepfreeze](https://github.com/sbidoul/hatch-pip-deepfreeze) - [virtual](virtual.md) environments with dependency locking by [pip-deepfreeze](https://github.com/sbidoul/pip-deepfreeze)
 
 ## Life cycle
 

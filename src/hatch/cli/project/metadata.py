@@ -5,7 +5,17 @@ import click
 @click.argument('field', required=False)
 @click.pass_obj
 def metadata(app, field):
-    """Display project metadata."""
+    """
+    Display project metadata.
+
+    If you want to view the raw readme file without rendering, you can use a JSON parser
+    like [jq](https://github.com/stedolan/jq):
+
+    \b
+    ```
+    hatch project metadata | jq -r .readme
+    ```
+    """
     import json
 
     from hatchling.dep.core import dependencies_in_sync

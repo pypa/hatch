@@ -41,7 +41,7 @@ hatch project metadata readme
 
 only the `readme` text will be displayed. If the content is in Markdown, then [Rich](https://github.com/Textualize/rich) will render it directly in your terminal:
 
-![FastAPI readme](release-hatch-160/rich-readme.png){ loading=lazy }
+![FastAPI readme](release-hatch-160/rich-readme.png)
 
 ## Virtual environment location
 
