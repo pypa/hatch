@@ -120,7 +120,7 @@ The available environment markers are as follows.
 
 ## Features
 
-You can select groups of [optional dependencies](dependency.md#optional-dependencies) to install using the [extras](https://peps.python.org/pep-0508/#extras) syntax. For example, if a dependency named `foo` defined the following:
+You can select groups of [optional dependencies](metadata.md#optional) to install using the [extras](https://peps.python.org/pep-0508/#extras) syntax. For example, if a dependency named `foo` defined the following:
 
 === ":octicons-file-code-16: pyproject.toml"
 

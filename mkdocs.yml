@@ -126,6 +126,8 @@ plugins:
     type: date
     # Required for blog plugin's generated indices
     fallback_to_build_date: true
+    exclude:
+      - blog/**/*
   mike:
     alias_type: copy
   mkdocstrings:
