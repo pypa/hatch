@@ -50,6 +50,11 @@ jobs:
         git config --local user.email 'github-actions[bot]@users.noreply.github.com'
 
     - name: Build documentation
+      run: hatch run docs:build-check
+      env:
+        GH_TOKEN_MKDOCS_MATERIAL_INSIDERS: ${{ secrets.GH_TOKEN_MKDOCS_MATERIAL_INSIDERS }}
+
+    - name: Commit documentation
       run: hatch run docs:ci-build $HATCH_DOCS_VERSION latest
       env:
         GH_TOKEN_MKDOCS_MATERIAL_INSIDERS: ${{ secrets.GH_TOKEN_MKDOCS_MATERIAL_INSIDERS }}

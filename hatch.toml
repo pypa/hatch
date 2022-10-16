@@ -92,6 +92,9 @@ dependencies = [
   "pymdown-extensions~=9.6.0",
   # Necessary for syntax highlighting in code blocks
   "pygments~=2.13.0",
+  # Validation
+  # https://github.com/linkchecker/linkchecker/pull/669#issuecomment-1267236287
+  "linkchecker @ git+https://github.com/linkchecker/linkchecker.git@d9265bb71c2054bf57b8c5734a4825d62505c779",
 ]
 pre-install-commands = [
   "python scripts/install_mkdocs_material_insiders.py",
@@ -106,6 +109,12 @@ MKDOCS_CONFIG = "mkdocs.yml"
 build = "mkdocs build --config-file {env:MKDOCS_CONFIG} --clean --strict {args}"
 serve = "mkdocs serve --config-file {env:MKDOCS_CONFIG} --dev-addr localhost:8000 {args}"
 ci-build = "mike deploy --config-file {env:MKDOCS_CONFIG} --update-aliases {args}"
+validate = "linkchecker --config .linkcheckerrc site"
+# https://github.com/linkchecker/linkchecker/issues/678
+build-check = [
+  "build --no-directory-urls",
+  "validate",
+]
 
 [envs.backend]
 detached = true
