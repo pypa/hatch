@@ -44,6 +44,7 @@
       - exit_with_command
       - default_shell
       - modules
+      - home
       - name
       - windows
       - macos

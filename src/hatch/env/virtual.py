@@ -32,7 +32,7 @@ class VirtualEnvironment(EnvironmentInterface):
                 Path(chosen_directory) if isabs(chosen_directory) else (self.root / chosen_directory).resolve()
             )
         # Conditions requiring a flat structure
-        elif self.root in self.data_directory.parents or self.data_directory == Path.home() / '.virtualenvs':
+        elif self.root in self.data_directory.parents or self.data_directory == self.platform.home / '.virtualenvs':
             self.storage_path = self.data_directory
             self.virtual_env_path = self.storage_path / venv_name
         # Otherwise the standard app path
@@ -82,7 +82,7 @@ class VirtualEnvironment(EnvironmentInterface):
         self.build_virtual_env.remove()
 
         # Clean up root directory of all virtual environments belonging to the project
-        if self.storage_path != Path.home() / '.virtualenvs' and self.storage_path.is_dir():
+        if self.storage_path != self.platform.home / '.virtualenvs' and self.storage_path.is_dir():
             entries = [entry.name for entry in self.storage_path.iterdir()]
             if not entries or (entries == ['.gitignore'] and self.root in self.storage_path.parents):
                 self.storage_path.remove()
