@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Unreleased
 
+### [1.6.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.6.1) - 2022-10-16 ### {: #hatch-v1.6.1 }
+
 ***Fixed:***
 
 - Computing the path to the user's home directory now gracefully falls back to `~` when it cannot be determined
