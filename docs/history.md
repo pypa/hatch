@@ -194,6 +194,8 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 
 ### Unreleased
 
+### [1.11.1](https://github.com/pypa/hatch/releases/tag/hatchling-v1.11.1) - 2022-10-19 ### {: #hatchling-v1.11.1 }
+
 ***Fixed:***
 
 - Fix default file selection behavior of the `wheel` target when there is a single top-level module
