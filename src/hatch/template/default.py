@@ -1,7 +1,7 @@
 # TODO: simplify complex type hints
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from hatch.template import File, files_default, find_template_files
 from hatch.template.plugin.interface import TemplateInterface
@@ -22,9 +22,7 @@ class DefaultTemplate(TemplateInterface):
         self.plugin_config.setdefault('src-layout', False)
         self.plugin_config.setdefault('tests', True)
 
-    def initialize_config(
-        self, config: dict[str, str | dict[str, bool | list[str]] | dict[str, bool]]
-    ) -> None:
+    def initialize_config(self, config: dict[str, str | dict[str, bool | list[str]] | dict[str, bool]]) -> None:
         # Default values
         config['readme_file_path'] = 'README.md'
         config['package_metadata_file_path'] = f'{config["package_name"]}/__about__.py'

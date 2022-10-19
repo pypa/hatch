@@ -4,7 +4,7 @@ import re
 from copy import deepcopy
 from itertools import product
 from os import environ
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 
 from hatch.env.utils import ensure_valid_environment
 from hatch.project.env import apply_overrides

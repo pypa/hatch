@@ -23,7 +23,7 @@ def get_normalized_dependencies(requirements: list["Requirement"]) -> list[str]:
 
 
 def get_project_dependencies_complex(
-    environment: Union["VirtualEnvironment", "MockEnvironment"]
+    environment: "VirtualEnvironment" | "MockEnvironment",
 ) -> (
     tuple[dict[str, "Requirement"], dict[str, dict[str, "Requirement"]]]
     | tuple[dict[str, "Requirement"], dict[Any, Any]]

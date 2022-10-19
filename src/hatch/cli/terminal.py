@@ -13,8 +13,7 @@ from rich.style import Style
 from rich.text import Text
 
 if TYPE_CHECKING:
-    from rich.syntax import Syntax
-    from rich.tree import Tree
+    from rich import Syntax, Table, Tree
 
     from hatch.utils.fs import Path
 

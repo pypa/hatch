@@ -23,7 +23,7 @@ ON_WINDOWS: bool = platform.system() == 'Windows'
 
 
 def handle_remove_readonly(
-    func, path: os.PathLike[bytes] | os.PathLike[str] |bytes | int | str, exc
+    func, path: os.PathLike[bytes] | os.PathLike[str] | bytes | int | str, exc
 ) -> None:  # no cov
     # PermissionError: [WinError 5] Access is denied: '...\\.git\\...'
     if func in (os.rmdir, os.remove, os.unlink) and exc[1].errno == errno.EACCES:
@@ -64,7 +64,7 @@ def python_version_supported(project_config) -> bool:
     return True
 
 
-def download_file(url: Union[bytes, str], file_name) -> None:
+def download_file(url: bytes | str, file_name) -> None:
     response = requests.get(url, stream=True)
     with open(file_name, 'wb') as f:
         for chunk in response.iter_content(16384):

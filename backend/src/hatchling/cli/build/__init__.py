@@ -6,7 +6,7 @@ import argparse
 def build_impl(
     called_by_app: bool,
     directory: str,
-    targets: List[str],
+    targets: list[str],
     hooks_only: bool,
     no_hooks: bool,
     clean: bool,

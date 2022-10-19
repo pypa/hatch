@@ -45,9 +45,7 @@ def select_matrix_environments(
     return selected_environments
 
 
-def filter_environments(
-    environments: dict[str, dict[str, bool | str]], filter_data: dict[str, bool]
-) -> list[str]:
+def filter_environments(environments: dict[str, dict[str, bool | str]], filter_data: dict[str, bool]) -> list[str]:
     selected_environments = []
     for env_name, env_data in environments.items():
         for key, value in filter_data.items():

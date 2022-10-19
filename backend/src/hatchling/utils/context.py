@@ -131,9 +131,7 @@ class ContextStringFormatter(Formatter):
         self.check_unused_args(used_args, args, kwargs)
         return result
 
-    def get_value(
-        self, key: str | int, args: tuple[str] | tuple[()], kwargs: dict[str, str | None]
-    ) -> str | None:
+    def get_value(self, key: str | int, args: tuple[str] | tuple[()], kwargs: dict[str, str | None]) -> str | None:
         if key in self.__formatters:
             # Avoid hard look-up and rely on `None` to indicate that the field is undefined
             return kwargs.get(key)

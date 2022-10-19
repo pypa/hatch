@@ -20,6 +20,7 @@ if TYPE_CHECKING:
     from packaging.requirements import Requirement
 
     from hatch.cli.application import SafeApplication
+    from hatch.env.context import EnvironmentContextFormatter
     from hatch.env.virtual import VirtualEnvironment
     from hatch.utils.fs import Path
     from hatch.utils.platform import Platform
