@@ -147,6 +147,7 @@ class WheelBuilderConfig(BuilderConfig):
         self.__include = []
         self.__exclude = []
         self.__packages = []
+        self.__only_include = []
 
         self.__core_metadata_constructor = None
         self.__shared_data = None
@@ -154,7 +155,7 @@ class WheelBuilderConfig(BuilderConfig):
         self.__strict_naming = None
 
     def set_default_file_selection(self):
-        if self.__include or self.__exclude or self.__packages:
+        if self.__include or self.__exclude or self.__packages or self.__only_include:
             return
 
         for project_name in (
@@ -168,7 +169,7 @@ class WheelBuilderConfig(BuilderConfig):
                 self.__packages.append(f'src/{project_name}')
                 break
             elif os.path.isfile(os.path.join(self.root, f'{project_name}.py')):
-                self.__packages.append(f'{project_name}.py')
+                self.__only_include.append(f'{project_name}.py')
                 break
             else:
                 from glob import glob
@@ -200,6 +201,12 @@ class WheelBuilderConfig(BuilderConfig):
             self.set_default_file_selection()
 
         return self.__packages
+
+    def default_only_include(self):
+        if not self.__include_defined:
+            self.set_default_file_selection()
+
+        return self.__only_include
 
     @property
     def core_metadata_constructor(self):
