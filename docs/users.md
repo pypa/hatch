@@ -77,6 +77,8 @@ The following is not intended to be a complete enumeration. Be sure to view the 
     - [Freiburg Center for Data Analysis and Modeling](https://www.fdm.uni-freiburg.de) <sup>\[[1](https://github.com/Spatial-Systems-Biology-Freiburg/FisInMa/blob/b9c5a980ae03d6f577e17242e6bce7822f665f94/pyproject.toml#L1-L3)\]</sup>
 - [University of Illinois Urbana-Champaign](https://illinois.edu)
     - [Grainger College of Engineering](https://grainger.illinois.edu) <sup>\[[1](https://github.com/SPI2Py/SPI2Py/blob/feefd7bb003b42f4790982d68e7e4e5fdb6ca8ad/pyproject.toml#L1-L3)\]</sup>
+- [University of Sussex](https://www.sussex.ac.uk)
+    - [Predictive Analytics Lab](https://wearepal.ai) <sup>\[[1](https://github.com/wearepal/teext/blob/9253c9412b4ca340c42c0b9de0e8ac8f5ccdd0e3/pyproject.toml#L1-L3)\]</sup>
 - [University of Toronto Scarborough](https://www.utsc.utoronto.ca/home/)
     - [utsc-networking](https://github.com/utsc-networking) <sup>\[[1](https://github.com/utsc-networking/utsc-tools/blob/02a79d48d133470a4394fced138b40c660cf111c/projects/core/pyproject.toml#L1-L3)|[2](https://github.com/utsc-networking/utsc-tools/blob/02a79d48d133470a4394fced138b40c660cf111c/projects/nautobot/pyproject.toml#L1-L3)|[3](https://github.com/utsc-networking/utsc-tools/blob/02a79d48d133470a4394fced138b40c660cf111c/projects/switchconfig/pyproject.toml#L1-L3)|[4](https://github.com/utsc-networking/utsc-tools/blob/02a79d48d133470a4394fced138b40c660cf111c/projects/scripts/pyproject.toml#L1-L3)\]</sup>
 - [University of Washington](https://www.washington.edu)
