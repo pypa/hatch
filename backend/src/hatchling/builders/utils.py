@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 import os
 import shutil
 from base64 import urlsafe_b64encode
-from typing import TYPE_CHECKING, Dict, Iterator, List, Tuple
+from collections.abc import Iterator
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from zipfile import ZipInfo
@@ -18,7 +21,7 @@ def replace_file(src: str, dst: str) -> None:
 
 def safe_walk(
     path: str,
-) -> Iterator[Tuple[str, List[str], List[str]]]:
+) -> Iterator[tuple[str, list[str], list[str]]]:
     seen = set()
     for root, dirs, files in os.walk(path, followlinks=True):
         stat = os.stat(root)
@@ -53,7 +56,7 @@ def normalize_relative_directory(path: str) -> str:
     return normalize_relative_path(path) + os.sep
 
 
-def normalize_inclusion_map(inclusion_map: Dict[str, str], root: str) -> Dict[str, str]:
+def normalize_inclusion_map(inclusion_map: dict[str, str], root: str) -> dict[str, str]:
     normalized_inclusion_map = {}
 
     for source, relative_path in inclusion_map.items():

@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 import re
 from abc import ABC, abstractmethod
-from typing import Callable, Generator, List
+from collections.abc import Callable, Generator
 
 from hatchling.builders.config import BuilderConfig, env_var_enabled
 from hatchling.builders.constants import EXCLUDED_DIRECTORIES, BuildEnvVars
@@ -384,7 +384,7 @@ class BuilderInterface(ABC):
         The return value must be the absolute path to the built artifact.
         """
 
-    def get_default_versions(self) -> List[str]:
+    def get_default_versions(self) -> list[str]:
         """
         A list of versions to build when users do not specify any, defaulting to all versions.
         """

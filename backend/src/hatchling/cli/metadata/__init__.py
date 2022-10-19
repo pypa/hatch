@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 import argparse
-from typing import Dict
 
 
 def metadata_impl(called_by_app: bool, field: None, compact: bool) -> None:
@@ -42,7 +43,7 @@ def metadata_impl(called_by_app: bool, field: None, compact: bool) -> None:
         app.display_always(json.dumps(metadata, indent=4))
 
 
-def metadata_command(subparsers: argparse._SubParsersAction, defaults: Dict[str, str]) -> None:
+def metadata_command(subparsers: argparse._SubParsersAction, defaults: dict[str, str]) -> None:
     parser = subparsers.add_parser('metadata')
     parser.add_argument('field', nargs='?')
     parser.add_argument('-c', '--compact', action='store_true')

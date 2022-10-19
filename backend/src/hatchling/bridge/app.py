@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 import pickle
 import sys
@@ -116,7 +118,7 @@ class Application:
 
 
 class SafeApplication:
-    def __init__(self, app: Union[InvokedApplication, Application]) -> None:
+    def __init__(self, app: InvokedApplication | Application) -> None:
         self.abort = app.abort
         self.display_always = app.display_always
         self.display_info = app.display_info
@@ -134,7 +136,7 @@ def format_app_command(method: str, *args, **kwargs) -> str:
     return f"__HATCH__:{''.join('%02x' % i for i in procedure)}"
 
 
-def get_application(called_by_app: bool) -> Union[InvokedApplication, Application]:
+def get_application(called_by_app: bool) -> InvokedApplication | Application:
     return InvokedApplication() if called_by_app else Application()
 
 

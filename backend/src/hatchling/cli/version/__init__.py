@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 import argparse
-from typing import Dict
 
 
 def version_impl(called_by_app, desired_version) -> None:
@@ -38,7 +39,7 @@ def version_impl(called_by_app, desired_version) -> None:
     app.display_info(f'New: {updated_version}')
 
 
-def version_command(subparsers: argparse._SubParsersAction, defaults: Dict[str, str]) -> None:
+def version_command(subparsers: argparse._SubParsersAction, defaults: dict[str, str]) -> None:
     parser = subparsers.add_parser('version')
     parser.add_argument('desired_version', default='', nargs='?', **defaults)
     parser.add_argument('--app', dest='called_by_app', action='store_true', help=argparse.SUPPRESS)

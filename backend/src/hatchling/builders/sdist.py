@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import gzip
 import os
 import tarfile
@@ -6,7 +8,6 @@ from contextlib import closing
 from copy import copy
 from io import BytesIO
 from time import time as get_current_timestamp
-from typing import List, Type
 
 from hatchling.builders.config import BuilderConfig
 from hatchling.builders.plugin.interface import BuilderInterface
@@ -143,7 +144,7 @@ class SdistBuilder(BuilderInterface):
     def get_version_api(self):
         return {'standard': self.build_standard}
 
-    def get_default_versions(self) -> List[str]:
+    def get_default_versions(self) -> list[str]:
         return ['standard']
 
     def clean(self, directory, versions) -> None:
@@ -329,5 +330,5 @@ class SdistBuilder(BuilderInterface):
         return build_data
 
     @classmethod
-    def get_config_class(cls) -> Type[SdistBuilderConfig]:
+    def get_config_class(cls) -> type[SdistBuilderConfig]:
         return SdistBuilderConfig

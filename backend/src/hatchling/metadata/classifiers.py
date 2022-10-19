@@ -1,4 +1,4 @@
-from typing import Set
+from __future__ import annotations
 
 VERSION = '2022.8.7'
 
@@ -809,7 +809,7 @@ SORTED_CLASSIFIERS = [
     'Typing :: Stubs Only',
     'Typing :: Typed',
 ]
-KNOWN_CLASSIFIERS: Set[str] = set(SORTED_CLASSIFIERS)
+KNOWN_CLASSIFIERS: set[str] = set(SORTED_CLASSIFIERS)
 
 
 def is_private(classifier: str) -> bool:

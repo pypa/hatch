@@ -1,4 +1,6 @@
-from typing import Any, Dict, List, Optional, Union
+from __future__ import annotations
+
+from typing import Any
 
 from hatchling.builders.hooks.plugin.interface import BuildHookInterface
 from hatchling.version.core import VersionFile
@@ -10,9 +12,9 @@ class VersionBuildHook(BuildHookInterface):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-        self.__config_path: Optional[str] = None
-        self.__config_template: Optional[str] = None
-        self.__config_pattern: Optional[Union[str, bool]] = None
+        self.__config_path: str | None = None
+        self.__config_template: str | None = None
+        self.__config_pattern: str | bool | None = None
 
     @property
     def config_path(self) -> str:
@@ -39,7 +41,7 @@ class VersionBuildHook(BuildHookInterface):
         return self.__config_template
 
     @property
-    def config_pattern(self) -> Union[str, bool]:
+    def config_pattern(self) -> str | bool:
         if self.__config_pattern is None:
             pattern = self.config.get('pattern', '')
             if not isinstance(pattern, (str, bool)):
@@ -49,7 +51,7 @@ class VersionBuildHook(BuildHookInterface):
 
         return self.__config_pattern
 
-    def initialize(self, version: List[Any], build_data: Dict[str, List[Any]]) -> None:
+    def initialize(self, version: list[Any], build_data: dict[str, list[Any]]) -> None:
         version_file = VersionFile(self.root, self.config_path)
         if self.config_pattern:
             version_file.read(self.config_pattern)

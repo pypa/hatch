@@ -1,8 +1,8 @@
-from typing import FrozenSet
+from __future__ import annotations
 
 DEFAULT_BUILD_DIRECTORY = 'dist'
 
-EXCLUDED_DIRECTORIES: FrozenSet[str] = frozenset(
+EXCLUDED_DIRECTORIES: frozenset[str] = frozenset(
     (
         # Python bytecode
         '__pycache__',

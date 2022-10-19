@@ -1,9 +1,9 @@
-from typing import Dict, Union
+from __future__ import annotations
 
 from hatchling.licenses.supported import EXCEPTIONS, LICENSES
 
 
-def get_valid_licenses() -> Dict[str, Dict[str, Union[bool, str]]]:
+def get_valid_licenses() -> dict[str, dict[str, bool | str]]:
     valid_licenses = LICENSES.copy()
 
     # https://peps.python.org/pep-0639/#should-custom-license-identifiers-be-allowed

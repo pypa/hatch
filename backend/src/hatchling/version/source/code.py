@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 import os
-from typing import Dict
 
 from hatchling.version.source.plugin.interface import VersionSourceInterface
 
@@ -7,7 +8,7 @@ from hatchling.version.source.plugin.interface import VersionSourceInterface
 class CodeSource(VersionSourceInterface):
     PLUGIN_NAME = 'code'
 
-    def get_version_data(self) -> Dict[str, str]:
+    def get_version_data(self) -> dict[str, str]:
         import importlib.util
         import sys
 

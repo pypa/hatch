@@ -1,9 +1,13 @@
+# TODO: tidy up complex type hints
+from __future__ import annotations
+
 import os
 from abc import ABC, abstractmethod
 from collections import ChainMap
+from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from string import Formatter
-from typing import TYPE_CHECKING, Callable, Dict, Iterator, Optional, Set, Tuple, Union
+from typing import TYPE_CHECKING, Union
 
 from typing_extensions import LiteralString
 
@@ -42,7 +46,7 @@ class DefaultContextFormatter(ContextFormatter):
     def __init__(self, root: str) -> None:
         self.__root = root
 
-    def get_formatters(self) -> Dict[str, Callable]:
+    def get_formatters(self) -> dict[str, Callable]:
         return {
             '/': self.__format_directory_separator,
             ';': self.__format_path_separator,
@@ -82,7 +86,7 @@ class Context:
 
         # Allow callers to define their own formatters with precedence
         self.__formatters: ChainMap = ChainMap()
-        self.__configured_contexts: Set = set()
+        self.__configured_contexts: set = set()
         self.__formatter = ContextStringFormatter(self.__formatters)
 
         self.add_context(DefaultContextFormatter(self.__root))
@@ -117,7 +121,7 @@ class ContextStringFormatter(Formatter):
     def __init__(self, formatters: ChainMap) -> None:
         self.__formatters = formatters
 
-    def vformat(self, format_string: str, args: Union[Tuple[str], Tuple[()]], kwargs: Dict[str, Optional[str]]) -> LiteralString:
+    def vformat(self, format_string: str, args: tuple[str] | tuple[()], kwargs: dict[str, str | None]) -> LiteralString:
         # We override to increase the recursion limit from 2 to 10
         used_args = set()
         result, _ = self._vformat(format_string, args, kwargs, used_args, 10)
@@ -125,8 +129,8 @@ class ContextStringFormatter(Formatter):
         return result
 
     def get_value(
-        self, key: Union[str, int], args: Union[Tuple[str], Tuple[()]], kwargs: Dict[str, Optional[str]]
-    ) -> Optional[str]:
+        self, key: str | int, args: tuple[str] | tuple[()], kwargs: dict[str, str | None]
+    ) -> str | None:
         if key in self.__formatters:
             # Avoid hard look-up and rely on `None` to indicate that the field is undefined
             return kwargs.get(key)
@@ -136,14 +140,14 @@ class ContextStringFormatter(Formatter):
             except KeyError:
                 raise ValueError(f'Unknown context field `{key}`') from None
 
-    def format_field(self, value: Optional[str], format_spec: str) -> str:
+    def format_field(self, value: str | None, format_spec: str) -> str:
         formatter, _, data = format_spec.partition(':')
         if formatter in self.__formatters:
             return self.__formatters[formatter](value, data)
         else:
             return super().format_field(value, format_spec)
 
-    def parse(self, format_string: str) -> Iterator[Tuple[str, Optional[str], Optional[str], Optional[str]]]:
+    def parse(self, format_string: str) -> Iterator[tuple[str, str | None, str | None, str | None]]:
         for literal_text, field_name, format_spec, conversion in super().parse(format_string):
             if field_name in self.__formatters:
                 yield literal_text, field_name, f'{field_name}:{format_spec}', conversion

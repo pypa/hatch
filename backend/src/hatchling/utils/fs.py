@@ -1,11 +1,13 @@
+from __future__ import annotations
+
 import os
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Union
 
 if TYPE_CHECKING:
     from hatch.utils.fs import Path
 
 
-def locate_file(root: str, file_name: str) -> Optional[str]:
+def locate_file(root: str, file_name: str) -> str | None:
     while True:
         file_path = os.path.join(root, file_name)
         if os.path.isfile(file_path):

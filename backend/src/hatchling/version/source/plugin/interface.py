@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Dict, List, Union
+from typing import TYPE_CHECKING, Union
 
 if TYPE_CHECKING:
     from hatch.utils.fs import Path
@@ -39,7 +39,7 @@ class VersionSourceInterface(ABC):  # no cov
     PLUGIN_NAME = ''
     """The name used for selection."""
 
-    def __init__(self, root: Union[str, "Path"], config: Dict[str, Union[int, str, List[int], List[str]]]) -> None:
+    def __init__(self, root: Union[str, "Path"], config: dict[str, int | str | list[int] | list[str]]) -> None:
         self.__root = root
         self.__config = config
 
@@ -51,7 +51,7 @@ class VersionSourceInterface(ABC):  # no cov
         return str(self.__root)
 
     @property
-    def config(self) -> Dict[str, Union[int, str, List[int], List[str]]]:
+    def config(self) -> dict[str, int | str | list[int] | list[str]]:
         """
         === ":octicons-file-code-16: pyproject.toml"
 

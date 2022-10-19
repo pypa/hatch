@@ -1,5 +1,8 @@
+# TODO: tidy up complex type hints
+from __future__ import annotations
+
 import re
-from typing import TYPE_CHECKING, Dict, List, Union
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from packaging.requirements import Requirement
@@ -37,7 +40,7 @@ def get_normalized_dependency(requirement: "Requirement") -> str:
 
 def resolve_metadata_fields(
     metadata: "ProjectMetadata",
-) -> Dict[str, Union[str, Dict[str, str], List[Dict[str, str]], List[str]]]:
+) -> dict[str, str | dict[str, str] | list[dict[str, str]] | list[str]]:
     # https://packaging.python.org/en/latest/specifications/declaring-project-metadata/
     return {
         'name': metadata.core.name,

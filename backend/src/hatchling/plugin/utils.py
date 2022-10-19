@@ -1,10 +1,10 @@
-from typing import Type
+from __future__ import annotations
 
 
 def load_plugin_from_script(
     path: str,
     script_name: str,
-    plugin_class: Type,
+    plugin_class: type,
     plugin_id: str,
 ):
     import importlib.util

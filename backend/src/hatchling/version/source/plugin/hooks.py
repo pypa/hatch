@@ -7,5 +7,5 @@ from hatchling.version.source.regex import RegexSource
 
 
 @hookimpl
-def hatch_register_version_source() -> list[type[CodeSource] | type[RegexSource]]:
+def hatch_register_version_source() -> list[type[CodeSource] | type[EnvSource] | type[RegexSource]]:
     return [CodeSource, EnvSource, RegexSource]

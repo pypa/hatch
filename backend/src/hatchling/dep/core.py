@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import re
 import sys
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 from packaging.markers import default_environment
 from packaging.requirements import Requirement
@@ -12,13 +14,13 @@ else:
 
 
 class DistributionCache:
-    def __init__(self, sys_path: List[str]) -> None:
+    def __init__(self, sys_path: list[str]) -> None:
         self._resolver = Distribution.discover(context=DistributionFinder.Context(path=sys_path))
         self._distributions = {}
         self._search_exhausted = False
         self._canonical_regex = re.compile(r'[-_.]+')
 
-    def __getitem__(self, item: str) -> Optional[Union["PathDistribution", "Distribution"]]:
+    def __getitem__(self, item: str) -> "PathDistribution" | "Distribution" | None:
         item = self._canonical_regex.sub('-', item).lower()
         possible_distribution = self._distributions.get(item)
         if possible_distribution is not None:
@@ -38,7 +40,7 @@ class DistributionCache:
 
 
 def dependency_in_sync(
-    requirement: Requirement, environment: Dict[str, str], installed_distributions: DistributionCache
+    requirement: Requirement, environment: dict[str, str], installed_distributions: DistributionCache
 ) -> bool:
     if requirement.marker and not requirement.marker.evaluate(environment):
         return True
@@ -101,9 +103,9 @@ def dependency_in_sync(
 
 
 def dependencies_in_sync(
-    requirements: List[Union[Requirement, Any]],
-    sys_path: Optional[List[str]] = None,
-    environment: Optional[Dict[str, str]] = None,
+    requirements: list[Requirement | Any],
+    sys_path: list[str] | None = None,
+    environment: dict[str, str] | None = None,
 ) -> bool:
     if sys_path is None:
         sys_path = sys.path

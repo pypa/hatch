@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 import argparse
-from typing import Dict, List
 
 
 def build_impl(
@@ -28,7 +29,7 @@ def build_impl(
     plugin_manager = PluginManager()
     metadata = ProjectMetadata(root, plugin_manager)
 
-    target_data: Dict[str, List] = {}
+    target_data: dict[str, list] = {}
     if targets:
         for data in targets:
             target_name, _, version_data = data.partition(':')
@@ -83,7 +84,7 @@ def build_impl(
                 app.display_info(artifact)
 
 
-def build_command(subparsers: argparse._SubParsersAction, defaults: Dict[str, str]) -> None:
+def build_command(subparsers: argparse._SubParsersAction, defaults: dict[str, str]) -> None:
     parser = subparsers.add_parser('build')
     parser.add_argument(
         '-d', '--directory', dest='directory', help='The directory in which to build artifacts', **defaults

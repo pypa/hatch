@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 from contextlib import contextmanager
+from typing import List
 
 import pathspec
 
@@ -788,7 +789,7 @@ class BuilderConfig:
     def default_packages(self):
         return []
 
-    def default_only_include(self):
+    def default_only_include(self) -> list:
         return []
 
     def default_global_exclude(self) -> list[str]:

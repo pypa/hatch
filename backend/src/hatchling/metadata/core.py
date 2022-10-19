@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import os
 import sys
 from copy import deepcopy
-from typing import Any, Dict
+from typing import Any
 
 from hatchling.metadata.utils import get_normalized_dependency, is_valid_project_name, normalize_project_name
 from hatchling.utils.constants import DEFAULT_CONFIG_FILE
@@ -13,7 +15,7 @@ else:
     import tomli as tomllib
 
 
-def load_toml(path) -> Dict[str, Any]:
+def load_toml(path) -> dict[str, Any]:
     with open(path, encoding='utf-8') as f:
         return tomllib.loads(f.read())
 

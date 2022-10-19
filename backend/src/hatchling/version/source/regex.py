@@ -1,4 +1,4 @@
-from typing import Dict, Union
+from __future__ import annotations
 
 from hatchling.version.core import VersionFile
 from hatchling.version.source.plugin.interface import VersionSourceInterface
@@ -7,7 +7,7 @@ from hatchling.version.source.plugin.interface import VersionSourceInterface
 class RegexSource(VersionSourceInterface):
     PLUGIN_NAME = 'regex'
 
-    def get_version_data(self) -> Dict[str, Union[str, VersionFile]]:
+    def get_version_data(self) -> dict[str, str | VersionFile]:
         relative_path = self.config.get('path', '')
         if not relative_path:
             raise ValueError('option `path` must be specified')
@@ -23,5 +23,5 @@ class RegexSource(VersionSourceInterface):
 
         return {'version': version, 'version_file': version_file}
 
-    def set_version(self, version: str, version_data: Dict[str, Union[str, VersionFile]]) -> None:
+    def set_version(self, version: str, version_data: dict[str, str | VersionFile]) -> None:
         version_data['version_file'].set_version(version)

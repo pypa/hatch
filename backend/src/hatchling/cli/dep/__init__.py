@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import sys
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from argparse import _SubParsersAction
@@ -21,14 +23,14 @@ def synced_impl(dependencies, python) -> None:
     sys.exit(0 if dependencies_in_sync(list(map(Requirement, dependencies)), sys_path) else 1)
 
 
-def synced_command(subparsers: "_SubParsersAction", defaults: Dict[str, str]) -> None:
+def synced_command(subparsers: "_SubParsersAction", defaults: dict[str, str]) -> None:
     parser = subparsers.add_parser('synced')
     parser.add_argument('dependencies', nargs='+')
     parser.add_argument('-p', '--python', dest='python', **defaults)
     parser.set_defaults(func=synced_impl)
 
 
-def dep_command(subparsers: "_SubParsersAction", defaults: Dict[str, str]) -> None:
+def dep_command(subparsers: "_SubParsersAction", defaults: dict[str, str]) -> None:
     parser = subparsers.add_parser('dep')
     subparsers = parser.add_subparsers()
 
