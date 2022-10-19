@@ -9,13 +9,12 @@ from contextlib import contextmanager
 from string import Formatter
 from typing import TYPE_CHECKING, Union
 
-from typing_extensions import LiteralString
-
 from hatchling.utils.fs import path_to_uri
 
 if TYPE_CHECKING:
     from hatch.env.context import EnvironmentContextFormatter
     from hatch.utils.fs import Path
+    from typing_extensions import LiteralString
 
 class ContextFormatter(ABC):
     @abstractmethod
@@ -121,7 +120,7 @@ class ContextStringFormatter(Formatter):
     def __init__(self, formatters: ChainMap) -> None:
         self.__formatters = formatters
 
-    def vformat(self, format_string: str, args: tuple[str] | tuple[()], kwargs: dict[str, str | None]) -> LiteralString:
+    def vformat(self, format_string: str, args: tuple[str] | tuple[()], kwargs: dict[str, str | None]) -> "LiteralString":
         # We override to increase the recursion limit from 2 to 10
         used_args = set()
         result, _ = self._vformat(format_string, args, kwargs, used_args, 10)
