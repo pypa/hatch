@@ -56,6 +56,7 @@ class TestDefaultFileSelection:
         assert builder.config.default_include() == []
         assert builder.config.default_exclude() == []
         assert builder.config.default_packages() == ['my_app']
+        assert builder.config.default_only_include() == []
 
     def test_src_layout(self, temp_dir):
         config = {'project': {'name': 'my-app', 'version': '0.0.1'}}
@@ -75,6 +76,7 @@ class TestDefaultFileSelection:
         assert builder.config.default_include() == []
         assert builder.config.default_exclude() == []
         assert builder.config.default_packages() == ['src/my_app']
+        assert builder.config.default_only_include() == []
 
     def test_single_module(self, temp_dir):
         config = {'project': {'name': 'my-app', 'version': '0.0.1'}}
@@ -89,7 +91,8 @@ class TestDefaultFileSelection:
 
         assert builder.config.default_include() == []
         assert builder.config.default_exclude() == []
-        assert builder.config.default_packages() == ['my_app.py']
+        assert builder.config.default_packages() == []
+        assert builder.config.default_only_include() == ['my_app.py']
 
     def test_namespace(self, temp_dir):
         config = {'project': {'name': 'my-app', 'version': '0.0.1'}}
@@ -102,6 +105,7 @@ class TestDefaultFileSelection:
         assert builder.config.default_include() == []
         assert builder.config.default_exclude() == []
         assert builder.config.default_packages() == ['ns']
+        assert builder.config.default_only_include() == []
 
     def test_default(self, temp_dir):
         config = {'project': {'name': 'my-app', 'version': '0.0.1'}}
@@ -115,6 +119,7 @@ class TestDefaultFileSelection:
         assert builder.config.default_include() == ['*.py']
         assert builder.config.default_exclude() == ['test*']
         assert builder.config.default_packages() == []
+        assert builder.config.default_only_include() == []
 
     def test_raw_name_not_normalized(self, temp_dir):
         config = {'project': {'name': 'MyApp', 'version': '0.0.1'}}

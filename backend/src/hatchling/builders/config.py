@@ -699,7 +699,7 @@ class BuilderConfig:
                 only_include_config = self.build_config
                 only_include_location = 'tool.hatch.build.only-include'
 
-            only_include = only_include_config.get('only-include', []) or self.packages
+            only_include = only_include_config.get('only-include', self.default_only_include()) or self.packages
             if not isinstance(only_include, list):
                 raise TypeError(f'Field `{only_include_location}` must be an array')
 
@@ -784,6 +784,9 @@ class BuilderConfig:
         return []
 
     def default_packages(self):
+        return []
+
+    def default_only_include(self):
         return []
 
     def default_global_exclude(self):

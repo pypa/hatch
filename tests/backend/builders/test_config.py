@@ -947,7 +947,7 @@ class TestForceInclude:
         }
 
 
-class TestIncludeOnly:
+class TestOnlyInclude:
     def test_default(self, isolation):
         builder = MockBuilder(str(isolation))
 
@@ -1600,6 +1600,11 @@ class TestFileSelectionDefaults:
         builder = MockBuilder(str(isolation))
 
         assert builder.config.default_packages() == []
+
+    def test_only_include(self, isolation):
+        builder = MockBuilder(str(isolation))
+
+        assert builder.config.default_only_include() == []
 
     def test_global_exclude(self, isolation):
         builder = MockBuilder(str(isolation))

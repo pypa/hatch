@@ -19,6 +19,7 @@
       - default_include
       - default_exclude
       - default_packages
+      - default_only_include
 
 ::: hatchling.bridge.app.Application
     options:
