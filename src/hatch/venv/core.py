@@ -123,7 +123,7 @@ class TempVirtualEnv(VirtualEnv):
 
     def __enter__(self) -> "TempVirtualEnv":
         self.create(self.parent_python)
-        return super().__enter__()
+        return super().__enter__()  # type: ignore
 
     def __exit__(self, exc_type, exc_value, traceback) -> None:
         super().__exit__(exc_type, exc_value, traceback)

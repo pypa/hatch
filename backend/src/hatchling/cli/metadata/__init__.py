@@ -21,13 +21,15 @@ def metadata_impl(called_by_app: bool, field: None, compact: bool) -> None:
     if field:  # no cov
         if field not in metadata:
             app.abort(f'Unknown metadata field: {field}')
-        elif field == 'readme':
-            app.display_always(metadata[field]['text'])
-        elif isinstance(metadata[field], str):
-            app.display_always(metadata[field])
-        else:
-            app.display_always(json.dumps(metadata[field], indent=4))
 
+        md_field = metadata[field]
+
+        if field == 'readme':
+            app.display_always(md_field['text'])  # type: ignore
+        elif isinstance(md_field, str):
+            app.display_always(md_field)
+        else:
+            app.display_always(json.dumps(md_field, indent=4))
         return
 
     for key, value in list(metadata.items()):

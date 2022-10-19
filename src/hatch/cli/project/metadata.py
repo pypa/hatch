@@ -1,3 +1,5 @@
+from typing import cast
+
 import click
 
 
@@ -48,10 +50,11 @@ def metadata(app, field):
         if field not in project_metadata:
             app.abort(f'Unknown metadata field: {field}')
         elif field == 'readme':
-            if project_metadata[field]['content-type'] == 'text/markdown':  # no cov
-                app.display_markdown(project_metadata[field]['text'])
+            md_field = cast(dict, project_metadata[field])
+            if md_field['content-type'] == 'text/markdown':  # no cov
+                app.display_markdown(md_field['text'])
             else:
-                app.display_always(project_metadata[field]['text'])
+                app.display_always(md_field['text'])
         elif isinstance(project_metadata[field], str):
             app.display_always(project_metadata[field])
         else:

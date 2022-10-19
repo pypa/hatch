@@ -43,7 +43,7 @@ class SdistArchive:
     def create_file(self, contents: str, *relative_paths) -> None:
         contents_bytes = contents.encode('utf-8')
         tar_info = tarfile.TarInfo(normalize_archive_path(os.path.join(self.name, *relative_paths)))
-        tar_info.mtime = self.timestamp if self.reproducible else int(get_current_timestamp())
+        tar_info.mtime = self.timestamp if self.reproducible else int(get_current_timestamp())  # type: ignore
         tar_info.size = len(contents_bytes)
 
         with closing(BytesIO(contents_bytes)) as buffer:

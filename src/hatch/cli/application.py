@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from os.path import expanduser, expandvars, isabs
-from typing import TYPE_CHECKING, Callable, Optional, Union, cast
+from typing import TYPE_CHECKING, Callable, NoReturn, Optional, Union, cast
 
 from hatch.cli.terminal import Terminal
 from hatch.config.user import ConfigFile, RootConfig
@@ -188,7 +188,7 @@ class Application(Terminal):
         else:
             return self.data_dir / 'env' / environment_type
 
-    def abort(self, text: str = '', code: int = 1, **kwargs) -> None:
+    def abort(self, text: str = '', code: int = 1, **kwargs) -> NoReturn:
         if text:
             self.display_error(text, **kwargs)
         self.__exit_func(code)

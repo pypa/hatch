@@ -18,7 +18,7 @@ class DistributionCache:
         self._search_exhausted = False
         self._canonical_regex = re.compile(r'[-_.]+')
 
-    def __getitem__(self, item: str) -> Optional["PathDistribution"]:
+    def __getitem__(self, item: str) -> Optional[Union["PathDistribution", "Distribution"]]:
         item = self._canonical_regex.sub('-', item).lower()
         possible_distribution = self._distributions.get(item)
         if possible_distribution is not None:
@@ -29,7 +29,7 @@ class DistributionCache:
             return
 
         for distribution in self._resolver:
-            name = self._canonical_regex.sub('-', distribution.metadata.get('Name')).lower()
+            name = self._canonical_regex.sub('-', distribution.metadata.__getitem__('Name')).lower()
             self._distributions[name] = distribution
             if name == item:
                 return distribution

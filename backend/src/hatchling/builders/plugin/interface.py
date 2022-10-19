@@ -48,7 +48,7 @@ class BuilderInterface(ABC):
         ```
     """
 
-    PLUGIN_NAME = ''
+    PLUGIN_NAME: str = ''
     """The name used for selection."""
 
     def __init__(self, root, plugin_manager=None, config=None, metadata=None, app=None) -> None:

@@ -18,7 +18,7 @@ class PluginManager:
             self.initialized = True
 
         hook_name = f'hatch_register_{name}'
-        getattr(self, hook_name, None)()
+        getattr(self, hook_name, None)()  # BUG: fallback to `None` cannot be called
 
         register = ClassRegister(getattr(self.manager.hook, hook_name), 'PLUGIN_NAME', self.third_party_plugins)
         setattr(self, name, register)

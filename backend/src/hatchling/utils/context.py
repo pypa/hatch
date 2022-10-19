@@ -143,7 +143,7 @@ class ContextStringFormatter(Formatter):
         else:
             return super().format_field(value, format_spec)
 
-    def parse(self, format_string: str) -> Iterator[Union[Tuple[str, None, None, None], Tuple[str, str, str, None]]]:
+    def parse(self, format_string: str) -> Iterator[Tuple[str, Optional[str], Optional[str], Optional[str]]]:
         for literal_text, field_name, format_spec, conversion in super().parse(format_string):
             if field_name in self.__formatters:
                 yield literal_text, field_name, f'{field_name}:{format_spec}', conversion

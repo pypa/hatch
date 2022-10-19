@@ -56,4 +56,4 @@ def resolve_metadata_fields(
         'entry-points': metadata.core.entry_points,
         'dependencies': metadata.core.dependencies,
         'optional-dependencies': metadata.core.optional_dependencies,
-    }
+    }  # type: ignore

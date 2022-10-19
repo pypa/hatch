@@ -27,7 +27,7 @@ if sys.platform == 'darwin':
             fcntl.fcntl(fd, fcntl.F_FULLFSYNC)
 
 
-class Path(_PathBase):
+class Path(_PathBase):  # type: ignore
     def ensure_dir_exists(self):
         self.mkdir(parents=True, exist_ok=True)
 
@@ -51,6 +51,9 @@ class Path(_PathBase):
 
         fd, path = mkstemp(dir=self.parent)
         with os.fdopen(fd, *args, **kwargs) as f:
+            if type(data) is bytes:
+                data = data.decode("utf-8")
+
             f.write(data)
             f.flush()
             disk_sync(fd)

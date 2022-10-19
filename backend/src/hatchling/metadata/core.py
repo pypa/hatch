@@ -40,6 +40,8 @@ class ProjectMetadata:
 
     def has_project_file(self):
         _ = self.config
+        if not self._project_file:
+            return False
         return os.path.isfile(self._project_file)
 
     @property

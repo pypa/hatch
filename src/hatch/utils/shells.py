@@ -95,7 +95,7 @@ class ShellManager:
         if callback is not None:
             callback(terminal)
 
-        terminal.interact(escape_character=None)
+        terminal.interact(escape_character=None)  # BUG: escape character should not be None
         terminal.close()
 
         self.environment.platform.exit_with_code(terminal.exitstatus)
