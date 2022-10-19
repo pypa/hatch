@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from hatch.utils.fs import Path
@@ -39,7 +39,7 @@ class VersionSourceInterface(ABC):  # no cov
     PLUGIN_NAME = ''
     """The name used for selection."""
 
-    def __init__(self, root: Union[str, "Path"], config: dict[str, int | str | list[int] | list[str]]) -> None:
+    def __init__(self, root: str | 'Path', config: dict[str, int | str | list[int] | list[str]]) -> None:
         self.__root = root
         self.__config = config
 

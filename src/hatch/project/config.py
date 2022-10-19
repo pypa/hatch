@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 class ProjectConfig:
-    def __init__(self, root: "Path", config: dict[str, Any], plugin_manager: "PluginManager" | None = None) -> None:
+    def __init__(self, root: 'Path', config: dict[str, Any], plugin_manager: 'PluginManager' | None = None) -> None:
         self.root = root
         self.config = config
         self.plugin_manager = plugin_manager

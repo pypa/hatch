@@ -18,7 +18,7 @@ class StandardScheme(VersionSchemeInterface):
     PLUGIN_NAME = 'standard'
 
     def update(
-        self, desired_version: str, original_version: str, version_data: dict[str, Union[str, "VersionFile"]]
+        self, desired_version: str, original_version: str, version_data: dict[str, Union[str, 'VersionFile']]
     ) -> str:
         from packaging.version import Version, _parse_letter_version
 
@@ -65,7 +65,7 @@ class StandardScheme(VersionSchemeInterface):
         return str(original)
 
 
-def reset_version_parts(version: "Version", **kwargs) -> None:
+def reset_version_parts(version: 'Version', **kwargs) -> None:
     # https://github.com/pypa/packaging/blob/20.9/packaging/version.py#L301-L310
     internal_version = version._version
     parts = {'epoch': 0}
@@ -84,7 +84,7 @@ def reset_version_parts(version: "Version", **kwargs) -> None:
     version._version = type(internal_version)(**parts)
 
 
-def update_release(original_version: "Version", new_release_parts: list[int]) -> tuple[int, int, int]:
+def update_release(original_version: 'Version', new_release_parts: list[int]) -> tuple[int, int, int]:
     # Retain release length
     for _ in range(len(original_version.release) - len(new_release_parts)):
         new_release_parts.append(0)

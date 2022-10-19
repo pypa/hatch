@@ -36,14 +36,14 @@ class Application(Terminal):
         self.env_active = cast(str, None)
 
     @property
-    def plugins(self) -> "PluginManager":
+    def plugins(self) -> 'PluginManager':
         return self.project.plugin_manager
 
     @property
     def config(self) -> RootConfig:
         return self.config_file.model
 
-    def get_environment(self, env_name: str | None = None) -> "VirtualEnvironment" | "SystemEnvironment":
+    def get_environment(self, env_name: str | None = None) -> 'VirtualEnvironment' | 'SystemEnvironment':
         if env_name is None:
             env_name = self.env
 
@@ -74,7 +74,7 @@ class Application(Terminal):
 
     # Ensure that this method is clearly written since it is
     # used for documenting the life cycle of environments.
-    def prepare_environment(self, environment: "VirtualEnvironment" | "SystemEnvironment") -> None:
+    def prepare_environment(self, environment: 'VirtualEnvironment' | 'SystemEnvironment') -> None:
         if not environment.exists():
             with self.status_waiting(f'Creating environment: {environment.name}'):
                 environment.create()
@@ -104,7 +104,7 @@ class Application(Terminal):
 
     def run_shell_commands(
         self,
-        environment: "VirtualEnvironment" | "SystemEnvironment",
+        environment: 'VirtualEnvironment' | 'SystemEnvironment',
         commands: list[str],
         source: str = 'cmd',
         force_continue: bool = False,
@@ -140,7 +140,7 @@ class Application(Terminal):
             if first_error_code and force_continue:
                 self.abort(code=first_error_code)
 
-    def attach_builder(self, process: "Popen") -> None:
+    def attach_builder(self, process: 'Popen') -> None:
         import pickle
 
         with process:
@@ -159,7 +159,7 @@ class Application(Terminal):
         if process.returncode:
             self.abort(code=process.returncode)
 
-    def read_builder(self, process: "Popen") -> str:
+    def read_builder(self, process: 'Popen') -> str:
         import pickle
 
         lines = []

@@ -22,7 +22,7 @@ def normalize_project_name(project_name: str) -> str:
     return re.sub(r'[-_.]+', '-', project_name).lower()
 
 
-def get_normalized_dependency(requirement: "Requirement") -> str:
+def get_normalized_dependency(requirement: 'Requirement') -> str:
     # Changes to this function affect reproducibility between versions
     from packaging.specifiers import SpecifierSet
 
@@ -39,7 +39,7 @@ def get_normalized_dependency(requirement: "Requirement") -> str:
 
 
 def resolve_metadata_fields(
-    metadata: "ProjectMetadata",
+    metadata: 'ProjectMetadata',
 ) -> dict[str, str | dict[str, str] | list[dict[str, str]] | list[str]]:
     # https://packaging.python.org/en/latest/specifications/declaring-project-metadata/
     return {

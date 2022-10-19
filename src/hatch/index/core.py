@@ -35,7 +35,7 @@ class PackageIndex:
         *,
         user: str = '',
         auth: str = '',
-        ca_cert: "VerifyTypes" | None = None,
+        ca_cert: 'VerifyTypes' | None = None,
         client_cert: None
         | str
         | tuple[str, str | None]

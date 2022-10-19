@@ -69,7 +69,7 @@ class SdistArchive:
         setattr(self, name, attr)
         return attr
 
-    def __enter__(self) -> "SdistArchive":
+    def __enter__(self) -> 'SdistArchive':
         return self
 
     def __exit__(self, exc_type, exc_value, traceback) -> None:

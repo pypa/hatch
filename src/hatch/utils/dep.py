@@ -17,17 +17,17 @@ def normalize_marker_quoting(text: str) -> str:
     return text.replace('"', "'")
 
 
-def get_normalized_dependencies(requirements: list["Requirement"]) -> list[str]:
+def get_normalized_dependencies(requirements: list['Requirement']) -> list[str]:
     normalized_dependencies = {get_normalized_dependency(requirement) for requirement in requirements}
     return sorted(normalized_dependencies)
 
 
 def get_project_dependencies_complex(
-    environment: "VirtualEnvironment" | "MockEnvironment",
+    environment: 'VirtualEnvironment' | 'MockEnvironment',
 ) -> (
-    tuple[dict[str, "Requirement"], dict[str, dict[str, "Requirement"]]]
-    | tuple[dict[str, "Requirement"], dict[Any, Any]]
-    | tuple[dict[Any, Any], dict[str, dict[str, "Requirement"]]]
+    tuple[dict[str, 'Requirement'], dict[str, dict[str, 'Requirement']]]
+    | tuple[dict[str, 'Requirement'], dict[Any, Any]]
+    | tuple[dict[Any, Any], dict[str, dict[str, 'Requirement']]]
     | tuple[dict[Any, Any], dict[str, dict[Any, Any]]]
     | tuple[dict[Any, Any], dict[Any, Any]]
 ):

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 from tempfile import TemporaryDirectory
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING
 
 from hatch.env.utils import add_verbosity_flag
 from hatch.utils.env import PythonInfo
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 class VirtualEnv:
     IGNORED_ENV_VARS = ('__PYVENV_LAUNCHER__', 'PYTHONHOME')
 
-    def __init__(self, directory: Path, platform: "Platform", verbosity: int = 0) -> None:
+    def __init__(self, directory: Path, platform: 'Platform', verbosity: int = 0) -> None:
         self.directory = directory
         self.platform = platform
         self.verbosity = verbosity
@@ -103,7 +103,7 @@ class VirtualEnv:
     def sys_path(self) -> list[str]:
         return self.python_info.sys_path
 
-    def __enter__(self) -> Union["TempVirtualEnv", "VirtualEnv"]:
+    def __enter__(self) -> 'TempVirtualEnv' | 'VirtualEnv':
         self.activate()
         return self
 
@@ -112,7 +112,7 @@ class VirtualEnv:
 
 
 class TempVirtualEnv(VirtualEnv):
-    def __init__(self, parent_python: str, platform: "Platform", verbosity: int = 0) -> None:
+    def __init__(self, parent_python: str, platform: 'Platform', verbosity: int = 0) -> None:
         self.parent_python = parent_python
         self.parent_dir = TemporaryDirectory()
         directory = Path(self.parent_dir.name).resolve() / get_random_venv_name()
@@ -123,7 +123,7 @@ class TempVirtualEnv(VirtualEnv):
         super().remove()
         self.parent_dir.cleanup()
 
-    def __enter__(self) -> "TempVirtualEnv":
+    def __enter__(self) -> 'TempVirtualEnv':
         self.create(self.parent_python)
         return super().__enter__()  # type: ignore
 

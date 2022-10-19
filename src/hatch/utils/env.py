@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 
 
 class PythonInfo:
-    def __init__(self, platform: "Platform", executable: str = 'python') -> None:
+    def __init__(self, platform: 'Platform', executable: str = 'python') -> None:
         self.platform = platform
         self.executable = executable
 

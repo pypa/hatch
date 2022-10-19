@@ -108,7 +108,7 @@ def normalize_file_permissions(st_mode: int) -> int:
     return new_mode
 
 
-def set_zip_info_mode(zip_info: "ZipInfo", mode: int = 0o644) -> None:
+def set_zip_info_mode(zip_info: 'ZipInfo', mode: int = 0o644) -> None:
     """
     https://github.com/takluyver/flit/commit/3889583719888aef9f28baaa010e698cb7884904
     """

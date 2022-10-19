@@ -34,7 +34,7 @@ class InvokedApplication:
         send_app_command('abort', *args, **kwargs)
         sys.exit(kwargs.get('code', 1))
 
-    def get_safe_application(self) -> "SafeApplication":
+    def get_safe_application(self) -> 'SafeApplication':
         return SafeApplication(self)
 
 
@@ -112,7 +112,7 @@ class Application:
 
         sys.exit(code)
 
-    def get_safe_application(self) -> "SafeApplication":
+    def get_safe_application(self) -> 'SafeApplication':
         return SafeApplication(self)
 
 

@@ -200,7 +200,7 @@ class Terminal:
 
     def display(
         self,
-        text: str | "Table" | "Tree" | "Syntax" = '',
+        text: str | 'Table' | 'Tree' | 'Syntax' = '',
         style: str | Style | None = None,
         *,
         stderr: bool = False,
@@ -230,7 +230,7 @@ class Terminal:
     def display_raw(self, text, **kwargs) -> None:
         self.console.print(text, overflow='ignore', no_wrap=True, crop=False, **kwargs)
 
-    def display_always(self, text: str | "Path" = '', **kwargs) -> None:
+    def display_always(self, text: str | 'Path' = '', **kwargs) -> None:
         self.console.print(text, style=self._style_level_info, overflow='ignore', no_wrap=True, crop=False, **kwargs)
 
     @staticmethod
@@ -246,7 +246,7 @@ class MockStatus:
     def stop(self) -> None:
         pass
 
-    def __enter__(self) -> "MockStatus":
+    def __enter__(self) -> 'MockStatus':
         return self
 
     def __exit__(self, exc_type: None, exc_value: None, traceback: None) -> None:

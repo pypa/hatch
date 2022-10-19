@@ -5,7 +5,7 @@ if TYPE_CHECKING:
 
 
 class ShellManager:
-    def __init__(self, environment: "VirtualEnvironment") -> None:
+    def __init__(self, environment: 'VirtualEnvironment') -> None:
         self.environment = environment
 
     def enter_cmd(self, path, args, exe_dir) -> None:

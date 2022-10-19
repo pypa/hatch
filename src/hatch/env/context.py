@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Callable
-from typing import TYPE_CHECKING, Any, Union
+from typing import TYPE_CHECKING, Any
 
 from hatch.env.utils import get_verbosity_flag
 from hatchling.utils.context import ContextFormatter
@@ -19,7 +19,7 @@ class EnvironmentContextFormatterBase(ContextFormatter, ABC):
 
 
 class EnvironmentContextFormatter(EnvironmentContextFormatterBase):
-    def __init__(self, environment: Union["VirtualEnvironment", "SystemEnvironment"]) -> None:
+    def __init__(self, environment: 'VirtualEnvironment' | 'SystemEnvironment') -> None:
         self.environment = environment
         self.CONTEXT_NAME = f'environment_{environment.PLUGIN_NAME}'
 

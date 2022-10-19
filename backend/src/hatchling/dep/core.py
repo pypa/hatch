@@ -20,7 +20,7 @@ class DistributionCache:
         self._search_exhausted = False
         self._canonical_regex = re.compile(r'[-_.]+')
 
-    def __getitem__(self, item: str) -> "PathDistribution" | "Distribution" | None:
+    def __getitem__(self, item: str) -> 'PathDistribution' | 'Distribution' | None:
         item = self._canonical_regex.sub('-', item).lower()
         possible_distribution = self._distributions.get(item)
         if possible_distribution is not None:

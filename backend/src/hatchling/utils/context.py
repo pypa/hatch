@@ -82,7 +82,7 @@ class DefaultContextFormatter(ContextFormatter):
 
 
 class Context:
-    def __init__(self, root: Union[str, "Path"]) -> None:
+    def __init__(self, root: Union[str, 'Path']) -> None:
         self.__root = str(root)
 
         # Allow callers to define their own formatters with precedence
@@ -103,7 +103,7 @@ class Context:
         self.__configured_contexts.add(context.CONTEXT_NAME)
 
     @contextmanager
-    def apply_context(self, context: "EnvironmentContextFormatter") -> Iterator[None]:
+    def apply_context(self, context: 'EnvironmentContextFormatter') -> Iterator[None]:
         self.__add_formatters(context.get_formatters())
         try:
             yield
@@ -124,7 +124,7 @@ class ContextStringFormatter(Formatter):
 
     def vformat(
         self, format_string: str, args: tuple[str] | tuple[()], kwargs: dict[str, str | None]
-    ) -> "LiteralString":
+    ) -> 'LiteralString':
         # We override to increase the recursion limit from 2 to 10
         used_args = set()
         result, _ = self._vformat(format_string, args, kwargs, used_args, 10)

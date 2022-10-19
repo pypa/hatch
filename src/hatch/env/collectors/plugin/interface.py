@@ -38,7 +38,7 @@ class EnvironmentCollectorInterface:
     PLUGIN_NAME = ''
     """The name used for selection."""
 
-    def __init__(self, root: "Path", config: dict[Any, Any]) -> None:
+    def __init__(self, root: 'Path', config: dict[Any, Any]) -> None:
         self.__root = root
         self.__config = config
 

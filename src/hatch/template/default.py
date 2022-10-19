@@ -137,7 +137,7 @@ def get_license_text(
     config: dict[str, str | dict[str, bool | list[str]] | set[str] | dict[str, bool] | dict[str, str]],
     license_id: str,
     license_text: str,
-    creation_time: "datetime",
+    creation_time: 'datetime',
 ) -> str:
     if license_id == 'MIT':
         license_text = license_text.replace('<year>', f'{creation_time.year}-present', 1)

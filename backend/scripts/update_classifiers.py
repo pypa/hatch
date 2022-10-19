@@ -3,7 +3,7 @@ from contextlib import closing
 from importlib.metadata import version
 from io import StringIO
 
-import trove_classifiers
+import trove_classifiers  # type: ignore
 
 
 def main() -> None:

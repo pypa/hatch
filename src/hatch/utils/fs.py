@@ -52,7 +52,7 @@ class Path(_PathBase):  # type: ignore
         fd, path = mkstemp(dir=self.parent)
         with os.fdopen(fd, *args, **kwargs) as f:
             if type(data) is bytes:
-                data = data.decode("utf-8")
+                data = data.decode('utf-8')
 
             f.write(data)
             f.flush()

@@ -42,7 +42,7 @@ class PublisherInterface(ABC):
     def __init__(
         self,
         app: None,
-        root: "Path",
+        root: 'Path',
         cache_dir: None,
         project_config: dict[str, Any],
         plugin_config: dict[str, Any],

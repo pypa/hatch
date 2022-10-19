@@ -66,10 +66,10 @@ class EnvironmentInterface(ABC):
         name: str,
         config: dict[str, Any],
         matrix_variables: dict[str, str],
-        data_directory: "Path",
-        platform: "Platform",
+        data_directory: 'Path',
+        platform: 'Platform',
         verbosity: int,
-        app: "SafeApplication" | None = None,
+        app: 'SafeApplication' | None = None,
     ) -> None:
         self.__root = root
         self.__metadata = metadata
@@ -104,7 +104,7 @@ class EnvironmentInterface(ABC):
         return self.__matrix_variables
 
     @property
-    def app(self) -> "SafeApplication":
+    def app(self) -> 'SafeApplication':
         """
         An instance of [Application](../utilities.md#hatchling.bridge.app.Application).
         """
@@ -116,7 +116,7 @@ class EnvironmentInterface(ABC):
         return self.__app
 
     @property
-    def context(self) -> "EnvironmentContextFormatter":
+    def context(self) -> 'EnvironmentContextFormatter':
         if self.__context is None:
             self.__context = self.get_context()
 
@@ -134,7 +134,7 @@ class EnvironmentInterface(ABC):
         return self.__root
 
     @property
-    def metadata(self) -> "ProjectMetadata":
+    def metadata(self) -> 'ProjectMetadata':
         return self.__metadata
 
     @property
@@ -145,14 +145,14 @@ class EnvironmentInterface(ABC):
         return self.__name
 
     @property
-    def platform(self) -> "Platform":
+    def platform(self) -> 'Platform':
         """
         An instance of [Platform](../utilities.md#hatch.utils.platform.Platform).
         """
         return self.__platform
 
     @property
-    def data_directory(self) -> "Path":
+    def data_directory(self) -> 'Path':
         """
         The [directory](../../config/hatch.md#environments) reserved exclusively for this plugin as a path-like object.
         """
@@ -295,7 +295,7 @@ class EnvironmentInterface(ABC):
         return self._env_exclude
 
     @property
-    def environment_dependencies_complex(self) -> list["Requirement" | Any]:
+    def environment_dependencies_complex(self) -> list['Requirement' | Any]:
         if self._environment_dependencies_complex is None:
             from packaging.requirements import InvalidRequirement, Requirement
 
@@ -334,7 +334,7 @@ class EnvironmentInterface(ABC):
         return self._environment_dependencies
 
     @property
-    def dependencies_complex(self) -> list["Requirement" | Any]:
+    def dependencies_complex(self) -> list['Requirement' | Any]:
         if self._dependencies_complex is None:
             all_dependencies_complex = list(self.environment_dependencies_complex)
 
@@ -706,7 +706,7 @@ class EnvironmentInterface(ABC):
         with self.get_env_vars():
             yield
 
-    def get_build_process(self, build_environment: "MagicMock" | None, **kwargs) -> "MagicMock" | "Popen":
+    def get_build_process(self, build_environment: 'MagicMock' | None, **kwargs) -> 'MagicMock' | 'Popen':
         """
         This will be called when the
         [build environment](reference.md#hatch.env.plugin.interface.EnvironmentInterface.build_environment)
@@ -745,7 +745,7 @@ class EnvironmentInterface(ABC):
         with self.command_context():
             self.platform.exit_with_command([path, *args])
 
-    def run_shell_command(self, command: str, **kwargs) -> "CompletedProcess":
+    def run_shell_command(self, command: str, **kwargs) -> 'CompletedProcess':
         """
         This should return the standard library's
         [subprocess.CompletedProcess](https://docs.python.org/3/library/subprocess.html#subprocess.CompletedProcess)
@@ -888,7 +888,7 @@ class EnvironmentInterface(ABC):
         """
         return os.environ.get(f'{AppEnvVars.ENV_OPTION_PREFIX}{self.PLUGIN_NAME}_{option}'.upper(), '')
 
-    def get_context(self) -> "EnvironmentContextFormatter":
+    def get_context(self) -> 'EnvironmentContextFormatter':
         """
         Returns a subclass of
         [EnvironmentContextFormatter](../utilities.md#hatch.env.context.EnvironmentContextFormatter).
@@ -910,7 +910,7 @@ class EnvironmentInterface(ABC):
         with self.get_env_vars(), self.metadata.context.apply_context(self.context):
             yield
 
-    def __enter__(self) -> "VirtualEnvironment":
+    def __enter__(self) -> 'VirtualEnvironment':
         self.activate()
         return self
 

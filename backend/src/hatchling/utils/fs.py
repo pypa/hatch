@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import os
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from hatch.utils.fs import Path
@@ -20,7 +20,7 @@ def locate_file(root: str, file_name: str) -> str | None:
         root = new_root
 
 
-def path_to_uri(path: Union[str, "Path"]) -> str:
+def path_to_uri(path: str | 'Path') -> str:
     if os.sep == '/':
         return f'file://{os.path.abspath(path)}'
     else:
