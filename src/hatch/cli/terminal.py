@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import os
+from collections.abc import Iterator
 from contextlib import contextmanager
 from textwrap import indent as indent_text
-from typing import TYPE_CHECKING, Any, Dict, Iterator, List, Optional, Union
+from typing import TYPE_CHECKING, Any
 
 import click
 from rich.console import Console
@@ -44,7 +45,7 @@ class Terminal:
         # Chosen as the default since it's compatible everywhere and looks nice
         self._style_spinner = 'simpleDotsScrolling'
 
-    def initialize_styles(self, styles: dict) -> List[Any]:  # no cov
+    def initialize_styles(self, styles: dict) -> list[Any]:  # no cov
         # Lazily display errors so that they use the correct style
         errors = []
 
@@ -82,7 +83,7 @@ class Terminal:
         self.display(text, self._style_level_warning, stderr=stderr, indent=indent, link=link, **kwargs)
 
     def display_info(
-        self, text: str = '', stderr: bool = False, indent: None = None, link: Optional[str] = None, **kwargs
+        self, text: str = '', stderr: bool = False, indent: None = None, link: str | None = None, **kwargs
     ) -> None:
         if self.verbosity < 0:
             return
@@ -134,9 +135,9 @@ class Terminal:
     def display_table(
         self,
         title: str,
-        columns: Dict[str, Union[Dict[int, str], Dict[Any, Any]]],
+        columns: dict[str, dict[int, str] | dict[Any, Any]],
         show_lines: bool = False,
-        column_options: Optional[Dict[str, Dict[str, bool]]] = None,
+        column_options: dict[str, dict[str, bool]] | None = None,
         force_ascii: bool = False,
         num_rows: int = 0,
     ) -> None:
@@ -200,11 +201,11 @@ class Terminal:
 
     def display(
         self,
-        text: Union[str, "Table", "Tree", "Syntax"] = '',
-        style: Optional[Union[str, "Style"]] = None,
+        text: str | "Table" | "Tree" | "Syntax" = '',
+        style: str | Style | None = None,
         *,
         stderr: bool = False,
-        indent: typing.Optional[str] = None,
+        indent: str | None = None,
         link=None,
         **kwargs,
     ) -> None:
@@ -230,7 +231,7 @@ class Terminal:
     def display_raw(self, text, **kwargs) -> None:
         self.console.print(text, overflow='ignore', no_wrap=True, crop=False, **kwargs)
 
-    def display_always(self, text: Union[str, "Path"] = '', **kwargs) -> None:
+    def display_always(self, text: str | "Path" = '', **kwargs) -> None:
         self.console.print(text, style=self._style_level_info, overflow='ignore', no_wrap=True, crop=False, **kwargs)
 
     @staticmethod

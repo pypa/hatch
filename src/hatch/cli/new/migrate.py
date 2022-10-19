@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import os
 import sys
 from types import ModuleType
-from typing import Any, Dict, Union
+from typing import Any
 
 FILE = os.path.abspath(__file__)
 HERE = os.path.dirname(FILE)
@@ -26,7 +28,7 @@ def _parse_dependencies(dependency_definition):
     return dependencies
 
 
-def _collapse_data(output, data: Dict[str, Any]):
+def _collapse_data(output, data: dict[str, Any]):
     import tomli_w
 
     expected_output = new_output = tomli_w.dumps(data)
@@ -332,7 +334,7 @@ if __name__ == 'setuptools':
     del __current_directory
 
 
-def migrate(root: Union[os.PathLike[str], str], setuptools_options) -> None:
+def migrate(root: os.PathLike[str] | str, setuptools_options) -> None:
     import shutil
     import subprocess
     from tempfile import TemporaryDirectory

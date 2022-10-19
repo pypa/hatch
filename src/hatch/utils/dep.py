@@ -1,4 +1,7 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Tuple, Union
+# TODO: simplify complex type hints
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
 
 from hatchling.metadata.utils import get_normalized_dependency
 
@@ -14,20 +17,20 @@ def normalize_marker_quoting(text: str) -> str:
     return text.replace('"', "'")
 
 
-def get_normalized_dependencies(requirements: List["Requirement"]) -> List[str]:
+def get_normalized_dependencies(requirements: list["Requirement"]) -> list[str]:
     normalized_dependencies = {get_normalized_dependency(requirement) for requirement in requirements}
     return sorted(normalized_dependencies)
 
 
 def get_project_dependencies_complex(
     environment: Union["VirtualEnvironment", "MockEnvironment"]
-) -> Union[
-    Tuple[Dict[str, "Requirement"], Dict[str, Dict[str, "Requirement"]]],
-    Tuple[Dict[str, "Requirement"], Dict[Any, Any]],
-    Tuple[Dict[Any, Any], Dict[str, Dict[str, "Requirement"]]],
-    Tuple[Dict[Any, Any], Dict[str, Dict[Any, Any]]],
-    Tuple[Dict[Any, Any], Dict[Any, Any]],
-]:
+) -> (
+    tuple[dict[str, "Requirement"], dict[str, dict[str, "Requirement"]]] |
+    tuple[dict[str, "Requirement"], dict[Any, Any]] |
+    tuple[dict[Any, Any], dict[str, dict[str, "Requirement"]]] |
+    tuple[dict[Any, Any], dict[str, dict[Any, Any]]] |
+    tuple[dict[Any, Any], dict[Any, Any]]
+):
     from hatchling.dep.core import dependencies_in_sync
 
     dependencies_complex = {}

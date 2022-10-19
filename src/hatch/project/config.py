@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 import re
 from copy import deepcopy
 from itertools import product
 from os import environ
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Type, Union
+from typing import TYPE_CHECKING, Any, Optional
 
 from hatch.env.utils import ensure_valid_environment
 from hatch.project.env import apply_overrides
@@ -14,7 +16,7 @@ if TYPE_CHECKING:
 
 
 class ProjectConfig:
-    def __init__(self, root: "Path", config: Dict[str, Any], plugin_manager: Optional["PluginManager"] = None) -> None:
+    def __init__(self, root: "Path", config: dict[str, Any], plugin_manager: "PluginManager" | None = None) -> None:
         self.root = root
         self.config = config
         self.plugin_manager = plugin_manager
@@ -31,7 +33,7 @@ class ProjectConfig:
     @property
     def env(
         self,
-    ) -> Dict[str, Union[int, Dict[str, Dict[Any, Any]], Dict[str, int], Dict[str, Dict[str, Dict[str, int]]]]]:
+    ) -> dict[str, int | dict[str, dict[Any, Any]] | dict[str, int] | dict[str, dict[str, dict[str, int]]]]:
         if self._env is None:
             config = self.config.get('env', {})
             if not isinstance(config, dict):
@@ -42,7 +44,7 @@ class ProjectConfig:
         return self._env
 
     @property
-    def env_collectors(self) -> Dict[str, Union[Dict[Any, Any], Dict[str, Dict[str, int]]]]:
+    def env_collectors(self) -> dict[str, dict[Any, Any] | dict[str, dict[str, int]]]:
         if self._env_collectors is None:
             collectors = self.env.get('collectors', {})
             if not isinstance(collectors, dict):
@@ -60,21 +62,21 @@ class ProjectConfig:
         return self._env_collectors
 
     @property
-    def matrices(self) -> Dict[str, Any]:
+    def matrices(self) -> dict[str, Any]:
         if self._matrices is None:
             _ = self.envs
 
         return self._matrices
 
     @property
-    def matrix_variables(self) -> Dict[str, Dict[str, str]]:
+    def matrix_variables(self) -> dict[str, dict[str, str]]:
         if self._matrix_variables is None:
             _ = self.envs
 
         return self._matrix_variables
 
     @property
-    def envs(self) -> Dict[str, Any]:
+    def envs(self) -> dict[str, Any]:
         from hatch.utils.platform import get_platform_name
 
         if self._envs is None:
@@ -334,7 +336,7 @@ class ProjectConfig:
         return self._envs
 
     @property
-    def publish(self) -> Dict[str, Dict[str, str]]:
+    def publish(self) -> dict[str, dict[str, str]]:
         if self._publish is None:
             config = self.config.get('publish', {})
             if not isinstance(config, dict):
@@ -349,7 +351,7 @@ class ProjectConfig:
         return self._publish
 
     @property
-    def scripts(self) -> Dict[str, List[str]]:
+    def scripts(self) -> dict[str, list[str]]:
         if self._scripts is None:
             script_config = self.config.get('scripts', {})
             if not isinstance(script_config, dict):
@@ -385,7 +387,7 @@ class ProjectConfig:
 
         return self._scripts
 
-    def finalize_env_overrides(self, option_types: Dict[str, Union[Type[bool], Type[str], Type[dict]]]) -> None:
+    def finalize_env_overrides(self, option_types: dict[str, type[bool] | type[str] | type[dict]]) -> None:
         # We lazily apply overrides because we need type information potentially defined by
         # environment plugins for their options
         if not self._cached_env_overrides:
@@ -401,11 +403,11 @@ class ProjectConfig:
 
 def expand_script_commands(
     script_name: str,
-    commands: List[str],
-    config: Dict[str, List[str]],
-    seen: Dict[str, List[str]],
-    active: List[Union[Any, str]],
-) -> List[str]:
+    commands: list[str],
+    config: dict[str, list[str]],
+    seen: dict[str, list[str]],
+    active: list[Any | str],
+) -> list[str]:
     if script_name in seen:
         return seen[script_name]
     elif script_name in active:
@@ -437,7 +439,7 @@ def expand_script_commands(
 
 
 def _populate_default_env_values(
-    env_name: str, data: Dict[str, Any], config: Dict[str, Any], seen: Set[str], active: List[Union[Any, str]],
+    env_name: str, data: dict[str, Any], config: dict[str, Any], seen: set[str], active: list[Any | str],
 ) -> None:
     if env_name in seen:
         return

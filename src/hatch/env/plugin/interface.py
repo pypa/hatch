@@ -3,9 +3,10 @@ from __future__ import annotations
 import os
 import sys
 from abc import ABC, abstractmethod
+from collections.abc import Iterator
 from contextlib import contextmanager
 from os.path import isabs
-from typing import TYPE_CHECKING, Any, Dict, Iterator, List, Optional, Union
+from typing import TYPE_CHECKING, Any
 
 from hatch.config.constants import AppEnvVars
 from hatch.env.utils import add_verbosity_flag
@@ -59,15 +60,15 @@ class EnvironmentInterface(ABC):
 
     def __init__(
         self,
-        root: "Path",
+        root: Path,
         metadata: ProjectMetadata,
         name: str,
-        config: Dict[str, Any],
-        matrix_variables: Dict[str, str],
+        config: dict[str, Any],
+        matrix_variables: dict[str, str],
         data_directory: "Path",
         platform: "Platform",
         verbosity: int,
-        app: Optional["SafeApplication"] = None,
+        app: "SafeApplication" | None = None,
     ) -> None:
         self.__root = root
         self.__metadata = metadata
@@ -98,7 +99,7 @@ class EnvironmentInterface(ABC):
         self._post_install_commands = None
 
     @property
-    def matrix_variables(self) -> Dict[str, str]:
+    def matrix_variables(self) -> dict[str, str]:
         return self.__matrix_variables
 
     @property
@@ -293,7 +294,7 @@ class EnvironmentInterface(ABC):
         return self._env_exclude
 
     @property
-    def environment_dependencies_complex(self) -> List[Union["Requirement", Any]]:
+    def environment_dependencies_complex(self) -> list["Requirement" | Any]:
         if self._environment_dependencies_complex is None:
             from packaging.requirements import InvalidRequirement, Requirement
 
@@ -332,7 +333,7 @@ class EnvironmentInterface(ABC):
         return self._environment_dependencies
 
     @property
-    def dependencies_complex(self) -> List[Union["Requirement", Any]]:
+    def dependencies_complex(self) -> list["Requirement" | Any]:
         if self._dependencies_complex is None:
             all_dependencies_complex = list(self.environment_dependencies_complex)
 
@@ -456,7 +457,7 @@ class EnvironmentInterface(ABC):
         return self._dev_mode
 
     @property
-    def features(self) -> List[Union[Any, str]]:
+    def features(self) -> list[Any | str]:
         if self._features is None:
             from hatchling.metadata.utils import normalize_project_name
 
@@ -515,7 +516,7 @@ class EnvironmentInterface(ABC):
         return self._description
 
     @property
-    def scripts(self) -> Dict[str, List[str]]:
+    def scripts(self) -> dict[str, list[str]]:
         if self._scripts is None:
             script_config = self.config.get('scripts', {})
             if not isinstance(script_config, dict):
@@ -558,7 +559,7 @@ class EnvironmentInterface(ABC):
         return self._scripts
 
     @property
-    def pre_install_commands(self) -> List[Union[Any, str]]:
+    def pre_install_commands(self) -> list[Any | str]:
         if self._pre_install_commands is None:
             pre_install_commands = self.config.get('pre-install-commands', [])
             if not isinstance(pre_install_commands, list):
@@ -575,7 +576,7 @@ class EnvironmentInterface(ABC):
         return self._pre_install_commands
 
     @property
-    def post_install_commands(self) -> List[Union[Any, str]]:
+    def post_install_commands(self) -> list[Any | str]:
         if self._post_install_commands is None:
             post_install_commands = self.config.get('post-install-commands', [])
             if not isinstance(post_install_commands, list):
@@ -704,7 +705,7 @@ class EnvironmentInterface(ABC):
         with self.get_env_vars():
             yield
 
-    def get_build_process(self, build_environment: Optional["MagicMock"], **kwargs) -> Union["MagicMock", "Popen"]:
+    def get_build_process(self, build_environment: "MagicMock" | None, **kwargs) -> "MagicMock" | "Popen":
         """
         This will be called when the
         [build environment](reference.md#hatch.env.plugin.interface.EnvironmentInterface.build_environment)
@@ -799,7 +800,7 @@ class EnvironmentInterface(ABC):
         clean=False,
         clean_hooks_after=False,
         clean_only=False,
-    ) -> List[str]:
+    ) -> list[str]:
         """
         This is the canonical way [`build`](../../cli/reference.md#hatch-build) command options are translated to
         a subprocess command issued to [builders](../builder/reference.md).
@@ -830,7 +831,7 @@ class EnvironmentInterface(ABC):
 
         return command
 
-    def construct_pip_install_command(self, args: list[str]) -> List[str]:
+    def construct_pip_install_command(self, args: list[str]) -> list[str]:
         """
         A convenience method for constructing a [`pip install`](https://pip.pypa.io/en/stable/cli/pip_install/)
         command with the given verbosity. The default verbosity is set to one less than Hatch's verbosity.
@@ -919,11 +920,11 @@ class EnvironmentInterface(ABC):
 def expand_script_commands(
     env_name: str,
     script_name: str,
-    commands: List[str],
-    config: Dict[str, List[str]],
-    seen: Dict[str, List[str]],
-    active: List[Union[Any, str]],
-) -> List[str]:
+    commands: list[str],
+    config: dict[str, list[str]],
+    seen: dict[str, list[str]],
+    active: list[Any | str],
+) -> list[str]:
     if script_name in seen:
         return seen[script_name]
     elif script_name in active:

@@ -1,4 +1,4 @@
-from typing import Tuple, Union
+from __future__ import annotations
 
 import click
 
@@ -48,7 +48,7 @@ import click
 def build(
     app,
     location,
-    targets: Union[Tuple[str], Tuple[str, str]],
+    targets: tuple[str] | tuple[str, str],
     hooks_only: bool,
     no_hooks,
     ext,

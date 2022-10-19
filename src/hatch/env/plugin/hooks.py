@@ -1,4 +1,4 @@
-from typing import List, Type, Union
+from __future__ import annotations
 
 from hatch.env.system import SystemEnvironment
 from hatch.env.virtual import VirtualEnvironment
@@ -6,5 +6,5 @@ from hatchling.plugin import hookimpl
 
 
 @hookimpl
-def hatch_register_environment() -> List[Union[Type[SystemEnvironment], Type[VirtualEnvironment]]]:
+def hatch_register_environment() -> list[type[SystemEnvironment] | type[VirtualEnvironment]]:
     return [SystemEnvironment, VirtualEnvironment]

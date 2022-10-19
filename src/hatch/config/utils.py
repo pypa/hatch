@@ -1,7 +1,8 @@
-from typing import Union
+from __future__ import annotations
+
 import tomlkit
-from tomlkit.toml_document import TOMLDocument
 from tomlkit.items import InlineTable
+from tomlkit.toml_document import TOMLDocument
 
 from hatch.utils.fs import Path
 
@@ -11,5 +12,5 @@ def save_toml_document(document: TOMLDocument, path: Path) -> None:
     path.write_atomic(tomlkit.dumps(document), 'w', encoding='utf-8')
 
 
-def create_toml_document(config: dict) -> Union[TOMLDocument, InlineTable]:
+def create_toml_document(config: dict) -> TOMLDocument | InlineTable:
     return tomlkit.item(config)

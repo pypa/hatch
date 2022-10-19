@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 from base64 import urlsafe_b64encode
+from collections.abc import Iterator
 from contextlib import contextmanager
 from hashlib import sha256
 from os.path import isabs
-from typing import Iterator, List
 
 from hatch.env.plugin.interface import EnvironmentInterface
 from hatch.utils.fs import Path
@@ -117,7 +119,7 @@ class VirtualEnvironment(EnvironmentInterface):
             self.platform.check_command(self.construct_pip_install_command(self.dependencies))
 
     @contextmanager
-    def build_environment(self, dependencies: List[str]) -> Iterator[None]:
+    def build_environment(self, dependencies: list[str]) -> Iterator[None]:
         from packaging.requirements import Requirement
 
         from hatchling.dep.core import dependencies_in_sync

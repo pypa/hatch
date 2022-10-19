@@ -1,4 +1,6 @@
-from typing import Any, Dict
+from __future__ import annotations
+
+from typing import Any
 
 from hatch.index.errors import ArtifactMetadataError
 
@@ -82,7 +84,7 @@ def get_sdist_form_data(artifact):
     return data
 
 
-def parse_headers(metadata_file_contents: str) -> Dict[str, Any]:
+def parse_headers(metadata_file_contents: str) -> dict[str, Any]:
     import email
 
     message = email.message_from_string(metadata_file_contents)

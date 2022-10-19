@@ -5,7 +5,7 @@ import sys
 from functools import lru_cache
 from importlib import import_module
 from types import ModuleType
-from typing import NoReturn, Optional
+from typing import NoReturn
 
 
 @lru_cache(maxsize=None)
@@ -200,7 +200,7 @@ class Platform:
         """
         return not (self.windows or self.macos)
 
-    def exit_with_command(self, command: list[str]) -> Optional[NoReturn]:
+    def exit_with_command(self, command: list[str]) -> NoReturn | None:
         """
         Run the given command and exit with its exit code. On non-Windows systems, this uses the standard library's
         [os.execvp](https://docs.python.org/3/library/os.html#os.execvp).

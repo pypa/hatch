@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from ast import literal_eval
-from typing import TYPE_CHECKING, Dict, List, Optional, Union
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from hatch.utils.platform import Platform
@@ -10,12 +12,12 @@ class PythonInfo:
         self.platform = platform
         self.executable = executable
 
-        self.__dep_check_data: Optional[Dict] = None
-        self.__environment: Optional[Dict] = None
-        self.__sys_path: Optional[List[str]] = None
+        self.__dep_check_data: dict | None = None
+        self.__environment: dict | None = None
+        self.__sys_path: list[str] | None = None
 
     @property
-    def dep_check_data(self) -> Dict[str, Union[Dict[str, str], List[str]]]:
+    def dep_check_data(self) -> dict[str, dict[str, str] | list[str]]:
         if self.__dep_check_data is None:
             process = self.platform.check_command(
                 [self.executable, '-W', 'ignore', '-'], capture_output=True, input=DEP_CHECK_DATA_SCRIPT
@@ -26,14 +28,14 @@ class PythonInfo:
         return self.__dep_check_data
 
     @property
-    def environment(self) -> Dict[str, str]:
+    def environment(self) -> dict[str, str]:
         if self.__environment is None:
             self.__environment = self.dep_check_data['environment']
 
         return self.__environment
 
     @property
-    def sys_path(self) -> List[str]:
+    def sys_path(self) -> list[str]:
         if self.__sys_path is None:
             self.__sys_path = self.dep_check_data['sys_path']
 

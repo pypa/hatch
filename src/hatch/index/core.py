@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, Tuple, Union
+from typing import TYPE_CHECKING
 
 import httpx
 import hyperlink
@@ -35,16 +35,16 @@ class PackageIndex:
         *,
         user: str = '',
         auth: str = '',
-        ca_cert: Optional["VerifyTypes"] = None,
-        client_cert: Union[None, str, Tuple[str, Optional[str]], Tuple[str, Optional[str], Optional[str]]] = None,
-        client_key: Optional[str] = None,
+        ca_cert: "VerifyTypes" | None = None,
+        client_cert: None | str | tuple[str, str | None] | tuple[str, str | None, str | None] = None,  # TODO: simplify complex type hints
+        client_key: str | None = None,
     ) -> None:
         self.urls = IndexURLs(repo)
         self.repo = str(self.urls.repo)
         self.user = user
         self.auth = auth
 
-        cert: Union[str, Tuple[str, Optional[str]], None] = None
+        cert: str | tuple[str, str | None] | None = None
         if client_cert:
             cert = client_cert
             if client_key:

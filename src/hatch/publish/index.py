@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from typing import Generator
+from collections.abc import Generator
 
 from hatch.publish.plugin.interface import PublisherInterface
 from hatch.utils.fs import Path

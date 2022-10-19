@@ -1,14 +1,13 @@
 from __future__ import annotations
 
 import re
-from typing import Optional
 
 from hatch.config.model import RootConfig
 from hatch.utils.fs import Path
 
 
 class Project:
-    def __init__(self, path: Path, *, name: Optional[str] = None, config=None) -> None:
+    def __init__(self, path: Path, *, name: str | None = None, config=None) -> None:
         self._path = path
 
         # From app config

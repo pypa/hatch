@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import os
 from tempfile import TemporaryDirectory
-from typing import TYPE_CHECKING, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Union
 
 from hatch.env.utils import add_verbosity_flag
 from hatch.utils.env import PythonInfo
@@ -20,8 +22,8 @@ class VirtualEnv:
         self.verbosity = verbosity
         self.python_info = PythonInfo(platform)
 
-        self._env_vars_to_restore: Dict[str, Optional[str]] = {}
-        self._executables_directory: Optional[Path] = None
+        self._env_vars_to_restore: dict[str, str | None] = {}
+        self._executables_directory: Path | None = None
 
     def activate(self) -> None:
         self._env_vars_to_restore['VIRTUAL_ENV'] = os.environ.pop('VIRTUAL_ENV', None)
@@ -94,11 +96,11 @@ class VirtualEnv:
         return self._executables_directory
 
     @property
-    def environment(self) -> Dict[str, str]:
+    def environment(self) -> dict[str, str]:
         return self.python_info.environment
 
     @property
-    def sys_path(self) -> List[str]:
+    def sys_path(self) -> list[str]:
         return self.python_info.sys_path
 
     def __enter__(self) -> Union["TempVirtualEnv", "VirtualEnv"]:

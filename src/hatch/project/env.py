@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 from os import environ
-from typing import Any, Dict, List, Optional, Type, Union
+from typing import Any
 
 from hatch.utils.platform import get_platform_name
 
-RESERVED_OPTIONS: Dict[str, Type[Union[bool, dict, list, str]]] = {
+RESERVED_OPTIONS: dict[str, type[bool | dict | list | str]] = {
     'dependencies': list,
     'extra-dependencies': list,
     'dev-mode': bool,
@@ -27,9 +29,9 @@ def apply_overrides(
     source: str,
     condition: str,
     condition_value: str,
-    options: Dict[str, Any],
-    new_config: Dict[str, Union[bool, List[Dict[str, List[str]]], str, List[str], Dict[str, str]]],
-    option_types: Optional[Union[Dict[str, Union[Type[bool], Type[str], Type[dict]]], Dict[str, Type[bool]]]] = None,
+    options: dict[str, Any],
+    new_config: dict[str, bool | list[dict[str, list[str]]] | str | list[str] | dict[str, str]],
+    option_types: dict[str, type[bool] | type[str] | type[dict]] | dict[str, type[bool]] | None = None,
 ) -> None:
     if option_types is None:
         option_types = RESERVED_OPTIONS
@@ -64,7 +66,7 @@ def _apply_override_to_mapping(
     source: str,
     condition: str,
     condition_value: str,
-    new_config: Dict[str, Union[str, bool, Dict[str, str]]],
+    new_config: dict[str, str | bool | dict[str, str]],
     overwrite: bool,
 ) -> None:
     new_mapping = {}
@@ -130,7 +132,7 @@ def _apply_override_to_array(
     source: str,
     condition: str,
     condition_value: str,
-    new_config: Dict[str, Union[bool, List[str], str]],
+    new_config: dict[str, bool | list[str] | str],
     overwrite: bool,
 ) -> None:
     if not isinstance(data, list):
@@ -180,7 +182,7 @@ def _apply_override_to_string(
     source: str,
     condition: str,
     condition_value: str,
-    new_config: Dict[str, Union[bool, str]],
+    new_config: dict[str, bool | str],
     overwrite: bool,
 ) -> None:
     if isinstance(data, str):
@@ -238,7 +240,7 @@ def _apply_override_to_boolean(
     source: str,
     condition: str,
     condition_value: str,
-    new_config: Dict[str, Union[bool, List[Dict[str, List[str]]], str]],
+    new_config: dict[str, bool | list[dict[str, list[str]]] | str],
     overwrite: bool,
 ) -> None:
     if isinstance(data, bool):
@@ -295,8 +297,8 @@ def _resolve_condition(
     source: str,
     condition: str,
     condition_value: str,
-    condition_config: Dict[str, Union[str, int, bool, List[str], List[int]]],
-    condition_index: Optional[int] = None,
+    condition_config: dict[str, str | int | bool | list[str] | list[int]],
+    condition_index: int | None = None,
 ) -> bool:
     location = 'field' if condition_index is None else f'entry #{condition_index} in field'
 

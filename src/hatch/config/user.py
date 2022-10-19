@@ -1,4 +1,6 @@
-from typing import Optional, cast
+from __future__ import annotations
+
+from typing import cast
 
 from hatch.config.model import RootConfig
 from hatch.utils.fs import Path
@@ -6,8 +8,8 @@ from hatch.utils.toml import load_toml_data
 
 
 class ConfigFile:
-    def __init__(self, path: Optional[Path] = None) -> None:
-        self._path: Optional[Path] = path
+    def __init__(self, path: Path | None = None) -> None:
+        self._path: Path | None = path
         self.model = cast(RootConfig, None)
 
     @property
@@ -21,7 +23,7 @@ class ConfigFile:
     def path(self, value):
         self._path = value
 
-    def save(self, content: Optional[str] = None) -> None:
+    def save(self, content: str | None = None) -> None:
         import tomli_w
 
         if not content:

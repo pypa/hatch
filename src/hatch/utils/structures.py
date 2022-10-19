@@ -1,14 +1,16 @@
+from __future__ import annotations
+
 import os
+from collections.abc import Iterable
 from fnmatch import fnmatch
-from typing import Dict, Iterable, Optional
 
 
 class EnvVars(dict):
     def __init__(
         self,
-        env_vars: Optional[Dict[str, str]] = None,
-        include: Optional[Iterable[str]] = None,
-        exclude: Optional[Iterable[str]] = None,
+        env_vars: dict[str, str] | None = None,
+        include: Iterable[str] | None = None,
+        exclude: Iterable[str] | None = None,
     ) -> None:
         super().__init__(os.environ)
         self.old_env = dict(self)

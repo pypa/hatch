@@ -1,11 +1,13 @@
+from __future__ import annotations
+
+from collections.abc import Generator
 from contextlib import suppress
-from typing import Generator, Optional
 
 from hatch.utils.fs import Path
 
 
 class File:
-    def __init__(self, path: Optional[Path], contents: str = '') -> None:
+    def __init__(self, path: Path | None, contents: str = '') -> None:
         self.path = path
         self.contents = contents
         self.feature = None

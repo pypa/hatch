@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from os.path import expanduser, expandvars, isabs
-from typing import TYPE_CHECKING, Callable, NoReturn, Optional, Union, cast
+from typing import TYPE_CHECKING, NoReturn, cast
 
 from hatch.cli.terminal import Terminal
 from hatch.config.user import ConfigFile, RootConfig
@@ -41,7 +42,7 @@ class Application(Terminal):
     def config(self) -> RootConfig:
         return self.config_file.model
 
-    def get_environment(self, env_name: Optional[str] = None) -> Union["VirtualEnvironment", "SystemEnvironment"]:
+    def get_environment(self, env_name: str | None = None) -> "VirtualEnvironment" | "SystemEnvironment":
         if env_name is None:
             env_name = self.env
 
@@ -72,7 +73,7 @@ class Application(Terminal):
 
     # Ensure that this method is clearly written since it is
     # used for documenting the life cycle of environments.
-    def prepare_environment(self, environment: Union["VirtualEnvironment", "SystemEnvironment"]) -> None:
+    def prepare_environment(self, environment: "VirtualEnvironment" | "SystemEnvironment") -> None:
         if not environment.exists():
             with self.status_waiting(f'Creating environment: {environment.name}'):
                 environment.create()
@@ -102,7 +103,7 @@ class Application(Terminal):
 
     def run_shell_commands(
         self,
-        environment: Union["VirtualEnvironment", "SystemEnvironment"],
+        environment: "VirtualEnvironment" | "SystemEnvironment",
         commands: list[str],
         source: str = 'cmd',
         force_continue: bool = False,

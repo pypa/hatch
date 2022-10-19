@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Callable, Dict, Union
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any, Union
 
 from hatch.env.utils import get_verbosity_flag
 from hatchling.utils.context import ContextFormatter
@@ -20,7 +23,7 @@ class EnvironmentContextFormatter(EnvironmentContextFormatterBase):
         self.environment = environment
         self.CONTEXT_NAME = f'environment_{environment.PLUGIN_NAME}'
 
-    def formatters(self) -> Dict[Any, Any]:
+    def formatters(self) -> dict[Any, Any]:
         """
         This returns a mapping of supported field names to their respective formatting functions. Each function
         accepts 2 arguments:
@@ -30,7 +33,7 @@ class EnvironmentContextFormatter(EnvironmentContextFormatterBase):
         """
         return {}
 
-    def get_formatters(self) -> Dict[str, Callable]:
+    def get_formatters(self) -> dict[str, Callable]:
         formatters = {
             'args': self.__format_args,
             'env_name': self.__format_env_name,

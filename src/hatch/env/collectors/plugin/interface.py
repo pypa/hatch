@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from hatch.utils.fs import Path
@@ -38,7 +38,7 @@ class EnvironmentCollectorInterface:
     PLUGIN_NAME = ''
     """The name used for selection."""
 
-    def __init__(self, root: "Path", config: Dict[Any, Any]) -> None:
+    def __init__(self, root: "Path", config: dict[Any, Any]) -> None:
         self.__root = root
         self.__config = config
 

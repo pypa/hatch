@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Dict, Optional, Union
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from hatch.utils.fs import Path
@@ -44,8 +44,8 @@ class PublisherInterface(ABC):
         app: None,
         root: "Path",
         cache_dir: None,
-        project_config: Dict[str, Union[int, bool]],
-        plugin_config: Dict[str, Union[int, bool]],
+        project_config: dict[str, int | bool],
+        plugin_config: dict[str, int | bool],
     ) -> None:
         self.__app = app
         self.__root = root
@@ -53,7 +53,7 @@ class PublisherInterface(ABC):
         self.__project_config = project_config
         self.__plugin_config = plugin_config
 
-        self.__disable: Optional[bool] = None
+        self.__disable: bool | None = None
 
     @property
     def app(self) -> None:

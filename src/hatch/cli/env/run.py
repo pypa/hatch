@@ -1,9 +1,11 @@
-from typing import Any, Dict, List, Set, Tuple, Union
+from __future__ import annotations
+
+from typing import Any
 
 import click
 
 
-def parse_variable_spec(spec: str) -> Union[Tuple[str, Set[Any]], Tuple[str, Set[str]]]:
+def parse_variable_spec(spec: str) -> tuple[str, set[Any]] | tuple[str, set[str]]:
     variable, _, values = spec.partition('=')
     if variable == 'py':
         variable = 'python'
@@ -13,10 +15,10 @@ def parse_variable_spec(spec: str) -> Union[Tuple[str, Set[Any]], Tuple[str, Set
 
 
 def select_matrix_environments(
-    environments: Dict[str, Dict[str, str]],
-    included_variables: Dict[str, Set[str]],
-    excluded_variables: Dict[str, Union[Set[str], Set[Any]]],
-) -> List[Union[Any, str]]:
+    environments: dict[str, dict[str, str]],
+    included_variables: dict[str, set[str]],
+    excluded_variables: dict[str, set[str] | set[Any]],
+) -> list[Any | str]:
     selected_environments = []
     for env_name, variables in environments.items():
         included = set(variables)
@@ -44,8 +46,8 @@ def select_matrix_environments(
 
 
 def filter_environments(
-    environments: Dict[str, Dict[str, Union[bool, str]]], filter_data: Dict[str, bool]
-) -> List[str]:
+    environments: dict[str, dict[str, bool | str]], filter_data: dict[str, bool]
+) -> list[str]:
     selected_environments = []
     for env_name, env_data in environments.items():
         for key, value in filter_data.items():
@@ -74,7 +76,7 @@ def run(
     env_names,
     included_variable_specs,
     excluded_variable_specs,
-    filter_json: Union[bytes, str],
+    filter_json: bytes | str,
     force_continue,
     ignore_compat,
 ) -> None:

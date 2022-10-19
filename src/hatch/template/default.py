@@ -1,4 +1,7 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Set, Union
+# TODO: simplify complex type hints
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from hatch.template import File, files_default, find_template_files
 from hatch.template.plugin.interface import TemplateInterface
@@ -20,7 +23,7 @@ class DefaultTemplate(TemplateInterface):
         self.plugin_config.setdefault('tests', True)
 
     def initialize_config(
-        self, config: Dict[str, Union[str, Dict[str, Union[bool, List[str]]], Dict[str, bool]]]
+        self, config: dict[str, str | dict[str, bool | list[str]] | dict[str, bool]]
     ) -> None:
         # Default values
         config['readme_file_path'] = 'README.md'
@@ -82,8 +85,8 @@ class DefaultTemplate(TemplateInterface):
 
     def get_files(
         self,
-        config: Dict[str, Union[str, Dict[str, Union[bool, List[str]]], Set[str], Dict[str, bool], Dict[str, str]]],
-    ) -> List[Any]:
+        config: dict[str, str | dict[str, bool | list[str]] | set[str] | dict[str, bool] | dict[str, str]],
+    ) -> list[Any]:
         files = list(find_template_files(files_default))
 
         # Add any licenses
@@ -118,8 +121,8 @@ class DefaultTemplate(TemplateInterface):
 
     def finalize_files(
         self,
-        config: Dict[str, Union[str, Dict[str, Union[bool, List[str]]], Set[str], Dict[str, bool], Dict[str, str]]],
-        files: List[File],
+        config: dict[str, str | dict[str, bool | list[str]] | set[str] | dict[str, bool] | dict[str, str]],
+        files: list[File],
     ) -> None:
         if config['licenses']['headers'] and config['license_data']:
             for template_file in files:
@@ -133,7 +136,7 @@ class DefaultTemplate(TemplateInterface):
 
 
 def get_license_text(
-    config: Dict[str, Union[str, Dict[str, Union[bool, List[str]]], Set[str], Dict[str, bool], Dict[str, str]]],
+    config: dict[str, str | dict[str, bool | list[str]] | set[str] | dict[str, bool] | dict[str, str]],
     license_id: str,
     license_text: str,
     creation_time: "datetime",

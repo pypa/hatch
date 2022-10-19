@@ -1,4 +1,6 @@
-from typing import TYPE_CHECKING, Dict
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from datetime import datetime
@@ -10,7 +12,7 @@ class TemplateInterface:
     PLUGIN_NAME = ''
     PRIORITY = 100
 
-    def __init__(self, plugin_config: Dict, cache_dir: "Path", creation_time: "datetime") -> None:
+    def __init__(self, plugin_config: dict, cache_dir: "Path", creation_time: "datetime") -> None:
         self.plugin_config = plugin_config
         self.cache_dir = cache_dir
         self.creation_time = creation_time
