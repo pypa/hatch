@@ -74,7 +74,7 @@ class BuilderInterface(ABC):
         hooks_only=None,
         clean=None,
         clean_hooks_after=None,
-        clean_only: bool=False,
+        clean_only: bool = False,
     ) -> Generator[str, None, None]:
         # Fail early for invalid project metadata
         self.metadata.validate_fields()

@@ -84,14 +84,18 @@ def build_editable(wheel_directory, config_settings=None, metadata_directory=Non
     return os.path.basename(next(builder.build(wheel_directory, ['editable'])))
 
 
-def get_requires_for_build_sdist(config_settings=None) -> dict[str, dict[str, str]] | dict[str, str] | list[dict[str, str]] | list[str] | str:
+def get_requires_for_build_sdist(
+    config_settings=None,
+) -> dict[str, dict[str, str]] | dict[str, str] | list[dict[str, str]] | list[str] | str:
     """
     https://peps.python.org/pep-0517/#get-requires-for-build-sdist
     """
     return CONFIG['project']['dependencies']
 
 
-def get_requires_for_build_wheel(config_settings=None) -> dict[str, dict[str, str]] | dict[str, str] | list[dict[str, str]] | list[str] | str:
+def get_requires_for_build_wheel(
+    config_settings=None,
+) -> dict[str, dict[str, str]] | dict[str, str] | list[dict[str, str]] | list[str] | str:
     """
     https://peps.python.org/pep-0517/#get-requires-for-build-wheel
     """
@@ -116,7 +120,9 @@ def prepare_metadata_for_build_wheel(metadata_directory, config_settings=None):
     return os.path.basename(directory)
 
 
-def get_requires_for_build_editable(config_settings=None) -> dict[str, dict[str, str]] | dict[str, str] | list[dict[str, str]] | list[str] | str:
+def get_requires_for_build_editable(
+    config_settings=None,
+) -> dict[str, dict[str, str]] | dict[str, str] | list[dict[str, str]] | list[str] | str:
     """
     https://peps.python.org/pep-0660/#get-requires-for-build-editable
     """

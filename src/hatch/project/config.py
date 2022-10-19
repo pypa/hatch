@@ -439,7 +439,11 @@ def expand_script_commands(
 
 
 def _populate_default_env_values(
-    env_name: str, data: dict[str, Any], config: dict[str, Any], seen: set[str], active: list[Any | str],
+    env_name: str,
+    data: dict[str, Any],
+    config: dict[str, Any],
+    seen: set[str],
+    active: list[Any | str],
 ) -> None:
     if env_name in seen:
         return

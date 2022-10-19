@@ -25,11 +25,11 @@ def get_normalized_dependencies(requirements: list["Requirement"]) -> list[str]:
 def get_project_dependencies_complex(
     environment: Union["VirtualEnvironment", "MockEnvironment"]
 ) -> (
-    tuple[dict[str, "Requirement"], dict[str, dict[str, "Requirement"]]] |
-    tuple[dict[str, "Requirement"], dict[Any, Any]] |
-    tuple[dict[Any, Any], dict[str, dict[str, "Requirement"]]] |
-    tuple[dict[Any, Any], dict[str, dict[Any, Any]]] |
-    tuple[dict[Any, Any], dict[Any, Any]]
+    tuple[dict[str, "Requirement"], dict[str, dict[str, "Requirement"]]]
+    | tuple[dict[str, "Requirement"], dict[Any, Any]]
+    | tuple[dict[Any, Any], dict[str, dict[str, "Requirement"]]]
+    | tuple[dict[Any, Any], dict[str, dict[Any, Any]]]
+    | tuple[dict[Any, Any], dict[Any, Any]]
 ):
     from hatchling.dep.core import dependencies_in_sync
 

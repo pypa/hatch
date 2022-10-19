@@ -56,7 +56,7 @@ class ClassRegister:
         self.identifier = identifier
         self.third_party_plugins = third_party_plugins
 
-    def collect(self, include_third_party: bool=True):
+    def collect(self, include_third_party: bool = True):
         if include_third_party and not self.third_party_plugins.loaded:
             self.third_party_plugins.load()
 

@@ -35,7 +35,7 @@ class LazilyParsedConfig:
             if prefix:
                 parse_config(getattr(self, name))
 
-    def raise_error(self, message: str, *, extra_steps:tuple =()):
+    def raise_error(self, message: str, *, extra_steps: tuple = ()):
         import inspect
 
         field = inspect.currentframe().f_back.f_code.co_name

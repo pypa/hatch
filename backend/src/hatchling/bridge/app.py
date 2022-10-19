@@ -3,7 +3,6 @@ from __future__ import annotations
 import os
 import pickle
 import sys
-from typing import Union
 
 
 class InvokedApplication:
@@ -51,39 +50,39 @@ class Application:
     def __init__(self) -> None:
         self.__verbosity = int(os.environ.get('HATCH_VERBOSE', '0')) - int(os.environ.get('HATCH_QUIET', '0'))
 
-    def display_always(self, message: str='', **kwargs) -> None:
+    def display_always(self, message: str = '', **kwargs) -> None:
         # Do not document
         print(message)
 
-    def display_info(self, message: str='', **kwargs) -> None:
+    def display_info(self, message: str = '', **kwargs) -> None:
         """
         Meant to be used for messages conveying basic information.
         """
         if self.__verbosity >= 0:
             print(message)
 
-    def display_waiting(self, message: str='', **kwargs) -> None:
+    def display_waiting(self, message: str = '', **kwargs) -> None:
         """
         Meant to be used for messages shown before potentially time consuming operations.
         """
         if self.__verbosity >= 0:
             print(message)
 
-    def display_success(self, message: str='', **kwargs) -> None:
+    def display_success(self, message: str = '', **kwargs) -> None:
         """
         Meant to be used for messages indicating some positive outcome.
         """
         if self.__verbosity >= 0:
             print(message)
 
-    def display_warning(self, message: str='', **kwargs) -> None:
+    def display_warning(self, message: str = '', **kwargs) -> None:
         """
         Meant to be used for messages conveying important information.
         """
         if self.__verbosity >= -1:
             print(message)
 
-    def display_error(self, message: str='', **kwargs) -> None:
+    def display_error(self, message: str = '', **kwargs) -> None:
         """
         Meant to be used for messages indicating some unrecoverable error.
         """
@@ -100,11 +99,11 @@ class Application:
         elif self.__verbosity >= level:
             print(message)
 
-    def display_mini_header(self, message: str='', **kwargs) -> None:
+    def display_mini_header(self, message: str = '', **kwargs) -> None:
         if self.__verbosity >= 0:
             print(f'[{message}]')
 
-    def abort(self, message: str='', code: int=1, **kwargs) -> None:
+    def abort(self, message: str = '', code: int = 1, **kwargs) -> None:
         """
         Terminate the program with the given return code.
         """

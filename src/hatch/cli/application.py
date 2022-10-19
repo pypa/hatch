@@ -17,6 +17,7 @@ if TYPE_CHECKING:
     from hatch.env.virtual import VirtualEnvironment
     from hatch.plugin.manager import PluginManager
 
+
 class Application(Terminal):
     def __init__(self, exit_func: Callable, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)

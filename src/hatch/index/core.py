@@ -36,7 +36,10 @@ class PackageIndex:
         user: str = '',
         auth: str = '',
         ca_cert: "VerifyTypes" | None = None,
-        client_cert: None | str | tuple[str, str | None] | tuple[str, str | None, str | None] = None,  # TODO: simplify complex type hints
+        client_cert: None
+        | str
+        | tuple[str, str | None]
+        | tuple[str, str | None, str | None] = None,  # TODO: simplify complex type hints
         client_key: str | None = None,
     ) -> None:
         self.urls = IndexURLs(repo)

@@ -74,7 +74,7 @@ class BuilderConfig:
     def target_config(self):
         return self.__target_config
 
-    def include_path(self, relative_path, *, explicit: bool=False, is_package: bool=True):
+    def include_path(self, relative_path, *, explicit: bool = False, is_package: bool = True):
         return (
             self.path_is_build_artifact(relative_path)
             or self.path_is_artifact(relative_path)
@@ -831,7 +831,7 @@ class BuilderConfig:
             self.build_reserved_paths.clear()
 
 
-def env_var_enabled(env_var: str, default: bool=False):
+def env_var_enabled(env_var: str, default: bool = False):
     if env_var in os.environ:
         return os.environ[env_var] in ('1', 'true')
     else:

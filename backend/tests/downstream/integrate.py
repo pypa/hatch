@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import errno
 import json
 import os
@@ -15,13 +17,14 @@ import tomli
 from packaging.requirements import Requirement
 from packaging.specifiers import SpecifierSet
 from virtualenv import cli_run
-from typing import Union
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ON_WINDOWS: bool = platform.system() == 'Windows'
 
 
-def handle_remove_readonly(func, path: Union[os.PathLike[bytes], os.PathLike[str], bytes, int, str], exc) -> None:  # no cov
+def handle_remove_readonly(
+    func, path: os.PathLike[bytes] | os.PathLike[str] |bytes | int | str, exc
+) -> None:  # no cov
     # PermissionError: [WinError 5] Access is denied: '...\\.git\\...'
     if func in (os.rmdir, os.remove, os.unlink) and exc[1].errno == errno.EACCES:
         os.chmod(path, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
