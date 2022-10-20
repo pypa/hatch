@@ -440,7 +440,6 @@ class EnvironmentInterface(ABC):
             if not isinstance(features, list):
                 raise TypeError(f'Field `tool.hatch.envs.{self.name}.features` must be an array of strings')
 
-            dynamic_features = 'optional-dependencies' in self.metadata.dynamic
             all_features = set()
             for i, feature in enumerate(features, 1):
                 if not isinstance(feature, str):
@@ -452,7 +451,10 @@ class EnvironmentInterface(ABC):
 
                 if not self.metadata.hatch.metadata.allow_ambiguous_features:
                     feature = normalize_project_name(feature)
-                if not dynamic_features and feature not in self.metadata.core.optional_dependencies:
+                if (
+                    not self.metadata.hatch.metadata.hook_config
+                    and feature not in self.metadata.core.optional_dependencies
+                ):
                     raise ValueError(
                         f'Feature `{feature}` of field `tool.hatch.envs.{self.name}.features` is not '
                         f'defined in field `project.optional-dependencies`'

@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Unreleased
 
+***Fixed:***
+
+- Fix getting dynamic metadata from hooks for environments when dependencies are not dynamic
+
 ### [1.6.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.6.1) - 2022-10-16 ### {: #hatch-v1.6.1 }
 
 ***Fixed:***
