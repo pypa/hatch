@@ -14,6 +14,7 @@ def test_incompatible_environment(hatch, temp_dir, helpers):
     project = Project(path)
     config = dict(project.raw_config)
     config['build-system']['requires'].append('foo')
+    config['tool']['hatch']['metadata'] = {'hooks': {'custom': {}}}
     project.save_config(config)
     helpers.update_project_environment(
         project, 'default', {'skip-install': True, 'python': '9000', **project.config.envs['default']}

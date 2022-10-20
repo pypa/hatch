@@ -16,8 +16,9 @@ def version(app, desired_version):
     from hatchling.dep.core import dependencies_in_sync
 
     with app.project.location.as_cwd():
-        dynamic_version = 'version' in app.project.metadata.dynamic
-        if not dynamic_version or dependencies_in_sync(app.project.metadata.build.requires_complex):
+        if not app.project.metadata.hatch.metadata.hook_config or dependencies_in_sync(
+            app.project.metadata.build.requires_complex
+        ):
             source = app.project.metadata.hatch.version.source
 
             version_data = source.get_version_data()

@@ -4,6 +4,7 @@ from hatch.config.constants import AppEnvVars
 from hatch.env.plugin.interface import EnvironmentInterface
 from hatch.project.core import Project
 from hatch.utils.structures import EnvVars
+from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT
 
 
 class MockEnvironment(EnvironmentInterface):  # no cov
@@ -636,14 +637,31 @@ class TestDependencies:
 
         assert environment.dependencies == ['dep2', 'dep3']
 
-    def test_unknown_dynamic_feature(self, isolation, isolated_data_dir, platform):
+    def test_unknown_dynamic_feature(self, helpers, temp_dir, isolated_data_dir, platform):
         config = {
             'project': {'name': 'my_app', 'version': '0.0.1', 'dynamic': ['optional-dependencies']},
-            'tool': {'hatch': {'envs': {'default': {'skip-install': False, 'features': ['foo']}}}},
+            'tool': {
+                'hatch': {
+                    'metadata': {'hooks': {'custom': {}}},
+                    'envs': {'default': {'skip-install': False, 'features': ['foo']}},
+                },
+            },
         }
-        project = Project(isolation, config=config)
+        project = Project(temp_dir, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            temp_dir, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+        )
+
+        build_script = temp_dir / DEFAULT_BUILD_SCRIPT
+        build_script.write_text(
+            helpers.dedent(
+                """
+                from hatchling.metadata.plugin.interface import MetadataHookInterface
+                class CustomHook(MetadataHookInterface):
+                    def update(self, metadata):
+                        metadata['optional-dependencies'] = {'bar': ['binary']}
+                """
+            )
         )
 
         with pytest.raises(
