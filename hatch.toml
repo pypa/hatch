@@ -100,7 +100,10 @@ pre-install-commands = [
   "python scripts/install_mkdocs_material_insiders.py",
 ]
 [envs.docs.overrides]
-env.GH_TOKEN_MKDOCS_MATERIAL_INSIDERS.env-vars = "MKDOCS_CONFIG=mkdocs.insiders.yml"
+env.GH_TOKEN_MKDOCS_MATERIAL_INSIDERS.env-vars = [
+  { key = "MKDOCS_CONFIG", value = "mkdocs.insiders.yml" },
+  { key = "MKDOCS_CONFIG", value = "mkdocs.yml", if = [""] },
+]
 [envs.docs.env-vars]
 SOURCE_DATE_EPOCH = "1580601600"
 PYTHONUNBUFFERED = "1"
