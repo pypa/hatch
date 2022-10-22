@@ -27,11 +27,11 @@ Environments can define a series of matrices with the `matrix` option:
     ]
 
     [[tool.hatch.envs.test.matrix]]
-    python = ["27", "38"]
+    python = ["2.7", "3.8"]
     version = ["42", "3.14"]
 
     [[tool.hatch.envs.test.matrix]]
-    python = ["38", "39"]
+    python = ["3.8", "3.9"]
     version = ["9000"]
     feature = ["foo", "bar"]
     ```
@@ -45,11 +45,11 @@ Environments can define a series of matrices with the `matrix` option:
     ]
 
     [[envs.test.matrix]]
-    python = ["27", "38"]
+    python = ["2.7", "3.8"]
     version = ["42", "3.14"]
 
     [[envs.test.matrix]]
-    python = ["38", "39"]
+    python = ["3.8", "3.9"]
     version = ["9000"]
     feature = ["foo", "bar"]
     ```
@@ -94,7 +94,7 @@ If the variables `py` or `python` are specified, then they will rank first in th
     ```toml
     [[tool.hatch.envs.test.matrix]]
     version = ["42"]
-    python = ["39", "pypy3"]
+    python = ["3.9", "pypy3"]
     ```
 
 === ":octicons-file-code-16: hatch.toml"
@@ -102,13 +102,13 @@ If the variables `py` or `python` are specified, then they will rank first in th
     ```toml
     [[envs.test.matrix]]
     version = ["42"]
-    python = ["39", "pypy3"]
+    python = ["3.9", "pypy3"]
     ```
 
 would generate the following environments:
 
 ```
-test.py39-42
+test.py3.9-42
 test.pypy3-42
 ```
 
@@ -172,7 +172,7 @@ Rather than [selecting](../../environment.md#selection) a single generated envir
     cov = 'pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=pkg --cov=tests'
 
     [[tool.hatch.envs.test.matrix]]
-    python = ["27", "38"]
+    python = ["2.7", "3.8"]
     version = ["42", "3.14"]
     ```
 
@@ -190,7 +190,7 @@ Rather than [selecting](../../environment.md#selection) a single generated envir
     cov = 'pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=pkg --cov=tests'
 
     [[envs.test.matrix]]
-    python = ["27", "38"]
+    python = ["2.7", "3.8"]
     version = ["42", "3.14"]
     ```
 
@@ -281,7 +281,7 @@ The [matrix](#matrix) variables used to generate each environment can be used to
     ]
 
     [[tool.hatch.envs.test.matrix]]
-    python = ["27", "38"]
+    python = ["2.7", "3.8"]
     version = ["legacy", "latest"]
     auth = ["oauth2", "krb5", "noauth"]
     ```
@@ -297,7 +297,7 @@ The [matrix](#matrix) variables used to generate each environment can be used to
     ]
 
     [[envs.test.matrix]]
-    python = ["27", "38"]
+    python = ["2.7", "3.8"]
     version = ["legacy", "latest"]
     auth = ["oauth2", "kerberos", "noauth"]
     ```
@@ -334,7 +334,7 @@ When a [matrix](#matrix) is defined, the `name` source can be used for regular e
 
         ```toml
         [tool.hatch.envs.test.overrides]
-        matrix.foo.python = "310"
+        matrix.foo.python = "3.10"
         matrix.bar.skip-install = { value = true, if = ["..."] }
         env.CI.dev-mode = [
           { value = false, if = ["..."] },
@@ -346,7 +346,7 @@ When a [matrix](#matrix) is defined, the `name` source can be used for regular e
 
         ```toml
         [envs.test.overrides]
-        matrix.foo.python = "310"
+        matrix.foo.python = "3.10"
         matrix.bar.skip-install = { value = true, if = ["..."] }
         env.CI.dev-mode = [
           { value = false, if = ["..."] },

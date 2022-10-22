@@ -144,11 +144,11 @@ Every environment can define its own set of [matrices](config/environment/advanc
     ]
 
     [[tool.hatch.envs.test.matrix]]
-    python = ["27", "38"]
+    python = ["2.7", "3.8"]
     version = ["42", "3.14"]
 
     [[tool.hatch.envs.test.matrix]]
-    python = ["38", "39"]
+    python = ["3.8", "3.9"]
     version = ["9000"]
     features = ["foo", "bar"]
     ```
@@ -162,11 +162,11 @@ Every environment can define its own set of [matrices](config/environment/advanc
     ]
 
     [[envs.test.matrix]]
-    python = ["27", "38"]
+    python = ["2.7", "3.8"]
     version = ["42", "3.14"]
 
     [[envs.test.matrix]]
-    python = ["38", "39"]
+    python = ["3.8", "3.9"]
     version = ["9000"]
     features = ["foo", "bar"]
     ```
@@ -182,18 +182,18 @@ $ hatch env show --ascii
 | default | virtual |
 +---------+---------+
                        Matrices
-+------+---------+--------------------+--------------+
-| Name | Type    | Envs               | Dependencies |
-+======+=========+====================+==============+
-| test | virtual | test.py27-42       | pytest       |
-|      |         | test.py27-3.14     |              |
-|      |         | test.py38-42       |              |
-|      |         | test.py38-3.14     |              |
-|      |         | test.py38-9000-foo |              |
-|      |         | test.py38-9000-bar |              |
-|      |         | test.py39-9000-foo |              |
-|      |         | test.py39-9000-bar |              |
-+------+---------+--------------------+--------------+
++------+---------+---------------------+--------------+
+| Name | Type    | Envs                | Dependencies |
++======+=========+=====================+==============+
+| test | virtual | test.py2.7-42       | pytest       |
+|      |         | test.py2.7-3.14     |              |
+|      |         | test.py3.8-42       |              |
+|      |         | test.py3.8-3.14     |              |
+|      |         | test.py3.8-9000-foo |              |
+|      |         | test.py3.8-9000-bar |              |
+|      |         | test.py3.9-9000-foo |              |
+|      |         | test.py3.9-9000-bar |              |
++------+---------+---------------------+--------------+
 ```
 
 ## Removal

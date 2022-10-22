@@ -62,14 +62,14 @@ and the following [matrix](../../config/environment/advanced.md#matrix):
 
     ```toml
     [[tool.hatch.envs.test.matrix]]
-    python = ["37", "38", "39", "310", "311"]
+    python = ["3.7", "3.8", "3.9", "3.10", "3.11"]
     ```
 
 === ":octicons-file-code-16: hatch.toml"
 
     ```toml
     [[envs.test.matrix]]
-    python = ["37", "38", "39", "310", "311"]
+    python = ["3.7", "3.8", "3.9", "3.10", "3.11"]
     ```
 
 then [locating](../../cli/reference.md#hatch-env-find) environments with the following command:
@@ -82,11 +82,11 @@ will show that the general directory structure is:
 
 ```
 .hatch
-├── test.py37
-├── test.py38
-├── test.py39
-├── test.py310
-└── test.py311
+├── test.py3.7
+├── test.py3.8
+├── test.py3.9
+├── test.py3.10
+└── test.py3.11
 ```
 
 This flat structure is required for detection of virtual environments by tools like Visual Studio Code and PyCharm.
