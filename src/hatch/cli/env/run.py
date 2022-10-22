@@ -84,7 +84,7 @@ def run(
         \b
         ```toml
         [[tool.hatch.envs.test.matrix]]
-        python = ["39", "310"]
+        python = ["3.9", "3.10"]
         version = ["42", "3.14", "9000"]
         ```
 
@@ -93,7 +93,7 @@ def run(
         \b
         ```toml
         [[envs.test.matrix]]
-        python = ["39", "310"]
+        python = ["3.9", "3.10"]
         version = ["42", "3.14", "9000"]
         ```
 
@@ -101,10 +101,10 @@ def run(
 
     \b
     ```
-    hatch env run -i py=310 -x version=9000 test:pytest
+    hatch env run -i py=3.10 -x version=9000 test:pytest
     ```
 
-    would execute `pytest` in the environments `test.py310-42` and `test.py310-3.14`.
+    would execute `pytest` in the environments `test.py3.10-42` and `test.py3.10-3.14`.
     Note that `py` may be used as an alias for `python`.
     """
     project = app.project

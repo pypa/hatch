@@ -204,11 +204,11 @@ The only caveat is that currently there is no support for re-creating an environ
         ]
 
         [[envs.default.matrix]]
-        python = ["27", "38"]
+        python = ["2.7", "3.8"]
         version = ["42", "3.14"]
 
         [[envs.default.matrix]]
-        python = ["38", "39"]
+        python = ["3.8", "3.9"]
         version = ["9000"]
         features = ["foo", "bar"]
         ```
@@ -234,11 +234,11 @@ The only caveat is that currently there is no support for re-creating an environ
         ]
 
         [[tool.hatch.envs.default.matrix]]
-        python = ["27", "38"]
+        python = ["2.7", "3.8"]
         version = ["42", "3.14"]
 
         [[tool.hatch.envs.default.matrix]]
-        python = ["38", "39"]
+        python = ["3.8", "3.9"]
         version = ["9000"]
         features = ["foo", "bar"]
         ```
