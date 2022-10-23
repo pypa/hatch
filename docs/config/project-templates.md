@@ -60,7 +60,7 @@ See [this blog post](https://blog.ionelmc.ro/2014/05/25/python-packaging/).
 
     ```toml
     [template.plugins.default]
-    src-layout = false
+    src-layout = true
     ```
 
 ## Feature flags

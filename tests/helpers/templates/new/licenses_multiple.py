@@ -14,7 +14,7 @@ def get_files(**kwargs):
             ),
         ),
         File(
-            Path(kwargs['package_name'], '__init__.py'),
+            Path('src', kwargs['package_name'], '__init__.py'),
             f"""\
 # SPDX-FileCopyrightText: {kwargs['year']}-present {kwargs['author']} <{kwargs['email']}>
 #
@@ -22,7 +22,7 @@ def get_files(**kwargs):
 """,
         ),
         File(
-            Path(kwargs['package_name'], '__about__.py'),
+            Path('src', kwargs['package_name'], '__about__.py'),
             f"""\
 # SPDX-FileCopyrightText: {kwargs['year']}-present {kwargs['author']} <{kwargs['email']}>
 #
@@ -105,7 +105,7 @@ Issues = "https://github.com/unknown/{kwargs['project_name_normalized']}/issues"
 Source = "https://github.com/unknown/{kwargs['project_name_normalized']}"
 
 [tool.hatch.version]
-path = "{kwargs['package_name']}/__about__.py"
+path = "src/{kwargs['package_name']}/__about__.py"
 
 [tool.hatch.envs.default]
 dependencies = [
@@ -113,7 +113,7 @@ dependencies = [
   "pytest-cov",
 ]
 [tool.hatch.envs.default.scripts]
-cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov={kwargs['package_name']} --cov=tests {{args}}"
+cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=src/{kwargs['package_name']} --cov=tests {{args}}"
 no-cov = "cov --no-cov {{args}}"
 
 [[tool.hatch.envs.test.matrix]]
@@ -123,7 +123,7 @@ python = ["3.7", "3.8", "3.9", "3.10", "3.11"]
 branch = true
 parallel = true
 omit = [
-  "{kwargs['package_name']}/__about__.py",
+  "src/{kwargs['package_name']}/__about__.py",
 ]
 
 [tool.coverage.report]
@@ -132,6 +132,6 @@ exclude_lines = [
   "if __name__ == .__main__.:",
   "if TYPE_CHECKING:",
 ]
-""",
+""",  # noqa: E501
         ),
-    ]  # noqa: E501
+    ]

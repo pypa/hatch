@@ -269,7 +269,10 @@ def test_explicit_directory_env_var(hatch, temp_dir, helpers):
     )
 
 
-def test_clean(hatch, temp_dir, helpers):
+def test_clean(hatch, temp_dir, helpers, config_file):
+    config_file.model.template.plugins['default']['src-layout'] = False
+    config_file.save()
+
     project_name = 'My.App'
 
     with temp_dir.as_cwd():
@@ -410,7 +413,10 @@ def test_clean_env_var(hatch, temp_dir, helpers):
     )
 
 
-def test_clean_only(hatch, temp_dir, helpers):
+def test_clean_only(hatch, temp_dir, helpers, config_file):
+    config_file.model.template.plugins['default']['src-layout'] = False
+    config_file.save()
+
     project_name = 'My.App'
 
     with temp_dir.as_cwd():
@@ -474,7 +480,10 @@ def test_clean_only(hatch, temp_dir, helpers):
     )
 
 
-def test_clean_only_hooks_only(hatch, temp_dir, helpers):
+def test_clean_only_hooks_only(hatch, temp_dir, helpers, config_file):
+    config_file.model.template.plugins['default']['src-layout'] = False
+    config_file.save()
+
     project_name = 'My.App'
 
     with temp_dir.as_cwd():
@@ -538,7 +547,10 @@ def test_clean_only_hooks_only(hatch, temp_dir, helpers):
     )
 
 
-def test_clean_hooks_after(hatch, temp_dir, helpers):
+def test_clean_hooks_after(hatch, temp_dir, helpers, config_file):
+    config_file.model.template.plugins['default']['src-layout'] = False
+    config_file.save()
+
     project_name = 'My.App'
 
     with temp_dir.as_cwd():
@@ -599,7 +611,10 @@ def test_clean_hooks_after(hatch, temp_dir, helpers):
     )
 
 
-def test_clean_hooks_after_env_var(hatch, temp_dir, helpers):
+def test_clean_hooks_after_env_var(hatch, temp_dir, helpers, config_file):
+    config_file.model.template.plugins['default']['src-layout'] = False
+    config_file.save()
+
     project_name = 'My.App'
 
     with temp_dir.as_cwd():
@@ -660,7 +675,10 @@ def test_clean_hooks_after_env_var(hatch, temp_dir, helpers):
     )
 
 
-def test_clean_only_no_hooks(hatch, temp_dir, helpers):
+def test_clean_only_no_hooks(hatch, temp_dir, helpers, config_file):
+    config_file.model.template.plugins['default']['src-layout'] = False
+    config_file.save()
+
     project_name = 'My.App'
 
     with temp_dir.as_cwd():
@@ -724,7 +742,10 @@ def test_clean_only_no_hooks(hatch, temp_dir, helpers):
     )
 
 
-def test_hooks_only(hatch, temp_dir, helpers):
+def test_hooks_only(hatch, temp_dir, helpers, config_file):
+    config_file.model.template.plugins['default']['src-layout'] = False
+    config_file.save()
+
     project_name = 'My.App'
 
     with temp_dir.as_cwd():
@@ -776,7 +797,10 @@ def test_hooks_only(hatch, temp_dir, helpers):
     )
 
 
-def test_hooks_only_env_var(hatch, temp_dir, helpers):
+def test_hooks_only_env_var(hatch, temp_dir, helpers, config_file):
+    config_file.model.template.plugins['default']['src-layout'] = False
+    config_file.save()
+
     project_name = 'My.App'
 
     with temp_dir.as_cwd():
@@ -828,7 +852,10 @@ def test_hooks_only_env_var(hatch, temp_dir, helpers):
     )
 
 
-def test_extensions_only(hatch, temp_dir, helpers):
+def test_extensions_only(hatch, temp_dir, helpers, config_file):
+    config_file.model.template.plugins['default']['src-layout'] = False
+    config_file.save()
+
     project_name = 'My.App'
 
     with temp_dir.as_cwd():

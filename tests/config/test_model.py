@@ -26,7 +26,7 @@ def test_default(default_cache_dir, default_data_dir):
             'name': 'Foo Bar',
             'email': 'foo@bar.baz',
             'licenses': {'default': ['MIT'], 'headers': True},
-            'plugins': {'default': {'ci': False, 'src-layout': False, 'tests': True}},
+            'plugins': {'default': {'ci': False, 'src-layout': True, 'tests': True}},
         },
         'terminal': {
             'styles': {
@@ -1069,9 +1069,9 @@ class TestTemplate:
     def test_plugins_default(self):
         config = RootConfig({})
 
-        assert config.template.plugins == {'default': {'ci': False, 'src-layout': False, 'tests': True}}
+        assert config.template.plugins == {'default': {'ci': False, 'src-layout': True, 'tests': True}}
         assert config.raw_data == {
-            'template': {'plugins': {'default': {'ci': False, 'src-layout': False, 'tests': True}}}
+            'template': {'plugins': {'default': {'ci': False, 'src-layout': True, 'tests': True}}}
         }
 
     def test_plugins_not_table(self, helpers):

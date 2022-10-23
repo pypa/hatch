@@ -11,13 +11,13 @@ class DefaultTemplate(TemplateInterface):
         super().__init__(*args, **kwargs)
 
         self.plugin_config.setdefault('ci', False)
-        self.plugin_config.setdefault('src-layout', False)
+        self.plugin_config.setdefault('src-layout', True)
         self.plugin_config.setdefault('tests', True)
 
     def initialize_config(self, config):
         # Default values
         config['readme_file_path'] = 'README.md'
-        config['package_metadata_file_path'] = f'{config["package_name"]}/__about__.py'
+        config['package_metadata_file_path'] = f'src/{config["package_name"]}/__about__.py'
 
         license_data = {}
 
@@ -70,8 +70,8 @@ class DefaultTemplate(TemplateInterface):
         if config['args']['cli']:
             config['dependencies'].add('click')
 
-        if self.plugin_config['src-layout']:
-            config['package_metadata_file_path'] = f'src/{config["package_metadata_file_path"]}'
+        if not self.plugin_config['src-layout']:
+            config['package_metadata_file_path'] = f'{config["package_metadata_file_path"][4:]}'
 
     def get_files(self, config):
         files = list(find_template_files(files_default))

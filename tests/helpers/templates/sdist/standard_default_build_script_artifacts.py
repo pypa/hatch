@@ -3,7 +3,7 @@ from hatch.utils.fs import Path
 from hatchling.metadata.spec import DEFAULT_METADATA_VERSION
 from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT
 
-from ..new.default import get_files as get_template_files
+from ..new.feature_no_src_layout import get_files as get_template_files
 
 
 def get_files(**kwargs):

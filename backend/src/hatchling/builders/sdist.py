@@ -288,12 +288,20 @@ class SdistBuilder(BuilderInterface):
             contents += '    },\n'
 
         if packages:
+            src_layout = False
             contents += '    packages=[\n'
 
             for package in packages:
-                contents += f"        {package.replace(os.sep, '.')!r},\n"
+                if package.startswith(f'src{os.sep}'):
+                    src_layout = True
+                    contents += f"        {package.replace(os.sep, '.')[4:]!r},\n"
+                else:
+                    contents += f"        {package.replace(os.sep, '.')!r},\n"
 
             contents += '    ],\n'
+
+            if src_layout:
+                contents += "    package_dir={'': 'src'},\n"
 
         contents += ')\n'
 

@@ -548,7 +548,7 @@ class TemplateConfig(LazilyParsedConfig):
                 self._field_plugins = plugins
             else:
                 self._field_plugins = self.raw_data['plugins'] = {
-                    'default': {'tests': True, 'ci': False, 'src-layout': False}
+                    'default': {'tests': True, 'ci': False, 'src-layout': True}
                 }
 
         return self._field_plugins

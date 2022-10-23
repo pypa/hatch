@@ -13,7 +13,7 @@ def get_files(**kwargs):
             ),
         ),
         File(
-            Path(kwargs['package_name'], '__init__.py'),
+            Path('src', kwargs['package_name'], '__init__.py'),
             f"""\
 # SPDX-FileCopyrightText: {kwargs['year']}-present {kwargs['author']} <{kwargs['email']}>
 #
@@ -21,7 +21,7 @@ def get_files(**kwargs):
 """,
         ),
         File(
-            Path(kwargs['package_name'], '__about__.py'),
+            Path('src', kwargs['package_name'], '__about__.py'),
             f"""\
 # SPDX-FileCopyrightText: {kwargs['year']}-present {kwargs['author']} <{kwargs['email']}>
 #
@@ -92,7 +92,7 @@ Issues = "https://github.com/unknown/{kwargs['project_name_normalized']}/issues"
 Source = "https://github.com/unknown/{kwargs['project_name_normalized']}"
 
 [tool.hatch.version]
-path = "{kwargs['package_name']}/__about__.py"
-""",
+path = "src/{kwargs['package_name']}/__about__.py"
+""",  # noqa: E501
         ),
-    ]  # noqa: E501
+    ]
