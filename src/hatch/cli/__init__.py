@@ -145,8 +145,8 @@ def hatch(ctx: click.Context, env_name, project, color, interactive, verbose, qu
         for error in errors:
             app.display_warning(error)
 
-    app.data_dir = Path(data_dir or app.config.dirs.data)
-    app.cache_dir = Path(cache_dir or app.config.dirs.cache)
+    app.data_dir = Path(data_dir or app.config.dirs.data).expand()
+    app.cache_dir = Path(cache_dir or app.config.dirs.cache).expand()
 
     if project:
         app.project = Project.from_config(app.config, project)

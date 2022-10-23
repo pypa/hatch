@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from os.path import expanduser, expandvars, isabs
+import os
 from typing import cast
 
 from hatch.cli.terminal import Terminal
@@ -169,9 +169,9 @@ class Application(Terminal):
         directories = self.config.dirs.env
 
         if environment_type in directories:
-            path = expanduser(expandvars(directories[environment_type]))
-            if isabs(path):
-                return Path(path)
+            path = Path(directories[environment_type]).expand()
+            if os.path.isabs(path):
+                return path
             else:
                 return self.project.location / path
         else:

@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ***Added:***
 
+- Expand home and environment variables in configured cache and data directories
 - Update project templates
 
 ***Fixed:***
