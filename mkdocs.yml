@@ -52,9 +52,12 @@ nav:
     - Builds: build.md
     - Publishing: publish.md
     - Next steps: next-steps.md
-    - Status:
-      - History: history.md
-      - Users: users.md
+    - History:
+      - Hatch: history/hatch.md
+      - Hatchling: history/hatchling.md
+    - Community:
+      - Users: community/users.md
+      - Highlights: community/highlights.md
   - Configuration:
     - Metadata: config/metadata.md
     - Dependencies: config/dependency.md
@@ -149,6 +152,7 @@ plugins:
   redirects:
     redirect_maps:
       config/environment.md: config/environment/overview.md
+      history.md: history/hatch.md
       plugins/builder.md: plugins/builder/reference.md
       plugins/build-hook.md: plugins/build-hook/reference.md
       plugins/metadata-hook.md: plugins/metadata-hook/reference.md
@@ -157,6 +161,7 @@ plugins:
       plugins/publisher.md: plugins/publisher/reference.md
       plugins/version-source.md: plugins/version-source/reference.md
       plugins/version-scheme.md: plugins/version-scheme/reference.md
+      users.md: community/users.md
 
 markdown_extensions:
   # Built-in
