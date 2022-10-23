@@ -103,7 +103,7 @@ jobs:
       run: hatch run coverage:write-summary-report
 
     - name: Update coverage pull request comment
-      if: github.event_name == 'pull_request'
+      if: github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork
       uses: marocchino/sticky-pull-request-comment@v2
       with:
         path: coverage-report.md
