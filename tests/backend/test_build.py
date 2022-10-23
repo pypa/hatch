@@ -1,7 +1,10 @@
 from hatchling.build import build_editable, build_sdist, build_wheel
 
 
-def test_sdist(hatch, helpers, temp_dir):
+def test_sdist(hatch, helpers, temp_dir, config_file):
+    config_file.model.template.plugins['default']['src-layout'] = False
+    config_file.save()
+
     project_name = 'My.App'
 
     with temp_dir.as_cwd():
@@ -39,7 +42,10 @@ def test_sdist(hatch, helpers, temp_dir):
     assert expected_artifact.endswith('.tar.gz')
 
 
-def test_wheel(hatch, helpers, temp_dir):
+def test_wheel(hatch, helpers, temp_dir, config_file):
+    config_file.model.template.plugins['default']['src-layout'] = False
+    config_file.save()
+
     project_name = 'My.App'
 
     with temp_dir.as_cwd():
@@ -77,7 +83,10 @@ def test_wheel(hatch, helpers, temp_dir):
     assert expected_artifact.endswith('.whl')
 
 
-def test_editable(hatch, helpers, temp_dir):
+def test_editable(hatch, helpers, temp_dir, config_file):
+    config_file.model.template.plugins['default']['src-layout'] = False
+    config_file.save()
+
     project_name = 'My.App'
 
     with temp_dir.as_cwd():

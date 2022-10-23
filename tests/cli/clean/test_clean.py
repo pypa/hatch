@@ -10,7 +10,10 @@ def local_builder(mock_backend_process, mocker):
     yield
 
 
-def test(hatch, temp_dir, helpers):
+def test(hatch, temp_dir, helpers, config_file):
+    config_file.model.template.plugins['default']['src-layout'] = False
+    config_file.save()
+
     project_name = 'My.App'
 
     with temp_dir.as_cwd():

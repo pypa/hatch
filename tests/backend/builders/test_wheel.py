@@ -468,7 +468,10 @@ class TestConstructEntryPointsFile:
 
 
 class TestBuildStandard:
-    def test_default_auto_detection(self, hatch, helpers, temp_dir):
+    def test_default_auto_detection(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -520,7 +523,10 @@ class TestBuildStandard:
             zip_info = zip_archive.getinfo(f'{metadata_directory}/WHEEL')
             assert zip_info.date_time == (2020, 2, 2, 0, 0, 0)
 
-    def test_default_reproducible_timestamp(self, hatch, helpers, temp_dir):
+    def test_default_reproducible_timestamp(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -570,7 +576,10 @@ class TestBuildStandard:
             zip_info = zip_archive.getinfo(f'{metadata_directory}/WHEEL')
             assert zip_info.date_time == (2020, 2, 2, 0, 1, 40)
 
-    def test_default_no_reproducible(self, hatch, helpers, temp_dir):
+    def test_default_no_reproducible(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -622,6 +631,7 @@ class TestBuildStandard:
 
     def test_default_multiple_licenses(self, hatch, helpers, config_file, temp_dir):
         project_name = 'My.App'
+        config_file.model.template.plugins['default']['src-layout'] = False
         config_file.model.template.licenses.default = ['MIT', 'Apache-2.0']
         config_file.save()
 
@@ -672,7 +682,10 @@ class TestBuildStandard:
         )
         helpers.assert_files(extraction_directory, expected_files)
 
-    def test_default_include(self, hatch, helpers, temp_dir):
+    def test_default_include(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -719,7 +732,10 @@ class TestBuildStandard:
         )
         helpers.assert_files(extraction_directory, expected_files)
 
-    def test_default_only_packages(self, hatch, helpers, temp_dir):
+    def test_default_only_packages(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -772,7 +788,10 @@ class TestBuildStandard:
         )
         helpers.assert_files(extraction_directory, expected_files)
 
-    def test_default_only_packages_artifact_override(self, hatch, helpers, temp_dir):
+    def test_default_only_packages_artifact_override(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -826,7 +845,10 @@ class TestBuildStandard:
         )
         helpers.assert_files(extraction_directory, expected_files)
 
-    def test_default_python_constraint(self, hatch, helpers, temp_dir):
+    def test_default_python_constraint(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -872,7 +894,10 @@ class TestBuildStandard:
         )
         helpers.assert_files(extraction_directory, expected_files)
 
-    def test_default_build_script_default_tag(self, hatch, helpers, temp_dir):
+    def test_default_build_script_default_tag(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -936,7 +961,10 @@ class TestBuildStandard:
         )
         helpers.assert_files(extraction_directory, expected_files)
 
-    def test_default_build_script_set_tag(self, hatch, helpers, temp_dir):
+    def test_default_build_script_set_tag(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -1001,7 +1029,10 @@ class TestBuildStandard:
         )
         helpers.assert_files(extraction_directory, expected_files)
 
-    def test_default_build_script_known_artifacts(self, hatch, helpers, temp_dir):
+    def test_default_build_script_known_artifacts(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -1080,7 +1111,10 @@ class TestBuildStandard:
         )
         helpers.assert_files(extraction_directory, expected_files)
 
-    def test_default_build_script_configured_build_hooks(self, hatch, helpers, temp_dir):
+    def test_default_build_script_configured_build_hooks(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -1159,7 +1193,10 @@ class TestBuildStandard:
         )
         helpers.assert_files(extraction_directory, expected_files)
 
-    def test_default_build_script_extra_dependencies(self, hatch, helpers, temp_dir):
+    def test_default_build_script_extra_dependencies(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -1239,7 +1276,10 @@ class TestBuildStandard:
         )
         helpers.assert_files(extraction_directory, expected_files)
 
-    def test_default_build_script_dynamic_artifacts(self, hatch, helpers, temp_dir):
+    def test_default_build_script_dynamic_artifacts(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -1318,7 +1358,10 @@ class TestBuildStandard:
         )
         helpers.assert_files(extraction_directory, expected_files)
 
-    def test_default_build_script_dynamic_force_include(self, hatch, helpers, temp_dir):
+    def test_default_build_script_dynamic_force_include(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -1400,10 +1443,7 @@ class TestBuildStandard:
         )
         helpers.assert_files(extraction_directory, expected_files)
 
-    def test_default_build_script_dynamic_artifacts_with_src_layout(self, hatch, helpers, temp_dir, config_file):
-        config_file.model.template.plugins['default']['src-layout'] = True
-        config_file.save()
-
+    def test_default_build_script_dynamic_artifacts_with_src_layout(self, hatch, helpers, temp_dir):
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -1484,7 +1524,10 @@ class TestBuildStandard:
         )
         helpers.assert_files(extraction_directory, expected_files)
 
-    def test_default_shared_data(self, hatch, helpers, temp_dir):
+    def test_default_shared_data(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -1541,7 +1584,10 @@ class TestBuildStandard:
         )
         helpers.assert_files(extraction_directory, expected_files)
 
-    def test_default_extra_metadata(self, hatch, helpers, temp_dir):
+    def test_default_extra_metadata(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -1597,7 +1643,10 @@ class TestBuildStandard:
         helpers.assert_files(extraction_directory, expected_files)
 
     @pytest.mark.requires_unix
-    def test_default_symlink(self, hatch, helpers, temp_dir):
+    def test_default_symlink(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -1680,10 +1729,7 @@ class TestBuildStandard:
         helpers.assert_files(extraction_directory, expected_files)
 
     @fixed_pathlib_resolution
-    def test_editable_default(self, hatch, helpers, temp_dir, config_file):
-        config_file.model.template.plugins['default']['src-layout'] = True
-        config_file.save()
-
+    def test_editable_default(self, hatch, helpers, temp_dir):
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -1740,10 +1786,7 @@ class TestBuildStandard:
             assert zip_info.date_time == (2020, 2, 2, 0, 0, 0)
 
     @fixed_pathlib_resolution
-    def test_editable_default_extra_dependencies(self, hatch, helpers, temp_dir, config_file):
-        config_file.model.template.plugins['default']['src-layout'] = True
-        config_file.save()
-
+    def test_editable_default_extra_dependencies(self, hatch, helpers, temp_dir):
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -1815,10 +1858,7 @@ class TestBuildStandard:
             assert zip_info.date_time == (2020, 2, 2, 0, 0, 0)
 
     @fixed_pathlib_resolution
-    def test_editable_default_force_include(self, hatch, helpers, temp_dir, config_file):
-        config_file.model.template.plugins['default']['src-layout'] = True
-        config_file.save()
-
+    def test_editable_default_force_include(self, hatch, helpers, temp_dir):
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -1891,10 +1931,7 @@ class TestBuildStandard:
             assert zip_info.date_time == (2020, 2, 2, 0, 0, 0)
 
     @fixed_pathlib_resolution
-    def test_editable_default_force_include_option(self, hatch, helpers, temp_dir, config_file):
-        config_file.model.template.plugins['default']['src-layout'] = True
-        config_file.save()
-
+    def test_editable_default_force_include_option(self, hatch, helpers, temp_dir):
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -1958,7 +1995,10 @@ class TestBuildStandard:
             assert zip_info.date_time == (2020, 2, 2, 0, 0, 0)
 
     @fixed_pathlib_resolution
-    def test_editable_exact(self, hatch, helpers, temp_dir):
+    def test_editable_exact(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -2015,7 +2055,10 @@ class TestBuildStandard:
             assert zip_info.date_time == (2020, 2, 2, 0, 0, 0)
 
     @fixed_pathlib_resolution
-    def test_editable_exact_extra_dependencies(self, hatch, helpers, temp_dir):
+    def test_editable_exact_extra_dependencies(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -2091,7 +2134,10 @@ class TestBuildStandard:
             assert zip_info.date_time == (2020, 2, 2, 0, 0, 0)
 
     @fixed_pathlib_resolution
-    def test_editable_exact_force_include(self, hatch, helpers, temp_dir):
+    def test_editable_exact_force_include(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -2168,7 +2214,10 @@ class TestBuildStandard:
             assert zip_info.date_time == (2020, 2, 2, 0, 0, 0)
 
     @fixed_pathlib_resolution
-    def test_editable_exact_force_include_option(self, hatch, helpers, temp_dir):
+    def test_editable_exact_force_include_option(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -2233,7 +2282,10 @@ class TestBuildStandard:
             assert zip_info.date_time == (2020, 2, 2, 0, 0, 0)
 
     @fixed_pathlib_resolution
-    def test_editable_exact_force_include_build_data_precedence(self, hatch, helpers, temp_dir):
+    def test_editable_exact_force_include_build_data_precedence(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -2315,10 +2367,7 @@ class TestBuildStandard:
             assert zip_info.date_time == (2020, 2, 2, 0, 0, 0)
 
     @fixed_pathlib_resolution
-    def test_editable_pth(self, hatch, helpers, temp_dir, config_file):
-        config_file.model.template.plugins['default']['src-layout'] = True
-        config_file.save()
-
+    def test_editable_pth(self, hatch, helpers, temp_dir):
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -2374,7 +2423,10 @@ class TestBuildStandard:
             zip_info = zip_archive.getinfo(f'{metadata_directory}/WHEEL')
             assert zip_info.date_time == (2020, 2, 2, 0, 0, 0)
 
-    def test_default_namespace_package(self, hatch, helpers, temp_dir):
+    def test_default_namespace_package(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -2427,7 +2479,10 @@ class TestBuildStandard:
         )
         helpers.assert_files(extraction_directory, expected_files)
 
-    def test_default_entry_points(self, hatch, helpers, temp_dir):
+    def test_default_entry_points(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -2473,10 +2528,7 @@ class TestBuildStandard:
         )
         helpers.assert_files(extraction_directory, expected_files)
 
-    def test_explicit_selection_with_src_layout(self, hatch, helpers, temp_dir, config_file):
-        config_file.model.template.plugins['default']['src-layout'] = True
-        config_file.save()
-
+    def test_explicit_selection_with_src_layout(self, hatch, helpers, temp_dir):
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -2534,6 +2586,9 @@ class TestBuildStandard:
         helpers.assert_files(extraction_directory, expected_files)
 
     def test_single_module(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -2575,7 +2630,10 @@ class TestBuildStandard:
         )
         helpers.assert_files(extraction_directory, expected_files)
 
-    def test_no_strict_naming(self, hatch, helpers, temp_dir):
+    def test_no_strict_naming(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -2623,10 +2681,7 @@ class TestBuildStandard:
         )
         helpers.assert_files(extraction_directory, expected_files)
 
-    def test_editable_sources_rewrite_error(self, hatch, helpers, temp_dir, config_file):
-        config_file.model.template.plugins['default']['src-layout'] = True
-        config_file.save()
-
+    def test_editable_sources_rewrite_error(self, hatch, helpers, temp_dir):
         project_name = 'My.App'
 
         with temp_dir.as_cwd():

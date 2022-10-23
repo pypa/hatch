@@ -38,7 +38,7 @@ def test_default_scrubbed(hatch, config_file, helpers, default_cache_dir, defaul
         [template.plugins.default]
         tests = true
         ci = false
-        src-layout = false
+        src-layout = true
 
         [terminal.styles]
         info = "bold"
@@ -96,7 +96,7 @@ def test_reveal(hatch, config_file, helpers, default_cache_dir, default_data_dir
         [template.plugins.default]
         tests = true
         ci = false
-        src-layout = false
+        src-layout = true
 
         [terminal.styles]
         info = "bold"

@@ -655,7 +655,10 @@ class TestConstructSetupPyFile:
 
 
 class TestBuildStandard:
-    def test_default(self, hatch, helpers, temp_dir):
+    def test_default(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -702,7 +705,10 @@ class TestBuildStandard:
         stat = os.stat(str(extraction_directory / builder.project_id / 'PKG-INFO'))
         assert stat.st_mtime == get_reproducible_timestamp()
 
-    def test_default_no_reproducible(self, hatch, helpers, temp_dir):
+    def test_default_no_reproducible(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -750,7 +756,10 @@ class TestBuildStandard:
         stat = os.stat(str(extraction_directory / builder.project_id / 'PKG-INFO'))
         assert stat.st_mtime != get_reproducible_timestamp()
 
-    def test_default_support_legacy(self, hatch, helpers, temp_dir):
+    def test_default_support_legacy(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -795,7 +804,10 @@ class TestBuildStandard:
         )
         helpers.assert_files(extraction_directory, expected_files)
 
-    def test_default_build_script_artifacts(self, hatch, helpers, temp_dir):
+    def test_default_build_script_artifacts(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -866,7 +878,10 @@ class TestBuildStandard:
         )
         helpers.assert_files(extraction_directory, expected_files)
 
-    def test_default_build_script_extra_dependencies(self, hatch, helpers, temp_dir):
+    def test_default_build_script_extra_dependencies(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -938,7 +953,10 @@ class TestBuildStandard:
         )
         helpers.assert_files(extraction_directory, expected_files)
 
-    def test_include_project_file(self, hatch, helpers, temp_dir):
+    def test_include_project_file(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -987,7 +1005,10 @@ class TestBuildStandard:
         stat = os.stat(str(extraction_directory / builder.project_id / 'PKG-INFO'))
         assert stat.st_mtime == get_reproducible_timestamp()
 
-    def test_project_file_always_included(self, hatch, helpers, temp_dir):
+    def test_project_file_always_included(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -1045,7 +1066,10 @@ class TestBuildStandard:
         stat = os.stat(str(extraction_directory / builder.project_id / 'PKG-INFO'))
         assert stat.st_mtime == get_reproducible_timestamp()
 
-    def test_config_file_always_included(self, hatch, helpers, temp_dir):
+    def test_config_file_always_included(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -1105,7 +1129,10 @@ class TestBuildStandard:
         stat = os.stat(str(extraction_directory / builder.project_id / 'PKG-INFO'))
         assert stat.st_mtime == get_reproducible_timestamp()
 
-    def test_include_readme(self, hatch, helpers, temp_dir):
+    def test_include_readme(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -1152,7 +1179,10 @@ class TestBuildStandard:
         stat = os.stat(str(extraction_directory / builder.project_id / 'PKG-INFO'))
         assert stat.st_mtime == get_reproducible_timestamp()
 
-    def test_readme_always_included(self, hatch, helpers, temp_dir):
+    def test_readme_always_included(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -1206,7 +1236,10 @@ class TestBuildStandard:
         stat = os.stat(str(extraction_directory / builder.project_id / 'PKG-INFO'))
         assert stat.st_mtime == get_reproducible_timestamp()
 
-    def test_include_license_files(self, hatch, helpers, temp_dir):
+    def test_include_license_files(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -1253,7 +1286,10 @@ class TestBuildStandard:
         stat = os.stat(str(extraction_directory / builder.project_id / 'PKG-INFO'))
         assert stat.st_mtime == get_reproducible_timestamp()
 
-    def test_license_files_always_included(self, hatch, helpers, temp_dir):
+    def test_license_files_always_included(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -1307,7 +1343,10 @@ class TestBuildStandard:
         stat = os.stat(str(extraction_directory / builder.project_id / 'PKG-INFO'))
         assert stat.st_mtime == get_reproducible_timestamp()
 
-    def test_default_vcs_git_exclusion_files(self, hatch, helpers, temp_dir):
+    def test_default_vcs_git_exclusion_files(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -1362,7 +1401,10 @@ class TestBuildStandard:
         )
         helpers.assert_files(extraction_directory, expected_files)
 
-    def test_default_vcs_mercurial_exclusion_files(self, hatch, helpers, temp_dir):
+    def test_default_vcs_mercurial_exclusion_files(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -1431,7 +1473,10 @@ class TestBuildStandard:
         )
         helpers.assert_files(extraction_directory, expected_files)
 
-    def test_no_strict_naming(self, hatch, helpers, temp_dir):
+    def test_no_strict_naming(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
         project_name = 'My.App'
 
         with temp_dir.as_cwd():

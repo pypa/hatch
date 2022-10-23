@@ -41,7 +41,10 @@ def test_nonexistent(isolation):
         CustomBuilder(str(isolation), config=config)
 
 
-def test_default(hatch, helpers, temp_dir):
+def test_default(hatch, helpers, temp_dir, config_file):
+    config_file.model.template.plugins['default']['src-layout'] = False
+    config_file.save()
+
     project_name = 'My.App'
 
     with temp_dir.as_cwd():
@@ -116,7 +119,10 @@ def test_default(hatch, helpers, temp_dir):
         assert zip_info.date_time == (2020, 2, 2, 0, 0, 0)
 
 
-def test_explicit_path(hatch, helpers, temp_dir):
+def test_explicit_path(hatch, helpers, temp_dir, config_file):
+    config_file.model.template.plugins['default']['src-layout'] = False
+    config_file.save()
+
     project_name = 'My.App'
 
     with temp_dir.as_cwd():
