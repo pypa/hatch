@@ -10,13 +10,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Unreleased
 
+***Changed:***
+
+- The `src-layout` project template option is now enabled by default
+
 ***Added:***
 
-- Update best practices in project templates and documentation
+- Update project templates
 
 ***Fixed:***
 
-- Fix the `support-legacy` option for the `sdist` target when using a `src`-layout project structure
+- Fix the `support-legacy` option for the `sdist` target when using a src-layout project structure
 
 ### [1.6.2](https://github.com/pypa/hatch/releases/tag/hatch-v1.6.2) - 2022-10-20 ### {: #hatch-v1.6.2 }
 
@@ -110,7 +114,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Acknowledge `extra-dependencies` for the `env show` command
 - Fix locating executables within virtual environments on Debian
 - Fix managing the terminal size inside the `shell` command
-- Fix default code coverage file omission for the src-layout project template option
+- Fix default code coverage file omission for the `src-layout` project template option
 
 ### [1.3.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.3.1) - 2022-07-11 ### {: #hatch-v1.3.1 }
 
@@ -207,6 +211,10 @@ This is the first stable release of Hatch v1, a complete rewrite. Enjoy!
 ## **Hatchling**
 
 ### Unreleased
+
+***Added:***
+
+- Add more type hints
 
 ### [1.11.1](https://github.com/pypa/hatch/releases/tag/hatchling-v1.11.1) - 2022-10-19 ### {: #hatchling-v1.11.1 }
 

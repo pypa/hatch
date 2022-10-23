@@ -33,7 +33,7 @@ The following is not intended to be a complete enumeration. Be sure to view the 
 ## Industry
 
 - [Anaconda](https://www.anaconda.com) <sup>\[[1](https://github.com/ContinuumIO/dask-awkward/blob/105275b1937cce9a80a352af0b200d4e264f27f7/pyproject.toml#L1-L3)|[2](https://github.com/conda-incubator/ensureconda/blob/b20dbcf7166009ff4e9270f35ed75da7afc3db60/pyproject.toml#L1-L3)|[3](https://github.com/conda-incubator/conda-lock/blob/9187487698f9afbb08e131cd585a17bba82ce9f2/pyproject.toml#L1-L3)\]</sup>
-- [Bloomberg](https://www.bloomberg.com) <sup>\[[1](https://github.com/bloomberg/pytest-memray/blob/4ea6a7608adb0de4572d35768fbd370aee016627/pyproject.toml#L1-L3)\]</sup>
+- [Bloomberg](https://www.bloomberg.com) <sup>\[[1](https://github.com/bloomberg/ipydatagrid/blob/04b73fe67bf33d054e69036fe2794ac72057b105/pyproject.toml#L1-L6)|[2](https://github.com/bloomberg/pytest-memray/blob/4ea6a7608adb0de4572d35768fbd370aee016627/pyproject.toml#L1-L3)\]</sup>
 - [Cars.com](https://www.cars.com) <sup>\[[1](https://github.com/carsdotcom/cars-forge/blob/ba14db991a5c7cb3c5adc3a4a364121e43f6aa0e/pyproject.toml#L63-L65)\]</sup>
 - [Datadog](https://www.datadoghq.com) <sup>\[[1](https://github.com/DataDog/datadogpy/blob/63d0c01b5bbcb8158cf3ddab153639951ab44945/pyproject.toml#L1-L3)|[2](https://github.com/DataDog/integrations-core/pulls?q=is%3Apr+author%3Aofek+in%3Atitle+Add+pyproject.toml+file)|[3](https://github.com/DataDog/integrations-extras/pulls?q=is%3Apr+author%3Aofek+in%3Atitle+Add+pyproject.toml+file)|[4](https://github.com/DataDog/mkdocs-click/blob/434925323f3bb187595d4c7f6a2c80b790015109/pyproject.toml#L1-L3)\]</sup>
 - [deepset](https://www.deepset.ai) <sup>\[[1](https://github.com/deepset-ai/haystack/blob/e92ea4fccb31001156dece6c1509e3e162a9de00/pyproject.toml#L1-L5)\]</sup>
@@ -60,11 +60,15 @@ The following is not intended to be a complete enumeration. Be sure to view the 
 
 ## Academia
 
+- [Chinese Academy of Sciences](https://english.cas.cn)
+    - [Academy of Mathematics and Systems Science](http://english.amss.cas.cn) <sup>\[[1](https://github.com/zhanglabtools/ConsTADs/blob/db732cf820569564f933cd290736ad83b9c99dea/pyproject.toml#L1-L3)\]</sup>
 - [Clariah](https://www.clariah.nl) <sup>\[[1](https://github.com/CLARIAH/pure3d/blob/3f93d62cb1f5223836c9ebf4c058e6f491de71b9/pyproject.toml#L1-L3)\]</sup>
 - [Heidelberg University](https://www.uni-heidelberg.de)
     - [Center for Molecular Biology](https://www.zmbh.uni-heidelberg.de) <sup>\[[1](https://github.com/anders-biostat/pymetdense/blob/a1d210f2c03d2919b549f2fed1e4db986d01c8d5/pyproject.toml#L1-L3)\]</sup>
 - [Leiden University](https://www.universiteitleiden.nl/en)
     - [Leiden University Libraries](https://www.library.universiteitleiden.nl) <sup>\[[1](https://github.com/LeidenUniversityLibrary/maps-tools/blob/d7a9fc683be919d4f5538f6a6c80319558064968/pyproject.toml#L3-L5)\]</sup>
+- [Maastricht University](https://www.maastrichtuniversity.nl)
+    - [Institute of Data Science](https://www.maastrichtuniversity.nl/research/institute-data-science) <sup>\[[1](https://github.com/MaastrichtU-IDS/fair-test/blob/9c88c18cb1b0fa8d37336cdd2b7b132cb979a83a/pyproject.toml#L95-L97)\]</sup>
 - [Massachusetts Institute of Technology](https://www.mit.edu)
     - [Computer Science and Artificial Intelligence Laboratory](https://www.csail.mit.edu) <sup>\[[1](https://github.com/Learning-and-Intelligent-Systems/lisdf/blob/d49a85a3924909f1d10fef40463757b141f47f90/pyproject.toml#L1-L3)\]</sup>
     - [Digital Humanities](https://digitalhumanities.mit.edu) <sup>\[[1](https://github.com/cuthbertLab/music21/blob/5417b3ce6415ab016a39564e21e29799387263e9/pyproject.toml#L1-L5)\]</sup>
