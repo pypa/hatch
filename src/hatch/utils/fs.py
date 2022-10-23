@@ -34,6 +34,9 @@ class Path(_PathBase):
     def ensure_parent_dir_exists(self):
         self.parent.mkdir(parents=True, exist_ok=True)
 
+    def expand(self):
+        return Path(os.path.expanduser(os.path.expandvars(self)))
+
     def resolve(self, strict=False) -> Path:
         # https://bugs.python.org/issue38671
         return Path(os.path.realpath(self))
