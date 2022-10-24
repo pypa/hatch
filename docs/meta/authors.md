@@ -13,5 +13,6 @@
 - Chaojie [:material-web:](https://chaojie.fun) [:material-github:](https://github.com/ischaojie)
 - Chris Warrick [:material-twitter:](https://twitter.com/Kwpolska)
 - Lumír 'Frenzy' Balhar [:material-email:](mailto:frenzy.madness@gmail.com) [:material-twitter:](https://twitter.com/lumirbalhar)
+- Olga Matoula [:material-github:](https://github.com/olgarithms) [:material-twitter:](https://twitter.com/olgarithms_)
 - Ofek Lev [:material-web:](https://ofek.dev) [:material-github:](https://github.com/ofek) [:material-twitter:](https://twitter.com/Ofekmeister)
 - Philip Blair [:material-email:](mailto:philip@pblair.org)
