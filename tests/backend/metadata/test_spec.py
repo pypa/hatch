@@ -524,6 +524,22 @@ class TestCoreMetadataV21:
             """
         )
 
+    def test_license_expression(self, constructor, isolation, helpers):
+        metadata = ProjectMetadata(
+            str(isolation),
+            None,
+            {'project': {'name': 'My.App', 'version': '0.1.0', 'license': 'mit'}},
+        )
+
+        assert constructor(metadata) == helpers.dedent(
+            """
+            Metadata-Version: 2.1
+            Name: My.App
+            Version: 0.1.0
+            License-Expression: MIT
+            """
+        )
+
     def test_keywords_single(self, constructor, isolation, helpers):
         metadata = ProjectMetadata(
             str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0', 'keywords': ['foo']}}
@@ -927,6 +943,22 @@ class TestCoreMetadataV22:
             Version: 0.1.0
             License: foo
                     bar
+            """
+        )
+
+    def test_license_expression(self, constructor, isolation, helpers):
+        metadata = ProjectMetadata(
+            str(isolation),
+            None,
+            {'project': {'name': 'My.App', 'version': '0.1.0', 'license': 'mit'}},
+        )
+
+        assert constructor(metadata) == helpers.dedent(
+            """
+            Metadata-Version: 2.2
+            Name: My.App
+            Version: 0.1.0
+            License-Expression: MIT
             """
         )
 
