@@ -26,6 +26,7 @@ The following is not intended to be a complete enumeration. Be sure to view the 
 | [Starlette](https://github.com/encode/starlette/blob/31164e346b9bd1ce17d968e1301c3bb2c23bb418/pyproject.toml#L1-L3)
 | [structlog](https://github.com/hynek/structlog/blob/6e2e8c6025fb90484c5e6c5ff2fd3e96a61854cf/pyproject.toml#L3-L5)
 | [tox](https://github.com/tox-dev/tox/blob/f2b4a4a6f5e8bbc8f9f0cff3dd5d17c50e874172/pyproject.toml#L1-L3)
+| [Twisted](https://github.com/twisted/twisted/blob/960e26bb1f4c67b3f7819553d0c45b25e6db4aae/pyproject.toml#L1-L7)
 | [urllib3](https://github.com/urllib3/urllib3/blob/8dda1974ae51839304f8517ab7993006c0d9db2e/pyproject.toml#L3-L5)
 | [Uvicorn](https://github.com/encode/uvicorn/blob/ccd1aae48e49dd8c9365600fd79e886efe88be1d/pyproject.toml#L1-L3)
 | [Voilà](https://github.com/voila-dashboards/voila/blob/71292e4124b1f4a6f91c8b4e16ea9ad6b5ef500b/pyproject.toml#L1-L7)
