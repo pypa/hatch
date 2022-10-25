@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import cast, Dict, Union
+from typing import Dict, Union, cast
 
 from hatchling.licenses.supported import EXCEPTIONS, LICENSES
 
