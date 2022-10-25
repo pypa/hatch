@@ -4,7 +4,7 @@ from typing import cast, Union
 
 from hatchling.licenses.supported import EXCEPTIONS, LICENSES
 
-LicenseType = dict[str, Union(str, bool)]
+LicenseType = dict[str, Union[str, bool]]
 
 
 def get_valid_licenses() -> dict[str, LicenseType]:
