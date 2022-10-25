@@ -96,7 +96,8 @@ namespace_packages = true
 [[tool.mypy.overrides]]
 module = [
     "*.hatchling.build",
-    "*.hatchling.ouroboros"
+    "*.hatchling.ouroboros",
+    "*.hatchling.licenses.*",
 ]
 disallow_untyped_defs = true
 disallow_incomplete_defs = true
