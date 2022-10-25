@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from typing import cast, Union
+from typing import cast, Dict, Union
 
 from hatchling.licenses.supported import EXCEPTIONS, LICENSES
 
-LicenseType = dict[str, Union[str, bool]]
+LicenseType = Dict[str, Union[str, bool]]
 
 
 def get_valid_licenses() -> dict[str, LicenseType]:
