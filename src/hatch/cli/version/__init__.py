@@ -16,9 +16,9 @@ def version(app, desired_version):
     from hatchling.dep.core import dependencies_in_sync
 
     with app.project.location.as_cwd():
-        if not app.project.metadata.hatch.metadata.hook_config or dependencies_in_sync(
-            app.project.metadata.build.requires_complex
-        ):
+        if not (
+            'version' in app.project.metadata.dynamic or app.project.metadata.hatch.metadata.hook_config
+        ) or dependencies_in_sync(app.project.metadata.build.requires_complex):
             source = app.project.metadata.hatch.version.source
 
             version_data = source.get_version_data()
@@ -43,7 +43,7 @@ def version(app, desired_version):
                 app.abort(f'Environment `{environment.name}` is incompatible: {e}')
 
             with app.status_waiting(
-                'Setting up build environment for missing build dependencies',
+                'Setting up build environment for missing dependencies',
                 condition=not environment.build_environment_exists(),
             ) as status:
                 with environment.build_environment(app.project.metadata.build.requires):
