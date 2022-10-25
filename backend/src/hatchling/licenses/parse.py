@@ -1,6 +1,8 @@
-from hatchling.licenses.supported import EXCEPTIONS, LICENSES
+from __future__ import annotations
+
 from typing import cast
 
+from hatchling.licenses.supported import EXCEPTIONS, LICENSES
 
 LicenseType = dict[str, str | bool]
 
