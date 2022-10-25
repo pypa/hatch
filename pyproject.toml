@@ -97,6 +97,7 @@ namespace_packages = true
 module = [
     "*.hatchling.build",
     "*.hatchling.ouroboros",
+    "*.hatchling.bridge.*",
     "*.hatchling.licenses.*",
 ]
 disallow_untyped_defs = true
