@@ -4,14 +4,6 @@ from hatch.project.core import Project
 from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT
 
 
-@pytest.fixture
-def local_builder(mock_backend_process, mocker):
-    if mock_backend_process:
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.build_environment')
-
-    yield
-
-
 def test_incompatible_environment(hatch, temp_dir, helpers):
     project_name = 'My.App'
 
