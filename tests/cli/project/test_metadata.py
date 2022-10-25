@@ -2,17 +2,11 @@ import pytest
 
 from hatch.project.core import Project
 
+pytestmark = [pytest.mark.usefixtures('local_builder')]
+
 
 def read_readme(project_dir):
     return repr((project_dir / 'README.txt').read_text())[1:-1]
-
-
-@pytest.fixture(autouse=True)
-def local_builder(mock_backend_process, mocker):
-    if mock_backend_process:
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.build_environment')
-
-    yield
 
 
 class TestBuildDependenciesInstalled:

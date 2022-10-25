@@ -1,3 +1,5 @@
+import pytest
+
 from hatch.project.core import Project
 from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT
 
@@ -44,6 +46,32 @@ def test_show_dynamic(hatch, temp_dir):
 
     assert result.exit_code == 0, result.output
     assert result.output == '0.0.1\n'
+
+
+@pytest.mark.usefixtures('local_builder')
+def test_show_dynamic_missing_build_dependencies(hatch, helpers, temp_dir):
+    project_name = 'My.App'
+
+    with temp_dir.as_cwd():
+        hatch('new', project_name)
+
+    path = temp_dir / 'my-app'
+
+    project = Project(path)
+    config = dict(project.raw_config)
+    config['build-system']['requires'].append('foo')
+    project.save_config(config)
+
+    with path.as_cwd():
+        result = hatch('version')
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        """
+        Setting up build environment for missing dependencies
+        0.0.1
+        """
+    )
 
 
 def test_set_dynamic(hatch, helpers, temp_dir):

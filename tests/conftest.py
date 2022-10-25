@@ -301,6 +301,14 @@ def mock_backend_process(request, mocker):
     yield True
 
 
+@pytest.fixture
+def local_builder(mock_backend_process, mocker):
+    if mock_backend_process:
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.build_environment')
+
+    yield
+
+
 def pytest_runtest_setup(item):
     for marker in item.iter_markers():
         if marker.name == 'requires_internet' and not network_connectivity():  # no cov

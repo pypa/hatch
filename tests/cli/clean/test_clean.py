@@ -3,11 +3,7 @@ import pytest
 from hatch.project.core import Project
 from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT
 
-
-@pytest.fixture(autouse=True)
-def local_builder(mock_backend_process, mocker):
-    mocker.patch('hatch.env.virtual.VirtualEnvironment.build_environment')
-    yield
+pytestmark = [pytest.mark.usefixtures('local_builder')]
 
 
 def test(hatch, temp_dir, helpers, config_file):

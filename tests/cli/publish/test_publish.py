@@ -8,14 +8,7 @@ import pytest
 
 from hatch.config.constants import PublishEnvVars
 
-pytestmark = [pytest.mark.usefixtures('devpi')]
-
-
-@pytest.fixture(autouse=True)
-def local_builder(mock_backend_process, mocker):
-    mocker.patch('hatch.env.virtual.VirtualEnvironment.build_environment')
-
-    yield
+pytestmark = [pytest.mark.usefixtures('devpi'), pytest.mark.usefixtures('local_builder')]
 
 
 @pytest.fixture(autouse=True)
