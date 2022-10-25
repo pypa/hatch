@@ -10,6 +10,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Unreleased
 
+### [1.6.3](https://github.com/pypa/hatch/releases/tag/hatch-v1.6.3) - 2022-10-24 ### {: #hatch-v1.6.3 }
+
+***Fixed:***
+
+- Fix `version` command when the version is dynamic and build dependencies are unmet
+
 ### [1.6.2](https://github.com/pypa/hatch/releases/tag/hatch-v1.6.2) - 2022-10-20 ### {: #hatch-v1.6.2 }
 
 ***Fixed:***
