@@ -1,10 +1,13 @@
 from __future__ import annotations
 
-from typing import Dict, Union, cast
+from typing import TypedDict
 
 from hatchling.licenses.supported import EXCEPTIONS, LICENSES
 
-LicenseType = Dict[str, Union[str, bool]]
+
+class LicenseType(TypedDict):
+    id: str
+    deprecated: bool
 
 
 def get_valid_licenses() -> dict[str, LicenseType]:
@@ -78,7 +81,7 @@ def normalize_license_expression(raw_license_expression: str) -> str:
             if token not in valid_licenses:
                 raise ValueError(f'unknown license: {token}')
 
-            normalized_tokens.append(cast(str, valid_licenses[token]['id']) + suffix)
+            normalized_tokens.append(valid_licenses[token]['id'] + suffix)
 
     # Construct the normalized expression
     normalized_expression = ' '.join(normalized_tokens)
