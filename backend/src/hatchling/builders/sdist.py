@@ -4,12 +4,11 @@ import gzip
 import os
 import tarfile
 import tempfile
+import typing
 from contextlib import closing
 from copy import copy
 from io import BytesIO
 from time import time as get_current_timestamp
-from types import TracebackType
-from typing import Any, Callable
 
 from hatchling.builders.config import BuilderConfig
 from hatchling.builders.plugin.interface import BuilderInterface
@@ -22,6 +21,10 @@ from hatchling.builders.utils import (
 )
 from hatchling.metadata.spec import DEFAULT_METADATA_VERSION, get_core_metadata_constructors
 from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT, DEFAULT_CONFIG_FILE
+
+if typing.TYPE_CHECKING:
+    from types import TracebackType
+    from typing import Any, Callable
 
 
 class SdistArchive:
@@ -43,13 +46,14 @@ class SdistArchive:
         self.tf = tarfile.TarFile(fileobj=self.gz, mode='w', format=tarfile.PAX_FORMAT)
         self.gettarinfo = lambda *args, **kwargs: self.normalize_tar_metadata(self.tf.gettarinfo(*args, **kwargs))
 
-    def create_file(self, contents: str, *relative_paths: str) -> None:
-        bcontents = contents.encode('utf-8')
+    def create_file(self, contents: str | bytes, *relative_paths: str) -> None:
+        if not isinstance(contents, bytes):
+            contents = contents.encode('utf-8')
         tar_info = tarfile.TarInfo(normalize_archive_path(os.path.join(self.name, *relative_paths)))
-        tar_info.mtime = self.reproducible and self.timestamp or int(get_current_timestamp())
+        tar_info.mtime = self.timestamp if self.reproducible else int(get_current_timestamp())
         tar_info.size = len(contents)
 
-        with closing(BytesIO(bcontents)) as buffer:
+        with closing(BytesIO(contents)) as buffer:
             self.tf.addfile(tar_info, buffer)
 
     def normalize_tar_metadata(self, tar_info: tarfile.TarInfo) -> tarfile.TarInfo:
@@ -62,7 +66,7 @@ class SdistArchive:
         tar_info.uname = ''
         tar_info.gname = ''
         tar_info.mode = normalize_file_permissions(tar_info.mode)
-        tar_info.mtime = self.timestamp or 0
+        tar_info.mtime = self.timestamp
 
         return tar_info
 
@@ -113,9 +117,6 @@ class SdistBuilderConfig(BuilderConfig):
 
     @property
     def strict_naming(self) -> bool:
-
-        strict_naming: bool
-
         if self.__strict_naming is None:
             if 'strict-naming' in self.target_config:
                 strict_naming = self.target_config['strict-naming']

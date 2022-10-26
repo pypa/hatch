@@ -5,10 +5,9 @@ import hashlib
 import os
 import stat
 import tempfile
+import typing
 import zipfile
 from io import StringIO
-from types import TracebackType
-from typing import Any, Callable, Sequence
 
 from hatchling.__about__ import __version__
 from hatchling.builders.config import BuilderConfig
@@ -25,7 +24,14 @@ from hatchling.builders.utils import (
 )
 from hatchling.metadata.spec import DEFAULT_METADATA_VERSION, get_core_metadata_constructors
 
+if typing.TYPE_CHECKING:
+    from types import TracebackType
+    from typing import Any, Callable, Iterable, Sequence, Tuple, cast
+
+
 EDITABLES_MINIMUM_VERSION = '0.3'
+
+TIME_TUPLE = Tuple[int, int, int, int, int, int]
 
 
 class RecordFile:
@@ -33,7 +39,7 @@ class RecordFile:
         self.__file_obj = StringIO()
         self.__writer = csv.writer(self.__file_obj, delimiter=',', quotechar='"', lineterminator='\n')
 
-    def write(self, record: tuple[str, ...]) -> None:
+    def write(self, record: Iterable[Any]) -> None:
         self.__writer.writerow(record)
 
     def construct(self) -> str:
@@ -55,7 +61,7 @@ class WheelArchive:
         """
         self.metadata_directory = f'{project_id}.dist-info'
         self.shared_data_directory = f'{project_id}.data'
-        self.time_tuple: tuple[int, int, int, int, int, int] | None = None
+        self.time_tuple: TIME_TUPLE | None = None
 
         self.reproducible = reproducible
         if self.reproducible:
@@ -68,18 +74,18 @@ class WheelArchive:
         self.zf = zipfile.ZipFile(self.fd, 'w', compression=zipfile.ZIP_DEFLATED)
 
     @staticmethod
-    def get_reproducible_time_tuple() -> tuple[int, int, int, int, int, int]:
+    def get_reproducible_time_tuple() -> TIME_TUPLE:
         from datetime import datetime, timezone
 
         d = datetime.fromtimestamp(get_reproducible_timestamp(), timezone.utc)
         return d.year, d.month, d.day, d.hour, d.minute, d.second
 
-    def add_file(self, included_file: IncludedFile) -> tuple[str, ...]:
+    def add_file(self, included_file: IncludedFile) -> tuple[str, str, str]:
         relative_path = normalize_archive_path(included_file.distribution_path)
         file_stat = os.stat(included_file.path)
 
-        if self.reproducible and self.time_tuple:
-            zip_info = zipfile.ZipInfo(relative_path, self.time_tuple)
+        if self.reproducible:
+            zip_info = zipfile.ZipInfo(relative_path, cast(TIME_TUPLE, self.time_tuple))
 
             # https://github.com/takluyver/flit/pull/66
             new_mode = normalize_file_permissions(file_stat.st_mode)
@@ -104,21 +110,21 @@ class WheelArchive:
         hash_digest = format_file_hash(hash_obj.digest())
         return relative_path, f'sha256={hash_digest}', str(file_stat.st_size)
 
-    def write_metadata(self, relative_path: str, contents: str | bytes) -> tuple[str, ...]:
+    def write_metadata(self, relative_path: str, contents: str | bytes) -> tuple[str, str, str]:
         relative_path = f'{self.metadata_directory}/{normalize_archive_path(relative_path)}'
         return self.write_file(relative_path, contents)
 
-    def add_shared_file(self, shared_file: IncludedFile) -> tuple[str, ...]:
+    def add_shared_file(self, shared_file: IncludedFile) -> tuple[str, str, str]:
         shared_file.distribution_path = f'{self.shared_data_directory}/data/{shared_file.distribution_path}'
         return self.add_file(shared_file)
 
-    def add_extra_metadata_file(self, extra_metadata_file: IncludedFile) -> tuple[str, ...]:
+    def add_extra_metadata_file(self, extra_metadata_file: IncludedFile) -> tuple[str, str, str]:
         extra_metadata_file.distribution_path = (
             f'{self.metadata_directory}/extra_metadata/{extra_metadata_file.distribution_path}'
         )
         return self.add_file(extra_metadata_file)
 
-    def write_file(self, relative_path: str, contents: str | bytes) -> tuple[str, ...]:
+    def write_file(self, relative_path: str, contents: str | bytes) -> tuple[str, str, str]:
         if not isinstance(contents, bytes):
             contents = contents.encode('utf-8')
 
@@ -151,10 +157,10 @@ class WheelBuilderConfig(BuilderConfig):
             or self.target_config.get('packages', self.build_config.get('packages'))
             or self.target_config.get('only-include', self.build_config.get('only-include'))
         )
-        self.__include: list = []
-        self.__exclude: list = []
-        self.__packages: list = []
-        self.__only_include: list = []
+        self.__include: list[str] = []
+        self.__exclude: list[str] = []
+        self.__packages: list[str] = []
+        self.__only_include: list[str] = []
 
         self.__core_metadata_constructor: Callable[..., str] | None = None
         self.__shared_data: dict[str, str] | None = None
@@ -218,7 +224,7 @@ class WheelBuilderConfig(BuilderConfig):
     @property
     def core_metadata_constructor(self) -> Callable[..., str]:
         if self.__core_metadata_constructor is None:
-            core_metadata_version: str = self.target_config.get('core-metadata-version', DEFAULT_METADATA_VERSION)
+            core_metadata_version = self.target_config.get('core-metadata-version', DEFAULT_METADATA_VERSION)
             if not isinstance(core_metadata_version, str):
                 raise TypeError(
                     f'Field `tool.hatch.build.targets.{self.plugin_name}.core-metadata-version` must be a string'
@@ -294,9 +300,6 @@ class WheelBuilderConfig(BuilderConfig):
 
     @property
     def strict_naming(self) -> bool:
-
-        strict_naming: bool
-
         if self.__strict_naming is None:
             if 'strict-naming' in self.target_config:
                 strict_naming = self.target_config['strict-naming']

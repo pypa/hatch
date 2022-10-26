@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import os
 import re
+import typing
 from abc import ABC, abstractmethod
-from typing import Any, Callable, Generator, cast
 
 from hatchling.bridge.app import Application
 from hatchling.builders.config import BuilderConfig, env_var_enabled
@@ -11,6 +11,9 @@ from hatchling.builders.constants import EXCLUDED_DIRECTORIES, BuildEnvVars
 from hatchling.builders.utils import get_relative_path, safe_walk
 from hatchling.metadata.core import ProjectMetadata
 from hatchling.plugin.manager import PluginManager
+
+if typing.TYPE_CHECKING:
+    from typing import Any, Callable, Generator, cast
 
 
 class IncludedFile:
@@ -100,9 +103,8 @@ class BuilderInterface(ABC):
 
         version_api = self.get_version_api()
 
-        if versions is None:
-            versions = self.config.versions
-        else:
+        versions = versions or self.config.versions
+        if versions:
             unknown_versions = set(versions) - set(version_api)
             if unknown_versions:
                 raise ValueError(

@@ -295,9 +295,6 @@ class BuilderConfig:
 
     @property
     def skip_excluded_dirs(self) -> bool:
-
-        skip_excluded_dirs: bool
-
         if self.__skip_excluded_dirs is None:
             if 'skip-excluded-dirs' in self.target_config:
                 skip_excluded_dirs = self.target_config['skip-excluded-dirs']
@@ -316,9 +313,6 @@ class BuilderConfig:
 
     @property
     def ignore_vcs(self) -> bool:
-
-        ignore_vcs: bool
-
         if self.__ignore_vcs is None:
             if 'ignore-vcs' in self.target_config:
                 ignore_vcs = self.target_config['ignore-vcs']
@@ -335,9 +329,6 @@ class BuilderConfig:
 
     @property
     def require_runtime_dependencies(self) -> bool:
-
-        require_runtime_dependencies: bool
-
         if self.__require_runtime_dependencies is None:
             if 'require-runtime-dependencies' in self.target_config:
                 require_runtime_dependencies = self.target_config['require-runtime-dependencies']
@@ -394,9 +385,6 @@ class BuilderConfig:
         """
         Whether or not the target should ignore non-artifact files that do not reside within a Python package.
         """
-
-        only_packages: bool
-
         if self.__only_packages is None:
             if 'only-packages' in self.target_config:
                 only_packages = self.target_config['only-packages']
@@ -418,9 +406,6 @@ class BuilderConfig:
         """
         Whether or not the target should be built in a reproducible manner, defaulting to true.
         """
-
-        reproducible: bool
-
         if self.__reproducible is None:
             if 'reproducible' in self.target_config:
                 reproducible = self.target_config['reproducible']
@@ -471,9 +456,6 @@ class BuilderConfig:
 
     @property
     def dev_mode_exact(self) -> bool:
-
-        dev_mode_exact: bool
-
         if self.__dev_mode_exact is None:
             if 'dev-mode-exact' in self.target_config:
                 dev_mode_exact = self.target_config['dev-mode-exact']
@@ -763,7 +745,7 @@ class BuilderConfig:
     @property
     def vcs_exclusion_files(self) -> dict[str, list[str]]:
         if self.__vcs_exclusion_files is None:
-            exclusion_files: dict[str, list] = {'git': [], 'hg': []}
+            exclusion_files: dict[str, list[str]] = {'git': [], 'hg': []}
 
             local_gitignore = locate_file(self.root, '.gitignore')
             if local_gitignore is not None:

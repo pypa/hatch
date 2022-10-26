@@ -2,9 +2,12 @@ from __future__ import annotations
 
 import os
 import shutil
+import typing
 from base64 import urlsafe_b64encode
-from typing import Generator
-from zipfile import ZipInfo
+
+if typing.TYPE_CHECKING:
+    from typing import Generator
+    from zipfile import ZipInfo
 
 
 def replace_file(src: str, dst: str) -> None:
