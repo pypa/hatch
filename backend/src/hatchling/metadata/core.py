@@ -1,10 +1,20 @@
+from __future__ import annotations
+
 import os
 import sys
 from copy import deepcopy
+from typing import TYPE_CHECKING, Any
 
 from hatchling.metadata.utils import get_normalized_dependency, is_valid_project_name, normalize_project_name
 from hatchling.utils.constants import DEFAULT_CONFIG_FILE
 from hatchling.utils.fs import locate_file
+
+if TYPE_CHECKING:
+    from packaging.requirements import Requirement
+
+    from hatch.plugin.manager import PluginManager
+    from hatch.utils.fs import Path
+    from hatchling.utils.context import Context
 
 if sys.version_info >= (3, 11):
     import tomllib
@@ -12,38 +22,35 @@ else:
     import tomli as tomllib
 
 
-def load_toml(path):
+def load_toml(path: str) -> dict[str, Any]:
     with open(path, encoding='utf-8') as f:
         return tomllib.loads(f.read())
 
 
 class ProjectMetadata:
-    def __init__(self, root, plugin_manager, config=None):
+    def __init__(
+        self,
+        root: Path | str,
+        plugin_manager: PluginManager,
+        config: dict[str, Any] | None = None,
+    ) -> None:
         self.root = root
         self.plugin_manager = plugin_manager
         self._config = config
-        self._context = None
-        self._build = None
-        self._core = None
-        self._hatch = None
-
-        self._core_raw_metadata = None
-        self._dynamic = None
-        self._name = None
-        self._version = None
-        self._project_file = None
 
         # App already loaded config
         if config is not None and root is not None:
             self._project_file = os.path.join(root, 'pyproject.toml')
 
-    def has_project_file(self):
+    def has_project_file(self) -> bool:
         _ = self.config
+        if getattr(self, '_project_file', None) is None:
+            return False
         return os.path.isfile(self._project_file)
 
     @property
-    def context(self):
-        if self._context is None:
+    def context(self) -> Context:
+        if getattr(self, '_context', None) is None:
             from hatchling.utils.context import Context
 
             self._context = Context(self.root)
@@ -51,8 +58,8 @@ class ProjectMetadata:
         return self._context
 
     @property
-    def core_raw_metadata(self):
-        if self._core_raw_metadata is None:
+    def core_raw_metadata(self) -> dict[str, Any]:
+        if getattr(self, '_core_raw_metadata', None) is None:
             if 'project' not in self.config:
                 raise ValueError('Missing `project` metadata table in configuration')
 
@@ -65,9 +72,9 @@ class ProjectMetadata:
         return self._core_raw_metadata
 
     @property
-    def dynamic(self):
+    def dynamic(self) -> list[str]:
         # Keep track of the original dynamic fields before depopulation
-        if self._dynamic is None:
+        if getattr(self, '_dynamic', None) is None:
             dynamic = self.core_raw_metadata.get('dynamic', [])
             if not isinstance(dynamic, list):
                 raise TypeError('Field `project.dynamic` must be an array')
@@ -81,10 +88,10 @@ class ProjectMetadata:
         return self._dynamic
 
     @property
-    def name(self):
+    def name(self) -> str:
         # Duplicate the name parsing here for situations where it's
         # needed but metadata plugins might not be available
-        if self._name is None:
+        if getattr(self, '_name', None) is None:
             name = self.core_raw_metadata.get('name', '')
             if not name:
                 raise ValueError('Missing required field `project.name`')
@@ -98,7 +105,7 @@ class ProjectMetadata:
         """
         https://peps.python.org/pep-0621/#version
         """
-        if self._version is None:
+        if getattr(self, '_version', None) is None:
             self._set_version()
             if 'version' in self.dynamic and 'version' in self.core_raw_metadata['dynamic']:
                 self.core_raw_metadata['dynamic'].remove('version')
@@ -106,8 +113,8 @@ class ProjectMetadata:
         return self._version
 
     @property
-    def config(self):
-        if self._config is None:
+    def config(self) -> dict[str, Any]:
+        if getattr(self, '_config', None) is None:
             project_file = locate_file(self.root, 'pyproject.toml')
             if project_file is None:
                 self._config = {}
@@ -115,11 +122,11 @@ class ProjectMetadata:
                 self._project_file = project_file
                 self._config = load_toml(project_file)
 
-        return self._config
+        return self._config  # type: ignore
 
     @property
     def build(self):
-        if self._build is None:
+        if getattr(self, '_build', None) is None:
             build_metadata = self.config.get('build-system', {})
             if not isinstance(build_metadata, dict):
                 raise TypeError('The `build-system` configuration must be a table')
@@ -129,8 +136,8 @@ class ProjectMetadata:
         return self._build
 
     @property
-    def core(self):
-        if self._core is None:
+    def core(self) -> "CoreMetadata":
+        if getattr(self, '_core', None) is None:
             metadata = CoreMetadata(self.root, self.core_raw_metadata, self.hatch.metadata, self.context)
 
             # Save the fields
@@ -162,8 +169,8 @@ class ProjectMetadata:
         return self._core
 
     @property
-    def hatch(self):
-        if self._hatch is None:
+    def hatch(self) -> "HatchMetadata":
+        if getattr(self, '_hatch', None) is None:
             tool_config = self.config.get('tool', {})
             if not isinstance(tool_config, dict):
                 raise TypeError('The `tool` configuration must be a table')
@@ -220,18 +227,13 @@ class BuildMetadata:
     https://peps.python.org/pep-0517/
     """
 
-    def __init__(self, root, config):
+    def __init__(self, root: Path | str, config):
         self.root = root
         self.config = config
 
-        self._requires = None
-        self._requires_complex = None
-        self._build_backend = None
-        self._backend_path = None
-
     @property
     def requires_complex(self):
-        if self._requires_complex is None:
+        if getattr(self, '_requires_complex', None) is None:
             from packaging.requirements import InvalidRequirement, Requirement
 
             requires = self.config.get('requires', [])
@@ -255,14 +257,14 @@ class BuildMetadata:
 
     @property
     def requires(self):
-        if self._requires is None:
+        if getattr(self, '_requires', None) is None:
             self._requires = [str(r) for r in self.requires_complex]
 
         return self._requires
 
     @property
     def build_backend(self):
-        if self._build_backend is None:
+        if getattr(self, '_build_backend', None) is None:
             build_backend = self.config.get('build-backend', '')
             if not isinstance(build_backend, str):
                 raise TypeError('Field `build-system.build-backend` must be a string')
@@ -273,7 +275,7 @@ class BuildMetadata:
 
     @property
     def backend_path(self):
-        if self._backend_path is None:
+        if getattr(self, '_backend_path', None) is None:
             backend_path = self.config.get('backend-path', [])
             if not isinstance(backend_path, list):
                 raise TypeError('Field `build-system.backend-path` must be an array')
@@ -292,40 +294,19 @@ class CoreMetadata:
     https://peps.python.org/pep-0621/
     """
 
-    def __init__(self, root, config, hatch_metadata, context):
+    def __init__(
+        self,
+        root: Path | str,
+        config: dict[str, Any],
+        hatch_metadata: "HatchMetadataSettings",
+        context: Context,
+    ) -> None:
         self.root = root
         self.config = config
         self.hatch_metadata = hatch_metadata
         self.context = context
 
-        self._raw_name = None
-        self._name = None
-        self._version = None
-        self._description = None
-        self._readme = None
-        self._readme_content_type = None
-        self._readme_path = None
-        self._requires_python = None
-        self._python_constraint = None
-        self._license = None
-        self._license_expression = None
-        self._license_files = None
-        self._authors = None
-        self._authors_data = None
-        self._maintainers = None
-        self._maintainers_data = None
-        self._keywords = None
-        self._classifiers = None
-        self._extra_classifiers = set()
-        self._urls = None
-        self._scripts = None
-        self._gui_scripts = None
-        self._entry_points = None
-        self._dependencies_complex = None
-        self._dependencies = None
-        self._optional_dependencies_complex = None
-        self._optional_dependencies = None
-        self._dynamic = None
+        self._extra_classifiers: set = set()
 
         # Indicates that the version has been successfully set dynamically
         self._version_set = False
@@ -335,7 +316,7 @@ class CoreMetadata:
         """
         https://peps.python.org/pep-0621/#name
         """
-        if self._raw_name is None:
+        if getattr(self, '_raw_name', None) is None:
             if 'name' in self.dynamic:
                 raise ValueError('Static metadata field `name` cannot be present in field `project.dynamic`')
             elif 'name' in self.config:
@@ -363,7 +344,7 @@ class CoreMetadata:
         """
         https://peps.python.org/pep-0621/#name
         """
-        if self._name is None:
+        if getattr(self, '_name', None) is None:
             self._name = normalize_project_name(self.raw_name)
 
         return self._name
@@ -373,13 +354,15 @@ class CoreMetadata:
         """
         https://peps.python.org/pep-0621/#version
         """
-        if self._version is None:
+        if getattr(self, '_version', None) is None:
             if 'version' not in self.config:
                 if not self._version_set and 'version' not in self.dynamic:
                     raise ValueError(
                         'Field `project.version` can only be resolved dynamically '
                         'if `version` is in field `project.dynamic`'
                     )
+                self._version = None  # TODO: what should happen here?
+                # previously this would just remain `None`
             else:
                 if 'version' in self.dynamic:
                     raise ValueError(
@@ -400,7 +383,7 @@ class CoreMetadata:
         """
         https://peps.python.org/pep-0621/#description
         """
-        if self._description is None:
+        if getattr(self, '_description', None) is None:
             if 'description' in self.config:
                 description = self.config['description']
                 if 'description' in self.dynamic:
@@ -423,7 +406,7 @@ class CoreMetadata:
         """
         https://peps.python.org/pep-0621/#readme
         """
-        if self._readme is None:
+        if getattr(self, '_readme', None) is None:
             if 'readme' in self.config:
                 readme = self.config['readme']
                 if 'readme' in self.dynamic:
@@ -512,7 +495,7 @@ class CoreMetadata:
         """
         https://peps.python.org/pep-0621/#readme
         """
-        if self._readme_content_type is None:
+        if getattr(self, '_readme_content_type', None) is None:
             _ = self.readme
 
         return self._readme_content_type
@@ -522,7 +505,7 @@ class CoreMetadata:
         """
         https://peps.python.org/pep-0621/#readme
         """
-        if self._readme_path is None:
+        if getattr(self, '_readme_path', None) is None:
             _ = self.readme
 
         return self._readme_path
@@ -532,7 +515,7 @@ class CoreMetadata:
         """
         https://peps.python.org/pep-0621/#requires-python
         """
-        if self._requires_python is None:
+        if getattr(self, '_requires_python', None) is None:
             from packaging.specifiers import InvalidSpecifier, SpecifierSet
 
             if 'requires-python' in self.config:
@@ -559,7 +542,7 @@ class CoreMetadata:
 
     @property
     def python_constraint(self):
-        if self._python_constraint is None:
+        if getattr(self, '_python_constraint', None) is None:
             _ = self.requires_python
 
         return self._python_constraint
@@ -569,7 +552,7 @@ class CoreMetadata:
         """
         https://peps.python.org/pep-0621/#license
         """
-        if self._license is None:
+        if getattr(self, '_license', None) is None:
             if 'license' in self.config:
                 data = self.config['license']
                 if 'license' in self.dynamic:
@@ -626,7 +609,7 @@ class CoreMetadata:
         """
         https://peps.python.org/pep-0639/
         """
-        if self._license_expression is None:
+        if getattr(self, '_license_expression', None) is None:
             _ = self.license
 
         return self._license_expression
@@ -636,7 +619,7 @@ class CoreMetadata:
         """
         https://peps.python.org/pep-0639/
         """
-        if self._license_files is None:
+        if getattr(self, '_license_files', None) is None:
             if 'license-files' not in self.config:
                 data = {'globs': ['LICEN[CS]E*', 'COPYING*', 'NOTICE*', 'AUTHORS*']}
             else:
@@ -700,7 +683,7 @@ class CoreMetadata:
         """
         https://peps.python.org/pep-0621/#authors-maintainers
         """
-        if self._authors is None:
+        if getattr(self, '_authors', None) is None:
             if 'authors' in self.config:
                 authors = self.config['authors']
                 if 'authors' in self.dynamic:
@@ -750,7 +733,7 @@ class CoreMetadata:
         """
         https://peps.python.org/pep-0621/#authors-maintainers
         """
-        if self._authors_data is None:
+        if getattr(self, '_authors_data', None) is None:
             _ = self.authors
 
         return self._authors_data
@@ -760,7 +743,7 @@ class CoreMetadata:
         """
         https://peps.python.org/pep-0621/#authors-maintainers
         """
-        if self._maintainers is None:
+        if getattr(self, '_maintainers', None) is None:
             if 'maintainers' in self.config:
                 maintainers = self.config['maintainers']
                 if 'maintainers' in self.dynamic:
@@ -812,7 +795,7 @@ class CoreMetadata:
         """
         https://peps.python.org/pep-0621/#authors-maintainers
         """
-        if self._maintainers_data is None:
+        if getattr(self, '_maintainers_data', None) is None:
             _ = self.maintainers
 
         return self._maintainers_data
@@ -822,7 +805,7 @@ class CoreMetadata:
         """
         https://peps.python.org/pep-0621/#keywords
         """
-        if self._keywords is None:
+        if getattr(self, '_keywords', None) is None:
             if 'keywords' in self.config:
                 keywords = self.config['keywords']
                 if 'keywords' in self.dynamic:
@@ -853,7 +836,7 @@ class CoreMetadata:
         """
         https://peps.python.org/pep-0621/#classifiers
         """
-        if self._classifiers is None:
+        if getattr(self, '_classifiers', None) is None:
             import bisect
 
             from hatchling.metadata.classifiers import KNOWN_CLASSIFIERS, SORTED_CLASSIFIERS, is_private
@@ -897,7 +880,7 @@ class CoreMetadata:
         """
         https://peps.python.org/pep-0621/#urls
         """
-        if self._urls is None:
+        if getattr(self, '_urls', None) is None:
             if 'urls' in self.config:
                 urls = self.config['urls']
                 if 'urls' in self.dynamic:
@@ -927,7 +910,7 @@ class CoreMetadata:
         """
         https://peps.python.org/pep-0621/#entry-points
         """
-        if self._scripts is None:
+        if getattr(self, '_scripts', None) is None:
             if 'scripts' in self.config:
                 scripts = self.config['scripts']
                 if 'scripts' in self.dynamic:
@@ -958,7 +941,7 @@ class CoreMetadata:
         """
         https://peps.python.org/pep-0621/#entry-points
         """
-        if self._gui_scripts is None:
+        if getattr(self, '_gui_scripts', None) is None:
             if 'gui-scripts' in self.config:
                 gui_scripts = self.config['gui-scripts']
                 if 'gui-scripts' in self.dynamic:
@@ -989,7 +972,7 @@ class CoreMetadata:
         """
         https://peps.python.org/pep-0621/#entry-points
         """
-        if self._entry_points is None:
+        if getattr(self, '_entry_points', None) is None:
             if 'entry-points' in self.config:
                 defined_entry_point_groups = self.config['entry-points']
                 if 'entry-points' in self.dynamic:
@@ -1034,11 +1017,11 @@ class CoreMetadata:
         return self._entry_points
 
     @property
-    def dependencies_complex(self):
+    def dependencies_complex(self) -> dict[str, Requirement]:
         """
         https://peps.python.org/pep-0621/#dependencies-optional-dependencies
         """
-        if self._dependencies_complex is None:
+        if getattr(self, '_dependencies_complex', None) is None:
             from packaging.requirements import InvalidRequirement, Requirement
 
             if 'dependencies' in self.config:
@@ -1082,17 +1065,17 @@ class CoreMetadata:
         """
         https://peps.python.org/pep-0621/#dependencies-optional-dependencies
         """
-        if self._dependencies is None:
+        if getattr(self, '_dependencies', None) is None:
             self._dependencies = list(self.dependencies_complex)
 
         return self._dependencies
 
     @property
-    def optional_dependencies_complex(self):
+    def optional_dependencies_complex(self) -> dict[Any, Any]:
         """
         https://peps.python.org/pep-0621/#dependencies-optional-dependencies
         """
-        if self._optional_dependencies_complex is None:
+        if getattr(self, '_optional_dependencies_complex', None) is None:
             from packaging.requirements import InvalidRequirement, Requirement
 
             if 'optional-dependencies' in self.config:
@@ -1108,8 +1091,8 @@ class CoreMetadata:
             if not isinstance(optional_dependencies, dict):
                 raise TypeError('Field `project.optional-dependencies` must be a table')
 
-            normalized_options = {}
-            optional_dependency_entries = {}
+            normalized_options: dict[str, Any] = {}
+            optional_dependency_entries: dict[str, Any] = {}
 
             for option, dependencies in optional_dependencies.items():
                 if not is_valid_project_name(option):
@@ -1171,7 +1154,7 @@ class CoreMetadata:
         """
         https://peps.python.org/pep-0621/#dependencies-optional-dependencies
         """
-        if self._optional_dependencies is None:
+        if getattr(self, '_optional_dependencies', None) is None:
             self._optional_dependencies = {
                 option: list(entries) for option, entries in self.optional_dependencies_complex.items()
             }
@@ -1179,11 +1162,11 @@ class CoreMetadata:
         return self._optional_dependencies
 
     @property
-    def dynamic(self):
+    def dynamic(self) -> list[str]:
         """
         https://peps.python.org/pep-0621/#dynamic
         """
-        if self._dynamic is None:
+        if getattr(self, '_dynamic', None) is None:
             self._dynamic = self.config.get('dynamic', [])
 
         return self._dynamic
@@ -1198,19 +1181,14 @@ class CoreMetadata:
 
 
 class HatchMetadata:
-    def __init__(self, root, config, plugin_manager):
+    def __init__(self, root: Path | str, config: dict[str, dict[str, Any]], plugin_manager: PluginManager) -> None:
         self.root = root
         self.config = config
         self.plugin_manager = plugin_manager
 
-        self._metadata = None
-        self._build_config = None
-        self._build_targets = None
-        self._version = None
-
     @property
-    def metadata(self):
-        if self._metadata is None:
+    def metadata(self) -> "HatchMetadataSettings":
+        if getattr(self, '_metadata', None) is None:
             metadata_config = self.config.get('metadata', {})
             if not isinstance(metadata_config, dict):
                 raise TypeError('Field `tool.hatch.metadata` must be a table')
@@ -1221,7 +1199,7 @@ class HatchMetadata:
 
     @property
     def build_config(self):
-        if self._build_config is None:
+        if getattr(self, '_build_config', None) is None:
             build_config = self.config.get('build', {})
             if not isinstance(build_config, dict):
                 raise TypeError('Field `tool.hatch.build` must be a table')
@@ -1232,7 +1210,7 @@ class HatchMetadata:
 
     @property
     def build_targets(self):
-        if self._build_targets is None:
+        if getattr(self, '_build_targets', None) is None:
             build_targets = self.build_config.get('targets', {})
             if not isinstance(build_targets, dict):
                 raise TypeError('Field `tool.hatch.build.targets` must be a table')
@@ -1243,7 +1221,7 @@ class HatchMetadata:
 
     @property
     def version(self):
-        if self._version is None:
+        if getattr(self, '_version', None) is None:
             if 'version' not in self.config:
                 raise ValueError('Missing `tool.hatch.version` configuration')
 
@@ -1262,15 +1240,9 @@ class HatchVersionConfig:
         self.config = config
         self.plugin_manager = plugin_manager
 
-        self._cached = None
-        self._source_name = None
-        self._scheme_name = None
-        self._source = None
-        self._scheme = None
-
     @property
     def cached(self):
-        if self._cached is None:
+        if getattr(self, '_cached', None) is None:
             try:
                 self._cached = self.source.get_version_data()['version']
             except Exception as e:
@@ -1280,7 +1252,7 @@ class HatchVersionConfig:
 
     @property
     def source_name(self):
-        if self._source_name is None:
+        if getattr(self, '_source_name', None) is None:
             source = self.config.get('source', 'regex')
             if not source:
                 raise ValueError(
@@ -1295,7 +1267,7 @@ class HatchVersionConfig:
 
     @property
     def scheme_name(self):
-        if self._scheme_name is None:
+        if getattr(self, '_scheme_name', None) is None:
             scheme = self.config.get('scheme', 'standard')
             if not scheme:
                 raise ValueError(
@@ -1310,7 +1282,7 @@ class HatchVersionConfig:
 
     @property
     def source(self):
-        if self._source is None:
+        if getattr(self, '_source', None) is None:
             from copy import deepcopy
 
             source_name = self.source_name
@@ -1326,7 +1298,7 @@ class HatchVersionConfig:
 
     @property
     def scheme(self):
-        if self._scheme is None:
+        if getattr(self, '_scheme', None) is None:
             from copy import deepcopy
 
             scheme_name = self.scheme_name
@@ -1342,19 +1314,14 @@ class HatchVersionConfig:
 
 
 class HatchMetadataSettings:
-    def __init__(self, root, config, plugin_manager):
+    def __init__(self, root: Path | str, config: dict[Any, Any], plugin_manager: PluginManager) -> None:
         self.root = root
         self.config = config
         self.plugin_manager = plugin_manager
 
-        self._allow_direct_references = None
-        self._allow_ambiguous_features = None
-        self._hook_config = None
-        self._hooks = None
-
     @property
     def allow_direct_references(self):
-        if self._allow_direct_references is None:
+        if getattr(self, '_allow_direct_references', None) is None:
             allow_direct_references = self.config.get('allow-direct-references', False)
             if not isinstance(allow_direct_references, bool):
                 raise TypeError('Field `tool.hatch.metadata.allow-direct-references` must be a boolean')
@@ -1366,7 +1333,7 @@ class HatchMetadataSettings:
     @property
     def allow_ambiguous_features(self):
         # TODO: remove in the first minor release after Jan 1, 2024
-        if self._allow_ambiguous_features is None:
+        if getattr(self, '_allow_ambiguous_features', None) is None:
             allow_ambiguous_features = self.config.get('allow-ambiguous-features', False)
             if not isinstance(allow_ambiguous_features, bool):
                 raise TypeError('Field `tool.hatch.metadata.allow-ambiguous-features` must be a boolean')
@@ -1376,8 +1343,8 @@ class HatchMetadataSettings:
         return self._allow_ambiguous_features
 
     @property
-    def hook_config(self):
-        if self._hook_config is None:
+    def hook_config(self) -> dict[Any, Any]:
+        if getattr(self, '_hook_config', None) is None:
             hook_config = self.config.get('hooks', {})
             if not isinstance(hook_config, dict):
                 raise TypeError('Field `tool.hatch.metadata.hooks` must be a table')
@@ -1387,8 +1354,8 @@ class HatchMetadataSettings:
         return self._hook_config
 
     @property
-    def hooks(self):
-        if self._hooks is None:
+    def hooks(self) -> dict[Any, Any]:
+        if getattr(self, '_hooks', None) is None:
             hook_config = self.hook_config
 
             configured_hooks = {}

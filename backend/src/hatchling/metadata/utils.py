@@ -1,19 +1,23 @@
 import re
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from packaging.requirements import Requirement
 
 # NOTE: this module should rarely be changed because it is likely to be used by other packages like Hatch
 
 
-def is_valid_project_name(project_name):
+def is_valid_project_name(project_name: str):
     # https://peps.python.org/pep-0508/#names
     return re.search('^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$', project_name, re.IGNORECASE) is not None
 
 
-def normalize_project_name(project_name):
+def normalize_project_name(project_name: str):
     # https://peps.python.org/pep-0503/#normalized-names
     return re.sub(r'[-_.]+', '-', project_name).lower()
 
 
-def get_normalized_dependency(requirement):
+def get_normalized_dependency(requirement: "Requirement"):
     # Changes to this function affect reproducibility between versions
     from packaging.specifiers import SpecifierSet
 
