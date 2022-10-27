@@ -1,16 +1,11 @@
 from __future__ import annotations
 
-from typing import TypedDict
+from typing import cast
 
 from hatchling.licenses.supported import EXCEPTIONS, LICENSES
 
 
-class LicenseType(TypedDict):
-    id: str
-    deprecated: bool
-
-
-def get_valid_licenses() -> dict[str, LicenseType]:
+def get_valid_licenses() -> dict[str, dict[str, str | bool]]:
     valid_licenses = LICENSES.copy()
 
     # https://peps.python.org/pep-0639/#should-custom-license-identifiers-be-allowed
@@ -81,7 +76,7 @@ def normalize_license_expression(raw_license_expression: str) -> str:
             if token not in valid_licenses:
                 raise ValueError(f'unknown license: {token}')
 
-            normalized_tokens.append(valid_licenses[token]['id'] + suffix)
+            normalized_tokens.append(cast(str, valid_licenses[token]['id']) + suffix)
 
     # Construct the normalized expression
     normalized_expression = ' '.join(normalized_tokens)
