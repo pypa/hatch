@@ -135,7 +135,7 @@ class ProjectMetadata:
                 self._project_file = project_file
                 self._config = load_toml(project_file)
 
-        return self._config  # type: ignore
+        return self._config
 
     @property
     def build(self) -> BuildMetadata:
@@ -160,7 +160,7 @@ class ProjectMetadata:
             if metadata_hooks:
                 static_fields = set(self.core_raw_metadata)
                 if 'version' in self.hatch.config:
-                    self._get_version(metadata)
+                    self._version = self._get_version(metadata)
                     self.core_raw_metadata['version'] = self.version
 
                 for metadata_hook in metadata_hooks.values():
@@ -342,7 +342,7 @@ class CoreMetadata:
         self._maintainers_data: dict[str, list[str]] | None = None
         self._keywords: list[str] | None = None
         self._classifiers: list[str] | None = None
-        self._extra_classifiers = set()
+        self._extra_classifiers: set[str] = set()
         self._urls: dict[str, str] | None = None
         self._scripts: dict[str, str] | None = None
         self._gui_scripts: dict[str, str] | None = None
@@ -406,7 +406,6 @@ class CoreMetadata:
                         'Field `project.version` can only be resolved dynamically '
                         'if `version` is in field `project.dynamic`'
                     )
-                # TODO: what should happen here? Currently this leaves the version as None?
             else:
                 if 'version' in self.dynamic:
                     raise ValueError(
