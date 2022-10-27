@@ -316,7 +316,7 @@ class CoreMetadata:
         self,
         root: Path | str,
         config: dict[str, Any],
-        hatch_metadata: "HatchMetadataSettings",
+        hatch_metadata: HatchMetadataSettings,
         context: Context,
     ) -> None:
         self.root = root
@@ -1240,7 +1240,7 @@ class HatchMetadata:
         self._version: HatchVersionConfig | None = None
 
     @property
-    def metadata(self) -> "HatchMetadataSettings":
+    def metadata(self) -> HatchMetadataSettings:
         if self._metadata is None:
             metadata_config = self.config.get('metadata', {})
             if not isinstance(metadata_config, dict):
@@ -1273,7 +1273,7 @@ class HatchMetadata:
         return self._build_targets
 
     @property
-    def version(self) -> "HatchVersionConfig":
+    def version(self) -> HatchVersionConfig:
         if self._version is None:
             if 'version' not in self.config:
                 raise ValueError('Missing `tool.hatch.version` configuration')

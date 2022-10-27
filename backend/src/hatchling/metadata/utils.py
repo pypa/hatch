@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import re
 from typing import TYPE_CHECKING
 
@@ -17,7 +19,7 @@ def normalize_project_name(project_name: str):
     return re.sub(r'[-_.]+', '-', project_name).lower()
 
 
-def get_normalized_dependency(requirement: "Requirement"):
+def get_normalized_dependency(requirement: Requirement):
     # Changes to this function affect reproducibility between versions
     from packaging.specifiers import SpecifierSet
 
