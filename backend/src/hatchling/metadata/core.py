@@ -329,7 +329,7 @@ class CoreMetadata:
         self._version: str | None = None
         self._description: str | None = None
         self._readme: str | None = None
-        self._readme_content_type: str | None = None  # TODO: make into enum?
+        self._readme_content_type: str | None = None
         self._readme_path: str | None = None
         self._requires_python: str | None = None
         self._python_constraint: SpecifierSet | None = None
@@ -528,8 +528,6 @@ class CoreMetadata:
                 self._readme_path = readme_path
             else:
                 raise TypeError('Field `project.readme` must be a string or a table')
-
-            self._readme = self._readme  # TODO: should this be here?
 
         return self._readme
 
