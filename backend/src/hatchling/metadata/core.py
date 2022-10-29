@@ -1,10 +1,22 @@
+from __future__ import annotations
+
 import os
 import sys
 from copy import deepcopy
+from typing import TYPE_CHECKING, Any
 
 from hatchling.metadata.utils import get_normalized_dependency, is_valid_project_name, normalize_project_name
 from hatchling.utils.constants import DEFAULT_CONFIG_FILE
 from hatchling.utils.fs import locate_file
+
+if TYPE_CHECKING:
+    from packaging.requirements import Requirement
+    from packaging.specifiers import SpecifierSet
+
+    from hatch.plugin.manager import PluginManager
+    from hatch.utils.fs import Path
+    from hatchling.utils.context import Context
+    from hatchling.version.source.regex import RegexSource
 
 if sys.version_info >= (3, 11):
     import tomllib
@@ -12,37 +24,45 @@ else:
     import tomli as tomllib
 
 
-def load_toml(path):
+def load_toml(path: str) -> dict[str, Any]:
     with open(path, encoding='utf-8') as f:
         return tomllib.loads(f.read())
 
 
 class ProjectMetadata:
-    def __init__(self, root, plugin_manager, config=None):
+    def __init__(
+        self,
+        root: Path | str,
+        plugin_manager: PluginManager,
+        config: dict[str, Any] | None = None,
+    ) -> None:
         self.root = root
         self.plugin_manager = plugin_manager
         self._config = config
-        self._context = None
-        self._build = None
-        self._core = None
-        self._hatch = None
 
-        self._core_raw_metadata = None
-        self._dynamic = None
-        self._name = None
-        self._version = None
-        self._project_file = None
+        self._context: Context | None = None
+        self._build: BuildMetadata | None = None
+        self._core: CoreMetadata | None = None
+        self._hatch: HatchMetadata | None = None
+
+        self._core_raw_metadata: dict[str, Any] | None = None
+        self._dynamic: list[str] | None = None
+        self._name: str | None = None
+        self._version: str | None = None
+        self._project_file: str | None = None
 
         # App already loaded config
         if config is not None and root is not None:
             self._project_file = os.path.join(root, 'pyproject.toml')
 
-    def has_project_file(self):
+    def has_project_file(self) -> bool:
         _ = self.config
+        if self._project_file is None:
+            return False
         return os.path.isfile(self._project_file)
 
     @property
-    def context(self):
+    def context(self) -> Context:
         if self._context is None:
             from hatchling.utils.context import Context
 
@@ -51,7 +71,7 @@ class ProjectMetadata:
         return self._context
 
     @property
-    def core_raw_metadata(self):
+    def core_raw_metadata(self) -> dict[str, Any]:
         if self._core_raw_metadata is None:
             if 'project' not in self.config:
                 raise ValueError('Missing `project` metadata table in configuration')
@@ -65,7 +85,7 @@ class ProjectMetadata:
         return self._core_raw_metadata
 
     @property
-    def dynamic(self):
+    def dynamic(self) -> list[str]:
         # Keep track of the original dynamic fields before depopulation
         if self._dynamic is None:
             dynamic = self.core_raw_metadata.get('dynamic', [])
@@ -81,7 +101,7 @@ class ProjectMetadata:
         return self._dynamic
 
     @property
-    def name(self):
+    def name(self) -> str:
         # Duplicate the name parsing here for situations where it's
         # needed but metadata plugins might not be available
         if self._name is None:
@@ -94,19 +114,19 @@ class ProjectMetadata:
         return self._name
 
     @property
-    def version(self):
+    def version(self) -> str:
         """
         https://peps.python.org/pep-0621/#version
         """
         if self._version is None:
-            self._set_version()
+            self._version = self._get_version()
             if 'version' in self.dynamic and 'version' in self.core_raw_metadata['dynamic']:
                 self.core_raw_metadata['dynamic'].remove('version')
 
         return self._version
 
     @property
-    def config(self):
+    def config(self) -> dict[str, Any]:
         if self._config is None:
             project_file = locate_file(self.root, 'pyproject.toml')
             if project_file is None:
@@ -118,7 +138,7 @@ class ProjectMetadata:
         return self._config
 
     @property
-    def build(self):
+    def build(self) -> BuildMetadata:
         if self._build is None:
             build_metadata = self.config.get('build-system', {})
             if not isinstance(build_metadata, dict):
@@ -129,7 +149,7 @@ class ProjectMetadata:
         return self._build
 
     @property
-    def core(self):
+    def core(self) -> CoreMetadata:
         if self._core is None:
             metadata = CoreMetadata(self.root, self.core_raw_metadata, self.hatch.metadata, self.context)
 
@@ -140,7 +160,7 @@ class ProjectMetadata:
             if metadata_hooks:
                 static_fields = set(self.core_raw_metadata)
                 if 'version' in self.hatch.config:
-                    self._set_version(metadata)
+                    self._version = self._get_version(metadata)
                     self.core_raw_metadata['version'] = self.version
 
                 for metadata_hook in metadata_hooks.values():
@@ -162,7 +182,7 @@ class ProjectMetadata:
         return self._core
 
     @property
-    def hatch(self):
+    def hatch(self) -> HatchMetadata:
         if self._hatch is None:
             tool_config = self.config.get('tool', {})
             if not isinstance(tool_config, dict):
@@ -186,7 +206,7 @@ class ProjectMetadata:
 
         return self._hatch
 
-    def _set_version(self, core_metadata=None):
+    def _get_version(self, core_metadata=None):
         if core_metadata is None:
             core_metadata = self.core
 
@@ -208,7 +228,7 @@ class ProjectMetadata:
                 f'Invalid version `{version}` from {source}, see https://peps.python.org/pep-0440/'
             )
         else:
-            self._version = normalized_version
+            return normalized_version
 
     def validate_fields(self):
         _ = self.version
@@ -220,17 +240,17 @@ class BuildMetadata:
     https://peps.python.org/pep-0517/
     """
 
-    def __init__(self, root, config):
+    def __init__(self, root: Path | str, config: dict[str, str | list[str]]) -> None:
         self.root = root
         self.config = config
 
-        self._requires = None
-        self._requires_complex = None
-        self._build_backend = None
-        self._backend_path = None
+        self._requires: list[str] | None = None
+        self._requires_complex: list[Requirement] | None = None
+        self._build_backend: str | None = None
+        self._backend_path: list[str] | None = None
 
     @property
-    def requires_complex(self):
+    def requires_complex(self) -> list[Requirement]:
         if self._requires_complex is None:
             from packaging.requirements import InvalidRequirement, Requirement
 
@@ -292,40 +312,46 @@ class CoreMetadata:
     https://peps.python.org/pep-0621/
     """
 
-    def __init__(self, root, config, hatch_metadata, context):
+    def __init__(
+        self,
+        root: Path | str,
+        config: dict[str, Any],
+        hatch_metadata: HatchMetadataSettings,
+        context: Context,
+    ) -> None:
         self.root = root
         self.config = config
         self.hatch_metadata = hatch_metadata
         self.context = context
 
-        self._raw_name = None
-        self._name = None
-        self._version = None
-        self._description = None
-        self._readme = None
-        self._readme_content_type = None
-        self._readme_path = None
-        self._requires_python = None
-        self._python_constraint = None
-        self._license = None
-        self._license_expression = None
-        self._license_files = None
-        self._authors = None
-        self._authors_data = None
-        self._maintainers = None
-        self._maintainers_data = None
-        self._keywords = None
-        self._classifiers = None
-        self._extra_classifiers = set()
-        self._urls = None
-        self._scripts = None
-        self._gui_scripts = None
-        self._entry_points = None
-        self._dependencies_complex = None
-        self._dependencies = None
-        self._optional_dependencies_complex = None
-        self._optional_dependencies = None
-        self._dynamic = None
+        self._raw_name: str | None = None
+        self._name: str | None = None
+        self._version: str | None = None
+        self._description: str | None = None
+        self._readme: str | None = None
+        self._readme_content_type: str | None = None
+        self._readme_path: str | None = None
+        self._requires_python: str | None = None
+        self._python_constraint: SpecifierSet | None = None
+        self._license: str | None = None
+        self._license_expression: str | None = None
+        self._license_files: list[str] | None = None
+        self._authors: list[str] | None = None
+        self._authors_data: dict[str, list[str]] | None = None
+        self._maintainers: list[str] | None = None
+        self._maintainers_data: dict[str, list[str]] | None = None
+        self._keywords: list[str] | None = None
+        self._classifiers: list[str] | None = None
+        self._extra_classifiers: set[str] = set()
+        self._urls: dict[str, str] | None = None
+        self._scripts: dict[str, str] | None = None
+        self._gui_scripts: dict[str, str] | None = None
+        self._entry_points: dict[str, dict[str, str]] | None = None
+        self._dependencies_complex: dict[str, Requirement] | None = None
+        self._dependencies: list[str] | None = None
+        self._optional_dependencies_complex: dict[str, Requirement] | None = None
+        self._optional_dependencies: dict[str, list[Requirement]] | None = None
+        self._dynamic: list[str] | None = None
 
         # Indicates that the version has been successfully set dynamically
         self._version_set = False
@@ -502,8 +528,6 @@ class CoreMetadata:
                 self._readme_path = readme_path
             else:
                 raise TypeError('Field `project.readme` must be a string or a table')
-
-            self._readme = self._readme
 
         return self._readme
 
@@ -1034,7 +1058,7 @@ class CoreMetadata:
         return self._entry_points
 
     @property
-    def dependencies_complex(self):
+    def dependencies_complex(self) -> dict[str, Requirement]:
         """
         https://peps.python.org/pep-0621/#dependencies-optional-dependencies
         """
@@ -1088,7 +1112,7 @@ class CoreMetadata:
         return self._dependencies
 
     @property
-    def optional_dependencies_complex(self):
+    def optional_dependencies_complex(self) -> dict[Any, Any]:
         """
         https://peps.python.org/pep-0621/#dependencies-optional-dependencies
         """
@@ -1108,8 +1132,8 @@ class CoreMetadata:
             if not isinstance(optional_dependencies, dict):
                 raise TypeError('Field `project.optional-dependencies` must be a table')
 
-            normalized_options = {}
-            optional_dependency_entries = {}
+            normalized_options: dict[str, Any] = {}
+            optional_dependency_entries: dict[str, Any] = {}
 
             for option, dependencies in optional_dependencies.items():
                 if not is_valid_project_name(option):
@@ -1179,12 +1203,17 @@ class CoreMetadata:
         return self._optional_dependencies
 
     @property
-    def dynamic(self):
+    def dynamic(self) -> list[str]:
         """
         https://peps.python.org/pep-0621/#dynamic
         """
         if self._dynamic is None:
             self._dynamic = self.config.get('dynamic', [])
+
+        if not isinstance(self._dynamic, list):
+            raise TypeError('Field `project.dynamic` must be an array')
+        elif not all(isinstance(entry, str) for entry in self._dynamic):
+            raise TypeError('Field `project.dynamic` must only contain strings')
 
         return self._dynamic
 
@@ -1198,18 +1227,18 @@ class CoreMetadata:
 
 
 class HatchMetadata:
-    def __init__(self, root, config, plugin_manager):
+    def __init__(self, root: Path | str, config: dict[str, dict[str, Any]], plugin_manager: PluginManager) -> None:
         self.root = root
         self.config = config
         self.plugin_manager = plugin_manager
 
-        self._metadata = None
-        self._build_config = None
-        self._build_targets = None
-        self._version = None
+        self._metadata: HatchMetadataSettings | None = None
+        self._build_config: dict[str, Any] | None = None
+        self._build_targets: dict[str, Any] | None = None
+        self._version: HatchVersionConfig | None = None
 
     @property
-    def metadata(self):
+    def metadata(self) -> HatchMetadataSettings:
         if self._metadata is None:
             metadata_config = self.config.get('metadata', {})
             if not isinstance(metadata_config, dict):
@@ -1242,7 +1271,7 @@ class HatchMetadata:
         return self._build_targets
 
     @property
-    def version(self):
+    def version(self) -> HatchVersionConfig:
         if self._version is None:
             if 'version' not in self.config:
                 raise ValueError('Missing `tool.hatch.version` configuration')
@@ -1257,15 +1286,15 @@ class HatchMetadata:
 
 
 class HatchVersionConfig:
-    def __init__(self, root, config, plugin_manager):
+    def __init__(self, root: Path | str, config: dict[str, Any], plugin_manager: PluginManager) -> None:
         self.root = root
         self.config = config
         self.plugin_manager = plugin_manager
 
         self._cached = None
-        self._source_name = None
+        self._source_name: str | None = None
         self._scheme_name = None
-        self._source = None
+        self._source: RegexSource | None = None
         self._scheme = None
 
     @property
@@ -1279,9 +1308,9 @@ class HatchVersionConfig:
         return self._cached
 
     @property
-    def source_name(self):
+    def source_name(self) -> str:
         if self._source_name is None:
-            source = self.config.get('source', 'regex')
+            source: str = self.config.get('source', 'regex')
             if not source:
                 raise ValueError(
                     'The `source` option under the `tool.hatch.version` table must not be empty if defined'
@@ -1309,7 +1338,7 @@ class HatchVersionConfig:
         return self._scheme_name
 
     @property
-    def source(self):
+    def source(self) -> RegexSource:
         if self._source is None:
             from copy import deepcopy
 
@@ -1342,20 +1371,20 @@ class HatchVersionConfig:
 
 
 class HatchMetadataSettings:
-    def __init__(self, root, config, plugin_manager):
+    def __init__(self, root: Path | str, config: dict[Any, Any], plugin_manager: PluginManager) -> None:
         self.root = root
         self.config = config
         self.plugin_manager = plugin_manager
 
-        self._allow_direct_references = None
-        self._allow_ambiguous_features = None
-        self._hook_config = None
-        self._hooks = None
+        self._allow_direct_references: bool | None = None
+        self._allow_ambiguous_features: bool | None = None
+        self._hook_config: dict[Any, Any] | None = None
+        self._hooks: dict[Any, Any] | None = None
 
     @property
     def allow_direct_references(self):
         if self._allow_direct_references is None:
-            allow_direct_references = self.config.get('allow-direct-references', False)
+            allow_direct_references: bool = self.config.get('allow-direct-references', False)
             if not isinstance(allow_direct_references, bool):
                 raise TypeError('Field `tool.hatch.metadata.allow-direct-references` must be a boolean')
 
@@ -1367,7 +1396,7 @@ class HatchMetadataSettings:
     def allow_ambiguous_features(self):
         # TODO: remove in the first minor release after Jan 1, 2024
         if self._allow_ambiguous_features is None:
-            allow_ambiguous_features = self.config.get('allow-ambiguous-features', False)
+            allow_ambiguous_features: bool = self.config.get('allow-ambiguous-features', False)
             if not isinstance(allow_ambiguous_features, bool):
                 raise TypeError('Field `tool.hatch.metadata.allow-ambiguous-features` must be a boolean')
 
@@ -1376,9 +1405,9 @@ class HatchMetadataSettings:
         return self._allow_ambiguous_features
 
     @property
-    def hook_config(self):
+    def hook_config(self) -> dict[Any, Any]:
         if self._hook_config is None:
-            hook_config = self.config.get('hooks', {})
+            hook_config: dict[Any, Any] = self.config.get('hooks', {})
             if not isinstance(hook_config, dict):
                 raise TypeError('Field `tool.hatch.metadata.hooks` must be a table')
 
@@ -1387,7 +1416,7 @@ class HatchMetadataSettings:
         return self._hook_config
 
     @property
-    def hooks(self):
+    def hooks(self) -> dict[Any, Any]:
         if self._hooks is None:
             hook_config = self.hook_config
 
