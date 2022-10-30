@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import typing
-
-from hatchling.bridge.app import Application
-from hatchling.metadata.core import ProjectMetadata
+from typing import cast
 
 if typing.TYPE_CHECKING:
-    from typing import Any, cast
+    from typing import Any
+
+    from hatchling.bridge.app import Application
+    from hatchling.metadata.core import ProjectMetadata
 
 
 class BuildHookInterface:  # no cov

@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import os
+import typing
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, Generator
 
 import pathspec
 
@@ -11,14 +11,16 @@ from hatchling.builders.utils import normalize_inclusion_map, normalize_relative
 from hatchling.metadata.utils import normalize_project_name
 from hatchling.utils.fs import locate_file
 
-if TYPE_CHECKING:
+if typing.TYPE_CHECKING:
+    from typing import Any, Generator
+
     from hatchling.builders.plugin.interface import BuilderInterface
 
 
 class BuilderConfig:
     def __init__(
         self,
-        builder: BuilderInterface,
+        builder: type[BuilderInterface],
         root: str,
         plugin_name: str,
         build_config: dict[str, Any],

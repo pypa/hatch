@@ -1,14 +1,18 @@
 from __future__ import annotations
 
 import os
-from typing import Any
+import typing
 
-from hatchling.bridge.app import Application
 from hatchling.builders.plugin.interface import BuilderInterface
 from hatchling.metadata.core import ProjectMetadata
-from hatchling.plugin.manager import PluginManager
 from hatchling.plugin.utils import load_plugin_from_script
 from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT
+
+if typing.TYPE_CHECKING:
+    from typing import Any
+
+    from hatchling.bridge.app import Application
+    from hatchling.plugin.manager import PluginManager
 
 
 class CustomBuilder:

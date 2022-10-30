@@ -8,10 +8,11 @@ import tempfile
 import typing
 import zipfile
 from io import StringIO
+from typing import Tuple, cast
 
 from hatchling.__about__ import __version__
 from hatchling.builders.config import BuilderConfig
-from hatchling.builders.plugin.interface import BuilderInterface, IncludedFile
+from hatchling.builders.plugin.interface import BuilderInterface
 from hatchling.builders.utils import (
     format_file_hash,
     get_known_python_major_versions,
@@ -26,7 +27,9 @@ from hatchling.metadata.spec import DEFAULT_METADATA_VERSION, get_core_metadata_
 
 if typing.TYPE_CHECKING:
     from types import TracebackType
-    from typing import Any, Callable, Iterable, Sequence, Tuple, cast
+    from typing import Any, Callable, Iterable, Sequence
+
+    from hatchling.builders.plugin.interface import IncludedFile
 
 
 EDITABLES_MINIMUM_VERSION = '0.3'

@@ -1,9 +1,12 @@
 from __future__ import annotations
 
-from typing import Any
+import typing
 
 from hatchling.builders.hooks.plugin.interface import BuildHookInterface
 from hatchling.version.core import VersionFile
+
+if typing.TYPE_CHECKING:
+    from typing import Any
 
 
 class VersionBuildHook(BuildHookInterface):
