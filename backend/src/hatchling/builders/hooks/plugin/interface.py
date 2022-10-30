@@ -1,3 +1,11 @@
+from __future__ import annotations
+
+from typing import Any, cast
+
+from hatchling.bridge.app import Application
+from hatchling.metadata.core import ProjectMetadata
+
+
 class BuildHookInterface:  # no cov
     """
     Example usage:
@@ -30,7 +38,16 @@ class BuildHookInterface:  # no cov
     PLUGIN_NAME = ''
     """The name used for selection."""
 
-    def __init__(self, root, config, build_config, metadata, directory, target_name, app=None):
+    def __init__(
+        self,
+        root: str,
+        config: dict[str, Any],
+        build_config: dict[str, Any],
+        metadata: ProjectMetadata,
+        directory: str,
+        target_name: str,
+        app: Application | None = None,
+    ) -> None:
         self.__root = root
         self.__config = config
         self.__build_config = build_config
@@ -40,26 +57,26 @@ class BuildHookInterface:  # no cov
         self.__app = app
 
     @property
-    def app(self):
+    def app(self) -> Application:
         """
         An instance of [Application](../utilities.md#hatchling.bridge.app.Application).
         """
         if self.__app is None:
             from hatchling.bridge.app import Application
 
-            self.__app = Application().get_safe_application()
+            self.__app = cast(Application, Application().get_safe_application())
 
         return self.__app
 
     @property
-    def root(self):
+    def root(self) -> str:
         """
         The root of the project tree.
         """
         return self.__root
 
     @property
-    def config(self):
+    def config(self) -> dict[str, Any]:
         """
         The cumulative hook configuration.
 
@@ -80,46 +97,46 @@ class BuildHookInterface:  # no cov
         return self.__config
 
     @property
-    def metadata(self):
+    def metadata(self) -> ProjectMetadata:
         # Undocumented for now
         return self.__metadata
 
     @property
-    def build_config(self):
+    def build_config(self) -> dict[str, Any]:
         """
         An instance of [BuilderConfig](../utilities.md#hatchling.builders.config.BuilderConfig).
         """
         return self.__build_config
 
     @property
-    def directory(self):
+    def directory(self) -> str:
         """
         The build directory.
         """
         return self.__directory
 
     @property
-    def target_name(self):
+    def target_name(self) -> str:
         """
         The plugin name of the build target.
         """
         return self.__target_name
 
-    def clean(self, versions):
+    def clean(self, versions: list[str]) -> None:
         """
         This occurs before the build process if the `-c`/`--clean` flag was passed to
         the [`build`](../../cli/reference.md#hatch-build) command, or when invoking
         the [`clean`](../../cli/reference.md#hatch-clean) command.
         """
 
-    def initialize(self, version, build_data):
+    def initialize(self, version: str, build_data: dict[str, Any]) -> None:
         """
         This occurs immediately before each build.
 
         Any modifications to the build data will be seen by the build target.
         """
 
-    def finalize(self, version, build_data, artifact_path):
+    def finalize(self, version: str, build_data: dict[str, Any], artifact_path: str) -> None:
         """
         This occurs immediately after each build and will not run if the `--hooks-only` flag
         was passed to the [`build`](../../cli/reference.md#hatch-build) command.

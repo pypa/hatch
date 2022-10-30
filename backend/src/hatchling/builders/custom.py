@@ -1,7 +1,12 @@
-import os
+from __future__ import annotations
 
+import os
+from typing import Any
+
+from hatchling.bridge.app import Application
 from hatchling.builders.plugin.interface import BuilderInterface
 from hatchling.metadata.core import ProjectMetadata
+from hatchling.plugin.manager import PluginManager
 from hatchling.plugin.utils import load_plugin_from_script
 from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT
 
@@ -9,7 +14,14 @@ from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT
 class CustomBuilder:
     PLUGIN_NAME = 'custom'
 
-    def __new__(cls, root, plugin_manager=None, config=None, metadata=None, app=None):
+    def __new__(
+        cls,
+        root: str,
+        plugin_manager: PluginManager | None = None,
+        config: dict[str, Any] | None = None,
+        metadata: ProjectMetadata | None = None,
+        app: Application | None = None,
+    ) -> BuilderInterface:
         project_metadata = ProjectMetadata(root, plugin_manager, config)
 
         target_config = project_metadata.hatch.build_targets.get(cls.PLUGIN_NAME, {})

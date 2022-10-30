@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import gzip
 import os
 import tarfile
@@ -6,6 +8,8 @@ from contextlib import closing
 from copy import copy
 from io import BytesIO
 from time import time as get_current_timestamp
+from types import TracebackType
+from typing import Any, Callable
 
 from hatchling.builders.config import BuilderConfig
 from hatchling.builders.plugin.interface import BuilderInterface
@@ -21,7 +25,7 @@ from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT, DEFAULT_CONFIG_FILE
 
 
 class SdistArchive:
-    def __init__(self, name, reproducible):
+    def __init__(self, name: str, reproducible: bool) -> None:
         """
         https://peps.python.org/pep-0517/#source-distributions
         """
@@ -39,16 +43,16 @@ class SdistArchive:
         self.tf = tarfile.TarFile(fileobj=self.gz, mode='w', format=tarfile.PAX_FORMAT)
         self.gettarinfo = lambda *args, **kwargs: self.normalize_tar_metadata(self.tf.gettarinfo(*args, **kwargs))
 
-    def create_file(self, contents, *relative_paths):
-        contents = contents.encode('utf-8')
+    def create_file(self, contents: str, *relative_paths: str) -> None:
+        bcontents = contents.encode('utf-8')
         tar_info = tarfile.TarInfo(normalize_archive_path(os.path.join(self.name, *relative_paths)))
-        tar_info.mtime = self.timestamp if self.reproducible else int(get_current_timestamp())
+        tar_info.mtime = self.reproducible and self.timestamp or int(get_current_timestamp())
         tar_info.size = len(contents)
 
-        with closing(BytesIO(contents)) as buffer:
+        with closing(BytesIO(bcontents)) as buffer:
             self.tf.addfile(tar_info, buffer)
 
-    def normalize_tar_metadata(self, tar_info):
+    def normalize_tar_metadata(self, tar_info: tarfile.TarInfo) -> tarfile.TarInfo:
         if not self.reproducible:
             return tar_info
 
@@ -58,34 +62,36 @@ class SdistArchive:
         tar_info.uname = ''
         tar_info.gname = ''
         tar_info.mode = normalize_file_permissions(tar_info.mode)
-        tar_info.mtime = self.timestamp
+        tar_info.mtime = self.timestamp or 0
 
         return tar_info
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str) -> Any:
         attr = getattr(self.tf, name)
         setattr(self, name, attr)
         return attr
 
-    def __enter__(self):
+    def __enter__(self) -> SdistArchive:
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(
+        self, exc_type: type[BaseException] | None, exc_value: BaseException | None, traceback: TracebackType | None
+    ) -> None:
         self.tf.close()
         self.gz.close()
         self.fd.close()
 
 
 class SdistBuilderConfig(BuilderConfig):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
-        self.__core_metadata_constructor = None
-        self.__strict_naming = None
-        self.__support_legacy = None
+        self.__core_metadata_constructor: Callable[..., str] | None = None
+        self.__strict_naming: bool | None = None
+        self.__support_legacy: bool | None = None
 
     @property
-    def core_metadata_constructor(self):
+    def core_metadata_constructor(self) -> Callable[..., str]:
         if self.__core_metadata_constructor is None:
             core_metadata_version = self.target_config.get('core-metadata-version', DEFAULT_METADATA_VERSION)
             if not isinstance(core_metadata_version, str):
@@ -106,7 +112,10 @@ class SdistBuilderConfig(BuilderConfig):
         return self.__core_metadata_constructor
 
     @property
-    def strict_naming(self):
+    def strict_naming(self) -> bool:
+
+        strict_naming: bool
+
         if self.__strict_naming is None:
             if 'strict-naming' in self.target_config:
                 strict_naming = self.target_config['strict-naming']
@@ -124,7 +133,7 @@ class SdistBuilderConfig(BuilderConfig):
         return self.__strict_naming
 
     @property
-    def support_legacy(self):
+    def support_legacy(self) -> bool:
         if self.__support_legacy is None:
             self.__support_legacy = bool(self.target_config.get('support-legacy', False))
 
@@ -138,18 +147,18 @@ class SdistBuilder(BuilderInterface):
 
     PLUGIN_NAME = 'sdist'
 
-    def get_version_api(self):
+    def get_version_api(self) -> dict[str, Callable]:
         return {'standard': self.build_standard}
 
-    def get_default_versions(self):
+    def get_default_versions(self) -> list[str]:
         return ['standard']
 
-    def clean(self, directory, versions):
+    def clean(self, directory: str, versions: list[str]) -> None:
         for filename in os.listdir(directory):
             if filename.endswith('.tar.gz'):
                 os.remove(os.path.join(directory, filename))
 
-    def build_standard(self, directory, **build_data):
+    def build_standard(self, directory: str, **build_data: Any) -> str:
         found_packages = set()
 
         with SdistArchive(self.project_id, self.config.reproducible) as archive:
@@ -188,14 +197,14 @@ class SdistBuilder(BuilderInterface):
         return target
 
     @property
-    def artifact_project_id(self):
+    def artifact_project_id(self) -> str:
         return (
             self.project_id
             if self.config.strict_naming
             else f'{self.normalize_file_name_component(self.metadata.core.raw_name)}-{self.metadata.version}'
         )
 
-    def construct_setup_py_file(self, packages, extra_dependencies=()):
+    def construct_setup_py_file(self, packages: list[str], extra_dependencies: tuple[()] = ()) -> str:
         contents = '# -*- coding: utf-8 -*-\nfrom setuptools import setup\n\n'
 
         contents += 'setup(\n'
@@ -307,7 +316,7 @@ class SdistBuilder(BuilderInterface):
 
         return contents
 
-    def get_default_build_data(self):
+    def get_default_build_data(self) -> dict[str, Any]:
         force_include = {
             os.path.join(self.root, 'pyproject.toml'): 'pyproject.toml',
             os.path.join(self.root, DEFAULT_CONFIG_FILE): DEFAULT_CONFIG_FILE,
@@ -333,5 +342,5 @@ class SdistBuilder(BuilderInterface):
         return build_data
 
     @classmethod
-    def get_config_class(cls):
+    def get_config_class(cls) -> type[SdistBuilderConfig]:
         return SdistBuilderConfig

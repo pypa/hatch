@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import os
 from contextlib import contextmanager
+from typing import TYPE_CHECKING, Any, Generator
 
 import pathspec
 
@@ -8,70 +11,80 @@ from hatchling.builders.utils import normalize_inclusion_map, normalize_relative
 from hatchling.metadata.utils import normalize_project_name
 from hatchling.utils.fs import locate_file
 
+if TYPE_CHECKING:
+    from hatchling.builders.plugin.interface import BuilderInterface
+
 
 class BuilderConfig:
-    def __init__(self, builder, root, plugin_name, build_config, target_config):
+    def __init__(
+        self,
+        builder: BuilderInterface,
+        root: str,
+        plugin_name: str,
+        build_config: dict[str, Any],
+        target_config: dict[str, Any],
+    ) -> None:
         self.__builder = builder
         self.__root = root
         self.__plugin_name = plugin_name
         self.__build_config = build_config
         self.__target_config = target_config
-        self.__hook_config = None
-        self.__versions = None
-        self.__dependencies = None
-        self.__sources = None
-        self.__packages = None
-        self.__only_include = None
-        self.__force_include = None
-        self.__vcs_exclusion_files = None
+        self.__hook_config: dict[str, Any] | None = None
+        self.__versions: list[str] | None = None
+        self.__dependencies: list[str] | None = None
+        self.__sources: dict[str, str] | None = None
+        self.__packages: list[str] | None = None
+        self.__only_include: dict[str, str] | None = None
+        self.__force_include: dict[str, str] | None = None
+        self.__vcs_exclusion_files: dict[str, list[str]] | None = None
 
         # Possible pathspec.GitIgnoreSpec
-        self.__include_spec = None
-        self.__exclude_spec = None
-        self.__artifact_spec = None
+        self.__include_spec: pathspec.GitIgnoreSpec | None = None
+        self.__exclude_spec: pathspec.GitIgnoreSpec | None = None
+        self.__artifact_spec: pathspec.GitIgnoreSpec | None = None
 
         # These are used to create the pathspecs and will never be `None` after the first match attempt
-        self.__include_patterns = None
-        self.__exclude_patterns = None
-        self.__artifact_patterns = None
+        self.__include_patterns: list[str] | None = None
+        self.__exclude_patterns: list[str] | None = None
+        self.__artifact_patterns: list[str] | None = None
 
         # Modified at build time
-        self.build_artifact_spec = None
-        self.build_force_include = {}
-        self.build_reserved_paths = set()
+        self.build_artifact_spec: pathspec.GitIgnoreSpec | None = None
+        self.build_force_include: dict[str, str] = {}
+        self.build_reserved_paths: set[str] = set()
 
         # Common options
-        self.__directory = None
-        self.__skip_excluded_dirs = None
-        self.__ignore_vcs = None
-        self.__only_packages = None
-        self.__reproducible = None
-        self.__dev_mode_dirs = None
-        self.__dev_mode_exact = None
-        self.__require_runtime_dependencies = None
-        self.__require_runtime_features = None
+        self.__directory: str | None = None
+        self.__skip_excluded_dirs: bool | None = None
+        self.__ignore_vcs: bool | None = None
+        self.__only_packages: bool | None = None
+        self.__reproducible: bool | None = None
+        self.__dev_mode_dirs: list[str] | None = None
+        self.__dev_mode_exact: bool | None = None
+        self.__require_runtime_dependencies: bool | None = None
+        self.__require_runtime_features: list[str] | None = None
 
     @property
-    def builder(self):
+    def builder(self) -> BuilderInterface:
         return self.__builder
 
     @property
-    def root(self):
+    def root(self) -> str:
         return self.__root
 
     @property
-    def plugin_name(self):
+    def plugin_name(self) -> str:
         return self.__plugin_name
 
     @property
-    def build_config(self):
+    def build_config(self) -> dict[str, Any]:
         return self.__build_config
 
     @property
-    def target_config(self):
+    def target_config(self) -> dict[str, Any]:
         return self.__target_config
 
-    def include_path(self, relative_path, *, explicit=False, is_package=True):
+    def include_path(self, relative_path: str, *, explicit: bool = False, is_package: bool = True) -> bool:
         return (
             self.path_is_build_artifact(relative_path)
             or self.path_is_artifact(relative_path)
@@ -83,34 +96,34 @@ class BuilderConfig:
             )
         )
 
-    def path_is_included(self, relative_path):
+    def path_is_included(self, relative_path: str) -> bool:
         if self.include_spec is None:
             return True
 
         return self.include_spec.match_file(relative_path)
 
-    def path_is_excluded(self, relative_path):
+    def path_is_excluded(self, relative_path: str) -> bool:
         if self.exclude_spec is None:
             return False
 
         return self.exclude_spec.match_file(relative_path)
 
-    def path_is_artifact(self, relative_path):
+    def path_is_artifact(self, relative_path: str) -> bool:
         if self.artifact_spec is None:
             return False
 
         return self.artifact_spec.match_file(relative_path)
 
-    def path_is_build_artifact(self, relative_path):
+    def path_is_build_artifact(self, relative_path: str) -> bool:
         if self.build_artifact_spec is None:
             return False
 
         return self.build_artifact_spec.match_file(relative_path)
 
-    def path_is_reserved(self, relative_path):
+    def path_is_reserved(self, relative_path: str) -> bool:
         return relative_path in self.build_reserved_paths
 
-    def directory_is_excluded(self, name, relative_path):
+    def directory_is_excluded(self, name: str, relative_path: str) -> bool:
         if name in EXCLUDED_DIRECTORIES:
             return True
 
@@ -122,7 +135,7 @@ class BuilderConfig:
         )
 
     @property
-    def include_spec(self):
+    def include_spec(self) -> pathspec.GitIgnoreSpec | None:
         if self.__include_patterns is None:
             if 'include' in self.target_config:
                 include_config = self.target_config
@@ -158,7 +171,7 @@ class BuilderConfig:
         return self.__include_spec
 
     @property
-    def exclude_spec(self):
+    def exclude_spec(self) -> pathspec.GitIgnoreSpec | None:
         if self.__exclude_patterns is None:
             if 'exclude' in self.target_config:
                 exclude_config = self.target_config
@@ -192,7 +205,7 @@ class BuilderConfig:
         return self.__exclude_spec
 
     @property
-    def artifact_spec(self):
+    def artifact_spec(self) -> pathspec.GitIgnoreSpec | None:
         if self.__artifact_patterns is None:
             if 'artifacts' in self.target_config:
                 artifact_config = self.target_config
@@ -223,9 +236,9 @@ class BuilderConfig:
         return self.__artifact_spec
 
     @property
-    def hook_config(self):
+    def hook_config(self) -> dict[str, Any]:
         if self.__hook_config is None:
-            hook_config = {}
+            hook_config: dict[str, dict[str, Any]] = {}
 
             global_hook_config = self.build_config.get('hooks', {})
             if not isinstance(global_hook_config, dict):
@@ -265,7 +278,7 @@ class BuilderConfig:
         return self.__hook_config
 
     @property
-    def directory(self):
+    def directory(self) -> str:
         if self.__directory is None:
             if 'directory' in self.target_config:
                 directory = self.target_config['directory']
@@ -281,7 +294,10 @@ class BuilderConfig:
         return self.__directory
 
     @property
-    def skip_excluded_dirs(self):
+    def skip_excluded_dirs(self) -> bool:
+
+        skip_excluded_dirs: bool
+
         if self.__skip_excluded_dirs is None:
             if 'skip-excluded-dirs' in self.target_config:
                 skip_excluded_dirs = self.target_config['skip-excluded-dirs']
@@ -299,7 +315,10 @@ class BuilderConfig:
         return self.__skip_excluded_dirs
 
     @property
-    def ignore_vcs(self):
+    def ignore_vcs(self) -> bool:
+
+        ignore_vcs: bool
+
         if self.__ignore_vcs is None:
             if 'ignore-vcs' in self.target_config:
                 ignore_vcs = self.target_config['ignore-vcs']
@@ -315,7 +334,10 @@ class BuilderConfig:
         return self.__ignore_vcs
 
     @property
-    def require_runtime_dependencies(self):
+    def require_runtime_dependencies(self) -> bool:
+
+        require_runtime_dependencies: bool
+
         if self.__require_runtime_dependencies is None:
             if 'require-runtime-dependencies' in self.target_config:
                 require_runtime_dependencies = self.target_config['require-runtime-dependencies']
@@ -334,7 +356,7 @@ class BuilderConfig:
         return self.__require_runtime_dependencies
 
     @property
-    def require_runtime_features(self):
+    def require_runtime_features(self) -> list[str]:
         if self.__require_runtime_features is None:
             if 'require-runtime-features' in self.target_config:
                 features_config = self.target_config
@@ -347,7 +369,7 @@ class BuilderConfig:
             if not isinstance(require_runtime_features, list):
                 raise TypeError(f'Field `{features_location}` must be an array')
 
-            all_features = {}
+            all_features: dict[str, None] = {}
             for i, feature in enumerate(require_runtime_features, 1):
                 if not isinstance(feature, str):
                     raise TypeError(f'Feature #{i} of field `{features_location}` must be a string')
@@ -368,10 +390,13 @@ class BuilderConfig:
         return self.__require_runtime_features
 
     @property
-    def only_packages(self):
+    def only_packages(self) -> bool:
         """
         Whether or not the target should ignore non-artifact files that do not reside within a Python package.
         """
+
+        only_packages: bool
+
         if self.__only_packages is None:
             if 'only-packages' in self.target_config:
                 only_packages = self.target_config['only-packages']
@@ -389,10 +414,13 @@ class BuilderConfig:
         return self.__only_packages
 
     @property
-    def reproducible(self):
+    def reproducible(self) -> bool:
         """
         Whether or not the target should be built in a reproducible manner, defaulting to true.
         """
+
+        reproducible: bool
+
         if self.__reproducible is None:
             if 'reproducible' in self.target_config:
                 reproducible = self.target_config['reproducible']
@@ -410,7 +438,7 @@ class BuilderConfig:
         return self.__reproducible
 
     @property
-    def dev_mode_dirs(self):
+    def dev_mode_dirs(self) -> list[str]:
         """
         Directories which must be added to Python's search path in
         [dev mode](../config/environment/overview.md#dev-mode).
@@ -442,7 +470,10 @@ class BuilderConfig:
         return self.__dev_mode_dirs
 
     @property
-    def dev_mode_exact(self):
+    def dev_mode_exact(self) -> bool:
+
+        dev_mode_exact: bool
+
         if self.__dev_mode_exact is None:
             if 'dev-mode-exact' in self.target_config:
                 dev_mode_exact = self.target_config['dev-mode-exact']
@@ -460,10 +491,10 @@ class BuilderConfig:
         return self.__dev_mode_exact
 
     @property
-    def versions(self):
+    def versions(self) -> list[str]:
         if self.__versions is None:
             # Used as an ordered set
-            all_versions = {}
+            all_versions: dict[str, None] = {}
 
             versions = self.target_config.get('versions', [])
             if not isinstance(versions, list):
@@ -501,10 +532,10 @@ class BuilderConfig:
         return self.__versions
 
     @property
-    def dependencies(self):
+    def dependencies(self) -> list[str]:
         if self.__dependencies is None:
             # Used as an ordered set
-            dependencies = {}
+            dependencies: dict[str, None] = {}
 
             target_dependencies = self.target_config.get('dependencies', [])
             if not isinstance(target_dependencies, list):
@@ -591,7 +622,7 @@ class BuilderConfig:
         return self.__dependencies
 
     @property
-    def sources(self):
+    def sources(self) -> dict[str, str]:
         if self.__sources is None:
             if 'sources' in self.target_config:
                 sources_config = self.target_config
@@ -638,7 +669,7 @@ class BuilderConfig:
         return self.__sources
 
     @property
-    def packages(self):
+    def packages(self) -> list[str]:
         if self.__packages is None:
             if 'packages' in self.target_config:
                 package_config = self.target_config
@@ -662,7 +693,7 @@ class BuilderConfig:
         return self.__packages
 
     @property
-    def force_include(self):
+    def force_include(self) -> dict[str, str]:
         if self.__force_include is None:
             if 'force-include' in self.target_config:
                 force_include_config = self.target_config
@@ -690,7 +721,7 @@ class BuilderConfig:
         return self.__force_include
 
     @property
-    def only_include(self):
+    def only_include(self) -> dict[str, str]:
         if self.__only_include is None:
             if 'only-include' in self.target_config:
                 only_include_config = self.target_config
@@ -721,7 +752,7 @@ class BuilderConfig:
 
         return self.__only_include
 
-    def get_distribution_path(self, relative_path):
+    def get_distribution_path(self, relative_path: str) -> str:
         # src/foo/bar.py -> foo/bar.py
         for source, replacement in self.sources.items():
             if relative_path.startswith(source):
@@ -730,9 +761,9 @@ class BuilderConfig:
         return relative_path
 
     @property
-    def vcs_exclusion_files(self):
+    def vcs_exclusion_files(self) -> dict[str, list[str]]:
         if self.__vcs_exclusion_files is None:
-            exclusion_files = {'git': [], 'hg': []}
+            exclusion_files: dict[str, list] = {'git': [], 'hg': []}
 
             local_gitignore = locate_file(self.root, '.gitignore')
             if local_gitignore is not None:
@@ -746,7 +777,7 @@ class BuilderConfig:
 
         return self.__vcs_exclusion_files
 
-    def load_vcs_exclusion_patterns(self):
+    def load_vcs_exclusion_patterns(self) -> list[str]:
         patterns = []
 
         # https://git-scm.com/docs/gitignore#_pattern_format
@@ -771,36 +802,36 @@ class BuilderConfig:
 
         return patterns
 
-    def normalize_build_directory(self, build_directory):
+    def normalize_build_directory(self, build_directory: str) -> str:
         if not os.path.isabs(build_directory):
             build_directory = os.path.join(self.root, build_directory)
 
         return os.path.normpath(build_directory)
 
-    def default_include(self):
+    def default_include(self) -> list:
         return []
 
-    def default_exclude(self):
+    def default_exclude(self) -> list:
         return []
 
-    def default_packages(self):
+    def default_packages(self) -> list:
         return []
 
-    def default_only_include(self):
+    def default_only_include(self) -> list:
         return []
 
-    def default_global_exclude(self):
+    def default_global_exclude(self) -> list[str]:
         patterns = ['*.py[cdo]', f'/{DEFAULT_BUILD_DIRECTORY}']
         patterns.sort()
         return patterns
 
-    def get_force_include(self):
+    def get_force_include(self) -> dict[str, str]:
         force_include = self.force_include.copy()
         force_include.update(self.build_force_include)
         return force_include
 
     @contextmanager
-    def set_build_data(self, build_data):
+    def set_build_data(self, build_data: dict[str, Any]) -> Generator:
         try:
             # Include anything the hooks indicate
             build_artifacts = build_data['artifacts']
@@ -828,7 +859,7 @@ class BuilderConfig:
             self.build_reserved_paths.clear()
 
 
-def env_var_enabled(env_var, default=False):
+def env_var_enabled(env_var: str, default: bool = False) -> bool:
     if env_var in os.environ:
         return os.environ[env_var] in ('1', 'true')
     else:
