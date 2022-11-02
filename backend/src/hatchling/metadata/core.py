@@ -1060,6 +1060,13 @@ class CoreMetadata:
                 if not isinstance(entry, str):
                     raise TypeError(f'Dependency #{i} of field `project.dependencies` must be a string')
 
+                if entry.startswith('-e') or entry.startswith('--editable'):
+                    raise ValueError(
+                        f'Dependency #{i} of field `project.dependencies` cannot be editable as it is '
+                        'a project-level dependency. Only dependencies defined for the non-default hatch '
+                        'environment (`tool.hatch.envs.*.[extra-]dependencies`) can be editable.'
+                    )
+
                 try:
                     requirement = Requirement(self.context.format(entry))
                 except InvalidRequirement as e:
