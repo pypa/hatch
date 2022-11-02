@@ -1231,6 +1231,84 @@ def test_sync_dependencies(hatch, helpers, temp_dir, platform, config_file, extr
 
 
 @pytest.mark.requires_internet
+def test_editable_dependencies(hatch, helpers, temp_dir, platform, config_file, extract_installed_requirements):
+    config_file.model.template.plugins['default']['tests'] = False
+    config_file.save()
+
+    project_name = 'My.App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+
+    assert result.exit_code == 0, result.output
+
+    ns = temp_dir / 'my-app' / 'namespace'
+    ns.mkdir()
+
+    with ns.as_cwd():
+        result_ns = hatch('new', 'ns-app')
+        assert result_ns.exit_code == 0, result_ns.output
+
+    project_path = temp_dir / 'my-app'
+    data_path = temp_dir / 'data'
+    data_path.mkdir()
+
+    project = Project(project_path)
+    helpers.update_project_environment(
+        project,
+        'test',
+        {
+            'dependencies': ['-e ns-app @ {root:uri}/namespace/ns-app'],
+            'post-install-commands': ["python -c \"with open('test.txt', 'w') as f: f.write('content')\""],
+            **project.config.envs['default'],
+        },
+    )
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch('env', 'create', 'test')
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        """
+        Creating environment: test
+        Installing project in development mode
+        Running post-installation commands
+        Checking dependencies
+        Syncing dependencies
+        """
+    )
+    assert (project_path / 'test.txt').is_file()
+
+    env_data_path = data_path / 'env' / 'virtual'
+    assert env_data_path.is_dir()
+
+    project_data_path = env_data_path / project_path.name
+    assert project_data_path.is_dir()
+
+    storage_dirs = list(project_data_path.iterdir())
+    assert len(storage_dirs) == 1
+
+    storage_path = storage_dirs[0]
+    assert len(storage_path.name) == 8
+
+    env_dirs = list(storage_path.iterdir())
+    assert len(env_dirs) == 1
+
+    env_path = env_dirs[0]
+
+    assert env_path.name == 'test'
+
+    with VirtualEnv(env_path, platform):
+        output = platform.run_command(['pip', 'freeze'], check=True, capture_output=True).stdout.decode('utf-8')
+        requirements = extract_installed_requirements(output.splitlines())
+
+        assert len(requirements) == 2
+        requirements_lowered = [r.lower() for r in requirements]
+        assert f'-e {project_path / "namespace" / "ns-app"}' in requirements_lowered
+        assert f'-e {str(project_path).lower()}' in requirements_lowered
+
+
+@pytest.mark.requires_internet
 def test_features(hatch, helpers, temp_dir, platform, config_file, extract_installed_requirements):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()

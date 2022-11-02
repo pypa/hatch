@@ -603,6 +603,31 @@ class TestDependencies:
         normalized_path = str(isolation).replace('\\', '/')
         assert environment.dependencies == ['dep2', f'proj@ file:{uri_slash_prefix}{normalized_path}', 'dep1']
 
+    def test_editable_dependency(self, isolation, isolated_data_dir, platform, uri_slash_prefix):
+        config = {
+            'project': {'name': 'my_app', 'version': '0.0.1', 'dependencies': ['dep1']},
+            'tool': {
+                'hatch': {
+                    'envs': {
+                        'default': {
+                            'skip-install': False,
+                            'dependencies': ['-e dep2'],
+                            'extra-dependencies': ['--editable proj @ {root:uri}'],
+                        }
+                    }
+                }
+            },
+        }
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+        )
+
+        normalized_path = str(isolation).replace('\\', '/')
+        assert environment.dependencies == [
+            '--editable dep2', f'--editable proj@ file:{uri_slash_prefix}{normalized_path}', 'dep1'
+        ]
+
     def test_full_skip_install(self, isolation, isolated_data_dir, platform):
         config = {
             'project': {'name': 'my_app', 'version': '0.0.1', 'dependencies': ['dep1']},
