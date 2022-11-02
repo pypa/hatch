@@ -38,8 +38,23 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
+    - uses: actions/cache@v3
+      id: cache
+      if: runner.os != 'Windows'
+      with:
+        path: ${{ env.pythonLocation }}
+        key: ${{ runner.os }}-python-${{ env.pythonLocation }}-${{ hashFiles('pyproject.toml') }}-test-v02
+    
     - name: Install Hatch
+      if: steps.cache.outputs.cache-hit != 'true'
       run: pip install --upgrade hatch
+    
+    - name: Set the env directory
+      run: hatch config set dirs.env.virtual ${{ env.pythonLocation }}/.envs
+
+    - name: Create env
+      if: steps.cache.outputs.cache-hit != 'true'
+      run: hatch env create
 
     - name: Run tests
       run: hatch run cov
