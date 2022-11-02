@@ -1258,7 +1258,7 @@ def test_editable_dependencies(hatch, helpers, temp_dir, platform, config_file, 
         project,
         'test',
         {
-            'dependencies': ['-e ns-app @ {root:uri}/namespace/ns-app'],
+            'dependencies': ['-e ns-app @ {root:uri}/namespace/ns-app', 'binary'],
             'post-install-commands': ["python -c \"with open('test.txt', 'w') as f: f.write('content')\""],
             **project.config.envs['default'],
         },
@@ -1302,8 +1302,9 @@ def test_editable_dependencies(hatch, helpers, temp_dir, platform, config_file, 
         output = platform.run_command(['pip', 'freeze'], check=True, capture_output=True).stdout.decode('utf-8')
         requirements = extract_installed_requirements(output.splitlines())
 
-        assert len(requirements) == 2
+        assert len(requirements) == 3
         requirements_lowered = [r.lower() for r in requirements]
+        assert requirements_lowered[0].startswith('binary==')
         assert f'-e {project_path / "namespace" / "ns-app"}' in requirements_lowered
         assert f'-e {str(project_path).lower()}' in requirements_lowered
 
