@@ -287,7 +287,12 @@ class EnvironmentInterface(ABC):
                             )
 
                         try:
-                            dependencies_complex.append(Requirement(self.metadata.context.format(entry)))
+                            if entry.startswith('-e ') or entry.startswith('--editable '):
+                                req = Requirement(self.metadata.context.format(entry.replace('--editable ', '').replace('-e ', '')))
+                                req.name = f'-e {req.name}'
+                            else:
+                                req = Requirement(self.metadata.context.format(entry))
+                            dependencies_complex.append(req)
                         except InvalidRequirement as e:
                             raise ValueError(
                                 f'Dependency #{i} of field `tool.hatch.envs.{self.name}.{option}` is invalid: {e}'
@@ -818,7 +823,15 @@ class EnvironmentInterface(ABC):
         # Default to -1 verbosity
         add_verbosity_flag(command, self.verbosity, adjustment=-1)
 
-        command.extend(args)
+        for arg in args:
+            # The space after`-e ` and --editable ` is required in the check, as this
+            # excludes dev installs where the first argument is `--editable`
+            if arg.startswith('-e ') or arg.startswith('--editable '):
+                command.append('-e')
+                arg = arg.split('@ ', 1)[1]
+
+            command.append(arg)
+
         return command
 
     def join_command_args(self, args: list[str]):
