@@ -44,11 +44,11 @@ jobs:
       with:
         path: ${{ env.pythonLocation }}
         key: ${{ runner.os }}-python-${{ env.pythonLocation }}-${{ hashFiles('pyproject.toml') }}-test-v02
-    
+
     - name: Install Hatch
       if: steps.cache.outputs.cache-hit != 'true'
       run: pip install --upgrade hatch
-    
+
     - name: Set the env directory
       run: hatch config set dirs.env.virtual ${{ env.pythonLocation }}/.envs
 
