@@ -288,7 +288,9 @@ class EnvironmentInterface(ABC):
 
                         try:
                             if entry.startswith('-e ') or entry.startswith('--editable '):
-                                req = Requirement(self.metadata.context.format(entry.replace('--editable ', '').replace('-e ', '')))
+                                req = Requirement(
+                                    self.metadata.context.format(entry.replace('--editable ', '').replace('-e ', ''))
+                                )
                                 req.name = f'-e {req.name}'
                             else:
                                 req = Requirement(self.metadata.context.format(entry))

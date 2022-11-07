@@ -624,9 +624,7 @@ class TestDependencies:
         )
 
         normalized_path = str(isolation).replace('\\', '/')
-        assert environment.dependencies == [
-            '-e dep2', f'-e proj@ file:{uri_slash_prefix}{normalized_path}', 'dep1'
-        ]
+        assert environment.dependencies == ['-e dep2', f'-e proj@ file:{uri_slash_prefix}{normalized_path}', 'dep1']
 
     def test_full_skip_install(self, isolation, isolated_data_dir, platform):
         config = {

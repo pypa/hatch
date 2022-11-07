@@ -1305,7 +1305,7 @@ def test_editable_dependencies(hatch, helpers, temp_dir, platform, config_file, 
         assert len(requirements) == 3
         requirements_lowered = [r.lower() for r in requirements]
         assert requirements_lowered[0].startswith('binary==')
-        assert f'-e {project_path / "namespace" / "ns-app"}' in requirements_lowered
+        assert f'-e {project_path / "namespace" / "ns-app"}'.lower() in requirements_lowered
         assert f'-e {str(project_path).lower()}' in requirements_lowered
 
 
