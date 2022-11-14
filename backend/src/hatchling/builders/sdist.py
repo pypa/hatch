@@ -7,8 +7,8 @@ import tempfile
 from contextlib import closing
 from copy import copy
 from io import BytesIO
-from typing import TYPE_CHECKING, Any, Callable
 from time import time as get_current_timestamp
+from typing import TYPE_CHECKING, Any, Callable
 
 from hatchling.builders.config import BuilderConfig
 from hatchling.builders.plugin.interface import BuilderInterface
