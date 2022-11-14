@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import os
+from typing import Any
 
 from hatchling.builders.hooks.plugin.interface import BuildHookInterface
 from hatchling.plugin.utils import load_plugin_from_script
@@ -8,7 +11,7 @@ from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT
 class CustomBuildHook:
     PLUGIN_NAME = 'custom'
 
-    def __new__(cls, root, config, *args, **kwargs):
+    def __new__(cls, root: str, config: dict[str, Any], *args: Any, **kwargs: Any) -> BuildHookInterface:
         build_script = config.get('path', DEFAULT_BUILD_SCRIPT)
         if not isinstance(build_script, str):
             raise TypeError(f'Option `path` for build hook `{cls.PLUGIN_NAME}` must be a string')

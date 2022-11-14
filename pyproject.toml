@@ -99,6 +99,7 @@ module = [
     "*.hatchling.ouroboros",
     "*.hatchling.bridge.*",
     "*.hatchling.licenses.*",
+    "*.hatchling.builders.*"
 ]
 disallow_untyped_defs = true
 disallow_incomplete_defs = true
