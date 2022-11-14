@@ -54,7 +54,7 @@ dependencies = [
   "flake8-quotes>=3.3.1",
   "flake8-tidy-imports>=4.8.0",
   "isort>=5.10.1",
-  "mypy>=0.971",
+  "mypy>=0.990",
 ]
 [envs.lint.scripts]
 typing = "mypy --install-types --non-interactive {args:backend/src/hatchling src/hatch tests}"
