@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import os
-import typing
 from contextlib import contextmanager
+from typing import TYPE_CHECKING, Any, Generator
 
 import pathspec
 
@@ -11,9 +11,7 @@ from hatchling.builders.utils import normalize_inclusion_map, normalize_relative
 from hatchling.metadata.utils import normalize_project_name
 from hatchling.utils.fs import locate_file
 
-if typing.TYPE_CHECKING:
-    from typing import Any, Generator
-
+if TYPE_CHECKING:
     from hatchling.builders.plugin.interface import BuilderInterface
 
 

@@ -2,11 +2,10 @@ from __future__ import annotations
 
 import os
 import shutil
-import typing
 from base64 import urlsafe_b64encode
+from typing import TYPE_CHECKING, Generator
 
-if typing.TYPE_CHECKING:
-    from typing import Generator
+if TYPE_CHECKING:
     from zipfile import ZipInfo
 
 

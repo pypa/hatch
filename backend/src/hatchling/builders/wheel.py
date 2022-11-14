@@ -5,10 +5,9 @@ import hashlib
 import os
 import stat
 import tempfile
-import typing
 import zipfile
 from io import StringIO
-from typing import Tuple, cast
+from typing import TYPE_CHECKING, Any, Callable, Iterable, Sequence, Tuple, cast
 
 from hatchling.__about__ import __version__
 from hatchling.builders.config import BuilderConfig
@@ -25,9 +24,8 @@ from hatchling.builders.utils import (
 )
 from hatchling.metadata.spec import DEFAULT_METADATA_VERSION, get_core_metadata_constructors
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from types import TracebackType
-    from typing import Any, Callable, Iterable, Sequence
 
     from hatchling.builders.plugin.interface import IncludedFile
 

@@ -1,14 +1,11 @@
 from __future__ import annotations
 
 import os
-import typing
+from typing import Any
 
 from hatchling.builders.hooks.plugin.interface import BuildHookInterface
 from hatchling.plugin.utils import load_plugin_from_script
 from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT
-
-if typing.TYPE_CHECKING:
-    from typing import Any
 
 
 class CustomBuildHook:

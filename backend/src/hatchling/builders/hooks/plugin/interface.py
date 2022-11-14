@@ -1,11 +1,8 @@
 from __future__ import annotations
 
-import typing
-from typing import cast
+from typing import TYPE_CHECKING, Any, cast
 
-if typing.TYPE_CHECKING:
-    from typing import Any
-
+if TYPE_CHECKING:
     from hatchling.bridge.app import Application
     from hatchling.metadata.core import ProjectMetadata
 

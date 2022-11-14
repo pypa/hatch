@@ -4,10 +4,10 @@ import gzip
 import os
 import tarfile
 import tempfile
-import typing
 from contextlib import closing
 from copy import copy
 from io import BytesIO
+from typing import TYPE_CHECKING, Any, Callable
 from time import time as get_current_timestamp
 
 from hatchling.builders.config import BuilderConfig
@@ -22,9 +22,8 @@ from hatchling.builders.utils import (
 from hatchling.metadata.spec import DEFAULT_METADATA_VERSION, get_core_metadata_constructors
 from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT, DEFAULT_CONFIG_FILE
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from types import TracebackType
-    from typing import Any, Callable
 
 
 class SdistArchive:
