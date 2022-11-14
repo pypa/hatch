@@ -7,7 +7,7 @@ from hatch.utils.fs import Path
 
 
 class Project:
-    def __init__(self, path: Path, *, name: str = None, config=None):
+    def __init__(self, path: Path, *, name: str | None = None, config=None):
         self._path = path
 
         # From app config
