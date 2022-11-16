@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import re
 import sys
 
@@ -11,13 +13,13 @@ else:
 
 
 class DistributionCache:
-    def __init__(self, sys_path):
+    def __init__(self, sys_path: list[str]) -> None:
         self._resolver = Distribution.discover(context=DistributionFinder.Context(path=sys_path))
-        self._distributions = {}
+        self._distributions: dict[str, Distribution] = {}
         self._search_exhausted = False
         self._canonical_regex = re.compile(r'[-_.]+')
 
-    def __getitem__(self, item):
+    def __getitem__(self, item: str) -> Distribution | None:
         item = self._canonical_regex.sub('-', item).lower()
         possible_distribution = self._distributions.get(item)
         if possible_distribution is not None:
@@ -25,7 +27,7 @@ class DistributionCache:
         # Be safe even though the code as-is will never reach this since
         # the first unknown distribution will fail fast
         elif self._search_exhausted:  # no cov
-            return
+            return None
 
         for distribution in self._resolver:
             name = self._canonical_regex.sub('-', distribution.metadata.get('Name')).lower()
@@ -35,8 +37,12 @@ class DistributionCache:
 
         self._search_exhausted = True
 
+        return None
 
-def dependency_in_sync(requirement, environment, installed_distributions):
+
+def dependency_in_sync(
+    requirement: Requirement, environment: dict[str, str], installed_distributions: DistributionCache
+) -> bool:
     if requirement.marker and not requirement.marker.evaluate(environment):
         return True
 
@@ -46,11 +52,11 @@ def dependency_in_sync(requirement, environment, installed_distributions):
 
     extras = requirement.extras
     if extras:
-        transitive_requirements = distribution.metadata.get_all('Requires-Dist', [])
+        transitive_requirements: list[str] = distribution.metadata.get_all('Requires-Dist', [])
         if not transitive_requirements:
             return False
 
-        available_extras = distribution.metadata.get_all('Provides-Extra', [])
+        available_extras: list[str] = distribution.metadata.get_all('Provides-Extra', [])
 
         for requirement_string in transitive_requirements:
             transitive_requirement = Requirement(requirement_string)
@@ -97,7 +103,9 @@ def dependency_in_sync(requirement, environment, installed_distributions):
     return True
 
 
-def dependencies_in_sync(requirements, sys_path=None, environment=None):
+def dependencies_in_sync(
+    requirements: list[Requirement], sys_path: list[str] | None = None, environment: dict[str, str] | None = None
+) -> bool:
     if sys_path is None:
         sys_path = sys.path
     if environment is None:
