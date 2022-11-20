@@ -87,7 +87,7 @@ def show(app, envs, force_ascii, as_json):
 
         if config.get('features'):
             if app.project.metadata.hatch.metadata.allow_ambiguous_features:
-                matrix_columns['Features'][i] = '\n'.join(sorted({f for f in config['features']}))
+                matrix_columns['Features'][i] = '\n'.join(sorted(set(config['features'])))
             else:
                 matrix_columns['Features'][i] = '\n'.join(
                     sorted({normalize_project_name(f) for f in config['features']})
