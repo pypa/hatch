@@ -47,29 +47,24 @@ write-summary-report = "python scripts/write_coverage_summary_report.py"
 [envs.lint]
 detached = true
 dependencies = [
-  "bandit>=1.7.4",
   "black>=22.6.0",
-  "isort>=5.10.1",
   "mypy>=0.990",
   "ruff>=0.0.125",
 ]
 [envs.lint.scripts]
 typing = "mypy --install-types --non-interactive {args:backend/src/hatchling src/hatch tests}"
-security = "bandit --quiet --recursive --skip B101,B102,B105,B110,B112,B301,B307,B324,B403,B404,B603,B604,B606,B607 {args:.}"
 style = [
   "ruff {args:.}",
   "black --check --diff {args:.}",
-  "isort --check-only --diff {args:.}",
 ]
 fmt = [
-  "isort {args:.}",
+  "ruff --fix {args:.}",
   "black {args:.}",
   "style",
 ]
 all = [
   "style",
   "typing",
-  "security",
 ]
 
 [envs.docs]

@@ -76,6 +76,12 @@ exclude = [
   "/scripts",
 ]
 
+[tool.black]
+include = '\.pyi?$'
+line-length = 120
+skip-string-normalization = true
+target-version = ["py37"]
+
 [tool.ruff]
 line-length = 120
 select = [
@@ -83,20 +89,22 @@ select = [
   "C",
   "E",
   "F",
+  "I",
+  "Q",
+  "S",
   "W",
-  "B003",
-  "B006",
-  "B007",
-  "Q000",
-  "Q001",
-  "Q002",
-  "Q003",
-  "I252",
 ]
 ignore = [
   "B027",
   "C901",
+  "S105",
 ]
+unfixable = [
+  "F401",
+]
+
+[tool.ruff.isort]
+known-first-party = ["hatch", "hatchling"]
 
 [tool.ruff.flake8-quotes]
 inline-quotes = "single"
@@ -105,9 +113,9 @@ inline-quotes = "single"
 ban-relative-imports = "all"
 
 [tool.ruff.per-file-ignores]
-# tests can use relative imports
-"tests/*" = ["I252"]
-"tests/**/*" = ["I252"]
+# tests can use relative imports and assertions
+"tests/*" = ["I252", "S101"]
+"tests/**/*" = ["I252", "S101"]
 
 [tool.mypy]
 disallow_untyped_defs = false
@@ -136,25 +144,6 @@ module = [
 disallow_untyped_defs = true
 disallow_incomplete_defs = true
 warn_no_return = true
-
-[tool.bandit]
-recursive = true
-skip = ["B101", "B102", "B105", "B110", "B112", "B301", "B307", "B324", "B403", "B404", "B603", "B604", "B606", "B607"]
-
-[tool.black]
-include = '\.pyi?$'
-line-length = 120
-skip-string-normalization = true
-target-version = ["py37"]
-
-[tool.isort]
-default_section = "THIRDPARTY"
-force_grid_wrap = 0
-include_trailing_comma = true
-known_first_party = ["hatch", "hatchling"]
-line_length = 120
-multi_line_output = 3
-use_parentheses = true
 
 [tool.coverage.run]
 branch = true
