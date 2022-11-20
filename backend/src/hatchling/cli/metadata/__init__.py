@@ -10,7 +10,7 @@ def metadata_impl(called_by_app, field, compact):
     from hatchling.metadata.utils import resolve_metadata_fields
     from hatchling.plugin.manager import PluginManager
 
-    app = get_application(called_by_app)
+    app = get_application(called_by_app=called_by_app)
 
     root = os.getcwd()
     plugin_manager = PluginManager()

@@ -86,7 +86,7 @@ class BuilderInterface(ABC):
         hooks_only: bool | None = None,
         clean: bool | None = None,
         clean_hooks_after: bool | None = None,
-        clean_only: bool | None = False,
+        clean_only: bool | None = False,  # noqa: FBT002
     ) -> Generator[str, None, None]:
         # Fail early for invalid project metadata
         self.metadata.validate_fields()

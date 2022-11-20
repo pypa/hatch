@@ -81,7 +81,7 @@ class Context:
 
         self.add_context(DefaultContextFormatter(self.__root))
 
-    def format(self, *args, **kwargs):
+    def format(self, *args, **kwargs):  # noqa: A003
         return self.__formatter.format(*args, **kwargs)
 
     def add_context(self, context):

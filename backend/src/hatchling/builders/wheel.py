@@ -56,7 +56,7 @@ class RecordFile:
 
 
 class WheelArchive:
-    def __init__(self, project_id: str, reproducible: bool) -> None:
+    def __init__(self, project_id: str, *, reproducible: bool) -> None:
         """
         https://peps.python.org/pep-0427/#abstract
         """
@@ -347,7 +347,9 @@ class WheelBuilder(BuilderInterface):
             else:
                 build_data['tag'] = self.get_default_tag()
 
-        with WheelArchive(self.artifact_project_id, self.config.reproducible) as archive, RecordFile() as records:
+        with WheelArchive(
+            self.artifact_project_id, reproducible=self.config.reproducible
+        ) as archive, RecordFile() as records:
             for included_file in self.recurse_included_files():
                 record = archive.add_file(included_file)
                 records.write(record)
@@ -373,7 +375,9 @@ class WheelBuilder(BuilderInterface):
 
         build_data['tag'] = self.get_default_tag()
 
-        with WheelArchive(self.artifact_project_id, self.config.reproducible) as archive, RecordFile() as records:
+        with WheelArchive(
+            self.artifact_project_id, reproducible=self.config.reproducible
+        ) as archive, RecordFile() as records:
             exposed_packages = {}
             for included_file in self.recurse_project_files():
                 if not included_file.path.endswith('.py'):
@@ -445,7 +449,9 @@ class WheelBuilder(BuilderInterface):
     def build_editable_explicit(self, directory: str, **build_data: Any) -> str:
         build_data['tag'] = self.get_default_tag()
 
-        with WheelArchive(self.artifact_project_id, self.config.reproducible) as archive, RecordFile() as records:
+        with WheelArchive(
+            self.artifact_project_id, reproducible=self.config.reproducible
+        ) as archive, RecordFile() as records:
             directories = sorted(
                 os.path.normpath(os.path.join(self.root, relative_directory))
                 for relative_directory in self.config.dev_mode_dirs

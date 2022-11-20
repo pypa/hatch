@@ -131,4 +131,4 @@ exclude_lines = [
 ]
 """,
         ),
-    ]  # noqa: E501
+    ]

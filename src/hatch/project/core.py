@@ -90,7 +90,7 @@ class Project:
             path = new_path
 
     @staticmethod
-    def canonicalize_name(name: str, strict=True) -> str:
+    def canonicalize_name(name: str, *, strict=True) -> str:
         if strict:
             return re.sub(r'[-_.]+', '-', name).lower()
         else:
