@@ -9,7 +9,7 @@ def build_impl(called_by_app, directory, targets, hooks_only, no_hooks, clean, c
     from hatchling.metadata.core import ProjectMetadata
     from hatchling.plugin.manager import PluginManager
 
-    app = get_application(called_by_app)
+    app = get_application(called_by_app=called_by_app)
 
     if hooks_only and no_hooks:
         app.abort('Cannot use both --hooks-only and --no-hooks together')

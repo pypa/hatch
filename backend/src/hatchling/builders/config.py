@@ -841,7 +841,7 @@ class BuilderConfig:
             self.build_reserved_paths.clear()
 
 
-def env_var_enabled(env_var: str, default: bool = False) -> bool:
+def env_var_enabled(env_var: str, *, default: bool = False) -> bool:
     if env_var in os.environ:
         return os.environ[env_var] in ('1', 'true')
     else:

@@ -10,7 +10,7 @@ def version(app, desired_version):
         if desired_version:
             app.abort('Cannot set version when it is statically defined by the `project.version` field')
         else:
-            app.display_always(app.project.metadata.core.version)
+            app.display_always(app.project.metadata.config['project']['version'])
             return
 
     from hatchling.dep.core import dependencies_in_sync

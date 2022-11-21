@@ -20,6 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ***Fixed:***
 
+- Fix displaying the version with the `version` command when the version is static and build dependencies are unmet
 - Fix the `support-legacy` option for the `sdist` target when using a src-layout project structure
 
 ### [1.6.3](https://github.com/pypa/hatch/releases/tag/hatch-v1.6.3) - 2022-10-24 ### {: #hatch-v1.6.3 }

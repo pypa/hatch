@@ -8,7 +8,7 @@ def version_impl(called_by_app, desired_version):
     from hatchling.metadata.core import ProjectMetadata
     from hatchling.plugin.manager import PluginManager
 
-    app = get_application(called_by_app)
+    app = get_application(called_by_app=called_by_app)
 
     root = os.getcwd()
     plugin_manager = PluginManager()

@@ -58,37 +58,37 @@ class Terminal:
 
         return errors
 
-    def display_error(self, text='', stderr=True, indent=None, link=None, **kwargs):
+    def display_error(self, text='', *, stderr=True, indent=None, link=None, **kwargs):
         if self.verbosity < -2:
             return
 
         self.display(text, self._style_level_error, stderr=stderr, indent=indent, link=link, **kwargs)
 
-    def display_warning(self, text='', stderr=False, indent=None, link=None, **kwargs):
+    def display_warning(self, text='', *, stderr=False, indent=None, link=None, **kwargs):
         if self.verbosity < -1:
             return
 
         self.display(text, self._style_level_warning, stderr=stderr, indent=indent, link=link, **kwargs)
 
-    def display_info(self, text='', stderr=False, indent=None, link=None, **kwargs):
+    def display_info(self, text='', *, stderr=False, indent=None, link=None, **kwargs):
         if self.verbosity < 0:
             return
 
         self.display(text, self._style_level_info, stderr=stderr, indent=indent, link=link, **kwargs)
 
-    def display_success(self, text='', stderr=False, indent=None, link=None, **kwargs):
+    def display_success(self, text='', *, stderr=False, indent=None, link=None, **kwargs):
         if self.verbosity < 0:
             return
 
         self.display(text, self._style_level_success, stderr=stderr, indent=indent, link=link, **kwargs)
 
-    def display_waiting(self, text='', stderr=False, indent=None, link=None, **kwargs):
+    def display_waiting(self, text='', *, stderr=False, indent=None, link=None, **kwargs):
         if self.verbosity < 0:
             return
 
         self.display(text, self._style_level_waiting, stderr=stderr, indent=indent, link=link, **kwargs)
 
-    def display_debug(self, text='', level=1, stderr=False, indent=None, link=None, **kwargs):
+    def display_debug(self, text='', level=1, *, stderr=False, indent=None, link=None, **kwargs):
         if not 1 <= level <= 3:
             raise ValueError('Debug output can only have verbosity levels between 1 and 3 (inclusive)')
         elif self.verbosity < level:
@@ -112,7 +112,7 @@ class Terminal:
 
         self.display_raw(Markdown(text), **kwargs)
 
-    def display_table(self, title, columns, show_lines=False, column_options=None, force_ascii=False, num_rows=0):
+    def display_table(self, title, columns, *, show_lines=False, column_options=None, force_ascii=False, num_rows=0):
         from rich.table import Table
 
         if column_options is None:
@@ -148,7 +148,7 @@ class Terminal:
         self.display(table)
 
     @contextmanager
-    def status_waiting(self, text='', final_text=None, condition=True, **kwargs):
+    def status_waiting(self, text='', *, final_text=None, condition=True, **kwargs):
         if not condition or not self.interactive or not self.console.is_terminal:
             if condition:
                 self.display_waiting(text)

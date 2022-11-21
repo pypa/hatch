@@ -93,6 +93,6 @@ Source = "https://github.com/unknown/{kwargs['project_name_normalized']}"
 
 [tool.hatch.version]
 path = "src/{kwargs['package_name']}/__about__.py"
-""",  # noqa: E501
+""",
         ),
     ]
