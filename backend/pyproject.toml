@@ -2,3 +2,56 @@
 requires = []
 build-backend = 'hatchling.ouroboros'
 backend-path = ['src']
+
+[project]
+name = "hatchling"
+dynamic = ["version"]
+description = "Modern, extensible Python build backend"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.7"
+keywords = [
+  "build",
+  "hatch",
+  "packaging",
+]
+authors = [
+  { name = "Ofek Lev", email = "oss@ofek.dev" },
+]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Natural Language :: English",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3.7",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+  "Topic :: Software Development :: Build Tools",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+  "editables>=0.3",
+  "importlib-metadata; python_version < '3.8'",
+  "packaging>=21.3",
+  "pathspec>=0.10.1",
+  "pluggy>=1.0.0",
+  "tomli>=1.2.2; python_version < '3.11'",
+]
+
+[project.urls]
+Homepage = "https://hatch.pypa.io/latest/"
+Sponsor = "https://github.com/sponsors/ofek"
+History = "https://hatch.pypa.io/dev/history/"
+Tracker = "https://github.com/pypa/hatch/issues"
+Source = "https://github.com/pypa/hatch/tree/master/backend"
+
+[project.scripts]
+hatchling = "hatchling.cli:hatchling"
+
+[tool.hatch.version]
+path = "src/hatchling/__about__.py"

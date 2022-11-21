@@ -3,6 +3,16 @@ from __future__ import annotations
 import os
 from typing import Any
 
+__all__ = [
+    'build_editable',
+    'build_sdist',
+    'build_wheel',
+    'get_requires_for_build_editable',
+    'get_requires_for_build_sdist',
+    'get_requires_for_build_wheel',
+]
+__all__.append('__all__')
+
 
 def get_requires_for_build_sdist(config_settings: dict[str, Any] | None = None) -> list[str]:
     """
@@ -81,6 +91,8 @@ def build_editable(
 # See: https://github.com/pypa/pip/blob/22.2.2/src/pip/_internal/operations/build/build_tracker.py#L41-L51
 # Example use case: https://github.com/pypa/hatch/issues/532
 if 'PIP_BUILD_TRACKER' not in os.environ:
+    __all__.append('prepare_metadata_for_build_editable')
+    __all__.append('prepare_metadata_for_build_wheel')
 
     def prepare_metadata_for_build_wheel(metadata_directory: str, config_settings: dict[str, Any] | None) -> str:
         """
