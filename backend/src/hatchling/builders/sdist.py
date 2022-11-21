@@ -27,7 +27,7 @@ if TYPE_CHECKING:
 
 
 class SdistArchive:
-    def __init__(self, name: str, reproducible: bool) -> None:
+    def __init__(self, name: str, *, reproducible: bool) -> None:
         """
         https://peps.python.org/pep-0517/#source-distributions
         """
@@ -161,7 +161,7 @@ class SdistBuilder(BuilderInterface):
     def build_standard(self, directory: str, **build_data: Any) -> str:
         found_packages = set()
 
-        with SdistArchive(self.project_id, self.config.reproducible) as archive:
+        with SdistArchive(self.project_id, reproducible=self.config.reproducible) as archive:
             for included_file in self.recurse_included_files():
                 if self.config.support_legacy:
                     possible_package, file_name = os.path.split(included_file.relative_path)

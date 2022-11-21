@@ -95,7 +95,7 @@ class Application(Terminal):
                 environment.sync_dependencies()
 
     def run_shell_commands(
-        self, environment, commands: list[str], source='cmd', force_continue=False, show_code_on_error=True
+        self, environment, commands: list[str], source='cmd', *, force_continue=False, show_code_on_error=True
     ):
         with environment.command_context():
             try:

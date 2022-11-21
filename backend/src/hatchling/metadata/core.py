@@ -589,7 +589,7 @@ class CoreMetadata:
         return self._python_constraint
 
     @property
-    def license(self):
+    def license(self):  # noqa: A003
         """
         https://peps.python.org/pep-0621/#license
         """

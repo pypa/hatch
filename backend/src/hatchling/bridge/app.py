@@ -136,7 +136,7 @@ def format_app_command(method: str, *args: Any, **kwargs: Any) -> str:
     return f"__HATCH__:{''.join('%02x' % i for i in procedure)}"
 
 
-def get_application(called_by_app: bool) -> InvokedApplication | Application:
+def get_application(*, called_by_app: bool) -> InvokedApplication | Application:
     return InvokedApplication() if called_by_app else Application()
 
 
