@@ -5,7 +5,7 @@ import string
 from abc import ABC, abstractmethod
 from collections import ChainMap
 from contextlib import contextmanager
-from typing import Any, Iterable, Iterator, Mapping, MutableMapping, Sequence, cast
+from typing import Any, Iterable, Iterator, Mapping, MutableMapping, Sequence
 
 from hatchling.utils.fs import path_to_uri
 
