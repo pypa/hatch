@@ -155,6 +155,7 @@ module = [
     "*.hatchling.builders.*",
     "*.hatchling.dep.*",
     "*.hatchling.utils.*",
+    "*.hatchling.cli.*",
 ]
 disallow_untyped_defs = true
 disallow_incomplete_defs = true

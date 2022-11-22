@@ -1,7 +1,15 @@
+from __future__ import annotations
+
 import sys
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    import argparse
+
+    from packaging.requirements import Requirement
 
 
-def synced_impl(dependencies, python):
+def synced_impl(dependencies: list[Requirement], python: str) -> None:
     import subprocess
     from ast import literal_eval
 
@@ -17,14 +25,14 @@ def synced_impl(dependencies, python):
     sys.exit(0 if dependencies_in_sync(map(Requirement, dependencies), sys_path) else 1)
 
 
-def synced_command(subparsers, defaults):
+def synced_command(subparsers: argparse._SubParsersAction, defaults: Any) -> None:
     parser = subparsers.add_parser('synced')
     parser.add_argument('dependencies', nargs='+')
     parser.add_argument('-p', '--python', dest='python', **defaults)
     parser.set_defaults(func=synced_impl)
 
 
-def dep_command(subparsers, defaults):
+def dep_command(subparsers: argparse._SubParsersAction, defaults: Any) -> None:
     parser = subparsers.add_parser('dep')
     subparsers = parser.add_subparsers()
 

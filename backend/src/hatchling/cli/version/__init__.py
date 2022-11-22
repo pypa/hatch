@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 import argparse
+from typing import Any
 
 
-def version_impl(called_by_app, desired_version):
+def version_impl(called_by_app: bool, desired_version: str) -> None:
     import os
 
     from hatchling.bridge.app import get_application
@@ -37,7 +40,7 @@ def version_impl(called_by_app, desired_version):
     app.display_info(f'New: {updated_version}')
 
 
-def version_command(subparsers, defaults):
+def version_command(subparsers: argparse._SubParsersAction, defaults: Any) -> None:
     parser = subparsers.add_parser('version')
     parser.add_argument('desired_version', default='', nargs='?', **defaults)
     parser.add_argument('--app', dest='called_by_app', action='store_true', help=argparse.SUPPRESS)
