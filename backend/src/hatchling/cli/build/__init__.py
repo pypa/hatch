@@ -5,6 +5,7 @@ from typing import Any
 
 
 def build_impl(
+    *,
     called_by_app: bool,
     directory: str,
     targets: list[str],

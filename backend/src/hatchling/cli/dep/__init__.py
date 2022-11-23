@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from packaging.requirements import Requirement
 
 
-def synced_impl(dependencies: list[Requirement], python: str) -> None:
+def synced_impl(*, dependencies: list[Requirement], python: str) -> None:
     import subprocess
     from ast import literal_eval
 

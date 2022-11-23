@@ -4,7 +4,7 @@ import argparse
 from typing import Any
 
 
-def version_impl(called_by_app: bool, desired_version: str) -> None:
+def version_impl(*, called_by_app: bool, desired_version: str) -> None:
     import os
 
     from hatchling.bridge.app import get_application

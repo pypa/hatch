@@ -11,7 +11,7 @@ from hatchling.build import *  # noqa: F403
 def read_dependencies() -> list[str]:
     pattern = r'^dependencies = (\[.*?\])$'
 
-    with open(os.path.join(os.getcwd(), 'pyproject.toml'), 'r', encoding='utf-8') as f:
+    with open(os.path.join(os.getcwd(), 'pyproject.toml'), encoding='utf-8') as f:
         # Windows \r\n prevents match
         contents = '\n'.join(line.rstrip() for line in f)
 

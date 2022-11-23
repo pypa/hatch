@@ -4,7 +4,7 @@ import argparse
 from typing import Any
 
 
-def metadata_impl(called_by_app: bool, field: str, compact: bool) -> None:
+def metadata_impl(*, called_by_app: bool, field: str, compact: bool) -> None:
     import json
     import os
 
