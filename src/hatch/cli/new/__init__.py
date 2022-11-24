@@ -153,4 +153,4 @@ def new(app, name, location, interactive, feature_cli, initialize, setuptools_op
         hide_root=location == Path.cwd(),
     )
     recurse_directory(location, root)
-    app.display(root, markup=True)
+    app.output(root, markup=True)

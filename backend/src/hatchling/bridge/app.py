@@ -7,8 +7,8 @@ from typing import Any
 
 
 class InvokedApplication:
-    def display_always(self, *args: Any, **kwargs: Any) -> None:
-        send_app_command('display_always', *args, **kwargs)
+    def display(self, *args: Any, **kwargs: Any) -> None:
+        send_app_command('display', *args, **kwargs)
 
     def display_info(self, *args: Any, **kwargs: Any) -> None:
         send_app_command('display_info', *args, **kwargs)
@@ -51,7 +51,7 @@ class Application:
     def __init__(self) -> None:
         self.__verbosity = int(os.environ.get('HATCH_VERBOSE', '0')) - int(os.environ.get('HATCH_QUIET', '0'))
 
-    def display_always(self, message: str = '', **kwargs: Any) -> None:
+    def display(self, message: str = '', **kwargs: Any) -> None:
         # Do not document
         print(message)
 
@@ -120,7 +120,7 @@ class Application:
 class SafeApplication:
     def __init__(self, app: InvokedApplication | Application) -> None:
         self.abort = app.abort
-        self.display_always = app.display_always
+        self.display = app.display
         self.display_info = app.display_info
         self.display_error = app.display_error
         self.display_success = app.display_success
