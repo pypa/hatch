@@ -24,4 +24,4 @@ def find(app, env_name):
         except Exception:
             continue
 
-        app.display_always(environment.find())
+        app.display(environment.find())
