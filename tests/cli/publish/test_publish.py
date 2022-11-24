@@ -638,7 +638,7 @@ class TestWheel:
         metadata_file_path = f'{published_project_name}-{current_version}.dist-info/METADATA'
 
         with zipfile.ZipFile(artifact_path, 'r') as zip_archive:
-            with zip_archive.open(metadata_file_path, 'r') as metadata_file:
+            with zip_archive.open(metadata_file_path) as metadata_file:
                 metadata_file_contents = metadata_file.read().decode('utf-8')
 
         with zipfile.ZipFile(artifact_path, 'w') as zip_archive:
