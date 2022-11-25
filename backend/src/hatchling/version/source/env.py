@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 
 from hatchling.version.source.plugin.interface import VersionSourceInterface
@@ -6,7 +8,7 @@ from hatchling.version.source.plugin.interface import VersionSourceInterface
 class EnvSource(VersionSourceInterface):
     PLUGIN_NAME = 'env'
 
-    def get_version_data(self):
+    def get_version_data(self) -> dict:
         variable = self.config.get('variable', '')
         if not variable:
             raise ValueError('option `variable` must be specified')
@@ -18,5 +20,5 @@ class EnvSource(VersionSourceInterface):
 
         return {'version': os.environ[variable]}
 
-    def set_version(self, version, version_data):
+    def set_version(self, version: str, version_data: dict) -> None:
         raise NotImplementedError('Cannot set environment variables')
