@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 
 from hatchling.version.source.plugin.interface import VersionSourceInterface
@@ -6,7 +8,7 @@ from hatchling.version.source.plugin.interface import VersionSourceInterface
 class CodeSource(VersionSourceInterface):
     PLUGIN_NAME = 'code'
 
-    def get_version_data(self):
+    def get_version_data(self) -> dict:
         import importlib
         import sys
 
@@ -35,8 +37,8 @@ class CodeSource(VersionSourceInterface):
 
             absolute_search_paths.append(os.path.normpath(os.path.join(self.root, search_path)))
 
-        spec = importlib.util.spec_from_file_location(os.path.splitext(path)[0], path)
-        module = importlib.util.module_from_spec(spec)
+        spec = importlib.util.spec_from_file_location(os.path.splitext(path)[0], path)  # type: ignore
+        module = importlib.util.module_from_spec(spec)  # type: ignore
 
         old_search_paths = list(sys.path)
         try:
@@ -50,5 +52,5 @@ class CodeSource(VersionSourceInterface):
 
         return {'version': version}
 
-    def set_version(self, version, version_data):
+    def set_version(self, version: str, version_data: dict) -> None:
         raise NotImplementedError('Cannot rewrite loaded code')
