@@ -22,7 +22,6 @@ def get_wheel_form_data(artifact):
     from packaging.tags import parse_tag
 
     with zipfile.ZipFile(str(artifact), 'r') as zip_archive:
-        dist_info_dir = ''
         for path in zip_archive.namelist():
             root = path.split('/', 1)[0]
             if root.endswith('.dist-info'):
@@ -35,7 +34,9 @@ def get_wheel_form_data(artifact):
             with zip_archive.open(f'{dist_info_dir}/METADATA') as zip_file:
                 metadata_file_contents = zip_file.read().decode('utf-8')
         except KeyError:  # no cov
-            raise ArtifactMetadataError(f'Could not find a `METADATA` file in the `{dist_info_dir}` directory')
+            raise ArtifactMetadataError(
+                f'Could not find a `METADATA` file in the `{dist_info_dir}` directory'
+            ) from None
         else:
             data = parse_headers(metadata_file_contents)
 
@@ -70,7 +71,7 @@ def get_sdist_form_data(artifact):
             with tar_archive.extractfile(pkg_info_path) as tar_file:
                 metadata_file_contents = tar_file.read().decode('utf-8')
         except KeyError:  # no cov
-            raise ArtifactMetadataError(f'Could not find file: {pkg_info_path}')
+            raise ArtifactMetadataError(f'Could not find file: {pkg_info_path}') from None
         else:
             data = parse_headers(metadata_file_contents)
 
