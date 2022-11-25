@@ -16,7 +16,7 @@ The following is not intended to be a complete enumeration. Be sure to view the 
 | [LinkChecker](https://github.com/linkchecker/linkchecker/blob/de40321b57a2271e90e696b5320c0409faaa895d/pyproject.toml#L29-L34)
 | [Material for MkDocs](https://github.com/squidfunk/mkdocs-material/blob/7ca1c1d623b4750d4aaa0cfd673b0ed2c6050c2b/pyproject.toml#L21-L23)
 | [MkDocs](https://github.com/mkdocs/mkdocs/blob/65c24c21f0057ec4717d20d14d5fb7af22fe8caf/pyproject.toml#L1-L3)
-| [Nox](https://github.com/wntrblm/nox)
+| [Nox](https://github.com/wntrblm/nox/blob/cc710bde9d6a8781833144bac02a5f4581d9eca7/pyproject.toml#L1-L5)
 | [pipx](https://github.com/pypa/pipx/blob/bc7dd03c4d872c443257685109a650ec3d524814/pyproject.toml#L1-L3)
 | [platformdirs](https://github.com/platformdirs/platformdirs/blob/382e961c436f9974e56dc69ce105b6fd8945c343/pyproject.toml#L1-L3)
 | [Pydantic](https://github.com/pydantic/pydantic/blob/f341049b9e5538a125751d75b4e44c1609b53df6/pyproject.toml#L1-L3)
