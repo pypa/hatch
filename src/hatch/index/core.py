@@ -36,7 +36,9 @@ class PackageIndex:
             if client_key:
                 cert = (client_cert, client_key)
 
-        self.tls_context = httpx.create_ssl_context(verify=ca_cert or True, cert=cert)
+        self.client = httpx.Client(
+            timeout=10, transport=httpx.HTTPTransport(retries=3, verify=ca_cert or True, cert=cert)
+        )
 
     def upload_artifact(self, artifact: Path, data: dict):
         import hashlib
@@ -66,19 +68,17 @@ class PackageIndex:
 
             f.seek(0)
 
-            response = httpx.post(
+            response = self.client.post(
                 self.repo,
                 data=data,
                 files={'content': (artifact.name, f, 'application/octet-stream')},
                 auth=(self.user, self.auth),
-                verify=self.tls_context,
             )
             response.raise_for_status()
 
     def get_simple_api(self, project: str) -> httpx.Response:
-        return httpx.get(
+        return self.client.get(
             str(self.urls.simple.child(project, '')),
             headers={'Cache-Control': 'no-cache'},
             auth=(self.user, self.auth),
-            verify=self.tls_context,
         )
