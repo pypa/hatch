@@ -40,25 +40,25 @@ class TestURLs:
 
 class TestTLS:
     def test_default(self, mocker):
-        mock = mocker.patch('httpx.create_ssl_context')
+        mock = mocker.patch('httpx._transports.default.create_ssl_context')
         _ = PackageIndex('https://foo.internal/a/b/')
 
-        mock.assert_called_once_with(verify=True, cert=None)
+        mock.assert_called_once_with(verify=True, cert=None, trust_env=True)
 
     def test_ca_cert(self, mocker):
-        mock = mocker.patch('httpx.create_ssl_context')
+        mock = mocker.patch('httpx._transports.default.create_ssl_context')
         _ = PackageIndex('https://foo.internal/a/b/', ca_cert='foo')
 
-        mock.assert_called_once_with(verify='foo', cert=None)
+        mock.assert_called_once_with(verify='foo', cert=None, trust_env=True)
 
     def test_client_cert(self, mocker):
-        mock = mocker.patch('httpx.create_ssl_context')
+        mock = mocker.patch('httpx._transports.default.create_ssl_context')
         _ = PackageIndex('https://foo.internal/a/b/', client_cert='foo')
 
-        mock.assert_called_once_with(verify=True, cert='foo')
+        mock.assert_called_once_with(verify=True, cert='foo', trust_env=True)
 
     def test_client_cert_with_key(self, mocker):
-        mock = mocker.patch('httpx.create_ssl_context')
+        mock = mocker.patch('httpx._transports.default.create_ssl_context')
         _ = PackageIndex('https://foo.internal/a/b/', client_cert='foo', client_key='bar')
 
-        mock.assert_called_once_with(verify=True, cert=('foo', 'bar'))
+        mock.assert_called_once_with(verify=True, cert=('foo', 'bar'), trust_env=True)
