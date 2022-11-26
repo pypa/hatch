@@ -1642,6 +1642,79 @@ class TestBuildStandard:
         )
         helpers.assert_files(extraction_directory, expected_files)
 
+    def test_default_extra_metadata_build_data(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
+        project_name = 'My.App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / 'my-app'
+
+        extra_metadata_path = temp_dir / 'data'
+        extra_metadata_path.ensure_dir_exists()
+        (extra_metadata_path / 'foo.txt').touch()
+        nested_data_path = extra_metadata_path / 'nested'
+        nested_data_path.ensure_dir_exists()
+        (nested_data_path / 'bar.txt').touch()
+
+        build_script = project_path / DEFAULT_BUILD_SCRIPT
+        build_script.write_text(
+            helpers.dedent(
+                """
+                import pathlib
+
+                from hatchling.builders.hooks.plugin.interface import BuildHookInterface
+
+                class CustomHook(BuildHookInterface):
+                    def initialize(self, version, build_data):
+                        build_data['extra_metadata']['../data'] = '/'
+                """
+            )
+        )
+
+        config = {
+            'project': {'name': project_name, 'requires-python': '>3', 'dynamic': ['version']},
+            'tool': {
+                'hatch': {
+                    'version': {'path': 'my_app/__about__.py'},
+                    'build': {'targets': {'wheel': {'versions': ['standard'], 'hooks': {'custom': {}}}}},
+                },
+            },
+        }
+        builder = WheelBuilder(str(project_path), config=config)
+
+        build_path = project_path / 'dist'
+        build_path.mkdir()
+
+        with project_path.as_cwd():
+            artifacts = list(builder.build(str(build_path)))
+
+        assert len(artifacts) == 1
+        expected_artifact = artifacts[0]
+
+        build_artifacts = list(build_path.iterdir())
+        assert len(build_artifacts) == 1
+        assert expected_artifact == str(build_artifacts[0])
+
+        extraction_directory = temp_dir / '_archive'
+        extraction_directory.mkdir()
+
+        with zipfile.ZipFile(str(expected_artifact), 'r') as zip_archive:
+            zip_archive.extractall(str(extraction_directory))
+
+        metadata_directory = f'{builder.project_id}.dist-info'
+        expected_files = helpers.get_template_files(
+            'wheel.standard_default_extra_metadata',
+            project_name,
+            metadata_directory=metadata_directory,
+        )
+        helpers.assert_files(extraction_directory, expected_files)
+
     @pytest.mark.requires_unix
     def test_default_symlink(self, hatch, helpers, temp_dir, config_file):
         config_file.model.template.plugins['default']['src-layout'] = False

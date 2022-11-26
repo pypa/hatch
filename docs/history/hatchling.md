@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ***Added:***
 
+- Add `extra_metadata` build data to the `wheel` target
 - Add more type hints
 - Store Hatchling's metadata in `pyproject.toml`
 
