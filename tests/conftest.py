@@ -1,6 +1,5 @@
 import json
 import os
-import platform
 import shutil
 import subprocess
 import sys
@@ -177,6 +176,8 @@ def python_on_path():
 
 @pytest.fixture(scope='session')
 def devpi(tmp_path_factory, worker_id):
+    import platform
+
     if not shutil.which('docker') or (
         running_in_ci() and (not PLATFORM.linux or platform.python_implementation() == 'PyPy')
     ):
