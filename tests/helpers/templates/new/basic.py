@@ -64,6 +64,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "{kwargs['project_name_normalized']}"
+dynamic = ["version"]
 description = ''
 readme = "README.md"
 requires-python = ">=3.7"
@@ -84,7 +85,6 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dependencies = []
-dynamic = ["version"]
 
 [project.urls]
 Documentation = "https://github.com/unknown/{kwargs['project_name_normalized']}#readme"

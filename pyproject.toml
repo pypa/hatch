@@ -77,7 +77,6 @@ exclude = [
 ]
 
 [tool.black]
-include = '\.pyi?$'
 line-length = 120
 skip-string-normalization = true
 target-version = ["py37"]
@@ -104,12 +103,17 @@ select = [
   "YTT",
 ]
 ignore = [
+  # Allow non-abstract empty methods in abstract base classes
   "B027",
-  "FBT003",
+  # Ignore McCabe complexity
   "C901",
-  "S105",
+  # Allow boolean positional values in function calls, like `dict.get(... True)`
+  "FBT003",
+  # Ignore checks for possible passwords
+  "S105", "S106", "S107",
 ]
 unfixable = [
+  # Don't touch unused imports
   "F401",
 ]
 

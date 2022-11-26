@@ -12,14 +12,14 @@ The `regex` source requires an option `path` that represents a relative path to 
 
     ```toml
     [tool.hatch.version]
-    path = "hatch_demo/__about__.py"
+    path = "src/hatch_demo/__about__.py"
     ```
 
 === ":octicons-file-code-16: hatch.toml"
 
     ```toml
     [version]
-    path = "hatch_demo/__about__.py"
+    path = "src/hatch_demo/__about__.py"
     ```
 
 The default pattern looks for a variable named `__version__` or `VERSION` that is set to a string containing the version, optionally prefixed with the lowercase letter `v`.
