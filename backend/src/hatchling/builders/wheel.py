@@ -510,7 +510,7 @@ class WheelBuilder(BuilderInterface):
         self.add_licenses(archive, records)
 
         # extra_metadata/ - write last
-        self.add_extra_metadata(archive, records)
+        self.add_extra_metadata(archive, records, build_data)
 
     def write_archive_metadata(self, archive: WheelArchive, records: RecordFile, build_data: dict[str, Any]) -> None:
         from packaging.tags import parse_tag
@@ -548,8 +548,11 @@ Root-Is-Purelib: {'true' if build_data['pure_python'] else 'false'}
                 record = archive.write_metadata(f'licenses/{relative_path}', f.read())
                 records.write(record)
 
-    def add_extra_metadata(self, archive: WheelArchive, records: RecordFile) -> None:
-        for extra_metadata_file in self.recurse_explicit_files(self.config.extra_metadata):
+    def add_extra_metadata(self, archive: WheelArchive, records: RecordFile, build_data: dict[str, Any]) -> None:
+        extra_metadata = dict(self.config.extra_metadata)
+        extra_metadata.update(normalize_inclusion_map(build_data['extra_metadata'], self.root))
+
+        for extra_metadata_file in self.recurse_explicit_files(extra_metadata):
             record = archive.add_extra_metadata_file(extra_metadata_file)
             records.write(record)
 
@@ -586,7 +589,13 @@ Root-Is-Purelib: {'true' if build_data['pure_python'] else 'false'}
         return f'{".".join(supported_python_versions)}-none-any'
 
     def get_default_build_data(self) -> dict[str, Any]:
-        return {'infer_tag': False, 'pure_python': True, 'dependencies': [], 'force_include_editable': {}}
+        return {
+            'infer_tag': False,
+            'pure_python': True,
+            'dependencies': [],
+            'force_include_editable': {},
+            'extra_metadata': {},
+        }
 
     def get_forced_inclusion_map(self, build_data: dict[str, Any]) -> dict[str, str]:
         if not build_data['force_include_editable']:
