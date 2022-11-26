@@ -6,7 +6,7 @@ This adds the `default` environment with [type](../../config/environment/overvie
 
 ## Configuration
 
-The environment plugin name is `default`.
+The environment collector plugin name is `default`.
 
 === ":octicons-file-code-16: pyproject.toml"
 

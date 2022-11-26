@@ -90,6 +90,7 @@ nav:
       - Virtual: plugins/environment/virtual.md
     - Environment collector:
       - Reference: plugins/environment-collector/reference.md
+      - Custom: plugins/environment-collector/custom.md
       - Default: plugins/environment-collector/default.md
     - Publisher:
       - Reference: plugins/publisher/reference.md

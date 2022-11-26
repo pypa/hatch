@@ -2,6 +2,7 @@ from itertools import product
 
 import pytest
 
+from hatch.plugin.constants import DEFAULT_CUSTOM_SCRIPT
 from hatch.plugin.manager import PluginManager
 from hatch.project.config import ProjectConfig
 from hatch.project.env import RESERVED_OPTIONS
@@ -2472,13 +2473,18 @@ class TestEnvs:
         assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     # Test environment collectors
-    def test_environment_collector_finalize_config(self, isolation, mocker):
-        def finalize_config(config):
-            config['default']['type'] = 'foo'
+    def test_environment_collector_finalize_config(self, helpers, temp_dir):
+        file_path = temp_dir / DEFAULT_CUSTOM_SCRIPT
+        file_path.write_text(
+            helpers.dedent(
+                """
+                from hatch.env.collectors.plugin.interface import EnvironmentCollectorInterface
 
-        mocker.patch(
-            'hatch.env.collectors.default.DefaultEnvironmentCollector.finalize_config',
-            side_effect=finalize_config,
+                class CustomHook(EnvironmentCollectorInterface):
+                    def finalize_config(self, config):
+                        config['default']['type'] = 'foo'
+                """
+            )
         )
 
         env_config = {
@@ -2487,7 +2493,9 @@ class TestEnvs:
                 'overrides': {'matrix': {'version': {'type': {'value': 'baz', 'if': ['42']}}}},
             }
         }
-        project_config = ProjectConfig(isolation, {'envs': env_config}, PluginManager())
+        project_config = ProjectConfig(
+            temp_dir, {'envs': env_config, 'env': {'collectors': {'custom': {}}}}, PluginManager()
+        )
 
         expected_envs = {
             'default': {'type': 'foo'},
@@ -2496,16 +2504,22 @@ class TestEnvs:
             'foo.bar': {'type': 'foo'},
         }
 
-        assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config, {'type': 'foo'})
+        with temp_dir.as_cwd():
+            assert project_config.envs == expected_envs
+            assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config, {'type': 'foo'})
 
-    def test_environment_collector_finalize_environments(self, isolation, mocker):
-        def finalize_environments(config):
-            config['foo.42']['type'] = 'foo'
+    def test_environment_collector_finalize_environments(self, helpers, temp_dir):
+        file_path = temp_dir / DEFAULT_CUSTOM_SCRIPT
+        file_path.write_text(
+            helpers.dedent(
+                """
+                from hatch.env.collectors.plugin.interface import EnvironmentCollectorInterface
 
-        mocker.patch(
-            'hatch.env.collectors.default.DefaultEnvironmentCollector.finalize_environments',
-            side_effect=finalize_environments,
+                class CustomHook(EnvironmentCollectorInterface):
+                    def finalize_environments(self, config):
+                        config['foo.42']['type'] = 'foo'
+                """
+            )
         )
 
         env_config = {
@@ -2514,7 +2528,9 @@ class TestEnvs:
                 'overrides': {'matrix': {'version': {'type': {'value': 'baz', 'if': ['42']}}}},
             }
         }
-        project_config = ProjectConfig(isolation, {'envs': env_config}, PluginManager())
+        project_config = ProjectConfig(
+            temp_dir, {'envs': env_config, 'env': {'collectors': {'custom': {}}}}, PluginManager()
+        )
 
         expected_envs = {
             'default': {'type': 'virtual'},
@@ -2523,8 +2539,9 @@ class TestEnvs:
             'foo.bar': {'type': 'virtual'},
         }
 
-        assert project_config.envs == expected_envs
-        assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
+        with temp_dir.as_cwd():
+            assert project_config.envs == expected_envs
+            assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
 
 class TestPublish:
