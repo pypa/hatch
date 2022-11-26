@@ -196,6 +196,11 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://hatch.pypa.io/latest/dev/plugins/environment-collector/custom/</loc>
+         <lastmod>2020-02-02</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://hatch.pypa.io/latest/dev/plugins/environment-collector/default/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
