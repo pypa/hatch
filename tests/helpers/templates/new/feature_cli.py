@@ -26,7 +26,7 @@ def get_files(**kwargs):
 # SPDX-FileCopyrightText: {kwargs['year']}-present {kwargs['author']} <{kwargs['email']}>
 #
 # SPDX-License-Identifier: MIT
-__version__ = '0.0.1'
+__version__ = "0.0.1"
 """,
         ),
         File(
@@ -37,8 +37,8 @@ __version__ = '0.0.1'
 # SPDX-License-Identifier: MIT
 import sys
 
-if __name__ == '__main__':
-    from .cli import {kwargs['package_name']}
+if __name__ == "__main__":
+    from {kwargs['package_name']}.cli import {kwargs['package_name']}
 
     sys.exit({kwargs['package_name']}())
 """,
@@ -51,14 +51,14 @@ if __name__ == '__main__':
 # SPDX-License-Identifier: MIT
 import click
 
-from ..__about__ import __version__
+from {kwargs['package_name']}.__about__ import __version__
 
 
-@click.group(context_settings={{'help_option_names': ['-h', '--help']}}, invoke_without_command=True)
-@click.version_option(version=__version__, prog_name={kwargs['project_name']!r})
+@click.group(context_settings={{"help_option_names": ["-h", "--help"]}}, invoke_without_command=True)
+@click.version_option(version=__version__, prog_name="{kwargs['project_name']}")
 @click.pass_context
 def {kwargs['package_name']}(ctx: click.Context):
-    click.echo('Hello world!')
+    click.echo("Hello world!")
 """,
         ),
         File(
@@ -104,6 +104,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "{kwargs['project_name_normalized']}"
+dynamic = ["version"]
 description = ''
 readme = "README.md"
 requires-python = ">=3.7"
@@ -126,7 +127,6 @@ classifiers = [
 dependencies = [
   "click",
 ]
-dynamic = ["version"]
 
 [project.urls]
 Documentation = "https://github.com/unknown/{kwargs['project_name_normalized']}#readme"
@@ -145,18 +145,80 @@ dependencies = [
   "pytest-cov",
 ]
 [tool.hatch.envs.default.scripts]
-cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=src/{kwargs['package_name']} --cov=tests {{args}}"
-no-cov = "cov --no-cov {{args}}"
+test = "pytest --no-cov {{args:tests}}"
+test-cov = "pytest --cov --cov-report=term-missing --cov-config=pyproject.toml {{args:tests}}"
 
-[[tool.hatch.envs.test.matrix]]
+[[tool.hatch.envs.all.matrix]]
 python = ["3.7", "3.8", "3.9", "3.10", "3.11"]
 
+[tool.hatch.envs.lint]
+detached = true
+dependencies = [
+  "black",
+  "mypy",
+  "ruff",
+]
+[tool.hatch.envs.lint.scripts]
+typing = "mypy --install-types --non-interactive {{args:src/{kwargs['package_name']} tests}}"
+style = [
+  "ruff {{args:.}}",
+  "black --check --diff {{args:.}}",
+]
+fmt = [
+  "black {{args:.}}",
+  "ruff --fix {{args:.}}",
+  "style",
+]
+all = [
+  "style",
+  "typing",
+]
+
+[tool.black]
+target-version = ["py37"]
+line-length = 120
+skip-string-normalization = true
+
+[tool.ruff]
+target-version = "py37"
+line-length = 120
+select = ["A", "B", "C", "E", "F", "FBT", "I", "M", "N", "Q", "RUF", "S", "T", "U", "W", "YTT"]
+ignore = [
+  # Allow non-abstract empty methods in abstract base classes
+  "B027",
+  # Ignore McCabe complexity
+  "C901",
+  # Allow boolean positional values in function calls, like `dict.get(... True)`
+  "FBT003",
+  # Ignore checks for possible passwords
+  "S105", "S106", "S107",
+]
+unfixable = [
+  # Don't touch unused imports
+  "F401",
+]
+
+[tool.ruff.isort]
+known-first-party = ["{kwargs['package_name']}"]
+
+[tool.ruff.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.ruff.per-file-ignores]
+# Tests can use relative imports and assertions
+"tests/**/*" = ["I252", "S101"]
+
 [tool.coverage.run]
+source_pkgs = ["{kwargs['package_name']}", "tests"]
 branch = true
 parallel = true
 omit = [
   "src/{kwargs['package_name']}/__about__.py",
 ]
+
+[tool.coverage.paths]
+{kwargs['package_name']} = ["src/{kwargs['package_name']}", "*/{kwargs['project_name_normalized']}/src/{kwargs['package_name']}"]
+tests = ["tests", "*/{kwargs['project_name_normalized']}/tests"]
 
 [tool.coverage.report]
 exclude_lines = [

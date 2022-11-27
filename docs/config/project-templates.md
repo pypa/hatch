@@ -32,7 +32,7 @@ The list of licenses should be composed of [SPDX identifiers](https://spdx.org/l
 
 ### Tests
 
-This adds a `tests` directory with [pytest](https://github.com/pytest-dev/pytest) functionality.
+This adds a `tests` directory with environments for testing and linting.
 
 === ":octicons-file-code-16: config.toml"
 

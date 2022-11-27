@@ -77,7 +77,6 @@ exclude = [
 ]
 
 [tool.black]
-include = '\.pyi?$'
 line-length = 120
 skip-string-normalization = true
 target-version = ["py37"]
@@ -104,12 +103,17 @@ select = [
   "YTT",
 ]
 ignore = [
+  # Allow non-abstract empty methods in abstract base classes
   "B027",
-  "FBT003",
+  # Ignore McCabe complexity
   "C901",
-  "S105",
+  # Allow boolean positional values in function calls, like `dict.get(... True)`
+  "FBT003",
+  # Ignore checks for possible passwords
+  "S105", "S106", "S107",
 ]
 unfixable = [
+  # Don't touch unused imports
   "F401",
 ]
 
@@ -128,7 +132,6 @@ ban-relative-imports = "all"
 "backend/tests/downstream/integrate.py" = ["T201"]
 "scripts/*" = ["T201"]
 # Tests can use relative imports and assertions
-"tests/*" = ["I252", "S101"]
 "tests/**/*" = ["I252", "S101"]
 
 [tool.mypy]
@@ -175,8 +178,8 @@ omit = [
 ]
 
 [tool.coverage.paths]
-hatch = ["src", "*/hatch/src"]
-hatchling = ["backend/src", "*/hatch/backend/src"]
+hatch = ["src/hatch", "*/hatch/src/hatch"]
+hatchling = ["backend/src/hatchling", "*/hatch/backend/src/hatchling"]
 tests = ["tests", "*/hatch/tests"]
 
 [tool.coverage.report]

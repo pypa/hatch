@@ -59,16 +59,16 @@ hatch run python -c "import sys;print(sys.executable)"
 
 You can also run any [scripts](config/environment/overview.md#scripts) that have been defined.
 
-You'll notice that in the `pyproject.toml` file there are already scripts defined in the `default` environment. Try running the `cov` command, which invokes [pytest](https://github.com/pytest-dev/pytest) with some flags for tracking [coverage](https://github.com/nedbat/coveragepy):
+You'll notice that in the `pyproject.toml` file there are already scripts defined in the `default` environment. Try running the `test` command, which invokes [pytest](https://github.com/pytest-dev/pytest) with some default arguments:
 
 ```
-hatch run cov
+hatch run test
 ```
 
-All additional arguments are passed through to scripts, so for example if you wanted to see the version of `pytest` and which plugins are installed you could do:
+All additional arguments are passed through to that script, so for example if you wanted to see the version of `pytest` and which plugins are installed you could do:
 
 ```
-hatch run cov -VV
+hatch run test -VV
 ```
 
 ## Dependencies

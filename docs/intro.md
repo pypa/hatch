@@ -18,9 +18,10 @@ This would create the following structure in your current working directory:
 
 ```
 hatch-demo
-├── hatch_demo
-│   ├── __about__.py
-│   └── __init__.py
+├── src
+│   └── hatch_demo
+│       ├── __about__.py
+│       └── __init__.py
 ├── tests
 │   └── __init__.py
 ├── LICENSE.txt
