@@ -9,6 +9,7 @@ dependencies = [
   "pytest-rerunfailures",
   "pytest-xdist",
   "trustme",
+  "typing-extensions",
 ]
 post-install-commands = [
   "python -m pip install --disable-pip-version-check {verbosity:flag:-1} -e ./backend",

@@ -206,7 +206,7 @@ class ProjectMetadata:
 
         return self._hatch
 
-    def _get_version(self, core_metadata=None):
+    def _get_version(self, core_metadata: CoreMetadata | None = None) -> str:
         if core_metadata is None:
             core_metadata = self.core
 
@@ -230,7 +230,7 @@ class ProjectMetadata:
         else:
             return normalized_version
 
-    def validate_fields(self):
+    def validate_fields(self) -> None:
         _ = self.version
         self.core.validate_fields()
 
@@ -274,14 +274,14 @@ class BuildMetadata:
         return self._requires_complex
 
     @property
-    def requires(self):
+    def requires(self) -> list[str]:
         if self._requires is None:
             self._requires = [str(r) for r in self.requires_complex]
 
         return self._requires
 
     @property
-    def build_backend(self):
+    def build_backend(self) -> str:
         if self._build_backend is None:
             build_backend = self.config.get('build-backend', '')
             if not isinstance(build_backend, str):
@@ -292,7 +292,7 @@ class BuildMetadata:
         return self._build_backend
 
     @property
-    def backend_path(self):
+    def backend_path(self) -> list[str]:
         if self._backend_path is None:
             backend_path = self.config.get('backend-path', [])
             if not isinstance(backend_path, list):
@@ -354,10 +354,10 @@ class CoreMetadata:
         self._dynamic: list[str] | None = None
 
         # Indicates that the version has been successfully set dynamically
-        self._version_set = False
+        self._version_set: bool = False
 
     @property
-    def raw_name(self):
+    def raw_name(self) -> str:
         """
         https://peps.python.org/pep-0621/#name
         """
@@ -385,7 +385,7 @@ class CoreMetadata:
         return self._raw_name
 
     @property
-    def name(self):
+    def name(self) -> str:
         """
         https://peps.python.org/pep-0621/#name
         """
@@ -395,10 +395,12 @@ class CoreMetadata:
         return self._name
 
     @property
-    def version(self):
+    def version(self) -> str:
         """
         https://peps.python.org/pep-0621/#version
         """
+        version: str
+
         if self._version is None:
             if 'version' not in self.config:
                 if not self._version_set and 'version' not in self.dynamic:
@@ -419,10 +421,10 @@ class CoreMetadata:
 
                 self._version = version
 
-        return self._version
+        return self._version  # type: ignore
 
     @property
-    def description(self):
+    def description(self) -> str:
         """
         https://peps.python.org/pep-0621/#description
         """
@@ -445,10 +447,13 @@ class CoreMetadata:
         return self._description
 
     @property
-    def readme(self):
+    def readme(self) -> str:
         """
         https://peps.python.org/pep-0621/#readme
         """
+        readme: str | dict[str, str] | None
+        content_type: str | None
+
         if self._readme is None:
             if 'readme' in self.config:
                 readme = self.config['readme']
@@ -532,7 +537,7 @@ class CoreMetadata:
         return self._readme
 
     @property
-    def readme_content_type(self):
+    def readme_content_type(self) -> str:
         """
         https://peps.python.org/pep-0621/#readme
         """
@@ -542,7 +547,7 @@ class CoreMetadata:
         return self._readme_content_type
 
     @property
-    def readme_path(self):
+    def readme_path(self) -> str:
         """
         https://peps.python.org/pep-0621/#readme
         """
@@ -552,7 +557,7 @@ class CoreMetadata:
         return self._readme_path
 
     @property
-    def requires_python(self):
+    def requires_python(self) -> str:
         """
         https://peps.python.org/pep-0621/#requires-python
         """
@@ -582,14 +587,14 @@ class CoreMetadata:
         return self._requires_python
 
     @property
-    def python_constraint(self):
+    def python_constraint(self) -> SpecifierSet:
         if self._python_constraint is None:
             _ = self.requires_python
 
         return self._python_constraint
 
     @property
-    def license(self):  # noqa: A003
+    def license(self) -> str:  # noqa: A003
         """
         https://peps.python.org/pep-0621/#license
         """
@@ -646,7 +651,7 @@ class CoreMetadata:
         return self._license
 
     @property
-    def license_expression(self):
+    def license_expression(self) -> str:
         """
         https://peps.python.org/pep-0639/
         """
@@ -656,7 +661,7 @@ class CoreMetadata:
         return self._license_expression
 
     @property
-    def license_files(self):
+    def license_files(self) -> list[str]:
         """
         https://peps.python.org/pep-0639/
         """
@@ -720,10 +725,13 @@ class CoreMetadata:
         return self._license_files
 
     @property
-    def authors(self):
+    def authors(self) -> list[str]:
         """
         https://peps.python.org/pep-0621/#authors-maintainers
         """
+        authors: list[str]
+        authors_data: dict[str, list[str]]
+
         if self._authors is None:
             if 'authors' in self.config:
                 authors = self.config['authors']
@@ -770,7 +778,7 @@ class CoreMetadata:
         return self._authors
 
     @property
-    def authors_data(self):
+    def authors_data(self) -> dict[str, list[str]]:
         """
         https://peps.python.org/pep-0621/#authors-maintainers
         """
@@ -780,10 +788,12 @@ class CoreMetadata:
         return self._authors_data
 
     @property
-    def maintainers(self):
+    def maintainers(self) -> list[str]:
         """
         https://peps.python.org/pep-0621/#authors-maintainers
         """
+        maintainers: list[str]
+
         if self._maintainers is None:
             if 'maintainers' in self.config:
                 maintainers = self.config['maintainers']
@@ -801,7 +811,7 @@ class CoreMetadata:
             from email.headerregistry import Address
 
             maintainers = deepcopy(maintainers)
-            maintainers_data = {'name': [], 'email': []}
+            maintainers_data: dict[str, list[str]] = {'name': [], 'email': []}
 
             for i, data in enumerate(maintainers, 1):
                 if not isinstance(data, dict):
@@ -832,7 +842,7 @@ class CoreMetadata:
         return self._maintainers
 
     @property
-    def maintainers_data(self):
+    def maintainers_data(self) -> dict[str, list[str]]:
         """
         https://peps.python.org/pep-0621/#authors-maintainers
         """
@@ -842,7 +852,7 @@ class CoreMetadata:
         return self._maintainers_data
 
     @property
-    def keywords(self):
+    def keywords(self) -> list[str]:
         """
         https://peps.python.org/pep-0621/#keywords
         """
@@ -873,7 +883,7 @@ class CoreMetadata:
         return self._keywords
 
     @property
-    def classifiers(self):
+    def classifiers(self) -> list[str]:
         """
         https://peps.python.org/pep-0621/#classifiers
         """
@@ -917,7 +927,7 @@ class CoreMetadata:
         return self._classifiers
 
     @property
-    def urls(self):
+    def urls(self) -> dict[str, str]:
         """
         https://peps.python.org/pep-0621/#urls
         """
@@ -947,7 +957,7 @@ class CoreMetadata:
         return self._urls
 
     @property
-    def scripts(self):
+    def scripts(self) -> dict[str, str]:
         """
         https://peps.python.org/pep-0621/#entry-points
         """
@@ -978,7 +988,7 @@ class CoreMetadata:
         return self._scripts
 
     @property
-    def gui_scripts(self):
+    def gui_scripts(self) -> dict[str, str]:
         """
         https://peps.python.org/pep-0621/#entry-points
         """
@@ -1009,7 +1019,7 @@ class CoreMetadata:
         return self._gui_scripts
 
     @property
-    def entry_points(self):
+    def entry_points(self) -> dict[str, dict[str, str]]:
         """
         https://peps.python.org/pep-0621/#entry-points
         """
@@ -1102,7 +1112,7 @@ class CoreMetadata:
         return self._dependencies_complex
 
     @property
-    def dependencies(self):
+    def dependencies(self) -> list[str]:
         """
         https://peps.python.org/pep-0621/#dependencies-optional-dependencies
         """
@@ -1191,7 +1201,7 @@ class CoreMetadata:
         return self._optional_dependencies_complex
 
     @property
-    def optional_dependencies(self):
+    def optional_dependencies(self) -> dict[str, list[Requirement]]:
         """
         https://peps.python.org/pep-0621/#dependencies-optional-dependencies
         """
@@ -1217,10 +1227,10 @@ class CoreMetadata:
 
         return self._dynamic
 
-    def add_known_classifiers(self, classifiers):
+    def add_known_classifiers(self, classifiers: str) -> None:
         self._extra_classifiers.update(classifiers)
 
-    def validate_fields(self):
+    def validate_fields(self) -> None:
         # Trigger validation for everything
         for attribute in dir(self):
             getattr(self, attribute)
@@ -1249,7 +1259,7 @@ class HatchMetadata:
         return self._metadata
 
     @property
-    def build_config(self):
+    def build_config(self) -> dict[str, Any]:
         if self._build_config is None:
             build_config = self.config.get('build', {})
             if not isinstance(build_config, dict):
@@ -1260,9 +1270,9 @@ class HatchMetadata:
         return self._build_config
 
     @property
-    def build_targets(self):
+    def build_targets(self) -> dict[str, Any]:
         if self._build_targets is None:
-            build_targets = self.build_config.get('targets', {})
+            build_targets: dict = self.build_config.get('targets', {})
             if not isinstance(build_targets, dict):
                 raise TypeError('Field `tool.hatch.build.targets` must be a table')
 
@@ -1291,14 +1301,14 @@ class HatchVersionConfig:
         self.config = config
         self.plugin_manager = plugin_manager
 
-        self._cached = None
+        self._cached: str | None = None
         self._source_name: str | None = None
-        self._scheme_name = None
+        self._scheme_name: str | None = None
         self._source: RegexSource | None = None
-        self._scheme = None
+        self._scheme: str | None = None
 
     @property
-    def cached(self):
+    def cached(self) -> str:
         if self._cached is None:
             try:
                 self._cached = self.source.get_version_data()['version']
@@ -1323,9 +1333,9 @@ class HatchVersionConfig:
         return self._source_name
 
     @property
-    def scheme_name(self):
+    def scheme_name(self) -> str:
         if self._scheme_name is None:
-            scheme = self.config.get('scheme', 'standard')
+            scheme: str = self.config.get('scheme', 'standard')
             if not scheme:
                 raise ValueError(
                     'The `scheme` option under the `tool.hatch.version` table must not be empty if defined'
@@ -1354,7 +1364,7 @@ class HatchVersionConfig:
         return self._source
 
     @property
-    def scheme(self):
+    def scheme(self) -> str:
         if self._scheme is None:
             from copy import deepcopy
 
@@ -1382,7 +1392,7 @@ class HatchMetadataSettings:
         self._hooks: dict[Any, Any] | None = None
 
     @property
-    def allow_direct_references(self):
+    def allow_direct_references(self) -> bool:
         if self._allow_direct_references is None:
             allow_direct_references: bool = self.config.get('allow-direct-references', False)
             if not isinstance(allow_direct_references, bool):
@@ -1393,7 +1403,7 @@ class HatchMetadataSettings:
         return self._allow_direct_references
 
     @property
-    def allow_ambiguous_features(self):
+    def allow_ambiguous_features(self) -> bool:
         # TODO: remove in the first minor release after Jan 1, 2024
         if self._allow_ambiguous_features is None:
             allow_ambiguous_features: bool = self.config.get('allow-ambiguous-features', False)

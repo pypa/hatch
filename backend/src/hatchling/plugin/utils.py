@@ -1,8 +1,15 @@
-def load_plugin_from_script(path, script_name, plugin_class, plugin_id):
+from __future__ import annotations
+
+from hatchling.types import PluginInterface
+
+
+def load_plugin_from_script(
+    path: str, script_name: str, plugin_class: type[PluginInterface], plugin_id: str
+) -> type[PluginInterface]:
     import importlib
 
-    spec = importlib.util.spec_from_file_location(script_name, path)
-    module = importlib.util.module_from_spec(spec)
+    spec = importlib.util.spec_from_file_location(script_name, path)  # type: ignore
+    module = importlib.util.module_from_spec(spec)  # type: ignore
     spec.loader.exec_module(module)
 
     plugin_finder = f'get_{plugin_id}'
