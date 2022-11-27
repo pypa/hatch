@@ -172,6 +172,13 @@ unfixable = [
 [tool.ruff.isort]
 known-first-party = ["{kwargs['package_name']}"]
 
+[tool.ruff.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.ruff.per-file-ignores]
+# Tests can use relative imports and assertions
+"tests/**/*" = ["I252", "S101"]
+
 [tool.coverage.run]
 source_pkgs = ["{kwargs['package_name']}", "tests"]
 branch = true

@@ -38,7 +38,7 @@ __version__ = '0.0.1'
 import sys
 
 if __name__ == '__main__':
-    from .cli import {kwargs['package_name']}
+    from {kwargs['package_name']}.cli import {kwargs['package_name']}
 
     sys.exit({kwargs['package_name']}())
 """,
@@ -51,7 +51,7 @@ if __name__ == '__main__':
 # SPDX-License-Identifier: MIT
 import click
 
-from ..__about__ import __version__
+from {kwargs['package_name']}.__about__ import __version__
 
 
 @click.group(context_settings={{'help_option_names': ['-h', '--help']}}, invoke_without_command=True)
@@ -208,6 +208,13 @@ unfixable = [
 
 [tool.ruff.isort]
 known-first-party = ["{kwargs['package_name']}"]
+
+[tool.ruff.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.ruff.per-file-ignores]
+# Tests can use relative imports and assertions
+"tests/**/*" = ["I252", "S101"]
 
 [tool.coverage.run]
 source_pkgs = ["{kwargs['package_name']}", "tests"]

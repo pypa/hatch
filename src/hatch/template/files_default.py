@@ -204,6 +204,13 @@ unfixable = [
 [tool.ruff.isort]
 known-first-party = ["{template_config['package_name']}"]
 
+[tool.ruff.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.ruff.per-file-ignores]
+# Tests can use relative imports and assertions
+"tests/**/*" = ["I252", "S101"]
+
 [tool.coverage.run]
 source_pkgs = ["{template_config['package_name']}", "tests"]
 branch = true

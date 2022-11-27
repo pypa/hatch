@@ -132,7 +132,6 @@ ban-relative-imports = "all"
 "backend/tests/downstream/integrate.py" = ["T201"]
 "scripts/*" = ["T201"]
 # Tests can use relative imports and assertions
-"tests/*" = ["I252", "S101"]
 "tests/**/*" = ["I252", "S101"]
 
 [tool.mypy]
