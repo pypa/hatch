@@ -9,7 +9,7 @@ class PackageRoot(File):
 
 class MetadataFile(File):
     def __init__(self, template_config: dict, plugin_config: dict):
-        super().__init__(Path(template_config['package_name'], '__about__.py'), "__version__ = '0.0.1'\n")
+        super().__init__(Path(template_config['package_name'], '__about__.py'), '__version__ = "0.0.1"\n')
 
 
 class Readme(File):
@@ -154,14 +154,14 @@ cov = [
 [[tool.hatch.envs.all.matrix]]
 python = ["3.7", "3.8", "3.9", "3.10", "3.11"]
 
-[envs.lint]
+[tool.hatch.envs.lint]
 detached = true
 dependencies = [
   "black",
   "mypy",
   "ruff",
 ]
-[envs.lint.scripts]
+[tool.hatch.envs.lint.scripts]
 typing = "mypy --install-types --non-interactive {{args:{package_location}{template_config['package_name']} tests}}"
 style = [
   "ruff {{args:.}}",

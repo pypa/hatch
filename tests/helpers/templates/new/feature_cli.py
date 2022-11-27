@@ -26,7 +26,7 @@ def get_files(**kwargs):
 # SPDX-FileCopyrightText: {kwargs['year']}-present {kwargs['author']} <{kwargs['email']}>
 #
 # SPDX-License-Identifier: MIT
-__version__ = '0.0.1'
+__version__ = "0.0.1"
 """,
         ),
         File(
@@ -37,7 +37,7 @@ __version__ = '0.0.1'
 # SPDX-License-Identifier: MIT
 import sys
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     from {kwargs['package_name']}.cli import {kwargs['package_name']}
 
     sys.exit({kwargs['package_name']}())
@@ -54,11 +54,11 @@ import click
 from {kwargs['package_name']}.__about__ import __version__
 
 
-@click.group(context_settings={{'help_option_names': ['-h', '--help']}}, invoke_without_command=True)
-@click.version_option(version=__version__, prog_name={kwargs['project_name']!r})
+@click.group(context_settings={{"help_option_names": ["-h", "--help"]}}, invoke_without_command=True)
+@click.version_option(version=__version__, prog_name="{kwargs['project_name']}")
 @click.pass_context
 def {kwargs['package_name']}(ctx: click.Context):
-    click.echo('Hello world!')
+    click.echo("Hello world!")
 """,
         ),
         File(
@@ -159,14 +159,14 @@ cov = [
 [[tool.hatch.envs.all.matrix]]
 python = ["3.7", "3.8", "3.9", "3.10", "3.11"]
 
-[envs.lint]
+[tool.hatch.envs.lint]
 detached = true
 dependencies = [
   "black",
   "mypy",
   "ruff",
 ]
-[envs.lint.scripts]
+[tool.hatch.envs.lint.scripts]
 typing = "mypy --install-types --non-interactive {{args:src/{kwargs['package_name']} tests}}"
 style = [
   "ruff {{args:.}}",

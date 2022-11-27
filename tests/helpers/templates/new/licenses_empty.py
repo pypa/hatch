@@ -5,7 +5,7 @@ from hatch.utils.fs import Path
 def get_files(**kwargs):
     return [
         File(Path('src', kwargs['package_name'], '__init__.py')),
-        File(Path('src', kwargs['package_name'], '__about__.py'), "__version__ = '0.0.1'\n"),
+        File(Path('src', kwargs['package_name'], '__about__.py'), '__version__ = "0.0.1"\n'),
         File(Path('tests', '__init__.py')),
         File(
             Path('README.md'),
@@ -87,14 +87,14 @@ cov = [
 [[tool.hatch.envs.all.matrix]]
 python = ["3.7", "3.8", "3.9", "3.10", "3.11"]
 
-[envs.lint]
+[tool.hatch.envs.lint]
 detached = true
 dependencies = [
   "black",
   "mypy",
   "ruff",
 ]
-[envs.lint.scripts]
+[tool.hatch.envs.lint.scripts]
 typing = "mypy --install-types --non-interactive {{args:src/{kwargs['package_name']} tests}}"
 style = [
   "ruff {{args:.}}",
