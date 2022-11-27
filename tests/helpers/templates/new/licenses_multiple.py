@@ -109,10 +109,20 @@ path = "src/{kwargs['package_name']}/__about__.py"
 
 [tool.hatch.envs.default]
 dependencies = [
+  "coverage[toml]>=6.5",
   "pytest",
 ]
 [tool.hatch.envs.default.scripts]
 test = "pytest {{args:tests}}"
+test-cov = "coverage run -m pytest {{args:tests}}"
+cov-report = [
+  "- coverage combine",
+  "coverage report",
+]
+cov = [
+  "test-cov",
+  "cov-report",
+]
 
 [[tool.hatch.envs.all.matrix]]
 python = ["3.7", "3.8", "3.9", "3.10", "3.11"]
@@ -166,6 +176,25 @@ unfixable = [
 
 [tool.ruff.isort]
 known-first-party = ["{kwargs['package_name']}"]
-""",
+
+[tool.coverage.run]
+source_pkgs = ["{kwargs['package_name']}", "tests"]
+branch = true
+parallel = true
+omit = [
+  "src/{kwargs['package_name']}/__about__.py",
+]
+
+[tool.coverage.paths]
+{kwargs['package_name']} = ["src/{kwargs['package_name']}", "*/{kwargs['project_name_normalized']}/src/{kwargs['package_name']}"]
+tests = ["tests", "*/{kwargs['project_name_normalized']}/tests"]
+
+[tool.coverage.report]
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]
+""",  # noqa: E501
         ),
     ]

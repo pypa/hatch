@@ -179,8 +179,8 @@ omit = [
 ]
 
 [tool.coverage.paths]
-hatch = ["src", "*/hatch/src"]
-hatchling = ["backend/src", "*/hatch/backend/src"]
+hatch = ["src/hatch", "*/hatch/src/hatch"]
+hatchling = ["backend/src/hatchling", "*/hatch/backend/src/hatchling"]
 tests = ["tests", "*/hatch/tests"]
 
 [tool.coverage.report]
