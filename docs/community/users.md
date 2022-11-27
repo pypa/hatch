@@ -51,7 +51,7 @@ The following is not intended to be a complete enumeration. Be sure to view the 
 - [Snowflake](https://www.snowflake.com) <sup>\[[1](https://github.com/Snowflake-Labs/snowcli/blob/a8cafe80ef81969655a4391425b0f45c2874d1a4/pyproject.toml#L1-L3)\]</sup>
 - [Splunk](https://www.splunk.com) <sup>\[[1](https://github.com/splunk/splunk-mltk-container-docker/blob/e13ae55a4a16ea459092ee9c1e9ba9772cbe6bf2/package-dsdlsupport/pyproject.toml#L1-L3)\]</sup>
 - [Virtru](https://www.virtru.com) <sup>\[[1](https://github.com/virtru/access-pdp/blob/46089e8a2ef691b80f92bbd6777bdfbcff1c1671/clients/python/accesspdp/pyproject.toml#L24-L26)|[2](https://github.com/virtru/access-pdp/blob/46089e8a2ef691b80f92bbd6777bdfbcff1c1671/clients/python/attributes/pyproject.toml#L21-L23)\]</sup>
-- [VMware](https://www.vmware.com) <sup>\[[1](https://github.com/vmware/repository-service-tuf-cli/blob/374f1ac0c2a4ada6d7a7c26fba55e811f2998be8/pyproject.toml#L1-L4)\]</sup>
+- [VMware](https://www.vmware.com) <sup>\[[1](https://github.com/vmware/versatile-data-kit/blob/f77faec3e9ccd840b6dc6fdc95af8a434e822e71/projects/vdk-plugins/vdk-jupyter/vdk-jupyterlab-extension/pyproject.toml#L1-L3)|[2](https://github.com/vmware/repository-service-tuf-cli/blob/374f1ac0c2a4ada6d7a7c26fba55e811f2998be8/pyproject.toml#L1-L4)\]</sup>
 - [Volvo Group](https://www.volvogroup.com) <sup>\[[1](https://github.com/VolvoGroup/dymoval/blob/75261b85635dce594719b01c5fc33ad951ce55b0/pyproject.toml#L1-L3)\]</sup>
 
 ## Organizations
