@@ -47,7 +47,7 @@ def show(app, envs, force_ascii, as_json):
                     script: list(environment.resolve_commands([script])) for script in environment.scripts
                 }
 
-        app.display_info(json.dumps(contextual_config, separators=(',', ':')))
+        app.display(json.dumps(contextual_config, separators=(',', ':')))
         return
 
     from packaging.requirements import InvalidRequirement, Requirement
