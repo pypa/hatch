@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 import sys
 from copy import deepcopy
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 from hatchling.metadata.utils import get_normalized_dependency, is_valid_project_name, normalize_project_name
 from hatchling.utils.constants import DEFAULT_CONFIG_FILE
@@ -421,7 +421,7 @@ class CoreMetadata:
 
                 self._version = version
 
-        return self._version  # type: ignore
+        return cast(str, self._version)
 
     @property
     def description(self) -> str:
@@ -544,7 +544,7 @@ class CoreMetadata:
         if self._readme_content_type is None:
             _ = self.readme
 
-        return self._readme_content_type
+        return cast(str, self._readme_content_type)
 
     @property
     def readme_path(self) -> str:
@@ -554,7 +554,7 @@ class CoreMetadata:
         if self._readme_path is None:
             _ = self.readme
 
-        return self._readme_path
+        return cast(str, self._readme_path)
 
     @property
     def requires_python(self) -> str:
@@ -658,7 +658,7 @@ class CoreMetadata:
         if self._license_expression is None:
             _ = self.license
 
-        return self._license_expression
+        return cast(str, self._license_expression)
 
     @property
     def license_files(self) -> list[str]:
@@ -785,7 +785,7 @@ class CoreMetadata:
         if self._authors_data is None:
             _ = self.authors
 
-        return self._authors_data
+        return cast(dict, self._authors_data)
 
     @property
     def maintainers(self) -> list[str]:
@@ -849,7 +849,7 @@ class CoreMetadata:
         if self._maintainers_data is None:
             _ = self.maintainers
 
-        return self._maintainers_data
+        return cast(dict, self._maintainers_data)
 
     @property
     def keywords(self) -> list[str]:
