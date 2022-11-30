@@ -106,12 +106,20 @@ path = "src/{kwargs['package_name']}/__about__.py"
 
 [tool.hatch.envs.default]
 dependencies = [
+  "coverage[toml]>=6.5",
   "pytest",
-  "pytest-cov",
 ]
 [tool.hatch.envs.default.scripts]
-test = "pytest --no-cov {{args:tests}}"
-test-cov = "pytest --cov --cov-report=term-missing --cov-config=pyproject.toml {{args:tests}}"
+test = "pytest {{args:tests}}"
+test-cov = "coverage run -m pytest {{args:tests}}"
+cov-report = [
+  "- coverage combine",
+  "coverage report",
+]
+cov = [
+  "test-cov",
+  "cov-report",
+]
 
 [[tool.hatch.envs.all.matrix]]
 python = ["3.7", "3.8", "3.9", "3.10", "3.11"]
