@@ -7,6 +7,7 @@ import stat
 import tempfile
 import zipfile
 from io import StringIO
+from typing import TYPE_CHECKING, Any, Callable, Iterable, Sequence, Tuple, cast
 
 from hatchling.__about__ import __version__
 from hatchling.builders.config import BuilderConfig
@@ -23,34 +24,45 @@ from hatchling.builders.utils import (
 )
 from hatchling.metadata.spec import DEFAULT_METADATA_VERSION, get_core_metadata_constructors
 
+if TYPE_CHECKING:
+    from types import TracebackType
+
+    from hatchling.builders.plugin.interface import IncludedFile
+
+
 EDITABLES_MINIMUM_VERSION = '0.3'
+
+TIME_TUPLE = Tuple[int, int, int, int, int, int]
 
 
 class RecordFile:
-    def __init__(self):
+    def __init__(self) -> None:
         self.__file_obj = StringIO()
         self.__writer = csv.writer(self.__file_obj, delimiter=',', quotechar='"', lineterminator='\n')
 
-    def write(self, record: tuple[str, str, str]) -> None:
+    def write(self, record: Iterable[Any]) -> None:
         self.__writer.writerow(record)
 
     def construct(self) -> str:
         return self.__file_obj.getvalue()
 
-    def __enter__(self):
+    def __enter__(self) -> RecordFile:
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(
+        self, exc_type: type[BaseException] | None, exc_value: BaseException | None, traceback: TracebackType | None
+    ) -> None:
         self.__file_obj.close()
 
 
 class WheelArchive:
-    def __init__(self, project_id, reproducible):
+    def __init__(self, project_id: str, *, reproducible: bool) -> None:
         """
         https://peps.python.org/pep-0427/#abstract
         """
         self.metadata_directory = f'{project_id}.dist-info'
         self.shared_data_directory = f'{project_id}.data'
+        self.time_tuple: TIME_TUPLE | None = None
 
         self.reproducible = reproducible
         if self.reproducible:
@@ -63,18 +75,18 @@ class WheelArchive:
         self.zf = zipfile.ZipFile(self.fd, 'w', compression=zipfile.ZIP_DEFLATED)
 
     @staticmethod
-    def get_reproducible_time_tuple():
+    def get_reproducible_time_tuple() -> TIME_TUPLE:
         from datetime import datetime, timezone
 
         d = datetime.fromtimestamp(get_reproducible_timestamp(), timezone.utc)
         return d.year, d.month, d.day, d.hour, d.minute, d.second
 
-    def add_file(self, included_file):
+    def add_file(self, included_file: IncludedFile) -> tuple[str, str, str]:
         relative_path = normalize_archive_path(included_file.distribution_path)
         file_stat = os.stat(included_file.path)
 
         if self.reproducible:
-            zip_info = zipfile.ZipInfo(relative_path, self.time_tuple)
+            zip_info = zipfile.ZipInfo(relative_path, cast(TIME_TUPLE, self.time_tuple))
 
             # https://github.com/takluyver/flit/pull/66
             new_mode = normalize_file_permissions(file_stat.st_mode)
@@ -99,21 +111,21 @@ class WheelArchive:
         hash_digest = format_file_hash(hash_obj.digest())
         return relative_path, f'sha256={hash_digest}', str(file_stat.st_size)
 
-    def write_metadata(self, relative_path, contents):
+    def write_metadata(self, relative_path: str, contents: str | bytes) -> tuple[str, str, str]:
         relative_path = f'{self.metadata_directory}/{normalize_archive_path(relative_path)}'
         return self.write_file(relative_path, contents)
 
-    def add_shared_file(self, shared_file):
+    def add_shared_file(self, shared_file: IncludedFile) -> tuple[str, str, str]:
         shared_file.distribution_path = f'{self.shared_data_directory}/data/{shared_file.distribution_path}'
         return self.add_file(shared_file)
 
-    def add_extra_metadata_file(self, extra_metadata_file):
+    def add_extra_metadata_file(self, extra_metadata_file: IncludedFile) -> tuple[str, str, str]:
         extra_metadata_file.distribution_path = (
             f'{self.metadata_directory}/extra_metadata/{extra_metadata_file.distribution_path}'
         )
         return self.add_file(extra_metadata_file)
 
-    def write_file(self, relative_path, contents):
+    def write_file(self, relative_path: str, contents: str | bytes) -> tuple[str, str, str]:
         if not isinstance(contents, bytes):
             contents = contents.encode('utf-8')
 
@@ -127,34 +139,36 @@ class WheelArchive:
 
         return relative_path, f'sha256={hash_digest}', str(len(contents))
 
-    def __enter__(self):
+    def __enter__(self) -> WheelArchive:
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(
+        self, exc_type: type[BaseException] | None, exc_value: BaseException | None, traceback: TracebackType | None
+    ) -> None:
         self.zf.close()
         self.fd.close()
 
 
 class WheelBuilderConfig(BuilderConfig):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
-        self.__include_defined = bool(
+        self.__include_defined: bool = bool(
             self.target_config.get('include', self.build_config.get('include'))
             or self.target_config.get('packages', self.build_config.get('packages'))
             or self.target_config.get('only-include', self.build_config.get('only-include'))
         )
-        self.__include = []
-        self.__exclude = []
-        self.__packages = []
-        self.__only_include = []
+        self.__include: list[str] = []
+        self.__exclude: list[str] = []
+        self.__packages: list[str] = []
+        self.__only_include: list[str] = []
 
-        self.__core_metadata_constructor = None
-        self.__shared_data = None
-        self.__extra_metadata = None
-        self.__strict_naming = None
+        self.__core_metadata_constructor: Callable[..., str] | None = None
+        self.__shared_data: dict[str, str] | None = None
+        self.__extra_metadata: dict[str, str] | None = None
+        self.__strict_naming: bool | None = None
 
-    def set_default_file_selection(self):
+    def set_default_file_selection(self) -> None:
         if self.__include or self.__exclude or self.__packages or self.__only_include:
             return
 
@@ -184,32 +198,32 @@ class WheelBuilderConfig(BuilderConfig):
             self.__include.append('*.py')
             self.__exclude.append('test*')
 
-    def default_include(self):
+    def default_include(self) -> list[str]:
         if not self.__include_defined:
             self.set_default_file_selection()
 
         return self.__include
 
-    def default_exclude(self):
+    def default_exclude(self) -> list[str]:
         if not self.__include_defined:
             self.set_default_file_selection()
 
         return self.__exclude
 
-    def default_packages(self):
+    def default_packages(self) -> list[str]:
         if not self.__include_defined:
             self.set_default_file_selection()
 
         return self.__packages
 
-    def default_only_include(self):
+    def default_only_include(self) -> list[str]:
         if not self.__include_defined:
             self.set_default_file_selection()
 
         return self.__only_include
 
     @property
-    def core_metadata_constructor(self):
+    def core_metadata_constructor(self) -> Callable[..., str]:
         if self.__core_metadata_constructor is None:
             core_metadata_version = self.target_config.get('core-metadata-version', DEFAULT_METADATA_VERSION)
             if not isinstance(core_metadata_version, str):
@@ -230,7 +244,7 @@ class WheelBuilderConfig(BuilderConfig):
         return self.__core_metadata_constructor
 
     @property
-    def shared_data(self):
+    def shared_data(self) -> dict[str, str]:
         if self.__shared_data is None:
             shared_data = self.target_config.get('shared-data', {})
             if not isinstance(shared_data, dict):
@@ -258,7 +272,7 @@ class WheelBuilderConfig(BuilderConfig):
         return self.__shared_data
 
     @property
-    def extra_metadata(self):
+    def extra_metadata(self) -> dict[str, str]:
         if self.__extra_metadata is None:
             extra_metadata = self.target_config.get('extra-metadata', {})
             if not isinstance(extra_metadata, dict):
@@ -286,7 +300,7 @@ class WheelBuilderConfig(BuilderConfig):
         return self.__extra_metadata
 
     @property
-    def strict_naming(self):
+    def strict_naming(self) -> bool:
         if self.__strict_naming is None:
             if 'strict-naming' in self.target_config:
                 strict_naming = self.target_config['strict-naming']
@@ -311,18 +325,18 @@ class WheelBuilder(BuilderInterface):
 
     PLUGIN_NAME = 'wheel'
 
-    def get_version_api(self):
+    def get_version_api(self) -> dict[str, Callable]:
         return {'standard': self.build_standard, 'editable': self.build_editable}
 
-    def get_default_versions(self):
+    def get_default_versions(self) -> list[str]:
         return ['standard']
 
-    def clean(self, directory, versions):
+    def clean(self, directory: str, versions: list[str]) -> None:
         for filename in os.listdir(directory):
             if filename.endswith('.whl'):
                 os.remove(os.path.join(directory, filename))
 
-    def build_standard(self, directory, **build_data):
+    def build_standard(self, directory: str, **build_data: Any) -> str:
         if 'tag' not in build_data:
             if build_data['infer_tag']:
                 from packaging.tags import sys_tags
@@ -333,7 +347,9 @@ class WheelBuilder(BuilderInterface):
             else:
                 build_data['tag'] = self.get_default_tag()
 
-        with WheelArchive(self.artifact_project_id, self.config.reproducible) as archive, RecordFile() as records:
+        with WheelArchive(
+            self.artifact_project_id, reproducible=self.config.reproducible
+        ) as archive, RecordFile() as records:
             for included_file in self.recurse_included_files():
                 record = archive.add_file(included_file)
                 records.write(record)
@@ -348,18 +364,20 @@ class WheelBuilder(BuilderInterface):
         replace_file(archive.path, target)
         return target
 
-    def build_editable(self, directory, **build_data):
+    def build_editable(self, directory: str, **build_data: Any) -> str:
         if self.config.dev_mode_dirs:
             return self.build_editable_explicit(directory, **build_data)
         else:
             return self.build_editable_detection(directory, **build_data)
 
-    def build_editable_detection(self, directory, **build_data):
+    def build_editable_detection(self, directory: str, **build_data: Any) -> str:
         from editables import EditableProject
 
         build_data['tag'] = self.get_default_tag()
 
-        with WheelArchive(self.artifact_project_id, self.config.reproducible) as archive, RecordFile() as records:
+        with WheelArchive(
+            self.artifact_project_id, reproducible=self.config.reproducible
+        ) as archive, RecordFile() as records:
             exposed_packages = {}
             for included_file in self.recurse_project_files():
                 if not included_file.path.endswith('.py'):
@@ -428,10 +446,12 @@ class WheelBuilder(BuilderInterface):
         replace_file(archive.path, target)
         return target
 
-    def build_editable_explicit(self, directory, **build_data):
+    def build_editable_explicit(self, directory: str, **build_data: Any) -> str:
         build_data['tag'] = self.get_default_tag()
 
-        with WheelArchive(self.artifact_project_id, self.config.reproducible) as archive, RecordFile() as records:
+        with WheelArchive(
+            self.artifact_project_id, reproducible=self.config.reproducible
+        ) as archive, RecordFile() as records:
             directories = sorted(
                 os.path.normpath(os.path.join(self.root, relative_directory))
                 for relative_directory in self.config.dev_mode_dirs
@@ -454,18 +474,26 @@ class WheelBuilder(BuilderInterface):
         replace_file(archive.path, target)
         return target
 
-    def write_data(self, archive, records, build_data, extra_dependencies):
+    def write_data(
+        self, archive: WheelArchive, records: RecordFile, build_data: dict[str, Any], extra_dependencies: Sequence[str]
+    ) -> None:
         self.add_shared_data(archive, records)
 
         # Ensure metadata is written last, see https://peps.python.org/pep-0427/#recommended-archiver-features
         self.write_metadata(archive, records, build_data, extra_dependencies=extra_dependencies)
 
-    def add_shared_data(self, archive, records):
+    def add_shared_data(self, archive: WheelArchive, records: RecordFile) -> None:
         for shared_file in self.recurse_explicit_files(self.config.shared_data):
             record = archive.add_shared_file(shared_file)
             records.write(record)
 
-    def write_metadata(self, archive, records, build_data, extra_dependencies=()):
+    def write_metadata(
+        self,
+        archive: WheelArchive,
+        records: RecordFile,
+        build_data: dict[str, Any],
+        extra_dependencies: Sequence[str] = (),
+    ) -> None:
         # <<< IMPORTANT >>>
         # Ensure calls are ordered by the number of path components followed by the name of the components
 
@@ -482,9 +510,9 @@ class WheelBuilder(BuilderInterface):
         self.add_licenses(archive, records)
 
         # extra_metadata/ - write last
-        self.add_extra_metadata(archive, records)
+        self.add_extra_metadata(archive, records, build_data)
 
-    def write_archive_metadata(self, archive, records, build_data):
+    def write_archive_metadata(self, archive: WheelArchive, records: RecordFile, build_data: dict[str, Any]) -> None:
         from packaging.tags import parse_tag
 
         metadata = f"""\
@@ -499,31 +527,36 @@ Root-Is-Purelib: {'true' if build_data['pure_python'] else 'false'}
         record = archive.write_metadata('WHEEL', metadata)
         records.write(record)
 
-    def write_entry_points_file(self, archive, records):
+    def write_entry_points_file(self, archive: WheelArchive, records: RecordFile) -> None:
         entry_points_file = self.construct_entry_points_file()
         if entry_points_file:
             record = archive.write_metadata('entry_points.txt', entry_points_file)
             records.write(record)
 
-    def write_project_metadata(self, archive, records, extra_dependencies=()):
+    def write_project_metadata(
+        self, archive: WheelArchive, records: RecordFile, extra_dependencies: Sequence[str] = ()
+    ) -> None:
         record = archive.write_metadata(
             'METADATA', self.config.core_metadata_constructor(self.metadata, extra_dependencies=extra_dependencies)
         )
         records.write(record)
 
-    def add_licenses(self, archive, records):
+    def add_licenses(self, archive: WheelArchive, records: RecordFile) -> None:
         for relative_path in self.metadata.core.license_files:
             license_file = os.path.normpath(os.path.join(self.root, relative_path))
             with open(license_file, 'rb') as f:
                 record = archive.write_metadata(f'licenses/{relative_path}', f.read())
                 records.write(record)
 
-    def add_extra_metadata(self, archive, records):
-        for extra_metadata_file in self.recurse_explicit_files(self.config.extra_metadata):
+    def add_extra_metadata(self, archive: WheelArchive, records: RecordFile, build_data: dict[str, Any]) -> None:
+        extra_metadata = dict(self.config.extra_metadata)
+        extra_metadata.update(normalize_inclusion_map(build_data['extra_metadata'], self.root))
+
+        for extra_metadata_file in self.recurse_explicit_files(extra_metadata):
             record = archive.add_extra_metadata_file(extra_metadata_file)
             records.write(record)
 
-    def construct_entry_points_file(self):
+    def construct_entry_points_file(self) -> str:
         core_metadata = self.metadata.core
         metadata_file = ''
 
@@ -545,7 +578,7 @@ Root-Is-Purelib: {'true' if build_data['pure_python'] else 'false'}
 
         return metadata_file.lstrip()
 
-    def get_default_tag(self):
+    def get_default_tag(self) -> str:
         supported_python_versions = []
         for major_version in get_known_python_major_versions():
             for minor_version in range(100):
@@ -555,17 +588,23 @@ Root-Is-Purelib: {'true' if build_data['pure_python'] else 'false'}
 
         return f'{".".join(supported_python_versions)}-none-any'
 
-    def get_default_build_data(self):
-        return {'infer_tag': False, 'pure_python': True, 'dependencies': [], 'force_include_editable': {}}
+    def get_default_build_data(self) -> dict[str, Any]:
+        return {
+            'infer_tag': False,
+            'pure_python': True,
+            'dependencies': [],
+            'force_include_editable': {},
+            'extra_metadata': {},
+        }
 
-    def get_forced_inclusion_map(self, build_data):
+    def get_forced_inclusion_map(self, build_data: dict[str, Any]) -> dict[str, str]:
         if not build_data['force_include_editable']:
             return self.config.get_force_include()
 
         return normalize_inclusion_map(build_data['force_include_editable'], self.root)
 
     @property
-    def artifact_project_id(self):
+    def artifact_project_id(self) -> str:
         return (
             self.project_id
             if self.config.strict_naming
@@ -573,5 +612,5 @@ Root-Is-Purelib: {'true' if build_data['pure_python'] else 'false'}
         )
 
     @classmethod
-    def get_config_class(cls):
+    def get_config_class(cls) -> type[WheelBuilderConfig]:
         return WheelBuilderConfig

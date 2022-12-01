@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Any
+
 from hatchling.builders.hooks.plugin.interface import BuildHookInterface
 from hatchling.version.core import VersionFile
 
@@ -5,15 +9,15 @@ from hatchling.version.core import VersionFile
 class VersionBuildHook(BuildHookInterface):
     PLUGIN_NAME = 'version'
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
-        self.__config_path = None
-        self.__config_template = None
-        self.__config_pattern = None
+        self.__config_path: str | None = None
+        self.__config_template: str | None = None
+        self.__config_pattern: str | bool | None = None
 
     @property
-    def config_path(self):
+    def config_path(self) -> str:
         if self.__config_path is None:
             path = self.config.get('path', '')
             if not isinstance(path, str):
@@ -26,7 +30,7 @@ class VersionBuildHook(BuildHookInterface):
         return self.__config_path
 
     @property
-    def config_template(self):
+    def config_template(self) -> str:
         if self.__config_template is None:
             template = self.config.get('template', '')
             if not isinstance(template, str):
@@ -37,7 +41,7 @@ class VersionBuildHook(BuildHookInterface):
         return self.__config_template
 
     @property
-    def config_pattern(self):
+    def config_pattern(self) -> str | bool:
         if self.__config_pattern is None:
             pattern = self.config.get('pattern', '')
             if not isinstance(pattern, (str, bool)):
@@ -47,7 +51,7 @@ class VersionBuildHook(BuildHookInterface):
 
         return self.__config_pattern
 
-    def initialize(self, version, build_data):
+    def initialize(self, version: str, build_data: dict[str, Any]) -> None:
         version_file = VersionFile(self.root, self.config_path)
         if self.config_pattern:
             version_file.read(self.config_pattern)

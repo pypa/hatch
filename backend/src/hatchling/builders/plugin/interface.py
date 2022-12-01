@@ -3,17 +3,22 @@ from __future__ import annotations
 import os
 import re
 from abc import ABC, abstractmethod
-from typing import Callable, Generator
+from typing import TYPE_CHECKING, Any, Callable, Generator, cast
 
 from hatchling.builders.config import BuilderConfig, env_var_enabled
 from hatchling.builders.constants import EXCLUDED_DIRECTORIES, BuildEnvVars
 from hatchling.builders.utils import get_relative_path, safe_walk
 
+if TYPE_CHECKING:
+    from hatchling.bridge.app import Application
+    from hatchling.metadata.core import ProjectMetadata
+    from hatchling.plugin.manager import PluginManager
+
 
 class IncludedFile:
     __slots__ = ('path', 'relative_path', 'distribution_path')
 
-    def __init__(self, path, relative_path, distribution_path):
+    def __init__(self, path: str, relative_path: str, distribution_path: str) -> None:
         self.path = path
         self.relative_path = relative_path
         self.distribution_path = distribution_path
@@ -51,30 +56,37 @@ class BuilderInterface(ABC):
     PLUGIN_NAME = ''
     """The name used for selection."""
 
-    def __init__(self, root, plugin_manager=None, config=None, metadata=None, app=None):
+    def __init__(
+        self,
+        root: str,
+        plugin_manager: PluginManager | None = None,
+        config: dict[str, Any] | None = None,
+        metadata: ProjectMetadata | None = None,
+        app: Application | None = None,
+    ) -> None:
         self.__root = root
         self.__plugin_manager = plugin_manager
         self.__raw_config = config
         self.__metadata = metadata
         self.__app = app
-        self.__config = None
-        self.__project_config = None
-        self.__hatch_config = None
-        self.__build_config = None
-        self.__build_targets = None
-        self.__target_config = None
+        self.__config: BuilderConfig | None = None
+        self.__project_config: dict[str, Any] | None = None
+        self.__hatch_config: dict[str, Any] | None = None
+        self.__build_config: dict[str, Any] | None = None
+        self.__build_targets: list[str] | None = None
+        self.__target_config: dict[str, Any] | None = None
 
         # Metadata
-        self.__project_id = None
+        self.__project_id: str | None = None
 
     def build(
         self,
-        directory=None,
-        versions=None,
-        hooks_only=None,
-        clean=None,
-        clean_hooks_after=None,
-        clean_only=False,
+        directory: str | None = None,
+        versions: list[str] | None = None,
+        hooks_only: bool | None = None,
+        clean: bool | None = None,
+        clean_hooks_after: bool | None = None,
+        clean_only: bool | None = False,  # noqa: FBT002
     ) -> Generator[str, None, None]:
         # Fail early for invalid project metadata
         self.metadata.validate_fields()
@@ -90,9 +102,8 @@ class BuilderInterface(ABC):
 
         version_api = self.get_version_api()
 
-        if not versions:
-            versions = self.config.versions
-        else:
+        versions = versions or self.config.versions
+        if versions:
             unknown_versions = set(versions) - set(version_api)
             if unknown_versions:
                 raise ValueError(
@@ -184,7 +195,7 @@ class BuilderInterface(ABC):
                         os.path.join(root, f), relative_file_path, self.config.get_distribution_path(relative_file_path)
                     )
 
-    def recurse_forced_files(self, inclusion_map) -> Generator[IncludedFile, None, None]:
+    def recurse_forced_files(self, inclusion_map: dict[str, str]) -> Generator[IncludedFile, None, None]:
         for source, target_path in inclusion_map.items():
             external = not source.startswith(self.root)
             if os.path.isfile(source):
@@ -209,7 +220,7 @@ class BuilderInterface(ABC):
                                 self.config.get_distribution_path(relative_file_path),
                             )
 
-    def recurse_explicit_files(self, inclusion_map) -> Generator[IncludedFile, None, None]:
+    def recurse_explicit_files(self, inclusion_map: dict[str, str]) -> Generator[IncludedFile, None, None]:
         for source, target_path in inclusion_map.items():
             external = not source.startswith(self.root)
             if os.path.isfile(source):
@@ -236,14 +247,14 @@ class BuilderInterface(ABC):
                             )
 
     @property
-    def root(self):
+    def root(self) -> str:
         """
         The root of the project tree.
         """
         return self.__root
 
     @property
-    def plugin_manager(self):
+    def plugin_manager(self) -> PluginManager:
         if self.__plugin_manager is None:
             from hatchling.plugin.manager import PluginManager
 
@@ -252,7 +263,7 @@ class BuilderInterface(ABC):
         return self.__plugin_manager
 
     @property
-    def metadata(self):
+    def metadata(self) -> ProjectMetadata:
         if self.__metadata is None:
             from hatchling.metadata.core import ProjectMetadata
 
@@ -261,40 +272,40 @@ class BuilderInterface(ABC):
         return self.__metadata
 
     @property
-    def app(self):
+    def app(self) -> Application:
         """
         An instance of [Application](../utilities.md#hatchling.bridge.app.Application).
         """
         if self.__app is None:
             from hatchling.bridge.app import Application
 
-            self.__app = Application().get_safe_application()
+            self.__app = cast(Application, Application().get_safe_application())
 
         return self.__app
 
     @property
-    def raw_config(self):
+    def raw_config(self) -> dict[str, Any]:
         if self.__raw_config is None:
             self.__raw_config = self.metadata.config
 
         return self.__raw_config
 
     @property
-    def project_config(self):
+    def project_config(self) -> dict[str, Any]:
         if self.__project_config is None:
             self.__project_config = self.metadata.core.config
 
         return self.__project_config
 
     @property
-    def hatch_config(self):
+    def hatch_config(self) -> dict[str, Any]:
         if self.__hatch_config is None:
             self.__hatch_config = self.metadata.hatch.config
 
         return self.__hatch_config
 
     @property
-    def config(self):
+    def config(self) -> BuilderConfig:
         """
         An instance of [BuilderConfig](../utilities.md#hatchling.builders.config.BuilderConfig).
         """
@@ -306,7 +317,7 @@ class BuilderInterface(ABC):
         return self.__config
 
     @property
-    def build_config(self):
+    def build_config(self) -> dict[str, Any]:
         """
         === ":octicons-file-code-16: pyproject.toml"
 
@@ -326,7 +337,7 @@ class BuilderInterface(ABC):
         return self.__build_config
 
     @property
-    def target_config(self):
+    def target_config(self) -> dict[str, Any]:
         """
         === ":octicons-file-code-16: pyproject.toml"
 
@@ -341,7 +352,7 @@ class BuilderInterface(ABC):
             ```
         """
         if self.__target_config is None:
-            target_config = self.metadata.hatch.build_targets.get(self.PLUGIN_NAME, {})
+            target_config: dict[str, Any] = self.metadata.hatch.build_targets.get(self.PLUGIN_NAME, {})
             if not isinstance(target_config, dict):
                 raise TypeError(f'Field `tool.hatch.build.targets.{self.PLUGIN_NAME}` must be a table')
 
@@ -350,13 +361,13 @@ class BuilderInterface(ABC):
         return self.__target_config
 
     @property
-    def project_id(self):
+    def project_id(self) -> str:
         if self.__project_id is None:
             self.__project_id = f'{self.normalize_file_name_component(self.metadata.core.name)}-{self.metadata.version}'
 
         return self.__project_id
 
-    def get_build_hooks(self, directory):
+    def get_build_hooks(self, directory: str) -> dict[str, Any]:
         configured_build_hooks = {}
         for hook_name, config in self.config.hook_config.items():
             build_hook = self.plugin_manager.build_hook.get(hook_name)
@@ -384,37 +395,37 @@ class BuilderInterface(ABC):
         The return value must be the absolute path to the built artifact.
         """
 
-    def get_default_versions(self):
+    def get_default_versions(self) -> list[str]:
         """
         A list of versions to build when users do not specify any, defaulting to all versions.
         """
         return list(self.get_version_api())
 
-    def get_default_build_data(self):
+    def get_default_build_data(self) -> dict[str, Any]:
         """
         A mapping that can be modified by [build hooks](../build-hook/reference.md) to influence the behavior of builds.
         """
         return {}
 
-    def set_build_data_defaults(self, build_data):
+    def set_build_data_defaults(self, build_data: dict[str, Any]) -> None:
         build_data.setdefault('artifacts', [])
         build_data.setdefault('force_include', {})
 
-    def clean(self, directory, versions):
+    def clean(self, directory: str, versions: list[str]) -> None:
         """
         Called before builds if the `-c`/`--clean` flag was passed to the
         [`build`](../../cli/reference.md#hatch-build) command.
         """
 
     @classmethod
-    def get_config_class(cls):
+    def get_config_class(cls) -> type[BuilderConfig]:
         """
         Must return a subclass of [BuilderConfig](../utilities.md#hatchling.builders.config.BuilderConfig).
         """
         return BuilderConfig
 
     @staticmethod
-    def normalize_file_name_component(file_name):
+    def normalize_file_name_component(file_name: str) -> str:
         """
         https://peps.python.org/pep-0427/#escaping-and-unicode
         """

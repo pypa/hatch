@@ -7,7 +7,7 @@ from hatch.utils.fs import Path
 
 
 class Project:
-    def __init__(self, path: Path, *, name: str = None, config=None):
+    def __init__(self, path: Path, *, name: str | None = None, config=None):
         self._path = path
 
         # From app config
@@ -90,7 +90,7 @@ class Project:
             path = new_path
 
     @staticmethod
-    def canonicalize_name(name: str, strict=True) -> str:
+    def canonicalize_name(name: str, *, strict=True) -> str:
         if strict:
             return re.sub(r'[-_.]+', '-', name).lower()
         else:

@@ -1,9 +1,15 @@
+from __future__ import annotations
+
 import os
 import shutil
 from base64 import urlsafe_b64encode
+from typing import TYPE_CHECKING, Generator
+
+if TYPE_CHECKING:
+    from zipfile import ZipInfo
 
 
-def replace_file(src, dst):
+def replace_file(src: str, dst: str) -> None:
     try:
         os.replace(src, dst)
     # Happens when on different filesystems like /tmp or caused by layering in containers
@@ -12,7 +18,7 @@ def replace_file(src, dst):
         os.remove(src)
 
 
-def safe_walk(path):
+def safe_walk(path: str) -> Generator:
     seen = set()
     for root, dirs, files in os.walk(path, followlinks=True):
         stat = os.stat(root)
@@ -25,11 +31,11 @@ def safe_walk(path):
         yield root, dirs, files
 
 
-def get_known_python_major_versions():
+def get_known_python_major_versions() -> map:
     return map(str, sorted((2, 3)))
 
 
-def get_relative_path(path, start):
+def get_relative_path(path: str, start: str) -> str:
     relative_path = os.path.relpath(path, start)
 
     # First iteration of `os.walk`
@@ -39,15 +45,15 @@ def get_relative_path(path, start):
     return relative_path
 
 
-def normalize_relative_path(path):
+def normalize_relative_path(path: str) -> str:
     return os.path.normpath(path).strip(os.sep)
 
 
-def normalize_relative_directory(path):
+def normalize_relative_directory(path: str) -> str:
     return normalize_relative_path(path) + os.sep
 
 
-def normalize_inclusion_map(inclusion_map, root):
+def normalize_inclusion_map(inclusion_map: dict[str, str], root: str) -> dict[str, str]:
     normalized_inclusion_map = {}
 
     for source, relative_path in inclusion_map.items():
@@ -57,22 +63,27 @@ def normalize_inclusion_map(inclusion_map, root):
 
         normalized_inclusion_map[source] = normalize_relative_path(relative_path)
 
-    return dict(sorted(normalized_inclusion_map.items(), key=lambda item: (item[1].count(os.sep), item[1], item[0])))
+    return dict(
+        sorted(
+            normalized_inclusion_map.items(),
+            key=lambda item: (item[1].count(os.sep), item[1], item[0]),
+        )
+    )
 
 
-def normalize_archive_path(path):
+def normalize_archive_path(path: str) -> str:
     if os.sep != '/':
         return path.replace(os.sep, '/')
 
     return path
 
 
-def format_file_hash(digest):
+def format_file_hash(digest: bytes) -> str:
     # https://peps.python.org/pep-0427/#signed-wheel-files
     return urlsafe_b64encode(digest).decode('ascii').rstrip('=')
 
 
-def get_reproducible_timestamp():
+def get_reproducible_timestamp() -> int:
     """
     Returns an `int` derived from the `SOURCE_DATE_EPOCH` environment variable; see
     https://reproducible-builds.org/specs/source-date-epoch/.
@@ -82,7 +93,7 @@ def get_reproducible_timestamp():
     return int(os.environ.get('SOURCE_DATE_EPOCH', '1580601600'))
 
 
-def normalize_file_permissions(st_mode):
+def normalize_file_permissions(st_mode: int) -> int:
     """
     https://github.com/takluyver/flit/blob/6a2a8c6462e49f584941c667b70a6f48a7b3f9ab/flit_core/flit_core/common.py#L257
 
@@ -99,7 +110,7 @@ def normalize_file_permissions(st_mode):
     return new_mode
 
 
-def set_zip_info_mode(zip_info, mode=0o644):
+def set_zip_info_mode(zip_info: ZipInfo, mode: int = 0o644) -> None:
     """
     https://github.com/takluyver/flit/commit/3889583719888aef9f28baaa010e698cb7884904
     """

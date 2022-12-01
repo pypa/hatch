@@ -76,7 +76,63 @@ exclude = [
   "/scripts",
 ]
 
-[tool.hatch.build.targets.wheel]
+[tool.black]
+line-length = 120
+skip-string-normalization = true
+target-version = ["py37"]
+
+[tool.ruff]
+target-version = "py37"
+line-length = 120
+select = [
+  "A",
+  "B",
+  "C",
+  "E",
+  "F",
+  "FBT",
+  "I",
+  "M",
+  "N",
+  "Q",
+  "RUF",
+  "S",
+  "T",
+  "U",
+  "W",
+  "YTT",
+]
+ignore = [
+  # Allow non-abstract empty methods in abstract base classes
+  "B027",
+  # Ignore McCabe complexity
+  "C901",
+  # Allow boolean positional values in function calls, like `dict.get(... True)`
+  "FBT003",
+  # Ignore checks for possible passwords
+  "S105", "S106", "S107",
+]
+unfixable = [
+  # Don't touch unused imports
+  "F401",
+]
+
+[tool.ruff.isort]
+known-first-party = ["hatch", "hatchling"]
+
+[tool.ruff.flake8-quotes]
+inline-quotes = "single"
+
+[tool.ruff.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.ruff.per-file-ignores]
+# Allow print/pprint
+"backend/src/hatchling/bridge/app.py" = ["T201"]
+"backend/tests/downstream/integrate.py" = ["T201"]
+"scripts/*" = ["T201"]
+# Tests can use relative imports and assertions
+"tests/**/*" = ["I252", "S101"]
 
 [tool.mypy]
 disallow_untyped_defs = false
@@ -99,29 +155,15 @@ module = [
     "*.hatchling.ouroboros",
     "*.hatchling.bridge.*",
     "*.hatchling.licenses.*",
+    "*.hatchling.builders.*",
+    "*.hatchling.dep.*",
+    "*.hatchling.utils.*",
+    "*.hatchling.cli.*",
+    "*.hatchling.version.*",
 ]
 disallow_untyped_defs = true
 disallow_incomplete_defs = true
 warn_no_return = true
-
-[tool.bandit]
-recursive = true
-skip = ["B101", "B102", "B105", "B110", "B112", "B301", "B307", "B324", "B403", "B404", "B603", "B604", "B606", "B607"]
-
-[tool.black]
-include = '\.pyi?$'
-line-length = 120
-skip-string-normalization = true
-target-version = ["py37"]
-
-[tool.isort]
-default_section = "THIRDPARTY"
-force_grid_wrap = 0
-include_trailing_comma = true
-known_first_party = ["hatch", "hatchling"]
-line_length = 120
-multi_line_output = 3
-use_parentheses = true
 
 [tool.coverage.run]
 branch = true
@@ -136,8 +178,8 @@ omit = [
 ]
 
 [tool.coverage.paths]
-hatch = ["src", "*/hatch/src"]
-hatchling = ["backend/src", "*/hatch/backend/src"]
+hatch = ["src/hatch", "*/hatch/src/hatch"]
+hatchling = ["backend/src/hatchling", "*/hatch/backend/src/hatchling"]
 tests = ["tests", "*/hatch/tests"]
 
 [tool.coverage.report]

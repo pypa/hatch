@@ -291,7 +291,7 @@ class EnvironmentInterface(ABC):
                         except InvalidRequirement as e:
                             raise ValueError(
                                 f'Dependency #{i} of field `tool.hatch.envs.{self.name}.{option}` is invalid: {e}'
-                            )
+                            ) from None
 
             self._environment_dependencies_complex = dependencies_complex
 

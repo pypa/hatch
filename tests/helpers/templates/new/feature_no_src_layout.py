@@ -28,7 +28,7 @@ def get_files(**kwargs):
 # SPDX-FileCopyrightText: {kwargs['year']}-present {kwargs['author']} <{kwargs['email']}>
 #
 # SPDX-License-Identifier: MIT
-__version__ = '0.0.1'
+__version__ = "0.0.1"
 """,
         ),
         File(
@@ -74,6 +74,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "{kwargs['project_name_normalized']}"
+dynamic = ["version"]
 description = '{description}'
 readme = "README.md"
 requires-python = ">=3.7"
@@ -94,7 +95,6 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dependencies = []
-dynamic = ["version"]
 
 [project.urls]
 Documentation = "https://github.com/unknown/{kwargs['project_name_normalized']}#readme"
@@ -106,22 +106,92 @@ path = "{kwargs['package_name']}/__about__.py"
 
 [tool.hatch.envs.default]
 dependencies = [
+  "coverage[toml]>=6.5",
   "pytest",
-  "pytest-cov",
 ]
 [tool.hatch.envs.default.scripts]
-cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov={kwargs['package_name']} --cov=tests {{args}}"
-no-cov = "cov --no-cov {{args}}"
+test = "pytest {{args:tests}}"
+test-cov = "coverage run -m pytest {{args:tests}}"
+cov-report = [
+  "- coverage combine",
+  "coverage report",
+]
+cov = [
+  "test-cov",
+  "cov-report",
+]
 
-[[tool.hatch.envs.test.matrix]]
+[[tool.hatch.envs.all.matrix]]
 python = ["3.7", "3.8", "3.9", "3.10", "3.11"]
 
+[tool.hatch.envs.lint]
+detached = true
+dependencies = [
+  "black",
+  "mypy",
+  "ruff",
+]
+[tool.hatch.envs.lint.scripts]
+typing = "mypy --install-types --non-interactive {{args:{kwargs['package_name']} tests}}"
+style = [
+  "ruff {{args:.}}",
+  "black --check --diff {{args:.}}",
+]
+fmt = [
+  "black {{args:.}}",
+  "ruff --fix {{args:.}}",
+  "style",
+]
+all = [
+  "style",
+  "typing",
+]
+
+[tool.black]
+target-version = ["py37"]
+line-length = 120
+skip-string-normalization = true
+
+[tool.ruff]
+target-version = "py37"
+line-length = 120
+select = ["A", "B", "C", "E", "F", "FBT", "I", "M", "N", "Q", "RUF", "S", "T", "U", "W", "YTT"]
+ignore = [
+  # Allow non-abstract empty methods in abstract base classes
+  "B027",
+  # Ignore McCabe complexity
+  "C901",
+  # Allow boolean positional values in function calls, like `dict.get(... True)`
+  "FBT003",
+  # Ignore checks for possible passwords
+  "S105", "S106", "S107",
+]
+unfixable = [
+  # Don't touch unused imports
+  "F401",
+]
+
+[tool.ruff.isort]
+known-first-party = ["{kwargs['package_name']}"]
+
+[tool.ruff.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.ruff.per-file-ignores]
+# Tests can use relative imports and assertions
+"tests/**/*" = ["I252", "S101"]
+
 [tool.coverage.run]
+source_pkgs = ["{kwargs['package_name']}", "tests"]
 branch = true
 parallel = true
 omit = [
   "{kwargs['package_name']}/__about__.py",
 ]
+
+[tool.coverage.paths]
+{kwargs['package_name']} = ["{kwargs['package_name']}", "*/{kwargs['project_name_normalized']}/{kwargs['package_name']}"]
+tests = ["tests", "*/{kwargs['project_name_normalized']}/tests"]
 
 [tool.coverage.report]
 exclude_lines = [
@@ -129,6 +199,6 @@ exclude_lines = [
   "if __name__ == .__main__.:",
   "if TYPE_CHECKING:",
 ]
-""",
+""",  # noqa: E501
         ),
-    ]  # noqa: E501
+    ]

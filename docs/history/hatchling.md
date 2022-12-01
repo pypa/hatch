@@ -10,7 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ***Added:***
 
+- Add `extra_metadata` build data to the `wheel` target
+- Retroactively support `License-Expression` core metadata starting at version 2.1
 - Add more type hints
+- Store Hatchling's metadata in `pyproject.toml`
 
 ## [1.11.1](https://github.com/pypa/hatch/releases/tag/hatchling-v1.11.1) - 2022-10-19 ## {: #hatchling-v1.11.1 }
 

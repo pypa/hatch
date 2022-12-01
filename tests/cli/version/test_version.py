@@ -130,6 +130,7 @@ def test_show_static(hatch, temp_dir):
     config = dict(project.raw_config)
     config['project']['version'] = '1.2.3'
     config['project']['dynamic'].remove('version')
+    config['tool']['hatch']['metadata'] = {'hooks': {'foo': {}}}
     project.save_config(config)
 
     with path.as_cwd():

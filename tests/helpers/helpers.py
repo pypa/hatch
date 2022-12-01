@@ -29,7 +29,7 @@ def get_current_timestamp():
     return datetime.now(timezone.utc).timestamp()
 
 
-def assert_files(directory, expected_files, check_contents=True):
+def assert_files(directory, expected_files, *, check_contents=True):
     start = str(directory)
     expected_relative_files = {str(f.path): f.contents for f in expected_files}
     seen_relative_file_paths = set()

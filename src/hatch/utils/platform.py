@@ -67,7 +67,7 @@ class Platform:
     def exit_with_code(self, code):
         return sys.exit(code)
 
-    def _run_command_integrated(self, command: str | list[str], shell=False, **kwargs):
+    def _run_command_integrated(self, command: str | list[str], *, shell=False, **kwargs):
         with self.capture_process(command, shell=shell, **kwargs) as process:
             for line in self.stream_process_output(process):
                 self.__display_func(line, end='')
@@ -76,7 +76,7 @@ class Platform:
 
         return self.modules.subprocess.CompletedProcess(process.args, process.poll(), stdout, stderr)
 
-    def run_command(self, command: str | list[str], shell=False, **kwargs):
+    def run_command(self, command: str | list[str], *, shell=False, **kwargs):
         """
         Equivalent to the standard library's
         [subprocess.run](https://docs.python.org/3/library/subprocess.html#subprocess.run),
@@ -88,7 +88,7 @@ class Platform:
 
         return self.modules.subprocess.run(self.format_for_subprocess(command, shell=shell), shell=shell, **kwargs)
 
-    def check_command(self, command: str | list[str], shell=False, **kwargs):
+    def check_command(self, command: str | list[str], *, shell=False, **kwargs):
         """
         Equivalent to [run_command](utilities.md#hatch.utils.platform.Platform.run_command),
         but non-zero exit codes will gracefully end program execution.
@@ -99,7 +99,7 @@ class Platform:
 
         return process
 
-    def check_command_output(self, command: str | list[str], shell=False, **kwargs) -> str:
+    def check_command_output(self, command: str | list[str], *, shell=False, **kwargs) -> str:
         """
         Equivalent to the output from the process returned by
         [capture_process](utilities.md#hatch.utils.platform.Platform.capture_process),
@@ -114,7 +114,7 @@ class Platform:
 
         return stdout.decode('utf-8')
 
-    def capture_process(self, command: str | list[str], shell=False, **kwargs):
+    def capture_process(self, command: str | list[str], *, shell=False, **kwargs):
         """
         Equivalent to the standard library's
         [subprocess.Popen](https://docs.python.org/3/library/subprocess.html#subprocess.Popen),

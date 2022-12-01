@@ -95,7 +95,7 @@ class Application(Terminal):
                 environment.sync_dependencies()
 
     def run_shell_commands(
-        self, environment, commands: list[str], source='cmd', force_continue=False, show_code_on_error=True
+        self, environment, commands: list[str], source='cmd', *, force_continue=False, show_code_on_error=True
     ):
         with environment.command_context():
             try:
@@ -107,7 +107,7 @@ class Application(Terminal):
             should_display_command = self.verbose or len(resolved_commands) > 1
             for i, command in enumerate(resolved_commands, 1):
                 if should_display_command:
-                    self.display_always(f'{source} [{i}] | {command}')
+                    self.display(f'{source} [{i}] | {command}')
 
                 continue_on_error = force_continue
                 if command.startswith('- '):
@@ -189,7 +189,8 @@ class Application(Terminal):
 class SafeApplication:
     def __init__(self, app: Application):
         self.abort = app.abort
-        self.display_always = app.display_always
+        self.display = app.display
+        self.display_critical = app.display_critical
         self.display_info = app.display_info
         self.display_error = app.display_error
         self.display_success = app.display_success

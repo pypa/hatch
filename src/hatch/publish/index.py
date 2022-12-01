@@ -148,7 +148,7 @@ class IndexPublisher(PublisherInterface):
                 index.upload_artifact(artifact, data)
             except Exception as e:
                 self.app.display_error('failed')
-                self.app.abort(str(e).replace(index.auth, '*****'))
+                self.app.abort(f'Error uploading to repository: {index.repo} - {e}'.replace(index.auth, '*****'))
             else:
                 self.app.display_success('success')
 

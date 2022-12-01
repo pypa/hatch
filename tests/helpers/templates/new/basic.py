@@ -26,7 +26,7 @@ def get_files(**kwargs):
 # SPDX-FileCopyrightText: {kwargs['year']}-present {kwargs['author']} <{kwargs['email']}>
 #
 # SPDX-License-Identifier: MIT
-__version__ = '0.0.1'
+__version__ = "0.0.1"
 """,
         ),
         File(
@@ -64,6 +64,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "{kwargs['project_name_normalized']}"
+dynamic = ["version"]
 description = ''
 readme = "README.md"
 requires-python = ">=3.7"
@@ -84,7 +85,6 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dependencies = []
-dynamic = ["version"]
 
 [project.urls]
 Documentation = "https://github.com/unknown/{kwargs['project_name_normalized']}#readme"
@@ -93,6 +93,6 @@ Source = "https://github.com/unknown/{kwargs['project_name_normalized']}"
 
 [tool.hatch.version]
 path = "src/{kwargs['package_name']}/__about__.py"
-""",  # noqa: E501
+""",
         ),
     ]

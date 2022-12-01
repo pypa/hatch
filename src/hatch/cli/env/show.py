@@ -47,7 +47,7 @@ def show(app, envs, force_ascii, as_json):
                     script: list(environment.resolve_commands([script])) for script in environment.scripts
                 }
 
-        app.display_info(json.dumps(contextual_config, separators=(',', ':')))
+        app.display(json.dumps(contextual_config, separators=(',', ':')))
         return
 
     from packaging.requirements import InvalidRequirement, Requirement
@@ -87,7 +87,7 @@ def show(app, envs, force_ascii, as_json):
 
         if config.get('features'):
             if app.project.metadata.hatch.metadata.allow_ambiguous_features:
-                matrix_columns['Features'][i] = '\n'.join(sorted({f for f in config['features']}))
+                matrix_columns['Features'][i] = '\n'.join(sorted(set(config['features'])))
             else:
                 matrix_columns['Features'][i] = '\n'.join(
                     sorted({normalize_project_name(f) for f in config['features']})

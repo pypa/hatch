@@ -58,43 +58,55 @@ class Terminal:
 
         return errors
 
-    def display_error(self, text='', stderr=True, indent=None, link=None, **kwargs):
+    def display(self, text='', **kwargs):
+        self.console.print(text, style=self._style_level_info, overflow='ignore', no_wrap=True, crop=False, **kwargs)
+
+    def display_critical(self, text='', **kwargs):
+        self.console.stderr = True
+        try:
+            self.console.print(
+                text, style=self._style_level_error, overflow='ignore', no_wrap=True, crop=False, **kwargs
+            )
+        finally:
+            self.console.stderr = False
+
+    def display_error(self, text='', *, stderr=True, indent=None, link=None, **kwargs):
         if self.verbosity < -2:
             return
 
-        self.display(text, self._style_level_error, stderr=stderr, indent=indent, link=link, **kwargs)
+        self.output(text, self._style_level_error, stderr=stderr, indent=indent, link=link, **kwargs)
 
-    def display_warning(self, text='', stderr=False, indent=None, link=None, **kwargs):
+    def display_warning(self, text='', *, stderr=True, indent=None, link=None, **kwargs):
         if self.verbosity < -1:
             return
 
-        self.display(text, self._style_level_warning, stderr=stderr, indent=indent, link=link, **kwargs)
+        self.output(text, self._style_level_warning, stderr=stderr, indent=indent, link=link, **kwargs)
 
-    def display_info(self, text='', stderr=False, indent=None, link=None, **kwargs):
+    def display_info(self, text='', *, stderr=True, indent=None, link=None, **kwargs):
         if self.verbosity < 0:
             return
 
-        self.display(text, self._style_level_info, stderr=stderr, indent=indent, link=link, **kwargs)
+        self.output(text, self._style_level_info, stderr=stderr, indent=indent, link=link, **kwargs)
 
-    def display_success(self, text='', stderr=False, indent=None, link=None, **kwargs):
+    def display_success(self, text='', *, stderr=True, indent=None, link=None, **kwargs):
         if self.verbosity < 0:
             return
 
-        self.display(text, self._style_level_success, stderr=stderr, indent=indent, link=link, **kwargs)
+        self.output(text, self._style_level_success, stderr=stderr, indent=indent, link=link, **kwargs)
 
-    def display_waiting(self, text='', stderr=False, indent=None, link=None, **kwargs):
+    def display_waiting(self, text='', *, stderr=True, indent=None, link=None, **kwargs):
         if self.verbosity < 0:
             return
 
-        self.display(text, self._style_level_waiting, stderr=stderr, indent=indent, link=link, **kwargs)
+        self.output(text, self._style_level_waiting, stderr=stderr, indent=indent, link=link, **kwargs)
 
-    def display_debug(self, text='', level=1, stderr=False, indent=None, link=None, **kwargs):
+    def display_debug(self, text='', level=1, *, stderr=True, indent=None, link=None, **kwargs):
         if not 1 <= level <= 3:
             raise ValueError('Debug output can only have verbosity levels between 1 and 3 (inclusive)')
         elif self.verbosity < level:
             return
 
-        self.display(text, self._style_level_debug, stderr=stderr, indent=indent, link=link, **kwargs)
+        self.output(text, self._style_level_debug, stderr=stderr, indent=indent, link=link, **kwargs)
 
     def display_mini_header(self, text, *, stderr=False, indent=None, link=None):
         if self.verbosity < 0:
@@ -112,7 +124,7 @@ class Terminal:
 
         self.display_raw(Markdown(text), **kwargs)
 
-    def display_table(self, title, columns, show_lines=False, column_options=None, force_ascii=False, num_rows=0):
+    def display_table(self, title, columns, *, show_lines=False, column_options=None, force_ascii=False, num_rows=0):
         from rich.table import Table
 
         if column_options is None:
@@ -145,10 +157,10 @@ class Terminal:
             if any(row):
                 table.add_row(*row)
 
-        self.display(table)
+        self.output(table)
 
     @contextmanager
-    def status_waiting(self, text='', final_text=None, condition=True, **kwargs):
+    def status_waiting(self, text='', *, final_text=None, condition=True, **kwargs):
         if not condition or not self.interactive or not self.console.is_terminal:
             if condition:
                 self.display_waiting(text)
@@ -169,7 +181,7 @@ class Terminal:
                 finally:
                     self.platform.displaying_status = False
 
-    def display(self, text='', style=None, *, stderr=False, indent=None, link=None, **kwargs):
+    def output(self, text='', style=None, *, stderr=False, indent=None, link=None, **kwargs):
         kwargs.setdefault('overflow', 'ignore')
         kwargs.setdefault('no_wrap', True)
         kwargs.setdefault('crop', False)
@@ -190,10 +202,8 @@ class Terminal:
                 self.console.stderr = False
 
     def display_raw(self, text, **kwargs):
+        # No styling
         self.console.print(text, overflow='ignore', no_wrap=True, crop=False, **kwargs)
-
-    def display_always(self, text='', **kwargs):
-        self.console.print(text, style=self._style_level_info, overflow='ignore', no_wrap=True, crop=False, **kwargs)
 
     @staticmethod
     def prompt(text, **kwargs):

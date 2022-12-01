@@ -226,7 +226,7 @@ class ProjectMetadata:
             raise ValueError(
                 # Put text on its own line to prevent mostly duplicate output
                 f'Invalid version `{version}` from {source}, see https://peps.python.org/pep-0440/'
-            )
+            ) from None
         else:
             return normalized_version
 
@@ -267,7 +267,7 @@ class BuildMetadata:
                 try:
                     requires_complex.append(Requirement(entry))
                 except InvalidRequirement as e:
-                    raise ValueError(f'Dependency #{i} of field `build-system.requires` is invalid: {e}')
+                    raise ValueError(f'Dependency #{i} of field `build-system.requires` is invalid: {e}') from None
 
             self._requires_complex = requires_complex
 
@@ -575,7 +575,7 @@ class CoreMetadata:
             try:
                 self._python_constraint = SpecifierSet(requires_python)
             except InvalidSpecifier as e:
-                raise ValueError(f'Field `project.requires-python` is invalid: {e}')
+                raise ValueError(f'Field `project.requires-python` is invalid: {e}') from None
 
             self._requires_python = str(self._python_constraint)
 
@@ -589,7 +589,7 @@ class CoreMetadata:
         return self._python_constraint
 
     @property
-    def license(self):
+    def license(self):  # noqa: A003
         """
         https://peps.python.org/pep-0621/#license
         """
@@ -1087,7 +1087,7 @@ class CoreMetadata:
                 try:
                     requirement = Requirement(self.context.format(entry))
                 except InvalidRequirement as e:
-                    raise ValueError(f'Dependency #{i} of field `project.dependencies` is invalid: {e}')
+                    raise ValueError(f'Dependency #{i} of field `project.dependencies` is invalid: {e}') from None
                 else:
                     if requirement.url and not self.hatch_metadata.allow_direct_references:
                         raise ValueError(
@@ -1162,7 +1162,7 @@ class CoreMetadata:
                         raise ValueError(
                             f'Dependency #{i} of option `{option}` of field `project.optional-dependencies` '
                             f'is invalid: {e}'
-                        )
+                        ) from None
                     else:
                         if requirement.url and not self.hatch_metadata.allow_direct_references:
                             raise ValueError(

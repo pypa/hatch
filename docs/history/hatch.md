@@ -11,15 +11,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ***Changed:***
 
 - The `src-layout` project template option is now enabled by default
+- Non-critical output now goes to stderr
 
 ***Added:***
 
+- Add `custom` environment collector
+- Increase the timeout for and add retries to the `index` publisher
 - Expand home and environment variables in configured cache and data directories
-- Retroactively support `License-Expression` core metadata starting at version 2.1
 - Update project templates
 
 ***Fixed:***
 
+- Fix displaying the version with the `version` command when the version is static and build dependencies are unmet
 - Fix the `support-legacy` option for the `sdist` target when using a src-layout project structure
 
 ### [1.6.3](https://github.com/pypa/hatch/releases/tag/hatch-v1.6.3) - 2022-10-24 ### {: #hatch-v1.6.3 }

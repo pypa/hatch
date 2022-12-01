@@ -1,15 +1,29 @@
+from __future__ import annotations
+
 import os
+from typing import TYPE_CHECKING, Any
 
 from hatchling.builders.plugin.interface import BuilderInterface
 from hatchling.metadata.core import ProjectMetadata
 from hatchling.plugin.utils import load_plugin_from_script
 from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT
 
+if TYPE_CHECKING:
+    from hatchling.bridge.app import Application
+    from hatchling.plugin.manager import PluginManager
+
 
 class CustomBuilder:
     PLUGIN_NAME = 'custom'
 
-    def __new__(cls, root, plugin_manager=None, config=None, metadata=None, app=None):
+    def __new__(
+        cls,
+        root: str,
+        plugin_manager: PluginManager | None = None,
+        config: dict[str, Any] | None = None,
+        metadata: ProjectMetadata | None = None,
+        app: Application | None = None,
+    ) -> BuilderInterface:
         project_metadata = ProjectMetadata(root, plugin_manager, config)
 
         target_config = project_metadata.hatch.build_targets.get(cls.PLUGIN_NAME, {})

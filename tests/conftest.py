@@ -176,7 +176,11 @@ def python_on_path():
 
 @pytest.fixture(scope='session')
 def devpi(tmp_path_factory, worker_id):
-    if not shutil.which('docker') or (running_in_ci() and not PLATFORM.linux):
+    import platform
+
+    if not shutil.which('docker') or (
+        running_in_ci() and (not PLATFORM.linux or platform.python_implementation() == 'PyPy')
+    ):
         pytest.skip('Not testing publishing')
 
     # This fixture is affected by https://github.com/pytest-dev/pytest-xdist/issues/271
