@@ -164,3 +164,20 @@ jobs:
         hyperfine -m 100 --warmup 10 poetry
         hyperfine -m 100 --warmup 10 -i flit
         hyperfine -m 100 --warmup 10 hatch
+
+  # https://github.com/marketplace/actions/alls-green#why
+  check: # This job does nothing and is only used for the branch protection
+    if: always()
+
+    needs:
+    - coverage
+    - downstream
+    - response-time
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Decide whether the needed jobs succeeded or failed
+      uses: re-actors/alls-green@release/v1
+      with:
+        jobs: ${{ toJSON(needs) }}
