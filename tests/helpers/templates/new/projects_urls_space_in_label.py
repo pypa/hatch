@@ -153,7 +153,7 @@ skip-string-normalization = true
 [tool.ruff]
 target-version = "py37"
 line-length = 120
-select = ["A", "B", "C", "E", "F", "FBT", "I", "M", "N", "Q", "RUF", "S", "T", "U", "W", "YTT"]
+select = ["A", "B", "C", "E", "F", "FBT", "I", "N", "Q", "RUF", "S", "T", "UP", "W", "YTT"]
 ignore = [
   # Allow non-abstract empty methods in abstract base classes
   "B027",
