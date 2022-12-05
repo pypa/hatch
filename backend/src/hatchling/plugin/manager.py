@@ -4,8 +4,6 @@ from typing import Callable
 
 import pluggy
 
-from hatchling.types import PluginInterface
-
 
 class PluginManager:
     def __init__(self) -> None:
@@ -68,7 +66,7 @@ class ClassRegister:
         if include_third_party and not self.third_party_plugins.loaded:
             self.third_party_plugins.load()
 
-        classes: dict[str, PluginInterface] = {}
+        classes: dict[str, type] = {}
 
         for registered_classes in self.registration_method():
             if not isinstance(registered_classes, list):
@@ -88,7 +86,7 @@ class ClassRegister:
 
         return classes
 
-    def get(self, name: str) -> type[PluginInterface] | None:
+    def get(self, name: str) -> type | None:
         if not self.third_party_plugins.loaded:
             classes = self.collect(include_third_party=False)
             if name in classes:
