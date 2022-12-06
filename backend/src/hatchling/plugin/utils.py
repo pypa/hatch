@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-from typing import TypeVar
+from typing import TYPE_CHECKING, TypeVar
 
-from hatchling.builders.hooks.plugin.interface import BuildHookInterface
-from hatchling.builders.plugin.interface import BuilderInterface
-from hatchling.metadata.plugin.interface import MetadataHookInterface
+if TYPE_CHECKING:
+    from hatchling.builders.hooks.plugin.interface import BuildHookInterface
+    from hatchling.builders.plugin.interface import BuilderInterface
+    from hatchling.metadata.plugin.interface import MetadataHookInterface
 
-T = TypeVar('T', BuilderInterface, BuildHookInterface, MetadataHookInterface)
+    T = TypeVar('T', BuilderInterface, BuildHookInterface, MetadataHookInterface)
 
 
 def load_plugin_from_script(path: str, script_name: str, plugin_class: type[T], plugin_id: str) -> type[T]:
