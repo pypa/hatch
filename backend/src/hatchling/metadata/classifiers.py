@@ -810,5 +810,5 @@ SORTED_CLASSIFIERS = [
 KNOWN_CLASSIFIERS = set(SORTED_CLASSIFIERS)
 
 
-def is_private(classifier):
+def is_private(classifier: str) -> bool:
     return classifier.lower().startswith('private ::')

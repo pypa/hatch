@@ -35,19 +35,19 @@ class MetadataHookInterface(ABC):  # no cov
     PLUGIN_NAME = ''
     """The name used for selection."""
 
-    def __init__(self, root, config):
+    def __init__(self, root: str, config: dict) -> None:
         self.__root = root
         self.__config = config
 
     @property
-    def root(self):
+    def root(self) -> str:
         """
         The root of the project tree.
         """
         return self.__root
 
     @property
-    def config(self):
+    def config(self) -> dict:
         """
         The hook configuration.
 
@@ -66,7 +66,7 @@ class MetadataHookInterface(ABC):  # no cov
         return self.__config
 
     @abstractmethod
-    def update(self, metadata: dict):
+    def update(self, metadata: dict) -> None:
         """
         This updates the metadata mapping of the `project` table in-place.
         """
