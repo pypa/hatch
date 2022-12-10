@@ -4,9 +4,12 @@ import os
 import pathlib
 import sys
 from contextlib import contextmanager
-from typing import Generator
+from typing import TYPE_CHECKING, Any, Generator
 
 from hatch.utils.structures import EnvVars
+
+if TYPE_CHECKING:
+    from _typeshed import FileDescriptorLike
 
 # There is special recognition in Mypy for `sys.platform`, not `os.name`
 # https://github.com/python/cpython/blob/09d7319bfe0006d9aa3fc14833b69c24ccafdca6/Lib/pathlib.py#L957
@@ -23,25 +26,25 @@ if sys.platform == 'darwin':
 
     if hasattr(fcntl, 'F_FULLFSYNC'):
 
-        def disk_sync(fd):
+        def disk_sync(fd: FileDescriptorLike) -> None:
             fcntl.fcntl(fd, fcntl.F_FULLFSYNC)
 
 
 class Path(_PathBase):
-    def ensure_dir_exists(self):
+    def ensure_dir_exists(self) -> None:
         self.mkdir(parents=True, exist_ok=True)
 
-    def ensure_parent_dir_exists(self):
+    def ensure_parent_dir_exists(self) -> None:
         self.parent.mkdir(parents=True, exist_ok=True)
 
-    def expand(self):
+    def expand(self) -> Path:
         return Path(os.path.expanduser(os.path.expandvars(self)))
 
-    def resolve(self, strict=False) -> Path:  # noqa: FBT002
+    def resolve(self, strict: bool = False) -> Path:  # noqa: FBT001, FBT002
         # https://bugs.python.org/issue38671
         return Path(os.path.realpath(self))
 
-    def remove(self):
+    def remove(self) -> None:
         if self.is_file():
             os.remove(self)
         elif self.is_dir():
@@ -49,7 +52,7 @@ class Path(_PathBase):
 
             shutil.rmtree(self, ignore_errors=False)
 
-    def write_atomic(self, data: str | bytes, *args, **kwargs) -> None:
+    def write_atomic(self, data: str | bytes, *args: Any, **kwargs: Any) -> None:
         from tempfile import mkstemp
 
         fd, path = mkstemp(dir=self.parent)
@@ -61,7 +64,7 @@ class Path(_PathBase):
         os.replace(path, self)
 
     @contextmanager
-    def as_cwd(self, *args, **kwargs) -> Generator[Path, None, None]:
+    def as_cwd(self, *args: Any, **kwargs: Any) -> Generator[Path, None, None]:
         origin = os.getcwd()
         os.chdir(self)
 
@@ -101,7 +104,7 @@ def temp_directory() -> Generator[Path, None, None]:
 
 
 @contextmanager
-def temp_chdir(env_vars=None) -> Generator[Path, None, None]:
+def temp_chdir(env_vars: list[str] | None = None) -> Generator[Path, None, None]:
     with temp_directory() as d:
         with d.as_cwd(env_vars=env_vars):
             yield d

@@ -1,17 +1,28 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from hatchling.metadata.utils import get_normalized_dependency
 
+if TYPE_CHECKING:
+    from packaging.requirements import Requirement
 
-def normalize_marker_quoting(text):
+    from hatch.env.plugin.interface import EnvironmentInterface
+
+
+def normalize_marker_quoting(text: str) -> str:
     # All TOML writers use double quotes, so allow copy/pasting to avoid escaping
     return text.replace('"', "'")
 
 
-def get_normalized_dependencies(requirements):
+def get_normalized_dependencies(requirements: list[Requirement]) -> list[str]:
     normalized_dependencies = {get_normalized_dependency(requirement) for requirement in requirements}
     return sorted(normalized_dependencies)
 
 
-def get_project_dependencies_complex(environment):
+def get_project_dependencies_complex(
+    environment: EnvironmentInterface,
+) -> tuple[dict[str, dict[str, Requirement]], dict[str, Requirement]]:
     from hatchling.dep.core import dependencies_in_sync
 
     dependencies_complex = {}
