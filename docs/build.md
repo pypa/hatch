@@ -34,15 +34,13 @@ Builds are [configured](config/build.md) using the `tool.hatch.build` table. Eve
 
 ## Building
 
-Invoking the [`build`](cli/reference.md#hatch-build) command without any arguments will build all defined targets, each in an isolated environment:
+Invoking the [`build`](cli/reference.md#hatch-build) command without any arguments will build the [sdist](plugins/builder/sdist.md) and [wheel](plugins/builder/wheel.md) targets:
 
 ```console
 $ hatch build
-Setting up build environment
 [sdist]
 dist/hatch_demo-1rc0.tar.gz
 
-Setting up build environment
 [wheel]
 dist/hatch_demo-1rc0-py3-none-any.whl
 ```
@@ -51,7 +49,6 @@ To only build specific targets, use the `-t`/`--target` option:
 
 ```console
 $ hatch build -t wheel
-Setting up build environment
 [wheel]
 dist/hatch_demo-1rc0-py3-none-any.whl
 ```
@@ -60,8 +57,6 @@ If the target supports multiple [versions](config/build.md#versions), you can sp
 
 ```console
 $ hatch -v build -t wheel:standard
-Setting up build environment
-...
 [wheel]
 Building `wheel` version `standard`
 dist/hatch_demo-1rc0-py3-none-any.whl
