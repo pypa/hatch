@@ -15,6 +15,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Add more type hints
 - Store Hatchling's metadata in `pyproject.toml`
 
+***Fixed:***
+
+- Remove unnecessary encoding declaration in the default template for the `version` build hook
+
 ## [1.11.1](https://github.com/pypa/hatch/releases/tag/hatchling-v1.11.1) - 2022-10-19 ## {: #hatchling-v1.11.1 }
 
 ***Fixed:***
