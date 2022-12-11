@@ -30,7 +30,11 @@ class DistributionCache:
             return None
 
         for distribution in self._resolver:
-            name = self._canonical_regex.sub('-', distribution.metadata['Name']).lower()
+            name = distribution.metadata['Name']
+            if name is None:
+                continue
+
+            name = self._canonical_regex.sub('-', name).lower()
             self._distributions[name] = distribution
             if name == item:
                 return distribution
