@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import importlib
 import os
+import sys
 from datetime import datetime, timezone
 from functools import lru_cache
 from textwrap import dedent as _dedent
@@ -7,6 +10,7 @@ from textwrap import dedent as _dedent
 import tomli_w
 
 from hatch.config.user import RootConfig
+from hatch.env.utils import add_verbosity_flag
 from hatch.utils.toml import load_toml_file
 
 
@@ -27,6 +31,22 @@ def extract_requirements(lines):
 
 def get_current_timestamp():
     return datetime.now(timezone.utc).timestamp()
+
+
+def assert_plugin_installation(subprocess_run, dependencies: list[str], *, verbosity=0):
+    command = [
+        sys.executable,
+        '-u',
+        '-m',
+        'pip',
+        'install',
+        '--disable-pip-version-check',
+        '--no-python-version-warning',
+    ]
+    add_verbosity_flag(command, verbosity, adjustment=-1)
+    command.extend(dependencies)
+
+    subprocess_run.assert_called_once_with(command, shell=False)
 
 
 def assert_files(directory, expected_files, *, check_contents=True):

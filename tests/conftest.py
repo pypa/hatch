@@ -306,6 +306,23 @@ def mock_backend_process(request, mocker):
 
 
 @pytest.fixture
+def mock_plugin_installation(mocker):
+    subprocess_run = subprocess.run
+    mocked_subprocess_run = mocker.MagicMock(returncode=0)
+
+    def _mock(command, **kwargs):
+        if not isinstance(command, list) or command[:5] != [sys.executable, '-u', '-m', 'pip', 'install']:  # no cov
+            return subprocess_run(command, **kwargs)
+
+        mocked_subprocess_run(command, **kwargs)
+        return mocked_subprocess_run
+
+    mocker.patch('subprocess.run', side_effect=_mock)
+
+    yield mocked_subprocess_run
+
+
+@pytest.fixture
 def local_builder(mock_backend_process, mocker):
     if mock_backend_process:
         mocker.patch('hatch.env.virtual.VirtualEnvironment.build_environment')

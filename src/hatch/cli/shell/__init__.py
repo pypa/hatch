@@ -8,6 +8,8 @@ import click
 @click.pass_obj
 def shell(app, shell_name, shell_path, shell_args):  # no cov
     """Enter a shell within a project's environment."""
+    app.ensure_environment_plugin_dependencies()
+
     if app.env == app.env_active:
         app.abort(f'Already in environment: {app.env}')
 

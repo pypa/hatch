@@ -7,6 +7,8 @@ import click
 def remove(ctx, env_name):
     """Remove environments."""
     app = ctx.obj
+    app.ensure_environment_plugin_dependencies()
+
     if ctx.get_parameter_source('env_name').name == 'DEFAULT':
         env_name = app.env
 

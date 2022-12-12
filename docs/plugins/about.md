@@ -91,7 +91,7 @@ These are all involved in building projects and therefore any defined dependenci
 
 ### Hatch
 
-These must be manually installed in the same environment as Hatch itself.
+These must be installed in the same environment as Hatch itself.
 
 - [Environment](environment/reference.md)
 - [Environment collector](environment-collector/reference.md)

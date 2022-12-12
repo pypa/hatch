@@ -26,6 +26,8 @@ def metadata(app, field):
         with app.project.location.as_cwd():
             project_metadata = resolve_metadata_fields(app.project.metadata)
     else:
+        app.ensure_environment_plugin_dependencies()
+
         with app.project.location.as_cwd():
             environment = app.get_environment()
             try:

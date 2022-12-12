@@ -1,12 +1,14 @@
+import os
+
 import pytest
 
 from hatch.project.core import Project
-from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT
+from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT, DEFAULT_CONFIG_FILE
 
 pytestmark = [pytest.mark.usefixtures('local_builder')]
 
 
-def test(hatch, temp_dir, helpers, config_file):
+def test(hatch, temp_dir, helpers, config_file, mock_plugin_installation):
     config_file.model.template.plugins['default']['src-layout'] = False
     config_file.save()
 
@@ -54,6 +56,16 @@ def test(hatch, temp_dir, helpers, config_file):
     artifacts = list(build_directory.iterdir())
     assert len(artifacts) == 2
 
+    dependency = os.urandom(16).hex()
+    (path / DEFAULT_CONFIG_FILE).write_text(
+        helpers.dedent(
+            f"""
+            [env]
+            requires = ["{dependency}"]
+            """
+        )
+    )
+
     with path.as_cwd():
         result = hatch('version', 'minor')
         assert result.exit_code == 0, result.output
@@ -67,7 +79,9 @@ def test(hatch, temp_dir, helpers, config_file):
 
     assert result.output == helpers.dedent(
         """
+        Syncing environment plugin requirements
         Setting up build environment
         Setting up build environment
         """
     )
+    helpers.assert_plugin_installation(mock_plugin_installation, [dependency])

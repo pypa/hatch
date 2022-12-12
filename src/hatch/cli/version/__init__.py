@@ -36,6 +36,8 @@ def version(app, desired_version):
             app.display_info(f'Old: {original_version}')
             app.display_info(f'New: {updated_version}')
         else:
+            app.ensure_environment_plugin_dependencies()
+
             environment = app.get_environment()
             try:
                 environment.check_compatibility()

@@ -1,7 +1,10 @@
+import os
+
 import pytest
 
 from hatch.project.core import Project
 from hatch.utils.structures import EnvVars
+from hatchling.utils.constants import DEFAULT_CONFIG_FILE
 
 
 @pytest.fixture(scope='module', autouse=True)
@@ -209,3 +212,51 @@ def test_optional_columns(hatch, helpers, temp_dir, config_file):
         +---------+----------------------------------------+----------+------------------------+------------+
         """
     )
+
+
+def test_plugin_dependencies_unmet(hatch, helpers, temp_dir, config_file, mock_plugin_installation):
+    config_file.model.template.plugins['default']['tests'] = False
+    config_file.save()
+
+    project_name = 'My.App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / 'my-app'
+    data_path = temp_dir / 'data'
+    data_path.mkdir()
+
+    dependency = os.urandom(16).hex()
+    (project_path / DEFAULT_CONFIG_FILE).write_text(
+        helpers.dedent(
+            f"""
+            [env]
+            requires = ["{dependency}"]
+            """
+        )
+    )
+
+    project = Project(project_path)
+    config = dict(project.raw_config)
+    config['project']['dependencies'] = ['foo-bar-baz']
+    project.save_config(config)
+
+    with project_path.as_cwd():
+        result = hatch('dep', 'show', 'table', '--ascii', '-p')
+
+    assert result.exit_code == 0, result.output
+    assert helpers.remove_trailing_spaces(result.output) == helpers.dedent(
+        """
+        Syncing environment plugin requirements
+            Project
+        +-------------+
+        | Name        |
+        +=============+
+        | foo-bar-baz |
+        +-------------+
+        """
+    )
+    helpers.assert_plugin_installation(mock_plugin_installation, [dependency])

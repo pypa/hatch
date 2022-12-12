@@ -1,9 +1,11 @@
+import os
+
 import pytest
 
 from hatch.config.constants import ConfigEnvVars
 from hatch.project.core import Project
 from hatchling.builders.constants import BuildEnvVars
-from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT
+from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT, DEFAULT_CONFIG_FILE
 
 pytestmark = [pytest.mark.usefixtures('local_builder')]
 
@@ -1175,3 +1177,51 @@ def test_build_dependencies(hatch, temp_dir, helpers):
         {wheel_path.relative_to(project_path)}
         """
     )
+
+
+def test_plugin_dependencies_unmet(hatch, temp_dir, helpers, mock_plugin_installation):
+    project_name = 'My.App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+        assert result.exit_code == 0, result.output
+
+    path = temp_dir / 'my-app'
+
+    dependency = os.urandom(16).hex()
+    (path / DEFAULT_CONFIG_FILE).write_text(
+        helpers.dedent(
+            f"""
+            [env]
+            requires = ["{dependency}"]
+            """
+        )
+    )
+
+    with path.as_cwd():
+        result = hatch('build')
+
+    assert result.exit_code == 0, result.output
+
+    build_directory = path / 'dist'
+    assert build_directory.is_dir()
+
+    artifacts = list(build_directory.iterdir())
+    assert len(artifacts) == 2
+
+    sdist_path = [artifact for artifact in artifacts if artifact.name.endswith('.tar.gz')][0]
+    wheel_path = [artifact for artifact in artifacts if artifact.name.endswith('.whl')][0]
+
+    assert result.output == helpers.dedent(
+        f"""
+        Syncing environment plugin requirements
+        Setting up build environment
+        [sdist]
+        {sdist_path.relative_to(path)}
+
+        Setting up build environment
+        [wheel]
+        {wheel_path.relative_to(path)}
+        """
+    )
+    helpers.assert_plugin_installation(mock_plugin_installation, [dependency])

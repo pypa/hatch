@@ -66,6 +66,31 @@ class TestEnv:
         assert project_config.env == project_config.env == {}
 
 
+class TestEnvRequires:
+    def test_not_array(self, isolation):
+        with pytest.raises(TypeError, match='Field `tool.hatch.env.requires` must be an array'):
+            _ = ProjectConfig(isolation, {'env': {'requires': 9000}}).env_requires
+
+    def test_requirement_not_string(self, isolation):
+        with pytest.raises(TypeError, match='Requirement #1 in `tool.hatch.env.requires` must be a string'):
+            _ = ProjectConfig(isolation, {'env': {'requires': [9000]}}).env_requires
+
+    def test_requirement_invalid(self, isolation):
+        with pytest.raises(ValueError, match='Requirement #1 in `tool.hatch.env.requires` is invalid: .+'):
+            _ = ProjectConfig(isolation, {'env': {'requires': ['foo^1']}}).env_requires
+
+    def test_default(self, isolation):
+        project_config = ProjectConfig(isolation, {})
+
+        assert project_config.env_requires_complex == project_config.env_requires_complex == []
+        assert project_config.env_requires == project_config.env_requires == []
+
+    def test_defined(self, isolation):
+        project_config = ProjectConfig(isolation, {'env': {'requires': ['foo', 'bar', 'baz']}})
+
+        assert project_config.env_requires == ['foo', 'bar', 'baz']
+
+
 class TestEnvCollectors:
     def test_not_table(self, isolation):
         with pytest.raises(TypeError, match='Field `tool.hatch.env.collectors` must be a table'):

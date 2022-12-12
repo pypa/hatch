@@ -45,6 +45,8 @@ import click
 @click.pass_obj
 def build(app, location, targets, hooks_only, no_hooks, ext, clean, clean_hooks_after, clean_only):
     """Build a project."""
+    app.ensure_environment_plugin_dependencies()
+
     from hatchling.builders.constants import BuildEnvVars
     from hatchling.builders.plugin.interface import BuilderInterface
 

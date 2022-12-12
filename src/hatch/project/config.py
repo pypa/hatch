@@ -1,11 +1,17 @@
+from __future__ import annotations
+
 import re
 from copy import deepcopy
 from itertools import product
 from os import environ
+from typing import TYPE_CHECKING
 
 from hatch.env.utils import ensure_valid_environment
 from hatch.project.env import apply_overrides
 from hatch.project.utils import format_script_commands, parse_script_command
+
+if TYPE_CHECKING:
+    from packaging.requirements import Requirement
 
 
 class ProjectConfig:
@@ -16,6 +22,8 @@ class ProjectConfig:
 
         self._matrices = None
         self._env = None
+        self._env_requires_complex = None
+        self._env_requires = None
         self._env_collectors = None
         self._envs = None
         self._matrix_variables = None
@@ -33,6 +41,37 @@ class ProjectConfig:
             self._env = config
 
         return self._env
+
+    @property
+    def env_requires_complex(self) -> list[Requirement]:
+        if self._env_requires_complex is None:
+            from packaging.requirements import InvalidRequirement, Requirement
+
+            requires = self.env.get('requires', [])
+            if not isinstance(requires, list):
+                raise TypeError('Field `tool.hatch.env.requires` must be an array')
+
+            requires_complex = []
+
+            for i, entry in enumerate(requires, 1):
+                if not isinstance(entry, str):
+                    raise TypeError(f'Requirement #{i} in `tool.hatch.env.requires` must be a string')
+
+                try:
+                    requires_complex.append(Requirement(entry))
+                except InvalidRequirement as e:
+                    raise ValueError(f'Requirement #{i} in `tool.hatch.env.requires` is invalid: {e}') from None
+
+            self._env_requires_complex = requires_complex
+
+        return self._env_requires_complex
+
+    @property
+    def env_requires(self):
+        if self._env_requires is None:
+            self._env_requires = [str(r) for r in self.env_requires_complex]
+
+        return self._env_requires
 
     @property
     def env_collectors(self):
