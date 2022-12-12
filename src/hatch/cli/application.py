@@ -1,13 +1,17 @@
 from __future__ import annotations
 
 import os
-from typing import cast
+import sys
+from typing import TYPE_CHECKING, cast
 
 from hatch.cli.terminal import Terminal
 from hatch.config.user import ConfigFile, RootConfig
 from hatch.project.core import Project
 from hatch.utils.fs import Path
 from hatch.utils.platform import Platform
+
+if TYPE_CHECKING:
+    from packaging.requirements import Requirement
 
 
 class Application(Terminal):
@@ -164,6 +168,40 @@ class Application(Terminal):
             self.abort(output, code=process.returncode)
 
         return output
+
+    def ensure_environment_plugin_dependencies(self) -> None:
+        self.ensure_plugin_dependencies(
+            self.project.config.env_requires_complex, wait_message='Syncing environment plugin requirements'
+        )
+
+    def ensure_plugin_dependencies(self, dependencies: list[Requirement], *, wait_message: str) -> None:
+        if not dependencies:
+            return
+
+        from hatch.env.utils import add_verbosity_flag
+        from hatchling.dep.core import dependencies_in_sync
+
+        if dependencies_in_sync(dependencies):
+            return
+
+        command = [
+            sys.executable,
+            '-u',
+            '-m',
+            'pip',
+            'install',
+            '--disable-pip-version-check',
+            '--no-python-version-warning',
+        ]
+
+        # Default to -1 verbosity
+        add_verbosity_flag(command, self.verbosity, adjustment=-1)
+
+        for dependency in dependencies:
+            command.append(str(dependency))
+
+        with self.status_waiting(wait_message):
+            self.platform.check_command(command)
 
     def get_env_directory(self, environment_type):
         directories = self.config.dirs.env

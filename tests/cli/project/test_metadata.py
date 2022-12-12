@@ -1,6 +1,9 @@
+import os
+
 import pytest
 
 from hatch.project.core import Project
+from hatchling.utils.constants import DEFAULT_CONFIG_FILE
 
 pytestmark = [pytest.mark.usefixtures('local_builder')]
 
@@ -305,3 +308,74 @@ Setting up build environment for missing dependencies
             }
             """
         )
+
+    def test_plugin_dependencies_unmet(self, hatch, temp_dir, helpers, mock_plugin_installation):
+        project_name = 'My.App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+            assert result.exit_code == 0, result.output
+
+        path = temp_dir / 'my-app'
+
+        dependency = os.urandom(16).hex()
+        (path / DEFAULT_CONFIG_FILE).write_text(
+            helpers.dedent(
+                f"""
+                [env]
+                requires = ["{dependency}"]
+                """
+            )
+        )
+
+        (path / 'README.md').replace(path / 'README.txt')
+
+        project = Project(path)
+        config = dict(project.raw_config)
+        config['build-system']['requires'].append('foo')
+        config['project']['readme'] = 'README.txt'
+        project.save_config(config)
+
+        with path.as_cwd():
+            result = hatch('project', 'metadata')
+
+        assert result.exit_code == 0, result.output
+        assert result.output == helpers.dedent(
+            f"""
+            Syncing environment plugin requirements
+            Setting up build environment for missing dependencies
+            {{
+                "name": "my-app",
+                "version": "0.0.1",
+                "readme": {{
+                    "content-type": "text/plain",
+                    "text": "{read_readme(path)}"
+                }},
+                "requires-python": ">=3.7",
+                "license": "MIT",
+                "authors": [
+                    {{
+                        "name": "Foo Bar",
+                        "email": "foo@bar.baz"
+                    }}
+                ],
+                "classifiers": [
+                    "Development Status :: 4 - Beta",
+                    "Programming Language :: Python",
+                    "Programming Language :: Python :: 3.7",
+                    "Programming Language :: Python :: 3.8",
+                    "Programming Language :: Python :: 3.9",
+                    "Programming Language :: Python :: 3.10",
+                    "Programming Language :: Python :: 3.11",
+                    "Programming Language :: Python :: Implementation :: CPython",
+                    "Programming Language :: Python :: Implementation :: PyPy"
+                ],
+                "urls": {{
+                    "Documentation": "https://github.com/unknown/my-app#readme",
+                    "Issues": "https://github.com/unknown/my-app/issues",
+                    "Source": "https://github.com/unknown/my-app"
+                }}
+            }}
+            """
+        )
+        helpers.assert_plugin_installation(mock_plugin_installation, [dependency])

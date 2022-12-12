@@ -107,6 +107,8 @@ def run(
     would execute `pytest` in the environments `test.py3.10-42` and `test.py3.10-3.14`.
     Note that `py` may be used as an alias for `python`.
     """
+    app.ensure_environment_plugin_dependencies()
+
     project = app.project
 
     included_variables = {}

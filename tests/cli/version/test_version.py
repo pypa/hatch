@@ -1,7 +1,9 @@
+import os
+
 import pytest
 
 from hatch.project.core import Project
-from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT
+from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT, DEFAULT_CONFIG_FILE
 
 
 def test_incompatible_environment(hatch, temp_dir, helpers):
@@ -72,6 +74,44 @@ def test_show_dynamic_missing_build_dependencies(hatch, helpers, temp_dir):
         0.0.1
         """
     )
+
+
+@pytest.mark.usefixtures('local_builder')
+def test_plugin_dependencies_unmet(hatch, helpers, temp_dir, mock_plugin_installation):
+    project_name = 'My.App'
+
+    with temp_dir.as_cwd():
+        hatch('new', project_name)
+
+    path = temp_dir / 'my-app'
+
+    dependency = os.urandom(16).hex()
+    (path / DEFAULT_CONFIG_FILE).write_text(
+        helpers.dedent(
+            f"""
+            [env]
+            requires = ["{dependency}"]
+            """
+        )
+    )
+
+    project = Project(path)
+    config = dict(project.raw_config)
+    config['build-system']['requires'].append('foo')
+    project.save_config(config)
+
+    with path.as_cwd():
+        result = hatch('version')
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        """
+        Syncing environment plugin requirements
+        Setting up build environment for missing dependencies
+        0.0.1
+        """
+    )
+    helpers.assert_plugin_installation(mock_plugin_installation, [dependency])
 
 
 def test_set_dynamic(hatch, helpers, temp_dir):

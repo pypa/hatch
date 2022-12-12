@@ -5,6 +5,8 @@ import click
 @click.pass_obj
 def prune(app):
     """Remove all environments."""
+    app.ensure_environment_plugin_dependencies()
+
     environment_types = app.plugins.environment.collect()
 
     environments = app.project.config.envs

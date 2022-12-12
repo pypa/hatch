@@ -1,10 +1,12 @@
+import os
+
 import pytest
 
 from hatch.config.constants import AppEnvVars, ConfigEnvVars
 from hatch.project.core import Project
 from hatch.utils.structures import EnvVars
 from hatch.venv.core import VirtualEnv
-from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT
+from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT, DEFAULT_CONFIG_FILE
 from hatchling.utils.fs import path_to_uri
 
 
@@ -1470,6 +1472,126 @@ def test_no_project_file(hatch, helpers, temp_dir, config_file):
     data_path.mkdir()
 
     (project_path / 'pyproject.toml').remove()
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch('env', 'create')
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        """
+        Creating environment: default
+        Checking dependencies
+        """
+    )
+
+    env_data_path = data_path / 'env' / 'virtual'
+    assert env_data_path.is_dir()
+
+    project_data_path = env_data_path / project_path.name
+    assert project_data_path.is_dir()
+
+    storage_dirs = list(project_data_path.iterdir())
+    assert len(storage_dirs) == 1
+
+    storage_path = storage_dirs[0]
+    assert len(storage_path.name) == 8
+
+    env_dirs = list(storage_path.iterdir())
+    assert len(env_dirs) == 1
+
+    env_path = env_dirs[0]
+
+    assert env_path.name == project_path.name
+
+
+def test_plugin_dependencies_unmet(hatch, config_file, helpers, temp_dir, mock_plugin_installation):
+    config_file.model.template.plugins['default']['tests'] = False
+    config_file.save()
+
+    project_name = 'My.App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / 'my-app'
+    data_path = temp_dir / 'data'
+    data_path.mkdir()
+
+    dependency = os.urandom(16).hex()
+    (project_path / DEFAULT_CONFIG_FILE).write_text(
+        helpers.dedent(
+            f"""
+            [env]
+            requires = ["{dependency}"]
+            """
+        )
+    )
+
+    project = Project(project_path)
+    helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch('env', 'create')
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        """
+        Syncing environment plugin requirements
+        Creating environment: default
+        Checking dependencies
+        """
+    )
+    helpers.assert_plugin_installation(mock_plugin_installation, [dependency])
+
+    env_data_path = data_path / 'env' / 'virtual'
+    assert env_data_path.is_dir()
+
+    project_data_path = env_data_path / project_path.name
+    assert project_data_path.is_dir()
+
+    storage_dirs = list(project_data_path.iterdir())
+    assert len(storage_dirs) == 1
+
+    storage_path = storage_dirs[0]
+    assert len(storage_path.name) == 8
+
+    env_dirs = list(storage_path.iterdir())
+    assert len(env_dirs) == 1
+
+    env_path = env_dirs[0]
+
+    assert env_path.name == project_path.name
+
+
+def test_plugin_dependencies_met(hatch, config_file, helpers, temp_dir, mock_plugin_installation):
+    config_file.model.template.plugins['default']['tests'] = False
+    config_file.save()
+
+    project_name = 'My.App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / 'my-app'
+    data_path = temp_dir / 'data'
+    data_path.mkdir()
+
+    dependency = 'hatch'
+    (project_path / DEFAULT_CONFIG_FILE).write_text(
+        helpers.dedent(
+            f"""
+            [env]
+            requires = ["{dependency}"]
+            """
+        )
+    )
+
+    project = Project(project_path)
+    helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
         result = hatch('env', 'create')

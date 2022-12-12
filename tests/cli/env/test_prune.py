@@ -1,5 +1,8 @@
+import os
+
 from hatch.config.constants import AppEnvVars
 from hatch.project.core import Project
+from hatchling.utils.constants import DEFAULT_CONFIG_FILE
 
 
 def test_unknown_type(hatch, helpers, temp_dir_data, config_file):
@@ -135,3 +138,43 @@ def test_active(hatch, temp_dir_data, helpers, config_file):
         Cannot remove active environment: default
         """
     )
+
+
+def test_plugin_dependencies_unmet(hatch, helpers, temp_dir_data, config_file, mock_plugin_installation):
+    config_file.model.template.plugins['default']['tests'] = False
+    config_file.save()
+
+    project_name = 'My.App'
+
+    with temp_dir_data.as_cwd():
+        result = hatch('new', project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir_data / 'my-app'
+
+    dependency = os.urandom(16).hex()
+    (project_path / DEFAULT_CONFIG_FILE).write_text(
+        helpers.dedent(
+            f"""
+            [env]
+            requires = ["{dependency}"]
+            """
+        )
+    )
+
+    project = Project(project_path)
+    helpers.update_project_environment(
+        project, 'default', {'skip-install': True, 'platforms': ['foo'], **project.config.envs['default']}
+    )
+
+    with project_path.as_cwd():
+        result = hatch('env', 'prune')
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        """
+        Syncing environment plugin requirements
+        """
+    )
+    helpers.assert_plugin_installation(mock_plugin_installation, [dependency])

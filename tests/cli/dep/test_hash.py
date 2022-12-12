@@ -1,6 +1,8 @@
+import os
 from hashlib import sha256
 
 from hatch.project.core import Project
+from hatchling.utils.constants import DEFAULT_CONFIG_FILE
 
 
 def test_incompatible_environment(hatch, temp_dir, helpers):
@@ -86,3 +88,43 @@ def test_project_only(hatch, helpers, temp_dir):
         {expected_hash}
         """
     )
+
+
+def test_plugin_dependencies_unmet(hatch, helpers, temp_dir, mock_plugin_installation):
+    project_name = 'My.App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / 'my-app'
+
+    dependency = os.urandom(16).hex()
+    (project_path / DEFAULT_CONFIG_FILE).write_text(
+        helpers.dedent(
+            f"""
+            [env]
+            requires = ["{dependency}"]
+            """
+        )
+    )
+
+    project = Project(project_path)
+    config = dict(project.raw_config)
+    config['project']['dependencies'] = ['Foo', 'bar[ A, b]']
+    project.save_config(config)
+    helpers.update_project_environment(project, 'default', {'dependencies': ['bAZ >= 0']})
+    expected_hash = sha256(b'bar[a,b]foo').hexdigest()
+
+    with project_path.as_cwd():
+        result = hatch('dep', 'hash', '-p')
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        f"""
+        Syncing environment plugin requirements
+        {expected_hash}
+        """
+    )
+    helpers.assert_plugin_installation(mock_plugin_installation, [dependency])

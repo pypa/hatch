@@ -1,7 +1,10 @@
+import os
+
 import pytest
 
 from hatch.project.core import Project
 from hatch.utils.structures import EnvVars
+from hatchling.utils.constants import DEFAULT_CONFIG_FILE
 
 
 @pytest.fixture(scope='module', autouse=True)
@@ -447,3 +450,46 @@ def test_context_formatting(hatch, helpers, temp_dir, config_file):
         +---------+---------+------------+-------------------------+
         """
     )
+
+
+def test_plugin_dependencies_unmet(hatch, helpers, temp_dir, config_file, mock_plugin_installation):
+    config_file.model.template.plugins['default']['tests'] = False
+    config_file.save()
+
+    project_name = 'My.App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / 'my-app'
+    data_path = temp_dir / 'data'
+    data_path.mkdir()
+
+    dependency = os.urandom(16).hex()
+    (project_path / DEFAULT_CONFIG_FILE).write_text(
+        helpers.dedent(
+            f"""
+            [env]
+            requires = ["{dependency}"]
+            """
+        )
+    )
+
+    with project_path.as_cwd():
+        result = hatch('env', 'show', '--ascii')
+
+    assert result.exit_code == 0, result.output
+    assert helpers.remove_trailing_spaces(result.output) == helpers.dedent(
+        """
+        Syncing environment plugin requirements
+             Standalone
+        +---------+---------+
+        | Name    | Type    |
+        +=========+=========+
+        | default | virtual |
+        +---------+---------+
+        """
+    )
+    helpers.assert_plugin_installation(mock_plugin_installation, [dependency])

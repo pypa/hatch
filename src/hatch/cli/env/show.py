@@ -8,6 +8,8 @@ import click
 @click.pass_obj
 def show(app, envs, force_ascii, as_json):
     """Show the available environments."""
+    app.ensure_environment_plugin_dependencies()
+
     from hatch.config.constants import AppEnvVars
 
     if as_json:

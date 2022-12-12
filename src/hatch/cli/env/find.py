@@ -6,6 +6,8 @@ import click
 @click.pass_obj
 def find(app, env_name):
     """Locate environments."""
+    app.ensure_environment_plugin_dependencies()
+
     root_env_name = env_name
     project_config = app.project.config
     if root_env_name not in project_config.envs and root_env_name not in project_config.matrices:

@@ -1,4 +1,7 @@
+import os
+
 from hatch.project.core import Project
+from hatchling.utils.constants import DEFAULT_CONFIG_FILE
 
 
 def test_incompatible_environment(hatch, temp_dir, helpers):
@@ -222,3 +225,44 @@ def test_include_features(hatch, helpers, temp_dir, config_file):
         foo-baz-bar
         """
     )
+
+
+def test_plugin_dependencies_unmet(hatch, helpers, temp_dir, config_file, mock_plugin_installation):
+    config_file.model.template.plugins['default']['tests'] = False
+    config_file.save()
+
+    project_name = 'My.App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / 'my-app'
+
+    dependency = os.urandom(16).hex()
+    (project_path / DEFAULT_CONFIG_FILE).write_text(
+        helpers.dedent(
+            f"""
+            [env]
+            requires = ["{dependency}"]
+            """
+        )
+    )
+
+    project = Project(project_path)
+    config = dict(project.raw_config)
+    config['project']['dependencies'] = ['foo-bar-baz']
+    project.save_config(config)
+
+    with project_path.as_cwd():
+        result = hatch('dep', 'show', 'requirements', '-p')
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        """
+        Syncing environment plugin requirements
+        foo-bar-baz
+        """
+    )
+    helpers.assert_plugin_installation(mock_plugin_installation, [dependency])
