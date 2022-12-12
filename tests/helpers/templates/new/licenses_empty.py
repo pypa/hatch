@@ -92,7 +92,7 @@ detached = true
 dependencies = [
   "black",
   "mypy",
-  "ruff",
+  "ruff>=0.0.176",
 ]
 [tool.hatch.envs.lint.scripts]
 typing = "mypy --install-types --non-interactive {{args:src/{kwargs['package_name']} tests}}"
@@ -118,7 +118,30 @@ skip-string-normalization = true
 [tool.ruff]
 target-version = "py37"
 line-length = 120
-select = ["A", "B", "C", "E", "F", "FBT", "I", "N", "Q", "RUF", "S", "T", "UP", "W", "YTT"]
+select = [
+  "A",
+  "ARG",
+  "B",
+  "C",
+  "E",
+  "F",
+  "FBT",
+  "I",
+  "ICN",
+  "N",
+  "PLC",
+  "PLE",
+  "PLR",
+  "PLW",
+  "Q",
+  "RUF",
+  "S",
+  "T",
+  "TID",
+  "UP",
+  "W",
+  "YTT",
+]
 ignore = [
   # Allow non-abstract empty methods in abstract base classes
   "B027",
@@ -141,8 +164,8 @@ known-first-party = ["{kwargs['package_name']}"]
 ban-relative-imports = "all"
 
 [tool.ruff.per-file-ignores]
-# Tests can use relative imports and assertions
-"tests/**/*" = ["I252", "S101"]
+# Tests can use assertions and relative imports
+"tests/**/*" = ["S101", "TID252"]
 
 [tool.coverage.run]
 source_pkgs = ["{kwargs['package_name']}", "tests"]
