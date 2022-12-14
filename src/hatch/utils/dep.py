@@ -22,7 +22,7 @@ def get_normalized_dependencies(requirements: list[Requirement]) -> list[str]:
 
 def get_project_dependencies_complex(
     environment: EnvironmentInterface,
-) -> tuple[dict[str, dict[str, Requirement]], dict[str, Requirement]]:
+) -> tuple[dict[str, Requirement], dict[str, dict[str, Requirement]]]:
     from hatchling.dep.core import dependencies_in_sync
 
     dependencies_complex = {}
