@@ -113,8 +113,13 @@ def set_value(app, key, value):
 
     if value.startswith(('{', '[')):
         from ast import literal_eval
-
         value = literal_eval(value)
+
+    elif value.lower() == "false":
+        value = False
+
+    elif value.lower() == "true":
+        value = True
 
     branch_config[key] = new_config[key] = value
 
