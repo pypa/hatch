@@ -218,7 +218,7 @@ def test_project_location_complex_set_first_project(hatch, config_file, helpers,
 
 
 def test_template_licence_headers(hatch, config_file, helpers, temp_dir):
-    assert config_file.model.template.licenses.headers == True
+    assert config_file.model.template.licenses.headers is True
 
     with temp_dir.as_cwd():
         result = hatch('config', 'set', 'template.licenses.headers', 'false')
@@ -231,7 +231,7 @@ def test_template_licence_headers(hatch, config_file, helpers, temp_dir):
         """
     )
     config_file.load()
-    assert config_file.model.template.licenses.headers == False
+    assert config_file.model.template.licenses.headers is False
 
     with temp_dir.as_cwd():
         result = hatch('config', 'set', 'template.licenses.headers', 'TruE')
@@ -244,4 +244,4 @@ def test_template_licence_headers(hatch, config_file, helpers, temp_dir):
         """
     )
     config_file.load()
-    assert config_file.model.template.licenses.headers == True
+    assert config_file.model.template.licenses.headers is True
