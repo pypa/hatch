@@ -46,7 +46,7 @@ dependencies = [
 [project.urls]
 Homepage = "https://hatch.pypa.io/latest/"
 Sponsor = "https://github.com/sponsors/ofek"
-History = "https://hatch.pypa.io/dev/history/"
+History = "https://hatch.pypa.io/dev/history/hatchling/"
 Tracker = "https://github.com/pypa/hatch/issues"
 Source = "https://github.com/pypa/hatch/tree/master/backend"
 

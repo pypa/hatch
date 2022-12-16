@@ -2,7 +2,7 @@
 
 -----
 
-The following is not intended to be a complete enumeration. Be sure to view the [development version](/dev/users/) of this page for an up-to-date listing.
+The following is not intended to be a complete enumeration. Be sure to view the [development version](/dev/community/users/) of this page for an up-to-date listing.
 
 ## Projects
 
