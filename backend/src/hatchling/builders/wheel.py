@@ -339,11 +339,7 @@ class WheelBuilder(BuilderInterface):
     def build_standard(self, directory: str, **build_data: Any) -> str:
         if 'tag' not in build_data:
             if build_data['infer_tag']:
-                from packaging.tags import sys_tags
-
-                best_matching_tag = next(sys_tags())
-                tag_parts = (best_matching_tag.interpreter, best_matching_tag.abi, best_matching_tag.platform)
-                build_data['tag'] = '-'.join(tag_parts)
+                build_data['tag'] = self.get_best_matching_tag()
             else:
                 build_data['tag'] = self.get_default_tag()
 
@@ -587,6 +583,28 @@ Root-Is-Purelib: {'true' if build_data['pure_python'] else 'false'}
                     break
 
         return f'{".".join(supported_python_versions)}-none-any'
+
+    def get_best_matching_tag(self) -> str:
+        import sys
+
+        from packaging.tags import sys_tags
+
+        tag = next(sys_tags())
+        tag_parts = [tag.interpreter, tag.abi, tag.platform]
+
+        archflags = os.environ.get('ARCHFLAGS', '')
+        if sys.platform == 'darwin' and archflags and sys.version_info[:2] >= (3, 8):
+            import platform
+            import re
+
+            archs = re.findall(r'-arch (\S+)', archflags)
+            if archs:
+                plat = tag_parts[2]
+                current_arch = platform.mac_ver()[2]
+                new_arch = 'universal2' if set(archs) == {'x86_64', 'arm64'} else archs[0]
+                tag_parts[2] = f'{plat[:plat.rfind(current_arch)]}{new_arch}'
+
+        return '-'.join(tag_parts)
 
     def get_default_build_data(self) -> dict[str, Any]:
         return {
