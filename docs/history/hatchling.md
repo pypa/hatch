@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ***Fixed:***
 
+- Acknowledge the `ARCHFLAGS` environment variable on macOS for the `wheel` target when build hooks set the `infer_tag` build data to `true`
 - Fix dependency checking when encountering broken distributions
 - Remove unnecessary encoding declaration in the default template for the `version` build hook
 

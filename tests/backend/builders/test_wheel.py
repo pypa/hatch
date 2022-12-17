@@ -14,7 +14,7 @@ from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT
 
 # https://github.com/python/cpython/pull/26184
 fixed_pathlib_resolution = pytest.mark.skipif(
-    platform.system() == 'Windows' and (sys.version_info < (3, 8) or sys.implementation.name == 'pypy'),
+    sys.platform == 'win32' and (sys.version_info < (3, 8) or sys.implementation.name == 'pypy'),
     reason='pathlib.Path.resolve has bug on Windows',
 )
 
@@ -2796,3 +2796,95 @@ class TestBuildStandard:
                 ),
             ):
                 list(builder.build(str(build_path)))
+
+    @pytest.mark.skipif(
+        sys.platform != 'darwin' or sys.version_info < (3, 8),
+        reason='requires support for ARM on macOS',
+    )
+    @pytest.mark.parametrize(
+        'archflags, expected_arch',
+        [('-arch x86_64', 'x86_64'), ('-arch arm64', 'arm64'), ('-arch arm64 -arch x86_64', 'universal2')],
+    )
+    def test_macos_archflags(self, hatch, helpers, temp_dir, config_file, archflags, expected_arch):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
+        project_name = 'My.App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / 'my-app'
+
+        vcs_ignore_file = project_path / '.gitignore'
+        vcs_ignore_file.write_text('*.pyc\n*.so\n*.h')
+
+        build_script = project_path / DEFAULT_BUILD_SCRIPT
+        build_script.write_text(
+            helpers.dedent(
+                """
+                import pathlib
+
+                from hatchling.builders.hooks.plugin.interface import BuildHookInterface
+
+                class CustomHook(BuildHookInterface):
+                    def initialize(self, version, build_data):
+                        build_data['pure_python'] = False
+                        build_data['infer_tag'] = True
+
+                        pathlib.Path('my_app', 'lib.so').touch()
+                        pathlib.Path('my_app', 'lib.h').touch()
+                """
+            )
+        )
+
+        config = {
+            'project': {'name': project_name, 'requires-python': '>3', 'dynamic': ['version']},
+            'tool': {
+                'hatch': {
+                    'version': {'path': 'my_app/__about__.py'},
+                    'build': {
+                        'targets': {'wheel': {'versions': ['standard']}},
+                        'artifacts': ['my_app/lib.so'],
+                        'hooks': {'custom': {'path': DEFAULT_BUILD_SCRIPT}},
+                    },
+                },
+            },
+        }
+        builder = WheelBuilder(str(project_path), config=config)
+
+        build_path = project_path / 'dist'
+        build_path.mkdir()
+
+        with project_path.as_cwd({'ARCHFLAGS': archflags}):
+            artifacts = list(builder.build(str(build_path)))
+
+        assert len(artifacts) == 1
+        expected_artifact = artifacts[0]
+
+        build_artifacts = list(build_path.iterdir())
+        assert len(build_artifacts) == 1
+        assert expected_artifact == str(build_artifacts[0])
+
+        tag = next(sys_tags())
+        tag_parts = [tag.interpreter, tag.abi, tag.platform]
+        tag_parts[2] = tag_parts[2].replace(platform.mac_ver()[2], expected_arch)
+        expected_tag = '-'.join(tag_parts)
+        assert expected_artifact == str(build_path / f'{builder.project_id}-{expected_tag}.whl')
+
+        extraction_directory = temp_dir / '_archive'
+        extraction_directory.mkdir()
+
+        with zipfile.ZipFile(str(expected_artifact), 'r') as zip_archive:
+            zip_archive.extractall(str(extraction_directory))
+
+        metadata_directory = f'{builder.project_id}.dist-info'
+        expected_files = helpers.get_template_files(
+            'wheel.standard_default_build_script_artifacts',
+            project_name,
+            metadata_directory=metadata_directory,
+            tag=expected_tag,
+        )
+        helpers.assert_files(extraction_directory, expected_files)
