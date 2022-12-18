@@ -44,12 +44,18 @@ def main():
     data_file = project_root / 'src' / 'hatchling' / 'licenses' / 'supported.py'
 
     with closing(StringIO()) as file_contents:
-        file_contents.write(f'VERSION = {latest_version!r}\n\nLICENSES = {{\n')
+        file_contents.write(
+            f"""\
+from __future__ import annotations
+
+VERSION: dict[str, dict[str, str | bool]] = {latest_version!r}\n\nLICENSES = {{
+"""
+        )
 
         for normalized_name, data in sorted(licenses.items()):
             file_contents.write(f'    {normalized_name!r}: {data!r},\n')
 
-        file_contents.write('}\n\nEXCEPTIONS = {\n')
+        file_contents.write('}\n\nEXCEPTIONS: dict[str, dict[str, str | bool]] = {\n')
 
         for normalized_name, data in sorted(exceptions.items()):
             file_contents.write(f'    {normalized_name!r}: {data!r},\n')

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Callable
+from typing import Callable, TypeVar
 
 import pluggy
 
@@ -103,3 +103,6 @@ class ThirdPartyPlugins:
     def load(self) -> None:
         self.manager.load_setuptools_entrypoints('hatch')
         self.loaded = True
+
+
+PluginManagerBound = TypeVar('PluginManagerBound', bound=PluginManager)

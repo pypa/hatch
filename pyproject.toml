@@ -152,7 +152,7 @@ warn_no_return = false
 warn_unused_ignores = true
 
 # make sure mypy finding file path
-explicit_package_bases = true
+# explicit_package_bases = true
 namespace_packages = true
 
 [[tool.mypy.overrides]]

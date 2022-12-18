@@ -22,21 +22,21 @@ def read_dependencies() -> list[str]:
     return literal_eval(match.group(1))
 
 
-def get_requires_for_build_sdist(config_settings: dict[str, Any] | None = None) -> list[str]:
+def get_requires_for_build_sdist(config_settings: dict[str, Any] | None = None) -> list[str]:  # type: ignore[no-redef]
     """
     https://peps.python.org/pep-0517/#get-requires-for-build-sdist
     """
     return read_dependencies()
 
 
-def get_requires_for_build_wheel(config_settings: dict[str, Any] | None = None) -> list[str]:
+def get_requires_for_build_wheel(config_settings: dict[str, Any] | None = None) -> list[str]:  # type: ignore[no-redef]
     """
     https://peps.python.org/pep-0517/#get-requires-for-build-wheel
     """
     return read_dependencies()
 
 
-def get_requires_for_build_editable(config_settings: dict[str, Any] | None) -> list[str]:
+def get_requires_for_build_editable(config_settings: dict[str, Any] | None) -> list[str]:  # type: ignore[no-redef]
     """
     https://peps.python.org/pep-0660/#get-requires-for-build-editable
     """

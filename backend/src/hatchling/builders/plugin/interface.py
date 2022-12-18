@@ -3,16 +3,17 @@ from __future__ import annotations
 import os
 import re
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Callable, Generator, cast
+from typing import TYPE_CHECKING, Any, Callable, Generator, Generic, cast
 
-from hatchling.builders.config import BuilderConfig, env_var_enabled
+from hatchling.builders.config import BuilderConfig, BuilderConfigBound, env_var_enabled
 from hatchling.builders.constants import EXCLUDED_DIRECTORIES, BuildEnvVars
 from hatchling.builders.utils import get_relative_path, safe_walk
+from hatchling.plugin.manager import PluginManagerBound
 
 if TYPE_CHECKING:
     from hatchling.bridge.app import Application
+    from hatchling.builders.hooks.plugin.interface import BuildHookInterface
     from hatchling.metadata.core import ProjectMetadata
-    from hatchling.plugin.manager import PluginManager
 
 
 class IncludedFile:
@@ -24,7 +25,7 @@ class IncludedFile:
         self.distribution_path = distribution_path
 
 
-class BuilderInterface(ABC):
+class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
     """
     Example usage:
 
@@ -59,17 +60,17 @@ class BuilderInterface(ABC):
     def __init__(
         self,
         root: str,
-        plugin_manager: PluginManager | None = None,
+        plugin_manager: PluginManagerBound | None = None,
         config: dict[str, Any] | None = None,
         metadata: ProjectMetadata | None = None,
         app: Application | None = None,
     ) -> None:
         self.__root = root
-        self.__plugin_manager = plugin_manager
+        self.__plugin_manager = cast(PluginManagerBound, plugin_manager)
         self.__raw_config = config
         self.__metadata = metadata
         self.__app = app
-        self.__config: BuilderConfig | None = None
+        self.__config = cast(BuilderConfigBound, None)
         self.__project_config: dict[str, Any] | None = None
         self.__hatch_config: dict[str, Any] | None = None
         self.__build_config: dict[str, Any] | None = None
@@ -254,7 +255,7 @@ class BuilderInterface(ABC):
         return self.__root
 
     @property
-    def plugin_manager(self) -> PluginManager:
+    def plugin_manager(self) -> PluginManagerBound:
         if self.__plugin_manager is None:
             from hatchling.plugin.manager import PluginManager
 
@@ -305,7 +306,7 @@ class BuilderInterface(ABC):
         return self.__hatch_config
 
     @property
-    def config(self) -> BuilderConfig:
+    def config(self) -> BuilderConfigBound:
         """
         An instance of [BuilderConfig](../utilities.md#hatchling.builders.config.BuilderConfig).
         """
@@ -367,7 +368,7 @@ class BuilderInterface(ABC):
 
         return self.__project_id
 
-    def get_build_hooks(self, directory: str) -> dict[str, Any]:
+    def get_build_hooks(self, directory: str) -> dict[str, BuildHookInterface]:
         configured_build_hooks = {}
         for hook_name, config in self.config.hook_config.items():
             build_hook = self.plugin_manager.build_hook.get(hook_name)

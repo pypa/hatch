@@ -6,7 +6,7 @@ from hatchling.cli.metadata import metadata_command
 from hatchling.cli.version import version_command
 
 
-def hatchling() -> None:
+def hatchling() -> int:
     parser = argparse.ArgumentParser(prog='hatchling', allow_abbrev=False)
     subparsers = parser.add_subparsers()
 
@@ -24,3 +24,5 @@ def hatchling() -> None:
         parser.print_help()
     else:
         command(**kwargs)
+
+    return 0

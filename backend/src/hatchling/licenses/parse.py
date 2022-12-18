@@ -66,7 +66,7 @@ def normalize_license_expression(raw_license_expression: str) -> str:
             if token not in EXCEPTIONS:
                 raise ValueError(f'unknown license exception: {token}')
 
-            normalized_tokens.append(EXCEPTIONS[token]['id'])
+            normalized_tokens.append(cast(str, EXCEPTIONS[token]['id']))
         else:
             if token.endswith('+'):
                 token = token[:-1]

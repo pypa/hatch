@@ -6,10 +6,8 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     import argparse
 
-    from packaging.requirements import Requirement
 
-
-def synced_impl(*, dependencies: list[Requirement], python: str) -> None:
+def synced_impl(*, dependencies: list[str], python: str) -> None:
     import subprocess
     from ast import literal_eval
 
@@ -22,7 +20,7 @@ def synced_impl(*, dependencies: list[Requirement], python: str) -> None:
         output = subprocess.check_output([python, '-c', 'import sys;print([path for path in sys.path if path])'])
         sys_path = literal_eval(output.strip().decode('utf-8'))
 
-    sys.exit(0 if dependencies_in_sync(map(Requirement, dependencies), sys_path) else 1)
+    sys.exit(0 if dependencies_in_sync(list(map(Requirement, dependencies)), sys_path) else 1)
 
 
 def synced_command(subparsers: argparse._SubParsersAction, defaults: Any) -> None:

@@ -5,13 +5,19 @@ from typing import Any
 
 from hatch.env.collectors.plugin.interface import EnvironmentCollectorInterface
 from hatch.plugin.constants import DEFAULT_CUSTOM_SCRIPT
-from hatchling.plugin.utils import load_plugin_from_script
+from hatch.plugin.utils import load_plugin_from_script
 
 
-class CustomEnvironmentCollector(EnvironmentCollectorInterface):
+class CustomEnvironmentCollector:
     PLUGIN_NAME = 'custom'
 
-    def __new__(cls, root: str, config: dict[str, Any], *args: Any, **kwargs: Any) -> EnvironmentCollectorInterface:
+    def __new__(  # type: ignore
+        cls,
+        root: str,
+        config: dict[str, Any],
+        *args: Any,
+        **kwargs: Any,
+    ) -> EnvironmentCollectorInterface:
         custom_script = config.get('path', DEFAULT_CUSTOM_SCRIPT)
         if not isinstance(custom_script, str):
             raise TypeError(f'Option `path` for environment collector `{cls.PLUGIN_NAME}` must be a string')

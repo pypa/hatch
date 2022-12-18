@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, Generator
+from typing import TYPE_CHECKING, Any, Generator, TypeVar
 
 import pathspec
 
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 class BuilderConfig:
     def __init__(
         self,
-        builder: type[BuilderInterface],
+        builder: BuilderInterface,
         root: str,
         plugin_name: str,
         build_config: dict[str, Any],
@@ -846,3 +846,6 @@ def env_var_enabled(env_var: str, *, default: bool = False) -> bool:
         return os.environ[env_var] in ('1', 'true')
     else:
         return default
+
+
+BuilderConfigBound = TypeVar('BuilderConfigBound', bound=BuilderConfig)
