@@ -1,18 +1,21 @@
-import os
+from __future__ import annotations
 
-FIELD_TO_PARSE = object()
+import os
+from typing import Any, Final
+
+FIELD_TO_PARSE: Final[object] = object()
 
 
 class ConfigurationError(Exception):
-    def __init__(self, *args, location):
+    def __init__(self, *args: Any, location: str) -> None:
         self.location = location
         super().__init__(*args)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'Error parsing config:\n{self.location}\n  {super().__str__()}'
 
 
-def parse_config(obj):
+def parse_config(obj: LazilyParsedConfig | list[Any] | dict[Any, Any]) -> None:
     if isinstance(obj, LazilyParsedConfig):
         obj.parse_fields()
     elif isinstance(obj, list):
@@ -24,20 +27,20 @@ def parse_config(obj):
 
 
 class LazilyParsedConfig:
-    def __init__(self, config: dict, steps: tuple = ()):
+    def __init__(self, config: dict, steps: tuple = ()) -> None:
         self.raw_data = config
         self.steps = steps
 
-    def parse_fields(self):
+    def parse_fields(self) -> None:
         for attribute in self.__dict__:
             _, prefix, name = attribute.partition('_field_')
             if prefix:
                 parse_config(getattr(self, name))
 
-    def raise_error(self, message, *, extra_steps=()):
+    def raise_error(self, message: str, *, extra_steps: tuple = ()):
         import inspect
 
-        field = inspect.currentframe().f_back.f_code.co_name
+        field = inspect.currentframe().f_back.f_code.co_name  # type: ignore
         raise ConfigurationError(message, location=' -> '.join([*self.steps, field, *extra_steps]))
 
 
@@ -55,7 +58,7 @@ class RootConfig(LazilyParsedConfig):
         self._field_terminal = FIELD_TO_PARSE
 
     @property
-    def mode(self):
+    def mode(self) -> str:
         if self._field_mode is FIELD_TO_PARSE:
             if 'mode' in self.raw_data:
                 mode = self.raw_data['mode']
@@ -73,12 +76,12 @@ class RootConfig(LazilyParsedConfig):
         return self._field_mode
 
     @mode.setter
-    def mode(self, value):
+    def mode(self, value: str) -> None:
         self.raw_data['mode'] = value
         self._field_mode = FIELD_TO_PARSE
 
     @property
-    def project(self):
+    def project(self) -> str:
         if self._field_project is FIELD_TO_PARSE:
             if 'project' in self.raw_data:
                 project = self.raw_data['project']
@@ -92,12 +95,12 @@ class RootConfig(LazilyParsedConfig):
         return self._field_project
 
     @project.setter
-    def project(self, value):
+    def project(self, value: str):
         self.raw_data['project'] = value
         self._field_project = FIELD_TO_PARSE
 
     @property
-    def shell(self):
+    def shell(self) -> ShellConfig:
         if self._field_shell is FIELD_TO_PARSE:
             if 'shell' in self.raw_data:
                 shell = self.raw_data['shell']
@@ -114,12 +117,12 @@ class RootConfig(LazilyParsedConfig):
         return self._field_shell
 
     @shell.setter
-    def shell(self, value):
+    def shell(self, value: ShellConfig) -> None:
         self.raw_data['shell'] = value
         self._field_shell = FIELD_TO_PARSE
 
     @property
-    def dirs(self):
+    def dirs(self) -> DirsConfig:
         if self._field_dirs is FIELD_TO_PARSE:
             if 'dirs' in self.raw_data:
                 dirs = self.raw_data['dirs']
@@ -135,12 +138,12 @@ class RootConfig(LazilyParsedConfig):
         return self._field_dirs
 
     @dirs.setter
-    def dirs(self, value):
+    def dirs(self, value: DirsConfig) -> None:
         self.raw_data['dirs'] = value
         self._field_dirs = FIELD_TO_PARSE
 
     @property
-    def projects(self):
+    def projects(self) -> dict[str, ProjectConfig]:
         if self._field_projects is FIELD_TO_PARSE:
             if 'projects' in self.raw_data:
                 projects = self.raw_data['projects']
@@ -163,12 +166,12 @@ class RootConfig(LazilyParsedConfig):
         return self._field_projects
 
     @projects.setter
-    def projects(self, value):
+    def projects(self, value: dict[str, ProjectConfig]) -> None:
         self.raw_data['projects'] = value
         self._field_projects = FIELD_TO_PARSE
 
     @property
-    def publish(self):
+    def publish(self) -> dict[str, dict[str, str]]:
         if self._field_publish is FIELD_TO_PARSE:
             if 'publish' in self.raw_data:
                 publish = self.raw_data['publish']
@@ -186,12 +189,12 @@ class RootConfig(LazilyParsedConfig):
         return self._field_publish
 
     @publish.setter
-    def publish(self, value):
+    def publish(self, value: dict[str, dict[str, str]]) -> None:
         self.raw_data['publish'] = value
         self._field_publish = FIELD_TO_PARSE
 
     @property
-    def template(self):
+    def template(self) -> TemplateConfig:
         if self._field_template is FIELD_TO_PARSE:
             if 'template' in self.raw_data:
                 template = self.raw_data['template']
@@ -207,12 +210,12 @@ class RootConfig(LazilyParsedConfig):
         return self._field_template
 
     @template.setter
-    def template(self, value):
+    def template(self, value: TemplateConfig) -> None:
         self.raw_data['template'] = value
         self._field_template = FIELD_TO_PARSE
 
     @property
-    def terminal(self):
+    def terminal(self) -> TerminalConfig:
         if self._field_terminal is FIELD_TO_PARSE:
             if 'terminal' in self.raw_data:
                 terminal = self.raw_data['terminal']
@@ -228,7 +231,7 @@ class RootConfig(LazilyParsedConfig):
         return self._field_terminal
 
     @terminal.setter
-    def terminal(self, value):
+    def terminal(self, value: TerminalConfig) -> None:
         self.raw_data['terminal'] = value
         self._field_terminal = FIELD_TO_PARSE
 
@@ -242,7 +245,7 @@ class ShellConfig(LazilyParsedConfig):
         self._field_args = FIELD_TO_PARSE
 
     @property
-    def name(self):
+    def name(self) -> str:
         if self._field_name is FIELD_TO_PARSE:
             if 'name' in self.raw_data:
                 name = self.raw_data['name']
@@ -256,12 +259,12 @@ class ShellConfig(LazilyParsedConfig):
         return self._field_name
 
     @name.setter
-    def name(self, value):
+    def name(self, value: str) -> None:
         self.raw_data['name'] = value
         self._field_name = FIELD_TO_PARSE
 
     @property
-    def path(self):
+    def path(self) -> str:
         if self._field_path is FIELD_TO_PARSE:
             if 'path' in self.raw_data:
                 path = self.raw_data['path']
@@ -275,12 +278,12 @@ class ShellConfig(LazilyParsedConfig):
         return self._field_path
 
     @path.setter
-    def path(self, value):
+    def path(self, value: str) -> None:
         self.raw_data['path'] = value
         self._field_path = FIELD_TO_PARSE
 
     @property
-    def args(self):
+    def args(self) -> list[str]:
         if self._field_args is FIELD_TO_PARSE:
             if 'args' in self.raw_data:
                 args = self.raw_data['args']
@@ -298,13 +301,13 @@ class ShellConfig(LazilyParsedConfig):
         return self._field_args
 
     @args.setter
-    def args(self, value):
+    def args(self, value: list[str]) -> None:
         self.raw_data['args'] = value
         self._field_args = FIELD_TO_PARSE
 
 
 class DirsConfig(LazilyParsedConfig):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
         self._field_project = FIELD_TO_PARSE
@@ -314,7 +317,7 @@ class DirsConfig(LazilyParsedConfig):
         self._field_cache = FIELD_TO_PARSE
 
     @property
-    def project(self):
+    def project(self) -> object | list[str]:
         if self._field_project is FIELD_TO_PARSE:
             if 'project' in self.raw_data:
                 project = self.raw_data['project']
@@ -332,12 +335,12 @@ class DirsConfig(LazilyParsedConfig):
         return self._field_project
 
     @project.setter
-    def project(self, value):
+    def project(self, value: list[str]):
         self.raw_data['project'] = value
         self._field_project = FIELD_TO_PARSE
 
     @property
-    def env(self):
+    def env(self) -> object | dict[str, str]:
         if self._field_env is FIELD_TO_PARSE:
             if 'env' in self.raw_data:
                 env = self.raw_data['env']
@@ -355,12 +358,12 @@ class DirsConfig(LazilyParsedConfig):
         return self._field_env
 
     @env.setter
-    def env(self, value):
+    def env(self, value: dict[str, str]) -> None:
         self.raw_data['env'] = value
         self._field_env = FIELD_TO_PARSE
 
     @property
-    def python(self):
+    def python(self) -> object | str:
         if self._field_python is FIELD_TO_PARSE:
             if 'python' in self.raw_data:
                 python = self.raw_data['python']
@@ -374,12 +377,12 @@ class DirsConfig(LazilyParsedConfig):
         return self._field_python
 
     @python.setter
-    def python(self, value):
+    def python(self, value: str) -> None:
         self.raw_data['python'] = value
         self._field_python = FIELD_TO_PARSE
 
     @property
-    def data(self):
+    def data(self) -> object | str:
         if self._field_data is FIELD_TO_PARSE:
             if 'data' in self.raw_data:
                 data = self.raw_data['data']
@@ -395,12 +398,12 @@ class DirsConfig(LazilyParsedConfig):
         return self._field_data
 
     @data.setter
-    def data(self, value):
+    def data(self, value: str) -> None:
         self.raw_data['data'] = value
         self._field_data = FIELD_TO_PARSE
 
     @property
-    def cache(self):
+    def cache(self) -> object | str:
         if self._field_cache is FIELD_TO_PARSE:
             if 'cache' in self.raw_data:
                 cache = self.raw_data['cache']
@@ -416,7 +419,7 @@ class DirsConfig(LazilyParsedConfig):
         return self._field_cache
 
     @cache.setter
-    def cache(self, value):
+    def cache(self, value: str) -> None:
         self.raw_data['cache'] = value
         self._field_cache = FIELD_TO_PARSE
 
@@ -428,7 +431,7 @@ class ProjectConfig(LazilyParsedConfig):
         self._field_location = FIELD_TO_PARSE
 
     @property
-    def location(self):
+    def location(self) -> str:
         if self._field_location is FIELD_TO_PARSE:
             if 'location' in self.raw_data:
                 location = self.raw_data['location']
@@ -442,7 +445,7 @@ class ProjectConfig(LazilyParsedConfig):
         return self._field_location
 
     @location.setter
-    def location(self, value):
+    def location(self, value: str) -> None:
         self.raw_data['location'] = value
         self._field_location = FIELD_TO_PARSE
 
@@ -457,7 +460,7 @@ class TemplateConfig(LazilyParsedConfig):
         self._field_plugins = FIELD_TO_PARSE
 
     @property
-    def name(self):
+    def name(self) -> str:
         if self._field_name is FIELD_TO_PARSE:
             if 'name' in self.raw_data:
                 name = self.raw_data['name']
@@ -480,12 +483,12 @@ class TemplateConfig(LazilyParsedConfig):
         return self._field_name
 
     @name.setter
-    def name(self, value):
+    def name(self, value: str) -> None:
         self.raw_data['name'] = value
         self._field_name = FIELD_TO_PARSE
 
     @property
-    def email(self):
+    def email(self) -> str:
         if self._field_email is FIELD_TO_PARSE:
             if 'email' in self.raw_data:
                 email = self.raw_data['email']
@@ -508,12 +511,12 @@ class TemplateConfig(LazilyParsedConfig):
         return self._field_email
 
     @email.setter
-    def email(self, value):
+    def email(self, value: str) -> None:
         self.raw_data['email'] = value
         self._field_email = FIELD_TO_PARSE
 
     @property
-    def licenses(self):
+    def licenses(self) -> LicensesConfig:
         if self._field_licenses is FIELD_TO_PARSE:
             if 'licenses' in self.raw_data:
                 licenses = self.raw_data['licenses']
@@ -529,12 +532,12 @@ class TemplateConfig(LazilyParsedConfig):
         return self._field_licenses
 
     @licenses.setter
-    def licenses(self, value):
+    def licenses(self, value: LicensesConfig) -> None:
         self.raw_data['licenses'] = value
         self._field_licenses = FIELD_TO_PARSE
 
     @property
-    def plugins(self):
+    def plugins(self) -> object | dict[str, dict[str, bool]]:
         if self._field_plugins is FIELD_TO_PARSE:
             if 'plugins' in self.raw_data:
                 plugins = self.raw_data['plugins']
@@ -554,7 +557,7 @@ class TemplateConfig(LazilyParsedConfig):
         return self._field_plugins
 
     @plugins.setter
-    def plugins(self, value):
+    def plugins(self, value: dict[str, dict[str, bool]]) -> None:
         self.raw_data['plugins'] = value
         self._field_plugins = FIELD_TO_PARSE
 
@@ -567,7 +570,7 @@ class LicensesConfig(LazilyParsedConfig):
         self._field_default = FIELD_TO_PARSE
 
     @property
-    def headers(self):
+    def headers(self) -> bool:
         if self._field_headers is FIELD_TO_PARSE:
             if 'headers' in self.raw_data:
                 headers = self.raw_data['headers']
@@ -581,12 +584,12 @@ class LicensesConfig(LazilyParsedConfig):
         return self._field_headers
 
     @headers.setter
-    def headers(self, value):
+    def headers(self, value) -> None:
         self.raw_data['headers'] = value
         self._field_headers = FIELD_TO_PARSE
 
     @property
-    def default(self):
+    def default(self) -> list[str]:
         if self._field_default is FIELD_TO_PARSE:
             if 'default' in self.raw_data:
                 default = self.raw_data['default']
@@ -604,7 +607,7 @@ class LicensesConfig(LazilyParsedConfig):
         return self._field_default
 
     @default.setter
-    def default(self, value):
+    def default(self, value: list[str]) -> None:
         self.raw_data['default'] = value
         self._field_default = FIELD_TO_PARSE
 
@@ -616,7 +619,7 @@ class TerminalConfig(LazilyParsedConfig):
         self._field_styles = FIELD_TO_PARSE
 
     @property
-    def styles(self):
+    def styles(self) -> StylesConfig:
         if self._field_styles is FIELD_TO_PARSE:
             if 'styles' in self.raw_data:
                 styles = self.raw_data['styles']
@@ -632,7 +635,7 @@ class TerminalConfig(LazilyParsedConfig):
         return self._field_styles
 
     @styles.setter
-    def styles(self, value):
+    def styles(self, value: StylesConfig) -> None:
         self.raw_data['styles'] = value
         self._field_styles = FIELD_TO_PARSE
 
@@ -650,7 +653,7 @@ class StylesConfig(LazilyParsedConfig):
         self._field_spinner = FIELD_TO_PARSE
 
     @property
-    def info(self):
+    def info(self) -> str:
         if self._field_info is FIELD_TO_PARSE:
             if 'info' in self.raw_data:
                 info = self.raw_data['info']
@@ -664,12 +667,12 @@ class StylesConfig(LazilyParsedConfig):
         return self._field_info
 
     @info.setter
-    def info(self, value):
+    def info(self, value: str) -> None:
         self.raw_data['info'] = value
         self._field_info = FIELD_TO_PARSE
 
     @property
-    def success(self):
+    def success(self) -> str:
         if self._field_success is FIELD_TO_PARSE:
             if 'success' in self.raw_data:
                 success = self.raw_data['success']
@@ -683,12 +686,12 @@ class StylesConfig(LazilyParsedConfig):
         return self._field_success
 
     @success.setter
-    def success(self, value):
+    def success(self, value: str) -> None:
         self.raw_data['success'] = value
         self._field_success = FIELD_TO_PARSE
 
     @property
-    def error(self):
+    def error(self) -> str:
         if self._field_error is FIELD_TO_PARSE:
             if 'error' in self.raw_data:
                 error = self.raw_data['error']
@@ -702,12 +705,12 @@ class StylesConfig(LazilyParsedConfig):
         return self._field_error
 
     @error.setter
-    def error(self, value):
+    def error(self, value: str) -> None:
         self.raw_data['error'] = value
         self._field_error = FIELD_TO_PARSE
 
     @property
-    def warning(self):
+    def warning(self) -> str:
         if self._field_warning is FIELD_TO_PARSE:
             if 'warning' in self.raw_data:
                 warning = self.raw_data['warning']
@@ -721,12 +724,12 @@ class StylesConfig(LazilyParsedConfig):
         return self._field_warning
 
     @warning.setter
-    def warning(self, value):
+    def warning(self, value: str) -> None:
         self.raw_data['warning'] = value
         self._field_warning = FIELD_TO_PARSE
 
     @property
-    def waiting(self):
+    def waiting(self) -> str:
         if self._field_waiting is FIELD_TO_PARSE:
             if 'waiting' in self.raw_data:
                 waiting = self.raw_data['waiting']
@@ -740,12 +743,12 @@ class StylesConfig(LazilyParsedConfig):
         return self._field_waiting
 
     @waiting.setter
-    def waiting(self, value):
+    def waiting(self, value: str) -> None:
         self.raw_data['waiting'] = value
         self._field_waiting = FIELD_TO_PARSE
 
     @property
-    def debug(self):
+    def debug(self) -> str:
         if self._field_debug is FIELD_TO_PARSE:
             if 'debug' in self.raw_data:
                 debug = self.raw_data['debug']
@@ -759,12 +762,12 @@ class StylesConfig(LazilyParsedConfig):
         return self._field_debug
 
     @debug.setter
-    def debug(self, value):
+    def debug(self, value: str) -> None:
         self.raw_data['debug'] = value
         self._field_debug = FIELD_TO_PARSE
 
     @property
-    def spinner(self):
+    def spinner(self) -> str:
         if self._field_spinner is FIELD_TO_PARSE:
             if 'spinner' in self.raw_data:
                 spinner = self.raw_data['spinner']
@@ -778,6 +781,6 @@ class StylesConfig(LazilyParsedConfig):
         return self._field_spinner
 
     @spinner.setter
-    def spinner(self, value):
+    def spinner(self, value: str) -> None:
         self.raw_data['spinner'] = value
         self._field_spinner = FIELD_TO_PARSE

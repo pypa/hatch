@@ -1,4 +1,6 @@
-from typing import Optional, cast
+from __future__ import annotations
+
+from typing import Any, cast
 
 from hatch.config.model import RootConfig
 from hatch.utils.fs import Path
@@ -6,22 +8,22 @@ from hatch.utils.toml import load_toml_data
 
 
 class ConfigFile:
-    def __init__(self, path: Optional[Path] = None):
-        self._path: Optional[Path] = path
+    def __init__(self, path: Path | None = None):
+        self._path: Path | None = path
         self.model = cast(RootConfig, None)
 
     @property
-    def path(self):
+    def path(self) -> Path:
         if self._path is None:
             self._path = self.get_default_location()
 
         return self._path
 
     @path.setter
-    def path(self, value):
+    def path(self, value: Path) -> None:
         self._path = value
 
-    def save(self, content=None):
+    def save(self, content: dict[str, Any] | None = None):
         import tomli_w
 
         if not content:
@@ -30,7 +32,7 @@ class ConfigFile:
         self.path.ensure_parent_dir_exists()
         self.path.write_atomic(content, 'w', encoding='utf-8')
 
-    def load(self):
+    def load(self) -> None:
         self.model = RootConfig(load_toml_data(self.read()))
 
     def read(self) -> str:
@@ -43,7 +45,7 @@ class ConfigFile:
         config.raw_data.pop('publish', None)
         return tomli_w.dumps(config.raw_data)
 
-    def restore(self):
+    def restore(self) -> None:
         import tomli_w
 
         config = RootConfig({})
@@ -54,7 +56,7 @@ class ConfigFile:
 
         self.model = config
 
-    def update(self):  # no cov
+    def update(self) -> None:  # no cov
         self.model.parse_fields()
         self.save()
 

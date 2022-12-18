@@ -4,7 +4,7 @@ from tomlkit.toml_document import TOMLDocument
 from hatch.utils.fs import Path
 
 
-def save_toml_document(document: TOMLDocument, path: Path):
+def save_toml_document(document: TOMLDocument, path: Path) -> None:
     path.ensure_parent_dir_exists()
     path.write_atomic(tomlkit.dumps(document), 'w', encoding='utf-8')
 
