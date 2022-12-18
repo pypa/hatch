@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import pathlib
+import shutil
 import sys
 from contextlib import contextmanager
 from typing import Generator
@@ -79,7 +80,7 @@ class Path(_PathBase):
         with temp_directory() as temp_dir:
             temp_path = Path(temp_dir, self.name)
             try:
-                self.replace(temp_dir / self.name)
+                shutil.move(self, temp_dir / self.name)
             except FileNotFoundError:
                 pass
 
@@ -87,7 +88,7 @@ class Path(_PathBase):
                 yield temp_path
             finally:
                 try:
-                    temp_path.replace(self)
+                    shutil.move(temp_path, self)
                 except FileNotFoundError:
                     pass
 
