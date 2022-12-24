@@ -1,25 +1,25 @@
 from __future__ import annotations
 
 import os
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Generic
 
 from hatchling.builders.plugin.interface import BuilderInterface
 from hatchling.metadata.core import ProjectMetadata
+from hatchling.plugin.manager import PluginManagerBound
 from hatchling.plugin.utils import load_plugin_from_script
 from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT
 
 if TYPE_CHECKING:
     from hatchling.bridge.app import Application
-    from hatchling.plugin.manager import PluginManager
 
 
-class CustomBuilder:
+class CustomBuilder(Generic[PluginManagerBound]):
     PLUGIN_NAME = 'custom'
 
-    def __new__(
+    def __new__(  # type: ignore
         cls,
         root: str,
-        plugin_manager: PluginManager | None = None,
+        plugin_manager: PluginManagerBound | None = None,
         config: dict[str, Any] | None = None,
         metadata: ProjectMetadata | None = None,
         app: Application | None = None,
@@ -40,7 +40,7 @@ class CustomBuilder:
         if not os.path.isfile(path):
             raise OSError(f'Build script does not exist: {build_script}')
 
-        hook_class = load_plugin_from_script(path, build_script, BuilderInterface, 'builder')
+        hook_class = load_plugin_from_script(path, build_script, BuilderInterface, 'builder')  # type: ignore
         hook = hook_class(root, plugin_manager=plugin_manager, config=config, metadata=metadata, app=app)
 
         # Always keep the name to avoid confusion

@@ -1,13 +1,15 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, Generic, cast
+
+from hatchling.builders.config import BuilderConfigBound
 
 if TYPE_CHECKING:
     from hatchling.bridge.app import Application
     from hatchling.metadata.core import ProjectMetadata
 
 
-class BuildHookInterface:  # no cov
+class BuildHookInterface(Generic[BuilderConfigBound]):  # no cov
     """
     Example usage:
 
@@ -43,7 +45,7 @@ class BuildHookInterface:  # no cov
         self,
         root: str,
         config: dict[str, Any],
-        build_config: dict[str, Any],
+        build_config: BuilderConfigBound,
         metadata: ProjectMetadata,
         directory: str,
         target_name: str,
@@ -103,7 +105,7 @@ class BuildHookInterface:  # no cov
         return self.__metadata
 
     @property
-    def build_config(self) -> dict[str, Any]:
+    def build_config(self) -> BuilderConfigBound:
         """
         An instance of [BuilderConfig](../utilities.md#hatchling.builders.config.BuilderConfig).
         """

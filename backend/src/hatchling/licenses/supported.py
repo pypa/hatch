@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 VERSION = '3.18'
 
-LICENSES = {
+LICENSES: dict[str, dict[str, str | bool]] = {
     '0bsd': {'id': '0BSD', 'deprecated': False},
     'aal': {'id': 'AAL', 'deprecated': False},
     'abstyles': {'id': 'Abstyles', 'deprecated': False},
@@ -499,7 +501,7 @@ LICENSES = {
     'zpl-2.1': {'id': 'ZPL-2.1', 'deprecated': False},
 }
 
-EXCEPTIONS = {
+EXCEPTIONS: dict[str, dict[str, str | bool]] = {
     '389-exception': {'id': '389-exception', 'deprecated': False},
     'autoconf-exception-2.0': {'id': 'Autoconf-exception-2.0', 'deprecated': False},
     'autoconf-exception-3.0': {'id': 'Autoconf-exception-3.0', 'deprecated': False},

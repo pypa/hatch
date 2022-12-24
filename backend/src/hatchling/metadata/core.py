@@ -3,9 +3,10 @@ from __future__ import annotations
 import os
 import sys
 from copy import deepcopy
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, Generic, cast
 
 from hatchling.metadata.utils import get_normalized_dependency, is_valid_project_name, normalize_project_name
+from hatchling.plugin.manager import PluginManagerBound
 from hatchling.utils.constants import DEFAULT_CONFIG_FILE
 from hatchling.utils.fs import locate_file
 
@@ -13,10 +14,10 @@ if TYPE_CHECKING:
     from packaging.requirements import Requirement
     from packaging.specifiers import SpecifierSet
 
-    from hatch.plugin.manager import PluginManager
-    from hatch.utils.fs import Path
+    from hatchling.metadata.plugin.interface import MetadataHookInterface
     from hatchling.utils.context import Context
-    from hatchling.version.source.regex import RegexSource
+    from hatchling.version.scheme.plugin.interface import VersionSchemeInterface
+    from hatchling.version.source.plugin.interface import VersionSourceInterface
 
 if sys.version_info >= (3, 11):
     import tomllib
@@ -29,11 +30,11 @@ def load_toml(path: str) -> dict[str, Any]:
         return tomllib.loads(f.read())
 
 
-class ProjectMetadata:
+class ProjectMetadata(Generic[PluginManagerBound]):
     def __init__(
         self,
-        root: Path | str,
-        plugin_manager: PluginManager,
+        root: str,
+        plugin_manager: PluginManagerBound | None,
         config: dict[str, Any] | None = None,
     ) -> None:
         self.root = root
@@ -195,7 +196,7 @@ class ProjectMetadata:
             if self._project_file is not None:
                 hatch_file = os.path.join(os.path.dirname(self._project_file), DEFAULT_CONFIG_FILE)
             else:
-                hatch_file = locate_file(self.root, DEFAULT_CONFIG_FILE)
+                hatch_file = locate_file(self.root, DEFAULT_CONFIG_FILE) or ''
 
             if hatch_file and os.path.isfile(hatch_file):
                 config = load_toml(hatch_file)
@@ -240,7 +241,7 @@ class BuildMetadata:
     https://peps.python.org/pep-0517/
     """
 
-    def __init__(self, root: Path | str, config: dict[str, str | list[str]]) -> None:
+    def __init__(self, root: str, config: dict[str, str | list[str]]) -> None:
         self.root = root
         self.config = config
 
@@ -314,7 +315,7 @@ class CoreMetadata:
 
     def __init__(
         self,
-        root: Path | str,
+        root: str,
         config: dict[str, Any],
         hatch_metadata: HatchMetadataSettings,
         context: Context,
@@ -349,8 +350,8 @@ class CoreMetadata:
         self._entry_points: dict[str, dict[str, str]] | None = None
         self._dependencies_complex: dict[str, Requirement] | None = None
         self._dependencies: list[str] | None = None
-        self._optional_dependencies_complex: dict[str, Requirement] | None = None
-        self._optional_dependencies: dict[str, list[Requirement]] | None = None
+        self._optional_dependencies_complex: dict[str, dict[str, Requirement]] | None = None
+        self._optional_dependencies: dict[str, list[str]] | None = None
         self._dynamic: list[str] | None = None
 
         # Indicates that the version has been successfully set dynamically
@@ -1107,7 +1108,7 @@ class CoreMetadata:
 
                     dependencies_complex[get_normalized_dependency(requirement)] = requirement
 
-            self._dependencies_complex = dict(sorted(dependencies_complex.items()))
+            self._dependencies_complex = {k: v for k, v in sorted(dependencies_complex.items())}
 
         return self._dependencies_complex
 
@@ -1122,7 +1123,7 @@ class CoreMetadata:
         return self._dependencies
 
     @property
-    def optional_dependencies_complex(self) -> dict[Any, Any]:
+    def optional_dependencies_complex(self) -> dict[str, dict[str, Requirement]]:
         """
         https://peps.python.org/pep-0621/#dependencies-optional-dependencies
         """
@@ -1142,8 +1143,8 @@ class CoreMetadata:
             if not isinstance(optional_dependencies, dict):
                 raise TypeError('Field `project.optional-dependencies` must be a table')
 
-            normalized_options: dict[str, Any] = {}
-            optional_dependency_entries: dict[str, Any] = {}
+            normalized_options: dict[str, str] = {}
+            optional_dependency_entries = {}
 
             for option, dependencies in optional_dependencies.items():
                 if not is_valid_project_name(option):
@@ -1194,14 +1195,14 @@ class CoreMetadata:
                     )
 
                 normalized_options[normalized_option] = option
-                optional_dependency_entries[normalized_option] = dict(sorted(entries.items()))
+                optional_dependency_entries[normalized_option] = {k: v for k, v in sorted(entries.items())}
 
-            self._optional_dependencies_complex = dict(sorted(optional_dependency_entries.items()))
+            self._optional_dependencies_complex = {k: v for k, v in sorted(optional_dependency_entries.items())}
 
         return self._optional_dependencies_complex
 
     @property
-    def optional_dependencies(self) -> dict[str, list[Requirement]]:
+    def optional_dependencies(self) -> dict[str, list[str]]:
         """
         https://peps.python.org/pep-0621/#dependencies-optional-dependencies
         """
@@ -1227,7 +1228,7 @@ class CoreMetadata:
 
         return self._dynamic
 
-    def add_known_classifiers(self, classifiers: str) -> None:
+    def add_known_classifiers(self, classifiers: list[str]) -> None:
         self._extra_classifiers.update(classifiers)
 
     def validate_fields(self) -> None:
@@ -1236,8 +1237,8 @@ class CoreMetadata:
             getattr(self, attribute)
 
 
-class HatchMetadata:
-    def __init__(self, root: Path | str, config: dict[str, dict[str, Any]], plugin_manager: PluginManager) -> None:
+class HatchMetadata(Generic[PluginManagerBound]):
+    def __init__(self, root: str, config: dict[str, dict[str, Any]], plugin_manager: PluginManagerBound) -> None:
         self.root = root
         self.config = config
         self.plugin_manager = plugin_manager
@@ -1295,8 +1296,8 @@ class HatchMetadata:
         return self._version
 
 
-class HatchVersionConfig:
-    def __init__(self, root: Path | str, config: dict[str, Any], plugin_manager: PluginManager) -> None:
+class HatchVersionConfig(Generic[PluginManagerBound]):
+    def __init__(self, root: str, config: dict[str, Any], plugin_manager: PluginManagerBound) -> None:
         self.root = root
         self.config = config
         self.plugin_manager = plugin_manager
@@ -1304,8 +1305,8 @@ class HatchVersionConfig:
         self._cached: str | None = None
         self._source_name: str | None = None
         self._scheme_name: str | None = None
-        self._source: RegexSource | None = None
-        self._scheme: str | None = None
+        self._source: VersionSourceInterface | None = None
+        self._scheme: VersionSchemeInterface | None = None
 
     @property
     def cached(self) -> str:
@@ -1348,7 +1349,7 @@ class HatchVersionConfig:
         return self._scheme_name
 
     @property
-    def source(self) -> RegexSource:
+    def source(self) -> VersionSourceInterface:
         if self._source is None:
             from copy import deepcopy
 
@@ -1364,7 +1365,7 @@ class HatchVersionConfig:
         return self._source
 
     @property
-    def scheme(self) -> str:
+    def scheme(self) -> VersionSchemeInterface:
         if self._scheme is None:
             from copy import deepcopy
 
@@ -1380,16 +1381,16 @@ class HatchVersionConfig:
         return self._scheme
 
 
-class HatchMetadataSettings:
-    def __init__(self, root: Path | str, config: dict[Any, Any], plugin_manager: PluginManager) -> None:
+class HatchMetadataSettings(Generic[PluginManagerBound]):
+    def __init__(self, root: str, config: dict[str, Any], plugin_manager: PluginManagerBound) -> None:
         self.root = root
         self.config = config
         self.plugin_manager = plugin_manager
 
         self._allow_direct_references: bool | None = None
         self._allow_ambiguous_features: bool | None = None
-        self._hook_config: dict[Any, Any] | None = None
-        self._hooks: dict[Any, Any] | None = None
+        self._hook_config: dict[str, Any] | None = None
+        self._hooks: dict[str, MetadataHookInterface] | None = None
 
     @property
     def allow_direct_references(self) -> bool:
@@ -1415,9 +1416,9 @@ class HatchMetadataSettings:
         return self._allow_ambiguous_features
 
     @property
-    def hook_config(self) -> dict[Any, Any]:
+    def hook_config(self) -> dict[str, Any]:
         if self._hook_config is None:
-            hook_config: dict[Any, Any] = self.config.get('hooks', {})
+            hook_config: dict[str, Any] = self.config.get('hooks', {})
             if not isinstance(hook_config, dict):
                 raise TypeError('Field `tool.hatch.metadata.hooks` must be a table')
 
@@ -1426,7 +1427,7 @@ class HatchMetadataSettings:
         return self._hook_config
 
     @property
-    def hooks(self) -> dict[Any, Any]:
+    def hooks(self) -> dict[str, MetadataHookInterface]:
         if self._hooks is None:
             hook_config = self.hook_config
 

@@ -34,10 +34,12 @@ class SdistArchive:
         self.name = name
         self.reproducible = reproducible
 
+        timestamp: int | None
         if reproducible:
-            self.timestamp = get_reproducible_timestamp()
+            timestamp = get_reproducible_timestamp()
         else:
-            self.timestamp = None
+            timestamp = None
+        self.timestamp = timestamp
 
         raw_fd, self.path = tempfile.mkstemp(suffix='.tar.gz')
         self.fd = os.fdopen(raw_fd, 'w+b')
@@ -49,8 +51,11 @@ class SdistArchive:
         if not isinstance(contents, bytes):
             contents = contents.encode('utf-8')
         tar_info = tarfile.TarInfo(normalize_archive_path(os.path.join(self.name, *relative_paths)))
-        tar_info.mtime = self.timestamp if self.reproducible else int(get_current_timestamp())
         tar_info.size = len(contents)
+        if self.reproducible and self.timestamp is not None:
+            tar_info.mtime = self.timestamp
+        else:
+            tar_info.mtime = int(get_current_timestamp())
 
         with closing(BytesIO(contents)) as buffer:
             self.tf.addfile(tar_info, buffer)
@@ -65,7 +70,8 @@ class SdistArchive:
         tar_info.uname = ''
         tar_info.gname = ''
         tar_info.mode = normalize_file_permissions(tar_info.mode)
-        tar_info.mtime = self.timestamp
+        if self.timestamp is not None:
+            tar_info.mtime = self.timestamp
 
         return tar_info
 
