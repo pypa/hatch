@@ -107,13 +107,13 @@ class PublisherInterface(ABC):
             if 'disable' in self.project_config:
                 disable = self.project_config['disable']
                 if not isinstance(disable, bool):
-                    raise TypeError(f'Field `tool.hatch.publish.{self.PLUGIN_NAME}.disable` must be a boolean')
+                    message = f'Field `tool.hatch.publish.{self.PLUGIN_NAME}.disable` must be a boolean'
+                    raise TypeError(message)
             else:
                 disable = self.plugin_config.get('disable', False)
                 if not isinstance(disable, bool):
-                    raise TypeError(
-                        f'Global plugin configuration `publish.{self.PLUGIN_NAME}.disable` must be a boolean'
-                    )
+                    message = f'Global plugin configuration `publish.{self.PLUGIN_NAME}.disable` must be a boolean'
+                    raise TypeError(message)
 
             self.__disable = disable
 

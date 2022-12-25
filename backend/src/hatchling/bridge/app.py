@@ -96,7 +96,8 @@ class Application:
         The `level` option must be between 1 and 3 (inclusive).
         """
         if not 1 <= level <= 3:
-            raise ValueError('Debug output can only have verbosity levels between 1 and 3 (inclusive)')
+            error_message = 'Debug output can only have verbosity levels between 1 and 3 (inclusive)'
+            raise ValueError(error_message)
         elif self.__verbosity >= level:
             print(message)
 

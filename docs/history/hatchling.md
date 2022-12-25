@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ***Added:***
 
+- Improve readability of exceptions
 - Add `extra_metadata` build data to the `wheel` target
 - Retroactively support `License-Expression` core metadata starting at version 2.1
 - Add more type hints

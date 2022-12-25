@@ -75,12 +75,14 @@ class ClassRegister:
             for registered_class in registered_classes:
                 name = getattr(registered_class, self.identifier, None)
                 if not name:  # no cov
-                    raise ValueError(f'Class `{registered_class.__name__}` does not have a {name} attribute.')
+                    message = f'Class `{registered_class.__name__}` does not have a {name} attribute.'
+                    raise ValueError(message)
                 elif name in classes:  # no cov
-                    raise ValueError(
+                    message = (
                         f'Class `{registered_class.__name__}` defines its name as `{name}` but '
                         f'that name is already used by `{classes[name].__name__}`.'
                     )
+                    raise ValueError(message)
 
                 classes[name] = registered_class
 

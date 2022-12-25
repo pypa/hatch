@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Add `custom` environment collector
 - Increase the timeout for and add retries to the `index` publisher
 - Expand home and environment variables in configured cache and data directories
+- Improve readability of exceptions
 - Update project templates
 
 ***Fixed:***

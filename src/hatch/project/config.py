@@ -36,7 +36,8 @@ class ProjectConfig:
         if self._env is None:
             config = self.config.get('env', {})
             if not isinstance(config, dict):
-                raise TypeError('Field `tool.hatch.env` must be a table')
+                message = 'Field `tool.hatch.env` must be a table'
+                raise TypeError(message)
 
             self._env = config
 
@@ -49,18 +50,21 @@ class ProjectConfig:
 
             requires = self.env.get('requires', [])
             if not isinstance(requires, list):
-                raise TypeError('Field `tool.hatch.env.requires` must be an array')
+                message = 'Field `tool.hatch.env.requires` must be an array'
+                raise TypeError(message)
 
             requires_complex = []
 
             for i, entry in enumerate(requires, 1):
                 if not isinstance(entry, str):
-                    raise TypeError(f'Requirement #{i} in `tool.hatch.env.requires` must be a string')
+                    message = f'Requirement #{i} in `tool.hatch.env.requires` must be a string'
+                    raise TypeError(message)
 
                 try:
                     requires_complex.append(Requirement(entry))
                 except InvalidRequirement as e:
-                    raise ValueError(f'Requirement #{i} in `tool.hatch.env.requires` is invalid: {e}') from None
+                    message = f'Requirement #{i} in `tool.hatch.env.requires` is invalid: {e}'
+                    raise ValueError(message) from None
 
             self._env_requires_complex = requires_complex
 
@@ -78,12 +82,14 @@ class ProjectConfig:
         if self._env_collectors is None:
             collectors = self.env.get('collectors', {})
             if not isinstance(collectors, dict):
-                raise TypeError('Field `tool.hatch.env.collectors` must be a table')
+                message = 'Field `tool.hatch.env.collectors` must be a table'
+                raise TypeError(message)
 
             final_config = {'default': {}}
             for collector, config in collectors.items():
                 if not isinstance(config, dict):
-                    raise TypeError(f'Field `tool.hatch.env.collectors.{collector}` must be a table')
+                    message = f'Field `tool.hatch.env.collectors.{collector}` must be a table'
+                    raise TypeError(message)
 
                 final_config[collector] = config
 
@@ -112,7 +118,8 @@ class ProjectConfig:
         if self._envs is None:
             env_config = self.config.get('envs', {})
             if not isinstance(env_config, dict):
-                raise TypeError('Field `tool.hatch.envs` must be a table')
+                message = 'Field `tool.hatch.envs` must be a table'
+                raise TypeError(message)
 
             config = {}
             environment_collectors = []
@@ -122,7 +129,8 @@ class ProjectConfig:
                 if collector_class is None:
                     from hatchling.plugin.exceptions import UnknownPluginError
 
-                    raise UnknownPluginError(f'Unknown environment collector: {collector}')
+                    message = f'Unknown environment collector: {collector}'
+                    raise UnknownPluginError(message)
 
                 environment_collector = collector_class(self.root, collector_config)
                 environment_collectors.append(environment_collector)
@@ -132,7 +140,8 @@ class ProjectConfig:
 
             for env_name, data in env_config.items():
                 if not isinstance(data, dict):
-                    raise TypeError(f'Field `tool.hatch.envs.{env_name}` must be a table')
+                    message = f'Field `tool.hatch.envs.{env_name}` must be a table'
+                    raise TypeError(message)
 
                 config.setdefault(env_name, {}).update(data)
 
@@ -165,27 +174,30 @@ class ProjectConfig:
 
                 matrix_name_format = initial_config.pop('matrix-name-format', '{value}')
                 if not isinstance(matrix_name_format, str):
-                    raise TypeError(f'Field `tool.hatch.envs.{env_name}.matrix-name-format` must be a string')
+                    message = f'Field `tool.hatch.envs.{env_name}.matrix-name-format` must be a string'
+                    raise TypeError(message)
                 elif '{value}' not in matrix_name_format:
-                    raise ValueError(
+                    message = (
                         f'Field `tool.hatch.envs.{env_name}.matrix-name-format` must '
                         f'contain at least the `{{value}}` placeholder'
                     )
+                    raise ValueError(message)
 
                 overrides = initial_config.pop('overrides', {})
                 if not isinstance(overrides, dict):
-                    raise TypeError(f'Field `tool.hatch.envs.{env_name}.overrides` must be a table')
+                    message = f'Field `tool.hatch.envs.{env_name}.overrides` must be a table'
+                    raise TypeError(message)
 
                 # Apply any configuration based on the current platform
                 platform_overrides = overrides.get('platform', {})
                 if not isinstance(platform_overrides, dict):
-                    raise TypeError(f'Field `tool.hatch.envs.{env_name}.overrides.platform` must be a table')
+                    message = f'Field `tool.hatch.envs.{env_name}.overrides.platform` must be a table'
+                    raise TypeError(message)
 
                 for platform, options in platform_overrides.items():
                     if not isinstance(options, dict):
-                        raise TypeError(
-                            f'Field `tool.hatch.envs.{env_name}.overrides.platform.{platform}` must be a table'
-                        )
+                        message = f'Field `tool.hatch.envs.{env_name}.overrides.platform.{platform}` must be a table'
+                        raise TypeError(message)
                     elif platform != current_platform:
                         continue
 
@@ -195,11 +207,13 @@ class ProjectConfig:
                 # Apply any configuration based on environment variables
                 env_var_overrides = overrides.get('env', {})
                 if not isinstance(env_var_overrides, dict):
-                    raise TypeError(f'Field `tool.hatch.envs.{env_name}.overrides.env` must be a table')
+                    message = f'Field `tool.hatch.envs.{env_name}.overrides.env` must be a table'
+                    raise TypeError(message)
 
                 for env_var, options in env_var_overrides.items():
                     if not isinstance(options, dict):
-                        raise TypeError(f'Field `tool.hatch.envs.{env_name}.overrides.env.{env_var}` must be a table')
+                        message = f'Field `tool.hatch.envs.{env_name}.overrides.env.{env_var}` must be a table'
+                        raise TypeError(message)
                     elif env_var not in environ:
                         continue
 
@@ -212,58 +226,69 @@ class ProjectConfig:
 
                 matrices = initial_config.pop('matrix')
                 if not isinstance(matrices, list):
-                    raise TypeError(f'Field `tool.hatch.envs.{env_name}.matrix` must be an array')
+                    message = f'Field `tool.hatch.envs.{env_name}.matrix` must be an array'
+                    raise TypeError(message)
 
                 matrix_overrides = overrides.get('matrix', {})
                 if not isinstance(matrix_overrides, dict):
-                    raise TypeError(f'Field `tool.hatch.envs.{env_name}.overrides.matrix` must be a table')
+                    message = f'Field `tool.hatch.envs.{env_name}.overrides.matrix` must be a table'
+                    raise TypeError(message)
 
                 name_overrides = overrides.get('name', {})
                 if not isinstance(name_overrides, dict):
-                    raise TypeError(f'Field `tool.hatch.envs.{env_name}.overrides.name` must be a table')
+                    message = f'Field `tool.hatch.envs.{env_name}.overrides.name` must be a table'
+                    raise TypeError(message)
 
                 matrix_data = all_matrices[env_name] = {'config': deepcopy(initial_config)}
                 all_envs = matrix_data['envs'] = {}
                 for i, matrix in enumerate(matrices, 1):
                     if not isinstance(matrix, dict):
-                        raise TypeError(f'Entry #{i} in field `tool.hatch.envs.{env_name}.matrix` must be a table')
+                        message = f'Entry #{i} in field `tool.hatch.envs.{env_name}.matrix` must be a table'
+                        raise TypeError(message)
                     elif not matrix:
-                        raise ValueError(f'Matrix #{i} in field `tool.hatch.envs.{env_name}.matrix` cannot be empty')
+                        message = f'Matrix #{i} in field `tool.hatch.envs.{env_name}.matrix` cannot be empty'
+                        raise ValueError(message)
 
                     for j, (variable, values) in enumerate(matrix.items(), 1):
                         if not variable:
-                            raise ValueError(
+                            message = (
                                 f'Variable #{j} in matrix #{i} in field `tool.hatch.envs.{env_name}.matrix` '
                                 f'cannot be an empty string'
                             )
+                            raise ValueError(message)
                         elif not isinstance(values, list):
-                            raise TypeError(
+                            message = (
                                 f'Variable `{variable}` in matrix #{i} in field `tool.hatch.envs.{env_name}.matrix` '
                                 f'must be an array'
                             )
+                            raise TypeError(message)
                         elif not values:
-                            raise ValueError(
+                            message = (
                                 f'Variable `{variable}` in matrix #{i} in field `tool.hatch.envs.{env_name}.matrix` '
                                 f'cannot be empty'
                             )
+                            raise ValueError(message)
 
                         existing_values = set()
                         for k, value in enumerate(values, 1):
                             if not isinstance(value, str):
-                                raise TypeError(
+                                message = (
                                     f'Value #{k} of variable `{variable}` in matrix #{i} in field '
                                     f'`tool.hatch.envs.{env_name}.matrix` must be a string'
                                 )
+                                raise TypeError(message)
                             elif not value:
-                                raise ValueError(
+                                message = (
                                     f'Value #{k} of variable `{variable}` in matrix #{i} in field '
                                     f'`tool.hatch.envs.{env_name}.matrix` cannot be an empty string'
                                 )
+                                raise ValueError(message)
                             elif value in existing_values:
-                                raise ValueError(
+                                message = (
                                     f'Value #{k} of variable `{variable}` in matrix #{i} in field '
                                     f'`tool.hatch.envs.{env_name}.matrix` is a duplicate'
                                 )
+                                raise ValueError(message)
                             existing_values.add(value)
 
                     variables = {}
@@ -273,10 +298,11 @@ class ProjectConfig:
                     for variable in ('py', 'python'):
                         if variable in matrix:
                             if python_selected:
-                                raise ValueError(
+                                message = (
                                     f'Matrix #{i} in field `tool.hatch.envs.{env_name}.matrix` '
                                     f'cannot contain both `py` and `python` variables'
                                 )
+                                raise ValueError(message)
                             python_selected = True
 
                             # Only shallow copying is necessary since we just want to remove a key
@@ -297,9 +323,10 @@ class ProjectConfig:
                         # Apply any configuration based on matrix variables
                         for variable, options in matrix_overrides.items():
                             if not isinstance(options, dict):
-                                raise TypeError(
+                                message = (
                                     f'Field `tool.hatch.envs.{env_name}.overrides.matrix.{variable}` must be a table'
                                 )
+                                raise TypeError(message)
                             elif variable not in variables:
                                 continue
 
@@ -325,9 +352,8 @@ class ProjectConfig:
                         # Apply any configuration based on the final name, minus the prefix for non-default environments
                         for pattern, options in name_overrides.items():
                             if not isinstance(options, dict):
-                                raise TypeError(
-                                    f'Field `tool.hatch.envs.{env_name}.overrides.name.{pattern}` must be a table'
-                                )
+                                message = f'Field `tool.hatch.envs.{env_name}.overrides.name.{pattern}` must be a table'
+                                raise TypeError(message)
                             elif not re.search(pattern, new_env_name):
                                 continue
 
@@ -370,11 +396,13 @@ class ProjectConfig:
         if self._publish is None:
             config = self.config.get('publish', {})
             if not isinstance(config, dict):
-                raise TypeError('Field `tool.hatch.publish` must be a table')
+                message = 'Field `tool.hatch.publish` must be a table'
+                raise TypeError(message)
 
             for publisher, data in config.items():
                 if not isinstance(data, dict):
-                    raise TypeError(f'Field `tool.hatch.publish.{publisher}` must be a table')
+                    message = f'Field `tool.hatch.publish.{publisher}` must be a table'
+                    raise TypeError(message)
 
             self._publish = config
 
@@ -385,13 +413,15 @@ class ProjectConfig:
         if self._scripts is None:
             script_config = self.config.get('scripts', {})
             if not isinstance(script_config, dict):
-                raise TypeError('Field `tool.hatch.scripts` must be a table')
+                message = 'Field `tool.hatch.scripts` must be a table'
+                raise TypeError(message)
 
             config = {}
 
             for name, data in script_config.items():
                 if ' ' in name:
-                    raise ValueError(f'Script name `{name}` in field `tool.hatch.scripts` must not contain spaces')
+                    message = f'Script name `{name}` in field `tool.hatch.scripts` must not contain spaces'
+                    raise ValueError(message)
 
                 commands = []
 
@@ -400,11 +430,13 @@ class ProjectConfig:
                 elif isinstance(data, list):
                     for i, command in enumerate(data, 1):
                         if not isinstance(command, str):
-                            raise TypeError(f'Command #{i} in field `tool.hatch.scripts.{name}` must be a string')
+                            message = f'Command #{i} in field `tool.hatch.scripts.{name}` must be a string'
+                            raise TypeError(message)
 
                         commands.append(command)
                 else:
-                    raise TypeError(f'Field `tool.hatch.scripts.{name}` must be a string or an array of strings')
+                    message = f'Field `tool.hatch.scripts.{name}` must be a string or an array of strings'
+                    raise TypeError(message)
 
                 config[name] = commands
 
@@ -436,7 +468,9 @@ def expand_script_commands(script_name, commands, config, seen, active):
         return seen[script_name]
     elif script_name in active:
         active.append(script_name)
-        raise ValueError(f'Circular expansion detected for field `tool.hatch.scripts`: {" -> ".join(active)}')
+
+        message = f'Circular expansion detected for field `tool.hatch.scripts`: {" -> ".join(active)}'
+        raise ValueError(message)
 
     active.append(script_name)
 
@@ -471,12 +505,13 @@ def _populate_default_env_values(env_name, data, config, seen, active):
 
     template_name = data.pop('template', 'default')
     if template_name not in config:
-        raise ValueError(
-            f'Field `tool.hatch.envs.{env_name}.template` refers to an unknown environment `{template_name}`'
-        )
+        message = f'Field `tool.hatch.envs.{env_name}.template` refers to an unknown environment `{template_name}`'
+        raise ValueError(message)
     elif env_name in active:
         active.append(env_name)
-        raise ValueError(f'Circular inheritance detected for field `tool.hatch.envs.*.template`: {" -> ".join(active)}')
+
+        message = f'Circular inheritance detected for field `tool.hatch.envs.*.template`: {" -> ".join(active)}'
+        raise ValueError(message)
     elif template_name == env_name:
         ensure_valid_environment(data)
         seen.add(env_name)

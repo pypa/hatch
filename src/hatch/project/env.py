@@ -42,10 +42,11 @@ def apply_overrides(env_name, source, condition, condition_value, options, new_c
             if _resolve_condition(env_name, option, source, condition, condition_value, data):
                 new_config[option] = data['value']
         elif option_types is not RESERVED_OPTIONS:
-            raise ValueError(
+            message = (
                 f'Untyped option `tool.hatch.envs.{env_name}.overrides.{source}.{condition}.{option}` '
                 f'must be defined as a table with a `value` key'
             )
+            raise ValueError(message)
 
 
 def _apply_override_to_mapping(env_name, option, data, source, condition, condition_value, new_config, overwrite):
@@ -64,38 +65,44 @@ def _apply_override_to_mapping(env_name, option, data, source, condition, condit
                 new_mapping[key] = value
             elif isinstance(entry, dict):
                 if 'key' not in entry:
-                    raise ValueError(
+                    message = (
                         f'Entry #{i} in field `tool.hatch.envs.{env_name}.overrides.{source}.{condition}.{option}` '
                         f'must have an option named `key`'
                     )
+                    raise ValueError(message)
                 key = entry['key']
                 if not isinstance(key, str):
-                    raise TypeError(
+                    message = (
                         f'Option `key` in entry #{i} in field `tool.hatch.envs.{env_name}.overrides.{source}.'
                         f'{condition}.{option}` must be a string'
                     )
+                    raise TypeError(message)
                 elif not key:
-                    raise ValueError(
+                    message = (
                         f'Option `key` in entry #{i} in field `tool.hatch.envs.{env_name}.overrides.{source}.'
                         f'{condition}.{option}` cannot be an empty string'
                     )
+                    raise ValueError(message)
                 value = entry.get('value', condition_value)
                 if not isinstance(value, str):
-                    raise TypeError(
+                    message = (
                         f'Option `value` in entry #{i} in field `tool.hatch.envs.{env_name}.overrides.{source}.'
                         f'{condition}.{option}` must be a string'
                     )
+                    raise TypeError(message)
                 if _resolve_condition(env_name, option, source, condition, condition_value, entry, i):
                     new_mapping[key] = value
             else:
-                raise TypeError(
+                message = (
                     f'Entry #{i} in field `tool.hatch.envs.{env_name}.overrides.{source}.{condition}.{option}` '
                     f'must be a string or an inline table'
                 )
+                raise TypeError(message)
     else:
-        raise TypeError(
+        message = (
             f'Field `tool.hatch.envs.{env_name}.overrides.{source}.{condition}.{option}` must be a string or an array'
         )
+        raise TypeError(message)
 
     if overwrite:
         new_config[option] = new_mapping
@@ -107,7 +114,8 @@ def _apply_override_to_mapping(env_name, option, data, source, condition, condit
 
 def _apply_override_to_array(env_name, option, data, source, condition, condition_value, new_config, overwrite):
     if not isinstance(data, list):
-        raise TypeError(f'Field `tool.hatch.envs.{env_name}.overrides.{source}.{condition}.{option}` must be an array')
+        message = f'Field `tool.hatch.envs.{env_name}.overrides.{source}.{condition}.{option}` must be an array'
+        raise TypeError(message)
 
     new_array = []
     for i, entry in enumerate(data, 1):
@@ -115,28 +123,32 @@ def _apply_override_to_array(env_name, option, data, source, condition, conditio
             new_array.append(entry)
         elif isinstance(entry, dict):
             if 'value' not in entry:
-                raise ValueError(
+                message = (
                     f'Entry #{i} in field `tool.hatch.envs.{env_name}.overrides.{source}.{condition}.{option}` '
                     f'must have an option named `value`'
                 )
+                raise ValueError(message)
             value = entry['value']
             if not isinstance(value, str):
-                raise TypeError(
+                message = (
                     f'Option `value` in entry #{i} in field `tool.hatch.envs.{env_name}.overrides.{source}.'
                     f'{condition}.{option}` must be a string'
                 )
+                raise TypeError(message)
             elif not value:
-                raise ValueError(
+                message = (
                     f'Option `value` in entry #{i} in field `tool.hatch.envs.{env_name}.overrides.{source}.'
                     f'{condition}.{option}` cannot be an empty string'
                 )
+                raise ValueError(message)
             if _resolve_condition(env_name, option, source, condition, condition_value, entry, i):
                 new_array.append(value)
         else:
-            raise TypeError(
+            message = (
                 f'Entry #{i} in field `tool.hatch.envs.{env_name}.overrides.{source}.{condition}.{option}` '
                 f'must be a string or an inline table'
             )
+            raise TypeError(message)
 
     if overwrite:
         new_config[option] = new_array
@@ -151,16 +163,18 @@ def _apply_override_to_string(env_name, option, data, source, condition, conditi
         new_config[option] = data
     elif isinstance(data, dict):
         if 'value' not in data:
-            raise ValueError(
+            message = (
                 f'Field `tool.hatch.envs.{env_name}.overrides.{source}.{condition}.{option}` '
                 f'must have an option named `value`'
             )
+            raise ValueError(message)
         value = data['value']
         if not isinstance(value, str):
-            raise TypeError(
+            message = (
                 f'Option `value` in field `tool.hatch.envs.{env_name}.overrides.{source}.'
                 f'{condition}.{option}` must be a string'
             )
+            raise TypeError(message)
         if _resolve_condition(env_name, option, source, condition, condition_value, data):
             new_config[option] = value
     elif isinstance(data, list):
@@ -170,29 +184,33 @@ def _apply_override_to_string(env_name, option, data, source, condition, conditi
                 break
             elif isinstance(entry, dict):
                 if 'value' not in entry:
-                    raise ValueError(
+                    message = (
                         f'Entry #{i} in field `tool.hatch.envs.{env_name}.overrides.{source}.{condition}.{option}` '
                         f'must have an option named `value`'
                     )
+                    raise ValueError(message)
                 value = entry['value']
                 if not isinstance(value, str):
-                    raise TypeError(
+                    message = (
                         f'Option `value` in entry #{i} in field `tool.hatch.envs.{env_name}.overrides.{source}.'
                         f'{condition}.{option}` must be a string'
                     )
+                    raise TypeError(message)
                 if _resolve_condition(env_name, option, source, condition, condition_value, entry, i):
                     new_config[option] = value
                     break
             else:
-                raise TypeError(
+                message = (
                     f'Entry #{i} in field `tool.hatch.envs.{env_name}.overrides.{source}.{condition}.{option}` '
                     f'must be a string or an inline table'
                 )
+                raise TypeError(message)
     else:
-        raise TypeError(
+        message = (
             f'Field `tool.hatch.envs.{env_name}.overrides.{source}.{condition}.{option}` '
             f'must be a string, inline table, or an array'
         )
+        raise TypeError(message)
 
 
 def _apply_override_to_boolean(env_name, option, data, source, condition, condition_value, new_config, overwrite):
@@ -200,16 +218,18 @@ def _apply_override_to_boolean(env_name, option, data, source, condition, condit
         new_config[option] = data
     elif isinstance(data, dict):
         if 'value' not in data:
-            raise ValueError(
+            message = (
                 f'Field `tool.hatch.envs.{env_name}.overrides.{source}.{condition}.{option}` '
                 f'must have an option named `value`'
             )
+            raise ValueError(message)
         value = data['value']
         if not isinstance(value, bool):
-            raise TypeError(
+            message = (
                 f'Option `value` in field `tool.hatch.envs.{env_name}.overrides.{source}.'
                 f'{condition}.{option}` must be a boolean'
             )
+            raise TypeError(message)
         if _resolve_condition(env_name, option, source, condition, condition_value, data):
             new_config[option] = value
     elif isinstance(data, list):
@@ -219,29 +239,33 @@ def _apply_override_to_boolean(env_name, option, data, source, condition, condit
                 break
             elif isinstance(entry, dict):
                 if 'value' not in entry:
-                    raise ValueError(
+                    message = (
                         f'Entry #{i} in field `tool.hatch.envs.{env_name}.overrides.{source}.{condition}.{option}` '
                         f'must have an option named `value`'
                     )
+                    raise ValueError(message)
                 value = entry['value']
                 if not isinstance(value, bool):
-                    raise TypeError(
+                    message = (
                         f'Option `value` in entry #{i} in field `tool.hatch.envs.{env_name}.overrides.{source}.'
                         f'{condition}.{option}` must be a boolean'
                     )
+                    raise TypeError(message)
                 if _resolve_condition(env_name, option, source, condition, condition_value, entry, i):
                     new_config[option] = value
                     break
             else:
-                raise TypeError(
+                message = (
                     f'Entry #{i} in field `tool.hatch.envs.{env_name}.overrides.{source}.{condition}.{option}` '
                     f'must be a boolean or an inline table'
                 )
+                raise TypeError(message)
     else:
-        raise TypeError(
+        message = (
             f'Field `tool.hatch.envs.{env_name}.overrides.{source}.{condition}.{option}` '
             f'must be a boolean, inline table, or an array'
         )
+        raise TypeError(message)
 
 
 def _resolve_condition(env_name, option, source, condition, condition_value, condition_config, condition_index=None):
@@ -250,10 +274,11 @@ def _resolve_condition(env_name, option, source, condition, condition_value, con
     if 'if' in condition_config:
         allowed_values = condition_config['if']
         if not isinstance(allowed_values, list):
-            raise TypeError(
+            message = (
                 f'Option `if` in {location} `tool.hatch.envs.{env_name}.overrides.{source}.'
                 f'{condition}.{option}` must be an array'
             )
+            raise TypeError(message)
 
         if condition_value not in allowed_values:
             return False
@@ -261,17 +286,19 @@ def _resolve_condition(env_name, option, source, condition, condition_value, con
     if 'platform' in condition_config:
         allowed_platforms = condition_config['platform']
         if not isinstance(allowed_platforms, list):
-            raise TypeError(
+            message = (
                 f'Option `platform` in {location} `tool.hatch.envs.{env_name}.overrides.{source}.'
                 f'{condition}.{option}` must be an array'
             )
+            raise TypeError(message)
 
         for i, entry in enumerate(allowed_platforms, 1):
             if not isinstance(entry, str):
-                raise TypeError(
+                message = (
                     f'Item #{i} in option `platform` in {location} `tool.hatch.envs.{env_name}.overrides.{source}.'
                     f'{condition}.{option}` must be a string'
                 )
+                raise TypeError(message)
 
         if get_platform_name() not in allowed_platforms:
             return False
@@ -279,18 +306,20 @@ def _resolve_condition(env_name, option, source, condition, condition_value, con
     if 'env' in condition_config:
         env_vars = condition_config['env']
         if not isinstance(env_vars, list):
-            raise TypeError(
+            message = (
                 f'Option `env` in {location} `tool.hatch.envs.{env_name}.overrides.{source}.'
                 f'{condition}.{option}` must be an array'
             )
+            raise TypeError(message)
 
         required_env_vars = {}
         for i, entry in enumerate(env_vars, 1):
             if not isinstance(entry, str):
-                raise TypeError(
+                message = (
                     f'Item #{i} in option `env` in {location} `tool.hatch.envs.{env_name}.overrides.{source}.'
                     f'{condition}.{option}` must be a string'
                 )
+                raise TypeError(message)
 
             # Allow matching empty strings
             if '=' in entry:

@@ -165,7 +165,8 @@ class VirtualEnvironment(EnvironmentInterface):
         except Exception:
             pass
 
-        raise OSError(f'cannot locate Python: {python_choice}')
+        message = f'cannot locate Python: {python_choice}'
+        raise OSError(message)
 
     @property
     def parent_python(self):

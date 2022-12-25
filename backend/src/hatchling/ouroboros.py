@@ -17,7 +17,8 @@ def read_dependencies() -> list[str]:
 
     match = re.search(pattern, contents, flags=re.MULTILINE | re.DOTALL)
     if match is None:
-        raise ValueError('No dependencies found')
+        message = 'No dependencies found'
+        raise ValueError(message)
 
     return literal_eval(match.group(1))
 

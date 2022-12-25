@@ -20,7 +20,8 @@ class VersionFile:
 
     def read(self, pattern: str | bool) -> str:
         if not os.path.isfile(self.__path):
-            raise OSError(f'file does not exist: {self.__relative_path}')
+            message = f'file does not exist: {self.__relative_path}'
+            raise OSError(message)
 
         with open(self.__path, encoding='utf-8') as f:
             contents = f.read()
@@ -30,11 +31,13 @@ class VersionFile:
 
         match = re.search(pattern, contents, flags=re.MULTILINE)
         if not match:
-            raise ValueError(f'unable to parse the version from the file: {self.__relative_path}')
+            message = f'unable to parse the version from the file: {self.__relative_path}'
+            raise ValueError(message)
 
         groups = match.groupdict()
         if 'version' not in groups:
-            raise ValueError('no group named `version` was defined in the pattern')
+            message = 'no group named `version` was defined in the pattern'
+            raise ValueError(message)
 
         self.__cached_read_data = groups['version'], contents, match.span('version')
         return self.__cached_read_data[0]

@@ -102,7 +102,8 @@ class Terminal:
 
     def display_debug(self, text='', level=1, *, stderr=True, indent=None, link=None, **kwargs):
         if not 1 <= level <= 3:
-            raise ValueError('Debug output can only have verbosity levels between 1 and 3 (inclusive)')
+            error_message = 'Debug output can only have verbosity levels between 1 and 3 (inclusive)'
+            raise ValueError(error_message)
         elif self.verbosity < level:
             return
 

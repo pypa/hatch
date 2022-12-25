@@ -20,13 +20,16 @@ class CustomBuildHook:
     ) -> BuildHookInterface:
         build_script = config.get('path', DEFAULT_BUILD_SCRIPT)
         if not isinstance(build_script, str):
-            raise TypeError(f'Option `path` for build hook `{cls.PLUGIN_NAME}` must be a string')
+            message = f'Option `path` for build hook `{cls.PLUGIN_NAME}` must be a string'
+            raise TypeError(message)
         elif not build_script:
-            raise ValueError(f'Option `path` for build hook `{cls.PLUGIN_NAME}` must not be empty if defined')
+            message = f'Option `path` for build hook `{cls.PLUGIN_NAME}` must not be empty if defined'
+            raise ValueError(message)
 
         path = os.path.normpath(os.path.join(root, build_script))
         if not os.path.isfile(path):
-            raise OSError(f'Build script does not exist: {build_script}')
+            message = f'Build script does not exist: {build_script}'
+            raise OSError(message)
 
         hook_class = load_plugin_from_script(path, build_script, BuildHookInterface, 'build_hook')
         hook = hook_class(root, config, *args, **kwargs)

@@ -25,7 +25,8 @@ def main():
                     data = raw_package_data[package_name]
                     break
             else:
-                raise ValueError(f'unknown package: {module}')
+                message = f'unknown package: {module}'
+                raise ValueError(message)
 
             for line in module.find('lines'):
                 if line.attrib['hits'] == '1':

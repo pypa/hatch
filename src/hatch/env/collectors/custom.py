@@ -20,15 +20,16 @@ class CustomEnvironmentCollector:
     ) -> EnvironmentCollectorInterface:
         custom_script = config.get('path', DEFAULT_CUSTOM_SCRIPT)
         if not isinstance(custom_script, str):
-            raise TypeError(f'Option `path` for environment collector `{cls.PLUGIN_NAME}` must be a string')
+            message = f'Option `path` for environment collector `{cls.PLUGIN_NAME}` must be a string'
+            raise TypeError(message)
         elif not custom_script:
-            raise ValueError(
-                f'Option `path` for environment collector `{cls.PLUGIN_NAME}` must not be empty if defined'
-            )
+            message = f'Option `path` for environment collector `{cls.PLUGIN_NAME}` must not be empty if defined'
+            raise ValueError(message)
 
         path = os.path.normpath(os.path.join(root, custom_script))
         if not os.path.isfile(path):
-            raise OSError(f'Plugin script does not exist: {custom_script}')
+            message = f'Plugin script does not exist: {custom_script}'
+            raise OSError(message)
 
         hook_class = load_plugin_from_script(
             path, custom_script, EnvironmentCollectorInterface, 'environment_collector'

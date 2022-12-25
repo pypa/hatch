@@ -44,7 +44,8 @@ def normalize_license_expression(raw_license_expression: str) -> str:
         elif token == 'with':
             python_tokens.append('or')
         elif token == '(' and python_tokens and python_tokens[-1] not in ('or', 'and'):
-            raise ValueError(f'invalid license expression: {raw_license_expression}')
+            message = f'invalid license expression: {raw_license_expression}'
+            raise ValueError(message)
         else:
             python_tokens.append(token)
 
@@ -53,7 +54,8 @@ def normalize_license_expression(raw_license_expression: str) -> str:
         if eval(python_expression) is not False:
             raise Exception
     except Exception:
-        raise ValueError(f'invalid license expression: {raw_license_expression}') from None
+        message = f'invalid license expression: {raw_license_expression}'
+        raise ValueError(message) from None
 
     # Take a final pass to check for unknown licenses/exceptions
     normalized_tokens = []
@@ -64,7 +66,8 @@ def normalize_license_expression(raw_license_expression: str) -> str:
 
         if normalized_tokens and normalized_tokens[-1] == 'WITH':
             if token not in EXCEPTIONS:
-                raise ValueError(f'unknown license exception: {token}')
+                message = f'unknown license exception: {token}'
+                raise ValueError(message)
 
             normalized_tokens.append(cast(str, EXCEPTIONS[token]['id']))
         else:
@@ -75,7 +78,8 @@ def normalize_license_expression(raw_license_expression: str) -> str:
                 suffix = ''
 
             if token not in valid_licenses:
-                raise ValueError(f'unknown license: {token}')
+                message = f'unknown license: {token}'
+                raise ValueError(message)
 
             normalized_tokens.append(cast(str, valid_licenses[token]['id']) + suffix)
 

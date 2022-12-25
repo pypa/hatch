@@ -14,26 +14,32 @@ class CodeSource(VersionSourceInterface):
 
         relative_path = self.config.get('path')
         if not relative_path:
-            raise ValueError('option `path` must be specified')
+            message = 'option `path` must be specified'
+            raise ValueError(message)
         elif not isinstance(relative_path, str):
-            raise TypeError('option `path` must be a string')
+            message = 'option `path` must be a string'
+            raise TypeError(message)
 
         path = os.path.normpath(os.path.join(self.root, relative_path))
         if not os.path.isfile(path):
-            raise OSError(f'file does not exist: {relative_path}')
+            message = f'file does not exist: {relative_path}'
+            raise OSError(message)
 
         expression = self.config.get('expression') or '__version__'
         if not isinstance(expression, str):
-            raise TypeError('option `expression` must be a string')
+            message = 'option `expression` must be a string'
+            raise TypeError(message)
 
         search_paths = self.config.get('search-paths', [])
         if not isinstance(search_paths, list):
-            raise TypeError('option `search-paths` must be an array')
+            message = 'option `search-paths` must be an array'
+            raise TypeError(message)
 
         absolute_search_paths = []
         for i, search_path in enumerate(search_paths, 1):
             if not isinstance(search_path, str):
-                raise TypeError(f'entry #{i} of option `search-paths` must be a string')
+                message = f'entry #{i} of option `search-paths` must be a string'
+                raise TypeError(message)
 
             absolute_search_paths.append(os.path.normpath(os.path.join(self.root, search_path)))
 
@@ -53,4 +59,5 @@ class CodeSource(VersionSourceInterface):
         return {'version': version}
 
     def set_version(self, version: str, version_data: dict) -> None:
-        raise NotImplementedError('Cannot rewrite loaded code')
+        message = 'Cannot rewrite loaded code'
+        raise NotImplementedError(message)

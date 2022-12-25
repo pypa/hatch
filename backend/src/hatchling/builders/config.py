@@ -148,13 +148,16 @@ class BuilderConfig:
 
             include_patterns = include_config.get('include', self.default_include())
             if not isinstance(include_patterns, list):
-                raise TypeError(f'Field `{include_location}` must be an array of strings')
+                message = f'Field `{include_location}` must be an array of strings'
+                raise TypeError(message)
 
             for i, include_pattern in enumerate(include_patterns, 1):
                 if not isinstance(include_pattern, str):
-                    raise TypeError(f'Pattern #{i} in field `{include_location}` must be a string')
+                    message = f'Pattern #{i} in field `{include_location}` must be a string'
+                    raise TypeError(message)
                 elif not include_pattern:
-                    raise ValueError(f'Pattern #{i} in field `{include_location}` cannot be an empty string')
+                    message = f'Pattern #{i} in field `{include_location}` cannot be an empty string'
+                    raise ValueError(message)
 
                 all_include_patterns.append(include_pattern)
 
@@ -184,13 +187,16 @@ class BuilderConfig:
 
             exclude_patterns = exclude_config.get('exclude', self.default_exclude())
             if not isinstance(exclude_patterns, list):
-                raise TypeError(f'Field `{exclude_location}` must be an array of strings')
+                message = f'Field `{exclude_location}` must be an array of strings'
+                raise TypeError(message)
 
             for i, exclude_pattern in enumerate(exclude_patterns, 1):
                 if not isinstance(exclude_pattern, str):
-                    raise TypeError(f'Pattern #{i} in field `{exclude_location}` must be a string')
+                    message = f'Pattern #{i} in field `{exclude_location}` must be a string'
+                    raise TypeError(message)
                 elif not exclude_pattern:
-                    raise ValueError(f'Pattern #{i} in field `{exclude_location}` cannot be an empty string')
+                    message = f'Pattern #{i} in field `{exclude_location}` cannot be an empty string'
+                    raise ValueError(message)
 
                 all_exclude_patterns.append(exclude_pattern)
 
@@ -218,13 +224,16 @@ class BuilderConfig:
 
             artifact_patterns = artifact_config.get('artifacts', [])
             if not isinstance(artifact_patterns, list):
-                raise TypeError(f'Field `{artifact_location}` must be an array of strings')
+                message = f'Field `{artifact_location}` must be an array of strings'
+                raise TypeError(message)
 
             for i, artifact_pattern in enumerate(artifact_patterns, 1):
                 if not isinstance(artifact_pattern, str):
-                    raise TypeError(f'Pattern #{i} in field `{artifact_location}` must be a string')
+                    message = f'Pattern #{i} in field `{artifact_location}` must be a string'
+                    raise TypeError(message)
                 elif not artifact_pattern:
-                    raise ValueError(f'Pattern #{i} in field `{artifact_location}` cannot be an empty string')
+                    message = f'Pattern #{i} in field `{artifact_location}` cannot be an empty string'
+                    raise ValueError(message)
 
                 all_artifact_patterns.append(artifact_pattern)
 
@@ -242,23 +251,25 @@ class BuilderConfig:
 
             global_hook_config = self.build_config.get('hooks', {})
             if not isinstance(global_hook_config, dict):
-                raise TypeError('Field `tool.hatch.build.hooks` must be a table')
+                message = 'Field `tool.hatch.build.hooks` must be a table'
+                raise TypeError(message)
 
             for hook_name, config in global_hook_config.items():
                 if not isinstance(config, dict):
-                    raise TypeError(f'Field `tool.hatch.build.hooks.{hook_name}` must be a table')
+                    message = f'Field `tool.hatch.build.hooks.{hook_name}` must be a table'
+                    raise TypeError(message)
 
                 hook_config.setdefault(hook_name, config)
 
             target_hook_config = self.target_config.get('hooks', {})
             if not isinstance(target_hook_config, dict):
-                raise TypeError(f'Field `tool.hatch.build.targets.{self.plugin_name}.hooks` must be a table')
+                message = f'Field `tool.hatch.build.targets.{self.plugin_name}.hooks` must be a table'
+                raise TypeError(message)
 
             for hook_name, config in target_hook_config.items():
                 if not isinstance(config, dict):
-                    raise TypeError(
-                        f'Field `tool.hatch.build.targets.{self.plugin_name}.hooks.{hook_name}` must be a table'
-                    )
+                    message = f'Field `tool.hatch.build.targets.{self.plugin_name}.hooks.{hook_name}` must be a table'
+                    raise TypeError(message)
 
                 hook_config[hook_name] = config
 
@@ -283,11 +294,13 @@ class BuilderConfig:
             if 'directory' in self.target_config:
                 directory = self.target_config['directory']
                 if not isinstance(directory, str):
-                    raise TypeError(f'Field `tool.hatch.build.targets.{self.plugin_name}.directory` must be a string')
+                    message = f'Field `tool.hatch.build.targets.{self.plugin_name}.directory` must be a string'
+                    raise TypeError(message)
             else:
                 directory = self.build_config.get('directory', DEFAULT_BUILD_DIRECTORY)
                 if not isinstance(directory, str):
-                    raise TypeError('Field `tool.hatch.build.directory` must be a string')
+                    message = 'Field `tool.hatch.build.directory` must be a string'
+                    raise TypeError(message)
 
             self.__directory = self.normalize_build_directory(directory)
 
@@ -299,13 +312,15 @@ class BuilderConfig:
             if 'skip-excluded-dirs' in self.target_config:
                 skip_excluded_dirs = self.target_config['skip-excluded-dirs']
                 if not isinstance(skip_excluded_dirs, bool):
-                    raise TypeError(
+                    message = (
                         f'Field `tool.hatch.build.targets.{self.plugin_name}.skip-excluded-dirs` must be a boolean'
                     )
+                    raise TypeError(message)
             else:
                 skip_excluded_dirs = self.build_config.get('skip-excluded-dirs', False)
                 if not isinstance(skip_excluded_dirs, bool):
-                    raise TypeError('Field `tool.hatch.build.skip-excluded-dirs` must be a boolean')
+                    message = 'Field `tool.hatch.build.skip-excluded-dirs` must be a boolean'
+                    raise TypeError(message)
 
             self.__skip_excluded_dirs = skip_excluded_dirs
 
@@ -317,11 +332,13 @@ class BuilderConfig:
             if 'ignore-vcs' in self.target_config:
                 ignore_vcs = self.target_config['ignore-vcs']
                 if not isinstance(ignore_vcs, bool):
-                    raise TypeError(f'Field `tool.hatch.build.targets.{self.plugin_name}.ignore-vcs` must be a boolean')
+                    message = f'Field `tool.hatch.build.targets.{self.plugin_name}.ignore-vcs` must be a boolean'
+                    raise TypeError(message)
             else:
                 ignore_vcs = self.build_config.get('ignore-vcs', False)
                 if not isinstance(ignore_vcs, bool):
-                    raise TypeError('Field `tool.hatch.build.ignore-vcs` must be a boolean')
+                    message = 'Field `tool.hatch.build.ignore-vcs` must be a boolean'
+                    raise TypeError(message)
 
             self.__ignore_vcs = ignore_vcs
 
@@ -333,14 +350,16 @@ class BuilderConfig:
             if 'require-runtime-dependencies' in self.target_config:
                 require_runtime_dependencies = self.target_config['require-runtime-dependencies']
                 if not isinstance(require_runtime_dependencies, bool):
-                    raise TypeError(
+                    message = (
                         f'Field `tool.hatch.build.targets.{self.plugin_name}.require-runtime-dependencies` '
                         f'must be a boolean'
                     )
+                    raise TypeError(message)
             else:
                 require_runtime_dependencies = self.build_config.get('require-runtime-dependencies', False)
                 if not isinstance(require_runtime_dependencies, bool):
-                    raise TypeError('Field `tool.hatch.build.require-runtime-dependencies` must be a boolean')
+                    message = 'Field `tool.hatch.build.require-runtime-dependencies` must be a boolean'
+                    raise TypeError(message)
 
             self.__require_runtime_dependencies = require_runtime_dependencies
 
@@ -358,21 +377,25 @@ class BuilderConfig:
 
             require_runtime_features = features_config.get('require-runtime-features', [])
             if not isinstance(require_runtime_features, list):
-                raise TypeError(f'Field `{features_location}` must be an array')
+                message = f'Field `{features_location}` must be an array'
+                raise TypeError(message)
 
             all_features: dict[str, None] = {}
             for i, feature in enumerate(require_runtime_features, 1):
                 if not isinstance(feature, str):
-                    raise TypeError(f'Feature #{i} of field `{features_location}` must be a string')
+                    message = f'Feature #{i} of field `{features_location}` must be a string'
+                    raise TypeError(message)
                 elif not feature:
-                    raise ValueError(f'Feature #{i} of field `{features_location}` cannot be an empty string')
+                    message = f'Feature #{i} of field `{features_location}` cannot be an empty string'
+                    raise ValueError(message)
 
                 feature = normalize_project_name(feature)
                 if feature not in self.builder.metadata.core.optional_dependencies:
-                    raise ValueError(
+                    message = (
                         f'Feature `{feature}` of field `{features_location}` is not defined in '
                         f'field `project.optional-dependencies`'
                     )
+                    raise ValueError(message)
 
                 all_features[feature] = None
 
@@ -389,13 +412,13 @@ class BuilderConfig:
             if 'only-packages' in self.target_config:
                 only_packages = self.target_config['only-packages']
                 if not isinstance(only_packages, bool):
-                    raise TypeError(
-                        f'Field `tool.hatch.build.targets.{self.plugin_name}.only-packages` must be a boolean'
-                    )
+                    message = f'Field `tool.hatch.build.targets.{self.plugin_name}.only-packages` must be a boolean'
+                    raise TypeError(message)
             else:
                 only_packages = self.build_config.get('only-packages', False)
                 if not isinstance(only_packages, bool):
-                    raise TypeError('Field `tool.hatch.build.only-packages` must be a boolean')
+                    message = 'Field `tool.hatch.build.only-packages` must be a boolean'
+                    raise TypeError(message)
 
             self.__only_packages = only_packages
 
@@ -410,13 +433,13 @@ class BuilderConfig:
             if 'reproducible' in self.target_config:
                 reproducible = self.target_config['reproducible']
                 if not isinstance(reproducible, bool):
-                    raise TypeError(
-                        f'Field `tool.hatch.build.targets.{self.plugin_name}.reproducible` must be a boolean'
-                    )
+                    message = f'Field `tool.hatch.build.targets.{self.plugin_name}.reproducible` must be a boolean'
+                    raise TypeError(message)
             else:
                 reproducible = self.build_config.get('reproducible', True)
                 if not isinstance(reproducible, bool):
-                    raise TypeError('Field `tool.hatch.build.reproducible` must be a boolean')
+                    message = 'Field `tool.hatch.build.reproducible` must be a boolean'
+                    raise TypeError(message)
 
             self.__reproducible = reproducible
 
@@ -440,13 +463,16 @@ class BuilderConfig:
 
             dev_mode_dirs = dev_mode_dirs_config.get('dev-mode-dirs', [])
             if not isinstance(dev_mode_dirs, list):
-                raise TypeError(f'Field `{dev_mode_dirs_location}` must be an array of strings')
+                message = f'Field `{dev_mode_dirs_location}` must be an array of strings'
+                raise TypeError(message)
 
             for i, dev_mode_dir in enumerate(dev_mode_dirs, 1):
                 if not isinstance(dev_mode_dir, str):
-                    raise TypeError(f'Directory #{i} in field `{dev_mode_dirs_location}` must be a string')
+                    message = f'Directory #{i} in field `{dev_mode_dirs_location}` must be a string'
+                    raise TypeError(message)
                 elif not dev_mode_dir:
-                    raise ValueError(f'Directory #{i} in field `{dev_mode_dirs_location}` cannot be an empty string')
+                    message = f'Directory #{i} in field `{dev_mode_dirs_location}` cannot be an empty string'
+                    raise ValueError(message)
 
                 all_dev_mode_dirs.append(dev_mode_dir)
 
@@ -460,13 +486,13 @@ class BuilderConfig:
             if 'dev-mode-exact' in self.target_config:
                 dev_mode_exact = self.target_config['dev-mode-exact']
                 if not isinstance(dev_mode_exact, bool):
-                    raise TypeError(
-                        f'Field `tool.hatch.build.targets.{self.plugin_name}.dev-mode-exact` must be a boolean'
-                    )
+                    message = f'Field `tool.hatch.build.targets.{self.plugin_name}.dev-mode-exact` must be a boolean'
+                    raise TypeError(message)
             else:
                 dev_mode_exact = self.build_config.get('dev-mode-exact', False)
                 if not isinstance(dev_mode_exact, bool):
-                    raise TypeError('Field `tool.hatch.build.dev-mode-exact` must be a boolean')
+                    message = 'Field `tool.hatch.build.dev-mode-exact` must be a boolean'
+                    raise TypeError(message)
 
             self.__dev_mode_exact = dev_mode_exact
 
@@ -480,20 +506,21 @@ class BuilderConfig:
 
             versions = self.target_config.get('versions', [])
             if not isinstance(versions, list):
-                raise TypeError(
-                    f'Field `tool.hatch.build.targets.{self.plugin_name}.versions` must be an array of strings'
-                )
+                message = f'Field `tool.hatch.build.targets.{self.plugin_name}.versions` must be an array of strings'
+                raise TypeError(message)
 
             for i, version in enumerate(versions, 1):
                 if not isinstance(version, str):
-                    raise TypeError(
+                    message = (
                         f'Version #{i} in field `tool.hatch.build.targets.{self.plugin_name}.versions` must be a string'
                     )
+                    raise TypeError(message)
                 elif not version:
-                    raise ValueError(
+                    message = (
                         f'Version #{i} in field `tool.hatch.build.targets.{self.plugin_name}.versions` '
                         f'cannot be an empty string'
                     )
+                    raise ValueError(message)
 
                 all_versions[version] = None
 
@@ -504,10 +531,11 @@ class BuilderConfig:
             else:
                 unknown_versions = set(all_versions) - set(self.__builder.get_version_api())
                 if unknown_versions:
-                    raise ValueError(
+                    message = (
                         f'Unknown versions in field `tool.hatch.build.targets.{self.plugin_name}.versions`: '
                         f'{", ".join(map(str, sorted(unknown_versions)))}'
                     )
+                    raise ValueError(message)
 
             self.__versions = list(all_versions)
 
@@ -521,24 +549,28 @@ class BuilderConfig:
 
             target_dependencies = self.target_config.get('dependencies', [])
             if not isinstance(target_dependencies, list):
-                raise TypeError(f'Field `tool.hatch.build.targets.{self.plugin_name}.dependencies` must be an array')
+                message = f'Field `tool.hatch.build.targets.{self.plugin_name}.dependencies` must be an array'
+                raise TypeError(message)
 
             for i, dependency in enumerate(target_dependencies, 1):
                 if not isinstance(dependency, str):
-                    raise TypeError(
+                    message = (
                         f'Dependency #{i} of field `tool.hatch.build.targets.{self.plugin_name}.dependencies` '
                         f'must be a string'
                     )
+                    raise TypeError(message)
 
                 dependencies[dependency] = None
 
             global_dependencies = self.build_config.get('dependencies', [])
             if not isinstance(global_dependencies, list):
-                raise TypeError('Field `tool.hatch.build.dependencies` must be an array')
+                message = 'Field `tool.hatch.build.dependencies` must be an array'
+                raise TypeError(message)
 
             for i, dependency in enumerate(global_dependencies, 1):
                 if not isinstance(dependency, str):
-                    raise TypeError(f'Dependency #{i} of field `tool.hatch.build.dependencies` must be a string')
+                    message = f'Dependency #{i} of field `tool.hatch.build.dependencies` must be a string'
+                    raise TypeError(message)
 
                 dependencies[dependency] = None
 
@@ -547,46 +579,51 @@ class BuilderConfig:
             for hook_name, config in self.hook_config.items():
                 hook_require_runtime_dependencies = config.get('require-runtime-dependencies', False)
                 if not isinstance(hook_require_runtime_dependencies, bool):
-                    raise TypeError(
-                        f'Option `require-runtime-dependencies` of build hook `{hook_name}` must be a boolean'
-                    )
+                    message = f'Option `require-runtime-dependencies` of build hook `{hook_name}` must be a boolean'
+                    raise TypeError(message)
                 elif hook_require_runtime_dependencies:
                     require_runtime_dependencies = True
 
                 hook_require_runtime_features = config.get('require-runtime-features', [])
                 if not isinstance(hook_require_runtime_features, list):
-                    raise TypeError(f'Option `require-runtime-features` of build hook `{hook_name}` must be an array')
+                    message = f'Option `require-runtime-features` of build hook `{hook_name}` must be an array'
+                    raise TypeError(message)
 
                 for i, feature in enumerate(hook_require_runtime_features, 1):
                     if not isinstance(feature, str):
-                        raise TypeError(
+                        message = (
                             f'Feature #{i} of option `require-runtime-features` of build hook `{hook_name}` '
                             f'must be a string'
                         )
+                        raise TypeError(message)
                     elif not feature:
-                        raise ValueError(
+                        message = (
                             f'Feature #{i} of option `require-runtime-features` of build hook `{hook_name}` '
                             f'cannot be an empty string'
                         )
+                        raise ValueError(message)
 
                     feature = normalize_project_name(feature)
                     if feature not in self.builder.metadata.core.optional_dependencies:
-                        raise ValueError(
+                        message = (
                             f'Feature `{feature}` of option `require-runtime-features` of build hook `{hook_name}` '
                             f'is not defined in field `project.optional-dependencies`'
                         )
+                        raise ValueError(message)
 
                     require_runtime_features[feature] = None
 
                 hook_dependencies = config.get('dependencies', [])
                 if not isinstance(hook_dependencies, list):
-                    raise TypeError(f'Option `dependencies` of build hook `{hook_name}` must be an array')
+                    message = f'Option `dependencies` of build hook `{hook_name}` must be an array'
+                    raise TypeError(message)
 
                 for i, dependency in enumerate(hook_dependencies, 1):
                     if not isinstance(dependency, str):
-                        raise TypeError(
+                        message = (
                             f'Dependency #{i} of option `dependencies` of build hook `{hook_name}` must be a string'
                         )
+                        raise TypeError(message)
 
                     dependencies[dependency] = None
 
@@ -619,17 +656,21 @@ class BuilderConfig:
             if isinstance(raw_sources, list):
                 for i, source in enumerate(raw_sources, 1):
                     if not isinstance(source, str):
-                        raise TypeError(f'Source #{i} in field `{sources_location}` must be a string')
+                        message = f'Source #{i} in field `{sources_location}` must be a string'
+                        raise TypeError(message)
                     elif not source:
-                        raise ValueError(f'Source #{i} in field `{sources_location}` cannot be an empty string')
+                        message = f'Source #{i} in field `{sources_location}` cannot be an empty string'
+                        raise ValueError(message)
 
                     sources[normalize_relative_directory(source)] = ''
             elif isinstance(raw_sources, dict):
                 for i, (source, path) in enumerate(raw_sources.items(), 1):
                     if not source:
-                        raise ValueError(f'Source #{i} in field `{sources_location}` cannot be an empty string')
+                        message = f'Source #{i} in field `{sources_location}` cannot be an empty string'
+                        raise ValueError(message)
                     elif not isinstance(path, str):
-                        raise TypeError(f'Path for source `{source}` in field `{sources_location}` must be a string')
+                        message = f'Path for source `{source}` in field `{sources_location}` must be a string'
+                        raise TypeError(message)
 
                     normalized_path = normalize_relative_path(path)
                     if normalized_path == '.':
@@ -639,7 +680,8 @@ class BuilderConfig:
 
                     sources[normalize_relative_directory(source)] = normalized_path
             else:
-                raise TypeError(f'Field `{sources_location}` must be a mapping or array of strings')
+                message = f'Field `{sources_location}` must be a mapping or array of strings'
+                raise TypeError(message)
 
             for relative_path in self.packages:
                 source, package = os.path.split(relative_path)
@@ -662,13 +704,16 @@ class BuilderConfig:
 
             packages = package_config.get('packages', self.default_packages())
             if not isinstance(packages, list):
-                raise TypeError(f'Field `{package_location}` must be an array of strings')
+                message = f'Field `{package_location}` must be an array of strings'
+                raise TypeError(message)
 
             for i, package in enumerate(packages, 1):
                 if not isinstance(package, str):
-                    raise TypeError(f'Package #{i} in field `{package_location}` must be a string')
+                    message = f'Package #{i} in field `{package_location}` must be a string'
+                    raise TypeError(message)
                 elif not package:
-                    raise ValueError(f'Package #{i} in field `{package_location}` cannot be an empty string')
+                    message = f'Package #{i} in field `{package_location}` cannot be an empty string'
+                    raise ValueError(message)
 
             self.__packages = sorted(normalize_relative_path(package) for package in packages)
 
@@ -686,17 +731,21 @@ class BuilderConfig:
 
             force_include = force_include_config.get('force-include', {})
             if not isinstance(force_include, dict):
-                raise TypeError(f'Field `{force_include_location}` must be a mapping')
+                message = f'Field `{force_include_location}` must be a mapping'
+                raise TypeError(message)
 
             for i, (source, relative_path) in enumerate(force_include.items(), 1):
                 if not source:
-                    raise ValueError(f'Source #{i} in field `{force_include_location}` cannot be an empty string')
+                    message = f'Source #{i} in field `{force_include_location}` cannot be an empty string'
+                    raise ValueError(message)
                 elif not isinstance(relative_path, str):
-                    raise TypeError(f'Path for source `{source}` in field `{force_include_location}` must be a string')
+                    message = f'Path for source `{source}` in field `{force_include_location}` must be a string'
+                    raise TypeError(message)
                 elif not relative_path:
-                    raise ValueError(
+                    message = (
                         f'Path for source `{source}` in field `{force_include_location}` cannot be an empty string'
                     )
+                    raise ValueError(message)
 
             self.__force_include = normalize_inclusion_map(force_include, self.root)
 
@@ -714,19 +763,23 @@ class BuilderConfig:
 
             only_include = only_include_config.get('only-include', self.default_only_include()) or self.packages
             if not isinstance(only_include, list):
-                raise TypeError(f'Field `{only_include_location}` must be an array')
+                message = f'Field `{only_include_location}` must be an array'
+                raise TypeError(message)
 
             inclusion_map = {}
 
             for i, relative_path in enumerate(only_include, 1):
                 if not isinstance(relative_path, str):
-                    raise TypeError(f'Path #{i} in field `{only_include_location}` must be a string')
+                    message = f'Path #{i} in field `{only_include_location}` must be a string'
+                    raise TypeError(message)
 
                 normalized_path = normalize_relative_path(relative_path)
                 if not normalized_path or normalized_path.startswith(('~', '..')):
-                    raise ValueError(f'Path #{i} in field `{only_include_location}` must be relative: {relative_path}')
+                    message = f'Path #{i} in field `{only_include_location}` must be relative: {relative_path}'
+                    raise ValueError(message)
                 elif normalized_path in inclusion_map:
-                    raise ValueError(f'Duplicate path in field `{only_include_location}`: {normalized_path}')
+                    message = f'Duplicate path in field `{only_include_location}`: {normalized_path}'
+                    raise ValueError(message)
 
                 inclusion_map[normalized_path] = normalized_path
 

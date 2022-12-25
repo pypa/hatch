@@ -227,17 +227,17 @@ class WheelBuilderConfig(BuilderConfig):
         if self.__core_metadata_constructor is None:
             core_metadata_version = self.target_config.get('core-metadata-version', DEFAULT_METADATA_VERSION)
             if not isinstance(core_metadata_version, str):
-                raise TypeError(
-                    f'Field `tool.hatch.build.targets.{self.plugin_name}.core-metadata-version` must be a string'
-                )
+                message = f'Field `tool.hatch.build.targets.{self.plugin_name}.core-metadata-version` must be a string'
+                raise TypeError(message)
 
             constructors = get_core_metadata_constructors()
             if core_metadata_version not in constructors:
-                raise ValueError(
+                message = (
                     f'Unknown metadata version `{core_metadata_version}` for field '
                     f'`tool.hatch.build.targets.{self.plugin_name}.core-metadata-version`. '
                     f'Available: {", ".join(sorted(constructors))}'
                 )
+                raise ValueError(message)
 
             self.__core_metadata_constructor = constructors[core_metadata_version]
 
@@ -248,24 +248,28 @@ class WheelBuilderConfig(BuilderConfig):
         if self.__shared_data is None:
             shared_data = self.target_config.get('shared-data', {})
             if not isinstance(shared_data, dict):
-                raise TypeError(f'Field `tool.hatch.build.targets.{self.plugin_name}.shared-data` must be a mapping')
+                message = f'Field `tool.hatch.build.targets.{self.plugin_name}.shared-data` must be a mapping'
+                raise TypeError(message)
 
             for i, (source, relative_path) in enumerate(shared_data.items(), 1):
                 if not source:
-                    raise ValueError(
+                    message = (
                         f'Source #{i} in field `tool.hatch.build.targets.{self.plugin_name}.shared-data` '
                         f'cannot be an empty string'
                     )
+                    raise ValueError(message)
                 elif not isinstance(relative_path, str):
-                    raise TypeError(
+                    message = (
                         f'Path for source `{source}` in field '
                         f'`tool.hatch.build.targets.{self.plugin_name}.shared-data` must be a string'
                     )
+                    raise TypeError(message)
                 elif not relative_path:
-                    raise ValueError(
+                    message = (
                         f'Path for source `{source}` in field '
                         f'`tool.hatch.build.targets.{self.plugin_name}.shared-data` cannot be an empty string'
                     )
+                    raise ValueError(message)
 
             self.__shared_data = normalize_inclusion_map(shared_data, self.root)
 
@@ -276,24 +280,28 @@ class WheelBuilderConfig(BuilderConfig):
         if self.__extra_metadata is None:
             extra_metadata = self.target_config.get('extra-metadata', {})
             if not isinstance(extra_metadata, dict):
-                raise TypeError(f'Field `tool.hatch.build.targets.{self.plugin_name}.extra-metadata` must be a mapping')
+                message = f'Field `tool.hatch.build.targets.{self.plugin_name}.extra-metadata` must be a mapping'
+                raise TypeError(message)
 
             for i, (source, relative_path) in enumerate(extra_metadata.items(), 1):
                 if not source:
-                    raise ValueError(
+                    message = (
                         f'Source #{i} in field `tool.hatch.build.targets.{self.plugin_name}.extra-metadata` '
                         f'cannot be an empty string'
                     )
+                    raise ValueError(message)
                 elif not isinstance(relative_path, str):
-                    raise TypeError(
+                    message = (
                         f'Path for source `{source}` in field '
                         f'`tool.hatch.build.targets.{self.plugin_name}.extra-metadata` must be a string'
                     )
+                    raise TypeError(message)
                 elif not relative_path:
-                    raise ValueError(
+                    message = (
                         f'Path for source `{source}` in field '
                         f'`tool.hatch.build.targets.{self.plugin_name}.extra-metadata` cannot be an empty string'
                     )
+                    raise ValueError(message)
 
             self.__extra_metadata = normalize_inclusion_map(extra_metadata, self.root)
 
@@ -305,13 +313,13 @@ class WheelBuilderConfig(BuilderConfig):
             if 'strict-naming' in self.target_config:
                 strict_naming = self.target_config['strict-naming']
                 if not isinstance(strict_naming, bool):
-                    raise TypeError(
-                        f'Field `tool.hatch.build.targets.{self.plugin_name}.strict-naming` must be a boolean'
-                    )
+                    message = f'Field `tool.hatch.build.targets.{self.plugin_name}.strict-naming` must be a boolean'
+                    raise TypeError(message)
             else:
                 strict_naming = self.build_config.get('strict-naming', True)
                 if not isinstance(strict_naming, bool):
-                    raise TypeError('Field `tool.hatch.build.strict-naming` must be a boolean')
+                    message = 'Field `tool.hatch.build.strict-naming` must be a boolean'
+                    raise TypeError(message)
 
             self.__strict_naming = strict_naming
 
@@ -400,11 +408,12 @@ class WheelBuilder(BuilderInterface):
                             f'{relative_path[:relative_path.index(distribution_path)]}{distribution_module}',
                         )
                     except ValueError:
-                        raise ValueError(
+                        message = (
                             'Dev mode installations are unsupported when any path rewrite in the `sources` option '
                             'changes a prefix rather than removes it, see: '
                             'https://github.com/pfmoore/editables/issues/20'
-                        ) from None
+                        )
+                        raise ValueError(message) from None
 
             editable_project = EditableProject(self.metadata.core.name, self.root)
 
