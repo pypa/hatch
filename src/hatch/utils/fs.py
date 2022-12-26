@@ -76,10 +76,12 @@ class Path(_PathBase):
 
     @contextmanager
     def temp_hide(self) -> Generator[Path, None, None]:
+        import shutil
+
         with temp_directory() as temp_dir:
             temp_path = Path(temp_dir, self.name)
             try:
-                self.replace(temp_dir / self.name)
+                shutil.move(self, temp_dir / self.name)
             except FileNotFoundError:
                 pass
 
@@ -87,7 +89,7 @@ class Path(_PathBase):
                 yield temp_path
             finally:
                 try:
-                    temp_path.replace(self)
+                    shutil.move(temp_path, self)
                 except FileNotFoundError:
                     pass
 
