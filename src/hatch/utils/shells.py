@@ -80,7 +80,7 @@ class ShellManager:
         self.spawn_linux_shell(path or 'csh', args or ['-i'], script=exe_dir / 'activate.csh')
 
     def spawn_linux_shell(
-        self, path: str, args: list[str] | None = None, *, script: str | None = None, callback: Callable | None = None
+        self, path: str, args: list[str] | None = None, *, script: Path | None = None, callback: Callable | None = None
     ) -> None:
         import shutil
         import signal

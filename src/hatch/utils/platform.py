@@ -34,7 +34,7 @@ class Platform:
         self.__format_file_uri: Callable[[str], str] | None = None
         self.__join_command_args: Callable[[list[str]], str] | None = None
         self.__name: str | None = None
-        self.__home = None
+        self.__home: Path | None = None
 
         # Whether or not an interactive status is being displayed
         self.displaying_status = False
