@@ -1,29 +1,32 @@
+from typing import ClassVar
+
+
 class AppEnvVars:
-    ENV: str = 'HATCH_ENV'
-    ENV_ACTIVE: str = 'HATCH_ENV_ACTIVE'
-    ENV_OPTION_PREFIX: str = 'HATCH_ENV_TYPE_'
-    QUIET: str = 'HATCH_QUIET'
-    VERBOSE: str = 'HATCH_VERBOSE'
-    INTERACTIVE: str = 'HATCH_INTERACTIVE'
-    PYTHON: str = 'HATCH_PYTHON'
+    ENV: ClassVar[str] = 'HATCH_ENV'
+    ENV_ACTIVE: ClassVar[str] = 'HATCH_ENV_ACTIVE'
+    ENV_OPTION_PREFIX: ClassVar[str] = 'HATCH_ENV_TYPE_'
+    QUIET: ClassVar[str] = 'HATCH_QUIET'
+    VERBOSE: ClassVar[str] = 'HATCH_VERBOSE'
+    INTERACTIVE: ClassVar[str] = 'HATCH_INTERACTIVE'
+    PYTHON: ClassVar[str] = 'HATCH_PYTHON'
     # https://no-color.org
-    NO_COLOR: str = 'NO_COLOR'
-    FORCE_COLOR: str = 'FORCE_COLOR'
+    NO_COLOR: ClassVar[str] = 'NO_COLOR'
+    FORCE_COLOR: ClassVar[str] = 'FORCE_COLOR'
 
 
 class ConfigEnvVars:
-    PROJECT: str = 'HATCH_PROJECT'
-    DATA: str = 'HATCH_DATA_DIR'
-    CACHE: str = 'HATCH_CACHE_DIR'
-    CONFIG: str = 'HATCH_CONFIG'
+    PROJECT: ClassVar[str] = 'HATCH_PROJECT'
+    DATA: ClassVar[str] = 'HATCH_DATA_DIR'
+    CACHE: ClassVar[str] = 'HATCH_CACHE_DIR'
+    CONFIG: ClassVar[str] = 'HATCH_CONFIG'
 
 
 class PublishEnvVars:
-    USER: str = 'HATCH_INDEX_USER'
-    AUTH: str = 'HATCH_INDEX_AUTH'
-    REPO: str = 'HATCH_INDEX_REPO'
-    CA_CERT: str = 'HATCH_INDEX_CA_CERT'
-    CLIENT_CERT: str = 'HATCH_INDEX_CLIENT_CERT'
-    CLIENT_KEY: str = 'HATCH_INDEX_CLIENT_KEY'
-    PUBLISHER: str = 'HATCH_PUBLISHER'
-    OPTIONS: str = 'HATCH_PUBLISHER_OPTIONS'
+    USER: ClassVar[str] = 'HATCH_INDEX_USER'
+    AUTH: ClassVar[str] = 'HATCH_INDEX_AUTH'
+    REPO: ClassVar[str] = 'HATCH_INDEX_REPO'
+    CA_CERT: ClassVar[str] = 'HATCH_INDEX_CA_CERT'
+    CLIENT_CERT: ClassVar[str] = 'HATCH_INDEX_CLIENT_CERT'
+    CLIENT_KEY: ClassVar[str] = 'HATCH_INDEX_CLIENT_KEY'
+    PUBLISHER: ClassVar[str] = 'HATCH_PUBLISHER'
+    OPTIONS: ClassVar[str] = 'HATCH_PUBLISHER_OPTIONS'
