@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import os
 import pathlib
-import shutil
 import sys
 from contextlib import contextmanager
 from typing import Generator
@@ -77,6 +76,8 @@ class Path(_PathBase):
 
     @contextmanager
     def temp_hide(self) -> Generator[Path, None, None]:
+        import shutil
+
         with temp_directory() as temp_dir:
             temp_path = Path(temp_dir, self.name)
             try:
