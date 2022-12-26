@@ -104,7 +104,7 @@ def temp_directory() -> Generator[Path, None, None]:
 
 
 @contextmanager
-def temp_chdir(env_vars: list[str] | None = None) -> Generator[Path, None, None]:
+def temp_chdir(env_vars: dict[str, str] | None = None) -> Generator[Path, None, None]:
     with temp_directory() as d:
         with d.as_cwd(env_vars=env_vars):
             yield d
