@@ -4,30 +4,37 @@ import os
 import sys
 from functools import lru_cache
 from importlib import import_module
+from typing import TYPE_CHECKING, Any, Callable, Generator, cast
+
+if TYPE_CHECKING:
+    from subprocess import CompletedProcess, Popen
+    from types import ModuleType
+
+    from hatch.utils.fs import Path
 
 
 @lru_cache(maxsize=None)
-def get_platform_name():
+def get_platform_name() -> str:
     import platform
 
     return normalize_platform_name(platform.system())
 
 
-def normalize_platform_name(platform_name):
+def normalize_platform_name(platform_name: str) -> str:
     platform_name = platform_name.lower()
     return 'macos' if platform_name == 'darwin' else platform_name
 
 
 class Platform:
-    def __init__(self, display_func=print):
+    def __init__(self, display_func: Callable = print) -> None:
         self.__display_func = display_func
 
         # Lazily loaded constants
-        self.__default_shell = None
-        self.__format_file_uri = None
-        self.__join_command_args = None
-        self.__name = None
-        self.__home = None
+        self.__default_shell: str | None = None
+        self.__format_file_uri: Callable[[str], str] | None = None
+        self.__join_command_args: Callable[[list[str]], str] | None = None
+        self.__name: str | None = None
+        self.__home: Path | None = None
 
         # Whether or not an interactive status is being displayed
         self.displaying_status = False
@@ -35,14 +42,14 @@ class Platform:
         self.__modules = LazilyLoadedModules()
 
     @property
-    def modules(self):
+    def modules(self) -> 'LazilyLoadedModules':
         """
         Accessor for lazily loading modules that either take multiple milliseconds to import
         (like `shutil` and `subprocess`) or are not used on all platforms (like `shlex`).
         """
         return self.__modules
 
-    def format_for_subprocess(self, command: str | list[str], *, shell: bool):
+    def format_for_subprocess(self, command: str | list[str], *, shell: bool) -> str | list[str]:
         """
         Format the given command in a cross-platform manner for immediate consumption by subprocess utilities.
         """
@@ -64,10 +71,12 @@ class Platform:
 
         return command
 
-    def exit_with_code(self, code):
-        return sys.exit(code)
+    def exit_with_code(self, code: str | int | None) -> None:
+        sys.exit(code)
 
-    def _run_command_integrated(self, command: str | list[str], *, shell=False, **kwargs):
+    def _run_command_integrated(
+        self, command: str | list[str], *, shell: bool = False, **kwargs: Any
+    ) -> CompletedProcess:
         with self.capture_process(command, shell=shell, **kwargs) as process:
             for line in self.stream_process_output(process):
                 self.__display_func(line, end='')
@@ -76,7 +85,7 @@ class Platform:
 
         return self.modules.subprocess.CompletedProcess(process.args, process.poll(), stdout, stderr)
 
-    def run_command(self, command: str | list[str], *, shell=False, **kwargs):
+    def run_command(self, command: str | list[str], *, shell: bool = False, **kwargs: Any) -> CompletedProcess:
         """
         Equivalent to the standard library's
         [subprocess.run](https://docs.python.org/3/library/subprocess.html#subprocess.run),
@@ -88,7 +97,7 @@ class Platform:
 
         return self.modules.subprocess.run(self.format_for_subprocess(command, shell=shell), shell=shell, **kwargs)
 
-    def check_command(self, command: str | list[str], *, shell=False, **kwargs):
+    def check_command(self, command: str | list[str], *, shell: bool = False, **kwargs: Any) -> CompletedProcess:
         """
         Equivalent to [run_command](utilities.md#hatch.utils.platform.Platform.run_command),
         but non-zero exit codes will gracefully end program execution.
@@ -99,7 +108,7 @@ class Platform:
 
         return process
 
-    def check_command_output(self, command: str | list[str], *, shell=False, **kwargs) -> str:
+    def check_command_output(self, command: str | list[str], *, shell: bool = False, **kwargs: Any) -> str:
         """
         Equivalent to the output from the process returned by
         [capture_process](utilities.md#hatch.utils.platform.Platform.capture_process),
@@ -114,7 +123,7 @@ class Platform:
 
         return stdout.decode('utf-8')
 
-    def capture_process(self, command: str | list[str], *, shell=False, **kwargs):
+    def capture_process(self, command: str | list[str], *, shell: bool = False, **kwargs: Any) -> Popen:
         """
         Equivalent to the standard library's
         [subprocess.Popen](https://docs.python.org/3/library/subprocess.html#subprocess.Popen),
@@ -130,13 +139,13 @@ class Platform:
         )
 
     @staticmethod
-    def stream_process_output(process):
+    def stream_process_output(process: Popen) -> Generator[str, None, None]:
         # To avoid blocking never use a pipe's file descriptor iterator. See https://bugs.python.org/issue3907
-        for line in iter(process.stdout.readline, b''):
+        for line in iter(process.stdout.readline, b''):  # type: ignore
             yield line.decode('utf-8')
 
     @property
-    def default_shell(self):
+    def default_shell(self) -> str:
         """
         Returns the default shell of the system.
 
@@ -146,14 +155,13 @@ class Platform:
         """
         if self.__default_shell is None:
             if self.windows:
-                self.__default_shell = os.environ.get('SHELL', os.environ.get('COMSPEC', 'cmd'))
+                self.__default_shell = cast(str, os.environ.get('SHELL', os.environ.get('COMSPEC', 'cmd')))
             else:
-                self.__default_shell = os.environ.get('SHELL', 'bash')
-
+                self.__default_shell = cast(str, os.environ.get('SHELL', 'bash'))
         return self.__default_shell
 
     @property
-    def join_command_args(self):
+    def join_command_args(self) -> Callable[[list[str]], str]:
         if self.__join_command_args is None:
             if self.windows:
                 self.__join_command_args = self.modules.subprocess.list2cmdline
@@ -168,7 +176,7 @@ class Platform:
         return self.__join_command_args
 
     @property
-    def format_file_uri(self):
+    def format_file_uri(self) -> Callable[[str], str]:
         if self.__format_file_uri is None:
             if self.windows:
                 self.__format_file_uri = lambda p: f'file:///{p}'.replace('\\', '/')
@@ -178,27 +186,27 @@ class Platform:
         return self.__format_file_uri
 
     @property
-    def windows(self):
+    def windows(self) -> bool:
         """
         Indicates whether Hatch is running on Windows.
         """
         return self.name == 'windows'
 
     @property
-    def macos(self):
+    def macos(self) -> bool:
         """
         Indicates whether Hatch is running on macOS.
         """
         return self.name == 'macos'
 
     @property
-    def linux(self):
+    def linux(self) -> bool:
         """
         Indicates whether Hatch is running on neither Windows nor macOS.
         """
         return not (self.windows or self.macos)
 
-    def exit_with_command(self, command: list[str]):
+    def exit_with_command(self, command: list[str]) -> None:
         """
         Run the given command and exit with its exit code. On non-Windows systems, this uses the standard library's
         [os.execvp](https://docs.python.org/3/library/os.html#os.execvp).
@@ -207,10 +215,10 @@ class Platform:
             process = self.run_command(command)
             self.exit_with_code(process.returncode)
         else:
-            return os.execvp(command[0], command)
+            os.execvp(command[0], command)
 
     @property
-    def name(self):
+    def name(self) -> str:
         """
         One of the following:
 
@@ -224,7 +232,7 @@ class Platform:
         return self.__name
 
     @property
-    def home(self):
+    def home(self) -> Path:
         """
         The user's home directory as a path-like object.
         """
@@ -237,7 +245,7 @@ class Platform:
 
 
 class LazilyLoadedModules:
-    def __getattr__(self, name):
+    def __getattr__(self, name: str) -> ModuleType:
         module = import_module(name)
         setattr(self, name, module)
         return module
