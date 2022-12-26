@@ -115,6 +115,10 @@ def set_value(app, key, value):
         from ast import literal_eval
 
         value = literal_eval(value)
+    elif value.lower() == 'true':
+        value = True
+    elif value.lower() == 'false':
+        value = False
 
     branch_config[key] = new_config[key] = value
 

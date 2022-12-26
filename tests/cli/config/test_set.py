@@ -215,3 +215,37 @@ def test_project_location_complex_set_first_project(hatch, config_file, helpers,
     config_file.load()
     assert config_file.model.project == 'foo'
     assert config_file.model.projects['foo'].location == str(temp_dir)
+
+
+def test_booleans(hatch, config_file, helpers, temp_dir):
+    assert config_file.model.template.licenses.headers is True
+
+    with temp_dir.as_cwd():
+        result = hatch('config', 'set', 'template.licenses.headers', 'false')
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        """
+        New setting:
+        [template.licenses]
+        headers = false
+        """
+    )
+
+    config_file.load()
+    assert config_file.model.template.licenses.headers is False
+
+    with temp_dir.as_cwd():
+        result = hatch('config', 'set', 'template.licenses.headers', 'TruE')
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        """
+        New setting:
+        [template.licenses]
+        headers = true
+        """
+    )
+
+    config_file.load()
+    assert config_file.model.template.licenses.headers is True
