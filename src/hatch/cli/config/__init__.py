@@ -112,14 +112,13 @@ def set_value(app, key, value):
         value = data.pop()
 
     if value.startswith(('{', '[')):
-        from ast import literal_eval        
+        from ast import literal_eval
+
         value = literal_eval(value)
-
-    elif value.lower() == 'false':
-        value = False
-
     elif value.lower() == 'true':
         value = True
+    elif value.lower() == 'false':
+        value = False
 
     branch_config[key] = new_config[key] = value
 
