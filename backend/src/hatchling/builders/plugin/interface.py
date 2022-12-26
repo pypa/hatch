@@ -107,9 +107,10 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
         if versions:
             unknown_versions = set(versions) - set(version_api)
             if unknown_versions:
-                raise ValueError(
+                message = (
                     f'Unknown versions for target `{self.PLUGIN_NAME}`: {", ".join(map(str, sorted(unknown_versions)))}'
                 )
+                raise ValueError(message)
 
         if hooks_only is None:
             hooks_only = env_var_enabled(BuildEnvVars.HOOKS_ONLY)
@@ -355,7 +356,8 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
         if self.__target_config is None:
             target_config: dict[str, Any] = self.metadata.hatch.build_targets.get(self.PLUGIN_NAME, {})
             if not isinstance(target_config, dict):
-                raise TypeError(f'Field `tool.hatch.build.targets.{self.PLUGIN_NAME}` must be a table')
+                message = f'Field `tool.hatch.build.targets.{self.PLUGIN_NAME}` must be a table'
+                raise TypeError(message)
 
             self.__target_config = target_config
 
@@ -375,7 +377,8 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
             if build_hook is None:
                 from hatchling.plugin.exceptions import UnknownPluginError
 
-                raise UnknownPluginError(f'Unknown build hook: {hook_name}')
+                message = f'Unknown build hook: {hook_name}'
+                raise UnknownPluginError(message)
 
             configured_build_hooks[hook_name] = build_hook(
                 self.root, config, self.config, self.metadata, directory, self.PLUGIN_NAME, self.app

@@ -8,13 +8,16 @@ class RegexSource(VersionSourceInterface):
     def get_version_data(self) -> dict:
         relative_path = self.config.get('path', '')
         if not relative_path:
-            raise ValueError('option `path` must be specified')
+            message = 'option `path` must be specified'
+            raise ValueError(message)
         elif not isinstance(relative_path, str):
-            raise TypeError('option `path` must be a string')
+            message = 'option `path` must be a string'
+            raise TypeError(message)
 
         pattern = self.config.get('pattern', '')
         if not isinstance(pattern, str):
-            raise TypeError('option `pattern` must be a string')
+            message = 'option `pattern` must be a string'
+            raise TypeError(message)
 
         version_file = VersionFile(self.root, relative_path)
         version = version_file.read(pattern)

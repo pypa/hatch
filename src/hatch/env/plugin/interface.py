@@ -187,13 +187,15 @@ class EnvironmentInterface(ABC):
         if self._env_vars is None:
             env_vars = self.config.get('env-vars', {})
             if not isinstance(env_vars, dict):
-                raise TypeError(f'Field `tool.hatch.envs.{self.name}.env-vars` must be a mapping')
+                message = f'Field `tool.hatch.envs.{self.name}.env-vars` must be a mapping'
+                raise TypeError(message)
 
             for key, value in env_vars.items():
                 if not isinstance(value, str):
-                    raise TypeError(
+                    message = (
                         f'Environment variable `{key}` of field `tool.hatch.envs.{self.name}.env-vars` must be a string'
                     )
+                    raise TypeError(message)
 
             new_env_vars = {}
             with self.metadata.context.apply_context(self.context):
@@ -225,11 +227,13 @@ class EnvironmentInterface(ABC):
         if self._env_include is None:
             env_include = self.config.get('env-include', [])
             if not isinstance(env_include, list):
-                raise TypeError(f'Field `tool.hatch.envs.{self.name}.env-include` must be an array')
+                message = f'Field `tool.hatch.envs.{self.name}.env-include` must be an array'
+                raise TypeError(message)
 
             for i, pattern in enumerate(env_include, 1):
                 if not isinstance(pattern, str):
-                    raise TypeError(f'Pattern #{i} of field `tool.hatch.envs.{self.name}.env-include` must be a string')
+                    message = f'Pattern #{i} of field `tool.hatch.envs.{self.name}.env-include` must be a string'
+                    raise TypeError(message)
 
             if env_include:
                 self._env_include = ['HATCH_BUILD_*', *env_include]
@@ -258,11 +262,13 @@ class EnvironmentInterface(ABC):
         if self._env_exclude is None:
             env_exclude = self.config.get('env-exclude', [])
             if not isinstance(env_exclude, list):
-                raise TypeError(f'Field `tool.hatch.envs.{self.name}.env-exclude` must be an array')
+                message = f'Field `tool.hatch.envs.{self.name}.env-exclude` must be an array'
+                raise TypeError(message)
 
             for i, pattern in enumerate(env_exclude, 1):
                 if not isinstance(pattern, str):
-                    raise TypeError(f'Pattern #{i} of field `tool.hatch.envs.{self.name}.env-exclude` must be a string')
+                    message = f'Pattern #{i} of field `tool.hatch.envs.{self.name}.env-exclude` must be a string'
+                    raise TypeError(message)
 
             self._env_exclude = env_exclude
 
@@ -278,20 +284,21 @@ class EnvironmentInterface(ABC):
                 for option in ('dependencies', 'extra-dependencies'):
                     dependencies = self.config.get(option, [])
                     if not isinstance(dependencies, list):
-                        raise TypeError(f'Field `tool.hatch.envs.{self.name}.{option}` must be an array')
+                        message = f'Field `tool.hatch.envs.{self.name}.{option}` must be an array'
+                        raise TypeError(message)
 
                     for i, entry in enumerate(dependencies, 1):
                         if not isinstance(entry, str):
-                            raise TypeError(
+                            message = (
                                 f'Dependency #{i} of field `tool.hatch.envs.{self.name}.{option}` must be a string'
                             )
+                            raise TypeError(message)
 
                         try:
                             dependencies_complex.append(Requirement(self.metadata.context.format(entry)))
                         except InvalidRequirement as e:
-                            raise ValueError(
-                                f'Dependency #{i} of field `tool.hatch.envs.{self.name}.{option}` is invalid: {e}'
-                            ) from None
+                            message = f'Dependency #{i} of field `tool.hatch.envs.{self.name}.{option}` is invalid: {e}'
+                            raise ValueError(message) from None
 
             self._environment_dependencies_complex = dependencies_complex
 
@@ -323,10 +330,11 @@ class EnvironmentInterface(ABC):
 
                 for feature in self.features:
                     if feature not in optional_dependencies_complex:
-                        raise ValueError(
+                        message = (
                             f'Feature `{feature}` of field `tool.hatch.envs.{self.name}.features` is not '
                             f'defined in the dynamic field `project.optional-dependencies`'
                         )
+                        raise ValueError(message)
 
                     all_dependencies_complex.extend(optional_dependencies_complex[feature].values())
 
@@ -369,11 +377,13 @@ class EnvironmentInterface(ABC):
         if self._platforms is None:
             platforms = self.config.get('platforms', [])
             if not isinstance(platforms, list):
-                raise TypeError(f'Field `tool.hatch.envs.{self.name}.platforms` must be an array')
+                message = f'Field `tool.hatch.envs.{self.name}.platforms` must be an array'
+                raise TypeError(message)
 
             for i, command in enumerate(platforms, 1):
                 if not isinstance(command, str):
-                    raise TypeError(f'Platform #{i} of field `tool.hatch.envs.{self.name}.platforms` must be a string')
+                    message = f'Platform #{i} of field `tool.hatch.envs.{self.name}.platforms` must be a string'
+                    raise TypeError(message)
 
             self._platforms = [platform.lower() for platform in platforms]
 
@@ -399,7 +409,8 @@ class EnvironmentInterface(ABC):
         if self._skip_install is None:
             skip_install = self.config.get('skip-install', not self.metadata.has_project_file())
             if not isinstance(skip_install, bool):
-                raise TypeError(f'Field `tool.hatch.envs.{self.name}.skip-install` must be a boolean')
+                message = f'Field `tool.hatch.envs.{self.name}.skip-install` must be a boolean'
+                raise TypeError(message)
 
             self._skip_install = skip_install
 
@@ -425,7 +436,8 @@ class EnvironmentInterface(ABC):
         if self._dev_mode is None:
             dev_mode = self.config.get('dev-mode', True)
             if not isinstance(dev_mode, bool):
-                raise TypeError(f'Field `tool.hatch.envs.{self.name}.dev-mode` must be a boolean')
+                message = f'Field `tool.hatch.envs.{self.name}.dev-mode` must be a boolean'
+                raise TypeError(message)
 
             self._dev_mode = dev_mode
 
@@ -438,16 +450,17 @@ class EnvironmentInterface(ABC):
 
             features = self.config.get('features', [])
             if not isinstance(features, list):
-                raise TypeError(f'Field `tool.hatch.envs.{self.name}.features` must be an array of strings')
+                message = f'Field `tool.hatch.envs.{self.name}.features` must be an array of strings'
+                raise TypeError(message)
 
             all_features = set()
             for i, feature in enumerate(features, 1):
                 if not isinstance(feature, str):
-                    raise TypeError(f'Feature #{i} of field `tool.hatch.envs.{self.name}.features` must be a string')
+                    message = f'Feature #{i} of field `tool.hatch.envs.{self.name}.features` must be a string'
+                    raise TypeError(message)
                 elif not feature:
-                    raise ValueError(
-                        f'Feature #{i} of field `tool.hatch.envs.{self.name}.features` cannot be an empty string'
-                    )
+                    message = f'Feature #{i} of field `tool.hatch.envs.{self.name}.features` cannot be an empty string'
+                    raise ValueError(message)
 
                 if not self.metadata.hatch.metadata.allow_ambiguous_features:
                     feature = normalize_project_name(feature)
@@ -455,10 +468,11 @@ class EnvironmentInterface(ABC):
                     not self.metadata.hatch.metadata.hook_config
                     and feature not in self.metadata.core.optional_dependencies
                 ):
-                    raise ValueError(
+                    message = (
                         f'Feature `{feature}` of field `tool.hatch.envs.{self.name}.features` is not '
                         f'defined in field `project.optional-dependencies`'
                     )
+                    raise ValueError(message)
 
                 all_features.add(feature)
 
@@ -486,7 +500,8 @@ class EnvironmentInterface(ABC):
         if self._description is None:
             description = self.config.get('description', '')
             if not isinstance(description, str):
-                raise TypeError(f'Field `tool.hatch.envs.{self.name}.description` must be a string')
+                message = f'Field `tool.hatch.envs.{self.name}.description` must be a string'
+                raise TypeError(message)
 
             self._description = description
 
@@ -497,15 +512,17 @@ class EnvironmentInterface(ABC):
         if self._scripts is None:
             script_config = self.config.get('scripts', {})
             if not isinstance(script_config, dict):
-                raise TypeError(f'Field `tool.hatch.envs.{self.name}.scripts` must be a table')
+                message = f'Field `tool.hatch.envs.{self.name}.scripts` must be a table'
+                raise TypeError(message)
 
             config = {}
 
             for name, data in script_config.items():
                 if ' ' in name:
-                    raise ValueError(
+                    message = (
                         f'Script name `{name}` in field `tool.hatch.envs.{self.name}.scripts` must not contain spaces'
                     )
+                    raise ValueError(message)
 
                 commands = []
 
@@ -514,15 +531,17 @@ class EnvironmentInterface(ABC):
                 elif isinstance(data, list):
                     for i, command in enumerate(data, 1):
                         if not isinstance(command, str):
-                            raise TypeError(
+                            message = (
                                 f'Command #{i} in field `tool.hatch.envs.{self.name}.scripts.{name}` must be a string'
                             )
+                            raise TypeError(message)
 
                         commands.append(command)
                 else:
-                    raise TypeError(
+                    message = (
                         f'Field `tool.hatch.envs.{self.name}.scripts.{name}` must be a string or an array of strings'
                     )
+                    raise TypeError(message)
 
                 config[name] = commands
 
@@ -540,13 +559,15 @@ class EnvironmentInterface(ABC):
         if self._pre_install_commands is None:
             pre_install_commands = self.config.get('pre-install-commands', [])
             if not isinstance(pre_install_commands, list):
-                raise TypeError(f'Field `tool.hatch.envs.{self.name}.pre-install-commands` must be an array')
+                message = f'Field `tool.hatch.envs.{self.name}.pre-install-commands` must be an array'
+                raise TypeError(message)
 
             for i, command in enumerate(pre_install_commands, 1):
                 if not isinstance(command, str):
-                    raise TypeError(
+                    message = (
                         f'Command #{i} of field `tool.hatch.envs.{self.name}.pre-install-commands` must be a string'
                     )
+                    raise TypeError(message)
 
             self._pre_install_commands = list(pre_install_commands)
 
@@ -557,13 +578,15 @@ class EnvironmentInterface(ABC):
         if self._post_install_commands is None:
             post_install_commands = self.config.get('post-install-commands', [])
             if not isinstance(post_install_commands, list):
-                raise TypeError(f'Field `tool.hatch.envs.{self.name}.post-install-commands` must be an array')
+                message = f'Field `tool.hatch.envs.{self.name}.post-install-commands` must be an array'
+                raise TypeError(message)
 
             for i, command in enumerate(post_install_commands, 1):
                 if not isinstance(command, str):
-                    raise TypeError(
+                    message = (
                         f'Command #{i} of field `tool.hatch.envs.{self.name}.post-install-commands` must be a string'
                     )
+                    raise TypeError(message)
 
             self._post_install_commands = list(post_install_commands)
 
@@ -846,7 +869,8 @@ class EnvironmentInterface(ABC):
         and any method override should keep this check.
         """
         if self.platforms and self.platform.name not in self.platforms:
-            raise OSError('unsupported platform')
+            message = 'unsupported platform'
+            raise OSError(message)
 
     def get_env_vars(self) -> EnvVars:
         """
@@ -899,9 +923,9 @@ def expand_script_commands(env_name, script_name, commands, config, seen, active
         return seen[script_name]
     elif script_name in active:
         active.append(script_name)
-        raise ValueError(
-            f'Circular expansion detected for field `tool.hatch.envs.{env_name}.scripts`: {" -> ".join(active)}'
-        )
+
+        message = f'Circular expansion detected for field `tool.hatch.envs.{env_name}.scripts`: {" -> ".join(active)}'
+        raise ValueError(message)
 
     active.append(script_name)
 

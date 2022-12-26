@@ -21,9 +21,11 @@ class VersionBuildHook(BuildHookInterface):
         if self.__config_path is None:
             path = self.config.get('path', '')
             if not isinstance(path, str):
-                raise TypeError(f'Option `path` for build hook `{self.PLUGIN_NAME}` must be a string')
+                message = f'Option `path` for build hook `{self.PLUGIN_NAME}` must be a string'
+                raise TypeError(message)
             elif not path:
-                raise ValueError(f'Option `path` for build hook `{self.PLUGIN_NAME}` is required')
+                message = f'Option `path` for build hook `{self.PLUGIN_NAME}` is required'
+                raise ValueError(message)
 
             self.__config_path = path
 
@@ -34,7 +36,8 @@ class VersionBuildHook(BuildHookInterface):
         if self.__config_template is None:
             template = self.config.get('template', '')
             if not isinstance(template, str):
-                raise TypeError(f'Option `template` for build hook `{self.PLUGIN_NAME}` must be a string')
+                message = f'Option `template` for build hook `{self.PLUGIN_NAME}` must be a string'
+                raise TypeError(message)
 
             self.__config_template = template
 
@@ -45,7 +48,8 @@ class VersionBuildHook(BuildHookInterface):
         if self.__config_pattern is None:
             pattern = self.config.get('pattern', '')
             if not isinstance(pattern, (str, bool)):
-                raise TypeError(f'Option `pattern` for build hook `{self.PLUGIN_NAME}` must be a string or boolean')
+                message = f'Option `pattern` for build hook `{self.PLUGIN_NAME}` must be a string or a boolean'
+                raise TypeError(message)
 
             self.__config_pattern = pattern
 

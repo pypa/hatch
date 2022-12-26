@@ -28,15 +28,15 @@ def get_wheel_form_data(artifact):
                 dist_info_dir = root
                 break
         else:  # no cov
-            raise ArtifactMetadataError(f'Could not find the `.dist-info` directory in wheel: {artifact}')
+            message = f'Could not find the `.dist-info` directory in wheel: {artifact}'
+            raise ArtifactMetadataError(message)
 
         try:
             with zip_archive.open(f'{dist_info_dir}/METADATA') as zip_file:
                 metadata_file_contents = zip_file.read().decode('utf-8')
         except KeyError:  # no cov
-            raise ArtifactMetadataError(
-                f'Could not find a `METADATA` file in the `{dist_info_dir}` directory'
-            ) from None
+            message = f'Could not find a `METADATA` file in the `{dist_info_dir}` directory'
+            raise ArtifactMetadataError(message) from None
         else:
             data = parse_headers(metadata_file_contents)
 
@@ -63,7 +63,8 @@ def get_sdist_form_data(artifact):
             else:  # no cov
                 pass
         else:  # no cov
-            raise ArtifactMetadataError(f'Could not find any files in sdist: {artifact}')
+            message = f'Could not find any files in sdist: {artifact}'
+            raise ArtifactMetadataError(message)
 
         pkg_info_dir_parts.append('PKG-INFO')
         pkg_info_path = '/'.join(pkg_info_dir_parts)
@@ -71,7 +72,8 @@ def get_sdist_form_data(artifact):
             with tar_archive.extractfile(pkg_info_path) as tar_file:
                 metadata_file_contents = tar_file.read().decode('utf-8')
         except KeyError:  # no cov
-            raise ArtifactMetadataError(f'Could not find file: {pkg_info_path}') from None
+            message = f'Could not find file: {pkg_info_path}'
+            raise ArtifactMetadataError(message) from None
         else:
             data = parse_headers(metadata_file_contents)
 

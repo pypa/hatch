@@ -75,11 +75,13 @@ class ProjectMetadata(Generic[PluginManagerBound]):
     def core_raw_metadata(self) -> dict[str, Any]:
         if self._core_raw_metadata is None:
             if 'project' not in self.config:
-                raise ValueError('Missing `project` metadata table in configuration')
+                message = 'Missing `project` metadata table in configuration'
+                raise ValueError(message)
 
             core_raw_metadata = self.config['project']
             if not isinstance(core_raw_metadata, dict):
-                raise TypeError('The `project` configuration must be a table')
+                message = 'The `project` configuration must be a table'
+                raise TypeError(message)
 
             self._core_raw_metadata = core_raw_metadata
 
@@ -91,11 +93,13 @@ class ProjectMetadata(Generic[PluginManagerBound]):
         if self._dynamic is None:
             dynamic = self.core_raw_metadata.get('dynamic', [])
             if not isinstance(dynamic, list):
-                raise TypeError('Field `project.dynamic` must be an array')
+                message = 'Field `project.dynamic` must be an array'
+                raise TypeError(message)
 
             for i, field in enumerate(dynamic, 1):
                 if not isinstance(field, str):
-                    raise TypeError(f'Field #{i} of field `project.dynamic` must be a string')
+                    message = f'Field #{i} of field `project.dynamic` must be a string'
+                    raise TypeError(message)
 
             self._dynamic = list(dynamic)
 
@@ -108,7 +112,8 @@ class ProjectMetadata(Generic[PluginManagerBound]):
         if self._name is None:
             name = self.core_raw_metadata.get('name', '')
             if not name:
-                raise ValueError('Missing required field `project.name`')
+                message = 'Missing required field `project.name`'
+                raise ValueError(message)
 
             self._name = normalize_project_name(name)
 
@@ -143,7 +148,8 @@ class ProjectMetadata(Generic[PluginManagerBound]):
         if self._build is None:
             build_metadata = self.config.get('build-system', {})
             if not isinstance(build_metadata, dict):
-                raise TypeError('The `build-system` configuration must be a table')
+                message = 'The `build-system` configuration must be a table'
+                raise TypeError(message)
 
             self._build = BuildMetadata(self.root, build_metadata)
 
@@ -173,10 +179,11 @@ class ProjectMetadata(Generic[PluginManagerBound]):
                     if new_field in metadata.dynamic:
                         metadata.dynamic.remove(new_field)
                     else:
-                        raise ValueError(
+                        message = (
                             f'The field `{new_field}` was set dynamically and therefore must be '
                             f'listed in `project.dynamic`'
                         )
+                        raise ValueError(message)
 
             self._core = metadata
 
@@ -187,11 +194,13 @@ class ProjectMetadata(Generic[PluginManagerBound]):
         if self._hatch is None:
             tool_config = self.config.get('tool', {})
             if not isinstance(tool_config, dict):
-                raise TypeError('The `tool` configuration must be a table')
+                message = 'The `tool` configuration must be a table'
+                raise TypeError(message)
 
             hatch_config = tool_config.get('hatch', {})
             if not isinstance(hatch_config, dict):
-                raise TypeError('The `tool.hatch` configuration must be a table')
+                message = 'The `tool.hatch` configuration must be a table'
+                raise TypeError(message)
 
             if self._project_file is not None:
                 hatch_file = os.path.join(os.path.dirname(self._project_file), DEFAULT_CONFIG_FILE)
@@ -224,10 +233,8 @@ class ProjectMetadata(Generic[PluginManagerBound]):
         try:
             normalized_version = str(Version(version))
         except InvalidVersion:
-            raise ValueError(
-                # Put text on its own line to prevent mostly duplicate output
-                f'Invalid version `{version}` from {source}, see https://peps.python.org/pep-0440/'
-            ) from None
+            message = f'Invalid version `{version}` from {source}, see https://peps.python.org/pep-0440/'
+            raise ValueError(message) from None
         else:
             return normalized_version
 
@@ -257,18 +264,21 @@ class BuildMetadata:
 
             requires = self.config.get('requires', [])
             if not isinstance(requires, list):
-                raise TypeError('Field `build-system.requires` must be an array')
+                message = 'Field `build-system.requires` must be an array'
+                raise TypeError(message)
 
             requires_complex = []
 
             for i, entry in enumerate(requires, 1):
                 if not isinstance(entry, str):
-                    raise TypeError(f'Dependency #{i} of field `build-system.requires` must be a string')
+                    message = f'Dependency #{i} of field `build-system.requires` must be a string'
+                    raise TypeError(message)
 
                 try:
                     requires_complex.append(Requirement(entry))
                 except InvalidRequirement as e:
-                    raise ValueError(f'Dependency #{i} of field `build-system.requires` is invalid: {e}') from None
+                    message = f'Dependency #{i} of field `build-system.requires` is invalid: {e}'
+                    raise ValueError(message) from None
 
             self._requires_complex = requires_complex
 
@@ -286,7 +296,8 @@ class BuildMetadata:
         if self._build_backend is None:
             build_backend = self.config.get('build-backend', '')
             if not isinstance(build_backend, str):
-                raise TypeError('Field `build-system.build-backend` must be a string')
+                message = 'Field `build-system.build-backend` must be a string'
+                raise TypeError(message)
 
             self._build_backend = build_backend
 
@@ -297,11 +308,13 @@ class BuildMetadata:
         if self._backend_path is None:
             backend_path = self.config.get('backend-path', [])
             if not isinstance(backend_path, list):
-                raise TypeError('Field `build-system.backend-path` must be an array')
+                message = 'Field `build-system.backend-path` must be an array'
+                raise TypeError(message)
 
             for i, entry in enumerate(backend_path, 1):
                 if not isinstance(entry, str):
-                    raise TypeError(f'Entry #{i} of field `build-system.backend-path` must be a string')
+                    message = f'Entry #{i} of field `build-system.backend-path` must be a string'
+                    raise TypeError(message)
 
             self._backend_path = backend_path
 
@@ -364,22 +377,26 @@ class CoreMetadata:
         """
         if self._raw_name is None:
             if 'name' in self.dynamic:
-                raise ValueError('Static metadata field `name` cannot be present in field `project.dynamic`')
+                message = 'Static metadata field `name` cannot be present in field `project.dynamic`'
+                raise ValueError(message)
             elif 'name' in self.config:
                 raw_name = self.config['name']
             else:
                 raw_name = ''
 
             if not raw_name:
-                raise ValueError('Missing required field `project.name`')
+                message = 'Missing required field `project.name`'
+                raise ValueError(message)
             elif not isinstance(raw_name, str):
-                raise TypeError('Field `project.name` must be a string')
+                message = 'Field `project.name` must be a string'
+                raise TypeError(message)
 
             if not is_valid_project_name(raw_name):
-                raise ValueError(
+                message = (
                     'Required field `project.name` must only contain ASCII letters/digits, underscores, '
                     'hyphens, and periods, and must begin and end with ASCII letters/digits.'
                 )
+                raise ValueError(message)
 
             self._raw_name = raw_name
 
@@ -405,20 +422,23 @@ class CoreMetadata:
         if self._version is None:
             if 'version' not in self.config:
                 if not self._version_set and 'version' not in self.dynamic:
-                    raise ValueError(
+                    message = (
                         'Field `project.version` can only be resolved dynamically '
                         'if `version` is in field `project.dynamic`'
                     )
+                    raise ValueError(message)
             else:
                 if 'version' in self.dynamic:
-                    raise ValueError(
+                    message = (
                         'Metadata field `version` cannot be both statically defined and '
                         'listed in field `project.dynamic`'
                     )
+                    raise ValueError(message)
 
                 version = self.config['version']
                 if not isinstance(version, str):
-                    raise TypeError('Field `project.version` must be a string')
+                    message = 'Field `project.version` must be a string'
+                    raise TypeError(message)
 
                 self._version = version
 
@@ -433,15 +453,17 @@ class CoreMetadata:
             if 'description' in self.config:
                 description = self.config['description']
                 if 'description' in self.dynamic:
-                    raise ValueError(
+                    message = (
                         'Metadata field `description` cannot be both statically defined and '
                         'listed in field `project.dynamic`'
                     )
+                    raise ValueError(message)
             else:
                 description = ''
 
             if not isinstance(description, str):
-                raise TypeError('Field `project.description` must be a string')
+                message = 'Field `project.description` must be a string'
+                raise TypeError(message)
 
             self._description = description
 
@@ -459,10 +481,11 @@ class CoreMetadata:
             if 'readme' in self.config:
                 readme = self.config['readme']
                 if 'readme' in self.dynamic:
-                    raise ValueError(
+                    message = (
                         'Metadata field `readme` cannot be both statically defined and '
                         'listed in field `project.dynamic`'
                     )
+                    raise ValueError(message)
             else:
                 readme = None
 
@@ -479,13 +502,13 @@ class CoreMetadata:
                 elif normalized_path.endswith('.txt'):
                     content_type = 'text/plain'
                 else:
-                    raise TypeError(
-                        f'Unable to determine the content-type based on the extension of readme file: {readme}'
-                    )
+                    message = f'Unable to determine the content-type based on the extension of readme file: {readme}'
+                    raise TypeError(message)
 
                 readme_path = os.path.normpath(os.path.join(self.root, readme))
                 if not os.path.isfile(readme_path):
-                    raise OSError(f'Readme file does not exist: {readme}')
+                    message = f'Readme file does not exist: {readme}'
+                    raise OSError(message)
 
                 with open(readme_path, encoding='utf-8') as f:
                     self._readme = f.read()
@@ -495,26 +518,32 @@ class CoreMetadata:
             elif isinstance(readme, dict):
                 content_type = readme.get('content-type')
                 if content_type is None:
-                    raise ValueError('Field `content-type` is required in the `project.readme` table')
+                    message = 'Field `content-type` is required in the `project.readme` table'
+                    raise ValueError(message)
                 elif not isinstance(content_type, str):
-                    raise TypeError('Field `content-type` in the `project.readme` table must be a string')
+                    message = 'Field `content-type` in the `project.readme` table must be a string'
+                    raise TypeError(message)
                 elif content_type not in ('text/markdown', 'text/x-rst', 'text/plain'):
-                    raise ValueError(
+                    message = (
                         'Field `content-type` in the `project.readme` table must be one of the following: '
                         'text/markdown, text/x-rst, text/plain'
                     )
+                    raise ValueError(message)
 
                 if 'file' in readme and 'text' in readme:
-                    raise ValueError('Cannot specify both `file` and `text` in the `project.readme` table')
+                    message = 'Cannot specify both `file` and `text` in the `project.readme` table'
+                    raise ValueError(message)
 
                 if 'file' in readme:
                     relative_path = readme['file']
                     if not isinstance(relative_path, str):
-                        raise TypeError('Field `file` in the `project.readme` table must be a string')
+                        message = 'Field `file` in the `project.readme` table must be a string'
+                        raise TypeError(message)
 
                     path = os.path.normpath(os.path.join(self.root, relative_path))
                     if not os.path.isfile(path):
-                        raise OSError(f'Readme file does not exist: {relative_path}')
+                        message = f'Readme file does not exist: {relative_path}'
+                        raise OSError(message)
 
                     with open(path, encoding=readme.get('charset', 'utf-8')) as f:
                         contents = f.read()
@@ -523,17 +552,20 @@ class CoreMetadata:
                 elif 'text' in readme:
                     contents = readme['text']
                     if not isinstance(contents, str):
-                        raise TypeError('Field `text` in the `project.readme` table must be a string')
+                        message = 'Field `text` in the `project.readme` table must be a string'
+                        raise TypeError(message)
 
                     readme_path = ''
                 else:
-                    raise ValueError('Must specify either `file` or `text` in the `project.readme` table')
+                    message = 'Must specify either `file` or `text` in the `project.readme` table'
+                    raise ValueError(message)
 
                 self._readme = contents
                 self._readme_content_type = content_type
                 self._readme_path = readme_path
             else:
-                raise TypeError('Field `project.readme` must be a string or a table')
+                message = 'Field `project.readme` must be a string or a table'
+                raise TypeError(message)
 
         return self._readme
 
@@ -568,20 +600,23 @@ class CoreMetadata:
             if 'requires-python' in self.config:
                 requires_python = self.config['requires-python']
                 if 'requires-python' in self.dynamic:
-                    raise ValueError(
+                    message = (
                         'Metadata field `requires-python` cannot be both statically defined and '
                         'listed in field `project.dynamic`'
                     )
+                    raise ValueError(message)
             else:
                 requires_python = ''
 
             if not isinstance(requires_python, str):
-                raise TypeError('Field `project.requires-python` must be a string')
+                message = 'Field `project.requires-python` must be a string'
+                raise TypeError(message)
 
             try:
                 self._python_constraint = SpecifierSet(requires_python)
             except InvalidSpecifier as e:
-                raise ValueError(f'Field `project.requires-python` is invalid: {e}') from None
+                message = f'Field `project.requires-python` is invalid: {e}'
+                raise ValueError(message) from None
 
             self._requires_python = str(self._python_constraint)
 
@@ -603,10 +638,11 @@ class CoreMetadata:
             if 'license' in self.config:
                 data = self.config['license']
                 if 'license' in self.dynamic:
-                    raise ValueError(
+                    message = (
                         'Metadata field `license` cannot be both statically defined and '
                         'listed in field `project.dynamic`'
                     )
+                    raise ValueError(message)
             else:
                 data = None
 
@@ -619,35 +655,42 @@ class CoreMetadata:
                 try:
                     self._license_expression = normalize_license_expression(data)
                 except ValueError as e:
-                    raise ValueError(f'Error parsing field `project.license` - {e}') from None
+                    message = f'Error parsing field `project.license` - {e}'
+                    raise ValueError(message) from None
 
                 self._license = ''
             elif isinstance(data, dict):
                 if 'file' in data and 'text' in data:
-                    raise ValueError('Cannot specify both `file` and `text` in the `project.license` table')
+                    message = 'Cannot specify both `file` and `text` in the `project.license` table'
+                    raise ValueError(message)
 
                 if 'file' in data:
                     relative_path = data['file']
                     if not isinstance(relative_path, str):
-                        raise TypeError('Field `file` in the `project.license` table must be a string')
+                        message = 'Field `file` in the `project.license` table must be a string'
+                        raise TypeError(message)
 
                     path = os.path.normpath(os.path.join(self.root, relative_path))
                     if not os.path.isfile(path):
-                        raise OSError(f'License file does not exist: {relative_path}')
+                        message = f'License file does not exist: {relative_path}'
+                        raise OSError(message)
 
                     with open(path, encoding='utf-8') as f:
                         contents = f.read()
                 elif 'text' in data:
                     contents = data['text']
                     if not isinstance(contents, str):
-                        raise TypeError('Field `text` in the `project.license` table must be a string')
+                        message = 'Field `text` in the `project.license` table must be a string'
+                        raise TypeError(message)
                 else:
-                    raise ValueError('Must specify either `file` or `text` in the `project.license` table')
+                    message = 'Must specify either `file` or `text` in the `project.license` table'
+                    raise ValueError(message)
 
                 self._license = contents
                 self._license_expression = ''
             else:
-                raise TypeError('Field `project.license` must be a string or a table')
+                message = 'Field `project.license` must be a string or a table'
+                raise TypeError(message)
 
         return self._license
 
@@ -671,32 +714,36 @@ class CoreMetadata:
                 data = {'globs': ['LICEN[CS]E*', 'COPYING*', 'NOTICE*', 'AUTHORS*']}
             else:
                 if 'license-files' in self.dynamic:
-                    raise ValueError(
+                    message = (
                         'Metadata field `license-files` cannot be both statically defined and '
                         'listed in field `project.dynamic`'
                     )
+                    raise ValueError(message)
 
                 data = self.config['license-files']
                 if not isinstance(data, dict):
-                    raise TypeError('Field `project.license-files` must be a table')
+                    message = 'Field `project.license-files` must be a table'
+                    raise TypeError(message)
                 elif 'paths' in data and 'globs' in data:
-                    raise ValueError('Cannot specify both `paths` and `globs` in the `project.license-files` table')
+                    message = 'Cannot specify both `paths` and `globs` in the `project.license-files` table'
+                    raise ValueError(message)
 
             license_files = []
             if 'paths' in data:
                 paths = data['paths']
                 if not isinstance(paths, list):
-                    raise TypeError('Field `paths` in the `project.license-files` table must be an array')
+                    message = 'Field `paths` in the `project.license-files` table must be an array'
+                    raise TypeError(message)
 
                 for i, relative_path in enumerate(paths, 1):
                     if not isinstance(relative_path, str):
-                        raise TypeError(
-                            f'Entry #{i} in field `paths` in the `project.license-files` table must be a string'
-                        )
+                        message = f'Entry #{i} in field `paths` in the `project.license-files` table must be a string'
+                        raise TypeError(message)
 
                     path = os.path.normpath(os.path.join(self.root, relative_path))
                     if not os.path.isfile(path):
-                        raise OSError(f'License file does not exist: {relative_path}')
+                        message = f'License file does not exist: {relative_path}'
+                        raise OSError(message)
 
                     license_files.append(os.path.relpath(path, self.root).replace('\\', '/'))
             elif 'globs' in data:
@@ -704,22 +751,21 @@ class CoreMetadata:
 
                 globs = data['globs']
                 if not isinstance(globs, list):
-                    raise TypeError('Field `globs` in the `project.license-files` table must be an array')
+                    message = 'Field `globs` in the `project.license-files` table must be an array'
+                    raise TypeError(message)
 
                 for i, pattern in enumerate(globs, 1):
                     if not isinstance(pattern, str):
-                        raise TypeError(
-                            f'Entry #{i} in field `globs` in the `project.license-files` table must be a string'
-                        )
+                        message = f'Entry #{i} in field `globs` in the `project.license-files` table must be a string'
+                        raise TypeError(message)
 
                     full_pattern = os.path.normpath(os.path.join(self.root, pattern))
                     for path in glob(full_pattern):
                         if os.path.isfile(path):
                             license_files.append(os.path.relpath(path, self.root).replace('\\', '/'))
             else:
-                raise ValueError(
-                    'Must specify either `paths` or `globs` in the `project.license-files` table if defined'
-                )
+                message = 'Must specify either `paths` or `globs` in the `project.license-files` table if defined'
+                raise ValueError(message)
 
             self._license_files = sorted(license_files)
 
@@ -737,15 +783,17 @@ class CoreMetadata:
             if 'authors' in self.config:
                 authors = self.config['authors']
                 if 'authors' in self.dynamic:
-                    raise ValueError(
+                    message = (
                         'Metadata field `authors` cannot be both statically defined and '
                         'listed in field `project.dynamic`'
                     )
+                    raise ValueError(message)
             else:
                 authors = []
 
             if not isinstance(authors, list):
-                raise TypeError('Field `project.authors` must be an array')
+                message = 'Field `project.authors` must be an array'
+                raise TypeError(message)
 
             from email.headerregistry import Address
 
@@ -754,15 +802,18 @@ class CoreMetadata:
 
             for i, data in enumerate(authors, 1):
                 if not isinstance(data, dict):
-                    raise TypeError(f'Author #{i} of field `project.authors` must be an inline table')
+                    message = f'Author #{i} of field `project.authors` must be an inline table'
+                    raise TypeError(message)
 
                 name = data.get('name', '')
                 if not isinstance(name, str):
-                    raise TypeError(f'Name of author #{i} of field `project.authors` must be a string')
+                    message = f'Name of author #{i} of field `project.authors` must be a string'
+                    raise TypeError(message)
 
                 email = data.get('email', '')
                 if not isinstance(email, str):
-                    raise TypeError(f'Email of author #{i} of field `project.authors` must be a string')
+                    message = f'Email of author #{i} of field `project.authors` must be a string'
+                    raise TypeError(message)
 
                 if name and email:
                     authors_data['email'].append(str(Address(display_name=name, addr_spec=email)))
@@ -771,7 +822,8 @@ class CoreMetadata:
                 elif name:
                     authors_data['name'].append(name)
                 else:
-                    raise ValueError(f'Author #{i} of field `project.authors` must specify either `name` or `email`')
+                    message = f'Author #{i} of field `project.authors` must specify either `name` or `email`'
+                    raise ValueError(message)
 
             self._authors = authors
             self._authors_data = authors_data
@@ -799,15 +851,17 @@ class CoreMetadata:
             if 'maintainers' in self.config:
                 maintainers = self.config['maintainers']
                 if 'maintainers' in self.dynamic:
-                    raise ValueError(
+                    message = (
                         'Metadata field `maintainers` cannot be both statically defined and '
                         'listed in field `project.dynamic`'
                     )
+                    raise ValueError(message)
             else:
                 maintainers = []
 
             if not isinstance(maintainers, list):
-                raise TypeError('Field `project.maintainers` must be an array')
+                message = 'Field `project.maintainers` must be an array'
+                raise TypeError(message)
 
             from email.headerregistry import Address
 
@@ -816,15 +870,18 @@ class CoreMetadata:
 
             for i, data in enumerate(maintainers, 1):
                 if not isinstance(data, dict):
-                    raise TypeError(f'Maintainer #{i} of field `project.maintainers` must be an inline table')
+                    message = f'Maintainer #{i} of field `project.maintainers` must be an inline table'
+                    raise TypeError(message)
 
                 name = data.get('name', '')
                 if not isinstance(name, str):
-                    raise TypeError(f'Name of maintainer #{i} of field `project.maintainers` must be a string')
+                    message = f'Name of maintainer #{i} of field `project.maintainers` must be a string'
+                    raise TypeError(message)
 
                 email = data.get('email', '')
                 if not isinstance(email, str):
-                    raise TypeError(f'Email of maintainer #{i} of field `project.maintainers` must be a string')
+                    message = f'Email of maintainer #{i} of field `project.maintainers` must be a string'
+                    raise TypeError(message)
 
                 if name and email:
                     maintainers_data['email'].append(str(Address(display_name=name, addr_spec=email)))
@@ -833,9 +890,8 @@ class CoreMetadata:
                 elif name:
                     maintainers_data['name'].append(name)
                 else:
-                    raise ValueError(
-                        f'Maintainer #{i} of field `project.maintainers` must specify either `name` or `email`'
-                    )
+                    message = f'Maintainer #{i} of field `project.maintainers` must specify either `name` or `email`'
+                    raise ValueError(message)
 
             self._maintainers = maintainers
             self._maintainers_data = maintainers_data
@@ -861,21 +917,24 @@ class CoreMetadata:
             if 'keywords' in self.config:
                 keywords = self.config['keywords']
                 if 'keywords' in self.dynamic:
-                    raise ValueError(
+                    message = (
                         'Metadata field `keywords` cannot be both statically defined and '
                         'listed in field `project.dynamic`'
                     )
+                    raise ValueError(message)
             else:
                 keywords = []
 
             if not isinstance(keywords, list):
-                raise TypeError('Field `project.keywords` must be an array')
+                message = 'Field `project.keywords` must be an array'
+                raise TypeError(message)
 
             unique_keywords = set()
 
             for i, keyword in enumerate(keywords, 1):
                 if not isinstance(keyword, str):
-                    raise TypeError(f'Keyword #{i} of field `project.keywords` must be a string')
+                    message = f'Keyword #{i} of field `project.keywords` must be a string'
+                    raise TypeError(message)
 
                 unique_keywords.add(keyword)
 
@@ -896,24 +955,28 @@ class CoreMetadata:
             if 'classifiers' in self.config:
                 classifiers = self.config['classifiers']
                 if 'classifiers' in self.dynamic:
-                    raise ValueError(
+                    message = (
                         'Metadata field `classifiers` cannot be both statically defined and '
                         'listed in field `project.dynamic`'
                     )
+                    raise ValueError(message)
             else:
                 classifiers = []
 
             if not isinstance(classifiers, list):
-                raise TypeError('Field `project.classifiers` must be an array')
+                message = 'Field `project.classifiers` must be an array'
+                raise TypeError(message)
 
             known_classifiers = KNOWN_CLASSIFIERS | self._extra_classifiers
             unique_classifiers = set()
 
             for i, classifier in enumerate(classifiers, 1):
                 if not isinstance(classifier, str):
-                    raise TypeError(f'Classifier #{i} of field `project.classifiers` must be a string')
+                    message = f'Classifier #{i} of field `project.classifiers` must be a string'
+                    raise TypeError(message)
                 elif not is_private(classifier) and classifier not in known_classifiers:
-                    raise ValueError(f'Unknown classifier in field `project.classifiers`: {classifier}')
+                    message = f'Unknown classifier in field `project.classifiers`: {classifier}'
+                    raise ValueError(message)
 
                 unique_classifiers.add(classifier)
 
@@ -936,20 +999,23 @@ class CoreMetadata:
             if 'urls' in self.config:
                 urls = self.config['urls']
                 if 'urls' in self.dynamic:
-                    raise ValueError(
+                    message = (
                         'Metadata field `urls` cannot be both statically defined and listed in field `project.dynamic`'
                     )
+                    raise ValueError(message)
             else:
                 urls = {}
 
             if not isinstance(urls, dict):
-                raise TypeError('Field `project.urls` must be a table')
+                message = 'Field `project.urls` must be a table'
+                raise TypeError(message)
 
             sorted_urls = {}
 
             for label, url in urls.items():
                 if not isinstance(url, str):
-                    raise TypeError(f'URL `{label}` of field `project.urls` must be a string')
+                    message = f'URL `{label}` of field `project.urls` must be a string'
+                    raise TypeError(message)
 
                 sorted_urls[label] = url
 
@@ -966,21 +1032,24 @@ class CoreMetadata:
             if 'scripts' in self.config:
                 scripts = self.config['scripts']
                 if 'scripts' in self.dynamic:
-                    raise ValueError(
+                    message = (
                         'Metadata field `scripts` cannot be both statically defined and '
                         'listed in field `project.dynamic`'
                     )
+                    raise ValueError(message)
             else:
                 scripts = {}
 
             if not isinstance(scripts, dict):
-                raise TypeError('Field `project.scripts` must be a table')
+                message = 'Field `project.scripts` must be a table'
+                raise TypeError(message)
 
             sorted_scripts = {}
 
             for name, object_ref in sorted(scripts.items()):
                 if not isinstance(object_ref, str):
-                    raise TypeError(f'Object reference `{name}` of field `project.scripts` must be a string')
+                    message = f'Object reference `{name}` of field `project.scripts` must be a string'
+                    raise TypeError(message)
 
                 sorted_scripts[name] = object_ref
 
@@ -997,21 +1066,24 @@ class CoreMetadata:
             if 'gui-scripts' in self.config:
                 gui_scripts = self.config['gui-scripts']
                 if 'gui-scripts' in self.dynamic:
-                    raise ValueError(
+                    message = (
                         'Metadata field `gui-scripts` cannot be both statically defined and '
                         'listed in field `project.dynamic`'
                     )
+                    raise ValueError(message)
             else:
                 gui_scripts = {}
 
             if not isinstance(gui_scripts, dict):
-                raise TypeError('Field `project.gui-scripts` must be a table')
+                message = 'Field `project.gui-scripts` must be a table'
+                raise TypeError(message)
 
             sorted_gui_scripts = {}
 
             for name, object_ref in sorted(gui_scripts.items()):
                 if not isinstance(object_ref, str):
-                    raise TypeError(f'Object reference `{name}` of field `project.gui-scripts` must be a string')
+                    message = f'Object reference `{name}` of field `project.gui-scripts` must be a string'
+                    raise TypeError(message)
 
                 sorted_gui_scripts[name] = object_ref
 
@@ -1028,36 +1100,39 @@ class CoreMetadata:
             if 'entry-points' in self.config:
                 defined_entry_point_groups = self.config['entry-points']
                 if 'entry-points' in self.dynamic:
-                    raise ValueError(
+                    message = (
                         'Metadata field `entry-points` cannot be both statically defined and '
                         'listed in field `project.dynamic`'
                     )
+                    raise ValueError(message)
             else:
                 defined_entry_point_groups = {}
 
             if not isinstance(defined_entry_point_groups, dict):
-                raise TypeError('Field `project.entry-points` must be a table')
+                message = 'Field `project.entry-points` must be a table'
+                raise TypeError(message)
 
             for forbidden_field in ('scripts', 'gui-scripts'):
                 if forbidden_field in defined_entry_point_groups:
-                    raise ValueError(
+                    message = (
                         f'Field `{forbidden_field}` must be defined as `project.{forbidden_field}` '
                         f'instead of in the `project.entry-points` table'
                     )
+                    raise ValueError(message)
 
             entry_point_groups = {}
 
             for group, entry_point_data in sorted(defined_entry_point_groups.items()):
                 if not isinstance(entry_point_data, dict):
-                    raise TypeError(f'Field `project.entry-points.{group}` must be a table')
+                    message = f'Field `project.entry-points.{group}` must be a table'
+                    raise TypeError(message)
 
                 entry_points = {}
 
                 for name, object_ref in sorted(entry_point_data.items()):
                     if not isinstance(object_ref, str):
-                        raise TypeError(
-                            f'Object reference `{name}` of field `project.entry-points.{group}` must be a string'
-                        )
+                        message = f'Object reference `{name}` of field `project.entry-points.{group}` must be a string'
+                        raise TypeError(message)
 
                     entry_points[name] = object_ref
 
@@ -1079,32 +1154,37 @@ class CoreMetadata:
             if 'dependencies' in self.config:
                 dependencies = self.config['dependencies']
                 if 'dependencies' in self.dynamic:
-                    raise ValueError(
+                    message = (
                         'Metadata field `dependencies` cannot be both statically defined and '
                         'listed in field `project.dynamic`'
                     )
+                    raise ValueError(message)
             else:
                 dependencies = []
 
             if not isinstance(dependencies, list):
-                raise TypeError('Field `project.dependencies` must be an array')
+                message = 'Field `project.dependencies` must be an array'
+                raise TypeError(message)
 
             dependencies_complex = {}
 
             for i, entry in enumerate(dependencies, 1):
                 if not isinstance(entry, str):
-                    raise TypeError(f'Dependency #{i} of field `project.dependencies` must be a string')
+                    message = f'Dependency #{i} of field `project.dependencies` must be a string'
+                    raise TypeError(message)
 
                 try:
                     requirement = Requirement(self.context.format(entry))
                 except InvalidRequirement as e:
-                    raise ValueError(f'Dependency #{i} of field `project.dependencies` is invalid: {e}') from None
+                    message = f'Dependency #{i} of field `project.dependencies` is invalid: {e}'
+                    raise ValueError(message) from None
                 else:
                     if requirement.url and not self.hatch_metadata.allow_direct_references:
-                        raise ValueError(
+                        message = (
                             f'Dependency #{i} of field `project.dependencies` cannot be a direct reference unless '
                             f'field `tool.hatch.metadata.allow-direct-references` is set to `true`'
                         )
+                        raise ValueError(message)
 
                     dependencies_complex[get_normalized_dependency(requirement)] = requirement
 
@@ -1133,54 +1213,61 @@ class CoreMetadata:
             if 'optional-dependencies' in self.config:
                 optional_dependencies = self.config['optional-dependencies']
                 if 'optional-dependencies' in self.dynamic:
-                    raise ValueError(
+                    message = (
                         'Metadata field `optional-dependencies` cannot be both statically defined and '
                         'listed in field `project.dynamic`'
                     )
+                    raise ValueError(message)
             else:
                 optional_dependencies = {}
 
             if not isinstance(optional_dependencies, dict):
-                raise TypeError('Field `project.optional-dependencies` must be a table')
+                message = 'Field `project.optional-dependencies` must be a table'
+                raise TypeError(message)
 
             normalized_options: dict[str, str] = {}
             optional_dependency_entries = {}
 
             for option, dependencies in optional_dependencies.items():
                 if not is_valid_project_name(option):
-                    raise ValueError(
+                    message = (
                         f'Optional dependency group `{option}` of field `project.optional-dependencies` must only '
                         f'contain ASCII letters/digits, underscores, hyphens, and periods, and must begin and end with '
                         f'ASCII letters/digits.'
                     )
+                    raise ValueError(message)
                 elif not isinstance(dependencies, list):
-                    raise TypeError(
+                    message = (
                         f'Dependencies for option `{option}` of field `project.optional-dependencies` must be an array'
                     )
+                    raise TypeError(message)
 
                 entries = {}
 
                 for i, entry in enumerate(dependencies, 1):
                     if not isinstance(entry, str):
-                        raise TypeError(
+                        message = (
                             f'Dependency #{i} of option `{option}` of field `project.optional-dependencies` '
                             f'must be a string'
                         )
+                        raise TypeError(message)
 
                     try:
                         requirement = Requirement(self.context.format(entry))
                     except InvalidRequirement as e:
-                        raise ValueError(
+                        message = (
                             f'Dependency #{i} of option `{option}` of field `project.optional-dependencies` '
                             f'is invalid: {e}'
-                        ) from None
+                        )
+                        raise ValueError(message) from None
                     else:
                         if requirement.url and not self.hatch_metadata.allow_direct_references:
-                            raise ValueError(
+                            message = (
                                 f'Dependency #{i} of option `{option}` of field `project.optional-dependencies` '
                                 f'cannot be a direct reference unless field '
                                 f'`tool.hatch.metadata.allow-direct-references` is set to `true`'
                             )
+                            raise ValueError(message)
 
                         entries[get_normalized_dependency(requirement)] = requirement
 
@@ -1189,10 +1276,11 @@ class CoreMetadata:
                 else:
                     normalized_option = normalize_project_name(option)
                 if normalized_option in normalized_options:
-                    raise ValueError(
+                    message = (
                         f'Optional dependency groups `{normalized_options[normalized_option]}` and `{option}` of '
                         f'field `project.optional-dependencies` both evaluate to `{normalized_option}`.'
                     )
+                    raise ValueError(message)
 
                 normalized_options[normalized_option] = option
                 optional_dependency_entries[normalized_option] = {k: v for k, v in sorted(entries.items())}
@@ -1222,9 +1310,11 @@ class CoreMetadata:
             self._dynamic = self.config.get('dynamic', [])
 
         if not isinstance(self._dynamic, list):
-            raise TypeError('Field `project.dynamic` must be an array')
+            message = 'Field `project.dynamic` must be an array'
+            raise TypeError(message)
         elif not all(isinstance(entry, str) for entry in self._dynamic):
-            raise TypeError('Field `project.dynamic` must only contain strings')
+            message = 'Field `project.dynamic` must only contain strings'
+            raise TypeError(message)
 
         return self._dynamic
 
@@ -1253,7 +1343,8 @@ class HatchMetadata(Generic[PluginManagerBound]):
         if self._metadata is None:
             metadata_config = self.config.get('metadata', {})
             if not isinstance(metadata_config, dict):
-                raise TypeError('Field `tool.hatch.metadata` must be a table')
+                message = 'Field `tool.hatch.metadata` must be a table'
+                raise TypeError(message)
 
             self._metadata = HatchMetadataSettings(self.root, metadata_config, self.plugin_manager)
 
@@ -1264,7 +1355,8 @@ class HatchMetadata(Generic[PluginManagerBound]):
         if self._build_config is None:
             build_config = self.config.get('build', {})
             if not isinstance(build_config, dict):
-                raise TypeError('Field `tool.hatch.build` must be a table')
+                message = 'Field `tool.hatch.build` must be a table'
+                raise TypeError(message)
 
             self._build_config = build_config
 
@@ -1275,7 +1367,8 @@ class HatchMetadata(Generic[PluginManagerBound]):
         if self._build_targets is None:
             build_targets: dict = self.build_config.get('targets', {})
             if not isinstance(build_targets, dict):
-                raise TypeError('Field `tool.hatch.build.targets` must be a table')
+                message = 'Field `tool.hatch.build.targets` must be a table'
+                raise TypeError(message)
 
             self._build_targets = build_targets
 
@@ -1285,11 +1378,13 @@ class HatchMetadata(Generic[PluginManagerBound]):
     def version(self) -> HatchVersionConfig:
         if self._version is None:
             if 'version' not in self.config:
-                raise ValueError('Missing `tool.hatch.version` configuration')
+                message = 'Missing `tool.hatch.version` configuration'
+                raise ValueError(message)
 
             options = self.config['version']
             if not isinstance(options, dict):
-                raise TypeError('Field `tool.hatch.version` must be a table')
+                message = 'Field `tool.hatch.version` must be a table'
+                raise TypeError(message)
 
             self._version = HatchVersionConfig(self.root, deepcopy(options), self.plugin_manager)
 
@@ -1314,7 +1409,8 @@ class HatchVersionConfig(Generic[PluginManagerBound]):
             try:
                 self._cached = self.source.get_version_data()['version']
             except Exception as e:
-                raise type(e)(f'Error getting the version from source `{self.source.PLUGIN_NAME}`: {e}') from None
+                message = f'Error getting the version from source `{self.source.PLUGIN_NAME}`: {e}'
+                raise type(e)(message) from None
 
         return self._cached
 
@@ -1323,11 +1419,11 @@ class HatchVersionConfig(Generic[PluginManagerBound]):
         if self._source_name is None:
             source: str = self.config.get('source', 'regex')
             if not source:
-                raise ValueError(
-                    'The `source` option under the `tool.hatch.version` table must not be empty if defined'
-                )
+                message = 'The `source` option under the `tool.hatch.version` table must not be empty if defined'
+                raise ValueError(message)
             elif not isinstance(source, str):
-                raise TypeError('Field `tool.hatch.version.source` must be a string')
+                message = 'Field `tool.hatch.version.source` must be a string'
+                raise TypeError(message)
 
             self._source_name = source
 
@@ -1338,11 +1434,11 @@ class HatchVersionConfig(Generic[PluginManagerBound]):
         if self._scheme_name is None:
             scheme: str = self.config.get('scheme', 'standard')
             if not scheme:
-                raise ValueError(
-                    'The `scheme` option under the `tool.hatch.version` table must not be empty if defined'
-                )
+                message = 'The `scheme` option under the `tool.hatch.version` table must not be empty if defined'
+                raise ValueError(message)
             elif not isinstance(scheme, str):
-                raise TypeError('Field `tool.hatch.version.scheme` must be a string')
+                message = 'Field `tool.hatch.version.scheme` must be a string'
+                raise TypeError(message)
 
             self._scheme_name = scheme
 
@@ -1358,7 +1454,8 @@ class HatchVersionConfig(Generic[PluginManagerBound]):
             if version_source is None:
                 from hatchling.plugin.exceptions import UnknownPluginError
 
-                raise UnknownPluginError(f'Unknown version source: {source_name}')
+                message = f'Unknown version source: {source_name}'
+                raise UnknownPluginError(message)
 
             self._source = version_source(self.root, deepcopy(self.config))
 
@@ -1374,7 +1471,8 @@ class HatchVersionConfig(Generic[PluginManagerBound]):
             if version_scheme is None:
                 from hatchling.plugin.exceptions import UnknownPluginError
 
-                raise UnknownPluginError(f'Unknown version scheme: {scheme_name}')
+                message = f'Unknown version scheme: {scheme_name}'
+                raise UnknownPluginError(message)
 
             self._scheme = version_scheme(self.root, deepcopy(self.config))
 
@@ -1397,7 +1495,8 @@ class HatchMetadataSettings(Generic[PluginManagerBound]):
         if self._allow_direct_references is None:
             allow_direct_references: bool = self.config.get('allow-direct-references', False)
             if not isinstance(allow_direct_references, bool):
-                raise TypeError('Field `tool.hatch.metadata.allow-direct-references` must be a boolean')
+                message = 'Field `tool.hatch.metadata.allow-direct-references` must be a boolean'
+                raise TypeError(message)
 
             self._allow_direct_references = allow_direct_references
 
@@ -1409,7 +1508,8 @@ class HatchMetadataSettings(Generic[PluginManagerBound]):
         if self._allow_ambiguous_features is None:
             allow_ambiguous_features: bool = self.config.get('allow-ambiguous-features', False)
             if not isinstance(allow_ambiguous_features, bool):
-                raise TypeError('Field `tool.hatch.metadata.allow-ambiguous-features` must be a boolean')
+                message = 'Field `tool.hatch.metadata.allow-ambiguous-features` must be a boolean'
+                raise TypeError(message)
 
             self._allow_ambiguous_features = allow_ambiguous_features
 
@@ -1420,7 +1520,8 @@ class HatchMetadataSettings(Generic[PluginManagerBound]):
         if self._hook_config is None:
             hook_config: dict[str, Any] = self.config.get('hooks', {})
             if not isinstance(hook_config, dict):
-                raise TypeError('Field `tool.hatch.metadata.hooks` must be a table')
+                message = 'Field `tool.hatch.metadata.hooks` must be a table'
+                raise TypeError(message)
 
             self._hook_config = hook_config
 
@@ -1437,7 +1538,8 @@ class HatchMetadataSettings(Generic[PluginManagerBound]):
                 if metadata_hook is None:
                     from hatchling.plugin.exceptions import UnknownPluginError
 
-                    raise UnknownPluginError(f'Unknown metadata hook: {hook_name}')
+                    message = f'Unknown metadata hook: {hook_name}'
+                    raise UnknownPluginError(message)
 
                 configured_hooks[hook_name] = metadata_hook(self.root, config)
 

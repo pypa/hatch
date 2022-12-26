@@ -88,16 +88,19 @@ def get_venv_exe_dir(venv_dir):
         if os.path.isdir(exe_dir):
             return exe_dir
         else:
-            raise OSError(f'Unable to locate executables directory within: {venv_dir}')
+            message = f'Unable to locate executables directory within: {venv_dir}'
+            raise OSError(message)
     # Debian
     elif os.path.isdir(os.path.join(venv_dir, 'local')):
         exe_dir = os.path.join(venv_dir, 'local', 'bin')
         if os.path.isdir(exe_dir):
             return exe_dir
         else:
-            raise OSError(f'Unable to locate executables directory within: {venv_dir}')
+            message = f'Unable to locate executables directory within: {venv_dir}'
+            raise OSError(message)
     else:
-        raise OSError(f'Unable to locate executables directory within: {venv_dir}')
+        message = f'Unable to locate executables directory within: {venv_dir}'
+        raise OSError(message)
 
 
 def main():
@@ -120,7 +123,8 @@ def main():
                 lines[i] = line.replace(version, '.'.join(version_parts))
                 break
         else:
-            raise ValueError('No version found')
+            message = 'No version found'
+            raise ValueError(message)
 
         with open(version_file, 'w') as f:
             f.writelines(lines)

@@ -48,13 +48,13 @@ class StandardScheme(VersionSchemeInterface):
                 reset_version_parts(original, dev=(version, number))
             else:
                 if len(versions) > 1:
-                    raise ValueError('Cannot specify multiple update operations with an explicit version')
+                    message = 'Cannot specify multiple update operations with an explicit version'
+                    raise ValueError(message)
 
                 next_version = Version(version)
                 if self.config.get('validate-bump', True) and next_version <= original:
-                    raise ValueError(
-                        f'Version `{version}` is not higher than the original version `{original_version}`'
-                    )
+                    message = f'Version `{version}` is not higher than the original version `{original_version}`'
+                    raise ValueError(message)
                 else:
                     return str(next_version)
 

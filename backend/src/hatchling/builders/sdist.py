@@ -104,17 +104,17 @@ class SdistBuilderConfig(BuilderConfig):
         if self.__core_metadata_constructor is None:
             core_metadata_version = self.target_config.get('core-metadata-version', DEFAULT_METADATA_VERSION)
             if not isinstance(core_metadata_version, str):
-                raise TypeError(
-                    f'Field `tool.hatch.build.targets.{self.plugin_name}.core-metadata-version` must be a string'
-                )
+                message = f'Field `tool.hatch.build.targets.{self.plugin_name}.core-metadata-version` must be a string'
+                raise TypeError(message)
 
             constructors = get_core_metadata_constructors()
             if core_metadata_version not in constructors:
-                raise ValueError(
+                message = (
                     f'Unknown metadata version `{core_metadata_version}` for field '
                     f'`tool.hatch.build.targets.{self.plugin_name}.core-metadata-version`. '
                     f'Available: {", ".join(sorted(constructors))}'
                 )
+                raise ValueError(message)
 
             self.__core_metadata_constructor = constructors[core_metadata_version]
 
@@ -126,13 +126,13 @@ class SdistBuilderConfig(BuilderConfig):
             if 'strict-naming' in self.target_config:
                 strict_naming = self.target_config['strict-naming']
                 if not isinstance(strict_naming, bool):
-                    raise TypeError(
-                        f'Field `tool.hatch.build.targets.{self.plugin_name}.strict-naming` must be a boolean'
-                    )
+                    message = f'Field `tool.hatch.build.targets.{self.plugin_name}.strict-naming` must be a boolean'
+                    raise TypeError(message)
             else:
                 strict_naming = self.build_config.get('strict-naming', True)
                 if not isinstance(strict_naming, bool):
-                    raise TypeError('Field `tool.hatch.build.strict-naming` must be a boolean')
+                    message = 'Field `tool.hatch.build.strict-naming` must be a boolean'
+                    raise TypeError(message)
 
             self.__strict_naming = strict_naming
 
