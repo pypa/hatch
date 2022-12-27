@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import os
-from typing import Any, Final
+from typing import Any, Final, cast
 
 FIELD_TO_PARSE: Final[object] = object()
 
@@ -317,7 +317,7 @@ class DirsConfig(LazilyParsedConfig):
         self._field_cache = FIELD_TO_PARSE
 
     @property
-    def project(self) -> object | list[str]:
+    def project(self) -> list[str]:
         if self._field_project is FIELD_TO_PARSE:
             if 'project' in self.raw_data:
                 project = self.raw_data['project']
@@ -332,7 +332,7 @@ class DirsConfig(LazilyParsedConfig):
             else:
                 self._field_project = self.raw_data['project'] = []
 
-        return self._field_project
+        return cast(list[str], self._field_project)
 
     @project.setter
     def project(self, value: list[str]):
@@ -340,7 +340,7 @@ class DirsConfig(LazilyParsedConfig):
         self._field_project = FIELD_TO_PARSE
 
     @property
-    def env(self) -> object | dict[str, str]:
+    def env(self) -> dict[str, str]:
         if self._field_env is FIELD_TO_PARSE:
             if 'env' in self.raw_data:
                 env = self.raw_data['env']
@@ -355,7 +355,7 @@ class DirsConfig(LazilyParsedConfig):
             else:
                 self._field_env = self.raw_data['env'] = {}
 
-        return self._field_env
+        return cast(dict[str, str], self._field_env)
 
     @env.setter
     def env(self, value: dict[str, str]) -> None:
@@ -363,7 +363,7 @@ class DirsConfig(LazilyParsedConfig):
         self._field_env = FIELD_TO_PARSE
 
     @property
-    def python(self) -> object | str:
+    def python(self) -> str:
         if self._field_python is FIELD_TO_PARSE:
             if 'python' in self.raw_data:
                 python = self.raw_data['python']
@@ -374,7 +374,7 @@ class DirsConfig(LazilyParsedConfig):
             else:
                 self._field_python = self.raw_data['python'] = 'isolated'
 
-        return self._field_python
+        return cast(str, self._field_python)
 
     @python.setter
     def python(self, value: str) -> None:
@@ -382,7 +382,7 @@ class DirsConfig(LazilyParsedConfig):
         self._field_python = FIELD_TO_PARSE
 
     @property
-    def data(self) -> object | str:
+    def data(self) -> str:
         if self._field_data is FIELD_TO_PARSE:
             if 'data' in self.raw_data:
                 data = self.raw_data['data']
@@ -395,7 +395,7 @@ class DirsConfig(LazilyParsedConfig):
 
                 self._field_data = self.raw_data['data'] = user_data_dir('hatch', appauthor=False)
 
-        return self._field_data
+        return cast(str, self._field_data)
 
     @data.setter
     def data(self, value: str) -> None:
@@ -403,7 +403,7 @@ class DirsConfig(LazilyParsedConfig):
         self._field_data = FIELD_TO_PARSE
 
     @property
-    def cache(self) -> object | str:
+    def cache(self) -> str:
         if self._field_cache is FIELD_TO_PARSE:
             if 'cache' in self.raw_data:
                 cache = self.raw_data['cache']
@@ -416,7 +416,7 @@ class DirsConfig(LazilyParsedConfig):
 
                 self._field_cache = self.raw_data['cache'] = user_cache_dir('hatch', appauthor=False)
 
-        return self._field_cache
+        return cast(str, self._field_cache)
 
     @cache.setter
     def cache(self, value: str) -> None:
@@ -537,7 +537,7 @@ class TemplateConfig(LazilyParsedConfig):
         self._field_licenses = FIELD_TO_PARSE
 
     @property
-    def plugins(self) -> object | dict[str, dict[str, bool]]:
+    def plugins(self) -> dict[str, dict[str, bool]]:
         if self._field_plugins is FIELD_TO_PARSE:
             if 'plugins' in self.raw_data:
                 plugins = self.raw_data['plugins']
@@ -554,7 +554,7 @@ class TemplateConfig(LazilyParsedConfig):
                     'default': {'tests': True, 'ci': False, 'src-layout': True}
                 }
 
-        return self._field_plugins
+        return cast(dict[str, dict[str, bool]], self._field_plugins)
 
     @plugins.setter
     def plugins(self, value: dict[str, dict[str, bool]]) -> None:
