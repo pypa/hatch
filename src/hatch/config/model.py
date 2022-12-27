@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import os
-from typing import Any, Final, cast
+from typing import Any, Dict, List, cast
 
-FIELD_TO_PARSE: Final[object] = object()
+FIELD_TO_PARSE: object = object()
 
 
 class ConfigurationError(Exception):
@@ -332,7 +332,7 @@ class DirsConfig(LazilyParsedConfig):
             else:
                 self._field_project = self.raw_data['project'] = []
 
-        return cast(list[str], self._field_project)
+        return cast(List[str], self._field_project)
 
     @project.setter
     def project(self, value: list[str]):
@@ -355,7 +355,7 @@ class DirsConfig(LazilyParsedConfig):
             else:
                 self._field_env = self.raw_data['env'] = {}
 
-        return cast(dict[str, str], self._field_env)
+        return cast(Dict[str, str], self._field_env)
 
     @env.setter
     def env(self, value: dict[str, str]) -> None:
@@ -554,7 +554,7 @@ class TemplateConfig(LazilyParsedConfig):
                     'default': {'tests': True, 'ci': False, 'src-layout': True}
                 }
 
-        return cast(dict[str, dict[str, bool]], self._field_plugins)
+        return cast(Dict[str, Dict[str, bool]], self._field_plugins)
 
     @plugins.setter
     def plugins(self, value: dict[str, dict[str, bool]]) -> None:

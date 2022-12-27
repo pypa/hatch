@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import cast
+from typing import Union, cast
 
 from hatch.config.model import RootConfig
 from hatch.utils.fs import Path
@@ -27,7 +27,7 @@ class ConfigFile:
         import tomli_w
 
         if not content:
-            content = cast(str | bytes, tomli_w.dumps(self.model.raw_data))
+            content = cast(Union[str, bytes], tomli_w.dumps(self.model.raw_data))
 
         self.path.ensure_parent_dir_exists()
         self.path.write_atomic(content, 'w', encoding='utf-8')
