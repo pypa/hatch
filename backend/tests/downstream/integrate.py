@@ -23,7 +23,7 @@ ON_WINDOWS = platform.system() == 'Windows'
 def handle_remove_readonly(func, path, exc):  # no cov
     # PermissionError: [WinError 5] Access is denied: '...\\.git\\...'
     if func in (os.rmdir, os.remove, os.unlink) and exc[1].errno == errno.EACCES:
-        os.chmod(path, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
+        os.chmod(path, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)  # noqa: S103
         func(path)
     else:
         raise
@@ -61,7 +61,7 @@ def python_version_supported(project_config):
 
 
 def download_file(url, file_name):
-    response = requests.get(url, stream=True)
+    response = requests.get(url, stream=True, timeout=20)
     with open(file_name, 'wb') as f:
         for chunk in response.iter_content(16384):
             f.write(chunk)

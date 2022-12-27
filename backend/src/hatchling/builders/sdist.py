@@ -33,13 +33,7 @@ class SdistArchive:
         """
         self.name = name
         self.reproducible = reproducible
-
-        timestamp: int | None
-        if reproducible:
-            timestamp = get_reproducible_timestamp()
-        else:
-            timestamp = None
-        self.timestamp = timestamp
+        self.timestamp: int | None = get_reproducible_timestamp() if reproducible else None
 
         raw_fd, self.path = tempfile.mkstemp(suffix='.tar.gz')
         self.fd = os.fdopen(raw_fd, 'w+b')

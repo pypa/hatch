@@ -19,15 +19,14 @@ def prune(app):
         if environment_type not in environment_types:
             app.abort(f'Environment `{env_name}` has unknown type: {environment_type}')
 
-        data_dir = app.get_env_directory(environment_type)
-
         environment = environment_types[environment_type](
             app.project.location,
             app.project.metadata,
             env_name,
             config,
             app.project.config.matrix_variables.get(env_name, {}),
-            data_dir,
+            app.get_env_directory(environment_type),
+            app.data_dir / 'env' / environment_type,
             app.platform,
             app.verbosity,
         )

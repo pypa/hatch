@@ -47,13 +47,12 @@ def version(app, desired_version):
             with app.status_waiting(
                 'Setting up build environment for missing dependencies',
                 condition=not environment.build_environment_exists(),
-            ) as status:
-                with environment.build_environment(app.project.metadata.build.requires):
-                    status.stop()
+            ) as status, environment.build_environment(app.project.metadata.build.requires):
+                status.stop()
 
-                    command = ['python', '-u', '-m', 'hatchling', 'version', '--app']
-                    if desired_version:
-                        command.append(desired_version)
+                command = ['python', '-u', '-m', 'hatchling', 'version', '--app']
+                if desired_version:
+                    command.append(desired_version)
 
-                    process = app.platform.capture_process(command)
-                    app.attach_builder(process)
+                process = app.platform.capture_process(command)
+                app.attach_builder(process)

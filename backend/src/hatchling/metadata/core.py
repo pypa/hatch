@@ -202,10 +202,11 @@ class ProjectMetadata(Generic[PluginManagerBound]):
                 message = 'The `tool.hatch` configuration must be a table'
                 raise TypeError(message)
 
-            if self._project_file is not None:
-                hatch_file = os.path.join(os.path.dirname(self._project_file), DEFAULT_CONFIG_FILE)
-            else:
-                hatch_file = locate_file(self.root, DEFAULT_CONFIG_FILE) or ''
+            hatch_file = (
+                os.path.join(os.path.dirname(self._project_file), DEFAULT_CONFIG_FILE)
+                if self._project_file is not None
+                else locate_file(self.root, DEFAULT_CONFIG_FILE) or ''
+            )
 
             if hatch_file and os.path.isfile(hatch_file):
                 config = load_toml(hatch_file)
@@ -1271,10 +1272,9 @@ class CoreMetadata:
 
                         entries[get_normalized_dependency(requirement)] = requirement
 
-                if self.hatch_metadata.allow_ambiguous_features:
-                    normalized_option = option
-                else:
-                    normalized_option = normalize_project_name(option)
+                normalized_option = (
+                    option if self.hatch_metadata.allow_ambiguous_features else normalize_project_name(option)
+                )
                 if normalized_option in normalized_options:
                     message = (
                         f'Optional dependency groups `{normalized_options[normalized_option]}` and `{option}` of '

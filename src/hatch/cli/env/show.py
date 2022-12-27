@@ -52,6 +52,8 @@ def show(app, envs, force_ascii, as_json):
         app.display(json.dumps(contextual_config, separators=(',', ':')))
         return
 
+    import contextlib
+
     from packaging.requirements import InvalidRequirement, Requirement
 
     from hatchling.metadata.utils import get_normalized_dependency, normalize_project_name
@@ -103,10 +105,9 @@ def show(app, envs, force_ascii, as_json):
         if dependencies:
             normalized_dependencies = set()
             for dependency in dependencies:
-                try:
+                with contextlib.suppress(InvalidRequirement):
                     dependency = get_normalized_dependency(Requirement(dependency))
-                except InvalidRequirement:
-                    pass
+
                 normalized_dependencies.add(dependency)
 
             matrix_columns['Dependencies'][i] = '\n'.join(sorted(normalized_dependencies))

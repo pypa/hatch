@@ -40,7 +40,15 @@ class TestEnvVars:
         config = {'project': {'name': 'my_app', 'version': '0.0.1'}}
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         assert environment.env_vars == environment.env_vars == {AppEnvVars.ENV_ACTIVE: 'default'}
@@ -52,7 +60,15 @@ class TestEnvVars:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         with pytest.raises(TypeError, match='Field `tool.hatch.envs.default.env-vars` must be a mapping'):
@@ -65,7 +81,15 @@ class TestEnvVars:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         with pytest.raises(
@@ -80,7 +104,15 @@ class TestEnvVars:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         assert environment.env_vars == {AppEnvVars.ENV_ACTIVE: 'default', 'foo': 'bar'}
@@ -98,6 +130,7 @@ class TestEnvVars:
             project.config.envs['default'],
             {'bar': '42'},
             isolated_data_dir,
+            isolated_data_dir,
             platform,
             0,
         )
@@ -111,7 +144,15 @@ class TestEnvInclude:
         config = {'project': {'name': 'my_app', 'version': '0.0.1'}}
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         assert environment.env_include == environment.env_include == []
@@ -123,7 +164,15 @@ class TestEnvInclude:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         with pytest.raises(TypeError, match='Field `tool.hatch.envs.default.env-include` must be an array'):
@@ -136,7 +185,15 @@ class TestEnvInclude:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         with pytest.raises(
@@ -151,7 +208,15 @@ class TestEnvInclude:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         assert environment.env_include == ['HATCH_BUILD_*', 'FOO*']
@@ -162,7 +227,15 @@ class TestEnvExclude:
         config = {'project': {'name': 'my_app', 'version': '0.0.1'}}
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         assert environment.env_exclude == environment.env_exclude == []
@@ -174,7 +247,15 @@ class TestEnvExclude:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         with pytest.raises(TypeError, match='Field `tool.hatch.envs.default.env-exclude` must be an array'):
@@ -187,7 +268,15 @@ class TestEnvExclude:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         with pytest.raises(
@@ -202,7 +291,15 @@ class TestEnvExclude:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         assert environment.env_exclude == ['FOO*']
@@ -213,7 +310,15 @@ class TestPlatforms:
         config = {'project': {'name': 'my_app', 'version': '0.0.1'}}
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         assert environment.platforms == environment.platforms == []
@@ -225,7 +330,15 @@ class TestPlatforms:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         with pytest.raises(TypeError, match='Field `tool.hatch.envs.default.platforms` must be an array'):
@@ -238,7 +351,15 @@ class TestPlatforms:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         with pytest.raises(
@@ -253,7 +374,15 @@ class TestPlatforms:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         assert environment.platforms == ['macos']
@@ -264,7 +393,15 @@ class TestSkipInstall:
         config = {'project': {'name': 'my_app', 'version': '0.0.1'}}
         project = Project(temp_dir, config=config)
         environment = MockEnvironment(
-            temp_dir, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            temp_dir,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
         (temp_dir / 'pyproject.toml').touch()
 
@@ -275,7 +412,15 @@ class TestSkipInstall:
         config = {'project': {'name': 'my_app', 'version': '0.0.1'}}
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         assert environment.skip_install is environment.skip_install is True
@@ -287,7 +432,15 @@ class TestSkipInstall:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         with pytest.raises(TypeError, match='Field `tool.hatch.envs.default.skip-install` must be a boolean'):
@@ -300,7 +453,15 @@ class TestSkipInstall:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         assert environment.skip_install is True
@@ -311,7 +472,15 @@ class TestDevMode:
         config = {'project': {'name': 'my_app', 'version': '0.0.1'}}
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         assert environment.dev_mode is environment.dev_mode is True
@@ -323,7 +492,15 @@ class TestDevMode:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         with pytest.raises(TypeError, match='Field `tool.hatch.envs.default.dev-mode` must be a boolean'):
@@ -336,7 +513,15 @@ class TestDevMode:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         assert environment.dev_mode is False
@@ -347,7 +532,15 @@ class TestFeatures:
         config = {'project': {'name': 'my_app', 'version': '0.0.1'}}
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         assert environment.features == environment.features == []
@@ -359,7 +552,15 @@ class TestFeatures:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         with pytest.raises(TypeError, match='Field `tool.hatch.envs.default.features` must be an array of strings'):
@@ -372,7 +573,15 @@ class TestFeatures:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         assert environment.features == ['baz', 'foo-bar']
@@ -384,7 +593,15 @@ class TestFeatures:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         with pytest.raises(TypeError, match='Feature #1 of field `tool.hatch.envs.default.features` must be a string'):
@@ -397,7 +614,15 @@ class TestFeatures:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         with pytest.raises(
@@ -412,7 +637,15 @@ class TestFeatures:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         with pytest.raises(
@@ -430,7 +663,15 @@ class TestDescription:
         config = {'project': {'name': 'my_app', 'version': '0.0.1'}}
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         assert environment.description == environment.description == ''
@@ -442,7 +683,15 @@ class TestDescription:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         with pytest.raises(TypeError, match='Field `tool.hatch.envs.default.description` must be a string'):
@@ -456,7 +705,15 @@ class TestDescription:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         assert environment.description is description
@@ -470,7 +727,15 @@ class TestDependencies:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         assert environment.dependencies == environment.dependencies == ['dep1']
@@ -483,7 +748,15 @@ class TestDependencies:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         with pytest.raises(TypeError, match='Field `tool.hatch.envs.default.dependencies` must be an array'):
@@ -496,7 +769,15 @@ class TestDependencies:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         with pytest.raises(
@@ -511,7 +792,15 @@ class TestDependencies:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         with pytest.raises(
@@ -526,7 +815,15 @@ class TestDependencies:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         with pytest.raises(TypeError, match='Field `tool.hatch.envs.default.extra-dependencies` must be an array'):
@@ -539,7 +836,15 @@ class TestDependencies:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         with pytest.raises(
@@ -554,7 +859,15 @@ class TestDependencies:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         with pytest.raises(
@@ -575,7 +888,15 @@ class TestDependencies:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         assert environment.dependencies == ['dep2', 'dep3', 'dep1']
@@ -597,7 +918,15 @@ class TestDependencies:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         normalized_path = str(isolation).replace('\\', '/')
@@ -616,7 +945,15 @@ class TestDependencies:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         assert environment.dependencies == ['dep2', 'dep3']
@@ -632,7 +969,15 @@ class TestDependencies:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         assert environment.dependencies == ['dep2', 'dep3']
@@ -649,7 +994,15 @@ class TestDependencies:
         }
         project = Project(temp_dir, config=config)
         environment = MockEnvironment(
-            temp_dir, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            temp_dir,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         build_script = temp_dir / DEFAULT_BUILD_SCRIPT
@@ -682,7 +1035,15 @@ class TestScripts:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         with pytest.raises(TypeError, match='Field `tool.hatch.envs.default.scripts` must be a table'):
@@ -695,7 +1056,15 @@ class TestScripts:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         with pytest.raises(
@@ -707,7 +1076,15 @@ class TestScripts:
         config = {'project': {'name': 'my_app', 'version': '0.0.1'}}
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         assert environment.scripts == environment.scripts == {}
@@ -720,7 +1097,15 @@ class TestScripts:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         assert environment.scripts == {'foo': ['command1'], 'bar': ['command2']}
@@ -733,7 +1118,15 @@ class TestScripts:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         assert environment.scripts == {'foo': ['command1'], 'bar': ['command3', 'command2']}
@@ -745,7 +1138,15 @@ class TestScripts:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         with pytest.raises(
@@ -760,7 +1161,15 @@ class TestScripts:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         with pytest.raises(
@@ -776,7 +1185,15 @@ class TestScripts:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         assert environment.scripts == {'foo': ['command1'], 'bar': ['command3', 'command1']}
@@ -793,7 +1210,15 @@ class TestScripts:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         assert environment.scripts == {
@@ -814,7 +1239,15 @@ class TestScripts:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         assert environment.scripts == {
@@ -835,7 +1268,15 @@ class TestScripts:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         assert environment.scripts == {
@@ -851,7 +1292,15 @@ class TestScripts:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         with pytest.raises(
@@ -866,7 +1315,15 @@ class TestPreInstallCommands:
         config = {'project': {'name': 'my_app', 'version': '0.0.1'}}
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         assert environment.pre_install_commands == environment.pre_install_commands == []
@@ -878,7 +1335,15 @@ class TestPreInstallCommands:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         with pytest.raises(TypeError, match='Field `tool.hatch.envs.default.pre-install-commands` must be an array'):
@@ -891,7 +1356,15 @@ class TestPreInstallCommands:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         with pytest.raises(
@@ -906,7 +1379,15 @@ class TestPreInstallCommands:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         assert environment.pre_install_commands == ['baz test']
@@ -917,7 +1398,15 @@ class TestPostInstallCommands:
         config = {'project': {'name': 'my_app', 'version': '0.0.1'}}
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         assert environment.post_install_commands == environment.post_install_commands == []
@@ -929,7 +1418,15 @@ class TestPostInstallCommands:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         with pytest.raises(TypeError, match='Field `tool.hatch.envs.default.post-install-commands` must be an array'):
@@ -942,7 +1439,15 @@ class TestPostInstallCommands:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         with pytest.raises(
@@ -957,7 +1462,15 @@ class TestPostInstallCommands:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         assert environment.post_install_commands == ['baz test']
@@ -968,7 +1481,15 @@ class TestEnvVarOption:
         config = {'project': {'name': 'my_app', 'version': '0.0.1'}}
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         assert environment.get_env_var_option('foo') == ''
@@ -977,7 +1498,15 @@ class TestEnvVarOption:
         config = {'project': {'name': 'my_app', 'version': '0.0.1'}}
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         with EnvVars({'HATCH_ENV_TYPE_MOCK_FOO': 'bar'}):
@@ -992,7 +1521,15 @@ class TestContextFormatting:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         assert list(environment.expand_command('foo')) == ['command default']
@@ -1004,7 +1541,15 @@ class TestContextFormatting:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         assert list(environment.expand_command('foo')) == ['command mock']
@@ -1022,6 +1567,7 @@ class TestContextFormatting:
             project.config.envs['default'],
             {},
             isolated_data_dir,
+            isolated_data_dir,
             platform,
             9000,
         )
@@ -1035,7 +1581,15 @@ class TestContextFormatting:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         with pytest.raises(ValueError, match='Unknown verbosity modifier: bar'):
@@ -1048,7 +1602,15 @@ class TestContextFormatting:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         with pytest.raises(TypeError, match='Verbosity flag adjustment must be an integer: -1.0'):
@@ -1081,6 +1643,7 @@ class TestContextFormatting:
             project.config.envs['default'],
             {},
             isolated_data_dir,
+            isolated_data_dir,
             platform,
             verbosity,
         )
@@ -1108,7 +1671,15 @@ class TestContextFormatting:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         assert list(environment.expand_command('foo')) == [command]
@@ -1120,7 +1691,15 @@ class TestContextFormatting:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         assert list(environment.expand_command('foo')) == ['command']
@@ -1132,7 +1711,15 @@ class TestContextFormatting:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         assert list(environment.expand_command('foo')) == ['command  -bar > /dev/null']
@@ -1144,7 +1731,15 @@ class TestContextFormatting:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         assert list(environment.expand_command('foo baz')) == ['command baz']
@@ -1156,7 +1751,15 @@ class TestContextFormatting:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         with pytest.raises(ValueError, match='The `matrix` context formatting field requires a modifier'):
@@ -1169,7 +1772,15 @@ class TestContextFormatting:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         with pytest.raises(ValueError, match='Nonexistent matrix variable must set a default: bar'):
@@ -1182,7 +1793,15 @@ class TestContextFormatting:
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
-            isolation, project.metadata, 'default', project.config.envs['default'], {}, isolated_data_dir, platform, 0
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
         )
 
         assert environment.dependencies == ['pkg==9000']
@@ -1199,6 +1818,7 @@ class TestContextFormatting:
             'default',
             project.config.envs['default'],
             {'bar': '42'},
+            isolated_data_dir,
             isolated_data_dir,
             platform,
             0,
@@ -1229,6 +1849,7 @@ class TestContextFormatting:
                 'default',
                 project.config.envs['default'],
                 {},
+                isolated_data_dir,
                 isolated_data_dir,
                 platform,
                 0,

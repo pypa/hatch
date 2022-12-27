@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from typing import Generator
+from typing import Iterable
 
 from hatch.publish.plugin.interface import PublisherInterface
 from hatch.utils.fs import Path
@@ -53,17 +53,11 @@ class IndexPublisher(PublisherInterface):
 
             artifacts = [DEFAULT_BUILD_DIRECTORY]
 
-        if 'repo' in options:
-            repo = options['repo']
-        else:
-            repo = self.plugin_config.get('repo', 'main')
+        repo = options['repo'] if 'repo' in options else self.plugin_config.get('repo', 'main')
 
         repos = self.get_repos()
 
-        if repo in repos:
-            repo_config = repos[repo]
-        else:
-            repo_config = {'url': repo}
+        repo_config = repos[repo] if repo in repos else {'url': repo}
 
         index = PackageIndex(
             repo_config['url'],
@@ -176,7 +170,7 @@ class IndexPublisher(PublisherInterface):
             keyring.set_password(repo, user, auth)
 
 
-def recurse_artifacts(artifacts: list, root) -> Generator[Path, None, None]:
+def recurse_artifacts(artifacts: list, root) -> Iterable[Path]:
     for artifact in artifacts:
         artifact = Path(artifact)
         if not artifact.is_absolute():

@@ -54,15 +54,14 @@ class Application(Terminal):
 
         self.project.config.finalize_env_overrides(environment_class.get_option_types())
 
-        data_dir = self.get_env_directory(environment_type)
-
         return environment_class(
             self.project.location,
             self.project.metadata,
             env_name,
             config,
             self.project.config.matrix_variables.get(env_name, {}),
-            data_dir,
+            self.get_env_directory(environment_type),
+            self.data_dir / 'env' / environment_type,
             self.platform,
             self.verbosity,
             self.get_safe_application(),

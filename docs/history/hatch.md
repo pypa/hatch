@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Add `tool.hatch.env.requires` configuration to automatically install dependencies for environment and environment collector plugins
 - Add `custom` environment collector
+- Add `isolated_data_directory` attribute to the environment interface
 - Increase the timeout for and add retries to the `index` publisher
 - Expand home and environment variables in configured cache and data directories
 - Improve readability of exceptions
@@ -25,10 +26,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ***Fixed:***
 
 - Fix displaying the version with the `version` command when the version is static and build dependencies are unmet
-- Fix the `support-legacy` option for the `sdist` target when using a src-layout project structure
+- Fix build environments for the `virtual` environment type when storing within a relative path
+- Work around System Integrity Protection on macOS when running commands
 - Support boolean values for the `config set` command
 
-### [1.6.3](https://github.com/pypa/hatch/releases/tag/hatch-v1.6.3) - 2022-10-24 ### {: #hatch-v1.6.3 }
+## [1.6.3](https://github.com/pypa/hatch/releases/tag/hatch-v1.6.3) - 2022-10-24 ## {: #hatch-v1.6.3 }
 
 ***Fixed:***
 

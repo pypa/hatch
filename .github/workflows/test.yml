@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  STABLE_PYTHON_VERSION: '3.10'
+  STABLE_PYTHON_VERSION: '3.11'
   PYTHONUNBUFFERED: "1"
   FORCE_COLOR: "1"
 
@@ -43,7 +43,7 @@ jobs:
         pip install -e .
         pip install -e ./backend
 
-    - if: matrix.python-version == '3.9' && runner.os == 'Linux'
+    - if: "!startsWith(matrix.python-version, 'pypy')"
       name: Lint
       run: hatch run lint:all
 
@@ -164,3 +164,20 @@ jobs:
         hyperfine -m 100 --warmup 10 poetry
         hyperfine -m 100 --warmup 10 -i flit
         hyperfine -m 100 --warmup 10 hatch
+
+  # https://github.com/marketplace/actions/alls-green#why
+  check: # This job does nothing and is only used for the branch protection
+    if: always()
+
+    needs:
+    - coverage
+    - downstream
+    - response-time
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Decide whether the needed jobs succeeded or failed
+      uses: re-actors/alls-green@release/v1
+      with:
+        jobs: ${{ toJSON(needs) }}

@@ -8,18 +8,35 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.12.2](https://github.com/pypa/hatch/releases/tag/hatchling-v1.12.2) - 2023-01-05 ## {: #hatchling-v1.12.2 }
+
+***Fixed:***
+
+- Add `macos-max-compat` option to the `wheel` target that is enabled by default to support the latest version 22.0 of the `packaging` library
+
+## [1.12.1](https://github.com/pypa/hatch/releases/tag/hatchling-v1.12.1) - 2022-12-31 ## {: #hatchling-v1.12.1 }
+
+***Fixed:***
+
+- Fix minor regression in the PEP 517/660 function signatures that was discovered by Fedora
+
+## [1.12.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.12.0) - 2022-12-30 ## {: #hatchling-v1.12.0 }
+
 ***Added:***
 
 - Improve readability of exceptions
 - Add `extra_metadata` build data to the `wheel` target
 - Retroactively support `License-Expression` core metadata starting at version 2.1
 - Add more type hints
+- Update the set of known trove classifiers to version 2022.12.22
+- Update SPDX license information to version 3.19
 - Store Hatchling's metadata in `pyproject.toml`
 
 ***Fixed:***
 
 - Acknowledge the `ARCHFLAGS` environment variable on macOS for the `wheel` target when build hooks set the `infer_tag` build data to `true`
 - Fix dependency checking when encountering broken distributions
+- Fix the `support-legacy` option for the `sdist` target when using a src-layout project structure
 - Remove unnecessary encoding declaration in the default template for the `version` build hook
 
 ## [1.11.1](https://github.com/pypa/hatch/releases/tag/hatchling-v1.11.1) - 2022-10-19 ## {: #hatchling-v1.11.1 }

@@ -1,4 +1,4 @@
-VERSION = '2022.8.7'
+VERSION = '2022.12.22'
 
 SORTED_CLASSIFIERS = [
     'Development Status :: 1 - Planning',
@@ -40,6 +40,7 @@ SORTED_CLASSIFIERS = [
     'Environment :: GPU :: NVIDIA CUDA :: 10.0',
     'Environment :: GPU :: NVIDIA CUDA :: 10.1',
     'Environment :: GPU :: NVIDIA CUDA :: 10.2',
+    'Environment :: GPU :: NVIDIA CUDA :: 11',
     'Environment :: GPU :: NVIDIA CUDA :: 11.0',
     'Environment :: GPU :: NVIDIA CUDA :: 11.1',
     'Environment :: GPU :: NVIDIA CUDA :: 11.2',
@@ -48,6 +49,9 @@ SORTED_CLASSIFIERS = [
     'Environment :: GPU :: NVIDIA CUDA :: 11.5',
     'Environment :: GPU :: NVIDIA CUDA :: 11.6',
     'Environment :: GPU :: NVIDIA CUDA :: 11.7',
+    'Environment :: GPU :: NVIDIA CUDA :: 11.8',
+    'Environment :: GPU :: NVIDIA CUDA :: 12',
+    'Environment :: GPU :: NVIDIA CUDA :: 12 :: 12.0',
     "Environment :: Handhelds/PDA's",
     'Environment :: MacOS X',
     'Environment :: MacOS X :: Aqua',
@@ -120,6 +124,9 @@ SORTED_CLASSIFIERS = [
     'Framework :: Django CMS :: 3.8',
     'Framework :: Django CMS :: 3.9',
     'Framework :: Django CMS :: 3.10',
+    'Framework :: Django CMS :: 3.11',
+    'Framework :: Django CMS :: 4.0',
+    'Framework :: Django CMS :: 4.1',
     'Framework :: FastAPI',
     'Framework :: Flake8',
     'Framework :: Flask',
@@ -151,6 +158,7 @@ SORTED_CLASSIFIERS = [
     'Framework :: Odoo :: 13.0',
     'Framework :: Odoo :: 14.0',
     'Framework :: Odoo :: 15.0',
+    'Framework :: Odoo :: 16.0',
     'Framework :: Opps',
     'Framework :: Paste',
     'Framework :: Pelican',
@@ -194,6 +202,7 @@ SORTED_CLASSIFIERS = [
     'Framework :: Wagtail :: 1',
     'Framework :: Wagtail :: 2',
     'Framework :: Wagtail :: 3',
+    'Framework :: Wagtail :: 4',
     'Framework :: ZODB',
     'Framework :: Zope',
     'Framework :: Zope2',
@@ -810,5 +819,5 @@ SORTED_CLASSIFIERS = [
 KNOWN_CLASSIFIERS = set(SORTED_CLASSIFIERS)
 
 
-def is_private(classifier: str) -> bool:
+def is_private(classifier):
     return classifier.lower().startswith('private ::')

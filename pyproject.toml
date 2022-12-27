@@ -43,7 +43,7 @@ dependencies = [
   "httpx>=0.22.0",
   "hyperlink>=21.0.0",
   "keyring>=23.5.0",
-  "packaging>=22.0",
+  "packaging>=21.3",
   "pexpect~=4.8",
   "platformdirs>=2.5.0",
   "pyperclip>=1.8.2",
@@ -95,6 +95,7 @@ select = [
   "FBT",
   "I",
   "ICN",
+  "ISC",
   "N",
   "PLC",
   "PLE",
@@ -153,14 +154,11 @@ show_error_codes = true
 warn_no_return = false
 warn_unused_ignores = true
 
-# make sure mypy finding file path
-# explicit_package_bases = true
-namespace_packages = true
-
 [[tool.mypy.overrides]]
 module = [
     "*.hatchling.*",
-   "*.hatch.config.*",
+    "*.hatch.config.*",
+    "*.hatch.utils.*"
 ]
 disallow_untyped_defs = true
 disallow_incomplete_defs = true

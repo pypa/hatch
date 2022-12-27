@@ -56,6 +56,7 @@ All environment types should [offer support](#hatch.env.plugin.interface.Environ
       - root
       - name
       - data_directory
+      - isolated_data_directory
       - config
       - platform
       - environment_dependencies

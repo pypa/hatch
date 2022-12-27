@@ -379,6 +379,28 @@ class TestStrictNaming:
         assert builder.config.strict_naming is True
 
 
+class TestMacOSMaxCompat:
+    def test_default(self, isolation):
+        builder = WheelBuilder(str(isolation))
+
+        assert builder.config.macos_max_compat is builder.config.macos_max_compat is True
+
+    def test_correct(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'wheel': {'macos-max-compat': False}}}}}}
+        builder = WheelBuilder(str(isolation), config=config)
+
+        assert builder.config.macos_max_compat is False
+
+    def test_not_boolean(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'wheel': {'macos-max-compat': 9000}}}}}}
+        builder = WheelBuilder(str(isolation), config=config)
+
+        with pytest.raises(
+            TypeError, match='Field `tool.hatch.build.targets.wheel.macos-max-compat` must be a boolean'
+        ):
+            _ = builder.config.macos_max_compat
+
+
 class TestConstructEntryPointsFile:
     def test_default(self, isolation):
         config = {'project': {}}
@@ -1070,7 +1092,7 @@ class TestBuildStandard:
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
                     'build': {
-                        'targets': {'wheel': {'versions': ['standard']}},
+                        'targets': {'wheel': {'versions': ['standard'], 'macos-max-compat': False}},
                         'artifacts': ['my_app/lib.so'],
                         'hooks': {'custom': {'path': DEFAULT_BUILD_SCRIPT}},
                     },
@@ -1152,7 +1174,7 @@ class TestBuildStandard:
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
                     'build': {
-                        'targets': {'wheel': {'versions': ['standard']}},
+                        'targets': {'wheel': {'versions': ['standard'], 'macos-max-compat': False}},
                         'artifacts': ['my_app/lib.so'],
                         'hooks': {'custom': {'path': DEFAULT_BUILD_SCRIPT}},
                     },
@@ -1235,7 +1257,7 @@ class TestBuildStandard:
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
                     'build': {
-                        'targets': {'wheel': {'versions': ['standard']}},
+                        'targets': {'wheel': {'versions': ['standard'], 'macos-max-compat': False}},
                         'artifacts': ['my_app/lib.so'],
                         'hooks': {'custom': {'path': DEFAULT_BUILD_SCRIPT}},
                     },
@@ -1318,7 +1340,7 @@ class TestBuildStandard:
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
                     'build': {
-                        'targets': {'wheel': {'versions': ['standard']}},
+                        'targets': {'wheel': {'versions': ['standard'], 'macos-max-compat': False}},
                         'hooks': {'custom': {'path': DEFAULT_BUILD_SCRIPT}},
                     },
                 },
@@ -1403,7 +1425,7 @@ class TestBuildStandard:
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
                     'build': {
-                        'targets': {'wheel': {'versions': ['standard']}},
+                        'targets': {'wheel': {'versions': ['standard'], 'macos-max-compat': False}},
                         'hooks': {'custom': {'path': DEFAULT_BUILD_SCRIPT}},
                     },
                 },
@@ -1484,7 +1506,7 @@ class TestBuildStandard:
                 'hatch': {
                     'version': {'path': 'src/my_app/__about__.py'},
                     'build': {
-                        'targets': {'wheel': {'versions': ['standard']}},
+                        'targets': {'wheel': {'versions': ['standard'], 'macos-max-compat': False}},
                         'hooks': {'custom': {'path': DEFAULT_BUILD_SCRIPT}},
                     },
                 },
@@ -1760,7 +1782,7 @@ class TestBuildStandard:
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
                     'build': {
-                        'targets': {'wheel': {'versions': ['standard']}},
+                        'targets': {'wheel': {'versions': ['standard'], 'macos-max-compat': False}},
                         'artifacts': ['my_app/lib.so'],
                         'hooks': {'custom': {'path': DEFAULT_BUILD_SCRIPT}},
                     },
@@ -2786,16 +2808,15 @@ class TestBuildStandard:
         build_path = project_path / 'dist'
         build_path.mkdir()
 
-        with project_path.as_cwd():
-            with pytest.raises(
-                ValueError,
-                match=(
-                    'Dev mode installations are unsupported when any path rewrite in the `sources` option '
-                    'changes a prefix rather than removes it, see: '
-                    'https://github.com/pfmoore/editables/issues/20'
-                ),
-            ):
-                list(builder.build(str(build_path)))
+        with project_path.as_cwd(), pytest.raises(
+            ValueError,
+            match=(
+                'Dev mode installations are unsupported when any path rewrite in the `sources` option '
+                'changes a prefix rather than removes it, see: '
+                'https://github.com/pfmoore/editables/issues/20'
+            ),
+        ):
+            list(builder.build(str(build_path)))
 
     @pytest.mark.skipif(
         sys.platform != 'darwin' or sys.version_info < (3, 8),
@@ -2806,6 +2827,91 @@ class TestBuildStandard:
         [('-arch x86_64', 'x86_64'), ('-arch arm64', 'arm64'), ('-arch arm64 -arch x86_64', 'universal2')],
     )
     def test_macos_archflags(self, hatch, helpers, temp_dir, config_file, archflags, expected_arch):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
+        project_name = 'My.App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / 'my-app'
+
+        vcs_ignore_file = project_path / '.gitignore'
+        vcs_ignore_file.write_text('*.pyc\n*.so\n*.h')
+
+        build_script = project_path / DEFAULT_BUILD_SCRIPT
+        build_script.write_text(
+            helpers.dedent(
+                """
+                import pathlib
+
+                from hatchling.builders.hooks.plugin.interface import BuildHookInterface
+
+                class CustomHook(BuildHookInterface):
+                    def initialize(self, version, build_data):
+                        build_data['pure_python'] = False
+                        build_data['infer_tag'] = True
+
+                        pathlib.Path('my_app', 'lib.so').touch()
+                        pathlib.Path('my_app', 'lib.h').touch()
+                """
+            )
+        )
+
+        config = {
+            'project': {'name': project_name, 'requires-python': '>3', 'dynamic': ['version']},
+            'tool': {
+                'hatch': {
+                    'version': {'path': 'my_app/__about__.py'},
+                    'build': {
+                        'targets': {'wheel': {'versions': ['standard'], 'macos-max-compat': False}},
+                        'artifacts': ['my_app/lib.so'],
+                        'hooks': {'custom': {'path': DEFAULT_BUILD_SCRIPT}},
+                    },
+                },
+            },
+        }
+        builder = WheelBuilder(str(project_path), config=config)
+
+        build_path = project_path / 'dist'
+        build_path.mkdir()
+
+        with project_path.as_cwd({'ARCHFLAGS': archflags}):
+            artifacts = list(builder.build(str(build_path)))
+
+        assert len(artifacts) == 1
+        expected_artifact = artifacts[0]
+
+        build_artifacts = list(build_path.iterdir())
+        assert len(build_artifacts) == 1
+        assert expected_artifact == str(build_artifacts[0])
+
+        tag = next(sys_tags())
+        tag_parts = [tag.interpreter, tag.abi, tag.platform]
+        tag_parts[2] = tag_parts[2].replace(platform.mac_ver()[2], expected_arch)
+        expected_tag = '-'.join(tag_parts)
+        assert expected_artifact == str(build_path / f'{builder.project_id}-{expected_tag}.whl')
+
+        extraction_directory = temp_dir / '_archive'
+        extraction_directory.mkdir()
+
+        with zipfile.ZipFile(str(expected_artifact), 'r') as zip_archive:
+            zip_archive.extractall(str(extraction_directory))
+
+        metadata_directory = f'{builder.project_id}.dist-info'
+        expected_files = helpers.get_template_files(
+            'wheel.standard_default_build_script_artifacts',
+            project_name,
+            metadata_directory=metadata_directory,
+            tag=expected_tag,
+        )
+        helpers.assert_files(extraction_directory, expected_files)
+
+    @pytest.mark.requires_macos
+    def test_macos_max_compat(self, hatch, helpers, temp_dir, config_file):
         config_file.model.template.plugins['default']['src-layout'] = False
         config_file.save()
 
@@ -2858,7 +2964,7 @@ class TestBuildStandard:
         build_path = project_path / 'dist'
         build_path.mkdir()
 
-        with project_path.as_cwd({'ARCHFLAGS': archflags}):
+        with project_path.as_cwd():
             artifacts = list(builder.build(str(build_path)))
 
         assert len(artifacts) == 1
@@ -2870,7 +2976,10 @@ class TestBuildStandard:
 
         tag = next(sys_tags())
         tag_parts = [tag.interpreter, tag.abi, tag.platform]
-        tag_parts[2] = tag_parts[2].replace(platform.mac_ver()[2], expected_arch)
+        sdk_version_major, sdk_version_minor = tag_parts[2].split('_')[1:3]
+        if int(sdk_version_major) >= 11:
+            tag_parts[2] = tag_parts[2].replace(f'{sdk_version_major}_{sdk_version_minor}', '10_16', 1)
+
         expected_tag = '-'.join(tag_parts)
         assert expected_artifact == str(build_path / f'{builder.project_id}-{expected_tag}.whl')
 

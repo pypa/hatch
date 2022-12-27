@@ -1445,15 +1445,14 @@ def test_unknown_dynamic_feature(hatch, helpers, temp_dir, platform, config_file
         )
     )
 
-    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        with pytest.raises(
-            ValueError,
-            match=(
-                'Feature `foo` of field `tool.hatch.envs.test.features` is not defined in the dynamic '
-                'field `project.optional-dependencies`'
-            ),
-        ):
-            hatch('env', 'create', 'test')
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}), pytest.raises(
+        ValueError,
+        match=(
+            'Feature `foo` of field `tool.hatch.envs.test.features` is not defined in the dynamic '
+            'field `project.optional-dependencies`'
+        ),
+    ):
+        hatch('env', 'create', 'test')
 
 
 def test_no_project_file(hatch, helpers, temp_dir, config_file):
