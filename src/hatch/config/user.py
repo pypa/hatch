@@ -23,7 +23,7 @@ class ConfigFile:
     def path(self, value: Path) -> None:
         self._path = value
 
-    def save(self, content: str | bytes | None = None):
+    def save(self, content: str | bytes | None = None) -> None:
         import tomli_w
 
         if not content:

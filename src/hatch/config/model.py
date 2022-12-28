@@ -37,7 +37,7 @@ class LazilyParsedConfig:
             if prefix:
                 parse_config(getattr(self, name))
 
-    def raise_error(self, message: str, *, extra_steps: tuple = ()):
+    def raise_error(self, message: str, *, extra_steps: tuple = ()) -> ConfigurationError:
         import inspect
 
         field = inspect.currentframe().f_back.f_code.co_name  # type: ignore
@@ -45,7 +45,7 @@ class LazilyParsedConfig:
 
 
 class RootConfig(LazilyParsedConfig):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
         self._field_mode = FIELD_TO_PARSE
@@ -73,7 +73,7 @@ class RootConfig(LazilyParsedConfig):
             else:
                 self._field_mode = self.raw_data['mode'] = 'local'
 
-        return self._field_mode
+        return cast(str, self._field_mode)
 
     @mode.setter
     def mode(self, value: str) -> None:
@@ -92,10 +92,10 @@ class RootConfig(LazilyParsedConfig):
             else:
                 self._field_project = self.raw_data['project'] = ''
 
-        return self._field_project
+        return cast(str, self._field_project)
 
     @project.setter
-    def project(self, value: str):
+    def project(self, value: str) -> None:
         self.raw_data['project'] = value
         self._field_project = FIELD_TO_PARSE
 
@@ -114,7 +114,7 @@ class RootConfig(LazilyParsedConfig):
                 self.raw_data['shell'] = ''
                 self._field_shell = ShellConfig({'name': ''}, ('shell',))
 
-        return self._field_shell
+        return cast(ShellConfig, self._field_shell)
 
     @shell.setter
     def shell(self, value: ShellConfig) -> None:
@@ -135,7 +135,7 @@ class RootConfig(LazilyParsedConfig):
                 self.raw_data['dirs'] = dirs
                 self._field_dirs = DirsConfig(dirs, ('dirs',))
 
-        return self._field_dirs
+        return cast(DirsConfig, self._field_dirs)
 
     @dirs.setter
     def dirs(self, value: DirsConfig) -> None:
@@ -163,7 +163,7 @@ class RootConfig(LazilyParsedConfig):
             else:
                 self._field_projects = self.raw_data['projects'] = {}
 
-        return self._field_projects
+        return cast(Dict[str, ProjectConfig], self._field_projects)
 
     @projects.setter
     def projects(self, value: dict[str, ProjectConfig]) -> None:
@@ -186,7 +186,7 @@ class RootConfig(LazilyParsedConfig):
             else:
                 self._field_publish = self.raw_data['publish'] = {'index': {'repo': 'main'}}
 
-        return self._field_publish
+        return cast(Dict[str, Dict[str, str]], self._field_publish)
 
     @publish.setter
     def publish(self, value: dict[str, dict[str, str]]) -> None:
@@ -207,7 +207,7 @@ class RootConfig(LazilyParsedConfig):
                 self.raw_data['template'] = template
                 self._field_template = TemplateConfig(template, ('template',))
 
-        return self._field_template
+        return cast(TemplateConfig, self._field_template)
 
     @template.setter
     def template(self, value: TemplateConfig) -> None:
@@ -228,7 +228,7 @@ class RootConfig(LazilyParsedConfig):
                 self.raw_data['terminal'] = terminal
                 self._field_terminal = TerminalConfig(terminal, ('terminal',))
 
-        return self._field_terminal
+        return cast(TerminalConfig, self._field_terminal)
 
     @terminal.setter
     def terminal(self, value: TerminalConfig) -> None:
@@ -237,7 +237,7 @@ class RootConfig(LazilyParsedConfig):
 
 
 class ShellConfig(LazilyParsedConfig):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
         self._field_name = FIELD_TO_PARSE
@@ -256,7 +256,7 @@ class ShellConfig(LazilyParsedConfig):
             else:
                 self.raise_error('required field')
 
-        return self._field_name
+        return cast(str, self._field_name)
 
     @name.setter
     def name(self, value: str) -> None:
@@ -275,7 +275,7 @@ class ShellConfig(LazilyParsedConfig):
             else:
                 self._field_path = self.raw_data['path'] = self.name
 
-        return self._field_path
+        return cast(str, self._field_path)
 
     @path.setter
     def path(self, value: str) -> None:
@@ -298,7 +298,7 @@ class ShellConfig(LazilyParsedConfig):
             else:
                 self._field_args = self.raw_data['args'] = []
 
-        return self._field_args
+        return cast(List[str], self._field_args)
 
     @args.setter
     def args(self, value: list[str]) -> None:
@@ -335,7 +335,7 @@ class DirsConfig(LazilyParsedConfig):
         return cast(List[str], self._field_project)
 
     @project.setter
-    def project(self, value: list[str]):
+    def project(self, value: list[str]) -> None:
         self.raw_data['project'] = value
         self._field_project = FIELD_TO_PARSE
 
@@ -425,7 +425,7 @@ class DirsConfig(LazilyParsedConfig):
 
 
 class ProjectConfig(LazilyParsedConfig):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
         self._field_location = FIELD_TO_PARSE
@@ -442,7 +442,7 @@ class ProjectConfig(LazilyParsedConfig):
             else:
                 self.raise_error('required field')
 
-        return self._field_location
+        return cast(str, self._field_location)
 
     @location.setter
     def location(self, value: str) -> None:
@@ -451,7 +451,7 @@ class ProjectConfig(LazilyParsedConfig):
 
 
 class TemplateConfig(LazilyParsedConfig):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
         self._field_name = FIELD_TO_PARSE
@@ -480,7 +480,7 @@ class TemplateConfig(LazilyParsedConfig):
 
                 self._field_name = self.raw_data['name'] = name
 
-        return self._field_name
+        return cast(str, self._field_name)
 
     @name.setter
     def name(self, value: str) -> None:
@@ -508,7 +508,7 @@ class TemplateConfig(LazilyParsedConfig):
 
                 self._field_email = self.raw_data['email'] = email
 
-        return self._field_email
+        return cast(str, self._field_email)
 
     @email.setter
     def email(self, value: str) -> None:
@@ -529,7 +529,7 @@ class TemplateConfig(LazilyParsedConfig):
                 self.raw_data['licenses'] = licenses
                 self._field_licenses = LicensesConfig(licenses, self.steps + ('licenses',))
 
-        return self._field_licenses
+        return cast(LicensesConfig, self._field_licenses)
 
     @licenses.setter
     def licenses(self, value: LicensesConfig) -> None:
@@ -563,7 +563,7 @@ class TemplateConfig(LazilyParsedConfig):
 
 
 class LicensesConfig(LazilyParsedConfig):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
         self._field_headers = FIELD_TO_PARSE
@@ -581,10 +581,10 @@ class LicensesConfig(LazilyParsedConfig):
             else:
                 self._field_headers = self.raw_data['headers'] = True
 
-        return self._field_headers
+        return cast(bool, self._field_headers)
 
     @headers.setter
-    def headers(self, value) -> None:
+    def headers(self, value: bool) -> None:  # noqa: FBT001
         self.raw_data['headers'] = value
         self._field_headers = FIELD_TO_PARSE
 
@@ -604,7 +604,7 @@ class LicensesConfig(LazilyParsedConfig):
             else:
                 self._field_default = self.raw_data['default'] = ['MIT']
 
-        return self._field_default
+        return cast(List[str], self._field_default)
 
     @default.setter
     def default(self, value: list[str]) -> None:
@@ -613,7 +613,7 @@ class LicensesConfig(LazilyParsedConfig):
 
 
 class TerminalConfig(LazilyParsedConfig):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
         self._field_styles = FIELD_TO_PARSE
@@ -632,7 +632,7 @@ class TerminalConfig(LazilyParsedConfig):
                 self.raw_data['styles'] = styles
                 self._field_styles = StylesConfig(styles, self.steps + ('styles',))
 
-        return self._field_styles
+        return cast(StylesConfig, self._field_styles)
 
     @styles.setter
     def styles(self, value: StylesConfig) -> None:
@@ -641,7 +641,7 @@ class TerminalConfig(LazilyParsedConfig):
 
 
 class StylesConfig(LazilyParsedConfig):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
         self._field_info = FIELD_TO_PARSE
@@ -664,7 +664,7 @@ class StylesConfig(LazilyParsedConfig):
             else:
                 self._field_info = self.raw_data['info'] = 'bold'
 
-        return self._field_info
+        return cast(str, self._field_info)
 
     @info.setter
     def info(self, value: str) -> None:
@@ -683,7 +683,7 @@ class StylesConfig(LazilyParsedConfig):
             else:
                 self._field_success = self.raw_data['success'] = 'bold cyan'
 
-        return self._field_success
+        return cast(str, self._field_success)
 
     @success.setter
     def success(self, value: str) -> None:
@@ -702,7 +702,7 @@ class StylesConfig(LazilyParsedConfig):
             else:
                 self._field_error = self.raw_data['error'] = 'bold red'
 
-        return self._field_error
+        return cast(str, self._field_error)
 
     @error.setter
     def error(self, value: str) -> None:
@@ -721,7 +721,7 @@ class StylesConfig(LazilyParsedConfig):
             else:
                 self._field_warning = self.raw_data['warning'] = 'bold yellow'
 
-        return self._field_warning
+        return cast(str, self._field_warning)
 
     @warning.setter
     def warning(self, value: str) -> None:
@@ -740,7 +740,7 @@ class StylesConfig(LazilyParsedConfig):
             else:
                 self._field_waiting = self.raw_data['waiting'] = 'bold magenta'
 
-        return self._field_waiting
+        return cast(str, self._field_waiting)
 
     @waiting.setter
     def waiting(self, value: str) -> None:
@@ -759,7 +759,7 @@ class StylesConfig(LazilyParsedConfig):
             else:
                 self._field_debug = self.raw_data['debug'] = 'bold'
 
-        return self._field_debug
+        return cast(str, self._field_debug)
 
     @debug.setter
     def debug(self, value: str) -> None:
@@ -778,7 +778,7 @@ class StylesConfig(LazilyParsedConfig):
             else:
                 self._field_spinner = self.raw_data['spinner'] = 'simpleDotsScrolling'
 
-        return self._field_spinner
+        return cast(str, self._field_spinner)
 
     @spinner.setter
     def spinner(self, value: str) -> None:
