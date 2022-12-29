@@ -84,7 +84,7 @@ class Path(_PathBase):
         with temp_directory() as temp_dir:
             temp_path = Path(temp_dir, self.name)
             try:
-                shutil.move(self, temp_dir / self.name)
+                shutil.move(str(self), temp_dir / self.name)
             except FileNotFoundError:
                 pass
 
@@ -92,7 +92,7 @@ class Path(_PathBase):
                 yield temp_path
             finally:
                 try:
-                    shutil.move(temp_path, self)
+                    shutil.move(str(temp_path), self)
                 except FileNotFoundError:
                     pass
 

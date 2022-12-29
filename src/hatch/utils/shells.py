@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 from typing import TYPE_CHECKING, Callable
 
 if TYPE_CHECKING:
@@ -79,30 +80,49 @@ class ShellManager:
     def enter_csh(self, path: str, args: list[str], exe_dir: Path) -> None:
         self.spawn_linux_shell(path or 'csh', args or ['-i'], script=exe_dir / 'activate.csh')
 
-    def spawn_linux_shell(
-        self, path: str, args: list[str] | None = None, *, script: Path | None = None, callback: Callable | None = None
-    ) -> None:
-        import shutil
-        import signal
+    if sys.platform == 'win32':
 
-        import pexpect
+        def spawn_linux_shell(
+            self,
+            path: str,
+            args: list[str] | None = None,
+            *,
+            script: Path | None = None,
+            callback: Callable | None = None,
+        ) -> None:
+            raise NotImplementedError
 
-        columns, lines = shutil.get_terminal_size()
-        terminal = pexpect.spawn(path, args=args, dimensions=(lines, columns))
+    else:
 
-        def sigwinch_passthrough(sig: int, data: FrameType | None) -> None:
-            new_columns, new_lines = shutil.get_terminal_size()
-            terminal.setwinsize(new_lines, new_columns)
+        def spawn_linux_shell(
+            self,
+            path: str,
+            args: list[str] | None = None,
+            *,
+            script: Path | None = None,
+            callback: Callable | None = None,
+        ) -> None:
+            import shutil
+            import signal
 
-        signal.signal(signal.SIGWINCH, sigwinch_passthrough)
+            import pexpect
 
-        if script is not None:
-            terminal.sendline(f'source "{script}"')
+            columns, lines = shutil.get_terminal_size()
+            terminal = pexpect.spawn(path, args=args, dimensions=(lines, columns))
 
-        if callback is not None:
-            callback(terminal)
+            def sigwinch_passthrough(sig: int, data: FrameType | None) -> None:
+                new_columns, new_lines = shutil.get_terminal_size()
+                terminal.setwinsize(new_lines, new_columns)
 
-        terminal.interact(escape_character=None)
-        terminal.close()
+            signal.signal(signal.SIGWINCH, sigwinch_passthrough)
 
-        self.environment.platform.exit_with_code(terminal.exitstatus)
+            if script is not None:
+                terminal.sendline(f'source "{script}"')
+
+            if callback is not None:
+                callback(terminal)
+
+            terminal.interact(escape_character=None)
+            terminal.close()
+
+            self.environment.platform.exit_with_code(terminal.exitstatus)
