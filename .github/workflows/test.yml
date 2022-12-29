@@ -43,8 +43,7 @@ jobs:
         pip install -e .
         pip install -e ./backend
 
-    - if: matrix.python-version == '3.9' && runner.os == 'Linux'
-      name: Lint
+    - name: Lint
       run: hatch run lint:all
 
     - name: Run tests
