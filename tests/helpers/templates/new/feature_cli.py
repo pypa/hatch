@@ -163,7 +163,7 @@ detached = true
 dependencies = [
   "black",
   "mypy",
-  "ruff>=0.0.176",
+  "ruff>=0.0.202",
 ]
 [tool.hatch.envs.lint.scripts]
 typing = "mypy --install-types --non-interactive {{args:src/{kwargs['package_name']} tests}}"
@@ -201,6 +201,7 @@ select = [
   "FBT",
   "I",
   "ICN",
+  "ISC",
   "N",
   "PLC",
   "PLE",
