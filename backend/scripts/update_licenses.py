@@ -49,7 +49,7 @@ def main():
             f"""\
 from __future__ import annotations
 
-VERSION: dict[str, dict[str, str | bool]] = {latest_version!r}\n\nLICENSES = {{
+VERSION = {latest_version!r}\n\nLICENSES: dict[str, dict[str, str | bool]] = {{
 """
         )
 

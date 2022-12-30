@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-VERSION = '3.18'
+VERSION = '3.19'
 
 LICENSES: dict[str, dict[str, str | bool]] = {
     '0bsd': {'id': '0BSD', 'deprecated': False},
@@ -149,6 +149,7 @@ LICENSES: dict[str, dict[str, str | bool]] = {
     'cern-ohl-p-2.0': {'id': 'CERN-OHL-P-2.0', 'deprecated': False},
     'cern-ohl-s-2.0': {'id': 'CERN-OHL-S-2.0', 'deprecated': False},
     'cern-ohl-w-2.0': {'id': 'CERN-OHL-W-2.0', 'deprecated': False},
+    'checkmk': {'id': 'checkmk', 'deprecated': False},
     'clartistic': {'id': 'ClArtistic', 'deprecated': False},
     'cnri-jython': {'id': 'CNRI-Jython', 'deprecated': False},
     'cnri-python': {'id': 'CNRI-Python', 'deprecated': False},
@@ -200,6 +201,7 @@ LICENSES: dict[str, dict[str, str | bool]] = {
     'fsfap': {'id': 'FSFAP', 'deprecated': False},
     'fsful': {'id': 'FSFUL', 'deprecated': False},
     'fsfullr': {'id': 'FSFULLR', 'deprecated': False},
+    'fsfullrwd': {'id': 'FSFULLRWD', 'deprecated': False},
     'ftl': {'id': 'FTL', 'deprecated': False},
     'gd': {'id': 'GD', 'deprecated': False},
     'gfdl-1.1': {'id': 'GFDL-1.1', 'deprecated': True},
@@ -271,6 +273,7 @@ LICENSES: dict[str, dict[str, str | bool]] = {
     'jasper-2.0': {'id': 'JasPer-2.0', 'deprecated': False},
     'jpnic': {'id': 'JPNIC', 'deprecated': False},
     'json': {'id': 'JSON', 'deprecated': False},
+    'knuth-ctan': {'id': 'Knuth-CTAN', 'deprecated': False},
     'lal-1.2': {'id': 'LAL-1.2', 'deprecated': False},
     'lal-1.3': {'id': 'LAL-1.3', 'deprecated': False},
     'latex2e': {'id': 'Latex2e', 'deprecated': False},
@@ -292,6 +295,7 @@ LICENSES: dict[str, dict[str, str | bool]] = {
     'libpng-2.0': {'id': 'libpng-2.0', 'deprecated': False},
     'libselinux-1.0': {'id': 'libselinux-1.0', 'deprecated': False},
     'libtiff': {'id': 'libtiff', 'deprecated': False},
+    'libutil-david-nugent': {'id': 'libutil-David-Nugent', 'deprecated': False},
     'liliq-p-1.1': {'id': 'LiLiQ-P-1.1', 'deprecated': False},
     'liliq-r-1.1': {'id': 'LiLiQ-R-1.1', 'deprecated': False},
     'liliq-rplus-1.1': {'id': 'LiLiQ-Rplus-1.1', 'deprecated': False},
@@ -546,4 +550,5 @@ EXCEPTIONS: dict[str, dict[str, str | bool]] = {
     'u-boot-exception-2.0': {'id': 'u-boot-exception-2.0', 'deprecated': False},
     'universal-foss-exception-1.0': {'id': 'Universal-FOSS-exception-1.0', 'deprecated': False},
     'wxwindows-exception-3.1': {'id': 'WxWindows-exception-3.1', 'deprecated': False},
+    'x11vnc-openssl-exception': {'id': 'x11vnc-openssl-exception', 'deprecated': False},
 }

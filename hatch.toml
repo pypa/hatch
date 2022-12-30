@@ -122,6 +122,7 @@ HATCH_BUILD_CLEAN = "true"
 [envs.backend.scripts]
 build = "python -m build backend"
 publish = "hatch publish backend/dist"
+version = "cd backend && hatch version {args}"
 update-data = [
   "update-classifiers",
   "update-licenses",

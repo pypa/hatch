@@ -14,6 +14,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Add `extra_metadata` build data to the `wheel` target
 - Retroactively support `License-Expression` core metadata starting at version 2.1
 - Add more type hints
+- Update the set of known trove classifiers to version 2022.12.22
+- Update SPDX license information to version 3.19
 - Store Hatchling's metadata in `pyproject.toml`
 
 ***Fixed:***
