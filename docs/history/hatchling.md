@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.12.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.12.0) - 2022-12-30 ## {: #hatchling-v1.12.0 }
+
 ***Added:***
 
 - Improve readability of exceptions
