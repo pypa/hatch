@@ -131,6 +131,7 @@ known-first-party = ["hatch", "hatchling"]
 [tool.ruff.flake8-quotes]
 inline-quotes = "single"
 
+[tool.ruff.flake8-tidy-imports.banned-api]
 [tool.ruff.flake8-tidy-imports]
 ban-relative-imports = "all"
 
