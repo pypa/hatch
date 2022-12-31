@@ -37,9 +37,9 @@ def get_requires_for_build_wheel(config_settings: dict[str, Any] | None = None) 
     return read_dependencies()
 
 
-def get_requires_for_build_editable(
+def get_requires_for_build_editable(  # type: ignore[no-redef]
     config_settings: dict[str, Any] | None = None
-) -> list[str]:  # type: ignore[no-redef]
+) -> list[str]:
     """
     https://peps.python.org/pep-0660/#get-requires-for-build-editable
     """
