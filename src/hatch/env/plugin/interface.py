@@ -44,13 +44,26 @@ class EnvironmentInterface(ABC):
     PLUGIN_NAME = ''
     """The name used for selection."""
 
-    def __init__(self, root, metadata, name, config, matrix_variables, data_directory, platform, verbosity, app=None):
+    def __init__(
+        self,
+        root,
+        metadata,
+        name,
+        config,
+        matrix_variables,
+        data_directory,
+        isolated_data_directory,
+        platform,
+        verbosity,
+        app=None,
+    ):
         self.__root = root
         self.__metadata = metadata
         self.__name = name
         self.__config = config
         self.__matrix_variables = matrix_variables
         self.__data_directory = data_directory
+        self.__isolated_data_directory = isolated_data_directory
         self.__platform = platform
         self.__verbosity = verbosity
         self.__app = app
@@ -128,9 +141,19 @@ class EnvironmentInterface(ABC):
     @property
     def data_directory(self):
         """
-        The [directory](../../config/hatch.md#environments) reserved exclusively for this plugin as a path-like object.
+        The [directory](../../config/hatch.md#environments) this plugin should use for storage as a path-like object.
+        If the user has not configured one then this will be the same as the
+        [isolated data directory](reference.md#hatch.env.plugin.interface.EnvironmentInterface.isolated_data_directory).
         """
         return self.__data_directory
+
+    @property
+    def isolated_data_directory(self):
+        """
+        The default [directory](../../config/hatch.md#environments) reserved exclusively for this plugin as a path-like
+        object.
+        """
+        return self.__isolated_data_directory
 
     @property
     def config(self) -> dict:
