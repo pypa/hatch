@@ -132,3 +132,9 @@ update-classifiers = [
   "pip install --upgrade trove-classifiers",
   "python backend/scripts/update_classifiers.py",
 ]
+
+[envs.release]
+detached = true
+[envs.release.scripts]
+bump = "python scripts/bump.py {args}"
+github = "python scripts/release_github.py {args}"
