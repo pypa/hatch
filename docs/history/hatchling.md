@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Fixed:***
+
+- Add `macos-max-compat` option to the `wheel` target that is enabled by default to support the latest version 22.0 of the `packaging` library
+
 ## [1.12.1](https://github.com/pypa/hatch/releases/tag/hatchling-v1.12.1) - 2022-12-31 ## {: #hatchling-v1.12.1 }
 
 ***Fixed:***
