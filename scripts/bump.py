@@ -6,7 +6,7 @@ from pathlib import Path
 
 TEMPLATE = (
     '## [{version}](https://github.com/pypa/hatch/releases/tag/{project}-v{version}) - '
-    '{year}-{month}-{day} ## {{: #{project}-v{version} }}'
+    '{year}-{month:02}-{day:02} ## {{: #{project}-v{version} }}'
 )
 
 

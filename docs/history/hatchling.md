@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
-## [1.12.2](https://github.com/pypa/hatch/releases/tag/hatchling-v1.12.2) - 2023-1-5 ## {: #hatchling-v1.12.2 }
+## [1.12.3](https://github.com/pypa/hatch/releases/tag/hatchling-v1.12.3) - 2023-01-05 ## {: #hatchling-v1.12.3 }
 
 ***Fixed:***
 
