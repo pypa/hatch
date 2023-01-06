@@ -18,16 +18,15 @@ class VirtualEnvironment(EnvironmentInterface):
         project_name = self.metadata.name
         venv_name = project_name if self.name == 'default' else self.name
 
-        # Always compute the app path for build environments
+        # Always compute the isolated app path for build environments
         hashed_root = sha256(str(self.root).encode('utf-8')).digest()
         checksum = urlsafe_b64encode(hashed_root).decode('utf-8')[:8]
-        app_storage_path = self.data_directory / project_name / checksum
-        app_virtual_env_path = app_storage_path / venv_name
+        app_virtual_env_path = self.isolated_data_directory / project_name / checksum / venv_name
 
         # Explicit path
         chosen_directory = self.get_env_var_option('path') or self.config.get('path', '')
         if chosen_directory:
-            self.storage_path = app_storage_path
+            self.storage_path = self.data_directory / project_name / checksum
             self.virtual_env_path = (
                 Path(chosen_directory) if isabs(chosen_directory) else (self.root / chosen_directory).resolve()
             )
@@ -35,10 +34,10 @@ class VirtualEnvironment(EnvironmentInterface):
         elif self.root in self.data_directory.parents or self.data_directory == self.platform.home / '.virtualenvs':
             self.storage_path = self.data_directory
             self.virtual_env_path = self.storage_path / venv_name
-        # Otherwise the standard app path
+        # Otherwise the defined app path
         else:
-            self.storage_path = app_storage_path
-            self.virtual_env_path = app_virtual_env_path
+            self.storage_path = self.data_directory / project_name / checksum
+            self.virtual_env_path = self.storage_path / venv_name
 
         self.virtual_env = VirtualEnv(self.virtual_env_path, self.platform, self.verbosity)
         self.build_virtual_env = VirtualEnv(
