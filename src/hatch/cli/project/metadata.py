@@ -38,13 +38,12 @@ def metadata(app, field):
             with app.status_waiting(
                 'Setting up build environment for missing dependencies',
                 condition=not environment.build_environment_exists(),
-            ) as status:
-                with environment.build_environment(app.project.metadata.build.requires):
-                    status.stop()
+            ) as status, environment.build_environment(app.project.metadata.build.requires):
+                status.stop()
 
-                    command = ['python', '-u', '-m', 'hatchling', 'metadata', '--app', '--compact']
-                    process = app.platform.capture_process(command)
-                    project_metadata = json.loads(app.read_builder(process))
+                command = ['python', '-u', '-m', 'hatchling', 'metadata', '--app', '--compact']
+                process = app.platform.capture_process(command)
+                project_metadata = json.loads(app.read_builder(process))
 
     if field:
         if field not in project_metadata:

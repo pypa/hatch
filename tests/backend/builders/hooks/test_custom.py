@@ -96,6 +96,5 @@ def test_no_subclass(temp_dir, helpers):
         match=re.escape(
             f'Unable to find a subclass of `BuildHookInterface` in `foo/{DEFAULT_BUILD_SCRIPT}`: {temp_dir}'
         ),
-    ):
-        with temp_dir.as_cwd():
-            CustomBuildHook(str(temp_dir), config, None, None, '', '')
+    ), temp_dir.as_cwd():
+        CustomBuildHook(str(temp_dir), config, None, None, '', '')

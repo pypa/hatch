@@ -9,7 +9,6 @@ if TYPE_CHECKING:
 
 
 def download_file(path: Path, *args: Any, **kwargs: Any) -> None:
-    with path.open(mode='wb', buffering=0) as f:
-        with httpx.stream('GET', *args, **kwargs) as response:
-            for chunk in response.iter_bytes(16384):
-                f.write(chunk)
+    with path.open(mode='wb', buffering=0) as f, httpx.stream('GET', *args, **kwargs) as response:
+        for chunk in response.iter_bytes(16384):
+            f.write(chunk)

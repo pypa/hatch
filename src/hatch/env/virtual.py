@@ -1,5 +1,5 @@
 from base64 import urlsafe_b64encode
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 from hashlib import sha256
 from os.path import isabs
 
@@ -158,11 +158,9 @@ class VirtualEnvironment(EnvironmentInterface):
         if not python_choice:
             return
 
-        try:
+        with suppress(Exception):
             if self.parent_python:
                 return
-        except Exception:
-            pass
 
         message = f'cannot locate Python: {python_choice}'
         raise OSError(message)
