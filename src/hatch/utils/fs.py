@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 # There is special recognition in Mypy for `sys.platform`, not `os.name`
 # https://github.com/python/cpython/blob/09d7319bfe0006d9aa3fc14833b69c24ccafdca6/Lib/pathlib.py#L957
-if sys.platform == 'win32':
+if sys.platform == 'win32':  # noqa: SIM108
     _PathBase = pathlib.WindowsPath
 else:
     _PathBase = pathlib.PosixPath
