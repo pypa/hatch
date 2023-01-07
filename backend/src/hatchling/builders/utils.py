@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 import shutil
 from base64 import urlsafe_b64encode
-from typing import TYPE_CHECKING, Generator
+from typing import TYPE_CHECKING, Iterable
 
 if TYPE_CHECKING:
     from zipfile import ZipInfo
@@ -18,7 +18,7 @@ def replace_file(src: str, dst: str) -> None:
         os.remove(src)
 
 
-def safe_walk(path: str) -> Generator:
+def safe_walk(path: str) -> Iterable[tuple[str, list[str], list[str]]]:
     seen = set()
     for root, dirs, files in os.walk(path, followlinks=True):
         stat = os.stat(root)

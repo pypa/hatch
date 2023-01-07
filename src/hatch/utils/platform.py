@@ -4,7 +4,7 @@ import os
 import sys
 from functools import lru_cache
 from importlib import import_module
-from typing import TYPE_CHECKING, Any, Callable, Generator, cast
+from typing import TYPE_CHECKING, Any, Callable, Iterable, cast
 
 if TYPE_CHECKING:
     from subprocess import CompletedProcess, Popen
@@ -139,7 +139,7 @@ class Platform:
         )
 
     @staticmethod
-    def stream_process_output(process: Popen) -> Generator[str, None, None]:
+    def stream_process_output(process: Popen) -> Iterable[str]:
         # To avoid blocking never use a pipe's file descriptor iterator. See https://bugs.python.org/issue3907
         for line in iter(process.stdout.readline, b''):  # type: ignore
             yield line.decode('utf-8')
