@@ -26,6 +26,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ***Fixed:***
 
 - Fix displaying the version with the `version` command when the version is static and build dependencies are unmet
+- Fix build environments for the `virtual` environment type when storing within a relative path
 - Fix the `support-legacy` option for the `sdist` target when using a src-layout project structure
 - Support boolean values for the `config set` command
 
