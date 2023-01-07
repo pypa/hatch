@@ -101,14 +101,15 @@ path = "{package_metadata_file_path}"{tests_section}
         template_config['name'] = repr(template_config['name'])[1:-1]
 
         project_url_data = ''
-        if 'project_urls' in plugin_config:
-            project_urls = plugin_config['project_urls']
-        else:
-            project_urls = {
+        project_urls = (
+            plugin_config['project_urls']
+            if 'project_urls' in plugin_config
+            else {
                 'Documentation': 'https://github.com/unknown/{project_name_normalized}#readme',
                 'Issues': 'https://github.com/unknown/{project_name_normalized}/issues',
                 'Source': 'https://github.com/unknown/{project_name_normalized}',
             }
+        )
         if project_urls:
             for label, url in project_urls.items():
                 if ' ' in label:

@@ -12,10 +12,9 @@ def remove(ctx, env_name):
     if ctx.get_parameter_source('env_name').name == 'DEFAULT':
         env_name = app.env
 
-    if env_name in app.project.config.matrices:
-        environments = list(app.project.config.matrices[env_name]['envs'])
-    else:
-        environments = [env_name]
+    environments = (
+        list(app.project.config.matrices[env_name]['envs']) if env_name in app.project.config.matrices else [env_name]
+    )
 
     for env_name in environments:
         if env_name == app.env_active:

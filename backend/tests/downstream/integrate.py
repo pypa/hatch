@@ -61,7 +61,7 @@ def python_version_supported(project_config):
 
 
 def download_file(url, file_name):
-    response = requests.get(url, stream=True)
+    response = requests.get(url, stream=True, timeout=20)
     with open(file_name, 'wb') as f:
         for chunk in response.iter_content(16384):
             f.write(chunk)
