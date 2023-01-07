@@ -98,6 +98,5 @@ def test_no_subclass(temp_dir, helpers):
         match=re.escape(
             f'Unable to find a subclass of `EnvironmentCollectorInterface` in `foo/{DEFAULT_CUSTOM_SCRIPT}`: {temp_dir}'
         ),
-    ):
-        with temp_dir.as_cwd():
-            CustomEnvironmentCollector(str(temp_dir), config)
+    ), temp_dir.as_cwd():
+        CustomEnvironmentCollector(str(temp_dir), config)

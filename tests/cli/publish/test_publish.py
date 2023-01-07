@@ -637,13 +637,13 @@ class TestWheel:
         artifact_path = str(artifacts[0])
         metadata_file_path = f'{published_project_name}-{current_version}.dist-info/METADATA'
 
-        with zipfile.ZipFile(artifact_path, 'r') as zip_archive:
-            with zip_archive.open(metadata_file_path) as metadata_file:
-                metadata_file_contents = metadata_file.read().decode('utf-8')
+        with zipfile.ZipFile(artifact_path, 'r') as zip_archive, zip_archive.open(metadata_file_path) as metadata_file:
+            metadata_file_contents = metadata_file.read().decode('utf-8')
 
-        with zipfile.ZipFile(artifact_path, 'w') as zip_archive:
-            with zip_archive.open(metadata_file_path, 'w') as metadata_file:
-                metadata_file.write(remove_metadata_field(field, metadata_file_contents).encode('utf-8'))
+        with zipfile.ZipFile(artifact_path, 'w') as zip_archive, zip_archive.open(
+            metadata_file_path, 'w'
+        ) as metadata_file:
+            metadata_file.write(remove_metadata_field(field, metadata_file_contents).encode('utf-8'))
 
         with path.as_cwd():
             result = hatch('publish', '--user', 'foo', '--auth', 'bar')
