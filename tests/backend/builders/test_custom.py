@@ -237,9 +237,8 @@ def test_no_subclass(hatch, helpers, temp_dir):
     with pytest.raises(
         ValueError,
         match=re.escape(f'Unable to find a subclass of `BuilderInterface` in `foo/{DEFAULT_BUILD_SCRIPT}`: {temp_dir}'),
-    ):
-        with project_path.as_cwd():
-            CustomBuilder(str(project_path), config=config)
+    ), project_path.as_cwd():
+        CustomBuilder(str(project_path), config=config)
 
 
 def test_multiple_subclasses(hatch, helpers, temp_dir):
@@ -283,6 +282,5 @@ def test_multiple_subclasses(hatch, helpers, temp_dir):
             f'Multiple subclasses of `BuilderInterface` found in `foo/{DEFAULT_BUILD_SCRIPT}`, select '
             f'one by defining a function named `get_builder`: {temp_dir}'
         ),
-    ):
-        with project_path.as_cwd():
-            CustomBuilder(str(project_path), config=config)
+    ), project_path.as_cwd():
+        CustomBuilder(str(project_path), config=config)

@@ -51,7 +51,7 @@ class PackageIndex:
 
         with artifact.open('rb') as f:
             # https://github.com/pypa/warehouse/blob/7fc3ce5bd7ecc93ef54c1652787fb5e7757fe6f2/tests/unit/packaging/test_tasks.py#L189-L191
-            md5_hash = hashlib.md5()  # nosec B303
+            md5_hash = hashlib.md5()  # noqa: S324
             sha256_hash = hashlib.sha256()
             blake2_256_hash = hashlib.blake2b(digest_size=32)
 

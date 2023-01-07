@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 import pathlib
 import sys
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 from typing import TYPE_CHECKING, Any, Generator
 
 from hatch.utils.structures import EnvVars
@@ -83,18 +83,14 @@ class Path(_PathBase):
 
         with temp_directory() as temp_dir:
             temp_path = Path(temp_dir, self.name)
-            try:
+            with suppress(FileNotFoundError):
                 shutil.move(str(self), temp_dir / self.name)
-            except FileNotFoundError:
-                pass
 
             try:
                 yield temp_path
             finally:
-                try:
+                with suppress(FileNotFoundError):
                     shutil.move(str(temp_path), self)
-                except FileNotFoundError:
-                    pass
 
 
 @contextmanager
@@ -107,6 +103,5 @@ def temp_directory() -> Generator[Path, None, None]:
 
 @contextmanager
 def temp_chdir(env_vars: dict[str, str] | None = None) -> Generator[Path, None, None]:
-    with temp_directory() as d:
-        with d.as_cwd(env_vars=env_vars):
-            yield d
+    with temp_directory() as d, d.as_cwd(env_vars=env_vars):
+        yield d
