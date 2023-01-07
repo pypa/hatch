@@ -13,10 +13,11 @@ def find(app, env_name):
     if root_env_name not in project_config.envs and root_env_name not in project_config.matrices:
         app.abort(f'Environment `{root_env_name}` is not defined by project config')
 
-    if root_env_name in project_config.matrices:
-        environments = list(project_config.matrices[root_env_name]['envs'])
-    else:
-        environments = [root_env_name]
+    environments = (
+        list(project_config.matrices[root_env_name]['envs'])
+        if root_env_name in project_config.matrices
+        else [root_env_name]
+    )
 
     for env_name in environments:
         environment = app.get_environment(env_name)

@@ -93,10 +93,11 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
         self.metadata.validate_fields()
 
         if directory is None:
-            if BuildEnvVars.LOCATION in os.environ:
-                directory = self.config.normalize_build_directory(os.environ[BuildEnvVars.LOCATION])
-            else:
-                directory = self.config.directory
+            directory = (
+                self.config.normalize_build_directory(os.environ[BuildEnvVars.LOCATION])
+                if BuildEnvVars.LOCATION in os.environ
+                else self.config.directory
+            )
 
         if not os.path.isdir(directory):
             os.makedirs(directory)
