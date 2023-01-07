@@ -2808,16 +2808,15 @@ class TestBuildStandard:
         build_path = project_path / 'dist'
         build_path.mkdir()
 
-        with project_path.as_cwd():
-            with pytest.raises(
-                ValueError,
-                match=(
-                    'Dev mode installations are unsupported when any path rewrite in the `sources` option '
-                    'changes a prefix rather than removes it, see: '
-                    'https://github.com/pfmoore/editables/issues/20'
-                ),
-            ):
-                list(builder.build(str(build_path)))
+        with project_path.as_cwd(), pytest.raises(
+            ValueError,
+            match=(
+                'Dev mode installations are unsupported when any path rewrite in the `sources` option '
+                'changes a prefix rather than removes it, see: '
+                'https://github.com/pfmoore/editables/issues/20'
+            ),
+        ):
+            list(builder.build(str(build_path)))
 
     @pytest.mark.skipif(
         sys.platform != 'darwin' or sys.version_info < (3, 8),

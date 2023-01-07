@@ -46,9 +46,8 @@ def test_no_version(temp_dir):
     file_path.ensure_parent_dir_exists()
     file_path.touch()
 
-    with temp_dir.as_cwd():
-        with pytest.raises(ValueError, match='unable to parse the version from the file: a/b'):
-            source.get_version_data()
+    with temp_dir.as_cwd(), pytest.raises(ValueError, match='unable to parse the version from the file: a/b'):
+        source.get_version_data()
 
 
 def test_pattern_no_version_group(temp_dir):
@@ -58,9 +57,8 @@ def test_pattern_no_version_group(temp_dir):
     file_path.ensure_parent_dir_exists()
     file_path.write_text('foo')
 
-    with temp_dir.as_cwd():
-        with pytest.raises(ValueError, match='no group named `version` was defined in the pattern'):
-            source.get_version_data()
+    with temp_dir.as_cwd(), pytest.raises(ValueError, match='no group named `version` was defined in the pattern'):
+        source.get_version_data()
 
 
 def test_match_custom_pattern(temp_dir):
