@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from typing import Generator
+from typing import Iterable
 
 from hatch.publish.plugin.interface import PublisherInterface
 from hatch.utils.fs import Path
@@ -176,7 +176,7 @@ class IndexPublisher(PublisherInterface):
             keyring.set_password(repo, user, auth)
 
 
-def recurse_artifacts(artifacts: list, root) -> Generator[Path, None, None]:
+def recurse_artifacts(artifacts: list, root) -> Iterable[Path]:
     for artifact in artifacts:
         artifact = Path(artifact)
         if not artifact.is_absolute():
