@@ -36,6 +36,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Acknowledge the `ARCHFLAGS` environment variable on macOS for the `wheel` target when build hooks set the `infer_tag` build data to `true`
 - Fix dependency checking when encountering broken distributions
+- Fix the `support-legacy` option for the `sdist` target when using a src-layout project structure
 - Remove unnecessary encoding declaration in the default template for the `version` build hook
 
 ## [1.11.1](https://github.com/pypa/hatch/releases/tag/hatchling-v1.11.1) - 2022-10-19 ## {: #hatchling-v1.11.1 }
