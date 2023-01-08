@@ -95,6 +95,7 @@ class Platform:
         if self.displaying_status and not kwargs.get('capture_output'):
             return self._run_command_integrated(command, shell=shell, **kwargs)
 
+        self.populate_default_popen_kwargs(kwargs, shell=shell)
         return self.modules.subprocess.run(self.format_for_subprocess(command, shell=shell), shell=shell, **kwargs)
 
     def check_command(self, command: str | list[str], *, shell: bool = False, **kwargs: Any) -> CompletedProcess:
@@ -130,6 +131,7 @@ class Platform:
         with all output captured by `stdout` and the command first being
         [properly formatted](utilities.md#hatch.utils.platform.Platform.format_for_subprocess).
         """
+        self.populate_default_popen_kwargs(kwargs, shell=shell)
         return self.modules.subprocess.Popen(
             self.format_for_subprocess(command, shell=shell),
             shell=shell,
@@ -137,6 +139,31 @@ class Platform:
             stderr=self.modules.subprocess.STDOUT,
             **kwargs,
         )
+
+    def populate_default_popen_kwargs(self, kwargs: dict[str, Any], *, shell: bool) -> None:
+        # https://support.apple.com/en-us/HT204899
+        # https://en.wikipedia.org/wiki/System_Integrity_Protection
+        if (
+            'executable' not in kwargs
+            and self.macos
+            and shell
+            and any(env_var.startswith(('DYLD_', 'LD_')) for env_var in os.environ)
+        ):
+            default_paths = os.environ.get('PATH', os.defpath).split(os.pathsep)
+            unprotected_paths = []
+            for path in default_paths:
+                normalized_path = os.path.normpath(path)
+                if not normalized_path.startswith(('/System', '/usr', '/bin', '/sbin', '/var')):
+                    unprotected_paths.append(path)
+                elif normalized_path.startswith('/usr/local'):
+                    unprotected_paths.append(path)
+
+            search_path = os.pathsep.join(unprotected_paths)
+            for exe_name in ('sh', 'bash', 'zsh', 'fish'):
+                executable = self.modules.shutil.which(exe_name, path=search_path)
+                if executable:
+                    kwargs['executable'] = executable
+                    break
 
     @staticmethod
     def stream_process_output(process: Popen) -> Iterable[str]:

@@ -1,9 +1,11 @@
 import os
+import stat
 
 import pytest
 
 from hatch.utils.fs import Path
 from hatch.utils.platform import Platform
+from hatch.utils.structures import EnvVars
 
 
 @pytest.mark.requires_windows
@@ -31,6 +33,17 @@ class TestWindows:
 
         assert platform.home == platform.home == Path(os.path.expanduser('~'))
 
+    def test_populate_default_popen_kwargs_executable(self):
+        platform = Platform()
+
+        kwargs = {}
+        platform.populate_default_popen_kwargs(kwargs, shell=True)
+        assert not kwargs
+
+        kwargs['executable'] = 'foo'
+        platform.populate_default_popen_kwargs(kwargs, shell=True)
+        assert kwargs['executable'] == 'foo'
+
 
 @pytest.mark.requires_macos
 class TestMacOS:
@@ -57,6 +70,20 @@ class TestMacOS:
 
         assert platform.home == platform.home == Path(os.path.expanduser('~'))
 
+    def test_populate_default_popen_kwargs_executable(self, temp_dir):
+        new_path = f'{os.environ.get("PATH", "")}{os.pathsep}{temp_dir}'.strip(os.pathsep)
+        executable = temp_dir / 'sh'
+        executable.touch()
+        executable.chmod(executable.stat().st_mode | stat.S_IEXEC)
+
+        kwargs = {}
+
+        platform = Platform()
+        with EnvVars({'DYLD_FOO': 'bar', 'PATH': new_path}):
+            platform.populate_default_popen_kwargs(kwargs, shell=True)
+
+        assert kwargs['executable'] == str(executable)
+
 
 @pytest.mark.requires_linux
 class TestLinux:
@@ -82,3 +109,14 @@ class TestLinux:
         platform = Platform()
 
         assert platform.home == platform.home == Path(os.path.expanduser('~'))
+
+    def test_populate_default_popen_kwargs_executable(self):
+        platform = Platform()
+
+        kwargs = {}
+        platform.populate_default_popen_kwargs(kwargs, shell=True)
+        assert not kwargs
+
+        kwargs['executable'] = 'foo'
+        platform.populate_default_popen_kwargs(kwargs, shell=True)
+        assert kwargs['executable'] == 'foo'
