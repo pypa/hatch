@@ -39,3 +39,14 @@ The [location](../../cli/reference.md#hatch-env-find) of environments is determi
 3. Otherwise, environments are stored within the configured `virtual` [environment directory](../../config/hatch.md#environments) in a deeply nested structure in order to support multiple projects
 
 Additionally, when the `path` option is not used, the name of the directory for the `default` environment will be the normalized project name to provide a more meaningful default [shell](../../cli/reference.md#hatch-shell) prompt.
+
+## Troubleshooting
+
+### macOS SIP
+
+If you need to set linker environment variables like those starting with `DYLD_` or `LD_`, any executable secured by [System Integrity Protection](https://en.wikipedia.org/wiki/System_Integrity_Protection) that is invoked when [running commands](../../environment.md#command-execution) will not see those environment variable modifications as macOS strips those.
+
+Hatch interprets such commands as shell commands but deliberately ignores such paths to protected shells. This workaround suffices for the majority of use cases but there are 2 situations in which it may not:
+
+1. There are no unprotected `sh`, `bash`, `zsh`, nor `fish` executables found along PATH.
+2. The desired executable is a project's [script](../../config/metadata.md#cli), and the [location](#location) of environments contains spaces or is longer than 124 characters. In this case `pip` and other installers will create such an entry point with a shebang pointing to `/bin/sh` to avoid shebang limitations.
