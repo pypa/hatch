@@ -49,6 +49,6 @@ If you need to set linker environment variables like those starting with `DYLD_`
 Hatch interprets such commands as shell commands but deliberately ignores such paths to protected shells. This workaround suffices for the majority of use cases but there are 2 situations in which it may not:
 
 1. There are no unprotected `sh`, `bash`, `zsh`, nor `fish` executables found along PATH.
-2. The desired executable is a project's [script](../../config/metadata.md#cli), and the [location](#location) of environments contains spaces or is longer than 124[^1] characters. In this case `pip` and other installers will create such an entry point with a shebang pointing to `/bin/sh` (which is protected) to avoid shebang limitations.
+2. The desired executable is a project's [script](../../config/metadata.md#cli), and the [location](#location) of environments contains spaces or is longer than 124[^1] characters. In this case `pip` and other installers will create such an entry point with a shebang pointing to `/bin/sh` (which is protected) to avoid shebang limitations. Rather than changing the location, you could invoke the script as e.g. `python -m pytest` (if the project supports that method of invocation by shipping a `__main__.py`).
 
 [^1]: The shebang length limit is [usually](https://web.archive.org/web/20221231220856/https://www.in-ulm.de/~mascheck/various/shebang/#length) 127 but 3 characters surround the executable path: `#!<EXE_PATH>\n`
