@@ -156,9 +156,12 @@ If you define environments with dependencies that only slightly differ from thei
 
 ## Installation
 
-### Features
+### Features (extras) ### {: #features }
 
 If your project defines [optional dependencies](../metadata.md#optional), you can select which groups to install using the `features` option:
+
+!!! note
+    Features/optional dependencies are also known as `extras` in other tools.
 
 === ":octicons-file-code-16: pyproject.toml"
 
