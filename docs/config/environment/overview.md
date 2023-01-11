@@ -160,9 +160,6 @@ If you define environments with dependencies that only slightly differ from thei
 
 If your project defines [optional dependencies](../metadata.md#optional), you can select which groups to install using the `features` option:
 
-!!! note
-    Features/optional dependencies are also known as `extras` in other tools.
-
 === ":octicons-file-code-16: pyproject.toml"
 
     ```toml
@@ -182,6 +179,9 @@ If your project defines [optional dependencies](../metadata.md#optional), you ca
       "grpc",
     ]
     ```
+
+!!! note
+    Features/optional dependencies are also known as `extras` in other tools.
 
 ### Dev mode
 
