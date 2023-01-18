@@ -40,7 +40,7 @@ class Path(_PathBase):
     def expand(self) -> Path:
         return Path(os.path.expanduser(os.path.expandvars(self)))
 
-    def resolve(self, strict: bool = False) -> Path:
+    def resolve(self, strict: bool = False) -> Path:  # noqa: FBT002
         # https://bugs.python.org/issue38671
         return Path(os.path.realpath(self))
 

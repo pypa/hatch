@@ -1,10 +1,7 @@
 from __future__ import annotations
 
 import argparse
-from typing import TYPE_CHECKING, Any, cast
-
-if TYPE_CHECKING:
-    from hatch.utils.fs import Path
+from typing import Any
 
 
 def version_impl(*, called_by_app: bool, desired_version: str) -> None:
@@ -16,7 +13,7 @@ def version_impl(*, called_by_app: bool, desired_version: str) -> None:
 
     app = get_application(called_by_app=called_by_app)
 
-    root = cast(Path, os.getcwd())
+    root = os.getcwd()
     plugin_manager = PluginManager()
     metadata = ProjectMetadata(root, plugin_manager)
 
