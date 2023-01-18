@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import re
-from typing import Iterable
+from typing import Any, Iterable, cast
 
 from hatch.publish.plugin.interface import PublisherInterface
+from hatch.types import PathLike
 from hatch.utils.fs import Path
 from hatchling.metadata.utils import normalize_project_name
 
@@ -11,7 +12,7 @@ from hatchling.metadata.utils import normalize_project_name
 class IndexPublisher(PublisherInterface):
     PLUGIN_NAME = 'index'
 
-    def get_repos(self):
+    def get_repos(self) -> dict[str, dict]:
         global_plugin_config = self.plugin_config.copy()
         defined_repos = self.plugin_config.pop('repos', {})
         self.plugin_config.pop('repo', None)
@@ -39,7 +40,7 @@ class IndexPublisher(PublisherInterface):
 
         return repos
 
-    def publish(self, artifacts: list, options: dict):
+    def publish(self, artifacts: list[PathLike], options: dict[str, Any]) -> None:
         """
         https://warehouse.readthedocs.io/api-reference/legacy.html#upload-api
         """
@@ -170,7 +171,7 @@ class IndexPublisher(PublisherInterface):
             keyring.set_password(repo, user, auth)
 
 
-def recurse_artifacts(artifacts: list, root) -> Iterable[Path]:
+def recurse_artifacts(artifacts: list[PathLike], root: PathLike) -> Iterable[Path]:
     for artifact in artifacts:
         artifact = Path(artifact)
         if not artifact.is_absolute():
@@ -182,21 +183,21 @@ def recurse_artifacts(artifacts: list, root) -> Iterable[Path]:
             yield from artifact.iterdir()
 
 
-def parse_artifacts(artifact_payload):
+def parse_artifacts(artifact_payload: str) -> Iterable[str]:
     for match in re.finditer(r'<a [^>]+>([^<]+)</a>', artifact_payload):
         yield match.group(1)
 
 
 class CachedUserFile:
-    def __init__(self, cache_dir: Path):
-        self.path = cache_dir / 'previous_working_users.json'
+    def __init__(self, cache_dir: PathLike) -> None:
+        self.path = cast(Path, cache_dir) / 'previous_working_users.json'
 
-        self._data = None
+        self._data: dict | None = None
 
-    def get_user(self, repo: str):
+    def get_user(self, repo: str) -> str | None:
         return self.data.get(repo)
 
-    def set_user(self, repo: str, user: str):
+    def set_user(self, repo: str, user: str) -> None:
         import json
 
         self.data[repo] = user
@@ -205,7 +206,7 @@ class CachedUserFile:
         self.path.write_text(json.dumps(self.data))
 
     @property
-    def data(self):
+    def data(self) -> dict:
         if self._data is None:
             if not self.path.is_file():
                 self._data = {}

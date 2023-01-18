@@ -12,6 +12,7 @@ from hatchling.metadata.utils import normalize_project_name
 from hatchling.utils.fs import locate_file
 
 if TYPE_CHECKING:
+    from hatch.types import PathLike
     from hatchling.builders.plugin.interface import BuilderInterface
 
 
@@ -19,7 +20,7 @@ class BuilderConfig:
     def __init__(
         self,
         builder: BuilderInterface,
-        root: str,
+        root: PathLike,
         plugin_name: str,
         build_config: dict[str, Any],
         target_config: dict[str, Any],
@@ -69,7 +70,7 @@ class BuilderConfig:
         return self.__builder
 
     @property
-    def root(self) -> str:
+    def root(self) -> PathLike:
         return self.__root
 
     @property
@@ -766,7 +767,7 @@ class BuilderConfig:
                 message = f'Field `{only_include_location}` must be an array'
                 raise TypeError(message)
 
-            inclusion_map = {}
+            inclusion_map: dict[str, PathLike] = {}
 
             for i, relative_path in enumerate(only_include, 1):
                 if not isinstance(relative_path, str):
@@ -787,8 +788,9 @@ class BuilderConfig:
 
         return self.__only_include
 
-    def get_distribution_path(self, relative_path: str) -> str:
+    def get_distribution_path(self, relative_path: PathLike) -> str:
         # src/foo/bar.py -> foo/bar.py
+        relative_path = str(relative_path)
         for source, replacement in self.sources.items():
             if relative_path.startswith(source):
                 return relative_path.replace(source, replacement, 1)

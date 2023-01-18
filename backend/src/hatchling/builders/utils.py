@@ -8,6 +8,8 @@ from typing import TYPE_CHECKING, Iterable
 if TYPE_CHECKING:
     from zipfile import ZipInfo
 
+    from hatch.types import PathLike
+
 
 def replace_file(src: str, dst: str) -> None:
     try:
@@ -18,7 +20,7 @@ def replace_file(src: str, dst: str) -> None:
         os.remove(src)
 
 
-def safe_walk(path: str) -> Iterable[tuple[str, list[str], list[str]]]:
+def safe_walk(path: PathLike) -> Iterable[tuple[str, list[str], list[str]]]:
     seen = set()
     for root, dirs, files in os.walk(path, followlinks=True):
         stat = os.stat(root)
@@ -35,7 +37,7 @@ def get_known_python_major_versions() -> map:
     return map(str, sorted((2, 3)))
 
 
-def get_relative_path(path: str, start: str) -> str:
+def get_relative_path(path: PathLike, start: PathLike) -> str:
     relative_path = os.path.relpath(path, start)
 
     # First iteration of `os.walk`
@@ -45,15 +47,15 @@ def get_relative_path(path: str, start: str) -> str:
     return relative_path
 
 
-def normalize_relative_path(path: str) -> str:
+def normalize_relative_path(path: PathLike) -> str:
     return os.path.normpath(path).strip(os.sep)
 
 
-def normalize_relative_directory(path: str) -> str:
+def normalize_relative_directory(path: PathLike) -> str:
     return normalize_relative_path(path) + os.sep
 
 
-def normalize_inclusion_map(inclusion_map: dict[str, str], root: str) -> dict[str, str]:
+def normalize_inclusion_map(inclusion_map: dict[str, PathLike], root: PathLike) -> dict[str, str]:
     normalized_inclusion_map = {}
 
     for source, relative_path in inclusion_map.items():
@@ -71,7 +73,8 @@ def normalize_inclusion_map(inclusion_map: dict[str, str], root: str) -> dict[st
     )
 
 
-def normalize_archive_path(path: str) -> str:
+def normalize_archive_path(path: PathLike) -> str:
+    path = str(path)
     if os.sep != '/':
         return path.replace(os.sep, '/')
 

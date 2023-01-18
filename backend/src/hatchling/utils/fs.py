@@ -1,9 +1,13 @@
 from __future__ import annotations
 
 import os
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from hatch.types import PathLike
 
 
-def locate_file(root: str, file_name: str) -> str | None:
+def locate_file(root: PathLike, file_name: str) -> str | None:
     while True:
         file_path = os.path.join(root, file_name)
         if os.path.isfile(file_path):
@@ -16,7 +20,7 @@ def locate_file(root: str, file_name: str) -> str | None:
         root = new_root
 
 
-def path_to_uri(path: str) -> str:
+def path_to_uri(path: PathLike) -> str:
     if os.sep == '/':
         return f'file://{os.path.abspath(path)}'
     else:

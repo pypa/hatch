@@ -1,8 +1,11 @@
+from __future__ import annotations
+
 from os import environ
+from typing import Any, Callable
 
 from hatch.utils.platform import get_platform_name
 
-RESERVED_OPTIONS = {
+RESERVED_OPTIONS: dict[str, type] = {
     'dependencies': list,
     'extra-dependencies': list,
     'dev-mode': bool,
@@ -21,7 +24,15 @@ RESERVED_OPTIONS = {
 }
 
 
-def apply_overrides(env_name, source, condition, condition_value, options, new_config, option_types=None):
+def apply_overrides(
+    env_name: str,
+    source: str,
+    condition: str,
+    condition_value: str,
+    options: dict[str, Any],
+    new_config: dict[str, Any],
+    option_types: dict[str, type] | None = None,
+) -> None:
     if option_types is None:
         option_types = RESERVED_OPTIONS
 
@@ -49,7 +60,16 @@ def apply_overrides(env_name, source, condition, condition_value, options, new_c
             raise ValueError(message)
 
 
-def _apply_override_to_mapping(env_name, option, data, source, condition, condition_value, new_config, overwrite):
+def _apply_override_to_mapping(
+    env_name: str,
+    option: str,
+    data: str | list,
+    source: str,
+    condition: str,
+    condition_value: str,
+    new_config: dict[str, Any],
+    overwrite: bool,
+) -> None:
     new_mapping = {}
     if isinstance(data, str):
         key, separator, value = data.partition('=')
@@ -112,7 +132,16 @@ def _apply_override_to_mapping(env_name, option, data, source, condition, condit
         new_config[option] = new_mapping
 
 
-def _apply_override_to_array(env_name, option, data, source, condition, condition_value, new_config, overwrite):
+def _apply_override_to_array(
+    env_name: str,
+    option: str,
+    data: str | list,
+    source: str,
+    condition: str,
+    condition_value: str,
+    new_config: dict[str, Any],
+    overwrite: bool,
+) -> None:
     if not isinstance(data, list):
         message = f'Field `tool.hatch.envs.{env_name}.overrides.{source}.{condition}.{option}` must be an array'
         raise TypeError(message)
@@ -158,7 +187,16 @@ def _apply_override_to_array(env_name, option, data, source, condition, conditio
         new_config[option] = new_array
 
 
-def _apply_override_to_string(env_name, option, data, source, condition, condition_value, new_config, overwrite):
+def _apply_override_to_string(
+    env_name: str,
+    option: str,
+    data: str | list,
+    source: str,
+    condition: str,
+    condition_value: str,
+    new_config: dict[str, Any],
+    overwrite: bool,
+) -> None:
     if isinstance(data, str):
         new_config[option] = data
     elif isinstance(data, dict):
@@ -213,7 +251,16 @@ def _apply_override_to_string(env_name, option, data, source, condition, conditi
         raise TypeError(message)
 
 
-def _apply_override_to_boolean(env_name, option, data, source, condition, condition_value, new_config, overwrite):
+def _apply_override_to_boolean(
+    env_name: str,
+    option: str,
+    data: str | list,
+    source: str,
+    condition: str,
+    condition_value: str,
+    new_config: dict[str, Any],
+    overwrite: bool,
+) -> None:
     if isinstance(data, bool):
         new_config[option] = data
     elif isinstance(data, dict):
@@ -268,7 +315,15 @@ def _apply_override_to_boolean(env_name, option, data, source, condition, condit
         raise TypeError(message)
 
 
-def _resolve_condition(env_name, option, source, condition, condition_value, condition_config, condition_index=None):
+def _resolve_condition(
+    env_name: str,
+    option: str,
+    source: str,
+    condition: str,
+    condition_value: str,
+    condition_config: dict[str, Any],
+    condition_index: int | None = None,
+) -> bool:
     location = 'field' if condition_index is None else f'entry #{condition_index} in field'
 
     if 'if' in condition_config:
@@ -312,7 +367,7 @@ def _resolve_condition(env_name, option, source, condition, condition_value, con
             )
             raise TypeError(message)
 
-        required_env_vars = {}
+        required_env_vars: dict[str, Any] = {}
         for i, entry in enumerate(env_vars, 1):
             if not isinstance(entry, str):
                 message = (
@@ -335,7 +390,7 @@ def _resolve_condition(env_name, option, source, condition, condition_value, con
     return True
 
 
-TYPE_OVERRIDES = {
+TYPE_OVERRIDES: dict[type, Callable] = {
     dict: _apply_override_to_mapping,
     list: _apply_override_to_array,
     str: _apply_override_to_string,

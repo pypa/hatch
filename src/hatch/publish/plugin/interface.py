@@ -1,6 +1,11 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from hatch.cli.application import Application
+    from hatch.types import PathLike
 
 
 class PublisherInterface(ABC):
@@ -35,31 +40,38 @@ class PublisherInterface(ABC):
     PLUGIN_NAME = ''
     """The name used for selection."""
 
-    def __init__(self, app, root, cache_dir, project_config, plugin_config):
+    def __init__(
+        self,
+        app: Application,
+        root: PathLike,
+        cache_dir: PathLike,
+        project_config: dict[str, Any],
+        plugin_config: dict[str, Any],
+    ) -> None:
         self.__app = app
         self.__root = root
         self.__cache_dir = cache_dir
         self.__project_config = project_config
         self.__plugin_config = plugin_config
 
-        self.__disable = None
+        self.__disable: bool | None = None
 
     @property
-    def app(self):
+    def app(self) -> Application:
         """
         An instance of [Application](../utilities.md#hatchling.bridge.app.Application).
         """
         return self.__app
 
     @property
-    def root(self):
+    def root(self) -> PathLike:
         """
         The root of the project tree as a path-like object.
         """
         return self.__root
 
     @property
-    def cache_dir(self):
+    def cache_dir(self) -> PathLike:
         """
         The directory reserved exclusively for this plugin as a path-like object.
         """
@@ -96,7 +108,7 @@ class PublisherInterface(ABC):
         return self.__plugin_config
 
     @property
-    def disable(self):
+    def disable(self) -> bool:
         """
         Whether this plugin is disabled, thus requiring confirmation when publishing. Local
         [project configuration](reference.md#hatch.publish.plugin.interface.PublisherInterface.project_config)
@@ -120,7 +132,7 @@ class PublisherInterface(ABC):
         return self.__disable
 
     @abstractmethod
-    def publish(self, artifacts: list[str], options: dict):
+    def publish(self, artifacts: list[PathLike], options: dict) -> None:
         """
         :material-align-horizontal-left: **REQUIRED** :material-align-horizontal-right:
 

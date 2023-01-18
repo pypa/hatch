@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import argparse
-from typing import Any
+from typing import Any, cast
+
+from hatch.utils.fs import Path
 
 
 def metadata_impl(*, called_by_app: bool, field: str, compact: bool) -> None:
@@ -15,7 +17,7 @@ def metadata_impl(*, called_by_app: bool, field: str, compact: bool) -> None:
 
     app = get_application(called_by_app=called_by_app)
 
-    root = os.getcwd()
+    root = cast(Path, os.getcwd())
     plugin_manager = PluginManager()
     project_metadata = ProjectMetadata(root, plugin_manager)
 

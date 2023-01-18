@@ -117,7 +117,7 @@ ignore = [
   # Ignore McCabe complexity
   "C901",
   # Allow boolean positional values in function calls, like `dict.get(... True)`
-  "FBT003",
+  "FBT001", "FBT003",
   # Ignore checks for possible passwords
   "S105", "S106", "S107",
   # https://github.com/charliermarsh/ruff/issues/1949
@@ -159,7 +159,9 @@ warn_unused_ignores = true
 [[tool.mypy.overrides]]
 module = [
     "*.hatchling.*",
-    "*.hatch.utils.*",
+    "hatch.utils.*",
+    "hatch.project.*",
+    "hatch.publish.*",
 ]
 disallow_untyped_defs = true
 disallow_incomplete_defs = true

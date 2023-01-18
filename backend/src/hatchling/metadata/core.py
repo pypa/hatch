@@ -5,7 +5,11 @@ import sys
 from copy import deepcopy
 from typing import TYPE_CHECKING, Any, Generic, cast
 
-from hatchling.metadata.utils import get_normalized_dependency, is_valid_project_name, normalize_project_name
+from hatchling.metadata.utils import (
+    get_normalized_dependency,
+    is_valid_project_name,
+    normalize_project_name,
+)
 from hatchling.plugin.manager import PluginManagerBound
 from hatchling.utils.constants import DEFAULT_CONFIG_FILE
 from hatchling.utils.fs import locate_file
@@ -14,6 +18,7 @@ if TYPE_CHECKING:
     from packaging.requirements import Requirement
     from packaging.specifiers import SpecifierSet
 
+    from hatch.types import PathLike
     from hatchling.metadata.plugin.interface import MetadataHookInterface
     from hatchling.utils.context import Context
     from hatchling.version.scheme.plugin.interface import VersionSchemeInterface
@@ -33,7 +38,7 @@ def load_toml(path: str) -> dict[str, Any]:
 class ProjectMetadata(Generic[PluginManagerBound]):
     def __init__(
         self,
-        root: str,
+        root: PathLike,
         plugin_manager: PluginManagerBound | None,
         config: dict[str, Any] | None = None,
     ) -> None:
@@ -249,7 +254,7 @@ class BuildMetadata:
     https://peps.python.org/pep-0517/
     """
 
-    def __init__(self, root: str, config: dict[str, str | list[str]]) -> None:
+    def __init__(self, root: PathLike, config: dict[str, str | list[str]]) -> None:
         self.root = root
         self.config = config
 
@@ -329,7 +334,7 @@ class CoreMetadata:
 
     def __init__(
         self,
-        root: str,
+        root: PathLike,
         config: dict[str, Any],
         hatch_metadata: HatchMetadataSettings,
         context: Context,
@@ -380,7 +385,6 @@ class CoreMetadata:
             if 'name' in self.dynamic:
                 message = 'Static metadata field `name` cannot be present in field `project.dynamic`'
                 raise ValueError(message)
-
             raw_name = self.config.get('name', '')
             if not raw_name:
                 message = 'Missing required field `project.name`'
@@ -948,7 +952,11 @@ class CoreMetadata:
         if self._classifiers is None:
             import bisect
 
-            from hatchling.metadata.classifiers import KNOWN_CLASSIFIERS, SORTED_CLASSIFIERS, is_private
+            from hatchling.metadata.classifiers import (
+                KNOWN_CLASSIFIERS,
+                SORTED_CLASSIFIERS,
+                is_private,
+            )
 
             if 'classifiers' in self.config:
                 classifiers = self.config['classifiers']
@@ -1325,7 +1333,7 @@ class CoreMetadata:
 
 
 class HatchMetadata(Generic[PluginManagerBound]):
-    def __init__(self, root: str, config: dict[str, dict[str, Any]], plugin_manager: PluginManagerBound) -> None:
+    def __init__(self, root: PathLike, config: dict[str, dict[str, Any]], plugin_manager: PluginManagerBound) -> None:
         self.root = root
         self.config = config
         self.plugin_manager = plugin_manager
@@ -1389,7 +1397,7 @@ class HatchMetadata(Generic[PluginManagerBound]):
 
 
 class HatchVersionConfig(Generic[PluginManagerBound]):
-    def __init__(self, root: str, config: dict[str, Any], plugin_manager: PluginManagerBound) -> None:
+    def __init__(self, root: PathLike, config: dict[str, Any], plugin_manager: PluginManagerBound) -> None:
         self.root = root
         self.config = config
         self.plugin_manager = plugin_manager
@@ -1477,7 +1485,7 @@ class HatchVersionConfig(Generic[PluginManagerBound]):
 
 
 class HatchMetadataSettings(Generic[PluginManagerBound]):
-    def __init__(self, root: str, config: dict[str, Any], plugin_manager: PluginManagerBound) -> None:
+    def __init__(self, root: PathLike, config: dict[str, Any], plugin_manager: PluginManagerBound) -> None:
         self.root = root
         self.config = config
         self.plugin_manager = plugin_manager

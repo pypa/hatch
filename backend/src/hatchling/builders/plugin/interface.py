@@ -11,6 +11,7 @@ from hatchling.builders.utils import get_relative_path, safe_walk
 from hatchling.plugin.manager import PluginManagerBound
 
 if TYPE_CHECKING:
+    from hatch.types import PathLike
     from hatchling.bridge.app import Application
     from hatchling.builders.hooks.plugin.interface import BuildHookInterface
     from hatchling.metadata.core import ProjectMetadata
@@ -19,10 +20,10 @@ if TYPE_CHECKING:
 class IncludedFile:
     __slots__ = ('path', 'relative_path', 'distribution_path')
 
-    def __init__(self, path: str, relative_path: str, distribution_path: str) -> None:
-        self.path = path
-        self.relative_path = relative_path
-        self.distribution_path = distribution_path
+    def __init__(self, path: PathLike, relative_path: PathLike, distribution_path: PathLike) -> None:
+        self.path = str(path)
+        self.relative_path = str(relative_path)
+        self.distribution_path = str(distribution_path)
 
 
 class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
@@ -59,7 +60,7 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
 
     def __init__(
         self,
-        root: str,
+        root: PathLike,
         plugin_manager: PluginManagerBound | None = None,
         config: dict[str, Any] | None = None,
         metadata: ProjectMetadata | None = None,
@@ -200,7 +201,7 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
 
     def recurse_forced_files(self, inclusion_map: dict[str, str]) -> Iterable[IncludedFile]:
         for source, target_path in inclusion_map.items():
-            external = not source.startswith(self.root)
+            external = not source.startswith(str(self.root))
             if os.path.isfile(source):
                 yield IncludedFile(
                     source,
@@ -225,7 +226,7 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
 
     def recurse_explicit_files(self, inclusion_map: dict[str, str]) -> Iterable[IncludedFile]:
         for source, target_path in inclusion_map.items():
-            external = not source.startswith(self.root)
+            external = not source.startswith(str(self.root))
             if os.path.isfile(source):
                 yield IncludedFile(
                     source,
@@ -250,7 +251,7 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
                             )
 
     @property
-    def root(self) -> str:
+    def root(self) -> PathLike:
         """
         The root of the project tree.
         """

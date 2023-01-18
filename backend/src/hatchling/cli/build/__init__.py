@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import argparse
-from typing import Any
+from typing import Any, TYPE_CHECKING, cast
+if TYPE_CHECKING:
+    from hatch.utils.fs import Path
 
 
 def build_impl(
@@ -27,7 +29,7 @@ def build_impl(
     if hooks_only and no_hooks:
         app.abort('Cannot use both --hooks-only and --no-hooks together')
 
-    root = os.getcwd()
+    root = cast(Path, os.getcwd())
     plugin_manager = PluginManager()
     metadata = ProjectMetadata(root, plugin_manager)
 
@@ -54,7 +56,7 @@ def build_impl(
         app.abort(f"Unknown build targets: {', '.join(sorted(unknown_targets))}")
 
     # We guarantee that builds occur within the project directory
-    root = os.getcwd()
+    root = cast(Path, os.getcwd())
 
     if no_hooks:
         os.environ[BuildEnvVars.NO_HOOKS] = 'true'

@@ -5,9 +5,12 @@ import string
 from abc import ABC, abstractmethod
 from collections import ChainMap
 from contextlib import contextmanager
-from typing import Any, Iterable, Iterator, Mapping, MutableMapping, Sequence
+from typing import TYPE_CHECKING, Any, Iterable, Iterator, Mapping, MutableMapping, Sequence
 
 from hatchling.utils.fs import path_to_uri
+
+if TYPE_CHECKING:
+    from hatch.types import PathLike
 
 
 class ContextFormatter(ABC):
@@ -22,7 +25,7 @@ class ContextFormatter(ABC):
         """
 
     @classmethod
-    def format_path(cls, path: str, modifier: str) -> str:
+    def format_path(cls, path: PathLike, modifier: str) -> str:
         if not modifier:
             return os.path.normpath(path)
         elif modifier == 'uri':
@@ -37,7 +40,7 @@ class ContextFormatter(ABC):
 class DefaultContextFormatter(ContextFormatter):
     CONTEXT_NAME = 'default'
 
-    def __init__(self, root: str) -> None:
+    def __init__(self, root: PathLike) -> None:
         self.__root = root
 
     def get_formatters(self) -> MutableMapping:
@@ -77,8 +80,8 @@ class DefaultContextFormatter(ContextFormatter):
 
 
 class Context:
-    def __init__(self, root: str) -> None:
-        self.__root = str(root)
+    def __init__(self, root: PathLike) -> None:
+        self.__root: str = str(root)
 
         # Allow callers to define their own formatters with precedence
         self.__formatters: ChainMap = ChainMap()

@@ -4,7 +4,7 @@ import re
 from copy import deepcopy
 from itertools import product
 from os import environ
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from hatch.env.utils import ensure_valid_environment
 from hatch.project.env import apply_overrides
@@ -13,26 +13,31 @@ from hatch.project.utils import format_script_commands, parse_script_command
 if TYPE_CHECKING:
     from packaging.requirements import Requirement
 
+    from hatch.plugin.manager import PluginManager
+    from hatch.utils.fs import Path
+
 
 class ProjectConfig:
-    def __init__(self, root, config, plugin_manager=None):
+    def __init__(
+        self, root: Path, config: dict[str, dict[str, Any]], plugin_manager: PluginManager | None = None
+    ) -> None:
         self.root = root
         self.config = config
         self.plugin_manager = plugin_manager
 
-        self._matrices = None
-        self._env = None
-        self._env_requires_complex = None
-        self._env_requires = None
-        self._env_collectors = None
-        self._envs = None
-        self._matrix_variables = None
-        self._publish = None
-        self._scripts = None
-        self._cached_env_overrides = {}
+        self._matrices: dict | None = None
+        self._env: dict | None = None
+        self._env_requires_complex: list[Requirement] | None = None
+        self._env_requires: list[str] | None = None
+        self._env_collectors: dict[str, dict] | None = None
+        self._envs: dict | None = None
+        self._matrix_variables: dict | None = None
+        self._publish: dict | None = None
+        self._scripts: dict | None = None
+        self._cached_env_overrides: dict = {}
 
     @property
-    def env(self):
+    def env(self) -> dict:
         if self._env is None:
             config = self.config.get('env', {})
             if not isinstance(config, dict):
@@ -71,21 +76,21 @@ class ProjectConfig:
         return self._env_requires_complex
 
     @property
-    def env_requires(self):
+    def env_requires(self) -> list[str]:
         if self._env_requires is None:
             self._env_requires = [str(r) for r in self.env_requires_complex]
 
         return self._env_requires
 
     @property
-    def env_collectors(self):
+    def env_collectors(self) -> dict[str, dict]:
         if self._env_collectors is None:
-            collectors = self.env.get('collectors', {})
+            collectors: dict = self.env.get('collectors', {})
             if not isinstance(collectors, dict):
                 message = 'Field `tool.hatch.env.collectors` must be a table'
                 raise TypeError(message)
 
-            final_config = {'default': {}}
+            final_config: dict[str, dict] = {'default': {}}
             for collector, config in collectors.items():
                 if not isinstance(config, dict):
                     message = f'Field `tool.hatch.env.collectors.{collector}` must be a table'
@@ -98,21 +103,21 @@ class ProjectConfig:
         return self._env_collectors
 
     @property
-    def matrices(self):
+    def matrices(self) -> dict:
         if self._matrices is None:
             _ = self.envs
 
-        return self._matrices
+        return self._matrices  # type: ignore
 
     @property
-    def matrix_variables(self):
+    def matrix_variables(self) -> dict:
         if self._matrix_variables is None:
             _ = self.envs
 
-        return self._matrix_variables
+        return self._matrix_variables  # type: ignore
 
     @property
-    def envs(self):
+    def envs(self) -> dict:
         from hatch.utils.platform import get_platform_name
 
         if self._envs is None:
@@ -121,11 +126,13 @@ class ProjectConfig:
                 message = 'Field `tool.hatch.envs` must be a table'
                 raise TypeError(message)
 
-            config = {}
+            config: dict = {}
             environment_collectors = []
 
             for collector, collector_config in self.env_collectors.items():
-                collector_class = self.plugin_manager.environment_collector.get(collector)
+                collector_class = None
+                if self.plugin_manager:
+                    collector_class = self.plugin_manager.environment_collector.get(collector)
                 if collector_class is None:
                     from hatchling.plugin.exceptions import UnknownPluginError
 
@@ -151,16 +158,16 @@ class ProjectConfig:
             # Prevent plugins from removing the default environment
             ensure_valid_environment(config.setdefault('default', {}))
 
-            seen = set()
-            active = []
+            seen: set = set()
+            active: list = []
             for env_name, data in config.items():
                 _populate_default_env_values(env_name, data, config, seen, active)
 
             current_platform = get_platform_name()
-            all_matrices = {}
-            generated_envs = {}
-            final_config = {}
-            cached_overrides = {}
+            all_matrices: dict = {}
+            generated_envs: dict = {}
+            final_config: dict = {}
+            cached_overrides: dict = {}
             for env_name, initial_config in config.items():
                 current_cached_overrides = cached_overrides[env_name] = {
                     'platform': [],
@@ -392,7 +399,7 @@ class ProjectConfig:
         return self._envs
 
     @property
-    def publish(self):
+    def publish(self) -> dict[str, Any]:
         if self._publish is None:
             config = self.config.get('publish', {})
             if not isinstance(config, dict):
@@ -409,7 +416,7 @@ class ProjectConfig:
         return self._publish
 
     @property
-    def scripts(self):
+    def scripts(self) -> dict[str, Any]:
         if self._scripts is None:
             script_config = self.config.get('scripts', {})
             if not isinstance(script_config, dict):
@@ -440,8 +447,8 @@ class ProjectConfig:
 
                 config[name] = commands
 
-            seen = {}
-            active = []
+            seen: dict[str, Any] = {}
+            active: list[str] = []
             for script_name, commands in config.items():
                 commands[:] = expand_script_commands(script_name, commands, config, seen, active)
 
@@ -449,7 +456,7 @@ class ProjectConfig:
 
         return self._scripts
 
-    def finalize_env_overrides(self, option_types):
+    def finalize_env_overrides(self, option_types: dict[str, type]) -> None:
         # We lazily apply overrides because we need type information potentially defined by
         # environment plugins for their options
         if not self._cached_env_overrides:
@@ -463,7 +470,9 @@ class ProjectConfig:
         self._cached_env_overrides.clear()
 
 
-def expand_script_commands(script_name, commands, config, seen, active):
+def expand_script_commands(
+    script_name: str, commands: list[str], config: dict, seen: dict[str, Any], active: list[str]
+) -> list[str]:
     if script_name in seen:
         return seen[script_name]
     elif script_name in active:
@@ -474,7 +483,7 @@ def expand_script_commands(script_name, commands, config, seen, active):
 
     active.append(script_name)
 
-    expanded_commands = []
+    expanded_commands: list[str] = []
 
     for command in commands:
         possible_script, args, ignore_exit_code = parse_script_command(command)
@@ -496,7 +505,9 @@ def expand_script_commands(script_name, commands, config, seen, active):
     return expanded_commands
 
 
-def _populate_default_env_values(env_name, data, config, seen, active):
+def _populate_default_env_values(
+    env_name: str, data: dict[str, Any], config: dict, seen: set[str], active: list[str]
+) -> None:
     if env_name in seen:
         return
     elif data.pop('detached', False):
