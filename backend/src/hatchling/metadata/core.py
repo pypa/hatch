@@ -380,11 +380,8 @@ class CoreMetadata:
             if 'name' in self.dynamic:
                 message = 'Static metadata field `name` cannot be present in field `project.dynamic`'
                 raise ValueError(message)
-            elif 'name' in self.config:
-                raw_name = self.config['name']
-            else:
-                raw_name = ''
 
+            raw_name = self.config.get('name', '')
             if not raw_name:
                 message = 'Missing required field `project.name`'
                 raise ValueError(message)
