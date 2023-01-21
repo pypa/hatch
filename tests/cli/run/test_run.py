@@ -517,7 +517,7 @@ def test_scripts_no_environment(hatch, helpers, temp_dir, config_file):
     env_data_path = data_path / 'env' / 'virtual'
     assert not env_data_path.exists()
 
-    assert os.path.realpath(output_file.read_text().strip()) == os.path.realpath(sys.executable)
+    assert os.path.realpath(output_file.read_text().strip()).lower() == os.path.realpath(sys.executable).lower()
 
 
 def test_error(hatch, helpers, temp_dir, config_file):
