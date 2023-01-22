@@ -1,4 +1,4 @@
-VERSION = '2022.12.22'
+VERSION = '2023.1.20'
 
 SORTED_CLASSIFIERS = [
     'Development Status :: 1 - Planning',
@@ -65,6 +65,9 @@ SORTED_CLASSIFIERS = [
     'Environment :: Web Environment :: Buffet',
     'Environment :: Web Environment :: Mozilla',
     'Environment :: Web Environment :: ToscaWidgets',
+    'Environment :: WebAssembly',
+    'Environment :: WebAssembly :: Emscripten',
+    'Environment :: WebAssembly :: WASI',
     'Environment :: Win32 (MS Windows)',
     'Environment :: X11 Applications',
     'Environment :: X11 Applications :: GTK',
@@ -179,6 +182,8 @@ SORTED_CLASSIFIERS = [
     'Framework :: Plone :: Addon',
     'Framework :: Plone :: Core',
     'Framework :: Plone :: Theme',
+    'Framework :: Pydantic',
+    'Framework :: Pydantic :: 1',
     'Framework :: Pylons',
     'Framework :: Pyramid',
     'Framework :: Pytest',
