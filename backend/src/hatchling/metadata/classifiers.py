@@ -179,6 +179,8 @@ SORTED_CLASSIFIERS = [
     'Framework :: Plone :: Addon',
     'Framework :: Plone :: Core',
     'Framework :: Plone :: Theme',
+    'Framework :: Pydantic',
+    'Framework :: Pydantic :: 1',
     'Framework :: Pylons',
     'Framework :: Pyramid',
     'Framework :: Pytest',
