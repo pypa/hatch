@@ -520,11 +520,11 @@ class TemplateConfig(LazilyParsedConfig):
                 if not isinstance(licenses, dict):
                     self.raise_error('must be a table')
 
-                self._field_licenses = LicensesConfig(licenses, self.steps + ('licenses',))
+                self._field_licenses = LicensesConfig(licenses, (*self.steps, 'licenses'))
             else:
                 licenses = {}
                 self.raw_data['licenses'] = licenses
-                self._field_licenses = LicensesConfig(licenses, self.steps + ('licenses',))
+                self._field_licenses = LicensesConfig(licenses, (*self.steps, 'licenses'))
 
         return self._field_licenses
 
@@ -623,11 +623,11 @@ class TerminalConfig(LazilyParsedConfig):
                 if not isinstance(styles, dict):
                     self.raise_error('must be a table')
 
-                self._field_styles = StylesConfig(styles, self.steps + ('styles',))
+                self._field_styles = StylesConfig(styles, (*self.steps, 'styles'))
             else:
                 styles = {}
                 self.raw_data['styles'] = styles
-                self._field_styles = StylesConfig(styles, self.steps + ('styles',))
+                self._field_styles = StylesConfig(styles, (*self.steps, 'styles'))
 
         return self._field_styles
 
