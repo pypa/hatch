@@ -1,0 +1,454 @@
+{
+  "title": "Hatch",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "title": "Metadata",
+      "description": "Metadata for the project.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Metadata"
+        }
+      ]
+    },
+    "envs": {
+      "title": "Envs",
+      "description": "Dictionary of environments.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Envs"
+        }
+      ]
+    },
+    "build": {
+      "title": "Build",
+      "description": "Build configuration.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Build"
+        }
+      ]
+    },
+    "version": {
+      "title": "Version",
+      "description": "Version configuration.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Version"
+        }
+      ]
+    },
+    "publish": {
+      "title": "Publish",
+      "description": "Publish configuration.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Publish"
+        }
+      ]
+    }
+  },
+  "definitions": {
+    "Metadata": {
+      "title": "Metadata",
+      "type": "object",
+      "properties": {
+        "allow-direct-references": {
+          "title": "Allow-Direct-References",
+          "description": "Whether to allow direct references.",
+          "type": "boolean"
+        },
+        "allow-ambiguous-features": {
+          "title": "Allow-Ambiguous-Features",
+          "description": "Whether to allow ambiguous features.",
+          "type": "boolean"
+        }
+      }
+    },
+    "Env": {
+      "title": "Env",
+      "type": "object",
+      "properties": {
+        "scripts": {
+          "title": "Scripts",
+          "description": "Dictionary of scripts to run.",
+          "type": "object"
+        },
+        "overrides": {
+          "title": "Overrides",
+          "description": "Overrides for the environment.",
+          "type": "object"
+        },
+        "env-vars": {
+          "title": "Env-Vars",
+          "description": "Environment variables to set.",
+          "type": "object"
+        },
+        "matrix": {
+          "title": "Matrix",
+          "description": "Matrix of environments.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "dependencies": {
+          "title": "Dependencies",
+          "description": "List of dependencies to install in the environment.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "extra-dependencies": {
+          "title": "Extra-Dependencies",
+          "description": "List of extra dependencies to install in the environment.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "dev-mode": {
+          "title": "Dev-Mode",
+          "description": "Whether to install the project in development mode.",
+          "type": "boolean"
+        },
+        "env-exclude": {
+          "title": "Env-Exclude",
+          "description": "List of environment variables to exclude.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "env-include": {
+          "title": "Env-Include",
+          "description": "List of environment variables to include.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "features": {
+          "title": "Features",
+          "description": "List of features to install.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "matrix-name-format": {
+          "title": "Matrix-Name-Format",
+          "description": "Format string for matrix names.",
+          "type": "string"
+        },
+        "platforms": {
+          "title": "Platforms",
+          "description": "List of platforms to build for.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "post-install-commands": {
+          "title": "Post-Install-Commands",
+          "description": "List of commands to run after installing the project.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "pre-install-commands": {
+          "title": "Pre-Install-Commands",
+          "description": "List of commands to run before installing the project.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "python": {
+          "title": "Python",
+          "description": "Python version to use.",
+          "type": "string"
+        },
+        "skip-install": {
+          "title": "Skip-Install",
+          "description": "Whether to skip installing the project.",
+          "type": "boolean"
+        },
+        "type": {
+          "title": "Type",
+          "description": "Type of environment.",
+          "type": "string"
+        },
+        "detached": {
+          "title": "Detached",
+          "description": "Make the environment self-referential.",
+          "type": "boolean"
+        },
+        "template": {
+          "title": "Template",
+          "description": "Template to use for the environment.",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "description": "Description of the environment.",
+          "type": "string"
+        }
+      }
+    },
+    "Envs": {
+      "title": "Envs",
+      "type": "object",
+      "patternProperties": {
+        "^.*$": {
+          "$ref": "#/definitions/Env"
+        }
+      },
+      "additionalProperties": {
+        "$ref": "#/definitions/Env"
+      }
+    },
+    "Target": {
+      "title": "Target",
+      "type": "object",
+      "properties": {
+        "dependencies": {
+          "title": "Dependencies",
+          "description": "List of dependencies to install in the environment.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "require-runtime-dependencies": {
+          "title": "Require-Runtime-Dependencies",
+          "description": "Whether to require runtime dependencies.",
+          "type": "boolean"
+        },
+        "require-runtime-features": {
+          "title": "Require-Runtime-Features",
+          "description": "Whether to require runtime features.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "versions": {
+          "title": "Versions",
+          "description": "List of versions to build for.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "CustomTargets": {
+      "title": "CustomTargets",
+      "type": "object",
+      "patternProperties": {
+        "^.*$": {
+          "$ref": "#/definitions/Target"
+        }
+      },
+      "additionalProperties": {
+        "$ref": "#/definitions/Target"
+      }
+    },
+    "Hook": {
+      "title": "Hook",
+      "type": "object",
+      "properties": {
+        "dependencies": {
+          "title": "Dependencies",
+          "description": "Dependencies installed for the hook environment.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "require-runtime-dependencies": {
+          "title": "Require-Runtime-Dependencies",
+          "description": "Whether to require runtime dependencies.",
+          "type": "boolean"
+        },
+        "require-runtime-features": {
+          "title": "Require-Runtime-Features",
+          "description": "Whether to require runtime features.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "enable-by-default": {
+          "title": "Enable-By-Default",
+          "description": "Whether to enable current hook.",
+          "type": "boolean"
+        }
+      }
+    },
+    "Hooks": {
+      "title": "Hooks",
+      "type": "object",
+      "patternProperties": {
+        "^.*$": {
+          "$ref": "#/definitions/Hook"
+        }
+      },
+      "additionalProperties": {
+        "$ref": "#/definitions/Hook"
+      }
+    },
+    "Build": {
+      "title": "Build",
+      "type": "object",
+      "properties": {
+        "ignore-vcs": {
+          "title": "Ignore Vcs",
+          "description": "Whether to ignore VCS files.",
+          "type": "boolean"
+        },
+        "include": {
+          "title": "Include",
+          "description": "List of files to include.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "exclude": {
+          "title": "Exclude",
+          "description": "List of files to exclude.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "artifacts": {
+          "title": "Artifacts",
+          "description": "List of artifacts to include.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "only-packages": {
+          "title": "Only-Packages",
+          "description": "Whether to only include packages.",
+          "type": "boolean"
+        },
+        "skip-excluded-dirs": {
+          "title": "Skip-Excluded-Dirs",
+          "description": "Whether to skip excluded directories.",
+          "type": "boolean"
+        },
+        "reproducible": {
+          "title": "Reproducible",
+          "description": "Whether to make the build reproducible.",
+          "type": "boolean"
+        },
+        "directory": {
+          "title": "Directory",
+          "description": "Directory to build in.",
+          "type": "string"
+        },
+        "dev-mode-dirs": {
+          "title": "Dev-Mode-Dirs",
+          "description": "List of directories to install in development mode.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "dev-mode-exact": {
+          "title": "Dev-Mode-Exact",
+          "description": "Whether to install in development mode exactly.",
+          "type": "boolean"
+        },
+        "targets": {
+          "title": "Targets",
+          "description": "Build targets.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/CustomTargets"
+            }
+          ]
+        },
+        "sources": {
+          "title": "Sources",
+          "description": "Dictionary of sources.",
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "hooks": {
+          "title": "Hooks",
+          "description": "Build hooks.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Hooks"
+            }
+          ]
+        }
+      }
+    },
+    "Version": {
+      "title": "Version",
+      "type": "object",
+      "properties": {
+        "path": {
+          "title": "Path",
+          "description": "A relative path to a file containing the project version",
+          "type": "string"
+        },
+        "pattern": {
+          "title": "Pattern",
+          "description": "A regex pattern to extract the version",
+          "type": "string"
+        }
+      }
+    },
+    "PublishIndex": {
+      "title": "PublishIndex",
+      "type": "object",
+      "properties": {
+        "disable": {
+          "title": "Disable",
+          "description": "Disable publishing to index.",
+          "type": "boolean"
+        }
+      }
+    },
+    "Publish": {
+      "title": "Publish",
+      "type": "object",
+      "properties": {
+        "index": {
+          "title": "Index",
+          "description": "Publish index.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/PublishIndex"
+            }
+          ]
+        }
+      }
+    }
+  }
+}
