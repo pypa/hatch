@@ -621,7 +621,7 @@ class CoreMetadata:
         return self._requires_python
 
     @property
-    def python_constraint(self) -> SpecifierSet:
+    def python_constraint(self) -> SpecifierSet | None:
         if self._python_constraint is None:
             _ = self.requires_python
 
