@@ -33,9 +33,15 @@ class StandardScheme(VersionSchemeInterface):
                     original, release=update_release(original, [original.major, original.minor, original.micro + 1])
                 )
             elif version in ('a', 'b', 'c', 'rc', 'alpha', 'beta', 'pre', 'preview'):
-                phase, number = _parse_letter_version(version, 0)
+                parsed_version = _parse_letter_version(version, 0)
+                if not parsed_version:  # TODO: do something better?
+                    raise ValueError(f'Invalid version `{version}`')  # noqa: EM102
+                phase, number = parsed_version
                 if original.pre:
-                    current_phase, current_number = _parse_letter_version(*original.pre)
+                    parsed_pre_version = _parse_letter_version(*original.pre)
+                    if not parsed_pre_version:  # TODO: do something better?
+                        raise ValueError(f'Invalid pre-version `{original.pre}`')  # noqa: EM102
+                    current_phase, current_number = parsed_pre_version
                     if phase == current_phase:
                         number = current_number + 1
 
