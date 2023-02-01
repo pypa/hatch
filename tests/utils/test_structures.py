@@ -41,7 +41,6 @@ class TestEnvVars:
         pattern = f'{env_var[:-2]}*'
 
         with EnvVars({env_var: 'foo'}):
-
             with EnvVars(exclude=[get_random_name(), pattern]):
                 assert env_var not in os.environ
 
