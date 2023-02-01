@@ -122,6 +122,8 @@ ignore = [
   "S105", "S106", "S107",
   # https://github.com/charliermarsh/ruff/issues/1949
   "PLR2004",
+  # Too many arguments to function call
+  "PLR0913",
 ]
 unfixable = [
   # Don't touch unused imports
