@@ -152,6 +152,9 @@ One feature group can extend another feature group by using "self-dependency". F
 === ":octicons-file-code-16: pyproject.toml"
 
     ```toml
+    [project]
+    name = "awesome_project"
+    
     [project.optional-dependencies]
     crypto = [
       "PyJWT",
