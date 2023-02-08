@@ -153,7 +153,7 @@ One feature group can extend another feature group by using "self-dependency". F
 
     ```toml
     [project]
-    name = "awesome_project"
+    name = "awesome-project"
     
     [project.optional-dependencies]
     crypto = [
@@ -161,8 +161,8 @@ One feature group can extend another feature group by using "self-dependency". F
       "cryptography",
     ]
     dev = [
-      "awesome_project[crypto]",
-      "black"
+      "awesome-project[crypto]",
+      "black",
     ]
     ```
 
