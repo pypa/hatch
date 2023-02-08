@@ -124,8 +124,8 @@ class ContextStringFormatter(string.Formatter):
         #
         # TODO remove type ignore after https://github.com/python/typeshed/pull/9228
         used_args = set()  # type: ignore[var-annotated]
-        result, _ = self._vformat(format_string, args, kwargs, used_args, 10)  # type: ignore[attr-defined]
-        self.check_unused_args(used_args, args, kwargs)  # type: ignore[arg-type]
+        result, _ = self._vformat(format_string, args, kwargs, used_args, 10)
+        self.check_unused_args(used_args, args, kwargs)
         return result
 
     def get_value(self, key: int | str, args: Sequence[Any], kwargs: Mapping[str, Any]) -> Any:

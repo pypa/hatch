@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Tuple, cast
 
 from hatchling.version.scheme.plugin.interface import VersionSchemeInterface
 
@@ -16,7 +16,7 @@ class StandardScheme(VersionSchemeInterface):
     PLUGIN_NAME = 'standard'
 
     def update(self, desired_version: str, original_version: str, version_data: dict) -> str:
-        from packaging.version import Version, _parse_letter_version
+        from packaging.version import Version
 
         original = Version(original_version)
         versions = desired_version.split(',')
@@ -33,16 +33,16 @@ class StandardScheme(VersionSchemeInterface):
                     original, release=update_release(original, [original.major, original.minor, original.micro + 1])
                 )
             elif version in ('a', 'b', 'c', 'rc', 'alpha', 'beta', 'pre', 'preview'):
-                phase, number = _parse_letter_version(version, 0)
+                phase, number = parse_letter_version(version, 0)
                 if original.pre:
-                    current_phase, current_number = _parse_letter_version(*original.pre)
+                    current_phase, current_number = parse_letter_version(*original.pre)
                     if phase == current_phase:
                         number = current_number + 1
 
                 reset_version_parts(original, pre=(phase, number))
             elif version in ('post', 'rev', 'r'):
                 number = 0 if original.post is None else original.post + 1
-                reset_version_parts(original, post=_parse_letter_version(version, number))
+                reset_version_parts(original, post=parse_letter_version(version, number))
             elif version == 'dev':
                 number = 0 if original.dev is None else original.dev + 1
                 reset_version_parts(original, dev=(version, number))
@@ -86,3 +86,9 @@ def update_release(original_version: Version, new_release_parts: list[int]) -> t
         new_release_parts.append(0)
 
     return tuple(new_release_parts)
+
+
+def parse_letter_version(*args: Any, **kwargs: Any) -> tuple[str, int]:
+    from packaging.version import _parse_letter_version
+
+    return cast(Tuple[str, int], _parse_letter_version(*args, **kwargs))
