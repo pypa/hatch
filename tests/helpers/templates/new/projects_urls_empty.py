@@ -122,9 +122,9 @@ python = ["3.7", "3.8", "3.9", "3.10", "3.11"]
 [tool.hatch.envs.lint]
 detached = true
 dependencies = [
-  "black",
-  "mypy",
-  "ruff>=0.0.202",
+  "black>=23.1.0",
+  "mypy>=1.0.0",
+  "ruff>=0.0.243",
 ]
 [tool.hatch.envs.lint.scripts]
 typing = "mypy --install-types --non-interactive {{args:src/{kwargs['package_name']} tests}}"
@@ -180,12 +180,12 @@ select = [
 ignore = [
   # Allow non-abstract empty methods in abstract base classes
   "B027",
-  # Ignore McCabe complexity
-  "C901",
   # Allow boolean positional values in function calls, like `dict.get(... True)`
   "FBT003",
   # Ignore checks for possible passwords
   "S105", "S106", "S107",
+  # Ignore complexity
+  "C901", "PLR0911", "PLR0912", "PLR0913", "PLR0915",
 ]
 unfixable = [
   # Don't touch unused imports
@@ -199,8 +199,8 @@ known-first-party = ["{kwargs['package_name']}"]
 ban-relative-imports = "all"
 
 [tool.ruff.per-file-ignores]
-# Tests can use assertions and relative imports
-"tests/**/*" = ["S101", "TID252"]
+# Tests can use magic values, assertions, and relative imports
+"tests/**/*" = ["PLR2004", "S101", "TID252"]
 
 [tool.coverage.run]
 source_pkgs = ["{kwargs['package_name']}", "tests"]

@@ -95,7 +95,7 @@ class Application:
         Meant to be used for messages that are not useful for most user experiences.
         The `level` option must be between 1 and 3 (inclusive).
         """
-        if not 1 <= level <= 3:
+        if not 1 <= level <= 3:  # noqa: PLR2004
             error_message = 'Debug output can only have verbosity levels between 1 and 3 (inclusive)'
             raise ValueError(error_message)
         elif self.__verbosity >= level:

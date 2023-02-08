@@ -101,7 +101,7 @@ class Terminal:
         self.output(text, self._style_level_waiting, stderr=stderr, indent=indent, link=link, **kwargs)
 
     def display_debug(self, text='', level=1, *, stderr=True, indent=None, link=None, **kwargs):
-        if not 1 <= level <= 3:
+        if not 1 <= level <= 3:  # noqa: PLR2004
             error_message = 'Debug output can only have verbosity levels between 1 and 3 (inclusive)'
             raise ValueError(error_message)
         elif self.verbosity < level:

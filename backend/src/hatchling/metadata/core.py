@@ -622,10 +622,12 @@ class CoreMetadata:
 
     @property
     def python_constraint(self) -> SpecifierSet:
+        from packaging.specifiers import SpecifierSet
+
         if self._python_constraint is None:
             _ = self.requires_python
 
-        return self._python_constraint
+        return cast(SpecifierSet, self._python_constraint)
 
     @property
     def license(self) -> str:  # noqa: A003

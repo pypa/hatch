@@ -16,7 +16,7 @@ class PluginManager:
 
         self.manager.add_hookspecs(specs)
 
-    def __getattr__(self, name: str) -> 'ClassRegister':
+    def __getattr__(self, name: str) -> ClassRegister:
         if not self.initialized:
             self.initialize()
             self.initialized = True

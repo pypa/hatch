@@ -114,14 +114,12 @@ select = [
 ignore = [
   # Allow non-abstract empty methods in abstract base classes
   "B027",
-  # Ignore McCabe complexity
-  "C901",
   # Allow boolean positional values in function calls, like `dict.get(... True)`
   "FBT003",
   # Ignore checks for possible passwords
   "S105", "S106", "S107",
-  # https://github.com/charliermarsh/ruff/issues/1949
-  "PLR2004",
+  # Ignore complexity
+  "C901", "PLR0911", "PLR0912", "PLR0913", "PLR0915",
 ]
 unfixable = [
   # Don't touch unused imports
@@ -142,8 +140,8 @@ ban-relative-imports = "all"
 "backend/src/hatchling/bridge/app.py" = ["T201"]
 "backend/tests/downstream/integrate.py" = ["T201"]
 "scripts/*" = ["T201"]
-# Tests can use assertions and relative imports
-"tests/**/*" = ["S101", "TID252"]
+# Tests can use magic values, assertions, and relative imports
+"tests/**/*" = ["PLR2004", "S101", "TID252"]
 
 [tool.mypy]
 disallow_untyped_defs = false
