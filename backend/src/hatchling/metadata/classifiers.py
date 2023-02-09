@@ -1,4 +1,4 @@
-VERSION = '2023.1.20'
+VERSION = '2023.2.8'
 
 SORTED_CLASSIFIERS = [
     'Development Status :: 1 - Planning',
@@ -181,6 +181,7 @@ SORTED_CLASSIFIERS = [
     'Framework :: Plone :: 6.0',
     'Framework :: Plone :: Addon',
     'Framework :: Plone :: Core',
+    'Framework :: Plone :: Distribution',
     'Framework :: Plone :: Theme',
     'Framework :: Pydantic',
     'Framework :: Pydantic :: 1',

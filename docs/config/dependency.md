@@ -147,14 +147,16 @@ foo[cli,crypto]==1.*
 
 Note that the features come immediately after the package name, before any [version specifiers](#version-specifiers).
 
-One feature group can extend another feature group by using "self-dependency". For example, for a project called `awesome_project`, the `dev` feature group in the following `pyproject.toml` file would select everything in the `crypto` feature group, plus `black`:
+### Self-referential
+
+Feature groups can self-referentially extend others. For example, for a project called `awesome-project`, the `dev` feature group in the following `pyproject.toml` file would select everything in the `crypto` feature group, plus `black`:
 
 === ":octicons-file-code-16: pyproject.toml"
 
     ```toml
     [project]
     name = "awesome-project"
-    
+
     [project.optional-dependencies]
     crypto = [
       "PyJWT",
