@@ -1,4 +1,4 @@
-VERSION = '2023.2.8'
+VERSION = '2023.2.20'
 
 SORTED_CLASSIFIERS = [
     'Development Status :: 1 - Planning',
