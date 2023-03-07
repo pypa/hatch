@@ -352,6 +352,11 @@ def migrate(root, setuptools_options):
             for arg in setuptools_options:
                 key, value = arg.split('=', 1)
                 env[f'{ENV_VAR_PREFIX}{key}'] = value
+            # when PYTHONSAFEPATH is non-empty, current dir is not added automatically
+            if env.get('PYTHONPATH'):
+                env['PYTHONPATH'] += f':{repo_dir}'
+            else:
+                env["PYTHONPATH"] = repo_dir
 
             subprocess.check_call([sys.executable, setup_py], env=env)
 
