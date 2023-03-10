@@ -70,6 +70,7 @@ def test_extra_met(platform):
 
 
 @pytest.mark.requires_internet
+@pytest.mark.requires_git
 def test_dependency_git_revision(platform):
     with TempVirtualEnv(sys.executable, platform) as venv:
         platform.run_command(
@@ -79,6 +80,7 @@ def test_dependency_git_revision(platform):
 
 
 @pytest.mark.requires_internet
+@pytest.mark.requires_git
 def test_dependency_git_commit(platform):
     with TempVirtualEnv(sys.executable, platform) as venv:
         platform.run_command(
@@ -93,6 +95,7 @@ def test_dependency_git_commit(platform):
 
 
 @pytest.mark.requires_internet
+@pytest.mark.requires_git
 def test_dependency_git(platform):
     with TempVirtualEnv(sys.executable, platform) as venv:
         platform.run_command(

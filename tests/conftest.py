@@ -350,6 +350,9 @@ def pytest_runtest_setup(item):
         if marker.name == 'requires_unix' and PLATFORM.windows:
             pytest.skip('Not running on a Linux-based platform')
 
+        if marker.name == 'requires_git' and subprocess.check_call(['git', 'help']) != 0:
+            pytest.skip('Git not present in the environment')
+
 
 def pytest_configure(config):
     config.addinivalue_line('markers', 'requires_windows: Tests intended for Windows operating systems')
@@ -357,6 +360,7 @@ def pytest_configure(config):
     config.addinivalue_line('markers', 'requires_linux: Tests intended for Linux operating systems')
     config.addinivalue_line('markers', 'requires_unix: Tests intended for Linux-based operating systems')
     config.addinivalue_line('markers', 'requires_internet: Tests that require access to the internet')
+    config.addinivalue_line('markers', 'requires_git: Tests that require the git command available in the environment')
 
     config.addinivalue_line('markers', 'allow_backend_process: Force the use of backend communication')
 
