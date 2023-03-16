@@ -168,8 +168,8 @@ def run(
 
     any_compatible = False
     incompatible = {}
-    with project.location.as_cwd():
-        for env_name in environments:
+    for env_name in environments:
+        with project.location.as_cwd():
             environment = app.get_environment(env_name)
 
             try:
@@ -189,6 +189,16 @@ def run(
                 environment.exists = lambda: True
 
             app.prepare_environment(environment)
+
+            if app.config.dirs.working_directory == 'project':
+                app.run_shell_commands(
+                    environment,
+                    [environment.join_command_args(args)],
+                    force_continue=force_continue,
+                    show_code_on_error=False,
+                )
+
+        if app.config.dirs.working_directory == 'current':
             app.run_shell_commands(
                 environment,
                 [environment.join_command_args(args)],

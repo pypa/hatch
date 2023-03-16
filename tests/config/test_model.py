@@ -19,6 +19,7 @@ def test_default(default_cache_dir, default_data_dir):
             'python': 'isolated',
             'data': str(default_data_dir),
             'cache': str(default_cache_dir),
+            'working_directory': 'project',
         },
         'projects': {},
         'publish': {'index': {'repo': 'main'}},
@@ -351,6 +352,7 @@ class TestDirs:
         assert config.dirs.python == config.dirs.python == 'isolated'
         assert config.dirs.cache == config.dirs.cache == default_cache_directory
         assert config.dirs.data == config.dirs.data == default_data_directory
+        assert config.dirs.working_directory == config.dirs.working_directory == 'project'
         assert config.raw_data == {
             'dirs': {
                 'project': [],
@@ -358,6 +360,7 @@ class TestDirs:
                 'python': 'isolated',
                 'data': default_data_directory,
                 'cache': default_cache_directory,
+                'working_directory': 'project',
             },
         }
 

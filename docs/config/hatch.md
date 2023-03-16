@@ -214,6 +214,24 @@ The following values have special meanings.
 | `isolated` (default) | `<DATA_DIR>/pythons` |
 | `shared` | `~/.pythons` |
 
+### Working directory
+
+=== ":octicons-file-code-16: config.toml"
+
+    ```toml
+    [dirs]
+    working_directory = "..."
+    ```
+
+This determines whether hatch should change the current directory to the project root when executing run commands or stay in the current directory.
+
+The following values are valid.
+
+| Value | Meaning |
+| --- | --- |
+| `project` (default) | Change the working directory to the project root |
+| `current` | Stay in the current directory |
+
 ## Terminal
 
 You can configure how all output is displayed using the `terminal.styles` table. These settings are also applied to all plugins.
