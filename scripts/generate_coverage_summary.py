@@ -14,7 +14,7 @@ PACKAGES = {
 def main():
     project_root = Path(__file__).resolve().parent.parent
     coverage_report = project_root / 'coverage.xml'
-    root = etree.fromstring(coverage_report.read_text())  # nosec B320
+    root = etree.fromstring(coverage_report.read_text())  # nosec B320  # noqa: S320
 
     raw_package_data = defaultdict(lambda: {'hits': 0, 'misses': 0})
     for package in root.find('packages'):
