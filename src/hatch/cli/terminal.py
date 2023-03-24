@@ -71,7 +71,7 @@ class Terminal:
             self.console.stderr = False
 
     def display_error(self, text='', *, stderr=True, indent=None, link=None, **kwargs):
-        if self.verbosity < -2:
+        if self.verbosity < -2:  # noqa: PLR2004
             return
 
         self.output(text, self._style_level_error, stderr=stderr, indent=indent, link=link, **kwargs)
