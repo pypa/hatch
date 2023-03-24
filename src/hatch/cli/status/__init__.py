@@ -19,7 +19,7 @@ def status(app):
         else:
             display_pair('Project', f'{app.project.chosen_name} (not a project)', app.display_warning)
     else:
-        if app.project.chosen_name is None:
+        if app.project.chosen_name is None:  # noqa: PLR5501
             display_pair('Project', f'{app.project.root.name} (current directory)')
         else:
             display_pair('Project', app.project.chosen_name)
