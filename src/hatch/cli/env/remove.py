@@ -25,7 +25,7 @@ def remove(ctx, env_name):
 
         try:
             environment.check_compatibility()
-        except Exception:
+        except Exception:  # noqa: S112
             continue
 
         if environment.exists() or environment.build_environment_exists():

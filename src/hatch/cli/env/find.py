@@ -24,7 +24,7 @@ def find(app, env_name):
 
         try:
             environment.check_compatibility()
-        except Exception:
+        except Exception:  # noqa: S112
             continue
 
         app.display(environment.find())
