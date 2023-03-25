@@ -87,7 +87,7 @@ class Application:
         """
         Meant to be used for messages indicating some unrecoverable error.
         """
-        if self.__verbosity >= -2:
+        if self.__verbosity >= -2:  # noqa: PLR2004
             print(message)
 
     def display_debug(self, message: str = '', level: int = 1, **kwargs: Any) -> None:
@@ -109,7 +109,7 @@ class Application:
         """
         Terminate the program with the given return code.
         """
-        if message and self.__verbosity >= -2:
+        if message and self.__verbosity >= -2:  # noqa: PLR2004
             print(message)
 
         sys.exit(code)
