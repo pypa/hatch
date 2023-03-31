@@ -1,6 +1,7 @@
 import pytest
 
 from hatch.config.constants import ConfigEnvVars
+from hatch.utils.toml import load_toml_file
 
 
 def remove_trailing_spaces(text):
@@ -576,3 +577,33 @@ dynamic = ["version"]
 path = "my_app/__init__.py"
 """
     )
+
+
+def test_initialize_setup_cfg_only(hatch, helpers, temp_dir):
+    """
+    Test initializing a project with a setup.cfg file only.
+    """
+    with temp_dir.as_cwd():
+        (temp_dir / 'setup.cfg').write_text(
+            """
+[metadata]
+name = testapp
+version = attr:testapp.__version__
+description = Foo
+author = Johannes Valokytkin
+author_email = jv@example.com
+url = https://example.com
+license = MIT
+        """
+        )
+        result = hatch('new', '--init')
+        assert result.exit_code == 0, result.output
+
+    assert load_toml_file(str(temp_dir / 'pyproject.toml'))['project'] == {
+        'authors': [{'email': 'jv@example.com', 'name': 'Johannes Valokytkin'}],
+        'description': 'Foo',
+        'dynamic': ['version'],
+        'license': 'MIT',
+        'name': 'testapp',
+        'urls': {'Homepage': 'https://example.com'},
+    }

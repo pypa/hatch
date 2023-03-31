@@ -26,7 +26,7 @@ def new(app, name, location, interactive, feature_cli, initialize, setuptools_op
     if initialize:
         interactive = True
         location = location or Path.cwd()
-        if (location / 'setup.py').is_file():
+        if (location / 'setup.py').is_file() or (location / 'setup.cfg').is_file():
             migration_possible = True
             if not name:
                 name = 'temporary'

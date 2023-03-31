@@ -44,7 +44,7 @@ class DefaultTemplate(TemplateInterface):
                 for _ in range(5):
                     try:
                         download_file(cached_license_path, url, timeout=2)
-                    except Exception:
+                    except Exception:  # noqa: S112
                         continue
                     else:
                         break

@@ -140,7 +140,7 @@ class Application(Terminal):
                     self.display_info(line, end='')
                     continue
 
-                method, args, kwargs = pickle.loads(bytes.fromhex(procedure.rstrip()))
+                method, args, kwargs = pickle.loads(bytes.fromhex(procedure.rstrip()))  # noqa: S301
                 if method == 'abort':
                     process.communicate()
 
@@ -159,7 +159,7 @@ class Application(Terminal):
                 if indicator != '__HATCH__':  # no cov
                     lines.append(line)
                 else:
-                    _, args, _ = pickle.loads(bytes.fromhex(procedure))
+                    _, args, _ = pickle.loads(bytes.fromhex(procedure))  # noqa: S301
                     lines.append(args[0])
 
         output = ''.join(lines)
