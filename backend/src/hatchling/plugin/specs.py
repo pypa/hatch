@@ -1,6 +1,6 @@
 import pluggy
 
-hookspec = pluggy.HookspecMarker('hatch')
+hookspec = pluggy.HookspecMarker("hatch")
 
 
 @hookspec
@@ -21,3 +21,8 @@ def hatch_register_build_hook() -> None:
 @hookspec
 def hatch_register_metadata_hook() -> None:
     """Register new classes that adhere to the metadata hook interface."""
+
+
+@hookspec
+def hatch_register_commands() -> None:
+    """Register new commands to cli"""

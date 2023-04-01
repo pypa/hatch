@@ -10,6 +10,7 @@ from hatch.cli.config import config
 from hatch.cli.dep import dep
 from hatch.cli.env import env
 from hatch.cli.new import new
+from hatch.cli.plugin import load_plugins
 from hatch.cli.project import project
 from hatch.cli.publish import publish
 from hatch.cli.run import run
@@ -198,6 +199,8 @@ hatch.add_command(run)
 hatch.add_command(shell)
 hatch.add_command(status)
 hatch.add_command(version)
+
+load_plugins(hatch)
 
 
 def main():  # no cov
