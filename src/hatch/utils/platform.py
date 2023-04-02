@@ -65,9 +65,8 @@ class Platform:
                 new_command = [self.modules.shutil.which(executable) or executable]
                 new_command.extend(command[1:])
                 return new_command
-        else:
-            if not shell and isinstance(command, str):
-                return self.modules.shlex.split(command)
+        elif not shell and isinstance(command, str):
+            return self.modules.shlex.split(command)
 
         return command
 
