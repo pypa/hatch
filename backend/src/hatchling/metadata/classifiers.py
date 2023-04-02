@@ -1,4 +1,4 @@
-VERSION = '2023.2.8'
+VERSION = '2023.2.20'
 
 SORTED_CLASSIFIERS = [
     'Development Status :: 1 - Planning',
@@ -119,6 +119,7 @@ SORTED_CLASSIFIERS = [
     'Framework :: Django :: 4',
     'Framework :: Django :: 4.0',
     'Framework :: Django :: 4.1',
+    'Framework :: Django :: 4.2',
     'Framework :: Django CMS',
     'Framework :: Django CMS :: 3.4',
     'Framework :: Django CMS :: 3.5',
