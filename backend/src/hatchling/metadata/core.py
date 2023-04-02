@@ -949,7 +949,7 @@ class CoreMetadata:
         if self._classifiers is None:
             import bisect
 
-            from hatchling.metadata.classifiers import KNOWN_CLASSIFIERS, SORTED_CLASSIFIERS, is_private
+            import trove_classifiers
 
             if 'classifiers' in self.config:
                 classifiers = self.config['classifiers']
@@ -966,25 +966,25 @@ class CoreMetadata:
                 message = 'Field `project.classifiers` must be an array'
                 raise TypeError(message)
 
-            known_classifiers = KNOWN_CLASSIFIERS | self._extra_classifiers
+            known_classifiers = trove_classifiers.classifiers | self._extra_classifiers
             unique_classifiers = set()
 
             for i, classifier in enumerate(classifiers, 1):
                 if not isinstance(classifier, str):
                     message = f'Classifier #{i} of field `project.classifiers` must be a string'
                     raise TypeError(message)
-                elif not is_private(classifier) and classifier not in known_classifiers:
+                elif not self.__classifier_is_private(classifier) and classifier not in known_classifiers:
                     message = f'Unknown classifier in field `project.classifiers`: {classifier}'
                     raise ValueError(message)
 
                 unique_classifiers.add(classifier)
 
-            sorted_classifiers = list(SORTED_CLASSIFIERS)
-            for classifier in sorted(self._extra_classifiers - KNOWN_CLASSIFIERS):
+            sorted_classifiers = list(trove_classifiers.sorted_classifiers)
+            for classifier in sorted(self._extra_classifiers - trove_classifiers.classifiers):
                 bisect.insort(sorted_classifiers, classifier)
 
             self._classifiers = sorted(
-                unique_classifiers, key=lambda c: -1 if is_private(c) else sorted_classifiers.index(c)
+                unique_classifiers, key=lambda c: -1 if self.__classifier_is_private(c) else sorted_classifiers.index(c)
             )
 
         return self._classifiers
@@ -1323,6 +1323,10 @@ class CoreMetadata:
         # Trigger validation for everything
         for attribute in dir(self):
             getattr(self, attribute)
+
+    @staticmethod
+    def __classifier_is_private(classifier: str) -> bool:
+        return classifier.lower().startswith('private ::')
 
 
 class HatchMetadata(Generic[PluginManagerBound]):
