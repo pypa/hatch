@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.14.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.14.0) - 2023-04-02 ## {: #hatchling-v1.14.0 }
+
 ***Added:***
 
 - Add `trove-classifiers` as a dependency
