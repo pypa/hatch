@@ -8,6 +8,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Added:***
+
+- Add `trove-classifiers` as a dependency
+
+***Fixed:***
+
+- Properly normalize metadata descriptions that contain line breaks
+
 ## [1.13.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.13.0) - 2023-02-09 ## {: #hatchling-v1.13.0 }
 
 ***Added:***
