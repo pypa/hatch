@@ -355,7 +355,7 @@ def migrate(root, setuptools_options):
 
             # When PYTHONSAFEPATH is non-empty, current dir is not added automatically
             if env.get('PYTHONPATH'):
-                env['PYTHONPATH'] += f'{repo_dir}{os.pathsep}'
+                env['PYTHONPATH'] += f'{repo_dir}{os.pathsep}{env["PYTHONPATH"]}'
             else:
                 env['PYTHONPATH'] = repo_dir
 
