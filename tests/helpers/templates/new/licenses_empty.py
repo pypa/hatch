@@ -26,7 +26,7 @@ def get_files(**kwargs):
 ```console
 pip install {kwargs['project_name_normalized']}
 ```
-""",  # noqa: E501
+""",
         ),
         File(
             Path('pyproject.toml'),

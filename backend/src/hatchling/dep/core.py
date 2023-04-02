@@ -93,16 +93,30 @@ def dependency_in_sync(
                 vcs_info = direct_url_data['vcs_info']
                 vcs = vcs_info['vcs']
                 commit_id = vcs_info['commit_id']
+                requested_revision = vcs_info['requested_revision'] if 'requested_revision' in vcs_info else None
 
-                # Try a few variations, see:
-                # https://peps.python.org/pep-0440/#direct-references
-                if requirement.url != f'{vcs}+{url}@{commit_id}':
-                    if 'requested_revision' in vcs_info:
-                        requested_revision = vcs_info['requested_revision']
-                        if requirement.url != f'{vcs}+{url}@{requested_revision}#{commit_id}':
-                            return False
+                # Try a few variations, see https://peps.python.org/pep-0440/#direct-references
+                if (
+                    requested_revision and requirement.url == f'{vcs}+{url}@{requested_revision}#{commit_id}'
+                ) or requirement.url == f'{vcs}+{url}@{commit_id}':
+                    return True
+                elif requirement.url == f'{vcs}+{url}' or requirement.url == f'{vcs}+{url}@{requested_revision}':
+                    import subprocess
+
+                    if vcs == 'git':
+                        vcs_cmd = [vcs, 'ls-remote', url]
+                        if requested_revision:
+                            vcs_cmd.append(requested_revision)
+                    # TODO: add elifs for hg, svn, and bzr https://github.com/pypa/hatch/issues/760
                     else:
                         return False
+                    result = subprocess.run(vcs_cmd, capture_output=True, text=True)
+                    if result.returncode:
+                        return False
+                    latest_commit_id, *_ = result.stdout.split()
+                    return commit_id == latest_commit_id
+                else:
+                    return False
 
     return True
 

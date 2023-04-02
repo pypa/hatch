@@ -141,7 +141,7 @@ def setup(**kwargs):
     name = kwargs['name']
     project_name = name.replace('_', '-')
     packages = sorted(kwargs.get('packages') or [name.replace('-', '_')])
-    package_name = package_path = package_source = packages[0].split('.')[0].lower()
+    package_name = package_path = package_source = packages[0].split('.')[0].lower().strip()
 
     project_metadata['name'] = project_name
 
@@ -352,6 +352,12 @@ def migrate(root, setuptools_options):
             for arg in setuptools_options:
                 key, value = arg.split('=', 1)
                 env[f'{ENV_VAR_PREFIX}{key}'] = value
+
+            # When PYTHONSAFEPATH is non-empty, current dir is not added automatically
+            if env.get('PYTHONPATH'):
+                env['PYTHONPATH'] += f'{repo_dir}{os.pathsep}{env["PYTHONPATH"]}'
+            else:
+                env['PYTHONPATH'] = repo_dir
 
             subprocess.check_call([sys.executable, setup_py], env=env)
 
