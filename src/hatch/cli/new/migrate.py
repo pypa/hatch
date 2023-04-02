@@ -353,6 +353,12 @@ def migrate(root, setuptools_options):
                 key, value = arg.split('=', 1)
                 env[f'{ENV_VAR_PREFIX}{key}'] = value
 
+            # When PYTHONSAFEPATH is non-empty, current dir is not added automatically
+            if env.get('PYTHONPATH'):
+                env['PYTHONPATH'] += f'{repo_dir}{os.pathsep}'
+            else:
+                env['PYTHONPATH'] = repo_dir
+
             subprocess.check_call([sys.executable, setup_py], env=env)
 
             old_project_file = os.path.join(root, 'pyproject.toml')
