@@ -462,8 +462,7 @@ class CoreMetadata:
             if not isinstance(description, str):
                 message = 'Field `project.description` must be a string'
                 raise TypeError(message)
-
-            self._description = description
+            self._description = ' '.join(description.splitlines())
 
         return self._description
 
