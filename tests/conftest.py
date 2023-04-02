@@ -350,7 +350,7 @@ def pytest_runtest_setup(item):
         if marker.name == 'requires_unix' and PLATFORM.windows:
             pytest.skip('Not running on a Linux-based platform')
 
-        if marker.name == 'requires_git' and subprocess.check_call(['git', 'help']) != 0:
+        if marker.name == 'requires_git' and not shutil.which('git'):
             pytest.skip('Git not present in the environment')
 
 
