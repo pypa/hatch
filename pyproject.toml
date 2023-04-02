@@ -46,7 +46,6 @@ dependencies = [
   "packaging>=21.3",
   "pexpect~=4.8",
   "platformdirs>=2.5.0",
-  "pyperclip>=1.8.2",
   "rich>=11.2.0",
   "shellingham>=1.4.0",
   "tomli-w>=1.0",
@@ -80,6 +79,9 @@ exclude = [
 line-length = 120
 skip-string-normalization = true
 target-version = ["py37"]
+extend-exclude = """
+src/hatch/utils/clipboard.py
+"""
 
 [tool.ruff]
 target-version = "py37"
@@ -128,6 +130,9 @@ unfixable = [
   # Don't touch unused imports
   "F401",
 ]
+extend-exclude = [
+  "src/hatch/utils/clipboard.py",
+]
 
 [tool.ruff.isort]
 known-first-party = ["hatch", "hatchling"]
@@ -156,6 +161,13 @@ show_column_numbers = true
 show_error_codes = true
 warn_no_return = false
 warn_unused_ignores = true
+exclude = [
+  "src/hatch/utils/clipboard.py",
+]
+
+[[tool.mypy.overrides]]
+module = "hatch.utils.clipboard"
+follow_imports = "skip"
 
 [[tool.mypy.overrides]]
 module = [

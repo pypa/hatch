@@ -22,9 +22,9 @@ def find(app, copy):
     """Show the location of the config file."""
     config_path = str(app.config_file.path)
     if copy:
-        import pyperclip
+        from hatch.utils import clipboard
 
-        pyperclip.copy(config_path)
+        clipboard.copy(config_path)
     elif ' ' in config_path:
         app.display(f'"{config_path}"')
     else:

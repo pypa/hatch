@@ -6,7 +6,7 @@ from hatch.config.constants import ConfigEnvVars
 
 
 def test_copy(hatch, config_file, mocker):
-    mock = mocker.patch('pyperclip.copy')
+    mock = mocker.patch('hatch.utils.clipboard.copy')
     result = hatch('config', 'find', '-c')
 
     assert result.exit_code == 0, result.output

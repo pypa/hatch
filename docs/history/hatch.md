@@ -23,6 +23,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Expand home and environment variables in configured cache and data directories
 - Improve readability of exceptions
 - Update project templates
+- Vendor `pyperclip` in an effort to remove dependencies without wheels
 - Bump the minimum supported version of Hatchling to 1.14.0
 
 ***Fixed:***
