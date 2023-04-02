@@ -462,9 +462,7 @@ class CoreMetadata:
             if not isinstance(description, str):
                 message = 'Field `project.description` must be a string'
                 raise TypeError(message)
-            if '\n' or '\r\n' in description:
-                description = description.replace('\r\n', ' ').replace('\n', ' ')
-            self._description = description
+            self._description = ' '.join(description.splitlines())
 
         return self._description
 
