@@ -8,6 +8,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.13.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.13.0) - 2023-02-09 ## {: #hatchling-v1.13.0 }
+
+***Added:***
+
+- Update the set of known trove classifiers to version 2023.2.8
+
 ## [1.12.2](https://github.com/pypa/hatch/releases/tag/hatchling-v1.12.2) - 2023-01-05 ## {: #hatchling-v1.12.2 }
 
 ***Fixed:***

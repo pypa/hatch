@@ -126,7 +126,7 @@ def set_value(app, key, value):
     if new_config.__class__.__name__ == 'Table':  # no cov
         table_body = getattr(new_config.value, 'body', [])
         possible_whitespace = table_body[-2:]
-        if len(possible_whitespace) == 2:
+        if len(possible_whitespace) == 2:  # noqa: PLR2004
             for key, item in possible_whitespace:
                 if key is not None:
                     break

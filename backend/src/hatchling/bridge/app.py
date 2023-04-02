@@ -87,7 +87,7 @@ class Application:
         """
         Meant to be used for messages indicating some unrecoverable error.
         """
-        if self.__verbosity >= -2:
+        if self.__verbosity >= -2:  # noqa: PLR2004
             print(message)
 
     def display_debug(self, message: str = '', level: int = 1, **kwargs: Any) -> None:
@@ -95,7 +95,7 @@ class Application:
         Meant to be used for messages that are not useful for most user experiences.
         The `level` option must be between 1 and 3 (inclusive).
         """
-        if not 1 <= level <= 3:
+        if not 1 <= level <= 3:  # noqa: PLR2004
             error_message = 'Debug output can only have verbosity levels between 1 and 3 (inclusive)'
             raise ValueError(error_message)
         elif self.__verbosity >= level:
@@ -109,7 +109,7 @@ class Application:
         """
         Terminate the program with the given return code.
         """
-        if message and self.__verbosity >= -2:
+        if message and self.__verbosity >= -2:  # noqa: PLR2004
             print(message)
 
         sys.exit(code)

@@ -622,10 +622,12 @@ class CoreMetadata:
 
     @property
     def python_constraint(self) -> SpecifierSet:
+        from packaging.specifiers import SpecifierSet
+
         if self._python_constraint is None:
             _ = self.requires_python
 
-        return self._python_constraint
+        return cast(SpecifierSet, self._python_constraint)
 
     @property
     def license(self) -> str:  # noqa: A003
@@ -1186,7 +1188,7 @@ class CoreMetadata:
 
                     dependencies_complex[get_normalized_dependency(requirement)] = requirement
 
-            self._dependencies_complex = {k: v for k, v in sorted(dependencies_complex.items())}
+            self._dependencies_complex = dict(sorted(dependencies_complex.items()))
 
         return self._dependencies_complex
 
@@ -1280,9 +1282,9 @@ class CoreMetadata:
                     raise ValueError(message)
 
                 normalized_options[normalized_option] = option
-                optional_dependency_entries[normalized_option] = {k: v for k, v in sorted(entries.items())}
+                optional_dependency_entries[normalized_option] = dict(sorted(entries.items()))
 
-            self._optional_dependencies_complex = {k: v for k, v in sorted(optional_dependency_entries.items())}
+            self._optional_dependencies_complex = dict(sorted(optional_dependency_entries.items()))
 
         return self._optional_dependencies_complex
 

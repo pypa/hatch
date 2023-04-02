@@ -21,7 +21,7 @@ def main():
             if line.startswith('## '):
                 release_headers += 1
 
-            if release_headers == 3:
+            if release_headers == 3:  # noqa: PLR2004
                 break
 
     release_lines = history_file_lines[history_file_lines.index('## Unreleased') + 1 : -1]

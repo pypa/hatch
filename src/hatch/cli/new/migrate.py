@@ -340,6 +340,12 @@ def migrate(root, setuptools_options):
         shutil.copytree(root, repo_dir, ignore=shutil.ignore_patterns('.git', '.tox'), copy_function=shutil.copy)
         shutil.copy(FILE, os.path.join(repo_dir, 'setuptools.py'))
         os.chdir(repo_dir)
+        setup_py = os.path.join(repo_dir, 'setup.py')
+
+        if not os.path.isfile(setup_py):
+            # Synthesize a small setup.py file since there is none
+            with open(setup_py, 'w', encoding='utf-8') as f:
+                f.write('import setuptools\nsetuptools.setup()\n')
 
         try:
             env = dict(os.environ)
@@ -347,7 +353,7 @@ def migrate(root, setuptools_options):
                 key, value = arg.split('=', 1)
                 env[f'{ENV_VAR_PREFIX}{key}'] = value
 
-            subprocess.check_call([sys.executable, os.path.join(repo_dir, 'setup.py')], env=env)
+            subprocess.check_call([sys.executable, setup_py], env=env)
 
             old_project_file = os.path.join(root, 'pyproject.toml')
             new_project_file = os.path.join(repo_dir, 'pyproject.toml')
