@@ -30,7 +30,7 @@ class Readme(File):
 ```console
 pip install {project_name_normalized}
 ```{license_info}
-"""  # noqa: E501
+"""
 
     def __init__(self, template_config: dict, plugin_config: dict):
         extra_badges = ''
