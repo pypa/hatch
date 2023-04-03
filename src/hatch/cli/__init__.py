@@ -1,4 +1,5 @@
 import os
+import sys
 
 import click
 
@@ -202,10 +203,14 @@ hatch.add_command(version)
 
 def main():  # no cov
     try:
-        return hatch(windows_expand_args=False)
+        return hatch(prog_name='hatch', windows_expand_args=False)
     except Exception:
         from rich.console import Console
 
+        suppressed_modules = []
+        if not getattr(sys, 'frozen', False):
+            suppressed_modules.append(click)
+
         console = Console()
-        console.print_exception(suppress=[click])
+        console.print_exception(suppress=suppressed_modules)
         return 1
