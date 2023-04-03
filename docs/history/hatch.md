@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.7.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.7.0) - 2023-04-03 ## {: #hatch-v1.7.0 }
+
 ***Changed:***
 
 - The `src-layout` project template option is now enabled by default
