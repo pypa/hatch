@@ -125,14 +125,9 @@ build = "python -m build backend"
 publish = "hatch publish backend/dist"
 version = "cd backend && hatch version {args}"
 update-data = [
-  "update-classifiers",
   "update-licenses",
 ]
 update-licenses = "python backend/scripts/update_licenses.py"
-update-classifiers = [
-  "pip install --upgrade trove-classifiers",
-  "python backend/scripts/update_classifiers.py",
-]
 
 [envs.release]
 detached = true

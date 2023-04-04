@@ -65,7 +65,7 @@ pip install {kwargs['project_name_normalized']}
 
 - [Apache-2.0](https://spdx.org/licenses/Apache-2.0.html)
 - [MIT](https://spdx.org/licenses/MIT.html)
-""",  # noqa: E501
+""",
         ),
         File(
             Path('pyproject.toml'),

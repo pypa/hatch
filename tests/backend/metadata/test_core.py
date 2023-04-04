@@ -338,6 +338,11 @@ class TestDescription:
 
         assert metadata.core.description == metadata.core.description == 'foo'
 
+    def test_normaliza(self, isolation):
+        metadata = ProjectMetadata(str(isolation), None, {'project': {'description': '\nfirst line.\r\nsecond line'}})
+
+        assert metadata.core.description == metadata.core.description == ' first line. second line'
+
 
 class TestReadme:
     def test_dynamic(self, isolation):
