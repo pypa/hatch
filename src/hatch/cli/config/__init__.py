@@ -15,6 +15,13 @@ def explore(app):
     click.launch(str(app.config_file.path), locate=True)
 
 
+@config.command(short_help='Open the config file in your editor')
+@click.pass_obj
+def edit(app):
+    """Open the config file in your editor."""
+    click.edit(filename=str(app.config_file.path))
+
+
 @config.command(short_help='Show the location of the config file')
 @click.option('--copy', '-c', is_flag=True, help='Copy the path to the config file to the clipboard')
 @click.pass_obj
