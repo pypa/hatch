@@ -21,6 +21,15 @@ pip install hatch
 pipx install hatch
 ```
 
+## Standalone (via zipapp)
+
+You can also use Hatch without installing it.
+The zipapp can be downloaded from [Github releases](https://github.com/pypa/hatch/releases) and you can invoke it with a Python 3.7+ interpreter:
+
+```
+python hatch.pyz new --init
+```
+
 ## Homebrew
 
 See the [formula](https://formulae.brew.sh/formula/hatch) for more details.
