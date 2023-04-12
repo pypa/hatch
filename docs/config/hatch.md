@@ -6,7 +6,7 @@ Configuration for Hatch itself is stored in a `config.toml` file located by defa
 
 | Platform | Path |
 | --- | --- |
-| macOS | `~/Library/Preferences/hatch` |
+| macOS | `~/Library/Application Support/hatch` |
 | Windows | `%USERPROFILE%\AppData\Local\hatch` |
 | Unix | `$XDG_CONFIG_HOME/hatch` (the [XDG_CONFIG_HOME](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html#variables) environment variable default is `~/.config`) |
 
