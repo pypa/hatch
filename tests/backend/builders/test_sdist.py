@@ -1516,9 +1516,9 @@ class TestBuildStandard:
             tar_archive.extractall(str(extraction_directory))
 
         expected_files = helpers.get_template_files(
-            'sdist.standard_default', project_name, relative_root=builder.project_id
+            'sdist.standard_default', project_name, relative_root=builder.artifact_project_id
         )
         helpers.assert_files(extraction_directory, expected_files)
 
-        stat = os.stat(str(extraction_directory / builder.project_id / 'PKG-INFO'))
+        stat = os.stat(str(extraction_directory / builder.artifact_project_id / 'PKG-INFO'))
         assert stat.st_mtime == get_reproducible_timestamp()
