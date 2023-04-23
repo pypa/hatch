@@ -161,7 +161,7 @@ class SdistBuilder(BuilderInterface):
     def build_standard(self, directory: str, **build_data: Any) -> str:
         found_packages = set()
 
-        with SdistArchive(self.project_id, reproducible=self.config.reproducible) as archive:
+        with SdistArchive(self.artifact_project_id, reproducible=self.config.reproducible) as archive:
             for included_file in self.recurse_included_files():
                 if self.config.support_legacy:
                     possible_package, file_name = os.path.split(included_file.relative_path)
@@ -170,7 +170,9 @@ class SdistBuilder(BuilderInterface):
 
                 tar_info = archive.gettarinfo(
                     included_file.path,
-                    arcname=normalize_archive_path(os.path.join(self.project_id, included_file.distribution_path)),
+                    arcname=normalize_archive_path(
+                        os.path.join(self.artifact_project_id, included_file.distribution_path)
+                    ),
                 )
 
                 if tar_info.isfile():
