@@ -75,10 +75,15 @@ class IndexPublisher(PublisherInterface):
             if not user:
                 user = cached_user_file.get_user(repo)
                 if user is None:
-                    if options['no_prompt']:
-                        self.app.abort('Missing required option: user')
-                    else:
-                        user = updated_user = self.app.prompt('Enter your username', default='__TOKEN__')
+                    import keyring
+
+                    creds = keyring.get_credential(repo, None)
+                    user = creds and creds.username
+                    if user is None:
+                        if options['no_prompt']:
+                            self.app.abort('Missing required option: user')
+                        else:
+                            user = updated_user = self.app.prompt('Enter your username', default='__TOKEN__')
         index.user = user
 
         updated_auth = None
