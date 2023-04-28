@@ -31,7 +31,7 @@ If this doesn't reflect how you store the version, you can define a different re
     ```toml
     [tool.hatch.version]
     path = "pkg/__init__.py"
-    pattern = "BUILD = 'b(?P<version>)'"
+    pattern = "BUILD = 'b(?P<version>[^']+)'"
     ```
 
 === ":octicons-file-code-16: hatch.toml"
@@ -39,7 +39,7 @@ If this doesn't reflect how you store the version, you can define a different re
     ```toml
     [version]
     path = "pkg/__init__.py"
-    pattern = "BUILD = 'b(?P<version>)'"
+    pattern = "BUILD = 'b(?P<version>[^']+)'"
     ```
 
 The pattern must have a named group called `version` that represents the version.
