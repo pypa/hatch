@@ -28,7 +28,7 @@ The builder plugin name is `app`.
 | Option | Default | Description |
 | --- | --- | --- |
 | `scripts` | all defined | An array of defined [script](../../config/metadata.md#cli) names to limit what gets built |
-| `python-version` | latest compatible Python minor version | The exact Python version to use |
+| `python-version` | latest compatible Python minor version | The [Python version ID](https://github.com/ofek/pyapp#known) to use |
 | `pyapp-version` | | The version of PyApp to use |
 
 ## Build behavior
@@ -37,4 +37,4 @@ If any [scripts](../../config/metadata.md#cli) are defined then each one will be
 
 Every executable will be built inside an `app` directory in the [output directory](../../config/build.md#output-directory).
 
-If the [`CARGO_BUILD_TARGET`](https://doc.rust-lang.org/cargo/reference/config.html#buildtarget) environment variable is set then it's value will be appended to the file name stems.
+If the [`CARGO_BUILD_TARGET`](https://doc.rust-lang.org/cargo/reference/config.html#buildtarget) environment variable is set then its value will be appended to the file name stems.
