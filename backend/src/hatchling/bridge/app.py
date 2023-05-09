@@ -7,6 +7,13 @@ from typing import Any
 
 
 class InvokedApplication:
+    def __init__(self) -> None:
+        self.__verbosity = int(os.environ.get('HATCH_VERBOSE', '0')) - int(os.environ.get('HATCH_QUIET', '0'))
+
+    @property
+    def verbosity(self) -> int:
+        return self.__verbosity
+
     def display(self, *args: Any, **kwargs: Any) -> None:
         send_app_command('display', *args, **kwargs)
 
@@ -50,6 +57,13 @@ class Application:
 
     def __init__(self) -> None:
         self.__verbosity = int(os.environ.get('HATCH_VERBOSE', '0')) - int(os.environ.get('HATCH_QUIET', '0'))
+
+    @property
+    def verbosity(self) -> int:
+        """
+        The verbosity level of the application, with 0 as the default.
+        """
+        return self.__verbosity
 
     def display(self, message: str = '', **kwargs: Any) -> None:
         # Do not document
@@ -121,6 +135,7 @@ class Application:
 class SafeApplication:
     def __init__(self, app: InvokedApplication | Application) -> None:
         self.abort = app.abort
+        self.verbosity = app.verbosity
         self.display = app.display
         self.display_info = app.display_info
         self.display_error = app.display_error
