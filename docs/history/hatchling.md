@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.15.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.15.0) - 2023-05-09 ## {: #hatchling-v1.15.0 }
+
 ***Added:***
 
 - Add `app` build target
