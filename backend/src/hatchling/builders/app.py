@@ -134,7 +134,10 @@ class AppBuilder(BuilderInterface):
             if repo_path:
                 context_dir = repo_path
                 target_dir = os.path.join(temp_dir, 'build')
-                temp_exe_path = os.path.join(target_dir, build_target or 'release', exe_name)
+                if build_target:
+                    temp_exe_path = os.path.join(target_dir, build_target, 'release', exe_name)
+                else:
+                    temp_exe_path = os.path.join(target_dir, 'release', exe_name)
                 install_command = [cargo_path, 'build', '--release', '--target-dir', target_dir]
             else:
                 context_dir = temp_dir

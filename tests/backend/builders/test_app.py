@@ -28,7 +28,12 @@ def cargo_install(*args: Any, **kwargs: Any) -> subprocess.CompletedProcess:
     if repo_path:
         temp_dir = install_command[install_command.index('--target-dir') + 1]
 
-        executable = Path(temp_dir, os.environ.get('CARGO_BUILD_TARGET', 'release'), executable_name)
+        build_target = os.environ.get('CARGO_BUILD_TARGET', '')
+        if build_target:
+            executable = Path(temp_dir, build_target, 'release', executable_name)
+        else:
+            executable = Path(temp_dir, 'release', executable_name)
+
         executable.parent.ensure_dir_exists()
         executable.touch()
     else:
