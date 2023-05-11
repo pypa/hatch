@@ -125,25 +125,36 @@ class AppBuilder(BuilderInterface):
         # https://doc.rust-lang.org/cargo/reference/config.html#buildtarget
         build_target = os.environ.get('CARGO_BUILD_TARGET', '')
 
-        with tempfile.TemporaryDirectory() as temp_dir:
-            temp_exe_path = os.path.join(temp_dir, 'bin', 'pyapp.exe' if on_windows else 'pyapp')
+        # This will determine whether we install from crates.io or build locally and is currently required for
+        # cross compilation: https://github.com/cross-rs/cross/issues/1215
+        repo_path = os.environ.get('PYAPP_REPO', '')
 
-            install_command = [cargo_path, 'install', 'pyapp', '--force', '--root', temp_dir]
-            if self.config.pyapp_version:
-                install_command.extend(['--version', self.config.pyapp_version])
+        with tempfile.TemporaryDirectory() as temp_dir:
+            exe_name = 'pyapp.exe' if on_windows else 'pyapp'
+            if repo_path:
+                context_dir = repo_path
+                target_dir = os.path.join(temp_dir, 'build')
+                temp_exe_path = os.path.join(target_dir, build_target or 'release', exe_name)
+                install_command = [cargo_path, 'build', '--release', '--target-dir', target_dir]
+            else:
+                context_dir = temp_dir
+                temp_exe_path = os.path.join(temp_dir, 'bin', exe_name)
+                install_command = [cargo_path, 'install', 'pyapp', '--force', '--root', temp_dir]
+                if self.config.pyapp_version:
+                    install_command.extend(['--version', self.config.pyapp_version])
 
             if self.config.scripts:
                 for script in self.config.scripts:
                     env = dict(base_env)
                     env['PYAPP_EXEC_SPEC'] = self.metadata.core.scripts[script]
 
-                    self.cargo_build(install_command, cwd=temp_dir, env=env)
+                    self.cargo_build(install_command, cwd=context_dir, env=env)
 
                     exe_stem = f'{script}-{build_target}' if build_target else script
                     exe_path = os.path.join(app_dir, f'{exe_stem}.exe' if on_windows else exe_stem)
                     shutil.move(temp_exe_path, exe_path)
             else:
-                self.cargo_build(install_command, cwd=temp_dir, env=base_env)
+                self.cargo_build(install_command, cwd=context_dir, env=base_env)
 
                 exe_stem = f'{self.metadata.name}-{build_target}' if build_target else self.metadata.name
                 exe_path = os.path.join(app_dir, f'{exe_stem}.exe' if on_windows else exe_stem)
