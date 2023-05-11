@@ -37,4 +37,8 @@ If any [scripts](../../config/metadata.md#cli) are defined then each one will be
 
 Every executable will be built inside an `app` directory in the [output directory](../../config/build.md#output-directory).
 
+If the `CARGO` environment variable is set then that path will be used as the executable for performing builds.
+
 If the [`CARGO_BUILD_TARGET`](https://doc.rust-lang.org/cargo/reference/config.html#buildtarget) environment variable is set then its value will be appended to the file name stems.
+
+If the `PYAPP_REPO` environment variable is set then a local build will be performed inside that directory rather than installing from [crates.io](https://crates.io). Note that this is [required](https://github.com/cross-rs/cross/issues/1215) if the `CARGO` environment variable refers to [cross](https://github.com/cross-rs/cross).

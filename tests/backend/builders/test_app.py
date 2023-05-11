@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 from typing import Any
@@ -21,12 +22,21 @@ class ExpectedEnvVars:
 
 
 def cargo_install(*args: Any, **kwargs: Any) -> subprocess.CompletedProcess:
+    executable_name = 'pyapp.exe' if sys.platform == 'win32' else 'pyapp'
     install_command: list[str] = args[0]
-    temp_dir = install_command[install_command.index('--root') + 1]
+    repo_path = os.environ.get('PYAPP_REPO', '')
+    if repo_path:
+        temp_dir = install_command[install_command.index('--target-dir') + 1]
 
-    executable = Path(temp_dir, 'bin', 'pyapp.exe' if sys.platform == 'win32' else 'pyapp')
-    executable.parent.ensure_dir_exists()
-    executable.touch()
+        executable = Path(temp_dir, os.environ.get('CARGO_BUILD_TARGET', 'release'), executable_name)
+        executable.parent.ensure_dir_exists()
+        executable.touch()
+    else:
+        temp_dir = install_command[install_command.index('--root') + 1]
+
+        executable = Path(temp_dir, 'bin', executable_name)
+        executable.parent.ensure_dir_exists()
+        executable.touch()
 
     return subprocess.CompletedProcess(install_command, returncode=0, stdout=None, stderr=None)
 
@@ -573,6 +583,90 @@ class TestBuildBootstrap:
             ['cargo', 'install', 'pyapp', '--force', '--root', mocker.ANY],
             cwd=mocker.ANY,
             env=ExpectedEnvVars({'PYAPP_PROJECT_NAME': 'my-app', 'PYAPP_PROJECT_VERSION': '0.1.0'}),
+        )
+
+        assert len(artifacts) == 1
+        expected_artifact = artifacts[0]
+
+        build_artifacts = list(build_path.iterdir())
+        assert len(build_artifacts) == 1
+        assert expected_artifact == str(build_artifacts[0])
+        assert (build_path / 'app' / ('my-app.exe' if sys.platform == 'win32' else 'my-app')).is_file()
+
+    def test_local_build_with_build_target(self, hatch, helpers, temp_dir, mocker):
+        subprocess_run = mocker.patch('subprocess.run', side_effect=cargo_install)
+
+        project_name = 'My.App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / 'my-app'
+        config = {
+            'project': {'name': project_name, 'version': '0.1.0'},
+            'tool': {
+                'hatch': {
+                    'build': {'targets': {'app': {'versions': ['bootstrap']}}},
+                },
+            },
+        }
+        builder = AppBuilder(str(project_path), config=config)
+
+        build_path = project_path / 'dist'
+
+        with project_path.as_cwd({'PYAPP_REPO': 'test-path', 'CARGO_BUILD_TARGET': 'target'}):
+            artifacts = list(builder.build())
+
+        subprocess_run.assert_called_once_with(
+            ['cargo', 'build', '--release', '--target-dir', mocker.ANY],
+            cwd='test-path',
+            env=ExpectedEnvVars({'PYAPP_PROJECT_NAME': 'my-app', 'PYAPP_PROJECT_VERSION': '0.1.0'}),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+        )
+
+        assert len(artifacts) == 1
+        expected_artifact = artifacts[0]
+
+        build_artifacts = list(build_path.iterdir())
+        assert len(build_artifacts) == 1
+        assert expected_artifact == str(build_artifacts[0])
+        assert (build_path / 'app' / ('my-app-target.exe' if sys.platform == 'win32' else 'my-app-target')).is_file()
+
+    def test_local_build_no_build_target(self, hatch, helpers, temp_dir, mocker):
+        subprocess_run = mocker.patch('subprocess.run', side_effect=cargo_install)
+
+        project_name = 'My.App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / 'my-app'
+        config = {
+            'project': {'name': project_name, 'version': '0.1.0'},
+            'tool': {
+                'hatch': {
+                    'build': {'targets': {'app': {'versions': ['bootstrap']}}},
+                },
+            },
+        }
+        builder = AppBuilder(str(project_path), config=config)
+
+        build_path = project_path / 'dist'
+
+        with project_path.as_cwd({'PYAPP_REPO': 'test-path'}):
+            artifacts = list(builder.build())
+
+        subprocess_run.assert_called_once_with(
+            ['cargo', 'build', '--release', '--target-dir', mocker.ANY],
+            cwd='test-path',
+            env=ExpectedEnvVars({'PYAPP_PROJECT_NAME': 'my-app', 'PYAPP_PROJECT_VERSION': '0.1.0'}),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
         )
 
         assert len(artifacts) == 1
