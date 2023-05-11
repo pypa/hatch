@@ -10,7 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ***Fixed:***
 
-- Fix determining the built executable path for the `app` build target option when using a local copy PyApp when there is an explicit target triple set
+- Fix determining the built executable path for the `app` build target option when using a local copy of PyApp when there is an explicit target triple set
 
 ## [1.16.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.16.0) - 2023-05-11 ## {: #hatchling-v1.16.0 }
 
