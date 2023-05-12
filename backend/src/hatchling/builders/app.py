@@ -153,13 +153,21 @@ class AppBuilder(BuilderInterface):
 
                     self.cargo_build(install_command, cwd=context_dir, env=env)
 
-                    exe_stem = f'{script}-{build_target}' if build_target else script
+                    exe_stem = (
+                        f'{script}-{self.metadata.version}-{build_target}'
+                        if build_target
+                        else f'{script}-{self.metadata.version}'
+                    )
                     exe_path = os.path.join(app_dir, f'{exe_stem}.exe' if on_windows else exe_stem)
                     shutil.move(temp_exe_path, exe_path)
             else:
                 self.cargo_build(install_command, cwd=context_dir, env=base_env)
 
-                exe_stem = f'{self.metadata.name}-{build_target}' if build_target else self.metadata.name
+                exe_stem = (
+                    f'{self.metadata.name}-{self.metadata.version}-{build_target}'
+                    if build_target
+                    else f'{self.metadata.name}-{self.metadata.version}'
+                )
                 exe_path = os.path.join(app_dir, f'{exe_stem}.exe' if on_windows else exe_stem)
                 shutil.move(temp_exe_path, exe_path)
 
