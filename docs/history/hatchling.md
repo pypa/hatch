@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.17.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.17.0) - 2023-05-12 ## {: #hatchling-v1.17.0 }
+
 ***Added:***
 
 - The `app` build target now embeds the project version in the name of binaries
