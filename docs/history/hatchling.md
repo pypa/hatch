@@ -8,6 +8,40 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Fixed:***
+
+- Fix dev mode when the project has symlinks and file inclusion is defined with the `packages` or `only-include` options
+
+## [1.17.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.17.0) - 2023-05-12 ## {: #hatchling-v1.17.0 }
+
+***Added:***
+
+- The `app` build target now embeds the project version in the name of binaries
+
+## [1.16.1](https://github.com/pypa/hatch/releases/tag/hatchling-v1.16.1) - 2023-05-11 ## {: #hatchling-v1.16.1 }
+
+***Fixed:***
+
+- Fix determining the built executable path for the `app` build target option when using a local copy of PyApp when there is an explicit target triple set
+
+## [1.16.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.16.0) - 2023-05-11 ## {: #hatchling-v1.16.0 }
+
+***Added:***
+
+- Add `app` build target option to build using a local copy of the PyApp repository
+
+## [1.15.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.15.0) - 2023-05-09 ## {: #hatchling-v1.15.0 }
+
+***Added:***
+
+- Add `app` build target
+
+## [1.14.1](https://github.com/pypa/hatch/releases/tag/hatchling-v1.14.1) - 2023-04-23 ## {: #hatchling-v1.14.1 }
+
+***Fixed:***
+
+- Fix internal archive root naming for the `sdist` target when `strict-naming` is disabled to match the file name in order to support the expectation of some frontends
+
 ## [1.14.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.14.0) - 2023-04-02 ## {: #hatchling-v1.14.0 }
 
 ***Added:***

@@ -26,6 +26,7 @@
       show_source: false
       members:
       - abort
+      - verbosity
       - display_debug
       - display_error
       - display_info
