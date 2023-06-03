@@ -438,6 +438,9 @@ class WheelBuilder(BuilderInterface):
                     editable_project.add_to_path(os.path.dirname(relative_path))
 
             for filename, content in sorted(editable_project.files()):
+                if filename.endswith('.pth') and not filename.startswith('_'):
+                    filename = f'_{filename}'
+
                 record = archive.write_file(filename, content)
                 records.write(record)
 
@@ -475,7 +478,7 @@ class WheelBuilder(BuilderInterface):
                 for relative_directory in self.config.dev_mode_dirs
             )
 
-            record = archive.write_file(f".{self.metadata.core.name.replace('-', '_')}.pth", '\n'.join(directories))
+            record = archive.write_file(f"_{self.metadata.core.name.replace('-', '_')}.pth", '\n'.join(directories))
             records.write(record)
 
             for included_file in self.recurse_forced_files(self.get_forced_inclusion_map(build_data)):

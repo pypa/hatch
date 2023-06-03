@@ -18,7 +18,7 @@ def get_files(**kwargs):
         elif f.path.parts[-1] == '__about__.py':
             files.append(File(Path('zfoo.py'), f.contents))
 
-    pth_file_name = f"{kwargs['package_name']}.pth"
+    pth_file_name = f"_{kwargs['package_name']}.pth"
     loader_file_name = f"_editable_impl_{kwargs['package_name']}.py"
     files.append(File(Path(pth_file_name), f"import _editable_impl_{kwargs['package_name']}"))
     files.append(

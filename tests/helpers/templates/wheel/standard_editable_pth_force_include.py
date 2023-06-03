@@ -18,7 +18,7 @@ def get_files(**kwargs):
         elif f.path.parts[-1] == '__about__.py':
             files.append(File(Path('zfoo.py'), f.contents))
 
-    pth_file_name = f"{kwargs['package_name']}.pth"
+    pth_file_name = f"_{kwargs['package_name']}.pth"
     files.append(File(Path(pth_file_name), '\n'.join(package_paths)))
     files.append(
         File(
