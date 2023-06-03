@@ -16,7 +16,7 @@ def get_files(**kwargs):
         if str(f.path) == 'LICENSE.txt':
             files.append(File(Path(metadata_directory, 'licenses', f.path), f.contents))
 
-    pth_file_name = f"{kwargs['package_name']}.pth"
+    pth_file_name = f"_{kwargs['package_name']}.pth"
     files.append(File(Path(pth_file_name), '\n'.join(package_paths)))
     files.append(
         File(
