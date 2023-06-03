@@ -2089,6 +2089,66 @@ class TestBuildStandard:
             zip_info = zip_archive.getinfo(f'{metadata_directory}/WHEEL')
             assert zip_info.date_time == (2020, 2, 2, 0, 0, 0)
 
+    @pytest.mark.requires_unix
+    def test_editable_default_symlink(self, hatch, helpers, temp_dir):
+        project_name = 'My.App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / 'my-app'
+        symlink = project_path / '_' / 'my_app'
+        symlink.parent.ensure_dir_exists()
+        symlink.symlink_to(project_path / 'src' / 'my_app')
+
+        config = {
+            'project': {'name': project_name, 'dynamic': ['version']},
+            'tool': {
+                'hatch': {
+                    'version': {'path': 'src/my_app/__about__.py'},
+                    'build': {'targets': {'wheel': {'versions': ['editable']}}},
+                },
+            },
+        }
+        builder = WheelBuilder(str(project_path), config=config)
+
+        build_path = project_path / 'dist'
+        build_path.mkdir()
+
+        with project_path.as_cwd():
+            artifacts = list(builder.build(str(build_path)))
+
+        assert len(artifacts) == 1
+        expected_artifact = artifacts[0]
+
+        build_artifacts = list(build_path.iterdir())
+        assert len(build_artifacts) == 1
+        assert expected_artifact == str(build_artifacts[0])
+        assert expected_artifact == str(build_path / f'{builder.project_id}-{get_python_versions_tag()}-none-any.whl')
+
+        extraction_directory = temp_dir / '_archive'
+        extraction_directory.mkdir()
+
+        with zipfile.ZipFile(str(expected_artifact), 'r') as zip_archive:
+            zip_archive.extractall(str(extraction_directory))
+
+        metadata_directory = f'{builder.project_id}.dist-info'
+        expected_files = helpers.get_template_files(
+            'wheel.standard_editable_pth',
+            project_name,
+            metadata_directory=metadata_directory,
+            package_paths=[str(project_path / 'src')],
+        )
+        helpers.assert_files(extraction_directory, expected_files)
+
+        # Inspect the archive rather than the extracted files because on Windows they lose their metadata
+        # https://stackoverflow.com/q/9813243
+        with zipfile.ZipFile(str(expected_artifact), 'r') as zip_archive:
+            zip_info = zip_archive.getinfo(f'{metadata_directory}/WHEEL')
+            assert zip_info.date_time == (2020, 2, 2, 0, 0, 0)
+
     @fixed_pathlib_resolution
     def test_editable_exact(self, hatch, helpers, temp_dir, config_file):
         config_file.model.template.plugins['default']['src-layout'] = False
