@@ -396,7 +396,7 @@ class WheelBuilder(BuilderInterface):
             self.artifact_project_id, reproducible=self.config.reproducible
         ) as archive, RecordFile() as records:
             exposed_packages = {}
-            for included_file in self.recurse_project_files():
+            for included_file in self.recurse_selected_project_files():
                 if not included_file.path.endswith('.py'):
                     continue
 

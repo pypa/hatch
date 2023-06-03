@@ -176,12 +176,14 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
         - `relative_path` - the path relative to the project root; will be an empty string for external files
         - `distribution_path` - the path to be distributed as
         """
+        yield from self.recurse_selected_project_files()
+        yield from self.recurse_forced_files(self.config.get_force_include())
+
+    def recurse_selected_project_files(self) -> Iterable[IncludedFile]:
         if self.config.only_include:
             yield from self.recurse_explicit_files(self.config.only_include)
         else:
             yield from self.recurse_project_files()
-
-        yield from self.recurse_forced_files(self.config.get_force_include())
 
     def recurse_project_files(self) -> Iterable[IncludedFile]:
         for root, dirs, files in safe_walk(self.root):

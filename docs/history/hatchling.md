@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Fixed:***
+
+- Fix dev mode when the project has symlinks and file inclusion is defined with the `packages` or `only-include` options
+
 ## [1.17.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.17.0) - 2023-05-12 ## {: #hatchling-v1.17.0 }
 
 ***Added:***
