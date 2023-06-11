@@ -1,6 +1,7 @@
 import re
 import sys
-from pathlib import Path
+
+from utils import ROOT
 
 HEADER_PATTERN = (
     r'^\[([a-z0-9.]+)\]\(https://github\.com/pypa/hatch/releases/tag/({package}-v\1)\)'
@@ -9,9 +10,8 @@ HEADER_PATTERN = (
 
 
 def main():
-    project_root = Path(__file__).resolve().parent.parent
     for package in ('hatch', 'hatchling'):
-        history_file = project_root / 'docs' / 'history' / f'{package}.md'
+        history_file = ROOT / 'docs' / 'history' / f'{package}.md'
         current_pattern = HEADER_PATTERN.format(package=package)
 
         with history_file.open('r', encoding='utf-8') as f:

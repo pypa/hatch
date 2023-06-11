@@ -76,6 +76,9 @@ jobs:
     - name: Install Hatch
       run: pip install hatch
 
+    - name: Trigger build for auto-generated files
+      run: hatch build --hooks-only
+
     - name: Download coverage data
       uses: actions/download-artifact@v3
       with:
