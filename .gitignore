@@ -14,6 +14,7 @@ __pycache__/
 /.idea/
 /.mypy_cache/
 /.pytest_cache/
+/.ruff_cache/
 /.vscode/
 /backend/dist/
 /dist/
@@ -21,3 +22,6 @@ __pycache__/
 
 # Root files
 /.coverage*
+
+# Auto-generated during builds
+/src/hatch/_version.py

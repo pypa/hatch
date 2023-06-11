@@ -130,6 +130,9 @@ update-licenses = "python backend/scripts/update_licenses.py"
 
 [envs.release]
 detached = true
+dependencies = [
+  "hatchling",
+]
 [envs.release.scripts]
 bump = "python scripts/bump.py {args}"
 github = "python scripts/release_github.py {args}"

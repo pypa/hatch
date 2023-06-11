@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling>=1.14.0"]
+requires = ["hatchling>=1.17.1", "hatch-vcs>=0.3.0"]
 build-backend = "hatchling.build"
 
 [project]
@@ -67,7 +67,16 @@ Source = "https://github.com/pypa/hatch"
 hatch = "hatch.cli:main"
 
 [tool.hatch.version]
-path = "src/hatch/__about__.py"
+source = "vcs"
+
+[tool.hatch.version.raw-options]
+version_scheme = "python-simplified-semver"
+local_scheme = "no-local-version"
+parentdir_prefix_version = "hatch-"
+git_describe_command = ["git", "describe", "--dirty", "--tags", "--long", "--match", "hatch-v*"]
+
+[tool.hatch.build.hooks.vcs]
+version-file = "src/hatch/_version.py"
 
 [tool.hatch.build.targets.sdist]
 exclude = [
