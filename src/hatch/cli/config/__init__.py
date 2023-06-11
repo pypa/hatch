@@ -16,19 +16,10 @@ def explore(app):
 
 
 @config.command(short_help='Show the location of the config file')
-@click.option('--copy', '-c', is_flag=True, help='Copy the path to the config file to the clipboard')
 @click.pass_obj
-def find(app, copy):
+def find(app):
     """Show the location of the config file."""
-    config_path = str(app.config_file.path)
-    if copy:
-        import pyperclip
-
-        pyperclip.copy(config_path)
-    elif ' ' in config_path:
-        app.display(f'"{config_path}"')
-    else:
-        app.display(config_path)
+    app.display(str(app.config_file.path))
 
 
 @config.command(short_help='Show the contents of the config file')
