@@ -77,6 +77,7 @@ def isolation() -> Generator[Path, None, None]:
             ConfigEnvVars.CACHE: str(cache_dir),
             PublishEnvVars.REPO: 'dev',
             'HATCH_SELF_TESTING': 'true',
+            'PYAPP_COMMAND_NAME': os.urandom(4).hex(),
             'GIT_AUTHOR_NAME': 'Foo Bar',
             'GIT_AUTHOR_EMAIL': 'foo@bar.baz',
             'COLUMNS': '80',

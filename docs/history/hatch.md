@@ -10,10 +10,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ***Changed:***
 
+- Remove `pyperclip` dependency and the `--copy` flag of the `config find` command
 - Version information (for Hatch itself) is now derived from Git
 
 ***Added:***
 
+- Add standalone binaries
 - Bump the minimum supported version of Hatchling to 1.17.1
 
 ## [1.7.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.7.0) - 2023-04-03 ## {: #hatch-v1.7.0 }

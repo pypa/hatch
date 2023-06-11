@@ -2,6 +2,16 @@
 
 -----
 
+## GitHub releases
+
+Each [release](https://github.com/pypa/hatch/releases) provides the following:
+
+- Standalone binaries for Linux, Windows, and macOS
+- Windows AMD64 (64-bit) MSI installer
+- Windows x86 (32-bit) MSI installer
+- Windows universal (AMD64+x86) EXE installer
+- macOS DMG installer
+
 ## pip
 
 Hatch is available on PyPI and can be installed with [pip](https://pip.pypa.io).

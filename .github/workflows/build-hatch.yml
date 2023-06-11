@@ -91,6 +91,7 @@ jobs:
       CARGO_BUILD_TARGET: ${{ matrix.job.target }}
       PYAPP_REPO: pyapp
       PYAPP_VERSION: "0.8.0"
+      PYAPP_PIP_EXTERNAL: "true"
 
     steps:
     - name: Checkout code

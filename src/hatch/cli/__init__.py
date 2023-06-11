@@ -199,6 +199,10 @@ hatch.add_command(shell)
 hatch.add_command(status)
 hatch.add_command(version)
 
+__management_command = os.environ.get('PYAPP_COMMAND_NAME', '')
+if __management_command:
+    hatch.add_command(click.Command(name=__management_command, help='Manage this application'))
+
 
 def main():  # no cov
     try:
