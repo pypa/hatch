@@ -12,6 +12,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Drop support for Python 3.7
 
+***Added:***
+
+- Update the list of directories that are always excluded for builds
+
 ## [1.17.1](https://github.com/pypa/hatch/releases/tag/hatchling-v1.17.1) - 2023-06-03 ## {: #hatchling-v1.17.1 }
 
 ***Fixed:***

@@ -4,8 +4,6 @@ EXCLUDED_DIRECTORIES = frozenset(
     (
         # Python bytecode
         '__pycache__',
-        # PEP 582
-        '__pypackages__',
         # Git
         '.git',
         # Mercurial
@@ -16,6 +14,12 @@ EXCLUDED_DIRECTORIES = frozenset(
         '.tox',
         # nox
         '.nox',
+        # Ruff
+        '.ruff_cache',
+        # pytest
+        '.pytest_cache',
+        # Mypy
+        '.mypy_cache',
     )
 )
 
