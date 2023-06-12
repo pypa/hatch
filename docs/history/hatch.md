@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ***Changed:***
 
+- Drop support for Python 3.7
 - Remove `pyperclip` dependency and the `--copy` flag of the `config find` command
 - Version information (for Hatch itself) is now derived from Git
 

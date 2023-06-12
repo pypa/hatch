@@ -7,7 +7,7 @@ name = "hatch"
 description = "Modern, extensible Python project management"
 readme = "README.md"
 license = "MIT"
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 keywords = [
   "build",
   "dependency",
@@ -28,7 +28,6 @@ classifiers = [
   "License :: OSI Approved :: MIT License",
   "Natural Language :: English",
   "Operating System :: OS Independent",
-  "Programming Language :: Python :: 3.7",
   "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
@@ -46,7 +45,6 @@ dependencies = [
   "packaging>=21.3",
   "pexpect~=4.8",
   "platformdirs>=2.5.0",
-  "pyperclip>=1.8.2",
   "rich>=11.2.0",
   "shellingham>=1.4.0",
   "tomli-w>=1.0",
@@ -88,10 +86,10 @@ exclude = [
 [tool.black]
 line-length = 120
 skip-string-normalization = true
-target-version = ["py37"]
+target-version = ["py38"]
 
 [tool.ruff]
-target-version = "py37"
+target-version = "py38"
 line-length = 120
 select = [
   "A",

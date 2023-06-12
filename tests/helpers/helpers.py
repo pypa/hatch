@@ -93,7 +93,7 @@ def get_template_files(template_name, project_name, **kwargs):
     return __load_template_module(template_name)(**kwargs)
 
 
-@lru_cache()
+@lru_cache
 def __load_template_module(template_name):
     template = importlib.import_module(f'..templates.{template_name}', __name__)
     return template.get_files

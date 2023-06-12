@@ -2,14 +2,10 @@ from __future__ import annotations
 
 import re
 import sys
+from importlib.metadata import Distribution, DistributionFinder
 
 from packaging.markers import default_environment
 from packaging.requirements import Requirement
-
-if sys.version_info >= (3, 8):
-    from importlib.metadata import Distribution, DistributionFinder
-else:
-    from importlib_metadata import Distribution, DistributionFinder
 
 
 class DistributionCache:

@@ -25,7 +25,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11', 'pypy-3.9']
+        python-version: ['3.8', '3.9', '3.10', '3.11', 'pypy-3.9']
 
     steps:
     - uses: actions/checkout@v3
@@ -117,9 +117,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # https://github.com/mypyc/mypyc/issues/923
-        # python-version: ['3.7', '3.8', '3.9', '3.10', '3.11.0-alpha.7 - 3.11']
-        python-version: ['3.7', '3.8', '3.9', '3.10']
+        python-version: ['3.8', '3.9', '3.10', '3.11']
 
     steps:
     - uses: actions/checkout@v3
