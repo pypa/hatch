@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.18.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.18.0) - 2023-06-12 ## {: #hatchling-v1.18.0 }
+
 ***Changed:***
 
 - Drop support for Python 3.7
