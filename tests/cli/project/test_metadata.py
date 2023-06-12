@@ -42,7 +42,7 @@ class TestBuildDependenciesInstalled:
                     "content-type": "text/plain",
                     "text": "{read_readme(path)}"
                 }},
-                "requires-python": ">=3.7",
+                "requires-python": ">=3.8",
                 "license": "MIT",
                 "authors": [
                     {{
@@ -53,7 +53,6 @@ class TestBuildDependenciesInstalled:
                 "classifiers": [
                     "Development Status :: 4 - Beta",
                     "Programming Language :: Python",
-                    "Programming Language :: Python :: 3.7",
                     "Programming Language :: Python :: 3.8",
                     "Programming Language :: Python :: 3.9",
                     "Programming Language :: Python :: 3.10",
@@ -199,7 +198,7 @@ class TestBuildDependenciesMissing:
                     "content-type": "text/plain",
                     "text": "{read_readme(path)}"
                 }},
-                "requires-python": ">=3.7",
+                "requires-python": ">=3.8",
                 "license": "MIT",
                 "authors": [
                     {{
@@ -210,7 +209,6 @@ class TestBuildDependenciesMissing:
                 "classifiers": [
                     "Development Status :: 4 - Beta",
                     "Programming Language :: Python",
-                    "Programming Language :: Python :: 3.7",
                     "Programming Language :: Python :: 3.8",
                     "Programming Language :: Python :: 3.9",
                     "Programming Language :: Python :: 3.10",
@@ -351,7 +349,7 @@ Setting up build environment for missing dependencies
                     "content-type": "text/plain",
                     "text": "{read_readme(path)}"
                 }},
-                "requires-python": ">=3.7",
+                "requires-python": ">=3.8",
                 "license": "MIT",
                 "authors": [
                     {{
@@ -362,7 +360,6 @@ Setting up build environment for missing dependencies
                 "classifiers": [
                     "Development Status :: 4 - Beta",
                     "Programming Language :: Python",
-                    "Programming Language :: Python :: 3.7",
                     "Programming Language :: Python :: 3.8",
                     "Programming Language :: Python :: 3.9",
                     "Programming Language :: Python :: 3.10",

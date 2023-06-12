@@ -369,7 +369,7 @@ def pytest_configure(config):
     config.getini('norecursedirs').remove('venv')  # /tests/venv
 
 
-@lru_cache()
+@lru_cache
 def network_connectivity():  # no cov
     if running_in_ci():
         return True
