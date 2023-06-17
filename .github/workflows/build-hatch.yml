@@ -204,10 +204,7 @@ jobs:
 
   windows-packaging:
     name: Build Windows installers
-    if: >-
-      github.event_name == 'push'
-      &&
-      (github.ref == 'refs/heads/master' || startsWith(github.event.ref, 'refs/tags'))
+    if: github.event.pull_request.head.repo.full_name == github.repository
     needs: binaries
     runs-on: windows-2022
 
@@ -277,10 +274,7 @@ jobs:
 
   macos-packaging:
     name: Build macOS installer and sign/notarize artifacts
-    if: >-
-      github.event_name == 'push'
-      &&
-      (github.ref == 'refs/heads/master' || startsWith(github.event.ref, 'refs/tags'))
+    if: github.event.pull_request.head.repo.full_name == github.repository
     needs: binaries
     runs-on: macos-12
 
@@ -303,13 +297,7 @@ jobs:
       run: brew install create-dmg
 
     - name: Install rcodesign
-      env:
-        ARCHIVE_NAME: "apple-codesign-0.22.0-x86_64-apple-darwin"
-      run: >-
-        curl -L
-        "https://github.com/indygreg/apple-platform-rs/releases/download/apple-codesign%2F0.22.0/$ARCHIVE_NAME.tar.gz"
-        |
-        tar --strip-components=1 -xzf - -C /usr/local/bin "$ARCHIVE_NAME/rcodesign"
+      run: cargo install apple-codesign
 
     - name: Download staged binaries
       uses: actions/download-artifact@v3
