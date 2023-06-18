@@ -5,9 +5,6 @@ on:
     tags:
     - hatchling-v*
 
-concurrency:
-  group: build-hatchling-${{ github.head_ref }}
-
 jobs:
   build:
     name: Build wheels and source distribution
@@ -34,6 +31,9 @@ jobs:
     - build
     runs-on: ubuntu-latest
 
+    permissions:
+      id-token: write
+
     steps:
     - uses: actions/download-artifact@v3
       with:
@@ -41,8 +41,6 @@ jobs:
         path: dist
 
     - name: Push build artifacts to PyPI
-      uses: pypa/gh-action-pypi-publish@v1.8.5
+      uses: pypa/gh-action-pypi-publish@v1.8.6
       with:
-        skip_existing: true
-        user: __token__
-        password: ${{ secrets.PYPI_API_TOKEN_HATCHLING }}
+        skip-existing: true
