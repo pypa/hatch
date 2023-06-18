@@ -448,6 +448,10 @@ jobs:
     - macos-packaging
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write
+      id-token: write
+
     steps:
     - name: Download Python artifacts
       uses: actions/download-artifact@v3
@@ -471,8 +475,6 @@ jobs:
       uses: pypa/gh-action-pypi-publish@v1.8.6
       with:
         skip-existing: true
-        user: __token__
-        password: ${{ secrets.PYPI_API_TOKEN }}
 
     - name: Add assets to current release
       uses: softprops/action-gh-release@v1
