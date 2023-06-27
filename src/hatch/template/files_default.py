@@ -178,12 +178,10 @@ all = [
 ]
 
 [tool.black]
-target-version = ["py38"]
 line-length = 120
 skip-string-normalization = true
 
 [tool.ruff]
-target-version = "py38"
 line-length = 120
 select = [
   "A",
