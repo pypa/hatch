@@ -296,8 +296,17 @@ jobs:
     - name: Install create-dmg
       run: brew install create-dmg
 
+    - name: Download rcodesign
+      uses: dawidd6/action-download-artifact@v2
+      with:
+        repo: indygreg/apple-platform-rs
+        workflow: rcodesign.yml
+        name: exe-rcodesign-x86_64-apple-darwin
+        path: /usr/local/bin
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Install rcodesign
-      run: cargo install apple-codesign
+      run: chmod +x /usr/local/bin/rcodesign
 
     - name: Download staged binaries
       uses: actions/download-artifact@v3
