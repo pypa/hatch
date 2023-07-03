@@ -43,7 +43,7 @@ jobs:
         pip install -e .
         pip install -e ./backend
 
-    - if: "!startsWith(matrix.python-version, 'pypy')"
+    - if: ${{ !startsWith(matrix.python-version, 'pypy') }}
       name: Lint
       run: hatch run lint:all
 
