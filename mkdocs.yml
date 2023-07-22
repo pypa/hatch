@@ -36,11 +36,14 @@ theme:
         icon: material/weather-sunny
         name: Switch to dark mode
   features:
-    - navigation.sections
+    - content.action.edit
+    - content.code.copy
     - navigation.expand
+    - navigation.footer
+    - navigation.instant
+    - navigation.sections
     - navigation.tabs
     - navigation.tabs.sticky
-    - navigation.instant
 
 nav:
   - Home:
@@ -129,6 +132,7 @@ plugins:
     minify_html: true
   git-revision-date-localized:
     type: date
+    strict: false
     # Required for blog plugin's generated indices
     fallback_to_build_date: true
     exclude:
@@ -235,4 +239,4 @@ extra:
       link: https://www.linkedin.com/in/ofeklev/
 extra_css:
   - assets/css/custom.css
-  - https://cdn.jsdelivr.net/gh/tonsky/FiraCode@5.2/distr/fira_code.css
+  - https://cdn.jsdelivr.net/npm/firacode@6.2.0/distr/fira_code.css
