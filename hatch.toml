@@ -69,21 +69,21 @@ all = [
 
 [envs.docs]
 dependencies = [
-  "mkdocs~=1.4.0",
-  "mkdocs-material~=8.5.6",
+  "mkdocs~=1.4.3",
+  "mkdocs-material~=9.1.0",
   # Plugins
-  "mkdocs-minify-plugin~=0.5.0",
-  "mkdocs-git-revision-date-localized-plugin~=1.1.0",
-  "mkdocstrings-python~=0.7.1",
-  "mkdocs-redirects~=1.1.0",
-  "mkdocs-glightbox~=0.3.0",
+  "mkdocs-minify-plugin~=0.6.4",
+  "mkdocs-git-revision-date-localized-plugin~=1.2.0",
+  "mkdocstrings-python~=1.2.1",
+  "mkdocs-redirects~=1.2.1",
+  "mkdocs-glightbox~=0.3.4",
   # https://github.com/jimporter/mike/issues/82#issuecomment-1172913929
-  "mike @ https://github.com/jimporter/mike/archive/392d57b8bb9d14bcedf2451a0dc302709f8055eb.zip",
+  "mike @ https://github.com/jimporter/mike/archive/be1aafe244bc86172fbce52a903c9ab83e2e4a26.zip",
   # Extensions
   "mkdocs-click~=0.8.0",
-  "pymdown-extensions~=9.6.0",
+  "pymdown-extensions~=10.1.0",
   # Necessary for syntax highlighting in code blocks
-  "pygments~=2.13.0",
+  "pygments~=2.15.1",
   # Validation
   # https://github.com/linkchecker/linkchecker/pull/669#issuecomment-1267236287
   "linkchecker @ git+https://github.com/linkchecker/linkchecker.git@d9265bb71c2054bf57b8c5734a4825d62505c779",
