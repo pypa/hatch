@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 import sys
 from abc import ABC, abstractmethod
+from collections.abc import Iterable
 from contextlib import contextmanager
 from os.path import isabs
 
@@ -756,7 +757,7 @@ class EnvironmentInterface(ABC):
         """
         return False
 
-    def enter_shell(self, name, path, args):
+    def enter_shell(self, name: str, path: str, args: Iterable[str]):
         """
         Spawn a [shell](../../config/hatch.md#shell) within the environment.
 
