@@ -12,6 +12,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Fix parsing dependencies for environments when warnings are emitted
 
+***Changed:***
+
+- If a force-included file or directory does not exist, an error will now be raised
+  instead of silently ignoring it.
+
 ## [1.18.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.18.0) - 2023-06-12 ## {: #hatchling-v1.18.0 }
 
 ***Changed:***

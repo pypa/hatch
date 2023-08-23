@@ -218,6 +218,30 @@ class TestDirectoryRecursion:
                     (str(temp_dir / 'external.txt'), f'new{path_sep}target2.txt'),
                 ]
 
+    def test_exists(self, temp_dir):
+        project_dir = temp_dir / 'project'
+        project_dir.ensure_dir_exists()
+
+        with project_dir.as_cwd():
+            config = {
+                'tool': {
+                    'hatch': {
+                        'build': {
+                            'force-include': {
+                                '../notfound': 'target.txt',
+                            },
+                        }
+                    }
+                }
+            }
+            builder = MockBuilder(str(project_dir), config=config)
+            build_data = builder.get_default_build_data()
+            builder.set_build_data_defaults(build_data)
+            with builder.config.set_build_data(build_data), pytest.raises(
+                FileNotFoundError, match='Forced include not found'
+            ):
+                list(builder.recurse_included_files())
+
     def test_order(self, temp_dir):
         project_dir = temp_dir / 'project'
         project_dir.ensure_dir_exists()
@@ -234,8 +258,6 @@ class TestDirectoryRecursion:
                                 '../external1.txt': 'nested/target2.txt',
                                 '../external2.txt': 'nested/target1.txt',
                                 '../external': 'nested',
-                                # Should be silently ignored
-                                '../missing': 'missing',
                             },
                         }
                     }
