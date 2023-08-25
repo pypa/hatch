@@ -1,15 +1,18 @@
 from __future__ import annotations
 
 from base64 import urlsafe_b64encode
-from collections.abc import Iterable
 from contextlib import contextmanager, suppress
 from hashlib import sha256
 from os.path import isabs
+from typing import TYPE_CHECKING
 
 from hatch.env.plugin.interface import EnvironmentInterface
 from hatch.utils.fs import Path
 from hatch.utils.shells import ShellManager
 from hatch.venv.core import VirtualEnv
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 
 class VirtualEnvironment(EnvironmentInterface):
