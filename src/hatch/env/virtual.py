@@ -1,12 +1,18 @@
+from __future__ import annotations
+
 from base64 import urlsafe_b64encode
 from contextlib import contextmanager, suppress
 from hashlib import sha256
 from os.path import isabs
+from typing import TYPE_CHECKING
 
 from hatch.env.plugin.interface import EnvironmentInterface
 from hatch.utils.fs import Path
 from hatch.utils.shells import ShellManager
 from hatch.venv.core import VirtualEnv
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 
 class VirtualEnvironment(EnvironmentInterface):
@@ -141,7 +147,7 @@ class VirtualEnvironment(EnvironmentInterface):
         with self.safe_activation():
             yield
 
-    def enter_shell(self, name, path, args):
+    def enter_shell(self, name: str, path: str, args: Iterable[str]):
         shell_executor = getattr(self.shells, f'enter_{name}', None)
         if shell_executor is None:
             # Manually activate in lieu of an activation script

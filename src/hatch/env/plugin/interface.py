@@ -5,11 +5,15 @@ import sys
 from abc import ABC, abstractmethod
 from contextlib import contextmanager
 from os.path import isabs
+from typing import TYPE_CHECKING
 
 from hatch.config.constants import AppEnvVars
 from hatch.env.utils import add_verbosity_flag
 from hatch.project.utils import format_script_commands, parse_script_command
 from hatch.utils.structures import EnvVars
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 
 class EnvironmentInterface(ABC):
@@ -756,7 +760,7 @@ class EnvironmentInterface(ABC):
         """
         return False
 
-    def enter_shell(self, name, path, args):
+    def enter_shell(self, name: str, path: str, args: Iterable[str]):
         """
         Spawn a [shell](../../config/hatch.md#shell) within the environment.
 
