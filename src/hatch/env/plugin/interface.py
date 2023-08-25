@@ -3,14 +3,17 @@ from __future__ import annotations
 import os
 import sys
 from abc import ABC, abstractmethod
-from collections.abc import Iterable
 from contextlib import contextmanager
 from os.path import isabs
+from typing import TYPE_CHECKING
 
 from hatch.config.constants import AppEnvVars
 from hatch.env.utils import add_verbosity_flag
 from hatch.project.utils import format_script_commands, parse_script_command
 from hatch.utils.structures import EnvVars
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 
 class EnvironmentInterface(ABC):
