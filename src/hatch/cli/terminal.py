@@ -1,14 +1,134 @@
 from __future__ import annotations
 
 import os
-from contextlib import contextmanager
+from abc import ABC, abstractmethod
+from functools import cached_property
 from textwrap import indent as indent_text
+from typing import Callable
 
 import click
 from rich.console import Console
 from rich.errors import StyleSyntaxError
+from rich.status import Status
 from rich.style import Style
 from rich.text import Text
+
+
+class TerminalStatus(ABC):
+    @abstractmethod
+    def stop(self) -> None:
+        ...
+
+    def __enter__(self) -> TerminalStatus:
+        return self
+
+    @abstractmethod
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        ...
+
+
+class NullStatus(TerminalStatus):
+    def stop(self):
+        pass
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        pass
+
+
+class BorrowedStatus(TerminalStatus):
+    def __init__(
+        self,
+        console: Console,
+        *,
+        tty: bool,
+        verbosity: int,
+        spinner_style: str,
+        waiting_style: Style,
+        success_style: Style,
+        initializer: Callable,
+        finalizer: Callable,
+    ):
+        self.__console = console
+        self.__tty = tty
+        self.__verbosity = verbosity
+        self.__spinner_style = spinner_style
+        self.__waiting_style = waiting_style
+        self.__success_style = success_style
+        self.__initializer = initializer
+        self.__finalizer = finalizer
+
+        # This is the possibly active current status
+        self.__status: Status | None = None
+
+        # This is used as a stack to display the current message
+        self.__messages: list[tuple[Text, str]] = []
+
+    def stop(self) -> None:
+        active = self.__active()
+        if self.__status is not None:
+            self.__status.stop()
+
+        old_message, final_text = self.__messages[-1]
+        if self.__verbosity > 0 and active:
+            if not final_text:
+                final_text = old_message.plain
+                final_text = f'Finished {final_text[:1].lower()}{final_text[1:]}'
+
+            self.__output(Text(final_text, style=self.__success_style))
+
+    def __call__(self, message: str, final_text: str = '') -> BorrowedStatus:
+        self.__messages.append((Text(message, style=self.__waiting_style), final_text))
+        return self
+
+    def __enter__(self) -> BorrowedStatus:
+        if not self.__messages:
+            return self
+
+        message, _ = self.__messages[-1]
+        if not self.__tty:
+            self.__output(message)
+            return self
+
+        if self.__status is None:
+            self.__initializer()
+        else:
+            self.__status.stop()
+
+        self.__status = self.__console.status(message, spinner=self.__spinner_style)
+        self.__status.start()
+
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        old_message, final_text = self.__messages.pop()
+        if self.__verbosity > 0 and self.__active():
+            if not final_text:
+                final_text = old_message.plain
+                final_text = f'Finished {final_text[:1].lower()}{final_text[1:]}'
+
+            self.__output(Text(final_text, style=self.__success_style))
+
+        if not self.__tty:
+            return
+
+        self.__status.stop()
+        if not self.__messages:
+            self.__status = None
+            self.__finalizer()
+        else:
+            message, _ = self.__messages[-1]
+            self.__status = self.__console.status(message, spinner=self.__spinner_style)
+            self.__status.start()
+
+    def __active(self) -> bool:
+        return self.__status is not None and self.__status._live.is_started
+
+    def __output(self, text):
+        self.__console.stderr = True
+        try:
+            self.__console.print(text, overflow='ignore', no_wrap=True, crop=False)
+        finally:
+            self.__console.stderr = False
 
 
 class Terminal:
@@ -160,27 +280,21 @@ class Terminal:
 
         self.output(table)
 
-    @contextmanager
-    def status_waiting(self, text='', *, final_text=None, condition=True, **kwargs):
-        if not condition or not self.interactive or not self.console.is_terminal:
-            if condition:
-                self.display_waiting(text)
+    @cached_property
+    def status(self) -> BorrowedStatus:
+        return BorrowedStatus(
+            self.console,
+            tty=self.interactive and self.console.is_terminal,
+            verbosity=self.verbosity,
+            spinner_style=self._style_spinner,
+            waiting_style=self._style_level_waiting,
+            success_style=self._style_level_success,
+            initializer=lambda: setattr(self.platform, 'displaying_status', True),  # type: ignore[attr-defined]
+            finalizer=lambda: setattr(self.platform, 'displaying_status', False),  # type: ignore[attr-defined]
+        )
 
-            with MockStatus() as status:
-                yield status
-        else:
-            with self.console.status(Text(text, self._style_level_waiting), spinner=self._style_spinner) as status:
-                try:
-                    self.platform.displaying_status = True
-                    yield status
-
-                    if self.verbosity > 0 and status._live.is_started:
-                        if final_text is None:
-                            final_text = f'Finished {text[:1].lower()}{text[1:]}'
-
-                        self.display_success(final_text)
-                finally:
-                    self.platform.displaying_status = False
+    def status_if(self, *args, condition: bool, **kwargs) -> TerminalStatus:
+        return self.status(*args, **kwargs) if condition else NullStatus()
 
     def output(self, text='', style=None, *, stderr=False, indent=None, link=None, **kwargs):
         kwargs.setdefault('overflow', 'ignore')
@@ -213,14 +327,3 @@ class Terminal:
     @staticmethod
     def confirm(text, **kwargs):
         return click.confirm(text, **kwargs)
-
-
-class MockStatus:
-    def stop(self):
-        pass
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        pass

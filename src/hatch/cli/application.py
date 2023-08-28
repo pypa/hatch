@@ -71,30 +71,30 @@ class Application(Terminal):
     # used for documenting the life cycle of environments.
     def prepare_environment(self, environment):
         if not environment.exists():
-            with self.status_waiting(f'Creating environment: {environment.name}'):
+            with self.status(f'Creating environment: {environment.name}'):
                 environment.create()
 
             if not environment.skip_install:
                 if environment.pre_install_commands:
-                    with self.status_waiting('Running pre-installation commands'):
+                    with self.status('Running pre-installation commands'):
                         self.run_shell_commands(environment, environment.pre_install_commands, source='pre-install')
 
                 if environment.dev_mode:
-                    with self.status_waiting('Installing project in development mode'):
+                    with self.status('Installing project in development mode'):
                         environment.install_project_dev_mode()
                 else:
-                    with self.status_waiting('Installing project'):
+                    with self.status('Installing project'):
                         environment.install_project()
 
                 if environment.post_install_commands:
-                    with self.status_waiting('Running post-installation commands'):
+                    with self.status('Running post-installation commands'):
                         self.run_shell_commands(environment, environment.post_install_commands, source='post-install')
 
-        with self.status_waiting('Checking dependencies'):
+        with self.status('Checking dependencies'):
             dependencies_in_sync = environment.dependencies_in_sync()
 
         if not dependencies_in_sync:
-            with self.status_waiting('Syncing dependencies'):
+            with self.status('Syncing dependencies'):
                 environment.sync_dependencies()
 
     def run_shell_commands(
@@ -199,7 +199,7 @@ class Application(Terminal):
         for dependency in dependencies:
             command.append(str(dependency))
 
-        with self.status_waiting(wait_message):
+        with self.status(wait_message):
             self.platform.check_command(command)
 
     def get_env_directory(self, environment_type):
@@ -238,5 +238,6 @@ class SafeApplication:
         # Divergence from what the backend provides
         self.prompt = app.prompt
         self.confirm = app.confirm
-        self.status_waiting = app.status_waiting
+        self.status = app.status
+        self.status_if = app.status_if
         self.read_builder = app.read_builder
