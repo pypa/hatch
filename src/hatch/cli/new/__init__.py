@@ -54,7 +54,7 @@ def new(app, name, location, interactive, feature_cli, initialize, setuptools_op
         from hatch.cli.new.migrate import migrate
 
         try:
-            with app.status_waiting('Migrating project metadata from setuptools'):
+            with app.status('Migrating project metadata from setuptools'):
                 migrate(str(location), setuptools_options)
         except Exception as e:
             app.display_error(f'Could not automatically migrate from setuptools: {e}')

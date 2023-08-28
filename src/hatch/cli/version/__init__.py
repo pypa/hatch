@@ -44,7 +44,7 @@ def version(app, desired_version):
             except Exception as e:
                 app.abort(f'Environment `{environment.name}` is incompatible: {e}')
 
-            with app.status_waiting(
+            with app.status_if(
                 'Setting up build environment for missing dependencies',
                 condition=not environment.build_environment_exists(),
             ) as status, environment.build_environment(app.project.metadata.build.requires):
