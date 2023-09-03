@@ -69,9 +69,7 @@ class ShellManager:
         executable = path or 'nu'
         activation_script = exe_dir / 'activate.nu'
         if self.environment.platform.windows:
-            self.environment.platform.exit_with_command(
-                [executable, '-c', f'source "{activation_script}"; "{executable}"']
-            )
+            self.environment.platform.exit_with_command([executable, '-e', f'overlay use {str(activation_script)!r}'])
         else:
             self.spawn_linux_shell(executable, args, script=activation_script)
 
