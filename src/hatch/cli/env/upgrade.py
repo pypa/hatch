@@ -24,5 +24,5 @@ def upgrade(ctx, env_name, strategy) -> None:
             continue
 
         if environment.exists() or environment.build_environment_exists():
-            with app.status_waiting(f'Upgrading environment: {env_name}'):
+            with app.status(f'Upgrading environment: {env_name}'):
                 environment.upgrade_dependencies(strategy)
