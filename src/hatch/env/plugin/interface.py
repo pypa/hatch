@@ -714,7 +714,7 @@ class EnvironmentInterface(ABC):
         """
 
     @abstractmethod
-    def upgrade_dependencies(self, upgrade_strategy: str):
+    def upgrade_dependencies(self, strategy: str):
         """
         :material-align-horizontal-left: **REQUIRED** :material-align-horizontal-right:
 

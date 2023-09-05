@@ -34,7 +34,7 @@ class MockEnvironment(EnvironmentInterface):  # no cov
     def sync_dependencies(self):
         pass
 
-    def upgrade_dependencies(self, upgrade_strategy: str):
+    def upgrade_dependencies(self, strategy: str):
         pass
 
 
