@@ -34,6 +34,9 @@ class MockEnvironment(EnvironmentInterface):  # no cov
     def sync_dependencies(self):
         pass
 
+    def upgrade_dependencies(self, upgrade_strategy: str):
+        pass
+
 
 class TestEnvVars:
     def test_default(self, isolation, isolated_data_dir, platform):

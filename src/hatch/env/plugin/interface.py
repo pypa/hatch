@@ -713,6 +713,16 @@ class EnvironmentInterface(ABC):
         in the environment.
         """
 
+    @abstractmethod
+    def upgrade_dependencies(self, upgrade_strategy: str):
+        """
+        :material-align-horizontal-left: **REQUIRED** :material-align-horizontal-right:
+
+        This should upgrade the
+        [dependencies](reference.md#hatch.env.plugin.interface.EnvironmentInterface.dependencies)
+        in the environment.
+        """
+
     @contextmanager
     def build_environment(self, dependencies: list[str]):
         """
