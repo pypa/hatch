@@ -48,7 +48,5 @@ class SystemEnvironment(EnvironmentInterface):
 
     def upgrade_dependencies(self, strategy: str):
         self.platform.check_command(
-            self.construct_pip_install_command(
-                ['--upgrade', '--upgrade-strategy', strategy, *self.dependencies]
-            )
+            self.construct_pip_install_command(['--upgrade', '--upgrade-strategy', strategy, *self.dependencies])
         )

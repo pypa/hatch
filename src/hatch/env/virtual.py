@@ -123,9 +123,7 @@ class VirtualEnvironment(EnvironmentInterface):
     def upgrade_dependencies(self, strategy: str):
         with self.safe_activation():
             self.platform.check_command(
-                self.construct_pip_install_command(
-                    ['--upgrade', '--upgrade-strategy', strategy, *self.dependencies]
-                )
+                self.construct_pip_install_command(['--upgrade', '--upgrade-strategy', strategy, *self.dependencies])
             )
 
     @contextmanager
