@@ -120,6 +120,10 @@ class VirtualEnvironment(EnvironmentInterface):
         with self.safe_activation():
             self.platform.check_command(self.construct_pip_install_command(self.dependencies))
 
+    def upgrade_dependencies(self):
+        with self.safe_activation():
+            self.platform.check_command(self.construct_pip_install_command(['--upgrade', *self.dependencies]))
+
     @contextmanager
     def build_environment(self, dependencies):
         from packaging.requirements import Requirement

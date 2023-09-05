@@ -6,6 +6,7 @@ from hatch.cli.env.prune import prune
 from hatch.cli.env.remove import remove
 from hatch.cli.env.run import run
 from hatch.cli.env.show import show
+from hatch.cli.env.upgrade import upgrade
 
 
 @click.group(short_help='Manage project environments')
@@ -19,3 +20,4 @@ env.add_command(prune)
 env.add_command(remove)
 env.add_command(run)
 env.add_command(show)
+env.add_command(upgrade)
