@@ -13,29 +13,25 @@ class BuildHookInterface(Generic[BuilderConfigBound]):  # no cov
     """
     Example usage:
 
-    === ":octicons-file-code-16: plugin.py"
-
-        ```python
-        from hatchling.builders.hooks.plugin.interface import BuildHookInterface
+    ```python tab="plugin.py"
+    from hatchling.builders.hooks.plugin.interface import BuildHookInterface
 
 
-        class SpecialBuildHook(BuildHookInterface):
-            PLUGIN_NAME = 'special'
-            ...
-        ```
+    class SpecialBuildHook(BuildHookInterface):
+        PLUGIN_NAME = 'special'
+        ...
+    ```
 
-    === ":octicons-file-code-16: hooks.py"
+    ```python tab="hooks.py"
+    from hatchling.plugin import hookimpl
 
-        ```python
-        from hatchling.plugin import hookimpl
-
-        from .plugin import SpecialBuildHook
+    from .plugin import SpecialBuildHook
 
 
-        @hookimpl
-        def hatch_register_build_hook():
-            return SpecialBuildHook
-        ```
+    @hookimpl
+    def hatch_register_build_hook():
+        return SpecialBuildHook
+    ```
     """
 
     PLUGIN_NAME = ''
@@ -83,19 +79,10 @@ class BuildHookInterface(Generic[BuilderConfigBound]):  # no cov
         """
         The cumulative hook configuration.
 
-        === ":octicons-file-code-16: pyproject.toml"
-
-            ```toml
-            [tool.hatch.build.hooks.<PLUGIN_NAME>]
-            [tool.hatch.build.targets.<TARGET_NAME>.hooks.<PLUGIN_NAME>]
-            ```
-
-        === ":octicons-file-code-16: hatch.toml"
-
-            ```toml
-            [build.hooks.<PLUGIN_NAME>]
-            [build.targets.<TARGET_NAME>.hooks.<PLUGIN_NAME>]
-            ```
+        ```toml config-example
+        [tool.hatch.build.hooks.<PLUGIN_NAME>]
+        [tool.hatch.build.targets.<TARGET_NAME>.hooks.<PLUGIN_NAME>]
+        ```
         """
         return self.__config
 

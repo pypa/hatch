@@ -79,23 +79,12 @@ def run(
     select or exclude certain variables, optionally followed by specific comma-separated values.
     For example, if you have the following configuration:
 
-    === ":octicons-file-code-16: pyproject.toml"
-
-        \b
-        ```toml
-        [[tool.hatch.envs.test.matrix]]
-        python = ["3.9", "3.10"]
-        version = ["42", "3.14", "9000"]
-        ```
-
-    === ":octicons-file-code-16: hatch.toml"
-
-        \b
-        ```toml
-        [[envs.test.matrix]]
-        python = ["3.9", "3.10"]
-        version = ["42", "3.14", "9000"]
-        ```
+    \b
+    ```toml config-example
+    [[tool.hatch.envs.test.matrix]]
+    python = ["3.9", "3.10"]
+    version = ["42", "3.14", "9000"]
+    ```
 
     then running:
 

@@ -27,218 +27,174 @@ The only caveat is that currently there is no support for re-creating an environ
 ### Build system
 
 === "Setuptools"
+    ```python tab="setup.py"
+    import os
+    from io import open
 
-    === ":octicons-file-code-16: setup.py"
+    from setuptools import find_packages, setup
 
-        ```python
-        import os
-        from io import open
+    about = {}
+    with open(os.path.join('src', 'foo', '__about__.py'), 'r', 'utf-8') as f:
+        exec(f.read(), about)
 
-        from setuptools import find_packages, setup
+    with open('README.md', 'r', 'utf-8') as f:
+        readme = f.read()
 
-        about = {}
-        with open(os.path.join('src', 'foo', '__about__.py'), 'r', 'utf-8') as f:
-            exec(f.read(), about)
+    setup(
+        # Metadata
+        name='foo',
+        version=about['__version__'],
+        description='...',
+        long_description=readme,
+        long_description_content_type='text/markdown',
+        author='...',
+        author_email='...',
+        project_urls={
+            'Documentation': '...',
+            'Source': '...',
+        },
+        classifiers=[
+            '...',
+        ],
+        keywords=[
+            '...',
+        ],
+        python_requires='>=3.8',
+        install_requires=[
+            '...',
+        ],
+        extras_require={
+            'feature': ['...'],
+        },
 
-        with open('README.md', 'r', 'utf-8') as f:
-            readme = f.read()
-
-        setup(
-            # Metadata
-            name='foo',
-            version=about['__version__'],
-            description='...',
-            long_description=readme,
-            long_description_content_type='text/markdown',
-            author='...',
-            author_email='...',
-            project_urls={
-                'Documentation': '...',
-                'Source': '...',
-            },
-            classifiers=[
-                '...',
+        # Packaging
+        packages=find_packages(where='src'),
+        package_dir={'': 'src'},
+        package_data={
+            'foo': ['py.typed'],
+        },
+        zip_safe=False,
+        entry_points={
+            'console_scripts': [
+                'foo = foo.cli:main',
             ],
-            keywords=[
-                '...',
-            ],
-            python_requires='>=3.8',
-            install_requires=[
-                '...',
-            ],
-            extras_require={
-                'feature': ['...'],
-            },
+        },
+    )
+    ```
 
-            # Packaging
-            packages=find_packages(where='src'),
-            package_dir={'': 'src'},
-            package_data={
-                'foo': ['py.typed'],
-            },
-            zip_safe=False,
-            entry_points={
-                'console_scripts': [
-                    'foo = foo.cli:main',
-                ],
-            },
-        )
-        ```
+    ```text tab="MANIFEST.in"
+    graft tests
 
-    === ":octicons-file-code-16: MANIFEST.in"
-
-        ```
-        graft tests
-
-        global-exclude *.py[cod] __pycache__
-        ```
+    global-exclude *.py[cod] __pycache__
+    ```
 
 === "Hatch"
+    ```toml tab="pyproject.toml"
+    [build-system]
+    requires = ["hatchling"]
+    build-backend = "hatchling.build"
 
-    === ":octicons-file-code-16: pyproject.toml"
+    [project]
+    name = "foo"
+    description = "..."
+    readme = "README.md"
+    authors = [
+        { name = "...", email = "..." },
+    ]
+    classifiers = [
+        "...",
+    ]
+    keywords = [
+        "...",
+    ]
+    requires-python = ">=3.8"
+    dependencies = [
+        "...",
+    ]
+    dynamic = ["version"]
 
-        ```toml
-        [build-system]
-        requires = ["hatchling"]
-        build-backend = "hatchling.build"
+    [project.urls]
+    Documentation = "..."
+    Source = "..."
 
-        [project]
-        name = "foo"
-        description = "..."
-        readme = "README.md"
-        authors = [
-          { name = "...", email = "..." },
-        ]
-        classifiers = [
-          "...",
-        ]
-        keywords = [
-          "...",
-        ]
-        requires-python = ">=3.8"
-        dependencies = [
-          "...",
-        ]
-        dynamic = ["version"]
+    [project.optional-dependencies]
+    feature = ["..."]
 
-        [project.urls]
-        Documentation = "..."
-        Source = "..."
+    [project.scripts]
+    foo = "foo.cli:main"
 
-        [project.optional-dependencies]
-        feature = ["..."]
+    [tool.hatch.version]
+    path = "src/foo/__about__.py"
 
-        [project.scripts]
-        foo = "foo.cli:main"
-
-        [tool.hatch.version]
-        path = "src/foo/__about__.py"
-
-        [tool.hatch.build.targets.sdist]
-        include = [
-          "/src",
-          "/tests",
-        ]
-        ```
+    [tool.hatch.build.targets.sdist]
+    include = [
+        "/src",
+        "/tests",
+    ]
+    ```
 
 ### Environments
 
 === "Tox"
-
     Invocation:
 
     ```
     tox
     ```
 
-    === ":octicons-file-code-16: tox.ini"
+    ```ini tab="tox.ini"
+    [tox]
+    envlist =
+        py{27,38}-{42,3.14}
+        py{38,39}-{9000}-{foo,bar}
 
-        ```ini
-        [tox]
-        envlist =
-            py{27,38}-{42,3.14}
-            py{38,39}-{9000}-{foo,bar}
-
-        [testenv]
-        usedevelop = true
-        deps =
-            coverage[toml]
-            pytest
-            pytest-cov
-            foo: cryptography
-        commands =
-            pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=pkg --cov=tests {posargs}
-        setenv =
-            3.14: PRODUCT_VERSION=3.14
-            42: PRODUCT_VERSION=42
-            9000: PRODUCT_VERSION=9000
-            {foo,bar}: EXPERIMENTAL=true
-        ```
+    [testenv]
+    usedevelop = true
+    deps =
+        coverage[toml]
+        pytest
+        pytest-cov
+        foo: cryptography
+    commands =
+        pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=pkg --cov=tests {posargs}
+    setenv =
+        3.14: PRODUCT_VERSION=3.14
+        42: PRODUCT_VERSION=42
+        9000: PRODUCT_VERSION=9000
+        {foo,bar}: EXPERIMENTAL=true
+    ```
 
 === "Hatch"
-
     Invocation:
 
     ```
     hatch run test
     ```
 
-    === ":octicons-file-code-16: hatch.toml"
+    ```toml config-example
+    [envs.default]
+    dependencies = [
+        "coverage[toml]",
+        "pytest",
+        "pytest-cov",
+    ]
 
-        ```toml
-        [envs.default]
-        dependencies = [
-          "coverage[toml]",
-          "pytest",
-          "pytest-cov",
-        ]
+    [envs.default.scripts]
+    test = 'pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=pkg --cov=tests'
 
-        [envs.default.scripts]
-        test = 'pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=pkg --cov=tests'
+    [envs.default.overrides]
+    matrix.version.env-vars = "PRODUCT_VERSION"
+    matrix.features.env-vars = "EXPERIMENTAL=true"
+    matrix.features.dependencies = [
+        { value = "cryptography", if = ["foo"] },
+    ]
 
-        [envs.default.overrides]
-        matrix.version.env-vars = "PRODUCT_VERSION"
-        matrix.features.env-vars = "EXPERIMENTAL=true"
-        matrix.features.dependencies = [
-          { value = "cryptography", if = ["foo"] },
-        ]
+    [[envs.default.matrix]]
+    python = ["2.7", "3.8"]
+    version = ["42", "3.14"]
 
-        [[envs.default.matrix]]
-        python = ["2.7", "3.8"]
-        version = ["42", "3.14"]
-
-        [[envs.default.matrix]]
-        python = ["3.8", "3.9"]
-        version = ["9000"]
-        features = ["foo", "bar"]
-        ```
-
-    === ":octicons-file-code-16: pyproject.toml"
-
-        ```toml
-        [tool.hatch.envs.default]
-        dependencies = [
-          "coverage[toml]",
-          "pytest",
-          "pytest-cov",
-        ]
-
-        [tool.hatch.envs.default.scripts]
-        test = 'pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=pkg --cov=tests'
-
-        [tool.hatch.envs.default.overrides]
-        matrix.version.env-vars = "PRODUCT_VERSION"
-        matrix.features.env-vars = "EXPERIMENTAL=true"
-        matrix.features.dependencies = [
-          { value = "cryptography", if = ["foo"] },
-        ]
-
-        [[tool.hatch.envs.default.matrix]]
-        python = ["2.7", "3.8"]
-        version = ["42", "3.14"]
-
-        [[tool.hatch.envs.default.matrix]]
-        python = ["3.8", "3.9"]
-        version = ["9000"]
-        features = ["foo", "bar"]
-        ```
+    [[envs.default.matrix]]
+    python = ["3.8", "3.9"]
+    version = ["9000"]
+    features = ["foo", "bar"]
+    ```

@@ -8,17 +8,9 @@ This adds the `default` environment with [type](../../config/environment/overvie
 
 The environment collector plugin name is `default`.
 
-=== ":octicons-file-code-16: pyproject.toml"
-
-    ```toml
-    [tool.hatch.env.collectors.default]
-    ```
-
-=== ":octicons-file-code-16: hatch.toml"
-
-    ```toml
-    [env.collectors.default]
-    ```
+```toml config-example
+[tool.hatch.env.collectors.default]
+```
 
 ## Options
 

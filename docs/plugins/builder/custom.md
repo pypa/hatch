@@ -8,17 +8,9 @@ This is a custom class in a given Python file that inherits from the [BuilderInt
 
 The builder plugin name is `custom`.
 
-=== ":octicons-file-code-16: pyproject.toml"
-
-    ```toml
-    [tool.hatch.build.targets.custom]
-    ```
-
-=== ":octicons-file-code-16: hatch.toml"
-
-    ```toml
-    [build.targets.custom]
-    ```
+```toml config-example
+[tool.hatch.build.targets.custom]
+```
 
 ## Options
 
@@ -28,15 +20,13 @@ The builder plugin name is `custom`.
 
 ## Example
 
-=== ":octicons-file-code-16: hatch_build.py"
-
-    ```python
+```python tab="hatch_build.py"
     from hatchling.builders.plugin.interface import BuilderInterface
 
 
     class CustomBuilder(BuilderInterface):
         ...
-    ```
+```
 
 If multiple subclasses are found, you must define a function named `get_builder` that returns the desired builder.
 

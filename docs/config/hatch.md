@@ -20,30 +20,26 @@ The `mode` key controls how Hatch selects the project to work on.
 
 ### Local
 
-=== ":octicons-file-code-16: config.toml"
-
-    ```toml
-    mode = "local"
-    ```
+```toml tab="config.toml"
+mode = "local"
+```
 
 By default, Hatch will look for a `pyproject.toml` file in the current working directory
 and any parent directories. The directory storing the first found file will be considered the project root.
 
 ### Project
 
-=== ":octicons-file-code-16: config.toml"
+```toml tab="config.toml"
+mode = "project"
+project = "proj1"
 
-    ```toml
-    mode = "project"
-    project = "proj1"
+[projects]
+proj1 = "/path/to/project1"
+proj2 = {"location": "/path/to/project2"}
 
-    [projects]
-    proj1 = "/path/to/project1"
-    proj2 = {"location": "/path/to/project2"}
-
-    [dirs]
-    project = ["/path/to/monorepo1", "/path/to/monorepo2"]
-    ```
+[dirs]
+project = ["/path/to/monorepo1", "/path/to/monorepo2"]
+```
 
 In this mode, Hatch will only work on the selected `project`. The project is located using multiple heuristics:
 
@@ -64,11 +60,9 @@ The project can be selected on a per-command basis with the `-p`/`--project` (en
 
 ### Aware
 
-=== ":octicons-file-code-16: config.toml"
-
-    ```toml
-    mode = "aware"
-    ```
+```toml tab="config.toml"
+mode = "aware"
+```
 
 This is essentially the `local` mode with a fallback to the `project` mode.
 
@@ -78,31 +72,25 @@ You can control the shell used to [enter environments](../environment.md#enterin
 
 If defined as a string, it must be the name of one of the [supported shells](#supported) and be available along your `PATH`.
 
-=== ":octicons-file-code-16: config.toml"
-
-    ```toml
-    shell = "fish"
-    ```
+```toml tab="config.toml"
+shell = "fish"
+```
 
 If the executable name of your shell differs from the supported name, you can define the `shell` as a table with `name` and `path` keys.
 
-=== ":octicons-file-code-16: config.toml"
-
-    ```toml
-    [shell]
-    name = "bash"
-    path = "/bin/ash"
-    ```
+```toml tab="config.toml"
+[shell]
+name = "bash"
+path = "/bin/ash"
+```
 
 You can change the default arguments used to spawn most shells with the `args` key. The default for such supported shells is usually `["-i"]`.
 
-=== ":octicons-file-code-16: config.toml"
-
-    ```toml
-    [shell]
-    name = "bash"
-    args = ["--login"]
-    ```
+```toml tab="config.toml"
+[shell]
+name = "bash"
+args = ["--login"]
+```
 
 ### Supported
 
@@ -127,12 +115,10 @@ Hatch will attempt to use the current shell based on parent processes. If the sh
 
 ### Data
 
-=== ":octicons-file-code-16: config.toml"
-
-    ```toml
-    [dirs]
-    data = "..."
-    ```
+```toml tab="config.toml"
+[dirs]
+data = "..."
+```
 
 This is the directory that is used to persist data. By default it is set to one of the following platform-specific directories.
 
@@ -146,12 +132,10 @@ You can select a custom path to the directory using the `--data-dir` [root optio
 
 ### Cache
 
-=== ":octicons-file-code-16: config.toml"
-
-    ```toml
-    [dirs]
-    cache = "..."
-    ```
+```toml tab="config.toml"
+[dirs]
+cache = "..."
+```
 
 This is the directory that is used to cache data. By default it is set to one of the following platform-specific directories.
 
@@ -165,45 +149,37 @@ You can select a custom path to the directory using the `--cache-dir` [root opti
 
 ### Environments
 
-=== ":octicons-file-code-16: config.toml"
-
-    ```toml
-    [dirs.env]
-    <ENV_TYPE> = "..."
-    ```
+```toml tab="config.toml"
+[dirs.env]
+<ENV_TYPE> = "..."
+```
 
 This determines where to store environments, with every key being the [type of environment](environment/overview.md#type) and the value being the desired storage location.
 
 For example, if you wanted to store [virtual environments](../plugins/environment/virtual.md) in a `.virtualenvs` directory within your home directory, you could specify the following:
 
-=== ":octicons-file-code-16: config.toml"
-
-    ```toml
-    [dirs.env]
-    virtual = "~/.virtualenvs"
-    ```
+```toml tab="config.toml"
+[dirs.env]
+virtual = "~/.virtualenvs"
+```
 
 Any environment variables are also expanded.
 
 If the path is not absolute, then it will be relative to the project root. So if you wanted to use a directory named `.hatch` in each project directory, you could do:
 
-=== ":octicons-file-code-16: config.toml"
-
-    ```toml
-    [dirs.env]
-    virtual = ".hatch"
-    ```
+```toml tab="config.toml"
+[dirs.env]
+virtual = ".hatch"
+```
 
 Any type of environment that is not explicitly defined will default to `<DATA_DIR>/env/<ENV_TYPE>`.
 
 ### Python installations
 
-=== ":octicons-file-code-16: config.toml"
-
-    ```toml
-    [dirs]
-    python = "..."
-    ```
+```toml tab="config.toml"
+[dirs]
+python = "..."
+```
 
 This determines where to install specific versions of Python, with the full path being `<VALUE>/pythons`.
 
@@ -218,13 +194,11 @@ The following values have special meanings.
 
 You can configure how all output is displayed using the `terminal.styles` table. These settings are also applied to all plugins.
 
-=== ":octicons-file-code-16: config.toml"
-
-    ```toml
-    [terminal.styles]
-    error = "..."
-    ...
-    ```
+```toml tab="config.toml"
+[terminal.styles]
+error = "..."
+...
+```
 
 Cross-platform terminal capabilities are provided by [Rich](https://github.com/Textualize/rich).
 
@@ -247,9 +221,7 @@ See the [documentation](https://rich.readthedocs.io/en/latest/style.html) and [c
 
 You can select the [sequence](https://github.com/Textualize/rich/blob/master/rich/_spinners.py) used for waiting animations with the `spinner` option.
 
-=== ":octicons-file-code-16: config.toml"
-
-    ```toml
-    [terminal.styles]
-    spinner = "..."
-    ```
+```toml tab="config.toml"
+[terminal.styles]
+spinner = "..."
+```

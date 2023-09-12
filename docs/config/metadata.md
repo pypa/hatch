@@ -9,12 +9,10 @@ and is based entirely on [PEP 621][].
 
 The name of the project.
 
-=== ":octicons-file-code-16: pyproject.toml"
-
-    ```toml
-    [project]
-    name = "your-app"
-    ```
+```toml tab="pyproject.toml"
+[project]
+name = "your-app"
+```
 
 ## Version (*required*) ## {: #version }
 
