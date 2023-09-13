@@ -1,5 +1,6 @@
-import textwrap
 import re
+import textwrap
+
 from markdown.extensions import Extension
 from markdown.preprocessors import Preprocessor
 
@@ -10,12 +11,12 @@ _code_tab_regex = re.compile(
 
 def _code_tab_replace(m):
     indent, fence_start, fence_end, title, content = m.groups()
-    return f'''\
+    return f"""\
 {indent}=== ":octicons-file-code-16: {title}"
 {indent}    {fence_start}
 {textwrap.indent(content, '    ')}
 {indent}    {fence_end}
-'''
+"""
 
 _config_example_regex = re.compile(
     r'^( *)((`{3,})toml\b.*) config-example\n([\s\S]+?)\n\1\3$',
@@ -25,7 +26,7 @@ _config_example_regex = re.compile(
 def _config_example_replace(m):
     indent, fence_start, fence_end, content = m.groups()
     content_without = content.replace('[tool.hatch.', '[').replace('[tool.hatch]\n', '')
-    return f'''\
+    return f"""\
 {indent}=== ":octicons-file-code-16: pyproject.toml"
 {indent}    {fence_start}
 {textwrap.indent(content, '    ')}
@@ -35,15 +36,15 @@ def _config_example_replace(m):
 {indent}    {fence_start}
 {textwrap.indent(content_without, '    ')}
 {indent}    {fence_end}
-'''
+"""
 
 def on_config(config, **kwargs):
     config.markdown_extensions.append(MyExtension())
 
 
 class MyExtension(Extension):
-    def extendMarkdown(self, md):
-        md.preprocessors.register(MyPreprocessor(), "mypreprocessor", 100)
+    def extendMarkdown(self, md):  # ignore: N802
+        md.preprocessors.register(MyPreprocessor(), 'mypreprocessor', 100)
 
 
 class MyPreprocessor(Preprocessor):
