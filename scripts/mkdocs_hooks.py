@@ -43,7 +43,7 @@ def on_config(config, **kwargs):
 
 
 class MyExtension(Extension):
-    def extendMarkdown(self, md):  # ignore: N802
+    def extendMarkdown(self, md):  # noqa: N802
         md.preprocessors.register(MyPreprocessor(), 'mypreprocessor', 100)
 
 
