@@ -83,6 +83,11 @@ def isolation() -> Generator[Path, None, None]:
             'COLUMNS': '80',
             'LINES': '24',
         }
+        if PLATFORM.windows:
+            default_env_vars['COMSPEC'] = 'cmd.exe'
+        else:
+            default_env_vars['SHELL'] = 'sh'
+
         with d.as_cwd(default_env_vars):
             os.environ.pop(AppEnvVars.ENV_ACTIVE, None)
             yield d
@@ -173,6 +178,13 @@ def extract_installed_requirements(helpers, default_virtualenv_installed_require
 @pytest.fixture(scope='session', autouse=True)
 def python_on_path():
     return Path(sys.executable).stem
+
+
+@pytest.fixture(scope='session')
+def compatible_python_distributions():
+    from hatch.python.resolve import get_compatible_distributions
+
+    return tuple(get_compatible_distributions())
 
 
 @pytest.fixture(scope='session')

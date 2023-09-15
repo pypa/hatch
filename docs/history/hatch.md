@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ***Added:***
 
 - Add standalone binaries
+- Add the ability to manage Python installations
 - Bump the minimum supported version of Hatchling to 1.17.1
 - Bump the minimum supported version of `click` to 8.0.6
 

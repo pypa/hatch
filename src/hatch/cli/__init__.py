@@ -12,6 +12,7 @@ from hatch.cli.env import env
 from hatch.cli.new import new
 from hatch.cli.project import project
 from hatch.cli.publish import publish
+from hatch.cli.python import python
 from hatch.cli.run import run
 from hatch.cli.shell import shell
 from hatch.cli.status import status
@@ -22,7 +23,9 @@ from hatch.utils.ci import running_in_ci
 from hatch.utils.fs import Path
 
 
-@click.group(context_settings={'help_option_names': ['-h', '--help']}, invoke_without_command=True)
+@click.group(
+    context_settings={'help_option_names': ['-h', '--help'], 'max_content_width': 120}, invoke_without_command=True
+)
 @click.option(
     '--env',
     '-e',
@@ -38,20 +41,6 @@ from hatch.utils.fs import Path
     help='The name of the project to work on [env var: `HATCH_PROJECT`]',
 )
 @click.option(
-    '--color/--no-color',
-    default=None,
-    help='Whether or not to display colored output (default is auto-detection) [env vars: `FORCE_COLOR`/`NO_COLOR`]',
-)
-@click.option(
-    '--interactive/--no-interactive',
-    envvar=AppEnvVars.INTERACTIVE,
-    default=None,
-    help=(
-        'Whether or not to allow features like prompts and progress bars (default is auto-detection) '
-        '[env var: `HATCH_INTERACTIVE`]'
-    ),
-)
-@click.option(
     '--verbose',
     '-v',
     envvar=AppEnvVars.VERBOSE,
@@ -64,6 +53,20 @@ from hatch.utils.fs import Path
     envvar=AppEnvVars.QUIET,
     count=True,
     help='Decrease verbosity (can be used additively) [env var: `HATCH_QUIET`]',
+)
+@click.option(
+    '--color/--no-color',
+    default=None,
+    help='Whether or not to display colored output (default is auto-detection) [env vars: `FORCE_COLOR`/`NO_COLOR`]',
+)
+@click.option(
+    '--interactive/--no-interactive',
+    envvar=AppEnvVars.INTERACTIVE,
+    default=None,
+    help=(
+        'Whether or not to allow features like prompts and progress bars (default is auto-detection) '
+        '[env var: `HATCH_INTERACTIVE`]'
+    ),
 )
 @click.option(
     '--data-dir',
@@ -83,7 +86,7 @@ from hatch.utils.fs import Path
 )
 @click.version_option(version=__version__, prog_name='Hatch')
 @click.pass_context
-def hatch(ctx: click.Context, env_name, project, color, interactive, verbose, quiet, data_dir, cache_dir, config_file):
+def hatch(ctx: click.Context, env_name, project, verbose, quiet, color, interactive, data_dir, cache_dir, config_file):
     """
     \b
      _   _       _       _
@@ -194,6 +197,7 @@ hatch.add_command(env)
 hatch.add_command(new)
 hatch.add_command(project)
 hatch.add_command(publish)
+hatch.add_command(python)
 hatch.add_command(run)
 hatch.add_command(shell)
 hatch.add_command(status)

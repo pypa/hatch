@@ -123,9 +123,20 @@ HATCH_BUILD_CLEAN = "true"
 build = "python -m build backend"
 publish = "hatch publish backend/dist"
 version = "cd backend && hatch version {args}"
-update-data = [
+
+[envs.upkeep]
+detached = true
+dependencies = [
+  "httpx",
+]
+[envs.upkeep.scripts]
+update-hatch = [
+  "update-distributions",
+]
+update-hatchling = [
   "update-licenses",
 ]
+update-distributions = "python scripts/update_distributions.py"
 update-licenses = "python backend/scripts/update_licenses.py"
 
 [envs.release]
