@@ -1,30 +1,33 @@
-from hatchling.plugin.manager import PluginManager as _PluginManager
+from types import ModuleType
+from typing import Iterator
 
+from hatchling.plugin.manager import PluginManager as _PluginManager
+from hatchling.plugin.manager import DeferredClassRegister
 
 class PluginManager(_PluginManager):
-    def initialize(self):
-        super().initialize()
+    def get_specs(self) -> Iterator[ModuleType]:
+        yield from super().get_specs()
 
         from hatch.plugin import specs
 
-        self.manager.add_hookspecs(specs)
+        yield specs
 
-    def hatch_register_environment(self):
+    @DeferredClassRegister
+    def environment(self):
         from hatch.env.plugin import hooks
+        return hooks
 
-        self.manager.register(hooks)
-
-    def hatch_register_environment_collector(self):
+    @DeferredClassRegister
+    def environment_collector(self):
         from hatch.env.collectors.plugin import hooks
+        return hooks
 
-        self.manager.register(hooks)
-
-    def hatch_register_publisher(self):
+    @DeferredClassRegister
+    def publisher(self):
         from hatch.publish.plugin import hooks
+        return hooks
 
-        self.manager.register(hooks)
-
-    def hatch_register_template(self):
+    @DeferredClassRegister
+    def template(self):
         from hatch.template.plugin import hooks
-
-        self.manager.register(hooks)
+        return hooks

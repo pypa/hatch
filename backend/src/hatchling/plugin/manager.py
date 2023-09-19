@@ -1,70 +1,92 @@
 from __future__ import annotations
 
-from typing import Callable, TypeVar
+from dataclasses import dataclass, field
+from functools import cached_property
+from types import ModuleType
+from typing import Callable, TypeVar, Generator
 
 import pluggy
 
+PluginBaseClass = TypeVar('PluginBaseClass')
+
+@dataclass
+class DeferredClassRegister:
+
+    name: str
+    _load_hooks: Callable[[PluginmanagerBound], ModuleType] = field(repr=False)
+    def __init__(self, load_hooks: Callable[[PluginmanagerBound], ModuleType]) -> None:
+        self._load_hooks = load_hooks
+
+    def __set_name__(self, owner: type[PluginManagerBound], name: str):
+        self._name = name
+
+    def __get__(self, instance: PluginManagerBound, owner: type[PluginManagerBound]) -> ClassRegister:
+        if instance is None:
+            return self
+        else:
+            hook_name = f'hatch_register_{self._name}'
+            hook_module = self._load_hooks(instance)
+            instance.manager.register(hook_module)
+
+            register = ClassRegister(getattr(instance.manager.hook, hook_name), 'PLUGIN_NAME', instance.third_party_plugins)
+            setattr(instance, self._name, register)
+            return register
 
 class PluginManager:
-    def __init__(self) -> None:
-        self.manager = pluggy.PluginManager('hatch')
-        self.third_party_plugins = ThirdPartyPlugins(self.manager)
-        self.initialized = False
 
-    def initialize(self) -> None:
+
+    @cached_property
+    def third_party_plugins(self) -> ThirdPartyPlugins:
+        return ThirdPartyPlugins(self.manager)
+
+    @cached_property
+    def manager(self) -> pluggy.PluginManager:
+        pm = pluggy.PluginManager('hatch')
+        for spec in self.get_specs():
+            pm.add_hookspecs(spec)
+        return pm
+
+    def get_specs(self) -> Generator[ModuleType]:
         from hatchling.plugin import specs
+        yield specs
 
-        self.manager.add_hookspecs(specs)
 
-    def __getattr__(self, name: str) -> 'ClassRegister':
-        if not self.initialized:
-            self.initialize()
-            self.initialized = True
-
-        hook_name = f'hatch_register_{name}'
-        hook = getattr(self, hook_name, None)
-        if hook:
-            hook()
-
-        register = ClassRegister(getattr(self.manager.hook, hook_name), 'PLUGIN_NAME', self.third_party_plugins)
-        setattr(self, name, register)
-        return register
-
-    def hatch_register_version_source(self) -> None:
+    @DeferredClassRegister
+    def version_source(self) -> None:
         from hatchling.version.source.plugin import hooks
+        return hooks
 
-        self.manager.register(hooks)
-
-    def hatch_register_version_scheme(self) -> None:
+    @DeferredClassRegister
+    def version_scheme(self) -> ModuleType:
         from hatchling.version.scheme.plugin import hooks
+        return hooks
 
-        self.manager.register(hooks)
-
-    def hatch_register_builder(self) -> None:
+    @DeferredClassRegister
+    def builder(self) -> ModuleType:
         from hatchling.builders.plugin import hooks
+        return hooks
 
-        self.manager.register(hooks)
-
-    def hatch_register_build_hook(self) -> None:
+    @DeferredClassRegister
+    def build_hook(self) -> ModuleType:
         from hatchling.builders.hooks.plugin import hooks
+        return hooks
 
-        self.manager.register(hooks)
-
-    def hatch_register_metadata_hook(self) -> None:
+    @DeferredClassRegister
+    def metadata_hook(self) -> ModuleType:
         from hatchling.metadata.plugin import hooks
 
-        self.manager.register(hooks)
+        return hooks
 
 
-class ClassRegister:
+class ClassRegister():
     def __init__(self, registration_method: Callable, identifier: str, third_party_plugins: ThirdPartyPlugins) -> None:
         self.registration_method = registration_method
         self.identifier = identifier
         self.third_party_plugins = third_party_plugins
 
     def collect(self, *, include_third_party: bool = True) -> dict:
-        if include_third_party and not self.third_party_plugins.loaded:
-            self.third_party_plugins.load()
+        if include_third_party :
+            self.third_party_plugins.ensure_loaded()
 
         classes: dict[str, type] = {}
 
@@ -97,14 +119,16 @@ class ClassRegister:
         return self.collect().get(name)
 
 
+@dataclass
 class ThirdPartyPlugins:
-    def __init__(self, manager: pluggy.PluginManager) -> None:
-        self.manager = manager
-        self.loaded = False
 
-    def load(self) -> None:
-        self.manager.load_setuptools_entrypoints('hatch')
-        self.loaded = True
+    manager: pluggy.PluginManager
+    loaded: bool = False
+
+    def ensure_loaded(self) -> None:
+        if not self.loaded:
+            self.manager.load_setuptools_entrypoints('hatch')
+            self.loaded = True
 
 
 PluginManagerBound = TypeVar('PluginManagerBound', bound=PluginManager)
