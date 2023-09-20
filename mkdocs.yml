@@ -124,7 +124,8 @@ watch:
 - src/hatch
 
 hooks:
-  - scripts/mkdocs_hooks.py
+- docs/.hooks/expand_blocks.py
+- docs/.hooks/inject_version.py
 
 plugins:
   # Built-in
