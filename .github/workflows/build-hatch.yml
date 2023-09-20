@@ -90,7 +90,7 @@ jobs:
       CARGO: cargo
       CARGO_BUILD_TARGET: ${{ matrix.job.target }}
       PYAPP_REPO: pyapp
-      PYAPP_VERSION: "0.8.0"
+      PYAPP_VERSION: "0.11.1"
       PYAPP_PIP_EXTERNAL: "true"
 
     steps:
@@ -151,29 +151,37 @@ jobs:
         mv "$wheel" "../$PYAPP_REPO"
         echo "PYAPP_PROJECT_PATH=$wheel" >> $GITHUB_ENV
 
-    - name: Build binary
-      run: hatch build --target app
-
-    # Windows installers don't accept non-integer versions so we ubiquitously
-    # perform the following transformation: X.Y.Z.devN -> X.Y.Z.N
     - name: Set project version
       id: version
       run: |-
-        old_version="$(hatch version)"
-        version="${old_version/dev/}"
+        raw_version="$(hatch version)"
+        version="${raw_version/dev/}"
 
-        if [[ "$version" != "$old_version" ]]; then
-          cd dist/app
-          old_binary="$(ls)"
-          binary="${old_binary/$old_version/$version}"
-          mv "$old_binary" "$binary"
-        fi
-
+        echo "raw-version=$raw_version" >> $GITHUB_OUTPUT
         echo "version=$version" >> $GITHUB_OUTPUT
         echo "$version"
 
-    - name: Archive binary
+    # We cannot use anchors because of https://github.com/actions/runner/issues/1182 and
+    # other solutions like writing a composite action are burdensome
+    - name: Set reusable script - Correct binary version
+      id: script-version
+      # Windows installers don't accept non-integer versions so we ubiquitously
+      # perform the following transformation: X.Y.Z.devN -> X.Y.Z.N
       run: |-
+        cat <<"OUTER" >> $GITHUB_OUTPUT
+        script<<INNER
+        cd dist/app
+        old_binary="$(ls)"
+        binary="${old_binary/${{ steps.version.outputs.raw-version }}/${{ steps.version.outputs.version }}}"
+        mv "$old_binary" "$binary"
+        INNER
+        OUTER
+
+    - name: Set reusable script - Archive binary
+      id: script-archive
+      run: |-
+        cat <<"OUTER" >> $GITHUB_OUTPUT
+        script<<INNER
         mkdir packaging
         cd dist/app
 
@@ -185,16 +193,53 @@ jobs:
           chmod +x "$binary"
           tar -czf "../../packaging/$binary.tar.gz" "$binary"
         fi
+        INNER
+        OUTER
 
-    - name: Upload staged archive
+    - name: Build managed binary
+      env:
+        PYAPP_SELF_COMMAND: "none"
+      run: hatch build --target app
+
+    - name: Correct binary version
+      if: steps.version.outputs.version != steps.version.outputs.raw-version
+      run: ${{ steps.script-version.outputs.script }}
+
+    - name: Archive binary
+      run: ${{ steps.script-archive.outputs.script }}
+
+    - name: Upload staged managed archive
       if: runner.os != 'Linux'
       uses: actions/upload-artifact@v3
       with:
-        name: staged-${{ runner.os }}
+        name: staged-managed-${{ runner.os }}
         path: packaging/*
         if-no-files-found: error
 
-    - name: Upload archive
+    - name: Reset artifact directories
+      run: rm -rf dist/app packaging
+
+    - name: Build standalone binary
+      run: hatch build --target app
+
+    - name: Correct binary version
+      if: steps.version.outputs.version != steps.version.outputs.raw-version
+      run: ${{ steps.script-version.outputs.script }}
+
+    - name: Archive binary
+      run: ${{ steps.script-archive.outputs.script }}
+
+    - name: Upload staged standalone archive
+      if: runner.os != 'Linux'
+      uses: actions/upload-artifact@v3
+      with:
+        name: staged-standalone-${{ runner.os }}
+        path: packaging/*
+        if-no-files-found: error
+
+    # There are no installers nor extra steps like signing for Linux so we
+    # can upload directly at this point
+    - name: Upload standalone archive
       if: runner.os == 'Linux'
       uses: actions/upload-artifact@v3
       with:
@@ -223,22 +268,26 @@ jobs:
     - name: Install PyOxidizer ${{ env.PYOXIDIZER_VERSION }}
       run: pip install pyoxidizer==${{ env.PYOXIDIZER_VERSION }}
 
-    - name: Download staged binaries
-      uses: actions/download-artifact@v3
-      with:
-        name: staged-${{ runner.os }}
-        path: archives
-
-    - name: Extract staged binaries
+    # We cannot use anchors because of https://github.com/actions/runner/issues/1182 and
+    # other solutions like writing a composite action are burdensome
+    - name: Set reusable script - Extract binaries
+      id: script-extract
       run: |-
+        cat <<"OUTER" >> $GITHUB_OUTPUT
+        script<<INNER
         mkdir bin
         for f in archives/*; do
           7z e "$f" -obin
         done
+        INNER
+        OUTER
 
-    # bin/<APP_NAME>-<VERSION>-<TARGET>.exe -> targets/<TARGET>/<APP_NAME>.exe
-    - name: Prepare binaries
+    - name: Set reusable script - Prepare binaries
+      id: script-prepare
+      # bin/<APP_NAME>-<VERSION>-<TARGET>.exe -> targets/<TARGET>/<APP_NAME>.exe
       run: |-
+        cat <<"OUTER" >> $GITHUB_OUTPUT
+        script<<INNER
         mkdir targets
         for f in bin/*; do
           if [[ "$f" =~ ${{ env.VERSION }}-(.+).exe$ ]]; then
@@ -247,6 +296,42 @@ jobs:
             mv "$f" "targets/$target/${{ env.APP_NAME }}.exe"
           fi
         done
+        INNER
+        OUTER
+
+    - name: Download staged standalone binaries
+      uses: actions/download-artifact@v3
+      with:
+        name: staged-standalone-${{ runner.os }}
+        path: archives
+
+    - name: Extract staged standalone binaries
+      run: ${{ steps.script-extract.outputs.script }}
+
+    - name: Prepare standalone binaries
+      run: ${{ steps.script-prepare.outputs.script }}
+
+    - name: Upload standalone binaries
+      uses: actions/upload-artifact@v3
+      with:
+        name: standalone
+        path: archives/*
+        if-no-files-found: error
+
+    - name: Reset artifact directories
+      run: rm -rf archives bin targets
+
+    - name: Download staged managed binaries
+      uses: actions/download-artifact@v3
+      with:
+        name: staged-managed-${{ runner.os }}
+        path: archives
+
+    - name: Extract staged managed binaries
+      run: ${{ steps.script-extract.outputs.script }}
+
+    - name: Prepare managed binaries
+      run: ${{ steps.script-prepare.outputs.script }}
 
     - name: Build installers
       run: >-
@@ -258,13 +343,6 @@ jobs:
       run: |-
         mkdir installers
         mv build/*/release/*/*.{exe,msi} installers
-
-    - name: Upload binaries
-      uses: actions/upload-artifact@v3
-      with:
-        name: standalone
-        path: archives/*
-        if-no-files-found: error
 
     - name: Upload installers
       uses: actions/upload-artifact@v3
@@ -296,30 +374,36 @@ jobs:
     - name: Install create-dmg
       run: brew install create-dmg
 
-    - name: Download rcodesign
+    # TODO: Use the next official release after 0.22.0 by removing these 2 blocks, uncommenting
+    # the following one, and changing the artifact name to reflect the next version. See:
+    # https://github.com/indygreg/apple-platform-rs/issues/82
+    #
+    # We use the artifact from the latest scheduled nightly job because installing
+    # with Cargo from scratch takes ~10 minutes
+    - name: Install rcodesign
       uses: dawidd6/action-download-artifact@v2
       with:
         repo: indygreg/apple-platform-rs
         workflow: rcodesign.yml
+        event: schedule
+        workflow_conclusion: success
         name: exe-rcodesign-x86_64-apple-darwin
         path: /usr/local/bin
+        search_artifacts: true
+        check_artifacts: true
         github_token: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Install rcodesign
+    - name: Finalize rcodesign
       run: chmod +x /usr/local/bin/rcodesign
 
-    - name: Download staged binaries
-      uses: actions/download-artifact@v3
-      with:
-        name: staged-${{ runner.os }}
-        path: archives
-
-    - name: Extract staged binaries
-      run: |-
-        mkdir bin
-        for f in archives/*; do
-          tar -xzf "$f" -C bin
-        done
+    # - name: Install rcodesign
+    #   env:
+    #     ARCHIVE_NAME: "apple-codesign-0.22.0-x86_64-apple-darwin"
+    #   run: >-
+    #     curl -L
+    #     "https://github.com/indygreg/apple-platform-rs/releases/download/apple-codesign%2F0.22.0/$ARCHIVE_NAME.tar.gz"
+    #     |
+    #     tar --strip-components=1 -xzf - -C /usr/local/bin "$ARCHIVE_NAME/rcodesign"
 
     - name: Write credentials
       env:
@@ -331,9 +415,26 @@ jobs:
         echo "$APPLE_DEVELOPER_ID_APPLICATION_PRIVATE_KEY" > /tmp/private-key.pem
         echo "$APPLE_APP_STORE_CONNECT_API_DATA" > /tmp/app-store-connect.json
 
-    # https://developer.apple.com/documentation/security/hardened_runtime
-    - name: Sign binaries
+    # We cannot use anchors because of https://github.com/actions/runner/issues/1182 and
+    # other solutions like writing a composite action are burdensome
+    - name: Set reusable script - Extract binaries
+      id: script-extract
       run: |-
+        cat <<"OUTER" >> $GITHUB_OUTPUT
+        script<<INNER
+        mkdir bin
+        for f in archives/*; do
+          tar -xzf "$f" -C bin
+        done
+        INNER
+        OUTER
+
+    - name: Set reusable script - Sign binaries
+      id: script-sign
+      # https://developer.apple.com/documentation/security/hardened_runtime
+      run: |-
+        cat <<"OUTER" >> $GITHUB_OUTPUT
+        script<<INNER
         for f in bin/*; do
           rcodesign sign -vv \
           --pem-source /tmp/certificate.pem \
@@ -341,10 +442,15 @@ jobs:
           --code-signature-flags runtime \
           "$f"
         done
+        INNER
+        OUTER
 
-    # https://developer.apple.com/documentation/security/notarizing_macos_software_before_distribution
-    - name: Notarize binaries
+    - name: Set reusable script - Notarize binaries
+      id: script-notarize
+      # https://developer.apple.com/documentation/security/notarizing_macos_software_before_distribution
       run: |-
+        cat <<"OUTER" >> $GITHUB_OUTPUT
+        script<<INNER
         mkdir notarize-bin
 
         cd bin
@@ -358,8 +464,25 @@ jobs:
           --api-key-path /tmp/app-store-connect.json \
           "$f"
         done
+        INNER
+        OUTER
 
-    - name: Archive binaries
+    - name: Download staged standalone binaries
+      uses: actions/download-artifact@v3
+      with:
+        name: staged-standalone-${{ runner.os }}
+        path: archives
+
+    - name: Extract staged standalone binaries
+      run: ${{ steps.script-extract.outputs.script }}
+
+    - name: Sign standalone binaries
+      run: ${{ steps.script-sign.outputs.script }}
+
+    - name: Notarize standalone binaries
+      run: ${{ steps.script-notarize.outputs.script }}
+
+    - name: Archive standalone binaries
       run: |-
         rm archives/*
         cd bin
@@ -368,8 +491,33 @@ jobs:
           tar -czf "../archives/$f.tar.gz" "$f"
         done
 
+    - name: Upload standalone binaries
+      uses: actions/upload-artifact@v3
+      with:
+        name: standalone
+        path: archives/*
+        if-no-files-found: error
+
+    - name: Reset artifact directories
+      run: rm -rf archives bin notarize-bin
+
+    - name: Download staged managed binaries
+      uses: actions/download-artifact@v3
+      with:
+        name: staged-managed-${{ runner.os }}
+        path: archives
+
+    - name: Extract staged managed binaries
+      run: ${{ steps.script-extract.outputs.script }}
+
+    - name: Sign managed binaries
+      run: ${{ steps.script-sign.outputs.script }}
+
+    - name: Notarize managed binaries
+      run: ${{ steps.script-notarize.outputs.script }}
+
     # bin/<APP_NAME>-<VERSION>-<TARGET> -> targets/<TARGET>/<APP_NAME>
-    - name: Prepare binaries
+    - name: Prepare managed binaries
       run: |-
         mkdir targets
         for f in bin/*; do
@@ -433,13 +581,6 @@ jobs:
         --api-key-path /tmp/app-store-connect.json
         --staple
         "${{ steps.stage.outputs.dmg-file }}"
-
-    - name: Upload binaries
-      uses: actions/upload-artifact@v3
-      with:
-        name: standalone
-        path: archives/*
-        if-no-files-found: error
 
     - name: Upload installer
       uses: actions/upload-artifact@v3
