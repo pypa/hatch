@@ -684,8 +684,10 @@ class TestSources:
         config = {'tool': {'hatch': {'build': {'sources': {'': 'renamed'}}}}}
         builder = MockBuilder(str(isolation), config=config)
 
-        with pytest.raises(ValueError, match='Source #1 in field `tool.hatch.build.sources` cannot be an empty string'):
-            _ = builder.config.sources
+        assert len(builder.config.sources) == 1
+        assert builder.config.sources[''] == pjoin('renamed', '')
+        assert builder.config.get_distribution_path('bar.py') == pjoin('renamed', 'bar.py')
+        assert builder.config.get_distribution_path(pjoin('foo', 'bar.py')) == pjoin('renamed', 'foo', 'bar.py')
 
     def test_global_mapping_path_empty_string(self, isolation):
         config = {'tool': {'hatch': {'build': {'sources': {'src/foo': ''}}}}}
@@ -757,10 +759,9 @@ class TestSources:
         builder = MockBuilder(str(isolation), config=config)
         builder.PLUGIN_NAME = 'foo'
 
-        with pytest.raises(
-            ValueError, match='Source #1 in field `tool.hatch.build.targets.foo.sources` cannot be an empty string'
-        ):
-            _ = builder.config.sources
+        assert len(builder.config.sources) == 1
+        assert builder.config.sources[''] == pjoin('renamed', '')
+        assert builder.config.get_distribution_path(pjoin('bar.py')) == pjoin('renamed', 'bar.py')
 
     def test_target_mapping_path_empty_string(self, isolation):
         config = {'tool': {'hatch': {'build': {'targets': {'foo': {'sources': {'src/foo': ''}}}}}}}
