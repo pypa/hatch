@@ -8,6 +8,11 @@ _code_tab_regex = re.compile(
     r'^( *)((`{3,})[^ ].*) tab="(.+)"\n([\s\S]+?)\n\1\3$',
     re.MULTILINE,
 )
+_config_example_regex = re.compile(
+    r'^( *)((`{3,})toml\b.*) config-example\n([\s\S]+?)\n\1\3$',
+    re.MULTILINE,
+)
+
 
 def _code_tab_replace(m):
     indent, fence_start, fence_end, title, content = m.groups()
@@ -18,10 +23,6 @@ def _code_tab_replace(m):
 {indent}    {fence_end}
 """
 
-_config_example_regex = re.compile(
-    r'^( *)((`{3,})toml\b.*) config-example\n([\s\S]+?)\n\1\3$',
-    re.MULTILINE,
-)
 
 def _config_example_replace(m):
     indent, fence_start, fence_end, content = m.groups()
@@ -37,6 +38,7 @@ def _config_example_replace(m):
 {textwrap.indent(content_without, '    ')}
 {indent}    {fence_end}
 """
+
 
 def on_config(config, **kwargs):
     config.markdown_extensions.append(MyExtension())
