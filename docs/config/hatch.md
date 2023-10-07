@@ -181,14 +181,14 @@ Any type of environment that is not explicitly defined will default to `<DATA_DI
 python = "..."
 ```
 
-This determines where to install specific versions of Python, with the full path being `<VALUE>/pythons`.
+This determines where to install specific versions of Python.
 
-The following values have special meanings.
+The following values have special meanings:
 
 | Value | Path |
 | --- | --- |
-| `isolated` (default) | `<DATA_DIR>/pythons` |
-| `shared` | `~/.pythons` |
+| `shared` (default) | `~/.pythons` |
+| `isolated` | `<DATA_DIR>/pythons` |
 
 ## Terminal
 

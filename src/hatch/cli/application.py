@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import sys
+from functools import cached_property
 from typing import TYPE_CHECKING, cast
 
 from hatch.cli.terminal import Terminal
@@ -213,6 +214,27 @@ class Application(Terminal):
                 return self.project.location / path
         else:
             return self.data_dir / 'env' / environment_type
+
+    def get_python_manager(self, directory: str | None = None):
+        from hatch.python.core import PythonManager
+
+        configured_dir = directory or self.config.dirs.python
+        if configured_dir == 'shared':
+            return PythonManager(Path.home() / '.pythons')
+        elif configured_dir == 'isolated':
+            return PythonManager(self.data_dir / 'pythons')
+        else:
+            return PythonManager(Path(configured_dir).expand())
+
+    @cached_property
+    def shell_data(self) -> tuple[str, str]:
+        import shellingham
+
+        try:
+            return shellingham.detect_shell()
+        except shellingham.ShellDetectionFailure:
+            path = self.platform.default_shell
+            return Path(path).stem, path
 
     def abort(self, text='', code=1, **kwargs):
         if text:
