@@ -49,12 +49,12 @@ For example, the following configuration:
 ```toml config-example
 [tool.hatch.build]
 include = [
-    "pkg/*.py",
-    "/tests",
+  "pkg/*.py",
+  "/tests",
 ]
 exclude = [
-    "*.json",
-    "pkg/_compat.py",
+  "*.json",
+  "pkg/_compat.py",
 ]
 ```
 
@@ -72,9 +72,9 @@ generic ones.
 ```toml config-example
 [tool.hatch.build]
 artifacts = [
-    "*.so",
-    "*.dll",
-    "!/foo/*.so",
+  "*.so",
+  "*.dll",
+  "!/foo/*.so",
 ]
 ```
 
@@ -224,7 +224,7 @@ You can specify additional dependencies that will be installed in each build env
 ```toml config-example
 [tool.hatch.build.targets.your-target-name]
 dependencies = [
-    "your-builder-plugin"
+  "your-builder-plugin"
 ]
 ```
 
@@ -240,8 +240,8 @@ Additionally, you may declare dependence on specific [runtime features](metadata
 ```toml config-example
 [tool.hatch.build.targets.your-target-name]
 require-runtime-features = [
-    "feature1",
-    "feature2",
+  "feature1",
+  "feature2",
 ]
 ```
 
@@ -252,8 +252,8 @@ If a build target supports multiple build strategies or if there are major chang
 ```toml config-example
 [tool.hatch.build.targets.<TARGET_NAME>]
 versions = [
-    "v1",
-    "beta-feature",
+  "v1",
+  "beta-feature",
 ]
 ```
 
@@ -282,7 +282,7 @@ You can specify additional dependencies that will be installed in each build env
 ```toml config-example
 [tool.hatch.build.hooks.your-hook-name]
 dependencies = [
-    "your-build-hook-plugin"
+  "your-build-hook-plugin"
 ]
 ```
 
@@ -298,8 +298,8 @@ Additionally, you may declare dependence on specific [runtime features](metadata
 ```toml config-example
 [tool.hatch.build.hooks.your-hook-name]
 require-runtime-features = [
-    "feature1",
-    "feature2",
+  "feature1",
+  "feature2",
 ]
 ```
 

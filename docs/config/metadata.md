@@ -41,13 +41,11 @@ name = "your-app"
 
 A brief summary of the project.
 
-=== ":octicons-file-code-16: pyproject.toml"
-
-    ```toml
-    [project]
-    ...
-    description = '...'
-    ```
+```toml tab="pyproject.toml"
+[project]
+...
+description = '...'
+```
 
 ## Readme
 
@@ -93,13 +91,11 @@ The full description of the project.
 
 The Python version requirements of the project.
 
-=== ":octicons-file-code-16: pyproject.toml"
-
-    ```toml
-    [project]
-    ...
-    requires-python = ">=3.8"
-    ```
+```toml tab="pyproject.toml"
+[project]
+...
+requires-python = ">=3.8"
+```
 
 ## License
 
@@ -140,58 +136,50 @@ The exact meaning is open to interpretation; it may list the original or primary
 current maintainers, or owners of the package. If the values are the same, prefer only the
 use of the `authors` field.
 
-=== ":octicons-file-code-16: pyproject.toml"
-
-    ```toml
-    [project]
-    ...
-    authors = [
-      { name = "...", email = "..." },
-    ]
-    maintainers = [
-      { name = "...", email = "..." },
-    ]
-    ```
+```toml tab="pyproject.toml"
+[project]
+...
+authors = [
+  { name = "...", email = "..." },
+]
+maintainers = [
+  { name = "...", email = "..." },
+]
+```
 
 ## Keywords
 
 The keywords used to assist in the discovery of the project.
 
-=== ":octicons-file-code-16: pyproject.toml"
-
-    ```toml
-    [project]
-    ...
-    keywords = [
-      "...",
-    ]
-    ```
+```toml tab="pyproject.toml"
+[project]
+...
+keywords = [
+  "...",
+]
+```
 
 ## Classifiers
 
 The [trove classifiers](https://pypi.org/classifiers/) that apply to the project.
 
-=== ":octicons-file-code-16: pyproject.toml"
-
-    ```toml
-    [project]
-    ...
-    classifiers = [
-      "...",
-    ]
-    ```
+```toml tab="pyproject.toml"
+[project]
+...
+classifiers = [
+  "...",
+]
+```
 
 ## URLs
 
 A table of URLs where the key is the URL label and the value is the URL itself.
 
-=== ":octicons-file-code-16: pyproject.toml"
-
-    ```toml
-    [project.urls]
-    Documentation = "..."
-    "Source code" = "..."
-    ```
+```toml tab="pyproject.toml"
+[project.urls]
+Documentation = "..."
+"Source code" = "..."
+```
 
 ## Dependencies
 
@@ -201,29 +189,25 @@ Entries support [context formatting](context.md) and [disallow direct references
 
 ### Required
 
-=== ":octicons-file-code-16: pyproject.toml"
-
-    ```toml
-    [project]
-    ...
-    dependencies = [
-      "...",
-    ]
-    ```
+```toml tab="pyproject.toml"
+[project]
+...
+dependencies = [
+  "...",
+]
+```
 
 ### Optional
 
-=== ":octicons-file-code-16: pyproject.toml"
-
-    ```toml
-    [project.optional-dependencies]
-    option1 = [
-      "...",
-    ]
-    option2 = [
-      "...",
-    ]
-    ```
+```toml tab="pyproject.toml"
+[project.optional-dependencies]
+option1 = [
+  "...",
+]
+option2 = [
+  "...",
+]
+```
 
 ## Entry points
 
@@ -234,12 +218,10 @@ the project to advertise components it provides to be discovered and used by oth
 
 After installing projects that define CLI scripts, each key will be available along your `PATH` as a command that will call its associated object.
 
-=== ":octicons-file-code-16: pyproject.toml"
-
-    ```toml
-    [project.scripts]
-    cli-name = "pkg.subpkg:func"
-    ```
+```toml tab="pyproject.toml"
+[project.scripts]
+cli-name = "pkg.subpkg:func"
+```
 
 Using the above example, running `cli-name` would essentially execute the following Python script:
 
@@ -255,36 +237,30 @@ sys.exit(func())
 
 GUI scripts are exactly the same as CLI scripts except on Windows, where they are handled specially so that they can be started without a console.
 
-=== ":octicons-file-code-16: pyproject.toml"
-
-    ```toml
-    [project.gui-scripts]
-    gui-name = "pkg.subpkg:func"
-    ```
+```toml tab="pyproject.toml"
+[project.gui-scripts]
+gui-name = "pkg.subpkg:func"
+```
 
 ### Plugins
 
-=== ":octicons-file-code-16: pyproject.toml"
-
-    ```toml
-    [project.entry-points.plugin-namespace]
-    plugin-name1 = "pkg.subpkg1"
-    plugin-name2 = "pkg.subpkg2:func"
-    ```
+```toml tab="pyproject.toml"
+[project.entry-points.plugin-namespace]
+plugin-name1 = "pkg.subpkg1"
+plugin-name2 = "pkg.subpkg2:func"
+```
 
 ## Dynamic
 
 If any metadata fields are set dynamically, like the [`version`](#version) may be, then they must be listed here.
 
-=== ":octicons-file-code-16: pyproject.toml"
-
-    ```toml
-    [project]
-    ...
-    dynamic = [
-      "...",
-    ]
-    ```
+```toml tab="pyproject.toml"
+[project]
+...
+dynamic = [
+  "...",
+]
+```
 
 ## Metadata options
 
@@ -292,37 +268,19 @@ If any metadata fields are set dynamically, like the [`version`](#version) may b
 
 By default, [dependencies](#dependencies) are not allowed to define [direct references](https://peps.python.org/pep-0440/#direct-references). To disable this check, set `allow-direct-references` to `true`:
 
-=== ":octicons-file-code-16: pyproject.toml"
-
-    ```toml
-    [tool.hatch.metadata]
-    allow-direct-references = true
-    ```
-
-=== ":octicons-file-code-16: hatch.toml"
-
-    ```toml
-    [metadata]
-    allow-direct-references = true
-    ```
+```toml config-example
+[tool.hatch.metadata]
+allow-direct-references = true
+```
 
 ### Allowing ambiguous features
 
 By default, names of [optional dependencies](#optional) are normalized to prevent ambiguity. To disable this normalization, set `allow-ambiguous-features` to `true`:
 
-=== ":octicons-file-code-16: pyproject.toml"
-
-    ```toml
-    [tool.hatch.metadata]
-    allow-ambiguous-features = true
-    ```
-
-=== ":octicons-file-code-16: hatch.toml"
-
-    ```toml
-    [metadata]
-    allow-ambiguous-features = true
-    ```
+```toml config-example
+[tool.hatch.metadata]
+allow-ambiguous-features = true
+```
 
 !!! danger "Deprecated"
     This option temporarily exists to provide better interoperability with tools that do not yet support [PEP 685](https://peps.python.org/pep-0685/) and will be removed in the first minor release after Jan 1, 2024.

@@ -99,17 +99,17 @@ The only caveat is that currently there is no support for re-creating an environ
     description = "..."
     readme = "README.md"
     authors = [
-        { name = "...", email = "..." },
+      { name = "...", email = "..." },
     ]
     classifiers = [
-        "...",
+      "...",
     ]
     keywords = [
-        "...",
+      "...",
     ]
     requires-python = ">=3.8"
     dependencies = [
-        "...",
+      "...",
     ]
     dynamic = ["version"]
 
@@ -128,8 +128,8 @@ The only caveat is that currently there is no support for re-creating an environ
 
     [tool.hatch.build.targets.sdist]
     include = [
-        "/src",
-        "/tests",
+      "/src",
+      "/tests",
     ]
     ```
 
@@ -172,28 +172,28 @@ The only caveat is that currently there is no support for re-creating an environ
     ```
 
     ```toml config-example
-    [envs.default]
+    [tool.hatch.envs.default]
     dependencies = [
-        "coverage[toml]",
-        "pytest",
-        "pytest-cov",
+      "coverage[toml]",
+      "pytest",
+      "pytest-cov",
     ]
 
-    [envs.default.scripts]
+    [tool.hatch.envs.default.scripts]
     test = 'pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=pkg --cov=tests'
 
-    [envs.default.overrides]
+    [tool.hatch.envs.default.overrides]
     matrix.version.env-vars = "PRODUCT_VERSION"
     matrix.features.env-vars = "EXPERIMENTAL=true"
     matrix.features.dependencies = [
-        { value = "cryptography", if = ["foo"] },
+      { value = "cryptography", if = ["foo"] },
     ]
 
-    [[envs.default.matrix]]
+    [[tool.hatch.envs.default.matrix]]
     python = ["2.7", "3.8"]
     version = ["42", "3.14"]
 
-    [[envs.default.matrix]]
+    [[tool.hatch.envs.default.matrix]]
     python = ["3.8", "3.9"]
     version = ["9000"]
     features = ["foo", "bar"]

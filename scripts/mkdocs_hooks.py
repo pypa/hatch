@@ -26,7 +26,7 @@ def _code_tab_replace(m):
 
 def _config_example_replace(m):
     indent, fence_start, fence_end, content = m.groups()
-    content_without = content.replace('[tool.hatch.', '[').replace('[tool.hatch]\n', '')
+    content_without = re.sub(r' *\[tool.hatch\]\n', '', content.replace('[tool.hatch.', '['))
     return f"""\
 {indent}=== ":octicons-file-code-16: pyproject.toml"
 {indent}    {fence_start}

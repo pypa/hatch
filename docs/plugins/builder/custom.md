@@ -21,11 +21,11 @@ The builder plugin name is `custom`.
 ## Example
 
 ```python tab="hatch_build.py"
-    from hatchling.builders.plugin.interface import BuilderInterface
+from hatchling.builders.plugin.interface import BuilderInterface
 
 
-    class CustomBuilder(BuilderInterface):
-        ...
+class CustomBuilder(BuilderInterface):
+    ...
 ```
 
 If multiple subclasses are found, you must define a function named `get_builder` that returns the desired builder.

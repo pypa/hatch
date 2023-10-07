@@ -18,7 +18,7 @@ email = "..."
 [template.licenses]
 headers = true
 default = [
-    "MIT",
+  "MIT",
 ]
 ```
 

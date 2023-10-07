@@ -21,7 +21,7 @@ Environments can define a series of matrices with the `matrix` option:
 ```toml config-example
 [tool.hatch.envs.test]
 dependencies = [
-    "pytest"
+  "pytest"
 ]
 
 [[tool.hatch.envs.test.matrix]]
@@ -108,9 +108,9 @@ Rather than [selecting](../../environment.md#selection) a single generated envir
 ```toml config-example
 [tool.hatch.envs.test]
 dependencies = [
-    "coverage[toml]",
-    "pytest",
-    "pytest-cov",
+  "coverage[toml]",
+  "pytest",
+  "pytest-cov",
 ]
 
 [tool.hatch.envs.test.scripts]
@@ -145,7 +145,7 @@ Options can be modified based on the current platform using the `platform` sourc
 ```toml config-example
 [tool.hatch.envs.test.overrides]
 platform.windows.scripts = [
-    'run=pytest -m "not io_uring"',
+  'run=pytest -m "not io_uring"',
 ]
 ```
 
@@ -203,8 +203,8 @@ version = ["0.1.0", "0.2.0", "1.0.0"]
     matrix.foo.python = "3.10"
     matrix.bar.skip-install = { value = true, if = ["..."] }
     env.CI.dev-mode = [
-        { value = false, if = ["..."] },
-        true,
+      { value = false, if = ["..."] },
+      true,
     ]
     ```
 
@@ -215,8 +215,8 @@ version = ["0.1.0", "0.2.0", "1.0.0"]
     ```toml config-example
     [tool.hatch.envs.test.overrides]
     matrix.foo.dependencies = [
-        "httpx",
-        { value = "cryptography" },
+      "httpx",
+      { value = "cryptography" },
     ]
     ```
 
@@ -226,8 +226,8 @@ version = ["0.1.0", "0.2.0", "1.0.0"]
     [tool.hatch.envs.test.overrides]
     matrix.foo.env-vars = "KEY=VALUE"
     matrix.bar.env-vars = [
-        "KEY1=VALUE1",
-        { key = "KEY2", value = "VALUE2" },
+      "KEY1=VALUE1",
+      { key = "KEY2", value = "VALUE2" },
     ]
     ```
 
@@ -261,8 +261,8 @@ The `if` key represents the allowed values for that condition. If the value of t
 [tool.hatch.envs.test.overrides]
 matrix.version.python = { value = "pypy", if = ["3.14"] }
 matrix.version.env-vars = [
-    { key = "KEY1", value = "VALUE1", if = ["42"] },
-    { key = "KEY2", value = "VALUE2", if = ["3.14"] },
+  { key = "KEY1", value = "VALUE1", if = ["42"] },
+  { key = "KEY2", value = "VALUE2", if = ["3.14"] },
 ]
 
 [[tool.hatch.envs.test.matrix]]
@@ -277,8 +277,8 @@ The `platform` key represents the desired platforms. If the current platform is 
 [tool.hatch.envs.test.overrides]
 env.EXPERIMENTAL.python = { value = "pypy", if = ["1"], platform = ["macos"] }
 matrix.version.env-vars = [
-    { key = "KEY1", value = "VALUE1", if = ["42"], platform = ["linux"] },
-    { key = "KEY2", value = "VALUE2", if = ["3.14"] },
+  { key = "KEY1", value = "VALUE1", if = ["42"], platform = ["linux"] },
+  { key = "KEY2", value = "VALUE2", if = ["3.14"] },
 ]
 
 [[tool.hatch.envs.test.matrix]]
@@ -293,8 +293,8 @@ The `env` key represents the required environment variables. If any of the liste
 [tool.hatch.envs.test.overrides]
 platform.windows.python = { value = "pypy", env = ["EXPERIMENTAL"] }
 matrix.version.env-vars = [
-    { key = "KEY1", value = "VALUE1", if = ["42"], env = ["FOO", "BAR=BAZ"] },
-    { key = "KEY2", value = "VALUE2", if = ["3.14"] },
+  { key = "KEY1", value = "VALUE1", if = ["42"], env = ["FOO", "BAR=BAZ"] },
+  { key = "KEY2", value = "VALUE2", if = ["3.14"] },
 ]
 
 [[tool.hatch.envs.test.matrix]]

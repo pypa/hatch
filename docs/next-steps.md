@@ -26,6 +26,6 @@ For any projects using Hatch, you may add its official badge somewhere prominent
 === "reStructuredText"
     ```rst
     .. image:: https://img.shields.io/badge/%F0%9F%A5%9A-Hatch-4051b5.svg
-        :alt: Hatch project
-        :target: https://github.com/pypa/hatch
+       :alt: Hatch project
+       :target: https://github.com/pypa/hatch
     ```
