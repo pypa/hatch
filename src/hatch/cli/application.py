@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 class Application(Terminal):
     def __init__(self, exit_func, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.platform = Platform(self.display_raw)
+        self.platform = Platform(self.output)
         self.__exit_func = exit_func
 
         self.config_file = ConfigFile()

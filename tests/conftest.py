@@ -90,6 +90,7 @@ def isolation() -> Generator[Path, None, None]:
 
         with d.as_cwd(default_env_vars):
             os.environ.pop(AppEnvVars.ENV_ACTIVE, None)
+            os.environ.pop(AppEnvVars.FORCE_COLOR, None)
             yield d
 
 
@@ -251,7 +252,7 @@ def devpi(tmp_path_factory, worker_id):
             for _ in range(60):
                 output = subprocess.check_output(['docker', 'logs', 'hatch-devpi']).decode('utf-8')
                 if f'Serving index {dp.user}/{dp.index}' in output:
-                    time.sleep(2)
+                    time.sleep(5)
                     break
 
                 time.sleep(1)
