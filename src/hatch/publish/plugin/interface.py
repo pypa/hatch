@@ -7,20 +7,16 @@ class PublisherInterface(ABC):
     """
     Example usage:
 
-    === ":octicons-file-code-16: plugin.py"
-
-        ```python
+    ```python tab="plugin.py"
         from hatch.publish.plugin.interface import PublisherInterface
 
 
         class SpecialPublisher(PublisherInterface):
             PLUGIN_NAME = 'special'
             ...
-        ```
+    ```
 
-    === ":octicons-file-code-16: hooks.py"
-
-        ```python
+    ```python tab="hooks.py"
         from hatchling.plugin import hookimpl
 
         from .plugin import SpecialPublisher
@@ -29,7 +25,7 @@ class PublisherInterface(ABC):
         @hookimpl
         def hatch_register_publisher():
             return SpecialPublisher
-        ```
+    ```
     """
 
     PLUGIN_NAME = ''
@@ -68,17 +64,9 @@ class PublisherInterface(ABC):
     @property
     def project_config(self) -> dict:
         """
-        === ":octicons-file-code-16: pyproject.toml"
-
-            ```toml
-            [tool.hatch.publish.<PLUGIN_NAME>]
-            ```
-
-        === ":octicons-file-code-16: hatch.toml"
-
-            ```toml
-            [publish.<PLUGIN_NAME>]
-            ```
+        ```toml config-example
+        [tool.hatch.publish.<PLUGIN_NAME>]
+        ```
         """
         return self.__project_config
 
@@ -87,11 +75,9 @@ class PublisherInterface(ABC):
         """
         This is defined in Hatch's [config file](../../config/hatch.md).
 
-        === ":octicons-file-code-16: config.toml"
-
-            ```toml
-            [publish.<PLUGIN_NAME>]
-            ```
+        ```toml tab="config.toml"
+        [publish.<PLUGIN_NAME>]
+        ```
         """
         return self.__plugin_config
 

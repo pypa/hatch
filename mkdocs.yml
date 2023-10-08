@@ -123,6 +123,9 @@ watch:
 - backend/src/hatchling
 - src/hatch
 
+hooks:
+  - scripts/mkdocs_hooks.py
+
 plugins:
   # Built-in
   search: {}

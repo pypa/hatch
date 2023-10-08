@@ -8,17 +8,9 @@ A source distribution, or `sdist`, is an archive of Python "source code". Althou
 
 The builder plugin name is `sdist`.
 
-=== ":octicons-file-code-16: pyproject.toml"
-
-    ```toml
-    [tool.hatch.build.targets.sdist]
-    ```
-
-=== ":octicons-file-code-16: hatch.toml"
-
-    ```toml
-    [build.targets.sdist]
-    ```
+```toml config-example
+[tool.hatch.build.targets.sdist]
+```
 
 ## Options
 

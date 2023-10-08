@@ -7,29 +7,25 @@ class MetadataHookInterface(ABC):  # no cov
     """
     Example usage:
 
-    === ":octicons-file-code-16: plugin.py"
-
-        ```python
-        from hatchling.metadata.plugin.interface import MetadataHookInterface
+    ```python tab="plugin.py"
+    from hatchling.metadata.plugin.interface import MetadataHookInterface
 
 
-        class SpecialMetadataHook(MetadataHookInterface):
-            PLUGIN_NAME = 'special'
-            ...
-        ```
+    class SpecialMetadataHook(MetadataHookInterface):
+        PLUGIN_NAME = 'special'
+        ...
+    ```
 
-    === ":octicons-file-code-16: hooks.py"
+    ```python tab="hooks.py"
+    from hatchling.plugin import hookimpl
 
-        ```python
-        from hatchling.plugin import hookimpl
-
-        from .plugin import SpecialMetadataHook
+    from .plugin import SpecialMetadataHook
 
 
-        @hookimpl
-        def hatch_register_metadata_hook():
-            return SpecialMetadataHook
-        ```
+    @hookimpl
+    def hatch_register_metadata_hook():
+        return SpecialMetadataHook
+    ```
     """
 
     PLUGIN_NAME = ''
@@ -51,17 +47,9 @@ class MetadataHookInterface(ABC):  # no cov
         """
         The hook configuration.
 
-        === ":octicons-file-code-16: pyproject.toml"
-
-            ```toml
-            [tool.hatch.metadata.hooks.<PLUGIN_NAME>]
-            ```
-
-        === ":octicons-file-code-16: hatch.toml"
-
-            ```toml
-            [metadata.hooks.<PLUGIN_NAME>]
-            ```
+        ```toml config-example
+        [tool.hatch.metadata.hooks.<PLUGIN_NAME>]
+        ```
         """
         return self.__config
 

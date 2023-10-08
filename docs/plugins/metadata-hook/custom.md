@@ -8,17 +8,9 @@ This is a custom class in a given Python file that inherits from the [MetadataHo
 
 The metadata hook plugin name is `custom`.
 
-=== ":octicons-file-code-16: pyproject.toml"
-
-    ```toml
-    [tool.hatch.metadata.hooks.custom]
-    ```
-
-=== ":octicons-file-code-16: hatch.toml"
-
-    ```toml
-    [metadata.hooks.custom]
-    ```
+```toml config-example
+[tool.hatch.metadata.hooks.custom]
+```
 
 ## Options
 
@@ -28,15 +20,13 @@ The metadata hook plugin name is `custom`.
 
 ## Example
 
-=== ":octicons-file-code-16: hatch_build.py"
-
-    ```python
+```python tab="hatch_build.py"
     from hatchling.metadata.plugin.interface import MetadataHookInterface
 
 
     class CustomMetadataHook(MetadataHookInterface):
         ...
-    ```
+```
 
 If multiple subclasses are found, you must define a function named `get_metadata_hook` that returns the desired build hook.
 

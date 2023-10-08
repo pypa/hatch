@@ -8,18 +8,16 @@
 
 A version specifier consists of a series of version clauses, separated by commas. For example:
 
-=== ":octicons-file-code-16: pyproject.toml"
-
-    ```toml
-    [project]
-    ...
-    dependencies = [
-      "cryptography",
-      "click>=7, <9, != 8.0.0",
-      "python-dateutil==2.8.*",
-      "numpy~=1.21.4",
-    ]
-    ```
+```toml tab="pyproject.toml"
+[project]
+...
+dependencies = [
+  "cryptography",
+  "click>=7, <9, != 8.0.0",
+  "python-dateutil==2.8.*",
+  "numpy~=1.21.4",
+]
+```
 
 The comma is equivalent to a logical `AND` operator: a candidate version must match all given version clauses in order to match the specifier as a whole.
 
@@ -122,22 +120,20 @@ The available environment markers are as follows.
 
 You can select groups of [optional dependencies](metadata.md#optional) to install using the [extras](https://peps.python.org/pep-0508/#extras) syntax. For example, if a dependency named `foo` defined the following:
 
-=== ":octicons-file-code-16: pyproject.toml"
-
-    ```toml
-    [project.optional-dependencies]
-    crypto = [
-      "PyJWT",
-      "cryptography",
-    ]
-    fastjson = [
-      "orjson",
-    ]
-    cli = [
-      "prompt-toolkit",
-      "colorama; platform_system == 'Windows'",
-    ]
-    ```
+```toml tab="pyproject.toml"
+[project.optional-dependencies]
+crypto = [
+  "PyJWT",
+  "cryptography",
+]
+fastjson = [
+  "orjson",
+]
+cli = [
+  "prompt-toolkit",
+  "colorama; platform_system == 'Windows'",
+]
+```
 
 You can select the `cli` and `crypto` features like so:
 
@@ -151,22 +147,20 @@ Note that the features come immediately after the package name, before any [vers
 
 Feature groups can self-referentially extend others. For example, for a project called `awesome-project`, the `dev` feature group in the following `pyproject.toml` file would select everything in the `crypto` feature group, plus `black`:
 
-=== ":octicons-file-code-16: pyproject.toml"
+```toml tab="pyproject.toml"
+[project]
+name = "awesome-project"
 
-    ```toml
-    [project]
-    name = "awesome-project"
-
-    [project.optional-dependencies]
-    crypto = [
-      "PyJWT",
-      "cryptography",
-    ]
-    dev = [
-      "awesome-project[crypto]",
-      "black",
-    ]
-    ```
+[project.optional-dependencies]
+crypto = [
+  "PyJWT",
+  "cryptography",
+]
+dev = [
+  "awesome-project[crypto]",
+  "black",
+]
+```
 
 ## Direct references
 
