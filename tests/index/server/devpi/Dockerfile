@@ -1,4 +1,4 @@
-FROM python:alpine
+FROM python:3.11-alpine
 
 RUN apk add --update build-base && \
     pip install -U devpi-server devpi-client devpi-web
