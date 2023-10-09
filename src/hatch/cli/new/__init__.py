@@ -11,6 +11,7 @@ import click
 @click.pass_obj
 def new(app, name, location, interactive, feature_cli, initialize, setuptools_options):
     """Create or initialize a project."""
+    import sys
     from copy import deepcopy
     from datetime import datetime, timezone
 
@@ -52,10 +53,14 @@ def new(app, name, location, interactive, feature_cli, initialize, setuptools_op
 
     if migration_possible:
         from hatch.cli.new.migrate import migrate
+        from hatch.venv.core import TempVirtualEnv
 
         try:
-            with app.status('Migrating project metadata from setuptools'):
-                migrate(str(location), setuptools_options)
+            with app.status('Migrating project metadata from setuptools'), TempVirtualEnv(
+                sys.executable, app.platform
+            ) as venv:
+                app.platform.run_command(['python', '-m', 'pip', 'install', '-q', 'setuptools'])
+                migrate(str(location), setuptools_options, venv.sys_path)
         except Exception as e:
             app.display_error(f'Could not automatically migrate from setuptools: {e}')
             if name == 'temporary':

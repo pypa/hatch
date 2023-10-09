@@ -1,7 +1,6 @@
 import pytest
 
 from hatch.config.constants import ConfigEnvVars
-from hatch.utils.toml import load_toml_file
 
 
 def remove_trailing_spaces(text):
@@ -583,27 +582,55 @@ def test_initialize_setup_cfg_only(hatch, helpers, temp_dir):
     """
     Test initializing a project with a setup.cfg file only.
     """
-    with temp_dir.as_cwd():
-        (temp_dir / 'setup.cfg').write_text(
-            """
+    setup_cfg_file = temp_dir / 'setup.cfg'
+    setup_cfg_file.write_text(
+        """\
 [metadata]
 name = testapp
 version = attr:testapp.__version__
 description = Foo
-author = Johannes Valokytkin
-author_email = jv@example.com
+author = U.N. Owen
+author_email = void@some.where
 url = https://example.com
 license = MIT
-        """
-        )
-        result = hatch('new', '--init')
-        assert result.exit_code == 0, result.output
+"""
+    )
 
-    assert load_toml_file(str(temp_dir / 'pyproject.toml'))['project'] == {
-        'authors': [{'email': 'jv@example.com', 'name': 'Johannes Valokytkin'}],
-        'description': 'Foo',
-        'dynamic': ['version'],
-        'license': 'MIT',
-        'name': 'testapp',
-        'urls': {'Homepage': 'https://example.com'},
-    }
+    with temp_dir.as_cwd():
+        result = hatch('new', '--init')
+
+    assert result.exit_code == 0, result.output
+    assert remove_trailing_spaces(result.output) == helpers.dedent(
+        """
+        Migrating project metadata from setuptools
+        """
+    )
+
+    project_file = temp_dir / 'pyproject.toml'
+    assert project_file.read_text() == (
+        """\
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "testapp"
+dynamic = ["version"]
+description = "Foo"
+license = "MIT"
+authors = [
+    { name = "U.N. Owen", email = "void@some.where" },
+]
+
+[project.urls]
+Homepage = "https://example.com"
+
+[tool.hatch.version]
+path = "testapp/__init__.py"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/testapp",
+]
+"""
+    )
