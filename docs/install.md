@@ -70,6 +70,13 @@
 
 After downloading the archive corresponding to your platform and architecture, extract the binary to a directory that is on your PATH and rename to `hatch`.
 
+=== "Linux"
+    - [hatch-<HATCH_LATEST_VERSION>-aarch64-unknown-linux-gnu.tar.gz](https://github.com/pypa/hatch/releases/download/hatch-v<HATCH_LATEST_VERSION>/hatch-<HATCH_LATEST_VERSION>-aarch64-unknown-linux-gnu.tar.gz)
+    - [hatch-<HATCH_LATEST_VERSION>-x86_64-unknown-linux-gnu.tar.gz](https://github.com/pypa/hatch/releases/download/hatch-v<HATCH_LATEST_VERSION>/hatch-<HATCH_LATEST_VERSION>-x86_64-unknown-linux-gnu.tar.gz)
+    - [hatch-<HATCH_LATEST_VERSION>-x86_64-unknown-linux-musl.tar.gz](https://github.com/pypa/hatch/releases/download/hatch-v<HATCH_LATEST_VERSION>/hatch-<HATCH_LATEST_VERSION>-x86_64-unknown-linux-musl.tar.gz)
+    - [hatch-<HATCH_LATEST_VERSION>-i686-unknown-linux-gnu.tar.gz](https://github.com/pypa/hatch/releases/download/hatch-v<HATCH_LATEST_VERSION>/hatch-<HATCH_LATEST_VERSION>-i686-unknown-linux-gnu.tar.gz)
+    - [hatch-<HATCH_LATEST_VERSION>-powerpc64le-unknown-linux-gnu.tar.gz](https://github.com/pypa/hatch/releases/download/hatch-v<HATCH_LATEST_VERSION>/hatch-<HATCH_LATEST_VERSION>-powerpc64le-unknown-linux-gnu.tar.gz)
+
 === "macOS"
     - [hatch-<HATCH_LATEST_VERSION>-aarch64-apple-darwin.tar.gz](https://github.com/pypa/hatch/releases/download/hatch-v<HATCH_LATEST_VERSION>/hatch-<HATCH_LATEST_VERSION>-aarch64-apple-darwin.tar.gz)
     - [hatch-<HATCH_LATEST_VERSION>-x86_64-apple-darwin.tar.gz](https://github.com/pypa/hatch/releases/download/hatch-v<HATCH_LATEST_VERSION>/hatch-<HATCH_LATEST_VERSION>-x86_64-apple-darwin.tar.gz)
@@ -77,13 +84,6 @@ After downloading the archive corresponding to your platform and architecture, e
 === "Windows"
     - [hatch-<HATCH_LATEST_VERSION>-x86_64-pc-windows-msvc.zip](https://github.com/pypa/hatch/releases/download/hatch-v<HATCH_LATEST_VERSION>/hatch-<HATCH_LATEST_VERSION>-x86_64-pc-windows-msvc.zip)
     - [hatch-<HATCH_LATEST_VERSION>-i686-pc-windows-msvc.zip](https://github.com/pypa/hatch/releases/download/hatch-v<HATCH_LATEST_VERSION>/hatch-<HATCH_LATEST_VERSION>-i686-pc-windows-msvc.zip)
-
-=== "Linux"
-    - [hatch-<HATCH_LATEST_VERSION>-aarch64-unknown-linux-gnu.tar.gz](https://github.com/pypa/hatch/releases/download/hatch-v<HATCH_LATEST_VERSION>/hatch-<HATCH_LATEST_VERSION>-aarch64-unknown-linux-gnu.tar.gz)
-    - [hatch-<HATCH_LATEST_VERSION>-x86_64-unknown-linux-gnu.tar.gz](https://github.com/pypa/hatch/releases/download/hatch-v<HATCH_LATEST_VERSION>/hatch-<HATCH_LATEST_VERSION>-x86_64-unknown-linux-gnu.tar.gz)
-    - [hatch-<HATCH_LATEST_VERSION>-x86_64-unknown-linux-musl.tar.gz](https://github.com/pypa/hatch/releases/download/hatch-v<HATCH_LATEST_VERSION>/hatch-<HATCH_LATEST_VERSION>-x86_64-unknown-linux-musl.tar.gz)
-    - [hatch-<HATCH_LATEST_VERSION>-i686-unknown-linux-gnu.tar.gz](https://github.com/pypa/hatch/releases/download/hatch-v<HATCH_LATEST_VERSION>/hatch-<HATCH_LATEST_VERSION>-i686-unknown-linux-gnu.tar.gz)
-    - [hatch-<HATCH_LATEST_VERSION>-powerpc64le-unknown-linux-gnu.tar.gz](https://github.com/pypa/hatch/releases/download/hatch-v<HATCH_LATEST_VERSION>/hatch-<HATCH_LATEST_VERSION>-powerpc64le-unknown-linux-gnu.tar.gz)
 
 ## pip
 
