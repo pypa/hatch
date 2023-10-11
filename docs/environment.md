@@ -78,7 +78,7 @@ Hatch ensures that environments are always compatible with the currently defined
 For example, add `cowsay` as a dependency then try to run it:
 
 ```console
-$ hatch run cowsay "Hello, world!"
+$ hatch run cowsay -t "Hello, world!"
 Syncing dependencies
   _____________
 | Hello, world! |
