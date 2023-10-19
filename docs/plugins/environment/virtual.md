@@ -17,9 +17,10 @@ type = "virtual"
 
 | Option | Default | Description |
 | --- | --- | --- |
-| `system-packages` | `false` | Whether or not to give the virtual environment access to the system `site-packages` directory |
-| `python` | | The version of Python to find on your system and subsequently use to create the environment, defaulting to the `HATCH_PYTHON` environment variable, followed by the first Python executable found along your PATH, followed by the Python executable Hatch is running on. Setting the `HATCH_PYTHON` environment variable to `self` will force the use of the Python executable Hatch is running on. For more information, see the [documentation](https://virtualenv.pypa.io/en/latest/user_guide.html#python-discovery). |
+| `python` | | The version of Python to find on your system and subsequently use to create the environment, defaulting to the `HATCH_PYTHON` environment variable, followed by the [normal resolution logic](#python-resolution). Setting the `HATCH_PYTHON` environment variable to `self` will force the use of the Python executable Hatch is running on. For more information, see the [documentation](https://virtualenv.pypa.io/en/latest/user_guide.html#python-discovery). |
+| `python-sources` | `['external', 'internal']` | This may be set to an array of strings that are either the literal `internal` or `external`. External considers only Python executables that are already on `PATH`. Internal considers only [internally managed Python distributions](#internal-distributions). |
 | `path` | | An explicit path to the virtual environment. The path may be absolute or relative to the project root. Any environments that [inherit](../../config/environment/overview.md#inheritance) this option will also use this path. The environment variable `HATCH_ENV_TYPE_VIRTUAL_PATH` may be used, which will take precedence. |
+| `system-packages` | `false` | Whether or not to give the virtual environment access to the system `site-packages` directory |
 
 ## Location
 
@@ -30,6 +31,55 @@ The [location](../../cli/reference.md#hatch-env-find) of environments is determi
 3. Otherwise, environments are stored within the configured `virtual` [environment directory](../../config/hatch.md#environments) in a deeply nested structure in order to support multiple projects
 
 Additionally, when the `path` option is not used, the name of the directory for the `default` environment will be the normalized project name to provide a more meaningful default [shell](../../cli/reference.md#hatch-shell) prompt.
+
+## Python resolution
+
+Virtual environments necessarily require a parent installation of Python. The following rules determine how the parent is resolved.
+
+The Python choice is determined by the [`python` option](#options) followed by the `HATCH_PYTHON` environment variable. If the choice is via the environment variable, then resolution stops and that path is used unconditionally.
+
+The resolvers will be based on the [`python-sources` option](#options) and all resolved interpreters will ensure compatibility with the project's defined [Python support](../../config/metadata.md#python-support).
+
+If a Python version has been chosen then each resolver will try to find an interpreter that satisfies that version.
+
+If no version has been chosen, then each resolver will try to find a version that matches the version of Python that Hatch is currently running on. If not found then each resolver will try to find the highest compatible version.
+
+!!! note
+    Some external Python paths are considered unstable and are ignored during resolution. For example, if Hatch if installed via Homebrew then `sys.executable` will be ignored because the interpreter could change or be removed at any time.
+
+## Internal distributions
+
+The following options are recognized for internal Python resolution.
+
+### CPython
+
+| ID |
+| --- |
+| `3.7` |
+| `3.8` |
+| `3.9` |
+| `3.10` |
+| `3.11` |
+| `3.12` |
+
+The source of distributions is the [python-build-standalone](https://github.com/indygreg/python-build-standalone) project.
+
+Some distributions have [variants](https://gregoryszorc.com/docs/python-build-standalone/main/running.html) that may be configured with the `HATCH_PYTHON_VARIANT_<PLATFORM>` option where `<PLATFORM>` is the uppercase version of one of the following:
+
+| Platform | Options |
+| --- | --- |
+| Linux | <ul><li><code>v1</code></li><li><code>v2</code></li><li><code>v3</code> (default)</li><li><code>v4</code></li></ul> |
+| Windows | <ul><li><code>shared</code> (default)</li><li><code>static</code></li></ul> |
+
+### PyPy
+
+| ID |
+| --- |
+| `pypy2.7` |
+| `pypy3.9` |
+| `pypy3.10` |
+
+The source of distributions is the [PyPy](https://www.pypy.org) project.
 
 ## Troubleshooting
 

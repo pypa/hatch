@@ -8,8 +8,6 @@ from hatch.python.distributions import ORDERED_DISTRIBUTIONS
 from hatch.python.resolve import get_distribution
 from hatch.utils.structures import EnvVars
 
-from .utils import downgrade_distribution_metadata, write_distribution
-
 
 def test_unknown(hatch, helpers, path_append, mocker):
     install = mocker.patch('hatch.python.core.PythonManager.install')
@@ -99,7 +97,7 @@ def test_installation(
 def test_already_installed_latest(hatch, helpers, temp_dir_data, path_append, dist_name, mocker):
     install = mocker.patch('hatch.python.core.PythonManager.install')
     install_dir = temp_dir_data / 'data' / 'pythons'
-    write_distribution(install_dir, dist_name)
+    helpers.write_distribution(install_dir, dist_name)
 
     result = hatch('python', 'install', dist_name)
 
@@ -117,8 +115,8 @@ def test_already_installed_latest(hatch, helpers, temp_dir_data, path_append, di
 def test_already_installed_update_disabled(hatch, helpers, temp_dir_data, path_append, dist_name, mocker):
     install = mocker.patch('hatch.python.core.PythonManager.install')
     install_dir = temp_dir_data / 'data' / 'pythons'
-    write_distribution(install_dir, dist_name)
-    downgrade_distribution_metadata(install_dir / dist_name)
+    helpers.write_distribution(install_dir, dist_name)
+    helpers.downgrade_distribution_metadata(install_dir / dist_name)
 
     result = hatch('python', 'install', dist_name, input='n\n')
 
@@ -136,10 +134,10 @@ def test_already_installed_update_disabled(hatch, helpers, temp_dir_data, path_a
 
 def test_already_installed_update_prompt(hatch, helpers, temp_dir_data, path_append, default_shells, dist_name, mocker):
     install_dir = temp_dir_data / 'data' / 'pythons'
-    write_distribution(install_dir, dist_name)
+    helpers.write_distribution(install_dir, dist_name)
 
     dist_dir = install_dir / dist_name
-    metadata = downgrade_distribution_metadata(dist_dir)
+    metadata = helpers.downgrade_distribution_metadata(dist_dir)
     python_path = dist_dir / metadata['python_path']
     install = mocker.patch(
         'hatch.python.core.PythonManager.install', return_value=mocker.MagicMock(path=dist_dir, python_path=python_path)
@@ -166,10 +164,10 @@ def test_already_installed_update_prompt(hatch, helpers, temp_dir_data, path_app
 
 def test_already_installed_update_flag(hatch, helpers, temp_dir_data, path_append, default_shells, dist_name, mocker):
     install_dir = temp_dir_data / 'data' / 'pythons'
-    write_distribution(install_dir, dist_name)
+    helpers.write_distribution(install_dir, dist_name)
 
     dist_dir = install_dir / dist_name
-    metadata = downgrade_distribution_metadata(dist_dir)
+    metadata = helpers.downgrade_distribution_metadata(dist_dir)
     python_path = dist_dir / metadata['python_path']
     install = mocker.patch(
         'hatch.python.core.PythonManager.install', return_value=mocker.MagicMock(path=dist_dir, python_path=python_path)

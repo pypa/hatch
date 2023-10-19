@@ -24,6 +24,19 @@ def test_incompatible_environment(hatch, temp_dir, helpers):
         project, 'default', {'skip-install': True, 'python': '9000', **project.config.envs['default']}
     )
 
+    build_script = path / DEFAULT_BUILD_SCRIPT
+    build_script.write_text(
+        helpers.dedent(
+            """
+            from hatchling.metadata.plugin.interface import MetadataHookInterface
+
+            class CustomMetadataHook(MetadataHookInterface):
+                def update(self, metadata):
+                    pass
+            """
+        )
+    )
+
     with path.as_cwd():
         result = hatch('version')
 

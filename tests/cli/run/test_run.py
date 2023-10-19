@@ -5,8 +5,22 @@ import pytest
 
 from hatch.config.constants import AppEnvVars, ConfigEnvVars
 from hatch.project.core import Project
+from hatch.python.core import PythonManager
+from hatch.python.resolve import get_compatible_distributions
+from hatch.utils.fs import Path
 from hatch.utils.structures import EnvVars
 from hatchling.utils.constants import DEFAULT_CONFIG_FILE
+
+
+@pytest.fixture(scope='module')
+def available_python_version():
+    compatible_distributions = get_compatible_distributions()
+    current_version = f'{sys.version_info.major}.{sys.version_info.minor}'
+    if current_version in compatible_distributions:
+        return current_version
+
+    versions = [d for d in get_compatible_distributions() if not d.startswith('pypy')]
+    return versions[-1]
 
 
 def test_help(hatch):
@@ -1734,6 +1748,272 @@ def test_plugin_dependencies_unmet(hatch, helpers, temp_dir, config_file, mock_p
     )
     helpers.assert_plugin_installation(mock_plugin_installation, [dependency])
 
+    output_file = project_path / 'test.txt'
+    assert output_file.is_file()
+
+    env_data_path = data_path / 'env' / 'virtual'
+    assert env_data_path.is_dir()
+
+    project_data_path = env_data_path / project_path.name
+    assert project_data_path.is_dir()
+
+    storage_dirs = list(project_data_path.iterdir())
+    assert len(storage_dirs) == 1
+
+    storage_path = storage_dirs[0]
+    assert len(storage_path.name) == 8
+
+    env_dirs = list(storage_path.iterdir())
+    assert len(env_dirs) == 1
+
+    env_path = env_dirs[0]
+
+    assert env_path.name == project_path.name
+
+    assert str(env_path) in str(output_file.read_text())
+
+
+@pytest.mark.requires_internet
+def test_install_python_specific(hatch, helpers, temp_dir, config_file, mocker, available_python_version):
+    config_file.model.template.plugins['default']['tests'] = False
+    config_file.save()
+
+    project_name = 'My.App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / 'my-app'
+    data_path = temp_dir / 'data'
+    data_path.mkdir()
+
+    project = Project(project_path)
+    helpers.update_project_environment(
+        project,
+        'default',
+        {'skip-install': True, 'python': available_python_version, **project.config.envs['default']},
+    )
+
+    mocker.patch('hatch.env.virtual.VirtualEnvironment._interpreter_is_compatible', return_value=False)
+    manager = PythonManager(data_path / 'env' / 'virtual' / '.pythons')
+    assert not manager.get_installed()
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch(
+            'run', 'python', '-c', "import os,sys;open('test.txt', 'a').write(sys.executable+os.linesep[-1])"
+        )
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        f"""
+        Creating environment: default
+        Installing Python distribution: {available_python_version}
+        Checking dependencies
+        """
+    )
+    output_file = project_path / 'test.txt'
+    assert output_file.is_file()
+
+    env_data_path = data_path / 'env' / 'virtual'
+    assert env_data_path.is_dir()
+
+    project_data_path = env_data_path / project_path.name
+    assert project_data_path.is_dir()
+
+    storage_dirs = list(project_data_path.iterdir())
+    assert len(storage_dirs) == 1
+
+    storage_path = storage_dirs[0]
+    assert len(storage_path.name) == 8
+
+    env_dirs = list(storage_path.iterdir())
+    assert len(env_dirs) == 1
+
+    env_path = env_dirs[0]
+
+    assert env_path.name == project_path.name
+
+    assert str(env_path) in str(output_file.read_text())
+
+    assert list(manager.get_installed()) == [available_python_version]
+
+
+@pytest.mark.requires_internet
+def test_update_python_specific(hatch, helpers, temp_dir, config_file, mocker, available_python_version):
+    config_file.model.template.plugins['default']['tests'] = False
+    config_file.save()
+
+    project_name = 'My.App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / 'my-app'
+    data_path = temp_dir / 'data'
+    data_path.mkdir()
+
+    project = Project(project_path)
+    helpers.update_project_environment(
+        project,
+        'default',
+        {'skip-install': True, 'python': available_python_version, **project.config.envs['default']},
+    )
+
+    install_dir = data_path / 'env' / 'virtual' / '.pythons'
+    manager = PythonManager(install_dir)
+    dist = manager.install(available_python_version)
+    helpers.downgrade_distribution_metadata(install_dir / available_python_version)
+    mocker.patch(
+        'hatch.env.virtual.VirtualEnvironment._interpreter_is_compatible',
+        side_effect=lambda interpreter: Path(interpreter.executable) == dist.python_path,
+    )
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch(
+            'run', 'python', '-c', "import os,sys;open('test.txt', 'a').write(sys.executable+os.linesep[-1])"
+        )
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        f"""
+        Creating environment: default
+        Updating Python distribution: {available_python_version}
+        Checking dependencies
+        """
+    )
+    output_file = project_path / 'test.txt'
+    assert output_file.is_file()
+
+    env_data_path = data_path / 'env' / 'virtual'
+    assert env_data_path.is_dir()
+
+    project_data_path = env_data_path / project_path.name
+    assert project_data_path.is_dir()
+
+    storage_dirs = list(project_data_path.iterdir())
+    assert len(storage_dirs) == 1
+
+    storage_path = storage_dirs[0]
+    assert len(storage_path.name) == 8
+
+    env_dirs = list(storage_path.iterdir())
+    assert len(env_dirs) == 1
+
+    env_path = env_dirs[0]
+
+    assert env_path.name == project_path.name
+
+    assert str(env_path) in str(output_file.read_text())
+
+
+@pytest.mark.requires_internet
+def test_install_python_max_compatible(hatch, helpers, temp_dir, config_file, mocker, available_python_version):
+    config_file.model.template.plugins['default']['tests'] = False
+    config_file.save()
+
+    project_name = 'My.App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / 'my-app'
+    data_path = temp_dir / 'data'
+    data_path.mkdir()
+
+    project = Project(project_path)
+    helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
+
+    mocker.patch('hatch.env.virtual.VirtualEnvironment._interpreter_is_compatible', return_value=False)
+    manager = PythonManager(data_path / 'env' / 'virtual' / '.pythons')
+    assert not manager.get_installed()
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch(
+            'run', 'python', '-c', "import os,sys;open('test.txt', 'a').write(sys.executable+os.linesep[-1])"
+        )
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        f"""
+        Creating environment: default
+        Installing Python distribution: {available_python_version}
+        Checking dependencies
+        """
+    )
+    output_file = project_path / 'test.txt'
+    assert output_file.is_file()
+
+    env_data_path = data_path / 'env' / 'virtual'
+    assert env_data_path.is_dir()
+
+    project_data_path = env_data_path / project_path.name
+    assert project_data_path.is_dir()
+
+    storage_dirs = list(project_data_path.iterdir())
+    assert len(storage_dirs) == 1
+
+    storage_path = storage_dirs[0]
+    assert len(storage_path.name) == 8
+
+    env_dirs = list(storage_path.iterdir())
+    assert len(env_dirs) == 1
+
+    env_path = env_dirs[0]
+
+    assert env_path.name == project_path.name
+
+    assert str(env_path) in str(output_file.read_text())
+
+    assert list(manager.get_installed()) == [available_python_version]
+
+
+@pytest.mark.requires_internet
+def test_update_python_max_compatible(hatch, helpers, temp_dir, config_file, mocker, available_python_version):
+    config_file.model.template.plugins['default']['tests'] = False
+    config_file.save()
+
+    project_name = 'My.App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / 'my-app'
+    data_path = temp_dir / 'data'
+    data_path.mkdir()
+
+    project = Project(project_path)
+    helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
+
+    install_dir = data_path / 'env' / 'virtual' / '.pythons'
+    manager = PythonManager(install_dir)
+    dist = manager.install(available_python_version)
+    helpers.downgrade_distribution_metadata(install_dir / available_python_version)
+    mocker.patch(
+        'hatch.env.virtual.VirtualEnvironment._interpreter_is_compatible',
+        side_effect=lambda interpreter: Path(interpreter.executable) == dist.python_path,
+    )
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch(
+            'run', 'python', '-c', "import os,sys;open('test.txt', 'a').write(sys.executable+os.linesep[-1])"
+        )
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        f"""
+        Creating environment: default
+        Updating Python distribution: {available_python_version}
+        Checking dependencies
+        """
+    )
     output_file = project_path / 'test.txt'
     assert output_file.is_file()
 

@@ -1,6 +1,3 @@
-from .utils import write_distribution
-
-
 def test_not_installed(hatch, helpers):
     result = hatch('python', 'remove', '3.9', '3.10')
 
@@ -16,7 +13,7 @@ def test_not_installed(hatch, helpers):
 def test_basic(hatch, helpers, temp_dir_data):
     install_dir = temp_dir_data / 'data' / 'pythons'
     for name in ('3.9', '3.10'):
-        write_distribution(install_dir, name)
+        helpers.write_distribution(install_dir, name)
 
     result = hatch('python', 'remove', '3.9')
 
@@ -33,7 +30,7 @@ def test_basic(hatch, helpers, temp_dir_data):
 
 def test_specific_location(hatch, helpers, temp_dir_data, dist_name):
     install_dir = temp_dir_data / 'foo' / 'bar' / 'baz'
-    write_distribution(install_dir, dist_name)
+    helpers.write_distribution(install_dir, dist_name)
 
     result = hatch('python', 'remove', '-d', str(install_dir), dist_name)
 
@@ -47,11 +44,11 @@ def test_specific_location(hatch, helpers, temp_dir_data, dist_name):
     assert not any(install_dir.iterdir())
 
 
-def test_all(hatch, temp_dir_data):
+def test_all(hatch, helpers, temp_dir_data):
     installed_distributions = ('3.9', '3.10', '3.11')
     for name in installed_distributions:
         install_dir = temp_dir_data / 'data' / 'pythons'
-        write_distribution(install_dir, name)
+        helpers.write_distribution(install_dir, name)
 
     result = hatch('python', 'remove', 'all')
 
