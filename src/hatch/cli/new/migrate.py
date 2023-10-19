@@ -330,7 +330,7 @@ if __name__ == 'setuptools':
     del __current_directory
 
 
-def migrate(root, setuptools_options):
+def migrate(root, setuptools_options, sys_paths):
     import shutil
     import subprocess
     from tempfile import TemporaryDirectory
@@ -339,30 +339,28 @@ def migrate(root, setuptools_options):
         repo_dir = os.path.join(os.path.realpath(temp_dir), 'repo')
         shutil.copytree(root, repo_dir, ignore=shutil.ignore_patterns('.git', '.tox'), copy_function=shutil.copy)
         shutil.copy(FILE, os.path.join(repo_dir, 'setuptools.py'))
-        os.chdir(repo_dir)
         setup_py = os.path.join(repo_dir, 'setup.py')
 
         if not os.path.isfile(setup_py):
             # Synthesize a small setup.py file since there is none
             with open(setup_py, 'w', encoding='utf-8') as f:
-                f.write('import setuptools\nsetuptools.setup()\n')
+                f.write('from setuptools import setup\nsetup()\n')
 
-        try:
-            env = dict(os.environ)
-            for arg in setuptools_options:
-                key, value = arg.split('=', 1)
-                env[f'{ENV_VAR_PREFIX}{key}'] = value
+        env = dict(os.environ)
+        for arg in setuptools_options:
+            key, value = arg.split('=', 1)
+            env[f'{ENV_VAR_PREFIX}{key}'] = value
 
-            # When PYTHONSAFEPATH is non-empty, current dir is not added automatically
-            if env.get('PYTHONPATH'):
-                env['PYTHONPATH'] = f'{repo_dir}{os.pathsep}{env["PYTHONPATH"]}'
-            else:
-                env['PYTHONPATH'] = repo_dir
+        # When PYTHONSAFEPATH is non-empty, the current directory is not added automatically
+        python_paths = [repo_dir]
+        python_paths.extend(p for p in sys_paths if p)
+        if python_path := env.get('PYTHONPATH', ''):
+            python_paths.append(python_path)
 
-            subprocess.check_call([sys.executable, setup_py], env=env)
+        env['PYTHONPATH'] = os.pathsep.join(python_paths)
 
-            old_project_file = os.path.join(root, 'pyproject.toml')
-            new_project_file = os.path.join(repo_dir, 'pyproject.toml')
-            shutil.copyfile(new_project_file, old_project_file)
-        finally:
-            os.chdir(root)
+        subprocess.run([sys.executable, setup_py], env=env, cwd=repo_dir, check=True)
+
+        old_project_file = os.path.join(root, 'pyproject.toml')
+        new_project_file = os.path.join(repo_dir, 'pyproject.toml')
+        shutil.copyfile(new_project_file, old_project_file)

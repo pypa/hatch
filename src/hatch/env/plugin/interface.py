@@ -20,20 +20,16 @@ class EnvironmentInterface(ABC):
     """
     Example usage:
 
-    === ":octicons-file-code-16: plugin.py"
-
-        ```python
+    ```python tab="plugin.py"
         from hatch.env.plugin.interface import EnvironmentInterface
 
 
         class SpecialEnvironment(EnvironmentInterface):
             PLUGIN_NAME = 'special'
             ...
-        ```
+    ```
 
-    === ":octicons-file-code-16: hooks.py"
-
-        ```python
+    ```python tab="hooks.py"
         from hatchling.plugin import hookimpl
 
         from .plugin import SpecialEnvironment
@@ -42,7 +38,7 @@ class EnvironmentInterface(ABC):
         @hookimpl
         def hatch_register_environment():
             return SpecialEnvironment
-        ```
+    ```
     """
 
     PLUGIN_NAME = ''
@@ -162,17 +158,9 @@ class EnvironmentInterface(ABC):
     @property
     def config(self) -> dict:
         """
-        === ":octicons-file-code-16: pyproject.toml"
-
-            ```toml
-            [tool.hatch.envs.<ENV_NAME>]
-            ```
-
-        === ":octicons-file-code-16: hatch.toml"
-
-            ```toml
-            [envs.<ENV_NAME>]
-            ```
+        ```toml config-example
+        [tool.hatch.envs.<ENV_NAME>]
+        ```
         """
         return self.__config
 
@@ -199,17 +187,9 @@ class EnvironmentInterface(ABC):
     @property
     def env_vars(self) -> dict:
         """
-        === ":octicons-file-code-16: pyproject.toml"
-
-            ```toml
-            [tool.hatch.envs.<ENV_NAME>.env-vars]
-            ```
-
-        === ":octicons-file-code-16: hatch.toml"
-
-            ```toml
-            [envs.<ENV_NAME>.env-vars]
-            ```
+        ```toml config-example
+        [tool.hatch.envs.<ENV_NAME>.env-vars]
+        ```
         """
         if self._env_vars is None:
             env_vars = self.config.get('env-vars', {})
@@ -237,19 +217,10 @@ class EnvironmentInterface(ABC):
     @property
     def env_include(self) -> list[str]:
         """
-        === ":octicons-file-code-16: pyproject.toml"
-
-            ```toml
-            [tool.hatch.envs.<ENV_NAME>]
-            env-include = [...]
-            ```
-
-        === ":octicons-file-code-16: hatch.toml"
-
-            ```toml
-            [envs.<ENV_NAME>]
-            env-include = [...]
-            ```
+        ```toml config-example
+        [tool.hatch.envs.<ENV_NAME>]
+        env-include = [...]
+        ```
         """
         if self._env_include is None:
             env_include = self.config.get('env-include', [])
@@ -272,19 +243,10 @@ class EnvironmentInterface(ABC):
     @property
     def env_exclude(self) -> list[str]:
         """
-        === ":octicons-file-code-16: pyproject.toml"
-
-            ```toml
-            [tool.hatch.envs.<ENV_NAME>]
-            env-exclude = [...]
-            ```
-
-        === ":octicons-file-code-16: hatch.toml"
-
-            ```toml
-            [envs.<ENV_NAME>]
-            env-exclude = [...]
-            ```
+        ```toml config-example
+        [tool.hatch.envs.<ENV_NAME>]
+        env-exclude = [...]
+        ```
         """
         if self._env_exclude is None:
             env_exclude = self.config.get('env-exclude', [])
@@ -387,19 +349,10 @@ class EnvironmentInterface(ABC):
         """
         All names are stored as their lower-cased version.
 
-        === ":octicons-file-code-16: pyproject.toml"
-
-            ```toml
-            [tool.hatch.envs.<ENV_NAME>]
-            platforms = [...]
-            ```
-
-        === ":octicons-file-code-16: hatch.toml"
-
-            ```toml
-            [envs.<ENV_NAME>]
-            platforms = [...]
-            ```
+        ```toml config-example
+        [tool.hatch.envs.<ENV_NAME>]
+        platforms = [...]
+        ```
         """
         if self._platforms is None:
             platforms = self.config.get('platforms', [])
@@ -419,19 +372,10 @@ class EnvironmentInterface(ABC):
     @property
     def skip_install(self) -> bool:
         """
-        === ":octicons-file-code-16: pyproject.toml"
-
-            ```toml
-            [tool.hatch.envs.<ENV_NAME>]
-            skip-install = ...
-            ```
-
-        === ":octicons-file-code-16: hatch.toml"
-
-            ```toml
-            [envs.<ENV_NAME>]
-            skip-install = ...
-            ```
+        ```toml config-example
+        [tool.hatch.envs.<ENV_NAME>]
+        skip-install = ...
+        ```
         """
         if self._skip_install is None:
             skip_install = self.config.get('skip-install', not self.metadata.has_project_file())
@@ -446,19 +390,10 @@ class EnvironmentInterface(ABC):
     @property
     def dev_mode(self) -> bool:
         """
-        === ":octicons-file-code-16: pyproject.toml"
-
-            ```toml
-            [tool.hatch.envs.<ENV_NAME>]
-            dev-mode = ...
-            ```
-
-        === ":octicons-file-code-16: hatch.toml"
-
-            ```toml
-            [envs.<ENV_NAME>]
-            dev-mode = ...
-            ```
+        ```toml config-example
+        [tool.hatch.envs.<ENV_NAME>]
+        dev-mode = ...
+        ```
         """
         if self._dev_mode is None:
             dev_mode = self.config.get('dev-mode', True)
@@ -510,19 +445,10 @@ class EnvironmentInterface(ABC):
     @property
     def description(self) -> str:
         """
-        === ":octicons-file-code-16: pyproject.toml"
-
-            ```toml
-            [tool.hatch.envs.<ENV_NAME>]
-            description = ...
-            ```
-
-        === ":octicons-file-code-16: hatch.toml"
-
-            ```toml
-            [envs.<ENV_NAME>]
-            description = ...
-            ```
+        ```toml config-example
+        [tool.hatch.envs.<ENV_NAME>]
+        description = ...
+        ```
         """
         if self._description is None:
             description = self.config.get('description', '')

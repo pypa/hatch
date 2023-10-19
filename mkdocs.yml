@@ -123,6 +123,10 @@ watch:
 - backend/src/hatchling
 - src/hatch
 
+hooks:
+- docs/.hooks/expand_blocks.py
+- docs/.hooks/inject_version.py
+
 plugins:
   # Built-in
   search: {}

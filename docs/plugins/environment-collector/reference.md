@@ -8,23 +8,12 @@ Environment collectors allow for dynamically modifying environments or adding en
 
 Any required environment collectors that are not built-in must be manually installed alongside Hatch or listed in the `tool.hatch.env.requires` array for automatic management:
 
-=== ":octicons-file-code-16: pyproject.toml"
-
-    ```toml
-    [tool.hatch.env]
-    requires = [
-      "...",
-    ]
-    ```
-
-=== ":octicons-file-code-16: hatch.toml"
-
-    ```toml
-    [env]
-    requires = [
-      "...",
-    ]
-    ```
+```toml config-example
+[tool.hatch.env]
+requires = [
+  "...",
+]
+```
 
 ::: hatch.env.collectors.plugin.interface.EnvironmentCollectorInterface
     options:

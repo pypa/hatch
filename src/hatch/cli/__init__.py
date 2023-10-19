@@ -102,8 +102,8 @@ def hatch(ctx: click.Context, env_name, project, verbose, quiet, color, interact
         elif os.environ.get(AppEnvVars.FORCE_COLOR) == '1':
             color = True
 
-    if interactive is None:
-        interactive = not running_in_ci()
+    if interactive is None and running_in_ci():
+        interactive = False
 
     app = Application(ctx.exit, verbose - quiet, color, interactive)
 

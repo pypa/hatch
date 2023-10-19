@@ -8,19 +8,10 @@ This uses virtual environments backed by the standard [virtualenv](https://githu
 
 The environment plugin name is `virtual`.
 
-=== ":octicons-file-code-16: pyproject.toml"
-
-    ```toml
-    [tool.hatch.envs.<ENV_NAME>]
-    type = "virtual"
-    ```
-
-=== ":octicons-file-code-16: hatch.toml"
-
-    ```toml
-    [envs.<ENV_NAME>]
-    type = "virtual"
-    ```
+```toml config-example
+[tool.hatch.envs.<ENV_NAME>]
+type = "virtual"
+```
 
 ## Options
 

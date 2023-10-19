@@ -8,19 +8,10 @@ This is a custom class in a given Python file that inherits from the [BuildHookI
 
 The build hook plugin name is `custom`.
 
-=== ":octicons-file-code-16: pyproject.toml"
-
-    ```toml
-    [tool.hatch.build.hooks.custom]
-    [tool.hatch.build.targets.<TARGET_NAME>.hooks.custom]
-    ```
-
-=== ":octicons-file-code-16: hatch.toml"
-
-    ```toml
-    [build.hooks.custom]
-    [build.targets.<TARGET_NAME>.hooks.custom]
-    ```
+```toml config-example
+[tool.hatch.build.hooks.custom]
+[tool.hatch.build.targets.<TARGET_NAME>.hooks.custom]
+```
 
 ## Options
 
@@ -30,15 +21,13 @@ The build hook plugin name is `custom`.
 
 ## Example
 
-=== ":octicons-file-code-16: hatch_build.py"
-
-    ```python
-    from hatchling.builders.hooks.plugin.interface import BuildHookInterface
+```python tab="hatch_build.py"
+from hatchling.builders.hooks.plugin.interface import BuildHookInterface
 
 
-    class CustomBuildHook(BuildHookInterface):
-        ...
-    ```
+class CustomBuildHook(BuildHookInterface):
+    ...
+```
 
 If multiple subclasses are found, you must define a function named `get_build_hook` that returns the desired build hook.
 

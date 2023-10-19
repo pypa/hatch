@@ -29,29 +29,25 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
     """
     Example usage:
 
-    === ":octicons-file-code-16: plugin.py"
-
-        ```python
-        from hatchling.builders.plugin.interface import BuilderInterface
+    ```python tab="plugin.py"
+    from hatchling.builders.plugin.interface import BuilderInterface
 
 
-        class SpecialBuilder(BuilderInterface):
-            PLUGIN_NAME = 'special'
-            ...
-        ```
+    class SpecialBuilder(BuilderInterface):
+        PLUGIN_NAME = 'special'
+        ...
+    ```
 
-    === ":octicons-file-code-16: hooks.py"
+    ```python tab="hooks.py"
+    from hatchling.plugin import hookimpl
 
-        ```python
-        from hatchling.plugin import hookimpl
-
-        from .plugin import SpecialBuilder
+    from .plugin import SpecialBuilder
 
 
-        @hookimpl
-        def hatch_register_builder():
-            return SpecialBuilder
-        ```
+    @hookimpl
+    def hatch_register_builder():
+        return SpecialBuilder
+    ```
     """
 
     PLUGIN_NAME = ''
@@ -324,17 +320,9 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
     @property
     def build_config(self) -> dict[str, Any]:
         """
-        === ":octicons-file-code-16: pyproject.toml"
-
-            ```toml
-            [tool.hatch.build]
-            ```
-
-        === ":octicons-file-code-16: hatch.toml"
-
-            ```toml
-            [build]
-            ```
+        ```toml config-example
+        [tool.hatch.build]
+        ```
         """
         if self.__build_config is None:
             self.__build_config = self.metadata.hatch.build_config
@@ -344,17 +332,9 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
     @property
     def target_config(self) -> dict[str, Any]:
         """
-        === ":octicons-file-code-16: pyproject.toml"
-
-            ```toml
-            [tool.hatch.build.targets.<PLUGIN_NAME>]
-            ```
-
-        === ":octicons-file-code-16: hatch.toml"
-
-            ```toml
-            [build.targets.<PLUGIN_NAME>]
-            ```
+        ```toml config-example
+        [tool.hatch.build.targets.<PLUGIN_NAME>]
+        ```
         """
         if self.__target_config is None:
             target_config: dict[str, Any] = self.metadata.hatch.build_targets.get(self.PLUGIN_NAME, {})
