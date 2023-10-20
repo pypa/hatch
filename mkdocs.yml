@@ -194,8 +194,8 @@ markdown_extensions:
   - pymdownx.emoji:
       # https://github.com/twitter/twemoji
       # https://raw.githubusercontent.com/facelessuser/pymdown-extensions/master/pymdownx/twemoji_db.py
-      emoji_index: !!python/name:materialx.emoji.twemoji
-      emoji_generator: !!python/name:materialx.emoji.to_svg
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
   - pymdownx.highlight:
       guess_lang: false
       linenums_style: pymdownx-inline
