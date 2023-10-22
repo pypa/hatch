@@ -78,7 +78,7 @@ class IndexPublisher(PublisherInterface):
                     if options['no_prompt']:
                         self.app.abort('Missing required option: user')
                     else:
-                        user = updated_user = self.app.prompt('Enter your username')
+                        user = updated_user = self.app.prompt('Enter your username', default='__TOKEN__')
         index.user = user
 
         updated_auth = None
