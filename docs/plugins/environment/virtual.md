@@ -47,6 +47,9 @@ If no version has been chosen, then each resolver will try to find a version tha
 !!! note
     Some external Python paths are considered unstable and are ignored during resolution. For example, if Hatch if installed via Homebrew then `sys.executable` will be ignored because the interpreter could change or be removed at any time.
 
+!!! note
+    When resolution finds a match using an [internally managed distribution](#internal-distributions) and an update is available, the latest distribution will automatically be downloaded before environment creation.
+
 ## Internal distributions
 
 The following options are recognized for internal Python resolution.

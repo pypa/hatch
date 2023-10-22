@@ -216,6 +216,9 @@ class VirtualEnvironment(EnvironmentInterface):
         return env
 
     def upgrade_possible_internal_python(self, python_path: str) -> None:
+        if 'internal' not in self._python_sources:
+            return
+
         for dist in self.python_manager.get_installed().values():
             if dist.python_path == Path(python_path):
                 if dist.needs_update():
@@ -232,8 +235,8 @@ class VirtualEnvironment(EnvironmentInterface):
         )
 
     def _get_concrete_interpreter_path(self, python_version: str = '') -> str | None:
-        python_sources = self.config.get('python-sources') or ['external', 'internal']
-        resolvers = [self._python_resolvers()[source] for source in python_sources]
+        known_resolvers = self._python_resolvers()
+        resolvers = [known_resolvers[source] for source in self._python_sources]
         if python_version:
             for resolver in resolvers:
                 if (concrete_path := resolver(python_version)) is not None:
@@ -335,6 +338,10 @@ class VirtualEnvironment(EnvironmentInterface):
             return False
 
         return True
+
+    @cached_property
+    def _python_sources(self) -> list[str]:
+        return self.config.get('python-sources') or ['external', 'internal']
 
     def _python_resolvers(self) -> dict[str, Callable[[str], str | None]]:
         return {
