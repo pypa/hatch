@@ -20,6 +20,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Add the ability to manage Python installations
 - The `virtual` environment type can now automatically download requested versions of Python that are not installed
 - Support Python 3.12
+- For new project templates rely only on `requires-python` for configuring the target version Ruff and Black
+- The default is now `__TOKEN__` when prompting for a username for the `publish` command
 - Bump the minimum supported version of Hatchling to 1.17.1
 - Bump the minimum supported version of `click` to 8.0.6
 
