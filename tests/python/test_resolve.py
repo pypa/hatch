@@ -25,7 +25,7 @@ class TestDistributionVersions:
         version = dist.version
 
         assert version.epoch == 0
-        assert version.base_version == '20230507'
+        assert version.base_version == '3.11.3'
 
     def test_pypy(self):
         url = 'https://downloads.python.org/pypy/pypy3.10-v7.3.12-aarch64.tar.bz2'
