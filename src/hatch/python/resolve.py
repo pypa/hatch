@@ -78,8 +78,12 @@ class CPythonStandaloneDistribution(Distribution):
     def version(self) -> Version:
         from packaging.version import Version
 
-        *_, remaining = self.source.partition('/download/')
-        version, *_ = remaining.partition('/')
+        # .../cpython-3.12.0%2B20231002-...
+        # .../cpython-3.7.9-...
+        _, _, remaining = self.source.partition('/cpython-')
+        # 3.12.0%2B20231002-...
+        # 3.7.9-...
+        version = remaining.split('%2B')[0] if '%2B' in remaining else remaining.split('-')[0]
         return Version(f'0!{version}')
 
     @cached_property

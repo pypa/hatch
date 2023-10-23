@@ -45,7 +45,7 @@ If a Python version has been chosen then each resolver will try to find an inter
 If no version has been chosen, then each resolver will try to find a version that matches the version of Python that Hatch is currently running on. If not found then each resolver will try to find the highest compatible version.
 
 !!! note
-    Some external Python paths are considered unstable and are ignored during resolution. For example, if Hatch if installed via Homebrew then `sys.executable` will be ignored because the interpreter could change or be removed at any time.
+    Some external Python paths are considered unstable and are ignored during resolution. For example, if Hatch is installed via Homebrew then `sys.executable` will be ignored because the interpreter could change or be removed at any time.
 
 !!! note
     When resolution finds a match using an [internally managed distribution](#internal-distributions) and an update is available, the latest distribution will automatically be downloaded before environment creation.
