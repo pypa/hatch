@@ -18,6 +18,7 @@ from hatch.venv.core import VirtualEnv
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
+    from packaging.specifiers import SpecifierSet
     from virtualenv.discovery.py_info import PythonInfo
 
     from hatch.python.core import PythonManager
@@ -210,7 +211,7 @@ class VirtualEnvironment(EnvironmentInterface):
             return env
 
         internal_path = os.pathsep.join(python_dirs)
-        old_path = os.environ.pop('PATH', None)
+        old_path = env.pop('PATH', None)
         env['PATH'] = internal_path if old_path is None else f'{old_path}{os.pathsep}{internal_path}'
 
         return env
@@ -231,7 +232,7 @@ class VirtualEnvironment(EnvironmentInterface):
         return (
             interpreter.executable
             and self._is_stable_path(interpreter.executable)
-            and self.metadata.core.python_constraint.contains(interpreter.version_str)
+            and self._python_constraint.contains(interpreter.version_str)
         )
 
     def _get_concrete_interpreter_path(self, python_version: str = '') -> str | None:
@@ -348,6 +349,15 @@ class VirtualEnvironment(EnvironmentInterface):
             'external': self._resolve_external_interpreter_path,
             'internal': self._resolve_internal_interpreter_path,
         }
+
+    @cached_property
+    def _python_constraint(self) -> SpecifierSet:
+        from packaging.specifiers import SpecifierSet
+
+        # Note that we do not support this field being dynamic because if we were to set up the
+        # build environment to retrieve the field then we would be stuck because we need to use
+        # a satisfactory version to set up the environment
+        return SpecifierSet(self.metadata.core_raw_metadata.get('requires-python', ''))
 
     @contextmanager
     def safe_activation(self):
