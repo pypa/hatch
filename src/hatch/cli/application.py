@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 import sys
 from functools import cached_property
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from hatch.cli.terminal import Terminal
 from hatch.config.user import ConfigFile, RootConfig
@@ -13,6 +13,8 @@ from hatch.utils.platform import Platform
 
 if TYPE_CHECKING:
     from packaging.requirements import Requirement
+
+    from hatch.env.plugin.interface import EnvironmentInterface
 
 
 class Application(Terminal):
@@ -70,8 +72,10 @@ class Application(Terminal):
 
     # Ensure that this method is clearly written since it is
     # used for documenting the life cycle of environments.
-    def prepare_environment(self, environment):
+    def prepare_environment(self, environment: EnvironmentInterface):
         if not environment.exists():
+            self.env_metadata.reset(environment)
+
             with self.status(f'Creating environment: {environment.name}'):
                 environment.create()
 
@@ -91,12 +95,17 @@ class Application(Terminal):
                     with self.status('Running post-installation commands'):
                         self.run_shell_commands(environment, environment.post_install_commands, source='post-install')
 
-        with self.status('Checking dependencies'):
-            dependencies_in_sync = environment.dependencies_in_sync()
+        dep_hash = environment.dependency_hash()
+        current_dep_hash = self.env_metadata.dependency_hash(environment)
+        if dep_hash != current_dep_hash:
+            with self.status('Checking dependencies'):
+                dependencies_in_sync = environment.dependencies_in_sync()
 
-        if not dependencies_in_sync:
-            with self.status('Syncing dependencies'):
-                environment.sync_dependencies()
+            if not dependencies_in_sync:
+                with self.status('Syncing dependencies'):
+                    environment.sync_dependencies()
+
+            self.env_metadata.update_dependency_hash(environment, dep_hash)
 
     def run_shell_commands(
         self, environment, commands: list[str], source='cmd', *, force_continue=False, show_code_on_error=True
@@ -236,6 +245,10 @@ class Application(Terminal):
             path = self.platform.default_shell
             return Path(path).stem, path
 
+    @cached_property
+    def env_metadata(self) -> EnvironmentMetadata:
+        return EnvironmentMetadata(self.data_dir / 'env' / '.metadata', self.project.location)
+
     def abort(self, text='', code=1, **kwargs):
         if text:
             self.display_error(text, **kwargs)
@@ -263,3 +276,46 @@ class SafeApplication:
         self.status = app.status
         self.status_if = app.status_if
         self.read_builder = app.read_builder
+
+
+class EnvironmentMetadata:
+    def __init__(self, data_dir: Path, project_path: Path):
+        self.__data_dir = data_dir
+        self.__project_path = project_path
+
+    def dependency_hash(self, environment: EnvironmentInterface) -> str:
+        return self._read(environment).get('dependency_hash', '')
+
+    def update_dependency_hash(self, environment: EnvironmentInterface, dependency_hash: str) -> None:
+        metadata = self._read(environment)
+        metadata['dependency_hash'] = dependency_hash
+        self._write(environment, metadata)
+
+    def reset(self, environment: EnvironmentInterface) -> None:
+        self._metadata_file(environment).unlink(missing_ok=True)
+
+    def _read(self, environment: EnvironmentInterface) -> dict[str, Any]:
+        import json
+
+        metadata_file = self._metadata_file(environment)
+        if not metadata_file.is_file():
+            return {}
+
+        return json.loads(metadata_file.read_text())
+
+    def _write(self, environment: EnvironmentInterface, metadata: dict[str, Any]) -> None:
+        import json
+
+        metadata_file = self._metadata_file(environment)
+        metadata_file.parent.ensure_dir_exists()
+        metadata_file.write_text(json.dumps(metadata))
+
+    def _metadata_file(self, environment: EnvironmentInterface) -> Path:
+        return self._storage_dir / environment.config['type'] / f'{environment.name}.json'
+
+    @cached_property
+    def _storage_dir(self) -> Path:
+        from base64 import urlsafe_b64encode
+        from hashlib import sha256
+
+        return self.__data_dir / urlsafe_b64encode(sha256(str(self.__project_path).encode()).digest())[:8].decode()

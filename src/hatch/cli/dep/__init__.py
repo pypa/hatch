@@ -14,10 +14,7 @@ def hash_dependencies(app, project_only, env_only):
     """Output a hash of the currently defined dependencies."""
     app.ensure_environment_plugin_dependencies()
 
-    from hashlib import sha256
-
-    from hatch.utils.dep import get_project_dependencies_complex
-    from hatchling.metadata.utils import get_normalized_dependency
+    from hatch.utils.dep import get_project_dependencies_complex, hash_dependencies
 
     environment = app.get_environment()
 
@@ -32,15 +29,7 @@ def hash_dependencies(app, project_only, env_only):
         all_requirements.extend(dependencies_complex.values())
         all_requirements.extend(environment.environment_dependencies_complex)
 
-    data = ''.join(
-        sorted(
-            # Internal spacing is ignored by PEP 440
-            normalized_dependency.replace(' ', '')
-            for normalized_dependency in {get_normalized_dependency(requirement) for requirement in all_requirements}
-        )
-    ).encode('utf-8')
-
-    app.display(sha256(data).hexdigest())
+    app.display(hash_dependencies(all_requirements))
 
 
 @dep.group(short_help='Display dependencies in various formats')

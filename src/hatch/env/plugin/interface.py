@@ -639,6 +639,20 @@ class EnvironmentInterface(ABC):
         in the environment.
         """
 
+    def dependency_hash(self):
+        """
+        This should return a hash of the environment's
+        [dependencies](reference.md#hatch.env.plugin.interface.EnvironmentInterface.dependencies)
+        and any other data that is handled by the
+        [sync_dependencies](reference.md#hatch.env.plugin.interface.EnvironmentInterface.sync_dependencies)
+        and
+        [dependencies_in_sync](reference.md#hatch.env.plugin.interface.EnvironmentInterface.dependencies_in_sync)
+        methods.
+        """
+        from hatch.utils.dep import hash_dependencies
+
+        return hash_dependencies(self.dependencies_complex)
+
     @contextmanager
     def build_environment(self, dependencies: list[str]):
         """

@@ -67,6 +67,7 @@ All environment types should [offer support](#hatch.env.plugin.interface.Environ
       - install_project_dev_mode
       - dependencies_in_sync
       - sync_dependencies
+      - dependency_hash
       - build_environment
       - build_environment_exists
       - get_build_process
