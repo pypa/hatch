@@ -42,7 +42,7 @@ class Application(Terminal):
     def config(self) -> RootConfig:
         return self.config_file.model
 
-    def get_environment(self, env_name=None):
+    def get_environment(self, env_name: str | None = None) -> EnvironmentInterface:
         if env_name is None:
             env_name = self.env
 
@@ -69,6 +69,31 @@ class Application(Terminal):
             self.verbosity,
             self.get_safe_application(),
         )
+
+    def prepare_internal_environment(self, env_name: str, config: dict[str, Any] | None = None) -> EnvironmentInterface:
+        from hatch.env.internal import get_internal_environment_class
+
+        environment_class = get_internal_environment_class(env_name)
+        storage_dir = self.data_dir / 'env' / '.internal' / env_name
+        environment = environment_class(
+            self.project.location,
+            self.project.metadata,
+            env_name,
+            config or {},
+            {},
+            storage_dir,
+            storage_dir,
+            self.platform,
+            self.verbosity,
+            self.get_safe_application(),
+        )
+        try:
+            environment.check_compatibility()
+        except Exception as e:
+            self.abort(f'Internal environment `{env_name}` is incompatible: {e}')
+
+        self.prepare_environment(environment)
+        return environment
 
     # Ensure that this method is clearly written since it is
     # used for documenting the life cycle of environments.
@@ -311,7 +336,12 @@ class EnvironmentMetadata:
         metadata_file.write_text(json.dumps(metadata))
 
     def _metadata_file(self, environment: EnvironmentInterface) -> Path:
-        return self._storage_dir / environment.config['type'] / f'{environment.name}.json'
+        from hatch.env.internal.interface import InternalEnvironment
+
+        if isinstance(environment, InternalEnvironment) and environment.config.get('skip-install'):
+            return self.__data_dir / '.internal' / f'{environment.name}.json'
+        else:
+            return self._storage_dir / environment.config['type'] / f'{environment.name}.json'
 
     @cached_property
     def _storage_dir(self) -> Path:
