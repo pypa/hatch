@@ -75,7 +75,14 @@ hatch run test -VV
 
 Hatch ensures that environments are always compatible with the currently defined [project dependencies](config/metadata.md#dependencies) (if [installed](config/environment/overview.md#skip-install) and in [dev mode](config/environment/overview.md#dev-mode)) and [environment dependencies](config/environment/overview.md#dependencies).
 
-For example, add `cowsay` as a dependency then try to run it:
+To add `cowsay` as a dependency, open `pyproject.toml` and add it to the `dependencies` list there:
+
+```toml
+dependencies = [
+  "cowsay"
+]
+```
+This dependency will be installed the next time you use the `hatch run` command. For example:
 
 ```console
 $ hatch run cowsay -t "Hello, world!"
@@ -91,6 +98,7 @@ Syncing dependencies
                     ||----w |
                     ||     ||
 ```
+Note the "Syncing dependencies" line there, output by Hatch when it installed the new dependency that was missing from the environment.
 
 ## Selection
 
