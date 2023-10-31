@@ -44,7 +44,10 @@ class VirtualEnvironment(EnvironmentInterface):
                 Path(chosen_directory) if isabs(chosen_directory) else (self.root / chosen_directory).resolve()
             )
         # Conditions requiring a flat structure
-        elif self.root in self.data_directory.resolve().parents or self.data_directory == self.platform.home / '.virtualenvs':
+        elif (
+            self.root in self.data_directory.resolve().parents
+            or self.data_directory == self.platform.home / '.virtualenvs'
+        ):
             self.storage_path = self.data_directory
         # Otherwise the defined app path
         else:
