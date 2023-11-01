@@ -77,7 +77,9 @@ Hatch ensures that environments are always compatible with the currently defined
 
 To add `cowsay` as a dependency, open `pyproject.toml` and add it to the [`dependencies`](config/metadata.md#dependencies) array:
 
-```toml
+```toml tab="pyproject.toml"
+[project]
+...
 dependencies = [
   "cowsay"
 ]
