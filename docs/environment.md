@@ -84,7 +84,8 @@ dependencies = [
   "cowsay"
 ]
 ```
-This dependency will be installed the next time you use the `hatch run` command. For example:
+
+This dependency will be installed the next time you [spawn a shell](#entering-environments) or [run a command](#command-execution). For example:
 
 ```console
 $ hatch run cowsay -t "Hello, world!"
