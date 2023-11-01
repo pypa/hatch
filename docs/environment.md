@@ -101,7 +101,9 @@ Syncing dependencies
                     ||----w |
                     ||     ||
 ```
-Note the "Syncing dependencies" line there, output by Hatch when it installed the new dependency that was missing from the environment.
+
+!!! note
+    The `Syncing dependencies` status will display temporarily when Hatch updates environments in response to any dependency changes that you make.
 
 ## Selection
 
