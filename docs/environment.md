@@ -75,7 +75,7 @@ hatch run test -VV
 
 Hatch ensures that environments are always compatible with the currently defined [project dependencies](config/metadata.md#dependencies) (if [installed](config/environment/overview.md#skip-install) and in [dev mode](config/environment/overview.md#dev-mode)) and [environment dependencies](config/environment/overview.md#dependencies).
 
-To add `cowsay` as a dependency, open `pyproject.toml` and add it to the `dependencies` list there:
+To add `cowsay` as a dependency, open `pyproject.toml` and add it to the [`dependencies`](config/metadata.md#dependencies) array:
 
 ```toml
 dependencies = [
