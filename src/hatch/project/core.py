@@ -68,9 +68,9 @@ class Project:
                 if not project_dir:
                     continue
 
-                location = Path(project_dir, project)
-                if location.is_dir():
-                    return cls(Path(location).resolve(), name=project)
+                location_path = Path(project_dir, project)
+                if location_path.is_dir():
+                    return cls(location_path.resolve(), name=project)
 
     def find_project_root(self) -> Path | None:
         path = self._path
