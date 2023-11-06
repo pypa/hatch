@@ -51,9 +51,11 @@ def normalize_license_expression(raw_license_expression: str) -> str:
 
     python_expression = ' '.join(python_tokens)
     try:
-        if eval(python_expression) is not False:
-            raise Exception
+        result = eval(python_expression)
     except Exception:
+        result = True
+
+    if result is not False:
         message = f'invalid license expression: {raw_license_expression}'
         raise ValueError(message) from None
 
