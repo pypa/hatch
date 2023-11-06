@@ -21,7 +21,7 @@ class ExpectedEnvVars:
         return all(not (key not in other or other[key] != value) for key, value in self.env_vars.items())
 
 
-def cargo_install(*args: Any, **kwargs: Any) -> subprocess.CompletedProcess:
+def cargo_install(*args: Any, **_kwargs: Any) -> subprocess.CompletedProcess:
     executable_name = 'pyapp.exe' if sys.platform == 'win32' else 'pyapp'
     install_command: list[str] = args[0]
     repo_path = os.environ.get('PYAPP_REPO', '')
@@ -43,7 +43,7 @@ def cargo_install(*args: Any, **kwargs: Any) -> subprocess.CompletedProcess:
         executable.parent.ensure_dir_exists()
         executable.touch()
 
-    return subprocess.CompletedProcess(install_command, returncode=0, stdout=None, stderr=None, **kwargs)
+    return subprocess.CompletedProcess(install_command, returncode=0, stdout=None, stderr=None)
 
 
 def test_class():
