@@ -394,6 +394,7 @@ def network_connectivity():  # no cov
         host = socket.gethostbyname('www.google.com')
         # Test connection
         socket.create_connection((host, 80), 2)
-        return True
     except Exception:
         return False
+
+    return True
