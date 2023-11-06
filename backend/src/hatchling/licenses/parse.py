@@ -53,8 +53,6 @@ def normalize_license_expression(raw_license_expression: str) -> str:
     try:
         result = eval(python_expression)
     except Exception:
-        result = False
-    else:
         result = True
 
     if result is not False:
