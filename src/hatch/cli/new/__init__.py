@@ -122,9 +122,7 @@ def new(app, name, location, interactive, feature_cli, initialize, setuptools_op
             if template_file.__class__ is not File:
                 template_file = template_file(deepcopy(template_config), template.plugin_config)
 
-            if template_file.path is None:  # no cov
-                continue
-            elif initialize and str(template_file.path) != 'pyproject.toml':
+            if template_file.path is None or (initialize and str(template_file.path) != 'pyproject.toml'):
                 continue
 
             template_files.append(template_file)

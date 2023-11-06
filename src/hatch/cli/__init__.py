@@ -116,7 +116,7 @@ def hatch(ctx: click.Context, env_name, project, verbose, quiet, color, interact
     if config_file:
         app.config_file.path = Path(config_file).resolve()
         if not app.config_file.path.is_file():
-            app.abort(f'The selected config file `{str(app.config_file.path)}` does not exist.')
+            app.abort(f'The selected config file `{app.config_file.path!s}` does not exist.')
     elif not app.config_file.path.is_file():
         if app.verbose:
             app.display_waiting('No config file found, creating one with default settings now...')
@@ -127,7 +127,7 @@ def hatch(ctx: click.Context, env_name, project, verbose, quiet, color, interact
                 app.display_success('Success! Please see `hatch config`.')
         except OSError:  # no cov
             app.abort(
-                f'Unable to create config file located at `{str(app.config_file.path)}`. Please check your permissions.'
+                f'Unable to create config file located at `{app.config_file.path!s}`. Please check your permissions.'
             )
 
     if not ctx.invoked_subcommand:

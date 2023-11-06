@@ -158,7 +158,16 @@ def _apply_override_to_array(env_name, option, data, source, condition, conditio
         new_config[option] = new_array
 
 
-def _apply_override_to_string(env_name, option, data, source, condition, condition_value, new_config, overwrite):
+def _apply_override_to_string(
+    env_name,
+    option,
+    data,
+    source,
+    condition,
+    condition_value,
+    new_config,
+    overwrite,  # noqa: ARG001
+):
     if isinstance(data, str):
         new_config[option] = data
     elif isinstance(data, dict):
@@ -213,7 +222,16 @@ def _apply_override_to_string(env_name, option, data, source, condition, conditi
         raise TypeError(message)
 
 
-def _apply_override_to_boolean(env_name, option, data, source, condition, condition_value, new_config, overwrite):
+def _apply_override_to_boolean(
+    env_name,
+    option,
+    data,
+    source,
+    condition,
+    condition_value,
+    new_config,
+    overwrite,  # noqa: ARG001
+):
     if isinstance(data, bool):
         new_config[option] = data
     elif isinstance(data, dict):

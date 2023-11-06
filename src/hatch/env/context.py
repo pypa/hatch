@@ -42,13 +42,13 @@ class EnvironmentContextFormatter(EnvironmentContextFormatterBase):
         else:
             return data or ''
 
-    def __format_env_name(self, value, data):
+    def __format_env_name(self, value, data):  # noqa: ARG002
         return self.environment.name
 
-    def __format_env_type(self, value, data):
+    def __format_env_type(self, value, data):  # noqa: ARG002
         return self.environment.PLUGIN_NAME
 
-    def __format_matrix(self, value, data):
+    def __format_matrix(self, value, data):  # noqa: ARG002
         if not data:
             message = 'The `matrix` context formatting field requires a modifier'
             raise ValueError(message)
@@ -62,7 +62,7 @@ class EnvironmentContextFormatter(EnvironmentContextFormatterBase):
         else:
             return default
 
-    def __format_verbosity(self, value, data):
+    def __format_verbosity(self, value, data):  # noqa: ARG002
         if not data:
             return str(self.environment.verbosity)
 

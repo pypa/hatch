@@ -104,7 +104,7 @@ class Path(_PathBase):
 
     if sys.version_info[:2] < (3, 10):
 
-        def resolve(self, strict: bool = False) -> Path:  # noqa: FBT001, FBT002
+        def resolve(self, strict: bool = False) -> Path:  # noqa: ARG002, FBT001, FBT002
             # https://bugs.python.org/issue38671
             return Path(os.path.realpath(self))
 

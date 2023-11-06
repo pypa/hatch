@@ -15,7 +15,12 @@ class StandardScheme(VersionSchemeInterface):
 
     PLUGIN_NAME = 'standard'
 
-    def update(self, desired_version: str, original_version: str, version_data: dict) -> str:
+    def update(
+        self,
+        desired_version: str,
+        original_version: str,
+        version_data: dict,  # noqa: ARG002
+    ) -> str:
         from packaging.version import Version
 
         original = Version(original_version)

@@ -49,19 +49,19 @@ class DefaultContextFormatter(ContextFormatter):
             'root': self.__format_root,
         }
 
-    def __format_directory_separator(self, value: str, data: str) -> str:
+    def __format_directory_separator(self, value: str, data: str) -> str:  # noqa: ARG002
         return os.sep
 
-    def __format_path_separator(self, value: str, data: str) -> str:
+    def __format_path_separator(self, value: str, data: str) -> str:  # noqa: ARG002
         return os.pathsep
 
-    def __format_root(self, value: str, data: str) -> str:
+    def __format_root(self, value: str, data: str) -> str:  # noqa: ARG002
         return self.format_path(self.__root, data)
 
-    def __format_home(self, value: str, data: str) -> str:
+    def __format_home(self, value: str, data: str) -> str:  # noqa: ARG002
         return self.format_path(os.path.expanduser('~'), data)
 
-    def __format_env(self, value: str, data: str) -> str:
+    def __format_env(self, value: str, data: str) -> str:  # noqa: ARG002
         if not data:
             message = 'The `env` context formatting field requires a modifier'
             raise ValueError(message)
