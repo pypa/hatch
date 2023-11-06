@@ -2836,7 +2836,7 @@ class TestBuildStandard:
         )
         helpers.assert_files(extraction_directory, expected_files)
 
-    def test_editable_sources_rewrite_error(self, hatch, helpers, temp_dir):
+    def test_editable_sources_rewrite_error(self, hatch, temp_dir):
         project_name = 'My.App'
 
         with temp_dir.as_cwd():

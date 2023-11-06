@@ -58,6 +58,6 @@ class CodeSource(VersionSourceInterface):
 
         return {'version': version}
 
-    def set_version(self, version: str, version_data: dict) -> None:
+    def set_version(self, version: str, version_data: dict) -> None:  # noqa: ARG002
         message = 'Cannot rewrite loaded code'
         raise NotImplementedError(message)

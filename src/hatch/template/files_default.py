@@ -3,12 +3,20 @@ from hatch.utils.fs import Path
 
 
 class PackageRoot(File):
-    def __init__(self, template_config: dict, plugin_config: dict):
+    def __init__(
+        self,
+        template_config: dict,
+        plugin_config: dict,  # noqa: ARG002
+    ):
         super().__init__(Path(template_config['package_name'], '__init__.py'), '')
 
 
 class MetadataFile(File):
-    def __init__(self, template_config: dict, plugin_config: dict):
+    def __init__(
+        self,
+        template_config: dict,
+        plugin_config: dict,  # noqa: ARG002
+    ):
         super().__init__(Path(template_config['package_name'], '__about__.py'), '__version__ = "0.0.1"\n')
 
 
@@ -32,7 +40,11 @@ pip install {project_name_normalized}
 ```{license_info}
 """
 
-    def __init__(self, template_config: dict, plugin_config: dict):
+    def __init__(
+        self,
+        template_config: dict,
+        plugin_config: dict,  # noqa: ARG002
+    ):
         extra_badges = ''
         extra_toc = ''
 

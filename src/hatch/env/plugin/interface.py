@@ -654,7 +654,10 @@ class EnvironmentInterface(ABC):
         return hash_dependencies(self.dependencies_complex)
 
     @contextmanager
-    def build_environment(self, dependencies: list[str]):
+    def build_environment(
+        self,
+        dependencies: list[str],  # noqa: ARG002
+    ):
         """
         This should set up an isolated environment in which to [`build`](../../cli/reference.md#hatch-build) the project
         given a set of dependencies and must be a context manager:
@@ -672,7 +675,11 @@ class EnvironmentInterface(ABC):
         with self.get_env_vars():
             yield
 
-    def get_build_process(self, build_environment, **kwargs):
+    def get_build_process(
+        self,
+        build_environment,  # noqa: ARG002
+        **kwargs,
+    ):
         """
         This will be called when the
         [build environment](reference.md#hatch.env.plugin.interface.EnvironmentInterface.build_environment)
@@ -700,7 +707,12 @@ class EnvironmentInterface(ABC):
         """
         return False
 
-    def enter_shell(self, name: str, path: str, args: Iterable[str]):
+    def enter_shell(
+        self,
+        name: str,  # noqa: ARG002
+        path: str,
+        args: Iterable[str],
+    ):
         """
         Spawn a [shell](../../config/hatch.md#shell) within the environment.
 

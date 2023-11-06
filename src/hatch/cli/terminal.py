@@ -259,7 +259,7 @@ class Terminal:
         self.display_success(text, stderr=stderr, link=link, end='')
         self.display_info(']', stderr=stderr)
 
-    def display_header(self, title='', *, stderr=False):
+    def display_header(self, title=''):
         self.console.rule(Text(title, self._style_level_success))
 
     def display_markdown(self, text, **kwargs):  # no cov

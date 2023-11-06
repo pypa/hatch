@@ -21,7 +21,7 @@ class ExpectedEnvVars:
         return all(not (key not in other or other[key] != value) for key, value in self.env_vars.items())
 
 
-def cargo_install(*args: Any, **kwargs: Any) -> subprocess.CompletedProcess:
+def cargo_install(*args: Any, **_kwargs: Any) -> subprocess.CompletedProcess:
     executable_name = 'pyapp.exe' if sys.platform == 'win32' else 'pyapp'
     install_command: list[str] = args[0]
     repo_path = os.environ.get('PYAPP_REPO', '')
@@ -234,7 +234,7 @@ class TestPyAppVersion:
 
 
 class TestBuildBootstrap:
-    def test_default(self, hatch, helpers, temp_dir, mocker):
+    def test_default(self, hatch, temp_dir, mocker):
         subprocess_run = mocker.patch('subprocess.run', side_effect=cargo_install)
 
         project_name = 'My.App'
@@ -276,7 +276,7 @@ class TestBuildBootstrap:
         assert expected_artifact == str(build_artifacts[0])
         assert (build_path / 'app' / ('my-app-0.1.0.exe' if sys.platform == 'win32' else 'my-app-0.1.0')).is_file()
 
-    def test_default_build_target(self, hatch, helpers, temp_dir, mocker):
+    def test_default_build_target(self, hatch, temp_dir, mocker):
         subprocess_run = mocker.patch('subprocess.run', side_effect=cargo_install)
 
         project_name = 'My.App'
@@ -320,7 +320,7 @@ class TestBuildBootstrap:
             build_path / 'app' / ('my-app-0.1.0-target.exe' if sys.platform == 'win32' else 'my-app-0.1.0-target')
         ).is_file()
 
-    def test_scripts(self, hatch, helpers, temp_dir, mocker):
+    def test_scripts(self, hatch, temp_dir, mocker):
         subprocess_run = mocker.patch('subprocess.run', side_effect=cargo_install)
 
         project_name = 'My.App'
@@ -364,7 +364,7 @@ class TestBuildBootstrap:
         assert expected_artifact == str(build_artifacts[0])
         assert (build_path / 'app' / ('foo-0.1.0.exe' if sys.platform == 'win32' else 'foo-0.1.0')).is_file()
 
-    def test_scripts_build_target(self, hatch, helpers, temp_dir, mocker):
+    def test_scripts_build_target(self, hatch, temp_dir, mocker):
         subprocess_run = mocker.patch('subprocess.run', side_effect=cargo_install)
 
         project_name = 'My.App'
@@ -410,7 +410,7 @@ class TestBuildBootstrap:
             build_path / 'app' / ('foo-0.1.0-target.exe' if sys.platform == 'win32' else 'foo-0.1.0-target')
         ).is_file()
 
-    def test_custom_cargo(self, hatch, helpers, temp_dir, mocker):
+    def test_custom_cargo(self, hatch, temp_dir, mocker):
         subprocess_run = mocker.patch('subprocess.run', side_effect=cargo_install)
 
         project_name = 'My.App'
@@ -452,7 +452,7 @@ class TestBuildBootstrap:
         assert expected_artifact == str(build_artifacts[0])
         assert (build_path / 'app' / ('my-app-0.1.0.exe' if sys.platform == 'win32' else 'my-app-0.1.0')).is_file()
 
-    def test_no_cargo(self, hatch, helpers, temp_dir, mocker):
+    def test_no_cargo(self, hatch, temp_dir, mocker):
         mocker.patch('shutil.which', return_value=None)
 
         project_name = 'My.App'
@@ -476,7 +476,7 @@ class TestBuildBootstrap:
         with pytest.raises(OSError, match='Executable `cargo` could not be found on PATH'), project_path.as_cwd():
             next(builder.build())
 
-    def test_python_version(self, hatch, helpers, temp_dir, mocker):
+    def test_python_version(self, hatch, temp_dir, mocker):
         subprocess_run = mocker.patch('subprocess.run', side_effect=cargo_install)
 
         project_name = 'My.App'
@@ -520,7 +520,7 @@ class TestBuildBootstrap:
         assert expected_artifact == str(build_artifacts[0])
         assert (build_path / 'app' / ('my-app-0.1.0.exe' if sys.platform == 'win32' else 'my-app-0.1.0')).is_file()
 
-    def test_pyapp_version(self, hatch, helpers, temp_dir, mocker):
+    def test_pyapp_version(self, hatch, temp_dir, mocker):
         subprocess_run = mocker.patch('subprocess.run', side_effect=cargo_install)
 
         project_name = 'My.App'
@@ -562,7 +562,7 @@ class TestBuildBootstrap:
         assert expected_artifact == str(build_artifacts[0])
         assert (build_path / 'app' / ('my-app-0.1.0.exe' if sys.platform == 'win32' else 'my-app-0.1.0')).is_file()
 
-    def test_verbosity(self, hatch, helpers, temp_dir, mocker):
+    def test_verbosity(self, hatch, temp_dir, mocker):
         subprocess_run = mocker.patch('subprocess.run', side_effect=cargo_install)
 
         project_name = 'My.App'
@@ -602,7 +602,7 @@ class TestBuildBootstrap:
         assert expected_artifact == str(build_artifacts[0])
         assert (build_path / 'app' / ('my-app-0.1.0.exe' if sys.platform == 'win32' else 'my-app-0.1.0')).is_file()
 
-    def test_local_build_with_build_target(self, hatch, helpers, temp_dir, mocker):
+    def test_local_build_with_build_target(self, hatch, temp_dir, mocker):
         subprocess_run = mocker.patch('subprocess.run', side_effect=cargo_install)
 
         project_name = 'My.App'
@@ -646,7 +646,7 @@ class TestBuildBootstrap:
             build_path / 'app' / ('my-app-0.1.0-target.exe' if sys.platform == 'win32' else 'my-app-0.1.0-target')
         ).is_file()
 
-    def test_local_build_no_build_target(self, hatch, helpers, temp_dir, mocker):
+    def test_local_build_no_build_target(self, hatch, temp_dir, mocker):
         subprocess_run = mocker.patch('subprocess.run', side_effect=cargo_install)
 
         project_name = 'My.App'

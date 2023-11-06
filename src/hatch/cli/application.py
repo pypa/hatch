@@ -133,7 +133,13 @@ class Application(Terminal):
             self.env_metadata.update_dependency_hash(environment, dep_hash)
 
     def run_shell_commands(
-        self, environment, commands: list[str], source='cmd', *, force_continue=False, show_code_on_error=True
+        self,
+        environment: EnvironmentInterface,
+        commands: list[str],
+        source='cmd',
+        *,
+        force_continue=False,
+        show_code_on_error=True,
     ):
         with environment.command_context():
             try:

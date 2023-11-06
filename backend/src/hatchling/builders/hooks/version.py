@@ -55,7 +55,11 @@ class VersionBuildHook(BuildHookInterface):
 
         return self.__config_pattern
 
-    def initialize(self, version: str, build_data: dict[str, Any]) -> None:
+    def initialize(
+        self,
+        version: str,  # noqa: ARG002
+        build_data: dict[str, Any],
+    ) -> None:
         version_file = VersionFile(self.root, self.config_path)
         if self.config_pattern:
             version_file.read(self.config_pattern)

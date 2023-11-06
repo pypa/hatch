@@ -5,7 +5,7 @@ from hatch.project.core import Project
 from hatchling.utils.constants import DEFAULT_CONFIG_FILE
 
 
-def test_unknown(hatch, temp_dir_data, helpers, config_file):
+def test_unknown(hatch, temp_dir_data, helpers):
     project_name = 'My.App'
 
     with temp_dir_data.as_cwd():
@@ -26,7 +26,7 @@ def test_unknown(hatch, temp_dir_data, helpers, config_file):
     )
 
 
-def test_nonexistent(hatch, temp_dir_data, config_file):
+def test_nonexistent(hatch, temp_dir_data):
     project_name = 'My.App'
 
     with temp_dir_data.as_cwd():
@@ -280,7 +280,7 @@ def test_matrix_all_local_directory(hatch, helpers, temp_dir_data, config_file):
     assert not env_data_path.is_dir()
 
 
-def test_incompatible_ok(hatch, helpers, temp_dir_data, config_file):
+def test_incompatible_ok(hatch, helpers, temp_dir_data):
     project_name = 'My.App'
 
     with temp_dir_data.as_cwd():
@@ -302,7 +302,7 @@ def test_incompatible_ok(hatch, helpers, temp_dir_data, config_file):
     assert not result.output
 
 
-def test_active(hatch, temp_dir_data, helpers, config_file):
+def test_active(hatch, temp_dir_data, helpers):
     project_name = 'My.App'
 
     with temp_dir_data.as_cwd():

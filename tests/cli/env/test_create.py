@@ -1395,7 +1395,7 @@ def test_sync_dynamic_dependencies(hatch, helpers, temp_dir, platform, config_fi
 
 
 @pytest.mark.requires_internet
-def test_unknown_dynamic_feature(hatch, helpers, temp_dir, platform, config_file, extract_installed_requirements):
+def test_unknown_dynamic_feature(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
@@ -1564,7 +1564,8 @@ def test_plugin_dependencies_unmet(hatch, config_file, helpers, temp_dir, mock_p
     assert env_path.name == project_path.name
 
 
-def test_plugin_dependencies_met(hatch, config_file, helpers, temp_dir, mock_plugin_installation):
+@pytest.mark.usefixtures('mock_plugin_installation')
+def test_plugin_dependencies_met(hatch, config_file, helpers, temp_dir):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 

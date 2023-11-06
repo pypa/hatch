@@ -153,7 +153,11 @@ class SdistBuilder(BuilderInterface):
     def get_default_versions(self) -> list[str]:
         return ['standard']
 
-    def clean(self, directory: str, versions: list[str]) -> None:
+    def clean(
+        self,
+        directory: str,
+        versions: list[str],  # noqa: ARG002
+    ) -> None:
         for filename in os.listdir(directory):
             if filename.endswith('.tar.gz'):
                 os.remove(os.path.join(directory, filename))

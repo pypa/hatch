@@ -65,46 +65,46 @@ class Application:
         """
         return self.__verbosity
 
-    def display(self, message: str = '', **kwargs: Any) -> None:
+    def display(self, message: str = '', **kwargs: Any) -> None:  # noqa: ARG002
         # Do not document
         print(message)
 
-    def display_info(self, message: str = '', **kwargs: Any) -> None:
+    def display_info(self, message: str = '', **kwargs: Any) -> None:  # noqa: ARG002
         """
         Meant to be used for messages conveying basic information.
         """
         if self.__verbosity >= 0:
             print(message)
 
-    def display_waiting(self, message: str = '', **kwargs: Any) -> None:
+    def display_waiting(self, message: str = '', **kwargs: Any) -> None:  # noqa: ARG002
         """
         Meant to be used for messages shown before potentially time consuming operations.
         """
         if self.__verbosity >= 0:
             print(message)
 
-    def display_success(self, message: str = '', **kwargs: Any) -> None:
+    def display_success(self, message: str = '', **kwargs: Any) -> None:  # noqa: ARG002
         """
         Meant to be used for messages indicating some positive outcome.
         """
         if self.__verbosity >= 0:
             print(message)
 
-    def display_warning(self, message: str = '', **kwargs: Any) -> None:
+    def display_warning(self, message: str = '', **kwargs: Any) -> None:  # noqa: ARG002
         """
         Meant to be used for messages conveying important information.
         """
         if self.__verbosity >= -1:
             print(message)
 
-    def display_error(self, message: str = '', **kwargs: Any) -> None:
+    def display_error(self, message: str = '', **kwargs: Any) -> None:  # noqa: ARG002
         """
         Meant to be used for messages indicating some unrecoverable error.
         """
         if self.__verbosity >= -2:  # noqa: PLR2004
             print(message)
 
-    def display_debug(self, message: str = '', level: int = 1, **kwargs: Any) -> None:
+    def display_debug(self, message: str = '', level: int = 1, **kwargs: Any) -> None:  # noqa: ARG002
         """
         Meant to be used for messages that are not useful for most user experiences.
         The `level` option must be between 1 and 3 (inclusive).
@@ -115,11 +115,11 @@ class Application:
         elif self.__verbosity >= level:
             print(message)
 
-    def display_mini_header(self, message: str = '', **kwargs: Any) -> None:
+    def display_mini_header(self, message: str = '', **kwargs: Any) -> None:  # noqa: ARG002
         if self.__verbosity >= 0:
             print(f'[{message}]')
 
-    def abort(self, message: str = '', code: int = 1, **kwargs: Any) -> None:
+    def abort(self, message: str = '', code: int = 1, **kwargs: Any) -> None:  # noqa: ARG002
         """
         Terminate the program with the given return code.
         """

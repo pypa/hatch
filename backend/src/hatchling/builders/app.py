@@ -91,14 +91,22 @@ class AppBuilder(BuilderInterface):
     def get_default_versions(self) -> list[str]:
         return ['bootstrap']
 
-    def clean(self, directory: str, versions: list[str]) -> None:
+    def clean(
+        self,
+        directory: str,
+        versions: list[str],  # noqa: ARG002
+    ) -> None:
         import shutil
 
         app_dir = os.path.join(directory, 'app')
         if os.path.isdir(app_dir):
             shutil.rmtree(app_dir)
 
-    def build_bootstrap(self, directory: str, **build_data: Any) -> str:
+    def build_bootstrap(
+        self,
+        directory: str,
+        **build_data: Any,  # noqa: ARG002
+    ) -> str:
         import shutil
         import tempfile
 

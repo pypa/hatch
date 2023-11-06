@@ -1484,7 +1484,7 @@ class TestHook:
 
 
 class TestHatchPersonalProjectConfigFile:
-    def test_correct(self, isolation, temp_dir, helpers):
+    def test_correct(self, temp_dir, helpers):
         metadata = ProjectMetadata(
             str(temp_dir),
             PluginManager(),
@@ -1512,7 +1512,7 @@ class TestHatchPersonalProjectConfigFile:
         assert metadata.version == '0.0.1'
         assert metadata.hatch.build_config['reproducible'] is False
 
-    def test_precedence(self, isolation, temp_dir, helpers):
+    def test_precedence(self, temp_dir, helpers):
         metadata = ProjectMetadata(
             str(temp_dir),
             PluginManager(),

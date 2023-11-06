@@ -23,6 +23,9 @@ def get_latest_version():
     return f'{major}.{minor}.{patch}'
 
 
-def on_page_read_source(page, config):
+def on_page_read_source(
+    page,
+    config,  # noqa: ARG001
+):
     with open(page.file.abs_src_path, encoding='utf-8') as f:
         return f.read().replace(MARKER, get_latest_version())
