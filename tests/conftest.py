@@ -342,7 +342,6 @@ def local_builder(mock_backend_process, mocker):
         mocker.patch('hatch.env.virtual.VirtualEnvironment.build_environment')
 
 
-
 def pytest_runtest_setup(item):
     for marker in item.iter_markers():
         if marker.name == 'requires_internet' and not network_connectivity():  # no cov
