@@ -146,7 +146,7 @@ class TestHookConfig:
 
 
 class TestDirectoryRecursion:
-    @pytest.mark.requires_unix
+    @pytest.mark.requires_unix()
     def test_infinite_loop_prevention(self, temp_dir):
         project_dir = temp_dir / 'project'
         project_dir.ensure_dir_exists()
