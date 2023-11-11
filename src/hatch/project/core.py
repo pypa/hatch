@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import re
+from typing import TYPE_CHECKING
 
-from hatch.config.model import RootConfig
 from hatch.utils.fs import Path
+
+if TYPE_CHECKING:
+    from hatch.config.model import RootConfig
 
 
 class Project:
@@ -71,6 +74,8 @@ class Project:
                 location = Path(project_dir, project)
                 if location.is_dir():
                     return cls(Path(location).resolve(), name=project)
+
+        return None
 
     def find_project_root(self) -> Path | None:
         path = self._path

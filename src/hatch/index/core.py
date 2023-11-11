@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import httpx
 import hyperlink
 
-from hatch.utils.fs import Path
+if TYPE_CHECKING:
+    from hatch.utils.fs import Path
 
 
 class IndexURLs:

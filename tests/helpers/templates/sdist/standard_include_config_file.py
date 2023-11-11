@@ -11,7 +11,7 @@ def get_files(**kwargs):
     files = []
     for f in get_template_files(**kwargs):
         part = f.path.parts[0]
-        if part == 'my_app' or part == 'pyproject.toml' or part == 'README.md' or part == 'LICENSE.txt':
+        if part in ('my_app', 'pyproject.toml', 'README.md', 'LICENSE.txt'):
             files.append(File(Path(relative_root, f.path), f.contents))
 
     files.append(File(Path(relative_root, 'hatch.toml'), ''))

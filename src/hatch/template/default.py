@@ -80,7 +80,7 @@ class DefaultTemplate(TemplateInterface):
         license_data = config['license_data']
         if license_data:
             if len(license_data) == 1:
-                license_id, text = list(license_data.items())[0]
+                license_id, text = next(iter(license_data.items()))
                 license_text = get_license_text(config, license_id, text, self.creation_time)
                 files.append(File(Path('LICENSE.txt'), license_text))
             else:

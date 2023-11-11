@@ -57,7 +57,7 @@ pip install {project_name_normalized}
 
             license_data = template_config['license_data']
             if len(license_data) == 1:
-                license_id = list(license_data)[0]
+                license_id = next(iter(license_data))
                 license_info += f'the [{license_id}](https://spdx.org/licenses/{license_id}.html) license.'
             else:
                 license_info += 'any of the following licenses:\n'

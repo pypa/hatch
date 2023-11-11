@@ -383,7 +383,7 @@ class TestReadme:
             _ = metadata.core.readme
 
     @pytest.mark.parametrize(
-        'extension, content_type', [('.md', 'text/markdown'), ('.rst', 'text/x-rst'), ('.txt', 'text/plain')]
+        ('extension', 'content_type'), [('.md', 'text/markdown'), ('.rst', 'text/x-rst'), ('.txt', 'text/plain')]
     )
     def test_string_correct(self, extension, content_type, temp_dir):
         metadata = ProjectMetadata(str(temp_dir), None, {'project': {'readme': f'foo/bar{extension}'}})

@@ -96,7 +96,7 @@ def dependency_in_sync(
                     requested_revision and requirement.url == f'{vcs}+{url}@{requested_revision}#{commit_id}'
                 ) or requirement.url == f'{vcs}+{url}@{commit_id}':
                     return True
-                elif requirement.url == f'{vcs}+{url}' or requirement.url == f'{vcs}+{url}@{requested_revision}':
+                elif requirement.url in (f'{vcs}+{url}', f'{vcs}+{url}@{requested_revision}'):
                     import subprocess
 
                     if vcs == 'git':

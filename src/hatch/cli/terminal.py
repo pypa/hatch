@@ -4,14 +4,16 @@ import os
 from abc import ABC, abstractmethod
 from functools import cached_property
 from textwrap import indent as indent_text
-from typing import Callable
+from typing import TYPE_CHECKING, Callable
 
 import click
 from rich.console import Console
 from rich.errors import StyleSyntaxError
-from rich.status import Status
 from rich.style import Style
 from rich.text import Text
+
+if TYPE_CHECKING:
+    from rich.status import Status
 
 
 class TerminalStatus(ABC):

@@ -1617,7 +1617,7 @@ class TestContextFormatting:
             next(environment.expand_command('foo'))
 
     @pytest.mark.parametrize(
-        'verbosity, command',
+        ('verbosity', 'command'),
         (
             (-9000, 'command -qqq'),
             (-3, 'command -qqq'),
@@ -1651,7 +1651,7 @@ class TestContextFormatting:
         assert list(environment.expand_command('foo')) == [command]
 
     @pytest.mark.parametrize(
-        'adjustment, command',
+        ('adjustment', 'command'),
         (
             (-9000, 'command -qqq'),
             (-3, 'command -qqq'),

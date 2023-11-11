@@ -2883,7 +2883,7 @@ class TestBuildStandard:
         reason='requires support for ARM on macOS',
     )
     @pytest.mark.parametrize(
-        'archflags, expected_arch',
+        ('archflags', 'expected_arch'),
         [('-arch x86_64', 'x86_64'), ('-arch arm64', 'arm64'), ('-arch arm64 -arch x86_64', 'universal2')],
     )
     def test_macos_archflags(self, hatch, helpers, temp_dir, config_file, archflags, expected_arch):
