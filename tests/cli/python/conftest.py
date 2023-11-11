@@ -25,6 +25,6 @@ def disable_path_detectors(mocker):
     mocker.patch('userpath.in_new_path', return_value=False)
 
 
-@pytest.fixture
+@pytest.fixture()
 def dist_name(compatible_python_distributions):
     return secrets.choice(compatible_python_distributions)

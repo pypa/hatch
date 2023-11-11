@@ -19,4 +19,3 @@ class TemplateInterface:
 
     def finalize_files(self, config, files):
         """Allow modification of files for new projects before they are written to the file system."""
-        pass

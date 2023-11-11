@@ -18,10 +18,10 @@ def keyring_store(mocker):
     mocker.patch(
         'keyring.set_password', side_effect=lambda system, user, auth: mock_store[system].__setitem__(user, auth)
     )
-    yield mock_store
+    return mock_store
 
 
-@pytest.fixture
+@pytest.fixture()
 def published_project_name():
     return f'c4880cdbe05de9a28415fbad{secrets.choice(range(100))}'
 
