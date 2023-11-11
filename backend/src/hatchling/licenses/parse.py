@@ -90,4 +90,3 @@ def normalize_license_expression(raw_license_expression: str) -> str:
 
     # Fix internal padding for parentheses
     return normalized_expression.replace('( ', '(').replace(' )', ')')
-
