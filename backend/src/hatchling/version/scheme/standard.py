@@ -60,15 +60,15 @@ class StandardScheme(VersionSchemeInterface):
                 if self.config.get('validate-bump', True) and next_version <= original:
                     message = f'Version `{version}` is not higher than the original version `{original_version}`'
                     raise ValueError(message)
-                else:
-                    return str(next_version)
+
+                return str(next_version)
 
         return str(original)
 
 
 def reset_version_parts(version: Version, **kwargs: Any) -> None:
     # https://github.com/pypa/packaging/blob/20.9/packaging/version.py#L301-L310
-    internal_version = version._version
+    internal_version = version._version  # noqa: SLF001
     parts: dict[str, Any] = {'epoch': 0}
     ordered_part_names = ('release', 'pre', 'post', 'dev', 'local')
 
@@ -82,13 +82,12 @@ def reset_version_parts(version: Version, **kwargs: Any) -> None:
         else:
             parts[part_name] = getattr(internal_version, part_name)
 
-    version._version = type(internal_version)(**parts)
+    version._version = type(internal_version)(**parts)  # noqa: SLF001
 
 
 def update_release(original_version: Version, new_release_parts: list[int]) -> tuple[int, ...]:
     # Retain release length
-    for _ in range(len(original_version.release) - len(new_release_parts)):
-        new_release_parts.append(0)
+    new_release_parts.extend(0 for _ in range(len(original_version.release) - len(new_release_parts)))
 
     return tuple(new_release_parts)
 

@@ -48,8 +48,8 @@ def timestamp_to_version(timestamp):
         normalized_minor = str(int(minor))
         padding = '.'.join('0' for _ in range(len(minor) - len(normalized_minor)))
         return f'{major}.{padding}.{normalized_minor}'
-    else:
-        return f'{major}.{minor}'
+
+    return f'{major}.{minor}'
 
 
 def test_timestamp_to_version():

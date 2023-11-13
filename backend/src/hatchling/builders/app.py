@@ -34,7 +34,8 @@ class AppBuilderConfig(BuilderConfig):
                         f'Script #{i} of field `tool.hatch.build.targets.{self.plugin_name}.scripts` must be a string'
                     )
                     raise TypeError(message)
-                elif script not in known_scripts:
+
+                if script not in known_scripts:
                     message = f'Unknown script in field `tool.hatch.build.targets.{self.plugin_name}.scripts`: {script}'
                     raise ValueError(message)
 
@@ -88,11 +89,11 @@ class AppBuilder(BuilderInterface):
     def get_version_api(self) -> dict[str, Callable]:
         return {'bootstrap': self.build_bootstrap}
 
-    def get_default_versions(self) -> list[str]:
+    def get_default_versions(self) -> list[str]:  # noqa: PLR6301
         return ['bootstrap']
 
     def clean(
-        self,
+        self,  # noqa: PLR6301
         directory: str,
         versions: list[str],  # noqa: ARG002
     ) -> None:
@@ -188,7 +189,7 @@ class AppBuilder(BuilderInterface):
             kwargs['stdout'] = subprocess.PIPE
             kwargs['stderr'] = subprocess.STDOUT
 
-        process = subprocess.run(*args, **kwargs)
+        process = subprocess.run(*args, **kwargs)  # noqa: PLW1510
         if process.returncode:
             message = f'Compilation of failed (code {process.returncode})'
             if not self.app.verbosity:

@@ -14,31 +14,40 @@ class InvokedApplication:
     def verbosity(self) -> int:
         return self.__verbosity
 
-    def display(self, *args: Any, **kwargs: Any) -> None:
+    @staticmethod
+    def display(*args: Any, **kwargs: Any) -> None:
         send_app_command('display', *args, **kwargs)
 
-    def display_info(self, *args: Any, **kwargs: Any) -> None:
+    @staticmethod
+    def display_info(*args: Any, **kwargs: Any) -> None:
         send_app_command('display_info', *args, **kwargs)
 
-    def display_waiting(self, *args: Any, **kwargs: Any) -> None:
+    @staticmethod
+    def display_waiting(*args: Any, **kwargs: Any) -> None:
         send_app_command('display_waiting', *args, **kwargs)
 
-    def display_success(self, *args: Any, **kwargs: Any) -> None:
+    @staticmethod
+    def display_success(*args: Any, **kwargs: Any) -> None:
         send_app_command('display_success', *args, **kwargs)
 
-    def display_warning(self, *args: Any, **kwargs: Any) -> None:
+    @staticmethod
+    def display_warning(*args: Any, **kwargs: Any) -> None:
         send_app_command('display_warning', *args, **kwargs)
 
-    def display_error(self, *args: Any, **kwargs: Any) -> None:
+    @staticmethod
+    def display_error(*args: Any, **kwargs: Any) -> None:
         send_app_command('display_error', *args, **kwargs)
 
-    def display_debug(self, *args: Any, **kwargs: Any) -> None:
+    @staticmethod
+    def display_debug(*args: Any, **kwargs: Any) -> None:
         send_app_command('display_debug', *args, **kwargs)
 
-    def display_mini_header(self, *args: Any, **kwargs: Any) -> None:
+    @staticmethod
+    def display_mini_header(*args: Any, **kwargs: Any) -> None:
         send_app_command('display_mini_header', *args, **kwargs)
 
-    def abort(self, *args: Any, **kwargs: Any) -> None:
+    @staticmethod
+    def abort(*args: Any, **kwargs: Any) -> None:
         send_app_command('abort', *args, **kwargs)
         sys.exit(kwargs.get('code', 1))
 
@@ -65,7 +74,8 @@ class Application:
         """
         return self.__verbosity
 
-    def display(self, message: str = '', **kwargs: Any) -> None:  # noqa: ARG002
+    @staticmethod
+    def display(message: str = '', **kwargs: Any) -> None:  # noqa: ARG004
         # Do not document
         print(message)
 
@@ -112,7 +122,8 @@ class Application:
         if not 1 <= level <= 3:  # noqa: PLR2004
             error_message = 'Debug output can only have verbosity levels between 1 and 3 (inclusive)'
             raise ValueError(error_message)
-        elif self.__verbosity >= level:
+
+        if self.__verbosity >= level:
             print(message)
 
     def display_mini_header(self, message: str = '', **kwargs: Any) -> None:  # noqa: ARG002

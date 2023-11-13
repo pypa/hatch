@@ -47,20 +47,18 @@ write-summary-report = "python scripts/write_coverage_summary_report.py"
 [envs.lint]
 detached = true
 dependencies = [
-  "black>=23.1.0",
   "mypy>=1.0.0",
-  "ruff<0.0.262",
+  "ruff==0.1.4",
 ]
 [envs.lint.scripts]
 typing = "mypy --install-types --non-interactive {args:backend/src/hatchling src/hatch tests}"
 style = [
-  "ruff {args:.}",
-  "black --check --diff {args:.}",
+  "ruff check {args:.}",
+  "ruff format --check --diff {args:.}",
 ]
 fmt = [
-  "black {args:.}",
-  "ruff --fix {args:.}",
-  "style",
+  "ruff check --fix {args:.}",
+  "ruff format {args:.}",
 ]
 all = [
   "style",

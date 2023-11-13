@@ -225,7 +225,7 @@ class ProjectMetadata(Generic[PluginManagerBound]):
         if version is None:
             version = self.hatch.version.cached
             source = f'source `{self.hatch.version.source_name}`'
-            core_metadata._version_set = True
+            core_metadata._version_set = True  # noqa: SLF001
         else:
             source = 'field `project.version`'
 
@@ -385,7 +385,8 @@ class CoreMetadata:
             if not raw_name:
                 message = 'Missing required field `project.name`'
                 raise ValueError(message)
-            elif not isinstance(raw_name, str):
+
+            if not isinstance(raw_name, str):
                 message = 'Field `project.name` must be a string'
                 raise TypeError(message)
 
@@ -517,10 +518,12 @@ class CoreMetadata:
                 if content_type is None:
                     message = 'Field `content-type` is required in the `project.readme` table'
                     raise ValueError(message)
-                elif not isinstance(content_type, str):
+
+                if not isinstance(content_type, str):
                     message = 'Field `content-type` in the `project.readme` table must be a string'
                     raise TypeError(message)
-                elif content_type not in ('text/markdown', 'text/x-rst', 'text/plain'):
+
+                if content_type not in ('text/markdown', 'text/x-rst', 'text/plain'):
                     message = (
                         'Field `content-type` in the `project.readme` table must be one of the following: '
                         'text/markdown, text/x-rst, text/plain'
@@ -723,7 +726,8 @@ class CoreMetadata:
                 if not isinstance(data, dict):
                     message = 'Field `project.license-files` must be a table'
                     raise TypeError(message)
-                elif 'paths' in data and 'globs' in data:
+
+                if 'paths' in data and 'globs' in data:
                     message = 'Cannot specify both `paths` and `globs` in the `project.license-files` table'
                     raise ValueError(message)
 
@@ -759,9 +763,11 @@ class CoreMetadata:
                         raise TypeError(message)
 
                     full_pattern = os.path.normpath(os.path.join(self.root, pattern))
-                    for path in glob(full_pattern):
-                        if os.path.isfile(path):
-                            license_files.append(os.path.relpath(path, self.root).replace('\\', '/'))
+                    license_files.extend(
+                        os.path.relpath(path, self.root).replace('\\', '/')
+                        for path in glob(full_pattern)
+                        if os.path.isfile(path)
+                    )
             else:
                 message = 'Must specify either `paths` or `globs` in the `project.license-files` table if defined'
                 raise ValueError(message)
@@ -973,7 +979,8 @@ class CoreMetadata:
                 if not isinstance(classifier, str):
                     message = f'Classifier #{i} of field `project.classifiers` must be a string'
                     raise TypeError(message)
-                elif not self.__classifier_is_private(classifier) and classifier not in known_classifiers:
+
+                if not self.__classifier_is_private(classifier) and classifier not in known_classifiers:
                     message = f'Unknown classifier in field `project.classifiers`: {classifier}'
                     raise ValueError(message)
 
@@ -1235,7 +1242,8 @@ class CoreMetadata:
                         f'ASCII letters/digits.'
                     )
                     raise ValueError(message)
-                elif not isinstance(dependencies, list):
+
+                if not isinstance(dependencies, list):
                     message = (
                         f'Dependencies for option `{option}` of field `project.optional-dependencies` must be an array'
                     )
@@ -1310,7 +1318,8 @@ class CoreMetadata:
         if not isinstance(self._dynamic, list):
             message = 'Field `project.dynamic` must be an array'
             raise TypeError(message)
-        elif not all(isinstance(entry, str) for entry in self._dynamic):
+
+        if not all(isinstance(entry, str) for entry in self._dynamic):
             message = 'Field `project.dynamic` must only contain strings'
             raise TypeError(message)
 
@@ -1410,7 +1419,7 @@ class HatchVersionConfig(Generic[PluginManagerBound]):
         if self._cached is None:
             try:
                 self._cached = self.source.get_version_data()['version']
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 message = f'Error getting the version from source `{self.source.PLUGIN_NAME}`: {e}'
                 raise type(e)(message) from None
 
@@ -1423,7 +1432,8 @@ class HatchVersionConfig(Generic[PluginManagerBound]):
             if not source:
                 message = 'The `source` option under the `tool.hatch.version` table must not be empty if defined'
                 raise ValueError(message)
-            elif not isinstance(source, str):
+
+            if not isinstance(source, str):
                 message = 'Field `tool.hatch.version.source` must be a string'
                 raise TypeError(message)
 
@@ -1438,7 +1448,8 @@ class HatchVersionConfig(Generic[PluginManagerBound]):
             if not scheme:
                 message = 'The `scheme` option under the `tool.hatch.version` table must not be empty if defined'
                 raise ValueError(message)
-            elif not isinstance(scheme, str):
+
+            if not isinstance(scheme, str):
                 message = 'Field `tool.hatch.version.scheme` must be a string'
                 raise TypeError(message)
 

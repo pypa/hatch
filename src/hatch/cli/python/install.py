@@ -79,7 +79,8 @@ def install(app: Application, *, names: tuple[str, ...], private: bool, update: 
             if not needs_update:
                 app.display_warning(f'The latest version is already installed: {name}')
                 continue
-            elif not (update or app.confirm(f'Update {name}?')):
+
+            if not (update or app.confirm(f'Update {name}?')):
                 app.abort(f'Distribution is already installed: {name}')
 
         with app.status(f'{"Updating" if needs_update else "Installing"} {name}'):

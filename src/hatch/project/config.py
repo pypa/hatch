@@ -161,7 +161,7 @@ class ProjectConfig:
             generated_envs = {}
             final_config = {}
             cached_overrides = {}
-            for env_name, initial_config in config.items():
+            for env_name, raw_initial_config in config.items():
                 current_cached_overrides = cached_overrides[env_name] = {
                     'platform': [],
                     'env': [],
@@ -170,13 +170,14 @@ class ProjectConfig:
                 }
 
                 # Only shallow copying is necessary since we just want to modify keys
-                initial_config = initial_config.copy()
+                initial_config = raw_initial_config.copy()
 
                 matrix_name_format = initial_config.pop('matrix-name-format', '{value}')
                 if not isinstance(matrix_name_format, str):
                     message = f'Field `tool.hatch.envs.{env_name}.matrix-name-format` must be a string'
                     raise TypeError(message)
-                elif '{value}' not in matrix_name_format:
+
+                if '{value}' not in matrix_name_format:
                     message = (
                         f'Field `tool.hatch.envs.{env_name}.matrix-name-format` must '
                         f'contain at least the `{{value}}` placeholder'
@@ -198,7 +199,8 @@ class ProjectConfig:
                     if not isinstance(options, dict):
                         message = f'Field `tool.hatch.envs.{env_name}.overrides.platform.{platform}` must be a table'
                         raise TypeError(message)
-                    elif platform != current_platform:
+
+                    if platform != current_platform:
                         continue
 
                     apply_overrides(env_name, 'platform', platform, current_platform, options, initial_config)
@@ -214,7 +216,8 @@ class ProjectConfig:
                     if not isinstance(options, dict):
                         message = f'Field `tool.hatch.envs.{env_name}.overrides.env.{env_var}` must be a table'
                         raise TypeError(message)
-                    elif env_var not in environ:
+
+                    if env_var not in environ:
                         continue
 
                     apply_overrides(env_name, 'env', env_var, environ[env_var], options, initial_config)
@@ -241,11 +244,13 @@ class ProjectConfig:
 
                 matrix_data = all_matrices[env_name] = {'config': deepcopy(initial_config)}
                 all_envs = matrix_data['envs'] = {}
-                for i, matrix in enumerate(matrices, 1):
+                for i, raw_matrix in enumerate(matrices, 1):
+                    matrix = raw_matrix
                     if not isinstance(matrix, dict):
                         message = f'Entry #{i} in field `tool.hatch.envs.{env_name}.matrix` must be a table'
                         raise TypeError(message)
-                    elif not matrix:
+
+                    if not matrix:
                         message = f'Matrix #{i} in field `tool.hatch.envs.{env_name}.matrix` cannot be empty'
                         raise ValueError(message)
 
@@ -256,13 +261,15 @@ class ProjectConfig:
                                 f'cannot be an empty string'
                             )
                             raise ValueError(message)
-                        elif not isinstance(values, list):
+
+                        if not isinstance(values, list):
                             message = (
                                 f'Variable `{variable}` in matrix #{i} in field `tool.hatch.envs.{env_name}.matrix` '
                                 f'must be an array'
                             )
                             raise TypeError(message)
-                        elif not values:
+
+                        if not values:
                             message = (
                                 f'Variable `{variable}` in matrix #{i} in field `tool.hatch.envs.{env_name}.matrix` '
                                 f'cannot be empty'
@@ -277,18 +284,21 @@ class ProjectConfig:
                                     f'`tool.hatch.envs.{env_name}.matrix` must be a string'
                                 )
                                 raise TypeError(message)
-                            elif not value:
+
+                            if not value:
                                 message = (
                                     f'Value #{k} of variable `{variable}` in matrix #{i} in field '
                                     f'`tool.hatch.envs.{env_name}.matrix` cannot be an empty string'
                                 )
                                 raise ValueError(message)
-                            elif value in existing_values:
+
+                            if value in existing_values:
                                 message = (
                                     f'Value #{k} of variable `{variable}` in matrix #{i} in field '
                                     f'`tool.hatch.envs.{env_name}.matrix` is a duplicate'
                                 )
                                 raise ValueError(message)
+
                             existing_values.add(value)
 
                     variables = {}
@@ -327,7 +337,8 @@ class ProjectConfig:
                                     f'Field `tool.hatch.envs.{env_name}.overrides.matrix.{variable}` must be a table'
                                 )
                                 raise TypeError(message)
-                            elif variable not in variables:
+
+                            if variable not in variables:
                                 continue
 
                             apply_overrides(
@@ -354,7 +365,8 @@ class ProjectConfig:
                             if not isinstance(options, dict):
                                 message = f'Field `tool.hatch.envs.{env_name}.overrides.name.{pattern}` must be a table'
                                 raise TypeError(message)
-                            elif not re.search(pattern, new_env_name):
+
+                            if not re.search(pattern, new_env_name):
                                 continue
 
                             apply_overrides(env_name, 'name', pattern, new_env_name, options, new_config)
@@ -466,7 +478,8 @@ class ProjectConfig:
 def expand_script_commands(script_name, commands, config, seen, active):
     if script_name in seen:
         return seen[script_name]
-    elif script_name in active:
+
+    if script_name in active:
         active.append(script_name)
 
         message = f'Circular expansion detected for field `tool.hatch.scripts`: {" -> ".join(active)}'
@@ -499,7 +512,8 @@ def expand_script_commands(script_name, commands, config, seen, active):
 def _populate_default_env_values(env_name, data, config, seen, active):
     if env_name in seen:
         return
-    elif data.pop('detached', False):
+
+    if data.pop('detached', False):
         data['template'] = env_name
         data['skip-install'] = True
 
@@ -507,12 +521,14 @@ def _populate_default_env_values(env_name, data, config, seen, active):
     if template_name not in config:
         message = f'Field `tool.hatch.envs.{env_name}.template` refers to an unknown environment `{template_name}`'
         raise ValueError(message)
-    elif env_name in active:
+
+    if env_name in active:
         active.append(env_name)
 
         message = f'Circular inheritance detected for field `tool.hatch.envs.*.template`: {" -> ".join(active)}'
         raise ValueError(message)
-    elif template_name == env_name:
+
+    if template_name == env_name:
         ensure_valid_environment(data)
         seen.add(env_name)
         return
@@ -525,7 +541,8 @@ def _populate_default_env_values(env_name, data, config, seen, active):
     for key, value in template_config.items():
         if key == 'matrix':
             continue
-        elif key == 'scripts':
+
+        if key == 'scripts':
             scripts = data['scripts'] if 'scripts' in data else data.setdefault('scripts', {})
             for script, commands in value.items():
                 scripts.setdefault(script, commands)

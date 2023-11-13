@@ -25,13 +25,15 @@ class ContextFormatter(ABC):
     def format_path(cls, path: str, modifier: str) -> str:
         if not modifier:
             return os.path.normpath(path)
-        elif modifier == 'uri':
+
+        if modifier == 'uri':
             return path_to_uri(path)
-        elif modifier == 'real':
+
+        if modifier == 'real':
             return os.path.realpath(path)
-        else:
-            message = f'Unknown path modifier: {modifier}'
-            raise ValueError(message)
+
+        message = f'Unknown path modifier: {modifier}'
+        raise ValueError(message)
 
 
 class DefaultContextFormatter(ContextFormatter):
@@ -49,10 +51,10 @@ class DefaultContextFormatter(ContextFormatter):
             'root': self.__format_root,
         }
 
-    def __format_directory_separator(self, value: str, data: str) -> str:  # noqa: ARG002
+    def __format_directory_separator(self, value: str, data: str) -> str:  # noqa: ARG002, PLR6301
         return os.sep
 
-    def __format_path_separator(self, value: str, data: str) -> str:  # noqa: ARG002
+    def __format_path_separator(self, value: str, data: str) -> str:  # noqa: ARG002, PLR6301
         return os.pathsep
 
     def __format_root(self, value: str, data: str) -> str:  # noqa: ARG002
@@ -61,7 +63,7 @@ class DefaultContextFormatter(ContextFormatter):
     def __format_home(self, value: str, data: str) -> str:  # noqa: ARG002
         return self.format_path(os.path.expanduser('~'), data)
 
-    def __format_env(self, value: str, data: str) -> str:  # noqa: ARG002
+    def __format_env(self, value: str, data: str) -> str:  # noqa: ARG002, PLR6301
         if not data:
             message = 'The `env` context formatting field requires a modifier'
             raise ValueError(message)
@@ -69,11 +71,12 @@ class DefaultContextFormatter(ContextFormatter):
         env_var, separator, default = data.partition(':')
         if env_var in os.environ:
             return os.environ[env_var]
-        elif not separator:
+
+        if not separator:
             message = f'Nonexistent environment variable must set a default: {env_var}'
             raise ValueError(message)
-        else:
-            return default
+
+        return default
 
 
 class Context:
@@ -132,19 +135,19 @@ class ContextStringFormatter(string.Formatter):
         if key in self.__formatters:
             # Avoid hard look-up and rely on `None` to indicate that the field is undefined
             return kwargs.get(str(key))
-        else:
-            try:
-                return super().get_value(key, args, kwargs)
-            except KeyError:
-                message = f'Unknown context field `{key}`'
-                raise ValueError(message) from None
+
+        try:
+            return super().get_value(key, args, kwargs)
+        except KeyError:
+            message = f'Unknown context field `{key}`'
+            raise ValueError(message) from None
 
     def format_field(self, value: Any, format_spec: str) -> Any:
         formatter, _, data = format_spec.partition(':')
         if formatter in self.__formatters:
             return self.__formatters[formatter](value, data)
-        else:
-            return super().format_field(value, format_spec)
+
+        return super().format_field(value, format_spec)
 
     def parse(self, format_string: str) -> Iterable:
         for literal_text, field_name, format_spec, conversion in super().parse(format_string):

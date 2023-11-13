@@ -60,8 +60,6 @@ def get_sdist_form_data(artifact):
             if tar_info.isfile():
                 pkg_info_dir_parts.append(tar_info.name.split('/', 1)[0])
                 break
-            else:  # no cov
-                pass
         else:  # no cov
             message = f'Could not find any files in sdist: {artifact}'
             raise ArtifactMetadataError(message)

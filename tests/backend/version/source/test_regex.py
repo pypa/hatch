@@ -72,7 +72,7 @@ def test_match_custom_pattern(temp_dir):
         assert source.get_version_data()['version'] == '0.0.1'
 
 
-@pytest.mark.parametrize('variable, quote, prefix', DEFAULT_PATTERN_PRODUCTS)
+@pytest.mark.parametrize(('variable', 'quote', 'prefix'), DEFAULT_PATTERN_PRODUCTS)
 def test_match_default_pattern(temp_dir, helpers, variable, quote, prefix):
     source = RegexSource(str(temp_dir), {'path': 'a/b'})
 
@@ -95,7 +95,7 @@ def test_match_default_pattern(temp_dir, helpers, variable, quote, prefix):
         assert source.get_version_data()['version'] == '0.0.1'
 
 
-@pytest.mark.parametrize('variable, quote, prefix', DEFAULT_PATTERN_PRODUCTS)
+@pytest.mark.parametrize(('variable', 'quote', 'prefix'), DEFAULT_PATTERN_PRODUCTS)
 def test_set_default_pattern(temp_dir, helpers, variable, quote, prefix):
     source = RegexSource(str(temp_dir), {'path': 'a/b'})
 

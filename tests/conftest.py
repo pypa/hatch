@@ -4,10 +4,10 @@ import shutil
 import subprocess
 import sys
 import time
-from collections import namedtuple
+from contextlib import suppress
 from functools import lru_cache
 from io import BytesIO
-from typing import Generator
+from typing import Generator, NamedTuple
 
 import pytest
 from click.testing import CliRunner as __CliRunner
@@ -26,7 +26,14 @@ from hatchling.cli import hatchling
 from .helpers.templates.licenses import MIT, Apache_2_0
 
 PLATFORM = Platform()
-DEVPI = namedtuple('DEVPI', ('repo', 'index', 'user', 'auth', 'ca_cert'))
+
+
+class Devpi(NamedTuple):
+    repo: str
+    index_name: str
+    user: str
+    auth: str
+    ca_cert: str
 
 
 class CliRunner(__CliRunner):
@@ -240,8 +247,8 @@ def devpi(tmp_path_factory, worker_id):
             data = {'password': os.urandom(16).hex(), 'ca_cert': client_cert}
             devpi_data_file.write_atomic(json.dumps(data), 'w', encoding='utf-8')
 
-    dp = DEVPI('https://localhost:8443/hatch/testing/', 'testing', 'hatch', data['password'], data['ca_cert'])
-    env_vars = {'DEVPI_INDEX_NAME': dp.index, 'DEVPI_USERNAME': dp.user, 'DEVPI_PASSWORD': dp.auth}
+    dp = Devpi('https://localhost:8443/hatch/testing/', 'testing', 'hatch', data['password'], data['ca_cert'])
+    env_vars = {'DEVPI_INDEX_NAME': dp.index_name, 'DEVPI_USERNAME': dp.user, 'DEVPI_PASSWORD': dp.auth}
 
     compose_file = str(devpi_docker_data / 'docker-compose.yaml')
     with FileLock(lock_file):
@@ -251,7 +258,7 @@ def devpi(tmp_path_factory, worker_id):
 
             for _ in range(60):
                 output = subprocess.check_output(['docker', 'logs', 'hatch-devpi']).decode('utf-8')
-                if f'Serving index {dp.user}/{dp.index}' in output:
+                if f'Serving index {dp.user}/{dp.index_name}' in output:
                     time.sleep(5)
                     break
 
@@ -272,7 +279,7 @@ def devpi(tmp_path_factory, worker_id):
                 shutil.rmtree(devpi_ended_sessions)
 
                 with EnvVars(env_vars):
-                    subprocess.run(['docker', 'compose', '-f', compose_file, 'down', '-t', '0'], capture_output=True)
+                    subprocess.run(['docker', 'compose', '-f', compose_file, 'down', '-t', '0'], capture_output=True)  # noqa: PLW1510
 
                 shutil.rmtree(devpi_data)
 
@@ -341,6 +348,8 @@ def local_builder(mock_backend_process, mocker):
     if mock_backend_process:
         mocker.patch('hatch.env.virtual.VirtualEnvironment.build_environment')
 
+    return mock_backend_process
+
 
 def pytest_runtest_setup(item):
     for marker in item.iter_markers():
@@ -387,12 +396,11 @@ def network_connectivity():  # no cov
 
     import socket
 
-    try:
+    with suppress(Exception):
         # Test availability of DNS first
         host = socket.gethostbyname('www.google.com')
         # Test connection
         socket.create_connection((host, 80), 2)
-    except Exception:
-        return False
+        return True
 
-    return True
+    return False

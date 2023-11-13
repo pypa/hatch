@@ -11,14 +11,15 @@ def get_files(**kwargs):
     files = []
     for f in get_template_files(**kwargs):
         part = f.path.parts[0]
-        if part == 'my_app' or part == 'pyproject.toml' or part == 'README.md' or part == 'LICENSE.txt':
+        if part in ('my_app', 'pyproject.toml', 'README.md', 'LICENSE.txt'):
             files.append(File(Path(relative_root, f.path), f.contents))
 
-    files.append(File(Path(relative_root, 'hatch.toml'), ''))
-    files.append(
-        File(
-            Path(relative_root, 'PKG-INFO'),
-            f"""\
+    files.extend(
+        (
+            File(Path(relative_root, 'hatch.toml'), ''),
+            File(
+                Path(relative_root, 'PKG-INFO'),
+                f"""\
 Metadata-Version: {DEFAULT_METADATA_VERSION}
 Name: {kwargs['project_name']}
 Version: 0.0.1
@@ -47,6 +48,7 @@ pip install my-app
 
 `my-app` is distributed under the terms of the [MIT](https://spdx.org/licenses/MIT.html) license.
 """,
+            ),
         )
     )
 

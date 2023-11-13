@@ -74,7 +74,7 @@ class SdistArchive:
         setattr(self, name, attr)
         return attr
 
-    def __enter__(self) -> SdistArchive:
+    def __enter__(self) -> SdistArchive:  # noqa: PYI034
         return self
 
     def __exit__(
@@ -150,11 +150,11 @@ class SdistBuilder(BuilderInterface):
     def get_version_api(self) -> dict[str, Callable]:
         return {'standard': self.build_standard}
 
-    def get_default_versions(self) -> list[str]:
+    def get_default_versions(self) -> list[str]:  # noqa: PLR6301
         return ['standard']
 
     def clean(
-        self,
+        self,  # noqa: PLR6301
         directory: str,
         versions: list[str],  # noqa: ARG002
     ) -> None:
@@ -249,8 +249,8 @@ class SdistBuilder(BuilderInterface):
         if dependencies:
             contents += '    install_requires=[\n'
 
-            for specifier in dependencies:
-                specifier = specifier.replace("'", '"')
+            for raw_specifier in dependencies:
+                specifier = raw_specifier.replace("'", '"')
                 contents += f'        {specifier!r},\n'
 
             contents += '    ],\n'
@@ -264,8 +264,8 @@ class SdistBuilder(BuilderInterface):
 
                 contents += f'        {option!r}: [\n'
 
-                for specifier in specifiers:
-                    specifier = specifier.replace("'", '"')
+                for raw_specifier in specifiers:
+                    specifier = raw_specifier.replace("'", '"')
                     contents += f'            {specifier!r},\n'
 
                 contents += '        ],\n'
@@ -342,8 +342,8 @@ class SdistBuilder(BuilderInterface):
         license_files = self.metadata.core.license_files
         if license_files:
             for license_file in license_files:
-                license_file = normalize_relative_path(license_file)
-                force_include[os.path.join(self.root, license_file)] = license_file
+                relative_path = normalize_relative_path(license_file)
+                force_include[os.path.join(self.root, relative_path)] = relative_path
 
         return build_data
 

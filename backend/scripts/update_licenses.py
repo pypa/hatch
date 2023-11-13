@@ -16,7 +16,7 @@ def download_data(url):
         try:
             response = httpx.get(url)
             response.raise_for_status()
-        except Exception:
+        except Exception:  # noqa: BLE001
             time.sleep(1)
             continue
         else:

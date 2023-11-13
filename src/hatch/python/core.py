@@ -121,5 +121,6 @@ class PythonManager:
 
         return InstalledDistribution(path, dist, metadata)
 
-    def remove(self, dist: InstalledDistribution) -> None:
+    @staticmethod
+    def remove(dist: InstalledDistribution) -> None:
         dist.path.wait_for_dir_removed()

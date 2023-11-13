@@ -61,7 +61,7 @@ def new(app, name, location, interactive, feature_cli, initialize, setuptools_op
             ) as venv:
                 app.platform.run_command(['python', '-m', 'pip', 'install', '-q', 'setuptools'])
                 migrate(str(location), setuptools_options, venv.sys_path)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             app.display_error(f'Could not automatically migrate from setuptools: {e}')
             if name == 'temporary':
                 name = app.prompt('Project name')
@@ -118,10 +118,12 @@ def new(app, name, location, interactive, feature_cli, initialize, setuptools_op
     template_files = []
 
     for template in templates:
-        for template_file in template.get_files(config=deepcopy(template_config)):
-            if template_file.__class__ is not File:
-                template_file = template_file(deepcopy(template_config), template.plugin_config)
-
+        for possible_template_file in template.get_files(config=deepcopy(template_config)):
+            template_file = (
+                possible_template_file(deepcopy(template_config), template.plugin_config)
+                if possible_template_file.__class__ is not File
+                else possible_template_file
+            )
             if template_file.path is None or (initialize and str(template_file.path) != 'pyproject.toml'):
                 continue
 

@@ -5,10 +5,7 @@ from .default import get_files as get_template_files
 
 
 def get_files(**kwargs):
-    files = []
-    for f in get_template_files(**kwargs):
-        files.append(File(Path(f.path), f.contents))
-
+    files = [File(Path(f.path), f.contents) for f in get_template_files(**kwargs)]
     files.append(
         File(
             Path('.github', 'workflows', 'test.yml'),

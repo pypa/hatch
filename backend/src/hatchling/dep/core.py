@@ -20,9 +20,10 @@ class DistributionCache:
         possible_distribution = self._distributions.get(item)
         if possible_distribution is not None:
             return possible_distribution
+
         # Be safe even though the code as-is will never reach this since
         # the first unknown distribution will fail fast
-        elif self._search_exhausted:  # no cov
+        if self._search_exhausted:  # no cov
             return None
 
         for distribution in self._resolver:
@@ -76,8 +77,9 @@ def dependency_in_sync(
 
     if requirement.specifier and not requirement.specifier.contains(distribution.version):
         return False
+
     # TODO: handle https://discuss.python.org/t/11938
-    elif requirement.url:
+    if requirement.url:
         direct_url_file = distribution.read_text('direct_url.json')
         if direct_url_file is not None:
             import json
@@ -96,7 +98,8 @@ def dependency_in_sync(
                     requested_revision and requirement.url == f'{vcs}+{url}@{requested_revision}#{commit_id}'
                 ) or requirement.url == f'{vcs}+{url}@{commit_id}':
                     return True
-                elif requirement.url == f'{vcs}+{url}' or requirement.url == f'{vcs}+{url}@{requested_revision}':
+
+                if requirement.url in (f'{vcs}+{url}', f'{vcs}+{url}@{requested_revision}'):
                     import subprocess
 
                     if vcs == 'git':
@@ -106,13 +109,13 @@ def dependency_in_sync(
                     # TODO: add elifs for hg, svn, and bzr https://github.com/pypa/hatch/issues/760
                     else:
                         return False
-                    result = subprocess.run(vcs_cmd, capture_output=True, text=True)
+                    result = subprocess.run(vcs_cmd, capture_output=True, text=True)  # noqa: PLW1510
                     if result.returncode:
                         return False
                     latest_commit_id, *_ = result.stdout.split()
                     return commit_id == latest_commit_id
-                else:
-                    return False
+
+                return False
 
     return True
 

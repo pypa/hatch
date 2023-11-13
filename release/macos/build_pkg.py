@@ -31,7 +31,7 @@ README = """\
 
 
 def run_command(command: list[str]) -> None:
-    process = subprocess.run(command)
+    process = subprocess.run(command)  # noqa: PLW1510
     if process.returncode:
         sys.exit(process.returncode)
 

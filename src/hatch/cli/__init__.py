@@ -108,7 +108,7 @@ def hatch(ctx: click.Context, env_name, project, verbose, quiet, color, interact
     app = Application(ctx.exit, verbose - quiet, color, interactive)
 
     app.env_active = os.environ.get(AppEnvVars.ENV_ACTIVE)
-    if app.env_active and ctx.get_parameter_source('env_name').name == 'DEFAULT':  # type: ignore
+    if app.env_active and ctx.get_parameter_source('env_name').name == 'DEFAULT':
         app.env = app.env_active
     else:
         app.env = env_name
@@ -162,8 +162,9 @@ def hatch(ctx: click.Context, env_name, project, verbose, quiet, color, interact
 
     if app.config.mode == 'local':
         return
+
     # The following logic is mostly duplicated for each branch so coverage can be asserted
-    elif app.config.mode == 'project':
+    if app.config.mode == 'project':
         if not app.config.project:
             app.display_warning('Mode is set to `project` but no project is set, defaulting to the current directory')
             return
@@ -175,7 +176,8 @@ def hatch(ctx: click.Context, env_name, project, verbose, quiet, color, interact
             app.project = possible_project
 
         return
-    elif app.config.mode == 'aware' and app.project.root is None:
+
+    if app.config.mode == 'aware' and app.project.root is None:
         if not app.config.project:
             app.display_warning('Mode is set to `aware` but no project is set, defaulting to the current directory')
             return
@@ -211,7 +213,7 @@ if __management_command:
 def main():  # no cov
     try:
         return hatch(prog_name='hatch', windows_expand_args=False)
-    except Exception:
+    except Exception:  # noqa: BLE001
         from rich.console import Console
 
         console = Console()

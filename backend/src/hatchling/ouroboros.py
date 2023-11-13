@@ -24,7 +24,7 @@ def read_dependencies() -> list[str]:
 
 
 def get_requires_for_build_sdist(  # type: ignore[no-redef]
-    config_settings: dict[str, Any] | None = None  # noqa: ARG001
+    config_settings: dict[str, Any] | None = None,  # noqa: ARG001
 ) -> list[str]:
     """
     https://peps.python.org/pep-0517/#get-requires-for-build-sdist
@@ -33,7 +33,7 @@ def get_requires_for_build_sdist(  # type: ignore[no-redef]
 
 
 def get_requires_for_build_wheel(  # type: ignore[no-redef]
-    config_settings: dict[str, Any] | None = None  # noqa: ARG001
+    config_settings: dict[str, Any] | None = None,  # noqa: ARG001
 ) -> list[str]:
     """
     https://peps.python.org/pep-0517/#get-requires-for-build-wheel
@@ -42,7 +42,7 @@ def get_requires_for_build_wheel(  # type: ignore[no-redef]
 
 
 def get_requires_for_build_editable(  # type: ignore[no-redef]
-    config_settings: dict[str, Any] | None = None  # noqa: ARG001
+    config_settings: dict[str, Any] | None = None,  # noqa: ARG001
 ) -> list[str]:
     """
     https://peps.python.org/pep-0660/#get-requires-for-build-editable

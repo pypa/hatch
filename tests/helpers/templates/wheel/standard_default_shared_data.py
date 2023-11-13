@@ -21,29 +21,29 @@ def get_files(**kwargs):
 
         files.append(f)
 
-    files.append(File(Path(shared_data_directory, 'data', 'foo.txt'), ''))
-    files.append(File(Path(shared_data_directory, 'data', 'nested', 'bar.txt'), ''))
-    files.append(
-        File(
-            Path(metadata_directory, 'WHEEL'),
-            f"""\
+    files.extend(
+        (
+            File(Path(shared_data_directory, 'data', 'foo.txt'), ''),
+            File(Path(shared_data_directory, 'data', 'nested', 'bar.txt'), ''),
+            File(
+                Path(metadata_directory, 'WHEEL'),
+                f"""\
 Wheel-Version: 1.0
 Generator: hatchling {__version__}
 Root-Is-Purelib: true
 Tag: py3-none-any
 """,
-        )
-    )
-    files.append(
-        File(
-            Path(metadata_directory, 'METADATA'),
-            f"""\
+            ),
+            File(
+                Path(metadata_directory, 'METADATA'),
+                f"""\
 Metadata-Version: {DEFAULT_METADATA_VERSION}
 Name: {kwargs['project_name']}
 Version: 0.0.1
 License-File: LICENSE.txt
 Requires-Python: >3
 """,
+            ),
         )
     )
 

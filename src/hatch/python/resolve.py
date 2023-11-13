@@ -91,12 +91,13 @@ class CPythonStandaloneDistribution(Distribution):
         if self.name == '3.7':
             if sys.platform == 'win32':
                 return r'python\install\python.exe'
-            else:
-                return 'python/install/bin/python3'
-        elif sys.platform == 'win32':
+
+            return 'python/install/bin/python3'
+
+        if sys.platform == 'win32':
             return r'python\python.exe'
-        else:
-            return 'python/bin/python3'
+
+        return 'python/bin/python3'
 
 
 class PyPyOfficialDistribution(Distribution):
@@ -118,14 +119,15 @@ class PyPyOfficialDistribution(Distribution):
 
         if sys.platform == 'win32':
             return rf'{directory}\pypy.exe'
-        else:
-            return f'{directory}/bin/pypy'
+
+        return f'{directory}/bin/pypy'
 
 
 def get_distribution(name: str, source: str = '', variant: str = '') -> Distribution:
     if source:
         return _get_distribution_class(source)(name, source)
-    elif name not in DISTRIBUTIONS:
+
+    if name not in DISTRIBUTIONS:
         message = f'Unknown distribution: {name}'
         raise PythonDistributionUnknownError(message)
 
@@ -175,10 +177,12 @@ def _get_default_variant(name: str, system: str, arch: str, abi: str) -> str:
     if name[0].isdigit():
         if system == 'windows' and abi == 'msvc':
             return 'shared'
-        elif system == 'linux' and arch == 'x86_64':
+
+        if system == 'linux' and arch == 'x86_64':
             if name == '3.8':
                 return 'v1'
-            elif name != '3.7':
+
+            if name != '3.7':
                 return 'v3'
 
     return ''
@@ -187,8 +191,9 @@ def _get_default_variant(name: str, system: str, arch: str, abi: str) -> str:
 def _get_distribution_class(source: str) -> type[Distribution]:
     if source.startswith('https://github.com/indygreg/python-build-standalone/releases/download/'):
         return CPythonStandaloneDistribution
-    elif source.startswith('https://downloads.python.org/pypy/'):
+
+    if source.startswith('https://downloads.python.org/pypy/'):
         return PyPyOfficialDistribution
-    else:
-        message = f'Unknown distribution source: {source}'
-        raise ValueError(message)
+
+    message = f'Unknown distribution source: {source}'
+    raise ValueError(message)

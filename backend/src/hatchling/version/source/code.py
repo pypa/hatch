@@ -16,7 +16,8 @@ class CodeSource(VersionSourceInterface):
         if not relative_path:
             message = 'option `path` must be specified'
             raise ValueError(message)
-        elif not isinstance(relative_path, str):
+
+        if not isinstance(relative_path, str):
             message = 'option `path` must be a string'
             raise TypeError(message)
 
@@ -54,10 +55,10 @@ class CodeSource(VersionSourceInterface):
             sys.path[:] = old_search_paths
 
         # Execute the expression to determine the version
-        version = eval(expression, vars(module))
+        version = eval(expression, vars(module))  # noqa: PGH001, S307
 
         return {'version': version}
 
-    def set_version(self, version: str, version_data: dict) -> None:  # noqa: ARG002
+    def set_version(self, version: str, version_data: dict) -> None:  # noqa: ARG002, PLR6301
         message = 'Cannot rewrite loaded code'
         raise NotImplementedError(message)

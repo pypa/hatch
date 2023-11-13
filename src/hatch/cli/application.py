@@ -89,7 +89,7 @@ class Application(Terminal):
         )
         try:
             environment.check_compatibility()
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             self.abort(f'Internal environment `{env_name}` is incompatible: {e}')
 
         self.prepare_environment(environment)
@@ -144,17 +144,18 @@ class Application(Terminal):
         with environment.command_context():
             try:
                 resolved_commands = list(environment.resolve_commands(commands))
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 self.abort(str(e))
 
             first_error_code = None
             should_display_command = self.verbose or len(resolved_commands) > 1
-            for i, command in enumerate(resolved_commands, 1):
+            for i, raw_command in enumerate(resolved_commands, 1):
                 if should_display_command:
-                    self.display(f'{source} [{i}] | {command}')
+                    self.display(f'{source} [{i}] | {raw_command}')
 
+                command = raw_command
                 continue_on_error = force_continue
-                if command.startswith('- '):
+                if raw_command.startswith('- '):
                     continue_on_error = True
                     command = command[2:]
 
@@ -163,7 +164,8 @@ class Application(Terminal):
                     first_error_code = first_error_code or process.returncode
                     if continue_on_error:
                         continue
-                    elif show_code_on_error:
+
+                    if show_code_on_error:
                         self.abort(f'Failed with exit code: {process.returncode}', code=process.returncode)
                     else:
                         self.abort(code=process.returncode)
@@ -237,8 +239,7 @@ class Application(Terminal):
         # Default to -1 verbosity
         add_verbosity_flag(command, self.verbosity, adjustment=-1)
 
-        for dependency in dependencies:
-            command.append(str(dependency))
+        command.extend(str(dependency) for dependency in dependencies)
 
         with self.status(wait_message):
             self.platform.check_command(command)
@@ -250,10 +251,10 @@ class Application(Terminal):
             path = Path(directories[environment_type]).expand()
             if os.path.isabs(path):
                 return path
-            else:
-                return self.project.location / path
-        else:
-            return self.data_dir / 'env' / environment_type
+
+            return self.project.location / path
+
+        return self.data_dir / 'env' / environment_type
 
     def get_python_manager(self, directory: str | None = None):
         from hatch.python.core import PythonManager
@@ -261,10 +262,11 @@ class Application(Terminal):
         configured_dir = directory or self.config.dirs.python
         if configured_dir == 'shared':
             return PythonManager(Path.home() / '.pythons')
-        elif configured_dir == 'isolated':
+
+        if configured_dir == 'isolated':
             return PythonManager(self.data_dir / 'pythons')
-        else:
-            return PythonManager(Path(configured_dir).expand())
+
+        return PythonManager(Path(configured_dir).expand())
 
     @cached_property
     def shell_data(self) -> tuple[str, str]:
@@ -346,8 +348,8 @@ class EnvironmentMetadata:
 
         if isinstance(environment, InternalEnvironment) and environment.config.get('skip-install'):
             return self.__data_dir / '.internal' / f'{environment.name}.json'
-        else:
-            return self._storage_dir / environment.config['type'] / f'{environment.name}.json'
+
+        return self._storage_dir / environment.config['type'] / f'{environment.name}.json'
 
     @cached_property
     def _storage_dir(self) -> Path:
