@@ -108,7 +108,7 @@ def hatch(ctx: click.Context, env_name, project, verbose, quiet, color, interact
     app = Application(ctx.exit, verbose - quiet, color, interactive)
 
     app.env_active = os.environ.get(AppEnvVars.ENV_ACTIVE)
-    if app.env_active and ctx.get_parameter_source('env_name').name == 'DEFAULT':  # type: ignore
+    if app.env_active and ctx.get_parameter_source('env_name').name == 'DEFAULT':
         app.env = app.env_active
     else:
         app.env = env_name
