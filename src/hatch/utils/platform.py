@@ -70,7 +70,8 @@ class Platform:
 
         return command
 
-    def exit_with_code(self, code: str | int | None) -> None:
+    @staticmethod
+    def exit_with_code(code: str | int | None) -> None:
         sys.exit(code)
 
     def _run_command_integrated(
@@ -241,7 +242,7 @@ class Platform:
             process = self.run_command(command)
             self.exit_with_code(process.returncode)
         else:
-            os.execvp(command[0], command)
+            os.execvp(command[0], command)  # noqa: S606
 
     @property
     def name(self) -> str:

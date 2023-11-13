@@ -13,7 +13,7 @@ class TemplateInterface:
         before the list of files are determined.
         """
 
-    def get_files(self, config):  # noqa: ARG002
+    def get_files(self, config):  # noqa: ARG002, PLR6301
         """Add to the list of files for new projects that are written to the file system."""
         return []
 

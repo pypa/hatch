@@ -11,6 +11,6 @@ def get_internal_environment_class(env_name: str) -> type[InternalEnvironment]:
         from hatch.env.internal.build import InternalBuildEnvironment
 
         return InternalBuildEnvironment
-    else:  # no cov
-        message = f'Unknown internal environment: {env_name}'
-        raise ValueError(message)
+
+    message = f'Unknown internal environment: {env_name}'
+    raise ValueError(message)

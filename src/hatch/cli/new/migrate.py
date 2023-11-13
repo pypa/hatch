@@ -17,9 +17,9 @@ def _apply_env_vars(kwargs):
 def _parse_dependencies(dependency_definition):
     dependencies = []
     for line in dependency_definition.splitlines():
-        line = line.split(' #', 1)[0].strip()
-        if line:
-            dependencies.append(line)
+        dependency = line.split(' #', 1)[0].strip()
+        if dependency:
+            dependencies.append(dependency)
 
     return dependencies
 
@@ -94,8 +94,8 @@ def _parse_setup_cfg(kwargs):
 
         if 'packages' in options and 'packages' not in kwargs:
             packages = []
-            for package in options['packages'].strip().splitlines():
-                package = package.replace('find:', '', 1).replace('find_namespace:', '', 1).strip()
+            for package_spec in options['packages'].strip().splitlines():
+                package = package_spec.replace('find:', '', 1).replace('find_namespace:', '', 1).strip()
                 if package:
                     packages.append(package)
 
@@ -165,11 +165,13 @@ def setup(**kwargs):
         collaborator_names = []
         collaborator_emails = []
         if collaborator in kwargs:
-            for collaborator_name in kwargs[collaborator].split(','):
-                collaborator_names.append(collaborator_name.strip())
+            collaborator_names.extend(
+                collaborator_name.strip() for collaborator_name in kwargs[collaborator].split(',')
+            )
         if f'{collaborator}_email' in kwargs:
-            for collaborator_email in kwargs[f'{collaborator}_email'].split(','):
-                collaborator_emails.append(collaborator_email.strip())
+            collaborator_emails.extend(
+                collaborator_email.strip() for collaborator_email in kwargs[f'{collaborator}_email'].split(',')
+            )
 
         for collaborator_name, collaborator_email in itertools.zip_longest(collaborator_names, collaborator_emails):
             data = {}
@@ -224,9 +226,8 @@ def setup(**kwargs):
 
     if 'entry_points' in kwargs and isinstance(kwargs['entry_points'], dict):
         entry_points = {}
-        for entry_point, definitions in kwargs['entry_points'].items():
-            if isinstance(definitions, str):
-                definitions = [definitions]
+        for entry_point, raw_definitions in kwargs['entry_points'].items():
+            definitions = [raw_definitions] if isinstance(raw_definitions, str) else raw_definitions
             definitions = dict(sorted(d.replace(' ', '').split('=', 1) for d in definitions))
 
             if entry_point == 'console_scripts':
@@ -305,7 +306,7 @@ def setup(**kwargs):
             current_contents = f.read()
 
         for section in ('build-system', 'project'):
-            for pattern in (fr'^\[{section}].*?(?=^\[)', fr'^\[{section}].*'):
+            for pattern in (rf'^\[{section}].*?(?=^\[)', rf'^\[{section}].*'):
                 current_contents = re.sub(pattern, '', current_contents, flags=re.MULTILINE | re.DOTALL)
 
         output += f'\n{current_contents}'

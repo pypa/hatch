@@ -124,9 +124,8 @@ path = "{package_metadata_file_path}"{tests_section}
         )
         if project_urls:
             for label, url in project_urls.items():
-                if ' ' in label:
-                    label = f'"{label}"'
-                project_url_data += f'\n{label} = "{url.format(**template_config)}"'
+                normalized_label = f'"{label}"' if ' ' in label else label
+                project_url_data += f'\n{normalized_label} = "{url.format(**template_config)}"'
 
         dependency_data = '['
         if template_config['dependencies']:

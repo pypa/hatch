@@ -10,7 +10,8 @@ class RegexSource(VersionSourceInterface):
         if not relative_path:
             message = 'option `path` must be specified'
             raise ValueError(message)
-        elif not isinstance(relative_path, str):
+
+        if not isinstance(relative_path, str):
             message = 'option `path` must be a string'
             raise TypeError(message)
 
@@ -24,5 +25,5 @@ class RegexSource(VersionSourceInterface):
 
         return {'version': version, 'version_file': version_file}
 
-    def set_version(self, version: str, version_data: dict) -> None:
+    def set_version(self, version: str, version_data: dict) -> None:  # noqa: PLR6301
         version_data['version_file'].set_version(version)

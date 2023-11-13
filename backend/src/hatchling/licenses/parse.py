@@ -51,8 +51,8 @@ def normalize_license_expression(raw_license_expression: str) -> str:
 
     python_expression = ' '.join(python_tokens)
     try:
-        result = eval(python_expression)
-    except Exception:
+        result = eval(python_expression)  # noqa: PGH001, S307
+    except Exception:  # noqa: BLE001
         result = True
 
     if result is not False:
@@ -74,16 +74,17 @@ def normalize_license_expression(raw_license_expression: str) -> str:
             normalized_tokens.append(cast(str, EXCEPTIONS[token]['id']))
         else:
             if token.endswith('+'):
-                token = token[:-1]
+                final_token = token[:-1]
                 suffix = '+'
             else:
+                final_token = token
                 suffix = ''
 
-            if token not in valid_licenses:
-                message = f'unknown license: {token}'
+            if final_token not in valid_licenses:
+                message = f'unknown license: {final_token}'
                 raise ValueError(message)
 
-            normalized_tokens.append(cast(str, valid_licenses[token]['id']) + suffix)
+            normalized_tokens.append(cast(str, valid_licenses[final_token]['id']) + suffix)
 
     # Construct the normalized expression
     normalized_expression = ' '.join(normalized_tokens)

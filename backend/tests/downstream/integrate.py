@@ -23,7 +23,7 @@ ON_WINDOWS = platform.system() == 'Windows'
 def handle_remove_readonly(func, path, exc):  # no cov
     # PermissionError: [WinError 5] Access is denied: '...\\.git\\...'
     if func in (os.rmdir, os.remove, os.unlink) and exc[1].errno == errno.EACCES:
-        os.chmod(path, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)  # noqa: S103
+        os.chmod(path, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
         func(path)
     else:
         raise
@@ -82,25 +82,27 @@ def get_venv_exe_dir(venv_dir):
     exe_dir = os.path.join(venv_dir, 'Scripts' if ON_WINDOWS else 'bin')
     if os.path.isdir(exe_dir):
         return exe_dir
+
     # PyPy
-    elif ON_WINDOWS:
+    if ON_WINDOWS:
         exe_dir = os.path.join(venv_dir, 'bin')
         if os.path.isdir(exe_dir):
             return exe_dir
-        else:
-            message = f'Unable to locate executables directory within: {venv_dir}'
-            raise OSError(message)
+
+        message = f'Unable to locate executables directory within: {venv_dir}'
+        raise OSError(message)
+
     # Debian
-    elif os.path.isdir(os.path.join(venv_dir, 'local')):
+    if os.path.isdir(os.path.join(venv_dir, 'local')):
         exe_dir = os.path.join(venv_dir, 'local', 'bin')
         if os.path.isdir(exe_dir):
             return exe_dir
-        else:
-            message = f'Unable to locate executables directory within: {venv_dir}'
-            raise OSError(message)
-    else:
+
         message = f'Unable to locate executables directory within: {venv_dir}'
         raise OSError(message)
+
+    message = f'Unable to locate executables directory within: {venv_dir}'
+    raise OSError(message)
 
 
 def main():

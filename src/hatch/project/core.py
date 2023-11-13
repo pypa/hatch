@@ -85,7 +85,8 @@ class Project:
             if possible_file.is_file():
                 self._project_file_path = possible_file
                 return path
-            elif path.joinpath('setup.py').is_file():
+
+            if path.joinpath('setup.py').is_file():
                 return path
 
             new_path = path.parent
@@ -98,9 +99,9 @@ class Project:
     def canonicalize_name(name: str, *, strict=True) -> str:
         if strict:
             return re.sub(r'[-_.]+', '-', name).lower()
-        else:
-            # Used for creating new projects
-            return re.sub(r'[-_. ]+', '-', name).lower()
+
+        # Used for creating new projects
+        return re.sub(r'[-_. ]+', '-', name).lower()
 
     @property
     def metadata(self):

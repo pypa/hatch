@@ -12,7 +12,7 @@ os.environ.pop('HATCH_ENV_ACTIVE', None)
 
 @cache
 def get_latest_version():
-    output = subprocess.check_output(['hatch', '--no-color', 'version']).decode('utf-8').strip()
+    output = subprocess.check_output(['hatch', '--no-color', 'version']).decode('utf-8').strip()  # noqa: S607
 
     version = output.replace('dev', '')
     parts = list(map(int, version.split('.')))

@@ -15,7 +15,7 @@ class EnvironmentContextFormatter(EnvironmentContextFormatterBase):
         self.environment = environment
         self.CONTEXT_NAME = f'environment_{environment.PLUGIN_NAME}'
 
-    def formatters(self):
+    def formatters(self):  # noqa: PLR6301
         """
         This returns a mapping of supported field names to their respective formatting functions. Each function
         accepts 2 arguments:
@@ -36,11 +36,11 @@ class EnvironmentContextFormatter(EnvironmentContextFormatterBase):
         formatters.update(self.formatters())
         return formatters
 
-    def __format_args(self, value, data):
+    def __format_args(self, value, data):  # noqa: PLR6301
         if value is not None:
             return value
-        else:
-            return data or ''
+
+        return data or ''
 
     def __format_env_name(self, value, data):  # noqa: ARG002
         return self.environment.name
@@ -56,11 +56,12 @@ class EnvironmentContextFormatter(EnvironmentContextFormatterBase):
         variable, separator, default = data.partition(':')
         if variable in self.environment.matrix_variables:
             return self.environment.matrix_variables[variable]
-        elif not separator:
+
+        if not separator:
             message = f'Nonexistent matrix variable must set a default: {variable}'
             raise ValueError(message)
-        else:
-            return default
+
+        return default
 
     def __format_verbosity(self, value, data):  # noqa: ARG002
         if not data:
@@ -70,7 +71,8 @@ class EnvironmentContextFormatter(EnvironmentContextFormatterBase):
         if modifier != 'flag':
             message = f'Unknown verbosity modifier: {modifier}'
             raise ValueError(message)
-        elif not adjustment:
+
+        if not adjustment:
             adjustment = '0'
 
         try:

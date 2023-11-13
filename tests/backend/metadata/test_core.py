@@ -32,13 +32,8 @@ class TestInterface:
     def test_types(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {'project': {}})
 
-        assert metadata.core is metadata._core
         assert isinstance(metadata.core, CoreMetadata)
-
-        assert metadata.hatch is metadata._hatch
         assert isinstance(metadata.hatch, HatchMetadata)
-
-        assert metadata.build is metadata._build
         assert isinstance(metadata.build, BuildMetadata)
 
     def test_missing_core_metadata(self, isolation):

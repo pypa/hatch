@@ -21,7 +21,7 @@ class TerminalStatus(ABC):
     def stop(self) -> None:
         ...
 
-    def __enter__(self) -> TerminalStatus:
+    def __enter__(self) -> TerminalStatus:  # noqa: PYI034
         return self
 
     @abstractmethod
@@ -82,7 +82,7 @@ class BorrowedStatus(TerminalStatus):
         self.__messages.append((Text(message, style=self.__waiting_style), final_text))
         return self
 
-    def __enter__(self) -> BorrowedStatus:
+    def __enter__(self) -> BorrowedStatus:  # noqa: PYI034
         if not self.__messages:
             return self
 
@@ -123,7 +123,7 @@ class BorrowedStatus(TerminalStatus):
             self.__status.start()
 
     def __active(self) -> bool:
-        return self.__status is not None and self.__status._live.is_started
+        return self.__status is not None and self.__status._live.is_started  # noqa: SLF001
 
     def __output(self, text):
         self.__console.stderr = True
@@ -191,14 +191,14 @@ class Terminal:
             default_level = getattr(self, attribute, None)
             if default_level:
                 try:
-                    style = Style.parse(style)
+                    parsed_style = Style.parse(style)
                 except StyleSyntaxError as e:  # no cov
                     errors.append(f'Invalid style definition for `{option}`, defaulting to `{default_level}`: {e}')
-                    style = Style.parse(default_level)
-            else:
-                attribute = f'_style_{option}'
+                    parsed_style = Style.parse(default_level)
 
-            setattr(self, attribute, style)
+                setattr(self, attribute, parsed_style)
+            else:
+                setattr(self, attribute, f'_style_{option}')
 
         return errors
 
@@ -248,7 +248,8 @@ class Terminal:
         if not 1 <= level <= 3:  # noqa: PLR2004
             error_message = 'Debug output can only have verbosity levels between 1 and 3 (inclusive)'
             raise ValueError(error_message)
-        elif self.verbosity < level:
+
+        if self.verbosity < level:
             return
 
         self._output(text, self._style_level_debug, stderr=stderr, indent=indent, link=link, **kwargs)
@@ -298,10 +299,7 @@ class Terminal:
             return
 
         for i in range(num_rows or max(map(max, columns.values())) + 1):
-            row = []
-            for indices in columns.values():
-                row.append(indices.get(i, ''))
-
+            row = [indices.get(i, '') for indices in columns.values()]
             if any(row):
                 table.add_row(*row)
 

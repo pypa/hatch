@@ -81,8 +81,7 @@ def test_all(hatch, helpers, temp_dir_data, path_append, mocker):
 
     expected_lines = []
     for dist in mocked_dists:
-        expected_lines.append(f'Updating {dist.path.name}')
-        expected_lines.append(f'Updated {dist.path.name} @ {dist.path}')
+        expected_lines.extend((f'Updating {dist.path.name}', f'Updated {dist.path.name} @ {dist.path}'))
     expected_lines.append('')
 
     assert result.output == '\n'.join(expected_lines)

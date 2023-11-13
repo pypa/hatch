@@ -23,7 +23,8 @@ class VersionBuildHook(BuildHookInterface):
             if not isinstance(path, str):
                 message = f'Option `path` for build hook `{self.PLUGIN_NAME}` must be a string'
                 raise TypeError(message)
-            elif not path:
+
+            if not path:
                 message = f'Option `path` for build hook `{self.PLUGIN_NAME}` is required'
                 raise ValueError(message)
 
