@@ -63,9 +63,8 @@ def main():
         'ORDERED_DISTRIBUTIONS: tuple[str, ...] = (',
     ]
     output.extend(f'    {identifier!r},' for identifier in ordered)
-    output.append(')')  # noqa: FURB113
+    output.extend((')', 'DISTRIBUTIONS: dict[str, dict[tuple[str, ...], str]] = {'))
 
-    output.append('DISTRIBUTIONS: dict[str, dict[tuple[str, ...], str]] = {')
     for identifier, data in distributions.items():
         output.append(f'    {identifier!r}: {{')
         for d, source in data:
