@@ -47,6 +47,9 @@ jobs:
     - name: Install Hatch
       run: pip install --upgrade hatch
 
+    - name: Run static analysis
+      run: hatch fmt --check
+
     - name: Run tests
       run: hatch run cov
 """,  # noqa: E501
