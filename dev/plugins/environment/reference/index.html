@@ -809,7 +809,7 @@
 <span class=linenos data-linenos="760 "></span>            <span class=k>yield from</span> <span class=bp>self</span><span class=o>.</span><span class=n>expand_command</span><span class=p>(</span><span class=n>command</span><span class=p>)</span>
 <span class=linenos data-linenos="761 "></span>
 <span class=linenos data-linenos="762 "></span>    <span class=k>def</span> <span class=nf>expand_command</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>command</span><span class=p>):</span>
-<span class=linenos data-linenos="763 "></span>        <span class=n>possible_script</span><span class=p>,</span> <span class=n>args</span><span class=p>,</span> <span class=n>ignore_exit_code</span> <span class=o>=</span> <span class=n>parse_script_command</span><span class=p>(</span><span class=n>command</span><span class=p>)</span>
+<span class=linenos data-linenos="763 "></span>        <span class=n>possible_script</span><span class=p>,</span> <span class=n>args</span><span class=p>,</span> <span class=n>_ignore_exit_code</span> <span class=o>=</span> <span class=n>parse_script_command</span><span class=p>(</span><span class=n>command</span><span class=p>)</span>
 <span class=linenos data-linenos="764 "></span>
 <span class=linenos data-linenos="765 "></span>        <span class=c1># Indicate undefined</span>
 <span class=linenos data-linenos="766 "></span>        <span class=k>if</span> <span class=ow>not</span> <span class=n>args</span><span class=p>:</span>
