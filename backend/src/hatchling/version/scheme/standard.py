@@ -33,11 +33,11 @@ class StandardScheme(VersionSchemeInterface):
                 reset_version_parts(original, release=update_release(original, [original.major + 1]))
             elif version == 'minor':
                 reset_version_parts(original, release=update_release(original, [original.major, original.minor + 1]))
-            elif version in ('micro', 'patch', 'fix'):
+            elif version in {'micro', 'patch', 'fix'}:
                 reset_version_parts(
                     original, release=update_release(original, [original.major, original.minor, original.micro + 1])
                 )
-            elif version in ('a', 'b', 'c', 'rc', 'alpha', 'beta', 'pre', 'preview'):
+            elif version in {'a', 'b', 'c', 'rc', 'alpha', 'beta', 'pre', 'preview'}:
                 phase, number = parse_letter_version(version, 0)
                 if original.pre:
                     current_phase, current_number = parse_letter_version(*original.pre)
@@ -45,7 +45,7 @@ class StandardScheme(VersionSchemeInterface):
                         number = current_number + 1
 
                 reset_version_parts(original, pre=(phase, number))
-            elif version in ('post', 'rev', 'r'):
+            elif version in {'post', 'rev', 'r'}:
                 number = 0 if original.post is None else original.post + 1
                 reset_version_parts(original, post=parse_letter_version(version, number))
             elif version == 'dev':

@@ -39,11 +39,11 @@ def normalize_license_expression(raw_license_expression: str) -> str:
     # expression should evaluate as such.
     python_tokens = []
     for token in tokens:
-        if token not in ('or', 'and', 'with', '(', ')'):
+        if token not in {'or', 'and', 'with', '(', ')'}:
             python_tokens.append('False')
         elif token == 'with':  # noqa: S105
             python_tokens.append('or')
-        elif token == '(' and python_tokens and python_tokens[-1] not in ('or', 'and'):  # noqa: S105
+        elif token == '(' and python_tokens and python_tokens[-1] not in {'or', 'and'}:  # noqa: S105
             message = f'invalid license expression: {raw_license_expression}'
             raise ValueError(message)
         else:
@@ -62,7 +62,7 @@ def normalize_license_expression(raw_license_expression: str) -> str:
     # Take a final pass to check for unknown licenses/exceptions
     normalized_tokens = []
     for token in tokens:
-        if token in ('or', 'and', 'with', '(', ')'):
+        if token in {'or', 'and', 'with', '(', ')'}:
             normalized_tokens.append(token.upper())
             continue
 

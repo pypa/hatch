@@ -91,7 +91,7 @@ def dependency_in_sync(
                 vcs_info = direct_url_data['vcs_info']
                 vcs = vcs_info['vcs']
                 commit_id = vcs_info['commit_id']
-                requested_revision = vcs_info['requested_revision'] if 'requested_revision' in vcs_info else None
+                requested_revision = vcs_info.get('requested_revision')
 
                 # Try a few variations, see https://peps.python.org/pep-0440/#direct-references
                 if (
@@ -99,7 +99,7 @@ def dependency_in_sync(
                 ) or requirement.url == f'{vcs}+{url}@{commit_id}':
                     return True
 
-                if requirement.url in (f'{vcs}+{url}', f'{vcs}+{url}@{requested_revision}'):
+                if requirement.url in {f'{vcs}+{url}', f'{vcs}+{url}@{requested_revision}'}:
                     import subprocess
 
                     if vcs == 'git':

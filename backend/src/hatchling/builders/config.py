@@ -275,16 +275,19 @@ class BuilderConfig:
 
                 hook_config[hook_name] = config
 
-            final_hook_config = {}
             if not env_var_enabled(BuildEnvVars.NO_HOOKS):
                 all_hooks_enabled = env_var_enabled(BuildEnvVars.HOOKS_ENABLE)
-                for hook_name, config in hook_config.items():
+                final_hook_config = {
+                    hook_name: config
+                    for hook_name, config in hook_config.items()
                     if (
                         all_hooks_enabled
                         or config.get('enable-by-default', True)
                         or env_var_enabled(f'{BuildEnvVars.HOOK_ENABLE_PREFIX}{hook_name.upper()}')
-                    ):
-                        final_hook_config[hook_name] = config
+                    )
+                }
+            else:
+                final_hook_config = {}
 
             self.__hook_config = final_hook_config
 
@@ -693,7 +696,7 @@ class BuilderConfig:
                 raise TypeError(message)
 
             for relative_path in self.packages:
-                source, package = os.path.split(relative_path)
+                source, _package = os.path.split(relative_path)
                 if source and normalize_relative_directory(relative_path) not in sources:
                     sources[normalize_relative_directory(source)] = ''
 
@@ -911,7 +914,7 @@ class BuilderConfig:
 
 def env_var_enabled(env_var: str, *, default: bool = False) -> bool:
     if env_var in os.environ:
-        return os.environ[env_var] in ('1', 'true')
+        return os.environ[env_var] in {'1', 'true'}
 
     return default
 

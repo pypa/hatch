@@ -523,7 +523,7 @@ class CoreMetadata:
                     message = 'Field `content-type` in the `project.readme` table must be a string'
                     raise TypeError(message)
 
-                if content_type not in ('text/markdown', 'text/x-rst', 'text/plain'):
+                if content_type not in {'text/markdown', 'text/x-rst', 'text/plain'}:
                     message = (
                         'Field `content-type` in the `project.readme` table must be one of the following: '
                         'text/markdown, text/x-rst, text/plain'

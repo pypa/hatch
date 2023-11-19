@@ -74,7 +74,7 @@ def main():
     output.extend(('}', ''))
     output = '\n'.join(output)
 
-    with open(OUTPUT_FILE, 'w') as f:
+    with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
         f.write(output)
 
 
