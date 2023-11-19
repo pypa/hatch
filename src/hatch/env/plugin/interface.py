@@ -760,7 +760,7 @@ class EnvironmentInterface(ABC):
             yield from self.expand_command(command)
 
     def expand_command(self, command):
-        possible_script, args, ignore_exit_code = parse_script_command(command)
+        possible_script, args, _ignore_exit_code = parse_script_command(command)
 
         # Indicate undefined
         if not args:

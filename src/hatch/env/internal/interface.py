@@ -15,5 +15,4 @@ class InternalEnvironment(VirtualEnvironment, ABC):
         return config
 
     @abstractmethod
-    def get_base_config(self) -> dict:
-        ...
+    def get_base_config(self) -> dict: ...

@@ -235,7 +235,7 @@ def devpi(tmp_path_factory, worker_id):
             server_key = str(server_config_dir / 'server.key')
             server_cert = str(server_config_dir / 'server.pem')
             cert.private_key_pem.write_to_path(path=server_key)
-            with open(server_cert, mode='w') as f:
+            with open(server_cert, mode='w', encoding='utf-8') as f:
                 f.truncate()
             for blob in cert.cert_chain_pems:
                 blob.write_to_path(path=server_cert, append=True)

@@ -18,15 +18,13 @@ if TYPE_CHECKING:
 
 class TerminalStatus(ABC):
     @abstractmethod
-    def stop(self) -> None:
-        ...
+    def stop(self) -> None: ...
 
     def __enter__(self) -> TerminalStatus:  # noqa: PYI034
         return self
 
     @abstractmethod
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        ...
+    def __exit__(self, exc_type, exc_val, exc_tb): ...
 
 
 class NullStatus(TerminalStatus):

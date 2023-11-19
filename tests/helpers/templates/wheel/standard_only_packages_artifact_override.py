@@ -15,7 +15,7 @@ def get_files(**kwargs):
         if str(f.path) == 'LICENSE.txt':
             files.append(File(Path(metadata_directory, 'licenses', f.path), f.contents))
 
-        if f.path.parts[0] not in (kwargs['package_name'], 'tests'):
+        if f.path.parts[0] not in {kwargs['package_name'], 'tests'}:
             continue
 
         if f.path == Path('tests', '__init__.py'):
