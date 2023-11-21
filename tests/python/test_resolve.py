@@ -37,7 +37,7 @@ class TestDistributionVersions:
 
 
 @pytest.mark.parametrize(
-    'system, variant',
+    ('system', 'variant'),
     [
         ('windows', 'shared'),
         ('windows', 'static'),

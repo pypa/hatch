@@ -25,12 +25,12 @@ def create(app, env_name):
 
         try:
             environment.check_compatibility()
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             if root_env_name in project_config.matrices:
                 incompatible[env_name] = str(e)
                 continue
-            else:
-                app.abort(f'Environment `{env_name}` is incompatible: {e}')
+
+            app.abort(f'Environment `{env_name}` is incompatible: {e}')
 
         if environment.exists():
             app.display_warning(f'Environment `{env_name}` already exists')

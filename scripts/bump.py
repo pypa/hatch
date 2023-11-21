@@ -24,8 +24,8 @@ def main():
     history_file = root_dir / 'docs' / 'history' / f'{args.project}.md'
 
     if args.project == 'hatchling':
-        process = subprocess.run(
-            ['hatch', 'version', args.version],
+        process = subprocess.run(  # noqa: PLW1510
+            ['hatch', 'version', args.version],  # noqa: S607
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             encoding='utf-8',

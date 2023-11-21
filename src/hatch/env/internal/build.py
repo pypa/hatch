@@ -4,7 +4,7 @@ from hatch.env.internal.interface import InternalEnvironment
 
 
 class InternalBuildEnvironment(InternalEnvironment):
-    def get_base_config(self) -> dict:
+    def get_base_config(self) -> dict:  # noqa: PLR6301
         return {
             'skip-install': True,
             'dependencies': ['build[virtualenv]>=1.0.3'],

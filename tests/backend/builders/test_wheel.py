@@ -1737,7 +1737,7 @@ class TestBuildStandard:
         )
         helpers.assert_files(extraction_directory, expected_files)
 
-    @pytest.mark.requires_unix
+    @pytest.mark.requires_unix()
     def test_default_symlink(self, hatch, helpers, temp_dir, config_file):
         config_file.model.template.plugins['default']['src-layout'] = False
         config_file.save()
@@ -2089,7 +2089,7 @@ class TestBuildStandard:
             zip_info = zip_archive.getinfo(f'{metadata_directory}/WHEEL')
             assert zip_info.date_time == (2020, 2, 2, 0, 0, 0)
 
-    @pytest.mark.requires_unix
+    @pytest.mark.requires_unix()
     def test_editable_default_symlink(self, hatch, helpers, temp_dir):
         project_name = 'My.App'
 
@@ -2883,7 +2883,7 @@ class TestBuildStandard:
         reason='requires support for ARM on macOS',
     )
     @pytest.mark.parametrize(
-        'archflags, expected_arch',
+        ('archflags', 'expected_arch'),
         [('-arch x86_64', 'x86_64'), ('-arch arm64', 'arm64'), ('-arch arm64 -arch x86_64', 'universal2')],
     )
     def test_macos_archflags(self, hatch, helpers, temp_dir, config_file, archflags, expected_arch):
@@ -2970,7 +2970,7 @@ class TestBuildStandard:
         )
         helpers.assert_files(extraction_directory, expected_files)
 
-    @pytest.mark.requires_macos
+    @pytest.mark.requires_macos()
     def test_macos_max_compat(self, hatch, helpers, temp_dir, config_file):
         config_file.model.template.plugins['default']['src-layout'] = False
         config_file.save()

@@ -25,8 +25,8 @@ def apply_overrides(env_name, source, condition, condition_value, options, new_c
     if option_types is None:
         option_types = RESERVED_OPTIONS
 
-    for option, data in options.items():
-        _, separator, option = option.rpartition('set-')
+    for raw_option, data in options.items():
+        _, separator, option = raw_option.rpartition('set-')
         overwrite = bool(separator)
 
         # Prevent manipulation of reserved options
@@ -77,12 +77,14 @@ def _apply_override_to_mapping(env_name, option, data, source, condition, condit
                         f'{condition}.{option}` must be a string'
                     )
                     raise TypeError(message)
-                elif not key:
+
+                if not key:
                     message = (
                         f'Option `key` in entry #{i} in field `tool.hatch.envs.{env_name}.overrides.{source}.'
                         f'{condition}.{option}` cannot be an empty string'
                     )
                     raise ValueError(message)
+
                 value = entry.get('value', condition_value)
                 if not isinstance(value, str):
                     message = (
@@ -135,7 +137,8 @@ def _apply_override_to_array(env_name, option, data, source, condition, conditio
                     f'{condition}.{option}` must be a string'
                 )
                 raise TypeError(message)
-            elif not value:
+
+            if not value:
                 message = (
                     f'Option `value` in entry #{i} in field `tool.hatch.envs.{env_name}.overrides.{source}.'
                     f'{condition}.{option}` cannot be an empty string'
@@ -191,7 +194,8 @@ def _apply_override_to_string(
             if isinstance(entry, str):
                 new_config[option] = entry
                 break
-            elif isinstance(entry, dict):
+
+            if isinstance(entry, dict):
                 if 'value' not in entry:
                     message = (
                         f'Entry #{i} in field `tool.hatch.envs.{env_name}.overrides.{source}.{condition}.{option}` '
@@ -255,7 +259,8 @@ def _apply_override_to_boolean(
             if isinstance(entry, bool):
                 new_config[option] = entry
                 break
-            elif isinstance(entry, dict):
+
+            if isinstance(entry, dict):
                 if 'value' not in entry:
                     message = (
                         f'Entry #{i} in field `tool.hatch.envs.{env_name}.overrides.{source}.{condition}.{option}` '

@@ -20,6 +20,9 @@ class ExpectedEnvVars:
     def __eq__(self, other):
         return all(not (key not in other or other[key] != value) for key, value in self.env_vars.items())
 
+    def __hash__(self):
+        return hash(self.env_vars)
+
 
 def cargo_install(*args: Any, **_kwargs: Any) -> subprocess.CompletedProcess:
     executable_name = 'pyapp.exe' if sys.platform == 'win32' else 'pyapp'

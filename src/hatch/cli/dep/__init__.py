@@ -124,8 +124,8 @@ def requirements(app, project_only, env_only, features, all_features):
 
     all_requirements = []
     if features:
-        for feature in features:
-            feature = normalize_project_name(feature)
+        for raw_feature in features:
+            feature = normalize_project_name(raw_feature)
             if feature not in optional_dependencies_complex:
                 app.abort(f'Feature `{feature}` is not defined in field `project.optional-dependencies`')
 

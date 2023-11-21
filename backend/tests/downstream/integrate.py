@@ -22,11 +22,11 @@ ON_WINDOWS = platform.system() == 'Windows'
 
 def handle_remove_readonly(func, path, exc):  # no cov
     # PermissionError: [WinError 5] Access is denied: '...\\.git\\...'
-    if func in (os.rmdir, os.remove, os.unlink) and exc[1].errno == errno.EACCES:
-        os.chmod(path, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)  # noqa: S103
+    if func in {os.rmdir, os.remove, os.unlink} and exc[1].errno == errno.EACCES:
+        os.chmod(path, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
         func(path)
     else:
-        raise
+        raise exc
 
 
 class EnvVars(dict):
@@ -82,25 +82,27 @@ def get_venv_exe_dir(venv_dir):
     exe_dir = os.path.join(venv_dir, 'Scripts' if ON_WINDOWS else 'bin')
     if os.path.isdir(exe_dir):
         return exe_dir
+
     # PyPy
-    elif ON_WINDOWS:
+    if ON_WINDOWS:
         exe_dir = os.path.join(venv_dir, 'bin')
         if os.path.isdir(exe_dir):
             return exe_dir
-        else:
-            message = f'Unable to locate executables directory within: {venv_dir}'
-            raise OSError(message)
+
+        message = f'Unable to locate executables directory within: {venv_dir}'
+        raise OSError(message)
+
     # Debian
-    elif os.path.isdir(os.path.join(venv_dir, 'local')):
+    if os.path.isdir(os.path.join(venv_dir, 'local')):
         exe_dir = os.path.join(venv_dir, 'local', 'bin')
         if os.path.isdir(exe_dir):
             return exe_dir
-        else:
-            message = f'Unable to locate executables directory within: {venv_dir}'
-            raise OSError(message)
-    else:
+
         message = f'Unable to locate executables directory within: {venv_dir}'
         raise OSError(message)
+
+    message = f'Unable to locate executables directory within: {venv_dir}'
+    raise OSError(message)
 
 
 def main():
@@ -112,7 +114,7 @@ def main():
 
         # Increment the minor version
         version_file = os.path.join(backend_path, 'src', 'hatchling', '__about__.py')
-        with open(version_file) as f:
+        with open(version_file, encoding='utf-8') as f:
             lines = f.readlines()
 
         for i, line in enumerate(lines):
@@ -126,7 +128,7 @@ def main():
             message = 'No version found'
             raise ValueError(message)
 
-        with open(version_file, 'w') as f:
+        with open(version_file, 'w', encoding='utf-8') as f:
             f.writelines(lines)
 
         print('<<<<< Building backend >>>>>')
@@ -148,7 +150,7 @@ def main():
 
         constraints = []
         constraints_file = os.path.join(build_dir, 'constraints.txt')
-        with open(constraints_file, 'w') as f:
+        with open(constraints_file, 'w', encoding='utf-8') as f:
             f.write('\n'.join(constraints))
 
         for project in os.listdir(HERE):
@@ -162,14 +164,14 @@ def main():
 
             # Not yet ported
             if os.path.isfile(potential_project_file):
-                with open(potential_project_file) as f:
+                with open(potential_project_file, encoding='utf-8') as f:
                     project_config.update(tomli.loads(f.read()))
 
                 if not python_version_supported(project_config):
                     print('--> Unsupported version of Python, skipping')
                     continue
 
-            with open(os.path.join(project_dir, 'data.json')) as f:
+            with open(os.path.join(project_dir, 'data.json'), encoding='utf-8') as f:
                 test_data = json.loads(f.read())
 
             with temp_dir() as d:
@@ -197,7 +199,7 @@ def main():
                     if not os.path.isfile(project_file):
                         sys.exit('--> Missing file: pyproject.toml')
 
-                    with open(project_file) as f:
+                    with open(project_file, encoding='utf-8') as f:
                         project_config.update(tomli.loads(f.read()))
 
                     for requirement in project_config.get('build-system', {}).get('requires', []):

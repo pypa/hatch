@@ -22,8 +22,8 @@ def construct_matrix_data(env_name, config, overrides=None):
 
     # [{'version': ['9000']}, {'feature': ['bar']}]
     envs = {}
-    for matrix in matrices:
-        matrix = dict(matrix)
+    for matrix_data in matrices:
+        matrix = dict(matrix_data)
         variables = {}
         python_selected = False
         for variable in ('py', 'python'):
@@ -1669,6 +1669,20 @@ class TestEnvs:
             assert project_config.matrices['foo'] == construct_matrix_data('foo', env_config)
 
     def test_overrides_matrix_set_with_no_type_information_not_table(self, isolation):
+        project_config = ProjectConfig(
+            isolation,
+            {
+                'envs': {
+                    'foo': {
+                        'matrix': [{'version': ['9000', '42']}, {'feature': ['bar']}],
+                        'overrides': {'matrix': {'version': {'bar': 9000}}},
+                    }
+                }
+            },
+            PluginManager(),
+        )
+        _ = project_config.envs
+
         with pytest.raises(
             ValueError,
             match=(
@@ -1676,19 +1690,6 @@ class TestEnvs:
                 'must be defined as a table with a `value` key'
             ),
         ):
-            project_config = ProjectConfig(
-                isolation,
-                {
-                    'envs': {
-                        'foo': {
-                            'matrix': [{'version': ['9000', '42']}, {'feature': ['bar']}],
-                            'overrides': {'matrix': {'version': {'bar': 9000}}},
-                        }
-                    }
-                },
-                PluginManager(),
-            )
-            _ = project_config.envs
             project_config.finalize_env_overrides({})
 
     @pytest.mark.parametrize('option', ARRAY_OPTIONS)

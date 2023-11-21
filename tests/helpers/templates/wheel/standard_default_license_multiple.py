@@ -22,28 +22,28 @@ def get_files(**kwargs):
 
         files.append(File(Path(*f.path.parts[1:]), f.contents))
 
-    files.append(
-        File(
-            Path(metadata_directory, 'WHEEL'),
-            f"""\
+    files.extend(
+        (
+            File(
+                Path(metadata_directory, 'WHEEL'),
+                f"""\
 Wheel-Version: 1.0
 Generator: hatchling {__version__}
 Root-Is-Purelib: true
 Tag: py2-none-any
 Tag: py3-none-any
 """,
-        )
-    )
-    files.append(
-        File(
-            Path(metadata_directory, 'METADATA'),
-            f"""\
+            ),
+            File(
+                Path(metadata_directory, 'METADATA'),
+                f"""\
 Metadata-Version: {DEFAULT_METADATA_VERSION}
 Name: {kwargs['project_name']}
 Version: 0.0.1
 License-File: LICENSES/Apache-2.0.txt
 License-File: LICENSES/MIT.txt
 """,
+            ),
         )
     )
 

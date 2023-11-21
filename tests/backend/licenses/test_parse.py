@@ -39,7 +39,7 @@ def test_unknown_license_exception():
 
 
 @pytest.mark.parametrize(
-    'raw, normalized',
+    ('raw', 'normalized'),
     [
         ('mIt', 'MIT'),
         ('mit or apache-2.0', 'MIT OR Apache-2.0'),

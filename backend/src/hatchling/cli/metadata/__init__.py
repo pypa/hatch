@@ -43,7 +43,7 @@ def metadata_impl(*, called_by_app: bool, field: str, compact: bool) -> None:
 
 
 def metadata_command(
-    subparsers: argparse._SubParsersAction,
+    subparsers: argparse._SubParsersAction,  # noqa: SLF001
     defaults: Any,  # noqa: ARG001
 ) -> None:
     parser = subparsers.add_parser('metadata')
