@@ -123,7 +123,7 @@ class TestMultiple:
 
 class TestWithEpoch:
     @pytest.mark.parametrize(
-        'operations, expected',
+        ('operations', 'expected'),
         [
             ('patch,dev,release', '1!0.0.2'),
             ('fix,rc', '1!0.0.2rc0'),
