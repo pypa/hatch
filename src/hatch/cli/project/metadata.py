@@ -32,7 +32,7 @@ def metadata(app, field):
             environment = app.get_environment()
             try:
                 environment.check_compatibility()
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 app.abort(f'Environment `{environment.name}` is incompatible: {e}')
 
             with app.status_if(

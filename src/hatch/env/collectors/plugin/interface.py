@@ -49,7 +49,7 @@ class EnvironmentCollectorInterface:
         """
         return self.__config
 
-    def get_initial_config(self) -> dict[str, dict]:
+    def get_initial_config(self) -> dict[str, dict]:  # noqa: PLR6301
         """
         Returns configuration for environments keyed by the environment or matrix name.
         """

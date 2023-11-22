@@ -127,7 +127,7 @@ class TestBuildValidation:
         }
         builder = MockBuilder(str(isolation), config=config)
         builder.PLUGIN_NAME = 'foo'
-        builder.get_version_api = lambda: {'1': lambda *args, **kwargs: ''}
+        builder.get_version_api = lambda: {'1': lambda *_args, **_kwargs: ''}
 
         with pytest.raises(
             ValueError,
@@ -146,7 +146,7 @@ class TestHookConfig:
 
 
 class TestDirectoryRecursion:
-    @pytest.mark.requires_unix
+    @pytest.mark.requires_unix()
     def test_infinite_loop_prevention(self, temp_dir):
         project_dir = temp_dir / 'project'
         project_dir.ensure_dir_exists()

@@ -155,16 +155,16 @@ class BuilderConfig:
                 if not isinstance(include_pattern, str):
                     message = f'Pattern #{i} in field `{include_location}` must be a string'
                     raise TypeError(message)
-                elif not include_pattern:
+
+                if not include_pattern:
                     message = f'Pattern #{i} in field `{include_location}` cannot be an empty string'
                     raise ValueError(message)
 
                 all_include_patterns.append(include_pattern)
 
-            for relative_path in self.packages:
-                # Matching only at the root requires a forward slash, back slashes do not work. As such,
-                # normalize to forward slashes for consistency.
-                all_include_patterns.append(f"/{relative_path.replace(os.sep, '/')}/")
+            # Matching only at the root requires a forward slash, back slashes do not work. As such,
+            # normalize to forward slashes for consistency.
+            all_include_patterns.extend(f"/{relative_path.replace(os.sep, '/')}/" for relative_path in self.packages)
 
             if all_include_patterns:
                 self.__include_spec = pathspec.GitIgnoreSpec.from_lines(all_include_patterns)
@@ -194,7 +194,8 @@ class BuilderConfig:
                 if not isinstance(exclude_pattern, str):
                     message = f'Pattern #{i} in field `{exclude_location}` must be a string'
                     raise TypeError(message)
-                elif not exclude_pattern:
+
+                if not exclude_pattern:
                     message = f'Pattern #{i} in field `{exclude_location}` cannot be an empty string'
                     raise ValueError(message)
 
@@ -231,7 +232,8 @@ class BuilderConfig:
                 if not isinstance(artifact_pattern, str):
                     message = f'Pattern #{i} in field `{artifact_location}` must be a string'
                     raise TypeError(message)
-                elif not artifact_pattern:
+
+                if not artifact_pattern:
                     message = f'Pattern #{i} in field `{artifact_location}` cannot be an empty string'
                     raise ValueError(message)
 
@@ -273,16 +275,19 @@ class BuilderConfig:
 
                 hook_config[hook_name] = config
 
-            final_hook_config = {}
             if not env_var_enabled(BuildEnvVars.NO_HOOKS):
                 all_hooks_enabled = env_var_enabled(BuildEnvVars.HOOKS_ENABLE)
-                for hook_name, config in hook_config.items():
+                final_hook_config = {
+                    hook_name: config
+                    for hook_name, config in hook_config.items()
                     if (
                         all_hooks_enabled
                         or config.get('enable-by-default', True)
                         or env_var_enabled(f'{BuildEnvVars.HOOK_ENABLE_PREFIX}{hook_name.upper()}')
-                    ):
-                        final_hook_config[hook_name] = config
+                    )
+                }
+            else:
+                final_hook_config = {}
 
             self.__hook_config = final_hook_config
 
@@ -381,15 +386,16 @@ class BuilderConfig:
                 raise TypeError(message)
 
             all_features: dict[str, None] = {}
-            for i, feature in enumerate(require_runtime_features, 1):
-                if not isinstance(feature, str):
+            for i, raw_feature in enumerate(require_runtime_features, 1):
+                if not isinstance(raw_feature, str):
                     message = f'Feature #{i} of field `{features_location}` must be a string'
                     raise TypeError(message)
-                elif not feature:
+
+                if not raw_feature:
                     message = f'Feature #{i} of field `{features_location}` cannot be an empty string'
                     raise ValueError(message)
 
-                feature = normalize_project_name(feature)
+                feature = normalize_project_name(raw_feature)
                 if feature not in self.builder.metadata.core.optional_dependencies:
                     message = (
                         f'Feature `{feature}` of field `{features_location}` is not defined in '
@@ -470,7 +476,8 @@ class BuilderConfig:
                 if not isinstance(dev_mode_dir, str):
                     message = f'Directory #{i} in field `{dev_mode_dirs_location}` must be a string'
                     raise TypeError(message)
-                elif not dev_mode_dir:
+
+                if not dev_mode_dir:
                     message = f'Directory #{i} in field `{dev_mode_dirs_location}` cannot be an empty string'
                     raise ValueError(message)
 
@@ -515,7 +522,8 @@ class BuilderConfig:
                         f'Version #{i} in field `tool.hatch.build.targets.{self.plugin_name}.versions` must be a string'
                     )
                     raise TypeError(message)
-                elif not version:
+
+                if not version:
                     message = (
                         f'Version #{i} in field `tool.hatch.build.targets.{self.plugin_name}.versions` '
                         f'cannot be an empty string'
@@ -581,7 +589,8 @@ class BuilderConfig:
                 if not isinstance(hook_require_runtime_dependencies, bool):
                     message = f'Option `require-runtime-dependencies` of build hook `{hook_name}` must be a boolean'
                     raise TypeError(message)
-                elif hook_require_runtime_dependencies:
+
+                if hook_require_runtime_dependencies:
                     require_runtime_dependencies = True
 
                 hook_require_runtime_features = config.get('require-runtime-features', [])
@@ -589,21 +598,22 @@ class BuilderConfig:
                     message = f'Option `require-runtime-features` of build hook `{hook_name}` must be an array'
                     raise TypeError(message)
 
-                for i, feature in enumerate(hook_require_runtime_features, 1):
-                    if not isinstance(feature, str):
+                for i, raw_feature in enumerate(hook_require_runtime_features, 1):
+                    if not isinstance(raw_feature, str):
                         message = (
                             f'Feature #{i} of option `require-runtime-features` of build hook `{hook_name}` '
                             f'must be a string'
                         )
                         raise TypeError(message)
-                    elif not feature:
+
+                    if not raw_feature:
                         message = (
                             f'Feature #{i} of option `require-runtime-features` of build hook `{hook_name}` '
                             f'cannot be an empty string'
                         )
                         raise ValueError(message)
 
-                    feature = normalize_project_name(feature)
+                    feature = normalize_project_name(raw_feature)
                     if feature not in self.builder.metadata.core.optional_dependencies:
                         message = (
                             f'Feature `{feature}` of option `require-runtime-features` of build hook `{hook_name}` '
@@ -658,7 +668,8 @@ class BuilderConfig:
                     if not isinstance(source, str):
                         message = f'Source #{i} in field `{sources_location}` must be a string'
                         raise TypeError(message)
-                    elif not source:
+
+                    if not source:
                         message = f'Source #{i} in field `{sources_location}` cannot be an empty string'
                         raise ValueError(message)
 
@@ -668,7 +679,8 @@ class BuilderConfig:
                     if not source:
                         message = f'Source #{i} in field `{sources_location}` cannot be an empty string'
                         raise ValueError(message)
-                    elif not isinstance(path, str):
+
+                    if not isinstance(path, str):
                         message = f'Path for source `{source}` in field `{sources_location}` must be a string'
                         raise TypeError(message)
 
@@ -684,7 +696,7 @@ class BuilderConfig:
                 raise TypeError(message)
 
             for relative_path in self.packages:
-                source, package = os.path.split(relative_path)
+                source, _package = os.path.split(relative_path)
                 if source and normalize_relative_directory(relative_path) not in sources:
                     sources[normalize_relative_directory(source)] = ''
 
@@ -711,7 +723,8 @@ class BuilderConfig:
                 if not isinstance(package, str):
                     message = f'Package #{i} in field `{package_location}` must be a string'
                     raise TypeError(message)
-                elif not package:
+
+                if not package:
                     message = f'Package #{i} in field `{package_location}` cannot be an empty string'
                     raise ValueError(message)
 
@@ -738,10 +751,12 @@ class BuilderConfig:
                 if not source:
                     message = f'Source #{i} in field `{force_include_location}` cannot be an empty string'
                     raise ValueError(message)
-                elif not isinstance(relative_path, str):
+
+                if not isinstance(relative_path, str):
                     message = f'Path for source `{source}` in field `{force_include_location}` must be a string'
                     raise TypeError(message)
-                elif not relative_path:
+
+                if not relative_path:
                     message = (
                         f'Path for source `{source}` in field `{force_include_location}` cannot be an empty string'
                     )
@@ -777,7 +792,8 @@ class BuilderConfig:
                 if not normalized_path or normalized_path.startswith(('~', '..')):
                     message = f'Path #{i} in field `{only_include_location}` must be relative: {relative_path}'
                     raise ValueError(message)
-                elif normalized_path in inclusion_map:
+
+                if normalized_path in inclusion_map:
                     message = f'Duplicate path in field `{only_include_location}`: {normalized_path}'
                     raise ValueError(message)
 
@@ -829,10 +845,12 @@ class BuilderConfig:
                     if exact_line == 'syntax: glob':
                         glob_mode = True
                         continue
-                    elif exact_line.startswith('syntax: '):
+
+                    if exact_line.startswith('syntax: '):
                         glob_mode = False
                         continue
-                    elif glob_mode:
+
+                    if glob_mode:
                         patterns.append(line)
 
         return patterns
@@ -843,19 +861,19 @@ class BuilderConfig:
 
         return os.path.normpath(build_directory)
 
-    def default_include(self) -> list:
+    def default_include(self) -> list:  # noqa: PLR6301
         return []
 
-    def default_exclude(self) -> list:
+    def default_exclude(self) -> list:  # noqa: PLR6301
         return []
 
-    def default_packages(self) -> list:
+    def default_packages(self) -> list:  # noqa: PLR6301
         return []
 
-    def default_only_include(self) -> list:
+    def default_only_include(self) -> list:  # noqa: PLR6301
         return []
 
-    def default_global_exclude(self) -> list[str]:
+    def default_global_exclude(self) -> list[str]:  # noqa: PLR6301
         patterns = ['*.py[cdo]', f'/{DEFAULT_BUILD_DIRECTORY}']
         patterns.sort()
         return patterns
@@ -896,9 +914,9 @@ class BuilderConfig:
 
 def env_var_enabled(env_var: str, *, default: bool = False) -> bool:
     if env_var in os.environ:
-        return os.environ[env_var] in ('1', 'true')
-    else:
-        return default
+        return os.environ[env_var] in {'1', 'true'}
+
+    return default
 
 
 BuilderConfigBound = TypeVar('BuilderConfigBound', bound=BuilderConfig)

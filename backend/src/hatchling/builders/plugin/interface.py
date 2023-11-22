@@ -388,13 +388,13 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
         """
         return list(self.get_version_api())
 
-    def get_default_build_data(self) -> dict[str, Any]:
+    def get_default_build_data(self) -> dict[str, Any]:  # noqa: PLR6301
         """
         A mapping that can be modified by [build hooks](../build-hook/reference.md) to influence the behavior of builds.
         """
         return {}
 
-    def set_build_data_defaults(self, build_data: dict[str, Any]) -> None:
+    def set_build_data_defaults(self, build_data: dict[str, Any]) -> None:  # noqa: PLR6301
         build_data.setdefault('artifacts', [])
         build_data.setdefault('force_include', {})
 
@@ -416,4 +416,4 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
         """
         https://peps.python.org/pep-0427/#escaping-and-unicode
         """
-        return re.sub(r'[^\w\d.]+', '_', file_name, re.UNICODE)
+        return re.sub(r'[^\w\d.]+', '_', file_name, flags=re.UNICODE)

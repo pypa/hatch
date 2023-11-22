@@ -4,10 +4,10 @@ import shutil
 import subprocess
 import sys
 import time
-from collections import namedtuple
+from contextlib import suppress
 from functools import lru_cache
 from io import BytesIO
-from typing import Generator
+from typing import Generator, NamedTuple
 
 import pytest
 from click.testing import CliRunner as __CliRunner
@@ -26,7 +26,14 @@ from hatchling.cli import hatchling
 from .helpers.templates.licenses import MIT, Apache_2_0
 
 PLATFORM = Platform()
-DEVPI = namedtuple('DEVPI', ('repo', 'index', 'user', 'auth', 'ca_cert'))
+
+
+class Devpi(NamedTuple):
+    repo: str
+    index_name: str
+    user: str
+    auth: str
+    ca_cert: str
 
 
 class CliRunner(__CliRunner):
@@ -95,18 +102,18 @@ def isolation() -> Generator[Path, None, None]:
 
 
 @pytest.fixture(scope='session')
-def isolated_data_dir() -> Generator[Path, None, None]:
-    yield Path(os.environ[ConfigEnvVars.DATA])
+def isolated_data_dir() -> Path:
+    return Path(os.environ[ConfigEnvVars.DATA])
 
 
 @pytest.fixture(scope='session')
-def default_data_dir() -> Generator[Path, None, None]:
-    yield Path(user_data_dir('hatch', appauthor=False))
+def default_data_dir() -> Path:
+    return Path(user_data_dir('hatch', appauthor=False))
 
 
 @pytest.fixture(scope='session')
-def default_cache_dir() -> Generator[Path, None, None]:
-    yield Path(user_cache_dir('hatch', appauthor=False))
+def default_cache_dir() -> Path:
+    return Path(user_cache_dir('hatch', appauthor=False))
 
 
 @pytest.fixture(scope='session')
@@ -124,13 +131,13 @@ def uri_slash_prefix():
     return '//' if os.sep == '/' else '///'
 
 
-@pytest.fixture
+@pytest.fixture()
 def temp_dir() -> Generator[Path, None, None]:
     with temp_directory() as d:
         yield d
 
 
-@pytest.fixture
+@pytest.fixture()
 def temp_dir_data(temp_dir) -> Generator[Path, None, None]:
     data_path = temp_dir / 'data'
     data_path.mkdir()
@@ -139,7 +146,7 @@ def temp_dir_data(temp_dir) -> Generator[Path, None, None]:
         yield temp_dir
 
 
-@pytest.fixture
+@pytest.fixture()
 def temp_dir_cache(temp_dir) -> Generator[Path, None, None]:
     cache_path = temp_dir / 'cache'
     cache_path.mkdir()
@@ -164,12 +171,12 @@ def default_virtualenv_installed_requirements(helpers):
         output = PLATFORM.run_command(['pip', 'freeze'], check=True, capture_output=True).stdout.decode('utf-8')
         requirements = helpers.extract_requirements(output.splitlines())
 
-    yield frozenset(requirements)
+    return frozenset(requirements)
 
 
 @pytest.fixture(scope='session')
 def extract_installed_requirements(helpers, default_virtualenv_installed_requirements):
-    yield lambda lines: [
+    return lambda lines: [
         requirement
         for requirement in helpers.extract_requirements(lines)
         if requirement not in default_virtualenv_installed_requirements
@@ -228,7 +235,7 @@ def devpi(tmp_path_factory, worker_id):
             server_key = str(server_config_dir / 'server.key')
             server_cert = str(server_config_dir / 'server.pem')
             cert.private_key_pem.write_to_path(path=server_key)
-            with open(server_cert, mode='w') as f:
+            with open(server_cert, mode='w', encoding='utf-8') as f:
                 f.truncate()
             for blob in cert.cert_chain_pems:
                 blob.write_to_path(path=server_cert, append=True)
@@ -240,8 +247,8 @@ def devpi(tmp_path_factory, worker_id):
             data = {'password': os.urandom(16).hex(), 'ca_cert': client_cert}
             devpi_data_file.write_atomic(json.dumps(data), 'w', encoding='utf-8')
 
-    dp = DEVPI('https://localhost:8443/hatch/testing/', 'testing', 'hatch', data['password'], data['ca_cert'])
-    env_vars = {'DEVPI_INDEX_NAME': dp.index, 'DEVPI_USERNAME': dp.user, 'DEVPI_PASSWORD': dp.auth}
+    dp = Devpi('https://localhost:8443/hatch/testing/', 'testing', 'hatch', data['password'], data['ca_cert'])
+    env_vars = {'DEVPI_INDEX_NAME': dp.index_name, 'DEVPI_USERNAME': dp.user, 'DEVPI_PASSWORD': dp.auth}
 
     compose_file = str(devpi_docker_data / 'docker-compose.yaml')
     with FileLock(lock_file):
@@ -251,7 +258,7 @@ def devpi(tmp_path_factory, worker_id):
 
             for _ in range(60):
                 output = subprocess.check_output(['docker', 'logs', 'hatch-devpi']).decode('utf-8')
-                if f'Serving index {dp.user}/{dp.index}' in output:
+                if f'Serving index {dp.user}/{dp.index_name}' in output:
                     time.sleep(5)
                     break
 
@@ -272,12 +279,12 @@ def devpi(tmp_path_factory, worker_id):
                 shutil.rmtree(devpi_ended_sessions)
 
                 with EnvVars(env_vars):
-                    subprocess.run(['docker', 'compose', '-f', compose_file, 'down', '-t', '0'], capture_output=True)
+                    subprocess.run(['docker', 'compose', '-f', compose_file, 'down', '-t', '0'], capture_output=True)  # noqa: PLW1510
 
                 shutil.rmtree(devpi_data)
 
 
-@pytest.fixture
+@pytest.fixture()
 def mock_backend_process(request, mocker):
     if 'allow_backend_process' in request.keywords:
         yield False
@@ -319,7 +326,7 @@ def mock_backend_process(request, mocker):
     yield True
 
 
-@pytest.fixture
+@pytest.fixture()
 def mock_plugin_installation(mocker):
     subprocess_run = subprocess.run
     mocked_subprocess_run = mocker.MagicMock(returncode=0)
@@ -333,15 +340,15 @@ def mock_plugin_installation(mocker):
 
     mocker.patch('subprocess.run', side_effect=_mock)
 
-    yield mocked_subprocess_run
+    return mocked_subprocess_run
 
 
-@pytest.fixture
+@pytest.fixture()
 def local_builder(mock_backend_process, mocker):
     if mock_backend_process:
         mocker.patch('hatch.env.virtual.VirtualEnvironment.build_environment')
 
-    yield
+    return mock_backend_process
 
 
 def pytest_runtest_setup(item):
@@ -389,11 +396,11 @@ def network_connectivity():  # no cov
 
     import socket
 
-    try:
+    with suppress(Exception):
         # Test availability of DNS first
         host = socket.gethostbyname('www.google.com')
         # Test connection
         socket.create_connection((host, 80), 2)
         return True
-    except Exception:
-        return False
+
+    return False

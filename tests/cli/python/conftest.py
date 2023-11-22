@@ -9,7 +9,7 @@ def default_shells(platform):
 
 
 @pytest.fixture(autouse=True)
-def isolated_python_directory(config_file):
+def isolated_python_directory(config_file):  # noqa: PT004
     config_file.model.dirs.python = 'isolated'
     config_file.save()
 
@@ -20,11 +20,11 @@ def path_append(mocker):
 
 
 @pytest.fixture(autouse=True)
-def disable_path_detectors(mocker):
+def disable_path_detectors(mocker):  # noqa: PT004
     mocker.patch('userpath.in_current_path', return_value=False)
     mocker.patch('userpath.in_new_path', return_value=False)
 
 
-@pytest.fixture
+@pytest.fixture()
 def dist_name(compatible_python_distributions):
     return secrets.choice(compatible_python_distributions)

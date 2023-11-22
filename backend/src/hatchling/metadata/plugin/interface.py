@@ -59,7 +59,7 @@ class MetadataHookInterface(ABC):  # no cov
         This updates the metadata mapping of the `project` table in-place.
         """
 
-    def get_known_classifiers(self) -> list[str]:
+    def get_known_classifiers(self) -> list[str]:  # noqa: PLR6301
         """
         This returns extra classifiers that should be considered valid in addition to the ones known to PyPI.
         """

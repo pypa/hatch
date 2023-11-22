@@ -4,6 +4,7 @@ This script must be run from the root of the repository.
 At a high level, the goal is to have a directory that emulates the full path structure of the
 target machine which then gets packaged by tools that are only available on macOS.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -31,7 +32,7 @@ README = """\
 
 
 def run_command(command: list[str]) -> None:
-    process = subprocess.run(command)
+    process = subprocess.run(command)  # noqa: PLW1510
     if process.returncode:
         sys.exit(process.returncode)
 

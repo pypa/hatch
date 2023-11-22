@@ -140,7 +140,7 @@ class TestBuildDependenciesInstalled:
 
 
 class TestBuildDependenciesMissing:
-    @pytest.mark.allow_backend_process
+    @pytest.mark.allow_backend_process()
     def test_incompatible_environment(self, hatch, temp_dir, helpers):
         project_name = 'My.App'
 

@@ -8,7 +8,7 @@ from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT, DEFAULT_CONFIG_FILE
 
 
 @pytest.fixture(scope='module', autouse=True)
-def terminal_width():
+def _terminal_width():
     with EnvVars({'COLUMNS': '200'}):
         yield
 

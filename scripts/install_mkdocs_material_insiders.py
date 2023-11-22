@@ -21,7 +21,7 @@ def main():
             stderr=subprocess.STDOUT,
             encoding='utf-8',
         )
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         print(str(e).replace(TOKEN, '*****'))
         sys.exit(1)
 
