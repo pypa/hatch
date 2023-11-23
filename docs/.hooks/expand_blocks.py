@@ -40,17 +40,20 @@ def _config_example_replace(m):
 """
 
 
-def on_config(config, **kwargs):
+def on_config(
+    config,
+    **kwargs,  # noqa: ARG001
+):
     config.markdown_extensions.append(MyExtension())
 
 
 class MyExtension(Extension):
-    def extendMarkdown(self, md):  # noqa: N802
+    def extendMarkdown(self, md):  # noqa: N802, PLR6301
         md.preprocessors.register(MyPreprocessor(), 'mypreprocessor', 100)
 
 
 class MyPreprocessor(Preprocessor):
-    def run(self, lines):
+    def run(self, lines):  # noqa: PLR6301
         markdown = '\n'.join(lines)
         markdown = _config_example_regex.sub(_config_example_replace, markdown)
         markdown = _code_tab_regex.sub(_code_tab_replace, markdown)

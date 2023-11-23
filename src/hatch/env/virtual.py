@@ -263,10 +263,14 @@ class VirtualEnvironment(EnvironmentInterface):
                 if (concrete_path := resolver('')) is not None:
                     return concrete_path
 
+        return None
+
     def _resolve_external_interpreter_path(self, python_version: str) -> str | None:
         if (existing_path := self._find_existing_interpreter(python_version)) is not None:
             self.upgrade_possible_internal_python(existing_path)
             return existing_path
+
+        return None
 
     def _resolve_internal_interpreter_path(self, python_version: str) -> str | None:
         if (available_distribution := self._get_available_distribution(python_version)) is not None:
@@ -274,6 +278,8 @@ class VirtualEnvironment(EnvironmentInterface):
                 dist = self.python_manager.install(available_distribution)
 
             return str(dist.python_path)
+
+        return None
 
     def _find_existing_interpreter(self, python_version: str = '') -> str | None:
         from virtualenv.discovery import builtin as virtualenv_discovery
@@ -325,6 +331,8 @@ class VirtualEnvironment(EnvironmentInterface):
                 continue
 
             return available_distribution
+
+        return None
 
     def _is_stable_path(self, executable: str) -> bool:
         path = Path(executable).resolve()

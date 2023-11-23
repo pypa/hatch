@@ -106,7 +106,7 @@ class TestMultiple:
             scheme.update('5,rc', '3', {})
 
     @pytest.mark.parametrize(
-        'operations, expected',
+        ('operations', 'expected'),
         [
             ('fix,rc', '0.0.2rc0'),
             ('minor,dev', '0.1.0.dev0'),

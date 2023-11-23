@@ -30,8 +30,8 @@ def remove_trailing_spaces(text):
 
 
 def extract_requirements(lines):
-    for line in lines:
-        line = line.rstrip()
+    for raw_line in lines:
+        line = raw_line.rstrip()
         if line and not line.startswith('#'):
             yield line
 

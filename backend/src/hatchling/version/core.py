@@ -43,7 +43,7 @@ class VersionFile:
         return self.__cached_read_data[0]
 
     def set_version(self, version: str) -> None:
-        old_version, file_contents, (start, end) = self.__cached_read_data  # type: ignore
+        _old_version, file_contents, (start, end) = self.__cached_read_data  # type: ignore
         with open(self.__path, 'w', encoding='utf-8') as f:
             f.write(f'{file_contents[:start]}{version}{file_contents[end:]}')
 

@@ -163,12 +163,12 @@ def run(
 
             try:
                 environment.check_compatibility()
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 if ignore_compat or matrix_selected:
                     incompatible[environment.name] = str(e)
                     continue
-                else:
-                    app.abort(f'Environment `{env_name}` is incompatible: {e}')
+
+                app.abort(f'Environment `{env_name}` is incompatible: {e}')
 
             any_compatible = True
             if should_display_header:

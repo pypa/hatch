@@ -38,4 +38,4 @@ def test_no_config_file(hatch, config_file):
     result = hatch()
 
     assert result.exit_code == 1
-    assert result.output == f'The selected config file `{str(config_file.path)}` does not exist.\n'
+    assert result.output == f'The selected config file `{config_file.path}` does not exist.\n'

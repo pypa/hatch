@@ -15,10 +15,10 @@ class ShellManager:
     def __init__(self, environment: EnvironmentInterface) -> None:
         self.environment = environment
 
-    def enter_cmd(self, path: str, args: Iterable[str], exe_dir: Path) -> None:
+    def enter_cmd(self, path: str, args: Iterable[str], exe_dir: Path) -> None:  # noqa: ARG002
         self.environment.platform.exit_with_command([path or 'cmd', '/k', str(exe_dir / 'activate.bat')])
 
-    def enter_powershell(self, path: str, args: Iterable[str], exe_dir: Path) -> None:
+    def enter_powershell(self, path: str, args: Iterable[str], exe_dir: Path) -> None:  # noqa: ARG002
         self.environment.platform.exit_with_command(
             [
                 path or 'powershell',
@@ -110,7 +110,7 @@ class ShellManager:
             # pexpect only accepts lists
             terminal = pexpect.spawn(path, args=list(args or ()), dimensions=(lines, columns))
 
-            def sigwinch_passthrough(sig: int, data: FrameType | None) -> None:
+            def sigwinch_passthrough(sig: int, data: FrameType | None) -> None:  # noqa: ARG001
                 new_columns, new_lines = shutil.get_terminal_size()
                 terminal.setwinsize(new_lines, new_columns)
 

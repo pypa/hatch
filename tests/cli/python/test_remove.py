@@ -54,9 +54,7 @@ def test_all(hatch, helpers, temp_dir_data):
 
     assert result.exit_code == 0, result.output
 
-    expected_lines = []
-    for name in installed_distributions:
-        expected_lines.append(f'Removing {name}')
+    expected_lines = [f'Removing {name}' for name in installed_distributions]
     expected_lines.append('')
 
     assert result.output == '\n'.join(expected_lines)

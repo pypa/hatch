@@ -50,7 +50,7 @@ def get_project_dependencies_complex(
     else:
         try:
             environment.check_compatibility()
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             environment.app.abort(f'Environment `{environment.name}` is incompatible: {e}')
 
         import json

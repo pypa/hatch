@@ -884,7 +884,7 @@ def test_incompatible_matrix_partial(hatch, helpers, temp_dir, config_file):
     assert env_dirs[0].name == 'test.42'
 
 
-@pytest.mark.requires_internet
+@pytest.mark.requires_internet()
 def test_install_project_default_dev_mode(
     hatch, helpers, temp_dir, platform, config_file, extract_installed_requirements
 ):
@@ -944,7 +944,7 @@ def test_install_project_default_dev_mode(
         assert requirements[0].lower() == f'-e {str(project_path).lower()}'
 
 
-@pytest.mark.requires_internet
+@pytest.mark.requires_internet()
 def test_install_project_no_dev_mode(hatch, helpers, temp_dir, platform, config_file, extract_installed_requirements):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
@@ -1003,7 +1003,7 @@ def test_install_project_no_dev_mode(hatch, helpers, temp_dir, platform, config_
         assert requirements[0].startswith('my-app @')
 
 
-@pytest.mark.requires_internet
+@pytest.mark.requires_internet()
 def test_pre_install_commands(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
@@ -1081,7 +1081,7 @@ def test_pre_install_commands_error(hatch, helpers, temp_dir, config_file):
     )
 
 
-@pytest.mark.requires_internet
+@pytest.mark.requires_internet()
 def test_post_install_commands(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
@@ -1123,7 +1123,7 @@ def test_post_install_commands(hatch, helpers, temp_dir, config_file):
     assert (project_path / 'test.txt').is_file()
 
 
-@pytest.mark.requires_internet
+@pytest.mark.requires_internet()
 def test_post_install_commands_error(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
@@ -1161,7 +1161,7 @@ def test_post_install_commands_error(hatch, helpers, temp_dir, config_file):
     )
 
 
-@pytest.mark.requires_internet
+@pytest.mark.requires_internet()
 def test_sync_dependencies(hatch, helpers, temp_dir, platform, config_file, extract_installed_requirements):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
@@ -1232,7 +1232,7 @@ def test_sync_dependencies(hatch, helpers, temp_dir, platform, config_file, extr
         assert requirements[1].lower() == f'-e {str(project_path).lower()}'
 
 
-@pytest.mark.requires_internet
+@pytest.mark.requires_internet()
 def test_features(hatch, helpers, temp_dir, platform, config_file, extract_installed_requirements):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
@@ -1295,7 +1295,7 @@ def test_features(hatch, helpers, temp_dir, platform, config_file, extract_insta
         assert requirements[1].lower() == f'-e {str(project_path).lower()}'
 
 
-@pytest.mark.requires_internet
+@pytest.mark.requires_internet()
 def test_sync_dynamic_dependencies(hatch, helpers, temp_dir, platform, config_file, extract_installed_requirements):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
@@ -1394,8 +1394,8 @@ def test_sync_dynamic_dependencies(hatch, helpers, temp_dir, platform, config_fi
         assert requirements[3].lower() == f'my-app1 @ {path_to_uri(project_path).lower()}/../my-app1'
 
 
-@pytest.mark.requires_internet
-def test_unknown_dynamic_feature(hatch, helpers, temp_dir, platform, config_file, extract_installed_requirements):
+@pytest.mark.requires_internet()
+def test_unknown_dynamic_feature(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
@@ -1564,7 +1564,8 @@ def test_plugin_dependencies_unmet(hatch, config_file, helpers, temp_dir, mock_p
     assert env_path.name == project_path.name
 
 
-def test_plugin_dependencies_met(hatch, config_file, helpers, temp_dir, mock_plugin_installation):
+@pytest.mark.usefixtures('mock_plugin_installation')
+def test_plugin_dependencies_met(hatch, config_file, helpers, temp_dir):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 

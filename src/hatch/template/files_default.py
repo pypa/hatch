@@ -3,12 +3,20 @@ from hatch.utils.fs import Path
 
 
 class PackageRoot(File):
-    def __init__(self, template_config: dict, plugin_config: dict):
+    def __init__(
+        self,
+        template_config: dict,
+        plugin_config: dict,  # noqa: ARG002
+    ):
         super().__init__(Path(template_config['package_name'], '__init__.py'), '')
 
 
 class MetadataFile(File):
-    def __init__(self, template_config: dict, plugin_config: dict):
+    def __init__(
+        self,
+        template_config: dict,
+        plugin_config: dict,  # noqa: ARG002
+    ):
         super().__init__(Path(template_config['package_name'], '__about__.py'), '__version__ = "0.0.1"\n')
 
 
@@ -32,7 +40,11 @@ pip install {project_name_normalized}
 ```{license_info}
 """
 
-    def __init__(self, template_config: dict, plugin_config: dict):
+    def __init__(
+        self,
+        template_config: dict,
+        plugin_config: dict,  # noqa: ARG002
+    ):
         extra_badges = ''
         extra_toc = ''
 
@@ -45,7 +57,7 @@ pip install {project_name_normalized}
 
             license_data = template_config['license_data']
             if len(license_data) == 1:
-                license_id = list(license_data)[0]
+                license_id = next(iter(license_data))
                 license_info += f'the [{license_id}](https://spdx.org/licenses/{license_id}.html) license.'
             else:
                 license_info += 'any of the following licenses:\n'
@@ -112,9 +124,8 @@ path = "{package_metadata_file_path}"{tests_section}
         )
         if project_urls:
             for label, url in project_urls.items():
-                if ' ' in label:
-                    label = f'"{label}"'
-                project_url_data += f'\n{label} = "{url.format(**template_config)}"'
+                normalized_label = f'"{label}"' if ' ' in label else label
+                project_url_data += f'\n{normalized_label} = "{url.format(**template_config)}"'
 
         dependency_data = '['
         if template_config['dependencies']:

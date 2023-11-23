@@ -22,8 +22,8 @@ def parse_distributions(contents: str, constant: str):
         raise ValueError(message)
 
     block = match.group(0).replace('",\n', '",')
-    for line in block.splitlines()[1:-1]:
-        line = line.strip()
+    for raw_line in block.splitlines()[1:-1]:
+        line = raw_line.strip()
         if not line or line.startswith('//'):
             continue
 
@@ -62,25 +62,19 @@ def main():
         '# fmt: off',
         'ORDERED_DISTRIBUTIONS: tuple[str, ...] = (',
     ]
-    for identifier in ordered:
-        output.append(f'    {identifier!r},')
-    output.append(')')
+    output.extend(f'    {identifier!r},' for identifier in ordered)
+    output.extend((')', 'DISTRIBUTIONS: dict[str, dict[tuple[str, ...], str]] = {'))
 
-    output.append('DISTRIBUTIONS: dict[str, dict[tuple[str, ...], str]] = {')
     for identifier, data in distributions.items():
         output.append(f'    {identifier!r}: {{')
-
         for d, source in data:
-            output.append(f'        {d!r}:')
-            output.append(f'            {source!r},')
-
+            output.extend((f'        {d!r}:', f'            {source!r},'))
         output.append('    },')
 
-    output.append('}')
-    output.append('')
+    output.extend(('}', ''))
     output = '\n'.join(output)
 
-    with open(OUTPUT_FILE, 'w') as f:
+    with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
         f.write(output)
 
 

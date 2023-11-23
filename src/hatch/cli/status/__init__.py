@@ -18,11 +18,10 @@ def status(app):
             display_pair('Project', '<no project detected>', app.display_warning)
         else:
             display_pair('Project', f'{app.project.chosen_name} (not a project)', app.display_warning)
+    elif app.project.chosen_name is None:
+        display_pair('Project', f'{app.project.root.name} (current directory)')
     else:
-        if app.project.chosen_name is None:  # noqa: PLR5501
-            display_pair('Project', f'{app.project.root.name} (current directory)')
-        else:
-            display_pair('Project', app.project.chosen_name)
+        display_pair('Project', app.project.chosen_name)
 
     display_pair('Location', str(app.project.location))
     display_pair('Config', str(app.config_file.path), link=f'file:///{app.config_file.path}')

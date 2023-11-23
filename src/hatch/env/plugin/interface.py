@@ -420,23 +420,27 @@ class EnvironmentInterface(ABC):
                 if not isinstance(feature, str):
                     message = f'Feature #{i} of field `tool.hatch.envs.{self.name}.features` must be a string'
                     raise TypeError(message)
-                elif not feature:
+
+                if not feature:
                     message = f'Feature #{i} of field `tool.hatch.envs.{self.name}.features` cannot be an empty string'
                     raise ValueError(message)
 
-                if not self.metadata.hatch.metadata.allow_ambiguous_features:
-                    feature = normalize_project_name(feature)
+                normalized_feature = (
+                    feature
+                    if self.metadata.hatch.metadata.allow_ambiguous_features
+                    else normalize_project_name(feature)
+                )
                 if (
                     not self.metadata.hatch.metadata.hook_config
-                    and feature not in self.metadata.core.optional_dependencies
+                    and normalized_feature not in self.metadata.core.optional_dependencies
                 ):
                     message = (
-                        f'Feature `{feature}` of field `tool.hatch.envs.{self.name}.features` is not '
+                        f'Feature `{normalized_feature}` of field `tool.hatch.envs.{self.name}.features` is not '
                         f'defined in field `project.optional-dependencies`'
                     )
                     raise ValueError(message)
 
-                all_features.add(feature)
+                all_features.add(normalized_feature)
 
             self._features = sorted(all_features)
 
@@ -654,7 +658,10 @@ class EnvironmentInterface(ABC):
         return hash_dependencies(self.dependencies_complex)
 
     @contextmanager
-    def build_environment(self, dependencies: list[str]):
+    def build_environment(
+        self,
+        dependencies: list[str],  # noqa: ARG002
+    ):
         """
         This should set up an isolated environment in which to [`build`](../../cli/reference.md#hatch-build) the project
         given a set of dependencies and must be a context manager:
@@ -672,7 +679,11 @@ class EnvironmentInterface(ABC):
         with self.get_env_vars():
             yield
 
-    def get_build_process(self, build_environment, **kwargs):
+    def get_build_process(
+        self,
+        build_environment,  # noqa: ARG002
+        **kwargs,
+    ):
         """
         This will be called when the
         [build environment](reference.md#hatch.env.plugin.interface.EnvironmentInterface.build_environment)
@@ -692,7 +703,7 @@ class EnvironmentInterface(ABC):
         """
         return self.platform.capture_process(self.construct_build_command(**kwargs))
 
-    def build_environment_exists(self):
+    def build_environment_exists(self):  # noqa: PLR6301
         """
         If the
         [build environment](reference.md#hatch.env.plugin.interface.EnvironmentInterface.build_environment)
@@ -700,7 +711,12 @@ class EnvironmentInterface(ABC):
         """
         return False
 
-    def enter_shell(self, name: str, path: str, args: Iterable[str]):
+    def enter_shell(
+        self,
+        name: str,  # noqa: ARG002
+        path: str,
+        args: Iterable[str],
+    ):
         """
         Spawn a [shell](../../config/hatch.md#shell) within the environment.
 
@@ -744,7 +760,7 @@ class EnvironmentInterface(ABC):
             yield from self.expand_command(command)
 
     def expand_command(self, command):
-        possible_script, args, ignore_exit_code = parse_script_command(command)
+        possible_script, args, _ignore_exit_code = parse_script_command(command)
 
         # Indicate undefined
         if not args:
@@ -758,7 +774,7 @@ class EnvironmentInterface(ABC):
                 yield self.metadata.context.format(command, args=args).strip()
 
     def construct_build_command(
-        self,
+        self,  # noqa: PLR6301
         *,
         directory=None,
         targets=(),
@@ -888,7 +904,8 @@ class EnvironmentInterface(ABC):
 def expand_script_commands(env_name, script_name, commands, config, seen, active):
     if script_name in seen:
         return seen[script_name]
-    elif script_name in active:
+
+    if script_name in active:
         active.append(script_name)
 
         message = f'Circular expansion detected for field `tool.hatch.envs.{env_name}.scripts`: {" -> ".join(active)}'

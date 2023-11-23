@@ -1617,8 +1617,8 @@ class TestContextFormatting:
             next(environment.expand_command('foo'))
 
     @pytest.mark.parametrize(
-        'verbosity, command',
-        (
+        ('verbosity', 'command'),
+        [
             (-9000, 'command -qqq'),
             (-3, 'command -qqq'),
             (-2, 'command -qq'),
@@ -1628,7 +1628,7 @@ class TestContextFormatting:
             (2, 'command -vv'),
             (3, 'command -vvv'),
             (9000, 'command -vvv'),
-        ),
+        ],
     )
     def test_verbosity_flag_default(self, isolation, isolated_data_dir, platform, verbosity, command):
         config = {
@@ -1651,8 +1651,8 @@ class TestContextFormatting:
         assert list(environment.expand_command('foo')) == [command]
 
     @pytest.mark.parametrize(
-        'adjustment, command',
-        (
+        ('adjustment', 'command'),
+        [
             (-9000, 'command -qqq'),
             (-3, 'command -qqq'),
             (-2, 'command -qq'),
@@ -1662,7 +1662,7 @@ class TestContextFormatting:
             (2, 'command -vv'),
             (3, 'command -vvv'),
             (9000, 'command -vvv'),
-        ),
+        ],
     )
     def test_verbosity_flag_adjustment(self, isolation, isolated_data_dir, platform, adjustment, command):
         config = {

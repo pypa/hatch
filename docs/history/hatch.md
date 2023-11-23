@@ -17,7 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ***Added:***
 
 - Support Python 3.12
-- Add standalone binaries
+- Add installers and standalone binaries
 - Add the ability to manage Python installations
 - The `virtual` environment type can now automatically download requested versions of Python that are not installed
 - Add `dependency_hash` method to the `environment` interface

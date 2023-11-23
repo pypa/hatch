@@ -134,7 +134,7 @@ def test_default_empty_plugins_table(hatch, helpers, config_file, temp_dir):
     )
 
 
-@pytest.mark.requires_internet
+@pytest.mark.requires_internet()
 def test_default_no_license_cache(hatch, helpers, temp_dir):
     project_name = 'My.App'
     cache_dir = temp_dir / 'cache'
