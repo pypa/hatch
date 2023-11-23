@@ -36,11 +36,20 @@ class VirtualEnvironment(EnvironmentInterface):
         # Always compute the isolated app path for build environments
         hashed_root = sha256(str(self.root).encode('utf-8')).digest()
         checksum = urlsafe_b64encode(hashed_root).decode('utf-8')[:8]
+        # Conditions requiring a flat structure
+        if (
+            self.root in self.isolated_data_directory.resolve().parents
+            or self.isolated_data_directory == self.platform.home / '.virtualenvs'
+        ):
+            app_virtual_env_path = self.isolated_data_directory / project_name / venv_name
+        else:
+            app_virtual_env_path = self.isolated_data_directory / project_name / checksum / venv_name
 
         # Explicit path
         chosen_directory = self.get_env_var_option('path') or self.config.get('path', '')
         if chosen_directory:
-            self.storage_path = (
+            self.storage_path = self.data_directory / project_name / checksum
+            self.virtual_env_path = (
                 Path(chosen_directory) if isabs(chosen_directory) else (self.root / chosen_directory).resolve()
             )
         # Conditions requiring a flat structure
@@ -49,14 +58,15 @@ class VirtualEnvironment(EnvironmentInterface):
             or self.data_directory == self.platform.home / '.virtualenvs'
         ):
             self.storage_path = self.data_directory
+            self.virtual_env_path = self.storage_path / venv_name
         # Otherwise the defined app path
         else:
             self.storage_path = self.data_directory / project_name / checksum
+            self.virtual_env_path = self.storage_path / venv_name
 
-        self.virtual_env_path = self.storage_path / venv_name
         self.virtual_env = VirtualEnv(self.virtual_env_path, self.platform, self.verbosity)
         self.build_virtual_env = VirtualEnv(
-            self.virtual_env_path.parent / f'{self.virtual_env_path.name}-build', self.platform, self.verbosity
+            app_virtual_env_path.parent / f'{app_virtual_env_path.name}-build', self.platform, self.verbosity
         )
         self.shells = ShellManager(self)
 
