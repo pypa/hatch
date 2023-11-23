@@ -41,7 +41,7 @@ class VirtualEnvironment(EnvironmentInterface):
             self.root in self.isolated_data_directory.resolve().parents
             or self.isolated_data_directory == self.platform.home / '.virtualenvs'
         ):
-            app_virtual_env_path = self.isolated_data_directory / project_name / venv_name
+            app_virtual_env_path = self.isolated_data_directory / venv_name
         else:
             app_virtual_env_path = self.isolated_data_directory / project_name / checksum / venv_name
 
