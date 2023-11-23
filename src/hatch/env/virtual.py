@@ -36,7 +36,7 @@ class VirtualEnvironment(EnvironmentInterface):
         # Always compute the isolated app path for build environments
         hashed_root = sha256(str(self.root).encode('utf-8')).digest()
         checksum = urlsafe_b64encode(hashed_root).decode('utf-8')[:8]
-        # Conditions requiring a flat structure
+        # Conditions requiring a flat structure for build env
         if (
             self.root in self.isolated_data_directory.resolve().parents
             or self.isolated_data_directory == self.platform.home / '.virtualenvs'
