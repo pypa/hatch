@@ -287,11 +287,11 @@ class Terminal:
         table = Table(title=title, show_lines=show_lines, title_style='', **table_options)
         columns = dict(columns)
 
-        for title, indices in list(columns.items()):
+        for column_title, indices in list(columns.items()):
             if indices:
-                table.add_column(title, style='bold', **column_options.get(title, {}))
+                table.add_column(column_title, style='bold', **column_options.get(column_title, {}))
             else:
-                columns.pop(title)
+                columns.pop(column_title)
 
         if not columns:
             return

@@ -48,7 +48,7 @@ write-summary-report = "python scripts/write_coverage_summary_report.py"
 detached = true
 dependencies = [
   "mypy>=1.0.0",
-  "ruff==0.1.4",
+  "ruff==0.1.6",
 ]
 [envs.lint.scripts]
 typing = "mypy --install-types --non-interactive {args:backend/src/hatchling src/hatch tests}"

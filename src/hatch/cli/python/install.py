@@ -98,5 +98,5 @@ def install(app: Application, *, names: tuple[str, ...], private: bool, update: 
             f'\nThe following director{"ies" if multiple else "y"} ha{"ve" if multiple else "s"} '
             f'been added to your PATH (pending a shell restart):\n'
         )
-        for directory in directories_made_public:
-            app.display(directory)
+        for public_directory in directories_made_public:
+            app.display(public_directory)

@@ -19,8 +19,8 @@ def find(app, env_name):
         else [root_env_name]
     )
 
-    for env_name in environments:
-        environment = app.get_environment(env_name)
+    for env in environments:
+        environment = app.get_environment(env)
 
         try:
             environment.check_compatibility()

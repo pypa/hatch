@@ -21,7 +21,7 @@ class RegexSource(VersionSourceInterface):
             raise TypeError(message)
 
         version_file = VersionFile(self.root, relative_path)
-        version = version_file.read(pattern)
+        version = version_file.read(pattern=pattern)
 
         return {'version': version, 'version_file': version_file}
 
