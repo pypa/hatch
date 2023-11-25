@@ -358,8 +358,8 @@ class WheelBuilder(BuilderInterface):
     def get_default_versions(self) -> list[str]:  # noqa: PLR6301
         return ['standard']
 
-    def clean(
-        self,  # noqa: PLR6301
+    def clean(  # noqa: PLR6301
+        self,
         directory: str,
         versions: list[str],  # noqa: ARG002
     ) -> None:

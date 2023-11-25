@@ -63,7 +63,7 @@ class VersionBuildHook(BuildHookInterface):
     ) -> None:
         version_file = VersionFile(self.root, self.config_path)
         if self.config_pattern:
-            version_file.read(self.config_pattern)
+            version_file.read(pattern=self.config_pattern)
             version_file.set_version(self.metadata.version)
         else:
             version_file.write(self.metadata.version, self.config_template)

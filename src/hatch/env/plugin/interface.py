@@ -773,8 +773,8 @@ class EnvironmentInterface(ABC):
             else:
                 yield self.metadata.context.format(command, args=args).strip()
 
-    def construct_build_command(
-        self,  # noqa: PLR6301
+    def construct_build_command(  # noqa: PLR6301
+        self,
         *,
         directory=None,
         targets=(),

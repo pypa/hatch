@@ -732,7 +732,7 @@ class TestBuildStandard:
         build_path.mkdir()
 
         with project_path.as_cwd():
-            artifacts = list(builder.build(str(build_path)))
+            artifacts = list(builder.build(directory=str(build_path)))
 
         assert len(artifacts) == 1
         expected_artifact = artifacts[0]
@@ -783,7 +783,7 @@ class TestBuildStandard:
         build_path.mkdir()
 
         with project_path.as_cwd():
-            artifacts = list(builder.build(str(build_path)))
+            artifacts = list(builder.build(directory=str(build_path)))
 
         assert len(artifacts) == 1
         expected_artifact = artifacts[0]
@@ -857,7 +857,7 @@ class TestBuildStandard:
         build_path.mkdir()
 
         with project_path.as_cwd():
-            artifacts = list(builder.build(str(build_path)))
+            artifacts = list(builder.build(directory=str(build_path)))
 
         assert len(artifacts) == 1
         expected_artifact = artifacts[0]
@@ -932,7 +932,7 @@ class TestBuildStandard:
         build_path.mkdir()
 
         with project_path.as_cwd():
-            artifacts = list(builder.build(str(build_path)))
+            artifacts = list(builder.build(directory=str(build_path)))
 
         assert len(artifacts) == 1
         expected_artifact = artifacts[0]
@@ -1380,7 +1380,7 @@ class TestBuildStandard:
         build_path.mkdir()
 
         with project_path.as_cwd():
-            artifacts = list(builder.build(str(build_path)))
+            artifacts = list(builder.build(directory=str(build_path)))
 
         assert len(artifacts) == 1
         expected_artifact = artifacts[0]
@@ -1452,7 +1452,7 @@ class TestBuildStandard:
         build_path.mkdir()
 
         with project_path.as_cwd():
-            artifacts = list(builder.build(str(build_path)))
+            artifacts = list(builder.build(directory=str(build_path)))
 
         assert len(artifacts) == 1
         expected_artifact = artifacts[0]
