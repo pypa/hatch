@@ -38,8 +38,8 @@ class VirtualEnvironment(EnvironmentInterface):
         checksum = urlsafe_b64encode(hashed_root).decode('utf-8')[:8]
         # Conditions requiring a flat structure for build env
         if (
-            self.root in self.isolated_data_directory.resolve().parents
-            or self.isolated_data_directory == self.platform.home / '.virtualenvs'
+            self.isolated_data_directory == self.platform.home / '.virtualenvs'
+            or self.root in self.isolated_data_directory.resolve().parents
         ):
             app_virtual_env_path = self.isolated_data_directory / venv_name
         else:
@@ -54,8 +54,8 @@ class VirtualEnvironment(EnvironmentInterface):
             )
         # Conditions requiring a flat structure
         elif (
-            self.root in self.data_directory.resolve().parents
-            or self.data_directory == self.platform.home / '.virtualenvs'
+            self.data_directory == self.platform.home / '.virtualenvs'
+            or self.root in self.data_directory.resolve().parents
         ):
             self.storage_path = self.data_directory
             self.virtual_env_path = self.storage_path / venv_name
