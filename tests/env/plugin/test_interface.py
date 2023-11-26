@@ -958,6 +958,42 @@ class TestDependencies:
 
         assert environment.dependencies == ['dep2', 'dep3']
 
+    def test_full_skip_install_and_features(self, isolation, isolated_data_dir, platform):
+        config = {
+            'project': {
+                'name': 'my_app',
+                'version': '0.0.1',
+                'dependencies': ['dep1'],
+                'optional-dependencies': {'feat': ['dep4']},
+            },
+            'tool': {
+                'hatch': {
+                    'envs': {
+                        'default': {
+                            'dependencies': ['dep2'],
+                            'extra-dependencies': ['dep3'],
+                            'skip-install': True,
+                            'features': ['feat'],
+                        }
+                    }
+                }
+            },
+        }
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+        )
+
+        assert environment.dependencies == ['dep2', 'dep3', 'dep4']
+
     def test_full_dev_mode(self, isolation, isolated_data_dir, platform):
         config = {
             'project': {'name': 'my_app', 'version': '0.0.1', 'dependencies': ['dep1']},

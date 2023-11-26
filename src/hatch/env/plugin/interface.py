@@ -310,12 +310,13 @@ class EnvironmentInterface(ABC):
 
             # Ensure these are checked last to speed up initial environment creation since
             # they will already be installed along with the project
-            if not self.skip_install and self.dev_mode:
+            if (not self.skip_install and self.dev_mode) or self.features:
                 from hatch.utils.dep import get_project_dependencies_complex
 
                 dependencies_complex, optional_dependencies_complex = get_project_dependencies_complex(self)
 
-                all_dependencies_complex.extend(dependencies_complex.values())
+                if not self.skip_install and self.dev_mode:
+                    all_dependencies_complex.extend(dependencies_complex.values())
 
                 for feature in self.features:
                     if feature not in optional_dependencies_complex:
@@ -336,7 +337,8 @@ class EnvironmentInterface(ABC):
         """
         The list of all [project dependencies](../../config/metadata.md#dependencies) (if
         [installed](../../config/environment/overview.md#skip-install) and in
-        [dev mode](../../config/environment/overview.md#dev-mode)) and
+        [dev mode](../../config/environment/overview.md#dev-mode)), selected
+        [optional dependencies](../../config/environment/overview.md#features), and
         [environment dependencies](../../config/environment/overview.md#dependencies).
         """
         if self._dependencies is None:
