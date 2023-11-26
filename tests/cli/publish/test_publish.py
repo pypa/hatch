@@ -18,10 +18,10 @@ def keyring_store(mocker):
     mocker.patch(
         'keyring.set_password', side_effect=lambda system, user, auth: mock_store[system].__setitem__(user, auth)
     )
-    yield mock_store
+    return mock_store
 
 
-@pytest.fixture
+@pytest.fixture()
 def published_project_name():
     return f'c4880cdbe05de9a28415fbad{secrets.choice(range(100))}'
 
@@ -48,8 +48,8 @@ def timestamp_to_version(timestamp):
         normalized_minor = str(int(minor))
         padding = '.'.join('0' for _ in range(len(minor) - len(normalized_minor)))
         return f'{major}.{padding}.{normalized_minor}'
-    else:
-        return f'{major}.{minor}'
+
+    return f'{major}.{minor}'
 
 
 def test_timestamp_to_version():
@@ -342,7 +342,7 @@ def test_prompt(hatch, devpi, temp_dir_cache, helpers, published_project_name, c
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
         f"""
-        Enter your username: {devpi.user}
+        Enter your username [__TOKEN__]: {devpi.user}
         Enter your credentials:{' '}
         {artifacts[0].relative_to(path)} ... success
 
@@ -385,7 +385,7 @@ def test_initialize_auth(hatch, devpi, temp_dir_cache, helpers, published_projec
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
         f"""
-        Enter your username: {devpi.user}
+        Enter your username [__TOKEN__]: {devpi.user}
         Enter your credentials:{' '}
         """
     )

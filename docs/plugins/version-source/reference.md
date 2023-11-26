@@ -7,6 +7,7 @@
 - [hatch-vcs](https://github.com/ofek/hatch-vcs) - uses your preferred version control system (like Git)
 - [hatch-nodejs-version](https://github.com/agoose77/hatch-nodejs-version) - uses the `version` field of NodeJS `package.json` files
 - [hatch-regex-commit](https://github.com/frankie567/hatch-regex-commit) - automatically creates a Git commit and tag after version bumping
+- [versioningit](https://github.com/jwodder/versioningit) - determines version from Git or Mercurial tags, with customizable version formatting
 
 ::: hatchling.version.source.plugin.interface.VersionSourceInterface
     options:

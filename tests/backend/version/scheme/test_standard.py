@@ -106,7 +106,7 @@ class TestMultiple:
             scheme.update('5,rc', '3', {})
 
     @pytest.mark.parametrize(
-        'operations, expected',
+        ('operations', 'expected'),
         [
             ('fix,rc', '0.0.2rc0'),
             ('minor,dev', '0.1.0.dev0'),
@@ -119,3 +119,21 @@ class TestMultiple:
         scheme = StandardScheme(str(isolation), {})
 
         assert scheme.update(operations, '0.0.1', {}) == expected
+
+
+class TestWithEpoch:
+    @pytest.mark.parametrize(
+        ('operations', 'expected'),
+        [
+            ('patch,dev,release', '1!0.0.2'),
+            ('fix,rc', '1!0.0.2rc0'),
+            ('minor,dev', '1!0.1.0.dev0'),
+            ('minor,preview', '1!0.1.0rc0'),
+            ('major,beta', '1!1.0.0b0'),
+            ('major,major,major', '1!3.0.0'),
+        ],
+    )
+    def test_correct(self, isolation, operations, expected):
+        scheme = StandardScheme(str(isolation), {})
+
+        assert scheme.update(operations, '1!0.0.1', {}) == expected

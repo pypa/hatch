@@ -11,17 +11,9 @@ This uses [PyApp](https://github.com/ofek/pyapp) to build an application that is
 
 The builder plugin name is `app`.
 
-=== ":octicons-file-code-16: pyproject.toml"
-
-    ```toml
-    [tool.hatch.build.targets.app]
-    ```
-
-=== ":octicons-file-code-16: hatch.toml"
-
-    ```toml
-    [build.targets.app]
-    ```
+```toml config-example
+[tool.hatch.build.targets.app]
+```
 
 ## Options
 

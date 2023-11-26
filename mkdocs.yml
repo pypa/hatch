@@ -61,6 +61,7 @@ nav:
     - Community:
       - Users: community/users.md
       - Highlights: community/highlights.md
+      - Contributing: community/contributing.md
   - Configuration:
     - Metadata: config/metadata.md
     - Dependencies: config/dependency.md
@@ -68,6 +69,7 @@ nav:
     - Environments:
       - Overview: config/environment/overview.md
       - Advanced: config/environment/advanced.md
+    - Static analysis: config/static-analysis.md
     - Context formatting: config/context.md
     - Project templates: config/project-templates.md
     - Hatch: config/hatch.md
@@ -122,6 +124,11 @@ nav:
 watch:
 - backend/src/hatchling
 - src/hatch
+
+hooks:
+- docs/.hooks/expand_blocks.py
+- docs/.hooks/inject_version.py
+- docs/.hooks/render_ruff_defaults.py
 
 plugins:
   # Built-in
@@ -190,8 +197,8 @@ markdown_extensions:
   - pymdownx.emoji:
       # https://github.com/twitter/twemoji
       # https://raw.githubusercontent.com/facelessuser/pymdown-extensions/master/pymdownx/twemoji_db.py
-      emoji_index: !!python/name:materialx.emoji.twemoji
-      emoji_generator: !!python/name:materialx.emoji.to_svg
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
   - pymdownx.highlight:
       guess_lang: false
       linenums_style: pymdownx-inline

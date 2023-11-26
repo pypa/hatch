@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import re
+from typing import TYPE_CHECKING
 
-from hatch.config.model import RootConfig
 from hatch.utils.fs import Path
+
+if TYPE_CHECKING:
+    from hatch.config.model import RootConfig
 
 
 class Project:
@@ -72,6 +75,8 @@ class Project:
                 if location.is_dir():
                     return cls(Path(location).resolve(), name=project)
 
+        return None
+
     def find_project_root(self) -> Path | None:
         path = self._path
 
@@ -80,7 +85,8 @@ class Project:
             if possible_file.is_file():
                 self._project_file_path = possible_file
                 return path
-            elif path.joinpath('setup.py').is_file():
+
+            if path.joinpath('setup.py').is_file():
                 return path
 
             new_path = path.parent
@@ -93,9 +99,9 @@ class Project:
     def canonicalize_name(name: str, *, strict=True) -> str:
         if strict:
             return re.sub(r'[-_.]+', '-', name).lower()
-        else:
-            # Used for creating new projects
-            return re.sub(r'[-_. ]+', '-', name).lower()
+
+        # Used for creating new projects
+        return re.sub(r'[-_. ]+', '-', name).lower()
 
     @property
     def metadata(self):

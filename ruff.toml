@@ -1,0 +1,21 @@
+extend = "ruff_defaults.toml"
+
+[lint]
+preview = true
+ignore = [
+  # Allow lazy imports for responsive CLI
+  "PLC0415",
+]
+
+[lint.extend-per-file-ignores]
+"backend/src/hatchling/bridge/app.py" = ["T201"]
+"backend/tests/downstream/integrate.py" = ["INP001", "T201"]
+"docs/.hooks/*" = ["INP001", "T201"]
+"release/macos/build_pkg.py" = ["INP001"]
+
+[lint.isort]
+known-first-party = ["hatch", "hatchling"]
+
+[format]
+preview = true
+quote-style = "single"

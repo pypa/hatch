@@ -16,7 +16,7 @@ def test_default(default_cache_dir, default_data_dir):
         'dirs': {
             'project': [],
             'env': {},
-            'python': 'isolated',
+            'python': 'shared',
             'data': str(default_data_dir),
             'cache': str(default_cache_dir),
         },
@@ -348,14 +348,14 @@ class TestDirs:
         default_data_directory = str(default_data_dir)
         assert config.dirs.project == config.dirs.project == []
         assert config.dirs.env == config.dirs.env == {}
-        assert config.dirs.python == config.dirs.python == 'isolated'
+        assert config.dirs.python == config.dirs.python == 'shared'
         assert config.dirs.cache == config.dirs.cache == default_cache_directory
         assert config.dirs.data == config.dirs.data == default_data_directory
         assert config.raw_data == {
             'dirs': {
                 'project': [],
                 'env': {},
-                'python': 'isolated',
+                'python': 'shared',
                 'data': default_data_directory,
                 'cache': default_cache_directory,
             },

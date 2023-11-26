@@ -49,28 +49,17 @@ The [`virtual`](../../plugins/environment/virtual.md) environment type now uses 
 
 For example, if you define the following Hatch configuration:
 
-=== ":octicons-file-code-16: config.toml"
-
-    ```toml
-    [dirs.env]
-    virtual = ".hatch"
-    ```
+```toml tab="config.toml"
+[dirs.env]
+virtual = ".hatch"
+```
 
 and the following [matrix](../../config/environment/advanced.md#matrix):
 
-=== ":octicons-file-code-16: pyproject.toml"
-
-    ```toml
-    [[tool.hatch.envs.test.matrix]]
-    python = ["3.7", "3.8", "3.9", "3.10", "3.11"]
-    ```
-
-=== ":octicons-file-code-16: hatch.toml"
-
-    ```toml
-    [[envs.test.matrix]]
-    python = ["3.7", "3.8", "3.9", "3.10", "3.11"]
-    ```
+```toml config-example
+[[tool.hatch.envs.test.matrix]]
+python = ["3.7", "3.8", "3.9", "3.10", "3.11"]
+```
 
 then [locating](../../cli/reference.md#hatch-env-find) environments with the following command:
 

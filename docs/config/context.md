@@ -37,16 +37,7 @@ The `env` field and its modifier allow you to select the value of an environment
 
 You can insert fields within others. For example, if you wanted a [script](environment/overview.md#scripts) that displays the value of the environment variable `FOO`, with a fallback to the environment variable `BAR`, with its own fallback to the user's home directory, you could do the following:
 
-=== ":octicons-file-code-16: pyproject.toml"
-
-    ```toml
-    [tool.hatch.envs.test.scripts]
-    display = "echo {env:FOO:{env:BAR:{home}}}"
-    ```
-
-=== ":octicons-file-code-16: hatch.toml"
-
-    ```toml
-    [envs.test.scripts]
-    display = "echo {env:FOO:{env:BAR:{home}}}"
-    ```
+```toml config-example
+[tool.hatch.envs.test.scripts]
+display = "echo {env:FOO:{env:BAR:{home}}}"
+```

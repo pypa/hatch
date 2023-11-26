@@ -369,7 +369,7 @@ class DirsConfig(LazilyParsedConfig):
 
                 self._field_python = python
             else:
-                self._field_python = self.raw_data['python'] = 'isolated'
+                self._field_python = self.raw_data['python'] = 'shared'
 
         return self._field_python
 
@@ -471,8 +471,11 @@ class TemplateConfig(LazilyParsedConfig):
                     import subprocess
 
                     try:
-                        name = subprocess.check_output(['git', 'config', '--get', 'user.name'], text=True).strip()
-                    except Exception:
+                        name = subprocess.check_output(
+                            ['git', 'config', '--get', 'user.name'],  # noqa: S607
+                            text=True,
+                        ).strip()
+                    except Exception:  # noqa: BLE001
                         name = 'U.N. Owen'
 
                 self._field_name = self.raw_data['name'] = name
@@ -499,8 +502,11 @@ class TemplateConfig(LazilyParsedConfig):
                     import subprocess
 
                     try:
-                        email = subprocess.check_output(['git', 'config', '--get', 'user.email'], text=True).strip()
-                    except Exception:
+                        email = subprocess.check_output(
+                            ['git', 'config', '--get', 'user.email'],  # noqa: S607
+                            text=True,
+                        ).strip()
+                    except Exception:  # noqa: BLE001
                         email = 'void@some.where'
 
                 self._field_email = self.raw_data['email'] = email
