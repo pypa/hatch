@@ -221,6 +221,9 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
                                 '' if external else relative_file_path,
                                 self.config.get_distribution_path(relative_file_path),
                             )
+            else:
+                msg = f'Forced include not found: {source}'
+                raise FileNotFoundError(msg)
 
     def recurse_explicit_files(self, inclusion_map: dict[str, str]) -> Iterable[IncludedFile]:
         for source, target_path in inclusion_map.items():

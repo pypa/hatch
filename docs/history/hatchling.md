@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Changed:***
+
+- An error will now be raised if a force-included path does not exist
+
 ***Added:***
 
 - Officially support Python 3.12
