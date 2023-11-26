@@ -6,6 +6,36 @@ from hatch.project.core import Project
 from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT, DEFAULT_CONFIG_FILE
 
 
+class TestNoProject:
+    def test_random_directory(self, hatch, temp_dir, helpers):
+        with temp_dir.as_cwd():
+            result = hatch('version')
+
+        assert result.exit_code == 1, result.output
+        assert result.output == helpers.dedent(
+            """
+            No project detected
+            """
+        )
+
+    def test_configured_project(self, hatch, temp_dir, helpers, config_file):
+        project = 'foo'
+        config_file.model.mode = 'project'
+        config_file.model.project = project
+        config_file.model.projects = {project: str(temp_dir)}
+        config_file.save()
+
+        with temp_dir.as_cwd():
+            result = hatch('version')
+
+        assert result.exit_code == 1, result.output
+        assert result.output == helpers.dedent(
+            """
+            Project foo (not a project)
+            """
+        )
+
+
 def test_incompatible_environment(hatch, temp_dir, helpers):
     project_name = 'My.App'
 

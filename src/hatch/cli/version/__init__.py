@@ -1,12 +1,18 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import click
+
+if TYPE_CHECKING:
+    from hatch.cli.application import Application
 
 
 @click.command(short_help="View or set a project's version")
 @click.argument('desired_version', required=False)
 @click.pass_obj
-def version(app, desired_version):
+def version(app: Application, desired_version: str | None):
     """View or set a project's version."""
-
     if app.project.root is None:
         if app.project.chosen_name is None:
             app.abort('No project detected')
