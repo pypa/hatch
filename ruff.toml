@@ -1,3 +1,5 @@
+extend = "ruff_defaults.toml"
+
 [lint]
 preview = true
 ignore = [
