@@ -42,7 +42,7 @@ class TestBuildDependenciesInstalled:
                     "content-type": "text/plain",
                     "text": "{read_readme(path)}"
                 }},
-                "requires-python": ">=3.7",
+                "requires-python": ">=3.8",
                 "license": "MIT",
                 "authors": [
                     {{
@@ -53,11 +53,11 @@ class TestBuildDependenciesInstalled:
                 "classifiers": [
                     "Development Status :: 4 - Beta",
                     "Programming Language :: Python",
-                    "Programming Language :: Python :: 3.7",
                     "Programming Language :: Python :: 3.8",
                     "Programming Language :: Python :: 3.9",
                     "Programming Language :: Python :: 3.10",
                     "Programming Language :: Python :: 3.11",
+                    "Programming Language :: Python :: 3.12",
                     "Programming Language :: Python :: Implementation :: CPython",
                     "Programming Language :: Python :: Implementation :: PyPy"
                 ],
@@ -140,7 +140,7 @@ class TestBuildDependenciesInstalled:
 
 
 class TestBuildDependenciesMissing:
-    @pytest.mark.allow_backend_process
+    @pytest.mark.allow_backend_process()
     def test_incompatible_environment(self, hatch, temp_dir, helpers):
         project_name = 'My.App'
 
@@ -199,7 +199,7 @@ class TestBuildDependenciesMissing:
                     "content-type": "text/plain",
                     "text": "{read_readme(path)}"
                 }},
-                "requires-python": ">=3.7",
+                "requires-python": ">=3.8",
                 "license": "MIT",
                 "authors": [
                     {{
@@ -210,11 +210,11 @@ class TestBuildDependenciesMissing:
                 "classifiers": [
                     "Development Status :: 4 - Beta",
                     "Programming Language :: Python",
-                    "Programming Language :: Python :: 3.7",
                     "Programming Language :: Python :: 3.8",
                     "Programming Language :: Python :: 3.9",
                     "Programming Language :: Python :: 3.10",
                     "Programming Language :: Python :: 3.11",
+                    "Programming Language :: Python :: 3.12",
                     "Programming Language :: Python :: Implementation :: CPython",
                     "Programming Language :: Python :: Implementation :: PyPy"
                 ],
@@ -351,7 +351,7 @@ Setting up build environment for missing dependencies
                     "content-type": "text/plain",
                     "text": "{read_readme(path)}"
                 }},
-                "requires-python": ">=3.7",
+                "requires-python": ">=3.8",
                 "license": "MIT",
                 "authors": [
                     {{
@@ -362,11 +362,11 @@ Setting up build environment for missing dependencies
                 "classifiers": [
                     "Development Status :: 4 - Beta",
                     "Programming Language :: Python",
-                    "Programming Language :: Python :: 3.7",
                     "Programming Language :: Python :: 3.8",
                     "Programming Language :: Python :: 3.9",
                     "Programming Language :: Python :: 3.10",
                     "Programming Language :: Python :: 3.11",
+                    "Programming Language :: Python :: 3.12",
                     "Programming Language :: Python :: Implementation :: CPython",
                     "Programming Language :: Python :: Implementation :: PyPy"
                 ],

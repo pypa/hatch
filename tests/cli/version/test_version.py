@@ -6,6 +6,36 @@ from hatch.project.core import Project
 from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT, DEFAULT_CONFIG_FILE
 
 
+class TestNoProject:
+    def test_random_directory(self, hatch, temp_dir, helpers):
+        with temp_dir.as_cwd():
+            result = hatch('version')
+
+        assert result.exit_code == 1, result.output
+        assert result.output == helpers.dedent(
+            """
+            No project detected
+            """
+        )
+
+    def test_configured_project(self, hatch, temp_dir, helpers, config_file):
+        project = 'foo'
+        config_file.model.mode = 'project'
+        config_file.model.project = project
+        config_file.model.projects = {project: str(temp_dir)}
+        config_file.save()
+
+        with temp_dir.as_cwd():
+            result = hatch('version')
+
+        assert result.exit_code == 1, result.output
+        assert result.output == helpers.dedent(
+            """
+            Project foo (not a project)
+            """
+        )
+
+
 def test_incompatible_environment(hatch, temp_dir, helpers):
     project_name = 'My.App'
 
@@ -22,6 +52,19 @@ def test_incompatible_environment(hatch, temp_dir, helpers):
     project.save_config(config)
     helpers.update_project_environment(
         project, 'default', {'skip-install': True, 'python': '9000', **project.config.envs['default']}
+    )
+
+    build_script = path / DEFAULT_BUILD_SCRIPT
+    build_script.write_text(
+        helpers.dedent(
+            """
+            from hatchling.metadata.plugin.interface import MetadataHookInterface
+
+            class CustomMetadataHook(MetadataHookInterface):
+                def update(self, metadata):
+                    pass
+            """
+        )
     )
 
     with path.as_cwd():

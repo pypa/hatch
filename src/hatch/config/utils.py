@@ -1,7 +1,14 @@
-import tomlkit
-from tomlkit.toml_document import TOMLDocument
+from __future__ import annotations
 
-from hatch.utils.fs import Path
+from typing import TYPE_CHECKING
+
+import tomlkit
+
+if TYPE_CHECKING:
+    from tomlkit.items import InlineTable
+    from tomlkit.toml_document import TOMLDocument
+
+    from hatch.utils.fs import Path
 
 
 def save_toml_document(document: TOMLDocument, path: Path):
@@ -9,5 +16,5 @@ def save_toml_document(document: TOMLDocument, path: Path):
     path.write_atomic(tomlkit.dumps(document), 'w', encoding='utf-8')
 
 
-def create_toml_document(config: dict) -> TOMLDocument:
+def create_toml_document(config: dict) -> InlineTable:
     return tomlkit.item(config)

@@ -20,6 +20,20 @@ def get_normalized_dependencies(requirements: list[Requirement]) -> list[str]:
     return sorted(normalized_dependencies)
 
 
+def hash_dependencies(requirements: list[Requirement]) -> str:
+    from hashlib import sha256
+
+    data = ''.join(
+        sorted(
+            # Internal spacing is ignored by PEP 440
+            normalized_dependency.replace(' ', '')
+            for normalized_dependency in {get_normalized_dependency(req) for req in requirements}
+        )
+    ).encode('utf-8')
+
+    return sha256(data).hexdigest()
+
+
 def get_project_dependencies_complex(
     environment: EnvironmentInterface,
 ) -> tuple[dict[str, Requirement], dict[str, dict[str, Requirement]]]:
@@ -36,7 +50,7 @@ def get_project_dependencies_complex(
     else:
         try:
             environment.check_compatibility()
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             environment.app.abort(f'Environment `{environment.name}` is incompatible: {e}')
 
         import json
@@ -44,7 +58,7 @@ def get_project_dependencies_complex(
         from packaging.requirements import Requirement
 
         with environment.root.as_cwd(), environment.build_environment(environment.metadata.build.requires):
-            command = ['python', '-u', '-m', 'hatchling', 'metadata', '--app', '--compact']
+            command = ['python', '-u', '-W', 'ignore', '-m', 'hatchling', 'metadata', '--app', '--compact']
             process = environment.platform.capture_process(command)
             project_metadata = json.loads(environment.app.read_builder(process))
 

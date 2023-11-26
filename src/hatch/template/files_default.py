@@ -3,12 +3,20 @@ from hatch.utils.fs import Path
 
 
 class PackageRoot(File):
-    def __init__(self, template_config: dict, plugin_config: dict):
+    def __init__(
+        self,
+        template_config: dict,
+        plugin_config: dict,  # noqa: ARG002
+    ):
         super().__init__(Path(template_config['package_name'], '__init__.py'), '')
 
 
 class MetadataFile(File):
-    def __init__(self, template_config: dict, plugin_config: dict):
+    def __init__(
+        self,
+        template_config: dict,
+        plugin_config: dict,  # noqa: ARG002
+    ):
         super().__init__(Path(template_config['package_name'], '__about__.py'), '__version__ = "0.0.1"\n')
 
 
@@ -32,7 +40,11 @@ pip install {project_name_normalized}
 ```{license_info}
 """
 
-    def __init__(self, template_config: dict, plugin_config: dict):
+    def __init__(
+        self,
+        template_config: dict,
+        plugin_config: dict,  # noqa: ARG002
+    ):
         extra_badges = ''
         extra_toc = ''
 
@@ -45,7 +57,7 @@ pip install {project_name_normalized}
 
             license_data = template_config['license_data']
             if len(license_data) == 1:
-                license_id = list(license_data)[0]
+                license_id = next(iter(license_data))
                 license_info += f'the [{license_id}](https://spdx.org/licenses/{license_id}.html) license.'
             else:
                 license_info += 'any of the following licenses:\n'
@@ -71,7 +83,7 @@ name = "{project_name_normalized}"
 dynamic = ["version"]
 description = {description!r}
 readme = "{readme_file_path}"
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 license = "{license_expression}"{license_files}
 keywords = []
 authors = [
@@ -80,11 +92,11 @@ authors = [
 classifiers = [
   "Development Status :: 4 - Beta",
   "Programming Language :: Python",
-  "Programming Language :: Python :: 3.7",
   "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
@@ -112,9 +124,8 @@ path = "{package_metadata_file_path}"{tests_section}
         )
         if project_urls:
             for label, url in project_urls.items():
-                if ' ' in label:
-                    label = f'"{label}"'
-                project_url_data += f'\n{label} = "{url.format(**template_config)}"'
+                normalized_label = f'"{label}"' if ' ' in label else label
+                project_url_data += f'\n{normalized_label} = "{url.format(**template_config)}"'
 
         dependency_data = '['
         if template_config['dependencies']:
@@ -153,90 +164,14 @@ cov = [
 ]
 
 [[tool.hatch.envs.all.matrix]]
-python = ["3.7", "3.8", "3.9", "3.10", "3.11"]
+python = ["3.8", "3.9", "3.10", "3.11", "3.12"]
 
-[tool.hatch.envs.lint]
-detached = true
+[tool.hatch.envs.typing]
 dependencies = [
-  "black>=23.1.0",
   "mypy>=1.0.0",
-  "ruff>=0.0.243",
 ]
-[tool.hatch.envs.lint.scripts]
-typing = "mypy --install-types --non-interactive {{args:{package_location}{template_config['package_name']} tests}}"
-style = [
-  "ruff {{args:.}}",
-  "black --check --diff {{args:.}}",
-]
-fmt = [
-  "black {{args:.}}",
-  "ruff --fix {{args:.}}",
-  "style",
-]
-all = [
-  "style",
-  "typing",
-]
-
-[tool.black]
-target-version = ["py37"]
-line-length = 120
-skip-string-normalization = true
-
-[tool.ruff]
-target-version = "py37"
-line-length = 120
-select = [
-  "A",
-  "ARG",
-  "B",
-  "C",
-  "DTZ",
-  "E",
-  "EM",
-  "F",
-  "FBT",
-  "I",
-  "ICN",
-  "ISC",
-  "N",
-  "PLC",
-  "PLE",
-  "PLR",
-  "PLW",
-  "Q",
-  "RUF",
-  "S",
-  "T",
-  "TID",
-  "UP",
-  "W",
-  "YTT",
-]
-ignore = [
-  # Allow non-abstract empty methods in abstract base classes
-  "B027",
-  # Allow boolean positional values in function calls, like `dict.get(... True)`
-  "FBT003",
-  # Ignore checks for possible passwords
-  "S105", "S106", "S107",
-  # Ignore complexity
-  "C901", "PLR0911", "PLR0912", "PLR0913", "PLR0915",
-]
-unfixable = [
-  # Don't touch unused imports
-  "F401",
-]
-
-[tool.ruff.isort]
-known-first-party = ["{template_config['package_name']}"]
-
-[tool.ruff.flake8-tidy-imports]
-ban-relative-imports = "all"
-
-[tool.ruff.per-file-ignores]
-# Tests can use magic values, assertions, and relative imports
-"tests/**/*" = ["PLR2004", "S101", "TID252"]
+[tool.hatch.envs.typing.scripts]
+check = "mypy --install-types --non-interactive {{args:{package_location}{template_config['package_name']} tests}}"
 
 [tool.coverage.run]
 source_pkgs = ["{template_config['package_name']}", "tests"]

@@ -40,16 +40,26 @@ class Path(_PathBase):
     def expand(self) -> Path:
         return Path(os.path.expanduser(os.path.expandvars(self)))
 
-    def resolve(self, strict: bool = False) -> Path:  # noqa: FBT001, FBT002
-        # https://bugs.python.org/issue38671
-        return Path(os.path.realpath(self))
-
     def remove(self) -> None:
         if self.is_file():
             os.remove(self)
         elif self.is_dir():
             import shutil
 
+            shutil.rmtree(self, ignore_errors=False)
+
+    def wait_for_dir_removed(self, timeout: int = 5) -> None:
+        import shutil
+        import time
+
+        for _ in range(timeout * 2):
+            if self.is_dir():
+                shutil.rmtree(self, ignore_errors=True)
+                time.sleep(0.5)
+            else:
+                return
+
+        if self.is_dir():
             shutil.rmtree(self, ignore_errors=False)
 
     def write_atomic(self, data: str | bytes, *args: Any, **kwargs: Any) -> None:
@@ -91,6 +101,12 @@ class Path(_PathBase):
             finally:
                 with suppress(FileNotFoundError):
                     shutil.move(str(temp_path), self)
+
+    if sys.version_info[:2] < (3, 10):
+
+        def resolve(self, strict: bool = False) -> Path:  # noqa: ARG002, FBT001, FBT002
+            # https://bugs.python.org/issue38671
+            return Path(os.path.realpath(self))
 
 
 @contextmanager

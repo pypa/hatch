@@ -12,19 +12,10 @@ Setting the version is not supported.
 
 The version source plugin name is `env`.
 
-=== ":octicons-file-code-16: pyproject.toml"
-
-    ```toml
-    [tool.hatch.version]
-    source = "env"
-    ```
-
-=== ":octicons-file-code-16: hatch.toml"
-
-    ```toml
-    [version]
-    source = "env"
-    ```
+```toml config-example
+[tool.hatch.version]
+source = "env"
+```
 
 ## Options
 

@@ -7,31 +7,47 @@ from typing import Any
 
 
 class InvokedApplication:
-    def display(self, *args: Any, **kwargs: Any) -> None:
+    def __init__(self) -> None:
+        self.__verbosity = int(os.environ.get('HATCH_VERBOSE', '0')) - int(os.environ.get('HATCH_QUIET', '0'))
+
+    @property
+    def verbosity(self) -> int:
+        return self.__verbosity
+
+    @staticmethod
+    def display(*args: Any, **kwargs: Any) -> None:
         send_app_command('display', *args, **kwargs)
 
-    def display_info(self, *args: Any, **kwargs: Any) -> None:
+    @staticmethod
+    def display_info(*args: Any, **kwargs: Any) -> None:
         send_app_command('display_info', *args, **kwargs)
 
-    def display_waiting(self, *args: Any, **kwargs: Any) -> None:
+    @staticmethod
+    def display_waiting(*args: Any, **kwargs: Any) -> None:
         send_app_command('display_waiting', *args, **kwargs)
 
-    def display_success(self, *args: Any, **kwargs: Any) -> None:
+    @staticmethod
+    def display_success(*args: Any, **kwargs: Any) -> None:
         send_app_command('display_success', *args, **kwargs)
 
-    def display_warning(self, *args: Any, **kwargs: Any) -> None:
+    @staticmethod
+    def display_warning(*args: Any, **kwargs: Any) -> None:
         send_app_command('display_warning', *args, **kwargs)
 
-    def display_error(self, *args: Any, **kwargs: Any) -> None:
+    @staticmethod
+    def display_error(*args: Any, **kwargs: Any) -> None:
         send_app_command('display_error', *args, **kwargs)
 
-    def display_debug(self, *args: Any, **kwargs: Any) -> None:
+    @staticmethod
+    def display_debug(*args: Any, **kwargs: Any) -> None:
         send_app_command('display_debug', *args, **kwargs)
 
-    def display_mini_header(self, *args: Any, **kwargs: Any) -> None:
+    @staticmethod
+    def display_mini_header(*args: Any, **kwargs: Any) -> None:
         send_app_command('display_mini_header', *args, **kwargs)
 
-    def abort(self, *args: Any, **kwargs: Any) -> None:
+    @staticmethod
+    def abort(*args: Any, **kwargs: Any) -> None:
         send_app_command('abort', *args, **kwargs)
         sys.exit(kwargs.get('code', 1))
 
@@ -51,46 +67,54 @@ class Application:
     def __init__(self) -> None:
         self.__verbosity = int(os.environ.get('HATCH_VERBOSE', '0')) - int(os.environ.get('HATCH_QUIET', '0'))
 
-    def display(self, message: str = '', **kwargs: Any) -> None:
+    @property
+    def verbosity(self) -> int:
+        """
+        The verbosity level of the application, with 0 as the default.
+        """
+        return self.__verbosity
+
+    @staticmethod
+    def display(message: str = '', **kwargs: Any) -> None:  # noqa: ARG004
         # Do not document
         print(message)
 
-    def display_info(self, message: str = '', **kwargs: Any) -> None:
+    def display_info(self, message: str = '', **kwargs: Any) -> None:  # noqa: ARG002
         """
         Meant to be used for messages conveying basic information.
         """
         if self.__verbosity >= 0:
             print(message)
 
-    def display_waiting(self, message: str = '', **kwargs: Any) -> None:
+    def display_waiting(self, message: str = '', **kwargs: Any) -> None:  # noqa: ARG002
         """
         Meant to be used for messages shown before potentially time consuming operations.
         """
         if self.__verbosity >= 0:
             print(message)
 
-    def display_success(self, message: str = '', **kwargs: Any) -> None:
+    def display_success(self, message: str = '', **kwargs: Any) -> None:  # noqa: ARG002
         """
         Meant to be used for messages indicating some positive outcome.
         """
         if self.__verbosity >= 0:
             print(message)
 
-    def display_warning(self, message: str = '', **kwargs: Any) -> None:
+    def display_warning(self, message: str = '', **kwargs: Any) -> None:  # noqa: ARG002
         """
         Meant to be used for messages conveying important information.
         """
         if self.__verbosity >= -1:
             print(message)
 
-    def display_error(self, message: str = '', **kwargs: Any) -> None:
+    def display_error(self, message: str = '', **kwargs: Any) -> None:  # noqa: ARG002
         """
         Meant to be used for messages indicating some unrecoverable error.
         """
         if self.__verbosity >= -2:  # noqa: PLR2004
             print(message)
 
-    def display_debug(self, message: str = '', level: int = 1, **kwargs: Any) -> None:
+    def display_debug(self, message: str = '', level: int = 1, **kwargs: Any) -> None:  # noqa: ARG002
         """
         Meant to be used for messages that are not useful for most user experiences.
         The `level` option must be between 1 and 3 (inclusive).
@@ -98,14 +122,15 @@ class Application:
         if not 1 <= level <= 3:  # noqa: PLR2004
             error_message = 'Debug output can only have verbosity levels between 1 and 3 (inclusive)'
             raise ValueError(error_message)
-        elif self.__verbosity >= level:
+
+        if self.__verbosity >= level:
             print(message)
 
-    def display_mini_header(self, message: str = '', **kwargs: Any) -> None:
+    def display_mini_header(self, message: str = '', **kwargs: Any) -> None:  # noqa: ARG002
         if self.__verbosity >= 0:
             print(f'[{message}]')
 
-    def abort(self, message: str = '', code: int = 1, **kwargs: Any) -> None:
+    def abort(self, message: str = '', code: int = 1, **kwargs: Any) -> None:  # noqa: ARG002
         """
         Terminate the program with the given return code.
         """
@@ -121,6 +146,7 @@ class Application:
 class SafeApplication:
     def __init__(self, app: InvokedApplication | Application) -> None:
         self.abort = app.abort
+        self.verbosity = app.verbosity
         self.display = app.display
         self.display_info = app.display_info
         self.display_error = app.display_error

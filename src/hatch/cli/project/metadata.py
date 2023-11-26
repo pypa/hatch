@@ -32,10 +32,10 @@ def metadata(app, field):
             environment = app.get_environment()
             try:
                 environment.check_compatibility()
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 app.abort(f'Environment `{environment.name}` is incompatible: {e}')
 
-            with app.status_waiting(
+            with app.status_if(
                 'Setting up build environment for missing dependencies',
                 condition=not environment.build_environment_exists(),
             ) as status, environment.build_environment(app.project.metadata.build.requires):

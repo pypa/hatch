@@ -56,8 +56,8 @@ def normalize_relative_directory(path: str) -> str:
 def normalize_inclusion_map(inclusion_map: dict[str, str], root: str) -> dict[str, str]:
     normalized_inclusion_map = {}
 
-    for source, relative_path in inclusion_map.items():
-        source = os.path.expanduser(os.path.normpath(source))
+    for raw_source, relative_path in inclusion_map.items():
+        source = os.path.expanduser(os.path.normpath(raw_source))
         if not os.path.isabs(source):
             source = os.path.abspath(os.path.join(root, source))
 

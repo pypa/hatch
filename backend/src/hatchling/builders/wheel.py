@@ -46,7 +46,7 @@ class RecordFile:
     def construct(self) -> str:
         return self.__file_obj.getvalue()
 
-    def __enter__(self) -> RecordFile:
+    def __enter__(self) -> RecordFile:  # noqa: PYI034
         return self
 
     def __exit__(
@@ -139,7 +139,7 @@ class WheelArchive:
 
         return relative_path, f'sha256={hash_digest}', str(len(contents))
 
-    def __enter__(self) -> WheelArchive:
+    def __enter__(self) -> WheelArchive:  # noqa: PYI034
         return self
 
     def __exit__(
@@ -180,21 +180,23 @@ class WheelBuilderConfig(BuilderConfig):
             if os.path.isfile(os.path.join(self.root, project_name, '__init__.py')):
                 self.__packages.append(project_name)
                 break
-            elif os.path.isfile(os.path.join(self.root, 'src', project_name, '__init__.py')):
+
+            if os.path.isfile(os.path.join(self.root, 'src', project_name, '__init__.py')):
                 self.__packages.append(f'src/{project_name}')
                 break
-            elif os.path.isfile(os.path.join(self.root, f'{project_name}.py')):
+
+            if os.path.isfile(os.path.join(self.root, f'{project_name}.py')):
                 self.__only_include.append(f'{project_name}.py')
                 break
-            else:
-                from glob import glob
 
-                possible_namespace_packages = glob(os.path.join(self.root, '*', project_name, '__init__.py'))
-                if len(possible_namespace_packages) == 1:
-                    relative_path = os.path.relpath(possible_namespace_packages[0], self.root)
-                    namespace = relative_path.split(os.sep)[0]
-                    self.__packages.append(namespace)
-                    break
+            from glob import glob
+
+            possible_namespace_packages = glob(os.path.join(self.root, '*', project_name, '__init__.py'))
+            if len(possible_namespace_packages) == 1:
+                relative_path = os.path.relpath(possible_namespace_packages[0], self.root)
+                namespace = relative_path.split(os.sep)[0]
+                self.__packages.append(namespace)
+                break
         else:
             self.__include.append('*.py')
             self.__exclude.append('test*')
@@ -259,13 +261,15 @@ class WheelBuilderConfig(BuilderConfig):
                         f'cannot be an empty string'
                     )
                     raise ValueError(message)
-                elif not isinstance(relative_path, str):
+
+                if not isinstance(relative_path, str):
                     message = (
                         f'Path for source `{source}` in field '
                         f'`tool.hatch.build.targets.{self.plugin_name}.shared-data` must be a string'
                     )
                     raise TypeError(message)
-                elif not relative_path:
+
+                if not relative_path:
                     message = (
                         f'Path for source `{source}` in field '
                         f'`tool.hatch.build.targets.{self.plugin_name}.shared-data` cannot be an empty string'
@@ -291,13 +295,15 @@ class WheelBuilderConfig(BuilderConfig):
                         f'cannot be an empty string'
                     )
                     raise ValueError(message)
-                elif not isinstance(relative_path, str):
+
+                if not isinstance(relative_path, str):
                     message = (
                         f'Path for source `{source}` in field '
                         f'`tool.hatch.build.targets.{self.plugin_name}.extra-metadata` must be a string'
                     )
                     raise TypeError(message)
-                elif not relative_path:
+
+                if not relative_path:
                     message = (
                         f'Path for source `{source}` in field '
                         f'`tool.hatch.build.targets.{self.plugin_name}.extra-metadata` cannot be an empty string'
@@ -349,10 +355,14 @@ class WheelBuilder(BuilderInterface):
     def get_version_api(self) -> dict[str, Callable]:
         return {'standard': self.build_standard, 'editable': self.build_editable}
 
-    def get_default_versions(self) -> list[str]:
+    def get_default_versions(self) -> list[str]:  # noqa: PLR6301
         return ['standard']
 
-    def clean(self, directory: str, versions: list[str]) -> None:
+    def clean(  # noqa: PLR6301
+        self,
+        directory: str,
+        versions: list[str],  # noqa: ARG002
+    ) -> None:
         for filename in os.listdir(directory):
             if filename.endswith('.whl'):
                 os.remove(os.path.join(directory, filename))
@@ -384,8 +394,8 @@ class WheelBuilder(BuilderInterface):
     def build_editable(self, directory: str, **build_data: Any) -> str:
         if self.config.dev_mode_dirs:
             return self.build_editable_explicit(directory, **build_data)
-        else:
-            return self.build_editable_detection(directory, **build_data)
+
+        return self.build_editable_detection(directory, **build_data)
 
     def build_editable_detection(self, directory: str, **build_data: Any) -> str:
         from editables import EditableProject
@@ -396,7 +406,7 @@ class WheelBuilder(BuilderInterface):
             self.artifact_project_id, reproducible=self.config.reproducible
         ) as archive, RecordFile() as records:
             exposed_packages = {}
-            for included_file in self.recurse_project_files():
+            for included_file in self.recurse_selected_project_files():
                 if not included_file.path.endswith('.py'):
                     continue
 
@@ -437,7 +447,11 @@ class WheelBuilder(BuilderInterface):
                 for relative_path in exposed_packages.values():
                     editable_project.add_to_path(os.path.dirname(relative_path))
 
-            for filename, content in sorted(editable_project.files()):
+            for raw_filename, content in sorted(editable_project.files()):
+                filename = raw_filename
+                if filename.endswith('.pth') and not filename.startswith('_'):
+                    filename = f'_{filename}'
+
                 record = archive.write_file(filename, content)
                 records.write(record)
 
@@ -446,7 +460,8 @@ class WheelBuilder(BuilderInterface):
                 records.write(record)
 
             extra_dependencies = list(build_data['dependencies'])
-            for dependency in editable_project.dependencies():
+            for raw_dependency in editable_project.dependencies():
+                dependency = raw_dependency
                 if dependency == 'editables':
                     dependency += f'~={EDITABLES_MINIMUM_VERSION}'
                 else:  # no cov
@@ -475,7 +490,7 @@ class WheelBuilder(BuilderInterface):
                 for relative_directory in self.config.dev_mode_dirs
             )
 
-            record = archive.write_file(f"{self.metadata.core.name.replace('-', '_')}.pth", '\n'.join(directories))
+            record = archive.write_file(f"_{self.metadata.core.name.replace('-', '_')}.pth", '\n'.join(directories))
             records.write(record)
 
             for included_file in self.recurse_forced_files(self.get_forced_inclusion_map(build_data)):
@@ -530,7 +545,8 @@ class WheelBuilder(BuilderInterface):
         # extra_metadata/ - write last
         self.add_extra_metadata(archive, records, build_data)
 
-    def write_archive_metadata(self, archive: WheelArchive, records: RecordFile, build_data: dict[str, Any]) -> None:
+    @staticmethod
+    def write_archive_metadata(archive: WheelArchive, records: RecordFile, build_data: dict[str, Any]) -> None:
         from packaging.tags import parse_tag
 
         metadata = f"""\
@@ -639,7 +655,7 @@ Root-Is-Purelib: {'true' if build_data['pure_python'] else 'false'}
 
         return '-'.join(tag_parts)
 
-    def get_default_build_data(self) -> dict[str, Any]:
+    def get_default_build_data(self) -> dict[str, Any]:  # noqa: PLR6301
         return {
             'infer_tag': False,
             'pure_python': True,

@@ -22,23 +22,18 @@ def run(ctx, app, args):
     followed by specific comma-separated values. For example, if you have the
     following configuration:
 
-    === ":octicons-file-code-16: pyproject.toml"
+    \b
+    ```toml tab="pyproject.toml"
+    [[tool.hatch.envs.test.matrix]]
+    python = ["3.9", "3.10"]
+    version = ["42", "3.14", "9000"]
+    ```
 
-        \b
-        ```toml
-        [[tool.hatch.envs.test.matrix]]
-        python = ["3.9", "3.10"]
-        version = ["42", "3.14", "9000"]
-        ```
-
-    === ":octicons-file-code-16: hatch.toml"
-
-        \b
-        ```toml
-        [[envs.test.matrix]]
-        python = ["3.9", "3.10"]
-        version = ["42", "3.14", "9000"]
-        ```
+    ```toml tab="hatch.toml"
+    [[envs.test.matrix]]
+    python = ["3.9", "3.10"]
+    version = ["42", "3.14", "9000"]
+    ```
 
     then running:
 
@@ -50,7 +45,7 @@ def run(ctx, app, args):
     would execute `pytest` in the environments `test.py3.10-42` and `test.py3.10-3.14`.
     Note that `py` may be used as an alias for `python`.
     """
-    if args[0] in ('-h', '--help'):
+    if args[0] in {'-h', '--help'}:
         app.display_info(ctx.get_help())
         return
 

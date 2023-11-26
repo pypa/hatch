@@ -79,23 +79,12 @@ def run(
     select or exclude certain variables, optionally followed by specific comma-separated values.
     For example, if you have the following configuration:
 
-    === ":octicons-file-code-16: pyproject.toml"
-
-        \b
-        ```toml
-        [[tool.hatch.envs.test.matrix]]
-        python = ["3.9", "3.10"]
-        version = ["42", "3.14", "9000"]
-        ```
-
-    === ":octicons-file-code-16: hatch.toml"
-
-        \b
-        ```toml
-        [[envs.test.matrix]]
-        python = ["3.9", "3.10"]
-        version = ["42", "3.14", "9000"]
-        ```
+    \b
+    ```toml config-example
+    [[tool.hatch.envs.test.matrix]]
+    python = ["3.9", "3.10"]
+    version = ["42", "3.14", "9000"]
+    ```
 
     then running:
 
@@ -174,12 +163,12 @@ def run(
 
             try:
                 environment.check_compatibility()
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 if ignore_compat or matrix_selected:
                     incompatible[environment.name] = str(e)
                     continue
-                else:
-                    app.abort(f'Environment `{env_name}` is incompatible: {e}')
+
+                app.abort(f'Environment `{env_name}` is incompatible: {e}')
 
             any_compatible = True
             if should_display_header:

@@ -12,8 +12,8 @@ def parse_script_command(command):
 def format_script_commands(commands, args, ignore_exit_code):
     for command in commands:
         if args:
-            command = f'{command} {args}'
-        if ignore_exit_code and not command.startswith('- '):
-            command = f'- {command}'
-
-        yield command
+            yield f'{command} {args}'
+        elif ignore_exit_code and not command.startswith('- '):
+            yield f'- {command}'
+        else:
+            yield command

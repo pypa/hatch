@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import typing
 
+from hatchling.builders.app import AppBuilder
 from hatchling.builders.custom import CustomBuilder
 from hatchling.builders.sdist import SdistBuilder
 from hatchling.builders.wheel import WheelBuilder
@@ -13,4 +14,4 @@ if typing.TYPE_CHECKING:
 
 @hookimpl
 def hatch_register_builder() -> list[type[BuilderInterface]]:
-    return [CustomBuilder, SdistBuilder, WheelBuilder]  # type: ignore
+    return [AppBuilder, CustomBuilder, SdistBuilder, WheelBuilder]  # type: ignore

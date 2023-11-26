@@ -572,7 +572,7 @@ class TestBuildStandard:
         build_path.mkdir()
 
         with project_path.as_cwd(env_vars={'SOURCE_DATE_EPOCH': '1580601700'}):
-            artifacts = list(builder.build(str(build_path)))
+            artifacts = list(builder.build(directory=str(build_path)))
 
         assert len(artifacts) == 1
         expected_artifact = artifacts[0]
@@ -625,7 +625,7 @@ class TestBuildStandard:
         build_path.mkdir()
 
         with project_path.as_cwd(env_vars={'SOURCE_DATE_EPOCH': '1580601700'}):
-            artifacts = list(builder.build(str(build_path)))
+            artifacts = list(builder.build(directory=str(build_path)))
 
         assert len(artifacts) == 1
         expected_artifact = artifacts[0]
@@ -682,7 +682,7 @@ class TestBuildStandard:
         build_path.mkdir()
 
         with project_path.as_cwd():
-            artifacts = list(builder.build(str(build_path)))
+            artifacts = list(builder.build(directory=str(build_path)))
 
         assert len(artifacts) == 1
         expected_artifact = artifacts[0]
@@ -732,7 +732,7 @@ class TestBuildStandard:
         build_path.mkdir()
 
         with project_path.as_cwd():
-            artifacts = list(builder.build(str(build_path)))
+            artifacts = list(builder.build(directory=str(build_path)))
 
         assert len(artifacts) == 1
         expected_artifact = artifacts[0]
@@ -788,7 +788,7 @@ class TestBuildStandard:
         build_path.mkdir()
 
         with project_path.as_cwd():
-            artifacts = list(builder.build(str(build_path)))
+            artifacts = list(builder.build(directory=str(build_path)))
 
         assert len(artifacts) == 1
         expected_artifact = artifacts[0]
@@ -845,7 +845,7 @@ class TestBuildStandard:
         build_path.mkdir()
 
         with project_path.as_cwd():
-            artifacts = list(builder.build(str(build_path)))
+            artifacts = list(builder.build(directory=str(build_path)))
 
         assert len(artifacts) == 1
         expected_artifact = artifacts[0]
@@ -894,7 +894,7 @@ class TestBuildStandard:
         build_path.mkdir()
 
         with project_path.as_cwd():
-            artifacts = list(builder.build(str(build_path)))
+            artifacts = list(builder.build(directory=str(build_path)))
 
         assert len(artifacts) == 1
         expected_artifact = artifacts[0]
@@ -959,7 +959,7 @@ class TestBuildStandard:
         build_path.mkdir()
 
         with project_path.as_cwd():
-            artifacts = list(builder.build(str(build_path)))
+            artifacts = list(builder.build(directory=str(build_path)))
 
         assert len(artifacts) == 1
         expected_artifact = artifacts[0]
@@ -1027,7 +1027,7 @@ class TestBuildStandard:
         build_path.mkdir()
 
         with project_path.as_cwd():
-            artifacts = list(builder.build(str(build_path)))
+            artifacts = list(builder.build(directory=str(build_path)))
 
         assert len(artifacts) == 1
         expected_artifact = artifacts[0]
@@ -1105,7 +1105,7 @@ class TestBuildStandard:
         build_path.mkdir()
 
         with project_path.as_cwd():
-            artifacts = list(builder.build(str(build_path)))
+            artifacts = list(builder.build(directory=str(build_path)))
 
         assert len(artifacts) == 1
         expected_artifact = artifacts[0]
@@ -1187,7 +1187,7 @@ class TestBuildStandard:
         build_path.mkdir()
 
         with project_path.as_cwd():
-            artifacts = list(builder.build(str(build_path)))
+            artifacts = list(builder.build(directory=str(build_path)))
 
         assert len(artifacts) == 1
         expected_artifact = artifacts[0]
@@ -1270,7 +1270,7 @@ class TestBuildStandard:
         build_path.mkdir()
 
         with project_path.as_cwd():
-            artifacts = list(builder.build(str(build_path)))
+            artifacts = list(builder.build(directory=str(build_path)))
 
         assert len(artifacts) == 1
         expected_artifact = artifacts[0]
@@ -1352,7 +1352,7 @@ class TestBuildStandard:
         build_path.mkdir()
 
         with project_path.as_cwd():
-            artifacts = list(builder.build(str(build_path)))
+            artifacts = list(builder.build(directory=str(build_path)))
 
         assert len(artifacts) == 1
         expected_artifact = artifacts[0]
@@ -1437,7 +1437,7 @@ class TestBuildStandard:
         build_path.mkdir()
 
         with project_path.as_cwd():
-            artifacts = list(builder.build(str(build_path)))
+            artifacts = list(builder.build(directory=str(build_path)))
 
         assert len(artifacts) == 1
         expected_artifact = artifacts[0]
@@ -1518,7 +1518,7 @@ class TestBuildStandard:
         build_path.mkdir()
 
         with project_path.as_cwd():
-            artifacts = list(builder.build(str(build_path)))
+            artifacts = list(builder.build(directory=str(build_path)))
 
         assert len(artifacts) == 1
         expected_artifact = artifacts[0]
@@ -1581,7 +1581,7 @@ class TestBuildStandard:
         build_path.mkdir()
 
         with project_path.as_cwd():
-            artifacts = list(builder.build(str(build_path)))
+            artifacts = list(builder.build(directory=str(build_path)))
 
         assert len(artifacts) == 1
         expected_artifact = artifacts[0]
@@ -1641,7 +1641,7 @@ class TestBuildStandard:
         build_path.mkdir()
 
         with project_path.as_cwd():
-            artifacts = list(builder.build(str(build_path)))
+            artifacts = list(builder.build(directory=str(build_path)))
 
         assert len(artifacts) == 1
         expected_artifact = artifacts[0]
@@ -1714,7 +1714,7 @@ class TestBuildStandard:
         build_path.mkdir()
 
         with project_path.as_cwd():
-            artifacts = list(builder.build(str(build_path)))
+            artifacts = list(builder.build(directory=str(build_path)))
 
         assert len(artifacts) == 1
         expected_artifact = artifacts[0]
@@ -1737,7 +1737,7 @@ class TestBuildStandard:
         )
         helpers.assert_files(extraction_directory, expected_files)
 
-    @pytest.mark.requires_unix
+    @pytest.mark.requires_unix()
     def test_default_symlink(self, hatch, helpers, temp_dir, config_file):
         config_file.model.template.plugins['default']['src-layout'] = False
         config_file.save()
@@ -1795,7 +1795,7 @@ class TestBuildStandard:
         build_path.mkdir()
 
         with project_path.as_cwd():
-            artifacts = list(builder.build(str(build_path)))
+            artifacts = list(builder.build(directory=str(build_path)))
 
         assert len(artifacts) == 1
         expected_artifact = artifacts[0]
@@ -1849,7 +1849,7 @@ class TestBuildStandard:
         build_path.mkdir()
 
         with project_path.as_cwd():
-            artifacts = list(builder.build(str(build_path)))
+            artifacts = list(builder.build(directory=str(build_path)))
 
         assert len(artifacts) == 1
         expected_artifact = artifacts[0]
@@ -1921,7 +1921,7 @@ class TestBuildStandard:
         build_path.mkdir()
 
         with project_path.as_cwd():
-            artifacts = list(builder.build(str(build_path)))
+            artifacts = list(builder.build(directory=str(build_path)))
 
         assert len(artifacts) == 1
         expected_artifact = artifacts[0]
@@ -1994,7 +1994,7 @@ class TestBuildStandard:
         build_path.mkdir()
 
         with project_path.as_cwd():
-            artifacts = list(builder.build(str(build_path)))
+            artifacts = list(builder.build(directory=str(build_path)))
 
         assert len(artifacts) == 1
         expected_artifact = artifacts[0]
@@ -2058,7 +2058,7 @@ class TestBuildStandard:
         build_path.mkdir()
 
         with project_path.as_cwd():
-            artifacts = list(builder.build(str(build_path)))
+            artifacts = list(builder.build(directory=str(build_path)))
 
         assert len(artifacts) == 1
         expected_artifact = artifacts[0]
@@ -2077,6 +2077,66 @@ class TestBuildStandard:
         metadata_directory = f'{builder.project_id}.dist-info'
         expected_files = helpers.get_template_files(
             'wheel.standard_editable_pth_force_include',
+            project_name,
+            metadata_directory=metadata_directory,
+            package_paths=[str(project_path / 'src')],
+        )
+        helpers.assert_files(extraction_directory, expected_files)
+
+        # Inspect the archive rather than the extracted files because on Windows they lose their metadata
+        # https://stackoverflow.com/q/9813243
+        with zipfile.ZipFile(str(expected_artifact), 'r') as zip_archive:
+            zip_info = zip_archive.getinfo(f'{metadata_directory}/WHEEL')
+            assert zip_info.date_time == (2020, 2, 2, 0, 0, 0)
+
+    @pytest.mark.requires_unix()
+    def test_editable_default_symlink(self, hatch, helpers, temp_dir):
+        project_name = 'My.App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / 'my-app'
+        symlink = project_path / '_' / 'my_app'
+        symlink.parent.ensure_dir_exists()
+        symlink.symlink_to(project_path / 'src' / 'my_app')
+
+        config = {
+            'project': {'name': project_name, 'dynamic': ['version']},
+            'tool': {
+                'hatch': {
+                    'version': {'path': 'src/my_app/__about__.py'},
+                    'build': {'targets': {'wheel': {'versions': ['editable']}}},
+                },
+            },
+        }
+        builder = WheelBuilder(str(project_path), config=config)
+
+        build_path = project_path / 'dist'
+        build_path.mkdir()
+
+        with project_path.as_cwd():
+            artifacts = list(builder.build(directory=str(build_path)))
+
+        assert len(artifacts) == 1
+        expected_artifact = artifacts[0]
+
+        build_artifacts = list(build_path.iterdir())
+        assert len(build_artifacts) == 1
+        assert expected_artifact == str(build_artifacts[0])
+        assert expected_artifact == str(build_path / f'{builder.project_id}-{get_python_versions_tag()}-none-any.whl')
+
+        extraction_directory = temp_dir / '_archive'
+        extraction_directory.mkdir()
+
+        with zipfile.ZipFile(str(expected_artifact), 'r') as zip_archive:
+            zip_archive.extractall(str(extraction_directory))
+
+        metadata_directory = f'{builder.project_id}.dist-info'
+        expected_files = helpers.get_template_files(
+            'wheel.standard_editable_pth',
             project_name,
             metadata_directory=metadata_directory,
             package_paths=[str(project_path / 'src')],
@@ -2118,7 +2178,7 @@ class TestBuildStandard:
         build_path.mkdir()
 
         with project_path.as_cwd():
-            artifacts = list(builder.build(str(build_path)))
+            artifacts = list(builder.build(directory=str(build_path)))
 
         assert len(artifacts) == 1
         expected_artifact = artifacts[0]
@@ -2197,7 +2257,7 @@ class TestBuildStandard:
         build_path.mkdir()
 
         with project_path.as_cwd():
-            artifacts = list(builder.build(str(build_path)))
+            artifacts = list(builder.build(directory=str(build_path)))
 
         assert len(artifacts) == 1
         expected_artifact = artifacts[0]
@@ -2277,7 +2337,7 @@ class TestBuildStandard:
         build_path.mkdir()
 
         with project_path.as_cwd():
-            artifacts = list(builder.build(str(build_path)))
+            artifacts = list(builder.build(directory=str(build_path)))
 
         assert len(artifacts) == 1
         expected_artifact = artifacts[0]
@@ -2345,7 +2405,7 @@ class TestBuildStandard:
         build_path.mkdir()
 
         with project_path.as_cwd():
-            artifacts = list(builder.build(str(build_path)))
+            artifacts = list(builder.build(directory=str(build_path)))
 
         assert len(artifacts) == 1
         expected_artifact = artifacts[0]
@@ -2430,7 +2490,7 @@ class TestBuildStandard:
         build_path.mkdir()
 
         with project_path.as_cwd():
-            artifacts = list(builder.build(str(build_path)))
+            artifacts = list(builder.build(directory=str(build_path)))
 
         assert len(artifacts) == 1
         expected_artifact = artifacts[0]
@@ -2487,7 +2547,7 @@ class TestBuildStandard:
         build_path.mkdir()
 
         with project_path.as_cwd():
-            artifacts = list(builder.build(str(build_path)))
+            artifacts = list(builder.build(directory=str(build_path)))
 
         assert len(artifacts) == 1
         expected_artifact = artifacts[0]
@@ -2657,7 +2717,7 @@ class TestBuildStandard:
         build_path.mkdir()
 
         with project_path.as_cwd():
-            artifacts = list(builder.build(str(build_path)))
+            artifacts = list(builder.build(directory=str(build_path)))
 
         assert len(artifacts) == 1
         expected_artifact = artifacts[0]
@@ -2702,7 +2762,7 @@ class TestBuildStandard:
         build_path.mkdir()
 
         with project_path.as_cwd():
-            artifacts = list(builder.build(str(build_path)))
+            artifacts = list(builder.build(directory=str(build_path)))
 
         assert len(artifacts) == 1
         expected_artifact = artifacts[0]
@@ -2776,7 +2836,7 @@ class TestBuildStandard:
         )
         helpers.assert_files(extraction_directory, expected_files)
 
-    def test_editable_sources_rewrite_error(self, hatch, helpers, temp_dir):
+    def test_editable_sources_rewrite_error(self, hatch, temp_dir):
         project_name = 'My.App'
 
         with temp_dir.as_cwd():
@@ -2816,14 +2876,14 @@ class TestBuildStandard:
                 'https://github.com/pfmoore/editables/issues/20'
             ),
         ):
-            list(builder.build(str(build_path)))
+            list(builder.build(directory=str(build_path)))
 
     @pytest.mark.skipif(
         sys.platform != 'darwin' or sys.version_info < (3, 8),
         reason='requires support for ARM on macOS',
     )
     @pytest.mark.parametrize(
-        'archflags, expected_arch',
+        ('archflags', 'expected_arch'),
         [('-arch x86_64', 'x86_64'), ('-arch arm64', 'arm64'), ('-arch arm64 -arch x86_64', 'universal2')],
     )
     def test_macos_archflags(self, hatch, helpers, temp_dir, config_file, archflags, expected_arch):
@@ -2880,7 +2940,7 @@ class TestBuildStandard:
         build_path.mkdir()
 
         with project_path.as_cwd({'ARCHFLAGS': archflags}):
-            artifacts = list(builder.build(str(build_path)))
+            artifacts = list(builder.build(directory=str(build_path)))
 
         assert len(artifacts) == 1
         expected_artifact = artifacts[0]
@@ -2910,7 +2970,7 @@ class TestBuildStandard:
         )
         helpers.assert_files(extraction_directory, expected_files)
 
-    @pytest.mark.requires_macos
+    @pytest.mark.requires_macos()
     def test_macos_max_compat(self, hatch, helpers, temp_dir, config_file):
         config_file.model.template.plugins['default']['src-layout'] = False
         config_file.save()
@@ -2965,7 +3025,7 @@ class TestBuildStandard:
         build_path.mkdir()
 
         with project_path.as_cwd():
-            artifacts = list(builder.build(str(build_path)))
+            artifacts = list(builder.build(directory=str(build_path)))
 
         assert len(artifacts) == 1
         expected_artifact = artifacts[0]

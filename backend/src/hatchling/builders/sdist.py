@@ -74,7 +74,7 @@ class SdistArchive:
         setattr(self, name, attr)
         return attr
 
-    def __enter__(self) -> SdistArchive:
+    def __enter__(self) -> SdistArchive:  # noqa: PYI034
         return self
 
     def __exit__(
@@ -150,10 +150,14 @@ class SdistBuilder(BuilderInterface):
     def get_version_api(self) -> dict[str, Callable]:
         return {'standard': self.build_standard}
 
-    def get_default_versions(self) -> list[str]:
+    def get_default_versions(self) -> list[str]:  # noqa: PLR6301
         return ['standard']
 
-    def clean(self, directory: str, versions: list[str]) -> None:
+    def clean(  # noqa: PLR6301
+        self,
+        directory: str,
+        versions: list[str],  # noqa: ARG002
+    ) -> None:
         for filename in os.listdir(directory):
             if filename.endswith('.tar.gz'):
                 os.remove(os.path.join(directory, filename))
@@ -161,7 +165,7 @@ class SdistBuilder(BuilderInterface):
     def build_standard(self, directory: str, **build_data: Any) -> str:
         found_packages = set()
 
-        with SdistArchive(self.project_id, reproducible=self.config.reproducible) as archive:
+        with SdistArchive(self.artifact_project_id, reproducible=self.config.reproducible) as archive:
             for included_file in self.recurse_included_files():
                 if self.config.support_legacy:
                     possible_package, file_name = os.path.split(included_file.relative_path)
@@ -170,7 +174,9 @@ class SdistBuilder(BuilderInterface):
 
                 tar_info = archive.gettarinfo(
                     included_file.path,
-                    arcname=normalize_archive_path(os.path.join(self.project_id, included_file.distribution_path)),
+                    arcname=normalize_archive_path(
+                        os.path.join(self.artifact_project_id, included_file.distribution_path)
+                    ),
                 )
 
                 if tar_info.isfile():
@@ -243,8 +249,8 @@ class SdistBuilder(BuilderInterface):
         if dependencies:
             contents += '    install_requires=[\n'
 
-            for specifier in dependencies:
-                specifier = specifier.replace("'", '"')
+            for raw_specifier in dependencies:
+                specifier = raw_specifier.replace("'", '"')
                 contents += f'        {specifier!r},\n'
 
             contents += '    ],\n'
@@ -258,8 +264,8 @@ class SdistBuilder(BuilderInterface):
 
                 contents += f'        {option!r}: [\n'
 
-                for specifier in specifiers:
-                    specifier = specifier.replace("'", '"')
+                for raw_specifier in specifiers:
+                    specifier = raw_specifier.replace("'", '"')
                     contents += f'            {specifier!r},\n'
 
                 contents += '        ],\n'
@@ -317,11 +323,11 @@ class SdistBuilder(BuilderInterface):
         return contents
 
     def get_default_build_data(self) -> dict[str, Any]:
-        force_include = {
-            os.path.join(self.root, 'pyproject.toml'): 'pyproject.toml',
-            os.path.join(self.root, DEFAULT_CONFIG_FILE): DEFAULT_CONFIG_FILE,
-            os.path.join(self.root, DEFAULT_BUILD_SCRIPT): DEFAULT_BUILD_SCRIPT,
-        }
+        force_include = {}
+        for filename in ['pyproject.toml', DEFAULT_CONFIG_FILE, DEFAULT_BUILD_SCRIPT]:
+            path = os.path.join(self.root, filename)
+            if os.path.exists(path):
+                force_include[path] = filename
         build_data = {'force_include': force_include, 'dependencies': []}
 
         for exclusion_files in self.config.vcs_exclusion_files.values():
@@ -336,8 +342,8 @@ class SdistBuilder(BuilderInterface):
         license_files = self.metadata.core.license_files
         if license_files:
             for license_file in license_files:
-                license_file = normalize_relative_path(license_file)
-                force_include[os.path.join(self.root, license_file)] = license_file
+                relative_path = normalize_relative_path(license_file)
+                force_include[os.path.join(self.root, relative_path)] = relative_path
 
         return build_data
 

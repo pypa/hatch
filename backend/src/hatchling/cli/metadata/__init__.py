@@ -42,7 +42,10 @@ def metadata_impl(*, called_by_app: bool, field: str, compact: bool) -> None:
         app.display(json.dumps(metadata, indent=4))
 
 
-def metadata_command(subparsers: argparse._SubParsersAction, defaults: Any) -> None:
+def metadata_command(
+    subparsers: argparse._SubParsersAction,  # noqa: SLF001
+    defaults: Any,  # noqa: ARG001
+) -> None:
     parser = subparsers.add_parser('metadata')
     parser.add_argument('field', nargs='?')
     parser.add_argument('-c', '--compact', action='store_true')

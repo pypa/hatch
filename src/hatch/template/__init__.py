@@ -1,11 +1,14 @@
-from contextlib import suppress
-from typing import Optional
+from __future__ import annotations
 
-from hatch.utils.fs import Path
+from contextlib import suppress
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from hatch.utils.fs import Path
 
 
 class File:
-    def __init__(self, path: Optional[Path], contents: str = ''):
+    def __init__(self, path: Path | None, contents: str = ''):
         self.path = path
         self.contents = contents
         self.feature = None

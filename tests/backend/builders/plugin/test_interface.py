@@ -118,7 +118,7 @@ class TestBuildValidation:
         builder.get_version_api = lambda: {'1': str}
 
         with pytest.raises(ValueError, match='Unknown versions for target `foo`: 42, 9000'):
-            next(builder.build(str(isolation), versions=['9000', '42']))
+            next(builder.build(directory=str(isolation), versions=['9000', '42']))
 
     def test_invalid_metadata(self, isolation):
         config = {
@@ -127,13 +127,13 @@ class TestBuildValidation:
         }
         builder = MockBuilder(str(isolation), config=config)
         builder.PLUGIN_NAME = 'foo'
-        builder.get_version_api = lambda: {'1': lambda *args, **kwargs: ''}
+        builder.get_version_api = lambda: {'1': lambda *_args, **_kwargs: ''}
 
         with pytest.raises(
             ValueError,
             match='Metadata field `version` cannot be both statically defined and listed in field `project.dynamic`',
         ):
-            next(builder.build(str(isolation)))
+            next(builder.build(directory=str(isolation)))
 
 
 class TestHookConfig:
@@ -146,7 +146,7 @@ class TestHookConfig:
 
 
 class TestDirectoryRecursion:
-    @pytest.mark.requires_unix
+    @pytest.mark.requires_unix()
     def test_infinite_loop_prevention(self, temp_dir):
         project_dir = temp_dir / 'project'
         project_dir.ensure_dir_exists()
@@ -218,6 +218,30 @@ class TestDirectoryRecursion:
                     (str(temp_dir / 'external.txt'), f'new{path_sep}target2.txt'),
                 ]
 
+    def test_exists(self, temp_dir):
+        project_dir = temp_dir / 'project'
+        project_dir.ensure_dir_exists()
+
+        with project_dir.as_cwd():
+            config = {
+                'tool': {
+                    'hatch': {
+                        'build': {
+                            'force-include': {
+                                '../notfound': 'target.txt',
+                            },
+                        }
+                    }
+                }
+            }
+            builder = MockBuilder(str(project_dir), config=config)
+            build_data = builder.get_default_build_data()
+            builder.set_build_data_defaults(build_data)
+            with builder.config.set_build_data(build_data), pytest.raises(
+                FileNotFoundError, match='Forced include not found'
+            ):
+                list(builder.recurse_included_files())
+
     def test_order(self, temp_dir):
         project_dir = temp_dir / 'project'
         project_dir.ensure_dir_exists()
@@ -234,8 +258,6 @@ class TestDirectoryRecursion:
                                 '../external1.txt': 'nested/target2.txt',
                                 '../external2.txt': 'nested/target1.txt',
                                 '../external': 'nested',
-                                # Should be silently ignored
-                                '../missing': 'missing',
                             },
                         }
                     }

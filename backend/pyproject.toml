@@ -9,7 +9,7 @@ dynamic = ["version"]
 description = "Modern, extensible Python build backend"
 readme = "README.md"
 license = "MIT"
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 keywords = [
   "build",
   "hatch",
@@ -24,11 +24,11 @@ classifiers = [
   "License :: OSI Approved :: MIT License",
   "Natural Language :: English",
   "Operating System :: OS Independent",
-  "Programming Language :: Python :: 3.7",
   "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
   "Topic :: Software Development :: Build Tools",
@@ -36,7 +36,6 @@ classifiers = [
 ]
 dependencies = [
   "editables>=0.3",
-  "importlib-metadata; python_version < '3.8'",
   "packaging>=21.3",
   "pathspec>=0.10.1",
   "pluggy>=1.0.0",

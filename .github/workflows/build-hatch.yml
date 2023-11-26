@@ -4,45 +4,620 @@ on:
   push:
     tags:
     - hatch-v*
+    branches:
+    - master
+  pull_request:
+    branches:
+    - master
 
 concurrency:
-  group: build-hatch-${{ github.head_ref }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  APP_NAME: hatch
+  PYTHON_VERSION: "3.11"
+  PYOXIDIZER_VERSION: "0.24.0"
 
 jobs:
-  build:
-    name: Build wheels and source distribution
+  python-artifacts:
+    name: Build wheel and source distribution
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
-    - name: Install build dependencies
+    - name: Install build frontend
       run: python -m pip install --upgrade build
 
-    - name: Build source distribution
+    - name: Build
       run: python -m build
 
-    - uses: actions/upload-artifact@v3
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
       with:
-        name: artifacts
+        name: python-artifacts
         path: dist/*
         if-no-files-found: error
 
-  publish:
-    name: Publish release
+  binaries:
+    name: ${{ matrix.job.target }} (${{ matrix.job.os }})
     needs:
-    - build
-    runs-on: ubuntu-latest
+    - python-artifacts
+    runs-on: ${{ matrix.job.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        job:
+        # Linux
+        - target: aarch64-unknown-linux-gnu
+          os: ubuntu-22.04
+          cross: true
+        - target: x86_64-unknown-linux-gnu
+          os: ubuntu-22.04
+          cross: true
+        - target: x86_64-unknown-linux-musl
+          os: ubuntu-22.04
+          cross: true
+        - target: i686-unknown-linux-gnu
+          os: ubuntu-22.04
+          cross: true
+        - target: powerpc64le-unknown-linux-gnu
+          os: ubuntu-22.04
+          cross: true
+        # Windows
+        - target: x86_64-pc-windows-msvc
+          os: windows-2022
+        - target: i686-pc-windows-msvc
+          os: windows-2022
+        # macOS
+        - target: aarch64-apple-darwin
+          os: macos-12
+        - target: x86_64-apple-darwin
+          os: macos-12
+
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+
+    env:
+      CARGO: cargo
+      CARGO_BUILD_TARGET: ${{ matrix.job.target }}
+      PYAPP_REPO: pyapp
+      PYAPP_VERSION: "0.11.1"
+      PYAPP_PIP_EXTERNAL: "true"
 
     steps:
-    - uses: actions/download-artifact@v3
+    - name: Checkout code
+      uses: actions/checkout@v4
       with:
-        name: artifacts
+        fetch-depth: 0
+
+    - name: Fetch PyApp
+      run: >-
+        mkdir $PYAPP_REPO && curl -L
+        https://github.com/ofek/pyapp/releases/download/v$PYAPP_VERSION/source.tar.gz
+        |
+        tar --strip-components=1 -xzf - -C $PYAPP_REPO
+
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install Hatch
+      run: pip install -U hatch
+
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        targets: ${{ matrix.job.target }}
+
+    - name: Set up cross compiling
+      if: matrix.job.cross
+      uses: taiki-e/install-action@v2
+      with:
+        tool: cross
+
+    - name: Configure cross compiling
+      if: matrix.job.cross
+      run: echo "CARGO=cross" >> $GITHUB_ENV
+
+    - name: Configure target
+      run: |-
+        config_file="$PYAPP_REPO/.cargo/config_${{ matrix.job.target }}.toml"
+        if [[ -f "$config_file" ]]; then
+          mv "$config_file" "$PYAPP_REPO/.cargo/config.toml"
+        fi
+
+    - name: Download Python artifacts
+      if: ${{ !startsWith(github.event.ref, 'refs/tags') }}
+      uses: actions/download-artifact@v3
+      with:
+        name: python-artifacts
         path: dist
 
-    - name: Push build artifacts to PyPI
-      uses: pypa/gh-action-pypi-publish@v1.8.4
+    - name: Configure embedded project
+      if: ${{ !startsWith(github.event.ref, 'refs/tags') }}
+      run: |-
+        cd dist
+        wheel="$(echo *.whl)"
+        mv "$wheel" "../$PYAPP_REPO"
+        echo "PYAPP_PROJECT_PATH=$wheel" >> $GITHUB_ENV
+
+    - name: Set project version
+      id: version
+      run: |-
+        raw_version="$(hatch version)"
+        version="${raw_version/dev/}"
+
+        echo "raw-version=$raw_version" >> $GITHUB_OUTPUT
+        echo "version=$version" >> $GITHUB_OUTPUT
+        echo "$version"
+
+    # We cannot use anchors because of https://github.com/actions/runner/issues/1182 and
+    # other solutions like writing a composite action are burdensome
+    - name: Set reusable script - Correct binary version
+      id: script-version
+      # Windows installers don't accept non-integer versions so we ubiquitously
+      # perform the following transformation: X.Y.Z.devN -> X.Y.Z.N
+      run: |-
+        cat <<"OUTER" >> $GITHUB_OUTPUT
+        script<<INNER
+        cd dist/app
+        old_binary="$(ls)"
+        binary="${old_binary/${{ steps.version.outputs.raw-version }}/${{ steps.version.outputs.version }}}"
+        mv "$old_binary" "$binary"
+        INNER
+        OUTER
+
+    - name: Set reusable script - Archive binary
+      id: script-archive
+      run: |-
+        cat <<"OUTER" >> $GITHUB_OUTPUT
+        script<<INNER
+        mkdir packaging
+        cd dist/app
+
+        binary="$(ls)"
+
+        if [[ "$binary" =~ -pc-windows- ]]; then
+          7z a "../../packaging/${binary:0:-4}.zip" "$binary"
+        else
+          chmod +x "$binary"
+          tar -czf "../../packaging/$binary.tar.gz" "$binary"
+        fi
+        INNER
+        OUTER
+
+    - name: Build managed binary
+      env:
+        PYAPP_SELF_COMMAND: "none"
+      run: hatch build --target app
+
+    - name: Correct binary version
+      if: steps.version.outputs.version != steps.version.outputs.raw-version
+      run: ${{ steps.script-version.outputs.script }}
+
+    - name: Archive binary
+      run: ${{ steps.script-archive.outputs.script }}
+
+    - name: Upload staged managed archive
+      if: runner.os != 'Linux'
+      uses: actions/upload-artifact@v3
       with:
-        skip_existing: true
-        user: __token__
-        password: ${{ secrets.PYPI_API_TOKEN_HATCH }}
+        name: staged-managed-${{ runner.os }}
+        path: packaging/*
+        if-no-files-found: error
+
+    - name: Reset artifact directories
+      run: rm -rf dist/app packaging
+
+    - name: Build standalone binary
+      run: hatch build --target app
+
+    - name: Correct binary version
+      if: steps.version.outputs.version != steps.version.outputs.raw-version
+      run: ${{ steps.script-version.outputs.script }}
+
+    - name: Archive binary
+      run: ${{ steps.script-archive.outputs.script }}
+
+    - name: Upload staged standalone archive
+      if: runner.os != 'Linux'
+      uses: actions/upload-artifact@v3
+      with:
+        name: staged-standalone-${{ runner.os }}
+        path: packaging/*
+        if-no-files-found: error
+
+    # There are no installers nor extra steps like signing for Linux so we
+    # can upload directly at this point
+    - name: Upload standalone archive
+      if: runner.os == 'Linux'
+      uses: actions/upload-artifact@v3
+      with:
+        name: standalone
+        path: packaging/*
+        if-no-files-found: error
+
+  windows-packaging:
+    name: Build Windows installers
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    needs: binaries
+    runs-on: windows-2022
+
+    env:
+      VERSION: ${{ needs.binaries.outputs.version }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install PyOxidizer ${{ env.PYOXIDIZER_VERSION }}
+      run: pip install pyoxidizer==${{ env.PYOXIDIZER_VERSION }}
+
+    # We cannot use anchors because of https://github.com/actions/runner/issues/1182 and
+    # other solutions like writing a composite action are burdensome
+    - name: Set reusable script - Extract binaries
+      id: script-extract
+      run: |-
+        cat <<"OUTER" >> $GITHUB_OUTPUT
+        script<<INNER
+        mkdir bin
+        for f in archives/*; do
+          7z e "$f" -obin
+        done
+        INNER
+        OUTER
+
+    - name: Set reusable script - Prepare binaries
+      id: script-prepare
+      # bin/<APP_NAME>-<VERSION>-<TARGET>.exe -> targets/<TARGET>/<APP_NAME>.exe
+      run: |-
+        cat <<"OUTER" >> $GITHUB_OUTPUT
+        script<<INNER
+        mkdir targets
+        for f in bin/*; do
+          if [[ "$f" =~ ${{ env.VERSION }}-(.+).exe$ ]]; then
+            target="${BASH_REMATCH[1]}"
+            mkdir "targets/$target"
+            mv "$f" "targets/$target/${{ env.APP_NAME }}.exe"
+          fi
+        done
+        INNER
+        OUTER
+
+    - name: Download staged standalone binaries
+      uses: actions/download-artifact@v3
+      with:
+        name: staged-standalone-${{ runner.os }}
+        path: archives
+
+    - name: Extract staged standalone binaries
+      run: ${{ steps.script-extract.outputs.script }}
+
+    - name: Prepare standalone binaries
+      run: ${{ steps.script-prepare.outputs.script }}
+
+    - name: Upload standalone binaries
+      uses: actions/upload-artifact@v3
+      with:
+        name: standalone
+        path: archives/*
+        if-no-files-found: error
+
+    - name: Reset artifact directories
+      run: rm -rf archives bin targets
+
+    - name: Download staged managed binaries
+      uses: actions/download-artifact@v3
+      with:
+        name: staged-managed-${{ runner.os }}
+        path: archives
+
+    - name: Extract staged managed binaries
+      run: ${{ steps.script-extract.outputs.script }}
+
+    - name: Prepare managed binaries
+      run: ${{ steps.script-prepare.outputs.script }}
+
+    - name: Build installers
+      run: >-
+        pyoxidizer build windows_installers
+        --release
+        --var version ${{ env.VERSION }}
+
+    - name: Prepare installers
+      run: |-
+        mkdir installers
+        mv build/*/release/*/*.{exe,msi} installers
+
+    - name: Upload installers
+      uses: actions/upload-artifact@v3
+      with:
+        name: installers
+        path: installers/*
+
+  macos-packaging:
+    name: Build macOS installer and sign/notarize artifacts
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    needs: binaries
+    runs-on: macos-12
+
+    env:
+      VERSION: ${{ needs.binaries.outputs.version }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install PyOxidizer ${{ env.PYOXIDIZER_VERSION }}
+      run: pip install pyoxidizer==${{ env.PYOXIDIZER_VERSION }}
+
+    # TODO: Use the next official release after 0.22.0 by removing these 2 blocks, uncommenting
+    # the following one, and changing the artifact name to reflect the next version. See:
+    # https://github.com/indygreg/apple-platform-rs/issues/82
+    #
+    # We use the artifact from the latest scheduled nightly job because installing
+    # with Cargo from scratch takes ~10 minutes
+    - name: Install rcodesign
+      uses: dawidd6/action-download-artifact@v2
+      with:
+        repo: indygreg/apple-platform-rs
+        workflow: rcodesign.yml
+        event: schedule
+        workflow_conclusion: success
+        name: exe-rcodesign-x86_64-apple-darwin
+        path: /usr/local/bin
+        search_artifacts: true
+        check_artifacts: true
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Finalize rcodesign
+      run: chmod +x /usr/local/bin/rcodesign
+
+    # - name: Install rcodesign
+    #   env:
+    #     ARCHIVE_NAME: "apple-codesign-0.22.0-x86_64-apple-darwin"
+    #   run: >-
+    #     curl -L
+    #     "https://github.com/indygreg/apple-platform-rs/releases/download/apple-codesign%2F0.22.0/$ARCHIVE_NAME.tar.gz"
+    #     |
+    #     tar --strip-components=1 -xzf - -C /usr/local/bin "$ARCHIVE_NAME/rcodesign"
+
+    - name: Write credentials
+      env:
+        APPLE_DEVELOPER_ID_APPLICATION_CERTIFICATE: "${{ secrets.APPLE_DEVELOPER_ID_APPLICATION_CERTIFICATE }}"
+        APPLE_DEVELOPER_ID_APPLICATION_PRIVATE_KEY: "${{ secrets.APPLE_DEVELOPER_ID_APPLICATION_PRIVATE_KEY }}"
+        APPLE_DEVELOPER_ID_INSTALLER_CERTIFICATE: "${{ secrets.APPLE_DEVELOPER_ID_INSTALLER_CERTIFICATE }}"
+        APPLE_DEVELOPER_ID_INSTALLER_PRIVATE_KEY: "${{ secrets.APPLE_DEVELOPER_ID_INSTALLER_PRIVATE_KEY }}"
+        APPLE_APP_STORE_CONNECT_API_DATA: "${{ secrets.APPLE_APP_STORE_CONNECT_API_DATA }}"
+      run: |-
+        echo "$APPLE_DEVELOPER_ID_APPLICATION_CERTIFICATE" > /tmp/certificate-application.pem
+        echo "$APPLE_DEVELOPER_ID_APPLICATION_PRIVATE_KEY" > /tmp/private-key-application.pem
+        echo "$APPLE_DEVELOPER_ID_INSTALLER_CERTIFICATE" > /tmp/certificate-installer.pem
+        echo "$APPLE_DEVELOPER_ID_INSTALLER_PRIVATE_KEY" > /tmp/private-key-installer.pem
+        echo "$APPLE_APP_STORE_CONNECT_API_DATA" > /tmp/app-store-connect.json
+
+    # We cannot use anchors because of https://github.com/actions/runner/issues/1182 and
+    # other solutions like writing a composite action are burdensome
+    - name: Set reusable script - Extract binaries
+      id: script-extract
+      run: |-
+        cat <<"OUTER" >> $GITHUB_OUTPUT
+        script<<INNER
+        mkdir bin
+        for f in archives/*; do
+          tar -xzf "$f" -C bin
+        done
+        INNER
+        OUTER
+
+    - name: Set reusable script - Sign binaries
+      id: script-sign
+      # https://developer.apple.com/documentation/security/hardened_runtime
+      run: |-
+        cat <<"OUTER" >> $GITHUB_OUTPUT
+        script<<INNER
+        for f in bin/*; do
+          rcodesign sign -vv \
+          --pem-source /tmp/certificate-application.pem \
+          --pem-source /tmp/private-key-application.pem \
+          --code-signature-flags runtime \
+          "$f"
+        done
+        INNER
+        OUTER
+
+    - name: Set reusable script - Notarize binaries
+      id: script-notarize
+      # https://developer.apple.com/documentation/security/notarizing_macos_software_before_distribution
+      run: |-
+        cat <<"OUTER" >> $GITHUB_OUTPUT
+        script<<INNER
+        mkdir notarize-bin
+
+        cd bin
+        for f in *; do
+          zip "../notarize-bin/$f.zip" "$f"
+        done
+
+        cd ../notarize-bin
+        for f in *; do
+          rcodesign notary-submit -vv \
+          --api-key-path /tmp/app-store-connect.json \
+          "$f"
+        done
+        INNER
+        OUTER
+
+    - name: Download staged standalone binaries
+      uses: actions/download-artifact@v3
+      with:
+        name: staged-standalone-${{ runner.os }}
+        path: archives
+
+    - name: Extract staged standalone binaries
+      run: ${{ steps.script-extract.outputs.script }}
+
+    - name: Sign standalone binaries
+      run: ${{ steps.script-sign.outputs.script }}
+
+    - name: Notarize standalone binaries
+      run: ${{ steps.script-notarize.outputs.script }}
+
+    - name: Archive standalone binaries
+      run: |-
+        rm archives/*
+        cd bin
+
+        for f in *; do
+          tar -czf "../archives/$f.tar.gz" "$f"
+        done
+
+    - name: Upload standalone binaries
+      uses: actions/upload-artifact@v3
+      with:
+        name: standalone
+        path: archives/*
+        if-no-files-found: error
+
+    - name: Reset artifact directories
+      run: rm -rf archives bin notarize-bin
+
+    - name: Download staged managed binaries
+      uses: actions/download-artifact@v3
+      with:
+        name: staged-managed-${{ runner.os }}
+        path: archives
+
+    - name: Extract staged managed binaries
+      run: ${{ steps.script-extract.outputs.script }}
+
+    - name: Sign managed binaries
+      run: ${{ steps.script-sign.outputs.script }}
+
+    - name: Notarize managed binaries
+      run: ${{ steps.script-notarize.outputs.script }}
+
+    # bin/<APP_NAME>-<VERSION>-<TARGET> -> targets/<TARGET>/<APP_NAME>
+    - name: Prepare managed binaries
+      run: |-
+        mkdir targets
+        for f in bin/*; do
+          if [[ "$f" =~ ${{ env.VERSION }}-(.+)$ ]]; then
+            target="${BASH_REMATCH[1]}"
+            mkdir "targets/$target"
+            mv "$f" "targets/$target/${{ env.APP_NAME }}"
+          fi
+        done
+
+    - name: Build universal binary
+      run: >-
+        pyoxidizer build macos_universal_binary
+        --release
+        --var version ${{ env.VERSION }}
+
+    - name: Prepare universal binary
+      id: binary
+      run: |-
+        binary=$(echo build/*/release/*/${{ env.APP_NAME }})
+        chmod +x "$binary"
+        echo "path=$binary" >> "$GITHUB_OUTPUT"
+
+    - name: Build PKG
+      run: >-
+        python release/macos/build_pkg.py
+        --binary ${{ steps.binary.outputs.path }}
+        --version ${{ env.VERSION }}
+        staged
+
+    - name: Stage PKG
+      id: pkg
+      run: |-
+        mkdir signed
+        pkg_file="$(ls staged)"
+        echo "path=$pkg_file" >> "$GITHUB_OUTPUT"
+
+    - name: Sign PKG
+      run: >-
+        rcodesign sign -vv
+        --pem-source /tmp/certificate-installer.pem
+        --pem-source /tmp/private-key-installer.pem
+        "staged/${{ steps.pkg.outputs.path }}"
+        "signed/${{ steps.pkg.outputs.path }}"
+
+    - name: Notarize PKG
+      run: >-
+        rcodesign notary-submit
+        --api-key-path /tmp/app-store-connect.json
+        --staple
+        "signed/${{ steps.pkg.outputs.path }}"
+
+    - name: Upload installer
+      uses: actions/upload-artifact@v3
+      with:
+        name: installers
+        path: signed/${{ steps.pkg.outputs.path }}
+
+  publish:
+    name: Publish release
+    if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
+    needs:
+    - python-artifacts
+    - binaries
+    - windows-packaging
+    - macos-packaging
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      id-token: write
+
+    steps:
+    - name: Download Python artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: python-artifacts
+        path: dist
+
+    - name: Download binaries
+      uses: actions/download-artifact@v3
+      with:
+        name: standalone
+        path: archives
+
+    - name: Download installers
+      uses: actions/download-artifact@v3
+      with:
+        name: installers
+        path: installers
+
+    - name: Push Python artifacts to PyPI
+      uses: pypa/gh-action-pypi-publish@v1.8.10
+      with:
+        skip-existing: true
+
+    - name: Add assets to current release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |-
+          archives/*
+          installers/*

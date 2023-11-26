@@ -1,8 +1,8 @@
 import json
 from collections import defaultdict
-from pathlib import Path
 
 from lxml import etree  # nosec B410
+from utils import ROOT
 
 PACKAGES = {
     'backend/src/hatchling/': 'hatchling',
@@ -12,8 +12,7 @@ PACKAGES = {
 
 
 def main():
-    project_root = Path(__file__).resolve().parent.parent
-    coverage_report = project_root / 'coverage.xml'
+    coverage_report = ROOT / 'coverage.xml'
     root = etree.fromstring(coverage_report.read_text())  # nosec B320  # noqa: S320
 
     raw_package_data = defaultdict(lambda: {'hits': 0, 'misses': 0})
@@ -46,7 +45,7 @@ def main():
         coverage_data[package_name] = {'statements_covered': statements_covered, 'statements': statements}
     coverage_data['total'] = {'statements_covered': total_statements_covered, 'statements': total_statements}
 
-    coverage_summary = project_root / 'coverage-summary.json'
+    coverage_summary = ROOT / 'coverage-summary.json'
     coverage_summary.write_text(json.dumps(coverage_data, indent=4), encoding='utf-8')
 
 

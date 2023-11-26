@@ -8,39 +8,20 @@ When the version is not [statically set](config/metadata.md#version), configurat
 
 The `regex` source requires an option `path` that represents a relative path to a file containing the project's version:
 
-=== ":octicons-file-code-16: pyproject.toml"
-
-    ```toml
-    [tool.hatch.version]
-    path = "src/hatch_demo/__about__.py"
-    ```
-
-=== ":octicons-file-code-16: hatch.toml"
-
-    ```toml
-    [version]
-    path = "src/hatch_demo/__about__.py"
-    ```
+```toml config-example
+[tool.hatch.version]
+path = "src/hatch_demo/__about__.py"
+```
 
 The default pattern looks for a variable named `__version__` or `VERSION` that is set to a string containing the version, optionally prefixed with the lowercase letter `v`.
 
 If this doesn't reflect how you store the version, you can define a different regular expression using the `pattern` option:
 
-=== ":octicons-file-code-16: pyproject.toml"
-
-    ```toml
-    [tool.hatch.version]
-    path = "pkg/__init__.py"
-    pattern = "BUILD = 'b(?P<version>)'"
-    ```
-
-=== ":octicons-file-code-16: hatch.toml"
-
-    ```toml
-    [version]
-    path = "pkg/__init__.py"
-    pattern = "BUILD = 'b(?P<version>)'"
-    ```
+```toml config-example
+[tool.hatch.version]
+path = "pkg/__init__.py"
+pattern = "BUILD = 'b(?P<version>[^']+)'"
+```
 
 The pattern must have a named group called `version` that represents the version.
 

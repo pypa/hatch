@@ -29,7 +29,7 @@ env.HERMETIC_TESTS.type = [
 ]
 
 [[envs.test.matrix]]
-python = ["3.7", "3.8", "3.9", "3.10"]
+python = ["3.8", "3.9", "3.10", "3.11", "3.12"]
 
 [envs.coverage]
 detached = true
@@ -44,46 +44,30 @@ report-uncovered-html = "coverage html --skip-covered --skip-empty"
 generate-summary = "python scripts/generate_coverage_summary.py"
 write-summary-report = "python scripts/write_coverage_summary_report.py"
 
-[envs.lint]
-detached = true
+[envs.types]
 dependencies = [
-  "black>=23.1.0",
   "mypy>=1.0.0",
-  "ruff>=0.0.259",
 ]
-[envs.lint.scripts]
-typing = "mypy --install-types --non-interactive {args:backend/src/hatchling src/hatch tests}"
-style = [
-  "ruff {args:.}",
-  "black --check --diff {args:.}",
-]
-fmt = [
-  "black {args:.}",
-  "ruff --fix {args:.}",
-  "style",
-]
-all = [
-  "style",
-  "typing",
-]
+[envs.types.scripts]
+check = "mypy --install-types --non-interactive {args:backend/src/hatchling src/hatch tests}"
 
 [envs.docs]
 dependencies = [
-  "mkdocs~=1.4.0",
-  "mkdocs-material~=8.5.6",
+  "mkdocs~=1.5.3",
+  "mkdocs-material~=9.4.6",
   # Plugins
-  "mkdocs-minify-plugin~=0.5.0",
-  "mkdocs-git-revision-date-localized-plugin~=1.1.0",
-  "mkdocstrings-python~=0.7.1",
-  "mkdocs-redirects~=1.1.0",
-  "mkdocs-glightbox~=0.3.0",
+  "mkdocs-minify-plugin~=0.7.1",
+  "mkdocs-git-revision-date-localized-plugin~=1.2.1",
+  "mkdocstrings-python~=1.7.3",
+  "mkdocs-redirects~=1.2.1",
+  "mkdocs-glightbox~=0.3.4",
   # https://github.com/jimporter/mike/issues/82#issuecomment-1172913929
-  "mike @ https://github.com/jimporter/mike/archive/392d57b8bb9d14bcedf2451a0dc302709f8055eb.zip",
+  "mike @ https://github.com/jimporter/mike/archive/be1aafe244bc86172fbce52a903c9ab83e2e4a26.zip",
   # Extensions
-  "mkdocs-click~=0.8.0",
-  "pymdown-extensions~=9.6.0",
+  "mkdocs-click~=0.8.1",
+  "pymdown-extensions~=10.3.1",
   # Necessary for syntax highlighting in code blocks
-  "pygments~=2.13.0",
+  "pygments~=2.16.1",
   # Validation
   # https://github.com/linkchecker/linkchecker/pull/669#issuecomment-1267236287
   "linkchecker @ git+https://github.com/linkchecker/linkchecker.git@d9265bb71c2054bf57b8c5734a4825d62505c779",
@@ -123,13 +107,33 @@ HATCH_BUILD_CLEAN = "true"
 build = "python -m build backend"
 publish = "hatch publish backend/dist"
 version = "cd backend && hatch version {args}"
-update-data = [
+
+[envs.upkeep]
+detached = true
+dependencies = [
+  "httpx",
+  "ruff",
+]
+[envs.upkeep.scripts]
+update-hatch = [
+  "update-distributions",
+  "update-ruff",
+]
+update-hatchling = [
   "update-licenses",
 ]
+update-distributions = "python scripts/update_distributions.py"
 update-licenses = "python backend/scripts/update_licenses.py"
+update-ruff = [
+  "python -m pip install --disable-pip-version-check --upgrade ruff",
+  "python scripts/update_ruff.py",
+]
 
 [envs.release]
 detached = true
+dependencies = [
+  "hatchling",
+]
 [envs.release.scripts]
 bump = "python scripts/bump.py {args}"
 github = "python scripts/release_github.py {args}"

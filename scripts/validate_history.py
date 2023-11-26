@@ -1,6 +1,7 @@
 import re
 import sys
-from pathlib import Path
+
+from utils import ROOT
 
 HEADER_PATTERN = (
     r'^\[([a-z0-9.]+)\]\(https://github\.com/pypa/hatch/releases/tag/({package}-v\1)\)'
@@ -9,21 +10,22 @@ HEADER_PATTERN = (
 
 
 def main():
-    project_root = Path(__file__).resolve().parent.parent
     for package in ('hatch', 'hatchling'):
-        history_file = project_root / 'docs' / 'history' / f'{package}.md'
+        history_file = ROOT / 'docs' / 'history' / f'{package}.md'
         current_pattern = HEADER_PATTERN.format(package=package)
 
         with history_file.open('r', encoding='utf-8') as f:
-            for line in f:
-                line = line.strip()
+            for raw_line in f:
+                line = raw_line.strip()
                 if not line:
                     continue
-                elif line.startswith('## '):
+
+                if line.startswith('## '):
                     _, _, header = line.partition(' ')
                     if header == 'Unreleased':
                         continue
-                    elif not re.search(current_pattern, header):
+
+                    if not re.search(current_pattern, header):
                         print('Invalid header:')
                         print(header)
                         sys.exit(1)

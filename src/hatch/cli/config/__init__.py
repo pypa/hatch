@@ -16,19 +16,10 @@ def explore(app):
 
 
 @config.command(short_help='Show the location of the config file')
-@click.option('--copy', '-c', is_flag=True, help='Copy the path to the config file to the clipboard')
 @click.pass_obj
-def find(app, copy):
+def find(app):
     """Show the location of the config file."""
-    config_path = str(app.config_file.path)
-    if copy:
-        import pyperclip
-
-        pyperclip.copy(config_path)
-    elif ' ' in config_path:
-        app.display(f'"{config_path}"')
-    else:
-        app.display(config_path)
+    app.display(str(app.config_file.path))
 
 
 @config.command(short_help='Show the contents of the config file')
@@ -142,7 +133,7 @@ def set_value(app, key, value):
         app.abort()
     else:
         if not user_config['project'] and setting_project_location:
-            project = list(branch_config_root['projects'])[0]
+            project = next(iter(branch_config_root['projects']))
             user_config['project'] = project
             branch_config_root['project'] = project
 

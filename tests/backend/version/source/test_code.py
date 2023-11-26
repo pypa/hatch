@@ -57,7 +57,7 @@ def test_search_paths_entry_not_string(temp_dir):
         source.get_version_data()
 
 
-def test_match_default_expression(temp_dir, helpers):
+def test_match_default_expression(temp_dir):
     source = CodeSource(str(temp_dir), {'path': 'a/b.py'})
 
     file_path = temp_dir / 'a' / 'b.py'

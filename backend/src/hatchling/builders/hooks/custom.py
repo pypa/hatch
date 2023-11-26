@@ -22,7 +22,8 @@ class CustomBuildHook:
         if not isinstance(build_script, str):
             message = f'Option `path` for build hook `{cls.PLUGIN_NAME}` must be a string'
             raise TypeError(message)
-        elif not build_script:
+
+        if not build_script:
             message = f'Option `path` for build hook `{cls.PLUGIN_NAME}` must not be empty if defined'
             raise ValueError(message)
 

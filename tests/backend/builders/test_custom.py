@@ -76,8 +76,8 @@ def test_default(hatch, helpers, temp_dir, config_file):
                 return CustomWheelBuilder
 
             class CustomWheelBuilder(WheelBuilder):
-                def build(self, *args, **kwargs):
-                    for i, artifact in enumerate(super().build(*args, **kwargs)):
+                def build(self, **kwargs):
+                    for i, artifact in enumerate(super().build(**kwargs)):
                         build_dir = os.path.dirname(artifact)
                         new_path = os.path.join(build_dir, f'{self.PLUGIN_NAME}-{i}.whl')
                         os.replace(artifact, new_path)
@@ -155,8 +155,8 @@ def test_explicit_path(hatch, helpers, temp_dir, config_file):
                 return CustomWheelBuilder
 
             class CustomWheelBuilder(WheelBuilder):
-                def build(self, *args, **kwargs):
-                    for i, artifact in enumerate(super().build(*args, **kwargs)):
+                def build(self, **kwargs):
+                    for i, artifact in enumerate(super().build(**kwargs)):
                         build_dir = os.path.dirname(artifact)
                         new_path = os.path.join(build_dir, f'{self.PLUGIN_NAME}-{i}.whl')
                         os.replace(artifact, new_path)

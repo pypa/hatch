@@ -29,29 +29,25 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
     """
     Example usage:
 
-    === ":octicons-file-code-16: plugin.py"
-
-        ```python
-        from hatchling.builders.plugin.interface import BuilderInterface
+    ```python tab="plugin.py"
+    from hatchling.builders.plugin.interface import BuilderInterface
 
 
-        class SpecialBuilder(BuilderInterface):
-            PLUGIN_NAME = 'special'
-            ...
-        ```
+    class SpecialBuilder(BuilderInterface):
+        PLUGIN_NAME = 'special'
+        ...
+    ```
 
-    === ":octicons-file-code-16: hooks.py"
+    ```python tab="hooks.py"
+    from hatchling.plugin import hookimpl
 
-        ```python
-        from hatchling.plugin import hookimpl
-
-        from .plugin import SpecialBuilder
+    from .plugin import SpecialBuilder
 
 
-        @hookimpl
-        def hatch_register_builder():
-            return SpecialBuilder
-        ```
+    @hookimpl
+    def hatch_register_builder():
+        return SpecialBuilder
+    ```
     """
 
     PLUGIN_NAME = ''
@@ -82,12 +78,13 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
 
     def build(
         self,
+        *,
         directory: str | None = None,
         versions: list[str] | None = None,
         hooks_only: bool | None = None,
         clean: bool | None = None,
         clean_hooks_after: bool | None = None,
-        clean_only: bool | None = False,  # noqa: FBT002
+        clean_only: bool | None = False,
     ) -> Generator[str, None, None]:
         # Fail early for invalid project metadata
         self.metadata.validate_fields()
@@ -176,12 +173,14 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
         - `relative_path` - the path relative to the project root; will be an empty string for external files
         - `distribution_path` - the path to be distributed as
         """
+        yield from self.recurse_selected_project_files()
+        yield from self.recurse_forced_files(self.config.get_force_include())
+
+    def recurse_selected_project_files(self) -> Iterable[IncludedFile]:
         if self.config.only_include:
             yield from self.recurse_explicit_files(self.config.only_include)
         else:
             yield from self.recurse_project_files()
-
-        yield from self.recurse_forced_files(self.config.get_force_include())
 
     def recurse_project_files(self) -> Iterable[IncludedFile]:
         for root, dirs, files in safe_walk(self.root):
@@ -222,6 +221,9 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
                                 '' if external else relative_file_path,
                                 self.config.get_distribution_path(relative_file_path),
                             )
+            else:
+                msg = f'Forced include not found: {source}'
+                raise FileNotFoundError(msg)
 
     def recurse_explicit_files(self, inclusion_map: dict[str, str]) -> Iterable[IncludedFile]:
         for source, target_path in inclusion_map.items():
@@ -322,17 +324,9 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
     @property
     def build_config(self) -> dict[str, Any]:
         """
-        === ":octicons-file-code-16: pyproject.toml"
-
-            ```toml
-            [tool.hatch.build]
-            ```
-
-        === ":octicons-file-code-16: hatch.toml"
-
-            ```toml
-            [build]
-            ```
+        ```toml config-example
+        [tool.hatch.build]
+        ```
         """
         if self.__build_config is None:
             self.__build_config = self.metadata.hatch.build_config
@@ -342,17 +336,9 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
     @property
     def target_config(self) -> dict[str, Any]:
         """
-        === ":octicons-file-code-16: pyproject.toml"
-
-            ```toml
-            [tool.hatch.build.targets.<PLUGIN_NAME>]
-            ```
-
-        === ":octicons-file-code-16: hatch.toml"
-
-            ```toml
-            [build.targets.<PLUGIN_NAME>]
-            ```
+        ```toml config-example
+        [tool.hatch.build.targets.<PLUGIN_NAME>]
+        ```
         """
         if self.__target_config is None:
             target_config: dict[str, Any] = self.metadata.hatch.build_targets.get(self.PLUGIN_NAME, {})
@@ -406,13 +392,13 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
         """
         return list(self.get_version_api())
 
-    def get_default_build_data(self) -> dict[str, Any]:
+    def get_default_build_data(self) -> dict[str, Any]:  # noqa: PLR6301
         """
         A mapping that can be modified by [build hooks](../build-hook/reference.md) to influence the behavior of builds.
         """
         return {}
 
-    def set_build_data_defaults(self, build_data: dict[str, Any]) -> None:
+    def set_build_data_defaults(self, build_data: dict[str, Any]) -> None:  # noqa: PLR6301
         build_data.setdefault('artifacts', [])
         build_data.setdefault('force_include', {})
 
@@ -434,4 +420,4 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
         """
         https://peps.python.org/pep-0427/#escaping-and-unicode
         """
-        return re.sub(r'[^\w\d.]+', '_', file_name, re.UNICODE)
+        return re.sub(r'[^\w\d.]+', '_', file_name, flags=re.UNICODE)

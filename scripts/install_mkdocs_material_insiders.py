@@ -5,7 +5,7 @@ import sys
 
 TOKEN = os.environ.get('GH_TOKEN_MKDOCS_MATERIAL_INSIDERS', '')
 DEP_REF = f'git+https://{TOKEN}@github.com/squidfunk/mkdocs-material-insiders.git'
-GIT_REF = '2203a968f9992578460add59056b480ea454ddb3'
+GIT_REF = '458242c58db8e47ee5a51cd7c8853d7ff40567ab'
 
 
 def main():
@@ -21,7 +21,7 @@ def main():
             stderr=subprocess.STDOUT,
             encoding='utf-8',
         )
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         print(str(e).replace(TOKEN, '*****'))
         sys.exit(1)
 

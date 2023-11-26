@@ -1,17 +1,24 @@
 from __future__ import annotations
 
 import importlib
+import json
 import os
 import sys
 from datetime import datetime, timezone
 from functools import lru_cache
 from textwrap import dedent as _dedent
+from typing import TYPE_CHECKING
 
 import tomli_w
 
 from hatch.config.user import RootConfig
 from hatch.env.utils import add_verbosity_flag
+from hatch.python.core import InstalledDistribution
+from hatch.python.resolve import get_distribution
 from hatch.utils.toml import load_toml_file
+
+if TYPE_CHECKING:
+    from hatch.utils.fs import Path
 
 
 def dedent(text):
@@ -23,8 +30,8 @@ def remove_trailing_spaces(text):
 
 
 def extract_requirements(lines):
-    for line in lines:
-        line = line.rstrip()
+    for raw_line in lines:
+        line = raw_line.rstrip()
         if line and not line.startswith('#'):
             yield line
 
@@ -93,7 +100,7 @@ def get_template_files(template_name, project_name, **kwargs):
     return __load_template_module(template_name)(**kwargs)
 
 
-@lru_cache()
+@lru_cache
 def __load_template_module(template_name):
     template = importlib.import_module(f'..templates.{template_name}', __name__)
     return template.get_files
@@ -111,3 +118,43 @@ def update_project_environment(project, name, config):
 
     with open(str(project_file), 'w', encoding='utf-8') as f:
         f.write(tomli_w.dumps(raw_config))
+
+
+def write_distribution(directory: Path, name: str):
+    dist = get_distribution(name)
+    path = directory / dist.name
+    path.ensure_dir_exists()
+    python_path = path / dist.python_path
+    python_path.parent.ensure_dir_exists()
+    python_path.touch()
+    metadata_file = path / InstalledDistribution.metadata_filename()
+    metadata_file.write_text(json.dumps({'source': dist.source, 'python_path': dist.python_path}))
+
+
+def downgrade_distribution_metadata(dist_dir: Path):
+    metadata_file = dist_dir / InstalledDistribution.metadata_filename()
+    metadata = json.loads(metadata_file.read_text())
+    dist = InstalledDistribution(dist_dir, get_distribution(dist_dir.name), metadata)
+
+    source = metadata['source']
+    python_path = metadata['python_path']
+    version = dist.version
+    new_version = downgrade_version(version)
+    new_source = source.replace(version, new_version)
+    metadata['source'] = new_source
+
+    # We also modify the Python path because some directory structures are determined
+    # by the archive name which is itself determined by the source
+    metadata['python_path'] = python_path.replace(version, new_version)
+    if python_path != metadata['python_path']:
+        new_python_path = dist_dir / metadata['python_path']
+        new_python_path.parent.ensure_dir_exists()
+        (dist_dir / python_path).rename(new_python_path)
+
+    metadata_file.write_text(json.dumps(metadata))
+    return metadata
+
+
+def downgrade_version(version: str) -> str:
+    major_version = version.split('.')[0]
+    return version.replace(major_version, str(int(major_version) - 1), 1)

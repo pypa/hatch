@@ -36,11 +36,14 @@ theme:
         icon: material/weather-sunny
         name: Switch to dark mode
   features:
-    - navigation.sections
+    - content.action.edit
+    - content.code.copy
     - navigation.expand
+    - navigation.footer
+    - navigation.instant
+    - navigation.sections
     - navigation.tabs
     - navigation.tabs.sticky
-    - navigation.instant
 
 nav:
   - Home:
@@ -58,6 +61,7 @@ nav:
     - Community:
       - Users: community/users.md
       - Highlights: community/highlights.md
+      - Contributing: community/contributing.md
   - Configuration:
     - Metadata: config/metadata.md
     - Dependencies: config/dependency.md
@@ -65,6 +69,7 @@ nav:
     - Environments:
       - Overview: config/environment/overview.md
       - Advanced: config/environment/advanced.md
+    - Static analysis: config/static-analysis.md
     - Context formatting: config/context.md
     - Project templates: config/project-templates.md
     - Hatch: config/hatch.md
@@ -77,6 +82,7 @@ nav:
       - Reference: plugins/builder/reference.md
       - Wheel: plugins/builder/wheel.md
       - Source distribution: plugins/builder/sdist.md
+      - Application: plugins/builder/app.md
       - Custom: plugins/builder/custom.md
     - Build hook:
       - Reference: plugins/build-hook/reference.md
@@ -119,6 +125,11 @@ watch:
 - backend/src/hatchling
 - src/hatch
 
+hooks:
+- docs/.hooks/expand_blocks.py
+- docs/.hooks/inject_version.py
+- docs/.hooks/render_ruff_defaults.py
+
 plugins:
   # Built-in
   search: {}
@@ -128,6 +139,7 @@ plugins:
     minify_html: true
   git-revision-date-localized:
     type: date
+    strict: false
     # Required for blog plugin's generated indices
     fallback_to_build_date: true
     exclude:
@@ -185,8 +197,8 @@ markdown_extensions:
   - pymdownx.emoji:
       # https://github.com/twitter/twemoji
       # https://raw.githubusercontent.com/facelessuser/pymdown-extensions/master/pymdownx/twemoji_db.py
-      emoji_index: !!python/name:materialx.emoji.twemoji
-      emoji_generator: !!python/name:materialx.emoji.to_svg
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
   - pymdownx.highlight:
       guess_lang: false
       linenums_style: pymdownx-inline
@@ -234,4 +246,4 @@ extra:
       link: https://www.linkedin.com/in/ofeklev/
 extra_css:
   - assets/css/custom.css
-  - https://cdn.jsdelivr.net/gh/tonsky/FiraCode@5.2/distr/fira_code.css
+  - https://cdn.jsdelivr.net/npm/firacode@6.2.0/distr/fira_code.css
