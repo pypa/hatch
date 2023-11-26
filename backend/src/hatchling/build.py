@@ -31,7 +31,7 @@ def build_sdist(sdist_directory: str, config_settings: dict[str, Any] | None = N
     from hatchling.builders.sdist import SdistBuilder
 
     builder = SdistBuilder(os.getcwd())
-    return os.path.basename(next(builder.build(sdist_directory, ['standard'])))
+    return os.path.basename(next(builder.build(directory=sdist_directory, versions=['standard'])))
 
 
 def get_requires_for_build_wheel(config_settings: dict[str, Any] | None = None) -> list[str]:  # noqa: ARG001
@@ -55,7 +55,7 @@ def build_wheel(
     from hatchling.builders.wheel import WheelBuilder
 
     builder = WheelBuilder(os.getcwd())
-    return os.path.basename(next(builder.build(wheel_directory, ['standard'])))
+    return os.path.basename(next(builder.build(directory=wheel_directory, versions=['standard'])))
 
 
 def get_requires_for_build_editable(config_settings: dict[str, Any] | None = None) -> list[str]:  # noqa: ARG001
@@ -79,7 +79,7 @@ def build_editable(
     from hatchling.builders.wheel import WheelBuilder
 
     builder = WheelBuilder(os.getcwd())
-    return os.path.basename(next(builder.build(wheel_directory, ['editable'])))
+    return os.path.basename(next(builder.build(directory=wheel_directory, versions=['editable'])))
 
 
 # Any builder that has build-time hooks like Hatchling and setuptools cannot technically keep PEP 517's identical

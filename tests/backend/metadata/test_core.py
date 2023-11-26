@@ -1075,14 +1075,15 @@ class TestEntryPoints:
         with pytest.raises(TypeError, match='Field `project.entry-points` must be a table'):
             _ = metadata.core.entry_points
 
-    @pytest.mark.parametrize('field', ['scripts', 'gui-scripts'])
-    def test_forbidden_fields(self, isolation, field):
+    @pytest.mark.parametrize(('field', 'expected'), [('console_scripts', 'scripts'), ('gui-scripts', 'gui-scripts')])
+    def test_forbidden_fields(self, isolation, field, expected):
         metadata = ProjectMetadata(str(isolation), None, {'project': {'entry-points': {field: 'foo'}}})
 
         with pytest.raises(
             ValueError,
             match=(
-                f'Field `{field}` must be defined as `project.{field}` instead of in the `project.entry-points` table'
+                f'Field `{field}` must be defined as `project.{expected}` instead of '
+                f'in the `project.entry-points` table'
             ),
         ):
             _ = metadata.core.entry_points

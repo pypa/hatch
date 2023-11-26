@@ -1151,9 +1151,9 @@ def test_build_dependencies(hatch, temp_dir, helpers):
                 return CustomWheelBuilder
 
             class CustomWheelBuilder(WheelBuilder):
-                def build(self, *args, **kwargs):
+                def build(self, **kwargs):
                     pathlib.Path('test.txt').write_text(str(binary.convert_units(1024)))
-                    yield from super().build(*args, **kwargs)
+                    yield from super().build(**kwargs)
             """
         )
     )

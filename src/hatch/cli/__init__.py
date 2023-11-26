@@ -9,6 +9,7 @@ from hatch.cli.clean import clean
 from hatch.cli.config import config
 from hatch.cli.dep import dep
 from hatch.cli.env import env
+from hatch.cli.fmt import fmt
 from hatch.cli.new import new
 from hatch.cli.project import project
 from hatch.cli.publish import publish
@@ -105,10 +106,14 @@ def hatch(ctx: click.Context, env_name, project, verbose, quiet, color, interact
     if interactive is None and running_in_ci():
         interactive = False
 
-    app = Application(ctx.exit, verbose - quiet, color, interactive)
+    app = Application(ctx.exit, verbosity=verbose - quiet, enable_color=color, interactive=interactive)
 
     app.env_active = os.environ.get(AppEnvVars.ENV_ACTIVE)
-    if app.env_active and ctx.get_parameter_source('env_name').name == 'DEFAULT':
+    if (
+        app.env_active
+        and (param_source := ctx.get_parameter_source('env_name')) is not None
+        and param_source.name == 'DEFAULT'
+    ):
         app.env = app.env_active
     else:
         app.env = env_name
@@ -196,6 +201,7 @@ hatch.add_command(clean)
 hatch.add_command(config)
 hatch.add_command(dep)
 hatch.add_command(env)
+hatch.add_command(fmt)
 hatch.add_command(new)
 hatch.add_command(project)
 hatch.add_command(publish)

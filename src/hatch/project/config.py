@@ -29,6 +29,7 @@ class ProjectConfig:
         self._matrix_variables = None
         self._publish = None
         self._scripts = None
+        self._fmt = None
         self._cached_env_overrides = {}
 
     @property
@@ -460,6 +461,18 @@ class ProjectConfig:
             self._scripts = config
 
         return self._scripts
+
+    @property
+    def fmt(self):
+        if self._fmt is None:
+            config = self.config.get('format', {})
+            if not isinstance(config, dict):
+                message = 'Field `tool.hatch.format` must be a table'
+                raise TypeError(message)
+
+            self._fmt = config
+
+        return self._fmt
 
     def finalize_env_overrides(self, option_types):
         # We lazily apply overrides because we need type information potentially defined by
