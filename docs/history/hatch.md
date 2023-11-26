@@ -19,11 +19,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Support Python 3.12
 - Add installers and standalone binaries
 - Add the ability to manage Python installations
+- Add `fmt` command
 - The `virtual` environment type can now automatically download requested versions of Python that are not installed
 - Add `dependency_hash` method to the `environment` interface
 - The state of installed dependencies for environments is saved as metadata so if dependency definitions have not changed then no checking is performed, which can be computationally expensive
 - The `build` command now supports backends other than Hatchling
-- For new project templates rely only on `requires-python` for configuring the target version Ruff and Black
 - The default is now `__TOKEN__` when prompting for a username for the `publish` command
 - Bump the minimum supported version of Hatchling to 1.17.1
 - Bump the minimum supported version of `click` to 8.0.6

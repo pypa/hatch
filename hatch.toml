@@ -44,26 +44,12 @@ report-uncovered-html = "coverage html --skip-covered --skip-empty"
 generate-summary = "python scripts/generate_coverage_summary.py"
 write-summary-report = "python scripts/write_coverage_summary_report.py"
 
-[envs.lint]
-detached = true
+[envs.types]
 dependencies = [
   "mypy>=1.0.0",
-  "ruff==0.1.6",
 ]
-[envs.lint.scripts]
-typing = "mypy --install-types --non-interactive {args:backend/src/hatchling src/hatch tests}"
-style = [
-  "ruff check {args:.}",
-  "ruff format --check --diff {args:.}",
-]
-fmt = [
-  "ruff check --fix {args:.}",
-  "ruff format {args:.}",
-]
-all = [
-  "style",
-  "typing",
-]
+[envs.types.scripts]
+check = "mypy --install-types --non-interactive {args:backend/src/hatchling src/hatch tests}"
 
 [envs.docs]
 dependencies = [
@@ -126,16 +112,22 @@ version = "cd backend && hatch version {args}"
 detached = true
 dependencies = [
   "httpx",
+  "ruff",
 ]
 [envs.upkeep.scripts]
 update-hatch = [
   "update-distributions",
+  "update-ruff",
 ]
 update-hatchling = [
   "update-licenses",
 ]
 update-distributions = "python scripts/update_distributions.py"
 update-licenses = "python backend/scripts/update_licenses.py"
+update-ruff = [
+  "python -m pip install --disable-pip-version-check --upgrade ruff",
+  "python scripts/update_ruff.py",
+]
 
 [envs.release]
 detached = true
