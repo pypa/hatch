@@ -675,11 +675,7 @@ class BuilderConfig:
 
                     sources[normalize_relative_directory(source)] = ''
             elif isinstance(raw_sources, dict):
-                for i, (source, path) in enumerate(raw_sources.items(), 1):
-                    if not source:
-                        message = f'Source #{i} in field `{sources_location}` cannot be an empty string'
-                        raise ValueError(message)
-
+                for source, path in raw_sources.items():
                     if not isinstance(path, str):
                         message = f'Path for source `{source}` in field `{sources_location}` must be a string'
                         raise TypeError(message)
@@ -690,7 +686,7 @@ class BuilderConfig:
                     else:
                         normalized_path += os.sep
 
-                    sources[normalize_relative_directory(source)] = normalized_path
+                    sources[normalize_relative_directory(source) if source else source] = normalized_path
             else:
                 message = f'Field `{sources_location}` must be a mapping or array of strings'
                 raise TypeError(message)
@@ -806,6 +802,9 @@ class BuilderConfig:
     def get_distribution_path(self, relative_path: str) -> str:
         # src/foo/bar.py -> foo/bar.py
         for source, replacement in self.sources.items():
+            if not source:
+                return replacement + relative_path
+
             if relative_path.startswith(source):
                 return relative_path.replace(source, replacement, 1)
 

@@ -152,6 +152,15 @@ If you want to remove path prefixes entirely, rather than setting each to an emp
 sources = ["src"]
 ```
 
+If you want to add a prefix to paths, you can use an empty string. For example, the following configuration:
+
+```toml config-example
+[tool.hatch.build.sources]
+"" = "foo"
+```
+
+would distribute the file `bar/file.ext` as `foo/bar/file.ext`.
+
 The [packages](#packages) option itself relies on sources. Defining `#!toml packages = ["src/foo"]` for the `wheel` target is equivalent to the following:
 
 ```toml config-example
