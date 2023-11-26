@@ -12,5 +12,10 @@ def get_internal_environment_class(env_name: str) -> type[InternalEnvironment]:
 
         return InternalBuildEnvironment
 
+    if env_name == 'fmt':
+        from hatch.env.internal.fmt import InternalFormatEnvironment
+
+        return InternalFormatEnvironment
+
     message = f'Unknown internal environment: {env_name}'
     raise ValueError(message)

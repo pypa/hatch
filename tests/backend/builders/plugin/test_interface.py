@@ -118,7 +118,7 @@ class TestBuildValidation:
         builder.get_version_api = lambda: {'1': str}
 
         with pytest.raises(ValueError, match='Unknown versions for target `foo`: 42, 9000'):
-            next(builder.build(str(isolation), versions=['9000', '42']))
+            next(builder.build(directory=str(isolation), versions=['9000', '42']))
 
     def test_invalid_metadata(self, isolation):
         config = {
@@ -133,7 +133,7 @@ class TestBuildValidation:
             ValueError,
             match='Metadata field `version` cannot be both statically defined and listed in field `project.dynamic`',
         ):
-            next(builder.build(str(isolation)))
+            next(builder.build(directory=str(isolation)))
 
 
 class TestHookConfig:

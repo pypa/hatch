@@ -132,7 +132,7 @@ class BorrowedStatus(TerminalStatus):
 
 
 class Terminal:
-    def __init__(self, verbosity, enable_color, interactive):
+    def __init__(self, *, verbosity: int, enable_color: bool | None, interactive: bool | None):
         self.verbosity = verbosity
         self.console = Console(
             force_terminal=enable_color,
@@ -158,7 +158,7 @@ class Terminal:
         self._style_spinner = 'simpleDotsScrolling'
 
     @cached_property
-    def kv_separator(self) -> Style:
+    def kv_separator(self) -> Text:
         return self.style_warning('->')
 
     def style_success(self, text: str) -> Text:
@@ -287,11 +287,11 @@ class Terminal:
         table = Table(title=title, show_lines=show_lines, title_style='', **table_options)
         columns = dict(columns)
 
-        for title, indices in list(columns.items()):
+        for column_title, indices in list(columns.items()):
             if indices:
-                table.add_column(title, style='bold', **column_options.get(title, {}))
+                table.add_column(column_title, style='bold', **column_options.get(column_title, {}))
             else:
-                columns.pop(title)
+                columns.pop(column_title)
 
         if not columns:
             return
@@ -310,8 +310,8 @@ class Terminal:
             is_interactive=self.console.is_interactive,
             verbosity=self.verbosity,
             spinner_style=self._style_spinner,
-            waiting_style=self._style_level_waiting,
-            success_style=self._style_level_success,
+            waiting_style=self._style_level_waiting,  # type: ignore[arg-type]
+            success_style=self._style_level_success,  # type: ignore[arg-type]
             initializer=lambda: setattr(self.platform, 'displaying_status', True),  # type: ignore[attr-defined]
             finalizer=lambda: setattr(self.platform, 'displaying_status', False),  # type: ignore[attr-defined]
         )

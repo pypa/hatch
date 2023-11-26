@@ -125,7 +125,7 @@ class ContextStringFormatter(string.Formatter):
     def vformat(self, format_string: str, args: Sequence[Any], kwargs: Mapping[str, Any]) -> str:
         # We override to increase the recursion limit from 2 to 10
         #
-        # TODO remove type ignore after https://github.com/python/typeshed/pull/9228
+        # TODO: remove type ignore after https://github.com/python/typeshed/pull/9228
         used_args = set()  # type: ignore[var-annotated]
         result, _ = self._vformat(format_string, args, kwargs, used_args, 10)
         self.check_unused_args(used_args, args, kwargs)

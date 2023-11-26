@@ -3,7 +3,7 @@ from __future__ import annotations
 import time
 from contextlib import contextmanager
 from secrets import choice
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Generator
 
 import httpx
 
@@ -15,7 +15,7 @@ MAXIMUM_SLEEP = 20
 
 
 @contextmanager
-def streaming_response(*args: Any, **kwargs: Any) -> httpx.Response:
+def streaming_response(*args: Any, **kwargs: Any) -> Generator[httpx.Response, None, None]:
     attempts = 0
     while True:
         attempts += 1

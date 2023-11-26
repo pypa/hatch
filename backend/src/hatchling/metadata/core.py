@@ -1118,10 +1118,10 @@ class CoreMetadata:
                 message = 'Field `project.entry-points` must be a table'
                 raise TypeError(message)
 
-            for forbidden_field in ('scripts', 'gui-scripts'):
+            for forbidden_field, expected_field in (('console_scripts', 'scripts'), ('gui-scripts', 'gui-scripts')):
                 if forbidden_field in defined_entry_point_groups:
                     message = (
-                        f'Field `{forbidden_field}` must be defined as `project.{forbidden_field}` '
+                        f'Field `{forbidden_field}` must be defined as `project.{expected_field}` '
                         f'instead of in the `project.entry-points` table'
                     )
                     raise ValueError(message)

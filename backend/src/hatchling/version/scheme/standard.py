@@ -69,8 +69,8 @@ class StandardScheme(VersionSchemeInterface):
 def reset_version_parts(version: Version, **kwargs: Any) -> None:
     # https://github.com/pypa/packaging/blob/20.9/packaging/version.py#L301-L310
     internal_version = version._version  # noqa: SLF001
-    parts: dict[str, Any] = {'epoch': 0}
-    ordered_part_names = ('release', 'pre', 'post', 'dev', 'local')
+    parts: dict[str, Any] = {}
+    ordered_part_names = ('epoch', 'release', 'pre', 'post', 'dev', 'local')
 
     reset = False
     for part_name in ordered_part_names:

@@ -85,6 +85,9 @@ exclude = [
   "/scripts",
 ]
 
+[tool.hatch.format]
+config-path = "ruff_defaults.toml"
+
 [tool.mypy]
 disallow_untyped_defs = false
 disallow_incomplete_defs = false

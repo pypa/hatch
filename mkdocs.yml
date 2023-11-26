@@ -69,6 +69,7 @@ nav:
     - Environments:
       - Overview: config/environment/overview.md
       - Advanced: config/environment/advanced.md
+    - Static analysis: config/static-analysis.md
     - Context formatting: config/context.md
     - Project templates: config/project-templates.md
     - Hatch: config/hatch.md
@@ -127,6 +128,7 @@ watch:
 hooks:
 - docs/.hooks/expand_blocks.py
 - docs/.hooks/inject_version.py
+- docs/.hooks/render_ruff_defaults.py
 
 plugins:
   # Built-in

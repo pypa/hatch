@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ***Fixed:***
 
 - Fix parsing dependencies for environments when warnings are emitted
+- Properly handle non-zero version epoch for the `standard` version scheme
 
 ## [1.18.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.18.0) - 2023-06-12 ## {: #hatchling-v1.18.0 }
 
