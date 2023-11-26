@@ -28,7 +28,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ['3.8', '3.9', '3.10', '3.11']
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
 
     steps:
     - uses: actions/checkout@v3
@@ -41,9 +41,16 @@ jobs:
     - name: Install Hatch
       run: pip install --upgrade hatch
 
+    - name: Run static analysis
+      run: hatch fmt --check
+
     - name: Run tests
       run: hatch run cov
 """  # noqa: E501
 
-    def __init__(self, template_config: dict, plugin_config: dict):
+    def __init__(
+        self,
+        template_config: dict,  # noqa: ARG002
+        plugin_config: dict,  # noqa: ARG002
+    ):
         super().__init__(Path('.github', 'workflows', 'test.yml'), self.TEMPLATE)

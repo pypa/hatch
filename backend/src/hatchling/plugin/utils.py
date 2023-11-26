@@ -37,11 +37,12 @@ def load_plugin_from_script(path: str, script_name: str, plugin_class: type[T], 
     if not subclasses:
         message = f'Unable to find a subclass of `{plugin_class.__name__}` in `{script_name}`: {path}'
         raise ValueError(message)
-    elif len(subclasses) > 1:
+
+    if len(subclasses) > 1:
         message = (
             f'Multiple subclasses of `{plugin_class.__name__}` found in `{script_name}`, '
             f'select one by defining a function named `{plugin_finder}`: {path}'
         )
         raise ValueError(message)
-    else:
-        return subclasses[0]
+
+    return subclasses[0]

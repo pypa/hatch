@@ -4,11 +4,11 @@ import pytest
 
 from hatch.project.core import Project
 from hatch.utils.structures import EnvVars
-from hatchling.utils.constants import DEFAULT_CONFIG_FILE
+from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT, DEFAULT_CONFIG_FILE
 
 
 @pytest.fixture(scope='module', autouse=True)
-def terminal_width():
+def _terminal_width():
     with EnvVars({'COLUMNS': '200'}):
         yield
 
@@ -29,6 +29,19 @@ def test_incompatible_environment(hatch, temp_dir, helpers):
     project.save_config(config)
     helpers.update_project_environment(
         project, 'default', {'skip-install': True, 'python': '9000', **project.config.envs['default']}
+    )
+
+    build_script = path / DEFAULT_BUILD_SCRIPT
+    build_script.write_text(
+        helpers.dedent(
+            """
+            from hatchling.metadata.plugin.interface import MetadataHookInterface
+
+            class CustomMetadataHook(MetadataHookInterface):
+                def update(self, metadata):
+                    pass
+            """
+        )
     )
 
     with path.as_cwd():

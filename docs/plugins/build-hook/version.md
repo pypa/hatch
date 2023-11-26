@@ -8,19 +8,10 @@ This writes the project's version to a file.
 
 The build hook plugin name is `version`.
 
-=== ":octicons-file-code-16: pyproject.toml"
-
-    ```toml
-    [tool.hatch.build.hooks.version]
-    [tool.hatch.build.targets.<TARGET_NAME>.hooks.version]
-    ```
-
-=== ":octicons-file-code-16: hatch.toml"
-
-    ```toml
-    [build.hooks.version]
-    [build.targets.<TARGET_NAME>.hooks.version]
-    ```
+```toml config-example
+[tool.hatch.build.hooks.version]
+[tool.hatch.build.targets.<TARGET_NAME>.hooks.version]
+```
 
 ## Options
 

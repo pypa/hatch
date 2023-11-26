@@ -16,14 +16,14 @@ def download_data(url):
         try:
             response = httpx.get(url)
             response.raise_for_status()
-        except Exception:
+        except Exception:  # noqa: BLE001
             time.sleep(1)
             continue
         else:
             return json.loads(response.content.decode('utf-8'))
 
     message = 'Download failed'
-    raise Exception(message)
+    raise ConnectionError(message)
 
 
 def main():

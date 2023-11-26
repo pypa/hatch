@@ -11,6 +11,7 @@ import click
 @click.pass_obj
 def new(app, name, location, interactive, feature_cli, initialize, setuptools_options):
     """Create or initialize a project."""
+    import sys
     from copy import deepcopy
     from datetime import datetime, timezone
 
@@ -52,11 +53,15 @@ def new(app, name, location, interactive, feature_cli, initialize, setuptools_op
 
     if migration_possible:
         from hatch.cli.new.migrate import migrate
+        from hatch.venv.core import TempVirtualEnv
 
         try:
-            with app.status('Migrating project metadata from setuptools'):
-                migrate(str(location), setuptools_options)
-        except Exception as e:
+            with app.status('Migrating project metadata from setuptools'), TempVirtualEnv(
+                sys.executable, app.platform
+            ) as venv:
+                app.platform.run_command(['python', '-m', 'pip', 'install', '-q', 'setuptools'])
+                migrate(str(location), setuptools_options, venv.sys_path)
+        except Exception as e:  # noqa: BLE001
             app.display_error(f'Could not automatically migrate from setuptools: {e}')
             if name == 'temporary':
                 name = app.prompt('Project name')
@@ -113,13 +118,13 @@ def new(app, name, location, interactive, feature_cli, initialize, setuptools_op
     template_files = []
 
     for template in templates:
-        for template_file in template.get_files(config=deepcopy(template_config)):
-            if template_file.__class__ is not File:
-                template_file = template_file(deepcopy(template_config), template.plugin_config)
-
-            if template_file.path is None:  # no cov
-                continue
-            elif initialize and str(template_file.path) != 'pyproject.toml':
+        for possible_template_file in template.get_files(config=deepcopy(template_config)):
+            template_file = (
+                possible_template_file(deepcopy(template_config), template.plugin_config)
+                if possible_template_file.__class__ is not File
+                else possible_template_file
+            )
+            if template_file.path is None or (initialize and str(template_file.path) != 'pyproject.toml'):
                 continue
 
             template_files.append(template_file)

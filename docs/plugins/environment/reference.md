@@ -8,29 +8,19 @@ See the documentation for [environment configuration](../../config/environment/o
 
 - [hatch-conda](https://github.com/OldGrumpyViking/hatch-conda) - environments backed by Conda/Mamba
 - [hatch-containers](https://github.com/ofek/hatch-containers) - environments run inside containers
+- [hatch-pip-compile](https://github.com/juftin/hatch-pip-compile) - use [pip-compile](https://github.com/jazzband/pip-tools) to manage project dependencies and lockfiles
 - [hatch-pip-deepfreeze](https://github.com/sbidoul/hatch-pip-deepfreeze) - [virtual](virtual.md) environments with dependency locking by [pip-deepfreeze](https://github.com/sbidoul/pip-deepfreeze)
 
 ## Installation
 
 Any required environment types that are not built-in must be manually installed alongside Hatch or listed in the `tool.hatch.env.requires` array for automatic management:
 
-=== ":octicons-file-code-16: pyproject.toml"
-
-    ```toml
-    [tool.hatch.env]
-    requires = [
-      "...",
-    ]
-    ```
-
-=== ":octicons-file-code-16: hatch.toml"
-
-    ```toml
-    [env]
-    requires = [
-      "...",
-    ]
-    ```
+```toml config-example
+[tool.hatch.env]
+requires = [
+  "...",
+]
+```
 
 ## Life cycle
 
@@ -78,6 +68,7 @@ All environment types should [offer support](#hatch.env.plugin.interface.Environ
       - install_project_dev_mode
       - dependencies_in_sync
       - sync_dependencies
+      - dependency_hash
       - build_environment
       - build_environment_exists
       - get_build_process

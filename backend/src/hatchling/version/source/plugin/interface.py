@@ -7,29 +7,25 @@ class VersionSourceInterface(ABC):  # no cov
     """
     Example usage:
 
-    === ":octicons-file-code-16: plugin.py"
-
-        ```python
-        from hatchling.version.source.plugin.interface import VersionSourceInterface
+    ```python tab="plugin.py"
+    from hatchling.version.source.plugin.interface import VersionSourceInterface
 
 
-        class SpecialVersionSource(VersionSourceInterface):
-            PLUGIN_NAME = 'special'
-            ...
-        ```
+    class SpecialVersionSource(VersionSourceInterface):
+        PLUGIN_NAME = 'special'
+        ...
+    ```
 
-    === ":octicons-file-code-16: hooks.py"
+    ```python tab="hooks.py"
+    from hatchling.plugin import hookimpl
 
-        ```python
-        from hatchling.plugin import hookimpl
-
-        from .plugin import SpecialVersionSource
+    from .plugin import SpecialVersionSource
 
 
-        @hookimpl
-        def hatch_register_version_source():
-            return SpecialVersionSource
-        ```
+    @hookimpl
+    def hatch_register_version_source():
+        return SpecialVersionSource
+    ```
     """
 
     PLUGIN_NAME = ''
@@ -49,17 +45,9 @@ class VersionSourceInterface(ABC):  # no cov
     @property
     def config(self) -> dict:
         """
-        === ":octicons-file-code-16: pyproject.toml"
-
-            ```toml
-            [tool.hatch.version]
-            ```
-
-        === ":octicons-file-code-16: hatch.toml"
-
-            ```toml
-            [version]
-            ```
+        ```toml config-example
+        [tool.hatch.version]
+        ```
         """
         return self.__config
 

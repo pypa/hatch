@@ -1887,7 +1887,7 @@ class TestPatternExclude:
 
     def test_override_default_global_exclude_patterns(self, isolation):
         builder = MockBuilder(str(isolation))
-        builder.config.default_global_exclude = lambda: []
+        builder.config.default_global_exclude = list
 
         assert builder.config.exclude_spec is None
         assert not builder.config.path_is_excluded('.git/file')

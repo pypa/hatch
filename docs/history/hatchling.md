@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Added:***
+
+- Officially support Python 3.12
+
 ***Fixed:***
 
 - Fix parsing dependencies for environments when warnings are emitted

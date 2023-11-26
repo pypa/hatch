@@ -118,7 +118,7 @@ class TestBuildValidation:
         builder.get_version_api = lambda: {'1': str}
 
         with pytest.raises(ValueError, match='Unknown versions for target `foo`: 42, 9000'):
-            next(builder.build(str(isolation), versions=['9000', '42']))
+            next(builder.build(directory=str(isolation), versions=['9000', '42']))
 
     def test_invalid_metadata(self, isolation):
         config = {
@@ -127,13 +127,13 @@ class TestBuildValidation:
         }
         builder = MockBuilder(str(isolation), config=config)
         builder.PLUGIN_NAME = 'foo'
-        builder.get_version_api = lambda: {'1': lambda *args, **kwargs: ''}
+        builder.get_version_api = lambda: {'1': lambda *_args, **_kwargs: ''}
 
         with pytest.raises(
             ValueError,
             match='Metadata field `version` cannot be both statically defined and listed in field `project.dynamic`',
         ):
-            next(builder.build(str(isolation)))
+            next(builder.build(directory=str(isolation)))
 
 
 class TestHookConfig:
@@ -146,7 +146,7 @@ class TestHookConfig:
 
 
 class TestDirectoryRecursion:
-    @pytest.mark.requires_unix
+    @pytest.mark.requires_unix()
     def test_infinite_loop_prevention(self, temp_dir):
         project_dir = temp_dir / 'project'
         project_dir.ensure_dir_exists()

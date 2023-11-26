@@ -9,9 +9,11 @@ from hatch.cli.clean import clean
 from hatch.cli.config import config
 from hatch.cli.dep import dep
 from hatch.cli.env import env
+from hatch.cli.fmt import fmt
 from hatch.cli.new import new
 from hatch.cli.project import project
 from hatch.cli.publish import publish
+from hatch.cli.python import python
 from hatch.cli.run import run
 from hatch.cli.shell import shell
 from hatch.cli.status import status
@@ -22,7 +24,9 @@ from hatch.utils.ci import running_in_ci
 from hatch.utils.fs import Path
 
 
-@click.group(context_settings={'help_option_names': ['-h', '--help']}, invoke_without_command=True)
+@click.group(
+    context_settings={'help_option_names': ['-h', '--help'], 'max_content_width': 120}, invoke_without_command=True
+)
 @click.option(
     '--env',
     '-e',
@@ -38,20 +42,6 @@ from hatch.utils.fs import Path
     help='The name of the project to work on [env var: `HATCH_PROJECT`]',
 )
 @click.option(
-    '--color/--no-color',
-    default=None,
-    help='Whether or not to display colored output (default is auto-detection) [env vars: `FORCE_COLOR`/`NO_COLOR`]',
-)
-@click.option(
-    '--interactive/--no-interactive',
-    envvar=AppEnvVars.INTERACTIVE,
-    default=None,
-    help=(
-        'Whether or not to allow features like prompts and progress bars (default is auto-detection) '
-        '[env var: `HATCH_INTERACTIVE`]'
-    ),
-)
-@click.option(
     '--verbose',
     '-v',
     envvar=AppEnvVars.VERBOSE,
@@ -64,6 +54,20 @@ from hatch.utils.fs import Path
     envvar=AppEnvVars.QUIET,
     count=True,
     help='Decrease verbosity (can be used additively) [env var: `HATCH_QUIET`]',
+)
+@click.option(
+    '--color/--no-color',
+    default=None,
+    help='Whether or not to display colored output (default is auto-detection) [env vars: `FORCE_COLOR`/`NO_COLOR`]',
+)
+@click.option(
+    '--interactive/--no-interactive',
+    envvar=AppEnvVars.INTERACTIVE,
+    default=None,
+    help=(
+        'Whether or not to allow features like prompts and progress bars (default is auto-detection) '
+        '[env var: `HATCH_INTERACTIVE`]'
+    ),
 )
 @click.option(
     '--data-dir',
@@ -83,7 +87,7 @@ from hatch.utils.fs import Path
 )
 @click.version_option(version=__version__, prog_name='Hatch')
 @click.pass_context
-def hatch(ctx: click.Context, env_name, project, color, interactive, verbose, quiet, data_dir, cache_dir, config_file):
+def hatch(ctx: click.Context, env_name, project, verbose, quiet, color, interactive, data_dir, cache_dir, config_file):
     """
     \b
      _   _       _       _
@@ -99,13 +103,17 @@ def hatch(ctx: click.Context, env_name, project, color, interactive, verbose, qu
         elif os.environ.get(AppEnvVars.FORCE_COLOR) == '1':
             color = True
 
-    if interactive is None:
-        interactive = not running_in_ci()
+    if interactive is None and running_in_ci():
+        interactive = False
 
-    app = Application(ctx.exit, verbose - quiet, color, interactive)
+    app = Application(ctx.exit, verbosity=verbose - quiet, enable_color=color, interactive=interactive)
 
     app.env_active = os.environ.get(AppEnvVars.ENV_ACTIVE)
-    if app.env_active and ctx.get_parameter_source('env_name').name == 'DEFAULT':  # type: ignore
+    if (
+        app.env_active
+        and (param_source := ctx.get_parameter_source('env_name')) is not None
+        and param_source.name == 'DEFAULT'
+    ):
         app.env = app.env_active
     else:
         app.env = env_name
@@ -113,7 +121,7 @@ def hatch(ctx: click.Context, env_name, project, color, interactive, verbose, qu
     if config_file:
         app.config_file.path = Path(config_file).resolve()
         if not app.config_file.path.is_file():
-            app.abort(f'The selected config file `{str(app.config_file.path)}` does not exist.')
+            app.abort(f'The selected config file `{app.config_file.path}` does not exist.')
     elif not app.config_file.path.is_file():
         if app.verbose:
             app.display_waiting('No config file found, creating one with default settings now...')
@@ -124,7 +132,7 @@ def hatch(ctx: click.Context, env_name, project, color, interactive, verbose, qu
                 app.display_success('Success! Please see `hatch config`.')
         except OSError:  # no cov
             app.abort(
-                f'Unable to create config file located at `{str(app.config_file.path)}`. Please check your permissions.'
+                f'Unable to create config file located at `{app.config_file.path}`. Please check your permissions.'
             )
 
     if not ctx.invoked_subcommand:
@@ -159,8 +167,9 @@ def hatch(ctx: click.Context, env_name, project, color, interactive, verbose, qu
 
     if app.config.mode == 'local':
         return
+
     # The following logic is mostly duplicated for each branch so coverage can be asserted
-    elif app.config.mode == 'project':
+    if app.config.mode == 'project':
         if not app.config.project:
             app.display_warning('Mode is set to `project` but no project is set, defaulting to the current directory')
             return
@@ -172,7 +181,8 @@ def hatch(ctx: click.Context, env_name, project, color, interactive, verbose, qu
             app.project = possible_project
 
         return
-    elif app.config.mode == 'aware' and app.project.root is None:
+
+    if app.config.mode == 'aware' and app.project.root is None:
         if not app.config.project:
             app.display_warning('Mode is set to `aware` but no project is set, defaulting to the current directory')
             return
@@ -191,9 +201,11 @@ hatch.add_command(clean)
 hatch.add_command(config)
 hatch.add_command(dep)
 hatch.add_command(env)
+hatch.add_command(fmt)
 hatch.add_command(new)
 hatch.add_command(project)
 hatch.add_command(publish)
+hatch.add_command(python)
 hatch.add_command(run)
 hatch.add_command(shell)
 hatch.add_command(status)
@@ -207,7 +219,7 @@ if __management_command:
 def main():  # no cov
     try:
         return hatch(prog_name='hatch', windows_expand_args=False)
-    except Exception:
+    except Exception:  # noqa: BLE001
         from rich.console import Console
 
         console = Console()

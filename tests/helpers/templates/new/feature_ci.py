@@ -5,10 +5,7 @@ from .default import get_files as get_template_files
 
 
 def get_files(**kwargs):
-    files = []
-    for f in get_template_files(**kwargs):
-        files.append(File(Path(f.path), f.contents))
-
+    files = [File(Path(f.path), f.contents) for f in get_template_files(**kwargs)]
     files.append(
         File(
             Path('.github', 'workflows', 'test.yml'),
@@ -37,7 +34,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ['3.8', '3.9', '3.10', '3.11']
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
 
     steps:
     - uses: actions/checkout@v3
@@ -49,6 +46,9 @@ jobs:
 
     - name: Install Hatch
       run: pip install --upgrade hatch
+
+    - name: Run static analysis
+      run: hatch fmt --check
 
     - name: Run tests
       run: hatch run cov

@@ -8,17 +8,9 @@ A [wheel](https://packaging.python.org/specifications/binary-distribution-format
 
 The builder plugin name is `wheel`.
 
-=== ":octicons-file-code-16: pyproject.toml"
-
-    ```toml
-    [tool.hatch.build.targets.wheel]
-    ```
-
-=== ":octicons-file-code-16: hatch.toml"
-
-    ```toml
-    [build.targets.wheel]
-    ```
+```toml config-example
+[tool.hatch.build.targets.wheel]
+```
 
 ## Options
 

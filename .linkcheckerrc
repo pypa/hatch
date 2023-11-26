@@ -1,2 +1,6 @@
 # https://linkchecker.github.io/linkchecker/man/linkcheckerrc.html
+[filtering]
+ignore=
+  https://docs.astral.sh/ruff/rules/.+
+
 [AnchorCheck]

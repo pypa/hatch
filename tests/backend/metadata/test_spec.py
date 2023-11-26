@@ -690,7 +690,7 @@ class TestCoreMetadataV21:
             """
         )
 
-    def test_all(self, constructor, isolation, helpers, temp_dir):
+    def test_all(self, constructor, helpers, temp_dir):
         metadata = ProjectMetadata(
             str(temp_dir),
             None,
@@ -1112,7 +1112,7 @@ class TestCoreMetadataV22:
             """
         )
 
-    def test_all(self, constructor, isolation, helpers, temp_dir):
+    def test_all(self, constructor, helpers, temp_dir):
         metadata = ProjectMetadata(
             str(temp_dir),
             None,

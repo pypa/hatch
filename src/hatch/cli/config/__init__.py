@@ -133,7 +133,7 @@ def set_value(app, key, value):
         app.abort()
     else:
         if not user_config['project'] and setting_project_location:
-            project = list(branch_config_root['projects'])[0]
+            project = next(iter(branch_config_root['projects']))
             user_config['project'] = project
             branch_config_root['project'] = project
 

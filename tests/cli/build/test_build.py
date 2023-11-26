@@ -10,7 +10,8 @@ from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT, DEFAULT_CONFIG_FILE
 pytestmark = [pytest.mark.usefixtures('local_builder')]
 
 
-def test_backend_not_build_system(hatch, temp_dir, helpers):
+@pytest.mark.requires_internet
+def test_other_backend(hatch, temp_dir, helpers):
     project_name = 'My.App'
 
     with temp_dir.as_cwd():
@@ -18,46 +19,58 @@ def test_backend_not_build_system(hatch, temp_dir, helpers):
         assert result.exit_code == 0, result.output
 
     path = temp_dir / 'my-app'
+    data_path = temp_dir / 'data'
+    data_path.mkdir()
 
     project = Project(path)
     config = dict(project.raw_config)
-    config['build-system']['build-backend'] = 'foo'
+    config['build-system']['requires'] = ['flit-core']
+    config['build-system']['build-backend'] = 'flit_core.buildapi'
+    config['project']['version'] = '0.0.1'
+    config['project']['dynamic'] = []
+    del config['project']['license']
     project.save_config(config)
 
-    with path.as_cwd():
+    build_directory = path / 'dist'
+    assert not build_directory.is_dir()
+
+    with path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
         result = hatch('build')
 
-    assert result.exit_code == 1, result.output
+    assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
         """
-        Field `build-system.build-backend` must be set to `hatchling.build`
+        Creating environment: build
+        Checking dependencies
+        Syncing dependencies
         """
     )
 
+    assert build_directory.is_dir()
+    assert (build_directory / 'my_app-0.0.1-py3-none-any.whl').is_file()
+    assert (build_directory / 'my_app-0.0.1.tar.gz').is_file()
 
-def test_backend_not_build_dependency(hatch, temp_dir, helpers):
-    project_name = 'My.App'
+    build_directory.remove()
+    with path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch('build', '-t', 'wheel')
 
-    with temp_dir.as_cwd():
-        result = hatch('new', project_name)
-        assert result.exit_code == 0, result.output
+    assert result.exit_code == 0, result.output
+    assert not result.output
 
-    path = temp_dir / 'my-app'
+    assert build_directory.is_dir()
+    assert (build_directory / 'my_app-0.0.1-py3-none-any.whl').is_file()
+    assert not (build_directory / 'my_app-0.0.1.tar.gz').is_file()
 
-    project = Project(path)
-    config = dict(project.raw_config)
-    config['build-system']['requires'] = []
-    project.save_config(config)
+    build_directory.remove()
+    with path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch('build', '-t', 'sdist')
 
-    with path.as_cwd():
-        result = hatch('build')
+    assert result.exit_code == 0, result.output
+    assert not result.output
 
-    assert result.exit_code == 1, result.output
-    assert result.output == helpers.dedent(
-        """
-        Field `build-system.requires` must specify `hatchling` as a requirement
-        """
-    )
+    assert build_directory.is_dir()
+    assert not (build_directory / 'my_app-0.0.1-py3-none-any.whl').is_file()
+    assert (build_directory / 'my_app-0.0.1.tar.gz').is_file()
 
 
 @pytest.mark.allow_backend_process
@@ -1138,9 +1151,9 @@ def test_build_dependencies(hatch, temp_dir, helpers):
                 return CustomWheelBuilder
 
             class CustomWheelBuilder(WheelBuilder):
-                def build(self, *args, **kwargs):
+                def build(self, **kwargs):
                     pathlib.Path('test.txt').write_text(str(binary.convert_units(1024)))
-                    yield from super().build(*args, **kwargs)
+                    yield from super().build(**kwargs)
             """
         )
     )
