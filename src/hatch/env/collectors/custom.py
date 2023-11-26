@@ -22,7 +22,8 @@ class CustomEnvironmentCollector:
         if not isinstance(custom_script, str):
             message = f'Option `path` for environment collector `{cls.PLUGIN_NAME}` must be a string'
             raise TypeError(message)
-        elif not custom_script:
+
+        if not custom_script:
             message = f'Option `path` for environment collector `{cls.PLUGIN_NAME}` must not be empty if defined'
             raise ValueError(message)
 

@@ -54,49 +54,25 @@ The last step of the setup process is to define any [dependencies](config/depend
 
 All project-specific configuration recognized by Hatch can be defined in either the `pyproject.toml` file, or a file named `hatch.toml` where options are not contained within the `tool.hatch` table:
 
-=== ":octicons-file-code-16: pyproject.toml"
+```toml config-example
+[tool.hatch]
+option = "..."
 
-    ```toml
-    [tool.hatch]
-    option = "..."
+[tool.hatch.table1]
+option = "..."
 
-    [tool.hatch.table1]
-    option = "..."
-
-    [tool.hatch.table2]
-    option = "..."
-    ```
-
-=== ":octicons-file-code-16: hatch.toml"
-
-    ```toml
-    option = "..."
-
-    [table1]
-    option = "..."
-
-    [table2]
-    option = "..."
-    ```
+[tool.hatch.table2]
+option = "..."
+```
 
 Top level keys in the latter file take precedence when defined in both.
 
 !!! tip
     If you want to make your file more compact, you can use [dotted keys](https://toml.io/en/v1.0.0#table), turning the above example into:
 
-    === ":octicons-file-code-16: pyproject.toml"
-
-        ```toml
-        [tool.hatch]
-        option = "..."
-        table1.option = "..."
-        table2.option = "..."
-        ```
-
-    === ":octicons-file-code-16: hatch.toml"
-
-        ```toml
-        option = "..."
-        table1.option = "..."
-        table2.option = "..."
-        ```
+    ```toml config-example
+    [tool.hatch]
+    option = "..."
+    table1.option = "..."
+    table2.option = "..."
+    ```

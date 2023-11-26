@@ -5,20 +5,16 @@ class EnvironmentCollectorInterface:
     """
     Example usage:
 
-    === ":octicons-file-code-16: plugin.py"
-
-        ```python
+    ```python tab="plugin.py"
         from hatch.env.collectors.plugin.interface import EnvironmentCollectorInterface
 
 
         class SpecialEnvironmentCollector(EnvironmentCollectorInterface):
             PLUGIN_NAME = 'special'
             ...
-        ```
+    ```
 
-    === ":octicons-file-code-16: hooks.py"
-
-        ```python
+    ```python tab="hooks.py"
         from hatchling.plugin import hookimpl
 
         from .plugin import SpecialEnvironmentCollector
@@ -27,7 +23,7 @@ class EnvironmentCollectorInterface:
         @hookimpl
         def hatch_register_environment_collector():
             return SpecialEnvironmentCollector
-        ```
+    ```
     """
 
     PLUGIN_NAME = ''
@@ -47,21 +43,13 @@ class EnvironmentCollectorInterface:
     @property
     def config(self) -> dict:
         """
-        === ":octicons-file-code-16: pyproject.toml"
-
-            ```toml
-            [tool.hatch.env.collectors.<PLUGIN_NAME>]
-            ```
-
-        === ":octicons-file-code-16: hatch.toml"
-
-            ```toml
-            [env.collectors.<PLUGIN_NAME>]
-            ```
+        ```toml config-example
+        [tool.hatch.env.collectors.<PLUGIN_NAME>]
+        ```
         """
         return self.__config
 
-    def get_initial_config(self) -> dict[str, dict]:
+    def get_initial_config(self) -> dict[str, dict]:  # noqa: PLR6301
         """
         Returns configuration for environments keyed by the environment or matrix name.
         """

@@ -33,13 +33,11 @@ You can select the repository with which to upload using the `-r`/`--repo` optio
 
 Rather than specifying the full URL of a repository, you can use a named repository from a `publish.index.repos` table defined in Hatch's [config file](config/hatch.md):
 
-=== ":octicons-file-code-16: config.toml"
-
-    ```toml
-    [publish.index.repos.private]
-    url = "..."
-    ...
-    ```
+```toml tab="config.toml"
+[publish.index.repos.private]
+url = "..."
+...
+```
 
 The following repository names are reserved by Hatch and cannot be overridden:
 
@@ -62,23 +60,12 @@ For automated releasing to PyPI, it is recommended that you use per-project [API
 
 You can require a confirmation prompt or use of the `-y`/`--yes` flag by setting publishers' `disable` option to `true` in either Hatch's [config file](config/hatch.md) or project-specific configuration (which takes precedence):
 
-=== ":octicons-file-code-16: config.toml"
+```toml tab="config.toml"
+[publish.index]
+disable = true
+```
 
-    ```toml
-    [publish.index]
-    disable = true
-    ```
-
-=== ":octicons-file-code-16: pyproject.toml"
-
-    ```toml
-    [tool.hatch.publish.index]
-    disable = true
-    ```
-
-=== ":octicons-file-code-16: hatch.toml"
-
-    ```toml
-    [publish.index]
-    disable = true
-    ```
+```toml config-example
+[tool.hatch.publish.index]
+disable = true
+```

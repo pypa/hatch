@@ -1,4 +1,11 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import click
+
+if TYPE_CHECKING:
+    from hatch.cli.application import Application
 
 
 @click.command(short_help='Build a project')
@@ -43,7 +50,7 @@ import click
 )
 @click.option('--clean-only', is_flag=True, hidden=True)
 @click.pass_obj
-def build(app, location, targets, hooks_only, no_hooks, ext, clean, clean_hooks_after, clean_only):
+def build(app: Application, location, targets, hooks_only, no_hooks, ext, clean, clean_hooks_after, clean_only):
     """Build a project."""
     app.ensure_environment_plugin_dependencies()
 
@@ -52,15 +59,6 @@ def build(app, location, targets, hooks_only, no_hooks, ext, clean, clean_hooks_
 
     from hatch.utils.fs import Path
     from hatch.utils.structures import EnvVars
-
-    if app.project.metadata.build.build_backend != 'hatchling.build':
-        app.abort('Field `build-system.build-backend` must be set to `hatchling.build`')
-
-    for requirement in app.project.metadata.build.requires_complex:
-        if requirement.name == 'hatchling':
-            break
-    else:
-        app.abort('Field `build-system.requires` must specify `hatchling` as a requirement')
 
     if location:
         path = str(Path(location).resolve())
@@ -72,6 +70,17 @@ def build(app, location, targets, hooks_only, no_hooks, ext, clean, clean_hooks_
         targets = ('wheel',)
     elif not targets:
         targets = ('sdist', 'wheel')
+
+    if app.project.metadata.build.build_backend != 'hatchling.build':
+        script = 'build-sdist' if targets == ('sdist',) else 'build-wheel' if targets == ('wheel',) else 'build-all'
+        environment = app.prepare_internal_environment('build')
+        app.run_shell_commands(
+            environment,
+            [environment.join_command_args([script])],
+            show_code_on_error=False,
+        )
+
+        return
 
     env_vars = {}
     if no_hooks:
@@ -101,20 +110,19 @@ def build(app, location, targets, hooks_only, no_hooks, ext, clean, clean_hooks_
             with environment.get_env_vars(), EnvVars(env_vars):
                 dependencies.extend(builder.config.dependencies)
 
-            with app.status_waiting(
+            with app.status_if(
                 'Setting up build environment', condition=not environment.build_environment_exists()
-            ) as status:
-                with environment.build_environment(dependencies) as build_environment:
-                    status.stop()
+            ) as status, environment.build_environment(dependencies) as build_environment:
+                status.stop()
 
-                    process = environment.get_build_process(
-                        build_environment,
-                        directory=path,
-                        targets=(target,),
-                        hooks_only=hooks_only,
-                        no_hooks=no_hooks,
-                        clean=clean,
-                        clean_hooks_after=clean_hooks_after,
-                        clean_only=clean_only,
-                    )
-                    app.attach_builder(process)
+                process = environment.get_build_process(
+                    build_environment,
+                    directory=path,
+                    targets=(target,),
+                    hooks_only=hooks_only,
+                    no_hooks=no_hooks,
+                    clean=clean,
+                    clean_hooks_after=clean_hooks_after,
+                    clean_only=clean_only,
+                )
+                app.attach_builder(process)

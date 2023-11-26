@@ -70,7 +70,8 @@ class Platform:
 
         return command
 
-    def exit_with_code(self, code: str | int | None) -> None:
+    @staticmethod
+    def exit_with_code(code: str | int | None) -> None:
         sys.exit(code)
 
     def _run_command_integrated(
@@ -152,9 +153,9 @@ class Platform:
             unprotected_paths = []
             for path in default_paths:
                 normalized_path = os.path.normpath(path)
-                if not normalized_path.startswith(('/System', '/usr', '/bin', '/sbin', '/var')):
-                    unprotected_paths.append(path)
-                elif normalized_path.startswith('/usr/local'):
+                if not normalized_path.startswith(
+                    ('/System', '/usr', '/bin', '/sbin', '/var')
+                ) or normalized_path.startswith('/usr/local'):
                     unprotected_paths.append(path)
 
             search_path = os.pathsep.join(unprotected_paths)
@@ -241,7 +242,7 @@ class Platform:
             process = self.run_command(command)
             self.exit_with_code(process.returncode)
         else:
-            os.execvp(command[0], command)
+            os.execvp(command[0], command)  # noqa: S606
 
     @property
     def name(self) -> str:

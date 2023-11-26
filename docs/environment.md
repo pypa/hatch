@@ -75,10 +75,20 @@ hatch run test -VV
 
 Hatch ensures that environments are always compatible with the currently defined [project dependencies](config/metadata.md#dependencies) (if [installed](config/environment/overview.md#skip-install) and in [dev mode](config/environment/overview.md#dev-mode)) and [environment dependencies](config/environment/overview.md#dependencies).
 
-For example, add `cowsay` as a dependency then try to run it:
+To add `cowsay` as a dependency, open `pyproject.toml` and add it to the [`dependencies`](config/metadata.md#dependencies) array:
+
+```toml tab="pyproject.toml"
+[project]
+...
+dependencies = [
+  "cowsay"
+]
+```
+
+This dependency will be installed the next time you [spawn a shell](#entering-environments) or [run a command](#command-execution). For example:
 
 ```console
-$ hatch run cowsay "Hello, world!"
+$ hatch run cowsay -t "Hello, world!"
 Syncing dependencies
   _____________
 | Hello, world! |
@@ -92,35 +102,24 @@ Syncing dependencies
                     ||     ||
 ```
 
+!!! note
+    The `Syncing dependencies` status will display temporarily when Hatch updates environments in response to any dependency changes that you make.
+
 ## Selection
 
 You can select which environment to enter or run commands in by using the `-e`/`--env` [root option](cli/reference.md#hatch) or by setting the `HATCH_ENV` environment variable.
 
 The [`run`](cli/reference.md#hatch-run) command allows for more explicit selection by prepending `<ENV_NAME>:` to commands. For example, if you had the following configuration:
 
-=== ":octicons-file-code-16: pyproject.toml"
-
-    ```toml
-    [tool.hatch.envs.docs]
-    dependencies = [
-      "mkdocs"
-    ]
-    [tool.hatch.envs.docs.scripts]
-    build = "mkdocs build --clean --strict"
-    serve = "mkdocs serve --dev-addr localhost:8000"
-    ```
-
-=== ":octicons-file-code-16: hatch.toml"
-
-    ```toml
-    [envs.docs]
-    dependencies = [
-      "mkdocs"
-    ]
-    [envs.docs.scripts]
-    build = "mkdocs build --clean --strict"
-    serve = "mkdocs serve --dev-addr localhost:8000"
-    ```
+```toml config-example
+[tool.hatch.envs.docs]
+dependencies = [
+  "mkdocs"
+]
+[tool.hatch.envs.docs.scripts]
+build = "mkdocs build --clean --strict"
+serve = "mkdocs serve --dev-addr localhost:8000"
+```
 
 you could then serve your documentation by running:
 
@@ -135,41 +134,21 @@ hatch run docs:serve
 
 Every environment can define its own set of [matrices](config/environment/advanced.md#matrix):
 
-=== ":octicons-file-code-16: pyproject.toml"
+```toml config-example
+[tool.hatch.envs.test]
+dependencies = [
+  "pytest"
+]
 
-    ```toml
-    [tool.hatch.envs.test]
-    dependencies = [
-      "pytest"
-    ]
+[[tool.hatch.envs.test.matrix]]
+python = ["2.7", "3.8"]
+version = ["42", "3.14"]
 
-    [[tool.hatch.envs.test.matrix]]
-    python = ["2.7", "3.8"]
-    version = ["42", "3.14"]
-
-    [[tool.hatch.envs.test.matrix]]
-    python = ["3.8", "3.9"]
-    version = ["9000"]
-    features = ["foo", "bar"]
-    ```
-
-=== ":octicons-file-code-16: hatch.toml"
-
-    ```toml
-    [envs.test]
-    dependencies = [
-      "pytest"
-    ]
-
-    [[envs.test.matrix]]
-    python = ["2.7", "3.8"]
-    version = ["42", "3.14"]
-
-    [[envs.test.matrix]]
-    python = ["3.8", "3.9"]
-    version = ["9000"]
-    features = ["foo", "bar"]
-    ```
+[[tool.hatch.envs.test.matrix]]
+python = ["3.8", "3.9"]
+version = ["9000"]
+features = ["foo", "bar"]
+```
 
 Using the [`env show`](cli/reference.md#hatch-env-show) command would then display:
 

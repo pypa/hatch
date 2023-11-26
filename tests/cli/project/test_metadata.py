@@ -57,6 +57,7 @@ class TestBuildDependenciesInstalled:
                     "Programming Language :: Python :: 3.9",
                     "Programming Language :: Python :: 3.10",
                     "Programming Language :: Python :: 3.11",
+                    "Programming Language :: Python :: 3.12",
                     "Programming Language :: Python :: Implementation :: CPython",
                     "Programming Language :: Python :: Implementation :: PyPy"
                 ],
@@ -139,7 +140,7 @@ class TestBuildDependenciesInstalled:
 
 
 class TestBuildDependenciesMissing:
-    @pytest.mark.allow_backend_process
+    @pytest.mark.allow_backend_process()
     def test_incompatible_environment(self, hatch, temp_dir, helpers):
         project_name = 'My.App'
 
@@ -213,6 +214,7 @@ class TestBuildDependenciesMissing:
                     "Programming Language :: Python :: 3.9",
                     "Programming Language :: Python :: 3.10",
                     "Programming Language :: Python :: 3.11",
+                    "Programming Language :: Python :: 3.12",
                     "Programming Language :: Python :: Implementation :: CPython",
                     "Programming Language :: Python :: Implementation :: PyPy"
                 ],
@@ -364,6 +366,7 @@ Setting up build environment for missing dependencies
                     "Programming Language :: Python :: 3.9",
                     "Programming Language :: Python :: 3.10",
                     "Programming Language :: Python :: 3.11",
+                    "Programming Language :: Python :: 3.12",
                     "Programming Language :: Python :: Implementation :: CPython",
                     "Programming Language :: Python :: Implementation :: PyPy"
                 ],

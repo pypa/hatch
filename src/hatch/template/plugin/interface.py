@@ -13,10 +13,9 @@ class TemplateInterface:
         before the list of files are determined.
         """
 
-    def get_files(self, config):
+    def get_files(self, config):  # noqa: ARG002, PLR6301
         """Add to the list of files for new projects that are written to the file system."""
         return []
 
     def finalize_files(self, config, files):
         """Allow modification of files for new projects before they are written to the file system."""
-        pass

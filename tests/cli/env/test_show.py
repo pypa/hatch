@@ -8,7 +8,7 @@ from hatchling.utils.constants import DEFAULT_CONFIG_FILE
 
 
 @pytest.fixture(scope='module', autouse=True)
-def terminal_width():
+def _terminal_width():
     with EnvVars({'COLUMNS': '200'}):
         yield
 
@@ -439,15 +439,15 @@ def test_context_formatting(hatch, helpers, temp_dir, config_file):
         +======+=========+==============+=======================+
         | foo  | virtual | pydantic     | BAR=FOO_BAR           |
         +------+---------+--------------+-----------------------+
-                                  Matrices
-        +---------+---------+------------+-------------------------+
-        | Name    | Type    | Envs       | Dependencies            |
-        +=========+=========+============+=========================+
-        | default | virtual | py39-9000  | foo @ {root:uri}/../foo |
-        |         |         | py39-3.14  |                         |
-        |         |         | py310-9000 |                         |
-        |         |         | py310-3.14 |                         |
-        +---------+---------+------------+-------------------------+
+                                 Matrices
+        +---------+---------+------------+------------------------+
+        | Name    | Type    | Envs       | Dependencies           |
+        +=========+=========+============+========================+
+        | default | virtual | py39-9000  | foo@ {root:uri}/../foo |
+        |         |         | py39-3.14  |                        |
+        |         |         | py310-9000 |                        |
+        |         |         | py310-3.14 |                        |
+        +---------+---------+------------+------------------------+
         """
     )
 

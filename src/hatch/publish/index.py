@@ -20,13 +20,13 @@ class IndexPublisher(PublisherInterface):
         repos = {}
         for repo, data in defined_repos.items():
             if isinstance(data, str):
-                data = {'url': data}
+                repos[repo] = {'url': data}
             elif not isinstance(data, dict):
                 self.app.abort(f'Hatch config field `publish.index.repos.{repo}` must be a string or a mapping')
             elif 'url' not in data:
                 self.app.abort(f'Hatch config field `publish.index.repos.{repo}` must define a `url` key')
-
-            repos[repo] = data
+            else:
+                repos[repo] = data
 
         # Ensure PyPI correct
         for repo, url in (('main', 'https://upload.pypi.org/legacy/'), ('test', 'https://test.pypi.org/legacy/')):
@@ -78,7 +78,7 @@ class IndexPublisher(PublisherInterface):
                     if options['no_prompt']:
                         self.app.abort('Missing required option: user')
                     else:
-                        user = updated_user = self.app.prompt('Enter your username')
+                        user = updated_user = self.app.prompt('Enter your username', default='__TOKEN__')
         index.user = user
 
         updated_auth = None
@@ -129,7 +129,7 @@ class IndexPublisher(PublisherInterface):
                 try:
                     response = index.get_simple_api(project_name)
                     response.raise_for_status()
-                except Exception:  # no cov
+                except Exception:  # no cov  # noqa: BLE001
                     existing_artifacts[project_name] = set()
                 else:
                     existing_artifacts[project_name] = set(parse_artifacts(response.text))
@@ -140,7 +140,7 @@ class IndexPublisher(PublisherInterface):
 
             try:
                 index.upload_artifact(artifact, data)
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 self.app.display_error('failed')
                 self.app.abort(f'Error uploading to repository: {index.repo} - {e}'.replace(index.auth, '*****'))
             else:
@@ -171,8 +171,8 @@ class IndexPublisher(PublisherInterface):
 
 
 def recurse_artifacts(artifacts: list, root) -> Iterable[Path]:
-    for artifact in artifacts:
-        artifact = Path(artifact)
+    for raw_artifact in artifacts:
+        artifact = Path(raw_artifact)
         if not artifact.is_absolute():
             artifact = root / artifact
 

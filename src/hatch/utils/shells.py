@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import sys
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable
     from types import FrameType
 
     from hatch.env.plugin.interface import EnvironmentInterface
@@ -14,10 +15,10 @@ class ShellManager:
     def __init__(self, environment: EnvironmentInterface) -> None:
         self.environment = environment
 
-    def enter_cmd(self, path: str, args: list[str], exe_dir: Path) -> None:
+    def enter_cmd(self, path: str, args: Iterable[str], exe_dir: Path) -> None:  # noqa: ARG002
         self.environment.platform.exit_with_command([path or 'cmd', '/k', str(exe_dir / 'activate.bat')])
 
-    def enter_powershell(self, path: str, args: list[str], exe_dir: Path) -> None:
+    def enter_powershell(self, path: str, args: Iterable[str], exe_dir: Path) -> None:  # noqa: ARG002
         self.environment.platform.exit_with_command(
             [
                 path or 'powershell',
@@ -30,10 +31,10 @@ class ShellManager:
             ]
         )
 
-    def enter_pwsh(self, path: str, args: list[str], exe_dir: Path) -> None:
+    def enter_pwsh(self, path: str, args: Iterable[str], exe_dir: Path) -> None:
         self.enter_powershell(path or 'pwsh', args, exe_dir)
 
-    def enter_xonsh(self, path: str, args: list[str], exe_dir: Path) -> None:
+    def enter_xonsh(self, path: str, args: Iterable[str], exe_dir: Path) -> None:
         if self.environment.platform.windows:
             with self.environment:
                 self.environment.platform.exit_with_command(
@@ -47,7 +48,7 @@ class ShellManager:
                 callback=lambda terminal: terminal.sendline(f'$PATH.insert(0, {str(exe_dir)!r})'),
             )
 
-    def enter_bash(self, path: str, args: list[str], exe_dir: Path) -> None:
+    def enter_bash(self, path: str, args: Iterable[str], exe_dir: Path) -> None:
         if self.environment.platform.windows:
             self.environment.platform.exit_with_command(
                 [path or 'bash', '--init-file', exe_dir / 'activate', *(args or ['-i'])]
@@ -55,29 +56,27 @@ class ShellManager:
         else:
             self.spawn_linux_shell(path or 'bash', args or ['-i'], script=exe_dir / 'activate')
 
-    def enter_fish(self, path: str, args: list[str], exe_dir: Path) -> None:
+    def enter_fish(self, path: str, args: Iterable[str], exe_dir: Path) -> None:
         self.spawn_linux_shell(path or 'fish', args or ['-i'], script=exe_dir / 'activate.fish')
 
-    def enter_zsh(self, path: str, args: list[str], exe_dir: Path) -> None:
+    def enter_zsh(self, path: str, args: Iterable[str], exe_dir: Path) -> None:
         self.spawn_linux_shell(path or 'zsh', args or ['-i'], script=exe_dir / 'activate')
 
-    def enter_ash(self, path: str, args: list[str], exe_dir: Path) -> None:
+    def enter_ash(self, path: str, args: Iterable[str], exe_dir: Path) -> None:
         self.spawn_linux_shell(path or 'ash', args or ['-i'], script=exe_dir / 'activate')
 
-    def enter_nu(self, path: str, args: list[str], exe_dir: Path) -> None:
+    def enter_nu(self, path: str, args: Iterable[str], exe_dir: Path) -> None:
         executable = path or 'nu'
         activation_script = exe_dir / 'activate.nu'
         if self.environment.platform.windows:
-            self.environment.platform.exit_with_command(
-                [executable, '-c', f'source "{activation_script}"; "{executable}"']
-            )
+            self.environment.platform.exit_with_command([executable, '-e', f'overlay use {str(activation_script)!r}'])
         else:
-            self.spawn_linux_shell(executable, args or None, script=activation_script)
+            self.spawn_linux_shell(executable, args, script=activation_script)
 
-    def enter_tcsh(self, path: str, args: list[str], exe_dir: Path) -> None:
+    def enter_tcsh(self, path: str, args: Iterable[str], exe_dir: Path) -> None:
         self.spawn_linux_shell(path or 'tcsh', args or ['-i'], script=exe_dir / 'activate.csh')
 
-    def enter_csh(self, path: str, args: list[str], exe_dir: Path) -> None:
+    def enter_csh(self, path: str, args: Iterable[str], exe_dir: Path) -> None:
         self.spawn_linux_shell(path or 'csh', args or ['-i'], script=exe_dir / 'activate.csh')
 
     if sys.platform == 'win32':
@@ -85,7 +84,7 @@ class ShellManager:
         def spawn_linux_shell(
             self,
             path: str,
-            args: list[str] | None = None,
+            args: Iterable[str] | None = None,
             *,
             script: Path | None = None,
             callback: Callable | None = None,
@@ -97,7 +96,7 @@ class ShellManager:
         def spawn_linux_shell(
             self,
             path: str,
-            args: list[str] | None = None,
+            args: Iterable[str] | None = None,
             *,
             script: Path | None = None,
             callback: Callable | None = None,
@@ -108,9 +107,10 @@ class ShellManager:
             import pexpect
 
             columns, lines = shutil.get_terminal_size()
-            terminal = pexpect.spawn(path, args=args, dimensions=(lines, columns))
+            # pexpect only accepts lists
+            terminal = pexpect.spawn(path, args=list(args or ()), dimensions=(lines, columns))
 
-            def sigwinch_passthrough(sig: int, data: FrameType | None) -> None:
+            def sigwinch_passthrough(sig: int, data: FrameType | None) -> None:  # noqa: ARG001
                 new_columns, new_lines = shutil.get_terminal_size()
                 terminal.setwinsize(new_lines, new_columns)
 

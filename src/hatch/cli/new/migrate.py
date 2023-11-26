@@ -17,9 +17,9 @@ def _apply_env_vars(kwargs):
 def _parse_dependencies(dependency_definition):
     dependencies = []
     for line in dependency_definition.splitlines():
-        line = line.split(' #', 1)[0].strip()
-        if line:
-            dependencies.append(line)
+        dependency = line.split(' #', 1)[0].strip()
+        if dependency:
+            dependencies.append(dependency)
 
     return dependencies
 
@@ -94,8 +94,8 @@ def _parse_setup_cfg(kwargs):
 
         if 'packages' in options and 'packages' not in kwargs:
             packages = []
-            for package in options['packages'].strip().splitlines():
-                package = package.replace('find:', '', 1).replace('find_namespace:', '', 1).strip()
+            for package_spec in options['packages'].strip().splitlines():
+                package = package_spec.replace('find:', '', 1).replace('find_namespace:', '', 1).strip()
                 if package:
                     packages.append(package)
 
@@ -165,11 +165,13 @@ def setup(**kwargs):
         collaborator_names = []
         collaborator_emails = []
         if collaborator in kwargs:
-            for collaborator_name in kwargs[collaborator].split(','):
-                collaborator_names.append(collaborator_name.strip())
+            collaborator_names.extend(
+                collaborator_name.strip() for collaborator_name in kwargs[collaborator].split(',')
+            )
         if f'{collaborator}_email' in kwargs:
-            for collaborator_email in kwargs[f'{collaborator}_email'].split(','):
-                collaborator_emails.append(collaborator_email.strip())
+            collaborator_emails.extend(
+                collaborator_email.strip() for collaborator_email in kwargs[f'{collaborator}_email'].split(',')
+            )
 
         for collaborator_name, collaborator_email in itertools.zip_longest(collaborator_names, collaborator_emails):
             data = {}
@@ -224,9 +226,8 @@ def setup(**kwargs):
 
     if 'entry_points' in kwargs and isinstance(kwargs['entry_points'], dict):
         entry_points = {}
-        for entry_point, definitions in kwargs['entry_points'].items():
-            if isinstance(definitions, str):
-                definitions = [definitions]
+        for entry_point, raw_definitions in kwargs['entry_points'].items():
+            definitions = [raw_definitions] if isinstance(raw_definitions, str) else raw_definitions
             definitions = dict(sorted(d.replace(' ', '').split('=', 1) for d in definitions))
 
             if entry_point == 'console_scripts':
@@ -305,7 +306,7 @@ def setup(**kwargs):
             current_contents = f.read()
 
         for section in ('build-system', 'project'):
-            for pattern in (fr'^\[{section}].*?(?=^\[)', fr'^\[{section}].*'):
+            for pattern in (rf'^\[{section}].*?(?=^\[)', rf'^\[{section}].*'):
                 current_contents = re.sub(pattern, '', current_contents, flags=re.MULTILINE | re.DOTALL)
 
         output += f'\n{current_contents}'
@@ -330,7 +331,7 @@ if __name__ == 'setuptools':
     del __current_directory
 
 
-def migrate(root, setuptools_options):
+def migrate(root, setuptools_options, sys_paths):
     import shutil
     import subprocess
     from tempfile import TemporaryDirectory
@@ -339,30 +340,28 @@ def migrate(root, setuptools_options):
         repo_dir = os.path.join(os.path.realpath(temp_dir), 'repo')
         shutil.copytree(root, repo_dir, ignore=shutil.ignore_patterns('.git', '.tox'), copy_function=shutil.copy)
         shutil.copy(FILE, os.path.join(repo_dir, 'setuptools.py'))
-        os.chdir(repo_dir)
         setup_py = os.path.join(repo_dir, 'setup.py')
 
         if not os.path.isfile(setup_py):
             # Synthesize a small setup.py file since there is none
             with open(setup_py, 'w', encoding='utf-8') as f:
-                f.write('import setuptools\nsetuptools.setup()\n')
+                f.write('from setuptools import setup\nsetup()\n')
 
-        try:
-            env = dict(os.environ)
-            for arg in setuptools_options:
-                key, value = arg.split('=', 1)
-                env[f'{ENV_VAR_PREFIX}{key}'] = value
+        env = dict(os.environ)
+        for arg in setuptools_options:
+            key, value = arg.split('=', 1)
+            env[f'{ENV_VAR_PREFIX}{key}'] = value
 
-            # When PYTHONSAFEPATH is non-empty, current dir is not added automatically
-            if env.get('PYTHONPATH'):
-                env['PYTHONPATH'] = f'{repo_dir}{os.pathsep}{env["PYTHONPATH"]}'
-            else:
-                env['PYTHONPATH'] = repo_dir
+        # When PYTHONSAFEPATH is non-empty, the current directory is not added automatically
+        python_paths = [repo_dir]
+        python_paths.extend(p for p in sys_paths if p)
+        if python_path := env.get('PYTHONPATH', ''):
+            python_paths.append(python_path)
 
-            subprocess.check_call([sys.executable, setup_py], env=env)
+        env['PYTHONPATH'] = os.pathsep.join(python_paths)
 
-            old_project_file = os.path.join(root, 'pyproject.toml')
-            new_project_file = os.path.join(repo_dir, 'pyproject.toml')
-            shutil.copyfile(new_project_file, old_project_file)
-        finally:
-            os.chdir(root)
+        subprocess.run([sys.executable, setup_py], env=env, cwd=repo_dir, check=True)
+
+        old_project_file = os.path.join(root, 'pyproject.toml')
+        new_project_file = os.path.join(repo_dir, 'pyproject.toml')
+        shutil.copyfile(new_project_file, old_project_file)

@@ -8,11 +8,9 @@ See the documentation for [publishing](../../publish.md).
 
 The publisher plugin name is `index`.
 
-=== ":octicons-file-code-16: config.toml"
-
-    ```toml
-    [publish.index]
-    ```
+```toml tab="config.toml"
+[publish.index]
+```
 
 ## Options
 
@@ -30,14 +28,12 @@ The publisher plugin name is `index`.
 
 All top-level options can be overridden per repository using the `repos` table with a required `url` attribute for each repository. The following shows the default configuration:
 
-=== ":octicons-file-code-16: config.toml"
+```toml tab="config.toml"
+[publish.index.repos.main]
+url = "https://upload.pypi.org/legacy/"
 
-    ```toml
-    [publish.index.repos.main]
-    url = "https://upload.pypi.org/legacy/"
-
-    [publish.index.repos.test]
-    url = "https://test.pypi.org/legacy/"
-    ```
+[publish.index.repos.test]
+url = "https://test.pypi.org/legacy/"
+```
 
 The `repo` and `repos` options have no effect.

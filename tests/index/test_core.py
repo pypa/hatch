@@ -12,7 +12,7 @@ class TestRepo:
 
 class TestURLs:
     @pytest.mark.parametrize(
-        'repo_url, expected_url',
+        ('repo_url', 'expected_url'),
         [
             pytest.param('https://upload.pypi.org/legacy/', 'https://pypi.org/simple/', id='PyPI main'),
             pytest.param('https://test.pypi.org/legacy/', 'https://test.pypi.org/simple/', id='PyPI test'),
@@ -25,7 +25,7 @@ class TestURLs:
         assert str(index.urls.simple) == expected_url
 
     @pytest.mark.parametrize(
-        'repo_url, expected_url',
+        ('repo_url', 'expected_url'),
         [
             pytest.param('https://upload.pypi.org/legacy/', 'https://pypi.org/project/', id='PyPI main'),
             pytest.param('https://test.pypi.org/legacy/', 'https://test.pypi.org/project/', id='PyPI test'),

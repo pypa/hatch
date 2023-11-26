@@ -8,7 +8,7 @@ from hatch.utils.platform import Platform
 from hatch.utils.structures import EnvVars
 
 
-@pytest.mark.requires_windows
+@pytest.mark.requires_windows()
 class TestWindows:
     def test_tag(self):
         assert Platform().windows is True
@@ -45,7 +45,7 @@ class TestWindows:
         assert kwargs['executable'] == 'foo'
 
 
-@pytest.mark.requires_macos
+@pytest.mark.requires_macos()
 class TestMacOS:
     def test_tag(self):
         assert Platform().macos is True
@@ -85,7 +85,7 @@ class TestMacOS:
         assert kwargs['executable'] == str(executable)
 
 
-@pytest.mark.requires_linux
+@pytest.mark.requires_linux()
 class TestLinux:
     def test_tag(self):
         assert Platform().linux is True

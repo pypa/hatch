@@ -6,31 +6,16 @@
 
 Builds are [configured](config/build.md) using the `tool.hatch.build` table. Every [target](config/build.md#build-targets) is defined by a section within `tool.hatch.build.targets`, for example:
 
-=== ":octicons-file-code-16: pyproject.toml"
+```toml config-example
+[tool.hatch.build.targets.sdist]
+exclude = [
+  "/.github",
+  "/docs",
+]
 
-    ```toml
-    [tool.hatch.build.targets.sdist]
-    exclude = [
-      "/.github",
-      "/docs",
-    ]
-
-    [tool.hatch.build.targets.wheel]
-    packages = ["src/foo"]
-    ```
-
-=== ":octicons-file-code-16: hatch.toml"
-
-    ```toml
-    [build.targets.sdist]
-    exclude = [
-      "/.github",
-      "/docs",
-    ]
-
-    [build.targets.wheel]
-    packages = ["src/foo"]
-    ```
+[tool.hatch.build.targets.wheel]
+packages = ["src/foo"]
+```
 
 ## Building
 

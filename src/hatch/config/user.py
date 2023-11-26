@@ -1,4 +1,6 @@
-from typing import Optional, cast
+from __future__ import annotations
+
+from typing import cast
 
 from hatch.config.model import RootConfig
 from hatch.utils.fs import Path
@@ -6,8 +8,8 @@ from hatch.utils.toml import load_toml_data
 
 
 class ConfigFile:
-    def __init__(self, path: Optional[Path] = None):
-        self._path: Optional[Path] = path
+    def __init__(self, path: Path | None = None):
+        self._path: Path | None = path
         self.model = cast(RootConfig, None)
 
     @property

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<installer-gui-script minSpecVersion="1">
+  <!--
+  https://developer.apple.com/library/archive/documentation/DeveloperTools/Reference/DistributionDefinitionRef/Chapters/Distribution_XML_Ref.html
+  -->
+  <title>Hatch</title>
+  <license file="LICENSE.txt" mime-type="text/plain"/>
+  <readme file="README.html" mime-type="text/html"/>
+  <background mime-type="image/png" file="icon.png" alignment="left" scaling="proportional"/>
+  <background-darkAqua mime-type="image/png" file="icon.png" alignment="left" scaling="proportional"/>
+  <options hostArchitectures="arm64,x86_64" customize="never" require-scripts="false"/>
+  <domains enable_localSystem="true"/>
+
+  <choices-outline>
+    <line choice="org.python.hatch.choice"/>
+  </choices-outline>
+  <choice title="Hatch (universal)" id="org.python.hatch.choice">
+    <pkg-ref id="org.python.hatch.pkg"/>
+  </choice>
+
+  <pkg-ref id="org.python.hatch.pkg">org.python.hatch.pkg</pkg-ref>
+</installer-gui-script>

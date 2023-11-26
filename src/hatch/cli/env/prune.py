@@ -33,9 +33,9 @@ def prune(app):
 
         try:
             environment.check_compatibility()
-        except Exception:  # noqa: S112
+        except Exception:  # noqa: BLE001, S112
             continue
 
         if environment.exists() or environment.build_environment_exists():
-            with app.status_waiting(f'Removing environment: {env_name}'):
+            with app.status(f'Removing environment: {env_name}'):
                 environment.remove()

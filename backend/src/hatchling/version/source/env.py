@@ -13,7 +13,8 @@ class EnvSource(VersionSourceInterface):
         if not variable:
             message = 'option `variable` must be specified'
             raise ValueError(message)
-        elif not isinstance(variable, str):
+
+        if not isinstance(variable, str):
             message = 'option `variable` must be a string'
             raise TypeError(message)
 
@@ -23,6 +24,6 @@ class EnvSource(VersionSourceInterface):
 
         return {'version': os.environ[variable]}
 
-    def set_version(self, version: str, version_data: dict) -> None:
+    def set_version(self, version: str, version_data: dict) -> None:  # noqa: ARG002, PLR6301
         message = 'Cannot set environment variables'
         raise NotImplementedError(message)

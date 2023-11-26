@@ -12,19 +12,10 @@ Setting the version is supported.
 
 The version source plugin name is `regex`.
 
-=== ":octicons-file-code-16: pyproject.toml"
-
-    ```toml
-    [tool.hatch.version]
-    source = "regex"
-    ```
-
-=== ":octicons-file-code-16: hatch.toml"
-
-    ```toml
-    [version]
-    source = "regex"
-    ```
+```toml config-example
+[tool.hatch.version]
+source = "regex"
+```
 
 ## Options
 

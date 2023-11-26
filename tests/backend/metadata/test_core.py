@@ -32,13 +32,8 @@ class TestInterface:
     def test_types(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {'project': {}})
 
-        assert metadata.core is metadata._core
         assert isinstance(metadata.core, CoreMetadata)
-
-        assert metadata.hatch is metadata._hatch
         assert isinstance(metadata.hatch, HatchMetadata)
-
-        assert metadata.build is metadata._build
         assert isinstance(metadata.build, BuildMetadata)
 
     def test_missing_core_metadata(self, isolation):
@@ -383,7 +378,7 @@ class TestReadme:
             _ = metadata.core.readme
 
     @pytest.mark.parametrize(
-        'extension, content_type', [('.md', 'text/markdown'), ('.rst', 'text/x-rst'), ('.txt', 'text/plain')]
+        ('extension', 'content_type'), [('.md', 'text/markdown'), ('.rst', 'text/x-rst'), ('.txt', 'text/plain')]
     )
     def test_string_correct(self, extension, content_type, temp_dir):
         metadata = ProjectMetadata(str(temp_dir), None, {'project': {'readme': f'foo/bar{extension}'}})
@@ -1080,14 +1075,15 @@ class TestEntryPoints:
         with pytest.raises(TypeError, match='Field `project.entry-points` must be a table'):
             _ = metadata.core.entry_points
 
-    @pytest.mark.parametrize('field', ['scripts', 'gui-scripts'])
-    def test_forbidden_fields(self, isolation, field):
+    @pytest.mark.parametrize(('field', 'expected'), [('console_scripts', 'scripts'), ('gui-scripts', 'gui-scripts')])
+    def test_forbidden_fields(self, isolation, field, expected):
         metadata = ProjectMetadata(str(isolation), None, {'project': {'entry-points': {field: 'foo'}}})
 
         with pytest.raises(
             ValueError,
             match=(
-                f'Field `{field}` must be defined as `project.{field}` instead of in the `project.entry-points` table'
+                f'Field `{field}` must be defined as `project.{expected}` instead of '
+                f'in the `project.entry-points` table'
             ),
         ):
             _ = metadata.core.entry_points
@@ -1484,7 +1480,7 @@ class TestHook:
 
 
 class TestHatchPersonalProjectConfigFile:
-    def test_correct(self, isolation, temp_dir, helpers):
+    def test_correct(self, temp_dir, helpers):
         metadata = ProjectMetadata(
             str(temp_dir),
             PluginManager(),
@@ -1512,7 +1508,7 @@ class TestHatchPersonalProjectConfigFile:
         assert metadata.version == '0.0.1'
         assert metadata.hatch.build_config['reproducible'] is False
 
-    def test_precedence(self, isolation, temp_dir, helpers):
+    def test_precedence(self, temp_dir, helpers):
         metadata = ProjectMetadata(
             str(temp_dir),
             PluginManager(),

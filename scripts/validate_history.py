@@ -15,15 +15,17 @@ def main():
         current_pattern = HEADER_PATTERN.format(package=package)
 
         with history_file.open('r', encoding='utf-8') as f:
-            for line in f:
-                line = line.strip()
+            for raw_line in f:
+                line = raw_line.strip()
                 if not line:
                     continue
-                elif line.startswith('## '):
+
+                if line.startswith('## '):
                     _, _, header = line.partition(' ')
                     if header == 'Unreleased':
                         continue
-                    elif not re.search(current_pattern, header):
+
+                    if not re.search(current_pattern, header):
                         print('Invalid header:')
                         print(header)
                         sys.exit(1)
