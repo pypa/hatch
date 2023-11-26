@@ -36,7 +36,15 @@ class VirtualEnvironment(EnvironmentInterface):
         # Always compute the isolated app path for build environments
         hashed_root = sha256(str(self.root).encode('utf-8')).digest()
         checksum = urlsafe_b64encode(hashed_root).decode('utf-8')[:8]
-        app_virtual_env_path = self.isolated_data_directory / project_name / checksum / venv_name
+
+        # Conditions requiring a flat structure for build env
+        if (
+            self.isolated_data_directory == self.platform.home / '.virtualenvs'
+            or self.root in self.isolated_data_directory.resolve().parents
+        ):
+            app_virtual_env_path = self.isolated_data_directory / venv_name
+        else:
+            app_virtual_env_path = self.isolated_data_directory / project_name / checksum / venv_name
 
         # Explicit path
         chosen_directory = self.get_env_var_option('path') or self.config.get('path', '')
@@ -46,7 +54,10 @@ class VirtualEnvironment(EnvironmentInterface):
                 Path(chosen_directory) if isabs(chosen_directory) else (self.root / chosen_directory).resolve()
             )
         # Conditions requiring a flat structure
-        elif self.root in self.data_directory.parents or self.data_directory == self.platform.home / '.virtualenvs':
+        elif (
+            self.data_directory == self.platform.home / '.virtualenvs'
+            or self.root in self.data_directory.resolve().parents
+        ):
             self.storage_path = self.data_directory
             self.virtual_env_path = self.storage_path / venv_name
         # Otherwise the defined app path
