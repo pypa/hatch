@@ -1,11 +1,24 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import click
+
+if TYPE_CHECKING:
+    from hatch.cli.application import Application
 
 
 @click.command(short_help="View or set a project's version")
 @click.argument('desired_version', required=False)
 @click.pass_obj
-def version(app, desired_version):
+def version(app: Application, desired_version: str | None):
     """View or set a project's version."""
+    if app.project.root is None:
+        if app.project.chosen_name is None:
+            app.abort('No project detected')
+        else:
+            app.abort(f'Project {app.project.chosen_name} (not a project)')
+
     if 'version' in app.project.metadata.config.get('project', {}):
         if desired_version:
             app.abort('Cannot set version when it is statically defined by the `project.version` field')
