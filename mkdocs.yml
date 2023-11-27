@@ -126,9 +126,7 @@ watch:
 - src/hatch
 
 hooks:
-- docs/.hooks/expand_blocks.py
-- docs/.hooks/inject_version.py
-- docs/.hooks/render_ruff_defaults.py
+- docs/.hooks/plugin_register.py
 
 plugins:
   # Built-in

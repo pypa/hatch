@@ -5,6 +5,8 @@ import re
 from collections import defaultdict
 from functools import cache
 
+from markdown.preprocessors import Preprocessor
+
 MARKER_VERSION = '<HATCH_RUFF_VERSION>'
 MARKER_SELECTED_RULES = '<HATCH_RUFF_SELECTED_RULES>'
 MARKER_PER_FILE_IGNORED_RULES = '<HATCH_RUFF_PER_FILE_IGNORED_RULES>'
@@ -82,14 +84,12 @@ def get_per_file_ignored_rules():
     return '\n'.join(lines)
 
 
-def on_page_read_source(
-    page,
-    config,  # noqa: ARG001
-):
-    with open(page.file.abs_src_path, encoding='utf-8') as f:
+class RuffDefaultsPreprocessor(Preprocessor):
+    def run(self, lines):  # noqa: PLR6301
         return (
-            f.read()
+            '\n'.join(lines)
             .replace(MARKER_VERSION, get_ruff_version())
             .replace(MARKER_SELECTED_RULES, get_selected_rules())
             .replace(MARKER_PER_FILE_IGNORED_RULES, get_per_file_ignored_rules())
+            .splitlines()
         )
