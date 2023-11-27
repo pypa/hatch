@@ -34,6 +34,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Fix nushell activation
 - Better handling of flat storage directory hierarchies for the `virtual` environment type
 - Display useful information when running the `version` command outside of a project rather than erroring
+- Properly support Google Artifact Registry
 
 ## [1.7.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.7.0) - 2023-04-03 ## {: #hatch-v1.7.0 }
 
