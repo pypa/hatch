@@ -4,6 +4,7 @@ import csv
 import hashlib
 import os
 import stat
+import sys
 import tempfile
 import zipfile
 from io import StringIO
@@ -348,15 +349,23 @@ class WheelBuilderConfig(BuilderConfig):
 
         return self.__macos_max_compat
 
-    @staticmethod
-    def get_raw_fs_path_name(directory: str, name: str) -> str:
-        normalized = name.casefold()
-        entries = os.listdir(directory)
-        for entry in entries:
-            if entry.casefold() == normalized:
-                return entry
+    if sys.platform in {'darwin', 'win32'}:
 
-        return name  # no cov
+        @staticmethod
+        def get_raw_fs_path_name(directory: str, name: str) -> str:
+            normalized = name.casefold()
+            entries = os.listdir(directory)
+            for entry in entries:
+                if entry.casefold() == normalized:
+                    return entry
+
+            return name  # no cov
+
+    else:
+
+        @staticmethod
+        def get_raw_fs_path_name(directory: str, name: str) -> str:  # noqa: ARG004
+            return name
 
 
 class WheelBuilder(BuilderInterface):
