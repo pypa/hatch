@@ -54,10 +54,6 @@
                 ```
                 msiexec /passive /i https://github.com/pypa/hatch/releases/download/hatch-v<HATCH_LATEST_VERSION>/hatch-<HATCH_LATEST_VERSION>-x64.msi
                 ```
-            === "x86"
-                ```
-                msiexec /passive /i https://github.com/pypa/hatch/releases/download/hatch-v<HATCH_LATEST_VERSION>/hatch-<HATCH_LATEST_VERSION>-x86.msi
-                ```
         2. Restart your terminal.
         3. To verify that the shell can find and run the `hatch` command in your `PATH`, use the following command.
 
@@ -83,7 +79,6 @@ After downloading the archive corresponding to your platform and architecture, e
 
 === "Windows"
     - [hatch-<HATCH_LATEST_VERSION>-x86_64-pc-windows-msvc.zip](https://github.com/pypa/hatch/releases/download/hatch-v<HATCH_LATEST_VERSION>/hatch-<HATCH_LATEST_VERSION>-x86_64-pc-windows-msvc.zip)
-    - [hatch-<HATCH_LATEST_VERSION>-i686-pc-windows-msvc.zip](https://github.com/pypa/hatch/releases/download/hatch-v<HATCH_LATEST_VERSION>/hatch-<HATCH_LATEST_VERSION>-i686-pc-windows-msvc.zip)
 
 ## pip
 

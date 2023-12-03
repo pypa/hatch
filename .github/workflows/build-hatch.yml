@@ -75,8 +75,6 @@ jobs:
         # Windows
         - target: x86_64-pc-windows-msvc
           os: windows-2022
-        - target: i686-pc-windows-msvc
-          os: windows-2022
         # macOS
         - target: aarch64-apple-darwin
           os: macos-12
