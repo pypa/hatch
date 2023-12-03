@@ -121,7 +121,7 @@ class TestDefaultFileSelection:
         assert builder.config.default_packages() == []
         assert builder.config.default_only_include() == []
 
-    def test_raw_name_not_normalized(self, temp_dir):
+    def test_unnormalized_name_with_unnormalized_directory(self, temp_dir):
         config = {'project': {'name': 'MyApp', 'version': '0.0.1'}}
         builder = WheelBuilder(str(temp_dir), config=config)
 
@@ -130,6 +130,16 @@ class TestDefaultFileSelection:
         src_root.touch()
 
         assert builder.config.default_packages() == ['src/MyApp']
+
+    def test_unnormalized_name_with_normalized_directory(self, temp_dir):
+        config = {'project': {'name': 'MyApp', 'version': '0.0.1'}}
+        builder = WheelBuilder(str(temp_dir), config=config)
+
+        src_root = temp_dir / 'src' / 'myapp' / '__init__.py'
+        src_root.ensure_parent_dir_exists()
+        src_root.touch()
+
+        assert builder.config.default_packages() == ['src/myapp']
 
 
 class TestCoreMetadataConstructor:
