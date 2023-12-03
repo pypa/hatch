@@ -4,6 +4,7 @@ import csv
 import hashlib
 import os
 import stat
+import sys
 import tempfile
 import zipfile
 from io import StringIO
@@ -178,15 +179,19 @@ class WheelBuilderConfig(BuilderConfig):
             self.builder.normalize_file_name_component(self.builder.metadata.core.name),
         ):
             if os.path.isfile(os.path.join(self.root, project_name, '__init__.py')):
-                self.__packages.append(project_name)
+                normalized_project_name = self.get_raw_fs_path_name(self.root, project_name)
+                self.__packages.append(normalized_project_name)
                 break
 
             if os.path.isfile(os.path.join(self.root, 'src', project_name, '__init__.py')):
-                self.__packages.append(f'src/{project_name}')
+                normalized_project_name = self.get_raw_fs_path_name(os.path.join(self.root, 'src'), project_name)
+                self.__packages.append(f'src/{normalized_project_name}')
                 break
 
-            if os.path.isfile(os.path.join(self.root, f'{project_name}.py')):
-                self.__only_include.append(f'{project_name}.py')
+            module_file = f'{project_name}.py'
+            if os.path.isfile(os.path.join(self.root, module_file)):
+                normalized_project_name = self.get_raw_fs_path_name(self.root, module_file)
+                self.__only_include.append(module_file)
                 break
 
             from glob import glob
@@ -343,6 +348,24 @@ class WheelBuilderConfig(BuilderConfig):
             self.__macos_max_compat = macos_max_compat
 
         return self.__macos_max_compat
+
+    if sys.platform in {'darwin', 'win32'}:
+
+        @staticmethod
+        def get_raw_fs_path_name(directory: str, name: str) -> str:
+            normalized = name.casefold()
+            entries = os.listdir(directory)
+            for entry in entries:
+                if entry.casefold() == normalized:
+                    return entry
+
+            return name  # no cov
+
+    else:
+
+        @staticmethod
+        def get_raw_fs_path_name(directory: str, name: str) -> str:  # noqa: ARG004
+            return name
 
 
 class WheelBuilder(BuilderInterface):
