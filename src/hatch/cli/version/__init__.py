@@ -63,9 +63,10 @@ def version(app: Application, desired_version: str | None):
             ) as status, environment.build_environment(app.project.metadata.build.requires):
                 status.stop()
 
-                command = ['python', '-u', '-m', 'hatchling', 'version', '--app']
+                command = ['python', '-u', '-m', 'hatchling', 'version']
                 if desired_version:
                     command.append(desired_version)
 
-                process = app.platform.capture_process(command)
-                app.attach_builder(process)
+                process = app.platform.run_command(command)
+                if process.returncode:
+                    app.abort(code=process.returncode)

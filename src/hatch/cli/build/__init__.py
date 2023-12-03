@@ -57,6 +57,7 @@ def build(app: Application, location, targets, hooks_only, no_hooks, ext, clean,
     from hatchling.builders.constants import BuildEnvVars
     from hatchling.builders.plugin.interface import BuilderInterface
 
+    from hatch.config.constants import AppEnvVars
     from hatch.utils.fs import Path
     from hatch.utils.structures import EnvVars
 
@@ -86,6 +87,11 @@ def build(app: Application, location, targets, hooks_only, no_hooks, ext, clean,
     if no_hooks:
         env_vars[BuildEnvVars.NO_HOOKS] = 'true'
 
+    if app.verbose:
+        env_vars[AppEnvVars.VERBOSE] = str(app.verbosity)
+    elif app.quiet:
+        env_vars[AppEnvVars.QUIET] = str(abs(app.verbosity))
+
     class Builder(BuilderInterface):
         def get_version_api(self):
             return {}
@@ -97,14 +103,13 @@ def build(app: Application, location, targets, hooks_only, no_hooks, ext, clean,
         except Exception as e:
             app.abort(f'Environment `{environment.name}` is incompatible: {e}')
 
-        for i, target in enumerate(targets):
-            # Separate targets with a blank line
-            if not clean_only and i != 0:
-                app.display_info()
-
+        for target in targets:
             target_name, _, _ = target.partition(':')
             builder = Builder(str(app.project.location))
             builder.PLUGIN_NAME = target_name
+
+            if not clean_only:
+                app.display_header(target_name)
 
             dependencies = list(app.project.metadata.build.requires)
             with environment.get_env_vars(), EnvVars(env_vars):
@@ -115,7 +120,7 @@ def build(app: Application, location, targets, hooks_only, no_hooks, ext, clean,
             ) as status, environment.build_environment(dependencies) as build_environment:
                 status.stop()
 
-                process = environment.get_build_process(
+                process = environment.run_builder(
                     build_environment,
                     directory=path,
                     targets=(target,),
@@ -125,4 +130,5 @@ def build(app: Application, location, targets, hooks_only, no_hooks, ext, clean,
                     clean_hooks_after=clean_hooks_after,
                     clean_only=clean_only,
                 )
-                app.attach_builder(process)
+                if process.returncode:
+                    app.abort(code=process.returncode)

@@ -115,14 +115,19 @@ class Platform:
         [capture_process](utilities.md#hatch.utils.platform.Platform.capture_process),
         but non-zero exit codes will gracefully end program execution.
         """
-        with self.capture_process(command, shell=shell, **kwargs) as process:
-            stdout, _ = process.communicate()
-
+        self.populate_default_popen_kwargs(kwargs, shell=shell)
+        process = self.modules.subprocess.run(
+            command,
+            shell=shell,
+            stdout=self.modules.subprocess.PIPE,
+            stderr=self.modules.subprocess.STDOUT,
+            **kwargs,
+        )
         if process.returncode:
-            self.__display_func(stdout.decode('utf-8'))
+            self.__display_func(process.stdout.decode('utf-8'))
             self.exit_with_code(process.returncode)
 
-        return stdout.decode('utf-8')
+        return process.stdout.decode('utf-8')
 
     def capture_process(self, command: str | list[str], *, shell: bool = False, **kwargs: Any) -> Popen:
         """

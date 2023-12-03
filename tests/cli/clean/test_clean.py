@@ -5,7 +5,7 @@ import pytest
 from hatch.project.core import Project
 from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT, DEFAULT_CONFIG_FILE
 
-pytestmark = [pytest.mark.usefixtures('local_builder')]
+pytestmark = [pytest.mark.usefixtures('local_backend_process')]
 
 
 def test(hatch, temp_dir, helpers, config_file, mock_plugin_installation):

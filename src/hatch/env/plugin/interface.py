@@ -681,7 +681,7 @@ class EnvironmentInterface(ABC):
         with self.get_env_vars():
             yield
 
-    def get_build_process(
+    def run_builder(
         self,
         build_environment,  # noqa: ARG002
         **kwargs,
@@ -692,18 +692,18 @@ class EnvironmentInterface(ABC):
         is active:
 
         ```python
-        with environment.build_environment([...]) as build_environment:
-            build_process = environment.get_build_process(build_environment, ...)
+        with environment.build_environment([...]) as build_env:
+            process = environment.run_builder(build_env, ...)
         ```
 
         This should return the standard library's
-        [subprocess.Popen](https://docs.python.org/3/library/subprocess.html#subprocess.Popen)
-        with all output captured by `stdout`. The command is constructed by passing all keyword arguments to
+        [subprocess.CompletedProcess](https://docs.python.org/3/library/subprocess.html#subprocess.CompletedProcess).
+        The command is constructed by passing all keyword arguments to
         [construct_build_command](reference.md#hatch.env.plugin.interface.EnvironmentInterface.construct_build_command).
 
         For an example, open the default implementation below:
         """
-        return self.platform.capture_process(self.construct_build_command(**kwargs))
+        return self.platform.run_command(self.construct_build_command(**kwargs))
 
     def build_environment_exists(self):  # noqa: PLR6301
         """
@@ -790,7 +790,7 @@ class EnvironmentInterface(ABC):
         This is the canonical way [`build`](../../cli/reference.md#hatch-build) command options are translated to
         a subprocess command issued to [builders](../builder/reference.md).
         """
-        command = ['python', '-u', '-m', 'hatchling', 'build', '--app']
+        command = ['python', '-u', '-m', 'hatchling', 'build']
 
         if directory:
             command.extend(('--directory', directory))

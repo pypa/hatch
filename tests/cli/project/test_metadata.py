@@ -5,7 +5,7 @@ import pytest
 from hatch.project.core import Project
 from hatchling.utils.constants import DEFAULT_CONFIG_FILE
 
-pytestmark = [pytest.mark.usefixtures('local_builder')]
+pytestmark = [pytest.mark.usefixtures('local_backend_process_output')]
 
 
 def read_readme(project_dir):

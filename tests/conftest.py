@@ -6,7 +6,6 @@ import sys
 import time
 from contextlib import suppress
 from functools import lru_cache
-from io import BytesIO
 from typing import Generator, NamedTuple
 
 import pytest
@@ -290,14 +289,11 @@ def mock_backend_process(request, mocker):
         yield False
         return
 
-    line_queue = []
-
     def mock_process_api(api):
         def mock_process(command, **kwargs):
             if not isinstance(command, list) or command[1:4] != ['-u', '-m', 'hatchling']:  # no cov
                 return api(command, **kwargs)
 
-            line_queue.clear()
             original_args = sys.argv
             try:
                 sys.argv = command[3:]
@@ -312,16 +308,54 @@ def mock_backend_process(request, mocker):
                 else:
                     mock.returncode = 0
 
-                mock.stdout = BytesIO(''.join(line_queue).encode('utf-8'))
                 return mock
             finally:
                 sys.argv = original_args
 
         return mock_process
 
-    mocker.patch('subprocess.Popen', side_effect=mock_process_api(subprocess.Popen))
+    mocker.patch('hatch.utils.platform.Platform.run_command', side_effect=mock_process_api(PLATFORM.run_command))
+
+    yield True
+
+
+@pytest.fixture()
+def mock_backend_process_output(request, mocker):
+    if 'allow_backend_process' in request.keywords:
+        yield False
+        return
+
+    output_queue = []
+
+    def mock_process_api(api):
+        def mock_process(command, **kwargs):
+            if not isinstance(command, list) or command[1:4] != ['-u', '-m', 'hatchling']:  # no cov
+                return api(command, **kwargs)
+
+            output_queue.clear()
+            original_args = sys.argv
+            try:
+                sys.argv = command[3:]
+                mock = mocker.MagicMock()
+
+                try:
+                    # The builder sets process-wide environment variables
+                    with EnvVars():
+                        hatchling()
+                except SystemExit as e:
+                    mock.returncode = e.code
+                else:
+                    mock.returncode = 0
+
+                mock.stdout = ''.join(output_queue).encode('utf-8')
+                return mock
+            finally:
+                sys.argv = original_args
+
+        return mock_process
+
     mocker.patch('subprocess.run', side_effect=mock_process_api(subprocess.run))
-    mocker.patch('hatchling.bridge.app._send_app_command', side_effect=lambda cmd: line_queue.append(f'{cmd}\n'))
+    mocker.patch('hatchling.bridge.app._display', side_effect=lambda cmd: output_queue.append(f'{cmd}\n'))
 
     yield True
 
@@ -344,11 +378,19 @@ def mock_plugin_installation(mocker):
 
 
 @pytest.fixture()
-def local_builder(mock_backend_process, mocker):
+def local_backend_process(mock_backend_process, mocker):
     if mock_backend_process:
         mocker.patch('hatch.env.virtual.VirtualEnvironment.build_environment')
 
     return mock_backend_process
+
+
+@pytest.fixture()
+def local_backend_process_output(mock_backend_process_output, mocker):
+    if mock_backend_process_output:
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.build_environment')
+
+    return mock_backend_process_output
 
 
 def pytest_runtest_setup(item):
