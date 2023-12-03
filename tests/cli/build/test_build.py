@@ -11,66 +11,111 @@ pytestmark = [pytest.mark.usefixtures('local_backend_process')]
 
 
 @pytest.mark.requires_internet
-def test_other_backend(hatch, temp_dir, helpers):
-    project_name = 'My.App'
+class TestOtherBackend:
+    def test_standard(self, hatch, temp_dir, helpers):
+        project_name = 'My.App'
 
-    with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+            assert result.exit_code == 0, result.output
+
+        path = temp_dir / 'my-app'
+        data_path = temp_dir / 'data'
+        data_path.mkdir()
+
+        project = Project(path)
+        config = dict(project.raw_config)
+        config['build-system']['requires'] = ['flit-core']
+        config['build-system']['build-backend'] = 'flit_core.buildapi'
+        config['project']['version'] = '0.0.1'
+        config['project']['dynamic'] = []
+        del config['project']['license']
+        project.save_config(config)
+
+        build_directory = path / 'dist'
+        assert not build_directory.is_dir()
+
+        with path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+            result = hatch('build')
+
         assert result.exit_code == 0, result.output
+        assert result.output == helpers.dedent(
+            """
+            Creating environment: build
+            Checking dependencies
+            Syncing dependencies
+            """
+        )
 
-    path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
-    data_path.mkdir()
+        assert build_directory.is_dir()
+        assert (build_directory / 'my_app-0.0.1-py3-none-any.whl').is_file()
+        assert (build_directory / 'my_app-0.0.1.tar.gz').is_file()
 
-    project = Project(path)
-    config = dict(project.raw_config)
-    config['build-system']['requires'] = ['flit-core']
-    config['build-system']['build-backend'] = 'flit_core.buildapi'
-    config['project']['version'] = '0.0.1'
-    config['project']['dynamic'] = []
-    del config['project']['license']
-    project.save_config(config)
+        build_directory.remove()
+        with path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+            result = hatch('build', '-t', 'wheel')
 
-    build_directory = path / 'dist'
-    assert not build_directory.is_dir()
+        assert result.exit_code == 0, result.output
+        assert not result.output
 
-    with path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('build')
+        assert build_directory.is_dir()
+        assert (build_directory / 'my_app-0.0.1-py3-none-any.whl').is_file()
+        assert not (build_directory / 'my_app-0.0.1.tar.gz').is_file()
 
-    assert result.exit_code == 0, result.output
-    assert result.output == helpers.dedent(
-        """
-        Creating environment: build
-        Checking dependencies
-        Syncing dependencies
-        """
-    )
+        build_directory.remove()
+        with path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+            result = hatch('build', '-t', 'sdist')
 
-    assert build_directory.is_dir()
-    assert (build_directory / 'my_app-0.0.1-py3-none-any.whl').is_file()
-    assert (build_directory / 'my_app-0.0.1.tar.gz').is_file()
+        assert result.exit_code == 0, result.output
+        assert not result.output
 
-    build_directory.remove()
-    with path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('build', '-t', 'wheel')
+        assert build_directory.is_dir()
+        assert not (build_directory / 'my_app-0.0.1-py3-none-any.whl').is_file()
+        assert (build_directory / 'my_app-0.0.1.tar.gz').is_file()
 
-    assert result.exit_code == 0, result.output
-    assert not result.output
+    def test_legacy(self, hatch, temp_dir, helpers):
+        path = temp_dir / 'tmp'
+        path.mkdir()
+        data_path = temp_dir / 'data'
+        data_path.mkdir()
 
-    assert build_directory.is_dir()
-    assert (build_directory / 'my_app-0.0.1-py3-none-any.whl').is_file()
-    assert not (build_directory / 'my_app-0.0.1.tar.gz').is_file()
+        (path / 'pyproject.toml').write_text(
+                """\
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+"""
+        )
+        (path / 'setup.py').write_text(
+                """\
+import setuptools
+setuptools.setup(name="tmp", version="0.0.1")
+"""
+        )
+        (path / 'tmp.py').write_text(
+                """\
+print("Hello World!")
+"""
+        )
 
-    build_directory.remove()
-    with path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('build', '-t', 'sdist')
+        build_directory = path / 'dist'
+        assert not build_directory.is_dir()
 
-    assert result.exit_code == 0, result.output
-    assert not result.output
+        with path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+            result = hatch('build')
 
-    assert build_directory.is_dir()
-    assert not (build_directory / 'my_app-0.0.1-py3-none-any.whl').is_file()
-    assert (build_directory / 'my_app-0.0.1.tar.gz').is_file()
+        assert result.exit_code == 0, result.output
+        assert result.output == helpers.dedent(
+            """
+            Creating environment: build
+            Checking dependencies
+            Syncing dependencies
+            """
+        )
+
+        assert build_directory.is_dir()
+        assert (build_directory / 'tmp-0.0.1-py3-none-any.whl').is_file()
+        assert (build_directory / 'tmp-0.0.1.tar.gz').is_file()
 
 
 @pytest.mark.allow_backend_process

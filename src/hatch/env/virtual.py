@@ -30,12 +30,12 @@ class VirtualEnvironment(EnvironmentInterface):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        project_name = self.metadata.name
-        venv_name = project_name if self.name == 'default' else self.name
-
         # Always compute the isolated app path for build environments
         hashed_root = sha256(str(self.root).encode('utf-8')).digest()
         checksum = urlsafe_b64encode(hashed_root).decode('utf-8')[:8]
+
+        project_name = self.metadata.name if 'project' in self.metadata.config else f'{checksum}-unmanaged'
+        venv_name = project_name if self.name == 'default' else self.name
 
         # Conditions requiring a flat structure for build env
         if (
@@ -376,7 +376,7 @@ class VirtualEnvironment(EnvironmentInterface):
         # Note that we do not support this field being dynamic because if we were to set up the
         # build environment to retrieve the field then we would be stuck because we need to use
         # a satisfactory version to set up the environment
-        return SpecifierSet(self.metadata.core_raw_metadata.get('requires-python', ''))
+        return SpecifierSet(self.metadata.config.get('project', {}).get('requires-python', ''))
 
     @contextmanager
     def safe_activation(self):
