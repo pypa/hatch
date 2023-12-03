@@ -6,7 +6,7 @@ from typing import Any
 
 def build_impl(
     *,
-    called_by_app: bool,
+    called_by_app: bool,  # noqa: ARG001
     directory: str,
     targets: list[str],
     hooks_only: bool,
@@ -17,12 +17,12 @@ def build_impl(
 ) -> None:
     import os
 
-    from hatchling.bridge.app import get_application
+    from hatchling.bridge.app import Application
     from hatchling.builders.constants import BuildEnvVars
     from hatchling.metadata.core import ProjectMetadata
     from hatchling.plugin.manager import PluginManager
 
-    app = get_application(called_by_app=called_by_app)
+    app = Application()
 
     if hooks_only and no_hooks:
         app.abort('Cannot use both --hooks-only and --no-hooks together')
@@ -67,7 +67,7 @@ def build_impl(
         builder_class = builders[target_name]
 
         # Display name before instantiation in case of errors
-        if not clean_only:
+        if not clean_only and len(target_data) > 1:
             app.display_mini_header(target_name)
 
         builder = builder_class(root, plugin_manager=plugin_manager, metadata=metadata, app=app.get_safe_application())

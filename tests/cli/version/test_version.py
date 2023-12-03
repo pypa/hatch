@@ -93,7 +93,7 @@ def test_show_dynamic(hatch, temp_dir):
     assert result.output == '0.0.1\n'
 
 
-@pytest.mark.usefixtures('local_builder')
+@pytest.mark.usefixtures('local_backend_process')
 def test_show_dynamic_missing_build_dependencies(hatch, helpers, temp_dir):
     project_name = 'My.App'
 
@@ -119,7 +119,7 @@ def test_show_dynamic_missing_build_dependencies(hatch, helpers, temp_dir):
     )
 
 
-@pytest.mark.usefixtures('local_builder')
+@pytest.mark.usefixtures('local_backend_process')
 def test_plugin_dependencies_unmet(hatch, helpers, temp_dir, mock_plugin_installation):
     project_name = 'My.App'
 

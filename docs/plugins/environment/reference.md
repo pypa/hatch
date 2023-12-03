@@ -71,7 +71,7 @@ All environment types should [offer support](#hatch.env.plugin.interface.Environ
       - dependency_hash
       - build_environment
       - build_environment_exists
-      - get_build_process
+      - run_builder
       - construct_build_command
       - command_context
       - enter_shell

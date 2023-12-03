@@ -41,9 +41,9 @@ def metadata(app, field):
             ) as status, environment.build_environment(app.project.metadata.build.requires):
                 status.stop()
 
-                command = ['python', '-u', '-m', 'hatchling', 'metadata', '--app', '--compact']
-                process = app.platform.capture_process(command)
-                project_metadata = json.loads(app.read_builder(process))
+                command = ['python', '-u', '-m', 'hatchling', 'metadata', '--compact']
+                output = app.platform.check_command_output(command)
+                project_metadata = json.loads(output)
 
     if field:
         if field not in project_metadata:

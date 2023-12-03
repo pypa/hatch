@@ -58,9 +58,9 @@ def get_project_dependencies_complex(
         from packaging.requirements import Requirement
 
         with environment.root.as_cwd(), environment.build_environment(environment.metadata.build.requires):
-            command = ['python', '-u', '-W', 'ignore', '-m', 'hatchling', 'metadata', '--app', '--compact']
-            process = environment.platform.capture_process(command)
-            project_metadata = json.loads(environment.app.read_builder(process))
+            command = ['python', '-u', '-W', 'ignore', '-m', 'hatchling', 'metadata', '--compact']
+            output = environment.platform.check_command_output(command)
+            project_metadata = json.loads(output)
 
             for dependency in project_metadata.get('dependencies', []):
                 dependencies_complex[dependency] = Requirement(dependency)

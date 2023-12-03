@@ -7,7 +7,7 @@ from hatch.project.core import Project
 from hatchling.builders.constants import BuildEnvVars
 from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT, DEFAULT_CONFIG_FILE
 
-pytestmark = [pytest.mark.usefixtures('local_builder')]
+pytestmark = [pytest.mark.usefixtures('local_backend_process')]
 
 
 @pytest.mark.requires_internet
@@ -114,6 +114,7 @@ def test_unknown_targets(hatch, temp_dir, helpers):
     assert result.exit_code == 1, result.output
     assert result.output == helpers.dedent(
         """
+        ───────────────────────────────────── foo ──────────────────────────────────────
         Setting up build environment
         Unknown build targets: foo
         """
@@ -135,6 +136,7 @@ def test_mutually_exclusive_hook_options(hatch, temp_dir, helpers):
     assert result.exit_code == 1, result.output
     assert result.output == helpers.dedent(
         """
+        ──────────────────────────────────── sdist ─────────────────────────────────────
         Setting up build environment
         Cannot use both --hooks-only and --no-hooks together
         """
@@ -166,12 +168,11 @@ def test_default(hatch, temp_dir, helpers):
 
     assert result.output == helpers.dedent(
         f"""
+        ──────────────────────────────────── sdist ─────────────────────────────────────
         Setting up build environment
-        [sdist]
         {sdist_path.relative_to(path)}
-
+        ──────────────────────────────────── wheel ─────────────────────────────────────
         Setting up build environment
-        [wheel]
         {wheel_path.relative_to(path)}
         """
     )
@@ -201,8 +202,8 @@ def test_explicit_targets(hatch, temp_dir, helpers):
 
     assert result.output == helpers.dedent(
         f"""
+        ──────────────────────────────────── wheel ─────────────────────────────────────
         Setting up build environment
-        [wheel]
         {wheel_path.relative_to(path)}
         """
     )
@@ -232,12 +233,11 @@ def test_explicit_directory(hatch, temp_dir, helpers):
 
     assert result.output == helpers.dedent(
         f"""
+        ──────────────────────────────────── sdist ─────────────────────────────────────
         Setting up build environment
-        [sdist]
         {sdist_path}
-
+        ──────────────────────────────────── wheel ─────────────────────────────────────
         Setting up build environment
-        [wheel]
         {wheel_path}
         """
     )
@@ -267,12 +267,11 @@ def test_explicit_directory_env_var(hatch, temp_dir, helpers):
 
     assert result.output == helpers.dedent(
         f"""
+        ──────────────────────────────────── sdist ─────────────────────────────────────
         Setting up build environment
-        [sdist]
         {sdist_path}
-
+        ──────────────────────────────────── wheel ─────────────────────────────────────
         Setting up build environment
-        [wheel]
         {wheel_path}
         """
     )
@@ -353,12 +352,11 @@ def test_clean(hatch, temp_dir, helpers, config_file):
 
     assert result.output == helpers.dedent(
         f"""
+        ──────────────────────────────────── sdist ─────────────────────────────────────
         Setting up build environment
-        [sdist]
         {sdist_path.relative_to(path)}
-
+        ──────────────────────────────────── wheel ─────────────────────────────────────
         Setting up build environment
-        [wheel]
         {wheel_path.relative_to(path)}
         """
     )
@@ -411,12 +409,11 @@ def test_clean_env_var(hatch, temp_dir, helpers):
 
     assert result.output == helpers.dedent(
         f"""
+        ──────────────────────────────────── sdist ─────────────────────────────────────
         Setting up build environment
-        [sdist]
         {sdist_path.relative_to(path)}
-
+        ──────────────────────────────────── wheel ─────────────────────────────────────
         Setting up build environment
-        [wheel]
         {wheel_path.relative_to(path)}
         """
     )
@@ -609,12 +606,11 @@ def test_clean_hooks_after(hatch, temp_dir, helpers, config_file):
 
     assert result.output == helpers.dedent(
         f"""
+        ──────────────────────────────────── sdist ─────────────────────────────────────
         Setting up build environment
-        [sdist]
         {sdist_path.relative_to(path)}
-
+        ──────────────────────────────────── wheel ─────────────────────────────────────
         Setting up build environment
-        [wheel]
         {wheel_path.relative_to(path)}
         """
     )
@@ -673,12 +669,11 @@ def test_clean_hooks_after_env_var(hatch, temp_dir, helpers, config_file):
 
     assert result.output == helpers.dedent(
         f"""
+        ──────────────────────────────────── sdist ─────────────────────────────────────
         Setting up build environment
-        [sdist]
         {sdist_path.relative_to(path)}
-
+        ──────────────────────────────────── wheel ─────────────────────────────────────
         Setting up build environment
-        [wheel]
         {wheel_path.relative_to(path)}
         """
     )
@@ -798,8 +793,8 @@ def test_hooks_only(hatch, temp_dir, helpers, config_file):
 
     assert result.output == helpers.dedent(
         """
+        ──────────────────────────────────── wheel ─────────────────────────────────────
         Setting up build environment
-        [wheel]
         Building `wheel` version `standard`
         Only ran build hooks for `wheel` version `standard`
         """
@@ -853,8 +848,8 @@ def test_hooks_only_env_var(hatch, temp_dir, helpers, config_file):
 
     assert result.output == helpers.dedent(
         """
+        ──────────────────────────────────── wheel ─────────────────────────────────────
         Setting up build environment
-        [wheel]
         Building `wheel` version `standard`
         Only ran build hooks for `wheel` version `standard`
         """
@@ -908,8 +903,8 @@ def test_extensions_only(hatch, temp_dir, helpers, config_file):
 
     assert result.output == helpers.dedent(
         """
+        ──────────────────────────────────── wheel ─────────────────────────────────────
         Setting up build environment
-        [wheel]
         Building `wheel` version `standard`
         Only ran build hooks for `wheel` version `standard`
         """
@@ -962,8 +957,8 @@ def test_no_hooks(hatch, temp_dir, helpers):
 
     assert result.output == helpers.dedent(
         f"""
+        ──────────────────────────────────── wheel ─────────────────────────────────────
         Setting up build environment
-        [wheel]
         {wheel_path.relative_to(path)}
         """
     )
@@ -1015,8 +1010,8 @@ def test_no_hooks_env_var(hatch, temp_dir, helpers):
 
     assert result.output == helpers.dedent(
         f"""
+        ──────────────────────────────────── wheel ─────────────────────────────────────
         Setting up build environment
-        [wheel]
         {wheel_path.relative_to(path)}
         """
     )
@@ -1046,8 +1041,8 @@ def test_debug_verbosity(hatch, temp_dir, helpers):
 
     assert result.output == helpers.dedent(
         f"""
+        ──────────────────────────────────── wheel ─────────────────────────────────────
         Setting up build environment
-        [wheel]
         Building `wheel` version `standard`
         {wheel_path.relative_to(path)}
         """
@@ -1097,17 +1092,11 @@ def test_shipped(hatch, temp_dir, helpers):
     artifacts = list(build_directory.iterdir())
     assert len(artifacts) == 2
 
-    sdist_path = [artifact for artifact in artifacts if artifact.name.endswith('.tar.gz')][0]
-    wheel_path = [artifact for artifact in artifacts if artifact.name.endswith('.whl')][0]
-
     assert result.output == helpers.dedent(
-        f"""
+        """
+        ──────────────────────────────────── sdist ─────────────────────────────────────
         Setting up build environment
-        [sdist]
-        {sdist_path.relative_to(project_path)}
-
-        [wheel]
-        {wheel_path.relative_to(project_path)}
+        ──────────────────────────────────── wheel ─────────────────────────────────────
         """
     )
 
@@ -1181,13 +1170,10 @@ def test_build_dependencies(hatch, temp_dir, helpers):
 
     assert str(output_file.read_text()) == "(1.0, 'KiB')"
 
-    wheel_path = [artifact for artifact in artifacts if artifact.name.endswith('.whl')][0]
-
     assert result.output == helpers.dedent(
-        f"""
+        """
+        ──────────────────────────────────── custom ────────────────────────────────────
         Setting up build environment
-        [custom]
-        {wheel_path.relative_to(project_path)}
         """
     )
 
@@ -1228,12 +1214,11 @@ def test_plugin_dependencies_unmet(hatch, temp_dir, helpers, mock_plugin_install
     assert result.output == helpers.dedent(
         f"""
         Syncing environment plugin requirements
+        ──────────────────────────────────── sdist ─────────────────────────────────────
         Setting up build environment
-        [sdist]
         {sdist_path.relative_to(path)}
-
+        ──────────────────────────────────── wheel ─────────────────────────────────────
         Setting up build environment
-        [wheel]
         {wheel_path.relative_to(path)}
         """
     )

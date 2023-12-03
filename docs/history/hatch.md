@@ -11,7 +11,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ***Changed:***
 
 - Drop support for Python 3.7
+- The `get_build_process` method of the `environment` interface has been removed; plugins should use the new `run_builder` method instead
 - Remove `pyperclip` dependency and the `--copy` flag of the `config find` command
+- When running the `build` command all output from builders is now displayed as-is in real time without the stripping of ANSI codes
 - Version information (for Hatch itself) is now derived from Git
 
 ***Added:***
@@ -26,6 +28,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - The `build` command now supports backends other than Hatchling
 - Allow the use of `features` for environments when `skip-install` is enabled
 - The default is now `__TOKEN__` when prompting for a username for the `publish` command
+- Add a new `run_builder` method to the `environment` interface
 - Bump the minimum supported version of Hatchling to 1.17.1
 - Bump the minimum supported version of `click` to 8.0.6
 
