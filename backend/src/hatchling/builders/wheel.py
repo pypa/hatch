@@ -173,9 +173,11 @@ class WheelBuilderConfig(BuilderConfig):
         if self.__include or self.__exclude or self.__packages or self.__only_include:
             return
 
+        # IMPORTANT: try the normalized name first for case insensitive file systems, see:
+        # https://github.com/pypa/hatch/issues/1054
         for project_name in (
-            self.builder.normalize_file_name_component(self.builder.metadata.core.raw_name),
             self.builder.normalize_file_name_component(self.builder.metadata.core.name),
+            self.builder.normalize_file_name_component(self.builder.metadata.core.raw_name),
         ):
             if os.path.isfile(os.path.join(self.root, project_name, '__init__.py')):
                 self.__packages.append(project_name)
