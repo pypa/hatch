@@ -41,8 +41,11 @@ def metadata(app, field):
             ) as status, environment.build_environment(app.project.metadata.build.requires):
                 status.stop()
 
-                command = ['python', '-u', '-m', 'hatchling', 'metadata', '--compact']
-                output = app.platform.check_command_output(command)
+                output = app.platform.check_command_output(
+                    ['python', '-u', '-m', 'hatchling', 'metadata', '--compact'],
+                    # Only capture stdout
+                    stderr=None,
+                )
                 project_metadata = json.loads(output)
 
     if field:
