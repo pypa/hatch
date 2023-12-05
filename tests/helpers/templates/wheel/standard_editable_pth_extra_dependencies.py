@@ -18,31 +18,29 @@ def get_files(**kwargs):
     ]
 
     pth_file_name = f"_{kwargs['package_name']}.pth"
-    files.extend(
-        (
-            File(Path(pth_file_name), '\n'.join(package_paths)),
-            File(
-                Path(metadata_directory, 'WHEEL'),
-                f"""\
+    files.extend((
+        File(Path(pth_file_name), '\n'.join(package_paths)),
+        File(
+            Path(metadata_directory, 'WHEEL'),
+            f"""\
 Wheel-Version: 1.0
 Generator: hatchling {__version__}
 Root-Is-Purelib: true
 Tag: py2-none-any
 Tag: py3-none-any
 """,
-            ),
-            File(
-                Path(metadata_directory, 'METADATA'),
-                f"""\
+        ),
+        File(
+            Path(metadata_directory, 'METADATA'),
+            f"""\
 Metadata-Version: {DEFAULT_METADATA_VERSION}
 Name: {kwargs['project_name']}
 Version: 0.0.1
 License-File: LICENSE.txt
 Requires-Dist: binary
 """,
-            ),
-        )
-    )
+        ),
+    ))
 
     record_file = File(Path(metadata_directory, 'RECORD'), '')
     update_record_file_contents(record_file, files, generated_files={pth_file_name})

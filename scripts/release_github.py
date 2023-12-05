@@ -12,13 +12,11 @@ def main():
 
     version, notes = get_latest_release(args.project)
 
-    params = urlencode(
-        {
-            'title': f'{args.project.capitalize()} v{version}',
-            'tag': f'{args.project}-v{version}',
-            'body': notes,
-        }
-    )
+    params = urlencode({
+        'title': f'{args.project.capitalize()} v{version}',
+        'tag': f'{args.project}-v{version}',
+        'body': notes,
+    })
 
     url = f'https://github.com/pypa/hatch/releases/new?{params}'
     webbrowser.open_new_tab(url)

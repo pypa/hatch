@@ -100,20 +100,18 @@ class InternalFormatEnvironment(InternalEnvironment):
             lines.append(']')
 
         # Default config
-        lines.extend(
-            (
-                '',
-                '[lint.flake8-tidy-imports]',
-                'ban-relative-imports = "all"',
-                '',
-                '[lint.isort]',
-                f'known-first-party = ["{self.metadata.name.replace("-", "_")}"]',
-                '',
-                '[lint.flake8-pytest-style]',
-                'fixture-parentheses = false',
-                'mark-parentheses = false',
-            )
-        )
+        lines.extend((
+            '',
+            '[lint.flake8-tidy-imports]',
+            'ban-relative-imports = "all"',
+            '',
+            '[lint.isort]',
+            f'known-first-party = ["{self.metadata.name.replace("-", "_")}"]',
+            '',
+            '[lint.flake8-pytest-style]',
+            'fixture-parentheses = false',
+            'mark-parentheses = false',
+        ))
 
         # Ensure the file ends with a newline to satisfy other linters
         lines.append('')
@@ -188,7 +186,7 @@ class InternalFormatEnvironment(InternalEnvironment):
         return self.user_config.get(section, {})
 
 
-RUFF_MINIMUM_VERSION: str = '0.1.6'
+RUFF_MINIMUM_VERSION: str = '0.1.7'
 STABLE_RULES: tuple[str, ...] = (
     'A001',
     'A002',
@@ -732,6 +730,7 @@ PREVIEW_RULES: tuple[str, ...] = (
     'FURB145',
     'FURB148',
     'FURB152',
+    'FURB163',
     'FURB168',
     'FURB169',
     'FURB171',
@@ -746,8 +745,13 @@ PREVIEW_RULES: tuple[str, ...] = (
     'PLC2401',
     'PLC2403',
     'PLE0704',
+    'PLE1132',
+    'PLR0202',
+    'PLR0203',
     'PLR1704',
     'PLR1706',
+    'PLR1733',
+    'PLR1736',
     'PLR6201',
     'PLR6301',
     'PLW0108',
@@ -761,8 +765,10 @@ PREVIEW_RULES: tuple[str, ...] = (
     'RUF018',
     'RUF019',
     'S201',
+    'S202',
     'S505',
     'S507',
+    'S611',
     'S702',
     'TRIO100',
     'TRIO105',

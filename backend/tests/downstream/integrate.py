@@ -133,20 +133,18 @@ def main():
 
         print('<<<<< Building backend >>>>>')
         subprocess.check_call([sys.executable, '-m', 'build', '--wheel', '-o', links_dir, backend_path])
-        subprocess.check_call(
-            [
-                sys.executable,
-                '-m',
-                'pip',
-                'download',
-                '-q',
-                '--disable-pip-version-check',
-                '--no-python-version-warning',
-                '-d',
-                links_dir,
-                os.path.join(links_dir, os.listdir(links_dir)[0]),
-            ]
-        )
+        subprocess.check_call([
+            sys.executable,
+            '-m',
+            'pip',
+            'download',
+            '-q',
+            '--disable-pip-version-check',
+            '--no-python-version-warning',
+            '-d',
+            links_dir,
+            os.path.join(links_dir, os.listdir(links_dir)[0]),
+        ])
 
         constraints = []
         constraints_file = os.path.join(build_dir, 'constraints.txt')
@@ -227,31 +225,27 @@ def main():
                 env_vars['PIP_CONSTRAINT'] = constraints_file
                 with EnvVars(env_vars, ignore=('__PYVENV_LAUNCHER__', 'PYTHONHOME')):
                     print('--> Installing project')
-                    subprocess.check_call(
-                        [
-                            shutil.which('pip'),
-                            'install',
-                            '-q',
-                            '--disable-pip-version-check',
-                            '--no-python-version-warning',
-                            '--find-links',
-                            links_dir,
-                            '--no-deps',
-                            repo_dir,
-                        ]
-                    )
+                    subprocess.check_call([
+                        shutil.which('pip'),
+                        'install',
+                        '-q',
+                        '--disable-pip-version-check',
+                        '--no-python-version-warning',
+                        '--find-links',
+                        links_dir,
+                        '--no-deps',
+                        repo_dir,
+                    ])
 
                     print('--> Installing dependencies')
-                    subprocess.check_call(
-                        [
-                            shutil.which('pip'),
-                            'install',
-                            '-q',
-                            '--disable-pip-version-check',
-                            '--no-python-version-warning',
-                            repo_dir,
-                        ]
-                    )
+                    subprocess.check_call([
+                        shutil.which('pip'),
+                        'install',
+                        '-q',
+                        '--disable-pip-version-check',
+                        '--no-python-version-warning',
+                        repo_dir,
+                    ])
 
                     print('--> Testing package')
                     for statement in test_data['statements']:
