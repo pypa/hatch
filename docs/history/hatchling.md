@@ -22,6 +22,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Properly handle non-zero version epoch for the `standard` version scheme
 - Allow using an empty string for the `sources` option to add a prefix to distribution paths
 - Fix the `wheel` target for case insensitive file systems when the project metadata name does not match the directory name on disk
+- Prevent duplicate paths when projects require the `sources` option while build hooks overwrite included paths
 
 ## [1.18.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.18.0) - 2023-06-12 ## {: #hatchling-v1.18.0 }
 

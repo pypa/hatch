@@ -192,6 +192,10 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
             is_package = '__init__.py' in files
             for f in files:
                 relative_file_path = os.path.join(relative_path, f)
+                distribution_path = self.config.get_distribution_path(relative_file_path)
+                if self.config.path_is_reserved(distribution_path):
+                    continue
+
                 if self.config.include_path(relative_file_path, is_package=is_package):
                     yield IncludedFile(
                         os.path.join(root, f), relative_file_path, self.config.get_distribution_path(relative_file_path)
@@ -215,11 +219,12 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
                     files.sort()
                     for f in files:
                         relative_file_path = os.path.join(target_path, relative_directory, f)
-                        if not self.config.path_is_reserved(relative_file_path):
+                        distribution_path = self.config.get_distribution_path(relative_file_path)
+                        if not self.config.path_is_reserved(distribution_path):
                             yield IncludedFile(
                                 os.path.join(root, f),
                                 '' if external else relative_file_path,
-                                self.config.get_distribution_path(relative_file_path),
+                                distribution_path,
                             )
             else:
                 msg = f'Forced include not found: {source}'
@@ -229,11 +234,13 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
         for source, target_path in inclusion_map.items():
             external = not source.startswith(self.root)
             if os.path.isfile(source):
-                yield IncludedFile(
-                    source,
-                    '' if external else os.path.relpath(source, self.root),
-                    self.config.get_distribution_path(target_path),
-                )
+                distribution_path = self.config.get_distribution_path(target_path)
+                if not self.config.path_is_reserved(distribution_path):
+                    yield IncludedFile(
+                        source,
+                        '' if external else os.path.relpath(source, self.root),
+                        self.config.get_distribution_path(target_path),
+                    )
             elif os.path.isdir(source):
                 for root, dirs, files in safe_walk(source):
                     relative_directory = get_relative_path(root, source)
@@ -244,11 +251,13 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
                     is_package = '__init__.py' in files
                     for f in files:
                         relative_file_path = os.path.join(target_path, relative_directory, f)
+                        distribution_path = self.config.get_distribution_path(relative_file_path)
+                        if self.config.path_is_reserved(distribution_path):
+                            continue
+
                         if self.config.include_path(relative_file_path, explicit=True, is_package=is_package):
                             yield IncludedFile(
-                                os.path.join(root, f),
-                                '' if external else relative_file_path,
-                                self.config.get_distribution_path(relative_file_path),
+                                os.path.join(root, f), '' if external else relative_file_path, distribution_path
                             )
 
     @property
