@@ -182,7 +182,7 @@ class TestDirectoryRecursion:
 
             assert [f.path for f in builder.recurse_included_files()] == [str(project_dir / 'foo' / 'bar.txt')]
 
-    def test_no_duplication(self, temp_dir):
+    def test_no_duplication_force_include_only(self, temp_dir):
         project_dir = temp_dir / 'project'
         project_dir.ensure_dir_exists()
 
@@ -216,6 +216,77 @@ class TestDirectoryRecursion:
                     (str(project_dir / 'foo.txt'), 'foo.txt'),
                     (str(project_dir / 'old' / 'target1.txt'), f'new{path_sep}target1.txt'),
                     (str(temp_dir / 'external.txt'), f'new{path_sep}target2.txt'),
+                ]
+
+    def test_no_duplication_force_include_and_selection(self, temp_dir):
+        project_dir = temp_dir / 'project'
+        project_dir.ensure_dir_exists()
+
+        with project_dir.as_cwd():
+            config = {
+                'tool': {
+                    'hatch': {
+                        'build': {
+                            'include': ['foo.txt', 'bar.txt', 'baz.txt'],
+                            'force-include': {'../external.txt': 'new/file.txt'},
+                        }
+                    }
+                }
+            }
+            builder = MockBuilder(str(project_dir), config=config)
+
+            (project_dir / 'foo.txt').touch()
+            (project_dir / 'bar.txt').touch()
+            (project_dir / 'baz.txt').touch()
+            (temp_dir / 'external.txt').touch()
+
+            build_data = builder.get_default_build_data()
+            builder.set_build_data_defaults(build_data)
+            build_data['force_include']['bar.txt'] = 'bar.txt'
+
+            with builder.config.set_build_data(build_data):
+                assert [(f.path, f.distribution_path) for f in builder.recurse_included_files()] == [
+                    (str(project_dir / 'baz.txt'), 'baz.txt'),
+                    (str(project_dir / 'foo.txt'), 'foo.txt'),
+                    (str(temp_dir / 'external.txt'), f'new{path_sep}file.txt'),
+                    (str(project_dir / 'bar.txt'), 'bar.txt'),
+                ]
+
+    def test_no_duplication_force_include_with_sources(self, temp_dir):
+        project_dir = temp_dir / 'project'
+        project_dir.ensure_dir_exists()
+
+        with project_dir.as_cwd():
+            config = {
+                'tool': {
+                    'hatch': {
+                        'build': {
+                            'include': ['src'],
+                            'sources': ['src'],
+                            'force-include': {'../external.txt': 'new/file.txt'},
+                        }
+                    }
+                }
+            }
+            builder = MockBuilder(str(project_dir), config=config)
+
+            src_dir = project_dir / 'src'
+            src_dir.mkdir()
+            (src_dir / 'foo.txt').touch()
+            (src_dir / 'bar.txt').touch()
+            (src_dir / 'baz.txt').touch()
+            (temp_dir / 'external.txt').touch()
+
+            build_data = builder.get_default_build_data()
+            builder.set_build_data_defaults(build_data)
+            build_data['force_include']['src/bar.txt'] = 'bar.txt'
+
+            with builder.config.set_build_data(build_data):
+                assert [(f.path, f.distribution_path) for f in builder.recurse_included_files()] == [
+                    (str(src_dir / 'baz.txt'), 'baz.txt'),
+                    (str(src_dir / 'foo.txt'), 'foo.txt'),
+                    (str(temp_dir / 'external.txt'), f'new{path_sep}file.txt'),
+                    (str(src_dir / 'bar.txt'), 'bar.txt'),
                 ]
 
     def test_exists(self, temp_dir):

@@ -90,7 +90,6 @@ class BuilderConfig:
             or self.path_is_artifact(relative_path)
             or (
                 not (self.only_packages and not is_package)
-                and not self.path_is_reserved(relative_path)
                 and not self.path_is_excluded(relative_path)
                 and (explicit or self.path_is_included(relative_path))
             )
@@ -898,11 +897,11 @@ class BuilderConfig:
                     # old/ -> new/
                     # old.ext -> new.ext
                     if source.startswith(f'{self.root}{os.sep}'):
-                        self.build_reserved_paths.add(os.path.relpath(source, self.root))
+                        self.build_reserved_paths.add(self.get_distribution_path(os.path.relpath(source, self.root)))
                     # Ignore target files only
                     # ../out.ext -> ../in.ext
                     elif os.path.isfile(source):
-                        self.build_reserved_paths.add(target)
+                        self.build_reserved_paths.add(self.get_distribution_path(target))
 
             yield
         finally:
