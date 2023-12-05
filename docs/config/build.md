@@ -2,15 +2,14 @@
 
 -----
 
-All build configuration is defined in the `tool.hatch.build` table.
-
 [Build targets](#build-targets) are defined as sections within `tool.hatch.build.targets`:
 
 ```toml config-example
 [tool.hatch.build.targets.<TARGET_NAME>]
 ```
 
-For each build target you may override any of the defaults set in the top-level `tool.hatch.build` table.
+!!! tip
+    Although not recommended, you may define global configuration in the `tool.hatch.build` table which targets may override.
 
 ## Build system
 
@@ -33,7 +32,7 @@ Hatchling is a [PEP 517][]/[PEP 660][] compatible build backend and is a depende
 By default, Hatch will respect the first `.gitignore` or `.hgignore` file found in your project's root directory or parent directories. Set `ignore-vcs` to `true` to disable this behavior:
 
 ```toml config-example
-[tool.hatch.build]
+[tool.hatch.build.targets.sdist]
 ignore-vcs = true
 ```
 
@@ -47,7 +46,7 @@ You can set the `include` and `exclude` options to select exactly which files wi
 For example, the following configuration:
 
 ```toml config-example
-[tool.hatch.build]
+[tool.hatch.build.targets.sdist]
 include = [
   "pkg/*.py",
   "/tests",
@@ -70,7 +69,7 @@ When using the `!` operator, the negated pattern(s) must come after the more
 generic ones.
 
 ```toml config-example
-[tool.hatch.build]
+[tool.hatch.build.targets.wheel]
 artifacts = [
   "*.so",
   "*.dll",
@@ -85,7 +84,7 @@ artifacts = [
 You can use the `only-include` option to prevent directory traversal starting at the project root and only select specific relative paths to directories or files. Using this option ignores any defined [`include` patterns](#patterns).
 
 ```toml config-example
-[tool.hatch.build.targets.wheel]
+[tool.hatch.build.targets.sdist]
 only-include = ["pkg", "tests/unit"]
 ```
 
@@ -130,7 +129,7 @@ If no file selection options are provided, then what gets included is determined
 If you want to exclude non-[artifact](#artifacts) files that do not reside within a Python package, set `only-packages` to `true`:
 
 ```toml config-example
-[tool.hatch.build]
+[tool.hatch.build.targets.wheel]
 only-packages = true
 ```
 
@@ -139,7 +138,7 @@ only-packages = true
 You can rewrite relative paths to directories with the `sources` option. For example, the following configuration:
 
 ```toml config-example
-[tool.hatch.build.sources]
+[tool.hatch.build.targets.wheel.sources]
 "src/foo" = "bar"
 ```
 
@@ -148,14 +147,14 @@ would distribute the file `src/foo/file.ext` as `bar/file.ext`.
 If you want to remove path prefixes entirely, rather than setting each to an empty string, you can define `sources` as an array:
 
 ```toml config-example
-[tool.hatch.build]
+[tool.hatch.build.targets.wheel]
 sources = ["src"]
 ```
 
 If you want to add a prefix to paths, you can use an empty string. For example, the following configuration:
 
 ```toml config-example
-[tool.hatch.build.sources]
+[tool.hatch.build.targets.wheel.sources]
 "" = "foo"
 ```
 
