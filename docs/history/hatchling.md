@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ***Changed:***
 
 - An error will now be raised if a force-included path does not exist
+- An error will now be raised for the `wheel` target if no file selection options are defined
 
 ***Added:***
 

@@ -111,15 +111,20 @@ class TestDefaultFileSelection:
         config = {'project': {'name': 'my-app', 'version': '0.0.1'}}
         builder = WheelBuilder(str(temp_dir), config=config)
 
-        for i in range(2):
-            namespace_root = temp_dir / f'ns{i}' / 'my_app' / '__init__.py'
-            namespace_root.ensure_parent_dir_exists()
-            namespace_root.touch()
-
-        assert builder.config.default_include() == ['*.py']
-        assert builder.config.default_exclude() == ['test*']
-        assert builder.config.default_packages() == []
-        assert builder.config.default_only_include() == []
+        for method in (
+            builder.config.default_include,
+            builder.config.default_exclude,
+            builder.config.default_packages,
+            builder.config.default_only_include,
+        ):
+            with pytest.raises(
+                ValueError,
+                match=(
+                    'At least one file selection option must be defined, see: '
+                    'https://hatch.pypa.io/latest/config/build/'
+                ),
+            ):
+                _ = method()
 
     def test_unnormalized_name_with_unnormalized_directory(self, temp_dir):
         config = {'project': {'name': 'MyApp', 'version': '0.0.1'}}

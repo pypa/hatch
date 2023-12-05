@@ -203,8 +203,10 @@ class WheelBuilderConfig(BuilderConfig):
                 self.__packages.append(namespace)
                 break
         else:
-            self.__include.append('*.py')
-            self.__exclude.append('test*')
+            message = (
+                'At least one file selection option must be defined, see: https://hatch.pypa.io/latest/config/build/'
+            )
+            raise ValueError(message)
 
     def default_include(self) -> list[str]:
         if not self.__include_defined:
