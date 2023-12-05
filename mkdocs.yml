@@ -48,13 +48,15 @@ theme:
 nav:
   - Home:
     - About: index.md
-    - Installation: install.md
-    - Introduction: intro.md
-    - Environments: environment.md
-    - Versioning: version.md
-    - Builds: build.md
-    - Publishing: publish.md
-    - Next steps: next-steps.md
+    - Walkthrough:
+      - Installation: install.md
+      - Introduction: intro.md
+      - Environments: environment.md
+      - Versioning: version.md
+      - Builds: build.md
+      - Publishing: publish.md
+    - Learn:
+      - Next steps: next-steps.md
     - History:
       - Hatch: history/hatch.md
       - Hatchling: history/hatchling.md
