@@ -28,7 +28,7 @@ UNSELECTED_RULE_PATTERNS: list[str] = [
     # Conflicts with type checking
     'RET501', 'RET502',
     # Under review https://github.com/astral-sh/ruff/issues/8796
-    'PT001', 'PT004', 'PT005', 'PT023',
+    'PT004', 'PT005',
     # Buggy https://github.com/astral-sh/ruff/issues/4845
     'ERA001',
     # Too prone to false positives and might be removed https://github.com/astral-sh/ruff/issues/4045

@@ -145,7 +145,7 @@ def test_enter_project_directory(hatch, config_file, helpers, temp_dir):
     assert str(env_path) in str(output_file.read_text())
 
 
-@pytest.mark.requires_internet()
+@pytest.mark.requires_internet
 def test_sync_dependencies(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
@@ -220,7 +220,7 @@ def test_sync_dependencies(hatch, helpers, temp_dir, config_file):
     assert str(output_file.read_text()) == "(1.0, 'KiB')"
 
 
-@pytest.mark.requires_internet()
+@pytest.mark.requires_internet
 def test_sync_project_dependencies(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
@@ -293,7 +293,7 @@ def test_sync_project_dependencies(hatch, helpers, temp_dir, config_file):
     assert str(output_file.read_text()) == "(1.0, 'KiB')"
 
 
-@pytest.mark.requires_internet()
+@pytest.mark.requires_internet
 def test_sync_project_features(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
@@ -372,7 +372,7 @@ def test_sync_project_features(hatch, helpers, temp_dir, config_file):
     assert str(output_file.read_text()) == "(1.0, 'KiB')"
 
 
-@pytest.mark.requires_internet()
+@pytest.mark.requires_internet
 def test_dependency_hash_checking(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
@@ -586,7 +586,7 @@ def test_scripts_specific_environment(hatch, helpers, temp_dir, config_file):
     assert env_var_value == 'bar'
 
 
-@pytest.mark.requires_internet()
+@pytest.mark.requires_internet
 def test_scripts_no_environment(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
@@ -1865,7 +1865,7 @@ def test_plugin_dependencies_unmet(hatch, helpers, temp_dir, config_file, mock_p
     assert str(env_path) in str(output_file.read_text())
 
 
-@pytest.mark.requires_internet()
+@pytest.mark.requires_internet
 def test_install_python_specific(hatch, helpers, temp_dir, config_file, mocker, available_python_version):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
@@ -1932,7 +1932,7 @@ def test_install_python_specific(hatch, helpers, temp_dir, config_file, mocker, 
     assert list(manager.get_installed()) == [available_python_version]
 
 
-@pytest.mark.requires_internet()
+@pytest.mark.requires_internet
 def test_update_python_specific(hatch, helpers, temp_dir, config_file, mocker, available_python_version):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
@@ -2002,7 +2002,7 @@ def test_update_python_specific(hatch, helpers, temp_dir, config_file, mocker, a
     assert str(env_path) in str(output_file.read_text())
 
 
-@pytest.mark.requires_internet()
+@pytest.mark.requires_internet
 def test_install_python_max_compatible(hatch, helpers, temp_dir, config_file, mocker, available_python_version):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
@@ -2065,7 +2065,7 @@ def test_install_python_max_compatible(hatch, helpers, temp_dir, config_file, mo
     assert list(manager.get_installed()) == [available_python_version]
 
 
-@pytest.mark.requires_internet()
+@pytest.mark.requires_internet
 def test_update_python_max_compatible(hatch, helpers, temp_dir, config_file, mocker, available_python_version):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()

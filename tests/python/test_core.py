@@ -7,7 +7,7 @@ from hatch.python.distributions import DISTRIBUTIONS, ORDERED_DISTRIBUTIONS
 from hatch.python.resolve import get_distribution
 
 
-@pytest.mark.requires_internet()
+@pytest.mark.requires_internet
 @pytest.mark.parametrize('name', ORDERED_DISTRIBUTIONS)
 def test_installation(temp_dir, platform, name):
     # Ensure the source and any parent directories get created

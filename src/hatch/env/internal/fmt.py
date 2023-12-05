@@ -108,6 +108,10 @@ class InternalFormatEnvironment(InternalEnvironment):
                 '',
                 '[lint.isort]',
                 f'known-first-party = ["{self.metadata.name.replace("-", "_")}"]',
+                '',
+                '[lint.flake8-pytest-style]',
+                'fixture-parentheses = false',
+                'mark-parentheses = false',
             )
         )
 
@@ -438,6 +442,7 @@ STABLE_RULES: tuple[str, ...] = (
     'PLW1510',
     'PLW2901',
     'PLW3301',
+    'PT001',
     'PT002',
     'PT003',
     'PT006',
@@ -457,6 +462,7 @@ STABLE_RULES: tuple[str, ...] = (
     'PT020',
     'PT021',
     'PT022',
+    'PT023',
     'PT024',
     'PT025',
     'PT026',
