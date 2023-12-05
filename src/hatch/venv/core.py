@@ -42,7 +42,7 @@ class VirtualEnv:
 
         self._env_vars_to_restore.clear()
 
-    def create(self, python, allow_system_packages=False):
+    def create(self, python, *, allow_system_packages=False):
         # WARNING: extremely slow import
         from virtualenv import cli_run
 
@@ -76,16 +76,19 @@ class VirtualEnv:
                 if exe_dir.is_dir():
                     self._executables_directory = exe_dir
                 else:
-                    raise OSError(f'Unable to locate executables directory within: {self.directory}')
+                    msg = f'Unable to locate executables directory within: {self.directory}'
+                    raise OSError(msg)
             # Debian
             elif (self.directory / 'local').is_dir():  # no cov
                 exe_dir = self.directory / 'local' / 'bin'
                 if exe_dir.is_dir():
                     self._executables_directory = exe_dir
                 else:
-                    raise OSError(f'Unable to locate executables directory within: {self.directory}')
+                    msg = f'Unable to locate executables directory within: {self.directory}'
+                    raise OSError(msg)
             else:
-                raise OSError(f'Unable to locate executables directory within: {self.directory}')
+                msg = f'Unable to locate executables directory within: {self.directory}'
+                raise OSError(msg)
 
         return self._executables_directory
 

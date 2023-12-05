@@ -1,5 +1,8 @@
 extend = "ruff_defaults.toml"
 
+# https://github.com/astral-sh/ruff/issues/8627
+exclude = [".git", ".mypy_cache", ".ruff_cache", ".venv", "dist"]
+
 [lint]
 preview = true
 ignore = [

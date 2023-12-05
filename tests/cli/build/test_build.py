@@ -80,20 +80,20 @@ class TestOtherBackend:
         data_path.mkdir()
 
         (path / 'pyproject.toml').write_text(
-                """\
+            """\
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 """
         )
         (path / 'setup.py').write_text(
-                """\
+            """\
 import setuptools
 setuptools.setup(name="tmp", version="0.0.1")
 """
         )
         (path / 'tmp.py').write_text(
-                """\
+            """\
 print("Hello World!")
 """
         )
@@ -208,8 +208,8 @@ def test_default(hatch, temp_dir, helpers):
     artifacts = list(build_directory.iterdir())
     assert len(artifacts) == 2
 
-    sdist_path = [artifact for artifact in artifacts if artifact.name.endswith('.tar.gz')][0]
-    wheel_path = [artifact for artifact in artifacts if artifact.name.endswith('.whl')][0]
+    sdist_path = next(artifact for artifact in artifacts if artifact.name.endswith('.tar.gz'))
+    wheel_path = next(artifact for artifact in artifacts if artifact.name.endswith('.whl'))
 
     assert result.output == helpers.dedent(
         f"""
@@ -243,7 +243,7 @@ def test_explicit_targets(hatch, temp_dir, helpers):
     artifacts = list(build_directory.iterdir())
     assert len(artifacts) == 1
 
-    wheel_path = [artifact for artifact in artifacts if artifact.name.endswith('.whl')][0]
+    wheel_path = next(artifact for artifact in artifacts if artifact.name.endswith('.whl'))
 
     assert result.output == helpers.dedent(
         f"""
@@ -273,8 +273,8 @@ def test_explicit_directory(hatch, temp_dir, helpers):
     artifacts = list(build_directory.iterdir())
     assert len(artifacts) == 2
 
-    sdist_path = [artifact for artifact in artifacts if artifact.name.endswith('.tar.gz')][0]
-    wheel_path = [artifact for artifact in artifacts if artifact.name.endswith('.whl')][0]
+    sdist_path = next(artifact for artifact in artifacts if artifact.name.endswith('.tar.gz'))
+    wheel_path = next(artifact for artifact in artifacts if artifact.name.endswith('.whl'))
 
     assert result.output == helpers.dedent(
         f"""
@@ -307,8 +307,8 @@ def test_explicit_directory_env_var(hatch, temp_dir, helpers):
     artifacts = list(build_directory.iterdir())
     assert len(artifacts) == 2
 
-    sdist_path = [artifact for artifact in artifacts if artifact.name.endswith('.tar.gz')][0]
-    wheel_path = [artifact for artifact in artifacts if artifact.name.endswith('.whl')][0]
+    sdist_path = next(artifact for artifact in artifacts if artifact.name.endswith('.tar.gz'))
+    wheel_path = next(artifact for artifact in artifacts if artifact.name.endswith('.whl'))
 
     assert result.output == helpers.dedent(
         f"""
@@ -389,10 +389,10 @@ def test_clean(hatch, temp_dir, helpers, config_file):
     assert len(artifacts) == 3
     assert test_file in artifacts
 
-    sdist_path = [artifact for artifact in artifacts if artifact.name.endswith('.tar.gz')][0]
+    sdist_path = next(artifact for artifact in artifacts if artifact.name.endswith('.tar.gz'))
     assert '9000' in str(sdist_path)
 
-    wheel_path = [artifact for artifact in artifacts if artifact.name.endswith('.whl')][0]
+    wheel_path = next(artifact for artifact in artifacts if artifact.name.endswith('.whl'))
     assert '9000' in str(wheel_path)
 
     assert result.output == helpers.dedent(
@@ -446,10 +446,10 @@ def test_clean_env_var(hatch, temp_dir, helpers):
     assert len(artifacts) == 3
     assert test_file in artifacts
 
-    sdist_path = [artifact for artifact in artifacts if artifact.name.endswith('.tar.gz')][0]
+    sdist_path = next(artifact for artifact in artifacts if artifact.name.endswith('.tar.gz'))
     assert '9000' in str(sdist_path)
 
-    wheel_path = [artifact for artifact in artifacts if artifact.name.endswith('.whl')][0]
+    wheel_path = next(artifact for artifact in artifacts if artifact.name.endswith('.whl'))
     assert '9000' in str(wheel_path)
 
     assert result.output == helpers.dedent(
@@ -646,8 +646,8 @@ def test_clean_hooks_after(hatch, temp_dir, helpers, config_file):
     artifacts = list(build_directory.iterdir())
     assert len(artifacts) == 2
 
-    sdist_path = [artifact for artifact in artifacts if artifact.name.endswith('.tar.gz')][0]
-    wheel_path = [artifact for artifact in artifacts if artifact.name.endswith('.whl')][0]
+    sdist_path = next(artifact for artifact in artifacts if artifact.name.endswith('.tar.gz'))
+    wheel_path = next(artifact for artifact in artifacts if artifact.name.endswith('.whl'))
 
     assert result.output == helpers.dedent(
         f"""
@@ -709,8 +709,8 @@ def test_clean_hooks_after_env_var(hatch, temp_dir, helpers, config_file):
     artifacts = list(build_directory.iterdir())
     assert len(artifacts) == 2
 
-    sdist_path = [artifact for artifact in artifacts if artifact.name.endswith('.tar.gz')][0]
-    wheel_path = [artifact for artifact in artifacts if artifact.name.endswith('.whl')][0]
+    sdist_path = next(artifact for artifact in artifacts if artifact.name.endswith('.tar.gz'))
+    wheel_path = next(artifact for artifact in artifacts if artifact.name.endswith('.whl'))
 
     assert result.output == helpers.dedent(
         f"""
@@ -998,7 +998,7 @@ def test_no_hooks(hatch, temp_dir, helpers):
     assert len(artifacts) == 1
     assert not (path / 'my_app' / 'lib.so').exists()
 
-    wheel_path = [artifact for artifact in artifacts if artifact.name.endswith('.whl')][0]
+    wheel_path = next(artifact for artifact in artifacts if artifact.name.endswith('.whl'))
 
     assert result.output == helpers.dedent(
         f"""
@@ -1051,7 +1051,7 @@ def test_no_hooks_env_var(hatch, temp_dir, helpers):
     assert len(artifacts) == 1
     assert not (path / 'my_app' / 'lib.so').exists()
 
-    wheel_path = [artifact for artifact in artifacts if artifact.name.endswith('.whl')][0]
+    wheel_path = next(artifact for artifact in artifacts if artifact.name.endswith('.whl'))
 
     assert result.output == helpers.dedent(
         f"""
@@ -1082,7 +1082,7 @@ def test_debug_verbosity(hatch, temp_dir, helpers):
     artifacts = list(build_directory.iterdir())
     assert len(artifacts) == 1
 
-    wheel_path = [artifact for artifact in artifacts if artifact.name.endswith('.whl')][0]
+    wheel_path = next(artifact for artifact in artifacts if artifact.name.endswith('.whl'))
 
     assert result.output == helpers.dedent(
         f"""
@@ -1253,8 +1253,8 @@ def test_plugin_dependencies_unmet(hatch, temp_dir, helpers, mock_plugin_install
     artifacts = list(build_directory.iterdir())
     assert len(artifacts) == 2
 
-    sdist_path = [artifact for artifact in artifacts if artifact.name.endswith('.tar.gz')][0]
-    wheel_path = [artifact for artifact in artifacts if artifact.name.endswith('.whl')][0]
+    sdist_path = next(artifact for artifact in artifacts if artifact.name.endswith('.tar.gz'))
+    wheel_path = next(artifact for artifact in artifacts if artifact.name.endswith('.whl'))
 
     assert result.output == helpers.dedent(
         f"""
