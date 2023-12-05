@@ -274,13 +274,11 @@ def test_all(hatch, temp_dir_data, path_append, default_shells, mocker, compatib
     for dist in mocked_dists:
         expected_lines.extend((f'Installing {dist.path.name}', f'Installed {dist.path.name} @ {dist.path}'))
 
-    expected_lines.extend(
-        (
-            '',
-            'The following directories have been added to your PATH (pending a shell restart):',
-            '',
-        )
-    )
+    expected_lines.extend((
+        '',
+        'The following directories have been added to your PATH (pending a shell restart):',
+        '',
+    ))
     expected_lines.extend(str(dist.python_path.parent) for dist in mocked_dists)
     expected_lines.append('')
 

@@ -20,31 +20,29 @@ def get_files(**kwargs):
 
         files.append(File(Path(*f.path.parts[1:]), f.contents))
 
-    files.extend(
-        (
-            File(Path(kwargs['package_name'], 'lib.so'), ''),
-            File(Path('zlib.pyd'), ''),
-            File(
-                Path(metadata_directory, 'WHEEL'),
-                f"""\
+    files.extend((
+        File(Path(kwargs['package_name'], 'lib.so'), ''),
+        File(Path('zlib.pyd'), ''),
+        File(
+            Path(metadata_directory, 'WHEEL'),
+            f"""\
 Wheel-Version: 1.0
 Generator: hatchling {__version__}
 Root-Is-Purelib: false
 Tag: {kwargs.get('tag', '')}
 """,
-            ),
-            File(
-                Path(metadata_directory, 'METADATA'),
-                f"""\
+        ),
+        File(
+            Path(metadata_directory, 'METADATA'),
+            f"""\
 Metadata-Version: {DEFAULT_METADATA_VERSION}
 Name: {kwargs['project_name']}
 Version: 0.0.1
 License-File: LICENSE.txt
 Requires-Python: >3
 """,
-            ),
-        )
-    )
+        ),
+    ))
 
     record_file = File(Path(metadata_directory, 'RECORD'), '')
     update_record_file_contents(record_file, files)

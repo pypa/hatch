@@ -16,7 +16,7 @@ UNSELECTED_RULE_PATTERNS: list[str] = [
     # Allow boolean positional values in function calls, like `dict.get(... True)`
     'FBT003',
     # Ignore complexity
-    'C901', 'PLR0904', 'PLR0911', 'PLR0912', 'PLR0913', 'PLR0915', 'PLR0916',
+    'C901', 'PLR0904', 'PLR0911', 'PLR0912', 'PLR0913', 'PLR0915', 'PLR0916', 'PLR0917',
     # These are dependent on projects themselves
     'AIR\\d+', 'CPY\\d+', 'D\\d+', 'DJ\\d+', 'NPY\\d+', 'PD\\d+',
     # Many projects either don't have type annotations or it would take much effort to satisfy this

@@ -81,38 +81,34 @@ def main():
         components_dir = temp_dir / 'components'
         components_dir.mkdir()
 
-        run_command(
-            [
-                'pkgbuild',
-                '--root',
-                str(root_dir),
-                '--identifier',
-                IDENTIFIER,
-                '--version',
-                version,
-                '--install-location',
-                '/',
-                str(components_dir / COMPONENT_PACKAGE_NAME),
-            ]
-        )
+        run_command([
+            'pkgbuild',
+            '--root',
+            str(root_dir),
+            '--identifier',
+            IDENTIFIER,
+            '--version',
+            version,
+            '--install-location',
+            '/',
+            str(components_dir / COMPONENT_PACKAGE_NAME),
+        ])
 
         # This is where we build the final artifact
         build_dir = temp_dir / 'build'
         build_dir.mkdir()
         product_archive = build_dir / f'{binary_name}-{version}.pkg'
 
-        run_command(
-            [
-                'productbuild',
-                '--distribution',
-                str(ASSETS_DIR / 'distribution.xml'),
-                '--resources',
-                str(resources_dir),
-                '--package-path',
-                str(components_dir),
-                str(product_archive),
-            ]
-        )
+        run_command([
+            'productbuild',
+            '--distribution',
+            str(ASSETS_DIR / 'distribution.xml'),
+            '--resources',
+            str(resources_dir),
+            '--package-path',
+            str(components_dir),
+            str(product_archive),
+        ])
 
         # Copy the final artifact to the target directory
         directory.mkdir(parents=True, exist_ok=True)

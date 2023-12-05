@@ -352,9 +352,11 @@ class TestBuildBootstrap:
         subprocess_run.assert_called_once_with(
             ['cargo', 'install', 'pyapp', '--force', '--root', mocker.ANY],
             cwd=mocker.ANY,
-            env=ExpectedEnvVars(
-                {'PYAPP_PROJECT_NAME': 'my-app', 'PYAPP_PROJECT_VERSION': '0.1.0', 'PYAPP_EXEC_SPEC': 'bar.baz:cli'}
-            ),
+            env=ExpectedEnvVars({
+                'PYAPP_PROJECT_NAME': 'my-app',
+                'PYAPP_PROJECT_VERSION': '0.1.0',
+                'PYAPP_EXEC_SPEC': 'bar.baz:cli',
+            }),
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
         )
@@ -396,9 +398,11 @@ class TestBuildBootstrap:
         subprocess_run.assert_called_once_with(
             ['cargo', 'install', 'pyapp', '--force', '--root', mocker.ANY],
             cwd=mocker.ANY,
-            env=ExpectedEnvVars(
-                {'PYAPP_PROJECT_NAME': 'my-app', 'PYAPP_PROJECT_VERSION': '0.1.0', 'PYAPP_EXEC_SPEC': 'bar.baz:cli'}
-            ),
+            env=ExpectedEnvVars({
+                'PYAPP_PROJECT_NAME': 'my-app',
+                'PYAPP_PROJECT_VERSION': '0.1.0',
+                'PYAPP_EXEC_SPEC': 'bar.baz:cli',
+            }),
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
         )
@@ -508,9 +512,11 @@ class TestBuildBootstrap:
         subprocess_run.assert_called_once_with(
             ['cargo', 'install', 'pyapp', '--force', '--root', mocker.ANY],
             cwd=mocker.ANY,
-            env=ExpectedEnvVars(
-                {'PYAPP_PROJECT_NAME': 'my-app', 'PYAPP_PROJECT_VERSION': '0.1.0', 'PYAPP_PYTHON_VERSION': '4.0'}
-            ),
+            env=ExpectedEnvVars({
+                'PYAPP_PROJECT_NAME': 'my-app',
+                'PYAPP_PROJECT_VERSION': '0.1.0',
+                'PYAPP_PYTHON_VERSION': '4.0',
+            }),
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
         )

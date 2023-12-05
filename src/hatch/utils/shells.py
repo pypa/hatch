@@ -19,17 +19,15 @@ class ShellManager:
         self.environment.platform.exit_with_command([path or 'cmd', '/k', str(exe_dir / 'activate.bat')])
 
     def enter_powershell(self, path: str, args: Iterable[str], exe_dir: Path) -> None:  # noqa: ARG002
-        self.environment.platform.exit_with_command(
-            [
-                path or 'powershell',
-                '-executionpolicy',
-                'bypass',
-                '-NoExit',
-                '-NoLogo',
-                '-File',
-                str(exe_dir / 'activate.ps1'),
-            ]
-        )
+        self.environment.platform.exit_with_command([
+            path or 'powershell',
+            '-executionpolicy',
+            'bypass',
+            '-NoExit',
+            '-NoLogo',
+            '-File',
+            str(exe_dir / 'activate.ps1'),
+        ])
 
     def enter_pwsh(self, path: str, args: Iterable[str], exe_dir: Path) -> None:
         self.enter_powershell(path or 'pwsh', args, exe_dir)
@@ -37,9 +35,12 @@ class ShellManager:
     def enter_xonsh(self, path: str, args: Iterable[str], exe_dir: Path) -> None:
         if self.environment.platform.windows:
             with self.environment:
-                self.environment.platform.exit_with_command(
-                    [path or 'xonsh', *(args or ['-i']), '-D', f'VIRTUAL_ENV={exe_dir.parent.name}']
-                )
+                self.environment.platform.exit_with_command([
+                    path or 'xonsh',
+                    *(args or ['-i']),
+                    '-D',
+                    f'VIRTUAL_ENV={exe_dir.parent.name}',
+                ])
         else:
             self.spawn_linux_shell(
                 path or 'xonsh',
@@ -50,9 +51,12 @@ class ShellManager:
 
     def enter_bash(self, path: str, args: Iterable[str], exe_dir: Path) -> None:
         if self.environment.platform.windows:
-            self.environment.platform.exit_with_command(
-                [path or 'bash', '--init-file', exe_dir / 'activate', *(args or ['-i'])]
-            )
+            self.environment.platform.exit_with_command([
+                path or 'bash',
+                '--init-file',
+                exe_dir / 'activate',
+                *(args or ['-i']),
+            ])
         else:
             self.spawn_linux_shell(path or 'bash', args or ['-i'], script=exe_dir / 'activate')
 

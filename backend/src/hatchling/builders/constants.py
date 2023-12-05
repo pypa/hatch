@@ -1,27 +1,25 @@
 DEFAULT_BUILD_DIRECTORY = 'dist'
 
-EXCLUDED_DIRECTORIES = frozenset(
-    (
-        # Python bytecode
-        '__pycache__',
-        # Git
-        '.git',
-        # Mercurial
-        '.hg',
-        # Hatch
-        '.hatch',
-        # tox
-        '.tox',
-        # nox
-        '.nox',
-        # Ruff
-        '.ruff_cache',
-        # pytest
-        '.pytest_cache',
-        # Mypy
-        '.mypy_cache',
-    )
-)
+EXCLUDED_DIRECTORIES = frozenset((
+    # Python bytecode
+    '__pycache__',
+    # Git
+    '.git',
+    # Mercurial
+    '.hg',
+    # Hatch
+    '.hatch',
+    # tox
+    '.tox',
+    # nox
+    '.nox',
+    # Ruff
+    '.ruff_cache',
+    # pytest
+    '.pytest_cache',
+    # Mypy
+    '.mypy_cache',
+))
 
 
 class BuildEnvVars:

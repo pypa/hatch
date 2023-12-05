@@ -9,27 +9,25 @@ def get_files(**kwargs):
     relative_root = kwargs.get('relative_root', '')
 
     files = [File(Path(relative_root, f.path), f.contents) for f in get_template_files(**kwargs)]
-    files.extend(
-        (
-            File(Path(relative_root, kwargs['package_name'], 'lib.so'), ''),
-            File(
-                Path(relative_root, '.gitignore'),
-                """\
+    files.extend((
+        File(Path(relative_root, kwargs['package_name'], 'lib.so'), ''),
+        File(
+            Path(relative_root, '.gitignore'),
+            """\
 *.pyc
 *.so
 *.h
 """,
-            ),
-            File(
-                Path(relative_root, 'PKG-INFO'),
-                f"""\
+        ),
+        File(
+            Path(relative_root, 'PKG-INFO'),
+            f"""\
 Metadata-Version: {DEFAULT_METADATA_VERSION}
 Name: {kwargs['project_name']}
 Version: 0.0.1
 License-File: LICENSE.txt
 """,
-            ),
-        )
-    )
+        ),
+    ))
 
     return files

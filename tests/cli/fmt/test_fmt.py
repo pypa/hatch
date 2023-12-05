@@ -25,20 +25,18 @@ def construct_ruff_defaults_file(rules: tuple[str, ...]) -> str:
         lines.append(']')
 
     # Default config
-    lines.extend(
-        (
-            '',
-            '[lint.flake8-tidy-imports]',
-            'ban-relative-imports = "all"',
-            '',
-            '[lint.isort]',
-            'known-first-party = ["my_app"]',
-            '',
-            '[lint.flake8-pytest-style]',
-            'fixture-parentheses = false',
-            'mark-parentheses = false',
-        )
-    )
+    lines.extend((
+        '',
+        '[lint.flake8-tidy-imports]',
+        'ban-relative-imports = "all"',
+        '',
+        '[lint.isort]',
+        'known-first-party = ["my_app"]',
+        '',
+        '[lint.flake8-pytest-style]',
+        'fixture-parentheses = false',
+        'mark-parentheses = false',
+    ))
 
     # Ensure the file ends with a newline to satisfy other linters
     lines.append('')
