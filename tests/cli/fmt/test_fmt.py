@@ -33,6 +33,10 @@ def construct_ruff_defaults_file(rules: tuple[str, ...]) -> str:
             '',
             '[lint.isort]',
             'known-first-party = ["my_app"]',
+            '',
+            '[lint.flake8-pytest-style]',
+            'fixture-parentheses = false',
+            'mark-parentheses = false',
         )
     )
 
