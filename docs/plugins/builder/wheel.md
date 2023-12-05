@@ -27,7 +27,7 @@ The builder plugin name is `wheel`.
 | Version | Description |
 | --- | --- |
 | `standard` (default) | The latest standardized format |
-| `editable`           | A wheel that only ships `.pth` files or import hooks for real-time development |
+| `editable` | A wheel that only ships `.pth` files or import hooks for real-time development |
 
 ## Default file selection
 
@@ -37,7 +37,8 @@ When the user has not set any [file selection](../../config/build.md#file-select
 2. `src/<NAME>/__init__.py`
 3. `<NAME>.py`
 4. `<NAMESPACE>/<NAME>/__init__.py`
-5. Otherwise, every Python package and file that does not start with the word `test` will be included
+
+If none of these heuristics are satisfied, an error will be raised.
 
 ## Reproducibility
 
