@@ -317,6 +317,7 @@ select = [
   "PLW2901",
   "PLW3201",
   "PLW3301",
+  "PT001",
   "PT002",
   "PT003",
   "PT006",
@@ -336,6 +337,7 @@ select = [
   "PT020",
   "PT021",
   "PT022",
+  "PT023",
   "PT024",
   "PT025",
   "PT026",
@@ -598,3 +600,7 @@ ban-relative-imports = "all"
 
 [lint.isort]
 known-first-party = ["hatch"]
+
+[lint.flake8-pytest-style]
+fixture-parentheses = false
+mark-parentheses = false

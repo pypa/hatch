@@ -21,7 +21,7 @@ def keyring_store(mocker):
     return mock_store
 
 
-@pytest.fixture()
+@pytest.fixture
 def published_project_name():
     return f'c4880cdbe05de9a28415fbad{secrets.choice(range(100))}'
 

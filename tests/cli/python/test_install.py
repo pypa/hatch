@@ -59,7 +59,7 @@ def test_incompatible_all(hatch, helpers, path_append, platform, mocker):
     path_append.assert_not_called()
 
 
-@pytest.mark.requires_internet()
+@pytest.mark.requires_internet
 def test_installation(
     hatch, helpers, temp_dir_data, platform, path_append, default_shells, compatible_python_distributions
 ):

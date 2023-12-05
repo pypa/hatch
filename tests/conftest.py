@@ -130,13 +130,13 @@ def uri_slash_prefix():
     return '//' if os.sep == '/' else '///'
 
 
-@pytest.fixture()
+@pytest.fixture
 def temp_dir() -> Generator[Path, None, None]:
     with temp_directory() as d:
         yield d
 
 
-@pytest.fixture()
+@pytest.fixture
 def temp_dir_data(temp_dir) -> Generator[Path, None, None]:
     data_path = temp_dir / 'data'
     data_path.mkdir()
@@ -145,7 +145,7 @@ def temp_dir_data(temp_dir) -> Generator[Path, None, None]:
         yield temp_dir
 
 
-@pytest.fixture()
+@pytest.fixture
 def temp_dir_cache(temp_dir) -> Generator[Path, None, None]:
     cache_path = temp_dir / 'cache'
     cache_path.mkdir()
@@ -283,7 +283,7 @@ def devpi(tmp_path_factory, worker_id):
                 shutil.rmtree(devpi_data)
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_backend_process(request, mocker):
     if 'allow_backend_process' in request.keywords:
         yield False
@@ -319,7 +319,7 @@ def mock_backend_process(request, mocker):
     yield True
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_backend_process_output(request, mocker):
     if 'allow_backend_process' in request.keywords:
         yield False
@@ -360,7 +360,7 @@ def mock_backend_process_output(request, mocker):
     yield True
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_plugin_installation(mocker):
     subprocess_run = subprocess.run
     mocked_subprocess_run = mocker.MagicMock(returncode=0)
@@ -377,7 +377,7 @@ def mock_plugin_installation(mocker):
     return mocked_subprocess_run
 
 
-@pytest.fixture()
+@pytest.fixture
 def local_backend_process(mock_backend_process, mocker):
     if mock_backend_process:
         mocker.patch('hatch.env.virtual.VirtualEnvironment.build_environment')
@@ -385,7 +385,7 @@ def local_backend_process(mock_backend_process, mocker):
     return mock_backend_process
 
 
-@pytest.fixture()
+@pytest.fixture
 def local_backend_process_output(mock_backend_process_output, mocker):
     if mock_backend_process_output:
         mocker.patch('hatch.env.virtual.VirtualEnvironment.build_environment')
