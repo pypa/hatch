@@ -86,7 +86,7 @@ def build_impl(
                 app.display_info(artifact)
 
 
-def build_command(subparsers: argparse._SubParsersAction, defaults: Any) -> None:
+def build_command(subparsers: argparse._SubParsersAction, defaults: Any) -> None:  # noqa: SLF001
     parser = subparsers.add_parser('build')
     parser.add_argument(
         '-d', '--directory', dest='directory', help='The directory in which to build artifacts', **defaults

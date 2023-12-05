@@ -44,7 +44,8 @@ def test_executables_directory(temp_dir, platform):
         if entry.name.startswith('py'):
             break
     else:  # no cov
-        raise AssertionError('Unable to locate Python executable')
+        msg = 'Unable to locate Python executable'
+        raise AssertionError(msg)
 
 
 def test_activation(temp_dir, platform):

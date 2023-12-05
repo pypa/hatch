@@ -54,17 +54,13 @@ def build(app: Application, location, targets, hooks_only, no_hooks, ext, clean,
     """Build a project."""
     app.ensure_environment_plugin_dependencies()
 
-    from hatchling.builders.constants import BuildEnvVars
-    from hatchling.builders.plugin.interface import BuilderInterface
-
     from hatch.config.constants import AppEnvVars
     from hatch.utils.fs import Path
     from hatch.utils.structures import EnvVars
+    from hatchling.builders.constants import BuildEnvVars
+    from hatchling.builders.plugin.interface import BuilderInterface
 
-    if location:
-        path = str(Path(location).resolve())
-    else:
-        path = None
+    path = str(Path(location).resolve()) if location else None
 
     if ext:
         hooks_only = True
@@ -93,14 +89,14 @@ def build(app: Application, location, targets, hooks_only, no_hooks, ext, clean,
         env_vars[AppEnvVars.QUIET] = str(abs(app.verbosity))
 
     class Builder(BuilderInterface):
-        def get_version_api(self):
+        def get_version_api(self):  # noqa: PLR6301
             return {}
 
     with app.project.location.as_cwd(env_vars):
         environment = app.get_environment()
         try:
             environment.check_compatibility()
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             app.abort(f'Environment `{environment.name}` is incompatible: {e}')
 
         for target in targets:
