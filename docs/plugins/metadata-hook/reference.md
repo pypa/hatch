@@ -6,6 +6,7 @@ Metadata hooks allow for the modification of [project metadata](../../config/met
 
 ## Known third-party
 
+- [hatch-docstring-description](https://github.com/flying-sheep/hatch-docstring-description) - set the project description using docstrings
 - [hatch-fancy-pypi-readme](https://github.com/hynek/hatch-fancy-pypi-readme) - dynamically construct the README
 - [hatch-nodejs-version](https://github.com/agoose77/hatch-nodejs-version) - uses fields from NodeJS `package.json` files
 - [hatch-odoo](https://github.com/acsone/hatch-odoo) - determine dependencies based on manifests of Odoo add-ons
