@@ -9,7 +9,7 @@
 ```
 
 !!! tip
-    Although not recommended, you may define global configuration in the `tool.hatch.build` table which targets may override.
+    Although not recommended, you may define global configuration in the `tool.hatch.build` table. Keys may then be overridden by target config.
 
 ## Build system
 
