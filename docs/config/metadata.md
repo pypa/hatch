@@ -3,7 +3,7 @@
 -----
 
 Project metadata is stored in a `pyproject.toml` file located at the root of a project's tree
-and is based entirely on [PEP 621][].
+and is based entirely on [the standard][project metadata standard].
 
 ## Name (*required*) ## {: #name }
 
@@ -183,7 +183,7 @@ Documentation = "..."
 
 ## Dependencies
 
-The format is based on [PEP 631][]. See the [dependency specification](dependency.md) section for more information.
+See the [dependency specification](dependency.md) page for more information.
 
 Entries support [context formatting](context.md) and [disallow direct references](#allowing-direct-references) by default.
 
