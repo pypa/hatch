@@ -23,7 +23,7 @@ build-backend = "hatchling.build"
 
 The version of `hatchling` defined here will be used to build all targets.
 
-Hatchling is a [PEP 517][]/[PEP 660][] compatible build backend and is a dependency of Hatch itself.
+Hatchling is a standards-compliant[^1] build backend and is a dependency of Hatch itself.
 
 ## File selection
 
@@ -346,3 +346,5 @@ enable-by-default = false
 | `HATCH_BUILD_HOOKS_ENABLE` | `false` | Whether or not to enable all build hooks |
 | `HATCH_BUILD_HOOK_ENABLE_<HOOK_NAME>` | `false` | Whether or not to enable the build hook named `<HOOK_NAME>` |
 | `HATCH_BUILD_LOCATION` | `dist` | The location with which to build the targets; only used by the [`build`](../cli/reference.md#hatch-build) command |
+
+[^1]: Support for [PEP 517][] and [PEP 660][] guarantees interoperability with other build tools.
