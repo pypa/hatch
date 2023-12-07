@@ -57,6 +57,7 @@ nav:
       - Publishing: publish.md
     - Learn:
       - Next steps: next-steps.md
+      - Why Hatch?: why.md
     - History:
       - Hatch: history/hatch.md
       - Hatchling: history/hatchling.md
