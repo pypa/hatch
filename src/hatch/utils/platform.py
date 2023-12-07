@@ -199,12 +199,7 @@ class Platform:
             if self.windows:
                 self.__join_command_args = self.modules.subprocess.list2cmdline
             else:
-                try:
-                    self.__join_command_args = self.modules.shlex.join
-                except AttributeError:
-                    self.__join_command_args = lambda command_args: ' '.join(
-                        map(self.modules.shlex.quote, command_args)
-                    )
+                self.__join_command_args = self.modules.shlex.join
 
         return self.__join_command_args
 
