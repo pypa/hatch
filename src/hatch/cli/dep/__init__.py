@@ -1,5 +1,7 @@
 import click
 
+from hatch.cli.env.run import prepare_and_optionally_run
+
 
 @click.group(short_help='Manage environment dependencies')
 def dep():
@@ -144,3 +146,72 @@ def requirements(app, project_only, env_only, features, all_features):
 
     for dependency in get_normalized_dependencies(all_requirements):
         app.display(dependency)
+
+
+@dep.command(short_help='Sync the latest dependencies into project environments')
+@click.option('--env', '-e', 'env_names', multiple=True, help='The environments to target')
+@click.option('--all', '-a', 'sync_all', is_flag=True, help='Sync all environments')
+@click.option(
+    '--matrix/--no-matrix', is_flag=True, default=False, help='Used with `--all` to exclude matrix environments'
+)
+@click.option('--include', '-i', 'included_variable_specs', multiple=True, help='The matrix variables to include')
+@click.option('--exclude', '-x', 'excluded_variable_specs', multiple=True, help='The matrix variables to exclude')
+@click.option('--filter', '-f', 'filter_json', help='The JSON data used to select environments')
+@click.option('--ignore-compat', is_flag=True, help='Ignore incompatibility when selecting specific environments')
+@click.pass_obj
+def sync(
+    app,
+    env_names,
+    included_variable_specs,
+    excluded_variable_specs,
+    filter_json,
+    ignore_compat,
+    sync_all,
+    matrix,
+):
+    """
+    Sync the dependencies within a project environment
+
+    The `-e`/`--env` option overrides the equivalent [root option](#hatch) and the `HATCH_ENV` environment variable.
+
+    You can also use the `--all` option to sync all environments. You can optionally
+    combine this with the `--matrix` option to include matrix environments.
+
+    \b
+    ```
+    hatch dep sync --all --matrix
+    ```
+
+    If environments provide matrices, then you may use the `-i`/`--include` and `-x`/`--exclude` options to
+    select or exclude certain variables, optionally followed by specific comma-separated values.
+    For example, if you have the following configuration:
+
+    \b
+    ```toml config-example
+    [[tool.hatch.envs.test.matrix]]
+    python = ["3.9", "3.10"]
+    version = ["42", "3.14", "9000"]
+    ```
+
+    then running:
+
+    \b
+    ```
+    hatch dep sync -i py=3.10 -x version=9000
+    ```
+
+    would sync the environments `test.py3.10-42` and `test.py3.10-3.14`.
+    Note that `py` may be used as an alias for `python`.
+    """
+    prepare_and_optionally_run(
+        app=app,
+        env_names=env_names,
+        included_variable_specs=included_variable_specs,
+        excluded_variable_specs=excluded_variable_specs,
+        filter_json=filter_json,
+        ignore_compat=ignore_compat,
+        args=None,
+        force_continue=None,
+        exclude_matrix=not matrix,
+        run_all=sync_all,
+    )

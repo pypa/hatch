@@ -49,6 +49,120 @@ def filter_environments(environments, filter_data):
     return selected_environments
 
 
+def prepare_and_optionally_run(
+    app,
+    args,
+    env_names,
+    included_variable_specs,
+    excluded_variable_specs,
+    filter_json,
+    force_continue,
+    ignore_compat,
+    run_all,
+    exclude_matrix,
+):
+    app.ensure_environment_plugin_dependencies()
+
+    project = app.project
+
+    included_variables = {}
+    excluded_variables = {}
+    for specs, variables, display_type in (
+        (included_variable_specs, included_variables, 'included'),
+        (excluded_variable_specs, excluded_variables, 'excluded'),
+    ):
+        for spec in specs:
+            variable, values = parse_variable_spec(spec)
+            if variable in variables:
+                app.abort(f'Duplicate {display_type} variable: {variable}')
+            variables[variable] = values
+
+    if not env_names:
+        env_names = [app.env]
+    elif 'system' in env_names:
+        project.config.config['envs'] = {
+            'system': {
+                'type': 'system',
+                'skip-install': True,
+                'scripts': project.config.scripts,
+            }
+        }
+    if run_all:
+        env_names = list(project.config.envs.keys())
+    # Deduplicate
+    env_names = list({env_name: None for env_name in env_names})
+
+    environments = []
+    matrix_selected = False
+    for env_name in env_names:
+        if env_name in project.config.matrices:
+            matrix_selected = True
+            env_data = project.config.matrices[env_name]['envs']
+            if not env_data:
+                app.abort(f'No variables defined for matrix: {env_name}')
+
+            environments.extend(select_matrix_environments(env_data, included_variables, excluded_variables))
+        else:
+            environments.append(env_name)
+
+    if filter_json:
+        import json
+
+        filter_data = json.loads(filter_json)
+        if not isinstance(filter_data, dict):
+            app.abort('The --filter/-f option must be a JSON mapping')
+
+        environments[:] = filter_environments(project.config.envs, filter_data)
+
+    if not environments:
+        app.abort('No environments were selected')
+    elif not matrix_selected and (included_variables or excluded_variables):
+        app.abort(f'Variable selection is unsupported for non-matrix environments: {", ".join(env_names)}')
+
+    should_display_header = app.verbose or matrix_selected or len(environments) > 1
+
+    any_compatible = False
+    incompatible = {}
+    with project.location.as_cwd():
+        for env_name in environments:
+            environment = app.get_environment(env_name)
+            if run_all and exclude_matrix and environment.matrix_variables:
+                continue
+            try:
+                environment.check_compatibility()
+            except Exception as e:  # noqa: BLE001
+                if ignore_compat or matrix_selected:
+                    incompatible[environment.name] = str(e)
+                    continue
+
+                app.abort(f'Environment `{env_name}` is incompatible: {e}')
+
+            any_compatible = True
+            if should_display_header:
+                app.display_header(environment.name)
+
+            if env_name == 'system':
+                environment.exists = lambda: True
+
+            app.prepare_environment(environment)
+            if args:
+                app.run_shell_commands(
+                    environment,
+                    [environment.join_command_args(args)],
+                    force_continue=force_continue,
+                    show_code_on_error=False,
+                )
+
+    if incompatible:
+        num_incompatible = len(incompatible)
+        padding = '\n' if any_compatible else ''
+        app.display_warning(
+            f'{padding}Skipped {num_incompatible} incompatible environment{"s" if num_incompatible > 1 else ""}:'
+        )
+        for env_name, reason in incompatible.items():
+            app.display_warning(f'{env_name} -> {reason}')
+
+
 @click.command(short_help='Run commands within project environments')
 @click.argument('args', required=True, nargs=-1)
 @click.option('--env', '-e', 'env_names', multiple=True, help='The environments to target')
@@ -96,100 +210,15 @@ def run(
     would execute `pytest` in the environments `test.py3.10-42` and `test.py3.10-3.14`.
     Note that `py` may be used as an alias for `python`.
     """
-    app.ensure_environment_plugin_dependencies()
-
-    project = app.project
-
-    included_variables = {}
-    excluded_variables = {}
-    for specs, variables, display_type in (
-        (included_variable_specs, included_variables, 'included'),
-        (excluded_variable_specs, excluded_variables, 'excluded'),
-    ):
-        for spec in specs:
-            variable, values = parse_variable_spec(spec)
-            if variable in variables:
-                app.abort(f'Duplicate {display_type} variable: {variable}')
-            variables[variable] = values
-
-    if not env_names:
-        env_names = [app.env]
-    elif 'system' in env_names:
-        project.config.config['envs'] = {
-            'system': {
-                'type': 'system',
-                'skip-install': True,
-                'scripts': project.config.scripts,
-            }
-        }
-
-    # Deduplicate
-    env_names = list({env_name: None for env_name in env_names})
-
-    environments = []
-    matrix_selected = False
-    for env_name in env_names:
-        if env_name in project.config.matrices:
-            matrix_selected = True
-            env_data = project.config.matrices[env_name]['envs']
-            if not env_data:
-                app.abort(f'No variables defined for matrix: {env_name}')
-
-            environments.extend(select_matrix_environments(env_data, included_variables, excluded_variables))
-        else:
-            environments.append(env_name)
-
-    if filter_json:
-        import json
-
-        filter_data = json.loads(filter_json)
-        if not isinstance(filter_data, dict):
-            app.abort('The --filter/-f option must be a JSON mapping')
-
-        environments[:] = filter_environments(project.config.envs, filter_data)
-
-    if not environments:
-        app.abort('No environments were selected')
-    elif not matrix_selected and (included_variables or excluded_variables):
-        app.abort(f'Variable selection is unsupported for non-matrix environments: {", ".join(env_names)}')
-
-    should_display_header = app.verbose or matrix_selected or len(environments) > 1
-
-    any_compatible = False
-    incompatible = {}
-    with project.location.as_cwd():
-        for env_name in environments:
-            environment = app.get_environment(env_name)
-
-            try:
-                environment.check_compatibility()
-            except Exception as e:  # noqa: BLE001
-                if ignore_compat or matrix_selected:
-                    incompatible[environment.name] = str(e)
-                    continue
-
-                app.abort(f'Environment `{env_name}` is incompatible: {e}')
-
-            any_compatible = True
-            if should_display_header:
-                app.display_header(environment.name)
-
-            if env_name == 'system':
-                environment.exists = lambda: True
-
-            app.prepare_environment(environment)
-            app.run_shell_commands(
-                environment,
-                [environment.join_command_args(args)],
-                force_continue=force_continue,
-                show_code_on_error=False,
-            )
-
-    if incompatible:
-        num_incompatible = len(incompatible)
-        padding = '\n' if any_compatible else ''
-        app.display_warning(
-            f'{padding}Skipped {num_incompatible} incompatible environment{"s" if num_incompatible > 1 else ""}:'
-        )
-        for env_name, reason in incompatible.items():
-            app.display_warning(f'{env_name} -> {reason}')
+    prepare_and_optionally_run(
+        app=app,
+        args=args,
+        env_names=env_names,
+        included_variable_specs=included_variable_specs,
+        excluded_variable_specs=excluded_variable_specs,
+        filter_json=filter_json,
+        force_continue=force_continue,
+        ignore_compat=ignore_compat,
+        run_all=False,
+        exclude_matrix=True,
+    )
