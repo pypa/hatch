@@ -25,7 +25,7 @@ If building extension modules is required then it is recommended that you contin
 
 ## Environment management
 
-Here we will compare to both `tox` and `nox`. At a high level, there are a few common advantages:
+Here we compare to both `tox` and `nox`. At a high level, there are a few common advantages:
 
 - **Python management:** Hatch is able to automatically download [Python distributions](plugins/environment/virtual.md#internal-distributions) on the fly when specific versions that environments request cannot be found. The alternatives will raise an error, with the option to ignore unknown distributions.
 - **Philosophy:** In the alternatives, environments are for the most part treated as executable units where a dependency set is associated with an action. If you are familiar with container ecosystems, this would be like defining a `CMD` at the end of a Dockerfile but without the ability to change the action at runtime. This involves significant wasted disk space usually because one often requires slight modifications to the actions and therefore will define entirely different environments inherited from a base config just to perform different logic. Additionally, this can be confusing to users not just configuration-wise but also for execution of the different environments.
@@ -42,3 +42,19 @@ Here we will compare to both `tox` and `nox`. At a high level, there are a few c
 ***Why not?:***
 
 If you are using `nox` and you wish to migrate, and for some reason you [notify](https://nox.thea.codes/en/stable/config.html#nox.sessions.Session.notify) sessions, then migration wouldn't be a straight translation but rather you might have to redesign that conditional step.
+
+## Python management
+
+Here we compare [Python management](cli/reference.md#hatch-python) to that of [pyenv](https://github.com/pyenv/pyenv).
+
+- ***Cross-platform:*** Hatch allows for the same experience no matter the system whereas `pyenv` does not support Windows so you must use an [entirely different project](https://github.com/pyenv-win/pyenv-win) that tries to emulate the functionality.
+- ***No build dependencies:*** Hatch guarantees that every [available distribution](cli/reference.md#hatch-python-show) is prebuilt whereas the alternative requires one to maintain a precise [build environment](https://github.com/pyenv/pyenv/wiki#suggested-build-environment) which differs by platform and potentially Python version. Another benefit to this is extremely fast installations since the distributions are simply downloaded and unpacked.
+- ***Optimized by default:*** The [CPython distributions](plugins/environment/virtual.md#cpython) are built with profile guided optimization and link-time optimization, resulting in a 10-30% performance improvement depending on the workload. These distributions have seen wide adoption throughout the industry and are even used by the build system [Bazel](https://bazel.build).
+- ***Simplicity:*** Hatch treats Python installations as just another directory that one would add to PATH. It can do this for you or you can manage PATH yourself, even allowing for custom install locations. On the other hand, `pyenv` operates by adding [shims](https://github.com/pyenv/pyenv/tree/74a2523c97d2e5c1dbdca7b58f3372324ccad4e6#understanding-shims) which then act as wrappers around the actual underlying binaries. This has many unfortunate side effects:
+    - It is incumbent upon the user to manage which specific Python comes first via the CLI, switch when necessary, and/or have a mental model of which versions are exposed globally and locally per-project. This can become confusing quite quickly. When working with Hatch, your global Python installations are only important insofar as they are on PATH somewhere since environments do not use them directly but rather create virtual environments from them, always using a version that is compatible with your project.
+    - Configuration is required for each shell to properly set up `pyenv` on start, leading to inconsistencies when running processes that do not spawn a shell.
+    - Debugging issues with Python search paths can be extremely difficult, especially for users of software. If you or users have ever ran into an issue where code was being executed that you did not anticipate, the issue is almost always `pyenv` influencing the `python` on PATH.
+
+***Why not?:***
+
+Currently, Hatch does not allow for the installation of specific patch release versions but rather only uses minor release granularity that tracks the latest patch release. If specific patch releases are important to you then it is best to use an alternative installation mechanism.
