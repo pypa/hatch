@@ -38,6 +38,8 @@ theme:
   features:
     - content.action.edit
     - content.code.copy
+    - content.tabs.link
+    - content.tooltips
     - navigation.expand
     - navigation.footer
     - navigation.instant
@@ -145,6 +147,10 @@ plugins:
     fallback_to_build_date: true
     exclude:
       - blog/**/*
+  git-committers:
+    repository: pypa/hatch
+    enabled: !ENV [GITHUB_ACTIONS, false]
+    token: !ENV [GH_TOKEN]
   mike:
     alias_type: copy
   mkdocstrings:
@@ -229,6 +235,9 @@ markdown_extensions:
   - pymdownx.superfences:
   - pymdownx.tabbed:
       alternate_style: true
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
   - pymdownx.tasklist:
       custom_checkbox: true
   - pymdownx.tilde:
