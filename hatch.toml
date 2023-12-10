@@ -79,6 +79,7 @@ pre-install-commands = [
 env.GH_TOKEN_MKDOCS_MATERIAL_INSIDERS.env-vars = [
   { key = "MKDOCS_CONFIG", value = "mkdocs.insiders.yml" },
   { key = "MKDOCS_CONFIG", value = "mkdocs.yml", if = [""] },
+  { key = "MKDOCS_IMAGE_PROCESSING", value = "true" },
 ]
 [envs.docs.env-vars]
 SOURCE_DATE_EPOCH = "1580601600"
