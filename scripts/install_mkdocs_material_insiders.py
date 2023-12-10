@@ -14,9 +14,10 @@ def main():
         return
 
     python = shutil.which('python')
+    dependency = f'mkdocs-material[imaging] @ {DEP_REF}@{GIT_REF}'
     try:
         process = subprocess.Popen(
-            [python, '-m', 'pip', 'install', '--disable-pip-version-check', f'mkdocs-material @ {DEP_REF}@{GIT_REF}'],
+            [python, '-m', 'pip', 'install', '--disable-pip-version-check', dependency],
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             encoding='utf-8',

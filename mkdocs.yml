@@ -151,6 +151,8 @@ plugins:
     repository: pypa/hatch
     enabled: !ENV [GITHUB_ACTIONS, false]
     token: !ENV [GH_TOKEN]
+  social:
+    enabled: !ENV [MKDOCS_IMAGE_PROCESSING, false]
   mike:
     alias_type: copy
   mkdocstrings:
