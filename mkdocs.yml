@@ -1,7 +1,7 @@
 site_name: Hatch
 site_description: Modern, extensible Python project management
 site_author: Ofek Lev
-site_url: https://hatch.pypa.io/latest/
+site_url: https://hatch.pypa.io
 repo_name: pypa/hatch
 repo_url: https://github.com/pypa/hatch
 edit_uri: blob/master/docs
@@ -153,8 +153,8 @@ plugins:
     repository: pypa/hatch
     enabled: !ENV [GITHUB_ACTIONS, false]
     token: !ENV [GH_TOKEN]
-  # social:
-  #   enabled: !ENV [MKDOCS_IMAGE_PROCESSING, false]
+  social:
+    enabled: !ENV [MKDOCS_IMAGE_PROCESSING, false]
   mike:
     alias_type: copy
   mkdocstrings:
