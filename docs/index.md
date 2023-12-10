@@ -1,6 +1,8 @@
 # Hatch
 
-![Hatch logo](assets/images/logo.svg){ align="left" width="300" role="img" }
+<div class="grid" markdown>
+
+![Hatch logo](assets/images/logo.svg){ role="img" }
 
 | | |
 | --- | --- |
@@ -9,22 +11,79 @@
 | Package | [![PyPI - Version](https://img.shields.io/pypi/v/hatch.svg?logo=pypi&label=PyPI&logoColor=gold){ loading=lazy .off-glb }](https://pypi.org/project/hatch/) [![PyPI - Downloads](https://img.shields.io/pypi/dm/hatchling.svg?color=blue&label=Downloads&logo=pypi&logoColor=gold){ loading=lazy .off-glb }](https://pypi.org/project/hatch/) [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/hatch.svg?logo=python&label=Python&logoColor=gold){ loading=lazy .off-glb }](https://pypi.org/project/hatch/) |
 | Meta | [![Hatch project](https://img.shields.io/badge/%F0%9F%A5%9A-Hatch-4051b5.svg){ loading=lazy .off-glb }](https://github.com/pypa/hatch) [![linting - Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json){ loading=lazy .off-glb }](https://github.com/astral-sh/ruff) [![types - Mypy](https://img.shields.io/badge/types-Mypy-blue.svg){ loading=lazy .off-glb }](https://github.com/python/mypy) [![License - MIT](https://img.shields.io/badge/license-MIT-9400d3.svg){ loading=lazy .off-glb }](https://spdx.org/licenses/) [![GitHub Sponsors](https://img.shields.io/github/sponsors/ofek?logo=GitHub%20Sponsors&style=social){ loading=lazy .off-glb }](https://github.com/sponsors/ofek) |
 
+</div>
+
 -----
 
-Hatch is a modern, extensible Python project manager.
+Hatch is a modern, extensible Python project manager. See the [Why Hatch?](why.md) page for more information.
 
-## Features
+<div class="grid cards" markdown>
 
-- Standardized [build system](build.md#packaging-ecosystem) with reproducible builds by default
-- Robust [environment management](environment.md) with support for custom scripts
-- Configurable [Python distribution management](cli/reference.md#hatch-python)
-- [Static analysis](config/static-analysis.md) with sane defaults
-- Easy [publishing](publish.md) to PyPI or other indexes
-- [Version management](version.md)
-- Best practice [project generation](config/project-templates.md)
-- Responsive [CLI](cli/about.md), ~2-3x [faster](https://github.com/pypa/hatch/blob/hatch-v1.5.0/.github/workflows/test.yml#L76-L108) than equivalent tools
+-   :material-hammer-wrench:{ .lg .middle } __Build system__
 
-See the [Why Hatch?](why.md) page for more information.
+    ---
+
+    Reproducible builds by default with a rich ecosystem of plugins
+
+    [:octicons-arrow-right-24: Configure builds](config/build.md#build-system)
+
+-   :material-lock:{ .lg .middle } __Environments__
+
+    ---
+
+    Robust environment management with support for custom scripts
+
+    [:octicons-arrow-right-24: Getting started](environment.md)
+
+-   :material-language-python:{ .lg .middle } __Python management__
+
+    ---
+
+    Choose between easy manual installations or automatic as part of environments
+
+    [:octicons-arrow-right-24: Try it](cli/reference.md#hatch-python)
+
+-   :material-magnify-scan:{ .lg .middle } __Static analysis__
+
+    ---
+
+    Static analysis backed by Ruff with up-to-date, sane defaults
+
+    [:octicons-arrow-right-24: Learn](config/static-analysis.md)
+
+-   :material-publish:{ .lg .middle } __Publishing__
+
+    ---
+
+    Easily upload to PyPI or other indices
+
+    [:octicons-arrow-right-24: See how](publish.md)
+
+-   :octicons-number-24:{ .lg .middle } __Versioning__
+
+    ---
+
+    Streamlined workflow for bumping versions
+
+    [:octicons-arrow-right-24: Managing versions](version.md)
+
+-   :octicons-project-template-24:{ .lg .middle } __Project generation__
+
+    ---
+
+    Create new projects from templates with known best practices
+
+    [:octicons-arrow-right-24: Project setup](intro.md#setup)
+
+-   :material-speedometer:{ .lg .middle } __Responsive CLI__
+
+    ---
+
+    Hatch is up to 3x faster than equivalent tools
+
+    [:octicons-arrow-right-24: CLI reference](cli/about.md)
+
+</div>
 
 ## License
 
