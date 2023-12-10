@@ -189,6 +189,7 @@ markdown_extensions:
   - markdown.extensions.admonition:
   - markdown.extensions.attr_list:
   - markdown.extensions.footnotes:
+  - markdown.extensions.md_in_html:
   - markdown.extensions.meta:
   - markdown.extensions.tables:
   - markdown.extensions.toc:
