@@ -5,6 +5,7 @@ on:
     tags:
     - hatch-v*
     - hatchling-v*
+  workflow_dispatch:
 
 concurrency:
   group: docs-deploy

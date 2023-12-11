@@ -1,5 +1,5 @@
 ---
-date: 2023-12-10
+date: 2023-12-11
 authors: [ofek]
 description: >-
   Hatch v1.8.0 brings Python distribution management, static analysis and
@@ -10,13 +10,13 @@ categories:
 
 # Hatch v1.8.0
 
-Hatch [v1.8.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.8.0) brings Python distribution management, static analysis and formatting backed by Ruff, and binaries for every platform.
+Hatch [v1.8.0](../../history/hatch.md#hatch-v1.8.0) brings Python distribution management, static analysis and formatting backed by Ruff, and binaries for every platform.
 
 <!-- more -->
 
 ## Installation made easy
 
-One thing that has been a perpetual problem for Hatch and other Python applications is that you have a hidden dependency on Python itself. This means that you, and more importantly your users, need to in some way get Python before your software can even be used. The recommended way to go about that is platform-dependent and even differs based on your target audience. I viewed this as a central UX problem for Hatch and so severe that I took a bit of a hiatus to solve it.
+One thing that has been a perpetual problem for Hatch and other Python applications is that Python itself is a dependency. You, and more importantly your users, need to in some way get Python before your software can even be used. The recommended way to go about that is platform-dependent and even differs based on your target audience. I viewed this as a central UX problem for Hatch and so severe that I took a bit of a hiatus to solve it.
 
 Luckily, I have to my satisfaction solved this problem in the form of [PyApp](https://github.com/ofek/pyapp). It is a runtime installer for Python projects written in Rust. Apps are distributed as standalone executables as users have come to expect and bootstrapping occurs upon the first invocation. Here is an example of what you would see the first time you run a binary from this release:
 
