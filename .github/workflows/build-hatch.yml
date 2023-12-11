@@ -152,6 +152,7 @@ jobs:
     - name: Build binary
       run: hatch build --target app
 
+
     # Windows installers don't accept non-integer versions so we ubiquitously
     # perform the following transformation: X.Y.Z.devN -> X.Y.Z.N
     - name: Set project version
