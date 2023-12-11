@@ -185,16 +185,13 @@ class AppBuilder(BuilderInterface):
     def cargo_build(self, *args: Any, **kwargs: Any) -> None:
         import subprocess
 
-        if not self.app.verbosity:
+        if self.app.verbosity < 0:
             kwargs['stdout'] = subprocess.PIPE
             kwargs['stderr'] = subprocess.STDOUT
 
         process = subprocess.run(*args, **kwargs)  # noqa: PLW1510
         if process.returncode:
-            message = f'Compilation of failed (code {process.returncode})'
-            if not self.app.verbosity:
-                message = f'{process.stdout.decode("utf-8")}\n{message}'
-
+            message = f'Compilation failed (code {process.returncode})'
             raise OSError(message)
 
     @classmethod
