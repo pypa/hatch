@@ -29,7 +29,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Allow the use of `features` for environments when `skip-install` is enabled
 - The default is now `__TOKEN__` when prompting for a username for the `publish` command
 - Add a new `run_builder` method to the `environment` interface
-- Bump the minimum supported version of Hatchling to 1.17.1
+- Bump the minimum supported version of Hatchling to 1.19.0
 - Bump the minimum supported version of `click` to 8.0.6
 
 ***Fixed:***
