@@ -45,17 +45,6 @@ jobs:
         old_version="$(hatch version)"
         echo "Old version: $old_version"
         version="${old_version/dev/}"
-
-        if [[ "$version" != "$old_version" ]]; then
-          cd dist/app
-          old_binary="$(ls)"
-          echo "Old binary: $old_binary"
-          binary="${old_binary/$old_version/$version}"
-          echo "New binary: $binary"
-          mv "$old_binary" "$binary"
-        fi
-
-        echo "version=$version" >> $GITHUB_OUTPUT
         echo "New version: $version"
 
     - name: Install build frontend
