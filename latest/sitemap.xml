@@ -1,277 +1,292 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/</loc>
+         <loc>https://hatch.pypa.io/1.7/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/build/</loc>
+         <loc>https://hatch.pypa.io/1.7/build/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/environment/</loc>
+         <loc>https://hatch.pypa.io/1.7/environment/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/install/</loc>
+         <loc>https://hatch.pypa.io/1.7/install/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/intro/</loc>
+         <loc>https://hatch.pypa.io/1.7/intro/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/next-steps/</loc>
+         <loc>https://hatch.pypa.io/1.7/next-steps/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/publish/</loc>
+         <loc>https://hatch.pypa.io/1.7/publish/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/version/</loc>
+         <loc>https://hatch.pypa.io/1.7/version/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/blog/</loc>
+         <loc>https://hatch.pypa.io/1.7/why/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/blog/2022/10/08/hatch-v160/</loc>
+         <loc>https://hatch.pypa.io/1.7/blog/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/cli/about/</loc>
+         <loc>https://hatch.pypa.io/1.7/blog/2022/10/08/hatch-v160/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/cli/reference/</loc>
+         <loc>https://hatch.pypa.io/1.7/cli/about/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/community/highlights/</loc>
+         <loc>https://hatch.pypa.io/1.7/cli/reference/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/community/users/</loc>
+         <loc>https://hatch.pypa.io/1.7/community/contributing/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/config/build/</loc>
+         <loc>https://hatch.pypa.io/1.7/community/highlights/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/config/context/</loc>
+         <loc>https://hatch.pypa.io/1.7/community/users/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/config/dependency/</loc>
+         <loc>https://hatch.pypa.io/1.7/config/build/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/config/hatch/</loc>
+         <loc>https://hatch.pypa.io/1.7/config/context/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/config/metadata/</loc>
+         <loc>https://hatch.pypa.io/1.7/config/dependency/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/config/project-templates/</loc>
+         <loc>https://hatch.pypa.io/1.7/config/hatch/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/config/environment/advanced/</loc>
+         <loc>https://hatch.pypa.io/1.7/config/metadata/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/config/environment/overview/</loc>
+         <loc>https://hatch.pypa.io/1.7/config/project-templates/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/history/hatch/</loc>
+         <loc>https://hatch.pypa.io/1.7/config/static-analysis/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/history/hatchling/</loc>
+         <loc>https://hatch.pypa.io/1.7/config/environment/advanced/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/how-to/environment/package-indices/</loc>
+         <loc>https://hatch.pypa.io/1.7/config/environment/overview/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/how-to/plugins/testing-builds/</loc>
+         <loc>https://hatch.pypa.io/1.7/history/hatch/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/meta/authors/</loc>
+         <loc>https://hatch.pypa.io/1.7/history/hatchling/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/meta/faq/</loc>
+         <loc>https://hatch.pypa.io/1.7/how-to/environment/package-indices/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/plugins/about/</loc>
+         <loc>https://hatch.pypa.io/1.7/how-to/plugins/testing-builds/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/plugins/utilities/</loc>
+         <loc>https://hatch.pypa.io/1.7/meta/authors/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/plugins/build-hook/custom/</loc>
+         <loc>https://hatch.pypa.io/1.7/meta/faq/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/plugins/build-hook/reference/</loc>
+         <loc>https://hatch.pypa.io/1.7/plugins/about/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/plugins/build-hook/version/</loc>
+         <loc>https://hatch.pypa.io/1.7/plugins/utilities/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/plugins/builder/app/</loc>
+         <loc>https://hatch.pypa.io/1.7/plugins/build-hook/custom/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/plugins/builder/custom/</loc>
+         <loc>https://hatch.pypa.io/1.7/plugins/build-hook/reference/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/plugins/builder/reference/</loc>
+         <loc>https://hatch.pypa.io/1.7/plugins/build-hook/version/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/plugins/builder/sdist/</loc>
+         <loc>https://hatch.pypa.io/1.7/plugins/builder/app/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/plugins/builder/wheel/</loc>
+         <loc>https://hatch.pypa.io/1.7/plugins/builder/custom/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/plugins/environment/reference/</loc>
+         <loc>https://hatch.pypa.io/1.7/plugins/builder/reference/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/plugins/environment/virtual/</loc>
+         <loc>https://hatch.pypa.io/1.7/plugins/builder/sdist/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/plugins/environment-collector/custom/</loc>
+         <loc>https://hatch.pypa.io/1.7/plugins/builder/wheel/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/plugins/environment-collector/default/</loc>
+         <loc>https://hatch.pypa.io/1.7/plugins/environment/reference/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/plugins/environment-collector/reference/</loc>
+         <loc>https://hatch.pypa.io/1.7/plugins/environment/virtual/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/plugins/metadata-hook/custom/</loc>
+         <loc>https://hatch.pypa.io/1.7/plugins/environment-collector/custom/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/plugins/metadata-hook/reference/</loc>
+         <loc>https://hatch.pypa.io/1.7/plugins/environment-collector/default/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/plugins/publisher/package-index/</loc>
+         <loc>https://hatch.pypa.io/1.7/plugins/environment-collector/reference/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/plugins/publisher/reference/</loc>
+         <loc>https://hatch.pypa.io/1.7/plugins/metadata-hook/custom/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/plugins/version-scheme/reference/</loc>
+         <loc>https://hatch.pypa.io/1.7/plugins/metadata-hook/reference/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/plugins/version-scheme/standard/</loc>
+         <loc>https://hatch.pypa.io/1.7/plugins/publisher/package-index/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/plugins/version-source/code/</loc>
+         <loc>https://hatch.pypa.io/1.7/plugins/publisher/reference/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/plugins/version-source/env/</loc>
+         <loc>https://hatch.pypa.io/1.7/plugins/version-scheme/reference/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/plugins/version-source/reference/</loc>
+         <loc>https://hatch.pypa.io/1.7/plugins/version-scheme/standard/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/plugins/version-source/regex/</loc>
+         <loc>https://hatch.pypa.io/1.7/plugins/version-source/code/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/blog/archive/2022/</loc>
+         <loc>https://hatch.pypa.io/1.7/plugins/version-source/env/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/latest/1.7/blog/category/release/</loc>
+         <loc>https://hatch.pypa.io/1.7/plugins/version-source/reference/</loc>
+         <lastmod>2020-02-02</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://hatch.pypa.io/1.7/plugins/version-source/regex/</loc>
+         <lastmod>2020-02-02</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://hatch.pypa.io/1.7/blog/archive/2022/</loc>
+         <lastmod>2020-02-02</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://hatch.pypa.io/1.7/blog/category/release/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
