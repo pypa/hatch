@@ -12,7 +12,7 @@
         4. To verify that the shell can find and run the `hatch` command in your `PATH`, use the following command.
 
             ```
-            $ hatch --version
+            hatch --version
             <HATCH_LATEST_VERSION>
             ```
     === "Command line installer"
@@ -30,8 +30,8 @@
         4. To verify that the shell can find and run the `hatch` command in your `PATH`, use the following command.
 
             ```
-            $ hatch --version
-            <HATCH_LATEST_VERSION>
+            hatch --version
+            # Should return <HATCH_LATEST_VERSION>
             ```
 
 === "Windows"
@@ -43,8 +43,8 @@
         4. To verify that the shell can find and run the `hatch` command in your `PATH`, use the following command.
 
             ```
-            $ hatch --version
-            <HATCH_LATEST_VERSION>
+            hatch --version
+            # Should return <HATCH_LATEST_VERSION>
             ```
     === "Command line installer"
         1. Download and run the installer using the standard Windows [`msiexec`](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/msiexec) program, specifying one of the `.msi` files as the source. Use the `/passive` and `/i` parameters to request an unattended, normal installation.
@@ -57,8 +57,8 @@
         3. To verify that the shell can find and run the `hatch` command in your `PATH`, use the following command.
 
             ```
-            $ hatch --version
-            <HATCH_LATEST_VERSION>
+            hatch --version
+            # Should return <HATCH_LATEST_VERSION>
             ```
 
 ## Standalone binaries
