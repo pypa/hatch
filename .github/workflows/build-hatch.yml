@@ -110,7 +110,7 @@ jobs:
         python-version: ${{ env.PYTHON_VERSION }}
 
     - name: Install Hatch
-      run: pip install -U hatch
+      run: pip install -e .
 
     - name: Install Rust toolchain
       uses: dtolnay/rust-toolchain@stable
@@ -155,6 +155,7 @@ jobs:
     # Windows installers don't accept non-integer versions so we ubiquitously
     # perform the following transformation: X.Y.Z.devN -> X.Y.Z.N
     - name: Set project version
+      if: ${{ matrix.job.target == 'x86_64-unknown-linux-gnu' }}
       id: version
       run: |-
         old_version="$(hatch version)"
