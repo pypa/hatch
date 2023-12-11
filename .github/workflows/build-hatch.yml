@@ -202,7 +202,7 @@ jobs:
 
   windows-packaging:
     name: Build Windows installers
-    if: github.event.pull_request.head.repo.full_name == github.repository
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
     needs: binaries
     runs-on: windows-2022
 
@@ -272,7 +272,7 @@ jobs:
 
   macos-packaging:
     name: Build macOS installer and sign/notarize artifacts
-    if: github.event.pull_request.head.repo.full_name == github.repository
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
     needs: binaries
     runs-on: macos-12
 
