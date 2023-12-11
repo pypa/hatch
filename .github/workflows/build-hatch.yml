@@ -156,23 +156,19 @@ jobs:
     # perform the following transformation: X.Y.Z.devN -> X.Y.Z.N
     - name: Set project version
       id: version
-      if: ${{ matrix.job.target == 'x86_64-unknown-linux-gnu' }}
       run: |-
         old_version="$(hatch version)"
-        echo "Old version: $old_version"
         version="${old_version/dev/}"
 
         if [[ "$version" != "$old_version" ]]; then
           cd dist/app
           old_binary="$(ls)"
-          echo "Old binary: $old_binary"
           binary="${old_binary/$old_version/$version}"
-          echo "New binary: $binary"
           mv "$old_binary" "$binary"
         fi
 
         echo "version=$version" >> $GITHUB_OUTPUT
-        echo "New version: $version"
+        echo "$version"
 
     - name: Archive binary
       run: |-
