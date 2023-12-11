@@ -22,7 +22,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ***Fixed:***
 
-- Fix parsing dependencies for environments when warnings are emitted
 - Properly handle non-zero version epoch for the `standard` version scheme
 - Fix the `wheel` build target for case insensitive file systems when the project metadata name does not match the directory name on disk
 - The `app` build target no longer has suppressed output

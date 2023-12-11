@@ -67,7 +67,7 @@ The bridge between Hatch and the Hatchling CLI has been removed. Previously, the
 
 [Spawning a shell](../../environment.md#entering-environments) or [running commands](../../environment.md#command-execution) within environments always first checks that your project's dependencies are satisfied and if not synchronizes the environment with what is defined. Previously, this had the potential to be quite slow for projects that have many dependencies.
 
-Now the set of dependency definitions are [hashed](../../plugins/environment/reference.md#hatch.env.plugin.interface.EnvironmentInterface.dependency_hash) and no check is performed if the hash is the same as before, significantly speeding up environment usage in most cases.
+Now the set of dependency definitions is [hashed](../../plugins/environment/reference.md#hatch.env.plugin.interface.EnvironmentInterface.dependency_hash) and no check is performed if the hash is the same as before, significantly speeding up environment usage in most cases.
 
 ## Hatchling
 
