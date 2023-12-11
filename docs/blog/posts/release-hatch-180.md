@@ -10,7 +10,7 @@ categories:
 
 # Hatch v1.8.0
 
-Hatch [v1.8.0](../../history/hatch.md#hatch-v1.8.0) brings Python distribution management, static analysis and formatting backed by Ruff, and binaries for every platform.
+Hatch [v1.8.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.8.0) brings Python distribution management, static analysis and formatting backed by Ruff, and binaries for every platform.
 
 <!-- more -->
 
