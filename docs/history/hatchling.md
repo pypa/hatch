@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.19.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.19.0) - 2023-12-11 ## {: #hatchling-v1.19.0 }
+
 ***Changed:***
 
 - An error will now be raised if a force-included path does not exist
