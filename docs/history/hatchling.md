@@ -18,12 +18,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ***Added:***
 
 - Officially support Python 3.12
+- Allow using an empty string for the `sources` option to add a prefix to distribution paths
 
 ***Fixed:***
 
 - Fix parsing dependencies for environments when warnings are emitted
 - Properly handle non-zero version epoch for the `standard` version scheme
-- Allow using an empty string for the `sources` option to add a prefix to distribution paths
 - Fix the `wheel` build target for case insensitive file systems when the project metadata name does not match the directory name on disk
 - The `app` build target no longer has suppressed output
 - Prevent duplicate paths when projects require the `sources` option while build hooks overwrite included paths
