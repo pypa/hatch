@@ -107,7 +107,7 @@ class TestDefaultFileSelection:
         assert builder.config.default_packages() == ['ns']
         assert builder.config.default_only_include() == []
 
-    def test_default(self, temp_dir):
+    def test_default_error(self, temp_dir):
         config = {'project': {'name': 'my-app', 'version': '0.0.1'}}
         builder = WheelBuilder(str(temp_dir), config=config)
 
@@ -130,6 +130,40 @@ class TestDefaultFileSelection:
                 ),
             ):
                 _ = method()
+
+    def test_force_include_option_considered_selection(self, temp_dir):
+        config = {
+            'project': {'name': 'my-app', 'version': '0.0.1'},
+            'tool': {'hatch': {'build': {'targets': {'wheel': {'force-include': {'foo': 'bar'}}}}}},
+        }
+        builder = WheelBuilder(str(temp_dir), config=config)
+
+        assert builder.config.default_include() == []
+        assert builder.config.default_exclude() == []
+        assert builder.config.default_packages() == []
+        assert builder.config.default_only_include() == []
+
+    def test_force_include_build_data_considered_selection(self, temp_dir):
+        config = {'project': {'name': 'my-app', 'version': '0.0.1'}}
+        builder = WheelBuilder(str(temp_dir), config=config)
+
+        build_data = {'artifacts': [], 'force_include': {'foo': 'bar'}}
+        with builder.config.set_build_data(build_data):
+            assert builder.config.default_include() == []
+            assert builder.config.default_exclude() == []
+            assert builder.config.default_packages() == []
+            assert builder.config.default_only_include() == []
+
+    def test_artifacts_build_data_considered_selection(self, temp_dir):
+        config = {'project': {'name': 'my-app', 'version': '0.0.1'}}
+        builder = WheelBuilder(str(temp_dir), config=config)
+
+        build_data = {'artifacts': ['foo'], 'force_include': {}}
+        with builder.config.set_build_data(build_data):
+            assert builder.config.default_include() == []
+            assert builder.config.default_exclude() == []
+            assert builder.config.default_packages() == []
+            assert builder.config.default_only_include() == []
 
     def test_unnormalized_name_with_unnormalized_directory(self, temp_dir):
         config = {'project': {'name': 'MyApp', 'version': '0.0.1'}}
