@@ -640,11 +640,11 @@ class TestCoreMetadataV21:
             Name: My.App
             Version: 0.1.0
             Provides-Extra: feature1
-            Requires-Dist: bar==5; python_version < '3' and extra == 'feature1'
+            Requires-Dist: bar==5; (python_version < '3') and extra == 'feature1'
             Requires-Dist: foo==1; extra == 'feature1'
             Provides-Extra: feature2
             Requires-Dist: bar==5; extra == 'feature2'
-            Requires-Dist: foo==1; python_version < '3' and extra == 'feature2'
+            Requires-Dist: foo==1; (python_version < '3') and extra == 'feature2'
             """
         )
 
@@ -743,11 +743,11 @@ class TestCoreMetadataV21:
             Requires-Dist: bar==5
             Requires-Dist: foo==1
             Provides-Extra: feature1
-            Requires-Dist: bar==5; python_version < '3' and extra == 'feature1'
+            Requires-Dist: bar==5; (python_version < '3') and extra == 'feature1'
             Requires-Dist: foo==1; extra == 'feature1'
             Provides-Extra: feature2
             Requires-Dist: bar==5; extra == 'feature2'
-            Requires-Dist: foo==1; python_version < '3' and extra == 'feature2'
+            Requires-Dist: foo==1; (python_version < '3') and extra == 'feature2'
             Provides-Extra: feature3
             Requires-Dist: baz@ file:///path/to/project ; extra == 'feature3'
             Description-Content-Type: text/markdown
@@ -1062,11 +1062,41 @@ class TestCoreMetadataV22:
             Name: My.App
             Version: 0.1.0
             Provides-Extra: feature1
-            Requires-Dist: bar==5; python_version < '3' and extra == 'feature1'
+            Requires-Dist: bar==5; (python_version < '3') and extra == 'feature1'
             Requires-Dist: foo==1; extra == 'feature1'
             Provides-Extra: feature2
             Requires-Dist: bar==5; extra == 'feature2'
-            Requires-Dist: foo==1; python_version < '3' and extra == 'feature2'
+            Requires-Dist: foo==1; (python_version < '3') and extra == 'feature2'
+            """
+        )
+
+    def test_optional_complex_dependencies(self, constructor, isolation, helpers):
+        metadata = ProjectMetadata(
+            str(isolation),
+            None,
+            {
+                'project': {
+                    'name': 'My.App',
+                    'version': '0.1.0',
+                    'optional-dependencies': {
+                        'feature2': ['foo==1; sys_platform == "win32" or python_version < "3"', 'bar==5'],
+                        'feature1': ['foo==1', 'bar==5; python_version < "3"'],
+                    },
+                }
+            },
+        )
+
+        assert constructor(metadata) == helpers.dedent(
+            """
+            Metadata-Version: 2.2
+            Name: My.App
+            Version: 0.1.0
+            Provides-Extra: feature1
+            Requires-Dist: bar==5; (python_version < '3') and extra == 'feature1'
+            Requires-Dist: foo==1; extra == 'feature1'
+            Provides-Extra: feature2
+            Requires-Dist: bar==5; extra == 'feature2'
+            Requires-Dist: foo==1; (sys_platform == 'win32' or python_version < '3') and extra == 'feature2'
             """
         )
 
@@ -1165,11 +1195,11 @@ class TestCoreMetadataV22:
             Requires-Dist: bar==5
             Requires-Dist: foo==1
             Provides-Extra: feature1
-            Requires-Dist: bar==5; python_version < '3' and extra == 'feature1'
+            Requires-Dist: bar==5; (python_version < '3') and extra == 'feature1'
             Requires-Dist: foo==1; extra == 'feature1'
             Provides-Extra: feature2
             Requires-Dist: bar==5; extra == 'feature2'
-            Requires-Dist: foo==1; python_version < '3' and extra == 'feature2'
+            Requires-Dist: foo==1; (python_version < '3') and extra == 'feature2'
             Provides-Extra: feature3
             Requires-Dist: baz@ file:///path/to/project ; extra == 'feature3'
             Description-Content-Type: text/markdown
@@ -1491,11 +1521,11 @@ class TestCoreMetadataV23:
             Name: My.App
             Version: 0.1.0
             Provides-Extra: feature1
-            Requires-Dist: bar==5; python_version < '3' and extra == 'feature1'
+            Requires-Dist: bar==5; (python_version < '3') and extra == 'feature1'
             Requires-Dist: foo==1; extra == 'feature1'
             Provides-Extra: feature2
             Requires-Dist: bar==5; extra == 'feature2'
-            Requires-Dist: foo==1; python_version < '3' and extra == 'feature2'
+            Requires-Dist: foo==1; (python_version < '3') and extra == 'feature2'
             """
         )
 
@@ -1598,11 +1628,11 @@ class TestCoreMetadataV23:
             Requires-Dist: bar==5
             Requires-Dist: foo==1
             Provides-Extra: feature1
-            Requires-Dist: bar==5; python_version < '3' and extra == 'feature1'
+            Requires-Dist: bar==5; (python_version < '3') and extra == 'feature1'
             Requires-Dist: foo==1; extra == 'feature1'
             Provides-Extra: feature2
             Requires-Dist: bar==5; extra == 'feature2'
-            Requires-Dist: foo==1; python_version < '3' and extra == 'feature2'
+            Requires-Dist: foo==1; (python_version < '3') and extra == 'feature2'
             Provides-Extra: feature3
             Requires-Dist: baz@ file:///path/to/project ; extra == 'feature3'
             Description-Content-Type: text/markdown
