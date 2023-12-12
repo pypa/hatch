@@ -204,7 +204,13 @@ class WheelBuilderConfig(BuilderConfig):
                 break
         else:
             message = (
-                'At least one file selection option must be defined, see: https://hatch.pypa.io/latest/config/build/'
+                'Unable to determine which files to ship inside the wheel using the following heuristics: '
+                'https://hatch.pypa.io/latest/plugins/builder/wheel/#default-file-selection\n\nAt least one '
+                'file selection option must be defined in the `tool.hatch.build.targets.wheel` table, see: '
+                'https://hatch.pypa.io/latest/config/build/\n\nAs an example, if you intend to ship a '
+                'directory named `foo` that resides within a `src` directory located at the root of your '
+                'project, you can define the following:\n\n[tool.hatch.build.targets.wheel]\n'
+                'packages = ["src/foo"]'
             )
             raise ValueError(message)
 
