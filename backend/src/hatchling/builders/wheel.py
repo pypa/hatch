@@ -7,8 +7,9 @@ import stat
 import sys
 import tempfile
 import zipfile
+from functools import cached_property
 from io import StringIO
-from typing import TYPE_CHECKING, Any, Callable, Iterable, Sequence, Tuple, cast
+from typing import TYPE_CHECKING, Any, Callable, Iterable, NamedTuple, Sequence, Tuple, cast
 
 from hatchling.__about__ import __version__
 from hatchling.builders.config import BuilderConfig
@@ -34,6 +35,13 @@ if TYPE_CHECKING:
 EDITABLES_MINIMUM_VERSION = '0.3'
 
 TIME_TUPLE = Tuple[int, int, int, int, int, int]
+
+
+class FileSelectionOptions(NamedTuple):
+    include: list[str]
+    exclude: list[str]
+    packages: list[str]
+    only_include: list[str]
 
 
 class RecordFile:
@@ -154,25 +162,25 @@ class WheelBuilderConfig(BuilderConfig):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
-        self.__include_defined: bool = bool(
-            self.target_config.get('include', self.build_config.get('include'))
-            or self.target_config.get('packages', self.build_config.get('packages'))
-            or self.target_config.get('only-include', self.build_config.get('only-include'))
-        )
-        self.__include: list[str] = []
-        self.__exclude: list[str] = []
-        self.__packages: list[str] = []
-        self.__only_include: list[str] = []
-
         self.__core_metadata_constructor: Callable[..., str] | None = None
         self.__shared_data: dict[str, str] | None = None
         self.__extra_metadata: dict[str, str] | None = None
         self.__strict_naming: bool | None = None
         self.__macos_max_compat: bool | None = None
 
-    def set_default_file_selection(self) -> None:
-        if self.__include or self.__exclude or self.__packages or self.__only_include:
-            return
+    @cached_property
+    def default_file_selection_options(self) -> FileSelectionOptions:
+        if include := self.target_config.get('include', self.build_config.get('include', [])):
+            return FileSelectionOptions(include, [], [], [])
+
+        if exclude := self.target_config.get('exclude', self.build_config.get('exclude', [])):
+            return FileSelectionOptions([], exclude, [], [])
+
+        if packages := self.target_config.get('packages', self.build_config.get('packages', [])):
+            return FileSelectionOptions([], [], packages, [])
+
+        if only_include := self.target_config.get('only-include', self.build_config.get('only-include', [])):
+            return FileSelectionOptions([], [], [], only_include)
 
         for project_name in (
             self.builder.normalize_file_name_component(self.builder.metadata.core.raw_name),
@@ -180,19 +188,16 @@ class WheelBuilderConfig(BuilderConfig):
         ):
             if os.path.isfile(os.path.join(self.root, project_name, '__init__.py')):
                 normalized_project_name = self.get_raw_fs_path_name(self.root, project_name)
-                self.__packages.append(normalized_project_name)
-                break
+                return FileSelectionOptions([], [], [normalized_project_name], [])
 
             if os.path.isfile(os.path.join(self.root, 'src', project_name, '__init__.py')):
                 normalized_project_name = self.get_raw_fs_path_name(os.path.join(self.root, 'src'), project_name)
-                self.__packages.append(f'src/{normalized_project_name}')
-                break
+                return FileSelectionOptions([], [], [f'src/{normalized_project_name}'], [])
 
             module_file = f'{project_name}.py'
             if os.path.isfile(os.path.join(self.root, module_file)):
                 normalized_project_name = self.get_raw_fs_path_name(self.root, module_file)
-                self.__only_include.append(module_file)
-                break
+                return FileSelectionOptions([], [], [], [module_file])
 
             from glob import glob
 
@@ -200,43 +205,34 @@ class WheelBuilderConfig(BuilderConfig):
             if len(possible_namespace_packages) == 1:
                 relative_path = os.path.relpath(possible_namespace_packages[0], self.root)
                 namespace = relative_path.split(os.sep)[0]
-                self.__packages.append(namespace)
-                break
-        else:
-            message = (
-                'Unable to determine which files to ship inside the wheel using the following heuristics: '
-                'https://hatch.pypa.io/latest/plugins/builder/wheel/#default-file-selection\n\nAt least one '
-                'file selection option must be defined in the `tool.hatch.build.targets.wheel` table, see: '
-                'https://hatch.pypa.io/latest/config/build/\n\nAs an example, if you intend to ship a '
-                'directory named `foo` that resides within a `src` directory located at the root of your '
-                'project, you can define the following:\n\n[tool.hatch.build.targets.wheel]\n'
-                'packages = ["src/foo"]'
-            )
-            raise ValueError(message)
+                return FileSelectionOptions([], [], [namespace], [])
+
+        if self.build_artifact_spec is not None or self.get_force_include():
+            self.set_exclude_all()
+            return FileSelectionOptions([], [], [], [])
+
+        message = (
+            'Unable to determine which files to ship inside the wheel using the following heuristics: '
+            'https://hatch.pypa.io/latest/plugins/builder/wheel/#default-file-selection\n\nAt least one '
+            'file selection option must be defined in the `tool.hatch.build.targets.wheel` table, see: '
+            'https://hatch.pypa.io/latest/config/build/\n\nAs an example, if you intend to ship a '
+            'directory named `foo` that resides within a `src` directory located at the root of your '
+            'project, you can define the following:\n\n[tool.hatch.build.targets.wheel]\n'
+            'packages = ["src/foo"]'
+        )
+        raise ValueError(message)
 
     def default_include(self) -> list[str]:
-        if not self.__include_defined:
-            self.set_default_file_selection()
-
-        return self.__include
+        return self.default_file_selection_options.include
 
     def default_exclude(self) -> list[str]:
-        if not self.__include_defined:
-            self.set_default_file_selection()
-
-        return self.__exclude
+        return self.default_file_selection_options.exclude
 
     def default_packages(self) -> list[str]:
-        if not self.__include_defined:
-            self.set_default_file_selection()
-
-        return self.__packages
+        return self.default_file_selection_options.packages
 
     def default_only_include(self) -> list[str]:
-        if not self.__include_defined:
-            self.set_default_file_selection()
-
-        return self.__only_include
+        return self.default_file_selection_options.only_include
 
     @property
     def core_metadata_constructor(self) -> Callable[..., str]:

@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ***Fixed:***
 
 - Add better error message when the `wheel` build target cannot determine what to ship
+- Consider forced inclusion patterns and build-time artifacts as file selection as some build hooks generate the entire wheel contents without user configuration
 
 ## [1.19.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.19.0) - 2023-12-11 ## {: #hatchling-v1.19.0 }
 
