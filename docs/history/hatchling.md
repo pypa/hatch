@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.19.1](https://github.com/pypa/hatch/releases/tag/hatchling-v1.19.1) - 2023-12-12 ## {: #hatchling-v1.19.1 }
+
 ***Fixed:***
 
 - Add better error message when the `wheel` build target cannot determine what to ship
