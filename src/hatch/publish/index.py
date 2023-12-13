@@ -4,7 +4,7 @@ import re
 from typing import Iterable
 
 from hatch.publish.plugin.interface import PublisherInterface
-from hatch.utils.auth import get_auth, get_user, CachedUserFile
+from hatch.utils.auth import AuthenticationCredentials
 from hatch.utils.fs import Path
 from hatchling.metadata.utils import normalize_project_name
 
@@ -56,29 +56,15 @@ class IndexPublisher(PublisherInterface):
 
         repo = options['repo'] if 'repo' in options else self.plugin_config.get('repo', 'main')
         repos = self.get_repos()
-        repo_config = repos[repo] if repo in repos else {'url': repo}
-
-        cached_user_file = CachedUserFile(self.cache_dir)
-
-        updated_user, username = get_user(
-            self.app,
-            cached_user_file,
-            options,
-            repo,
-            repo_config
-        )
-        updated_auth, auth_token = get_auth(
-            self.app,
-            username,
-            options,
-            repo,
-            repo_config
+        repo_config: dict[str, str] = repos[repo] if repo in repos else {'url': repo}
+        credentials = AuthenticationCredentials(
+            app=self.app, cache_dir=self.cache_dir, options=options, repo=repo, repo_config=repo_config
         )
 
         index = PackageIndex(
             repo_config['url'],
-            user=username,
-            auth=auth_token,
+            user=credentials.username,
+            auth=credentials.password,
             ca_cert=options.get('ca_cert', repo_config.get('ca-cert')),
             client_cert=options.get('client_cert', repo_config.get('client-cert')),
             client_key=options.get('client_key', repo_config.get('client-key')),
@@ -148,13 +134,7 @@ class IndexPublisher(PublisherInterface):
             for version in versions:
                 self.app.display_info(str(index.urls.project.child(project_name, version, '').to_iri()))
 
-        if updated_user:
-            cached_user_file.set_user(repo, username)
-
-        if updated_auth:
-            import keyring
-
-            keyring.set_password(repo, username, auth_token)
+        credentials.write_updated_data()
 
 
 def recurse_artifacts(artifacts: list, root) -> Iterable[Path]:
