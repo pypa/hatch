@@ -159,7 +159,7 @@ class WheelArchive:
         self.fd.close()
 
 
-class WheelBuilderConfig(BuilderConfig):
+class WheelBuilderConfig(BuilderConfig[PluginManager]):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 

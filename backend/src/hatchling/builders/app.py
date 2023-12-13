@@ -9,7 +9,7 @@ from hatchling.builders.plugin.interface import BuilderInterface
 from hatchling.plugin.manager import PluginManager
 
 
-class AppBuilderConfig(BuilderConfig):
+class AppBuilderConfig(BuilderConfig[PluginManager]):
     SUPPORTED_VERSIONS = ('3.11', '3.10', '3.9', '3.8', '3.7')
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:

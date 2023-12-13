@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING, Any, Callable
 
 if TYPE_CHECKING:
     from hatchling.metadata.core import ProjectMetadata
@@ -20,7 +20,7 @@ def get_core_metadata_constructors() -> dict[str, Callable]:
     }
 
 
-def construct_metadata_file_1_2(metadata: ProjectMetadata, extra_dependencies: tuple[str] | None = None) -> str:
+def construct_metadata_file_1_2(metadata: ProjectMetadata[Any], extra_dependencies: tuple[str] | None = None) -> str:
     """
     https://peps.python.org/pep-0345/
     """
@@ -79,7 +79,7 @@ def construct_metadata_file_1_2(metadata: ProjectMetadata, extra_dependencies: t
     return metadata_file
 
 
-def construct_metadata_file_2_1(metadata: ProjectMetadata, extra_dependencies: tuple[str] | None = None) -> str:
+def construct_metadata_file_2_1(metadata: ProjectMetadata[Any], extra_dependencies: tuple[str] | None = None) -> str:
     """
     https://peps.python.org/pep-0566/
     """
@@ -161,7 +161,7 @@ def construct_metadata_file_2_1(metadata: ProjectMetadata, extra_dependencies: t
     return metadata_file
 
 
-def construct_metadata_file_2_2(metadata: ProjectMetadata, extra_dependencies: tuple[str] | None = None) -> str:
+def construct_metadata_file_2_2(metadata: ProjectMetadata[Any], extra_dependencies: tuple[str] | None = None) -> str:
     """
     https://peps.python.org/pep-0643/
     """
@@ -243,7 +243,7 @@ def construct_metadata_file_2_2(metadata: ProjectMetadata, extra_dependencies: t
     return metadata_file
 
 
-def construct_metadata_file_2_3(metadata: ProjectMetadata, extra_dependencies: tuple[str] | None = None) -> str:
+def construct_metadata_file_2_3(metadata: ProjectMetadata[Any], extra_dependencies: tuple[str] | None = None) -> str:
     """
     https://peps.python.org/pep-0639/
     """

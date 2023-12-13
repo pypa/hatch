@@ -35,7 +35,7 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
     from hatchling.plugin.manager import PluginManager
 
 
-    class SpecialBuilderConfig(BuilderConfig):
+    class SpecialBuilderConfig(BuilderConfig[PluginManager]):
         ...
 
 
