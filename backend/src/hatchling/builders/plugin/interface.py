@@ -30,11 +30,21 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
     Example usage:
 
     ```python tab="plugin.py"
+    from hatchling.builders.config import BuilderConfig
     from hatchling.builders.plugin.interface import BuilderInterface
+    from hatchling.plugin.manager import PluginManager
 
 
-    class SpecialBuilder(BuilderInterface):
+    class SpecialBuilderConfig(BuilderConfig):
+        ...
+
+
+    class SpecialBuilder(BuilderInterface[SpecialBuilderConfig, PluginManager]):
         PLUGIN_NAME = 'special'
+
+        def get_config_class(self) -> type[SpecialBuilderConfig]:
+            return SpecialBuilderConfig
+
         ...
     ```
 
@@ -45,7 +55,7 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
 
 
     @hookimpl
-    def hatch_register_builder():
+    def hatch_register_builder() -> type[SpecialBuilder]:
         return SpecialBuilder
     ```
     """

@@ -6,6 +6,7 @@ from typing import Any, Callable
 
 from hatchling.builders.config import BuilderConfig
 from hatchling.builders.plugin.interface import BuilderInterface
+from hatchling.plugin.manager import PluginManager
 
 
 class AppBuilderConfig(BuilderConfig):
@@ -79,7 +80,7 @@ class AppBuilderConfig(BuilderConfig):
         return self.__pyapp_version
 
 
-class AppBuilder(BuilderInterface):
+class AppBuilder(BuilderInterface[AppBuilderConfig, PluginManager]):
     """
     Build applications
     """

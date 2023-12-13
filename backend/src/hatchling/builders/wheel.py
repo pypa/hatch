@@ -25,6 +25,7 @@ from hatchling.builders.utils import (
     set_zip_info_mode,
 )
 from hatchling.metadata.spec import DEFAULT_METADATA_VERSION, get_core_metadata_constructors
+from hatchling.plugin.manager import PluginManager
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -377,7 +378,7 @@ class WheelBuilderConfig(BuilderConfig):
             return name
 
 
-class WheelBuilder(BuilderInterface):
+class WheelBuilder(BuilderInterface[WheelBuilderConfig, PluginManager]):
     """
     Build a binary distribution (.whl file)
     """

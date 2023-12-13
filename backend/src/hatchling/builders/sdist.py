@@ -20,6 +20,7 @@ from hatchling.builders.utils import (
     replace_file,
 )
 from hatchling.metadata.spec import DEFAULT_METADATA_VERSION, get_core_metadata_constructors
+from hatchling.plugin.manager import PluginManager
 from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT, DEFAULT_CONFIG_FILE
 
 if TYPE_CHECKING:
@@ -140,7 +141,7 @@ class SdistBuilderConfig(BuilderConfig):
         return self.__support_legacy
 
 
-class SdistBuilder(BuilderInterface):
+class SdistBuilder(BuilderInterface[SdistBuilderConfig, PluginManager]):
     """
     Build an archive of the source files
     """
