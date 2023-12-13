@@ -34,8 +34,36 @@ def test_default_versions(isolation):
 
 
 class TestDefaultFileSelection:
+    def test_already_defined(self, temp_dir):
+        config = {
+            'project': {'name': 'my-app', 'version': '0.0.1'},
+            'tool': {
+                'hatch': {
+                    'build': {
+                        'targets': {
+                            'wheel': {
+                                'include': ['foo'],
+                                'exclude': ['bar'],
+                                'packages': ['foo', 'bar', 'baz'],
+                                'only-include': ['baz'],
+                            }
+                        }
+                    }
+                }
+            },
+        }
+        builder = WheelBuilder(str(temp_dir), config=config)
+
+        assert builder.config.default_include() == ['foo']
+        assert builder.config.default_exclude() == ['bar']
+        assert builder.config.default_packages() == ['foo', 'bar', 'baz']
+        assert builder.config.default_only_include() == ['baz']
+
     def test_flat_layout(self, temp_dir):
-        config = {'project': {'name': 'my-app', 'version': '0.0.1'}}
+        config = {
+            'project': {'name': 'my-app', 'version': '0.0.1'},
+            'tool': {'hatch': {'build': {'targets': {'wheel': {'exclude': ['foobarbaz']}}}}},
+        }
         builder = WheelBuilder(str(temp_dir), config=config)
 
         flat_root = temp_dir / 'my_app' / '__init__.py'
@@ -54,12 +82,15 @@ class TestDefaultFileSelection:
         namespace_root.touch()
 
         assert builder.config.default_include() == []
-        assert builder.config.default_exclude() == []
+        assert builder.config.default_exclude() == ['foobarbaz']
         assert builder.config.default_packages() == ['my_app']
         assert builder.config.default_only_include() == []
 
     def test_src_layout(self, temp_dir):
-        config = {'project': {'name': 'my-app', 'version': '0.0.1'}}
+        config = {
+            'project': {'name': 'my-app', 'version': '0.0.1'},
+            'tool': {'hatch': {'build': {'targets': {'wheel': {'exclude': ['foobarbaz']}}}}},
+        }
         builder = WheelBuilder(str(temp_dir), config=config)
 
         src_root = temp_dir / 'src' / 'my_app' / '__init__.py'
@@ -74,12 +105,15 @@ class TestDefaultFileSelection:
         namespace_root.touch()
 
         assert builder.config.default_include() == []
-        assert builder.config.default_exclude() == []
+        assert builder.config.default_exclude() == ['foobarbaz']
         assert builder.config.default_packages() == ['src/my_app']
         assert builder.config.default_only_include() == []
 
     def test_single_module(self, temp_dir):
-        config = {'project': {'name': 'my-app', 'version': '0.0.1'}}
+        config = {
+            'project': {'name': 'my-app', 'version': '0.0.1'},
+            'tool': {'hatch': {'build': {'targets': {'wheel': {'exclude': ['foobarbaz']}}}}},
+        }
         builder = WheelBuilder(str(temp_dir), config=config)
 
         single_module_root = temp_dir / 'my_app.py'
@@ -90,12 +124,15 @@ class TestDefaultFileSelection:
         namespace_root.touch()
 
         assert builder.config.default_include() == []
-        assert builder.config.default_exclude() == []
+        assert builder.config.default_exclude() == ['foobarbaz']
         assert builder.config.default_packages() == []
         assert builder.config.default_only_include() == ['my_app.py']
 
     def test_namespace(self, temp_dir):
-        config = {'project': {'name': 'my-app', 'version': '0.0.1'}}
+        config = {
+            'project': {'name': 'my-app', 'version': '0.0.1'},
+            'tool': {'hatch': {'build': {'targets': {'wheel': {'exclude': ['foobarbaz']}}}}},
+        }
         builder = WheelBuilder(str(temp_dir), config=config)
 
         namespace_root = temp_dir / 'ns' / 'my_app' / '__init__.py'
@@ -103,12 +140,15 @@ class TestDefaultFileSelection:
         namespace_root.touch()
 
         assert builder.config.default_include() == []
-        assert builder.config.default_exclude() == []
+        assert builder.config.default_exclude() == ['foobarbaz']
         assert builder.config.default_packages() == ['ns']
         assert builder.config.default_only_include() == []
 
     def test_default_error(self, temp_dir):
-        config = {'project': {'name': 'my-app', 'version': '0.0.1'}}
+        config = {
+            'project': {'name': 'my-app', 'version': '0.0.1'},
+            'tool': {'hatch': {'build': {'targets': {'wheel': {'exclude': ['foobarbaz']}}}}},
+        }
         builder = WheelBuilder(str(temp_dir), config=config)
 
         for method in (

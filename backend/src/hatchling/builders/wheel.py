@@ -170,17 +170,13 @@ class WheelBuilderConfig(BuilderConfig):
 
     @cached_property
     def default_file_selection_options(self) -> FileSelectionOptions:
-        if include := self.target_config.get('include', self.build_config.get('include', [])):
-            return FileSelectionOptions(include, [], [], [])
+        include = self.target_config.get('include', self.build_config.get('include', []))
+        exclude = self.target_config.get('exclude', self.build_config.get('exclude', []))
+        packages = self.target_config.get('packages', self.build_config.get('packages', []))
+        only_include = self.target_config.get('only-include', self.build_config.get('only-include', []))
 
-        if exclude := self.target_config.get('exclude', self.build_config.get('exclude', [])):
-            return FileSelectionOptions([], exclude, [], [])
-
-        if packages := self.target_config.get('packages', self.build_config.get('packages', [])):
-            return FileSelectionOptions([], [], packages, [])
-
-        if only_include := self.target_config.get('only-include', self.build_config.get('only-include', [])):
-            return FileSelectionOptions([], [], [], only_include)
+        if include or packages or only_include:
+            return FileSelectionOptions(include, exclude, packages, only_include)
 
         for project_name in (
             self.builder.normalize_file_name_component(self.builder.metadata.core.raw_name),
@@ -188,16 +184,16 @@ class WheelBuilderConfig(BuilderConfig):
         ):
             if os.path.isfile(os.path.join(self.root, project_name, '__init__.py')):
                 normalized_project_name = self.get_raw_fs_path_name(self.root, project_name)
-                return FileSelectionOptions([], [], [normalized_project_name], [])
+                return FileSelectionOptions([], exclude, [normalized_project_name], [])
 
             if os.path.isfile(os.path.join(self.root, 'src', project_name, '__init__.py')):
                 normalized_project_name = self.get_raw_fs_path_name(os.path.join(self.root, 'src'), project_name)
-                return FileSelectionOptions([], [], [f'src/{normalized_project_name}'], [])
+                return FileSelectionOptions([], exclude, [f'src/{normalized_project_name}'], [])
 
             module_file = f'{project_name}.py'
             if os.path.isfile(os.path.join(self.root, module_file)):
                 normalized_project_name = self.get_raw_fs_path_name(self.root, module_file)
-                return FileSelectionOptions([], [], [], [module_file])
+                return FileSelectionOptions([], exclude, [], [module_file])
 
             from glob import glob
 
@@ -205,11 +201,11 @@ class WheelBuilderConfig(BuilderConfig):
             if len(possible_namespace_packages) == 1:
                 relative_path = os.path.relpath(possible_namespace_packages[0], self.root)
                 namespace = relative_path.split(os.sep)[0]
-                return FileSelectionOptions([], [], [namespace], [])
+                return FileSelectionOptions([], exclude, [namespace], [])
 
         if self.build_artifact_spec is not None or self.get_force_include():
             self.set_exclude_all()
-            return FileSelectionOptions([], [], [], [])
+            return FileSelectionOptions([], exclude, [], [])
 
         message = (
             'Unable to determine which files to ship inside the wheel using the following heuristics: '
