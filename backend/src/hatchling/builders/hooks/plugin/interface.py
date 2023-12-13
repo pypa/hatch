@@ -16,19 +16,12 @@ class BuildHookInterface(Generic[BuilderConfigBound, PluginManagerBound]):  # no
 
     ```python tab="plugin.py"
     from hatchling.builders.hooks.plugin.interface import BuildHookInterface
-    from hatchling.builders.config import BuilderConfig
     from hatchling.plugin.manager import PluginManager
+
+    from .builder import SpecialBuilderConfig
 
     class SpecialBuildHook(BuildHookInterface[SpecialBuilderConfig, PluginManager]):
         PLUGIN_NAME = 'special'
-
-        @classmethod
-        def get_config_class(self) -> type[SpecialBuilderConfig]:
-            return SpecialBuilderConfig
-
-        ...
-
-    class SpecialBuilderConfig(BuilderConfig):
         ...
     ```
 
