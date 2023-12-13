@@ -149,14 +149,6 @@ plugins:
     fallback_to_build_date: true
     exclude:
       - blog/**/*
-  git-committers:
-    repository: pypa/hatch
-    enabled: !ENV [GITHUB_ACTIONS, false]
-    token: !ENV [GH_TOKEN]
-  social:
-    cards_layout_options:
-      logo: docs/assets/images/logo.svg
-    enabled: !ENV [MKDOCS_IMAGE_PROCESSING, false]
   mike:
     alias_type: copy
   mkdocstrings:
