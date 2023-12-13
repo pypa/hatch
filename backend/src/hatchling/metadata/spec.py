@@ -147,7 +147,8 @@ def construct_metadata_file_2_1(metadata: ProjectMetadata, extra_dependencies: t
             metadata_file += f'Provides-Extra: {option}\n'
             for dependency in dependencies:
                 if ';' in dependency:
-                    metadata_file += f'Requires-Dist: {dependency} and extra == {option!r}\n'
+                    dep_name, dep_env_marker = dependency.split(';', maxsplit=1)
+                    metadata_file += f'Requires-Dist: {dep_name}; ({dep_env_marker.strip()}) and extra == {option!r}\n'
                 elif '@ ' in dependency:
                     metadata_file += f'Requires-Dist: {dependency} ; extra == {option!r}\n'
                 else:
@@ -228,7 +229,8 @@ def construct_metadata_file_2_2(metadata: ProjectMetadata, extra_dependencies: t
             metadata_file += f'Provides-Extra: {option}\n'
             for dependency in dependencies:
                 if ';' in dependency:
-                    metadata_file += f'Requires-Dist: {dependency} and extra == {option!r}\n'
+                    dep_name, dep_env_marker = dependency.split(';', maxsplit=1)
+                    metadata_file += f'Requires-Dist: {dep_name}; ({dep_env_marker.strip()}) and extra == {option!r}\n'
                 elif '@ ' in dependency:
                     metadata_file += f'Requires-Dist: {dependency} ; extra == {option!r}\n'
                 else:
@@ -298,7 +300,8 @@ def construct_metadata_file_2_3(metadata: ProjectMetadata, extra_dependencies: t
             metadata_file += f'Provides-Extra: {option}\n'
             for dependency in dependencies:
                 if ';' in dependency:
-                    metadata_file += f'Requires-Dist: {dependency} and extra == {option!r}\n'
+                    dep_name, dep_env_marker = dependency.split(';', maxsplit=1)
+                    metadata_file += f'Requires-Dist: {dep_name}; ({dep_env_marker.strip()}) and extra == {option!r}\n'
                 elif '@ ' in dependency:
                     metadata_file += f'Requires-Dist: {dependency} ; extra == {option!r}\n'
                 else:
