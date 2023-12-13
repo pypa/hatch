@@ -119,7 +119,7 @@ class Platform:
         kwargs.setdefault('stderr', self.modules.subprocess.STDOUT)
         self.populate_default_popen_kwargs(kwargs, shell=shell)
 
-        process = self.modules.subprocess.run(command, shell=shell, **kwargs)
+        process = self.modules.subprocess.run(self.format_for_subprocess(command, shell=shell), shell=shell, **kwargs)
         if process.returncode:
             self.__display_func(process.stdout.decode('utf-8'))
             self.exit_with_code(process.returncode)
