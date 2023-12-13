@@ -171,6 +171,18 @@ class TestDefaultFileSelection:
             ):
                 _ = method()
 
+    def test_bypass_selection_option(self, temp_dir):
+        config = {
+            'project': {'name': 'my-app', 'version': '0.0.1'},
+            'tool': {'hatch': {'build': {'targets': {'wheel': {'bypass-selection': True}}}}},
+        }
+        builder = WheelBuilder(str(temp_dir), config=config)
+
+        assert builder.config.default_include() == []
+        assert builder.config.default_exclude() == []
+        assert builder.config.default_packages() == []
+        assert builder.config.default_only_include() == []
+
     def test_force_include_option_considered_selection(self, temp_dir):
         config = {
             'project': {'name': 'my-app', 'version': '0.0.1'},
@@ -493,6 +505,28 @@ class TestMacOSMaxCompat:
             TypeError, match='Field `tool.hatch.build.targets.wheel.macos-max-compat` must be a boolean'
         ):
             _ = builder.config.macos_max_compat
+
+
+class TestBypassSelection:
+    def test_default(self, isolation):
+        builder = WheelBuilder(str(isolation))
+
+        assert builder.config.bypass_selection is False
+
+    def test_correct(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'wheel': {'bypass-selection': True}}}}}}
+        builder = WheelBuilder(str(isolation), config=config)
+
+        assert builder.config.bypass_selection is True
+
+    def test_not_boolean(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'wheel': {'bypass-selection': 9000}}}}}}
+        builder = WheelBuilder(str(isolation), config=config)
+
+        with pytest.raises(
+            TypeError, match='Field `tool.hatch.build.targets.wheel.bypass-selection` must be a boolean'
+        ):
+            _ = builder.config.bypass_selection
 
 
 class TestConstructEntryPointsFile:

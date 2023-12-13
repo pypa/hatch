@@ -203,7 +203,7 @@ class WheelBuilderConfig(BuilderConfig):
                 namespace = relative_path.split(os.sep)[0]
                 return FileSelectionOptions([], exclude, [namespace], [])
 
-        if self.build_artifact_spec is not None or self.get_force_include():
+        if self.bypass_selection or self.build_artifact_spec is not None or self.get_force_include():
             self.set_exclude_all()
             return FileSelectionOptions([], exclude, [], [])
 
@@ -348,6 +348,15 @@ class WheelBuilderConfig(BuilderConfig):
             self.__macos_max_compat = macos_max_compat
 
         return self.__macos_max_compat
+
+    @cached_property
+    def bypass_selection(self) -> bool:
+        bypass_selection = self.target_config.get('bypass-selection', False)
+        if not isinstance(bypass_selection, bool):
+            message = f'Field `tool.hatch.build.targets.{self.plugin_name}.bypass-selection` must be a boolean'
+            raise TypeError(message)
+
+        return bypass_selection
 
     if sys.platform in {'darwin', 'win32'}:
 

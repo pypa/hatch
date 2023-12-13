@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Added:***
+
+- Add `bypass-selection` option to the `wheel` build target to allow for empty (metadata-only) wheels
+
 ***Fixed:***
 
 - Fix regression in 1.19.1 that allowed `exclude` to count toward inclusion selection, thus bypassing the default inclusion selection heuristics
