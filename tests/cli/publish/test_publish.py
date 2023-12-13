@@ -8,15 +8,22 @@ import pytest
 
 from hatch.config.constants import PublishEnvVars
 
-pytestmark = [pytest.mark.usefixtures('devpi'), pytest.mark.usefixtures('local_backend_process')]
+pytestmark = [
+    pytest.mark.usefixtures('devpi'),
+    pytest.mark.usefixtures('local_backend_process'),
+]
 
 
 @pytest.fixture(autouse=True)
 def keyring_store(mocker):
     mock_store = defaultdict(dict)
-    mocker.patch('keyring.get_password', side_effect=lambda system, user: mock_store[system].get(user))
     mocker.patch(
-        'keyring.set_password', side_effect=lambda system, user, auth: mock_store[system].__setitem__(user, auth)
+        'keyring.get_password',
+        side_effect=lambda system, user: mock_store[system].get(user),
+    )
+    mocker.patch(
+        'keyring.set_password',
+        side_effect=lambda system, user, auth: mock_store[system].__setitem__(user, auth),
     )
     return mock_store
 
@@ -200,7 +207,15 @@ def test_flags(hatch, devpi, temp_dir_cache, helpers, published_project_name):
         artifacts = list(build_directory.iterdir())
 
         result = hatch(
-            'publish', '--repo', devpi.repo, '--user', devpi.user, '--auth', devpi.auth, '--ca-cert', devpi.ca_cert
+            'publish',
+            '--repo',
+            devpi.repo,
+            '--user',
+            devpi.user,
+            '--auth',
+            devpi.auth,
+            '--ca-cert',
+            devpi.ca_cert,
         )
 
     assert result.exit_code == 0, result.output
@@ -262,7 +277,12 @@ def test_plugin_config_repo_override(hatch, devpi, temp_dir_cache, helpers, publ
     config_file.model.publish['index']['ca-cert'] = 'cert'
     config_file.model.publish['index']['repo'] = 'dev'
     config_file.model.publish['index']['repos'] = {
-        'dev': {'url': devpi.repo, 'user': devpi.user, 'auth': devpi.auth, 'ca-cert': devpi.ca_cert},
+        'dev': {
+            'url': devpi.repo,
+            'user': devpi.user,
+            'auth': devpi.auth,
+            'ca-cert': devpi.ca_cert,
+        },
     }
     config_file.save()
 
@@ -445,7 +465,15 @@ def test_external_artifact_path(hatch, devpi, temp_dir_cache, helpers, published
         internal_build_directory = path / 'dist'
         internal_artifacts = list(internal_build_directory.iterdir())
 
-        result = hatch('publish', '--user', devpi.user, '--auth', devpi.auth, 'dist', str(external_build_directory))
+        result = hatch(
+            'publish',
+            '--user',
+            devpi.user,
+            '--auth',
+            devpi.auth,
+            'dist',
+            str(external_build_directory),
+        )
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
