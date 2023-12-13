@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Fixed:***
+
+- Fix regression in 1.19.1 that allowed `exclude` to count toward inclusion selection, thus bypassing the default inclusion selection heuristics
+
 ## [1.19.1](https://github.com/pypa/hatch/releases/tag/hatchling-v1.19.1) - 2023-12-12 ## {: #hatchling-v1.19.1 }
 
 ***Fixed:***
