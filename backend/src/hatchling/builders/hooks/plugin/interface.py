@@ -3,22 +3,32 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Generic, cast
 
 from hatchling.builders.config import BuilderConfigBound
+from hatchling.plugin.manager import PluginManagerBound
 
 if TYPE_CHECKING:
     from hatchling.bridge.app import Application
     from hatchling.metadata.core import ProjectMetadata
 
 
-class BuildHookInterface(Generic[BuilderConfigBound]):  # no cov
+class BuildHookInterface(Generic[BuilderConfigBound, PluginManagerBound]):  # no cov
     """
     Example usage:
 
     ```python tab="plugin.py"
     from hatchling.builders.hooks.plugin.interface import BuildHookInterface
+    from hatchling.builders.config import BuilderConfig
+    from hatchling.plugin.manager import PluginManager
 
-
-    class SpecialBuildHook(BuildHookInterface):
+    class SpecialBuildHook(BuildHookInterface[SpecialBuilderConfig, PluginManager]):
         PLUGIN_NAME = 'special'
+
+        @classmethod
+        def get_config_class(self) -> type[SpecialBuilderConfig]:
+            return SpecialBuilderConfig
+
+        ...
+
+    class SpecialBuilderConfig(BuilderConfig):
         ...
     ```
 
@@ -42,7 +52,7 @@ class BuildHookInterface(Generic[BuilderConfigBound]):  # no cov
         root: str,
         config: dict[str, Any],
         build_config: BuilderConfigBound,
-        metadata: ProjectMetadata,
+        metadata: ProjectMetadata[PluginManagerBound],
         directory: str,
         target_name: str,
         app: Application | None = None,
@@ -87,7 +97,7 @@ class BuildHookInterface(Generic[BuilderConfigBound]):  # no cov
         return self.__config
 
     @property
-    def metadata(self) -> ProjectMetadata:
+    def metadata(self) -> ProjectMetadata[PluginManagerBound]:
         # Undocumented for now
         return self.__metadata
 
