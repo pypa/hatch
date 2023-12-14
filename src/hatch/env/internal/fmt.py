@@ -80,7 +80,15 @@ class InternalFormatEnvironment(InternalEnvironment):
         if preview is None:
             preview = self.linter_preview
 
-        lines = ['line-length = 120', '', '[lint]']
+        lines = [
+            'line-length = 120',
+            '',
+            '[format]',
+            'docstring-code-format = true',
+            'docstring-code-line-length = 80',
+            '',
+            '[lint]',
+        ]
 
         # Selected rules
         rules = list(STABLE_RULES)
@@ -186,7 +194,7 @@ class InternalFormatEnvironment(InternalEnvironment):
         return self.user_config.get(section, {})
 
 
-RUFF_MINIMUM_VERSION: str = '0.1.7'
+RUFF_MINIMUM_VERSION: str = '0.1.8'
 STABLE_RULES: tuple[str, ...] = (
     'A001',
     'A002',
@@ -735,6 +743,7 @@ PREVIEW_RULES: tuple[str, ...] = (
     'FURB169',
     'FURB171',
     'FURB177',
+    'FURB181',
     'LOG001',
     'LOG002',
     'LOG007',

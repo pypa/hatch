@@ -10,7 +10,15 @@ from hatch.project.core import Project
 
 
 def construct_ruff_defaults_file(rules: tuple[str, ...]) -> str:
-    lines = ['line-length = 120', '', '[lint]']
+    lines = [
+        'line-length = 120',
+        '',
+        '[format]',
+        'docstring-code-format = true',
+        'docstring-code-line-length = 80',
+        '',
+        '[lint]',
+    ]
 
     # Selected rules
     lines.append('select = [')

@@ -556,8 +556,7 @@ class EnvironmentInterface(ABC):
         A convenience method called when using the environment as a context manager:
 
         ```python
-        with environment:
-            ...
+        with environment: ...
         ```
         """
 
@@ -566,8 +565,7 @@ class EnvironmentInterface(ABC):
         A convenience method called after using the environment as a context manager:
 
         ```python
-        with environment:
-            ...
+        with environment: ...
         ```
         """
 
@@ -669,8 +667,7 @@ class EnvironmentInterface(ABC):
         given a set of dependencies and must be a context manager:
 
         ```python
-        with environment.build_environment([...]):
-            ...
+        with environment.build_environment([...]): ...
         ```
 
         The build environment should reflect any
