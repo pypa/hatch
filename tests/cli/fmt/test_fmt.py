@@ -178,6 +178,63 @@ extend = "{config_path}\""""
 extend = "{config_path}\""""
         )
 
+    def test_existing_config(self, hatch, temp_dir, config_file, mocker, ruff_on_path, defaults_file_stable):
+        config_file.model.template.plugins['default']['tests'] = False
+        config_file.save()
+
+        project_name = 'My.App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / 'my-app'
+        data_path = temp_dir / 'data'
+        data_path.mkdir()
+
+        project_file = project_path / 'pyproject.toml'
+        old_contents = project_file.read_text()
+        project_file.write_text(f'[tool.ruff]\n{old_contents}')
+
+        run = mocker.patch('subprocess.run', return_value=CompletedProcess([], 0, stdout=b''))
+        mocker.patch('hatch.env.internal.fmt.InternalFormatEnvironment.exists', return_value=True)
+        mocker.patch('hatch.env.internal.fmt.InternalFormatEnvironment.dependency_hash', return_value='')
+        mocker.patch('hatch.env.internal.fmt.InternalFormatEnvironment.command_context')
+
+        with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+            result = hatch('fmt', '--check')
+
+        assert result.exit_code == 0, result.output
+        assert not result.output
+
+        root_data_path = data_path / 'env' / '.internal' / 'fmt' / '.config'
+        config_dir = next(root_data_path.iterdir())
+        default_config = config_dir / 'ruff_defaults.toml'
+        user_config = config_dir / 'pyproject.toml'
+
+        assert run.call_args_list == [
+            mocker.call(
+                [ruff_on_path, 'check', '--config', str(user_config), '.'],
+                shell=False,
+            ),
+            mocker.call(
+                [ruff_on_path, 'format', '--config', str(user_config), '--check', '--diff', '.'],
+                shell=False,
+            ),
+        ]
+
+        assert default_config.read_text() == defaults_file_stable
+
+        config_path = str(default_config).replace('\\', '\\\\')
+        assert (
+            user_config.read_text()
+            == f"""\
+[tool.ruff]
+extend = "{config_path}\"
+{old_contents.rstrip()}"""
+        )
+
 
 class TestPreview:
     def test_fix_flag(self, hatch, temp_dir, config_file, mocker, ruff_on_path, defaults_file_preview):
@@ -341,6 +398,7 @@ extend = "{config_path}\""""
             user_config.read_text()
             == f"""\
 {old_contents}
+
 [tool.ruff]
 extend = "{config_path}\""""
         )
@@ -398,6 +456,7 @@ extend = "{config_path}\""""
             user_config.read_text()
             == f"""\
 {old_contents}
+
 [tool.ruff]
 extend = "{config_path}\""""
         )
