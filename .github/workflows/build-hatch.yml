@@ -90,6 +90,7 @@ jobs:
       PYAPP_REPO: pyapp
       PYAPP_VERSION: "0.11.1"
       PYAPP_PIP_EXTERNAL: "true"
+      PYAPP_PASS_LOCATION: "true"
 
     steps:
     - name: Checkout code

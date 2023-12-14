@@ -185,26 +185,31 @@ class Application(Terminal):
         from hatch.env.utils import add_verbosity_flag
         from hatchling.dep.core import dependencies_in_sync
 
-        if dependencies_in_sync(dependencies):
-            return
+        if app_path := os.environ.get('PYAPP'):
+            from hatch.utils.env import PythonInfo
 
-        command = [
-            sys.executable,
-            '-u',
-            '-m',
-            'pip',
-            'install',
-            '--disable-pip-version-check',
-            '--no-python-version-warning',
-        ]
+            management_command = os.environ['PYAPP_COMMAND_NAME']
+            executable = self.platform.check_command_output([app_path, management_command, 'python-path']).strip()
+            python_info = PythonInfo(self.platform, executable=executable)
+            if dependencies_in_sync(dependencies, sys_path=python_info.sys_path):
+                return
+
+            pip_command = [app_path, management_command, 'pip']
+        else:
+            if dependencies_in_sync(dependencies):
+                return
+
+            pip_command = [sys.executable, '-u', '-m', 'pip']
+
+        pip_command.extend(['install', '--disable-pip-version-check', '--no-python-version-warning'])
 
         # Default to -1 verbosity
-        add_verbosity_flag(command, self.verbosity, adjustment=-1)
+        add_verbosity_flag(pip_command, self.verbosity, adjustment=-1)
 
-        command.extend(str(dependency) for dependency in dependencies)
+        pip_command.extend(str(dependency) for dependency in dependencies)
 
         with self.status(wait_message):
-            self.platform.check_command(command)
+            self.platform.check_command(pip_command)
 
     def get_env_directory(self, environment_type):
         directories = self.config.dirs.env

@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ***Fixed:***
 
 - Fix regression in calling subprocesses with updated PATH
+- Fix automatic installation of environment plugins when running as a standalone binary
 
 ## [1.8.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.8.0) - 2023-12-11 ## {: #hatch-v1.8.0 }
 
