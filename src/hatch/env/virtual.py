@@ -243,7 +243,7 @@ class VirtualEnvironment(EnvironmentInterface):
         return (
             interpreter.executable
             and self._is_stable_path(interpreter.executable)
-            and self._python_constraint.contains(interpreter.version_str)
+            and (self.skip_install or self._python_constraint.contains(interpreter.version_str))
         )
 
     def _get_concrete_interpreter_path(self, python_version: str = '') -> str | None:
