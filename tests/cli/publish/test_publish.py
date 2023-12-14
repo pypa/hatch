@@ -362,7 +362,7 @@ def test_prompt(hatch, devpi, temp_dir_cache, helpers, published_project_name, c
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
         f"""
-        Username for '{devpi.repo}' [__TOKEN__]: {devpi.user}
+        Username for '{devpi.repo}' [__token__]: {devpi.user}
         Password / Token:{' '}
         {artifacts[0].relative_to(path)} ... success
 
@@ -405,7 +405,7 @@ def test_initialize_auth(hatch, devpi, temp_dir_cache, helpers, published_projec
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
         f"""
-        Username for '{devpi.repo}' [__TOKEN__]: {devpi.user}
+        Username for '{devpi.repo}' [__token__]: {devpi.user}
         Password / Token:{' '}
         """
     )
