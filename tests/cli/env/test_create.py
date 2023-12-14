@@ -1685,3 +1685,87 @@ def test_plugin_dependencies_met_as_app(hatch, config_file, helpers, temp_dir):
     env_path = env_dirs[0]
 
     assert env_path.name == project_path.name
+
+
+@pytest.mark.requires_internet
+def test_no_compatible_python(hatch, helpers, temp_dir, config_file):
+    config_file.model.template.plugins['default']['tests'] = False
+    config_file.save()
+
+    project_name = 'My.App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / 'my-app'
+    data_path = temp_dir / 'data'
+    data_path.mkdir()
+
+    project = Project(project_path)
+    config = dict(project.raw_config)
+    config['project']['requires-python'] = '==9000'
+    project.save_config(config)
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch('env', 'create')
+
+    assert result.exit_code == 1, result.output
+    assert result.output == helpers.dedent(
+        """
+        Environment `default` is incompatible: no compatible Python distribution available
+        """
+    )
+
+
+def test_no_compatible_python_ok_if_not_installed(hatch, helpers, temp_dir, config_file):
+    config_file.model.template.plugins['default']['tests'] = False
+    config_file.save()
+
+    project_name = 'My.App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / 'my-app'
+    data_path = temp_dir / 'data'
+    data_path.mkdir()
+
+    project = Project(project_path)
+    config = dict(project.raw_config)
+    config['project']['requires-python'] = '==9000'
+    project.save_config(config)
+    helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch('env', 'create')
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        """
+        Creating environment: default
+        Checking dependencies
+        """
+    )
+
+    env_data_path = data_path / 'env' / 'virtual'
+    assert env_data_path.is_dir()
+
+    project_data_path = env_data_path / project_path.name
+    assert project_data_path.is_dir()
+
+    storage_dirs = list(project_data_path.iterdir())
+    assert len(storage_dirs) == 1
+
+    storage_path = storage_dirs[0]
+    assert len(storage_path.name) == 8
+
+    env_dirs = list(storage_path.iterdir())
+    assert len(env_dirs) == 1
+
+    env_path = env_dirs[0]
+
+    assert env_path.name == project_path.name
