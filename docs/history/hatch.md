@@ -8,6 +8,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Added:***
+
+- Enable docstring formatting by default for static analysis
+- Upgrade Ruff to 0.1.8
+
 ***Fixed:***
 
 - Ignore a project's Python requirement for environments where the project is not installed

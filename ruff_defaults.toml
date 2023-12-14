@@ -1,5 +1,9 @@
 line-length = 120
 
+[format]
+docstring-code-format = true
+docstring-code-line-length = 80
+
 [lint]
 select = [
   "A001",
@@ -194,6 +198,7 @@ select = [
   "FURB169",
   "FURB171",
   "FURB177",
+  "FURB181",
   "G001",
   "G002",
   "G003",

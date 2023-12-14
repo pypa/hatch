@@ -44,7 +44,7 @@ def version_impl(
     app.display_info(f'New: {updated_version}')
 
 
-def version_command(subparsers: argparse._SubParsersAction, defaults: Any) -> None:  # noqa: SLF001
+def version_command(subparsers: argparse._SubParsersAction, defaults: Any) -> None:
     parser = subparsers.add_parser('version')
     parser.add_argument('desired_version', default='', nargs='?', **defaults)
     parser.add_argument('--app', dest='called_by_app', action='store_true', help=argparse.SUPPRESS)

@@ -13,6 +13,10 @@ When defining your configuration, be sure to use options that are prefixed by `e
 === ":octicons-file-code-16: pyproject.toml"
 
     ```toml
+    [tool.ruff.format]
+    preview = true
+    quote-style = "single"
+
     [tool.ruff.lint]
     preview = true
     extend-select = ["C901"]
@@ -22,15 +26,15 @@ When defining your configuration, be sure to use options that are prefixed by `e
 
     [tool.ruff.lint.isort]
     known-first-party = ["foo", "bar"]
-
-    [tool.ruff.format]
-    preview = true
-    quote-style = "single"
     ```
 
 === ":octicons-file-code-16: ruff.toml"
 
     ```toml
+    [format]
+    preview = true
+    quote-style = "single"
+
     [lint]
     preview = true
     extend-select = ["C901"]
@@ -40,10 +44,6 @@ When defining your configuration, be sure to use options that are prefixed by `e
 
     [lint.isort]
     known-first-party = ["foo", "bar"]
-
-    [format]
-    preview = true
-    quote-style = "single"
     ```
 
 !!! note
@@ -87,6 +87,7 @@ hatch fmt --check --sync
 ### Non-rule settings
 
 - [Line length](https://docs.astral.sh/ruff/settings/#line-length) set to 120
+- Docstring [code line length](https://docs.astral.sh/ruff/settings/#format-docstring-code-line-length) set to 80
 - Only absolute imports [are allowed](https://docs.astral.sh/ruff/settings/#flake8-tidy-imports-ban-relative-imports), [except for tests](#per-file-ignored-rules)
 - The normalized [project name](metadata.md#name) is a [known first party](https://docs.astral.sh/ruff/settings/#isort-known-first-party) import
 
