@@ -144,11 +144,23 @@ class InternalFormatEnvironment(InternalEnvironment):
 
         old_contents = self.user_config_file.read_text()
         config_path = str(self.internal_config_file).replace('\\', '\\\\')
-        contents = (
-            f'{old_contents}\n[tool.ruff]\nextend = "{config_path}"'
-            if self.user_config_file.name == 'pyproject.toml'
-            else f'extend = "{config_path}"\n{old_contents}'
-        )
+        if self.user_config_file.name == 'pyproject.toml':
+            lines = old_contents.splitlines()
+            try:
+                index = lines.index('[tool.ruff]')
+            except ValueError:
+                lines.extend((
+                    '',
+                    '[tool.ruff]',
+                    f'extend = "{config_path}"',
+                ))
+            else:
+                lines.insert(index + 1, f'extend = "{config_path}"')
+
+            contents = '\n'.join(lines)
+        else:
+            contents = f'extend = "{config_path}"\n{old_contents}'
+
         self.internal_user_config_file.write_text(contents)
 
     @cached_property
