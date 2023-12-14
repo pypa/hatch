@@ -5,6 +5,7 @@ config-path = "ruff_defaults.toml"
 dependencies = [
   "coverage[toml]>=6.2",
   "filelock>=3.7.1",
+  "pyfakefs",
   "pytest",
   "pytest-cov",
   "pytest-mock",
