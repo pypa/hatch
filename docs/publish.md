@@ -50,11 +50,33 @@ The `main` repository is used by default.
 
 ## Authentication
 
-The first time you publish to a repository you need to authenticate using the `-u`/`--user` (environment variable `HATCH_INDEX_USER`) and `-a`/`--auth` (environment variable `HATCH_INDEX_AUTH`) options. You will be prompted if either option is not provided.
+As username the first source that defines one is used:
 
-The user that most recently published to the chosen repository is [cached](config/hatch.md#cache), with their credentials saved to the system [keyring](https://github.com/jaraco/keyring), so that they will no longer need to provide authentication information.
+1. The  `--user` / `-u` cli option.
+2. The `HATCH_INDEX_USER` environment variable.
+3. The [`repos` tables](plugins/publisher/package-index.md).
+4. The [`~/.pypirc` file](https://packaging.python.org/en/latest/specifications/pypirc/).
+5. The input to an interactive prompt.
 
-For automated releasing to PyPI, it is recommended that you use per-project [API tokens](https://pypi.org/help/#apitoken).
+As a fallback the value `__token__` is applied.
+
+The password is looked up in these:
+
+1. The [`~/.pypirc` file](https://packaging.python.org/en/latest/specifications/pypirc/)
+   if the username was provided by it.
+2. The `--auth` / `-a` cli option.
+3. The `HATCH_INDEX_AUTH` environment variable.
+4. The [`repos` tables](plugins/publisher/package-index.md).
+5. A variety of OS-level credentials services backed by [keyring](https://pypi.org/project/keyring/).
+6. The input to an interactive prompt.
+
+If interactively provided credentials were used, the username will be stored in
+[hactch's cache](config/hatch.md#cache) and along with the password in the available,
+[keyring](https://pypi.org/project/keyring/) backed credentials stores.
+
+For automated releasing to PyPI, it is recommended to possibly use ["Trusted Publishing" with OIDC](https://docs.pypi.org/trusted-publishers/)
+(e.g. PyPA's [`pypi-publish`](https://github.com/pypa/gh-action-pypi-publish) Github Action)
+or per-project [API tokens](https://pypi.org/help/#apitoken).
 
 ## Confirmation
 
