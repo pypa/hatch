@@ -227,9 +227,6 @@ class Application(Terminal):
         from hatch.python.core import PythonManager
 
         configured_dir = directory or self.config.dirs.python
-        if configured_dir == 'shared':
-            return PythonManager(Path.home() / '.pythons')
-
         if configured_dir == 'isolated':
             return PythonManager(self.data_dir / 'pythons')
 
