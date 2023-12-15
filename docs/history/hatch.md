@@ -11,12 +11,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ***Added:***
 
 - Enable docstring formatting by default for static analysis
+- Concretely state the expected API contract for the environment interface methods `find` and `check_compatibility`
 - Upgrade Ruff to 0.1.8
 
 ***Fixed:***
 
 - Ignore a project's Python requirement for environments where the project is not installed
 - When not persisting config for static analysis, properly manage internal settings when Ruff's top level table already exists
+- Ignore compatibility checks when environments have already been created, significantly improving performance of environment usage
 
 ## [1.8.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.8.1) - 2023-12-14 ## {: #hatch-v1.8.1 }
 

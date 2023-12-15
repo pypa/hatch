@@ -125,7 +125,6 @@ def test_matrix(hatch, helpers, temp_dir_data, config_file):
     assert len(storage_dirs) == 1
 
     storage_path = storage_dirs[0]
-    env_path = storage_path / 'test.42'
 
     with project_path.as_cwd():
         result = hatch('env', 'find', 'test')
@@ -133,7 +132,8 @@ def test_matrix(hatch, helpers, temp_dir_data, config_file):
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
         f"""
-        {env_path}
+        {storage_path / 'test.9000'}
+        {storage_path / 'test.42'}
         """
     )
 

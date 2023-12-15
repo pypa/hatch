@@ -21,10 +21,4 @@ def find(app, env_name):
 
     for env in environments:
         environment = app.get_environment(env)
-
-        try:
-            environment.check_compatibility()
-        except Exception:  # noqa: BLE001, S112
-            continue
-
         app.display(environment.find())

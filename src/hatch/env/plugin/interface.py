@@ -574,7 +574,9 @@ class EnvironmentInterface(ABC):
         """
         :material-align-horizontal-left: **REQUIRED** :material-align-horizontal-right:
 
-        This should return information about how to locate the environment.
+        This should return information about how to locate the environment or represent its ID in
+        some way. Additionally, this is expected to return something even if the environment is
+        [incompatible](reference.md#hatch.env.plugin.interface.EnvironmentInterface.check_compatibility).
         """
 
     @abstractmethod
@@ -849,6 +851,9 @@ class EnvironmentInterface(ABC):
         This raises an exception if the environment is not compatible with the user's setup. The default behavior
         checks for [platform compatibility](../../config/environment/overview.md#supported-platforms)
         and any method override should keep this check.
+
+        This check is never performed if the environment has been
+        [created](reference.md#hatch.env.plugin.interface.EnvironmentInterface.create).
         """
         if self.platforms and self.platform.name not in self.platforms:
             message = 'unsupported platform'
