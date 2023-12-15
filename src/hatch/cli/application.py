@@ -87,10 +87,11 @@ class Application(Terminal):
             self.verbosity,
             self.get_safe_application(),
         )
-        try:
-            environment.check_compatibility()
-        except Exception as e:  # noqa: BLE001
-            self.abort(f'Internal environment `{env_name}` is incompatible: {e}')
+        if not environment.exists():
+            try:
+                environment.check_compatibility()
+            except Exception as e:  # noqa: BLE001
+                self.abort(f'Internal environment `{env_name}` is incompatible: {e}')
 
         self.prepare_environment(environment)
         return environment
