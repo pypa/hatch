@@ -21,13 +21,13 @@ class IndexPublisher(PublisherInterface):
         repos = {}
         for repo, data in defined_repos.items():
             if isinstance(data, str):
-                data = {'url': data}
+                repos[repo] = {'url': data}
             elif not isinstance(data, dict):
                 self.app.abort(f'Hatch config field `publish.index.repos.{repo}` must be a string or a mapping')
             elif 'url' not in data:
                 self.app.abort(f'Hatch config field `publish.index.repos.{repo}` must define a `url` key')
-
-            repos[repo] = data
+            else:
+                repos[repo] = data
 
         # Ensure PyPI correct
         for repo, url in (('main', 'https://upload.pypi.org/legacy/'), ('test', 'https://test.pypi.org/legacy/')):

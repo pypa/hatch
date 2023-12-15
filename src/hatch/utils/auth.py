@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Optional
-
 from hatch.utils.fs import Path
 
 
@@ -20,8 +18,8 @@ class AuthenticationCredentials:
         self._repo = repo
         self._repo_config = repo_config
 
-        self.__username: Optional[str] = None
-        self.__password: Optional[str] = None
+        self.__username: str | None = None
+        self.__password: str | None = None
         self.__username_was_read = False
         self.__password_was_read = False
         self.__pwu_data: dict[str, str] = {}
@@ -77,7 +75,7 @@ class AuthenticationCredentials:
             or "__token__"
         )
 
-    def _read_previous_working_user_data(self) -> Optional[str]:
+    def _read_previous_working_user_data(self) -> str | None:
         if self._pwu_path.is_file():
             contents = self._pwu_path.read_text()
             if contents:
@@ -86,7 +84,7 @@ class AuthenticationCredentials:
                 self.__pwu_data = json.loads(contents)
         return self.__pwu_data.get(self._repo)
 
-    def _read_pypirc(self) -> Optional[str]:
+    def _read_pypirc(self) -> str | None:
         import configparser
 
         pypirc = configparser.ConfigParser()
@@ -98,11 +96,12 @@ class AuthenticationCredentials:
             return pypirc.get(section=repo, option='username', fallback=None)
 
         repo_url = self._repo_config['url']
-        assert isinstance(repo_url, str)
         for section in pypirc.sections():
             if pypirc.get(section=section, option='repository', fallback=None) == repo_url:
                 self.__password = pypirc.get(section=section, option='password', fallback=None)
                 return pypirc.get(section=section, option='username', fallback=None)
+
+        return None
 
     def write_updated_data(self):
         if self.__username_was_read:
@@ -118,4 +117,4 @@ class AuthenticationCredentials:
             keyring.set_password(self._repo, self.__username, self.__password)
 
 
-__all__ = (AuthenticationCredentials.__name__,)
+__all__ = (AuthenticationCredentials.__name__,)  # noqa: PLE0604

@@ -1,5 +1,5 @@
-from hatch.utils.fs import Path
 from hatch.utils.auth import AuthenticationCredentials
+from hatch.utils.fs import Path
 
 
 def test_pypirc(fs):
@@ -10,7 +10,7 @@ def test_pypirc(fs):
             username: guido
             password: gat
             repository: https://kaashandel.nl/
-        
+
             [pypi]
             username: guido
             password: sprscrt
