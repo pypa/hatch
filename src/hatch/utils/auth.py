@@ -70,10 +70,7 @@ class AuthenticationCredentials:
             self._app.abort('Missing required option: user')
 
         self.__username_was_read = True
-        return (
-            self._app.prompt(f"Username for '{self._repo_config['url']}' [__token__]")
-            or "__token__"
-        )
+        return self._app.prompt(f"Username for '{self._repo_config['url']}' [__token__]") or '__token__'
 
     def _read_previous_working_user_data(self) -> str | None:
         if self._pwu_path.is_file():
