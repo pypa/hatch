@@ -12,6 +12,9 @@ The [storage location](../hatch.md#environments) for environments is completely 
 
 Unless an environment is explicitly selected on the command line, the `default` environment will be used. The [type](#type) of this environment defaults to `virtual`.
 
+!!! info
+    Environments prefixed by `hatch-` are used for special purposes e.g. [static analysis](../static-analysis.md#persistent-config).
+
 ## Inheritance
 
 All environments inherit from the environment defined by its `template` option, which defaults to `default`.

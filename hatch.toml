@@ -1,3 +1,6 @@
+[envs.hatch-static-analysis]
+config-path = "ruff_defaults.toml"
+
 [envs.default]
 dependencies = [
   "coverage[toml]>=6.2",

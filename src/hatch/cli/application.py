@@ -46,14 +46,23 @@ class Application(Terminal):
         if env_name is None:
             env_name = self.env
 
-        if env_name not in self.project.config.envs:
+        if env_name in self.project.config.internal_envs:
+            config = self.project.config.internal_envs[env_name]
+        elif env_name not in self.project.config.envs:
             self.abort(f'Unknown environment: {env_name}')
+        else:
+            config = self.project.config.envs[env_name]
 
-        config = self.project.config.envs[env_name]
         environment_type = config['type']
         environment_class = self.plugins.environment.get(environment_type)
         if environment_class is None:
             self.abort(f'Environment `{env_name}` has unknown type: {environment_type}')
+
+        if is_isolated_environment(env_name, config):
+            data_directory = isolated_data_directory = self.data_dir / 'env' / '.internal' / env_name
+        else:
+            data_directory = self.get_env_directory(environment_type)
+            isolated_data_directory = self.data_dir / 'env' / environment_type
 
         self.project.config.finalize_env_overrides(environment_class.get_option_types())
 
@@ -63,38 +72,12 @@ class Application(Terminal):
             env_name,
             config,
             self.project.config.matrix_variables.get(env_name, {}),
-            self.get_env_directory(environment_type),
-            self.data_dir / 'env' / environment_type,
+            data_directory,
+            isolated_data_directory,
             self.platform,
             self.verbosity,
             self.get_safe_application(),
         )
-
-    def prepare_internal_environment(self, env_name: str, config: dict[str, Any] | None = None) -> EnvironmentInterface:
-        from hatch.env.internal import get_internal_environment_class
-
-        environment_class = get_internal_environment_class(env_name)
-        storage_dir = self.data_dir / 'env' / '.internal' / env_name
-        environment = environment_class(
-            self.project.location,
-            self.project.metadata,
-            env_name,
-            config or {},
-            {},
-            storage_dir,
-            storage_dir,
-            self.platform,
-            self.verbosity,
-            self.get_safe_application(),
-        )
-        if not environment.exists():
-            try:
-                environment.check_compatibility()
-            except Exception as e:  # noqa: BLE001
-                self.abort(f'Internal environment `{env_name}` is incompatible: {e}')
-
-        self.prepare_environment(environment)
-        return environment
 
     # Ensure that this method is clearly written since it is
     # used for documenting the life cycle of environments.
@@ -247,6 +230,21 @@ class Application(Terminal):
     def env_metadata(self) -> EnvironmentMetadata:
         return EnvironmentMetadata(self.data_dir / 'env' / '.metadata', self.project.location)
 
+    @staticmethod
+    def is_internal_default_environment(env_name: str, config: dict[str, Any]) -> bool:
+        from hatch.env.internal import get_internal_env_config
+
+        internal_config = get_internal_env_config().get(env_name)
+        if not internal_config:
+            return False
+
+        # Only consider things that would modify the actual installation, other options like extra scripts don't matter
+        for key in ('dependencies', 'extra-dependencies', 'features'):
+            if config.get(key) != internal_config.get(key):
+                return False
+
+        return True
+
     def abort(self, text='', code=1, **kwargs):
         if text:
             self.display_error(text, **kwargs)
@@ -308,9 +306,7 @@ class EnvironmentMetadata:
         metadata_file.write_text(json.dumps(metadata))
 
     def _metadata_file(self, environment: EnvironmentInterface) -> Path:
-        from hatch.env.internal.interface import InternalEnvironment
-
-        if isinstance(environment, InternalEnvironment) and environment.config.get('skip-install'):
+        if is_isolated_environment(environment.name, environment.config):
             return self.__data_dir / '.internal' / f'{environment.name}.json'
 
         return self._storage_dir / environment.config['type'] / f'{environment.name}.json'
@@ -321,3 +317,30 @@ class EnvironmentMetadata:
         from hashlib import sha256
 
         return self.__data_dir / urlsafe_b64encode(sha256(str(self.__project_path).encode()).digest())[:8].decode()
+
+
+def is_isolated_environment(env_name: str, config: dict[str, Any]) -> bool:
+    # Provide super isolation and immunity to project-level environment removal only when the environment:
+    #
+    # 1. Does not require the project being installed
+    # 2. The default configuration is used
+    #
+    # For example, the environment for static analysis depends only on Ruff at a specific default
+    # version. This environment does not require the project and can be reused by every project to
+    # improve responsiveness. However, if the user for some reason chooses to override the dependencies
+    # to use a different version of Ruff, then the project would get its own environment.
+    if not config.get('skip-install', False):
+        return False
+
+    from hatch.env.internal import get_internal_env_config
+
+    internal_config = get_internal_env_config().get(env_name)
+    if not internal_config:
+        return False
+
+    # Only consider things that would modify the actual installation, other options like extra scripts don't matter
+    for key in ('dependencies', 'extra-dependencies', 'features'):
+        if config.get(key) != internal_config.get(key):
+            return False
+
+    return True

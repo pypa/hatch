@@ -5,7 +5,6 @@ import re
 import subprocess
 import sys
 from importlib.metadata import version
-from pathlib import Path
 
 from utils import ROOT
 
@@ -69,20 +68,6 @@ PER_FILE_IGNORED_RULES: dict[str, list[str]] = {
 
 
 def main():
-    project_root = Path(__file__).resolve().parent.parent
-    data_file = project_root / 'src' / 'hatch' / 'env' / 'internal' / 'fmt.py'
-
-    lines = data_file.read_text(encoding='utf-8').splitlines()
-    for i, line in enumerate(lines):
-        if line.startswith('RUFF_MINIMUM_VERSION'):
-            block_start = i
-            break
-    else:
-        message = 'Could not find RUFF_MINIMUM_VERSION'
-        raise ValueError(message)
-
-    del lines[block_start:]
-
     process = subprocess.run(  # noqa: PLW1510
         [sys.executable, '-m', 'ruff', 'rule', '--all', '--output-format', 'json'],
         stdout=subprocess.PIPE,
@@ -92,6 +77,18 @@ def main():
     )
     if process.returncode:
         raise OSError(process.stdout)
+
+    data_file = ROOT / 'src' / 'hatch' / 'cli' / 'fmt' / 'core.py'
+    lines = data_file.read_text(encoding='utf-8').splitlines()
+    for i, line in enumerate(lines):
+        if line.startswith('STABLE_RULES'):
+            block_start = i
+            break
+    else:
+        message = 'Could not find STABLE_RULES'
+        raise ValueError(message)
+
+    del lines[block_start:]
 
     ignored_pattern = f'^({"|".join(UNSELECTED_RULE_PATTERNS)})$'
     stable_rules: set[str] = set()
@@ -105,9 +102,6 @@ def main():
             preview_rules.add(code)
         else:
             stable_rules.add(code)
-
-    latest_version = version('ruff')
-    lines.append(f'RUFF_MINIMUM_VERSION: str = {latest_version!r}')
 
     lines.append('STABLE_RULES: tuple[str, ...] = (')
     lines.extend(f'    {rule!r},' for rule in sorted(stable_rules))
@@ -126,6 +120,19 @@ def main():
 
     lines.append('')
     data_file.write_text('\n'.join(lines), encoding='utf-8')
+
+    version_file = ROOT / 'src' / 'hatch' / 'env' / 'internal' / 'static_analysis.py'
+    latest_version = version('ruff')
+    version_file.write_text(
+        re.sub(
+            r'^(RUFF_DEFAULT_VERSION.+=.+\').+?(\')$',
+            rf'\g<1>{latest_version}\g<2>',
+            version_file.read_text(encoding='utf-8'),
+            count=1,
+            flags=re.MULTILINE,
+        ),
+        encoding='utf-8',
+    )
 
 
 if __name__ == '__main__':
