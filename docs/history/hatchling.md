@@ -8,12 +8,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.21.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.21.0) - 2023-12-18 ## {: #hatchling-v1.21.0 }
+
+***Added:***
+
+- Add `parent` context modifier for path fields
+
 ## [1.20.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.20.0) - 2023-12-13 ## {: #hatchling-v1.20.0 }
 
 ***Added:***
 
 - Add `bypass-selection` option to the `wheel` build target to allow for empty (metadata-only) wheels
-- Add `parent` context modifier for path fields
 
 ***Fixed:***
 
