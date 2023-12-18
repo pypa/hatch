@@ -54,7 +54,7 @@ When defining your configuration, be sure to use options that are prefixed by `e
 If you want to store the default configuration in the project, set an explicit path like so:
 
 ```toml config-example
-[tool.hatch.format]
+[tool.hatch.envs.hatch-static-analysis]
 config-path = "ruff_defaults.toml"
 ```
 
@@ -82,12 +82,21 @@ hatch fmt --check --sync
 !!! tip
     This is the recommended approach since it allows other tools like IDEs to use the default configuration.
 
+### Versioning
+
+You can pin the particular version of Ruff by explicitly defining the environment [dependencies](environment/overview.md#dependencies):
+
+```toml config-example
+[tool.hatch.envs.hatch-static-analysis]
+dependencies = ["ruff==X.Y.Z"]
+```
+
 ## Default settings
 
 ### Non-rule settings
 
 - [Line length](https://docs.astral.sh/ruff/settings/#line-length) set to 120
-- Docstring [code line length](https://docs.astral.sh/ruff/settings/#format-docstring-code-line-length) set to 80
+- [Docstring formatting](https://docs.astral.sh/ruff/formatter/#docstring-formatting) enabled with [line length](https://docs.astral.sh/ruff/settings/#format-docstring-code-line-length) set to 80
 - Only absolute imports [are allowed](https://docs.astral.sh/ruff/settings/#flake8-tidy-imports-ban-relative-imports), [except for tests](#per-file-ignored-rules)
 - The normalized [project name](metadata.md#name) is a [known first party](https://docs.astral.sh/ruff/settings/#isort-known-first-party) import
 
@@ -97,6 +106,6 @@ hatch fmt --check --sync
 
 ### Selected rules
 
-The following rules are based on version <HATCH_RUFF_VERSION> of Ruff.
+The following rules are based on version <HATCH_RUFF_VERSION> of Ruff. Rules with a ^P^ are only selected when [preview](https://docs.astral.sh/ruff/preview/) mode is enabled.
 
 <HATCH_RUFF_SELECTED_RULES>

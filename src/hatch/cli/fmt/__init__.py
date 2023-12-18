@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 import click
 
@@ -27,14 +27,29 @@ def fmt(
     sync: bool,
 ):
     """Format and lint source code."""
-    from hatch.env.internal.fmt import InternalFormatEnvironment
+    from hatch.cli.fmt.core import FormatEnvironment
 
     if linter and formatter:
         app.abort('Cannot specify both --linter and --formatter')
 
-    environment = cast(
-        InternalFormatEnvironment, app.prepare_internal_environment('fmt', config=app.project.config.fmt)
-    )
+    internal_env = app.get_environment('hatch-static-analysis')
+    if not internal_env.exists():
+        try:
+            internal_env.check_compatibility()
+        except Exception as e:  # noqa: BLE001
+            app.abort(f'Environment is incompatible: {e}')
+
+    app.prepare_environment(internal_env)
+    environment = FormatEnvironment(internal_env)
+
+    # TODO: remove in a few minor releases, this is very new but we don't want to break users on the cutting edge
+    if legacy_config_path := app.project.config.config.get('format', {}).get('config-path', ''):
+        app.display_warning(
+            'The `tool.hatch.format.config-path` option is deprecated and will be removed in a future release. '
+            'Use `tool.hatch.envs.hatch-static-analysis.config-path` instead.'
+        )
+        environment.config_path = legacy_config_path
+
     if sync and not environment.config_path:
         app.abort('The --sync flag can only be used when the `tool.hatch.format.config-path` option is defined')
 
@@ -45,7 +60,7 @@ def fmt(
     if not linter:
         commands.append(environment.get_formatter_command(*args, check=check, preview=preview))
 
-    with app.project.location.as_cwd(), environment.command_context():
+    with app.project.location.as_cwd(), internal_env.command_context():
         if not environment.config_path or sync:
             environment.write_config_file(preview=preview)
 

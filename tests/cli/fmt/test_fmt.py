@@ -5,11 +5,12 @@ from subprocess import CompletedProcess
 import pytest
 
 from hatch.config.constants import ConfigEnvVars
-from hatch.env.internal.fmt import PER_FILE_IGNORED_RULES, PREVIEW_RULES, STABLE_RULES
 from hatch.project.core import Project
 
 
 def construct_ruff_defaults_file(rules: tuple[str, ...]) -> str:
+    from hatch.cli.fmt.core import PER_FILE_IGNORED_RULES
+
     lines = [
         'line-length = 120',
         '',
@@ -54,11 +55,15 @@ def construct_ruff_defaults_file(rules: tuple[str, ...]) -> str:
 
 @pytest.fixture(scope='module')
 def defaults_file_stable() -> str:
+    from hatch.cli.fmt.core import STABLE_RULES
+
     return construct_ruff_defaults_file(STABLE_RULES)
 
 
 @pytest.fixture(scope='module')
 def defaults_file_preview() -> str:
+    from hatch.cli.fmt.core import PREVIEW_RULES, STABLE_RULES
+
     return construct_ruff_defaults_file(STABLE_RULES + PREVIEW_RULES)
 
 
@@ -86,9 +91,9 @@ class TestDefaults:
         data_path.mkdir()
 
         run = mocker.patch('subprocess.run', return_value=CompletedProcess([], 0, stdout=b''))
-        mocker.patch('hatch.env.internal.fmt.InternalFormatEnvironment.exists', return_value=True)
-        mocker.patch('hatch.env.internal.fmt.InternalFormatEnvironment.dependency_hash', return_value='')
-        mocker.patch('hatch.env.internal.fmt.InternalFormatEnvironment.command_context')
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.exists', return_value=True)
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.dependency_hash', return_value='')
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.command_context')
 
         with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
             result = hatch('fmt')
@@ -96,7 +101,7 @@ class TestDefaults:
         assert result.exit_code == 0, result.output
         assert not result.output
 
-        root_data_path = data_path / 'env' / '.internal' / 'fmt' / '.config'
+        root_data_path = data_path / 'env' / '.internal' / 'hatch-static-analysis' / '.config'
         config_dir = next(root_data_path.iterdir())
         default_config = config_dir / 'ruff_defaults.toml'
         user_config = config_dir / 'pyproject.toml'
@@ -140,9 +145,9 @@ extend = "{config_path}\""""
         data_path.mkdir()
 
         run = mocker.patch('subprocess.run', return_value=CompletedProcess([], 0, stdout=b''))
-        mocker.patch('hatch.env.internal.fmt.InternalFormatEnvironment.exists', return_value=True)
-        mocker.patch('hatch.env.internal.fmt.InternalFormatEnvironment.dependency_hash', return_value='')
-        mocker.patch('hatch.env.internal.fmt.InternalFormatEnvironment.command_context')
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.exists', return_value=True)
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.dependency_hash', return_value='')
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.command_context')
 
         with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
             result = hatch('fmt', '--check')
@@ -150,7 +155,7 @@ extend = "{config_path}\""""
         assert result.exit_code == 0, result.output
         assert not result.output
 
-        root_data_path = data_path / 'env' / '.internal' / 'fmt' / '.config'
+        root_data_path = data_path / 'env' / '.internal' / 'hatch-static-analysis' / '.config'
         config_dir = next(root_data_path.iterdir())
         default_config = config_dir / 'ruff_defaults.toml'
         user_config = config_dir / 'pyproject.toml'
@@ -198,9 +203,9 @@ extend = "{config_path}\""""
         project_file.write_text(f'[tool.ruff]\n{old_contents}')
 
         run = mocker.patch('subprocess.run', return_value=CompletedProcess([], 0, stdout=b''))
-        mocker.patch('hatch.env.internal.fmt.InternalFormatEnvironment.exists', return_value=True)
-        mocker.patch('hatch.env.internal.fmt.InternalFormatEnvironment.dependency_hash', return_value='')
-        mocker.patch('hatch.env.internal.fmt.InternalFormatEnvironment.command_context')
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.exists', return_value=True)
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.dependency_hash', return_value='')
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.command_context')
 
         with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
             result = hatch('fmt', '--check')
@@ -208,7 +213,7 @@ extend = "{config_path}\""""
         assert result.exit_code == 0, result.output
         assert not result.output
 
-        root_data_path = data_path / 'env' / '.internal' / 'fmt' / '.config'
+        root_data_path = data_path / 'env' / '.internal' / 'hatch-static-analysis' / '.config'
         config_dir = next(root_data_path.iterdir())
         default_config = config_dir / 'ruff_defaults.toml'
         user_config = config_dir / 'pyproject.toml'
@@ -253,9 +258,9 @@ class TestPreview:
         data_path.mkdir()
 
         run = mocker.patch('subprocess.run', return_value=CompletedProcess([], 0, stdout=b''))
-        mocker.patch('hatch.env.internal.fmt.InternalFormatEnvironment.exists', return_value=True)
-        mocker.patch('hatch.env.internal.fmt.InternalFormatEnvironment.dependency_hash', return_value='')
-        mocker.patch('hatch.env.internal.fmt.InternalFormatEnvironment.command_context')
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.exists', return_value=True)
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.dependency_hash', return_value='')
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.command_context')
 
         with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
             result = hatch('fmt', '--preview')
@@ -263,7 +268,7 @@ class TestPreview:
         assert result.exit_code == 0, result.output
         assert not result.output
 
-        root_data_path = data_path / 'env' / '.internal' / 'fmt' / '.config'
+        root_data_path = data_path / 'env' / '.internal' / 'hatch-static-analysis' / '.config'
         config_dir = next(root_data_path.iterdir())
         default_config = config_dir / 'ruff_defaults.toml'
         user_config = config_dir / 'pyproject.toml'
@@ -307,9 +312,9 @@ extend = "{config_path}\""""
         data_path.mkdir()
 
         run = mocker.patch('subprocess.run', return_value=CompletedProcess([], 0, stdout=b''))
-        mocker.patch('hatch.env.internal.fmt.InternalFormatEnvironment.exists', return_value=True)
-        mocker.patch('hatch.env.internal.fmt.InternalFormatEnvironment.dependency_hash', return_value='')
-        mocker.patch('hatch.env.internal.fmt.InternalFormatEnvironment.command_context')
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.exists', return_value=True)
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.dependency_hash', return_value='')
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.command_context')
 
         with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
             result = hatch('fmt', '--check', '--preview')
@@ -317,7 +322,7 @@ extend = "{config_path}\""""
         assert result.exit_code == 0, result.output
         assert not result.output
 
-        root_data_path = data_path / 'env' / '.internal' / 'fmt' / '.config'
+        root_data_path = data_path / 'env' / '.internal' / 'hatch-static-analysis' / '.config'
         config_dir = next(root_data_path.iterdir())
         default_config = config_dir / 'ruff_defaults.toml'
         user_config = config_dir / 'pyproject.toml'
@@ -364,9 +369,9 @@ extend = "{config_path}\""""
         original_user_config.write_text(f'{original_user_config.read_text()}\n[tool.ruff.lint]\npreview = true')
 
         run = mocker.patch('subprocess.run', return_value=CompletedProcess([], 0, stdout=b''))
-        mocker.patch('hatch.env.internal.fmt.InternalFormatEnvironment.exists', return_value=True)
-        mocker.patch('hatch.env.internal.fmt.InternalFormatEnvironment.dependency_hash', return_value='')
-        mocker.patch('hatch.env.internal.fmt.InternalFormatEnvironment.command_context')
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.exists', return_value=True)
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.dependency_hash', return_value='')
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.command_context')
 
         with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
             result = hatch('fmt', '--check')
@@ -374,7 +379,7 @@ extend = "{config_path}\""""
         assert result.exit_code == 0, result.output
         assert not result.output
 
-        root_data_path = data_path / 'env' / '.internal' / 'fmt' / '.config'
+        root_data_path = data_path / 'env' / '.internal' / 'hatch-static-analysis' / '.config'
         config_dir = next(root_data_path.iterdir())
         default_config = config_dir / 'ruff_defaults.toml'
         user_config = config_dir / 'pyproject.toml'
@@ -422,9 +427,9 @@ extend = "{config_path}\""""
         original_user_config.write_text(f'{original_user_config.read_text()}\n[tool.ruff.format]\npreview = true')
 
         run = mocker.patch('subprocess.run', return_value=CompletedProcess([], 0, stdout=b''))
-        mocker.patch('hatch.env.internal.fmt.InternalFormatEnvironment.exists', return_value=True)
-        mocker.patch('hatch.env.internal.fmt.InternalFormatEnvironment.dependency_hash', return_value='')
-        mocker.patch('hatch.env.internal.fmt.InternalFormatEnvironment.command_context')
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.exists', return_value=True)
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.dependency_hash', return_value='')
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.command_context')
 
         with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
             result = hatch('fmt', '--check')
@@ -432,7 +437,7 @@ extend = "{config_path}\""""
         assert result.exit_code == 0, result.output
         assert not result.output
 
-        root_data_path = data_path / 'env' / '.internal' / 'fmt' / '.config'
+        root_data_path = data_path / 'env' / '.internal' / 'hatch-static-analysis' / '.config'
         config_dir = next(root_data_path.iterdir())
         default_config = config_dir / 'ruff_defaults.toml'
         user_config = config_dir / 'pyproject.toml'
@@ -479,9 +484,9 @@ class TestComponents:
         data_path.mkdir()
 
         run = mocker.patch('subprocess.run', return_value=CompletedProcess([], 0, stdout=b''))
-        mocker.patch('hatch.env.internal.fmt.InternalFormatEnvironment.exists', return_value=True)
-        mocker.patch('hatch.env.internal.fmt.InternalFormatEnvironment.dependency_hash', return_value='')
-        mocker.patch('hatch.env.internal.fmt.InternalFormatEnvironment.command_context')
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.exists', return_value=True)
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.dependency_hash', return_value='')
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.command_context')
 
         with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
             result = hatch('fmt', '--linter')
@@ -489,7 +494,7 @@ class TestComponents:
         assert result.exit_code == 0, result.output
         assert not result.output
 
-        root_data_path = data_path / 'env' / '.internal' / 'fmt' / '.config'
+        root_data_path = data_path / 'env' / '.internal' / 'hatch-static-analysis' / '.config'
         config_dir = next(root_data_path.iterdir())
         default_config = config_dir / 'ruff_defaults.toml'
         user_config = config_dir / 'pyproject.toml'
@@ -529,9 +534,9 @@ extend = "{config_path}\""""
         data_path.mkdir()
 
         run = mocker.patch('subprocess.run', return_value=CompletedProcess([], 0, stdout=b''))
-        mocker.patch('hatch.env.internal.fmt.InternalFormatEnvironment.exists', return_value=True)
-        mocker.patch('hatch.env.internal.fmt.InternalFormatEnvironment.dependency_hash', return_value='')
-        mocker.patch('hatch.env.internal.fmt.InternalFormatEnvironment.command_context')
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.exists', return_value=True)
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.dependency_hash', return_value='')
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.command_context')
 
         with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
             result = hatch('fmt', '--formatter')
@@ -539,7 +544,7 @@ extend = "{config_path}\""""
         assert result.exit_code == 0, result.output
         assert not result.output
 
-        root_data_path = data_path / 'env' / '.internal' / 'fmt' / '.config'
+        root_data_path = data_path / 'env' / '.internal' / 'hatch-static-analysis' / '.config'
         config_dir = next(root_data_path.iterdir())
         default_config = config_dir / 'ruff_defaults.toml'
         user_config = config_dir / 'pyproject.toml'
@@ -579,9 +584,9 @@ extend = "{config_path}\""""
         data_path.mkdir()
 
         mocker.patch('subprocess.run', return_value=CompletedProcess([], 0, stdout=b''))
-        mocker.patch('hatch.env.internal.fmt.InternalFormatEnvironment.exists', return_value=True)
-        mocker.patch('hatch.env.internal.fmt.InternalFormatEnvironment.dependency_hash', return_value='')
-        mocker.patch('hatch.env.internal.fmt.InternalFormatEnvironment.command_context')
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.exists', return_value=True)
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.dependency_hash', return_value='')
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.command_context')
 
         with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
             result = hatch('fmt', '--linter', '--formatter')
@@ -611,9 +616,9 @@ class TestArguments:
         data_path.mkdir()
 
         run = mocker.patch('subprocess.run', return_value=CompletedProcess([], 0, stdout=b''))
-        mocker.patch('hatch.env.internal.fmt.InternalFormatEnvironment.exists', return_value=True)
-        mocker.patch('hatch.env.internal.fmt.InternalFormatEnvironment.dependency_hash', return_value='')
-        mocker.patch('hatch.env.internal.fmt.InternalFormatEnvironment.command_context')
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.exists', return_value=True)
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.dependency_hash', return_value='')
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.command_context')
 
         with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
             result = hatch('fmt', '--', '--foo', 'bar')
@@ -621,7 +626,7 @@ class TestArguments:
         assert result.exit_code == 0, result.output
         assert not result.output
 
-        root_data_path = data_path / 'env' / '.internal' / 'fmt' / '.config'
+        root_data_path = data_path / 'env' / '.internal' / 'hatch-static-analysis' / '.config'
         config_dir = next(root_data_path.iterdir())
         default_config = config_dir / 'ruff_defaults.toml'
         user_config = config_dir / 'pyproject.toml'
@@ -667,9 +672,9 @@ class TestConfigPath:
         data_path.mkdir()
 
         mocker.patch('subprocess.run', return_value=CompletedProcess([], 0, stdout=b''))
-        mocker.patch('hatch.env.internal.fmt.InternalFormatEnvironment.exists', return_value=True)
-        mocker.patch('hatch.env.internal.fmt.InternalFormatEnvironment.dependency_hash', return_value='')
-        mocker.patch('hatch.env.internal.fmt.InternalFormatEnvironment.command_context')
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.exists', return_value=True)
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.dependency_hash', return_value='')
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.command_context')
 
         with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
             result = hatch('fmt', '--sync')
@@ -700,14 +705,14 @@ class TestConfigPath:
 
         project = Project(project_path)
         config = dict(project.raw_config)
-        config['tool']['hatch']['format'] = {'config-path': 'ruff_defaults.toml'}
+        config['tool']['hatch']['envs'] = {'hatch-static-analysis': {'config-path': 'ruff_defaults.toml'}}
         config['tool']['ruff'] = {'extend': 'ruff_defaults.toml'}
         project.save_config(config)
 
         run = mocker.patch('subprocess.run', return_value=CompletedProcess([], 0, stdout=b''))
-        mocker.patch('hatch.env.internal.fmt.InternalFormatEnvironment.exists', return_value=True)
-        mocker.patch('hatch.env.internal.fmt.InternalFormatEnvironment.dependency_hash', return_value='')
-        mocker.patch('hatch.env.internal.fmt.InternalFormatEnvironment.command_context')
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.exists', return_value=True)
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.dependency_hash', return_value='')
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.command_context')
 
         with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
             result = hatch('fmt', '--sync')
@@ -715,7 +720,7 @@ class TestConfigPath:
         assert result.exit_code == 0, result.output
         assert not result.output
 
-        root_data_path = data_path / 'env' / '.internal' / 'fmt' / '.config'
+        root_data_path = data_path / 'env' / '.internal' / 'hatch-static-analysis' / '.config'
         assert not root_data_path.is_dir()
 
         assert run.call_args_list == [
@@ -750,14 +755,14 @@ class TestConfigPath:
 
         project = Project(project_path)
         config = dict(project.raw_config)
-        config['tool']['hatch']['format'] = {'config-path': 'ruff_defaults.toml'}
+        config['tool']['hatch']['envs'] = {'hatch-static-analysis': {'config-path': 'ruff_defaults.toml'}}
         config['tool']['ruff'] = {'extend': 'ruff_defaults.toml'}
         project.save_config(config)
 
         run = mocker.patch('subprocess.run', return_value=CompletedProcess([], 0, stdout=b''))
-        mocker.patch('hatch.env.internal.fmt.InternalFormatEnvironment.exists', return_value=True)
-        mocker.patch('hatch.env.internal.fmt.InternalFormatEnvironment.dependency_hash', return_value='')
-        mocker.patch('hatch.env.internal.fmt.InternalFormatEnvironment.command_context')
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.exists', return_value=True)
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.dependency_hash', return_value='')
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.command_context')
 
         with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
             result = hatch('fmt')
@@ -765,7 +770,7 @@ class TestConfigPath:
         assert result.exit_code == 0, result.output
         assert not result.output
 
-        root_data_path = data_path / 'env' / '.internal' / 'fmt' / '.config'
+        root_data_path = data_path / 'env' / '.internal' / 'hatch-static-analysis' / '.config'
         assert not root_data_path.is_dir()
 
         assert run.call_args_list == [
@@ -780,3 +785,56 @@ class TestConfigPath:
         ]
 
         assert not default_config_file.read_text()
+
+    def test_sync_legacy_config(self, hatch, temp_dir, config_file, mocker, ruff_on_path, defaults_file_stable):
+        config_file.model.template.plugins['default']['tests'] = False
+        config_file.save()
+
+        project_name = 'My.App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / 'my-app'
+        data_path = temp_dir / 'data'
+        data_path.mkdir()
+        default_config_file = project_path / 'ruff_defaults.toml'
+        assert not default_config_file.is_file()
+
+        project = Project(project_path)
+        config = dict(project.raw_config)
+        config['tool']['hatch']['format'] = {'config-path': 'ruff_defaults.toml'}
+        config['tool']['ruff'] = {'extend': 'ruff_defaults.toml'}
+        project.save_config(config)
+
+        run = mocker.patch('subprocess.run', return_value=CompletedProcess([], 0, stdout=b''))
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.exists', return_value=True)
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.dependency_hash', return_value='')
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.command_context')
+
+        with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+            result = hatch('fmt', '--sync')
+
+        assert result.exit_code == 0, result.output
+        assert result.output == (
+            'The `tool.hatch.format.config-path` option is deprecated and will be removed in a future release. '
+            'Use `tool.hatch.envs.hatch-static-analysis.config-path` instead.\n'
+        )
+
+        root_data_path = data_path / 'env' / '.internal' / 'hatch-static-analysis' / '.config'
+        assert not root_data_path.is_dir()
+
+        assert run.call_args_list == [
+            mocker.call(
+                [ruff_on_path, 'check', '--fix', '.'],
+                shell=False,
+            ),
+            mocker.call(
+                [ruff_on_path, 'format', '.'],
+                shell=False,
+            ),
+        ]
+
+        assert default_config_file.read_text() == defaults_file_stable

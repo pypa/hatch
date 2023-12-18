@@ -48,7 +48,7 @@ class CliRunner(__CliRunner):
 
 
 @pytest.fixture(scope='session')
-def hatch():
+def hatch(isolation):  # noqa: ARG001
     from hatch import cli
 
     return CliRunner(cli.hatch)

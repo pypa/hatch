@@ -41,7 +41,7 @@ class TestOtherBackend:
         assert result.exit_code == 0, result.output
         assert result.output == helpers.dedent(
             """
-            Creating environment: build
+            Creating environment: hatch-build
             Checking dependencies
             Syncing dependencies
             """
@@ -107,7 +107,7 @@ print("Hello World!")
         assert result.exit_code == 0, result.output
         assert result.output == helpers.dedent(
             """
-            Creating environment: build
+            Creating environment: hatch-build
             Checking dependencies
             Syncing dependencies
             """

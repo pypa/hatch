@@ -75,7 +75,7 @@ class VirtualEnvironment(EnvironmentInterface):
 
     @staticmethod
     def get_option_types() -> dict:
-        return {'system-packages': bool, 'path': bool, 'python-sources': list}
+        return {'system-packages': bool, 'path': str, 'python-sources': list}
 
     def activate(self):
         self.virtual_env.activate()
