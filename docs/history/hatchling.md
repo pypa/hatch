@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ***Added:***
 
 - Add `bypass-selection` option to the `wheel` build target to allow for empty (metadata-only) wheels
+- Add `parent` context modifier for path fields
 
 ***Fixed:***
 

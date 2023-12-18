@@ -21,6 +21,17 @@ All paths support the following modifiers:
 | --- | --- |
 | `uri` | The normalized absolute URI path prefixed by `file:` |
 | `real` | The path with all symbolic links resolved |
+| `parent` | The parent of the preceding path |
+
+!!! tip
+    The `parent` modifier can be chained and may be combined with either the `uri` or `real` modifier, with the latter placed at the end. For example:
+
+    ```toml config-example
+    [tool.hatch.envs.test]
+    dependencies = [
+        "example-project @ {root:parent:parent:uri}/example-project",
+    ]
+    ```
 
 ### System separators
 
