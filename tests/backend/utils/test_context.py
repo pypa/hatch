@@ -26,6 +26,16 @@ class TestRoot:
         context = Context(isolation)
         assert context.format('foo {root}') == f'foo {isolation}'
 
+    def test_parent(self, isolation):
+        context = Context(isolation)
+        path = os.path.dirname(str(isolation))
+        assert context.format('foo {root:parent}') == f'foo {path}'
+
+    def test_parent_parent(self, isolation):
+        context = Context(isolation)
+        path = os.path.dirname(os.path.dirname(str(isolation)))
+        assert context.format('foo {root:parent:parent}') == f'foo {path}'
+
     def test_uri(self, isolation, uri_slash_prefix):
         context = Context(isolation)
         normalized_path = str(isolation).replace(os.sep, '/')
@@ -34,12 +44,12 @@ class TestRoot:
     def test_uri_parent(self, isolation, uri_slash_prefix):
         context = Context(isolation)
         normalized_path = os.path.dirname(str(isolation)).replace(os.sep, '/')
-        assert context.format('foo {root:uri:parent}') == f'foo file:{uri_slash_prefix}{normalized_path}'
+        assert context.format('foo {root:parent:uri}') == f'foo file:{uri_slash_prefix}{normalized_path}'
 
     def test_uri_parent_parent(self, isolation, uri_slash_prefix):
         context = Context(isolation)
         normalized_path = os.path.dirname(os.path.dirname(str(isolation))).replace(os.sep, '/')
-        assert context.format('foo {root:uri:parent:parent}') == f'foo file:{uri_slash_prefix}{normalized_path}'
+        assert context.format('foo {root:parent:parent:uri}') == f'foo file:{uri_slash_prefix}{normalized_path}'
 
     def test_real(self, isolation):
         context = Context(isolation)
@@ -49,18 +59,24 @@ class TestRoot:
     def test_real_parent(self, isolation):
         context = Context(isolation)
         real_path = os.path.dirname(os.path.realpath(isolation))
-        assert context.format('foo {root:real:parent}') == f'foo {real_path}'
+        assert context.format('foo {root:parent:real}') == f'foo {real_path}'
 
     def test_real_parent_parent(self, isolation):
         context = Context(isolation)
         real_path = os.path.dirname(os.path.dirname(os.path.realpath(isolation)))
-        assert context.format('foo {root:real:parent:parent}') == f'foo {real_path}'
+        assert context.format('foo {root:parent:parent:real}') == f'foo {real_path}'
 
     def test_unknown_modifier(self, isolation):
         context = Context(isolation)
 
         with pytest.raises(ValueError, match='Unknown path modifier: bar'):
             context.format('foo {root:bar}')
+
+    def test_too_many_modifiers_after_parent(self, isolation):
+        context = Context(isolation)
+
+        with pytest.raises(ValueError, match='Expected a single path modifier and instead got: foo, bar, baz'):
+            context.format('foo {root:parent:foo:bar:baz}')
 
 
 class TestHome:
