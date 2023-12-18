@@ -31,9 +31,30 @@ class TestRoot:
         normalized_path = str(isolation).replace(os.sep, '/')
         assert context.format('foo {root:uri}') == f'foo file:{uri_slash_prefix}{normalized_path}'
 
+    def test_uri_parent(self, isolation, uri_slash_prefix):
+        context = Context(isolation)
+        normalized_path = os.path.dirname(str(isolation)).replace(os.sep, '/')
+        assert context.format('foo {root:uri:parent}') == f'foo file:{uri_slash_prefix}{normalized_path}'
+
+    def test_uri_parent_parent(self, isolation, uri_slash_prefix):
+        context = Context(isolation)
+        normalized_path = os.path.dirname(os.path.dirname(str(isolation))).replace(os.sep, '/')
+        assert context.format('foo {root:uri:parent:parent}') == f'foo file:{uri_slash_prefix}{normalized_path}'
+
     def test_real(self, isolation):
         context = Context(isolation)
-        assert context.format('foo {root:real}') == f'foo {os.path.realpath(isolation)}'
+        real_path = os.path.realpath(isolation)
+        assert context.format('foo {root:real}') == f'foo {real_path}'
+
+    def test_real_parent(self, isolation):
+        context = Context(isolation)
+        real_path = os.path.dirname(os.path.realpath(isolation))
+        assert context.format('foo {root:real:parent}') == f'foo {real_path}'
+
+    def test_real_parent_parent(self, isolation):
+        context = Context(isolation)
+        real_path = os.path.dirname(os.path.dirname(os.path.realpath(isolation)))
+        assert context.format('foo {root:real:parent:parent}') == f'foo {real_path}'
 
     def test_unknown_modifier(self, isolation):
         context = Context(isolation)

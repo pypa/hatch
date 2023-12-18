@@ -21,6 +21,9 @@ All paths support the following modifiers:
 | --- | --- |
 | `uri` | The normalized absolute URI path prefixed by `file:` |
 | `real` | The path with all symbolic links resolved |
+| `parent` | The parent of the previous path |
+
+Note that the `parent` modifier can be chained to get the parent of the parent of the parent etc. It must be combined with either the `uri` or `real` modifier.
 
 ### System separators
 

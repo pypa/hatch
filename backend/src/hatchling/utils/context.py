@@ -26,6 +26,10 @@ class ContextFormatter(ABC):
         if not modifier:
             return os.path.normpath(path)
 
+        while modifier.endswith(':parent'):
+            path = os.path.dirname(path)
+            modifier = modifier[:-7]
+
         if modifier == 'uri':
             return path_to_uri(path)
 
