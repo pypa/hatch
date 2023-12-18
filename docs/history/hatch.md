@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Allow for overriding config of internal environments
 - Concretely state the expected API contract for the environment interface methods `find` and `check_compatibility`
 - Upgrade Ruff to 0.1.8
+- Bump the minimum supported version of Hatchling to 1.21.0
 
 ***Fixed:***
 
