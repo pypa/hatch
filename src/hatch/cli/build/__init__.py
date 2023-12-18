@@ -70,7 +70,8 @@ def build(app: Application, location, targets, hooks_only, no_hooks, ext, clean,
 
     if app.project.metadata.build.build_backend != 'hatchling.build':
         script = 'build-sdist' if targets == ('sdist',) else 'build-wheel' if targets == ('wheel',) else 'build-all'
-        environment = app.prepare_internal_environment('build')
+        environment = app.get_environment('hatch-build')
+        app.prepare_environment(environment)
         app.run_shell_commands(
             environment,
             [environment.join_command_args([script])],

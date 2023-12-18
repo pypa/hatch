@@ -3,22 +3,18 @@ from __future__ import annotations
 from functools import cached_property
 from typing import TYPE_CHECKING, Any
 
-from hatch.env.internal.interface import InternalEnvironment
-
 if TYPE_CHECKING:
+    from hatch.env.plugin.interface import EnvironmentInterface
     from hatch.utils.fs import Path
 
 
-class InternalFormatEnvironment(InternalEnvironment):
-    def get_base_config(self) -> dict:  # noqa: PLR6301
-        return {
-            'skip-install': True,
-            'dependencies': [f'ruff=={RUFF_MINIMUM_VERSION}'],
-        }
+class FormatEnvironment:
+    def __init__(self, env: EnvironmentInterface) -> None:
+        self.env = env
 
     @cached_property
     def config_path(self) -> str:
-        return self.config.get('config-path', '')
+        return self.env.config.get('config-path', '')
 
     def get_linter_command(self, *args, check: bool, preview: bool | None) -> list[str]:
         if preview is None:
@@ -73,8 +69,8 @@ class InternalFormatEnvironment(InternalEnvironment):
         from base64 import urlsafe_b64encode
         from hashlib import sha256
 
-        project_id = urlsafe_b64encode(sha256(str(self.root).encode()).digest())[:8].decode()
-        return self.isolated_data_directory / '.config' / project_id / 'ruff_defaults.toml'
+        project_id = urlsafe_b64encode(sha256(str(self.env.root).encode()).digest())[:8].decode()
+        return self.env.isolated_data_directory / '.config' / project_id / 'ruff_defaults.toml'
 
     def construct_config_file(self, *, preview: bool | None) -> str:
         if preview is None:
@@ -114,7 +110,7 @@ class InternalFormatEnvironment(InternalEnvironment):
             'ban-relative-imports = "all"',
             '',
             '[lint.isort]',
-            f'known-first-party = ["{self.metadata.name.replace("-", "_")}"]',
+            f'known-first-party = ["{self.env.metadata.name.replace("-", "_")}"]',
             '',
             '[lint.flake8-pytest-style]',
             'fixture-parentheses = false',
@@ -129,7 +125,7 @@ class InternalFormatEnvironment(InternalEnvironment):
     def write_config_file(self, *, preview: bool | None) -> None:
         config_contents = self.construct_config_file(preview=preview)
         if self.config_path:
-            (self.root / self.config_path).write_atomic(config_contents, 'w', encoding='utf-8')
+            (self.env.root / self.config_path).write_atomic(config_contents, 'w', encoding='utf-8')
             return
 
         self.internal_config_file.parent.ensure_dir_exists()
@@ -174,7 +170,7 @@ class InternalFormatEnvironment(InternalEnvironment):
     def user_config_file(self) -> Path | None:
         # https://docs.astral.sh/ruff/configuration/#config-file-discovery
         for possible_config in ('.ruff.toml', 'ruff.toml', 'pyproject.toml'):
-            if (config_file := (self.root / possible_config)).is_file():
+            if (config_file := (self.env.root / possible_config)).is_file():
                 return config_file
 
         return None
@@ -206,7 +202,6 @@ class InternalFormatEnvironment(InternalEnvironment):
         return self.user_config.get(section, {})
 
 
-RUFF_MINIMUM_VERSION: str = '0.1.8'
 STABLE_RULES: tuple[str, ...] = (
     'A001',
     'A002',
