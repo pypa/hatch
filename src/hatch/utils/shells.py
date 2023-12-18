@@ -69,7 +69,7 @@ class ShellManager:
     def enter_ash(self, path: str, args: Iterable[str], exe_dir: Path) -> None:
         self.spawn_linux_shell(path or 'ash', args or ['-i'], script=exe_dir / 'activate')
 
-    def enter_nu(self, path: str, args: Iterable[str], exe_dir: Path) -> None:
+    def enter_nu(self, path: str, args: Iterable[str], exe_dir: Path) -> None:  # noqa: ARG002
         executable = path or 'nu'
         activation_script = exe_dir / 'activate.nu'
         self.environment.platform.exit_with_command([executable, '-e', f'overlay use {str(activation_script)!r}'])
@@ -118,7 +118,7 @@ class ShellManager:
             signal.signal(signal.SIGWINCH, sigwinch_passthrough)
 
             if script is not None:
-                terminal.sendline(f'{activation_command} "{script}"')
+                terminal.sendline(f'source "{script}"')
 
             if callback is not None:
                 callback(terminal)
