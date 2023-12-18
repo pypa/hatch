@@ -69,13 +69,10 @@ class ShellManager:
     def enter_ash(self, path: str, args: Iterable[str], exe_dir: Path) -> None:
         self.spawn_linux_shell(path or 'ash', args or ['-i'], script=exe_dir / 'activate')
 
-    def enter_nu(self, path: str, args: Iterable[str], exe_dir: Path) -> None:
+    def enter_nu(self, path: str, args: Iterable[str], exe_dir: Path) -> None:  # noqa: ARG002
         executable = path or 'nu'
         activation_script = exe_dir / 'activate.nu'
-        if self.environment.platform.windows:
-            self.environment.platform.exit_with_command([executable, '-e', f'overlay use {str(activation_script)!r}'])
-        else:
-            self.spawn_linux_shell(executable, args, script=activation_script)
+        self.environment.platform.exit_with_command([executable, '-e', f'overlay use {str(activation_script)!r}'])
 
     def enter_tcsh(self, path: str, args: Iterable[str], exe_dir: Path) -> None:
         self.spawn_linux_shell(path or 'tcsh', args or ['-i'], script=exe_dir / 'activate.csh')
