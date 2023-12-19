@@ -382,6 +382,7 @@ Setting up build environment for missing dependencies
         helpers.assert_plugin_installation(mock_plugin_installation, [dependency])
 
     @pytest.mark.allow_backend_process
+    @pytest.mark.requires_internet
     def test_no_compatibility_check_if_exists(self, hatch, temp_dir, helpers, mocker):
         project_name = 'My.App'
 

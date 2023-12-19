@@ -145,6 +145,7 @@ def test_incompatible_environment(hatch, temp_dir, helpers):
 
 
 @pytest.mark.allow_backend_process
+@pytest.mark.requires_internet
 def test_no_compatibility_check_if_exists(hatch, temp_dir, helpers, mocker):
     project_name = 'My.App'
 
