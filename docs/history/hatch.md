@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Changed:***
+
+- Environments prefixed by `hatch-` are now considered internal and used for special purposes such as configuration for static analysis
+
 ***Added:***
 
 - Enable docstring formatting by default for static analysis

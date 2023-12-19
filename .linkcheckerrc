@@ -2,5 +2,6 @@
 [filtering]
 ignore=
   https://docs.astral.sh/ruff/rules/.+
+  https://github.com/pypa/hatch/releases/tag/hatch-v.+
 
 [AnchorCheck]
