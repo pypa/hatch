@@ -158,6 +158,7 @@ def test_plugin_dependencies_unmet(hatch, helpers, temp_dir, mock_plugin_install
     helpers.assert_plugin_installation(mock_plugin_installation, [dependency])
 
 
+@pytest.mark.requires_internet
 def test_no_compatibility_check_if_exists(hatch, helpers, temp_dir, mocker):
     project_name = 'My.App'
 
