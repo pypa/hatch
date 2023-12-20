@@ -465,14 +465,12 @@ jobs:
         name: installers
         path: installers
 
-    - name: Push Python artifacts to PyPI
-      uses: pypa/gh-action-pypi-publish@v1.8.11
-      with:
-        skip-existing: true
-
     - name: Add assets to current release
       uses: softprops/action-gh-release@v1
       with:
         files: |-
           archives/*
           installers/*
+
+    - name: Push Python artifacts to PyPI
+      uses: pypa/gh-action-pypi-publish@v1.8.11
