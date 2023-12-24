@@ -139,7 +139,7 @@ def test_no_compatibility_check_if_exists(hatch, helpers, temp_dir, config_file,
     assert str(env_path) in str(output_file.read_text())
 
     output_file.unlink()
-    # mocker.patch('hatch.env.virtual.VirtualEnvironment.check_compatibility', side_effect=Exception('incompatible'))
+    mocker.patch('hatch.env.virtual.VirtualEnvironment.check_compatibility', side_effect=Exception('incompatible'))
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
         result = hatch('run', 'python', '-c', "import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable)")
 
