@@ -110,11 +110,13 @@ class Application(Terminal):
             with self.status('Checking dependencies'):
                 dependencies_in_sync = environment.dependencies_in_sync()
 
-            if not dependencies_in_sync:
+            if dependencies_in_sync:
+                new_dep_hash = current_dep_hash
+            else:
                 with self.status('Syncing dependencies'):
                     environment.sync_dependencies()
+                    new_dep_hash = environment.dependency_hash()
 
-            new_dep_hash = environment.dependency_hash()
             self.env_metadata.update_dependency_hash(environment, new_dep_hash)
 
     def run_shell_commands(

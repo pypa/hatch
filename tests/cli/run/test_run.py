@@ -435,7 +435,7 @@ def test_sync_project_features(hatch, helpers, temp_dir, config_file):
 
 
 @pytest.mark.requires_internet
-def test_dependency_hash_checking(hatch, helpers, temp_dir, config_file):
+def test_dependency_hash_checking(hatch, helpers, temp_dir, config_file, mocker):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
@@ -507,8 +507,52 @@ def test_dependency_hash_checking(hatch, helpers, temp_dir, config_file):
     assert output_file.is_file()
 
     assert str(output_file.read_text()) == "(1.0, 'KiB')"
+    output_file.unlink()
 
     # Now there should be no output because there is no dependency checking
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch(
+            'run',
+            'python',
+            '-c',
+            "import binary,pathlib,sys;pathlib.Path('test.txt').write_text(str(binary.convert_units(1024)))",
+        )
+
+    assert result.exit_code == 0, result.output
+    assert not result.output
+
+    output_file = project_path / 'test.txt'
+    assert output_file.is_file()
+
+    assert str(output_file.read_text()) == "(1.0, 'KiB')"
+    output_file.unlink()
+
+    mocker.patch('hatch.env.virtual.VirtualEnvironment.dependencies_in_sync', return_value=False)
+    mocker.patch('hatch.env.virtual.VirtualEnvironment.dependency_hash', side_effect=['foo', 'bar', 'bar'])
+
+    # Ensure that the saved value is the second value
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch(
+            'run',
+            'python',
+            '-c',
+            "import binary,pathlib,sys;pathlib.Path('test.txt').write_text(str(binary.convert_units(1024)))",
+        )
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        """
+        Checking dependencies
+        Syncing dependencies
+        """
+    )
+
+    output_file = project_path / 'test.txt'
+    assert output_file.is_file()
+
+    assert str(output_file.read_text()) == "(1.0, 'KiB')"
+    output_file.unlink()
+
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
         result = hatch(
             'run',
