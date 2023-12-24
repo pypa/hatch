@@ -104,15 +104,13 @@ class Application(Terminal):
                     with self.status('Running post-installation commands'):
                         self.run_shell_commands(environment, environment.post_install_commands, source='post-install')
 
-        dep_hash = environment.dependency_hash()
+        new_dep_hash = environment.dependency_hash()
         current_dep_hash = self.env_metadata.dependency_hash(environment)
-        if dep_hash != current_dep_hash:
+        if new_dep_hash != current_dep_hash:
             with self.status('Checking dependencies'):
                 dependencies_in_sync = environment.dependencies_in_sync()
 
-            if dependencies_in_sync:
-                new_dep_hash = current_dep_hash
-            else:
+            if not dependencies_in_sync:
                 with self.status('Syncing dependencies'):
                     environment.sync_dependencies()
                     new_dep_hash = environment.dependency_hash()
