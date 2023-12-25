@@ -1,4 +1,5 @@
 import sys
+from platform import machine
 
 import pytest
 
@@ -12,7 +13,10 @@ class TestErrors:
         with pytest.raises(PythonDistributionUnknownError, match='Unknown distribution: foo'):
             get_distribution('foo')
 
-    @pytest.mark.skipif(sys.platform == 'darwin', reason='No variants for macOS')
+    @pytest.mark.skipif(
+        not (sys.platform == 'win32' or (sys.platform != 'darwin' and machine().lower() == 'x86_64')),
+        reason='No variants for this platform and architecture combination',
+    )
     def test_resolution_error(self, platform):
         with EnvVars({f'HATCH_PYTHON_VARIANT_{platform.name.upper()}': 'foo'}), pytest.raises(
             PythonDistributionResolutionError,
