@@ -3,10 +3,10 @@ import secrets
 
 import pytest
 
+from hatch.errors import PythonDistributionResolutionError
 from hatch.python.core import InstalledDistribution
 from hatch.python.distributions import ORDERED_DISTRIBUTIONS
 from hatch.python.resolve import get_distribution
-from hatch.utils.structures import EnvVars
 
 
 def test_unknown(hatch, helpers, path_append, mocker):
@@ -25,11 +25,11 @@ def test_unknown(hatch, helpers, path_append, mocker):
     path_append.assert_not_called()
 
 
-def test_incompatible_single(hatch, helpers, path_append, platform, dist_name, mocker):
+def test_incompatible_single(hatch, helpers, path_append, dist_name, mocker):
+    mocker.patch('hatch.python.resolve.get_distribution', side_effect=PythonDistributionResolutionError)
     install = mocker.patch('hatch.python.core.PythonManager.install')
 
-    with EnvVars({f'HATCH_PYTHON_VARIANT_{platform.name.upper()}': 'foo'}):
-        result = hatch('python', 'install', dist_name)
+    result = hatch('python', 'install', dist_name)
 
     assert result.exit_code == 1, result.output
     assert result.output == helpers.dedent(
@@ -42,11 +42,11 @@ def test_incompatible_single(hatch, helpers, path_append, platform, dist_name, m
     path_append.assert_not_called()
 
 
-def test_incompatible_all(hatch, helpers, path_append, platform, mocker):
+def test_incompatible_all(hatch, helpers, path_append, mocker):
+    mocker.patch('hatch.python.resolve.get_distribution', side_effect=PythonDistributionResolutionError)
     install = mocker.patch('hatch.python.core.PythonManager.install')
 
-    with EnvVars({f'HATCH_PYTHON_VARIANT_{platform.name.upper()}': 'foo'}):
-        result = hatch('python', 'install', 'all')
+    result = hatch('python', 'install', 'all')
 
     assert result.exit_code == 1, result.output
     assert result.output == helpers.dedent(

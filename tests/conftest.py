@@ -126,6 +126,13 @@ def current_platform():
 
 
 @pytest.fixture(scope='session')
+def current_arch():
+    import platform
+
+    return platform.machine().lower()
+
+
+@pytest.fixture(scope='session')
 def uri_slash_prefix():
     return '//' if os.sep == '/' else '///'
 
