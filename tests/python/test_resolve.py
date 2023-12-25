@@ -1,3 +1,5 @@
+import sys
+
 import pytest
 
 from hatch.errors import PythonDistributionResolutionError, PythonDistributionUnknownError
@@ -10,6 +12,7 @@ class TestErrors:
         with pytest.raises(PythonDistributionUnknownError, match='Unknown distribution: foo'):
             get_distribution('foo')
 
+    @pytest.mark.skipif(sys.platform == 'darwin', reason='No variants for macOS')
     def test_resolution_error(self, platform):
         with EnvVars({f'HATCH_PYTHON_VARIANT_{platform.name.upper()}': 'foo'}), pytest.raises(
             PythonDistributionResolutionError,
@@ -47,14 +50,14 @@ class TestDistributionVersions:
         ('linux', 'v4'),
     ],
 )
-def test_variants(platform, system, variant):
+def test_variants(platform, system, variant, current_arch):
     if platform.name != system:
         pytest.skip(f'Skipping test for: {system}')
 
     with EnvVars({f'HATCH_PYTHON_VARIANT_{system.upper()}': variant}):
         dist = get_distribution('3.11')
 
-    if system == 'linux' and variant == 'v1':
+    if system == 'linux' and (current_arch != 'x86_64' or variant == 'v1'):
         assert variant not in dist.source
     else:
         assert variant in dist.source

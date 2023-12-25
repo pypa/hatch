@@ -3,7 +3,7 @@ import json
 import pytest
 
 from hatch.python.core import InstalledDistribution, PythonManager
-from hatch.python.distributions import DISTRIBUTIONS, ORDERED_DISTRIBUTIONS
+from hatch.python.distributions import ORDERED_DISTRIBUTIONS
 from hatch.python.resolve import get_distribution
 
 
@@ -64,10 +64,10 @@ class TestGetInstalled:
 
         assert manager.get_installed() == {}
 
-    def test_order(self, temp_dir):
+    def test_order(self, temp_dir, compatible_python_distributions):
         manager = PythonManager(temp_dir)
 
-        for name in DISTRIBUTIONS:
+        for name in compatible_python_distributions:
             dist = get_distribution(name)
             path = temp_dir / dist.name
             path.mkdir()
@@ -77,4 +77,4 @@ class TestGetInstalled:
             python_path.parent.ensure_dir_exists()
             python_path.touch()
 
-        assert tuple(manager.get_installed()) == ORDERED_DISTRIBUTIONS
+        assert tuple(manager.get_installed()) == compatible_python_distributions
