@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Ensure that the `dependency_hash` method of the `environment` interface is called after `sync_dependencies` for cases where the hash is only known at that point, such as for dependency lockers
 - Only acknowledge the `HATCH_PYTHON_VARIANT_*` environment variables for Python resolution for supported platforms and architectures
+- Fix Python resolution when there are metadata hooks with unsatisfied dependencies
 
 ## [1.9.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.9.0) - 2023-12-19 ## {: #hatch-v1.9.0 }
 
