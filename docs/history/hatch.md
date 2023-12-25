@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.9.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.9.1) - 2023-12-25 ## {: #hatch-v1.9.1 }
+
 ***Fixed:***
 
 - Ensure that the `dependency_hash` method of the `environment` interface is called after `sync_dependencies` for cases where the hash is only known at that point, such as for dependency lockers
