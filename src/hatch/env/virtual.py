@@ -328,7 +328,12 @@ class VirtualEnvironment(EnvironmentInterface):
             return None
 
         for available_distribution in available_distributions:
-            if not self.metadata.core.python_constraint.contains(available_distribution):
+            minor_version = (
+                available_distribution.replace('pypy', '', 1)
+                if available_distribution.startswith('pypy')
+                else available_distribution
+            )
+            if not self._python_constraint.contains(minor_version):
                 continue
 
             return available_distribution
