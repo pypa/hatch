@@ -18,6 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
     - app_status_dependency_state_check
     - app_status_dependency_installation_check
     - app_status_dependency_synchronization
+- Upgrade Ruff to 0.1.9
 
 ***Fixed:***
 
