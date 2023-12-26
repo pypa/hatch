@@ -8,4 +8,4 @@ def get_default_config() -> dict:
     }
 
 
-RUFF_DEFAULT_VERSION: str = '0.1.8'
+RUFF_DEFAULT_VERSION: str = '0.1.9'
