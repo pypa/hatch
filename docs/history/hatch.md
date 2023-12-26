@@ -8,6 +8,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Added:***
+
+- Add the following methods to the `environment` interface for complete control over output during life cycle management:
+    - app_status_creation
+    - app_status_pre_installation
+    - app_status_post_installation
+    - app_status_project_installation
+    - app_status_dependency_state_check
+    - app_status_dependency_installation_check
+    - app_status_dependency_synchronization
+
+***Fixed:***
+
+- When projects derive dependencies from metadata hooks, there is now by default a status indicator for when the hooks are executed for better responsiveness
+
 ## [1.9.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.9.1) - 2023-12-25 ## {: #hatch-v1.9.1 }
 
 ***Fixed:***

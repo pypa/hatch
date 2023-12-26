@@ -85,33 +85,34 @@ class Application(Terminal):
         if not environment.exists():
             self.env_metadata.reset(environment)
 
-            with self.status(f'Creating environment: {environment.name}'):
+            with environment.app_status_creation():
                 environment.create()
 
             if not environment.skip_install:
                 if environment.pre_install_commands:
-                    with self.status('Running pre-installation commands'):
+                    with environment.app_status_pre_installation():
                         self.run_shell_commands(environment, environment.pre_install_commands, source='pre-install')
 
-                if environment.dev_mode:
-                    with self.status('Installing project in development mode'):
+                with environment.app_status_project_installation():
+                    if environment.dev_mode:
                         environment.install_project_dev_mode()
-                else:
-                    with self.status('Installing project'):
+                    else:
                         environment.install_project()
 
                 if environment.post_install_commands:
-                    with self.status('Running post-installation commands'):
+                    with environment.app_status_post_installation():
                         self.run_shell_commands(environment, environment.post_install_commands, source='post-install')
 
-        new_dep_hash = environment.dependency_hash()
+        with environment.app_status_dependency_state_check():
+            new_dep_hash = environment.dependency_hash()
+
         current_dep_hash = self.env_metadata.dependency_hash(environment)
         if new_dep_hash != current_dep_hash:
-            with self.status('Checking dependencies'):
+            with environment.app_status_dependency_installation_check():
                 dependencies_in_sync = environment.dependencies_in_sync()
 
             if not dependencies_in_sync:
-                with self.status('Syncing dependencies'):
+                with environment.app_status_dependency_synchronization():
                     environment.sync_dependencies()
                     new_dep_hash = environment.dependency_hash()
 

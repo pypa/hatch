@@ -42,6 +42,26 @@ All environment types should [offer support](#hatch.env.plugin.interface.Environ
     options:
       members:
       - PLUGIN_NAME
+      - find
+      - create
+      - remove
+      - exists
+      - install_project
+      - install_project_dev_mode
+      - dependencies_in_sync
+      - sync_dependencies
+      - dependency_hash
+      - build_environment
+      - build_environment_exists
+      - activate
+      - deactivate
+      - app_status_creation
+      - app_status_pre_installation
+      - app_status_post_installation
+      - app_status_project_installation
+      - app_status_dependency_state_check
+      - app_status_dependency_installation_check
+      - app_status_dependency_synchronization
       - app
       - root
       - name
@@ -58,19 +78,6 @@ All environment types should [offer support](#hatch.env.plugin.interface.Environ
       - skip_install
       - dev_mode
       - description
-      - activate
-      - deactivate
-      - find
-      - create
-      - remove
-      - exists
-      - install_project
-      - install_project_dev_mode
-      - dependencies_in_sync
-      - sync_dependencies
-      - dependency_hash
-      - build_environment
-      - build_environment_exists
       - run_builder
       - construct_build_command
       - command_context
