@@ -660,6 +660,71 @@ class EnvironmentInterface(ABC):
         return hash_dependencies(self.dependencies_complex)
 
     @contextmanager
+    def app_status_creation(self):
+        """
+        See the [life cycle of environments](reference.md#life-cycle).
+        """
+        with self.app.status(f'Creating environment: {self.name}'):
+            yield
+
+    @contextmanager
+    def app_status_pre_installation(self):
+        """
+        See the [life cycle of environments](reference.md#life-cycle).
+        """
+        with self.app.status('Running pre-installation commands'):
+            yield
+
+    @contextmanager
+    def app_status_post_installation(self):
+        """
+        See the [life cycle of environments](reference.md#life-cycle).
+        """
+        with self.app.status('Running post-installation commands'):
+            yield
+
+    @contextmanager
+    def app_status_project_installation(self):
+        """
+        See the [life cycle of environments](reference.md#life-cycle).
+        """
+        if self.dev_mode:
+            with self.app.status('Installing project in development mode'):
+                yield
+        else:
+            with self.app.status('Installing project'):
+                yield
+
+    @contextmanager
+    def app_status_dependency_state_check(self):
+        """
+        See the [life cycle of environments](reference.md#life-cycle).
+        """
+        if not self.skip_install and (
+            'dependencies' in self.metadata.dynamic or 'optional-dependencies' in self.metadata.dynamic
+        ):
+            with self.app.status('Polling dependency state'):
+                yield
+        else:
+            yield
+
+    @contextmanager
+    def app_status_dependency_installation_check(self):
+        """
+        See the [life cycle of environments](reference.md#life-cycle).
+        """
+        with self.app.status('Checking dependencies'):
+            yield
+
+    @contextmanager
+    def app_status_dependency_synchronization(self):
+        """
+        See the [life cycle of environments](reference.md#life-cycle).
+        """
+        with self.app.status('Syncing dependencies'):
+            yield
+
+    @contextmanager
     def build_environment(
         self,
         dependencies: list[str],  # noqa: ARG002

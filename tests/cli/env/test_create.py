@@ -1359,6 +1359,7 @@ def test_sync_dynamic_dependencies(hatch, helpers, temp_dir, platform, config_fi
         Creating environment: test
         Installing project in development mode
         Running post-installation commands
+        Polling dependency state
         Checking dependencies
         Syncing dependencies
         """
