@@ -82,14 +82,44 @@ hatch fmt --check --sync
 !!! tip
     This is the recommended approach since it allows other tools like IDEs to use the default configuration.
 
-### Versioning
+### No config
 
-You can pin the particular version of Ruff by explicitly defining the environment [dependencies](environment/overview.md#dependencies):
+If you don't want Hatch to use any of its default configuration and rely entirely on yours, set the path to anything and then simply don't `extend` in your Ruff config:
+
+```toml config-example
+[tool.hatch.envs.hatch-static-analysis]
+config-path = "none"
+```
+
+## Customize behavior
+
+You can fully alter the behavior of the environment used by the [`fmt`](../cli/reference.md#hatch-fmt) command.
+
+### Dependencies
+
+Pin the particular version of Ruff by explicitly defining the environment [dependencies](environment/overview.md#dependencies):
 
 ```toml config-example
 [tool.hatch.envs.hatch-static-analysis]
 dependencies = ["ruff==X.Y.Z"]
 ```
+
+### Scripts
+
+If you want to change the default commands that are executed, you can override the [scripts](environment/overview.md#scripts). The following four scripts must be defined:
+
+```toml config-example
+[tool.hatch.envs.hatch-static-analysis.scripts]
+format-check = "..."
+format-fix = "..."
+lint-check = "..."
+lint-fix = "..."
+```
+
+The `format-*` scripts correspond to the `--formatter`/`-f` flag while the `lint-*` scripts correspond to the `--linter`/`-l` flag. The `*-fix` scripts run by default while the `*-check` scripts correspond to the `--check` flag.
+
+!!! note "Reminder"
+    If you choose to use different tools for static analysis, be sure to update the required [dependencies](#dependencies).
 
 ## Default settings
 

@@ -67,15 +67,8 @@ def defaults_file_preview() -> str:
     return construct_ruff_defaults_file(STABLE_RULES + PREVIEW_RULES)
 
 
-@pytest.fixture(scope='module', autouse=True)
-def ruff_on_path():
-    import shutil
-
-    return shutil.which('ruff') or 'ruff'
-
-
 class TestDefaults:
-    def test_fix(self, hatch, temp_dir, config_file, mocker, ruff_on_path, defaults_file_stable):
+    def test_fix(self, hatch, temp_dir, config_file, mocker, platform, defaults_file_stable):
         config_file.model.template.plugins['default']['tests'] = False
         config_file.save()
 
@@ -105,16 +98,11 @@ class TestDefaults:
         config_dir = next(root_data_path.iterdir())
         default_config = config_dir / 'ruff_defaults.toml'
         user_config = config_dir / 'pyproject.toml'
+        user_config_path = platform.join_command_args([str(user_config)])
 
         assert run.call_args_list == [
-            mocker.call(
-                [ruff_on_path, 'check', '--config', str(user_config), '--fix', '.'],
-                shell=False,
-            ),
-            mocker.call(
-                [ruff_on_path, 'format', '--config', str(user_config), '.'],
-                shell=False,
-            ),
+            mocker.call(f'ruff check --config {user_config_path} --fix .', shell=True),
+            mocker.call(f'ruff format --config {user_config_path} .', shell=True),
         ]
 
         assert default_config.read_text() == defaults_file_stable
@@ -129,7 +117,7 @@ class TestDefaults:
 extend = "{config_path}\""""
         )
 
-    def test_check(self, hatch, temp_dir, config_file, mocker, ruff_on_path, defaults_file_stable):
+    def test_check(self, hatch, temp_dir, config_file, mocker, platform, defaults_file_stable):
         config_file.model.template.plugins['default']['tests'] = False
         config_file.save()
 
@@ -159,16 +147,11 @@ extend = "{config_path}\""""
         config_dir = next(root_data_path.iterdir())
         default_config = config_dir / 'ruff_defaults.toml'
         user_config = config_dir / 'pyproject.toml'
+        user_config_path = platform.join_command_args([str(user_config)])
 
         assert run.call_args_list == [
-            mocker.call(
-                [ruff_on_path, 'check', '--config', str(user_config), '.'],
-                shell=False,
-            ),
-            mocker.call(
-                [ruff_on_path, 'format', '--config', str(user_config), '--check', '--diff', '.'],
-                shell=False,
-            ),
+            mocker.call(f'ruff check --config {user_config_path} .', shell=True),
+            mocker.call(f'ruff format --config {user_config_path} --check --diff .', shell=True),
         ]
 
         assert default_config.read_text() == defaults_file_stable
@@ -183,7 +166,7 @@ extend = "{config_path}\""""
 extend = "{config_path}\""""
         )
 
-    def test_existing_config(self, hatch, temp_dir, config_file, mocker, ruff_on_path, defaults_file_stable):
+    def test_existing_config(self, hatch, temp_dir, config_file, mocker, platform, defaults_file_stable):
         config_file.model.template.plugins['default']['tests'] = False
         config_file.save()
 
@@ -217,16 +200,11 @@ extend = "{config_path}\""""
         config_dir = next(root_data_path.iterdir())
         default_config = config_dir / 'ruff_defaults.toml'
         user_config = config_dir / 'pyproject.toml'
+        user_config_path = platform.join_command_args([str(user_config)])
 
         assert run.call_args_list == [
-            mocker.call(
-                [ruff_on_path, 'check', '--config', str(user_config), '.'],
-                shell=False,
-            ),
-            mocker.call(
-                [ruff_on_path, 'format', '--config', str(user_config), '--check', '--diff', '.'],
-                shell=False,
-            ),
+            mocker.call(f'ruff check --config {user_config_path} .', shell=True),
+            mocker.call(f'ruff format --config {user_config_path} --check --diff .', shell=True),
         ]
 
         assert default_config.read_text() == defaults_file_stable
@@ -242,7 +220,7 @@ extend = "{config_path}\"
 
 
 class TestPreview:
-    def test_fix_flag(self, hatch, temp_dir, config_file, mocker, ruff_on_path, defaults_file_preview):
+    def test_fix_flag(self, hatch, temp_dir, config_file, mocker, platform, defaults_file_preview):
         config_file.model.template.plugins['default']['tests'] = False
         config_file.save()
 
@@ -272,16 +250,11 @@ class TestPreview:
         config_dir = next(root_data_path.iterdir())
         default_config = config_dir / 'ruff_defaults.toml'
         user_config = config_dir / 'pyproject.toml'
+        user_config_path = platform.join_command_args([str(user_config)])
 
         assert run.call_args_list == [
-            mocker.call(
-                [ruff_on_path, 'check', '--config', str(user_config), '--fix', '--preview', '.'],
-                shell=False,
-            ),
-            mocker.call(
-                [ruff_on_path, 'format', '--config', str(user_config), '--preview', '.'],
-                shell=False,
-            ),
+            mocker.call(f'ruff check --config {user_config_path} --preview --fix .', shell=True),
+            mocker.call(f'ruff format --config {user_config_path} --preview .', shell=True),
         ]
 
         assert default_config.read_text() == defaults_file_preview
@@ -296,7 +269,7 @@ class TestPreview:
 extend = "{config_path}\""""
         )
 
-    def test_check_flag(self, hatch, temp_dir, config_file, mocker, ruff_on_path, defaults_file_preview):
+    def test_check_flag(self, hatch, temp_dir, config_file, mocker, platform, defaults_file_preview):
         config_file.model.template.plugins['default']['tests'] = False
         config_file.save()
 
@@ -326,16 +299,11 @@ extend = "{config_path}\""""
         config_dir = next(root_data_path.iterdir())
         default_config = config_dir / 'ruff_defaults.toml'
         user_config = config_dir / 'pyproject.toml'
+        user_config_path = platform.join_command_args([str(user_config)])
 
         assert run.call_args_list == [
-            mocker.call(
-                [ruff_on_path, 'check', '--config', str(user_config), '--preview', '.'],
-                shell=False,
-            ),
-            mocker.call(
-                [ruff_on_path, 'format', '--config', str(user_config), '--check', '--diff', '--preview', '.'],
-                shell=False,
-            ),
+            mocker.call(f'ruff check --config {user_config_path} --preview .', shell=True),
+            mocker.call(f'ruff format --config {user_config_path} --preview --check --diff .', shell=True),
         ]
 
         assert default_config.read_text() == defaults_file_preview
@@ -346,129 +314,13 @@ extend = "{config_path}\""""
             user_config.read_text()
             == f"""\
 {old_contents}
-[tool.ruff]
-extend = "{config_path}\""""
-        )
-
-    def test_config_fallback_linter(self, hatch, temp_dir, config_file, mocker, ruff_on_path, defaults_file_preview):
-        config_file.model.template.plugins['default']['tests'] = False
-        config_file.save()
-
-        project_name = 'My.App'
-
-        with temp_dir.as_cwd():
-            result = hatch('new', project_name)
-
-        assert result.exit_code == 0, result.output
-
-        project_path = temp_dir / 'my-app'
-        data_path = temp_dir / 'data'
-        data_path.mkdir()
-
-        original_user_config = project_path / 'pyproject.toml'
-        original_user_config.write_text(f'{original_user_config.read_text()}\n[tool.ruff.lint]\npreview = true')
-
-        run = mocker.patch('subprocess.run', return_value=CompletedProcess([], 0, stdout=b''))
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.exists', return_value=True)
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.dependency_hash', return_value='')
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.command_context')
-
-        with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-            result = hatch('fmt', '--check')
-
-        assert result.exit_code == 0, result.output
-        assert not result.output
-
-        root_data_path = data_path / 'env' / '.internal' / 'hatch-static-analysis' / '.config'
-        config_dir = next(root_data_path.iterdir())
-        default_config = config_dir / 'ruff_defaults.toml'
-        user_config = config_dir / 'pyproject.toml'
-
-        assert run.call_args_list == [
-            mocker.call(
-                [ruff_on_path, 'check', '--config', str(user_config), '--preview', '.'],
-                shell=False,
-            ),
-            mocker.call(
-                [ruff_on_path, 'format', '--config', str(user_config), '--check', '--diff', '.'],
-                shell=False,
-            ),
-        ]
-
-        assert default_config.read_text() == defaults_file_preview
-
-        old_contents = (project_path / 'pyproject.toml').read_text()
-        config_path = str(default_config).replace('\\', '\\\\')
-        assert (
-            user_config.read_text()
-            == f"""\
-{old_contents}
-
-[tool.ruff]
-extend = "{config_path}\""""
-        )
-
-    def test_config_fallback_formatter(self, hatch, temp_dir, config_file, mocker, ruff_on_path, defaults_file_stable):
-        config_file.model.template.plugins['default']['tests'] = False
-        config_file.save()
-
-        project_name = 'My.App'
-
-        with temp_dir.as_cwd():
-            result = hatch('new', project_name)
-
-        assert result.exit_code == 0, result.output
-
-        project_path = temp_dir / 'my-app'
-        data_path = temp_dir / 'data'
-        data_path.mkdir()
-
-        original_user_config = project_path / 'pyproject.toml'
-        original_user_config.write_text(f'{original_user_config.read_text()}\n[tool.ruff.format]\npreview = true')
-
-        run = mocker.patch('subprocess.run', return_value=CompletedProcess([], 0, stdout=b''))
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.exists', return_value=True)
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.dependency_hash', return_value='')
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.command_context')
-
-        with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-            result = hatch('fmt', '--check')
-
-        assert result.exit_code == 0, result.output
-        assert not result.output
-
-        root_data_path = data_path / 'env' / '.internal' / 'hatch-static-analysis' / '.config'
-        config_dir = next(root_data_path.iterdir())
-        default_config = config_dir / 'ruff_defaults.toml'
-        user_config = config_dir / 'pyproject.toml'
-
-        assert run.call_args_list == [
-            mocker.call(
-                [ruff_on_path, 'check', '--config', str(user_config), '.'],
-                shell=False,
-            ),
-            mocker.call(
-                [ruff_on_path, 'format', '--config', str(user_config), '--check', '--diff', '--preview', '.'],
-                shell=False,
-            ),
-        ]
-
-        assert default_config.read_text() == defaults_file_stable
-
-        old_contents = (project_path / 'pyproject.toml').read_text()
-        config_path = str(default_config).replace('\\', '\\\\')
-        assert (
-            user_config.read_text()
-            == f"""\
-{old_contents}
-
 [tool.ruff]
 extend = "{config_path}\""""
         )
 
 
 class TestComponents:
-    def test_only_linter(self, hatch, temp_dir, config_file, mocker, ruff_on_path, defaults_file_stable):
+    def test_only_linter(self, hatch, temp_dir, config_file, mocker, platform, defaults_file_stable):
         config_file.model.template.plugins['default']['tests'] = False
         config_file.save()
 
@@ -498,12 +350,10 @@ class TestComponents:
         config_dir = next(root_data_path.iterdir())
         default_config = config_dir / 'ruff_defaults.toml'
         user_config = config_dir / 'pyproject.toml'
+        user_config_path = platform.join_command_args([str(user_config)])
 
         assert run.call_args_list == [
-            mocker.call(
-                [ruff_on_path, 'check', '--config', str(user_config), '--fix', '.'],
-                shell=False,
-            ),
+            mocker.call(f'ruff check --config {user_config_path} --fix .', shell=True),
         ]
 
         assert default_config.read_text() == defaults_file_stable
@@ -518,7 +368,7 @@ class TestComponents:
 extend = "{config_path}\""""
         )
 
-    def test_only_formatter(self, hatch, temp_dir, config_file, mocker, ruff_on_path, defaults_file_stable):
+    def test_only_formatter(self, hatch, temp_dir, config_file, mocker, platform, defaults_file_stable):
         config_file.model.template.plugins['default']['tests'] = False
         config_file.save()
 
@@ -548,12 +398,10 @@ extend = "{config_path}\""""
         config_dir = next(root_data_path.iterdir())
         default_config = config_dir / 'ruff_defaults.toml'
         user_config = config_dir / 'pyproject.toml'
+        user_config_path = platform.join_command_args([str(user_config)])
 
         assert run.call_args_list == [
-            mocker.call(
-                [ruff_on_path, 'format', '--config', str(user_config), '.'],
-                shell=False,
-            ),
+            mocker.call(f'ruff format --config {user_config_path} .', shell=True),
         ]
 
         assert default_config.read_text() == defaults_file_stable
@@ -600,7 +448,7 @@ extend = "{config_path}\""""
 
 
 class TestArguments:
-    def test_forwarding(self, hatch, temp_dir, config_file, mocker, ruff_on_path, defaults_file_stable):
+    def test_forwarding(self, hatch, temp_dir, config_file, mocker, platform, defaults_file_stable):
         config_file.model.template.plugins['default']['tests'] = False
         config_file.save()
 
@@ -630,16 +478,11 @@ class TestArguments:
         config_dir = next(root_data_path.iterdir())
         default_config = config_dir / 'ruff_defaults.toml'
         user_config = config_dir / 'pyproject.toml'
+        user_config_path = platform.join_command_args([str(user_config)])
 
         assert run.call_args_list == [
-            mocker.call(
-                [ruff_on_path, 'check', '--config', str(user_config), '--fix', '--foo', 'bar'],
-                shell=False,
-            ),
-            mocker.call(
-                [ruff_on_path, 'format', '--config', str(user_config), '--foo', 'bar'],
-                shell=False,
-            ),
+            mocker.call(f'ruff check --config {user_config_path} --fix --foo bar', shell=True),
+            mocker.call(f'ruff format --config {user_config_path} --foo bar', shell=True),
         ]
 
         assert default_config.read_text() == defaults_file_stable
@@ -686,7 +529,7 @@ class TestConfigPath:
             """
         )
 
-    def test_sync(self, hatch, temp_dir, config_file, mocker, ruff_on_path, defaults_file_stable):
+    def test_sync(self, hatch, temp_dir, config_file, mocker, defaults_file_stable):
         config_file.model.template.plugins['default']['tests'] = False
         config_file.save()
 
@@ -724,19 +567,13 @@ class TestConfigPath:
         assert not root_data_path.is_dir()
 
         assert run.call_args_list == [
-            mocker.call(
-                [ruff_on_path, 'check', '--fix', '.'],
-                shell=False,
-            ),
-            mocker.call(
-                [ruff_on_path, 'format', '.'],
-                shell=False,
-            ),
+            mocker.call('ruff check --fix .', shell=True),
+            mocker.call('ruff format .', shell=True),
         ]
 
         assert default_config_file.read_text() == defaults_file_stable
 
-    def test_no_sync(self, hatch, temp_dir, config_file, mocker, ruff_on_path):
+    def test_no_sync(self, hatch, temp_dir, config_file, mocker):
         config_file.model.template.plugins['default']['tests'] = False
         config_file.save()
 
@@ -774,19 +611,13 @@ class TestConfigPath:
         assert not root_data_path.is_dir()
 
         assert run.call_args_list == [
-            mocker.call(
-                [ruff_on_path, 'check', '--fix', '.'],
-                shell=False,
-            ),
-            mocker.call(
-                [ruff_on_path, 'format', '.'],
-                shell=False,
-            ),
+            mocker.call('ruff check --fix .', shell=True),
+            mocker.call('ruff format .', shell=True),
         ]
 
         assert not default_config_file.read_text()
 
-    def test_sync_legacy_config(self, hatch, temp_dir, config_file, mocker, ruff_on_path, defaults_file_stable):
+    def test_sync_legacy_config(self, hatch, temp_dir, config_file, mocker, defaults_file_stable):
         config_file.model.template.plugins['default']['tests'] = False
         config_file.save()
 
@@ -827,14 +658,346 @@ class TestConfigPath:
         assert not root_data_path.is_dir()
 
         assert run.call_args_list == [
-            mocker.call(
-                [ruff_on_path, 'check', '--fix', '.'],
-                shell=False,
-            ),
-            mocker.call(
-                [ruff_on_path, 'format', '.'],
-                shell=False,
-            ),
+            mocker.call('ruff check --fix .', shell=True),
+            mocker.call('ruff format .', shell=True),
         ]
 
         assert default_config_file.read_text() == defaults_file_stable
+
+
+class TestCustomScripts:
+    def test_only_linter_fix(self, hatch, temp_dir, config_file, mocker):
+        config_file.model.template.plugins['default']['tests'] = False
+        config_file.save()
+
+        project_name = 'My.App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / 'my-app'
+        data_path = temp_dir / 'data'
+        data_path.mkdir()
+
+        project = Project(project_path)
+        config = dict(project.raw_config)
+        config['tool']['hatch']['envs'] = {
+            'hatch-static-analysis': {
+                'config-path': 'none',
+                'dependencies': ['black', 'flake8', 'isort'],
+                'scripts': {
+                    'format-check': [
+                        'black --check --diff {args:.}',
+                        'isort --check-only --diff {args:.}',
+                    ],
+                    'format-fix': [
+                        'isort {args:.}',
+                        'black {args:.}',
+                    ],
+                    'lint-check': 'flake8 {args:.}',
+                    'lint-fix': 'lint-check',
+                },
+            }
+        }
+        project.save_config(config)
+
+        run = mocker.patch('subprocess.run', return_value=CompletedProcess([], 0, stdout=b''))
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.exists', return_value=True)
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.dependency_hash', return_value='')
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.command_context')
+
+        with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+            result = hatch('fmt', '--linter')
+
+        assert result.exit_code == 0, result.output
+        assert not result.output
+
+        root_data_path = data_path / 'env' / '.internal' / 'hatch-static-analysis' / '.config'
+        assert not root_data_path.is_dir()
+
+        assert run.call_args_list == [
+            mocker.call('flake8 .', shell=True),
+        ]
+
+    def test_only_linter_check(self, hatch, temp_dir, config_file, mocker):
+        config_file.model.template.plugins['default']['tests'] = False
+        config_file.save()
+
+        project_name = 'My.App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / 'my-app'
+        data_path = temp_dir / 'data'
+        data_path.mkdir()
+
+        project = Project(project_path)
+        config = dict(project.raw_config)
+        config['tool']['hatch']['envs'] = {
+            'hatch-static-analysis': {
+                'config-path': 'none',
+                'dependencies': ['black', 'flake8', 'isort'],
+                'scripts': {
+                    'format-check': [
+                        'black --check --diff {args:.}',
+                        'isort --check-only --diff {args:.}',
+                    ],
+                    'format-fix': [
+                        'isort {args:.}',
+                        'black {args:.}',
+                    ],
+                    'lint-check': 'flake8 {args:.}',
+                    'lint-fix': 'lint-check',
+                },
+            }
+        }
+        project.save_config(config)
+
+        run = mocker.patch('subprocess.run', return_value=CompletedProcess([], 0, stdout=b''))
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.exists', return_value=True)
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.dependency_hash', return_value='')
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.command_context')
+
+        with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+            result = hatch('fmt', '--check', '--linter')
+
+        assert result.exit_code == 0, result.output
+        assert not result.output
+
+        root_data_path = data_path / 'env' / '.internal' / 'hatch-static-analysis' / '.config'
+        assert not root_data_path.is_dir()
+
+        assert run.call_args_list == [
+            mocker.call('flake8 .', shell=True),
+        ]
+
+    def test_only_formatter_fix(self, hatch, temp_dir, config_file, mocker):
+        config_file.model.template.plugins['default']['tests'] = False
+        config_file.save()
+
+        project_name = 'My.App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / 'my-app'
+        data_path = temp_dir / 'data'
+        data_path.mkdir()
+
+        project = Project(project_path)
+        config = dict(project.raw_config)
+        config['tool']['hatch']['envs'] = {
+            'hatch-static-analysis': {
+                'config-path': 'none',
+                'dependencies': ['black', 'flake8', 'isort'],
+                'scripts': {
+                    'format-check': [
+                        'black --check --diff {args:.}',
+                        'isort --check-only --diff {args:.}',
+                    ],
+                    'format-fix': [
+                        'isort {args:.}',
+                        'black {args:.}',
+                    ],
+                    'lint-check': 'flake8 {args:.}',
+                    'lint-fix': 'lint-check',
+                },
+            }
+        }
+        project.save_config(config)
+
+        run = mocker.patch('subprocess.run', return_value=CompletedProcess([], 0, stdout=b''))
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.exists', return_value=True)
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.dependency_hash', return_value='')
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.command_context')
+
+        with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+            result = hatch('fmt', '--formatter')
+
+        assert result.exit_code == 0, result.output
+        assert not result.output
+
+        root_data_path = data_path / 'env' / '.internal' / 'hatch-static-analysis' / '.config'
+        assert not root_data_path.is_dir()
+
+        assert run.call_args_list == [
+            mocker.call('isort .', shell=True),
+            mocker.call('black .', shell=True),
+        ]
+
+    def test_only_formatter_check(self, hatch, temp_dir, config_file, mocker):
+        config_file.model.template.plugins['default']['tests'] = False
+        config_file.save()
+
+        project_name = 'My.App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / 'my-app'
+        data_path = temp_dir / 'data'
+        data_path.mkdir()
+
+        project = Project(project_path)
+        config = dict(project.raw_config)
+        config['tool']['hatch']['envs'] = {
+            'hatch-static-analysis': {
+                'config-path': 'none',
+                'dependencies': ['black', 'flake8', 'isort'],
+                'scripts': {
+                    'format-check': [
+                        'black --check --diff {args:.}',
+                        'isort --check-only --diff {args:.}',
+                    ],
+                    'format-fix': [
+                        'isort {args:.}',
+                        'black {args:.}',
+                    ],
+                    'lint-check': 'flake8 {args:.}',
+                    'lint-fix': 'lint-check',
+                },
+            }
+        }
+        project.save_config(config)
+
+        run = mocker.patch('subprocess.run', return_value=CompletedProcess([], 0, stdout=b''))
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.exists', return_value=True)
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.dependency_hash', return_value='')
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.command_context')
+
+        with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+            result = hatch('fmt', '--check', '--formatter')
+
+        assert result.exit_code == 0, result.output
+        assert not result.output
+
+        root_data_path = data_path / 'env' / '.internal' / 'hatch-static-analysis' / '.config'
+        assert not root_data_path.is_dir()
+
+        assert run.call_args_list == [
+            mocker.call('black --check --diff .', shell=True),
+            mocker.call('isort --check-only --diff .', shell=True),
+        ]
+
+    def test_fix(self, hatch, temp_dir, config_file, mocker):
+        config_file.model.template.plugins['default']['tests'] = False
+        config_file.save()
+
+        project_name = 'My.App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / 'my-app'
+        data_path = temp_dir / 'data'
+        data_path.mkdir()
+
+        project = Project(project_path)
+        config = dict(project.raw_config)
+        config['tool']['hatch']['envs'] = {
+            'hatch-static-analysis': {
+                'config-path': 'none',
+                'dependencies': ['black', 'flake8', 'isort'],
+                'scripts': {
+                    'format-check': [
+                        'black --check --diff {args:.}',
+                        'isort --check-only --diff {args:.}',
+                    ],
+                    'format-fix': [
+                        'isort {args:.}',
+                        'black {args:.}',
+                    ],
+                    'lint-check': 'flake8 {args:.}',
+                    'lint-fix': 'lint-check',
+                },
+            }
+        }
+        project.save_config(config)
+
+        run = mocker.patch('subprocess.run', return_value=CompletedProcess([], 0, stdout=b''))
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.exists', return_value=True)
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.dependency_hash', return_value='')
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.command_context')
+
+        with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+            result = hatch('fmt')
+
+        assert result.exit_code == 0, result.output
+        assert not result.output
+
+        root_data_path = data_path / 'env' / '.internal' / 'hatch-static-analysis' / '.config'
+        assert not root_data_path.is_dir()
+
+        assert run.call_args_list == [
+            mocker.call('flake8 .', shell=True),
+            mocker.call('isort .', shell=True),
+            mocker.call('black .', shell=True),
+        ]
+
+    def test_check(self, hatch, temp_dir, config_file, mocker):
+        config_file.model.template.plugins['default']['tests'] = False
+        config_file.save()
+
+        project_name = 'My.App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / 'my-app'
+        data_path = temp_dir / 'data'
+        data_path.mkdir()
+
+        project = Project(project_path)
+        config = dict(project.raw_config)
+        config['tool']['hatch']['envs'] = {
+            'hatch-static-analysis': {
+                'config-path': 'none',
+                'dependencies': ['black', 'flake8', 'isort'],
+                'scripts': {
+                    'format-check': [
+                        'black --check --diff {args:.}',
+                        'isort --check-only --diff {args:.}',
+                    ],
+                    'format-fix': [
+                        'isort {args:.}',
+                        'black {args:.}',
+                    ],
+                    'lint-check': 'flake8 {args:.}',
+                    'lint-fix': 'lint-check',
+                },
+            }
+        }
+        project.save_config(config)
+
+        run = mocker.patch('subprocess.run', return_value=CompletedProcess([], 0, stdout=b''))
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.exists', return_value=True)
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.dependency_hash', return_value='')
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.command_context')
+
+        with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+            result = hatch('fmt', '--check')
+
+        assert result.exit_code == 0, result.output
+        assert not result.output
+
+        root_data_path = data_path / 'env' / '.internal' / 'hatch-static-analysis' / '.config'
+        assert not root_data_path.is_dir()
+
+        assert run.call_args_list == [
+            mocker.call('flake8 .', shell=True),
+            mocker.call('black --check --diff .', shell=True),
+            mocker.call('isort --check-only --diff .', shell=True),
+        ]

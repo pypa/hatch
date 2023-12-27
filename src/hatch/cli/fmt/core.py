@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     from hatch.utils.fs import Path
 
 
-class FormatEnvironment:
+class StaticAnalysisEnvironment:
     def __init__(self, env: EnvironmentInterface) -> None:
         self.env = env
 
@@ -16,53 +16,15 @@ class FormatEnvironment:
     def config_path(self) -> str:
         return self.env.config.get('config-path', '')
 
-    def get_linter_command(self, *args, check: bool, preview: bool | None) -> list[str]:
-        if preview is None:
-            preview = self.linter_preview
-
-        command_args = ['ruff', 'check']
+    def get_default_args(self) -> list[str]:
+        default_args = []
         if not self.config_path:
             if self.internal_user_config_file is None:
-                command_args.extend(['--config', str(self.internal_config_file)])
+                default_args.extend(['--config', str(self.internal_config_file)])
             else:
-                command_args.extend(['--config', str(self.internal_user_config_file)])
+                default_args.extend(['--config', str(self.internal_user_config_file)])
 
-        if not check:
-            command_args.append('--fix')
-
-        if preview:
-            command_args.append('--preview')
-
-        if args:
-            command_args.extend(args)
-        else:
-            command_args.append('.')
-
-        return command_args
-
-    def get_formatter_command(self, *args, check: bool, preview: bool | None) -> list[str]:
-        if preview is None:
-            preview = self.formatter_preview
-
-        command_args = ['ruff', 'format']
-        if not self.config_path:
-            if self.internal_user_config_file is None:
-                command_args.extend(['--config', str(self.internal_config_file)])
-            else:
-                command_args.extend(['--config', str(self.internal_user_config_file)])
-
-        if check:
-            command_args.extend(['--check', '--diff'])
-
-        if preview:
-            command_args.append('--preview')
-
-        if args:
-            command_args.extend(args)
-        else:
-            command_args.append('.')
-
-        return command_args
+        return default_args
 
     @cached_property
     def internal_config_file(self) -> Path:
@@ -72,10 +34,7 @@ class FormatEnvironment:
         project_id = urlsafe_b64encode(sha256(str(self.env.root).encode()).digest())[:8].decode()
         return self.env.isolated_data_directory / '.config' / project_id / 'ruff_defaults.toml'
 
-    def construct_config_file(self, *, preview: bool | None) -> str:
-        if preview is None:
-            preview = self.linter_preview
-
+    def construct_config_file(self, *, preview: bool) -> str:
         lines = [
             'line-length = 120',
             '',
@@ -88,7 +47,7 @@ class FormatEnvironment:
 
         # Selected rules
         rules = list(STABLE_RULES)
-        if preview:
+        if preview or self.linter_preview:
             rules.extend(PREVIEW_RULES)
         rules.sort()
 
@@ -122,7 +81,7 @@ class FormatEnvironment:
 
         return '\n'.join(lines)
 
-    def write_config_file(self, *, preview: bool | None) -> None:
+    def write_config_file(self, *, preview: bool) -> None:
         config_contents = self.construct_config_file(preview=preview)
         if self.config_path:
             (self.env.root / self.config_path).write_atomic(config_contents, 'w', encoding='utf-8')
