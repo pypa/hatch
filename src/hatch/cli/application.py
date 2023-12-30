@@ -126,6 +126,7 @@ class Application(Terminal):
         *,
         force_continue=False,
         show_code_on_error=True,
+        hide_commands=False,
     ):
         with environment.command_context():
             try:
@@ -134,7 +135,7 @@ class Application(Terminal):
                 self.abort(str(e))
 
             first_error_code = None
-            should_display_command = self.verbose or len(resolved_commands) > 1
+            should_display_command = not hide_commands and (self.verbose or len(resolved_commands) > 1)
             for i, raw_command in enumerate(resolved_commands, 1):
                 if should_display_command:
                     self.display(f'{source} [{i}] | {raw_command}')
