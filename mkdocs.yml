@@ -118,6 +118,8 @@ nav:
   - How-to:
     - Environments:
       - Package indices: how-to/environment/package-indices.md
+    - Static analysis:
+      - Customize behavior: how-to/static-analysis/behavior.md
     - Plugins:
       - Testing builds: how-to/plugins/testing-builds.md
   - Meta:

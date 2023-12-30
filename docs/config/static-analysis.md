@@ -2,7 +2,7 @@
 
 -----
 
-Static analysis performed by the [`fmt`](../cli/reference.md#hatch-fmt) command is backed entirely by [Ruff](https://github.com/astral-sh/ruff).
+Static analysis performed by the [`fmt`](../cli/reference.md#hatch-fmt) command is ([by default](#customize-behavior)) backed entirely by [Ruff](https://github.com/astral-sh/ruff).
 
 Hatch provides [default settings](#default-settings) that user configuration can [extend](#extending-config).
 
@@ -93,7 +93,7 @@ config-path = "none"
 
 ## Customize behavior
 
-You can fully alter the behavior of the environment used by the [`fmt`](../cli/reference.md#hatch-fmt) command.
+You can fully alter the behavior of the environment used by the [`fmt`](../cli/reference.md#hatch-fmt) command. See the [how-to](../how-to/static-analysis/behavior.md) for a detailed example.
 
 ### Dependencies
 
