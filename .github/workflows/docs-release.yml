@@ -65,7 +65,7 @@ jobs:
     - name: Create archive
       run: git archive -o site.zip gh-pages
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: documentation
         path: site.zip
