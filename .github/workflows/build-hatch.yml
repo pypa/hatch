@@ -137,7 +137,7 @@ jobs:
 
     - name: Download Python artifacts
       if: ${{ !startsWith(github.event.ref, 'refs/tags') }}
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: python-artifacts
         path: dist
@@ -223,7 +223,7 @@ jobs:
       run: pip install pyoxidizer==${{ env.PYOXIDIZER_VERSION }}
 
     - name: Download staged binaries
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: staged-${{ runner.os }}
         path: archives
@@ -302,7 +302,7 @@ jobs:
         tar --strip-components=1 -xzf - -C /usr/local/bin "$ARCHIVE_NAME/rcodesign"
 
     - name: Download staged binaries
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: staged-${{ runner.os }}
         path: archives
@@ -448,19 +448,19 @@ jobs:
 
     steps:
     - name: Download Python artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: python-artifacts
         path: dist
 
     - name: Download binaries
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: standalone
         path: archives
 
     - name: Download installers
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: installers
         path: installers
