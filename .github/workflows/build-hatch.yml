@@ -88,7 +88,7 @@ jobs:
       CARGO: cargo
       CARGO_BUILD_TARGET: ${{ matrix.job.target }}
       PYAPP_REPO: pyapp
-      PYAPP_VERSION: "0.11.1"
+      PYAPP_VERSION: "0.13.0"
       PYAPP_PIP_EXTERNAL: "true"
       PYAPP_PASS_LOCATION: "true"
 

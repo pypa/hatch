@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - The reserved environment used for static analysis is now completely configurable
 - Add the following methods to the `environment` interface for complete control over output during life cycle management: `app_status_creation`, `app_status_pre_installation`, `app_status_post_installation`, `app_status_project_installation`, `app_status_dependency_state_check`, `app_status_dependency_installation_check`, `app_status_dependency_synchronization`
 - Upgrade Ruff to 0.1.9
+- Upgrade PyApp to 0.13.0 for binary builds
 
 ***Fixed:***
 
