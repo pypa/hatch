@@ -122,6 +122,9 @@ nav:
       - Customize behavior: how-to/static-analysis/behavior.md
     - Plugins:
       - Testing builds: how-to/plugins/testing-builds.md
+    - Publishing:
+        - Authentication: how-to/publishing/authentication.md
+        - Repository selection: how-to/publishing/repository.md
   - Meta:
     - FAQ: meta/faq.md
     - Authors: meta/authors.md
