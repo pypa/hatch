@@ -3,7 +3,6 @@ from __future__ import annotations
 import re
 from typing import Iterable
 
-from hatch.publish.auth import AuthenticationCredentials
 from hatch.publish.plugin.interface import PublisherInterface
 from hatch.utils.fs import Path
 from hatchling.metadata.utils import normalize_project_name
@@ -51,6 +50,7 @@ class IndexPublisher(PublisherInterface):
 
         from hatch.index.core import PackageIndex
         from hatch.index.publish import get_sdist_form_data, get_wheel_form_data
+        from hatch.publish.auth import AuthenticationCredentials
 
         if not artifacts:
             from hatchling.builders.constants import DEFAULT_BUILD_DIRECTORY
