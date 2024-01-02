@@ -1,4 +1,4 @@
-from hatch.utils.auth import AuthenticationCredentials
+from hatch.publish.auth import AuthenticationCredentials
 from hatch.utils.fs import Path
 
 

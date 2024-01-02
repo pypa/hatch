@@ -3,8 +3,8 @@ from __future__ import annotations
 import re
 from typing import Iterable
 
+from hatch.publish.auth import AuthenticationCredentials
 from hatch.publish.plugin.interface import PublisherInterface
-from hatch.utils.auth import AuthenticationCredentials
 from hatch.utils.fs import Path
 from hatchling.metadata.utils import normalize_project_name
 
@@ -30,7 +30,10 @@ class IndexPublisher(PublisherInterface):
                 repos[repo] = data
 
         # Ensure PyPI correct
-        for repo, url in (('main', 'https://upload.pypi.org/legacy/'), ('test', 'https://test.pypi.org/legacy/')):
+        for repo, url in (
+            ('main', 'https://upload.pypi.org/legacy/'),
+            ('test', 'https://test.pypi.org/legacy/'),
+        ):
             repos.setdefault(repo, {})['url'] = url
 
         # Populate defaults
@@ -58,7 +61,11 @@ class IndexPublisher(PublisherInterface):
         repos = self.get_repos()
         repo_config: dict[str, str] = repos[repo] if repo in repos else {'url': repo}
         credentials = AuthenticationCredentials(
-            app=self.app, cache_dir=self.cache_dir, options=options, repo=repo, repo_config=repo_config
+            app=self.app,
+            cache_dir=self.cache_dir,
+            options=options,
+            repo=repo,
+            repo_config=repo_config,
         )
 
         index = PackageIndex(

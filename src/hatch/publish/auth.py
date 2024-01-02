@@ -112,6 +112,3 @@ class AuthenticationCredentials:
             import keyring
 
             keyring.set_password(self._repo, self.__username, self.__password)
-
-
-__all__ = (AuthenticationCredentials.__name__,)  # noqa: PLE0604
