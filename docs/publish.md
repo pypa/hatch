@@ -35,5 +35,5 @@ for configuration options.
 There's a How-To on [authentication](how-to/publishing/authentication.md)
 and on options to select the target [repository](how-to/publishing/repository.md).
 
-The `publish` command is implemented as a contributed plugin, if you're
+The `publish` command is implemented as a built-in plugin, if you're
 planning your own plugin, read about the [publisher plugin API](plugins/publisher/reference.md). 
