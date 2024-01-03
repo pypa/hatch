@@ -32,8 +32,8 @@ Only files ending with `.whl` or `.tar.gz` will be published.
 Please refer to the publisher plugin [reference](plugins/publisher/package-index.md)
 for configuration options.
 
-There's a How-To on [authentication](how-to/publishing/authentication.md)
-and on options to select the target [repository](how-to/publishing/repository.md).
+There's a How-To on [authentication](how-to/publish/auth.md)
+and on options to select the target [repository](how-to/publish/repo.md).
 
 The `publish` command is implemented as a built-in plugin, if you're
 planning your own plugin, read about the [publisher plugin API](plugins/publisher/reference.md). 
