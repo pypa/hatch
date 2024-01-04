@@ -88,8 +88,9 @@ jobs:
       CARGO: cargo
       CARGO_BUILD_TARGET: ${{ matrix.job.target }}
       PYAPP_REPO: pyapp
-      PYAPP_VERSION: "0.11.1"
+      PYAPP_VERSION: "0.13.0"
       PYAPP_PIP_EXTERNAL: "true"
+      PYAPP_PASS_LOCATION: "true"
 
     steps:
     - name: Checkout code
@@ -464,14 +465,12 @@ jobs:
         name: installers
         path: installers
 
-    - name: Push Python artifacts to PyPI
-      uses: pypa/gh-action-pypi-publish@v1.8.11
-      with:
-        skip-existing: true
-
     - name: Add assets to current release
       uses: softprops/action-gh-release@v1
       with:
         files: |-
           archives/*
           installers/*
+
+    - name: Push Python artifacts to PyPI
+      uses: pypa/gh-action-pypi-publish@v1.8.11

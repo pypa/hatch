@@ -187,8 +187,7 @@ The following values have special meanings:
 
 | Value | Path |
 | --- | --- |
-| `shared` (default) | `~/.pythons` |
-| `isolated` | `<DATA_DIR>/pythons` |
+| `isolated` (default) | `<DATA_DIR>/pythons` |
 
 ## Terminal
 

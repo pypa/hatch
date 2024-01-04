@@ -55,17 +55,6 @@ def construct_matrix_data(env_name, config, overrides=None):
     return {'config': config, 'envs': envs}
 
 
-class TestFormat:
-    def test_not_table(self, isolation):
-        with pytest.raises(TypeError, match='Field `tool.hatch.format` must be a table'):
-            _ = ProjectConfig(isolation, {'format': 9000}).fmt
-
-    def test_default(self, isolation):
-        project_config = ProjectConfig(isolation, {})
-
-        assert project_config.fmt == project_config.fmt == {}
-
-
 class TestEnv:
     def test_not_table(self, isolation):
         with pytest.raises(TypeError, match='Field `tool.hatch.env` must be a table'):

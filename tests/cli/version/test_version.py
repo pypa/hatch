@@ -2,6 +2,7 @@ import os
 
 import pytest
 
+from hatch.config.constants import ConfigEnvVars
 from hatch.project.core import Project
 from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT, DEFAULT_CONFIG_FILE
 
@@ -155,6 +156,40 @@ def test_plugin_dependencies_unmet(hatch, helpers, temp_dir, mock_plugin_install
         """
     )
     helpers.assert_plugin_installation(mock_plugin_installation, [dependency])
+
+
+@pytest.mark.requires_internet
+def test_no_compatibility_check_if_exists(hatch, helpers, temp_dir, mocker):
+    project_name = 'My.App'
+
+    with temp_dir.as_cwd():
+        hatch('new', project_name)
+
+    project_path = temp_dir / 'my-app'
+    data_path = temp_dir / 'data'
+    data_path.mkdir()
+
+    project = Project(project_path)
+    config = dict(project.raw_config)
+    config['build-system']['requires'].append('binary')
+    project.save_config(config)
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch('version')
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        """
+        Setting up build environment for missing dependencies
+        """
+    )
+
+    mocker.patch('hatch.env.virtual.VirtualEnvironment.check_compatibility', side_effect=Exception('incompatible'))
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch('version')
+
+    assert result.exit_code == 0, result.output
+    assert not result.output
 
 
 def test_set_dynamic(hatch, helpers, temp_dir):

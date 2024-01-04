@@ -41,7 +41,7 @@ class TestOtherBackend:
         assert result.exit_code == 0, result.output
         assert result.output == helpers.dedent(
             """
-            Creating environment: build
+            Creating environment: hatch-build
             Checking dependencies
             Syncing dependencies
             """
@@ -107,7 +107,7 @@ print("Hello World!")
         assert result.exit_code == 0, result.output
         assert result.output == helpers.dedent(
             """
-            Creating environment: build
+            Creating environment: hatch-build
             Checking dependencies
             Syncing dependencies
             """
@@ -140,6 +140,54 @@ def test_incompatible_environment(hatch, temp_dir, helpers):
     assert result.output == helpers.dedent(
         """
         Environment `default` is incompatible: cannot locate Python: 9000
+        """
+    )
+
+
+@pytest.mark.allow_backend_process
+@pytest.mark.requires_internet
+def test_no_compatibility_check_if_exists(hatch, temp_dir, helpers, mocker):
+    project_name = 'My.App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+        assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / 'my-app'
+    data_path = temp_dir / 'data'
+    data_path.mkdir()
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch('build')
+
+    build_directory = project_path / 'dist'
+    assert build_directory.is_dir()
+
+    artifacts = list(build_directory.iterdir())
+    assert len(artifacts) == 2
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        """
+        ──────────────────────────────────── sdist ─────────────────────────────────────
+        Setting up build environment
+        ──────────────────────────────────── wheel ─────────────────────────────────────
+        """
+    )
+
+    build_directory.remove()
+    mocker.patch('hatch.env.virtual.VirtualEnvironment.check_compatibility', side_effect=Exception('incompatible'))
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch('build')
+
+    artifacts = list(build_directory.iterdir())
+    assert len(artifacts) == 2
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        """
+        ──────────────────────────────────── sdist ─────────────────────────────────────
+        ──────────────────────────────────── wheel ─────────────────────────────────────
         """
     )
 

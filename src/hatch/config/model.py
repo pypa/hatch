@@ -369,7 +369,7 @@ class DirsConfig(LazilyParsedConfig):
 
                 self._field_python = python
             else:
-                self._field_python = self.raw_data['python'] = 'shared'
+                self._field_python = self.raw_data['python'] = 'isolated'
 
         return self._field_python
 

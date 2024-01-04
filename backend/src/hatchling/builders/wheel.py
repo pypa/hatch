@@ -193,7 +193,6 @@ class WheelBuilderConfig(BuilderConfig[PluginManager]):
 
             module_file = f'{project_name}.py'
             if os.path.isfile(os.path.join(self.root, module_file)):
-                normalized_project_name = self.get_raw_fs_path_name(self.root, module_file)
                 return FileSelectionOptions([], exclude, [], [module_file])
 
             from glob import glob

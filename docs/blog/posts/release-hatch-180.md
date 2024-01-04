@@ -35,7 +35,7 @@ These installers and binaries are now the [recommended way](../../install.md) to
 
 For a long time I and other users have desired that Hatch gain the ability to manage Python distributions. In my mind this was always blocked on a better installation experience because there was sort of a chicken-or-egg problem where you want a Python manager but you first need Python. No longer is that the case!
 
-The new [`python`](../../cli/reference.md#hatch-python) command group allows for easy installation of various distributions to arbitrary locations (default `~/.pythons`) which are then added to your PATH by default. Hatch supports CPython and PyPy distributions:
+The new [`python`](../../cli/reference.md#hatch-python) command group allows for easy installation of various distributions to arbitrary locations which are then added to your PATH by default. Hatch supports CPython and PyPy distributions:
 
 <figure markdown>
   ![Available Python distributions](release-hatch-180/available-pythons.png){ loading=lazy width="200" role="img" }

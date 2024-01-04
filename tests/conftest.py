@@ -48,7 +48,7 @@ class CliRunner(__CliRunner):
 
 
 @pytest.fixture(scope='session')
-def hatch():
+def hatch(isolation):  # noqa: ARG001
     from hatch import cli
 
     return CliRunner(cli.hatch)
@@ -123,6 +123,13 @@ def platform():
 @pytest.fixture(scope='session')
 def current_platform():
     return PLATFORM.name
+
+
+@pytest.fixture(scope='session')
+def current_arch():
+    import platform
+
+    return platform.machine().lower()
 
 
 @pytest.fixture(scope='session')
@@ -366,11 +373,15 @@ def mock_plugin_installation(mocker):
     mocked_subprocess_run = mocker.MagicMock(returncode=0)
 
     def _mock(command, **kwargs):
-        if not isinstance(command, list) or command[:5] != [sys.executable, '-u', '-m', 'pip', 'install']:  # no cov
-            return subprocess_run(command, **kwargs)
+        if isinstance(command, list):
+            if command[:5] == [sys.executable, '-u', '-m', 'pip', 'install']:
+                mocked_subprocess_run(command, **kwargs)
+                return mocked_subprocess_run
 
-        mocked_subprocess_run(command, **kwargs)
-        return mocked_subprocess_run
+            if command[:3] == [sys.executable, 'self', 'python-path']:
+                return mocker.MagicMock(returncode=0, stdout=sys.executable.encode())
+
+        return subprocess_run(command, **kwargs)  # no cov
 
     mocker.patch('subprocess.run', side_effect=_mock)
 

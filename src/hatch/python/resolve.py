@@ -170,15 +170,24 @@ def get_compatible_distributions() -> dict[str, Distribution]:
 
 
 def _get_default_variant(name: str, system: str, arch: str, abi: str) -> str:
-    variant = os.environ.get(f'HATCH_PYTHON_VARIANT_{system.upper()}', '').lower()
-    if variant:
-        return variant
-
+    # not PyPy
     if name[0].isdigit():
-        if system == 'windows' and abi == 'msvc':
-            return 'shared'
+        # https://gregoryszorc.com/docs/python-build-standalone/main/running.html
+        variant = os.environ.get(f'HATCH_PYTHON_VARIANT_{system.upper()}', '').lower()
+
+        if system == 'windows':
+            # Shared versus static
+            if variant:
+                return variant
+
+            if abi == 'msvc':
+                return 'shared'
 
         if system == 'linux' and arch == 'x86_64':
+            # Intel-specific optimizations depending on age of release
+            if variant:
+                return variant
+
             if name == '3.8':
                 return 'v1'
 

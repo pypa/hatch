@@ -70,7 +70,8 @@ def build(app: Application, location, targets, hooks_only, no_hooks, ext, clean,
 
     if app.project.metadata.build.build_backend != 'hatchling.build':
         script = 'build-sdist' if targets == ('sdist',) else 'build-wheel' if targets == ('wheel',) else 'build-all'
-        environment = app.prepare_internal_environment('build')
+        environment = app.get_environment('hatch-build')
+        app.prepare_environment(environment)
         app.run_shell_commands(
             environment,
             [environment.join_command_args([script])],
@@ -94,10 +95,11 @@ def build(app: Application, location, targets, hooks_only, no_hooks, ext, clean,
 
     with app.project.location.as_cwd(env_vars):
         environment = app.get_environment()
-        try:
-            environment.check_compatibility()
-        except Exception as e:  # noqa: BLE001
-            app.abort(f'Environment `{environment.name}` is incompatible: {e}')
+        if not environment.build_environment_exists():
+            try:
+                environment.check_compatibility()
+            except Exception as e:  # noqa: BLE001
+                app.abort(f'Environment `{environment.name}` is incompatible: {e}')
 
         for target in targets:
             target_name, _, _ = target.partition(':')

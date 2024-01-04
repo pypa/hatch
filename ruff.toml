@@ -3,6 +3,10 @@ extend = "ruff_defaults.toml"
 # https://github.com/astral-sh/ruff/issues/8627
 exclude = [".git", ".mypy_cache", ".ruff_cache", ".venv", "dist"]
 
+[format]
+preview = true
+quote-style = "single"
+
 [lint]
 preview = true
 ignore = [
@@ -18,7 +22,3 @@ ignore = [
 
 [lint.isort]
 known-first-party = ["hatch", "hatchling"]
-
-[format]
-preview = true
-quote-style = "single"

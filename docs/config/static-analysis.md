@@ -2,7 +2,7 @@
 
 -----
 
-Static analysis performed by the [`fmt`](../cli/reference.md#hatch-fmt) command is backed entirely by [Ruff](https://github.com/astral-sh/ruff).
+Static analysis performed by the [`fmt`](../cli/reference.md#hatch-fmt) command is ([by default](#customize-behavior)) backed entirely by [Ruff](https://github.com/astral-sh/ruff).
 
 Hatch provides [default settings](#default-settings) that user configuration can [extend](#extending-config).
 
@@ -13,6 +13,10 @@ When defining your configuration, be sure to use options that are prefixed by `e
 === ":octicons-file-code-16: pyproject.toml"
 
     ```toml
+    [tool.ruff.format]
+    preview = true
+    quote-style = "single"
+
     [tool.ruff.lint]
     preview = true
     extend-select = ["C901"]
@@ -22,15 +26,15 @@ When defining your configuration, be sure to use options that are prefixed by `e
 
     [tool.ruff.lint.isort]
     known-first-party = ["foo", "bar"]
-
-    [tool.ruff.format]
-    preview = true
-    quote-style = "single"
     ```
 
 === ":octicons-file-code-16: ruff.toml"
 
     ```toml
+    [format]
+    preview = true
+    quote-style = "single"
+
     [lint]
     preview = true
     extend-select = ["C901"]
@@ -40,10 +44,6 @@ When defining your configuration, be sure to use options that are prefixed by `e
 
     [lint.isort]
     known-first-party = ["foo", "bar"]
-
-    [format]
-    preview = true
-    quote-style = "single"
     ```
 
 !!! note
@@ -54,7 +54,7 @@ When defining your configuration, be sure to use options that are prefixed by `e
 If you want to store the default configuration in the project, set an explicit path like so:
 
 ```toml config-example
-[tool.hatch.format]
+[tool.hatch.envs.hatch-static-analysis]
 config-path = "ruff_defaults.toml"
 ```
 
@@ -82,11 +82,51 @@ hatch fmt --check --sync
 !!! tip
     This is the recommended approach since it allows other tools like IDEs to use the default configuration.
 
+### No config
+
+If you don't want Hatch to use any of its default configuration and rely entirely on yours, set the path to anything and then simply don't `extend` in your Ruff config:
+
+```toml config-example
+[tool.hatch.envs.hatch-static-analysis]
+config-path = "none"
+```
+
+## Customize behavior
+
+You can fully alter the behavior of the environment used by the [`fmt`](../cli/reference.md#hatch-fmt) command. See the [how-to](../how-to/static-analysis/behavior.md) for a detailed example.
+
+### Dependencies
+
+Pin the particular version of Ruff by explicitly defining the environment [dependencies](environment/overview.md#dependencies):
+
+```toml config-example
+[tool.hatch.envs.hatch-static-analysis]
+dependencies = ["ruff==X.Y.Z"]
+```
+
+### Scripts
+
+If you want to change the default commands that are executed, you can override the [scripts](environment/overview.md#scripts). The following four scripts must be defined:
+
+```toml config-example
+[tool.hatch.envs.hatch-static-analysis.scripts]
+format-check = "..."
+format-fix = "..."
+lint-check = "..."
+lint-fix = "..."
+```
+
+The `format-*` scripts correspond to the `--formatter`/`-f` flag while the `lint-*` scripts correspond to the `--linter`/`-l` flag. The `*-fix` scripts run by default while the `*-check` scripts correspond to the `--check` flag.
+
+!!! note "Reminder"
+    If you choose to use different tools for static analysis, be sure to update the required [dependencies](#dependencies).
+
 ## Default settings
 
 ### Non-rule settings
 
 - [Line length](https://docs.astral.sh/ruff/settings/#line-length) set to 120
+- [Docstring formatting](https://docs.astral.sh/ruff/formatter/#docstring-formatting) enabled with [line length](https://docs.astral.sh/ruff/settings/#format-docstring-code-line-length) set to 80
 - Only absolute imports [are allowed](https://docs.astral.sh/ruff/settings/#flake8-tidy-imports-ban-relative-imports), [except for tests](#per-file-ignored-rules)
 - The normalized [project name](metadata.md#name) is a [known first party](https://docs.astral.sh/ruff/settings/#isort-known-first-party) import
 
@@ -96,6 +136,6 @@ hatch fmt --check --sync
 
 ### Selected rules
 
-The following rules are based on version <HATCH_RUFF_VERSION> of Ruff.
+The following rules are based on version <HATCH_RUFF_VERSION> of Ruff. Rules with a ^P^ are only selected when [preview](https://docs.astral.sh/ruff/preview/) mode is enabled.
 
 <HATCH_RUFF_SELECTED_RULES>

@@ -26,10 +26,10 @@ class ProjectConfig:
         self._env_requires = None
         self._env_collectors = None
         self._envs = None
+        self._internal_envs = None
         self._matrix_variables = None
         self._publish = None
         self._scripts = None
-        self._fmt = None
         self._cached_env_overrides = {}
 
     @property
@@ -113,7 +113,15 @@ class ProjectConfig:
         return self._matrix_variables
 
     @property
+    def internal_envs(self):
+        if self._internal_envs is None:
+            _ = self.envs
+
+        return self._internal_envs
+
+    @property
     def envs(self):
+        from hatch.env.internal import get_internal_env_config
         from hatch.utils.platform import get_platform_name
 
         if self._envs is None:
@@ -402,6 +410,11 @@ class ProjectConfig:
             self._matrix_variables = generated_envs
             self._cached_env_overrides.update(cached_overrides)
 
+            # Extract the internal environments
+            self._internal_envs = {
+                internal_name: self._envs.pop(internal_name) for internal_name in get_internal_env_config()
+            }
+
         return self._envs
 
     @property
@@ -461,18 +474,6 @@ class ProjectConfig:
             self._scripts = config
 
         return self._scripts
-
-    @property
-    def fmt(self):
-        if self._fmt is None:
-            config = self.config.get('format', {})
-            if not isinstance(config, dict):
-                message = 'Field `tool.hatch.format` must be a table'
-                raise TypeError(message)
-
-            self._fmt = config
-
-        return self._fmt
 
     def finalize_env_overrides(self, option_types):
         # We lazily apply overrides because we need type information potentially defined by

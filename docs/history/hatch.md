@@ -8,9 +8,54 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Added:***
+
+- The reserved environment used for static analysis is now completely configurable
+- Add the following methods to the `environment` interface for complete control over output during life cycle management: `app_status_creation`, `app_status_pre_installation`, `app_status_post_installation`, `app_status_project_installation`, `app_status_dependency_state_check`, `app_status_dependency_installation_check`, `app_status_dependency_synchronization`
+- Upgrade Ruff to 0.1.9
+- Upgrade PyApp to 0.13.0 for binary builds
+
+***Fixed:***
+
+- When projects derive dependencies from metadata hooks, there is now by default a status indicator for when the hooks are executed for better responsiveness
+
+## [1.9.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.9.1) - 2023-12-25 ## {: #hatch-v1.9.1 }
+
+***Fixed:***
+
+- Ensure that the `dependency_hash` method of the `environment` interface is called after `sync_dependencies` for cases where the hash is only known at that point, such as for dependency lockers
+- Only acknowledge the `HATCH_PYTHON_VARIANT_*` environment variables for Python resolution for supported platforms and architectures
+- Fix Python resolution when there are metadata hooks with unsatisfied dependencies
+
+## [1.9.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.9.0) - 2023-12-19 ## {: #hatch-v1.9.0 }
+
+***Changed:***
+
+- Environments prefixed by `hatch-` are now considered internal and used for special purposes such as configuration for static analysis
+
+***Added:***
+
+- Enable docstring formatting by default for static analysis
+- Allow for overriding config of internal environments
+- Concretely state the expected API contract for the environment interface methods `find` and `check_compatibility`
+- Upgrade Ruff to 0.1.8
+- Bump the minimum supported version of Hatchling to 1.21.0
+
+***Fixed:***
+
+- Ignore a project's Python requirement for environments where the project is not installed
+- When not persisting config for static analysis, properly manage internal settings when Ruff's top level table already exists
+- Ignore compatibility checks when environments have already been created, significantly improving performance of environment usage
+- Properly allow overriding of the `path` option for the `virtual` environment type
+- Fix nushell activation on non-Windows systems
+
+## [1.8.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.8.1) - 2023-12-14 ## {: #hatch-v1.8.1 }
+
 ***Fixed:***
 
 - Fix regression in calling subprocesses with updated PATH
+- Fix automatic installation of environment plugins when running as a standalone binary
+- Change default location of Python installations
 
 ## [1.8.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.8.0) - 2023-12-11 ## {: #hatch-v1.8.0 }
 
