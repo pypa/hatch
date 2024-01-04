@@ -20,6 +20,7 @@ class BuildHookInterface(Generic[BuilderConfigBound, PluginManagerBound]):  # no
 
     from .builder import SpecialBuilderConfig
 
+
     class SpecialBuildHook(BuildHookInterface[SpecialBuilderConfig, PluginManager]):
         PLUGIN_NAME = 'special'
         ...
