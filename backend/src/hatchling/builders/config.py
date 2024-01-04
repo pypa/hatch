@@ -13,7 +13,9 @@ from hatchling.plugin.manager import PluginManagerBound
 from hatchling.utils.fs import locate_file
 
 if TYPE_CHECKING:
-    from typing import Generator, Self
+    from typing import Generator
+
+    from typing_extensions import Self
 
     from hatchling.builders.plugin.interface import BuilderInterface
 
