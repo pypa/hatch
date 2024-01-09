@@ -1,0 +1,18 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "hatch-test-cli"
+version = "0.0.1"
+description = ""
+requires-python = ">=3.7"
+authors = [
+    { name = "Thomas Denoréaz", email = "thomas.denoreaz@gmail.com" },
+]
+dependencies = [
+    "hatch>=1.2.0",
+]
+
+[project.entry-points.hatch]
+cli = "hatch_cli.hooks"
