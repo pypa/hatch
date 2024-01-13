@@ -9,6 +9,7 @@ The following is not intended to be a complete enumeration. Be sure to view the 
 [aiogram](https://github.com/aiogram/aiogram/blob/a2e5f9a8b8c994ad65bce05cde9c744760f47c4c/pyproject.toml#L1-L3)
 | [argon2-cffi](https://github.com/hynek/argon2-cffi/blob/59c7470af1a65b3b71e18fbf9abeca2cca3d707a/pyproject.toml#L3-L5)
 | [attrs](https://github.com/python-attrs/attrs/blob/01413df3db8e64437547f7fa6439a646fa116a98/pyproject.toml#L3-L5)
+| [Apache Airflow](https://github.com/apache/airflow/blob/main/pyproject.toml#L18C1-L39C34)
 | [Black](https://github.com/psf/black/blob/f22273a72b3f1c15085f2d4a43e8d785bf48c822/pyproject.toml#L28-L30)
 | [coffea](https://github.com/CoffeaTeam/coffea/blob/bab41f66869293f8ba630556f21ac093828788b7/pyproject.toml#L1-L3)
 | [Colorama](https://github.com/tartley/colorama/blob/cd653d75be52f4d8c3953eb6942fe597375f8b97/pyproject.toml#L1-L5)
