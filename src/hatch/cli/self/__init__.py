@@ -2,6 +2,8 @@ import os
 
 import click
 
+from hatch.cli.self.report import report
+
 __management_command = os.environ.get('PYAPP_COMMAND_NAME', 'self')
 
 
@@ -9,6 +11,8 @@ __management_command = os.environ.get('PYAPP_COMMAND_NAME', 'self')
 def self_command():
     pass
 
+
+self_command.add_command(report)
 
 if __management_command:
     from hatch.cli.self.restore import restore

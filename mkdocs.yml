@@ -116,6 +116,8 @@ nav:
       - Standard: plugins/version-scheme/standard.md
     - Utilities: plugins/utilities.md
   - How-to:
+    - Meta:
+      - Report issues: how-to/meta/report-issues.md
     - Environments:
       - Package indices: how-to/environment/package-indices.md
     - Static analysis:
