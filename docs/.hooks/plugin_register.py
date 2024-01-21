@@ -20,9 +20,11 @@ class GlobalExtension(Extension):
         from expand_blocks import ExpandedBlocksPreprocessor
         from inject_version import VersionInjectionPreprocessor
         from render_ruff_defaults import RuffDefaultsPreprocessor
+        from set_title import TitleMetadataPreprocessor
 
         md.preprocessors.register(ExpandedBlocksPreprocessor(), ExpandedBlocksPreprocessor.__name__, 100)
         md.preprocessors.register(VersionInjectionPreprocessor(), VersionInjectionPreprocessor.__name__, 101)
         md.preprocessors.register(RuffDefaultsPreprocessor(), RuffDefaultsPreprocessor.__name__, 102)
+        md.preprocessors.register(TitleMetadataPreprocessor(), TitleMetadataPreprocessor.__name__, 103)
 
         sys.path.pop(0)
