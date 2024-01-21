@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.9.2](https://github.com/pypa/hatch/releases/tag/hatch-v1.9.2) - 2024-01-21 ## {: #hatch-v1.9.2 }
+
 ***Fixed:***
 
 - Fix the default token variable name for publishing to PyPI
