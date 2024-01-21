@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Fixed:***
+
+- Fix the default token variable name for publishing to PyPI
+
 ## [1.9.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.9.1) - 2023-12-25 ## {: #hatch-v1.9.1 }
 
 ***Fixed:***
@@ -67,7 +71,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - The state of installed dependencies for environments is saved as metadata so if dependency definitions have not changed then no checking is performed, which can be computationally expensive
 - The `build` command now supports backends other than Hatchling
 - Allow the use of `features` for environments when `skip-install` is enabled
-- The default is now `__TOKEN__` when prompting for a username for the `publish` command
+- The default is now `__token__` when prompting for a username for the `publish` command
 - Add a new `run_builder` method to the `environment` interface
 - Bump the minimum supported version of Hatchling to 1.19.0
 - Bump the minimum supported version of `click` to 8.0.6
