@@ -119,6 +119,7 @@ nav:
     - Meta:
       - Report issues: how-to/meta/report-issues.md
     - Environments:
+      - Create & Use: how-to/environment/use-environments.md
       - Package indices: how-to/environment/package-indices.md
     - Static analysis:
       - Customize behavior: how-to/static-analysis/behavior.md
