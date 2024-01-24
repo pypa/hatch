@@ -44,13 +44,13 @@ class CodeSource(VersionSourceInterface):
 
             absolute_search_paths.append(os.path.normpath(os.path.join(self.root, search_path)))
 
-        spec = importlib.util.spec_from_file_location(os.path.splitext(path)[0], path)  # type: ignore
+        spec = importlib.util.spec_from_file_location(os.path.splitext(path)[0], path)
         module = importlib.util.module_from_spec(spec)  # type: ignore
 
         old_search_paths = list(sys.path)
         try:
             sys.path[:] = [*absolute_search_paths, *old_search_paths]
-            spec.loader.exec_module(module)
+            spec.loader.exec_module(module)  # type: ignore
         finally:
             sys.path[:] = old_search_paths
 

@@ -13,9 +13,9 @@ if TYPE_CHECKING:
 def load_plugin_from_script(path: str, script_name: str, plugin_class: type[T], plugin_id: str) -> type[T]:
     import importlib.util
 
-    spec = importlib.util.spec_from_file_location(script_name, path)  # type: ignore
+    spec = importlib.util.spec_from_file_location(script_name, path)
     module = importlib.util.module_from_spec(spec)  # type: ignore
-    spec.loader.exec_module(module)
+    spec.loader.exec_module(module)  # type: ignore
 
     plugin_finder = f'get_{plugin_id}'
     names = dir(module)
