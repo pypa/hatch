@@ -9,7 +9,7 @@ class CodeSource(VersionSourceInterface):
     PLUGIN_NAME = 'code'
 
     def get_version_data(self) -> dict:
-        import importlib
+        import importlib.util
         import sys
 
         relative_path = self.config.get('path')
