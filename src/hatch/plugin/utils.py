@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 def load_plugin_from_script(
     path: str, script_name: str, plugin_class: type[EnvironmentCollectorInterface], plugin_id: str
 ) -> type[EnvironmentCollectorInterface]:
-    import importlib
+    import importlib.util
 
     spec = importlib.util.spec_from_file_location(script_name, path)  # type: ignore
     module = importlib.util.module_from_spec(spec)  # type: ignore
