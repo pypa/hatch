@@ -9,8 +9,8 @@ class CodeSource(VersionSourceInterface):
     PLUGIN_NAME = 'code'
 
     def get_version_data(self) -> dict:
-        import importlib.util
         import sys
+        from importlib.util import module_from_spec, spec_from_file_location
 
         relative_path = self.config.get('path')
         if not relative_path:
@@ -44,8 +44,8 @@ class CodeSource(VersionSourceInterface):
 
             absolute_search_paths.append(os.path.normpath(os.path.join(self.root, search_path)))
 
-        spec = importlib.util.spec_from_file_location(os.path.splitext(path)[0], path)
-        module = importlib.util.module_from_spec(spec)  # type: ignore
+        spec = spec_from_file_location(os.path.splitext(path)[0], path)
+        module = module_from_spec(spec)  # type: ignore
 
         old_search_paths = list(sys.path)
         try:
