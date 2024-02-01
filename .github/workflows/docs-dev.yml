@@ -48,11 +48,13 @@ jobs:
     - name: Build documentation
       run: hatch -v run docs:build-check
       env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         GH_TOKEN_MKDOCS_MATERIAL_INSIDERS: ${{ secrets.GH_TOKEN_MKDOCS_MATERIAL_INSIDERS }}
 
     - name: Commit documentation
       run: hatch -v run docs:ci-build dev
       env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         GH_TOKEN_MKDOCS_MATERIAL_INSIDERS: ${{ secrets.GH_TOKEN_MKDOCS_MATERIAL_INSIDERS }}
 
     - name: Create archive

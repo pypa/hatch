@@ -48,6 +48,10 @@ class BuilderConfig:
         self.__exclude_patterns: list[str] | None = None
         self.__artifact_patterns: list[str] | None = None
 
+        # This is used when the only file selection is based on forced inclusion or build-time artifacts. This
+        # instructs to `exclude` every encountered path without doing pattern matching that matches everything.
+        self.__exclude_all: bool = False
+
         # Modified at build time
         self.build_artifact_spec: pathspec.GitIgnoreSpec | None = None
         self.build_force_include: dict[str, str] = {}
@@ -102,6 +106,9 @@ class BuilderConfig:
         return self.include_spec.match_file(relative_path)
 
     def path_is_excluded(self, relative_path: str) -> bool:
+        if self.__exclude_all:
+            return True
+
         if self.exclude_spec is None:
             return False
 
@@ -875,6 +882,9 @@ class BuilderConfig:
         patterns = ['*.py[cdo]', f'/{DEFAULT_BUILD_DIRECTORY}']
         patterns.sort()
         return patterns
+
+    def set_exclude_all(self) -> None:
+        self.__exclude_all = True
 
     def get_force_include(self) -> dict[str, str]:
         force_include = self.force_include.copy()

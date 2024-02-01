@@ -29,7 +29,10 @@ class IndexPublisher(PublisherInterface):
                 repos[repo] = data
 
         # Ensure PyPI correct
-        for repo, url in (('main', 'https://upload.pypi.org/legacy/'), ('test', 'https://test.pypi.org/legacy/')):
+        for repo, url in (
+            ('main', 'https://upload.pypi.org/legacy/'),
+            ('test', 'https://test.pypi.org/legacy/'),
+        ):
             repos.setdefault(repo, {})['url'] = url
 
         # Populate defaults
@@ -47,6 +50,7 @@ class IndexPublisher(PublisherInterface):
 
         from hatch.index.core import PackageIndex
         from hatch.index.publish import get_sdist_form_data, get_wheel_form_data
+        from hatch.publish.auth import AuthenticationCredentials
 
         if not artifacts:
             from hatchling.builders.constants import DEFAULT_BUILD_DIRECTORY
@@ -54,53 +58,24 @@ class IndexPublisher(PublisherInterface):
             artifacts = [DEFAULT_BUILD_DIRECTORY]
 
         repo = options['repo'] if 'repo' in options else self.plugin_config.get('repo', 'main')
-
         repos = self.get_repos()
-
-        repo_config = repos[repo] if repo in repos else {'url': repo}
+        repo_config: dict[str, str] = repos[repo] if repo in repos else {'url': repo}
+        credentials = AuthenticationCredentials(
+            app=self.app,
+            cache_dir=self.cache_dir,
+            options=options,
+            repo=repo,
+            repo_config=repo_config,
+        )
 
         index = PackageIndex(
             repo_config['url'],
+            user=credentials.username,
+            auth=credentials.password,
             ca_cert=options.get('ca_cert', repo_config.get('ca-cert')),
             client_cert=options.get('client_cert', repo_config.get('client-cert')),
             client_key=options.get('client_key', repo_config.get('client-key')),
         )
-
-        cached_user_file = CachedUserFile(self.cache_dir)
-        updated_user = None
-        if 'user' in options:
-            user = options['user']
-        else:
-            user = repo_config.get('user', '')
-            if not user:
-                user = cached_user_file.get_user(repo)
-                if user is None:
-                    import keyring
-
-                    creds = keyring.get_credential(repo, None)
-                    user = creds and creds.username
-                    if user is None:
-                        if options['no_prompt']:
-                            self.app.abort('Missing required option: user')
-                        else:
-                            user = updated_user = self.app.prompt('Enter your username', default='__TOKEN__')
-        index.user = user
-
-        updated_auth = None
-        if 'auth' in options:
-            auth = options['auth']
-        else:
-            auth = repo_config.get('auth', '')
-            if not auth:
-                import keyring
-
-                auth = keyring.get_password(repo, user)
-                if auth is None:
-                    if options['no_prompt']:
-                        self.app.abort('Missing required option: auth')
-                    else:
-                        auth = updated_auth = self.app.prompt('Enter your credentials', hide_input=True)
-        index.auth = auth
 
         existing_artifacts: dict[str, set[str]] = {}
 
@@ -166,13 +141,7 @@ class IndexPublisher(PublisherInterface):
             for version in versions:
                 self.app.display_info(str(index.urls.project.child(project_name, version, '').to_iri()))
 
-        if updated_user is not None:
-            cached_user_file.set_user(repo, user)
-
-        if updated_auth is not None:
-            import keyring
-
-            keyring.set_password(repo, user, auth)
+        credentials.write_updated_data()
 
 
 def recurse_artifacts(artifacts: list, root) -> Iterable[Path]:
@@ -190,37 +159,3 @@ def recurse_artifacts(artifacts: list, root) -> Iterable[Path]:
 def parse_artifacts(artifact_payload):
     for match in re.finditer(r'<a [^>]+>([^<]+)</a>', artifact_payload):
         yield match.group(1)
-
-
-class CachedUserFile:
-    def __init__(self, cache_dir: Path):
-        self.path = cache_dir / 'previous_working_users.json'
-
-        self._data = None
-
-    def get_user(self, repo: str):
-        return self.data.get(repo)
-
-    def set_user(self, repo: str, user: str):
-        import json
-
-        self.data[repo] = user
-
-        self.path.ensure_parent_dir_exists()
-        self.path.write_text(json.dumps(self.data))
-
-    @property
-    def data(self):
-        if self._data is None:
-            if not self.path.is_file():
-                self._data = {}
-            else:
-                contents = self.path.read_text()
-                if not contents:  # no cov
-                    self._data = {}
-                else:
-                    import json
-
-                    self._data = json.loads(contents)
-
-        return self._data

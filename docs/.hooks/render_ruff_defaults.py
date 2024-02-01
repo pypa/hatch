@@ -4,6 +4,7 @@ import os
 import re
 from collections import defaultdict
 from functools import cache
+from typing import Any
 
 from markdown.preprocessors import Preprocessor
 
@@ -13,18 +14,16 @@ MARKER_PER_FILE_IGNORED_RULES = '<HATCH_RUFF_PER_FILE_IGNORED_RULES>'
 RULE_URLS = {'S': 'https://docs.astral.sh/ruff/rules/#flake8-bandit-s'}
 
 
-@cache
-def ruff_data():
-    generated_file = os.path.join(os.getcwd(), 'src', 'hatch', 'env', 'internal', 'fmt.py')
-    with open(generated_file, encoding='utf-8') as f:
+def read_constants(path: str, start: str) -> dict[str, Any]:
+    with open(path, encoding='utf-8') as f:
         lines = f.read().splitlines()
 
     for i, line in enumerate(lines):
-        if line.startswith('RUFF_MINIMUM_VERSION'):
+        if line.startswith(start):
             block_start = i
             break
     else:
-        message = f'Could not find RUFF_MINIMUM_VERSION in {generated_file}'
+        message = f'Could not find {start} in {path}'
         raise RuntimeError(message)
 
     data = {}
@@ -33,8 +32,21 @@ def ruff_data():
 
 
 @cache
+def ruff_data():
+    root = os.getcwd()
+    data = {}
+    for path, start in (
+        (os.path.join(root, 'src', 'hatch', 'cli', 'fmt', 'core.py'), 'STABLE_RULES'),
+        (os.path.join(root, 'src', 'hatch', 'env', 'internal', 'static_analysis.py'), 'RUFF_DEFAULT_VERSION'),
+    ):
+        data.update(read_constants(path, start))
+
+    return data
+
+
+@cache
 def get_ruff_version():
-    return ruff_data()['RUFF_MINIMUM_VERSION']
+    return ruff_data()['RUFF_DEFAULT_VERSION']
 
 
 @cache

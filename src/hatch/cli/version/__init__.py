@@ -52,14 +52,16 @@ def version(app: Application, desired_version: str | None):
             app.ensure_environment_plugin_dependencies()
 
             environment = app.get_environment()
-            try:
-                environment.check_compatibility()
-            except Exception as e:  # noqa: BLE001
-                app.abort(f'Environment `{environment.name}` is incompatible: {e}')
+            build_environment_exists = environment.build_environment_exists()
+            if not build_environment_exists:
+                try:
+                    environment.check_compatibility()
+                except Exception as e:  # noqa: BLE001
+                    app.abort(f'Environment `{environment.name}` is incompatible: {e}')
 
             with app.status_if(
                 'Setting up build environment for missing dependencies',
-                condition=not environment.build_environment_exists(),
+                condition=not build_environment_exists,
             ) as status, environment.build_environment(app.project.metadata.build.requires):
                 status.stop()
 

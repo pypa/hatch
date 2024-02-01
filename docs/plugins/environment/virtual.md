@@ -67,7 +67,7 @@ The following options are recognized for internal Python resolution.
 
 The source of distributions is the [python-build-standalone](https://github.com/indygreg/python-build-standalone) project.
 
-Some distributions have [variants](https://gregoryszorc.com/docs/python-build-standalone/main/running.html) that may be configured with the `HATCH_PYTHON_VARIANT_<PLATFORM>` option where `<PLATFORM>` is the uppercase version of one of the following:
+Some distributions have [variants](https://gregoryszorc.com/docs/python-build-standalone/main/running.html) that may be configured with the `HATCH_PYTHON_VARIANT_<PLATFORM>` environment variable where `<PLATFORM>` is the uppercase version of one of the following:
 
 | Platform | Options |
 | --- | --- |

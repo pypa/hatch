@@ -48,6 +48,7 @@
       - modules
       - home
       - name
+      - display_name
       - windows
       - macos
       - linux

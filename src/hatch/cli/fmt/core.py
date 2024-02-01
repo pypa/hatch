@@ -3,88 +3,51 @@ from __future__ import annotations
 from functools import cached_property
 from typing import TYPE_CHECKING, Any
 
-from hatch.env.internal.interface import InternalEnvironment
-
 if TYPE_CHECKING:
+    from hatch.env.plugin.interface import EnvironmentInterface
     from hatch.utils.fs import Path
 
 
-class InternalFormatEnvironment(InternalEnvironment):
-    def get_base_config(self) -> dict:  # noqa: PLR6301
-        return {
-            'skip-install': True,
-            'dependencies': [f'ruff=={RUFF_MINIMUM_VERSION}'],
-        }
+class StaticAnalysisEnvironment:
+    def __init__(self, env: EnvironmentInterface) -> None:
+        self.env = env
 
     @cached_property
     def config_path(self) -> str:
-        return self.config.get('config-path', '')
+        return self.env.config.get('config-path', '')
 
-    def get_linter_command(self, *args, check: bool, preview: bool | None) -> list[str]:
-        if preview is None:
-            preview = self.linter_preview
-
-        command_args = ['ruff', 'check']
+    def get_default_args(self) -> list[str]:
+        default_args = []
         if not self.config_path:
             if self.internal_user_config_file is None:
-                command_args.extend(['--config', str(self.internal_config_file)])
+                default_args.extend(['--config', str(self.internal_config_file)])
             else:
-                command_args.extend(['--config', str(self.internal_user_config_file)])
+                default_args.extend(['--config', str(self.internal_user_config_file)])
 
-        if not check:
-            command_args.append('--fix')
-
-        if preview:
-            command_args.append('--preview')
-
-        if args:
-            command_args.extend(args)
-        else:
-            command_args.append('.')
-
-        return command_args
-
-    def get_formatter_command(self, *args, check: bool, preview: bool | None) -> list[str]:
-        if preview is None:
-            preview = self.formatter_preview
-
-        command_args = ['ruff', 'format']
-        if not self.config_path:
-            if self.internal_user_config_file is None:
-                command_args.extend(['--config', str(self.internal_config_file)])
-            else:
-                command_args.extend(['--config', str(self.internal_user_config_file)])
-
-        if check:
-            command_args.extend(['--check', '--diff'])
-
-        if preview:
-            command_args.append('--preview')
-
-        if args:
-            command_args.extend(args)
-        else:
-            command_args.append('.')
-
-        return command_args
+        return default_args
 
     @cached_property
     def internal_config_file(self) -> Path:
         from base64 import urlsafe_b64encode
         from hashlib import sha256
 
-        project_id = urlsafe_b64encode(sha256(str(self.root).encode()).digest())[:8].decode()
-        return self.isolated_data_directory / '.config' / project_id / 'ruff_defaults.toml'
+        project_id = urlsafe_b64encode(sha256(str(self.env.root).encode()).digest())[:8].decode()
+        return self.env.isolated_data_directory / '.config' / project_id / 'ruff_defaults.toml'
 
-    def construct_config_file(self, *, preview: bool | None) -> str:
-        if preview is None:
-            preview = self.linter_preview
-
-        lines = ['line-length = 120', '', '[lint]']
+    def construct_config_file(self, *, preview: bool) -> str:
+        lines = [
+            'line-length = 120',
+            '',
+            '[format]',
+            'docstring-code-format = true',
+            'docstring-code-line-length = 80',
+            '',
+            '[lint]',
+        ]
 
         # Selected rules
         rules = list(STABLE_RULES)
-        if preview:
+        if preview or self.linter_preview:
             rules.extend(PREVIEW_RULES)
         rules.sort()
 
@@ -106,7 +69,7 @@ class InternalFormatEnvironment(InternalEnvironment):
             'ban-relative-imports = "all"',
             '',
             '[lint.isort]',
-            f'known-first-party = ["{self.metadata.name.replace("-", "_")}"]',
+            f'known-first-party = ["{self.env.metadata.name.replace("-", "_")}"]',
             '',
             '[lint.flake8-pytest-style]',
             'fixture-parentheses = false',
@@ -118,10 +81,10 @@ class InternalFormatEnvironment(InternalEnvironment):
 
         return '\n'.join(lines)
 
-    def write_config_file(self, *, preview: bool | None) -> None:
+    def write_config_file(self, *, preview: bool) -> None:
         config_contents = self.construct_config_file(preview=preview)
         if self.config_path:
-            (self.root / self.config_path).write_atomic(config_contents, 'w', encoding='utf-8')
+            (self.env.root / self.config_path).write_atomic(config_contents, 'w', encoding='utf-8')
             return
 
         self.internal_config_file.parent.ensure_dir_exists()
@@ -136,11 +99,23 @@ class InternalFormatEnvironment(InternalEnvironment):
 
         old_contents = self.user_config_file.read_text()
         config_path = str(self.internal_config_file).replace('\\', '\\\\')
-        contents = (
-            f'{old_contents}\n[tool.ruff]\nextend = "{config_path}"'
-            if self.user_config_file.name == 'pyproject.toml'
-            else f'extend = "{config_path}"\n{old_contents}'
-        )
+        if self.user_config_file.name == 'pyproject.toml':
+            lines = old_contents.splitlines()
+            try:
+                index = lines.index('[tool.ruff]')
+            except ValueError:
+                lines.extend((
+                    '',
+                    '[tool.ruff]',
+                    f'extend = "{config_path}"',
+                ))
+            else:
+                lines.insert(index + 1, f'extend = "{config_path}"')
+
+            contents = '\n'.join(lines)
+        else:
+            contents = f'extend = "{config_path}"\n{old_contents}'
+
         self.internal_user_config_file.write_text(contents)
 
     @cached_property
@@ -154,7 +129,7 @@ class InternalFormatEnvironment(InternalEnvironment):
     def user_config_file(self) -> Path | None:
         # https://docs.astral.sh/ruff/configuration/#config-file-discovery
         for possible_config in ('.ruff.toml', 'ruff.toml', 'pyproject.toml'):
-            if (config_file := (self.root / possible_config)).is_file():
+            if (config_file := (self.env.root / possible_config)).is_file():
                 return config_file
 
         return None
@@ -186,7 +161,6 @@ class InternalFormatEnvironment(InternalEnvironment):
         return self.user_config.get(section, {})
 
 
-RUFF_MINIMUM_VERSION: str = '0.1.7'
 STABLE_RULES: tuple[str, ...] = (
     'A001',
     'A002',
@@ -724,6 +698,7 @@ PREVIEW_RULES: tuple[str, ...] = (
     'E275',
     'FURB105',
     'FURB113',
+    'FURB118',
     'FURB131',
     'FURB132',
     'FURB136',
@@ -735,6 +710,7 @@ PREVIEW_RULES: tuple[str, ...] = (
     'FURB169',
     'FURB171',
     'FURB177',
+    'FURB181',
     'LOG001',
     'LOG002',
     'LOG007',
@@ -770,6 +746,7 @@ PREVIEW_RULES: tuple[str, ...] = (
     'S507',
     'S611',
     'S702',
+    'TCH006',
     'TRIO100',
     'TRIO105',
     'TRIO109',

@@ -1,7 +1,7 @@
 site_name: Hatch
 site_description: Modern, extensible Python project management
 site_author: Ofek Lev
-site_url: https://hatch.pypa.io/latest/
+site_url: https://hatch.pypa.io
 repo_name: pypa/hatch
 repo_url: https://github.com/pypa/hatch
 edit_uri: blob/master/docs
@@ -38,6 +38,8 @@ theme:
   features:
     - content.action.edit
     - content.code.copy
+    - content.tabs.link
+    - content.tooltips
     - navigation.expand
     - navigation.footer
     - navigation.instant
@@ -114,10 +116,17 @@ nav:
       - Standard: plugins/version-scheme/standard.md
     - Utilities: plugins/utilities.md
   - How-to:
+    - Meta:
+      - Report issues: how-to/meta/report-issues.md
     - Environments:
       - Package indices: how-to/environment/package-indices.md
+    - Static analysis:
+      - Customize behavior: how-to/static-analysis/behavior.md
     - Plugins:
       - Testing builds: how-to/plugins/testing-builds.md
+    - Publishing:
+        - Authentication: how-to/publish/auth.md
+        - Repository selection: how-to/publish/repo.md
   - Meta:
     - FAQ: meta/faq.md
     - Authors: meta/authors.md
@@ -132,6 +141,8 @@ hooks:
 - docs/.hooks/plugin_register.py
 
 plugins:
+  # Enable for bug reports
+  # info: {}
   # Built-in
   search: {}
   # Extra
@@ -183,6 +194,7 @@ markdown_extensions:
   - markdown.extensions.admonition:
   - markdown.extensions.attr_list:
   - markdown.extensions.footnotes:
+  - markdown.extensions.md_in_html:
   - markdown.extensions.meta:
   - markdown.extensions.tables:
   - markdown.extensions.toc:
@@ -229,6 +241,9 @@ markdown_extensions:
   - pymdownx.superfences:
   - pymdownx.tabbed:
       alternate_style: true
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
   - pymdownx.tasklist:
       custom_checkbox: true
   - pymdownx.tilde:

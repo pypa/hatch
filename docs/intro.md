@@ -4,7 +4,7 @@
 
 ## Setup
 
-Projects can be setup for use by Hatch using the [`new`](cli/reference.md#hatch-new) command.
+Projects can be set up for use by Hatch using the [`new`](cli/reference.md#hatch-new) command.
 
 ### New project
 

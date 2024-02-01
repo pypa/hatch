@@ -26,6 +26,19 @@ class ContextFormatter(ABC):
         if not modifier:
             return os.path.normpath(path)
 
+        modifiers = modifier.split(':')[::-1]
+        while modifiers and modifiers[-1] == 'parent':
+            path = os.path.dirname(path)
+            modifiers.pop()
+
+        if not modifiers:
+            return path
+
+        if len(modifiers) > 1:
+            message = f'Expected a single path modifier and instead got: {", ".join(reversed(modifiers))}'
+            raise ValueError(message)
+
+        modifier = modifiers[0]
         if modifier == 'uri':
             return path_to_uri(path)
 

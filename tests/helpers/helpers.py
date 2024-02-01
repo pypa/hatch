@@ -127,8 +127,12 @@ def write_distribution(directory: Path, name: str):
     python_path = path / dist.python_path
     python_path.parent.ensure_dir_exists()
     python_path.touch()
+
+    metadata = {'source': dist.source, 'python_path': dist.python_path}
     metadata_file = path / InstalledDistribution.metadata_filename()
-    metadata_file.write_text(json.dumps({'source': dist.source, 'python_path': dist.python_path}))
+    metadata_file.write_text(json.dumps(metadata))
+
+    return InstalledDistribution(path, dist, metadata)
 
 
 def downgrade_distribution_metadata(dist_dir: Path):

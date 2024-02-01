@@ -23,14 +23,14 @@ def synced_impl(*, dependencies: list[str], python: str) -> None:
     sys.exit(0 if dependencies_in_sync(list(map(Requirement, dependencies)), sys_path) else 1)
 
 
-def synced_command(subparsers: argparse._SubParsersAction, defaults: Any) -> None:  # noqa: SLF001
+def synced_command(subparsers: argparse._SubParsersAction, defaults: Any) -> None:
     parser = subparsers.add_parser('synced')
     parser.add_argument('dependencies', nargs='+')
     parser.add_argument('-p', '--python', dest='python', **defaults)
     parser.set_defaults(func=synced_impl)
 
 
-def dep_command(subparsers: argparse._SubParsersAction, defaults: Any) -> None:  # noqa: SLF001
+def dep_command(subparsers: argparse._SubParsersAction, defaults: Any) -> None:
     parser = subparsers.add_parser('dep')
     subparsers = parser.add_subparsers()
 

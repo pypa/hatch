@@ -2,6 +2,7 @@ import os
 
 import pytest
 
+from hatch.config.constants import ConfigEnvVars
 from hatch.project.core import Project
 from hatchling.utils.constants import DEFAULT_CONFIG_FILE
 
@@ -379,3 +380,43 @@ Setting up build environment for missing dependencies
             """
         )
         helpers.assert_plugin_installation(mock_plugin_installation, [dependency])
+
+    @pytest.mark.allow_backend_process
+    @pytest.mark.requires_internet
+    def test_no_compatibility_check_if_exists(self, hatch, temp_dir, helpers, mocker):
+        project_name = 'My.App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+            assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / 'my-app'
+        data_path = temp_dir / 'data'
+        data_path.mkdir()
+
+        project = Project(project_path)
+        config = dict(project.raw_config)
+        config['build-system']['requires'].append('binary')
+        project.save_config(config)
+
+        with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+            result = hatch('project', 'metadata', 'license')
+
+        assert result.exit_code == 0, result.output
+        assert result.output == helpers.dedent(
+            """
+            Setting up build environment for missing dependencies
+            MIT
+            """
+        )
+
+        mocker.patch('hatch.env.virtual.VirtualEnvironment.check_compatibility', side_effect=Exception('incompatible'))
+        with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+            result = hatch('project', 'metadata', 'license')
+
+        assert result.exit_code == 0, result.output
+        assert result.output == helpers.dedent(
+            """
+            MIT
+            """
+        )

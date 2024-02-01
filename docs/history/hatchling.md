@@ -8,22 +8,55 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.21.1](https://github.com/pypa/hatch/releases/tag/hatchling-v1.21.1) - 2024-01-25 ## {: #hatchling-v1.21.1 }
+
+***Fixed:***
+
+- Fix loading of local plugins to account for newly released versions of a dependency
+
+## [1.21.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.21.0) - 2023-12-18 ## {: #hatchling-v1.21.0 }
+
+***Added:***
+
+- Add `parent` context modifier for path fields
+
+## [1.20.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.20.0) - 2023-12-13 ## {: #hatchling-v1.20.0 }
+
+***Added:***
+
+- Add `bypass-selection` option to the `wheel` build target to allow for empty (metadata-only) wheels
+
+***Fixed:***
+
+- Fix regression in 1.19.1 that allowed `exclude` to count toward inclusion selection, thus bypassing the default inclusion selection heuristics
+- Fix writing optional dependency core metadata in situations where there are multiple environment markers
+
+## [1.19.1](https://github.com/pypa/hatch/releases/tag/hatchling-v1.19.1) - 2023-12-12 ## {: #hatchling-v1.19.1 }
+
+***Fixed:***
+
+- Add better error message when the `wheel` build target cannot determine what to ship
+- Consider forced inclusion patterns and build-time artifacts as file selection since some build hooks generate the entire wheel contents without user configuration
+
+## [1.19.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.19.0) - 2023-12-11 ## {: #hatchling-v1.19.0 }
+
 ***Changed:***
 
 - An error will now be raised if a force-included path does not exist
-- An error will now be raised for the `wheel` target if no file selection options are defined
+- An error will now be raised for the `wheel` build target if no file selection options are defined
 
 ***Added:***
 
 - Officially support Python 3.12
+- Allow using an empty string for the `sources` option to add a prefix to distribution paths
 
 ***Fixed:***
 
-- Fix parsing dependencies for environments when warnings are emitted
 - Properly handle non-zero version epoch for the `standard` version scheme
-- Allow using an empty string for the `sources` option to add a prefix to distribution paths
-- Fix the `wheel` target for case insensitive file systems when the project metadata name does not match the directory name on disk
+- Fix the `wheel` build target for case insensitive file systems when the project metadata name does not match the directory name on disk
+- The `app` build target no longer has suppressed output
 - Prevent duplicate paths when projects require the `sources` option while build hooks overwrite included paths
+- Properly escape spaces for URI context formatting
 
 ## [1.18.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.18.0) - 2023-06-12 ## {: #hatchling-v1.18.0 }
 

@@ -38,7 +38,6 @@
     === "GUI installer"
         1. In your browser, download one the `.msi` files:
               - [hatch-<HATCH_LATEST_VERSION>-x64.msi](https://github.com/pypa/hatch/releases/download/hatch-v<HATCH_LATEST_VERSION>/hatch-<HATCH_LATEST_VERSION>-x64.msi)
-              - [hatch-<HATCH_LATEST_VERSION>-x86.msi](https://github.com/pypa/hatch/releases/download/hatch-v<HATCH_LATEST_VERSION>/hatch-<HATCH_LATEST_VERSION>-x86.msi)
         2. Run your downloaded file and follow the on-screen instructions.
         3. Restart your terminal.
         4. To verify that the shell can find and run the `hatch` command in your `PATH`, use the following command.

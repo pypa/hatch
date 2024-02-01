@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling>=1.17.1", "hatch-vcs>=0.3.0"]
+requires = ["hatchling>=1.21.0", "hatch-vcs>=0.3.0"]
 build-backend = "hatchling.build"
 
 [project]
@@ -39,7 +39,7 @@ classifiers = [
 ]
 dependencies = [
   "click>=8.0.6",
-  "hatchling>=1.14.0",
+  "hatchling>=1.21.0",
   "httpx>=0.22.0",
   "hyperlink>=21.0.0",
   "keyring>=23.5.0",
@@ -84,9 +84,6 @@ exclude = [
   "/backend",
   "/scripts",
 ]
-
-[tool.hatch.format]
-config-path = "ruff_defaults.toml"
 
 [tool.mypy]
 disallow_untyped_defs = false

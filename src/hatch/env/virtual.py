@@ -75,7 +75,7 @@ class VirtualEnvironment(EnvironmentInterface):
 
     @staticmethod
     def get_option_types() -> dict:
-        return {'system-packages': bool, 'path': bool, 'python-sources': list}
+        return {'system-packages': bool, 'path': str, 'python-sources': list}
 
     def activate(self):
         self.virtual_env.activate()
@@ -243,7 +243,7 @@ class VirtualEnvironment(EnvironmentInterface):
         return (
             interpreter.executable
             and self._is_stable_path(interpreter.executable)
-            and self._python_constraint.contains(interpreter.version_str)
+            and (self.skip_install or self._python_constraint.contains(interpreter.version_str))
         )
 
     def _get_concrete_interpreter_path(self, python_version: str = '') -> str | None:
@@ -328,7 +328,12 @@ class VirtualEnvironment(EnvironmentInterface):
             return None
 
         for available_distribution in available_distributions:
-            if not self.metadata.core.python_constraint.contains(available_distribution):
+            minor_version = (
+                available_distribution.replace('pypy', '', 1)
+                if available_distribution.startswith('pypy')
+                else available_distribution
+            )
+            if not self._python_constraint.contains(minor_version):
                 continue
 
             return available_distribution
@@ -345,7 +350,7 @@ class VirtualEnvironment(EnvironmentInterface):
 
         from platformdirs import user_data_dir
 
-        # https://github.com/ofek/pyapp/blob/v0.12.0/src/app.rs#L27
+        # https://github.com/ofek/pyapp/blob/v0.13.0/src/app.rs#L27
         if Path(user_data_dir('pyapp', appauthor=False)) in parents:
             return False
 

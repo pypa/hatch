@@ -11,6 +11,7 @@ Metadata hooks allow for the modification of [project metadata](../../config/met
 - [hatch-nodejs-version](https://github.com/agoose77/hatch-nodejs-version) - uses fields from NodeJS `package.json` files
 - [hatch-odoo](https://github.com/acsone/hatch-odoo) - determine dependencies based on manifests of Odoo add-ons
 - [hatch-requirements-txt](https://github.com/repo-helper/hatch-requirements-txt) - read project dependencies from `requirements.txt` files
+- [UniDep](https://github.com/basnijholt/unidep) - for unified `pip` and `conda` dependency management using a single `requirements.yaml` file for both 
 
 ::: hatchling.metadata.plugin.interface.MetadataHookInterface
     options:

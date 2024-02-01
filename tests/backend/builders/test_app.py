@@ -267,8 +267,6 @@ class TestBuildBootstrap:
             ['cargo', 'install', 'pyapp', '--force', '--root', mocker.ANY],
             cwd=mocker.ANY,
             env=ExpectedEnvVars({'PYAPP_PROJECT_NAME': 'my-app', 'PYAPP_PROJECT_VERSION': '0.1.0'}),
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
         )
 
         assert len(artifacts) == 1
@@ -309,8 +307,6 @@ class TestBuildBootstrap:
             ['cargo', 'install', 'pyapp', '--force', '--root', mocker.ANY],
             cwd=mocker.ANY,
             env=ExpectedEnvVars({'PYAPP_PROJECT_NAME': 'my-app', 'PYAPP_PROJECT_VERSION': '0.1.0'}),
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
         )
 
         assert len(artifacts) == 1
@@ -357,8 +353,6 @@ class TestBuildBootstrap:
                 'PYAPP_PROJECT_VERSION': '0.1.0',
                 'PYAPP_EXEC_SPEC': 'bar.baz:cli',
             }),
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
         )
 
         assert len(artifacts) == 1
@@ -403,8 +397,6 @@ class TestBuildBootstrap:
                 'PYAPP_PROJECT_VERSION': '0.1.0',
                 'PYAPP_EXEC_SPEC': 'bar.baz:cli',
             }),
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
         )
 
         assert len(artifacts) == 1
@@ -447,8 +439,6 @@ class TestBuildBootstrap:
             ['cross', 'install', 'pyapp', '--force', '--root', mocker.ANY],
             cwd=mocker.ANY,
             env=ExpectedEnvVars({'PYAPP_PROJECT_NAME': 'my-app', 'PYAPP_PROJECT_VERSION': '0.1.0'}),
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
         )
 
         assert len(artifacts) == 1
@@ -517,8 +507,6 @@ class TestBuildBootstrap:
                 'PYAPP_PROJECT_VERSION': '0.1.0',
                 'PYAPP_PYTHON_VERSION': '4.0',
             }),
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
         )
 
         assert len(artifacts) == 1
@@ -559,8 +547,6 @@ class TestBuildBootstrap:
             ['cargo', 'install', 'pyapp', '--force', '--root', mocker.ANY, '--version', '9000'],
             cwd=mocker.ANY,
             env=ExpectedEnvVars({'PYAPP_PROJECT_NAME': 'my-app', 'PYAPP_PROJECT_VERSION': '0.1.0'}),
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
         )
 
         assert len(artifacts) == 1
@@ -594,13 +580,15 @@ class TestBuildBootstrap:
 
         build_path = project_path / 'dist'
 
-        with project_path.as_cwd({'HATCH_VERBOSE': '1'}):
+        with project_path.as_cwd({'HATCH_QUIET': '1'}):
             artifacts = list(builder.build())
 
         subprocess_run.assert_called_once_with(
             ['cargo', 'install', 'pyapp', '--force', '--root', mocker.ANY],
             cwd=mocker.ANY,
             env=ExpectedEnvVars({'PYAPP_PROJECT_NAME': 'my-app', 'PYAPP_PROJECT_VERSION': '0.1.0'}),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
         )
 
         assert len(artifacts) == 1
@@ -641,8 +629,6 @@ class TestBuildBootstrap:
             ['cargo', 'build', '--release', '--target-dir', mocker.ANY],
             cwd='test-path',
             env=ExpectedEnvVars({'PYAPP_PROJECT_NAME': 'my-app', 'PYAPP_PROJECT_VERSION': '0.1.0'}),
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
         )
 
         assert len(artifacts) == 1
@@ -685,8 +671,6 @@ class TestBuildBootstrap:
             ['cargo', 'build', '--release', '--target-dir', mocker.ANY],
             cwd='test-path',
             env=ExpectedEnvVars({'PYAPP_PROJECT_NAME': 'my-app', 'PYAPP_PROJECT_VERSION': '0.1.0'}),
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
         )
 
         assert len(artifacts) == 1

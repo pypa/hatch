@@ -20,7 +20,7 @@ The builder plugin name is `app`.
 | Option | Default | Description |
 | --- | --- | --- |
 | `scripts` | all defined | An array of defined [script](../../config/metadata.md#cli) names to limit what gets built |
-| `python-version` | latest compatible Python minor version | The [Python version ID](https://github.com/ofek/pyapp#known) to use |
+| `python-version` | latest compatible Python minor version | The [Python version ID](https://ofek.dev/pyapp/latest/config/#known) to use |
 | `pyapp-version` | | The version of PyApp to use |
 
 ## Build behavior

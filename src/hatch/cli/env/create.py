@@ -22,6 +22,9 @@ def create(app, env_name):
     incompatible = {}
     for env in environments:
         environment = app.get_environment(env)
+        if environment.exists():
+            app.display_warning(f'Environment `{env}` already exists')
+            continue
 
         try:
             environment.check_compatibility()
@@ -31,10 +34,6 @@ def create(app, env_name):
                 continue
 
             app.abort(f'Environment `{env}` is incompatible: {e}')
-
-        if environment.exists():
-            app.display_warning(f'Environment `{env}` already exists')
-            continue
 
         app.prepare_environment(environment)
 

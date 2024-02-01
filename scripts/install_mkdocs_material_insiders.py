@@ -5,7 +5,7 @@ import sys
 
 TOKEN = os.environ.get('GH_TOKEN_MKDOCS_MATERIAL_INSIDERS', '')
 DEP_REF = f'git+https://{TOKEN}@github.com/squidfunk/mkdocs-material-insiders.git'
-GIT_REF = '458242c58db8e47ee5a51cd7c8853d7ff40567ab'
+GIT_REF = '4aa87aab257ebbfd458fe1a36027391a1e8d96e7'
 
 
 def main():
@@ -14,9 +14,10 @@ def main():
         return
 
     python = shutil.which('python')
+    dependency = f'mkdocs-material[imaging] @ {DEP_REF}@{GIT_REF}'
     try:
         process = subprocess.Popen(
-            [python, '-m', 'pip', 'install', '--disable-pip-version-check', f'mkdocs-material @ {DEP_REF}@{GIT_REF}'],
+            [python, '-m', 'pip', 'install', '--disable-pip-version-check', dependency],
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             encoding='utf-8',
