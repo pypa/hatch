@@ -26,6 +26,3 @@ __pycache__/
 
 # Auto-generated during builds
 /src/hatch/_version.py
-
-# MACOS
-.DS_Store

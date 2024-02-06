@@ -48,20 +48,21 @@ dependencies = [
 
 ### Create custom development environment  
 
-You can create custom environments in Hatch by adding a section to your pyproject.toml file `[tool.hatch.envs.environment-name]`. Below you define an environment called test and you add the pytest dependency to that environment's configuration. 
+You can create custom environments in Hatch by adding a section to your pyproject.toml file `[tool.hatch.envs.environment-name]`. Below you define an environment called **test** and you add the **pytest** and **pytest-cov** dependencies to that environment's configuration. 
 
 ```toml config-example
 [tool.hatch.envs.test]
 dependencies = [
-  "pytest"
+  "pytest",
+  "pytest-cov"
 ]
 ```
 
-The first time that you call the test environment, hatch will:
+The first time that you call the test environment, Hatch will:
 
-1. create the environment
-2. install all dependencies defined in your pyproject.toml file
-3. install your project in editable mode 
+1. Create the environment;
+2. Install all of dependencies defined in your **pyproject.toml** file;
+3. Install your project into that environment in editable mode.
 
 ### Run commands within a specific environment
 
@@ -93,11 +94,9 @@ Above:
 Above you defined and created a new test environment in your pyproject.toml file. You can now 
 use hatch env show to see both the currently created environments and the dependencies in each environment. 
 
-```bach
-> hatch env show
-```
-
+```bash
 ❯ hatch env show
+
              Standalone             
 ┏━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━┓
 ┃ Name    ┃ Type    ┃ Dependencies ┃
@@ -106,6 +105,8 @@ use hatch env show to see both the currently created environments and the depend
 ├─────────┼─────────┼──────────────┤
 │ test    │ virtual │ pytest       │
 └─────────┴─────────┴──────────────┘
+```
+
 
 To see where your current environment is located you can use `hatch env find`.
 
@@ -116,16 +117,38 @@ To see where your current environment is located you can use `hatch env find`.
 
 ## Launching an environment specific shell
 
-If you with to enter the environment that you have created rather than calling a command to run within that environment you can use 
+If you with to lunch a shell for a specific environment that you have created you can use:
 
 ```
-> hatch shell
+> hatch -e shell
+➜ source "/Your/environment/path/here/
+hatch/env/virtual/pyospackage/Fw213C8y/test/bin/activate"
+
 ```
 
-todo: launch into a shell for the test envt? how?
+
+Once the environment is active, you can run commands like you would in any Python environment. 
+
+Notice below that when running `pip list` in the test environment, you can see
+
+1. That you package is installed in editable mode.
+2. That the environment contains both pytest and pytest-cov as specified above in the pyproject.toml file.
+
+```bash
+❯ pip list
+Package     Version Editable project location
+----------- ------- ----------------------------------------------------
+coverage    7.4.1
+iniconfig   2.0.0
+packaging   23.2
+pip         23.3.1
+pluggy      1.4.0
+pyospackage 0.1.10  /your/path/here/pyos/pyospackage
+pytest      8.0.0
+pytest-cov  4.1.0
+```
 
 ## Conda environments 
 
 If you prefer to use conda environments with hatch, you can check out the [hatch-conda plugin](https://github.com/OldGrumpyViking/hatch-conda). 
-
 
