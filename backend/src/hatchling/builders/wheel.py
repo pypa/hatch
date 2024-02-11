@@ -178,7 +178,7 @@ class WheelBuilderConfig(BuilderConfig):
         if include or packages or only_include:
             return FileSelectionOptions(include, exclude, packages, only_include)
 
-        project_names = []
+        project_names: set[str] = set()
         for project_name in (
             self.builder.normalize_file_name_component(self.builder.metadata.core.raw_name),
             self.builder.normalize_file_name_component(self.builder.metadata.core.name),
@@ -202,23 +202,24 @@ class WheelBuilderConfig(BuilderConfig):
                 relative_path = os.path.relpath(possible_namespace_packages[0], self.root)
                 namespace = relative_path.split(os.sep)[0]
                 return FileSelectionOptions([], exclude, [namespace], [])
-            project_names.append(project_name)
+            project_names.add(project_name)
 
         if self.bypass_selection or self.build_artifact_spec is not None or self.get_force_include():
             self.set_exclude_all()
             return FileSelectionOptions([], exclude, [], [])
 
-        project_names_text = ' or '.join(set(project_names))
+        project_names_text = ' or '.join(sorted(project_names))
         message = (
-            'Unable to determine which files to ship inside the wheel using the following heuristics: '
-            'https://hatch.pypa.io/latest/plugins/builder/wheel/#default-file-selection\n\n'
-            'The most likely cause of this is that there is no directory that matches the name of your'
-            f'package ({project_names_text}).\n\nAt least one '
-            'file selection option must be defined in the `tool.hatch.build.targets.wheel` table, see: '
-            'https://hatch.pypa.io/latest/config/build/\n\nAs an example, if you intend to ship a '
-            'directory named `foo` that resides within a `src` directory located at the root of your '
-            'project, you can define the following:\n\n[tool.hatch.build.targets.wheel]\n'
-            'packages = ["src/foo"]'
+            f'Unable to determine which files to ship inside the wheel using the following heuristics: '
+            f'https://hatch.pypa.io/latest/plugins/builder/wheel/#default-file-selection\n\n'
+            f'The most likely cause of this is that there is no directory that matches the name of your '
+            f'project ({project_names_text}).\n\n'
+            f'At least one file selection option must be defined in the `tool.hatch.build.targets.wheel` '
+            f'table, see: https://hatch.pypa.io/latest/config/build/\n\n'
+            f'As an example, if you intend to ship a directory named `foo` that resides within a `src` '
+            f'directory located at the root of your project, you can define the following:\n\n'
+            f'[tool.hatch.build.targets.wheel]\n'
+            f'packages = ["src/foo"]'
         )
         raise ValueError(message)
 
