@@ -21,6 +21,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - When projects derive dependencies from metadata hooks, there is now by default a status indicator for when the hooks are executed for better responsiveness
 
+## [1.9.3](https://github.com/pypa/hatch/releases/tag/hatch-v1.9.3) - 2024-01-25 ## {: #hatch-v1.9.3 }
+
+***Fixed:***
+
+- Fix loading of local plugins to account for newly released versions of a dependency
+
 ## [1.9.2](https://github.com/pypa/hatch/releases/tag/hatch-v1.9.2) - 2024-01-21 ## {: #hatch-v1.9.2 }
 
 ***Fixed:***
