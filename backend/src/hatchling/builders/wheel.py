@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING, Any, Callable, Iterable, NamedTuple, Sequence,
 
 from hatchling.__about__ import __version__
 from hatchling.builders.config import BuilderConfig
+from hatchling.builders.constants import EDITABLES_MINIMUM_VERSION
 from hatchling.builders.plugin.interface import BuilderInterface
 from hatchling.builders.utils import (
     format_file_hash,
@@ -31,8 +32,6 @@ if TYPE_CHECKING:
 
     from hatchling.builders.plugin.interface import IncludedFile
 
-
-EDITABLES_MINIMUM_VERSION = '0.3'
 
 TIME_TUPLE = Tuple[int, int, int, int, int, int]
 
