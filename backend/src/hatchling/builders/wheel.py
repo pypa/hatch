@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING, Any, Callable, Iterable, NamedTuple, Sequence,
 
 from hatchling.__about__ import __version__
 from hatchling.builders.config import BuilderConfig
-from hatchling.builders.constants import EDITABLES_MINIMUM_VERSION
+from hatchling.builders.constants import EDITABLES_REQUIREMENT
 from hatchling.builders.plugin.interface import BuilderInterface
 from hatchling.builders.utils import (
     format_file_hash,
@@ -499,7 +499,7 @@ class WheelBuilder(BuilderInterface):
             for raw_dependency in editable_project.dependencies():
                 dependency = raw_dependency
                 if dependency == 'editables':
-                    dependency += f'~={EDITABLES_MINIMUM_VERSION}'
+                    dependency = EDITABLES_REQUIREMENT
                 else:  # no cov
                     pass
 

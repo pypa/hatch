@@ -47,6 +47,6 @@ def get_requires_for_build_editable(  # type: ignore[no-redef]
     """
     https://peps.python.org/pep-0660/#get-requires-for-build-editable
     """
-    from hatchling.builders.constants import EDITABLES_MINIMUM_VERSION
+    from hatchling.builders.constants import EDITABLES_REQUIREMENT
 
-    return [*read_dependencies(), f'editables ~= {EDITABLES_MINIMUM_VERSION}']
+    return [*read_dependencies(), EDITABLES_REQUIREMENT]
