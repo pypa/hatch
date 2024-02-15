@@ -2,7 +2,7 @@
 
 -----
 
-[Hatch environments](config/environment/overview.md) are isolated workspaces that can be used for  project tasks including running tests, building documentation and running code formatters and linters.
+[Hatch environments](/config/environment/overview/) are isolated workspaces that can be used for  project tasks including running tests, building documentation and running code formatters and linters.
 
 ## Create a default environment  
 When you start using Hatch, you need to create a new 
