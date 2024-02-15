@@ -63,5 +63,5 @@ hatch run docs:serve
 Build and validate the documentation website:
 
 ```bash
-hatch run build-check
+hatch run docs:build-check
 ```
