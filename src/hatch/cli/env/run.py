@@ -124,7 +124,7 @@ def run(
         }
 
     # Deduplicate
-    env_names = list({env_name: None for env_name in env_names})
+    env_names = list(dict.fromkeys(env_names))
 
     environments = []
     matrix_selected = False

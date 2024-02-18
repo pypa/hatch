@@ -15,7 +15,7 @@ UNSELECTED_RULE_PATTERNS: list[str] = [
     # Allow boolean positional values in function calls, like `dict.get(... True)`
     'FBT003',
     # Ignore complexity
-    'C901', 'PLR0904', 'PLR0911', 'PLR0912', 'PLR0913', 'PLR0914', 'PLR0915', 'PLR0916', 'PLR0917',
+    'C901', 'PLR0904', 'PLR0911', 'PLR0912', 'PLR0913', 'PLR0914', 'PLR0915', 'PLR0916', 'PLR0917', 'PLR1702',
     # These are dependent on projects themselves
     'AIR\\d+', 'CPY\\d+', 'D\\d+', 'DJ\\d+', 'NPY\\d+', 'PD\\d+',
     # Many projects either don't have type annotations or it would take much effort to satisfy this
@@ -30,6 +30,10 @@ UNSELECTED_RULE_PATTERNS: list[str] = [
     'PT004', 'PT005',
     # Buggy https://github.com/astral-sh/ruff/issues/4845
     'ERA001',
+    # Business logic relying on other programs has no choice but to use subprocess
+    'S404',
+    # Bad recommendation https://github.com/astral-sh/ruff/issues/10030
+    'S410',
     # Too prone to false positives and might be removed https://github.com/astral-sh/ruff/issues/4045
     'S603',
     # Too prone to false positives https://github.com/astral-sh/ruff/issues/8761
@@ -42,7 +46,7 @@ UNSELECTED_RULE_PATTERNS: list[str] = [
     'FURB140',
     # Conflicts with formatter, see:
     # https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules
-    'COM812', 'COM819', 'D206', 'D300', 'E111', 'E114', 'E117', 'ISC001', 'ISC002', 'Q000', 'Q001', 'Q002', 'Q003', 'Q004', 'W191',  # noqa: E501
+    'COM812', 'COM819', 'D206', 'D300', 'E111', 'E114', 'E117', 'E301', 'E302', 'E303', 'E304', 'E305', 'E306', 'ISC001', 'ISC002', 'Q000', 'Q001', 'Q002', 'Q003', 'Q004', 'W191',  # noqa: E501
 ]
 PER_FILE_IGNORED_RULES: dict[str, list[str]] = {
     '**/scripts/*': [
@@ -90,12 +94,15 @@ def main():
 
     del lines[block_start:]
 
-    ignored_pattern = f'^({"|".join(UNSELECTED_RULE_PATTERNS)})$'
+    ignored_pattern = re.compile(f'^({"|".join(UNSELECTED_RULE_PATTERNS)})$')
+    # https://github.com/astral-sh/ruff/issues/9891#issuecomment-1951403651
+    removed_pattern = re.compile(r'^\s*#+\s+(removed|removal)', flags=re.IGNORECASE | re.MULTILINE)
+
     stable_rules: set[str] = set()
     preview_rules: set[str] = set()
     for rule in json.loads(process.stdout):
         code = rule['code']
-        if re.search(ignored_pattern, code):
+        if ignored_pattern.match(code) or removed_pattern.search(rule['explanation']):
             continue
 
         if rule['preview']:

@@ -1,5 +1,5 @@
 import pytest
-from packaging.version import _parse_letter_version
+from packaging.version import _parse_letter_version  # noqa: PLC2701
 
 from hatchling.version.scheme.standard import StandardScheme
 

@@ -589,7 +589,7 @@ class BuilderConfig:
                 dependencies[dependency] = None
 
             require_runtime_dependencies = self.require_runtime_dependencies
-            require_runtime_features = {feature: None for feature in self.require_runtime_features}
+            require_runtime_features = dict.fromkeys(self.require_runtime_features)
             for hook_name, config in self.hook_config.items():
                 hook_require_runtime_dependencies = config.get('require-runtime-dependencies', False)
                 if not isinstance(hook_require_runtime_dependencies, bool):

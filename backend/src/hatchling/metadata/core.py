@@ -632,7 +632,7 @@ class CoreMetadata:
         return cast(SpecifierSet, self._python_constraint)
 
     @property
-    def license(self) -> str:  # noqa: A003
+    def license(self) -> str:
         """
         https://peps.python.org/pep-0621/#license
         """

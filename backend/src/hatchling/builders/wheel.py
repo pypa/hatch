@@ -465,7 +465,7 @@ class WheelBuilder(BuilderInterface):
                     try:
                         exposed_packages[distribution_module] = os.path.join(
                             self.root,
-                            f'{relative_path[:relative_path.index(distribution_path)]}{distribution_module}',
+                            f'{relative_path[: relative_path.index(distribution_path)]}{distribution_module}',
                         )
                     except ValueError:
                         message = (
@@ -678,7 +678,7 @@ Root-Is-Purelib: {'true' if build_data['pure_python'] else 'false'}
                     plat = tag_parts[2]
                     current_arch = platform.mac_ver()[2]
                     new_arch = 'universal2' if set(archs) == {'x86_64', 'arm64'} else archs[0]
-                    tag_parts[2] = f'{plat[:plat.rfind(current_arch)]}{new_arch}'
+                    tag_parts[2] = f'{plat[: plat.rfind(current_arch)]}{new_arch}'
 
             if self.config.macos_max_compat:
                 import re
