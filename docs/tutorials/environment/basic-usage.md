@@ -15,7 +15,7 @@ hatch env create
 This will not only create will the `default` environment for you to work in but will also install your project in [dev mode](../../config/environment/overview.md#dev-mode) in this `default` environment.
 
 !!! tip
-    You never need to manually create environments as [spawning a shell](#launching-an-environment-specific-shell) or [running commands](#run-commands-within-a-specific-environment) within one will automatically trigger creation.
+    You never need to manually create environments as [spawning a shell](#launching-a-shell-within-a-specific-environment) or [running commands](#run-commands-within-a-specific-environment) within one will automatically trigger creation.
 
 ### Using the default environment
 
