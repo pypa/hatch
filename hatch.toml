@@ -49,7 +49,7 @@ generate-summary = "python scripts/generate_coverage_summary.py"
 write-summary-report = "python scripts/write_coverage_summary_report.py"
 
 [envs.types]
-dependencies = [
+extra-dependencies = [
   "mypy>=1.0.0",
 ]
 [envs.types.scripts]
