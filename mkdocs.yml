@@ -127,6 +127,9 @@ nav:
     - Publishing:
         - Authentication: how-to/publish/auth.md
         - Repository selection: how-to/publish/repo.md
+  - Tutorials:
+    - Environments:
+      - Basic usage: tutorials/environment/basic-usage.md
   - Meta:
     - FAQ: meta/faq.md
     - Authors: meta/authors.md
