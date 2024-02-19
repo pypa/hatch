@@ -111,7 +111,9 @@ jobs:
         python-version: ${{ env.PYTHON_VERSION }}
 
     - name: Install Hatch
-      run: pip install -e .
+      run: |-
+        pip install -e .
+        pip install -e ./backend
 
     - name: Install Rust toolchain
       uses: dtolnay/rust-toolchain@stable

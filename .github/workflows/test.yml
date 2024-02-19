@@ -159,7 +159,9 @@ jobs:
       run: pip install --upgrade flit poetry pipenv
 
     - name: Install ourself
-      run: pip install .
+      run: |
+        pip install .
+        pip install ./backend
 
     - name: Benchmark
       run: |
