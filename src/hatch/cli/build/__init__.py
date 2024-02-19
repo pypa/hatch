@@ -113,7 +113,6 @@ def build(app: Application, location, targets, hooks_only, no_hooks, ext, clean,
 
             dependencies = list(app.project.metadata.build.requires)
             # editables is needed for "hatch build -t wheel:editable".
-            # Pull it in unconditionally as per discussion in https://github.com/pypa/hatch/pull/1255.
             dependencies.append(EDITABLES_REQUIREMENT)
             with environment.get_env_vars(), EnvVars(env_vars):
                 dependencies.extend(builder.config.dependencies)

@@ -40,7 +40,8 @@ jobs:
 
     - name: Install ourself
       run: |
-        pip install -e . -e ./backend
+        pip install -e .
+        pip install -e ./backend
 
     - name: Run static analysis
       run: hatch fmt --check
