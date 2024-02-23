@@ -88,7 +88,7 @@ dependencies = []
 
 [project.urls]
 Documentation = "https://github.com/{kwargs['author']}/{kwargs['project_name_normalized']}#readme"
-Issues = "https://github.com/{kwargs['author']}{kwargs['project_name_normalized']}/issues"
+Issues = "https://github.com/{kwargs['author']}/{kwargs['project_name_normalized']}/issues"
 Source = "https://github.com/{kwargs['author']}/{kwargs['project_name_normalized']}"
 
 [tool.hatch.version]
