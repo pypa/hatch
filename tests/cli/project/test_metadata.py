@@ -63,9 +63,9 @@ class TestBuildDependenciesInstalled:
                     "Programming Language :: Python :: Implementation :: PyPy"
                 ],
                 "urls": {{
-                    "Documentation": "https://github.com/unknown/my-app#readme",
-                    "Issues": "https://github.com/unknown/my-app/issues",
-                    "Source": "https://github.com/unknown/my-app"
+                    "Documentation": "https://github.com/Foo Bar/my-app#readme",
+                    "Issues": "https://github.com/Foo Bar/my-app/issues",
+                    "Source": "https://github.com/Foo Bar/my-app"
                 }}
             }}
             """
@@ -132,9 +132,9 @@ class TestBuildDependenciesInstalled:
         assert result.output == helpers.dedent(
             """
             {
-                "Documentation": "https://github.com/unknown/my-app#readme",
-                "Issues": "https://github.com/unknown/my-app/issues",
-                "Source": "https://github.com/unknown/my-app"
+                "Documentation": "https://github.com/Foo Bar/my-app#readme",
+                "Issues": "https://github.com/Foo Bar/my-app/issues",
+                "Source": "https://github.com/Foo Bar/my-app"
             }
             """
         )
@@ -220,9 +220,9 @@ class TestBuildDependenciesMissing:
                     "Programming Language :: Python :: Implementation :: PyPy"
                 ],
                 "urls": {{
-                    "Documentation": "https://github.com/unknown/my-app#readme",
-                    "Issues": "https://github.com/unknown/my-app/issues",
-                    "Source": "https://github.com/unknown/my-app"
+                    "Documentation": "https://github.com/Foo Bar/my-app#readme",
+                    "Issues": "https://github.com/Foo Bar/my-app/issues",
+                    "Source": "https://github.com/Foo Bar/my-app"
                 }}
             }}
             """
@@ -303,9 +303,9 @@ Setting up build environment for missing dependencies
             """
             Setting up build environment for missing dependencies
             {
-                "Documentation": "https://github.com/unknown/my-app#readme",
-                "Issues": "https://github.com/unknown/my-app/issues",
-                "Source": "https://github.com/unknown/my-app"
+                "Documentation": "https://github.com/Foo Bar/my-app#readme",
+                "Issues": "https://github.com/Foo Bar/my-app/issues",
+                "Source": "https://github.com/Foo Bar/my-app"
             }
             """
         )
@@ -372,9 +372,9 @@ Setting up build environment for missing dependencies
                     "Programming Language :: Python :: Implementation :: PyPy"
                 ],
                 "urls": {{
-                    "Documentation": "https://github.com/unknown/my-app#readme",
-                    "Issues": "https://github.com/unknown/my-app/issues",
-                    "Source": "https://github.com/unknown/my-app"
+                    "Documentation": "https://github.com/Foo Bar/my-app#readme",
+                    "Issues": "https://github.com/Foo Bar/my-app/issues",
+                    "Source": "https://github.com/Foo Bar/my-app"
                 }}
             }}
             """
