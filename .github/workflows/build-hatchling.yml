@@ -41,6 +41,6 @@ jobs:
         path: dist
 
     - name: Push build artifacts to PyPI
-      uses: pypa/gh-action-pypi-publish@v1.8.11
+      uses: pypa/gh-action-pypi-publish@v1.8.12
       with:
         skip-existing: true
