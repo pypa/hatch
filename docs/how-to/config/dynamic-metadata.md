@@ -1,64 +1,57 @@
-# Custom Dynamic Metadata
+# How to configure custom dynamic metadata
 
 ----
 
-If you have some metadata that is not appropriate for static entry into `pyproject.toml` you will need to provide a program to look it up and insert it into the build process.  This document explains how to do that.
+If you have [project metadata](../../config/metadata.md) that is not appropriate for static entry into `pyproject.toml` you will need to provide a [custom metadata hook](../../plugins/metadata-hook/custom.md) to apply such data during builds.
 
-## Alternatives
+!!! abstract "Alternatives"
+    Dynamic metadata is a way to have a single source of truth that will be available at build time and at run time. Another way to achieve that is to enter the build data statically and then look up the same information dynamically in the program or package, using [importlib.metadata](https://docs.python.org/3/library/importlib.metadata.html#module-importlib.metadata).
 
-Dynamic metadata is a way to have a single source of truth that will be available at build time and at run time.  Another way to achieve that is to enter the build data statically and then look up the same information dynamically in the program or package, using [importlib.metadata](https://docs.python.org/3/library/importlib.metadata.html#module-importlib.metadata) for `Python` 3.8+ or the backported [importlib-metadata](https://importlib-metadata.readthedocs.io/).
+    If the [version field](../../config/metadata.md#version) is the only metadata of concern, Hatchling provides a few built-in ways such as the [`regex` version source](../../plugins/version-source/regex.md) and also [third-party plugins](../../plugins/version-source/reference.md). The approach here will also work, but is more complex.
 
-If the only metadata of concern is `version`, `hatch` provides special purpose [tools](../../plugins/version-source/reference.md) for that.  The approach here will also work, but is more complex.
-
-## `pyproject.toml`
+## Update project metadata
 
 Change the `[project]` section of `pyproject.toml`:
-   1. Define `dynamic` as a list of all the fields you will set dynamically.  E.g., `dynamic = ["version", "license", "authors", "maintainers"]`
-   2. If any of those fields have static definitions in `pyproject.toml`, delete those definitions.  It is an error to define a field statically and dynamically.
 
-(RB: Can metadata that is elsewhere be changed?)
+1. Define the [dynamic field](../../config/metadata.md#dynamic) as an array of all the fields you will set dynamically e.g. `dynamic = ["version", "license", "authors", "maintainers"]`
+2. If any of those fields have static definitions in `pyproject.toml`, delete those definitions. It is verboten to define a field statically and dynamically.
 
-Add a section to trigger loading of dynamic metadata plugins: `[tool.hatch.metadata.hooks.custom]`.  Use exactly that name, regardless of the name of the class you will use or its `PLUGIN_NAME`.  There doesn't need to be anything in the section.
+Add a section to trigger loading of dynamic metadata plugins: `[tool.hatch.metadata.hooks.custom]`. Use exactly that name, regardless of the name of the class you will use or its `PLUGIN_NAME`. There doesn't need to be anything in the section.
 
-If your plugin requires additional packages to do its work, add them to the `requires` list in the `[build-system]` section of `pyproject.toml`.  You do not need to add members of the standard library.
+If your plugin requires additional third-party packages to do its work, add them to the `requires` list in the `[build-system]` section of `pyproject.toml`.
 
-## `hatch_build.py`
+## Implement hook
 
-The dynamic lookup must happen in a custom plugin that you write.  `hatch`'s default expectation is that it is in `hatch_build.py` at the top directory of the project.  Subclass `MetaDataHookInterface` and implement `update()`; for example, here's plugin that reads metadata from a `JSON` formatted file:
+The dynamic lookup must happen in a custom plugin that you write. The [default expectation](../../plugins/metadata-hook/custom.md#options) is that it is in a `hatch_build.py` file at the root of the project. Subclass `MetadataHookInterface` and implement `update()`; for example, here's plugin that reads metadata from a JSON file:
 
-```python
-#!/usr/bin/env python
-
+```python tab="hatch_build.py"
 import json
 import os
+
 from hatchling.metadata.plugin.interface import MetadataHookInterface
 
-class JSONMetaDataHook(MetadataHookInterface):
-    PLUGIN_NAME='JSONMeta'
 
+class JSONMetaDataHook(MetadataHookInterface):
     def update(self, metadata):
-        here = os.path.abspath(os.path.dirname(__file__))
-        # it would be nice to make src_file configurable
-        src_file = os.path.join(here, "gnumeric", ".constants.json")
+        src_file = os.path.join(self.root, "gnumeric", ".constants.json")
         with open(src_file) as src:
             constants = json.load(src)
-            metadata["authors"] = [{"name": constants["__author__"], 
-                                   "email": constants["__author_email__"] }]
-            metadata["maintainers"] = [{"name": constants["__maintainer__"],
-                                       "email": constants["__maintainer_email__"]}]
-            metadata["license"] = constants["__license__"]
             metadata["version"] = constants["__version__"]
+            metadata["license"] = constants["__license__"]
+            metadata["authors"] = [
+                {"name": constants["__author__"], "email": constants["__author_email__"]},
+            ]
 ```
 
-1. You must `import MetadataHookInterface` to subclass it (RB: same as in example, but different from docs).
-2. Optionally, a unique `PLUGIN_NAME`.  (Apparently ignored and always considere `custom`)
-3. Do your operations inside the `update()` method.
-4. `metadata["xxx"]` refers to `xxx` metadata.
-5. When writing to metadata, use `Python` lists for `toml` lists.  Note that if a list is expected, it is required even if there is a single element.
-6. Use `Python` dictionaries for `toml` tables, e.g., `authors`.
+1. You must import the [MetadataHookInterface](../../plugins/metadata-hook/reference.md#hatchling.metadata.plugin.interface.MetadataHookInterface) to subclass it.
+2. Do your operations inside the [`update`](../../plugins/metadata-hook/reference.md#hatchling.metadata.plugin.interface.MetadataHookInterface.update) method.
+3. `metadata` refers to [project metadata](../../config/metadata.md).
+4. When writing to metadata, use `list` for TOML arrays. Note that if a list is expected, it is required even if there is a single element.
+5. Use `dict` for TOML tables e.g. `authors`.
 
-If you want to use some other file name or location, specify a `path` in `pyproject.toml`:
-```toml
+If you want to store the hook in a different location, set the [`path` option](../../plugins/metadata-hook/custom.md#options):
+
+```toml config-example
 [tool.hatch.metadata.hooks.custom]
-path = "some/where/favorite.py"
+path = "some/where.py"
 ```
