@@ -19,7 +19,7 @@ jobs:
     - name: Build source distribution
       run: python -m build backend
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: artifacts
         path: backend/dist/*
