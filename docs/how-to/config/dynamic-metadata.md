@@ -18,7 +18,7 @@ Change the `[project]` section of `pyproject.toml`:
 
 Add a section to trigger loading of dynamic metadata plugins: `[tool.hatch.metadata.hooks.custom]`. Use exactly that name, regardless of the name of the class you will use or its `PLUGIN_NAME`. There doesn't need to be anything in the section.
 
-If your plugin requires additional third-party packages to do its work, add them to the `requires` list in the `[build-system]` section of `pyproject.toml`.
+If your plugin requires additional third-party packages to do its work, add them to the `requires` array in the `[build-system]` section of `pyproject.toml`.
 
 ## Implement hook
 
