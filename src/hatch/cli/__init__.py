@@ -221,5 +221,6 @@ def main():  # no cov
         from rich.console import Console
 
         console = Console()
-        console.print_exception(suppress=[click])
+        hatch_debug = os.getenv('HATCH_DEBUG') in {'1', 'true'}
+        console.print_exception(suppress=[click], show_locals=hatch_debug)
         return 1
