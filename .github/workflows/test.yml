@@ -82,6 +82,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         pattern: .coverage.*
+        merge-multiple: true
 
     - name: Combine coverage data
       run: hatch run coverage:combine
