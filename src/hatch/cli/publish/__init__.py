@@ -103,7 +103,7 @@ def publish(
         app.abort(f'Unknown publisher: {publisher_name}')
 
     publisher = publisher_class(
-        app.get_safe_application(),
+        app,
         app.project.location,
         app.cache_dir / 'publish' / publisher_name,
         app.project.config.publish.get(publisher_name, {}),
