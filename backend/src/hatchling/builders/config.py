@@ -191,6 +191,9 @@ class BuilderConfig:
 
             all_exclude_patterns = self.default_global_exclude()
 
+            if not self.ignore_vcs:
+                all_exclude_patterns.extend(self.load_vcs_exclusion_patterns())
+
             exclude_patterns = exclude_config.get('exclude', self.default_exclude())
             if not isinstance(exclude_patterns, list):
                 message = f'Field `{exclude_location}` must be an array of strings'
@@ -206,9 +209,6 @@ class BuilderConfig:
                     raise ValueError(message)
 
                 all_exclude_patterns.append(exclude_pattern)
-
-            if not self.ignore_vcs:
-                all_exclude_patterns.extend(self.load_vcs_exclusion_patterns())
 
             if all_exclude_patterns:
                 self.__exclude_spec = pathspec.GitIgnoreSpec.from_lines(all_exclude_patterns)

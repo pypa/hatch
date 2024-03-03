@@ -1855,6 +1855,21 @@ class TestPatternExclude:
             assert not builder.config.exclude_spec.match_file(f'bar{separator}file.py')
 
     @pytest.mark.parametrize('separator', ['/', '\\'])
+    def test_vcs_git_exclude_whitelisted_file(self, temp_dir, separator, platform):
+        if separator == '\\' and not platform.windows:
+            pytest.skip('Not running on Windows')
+
+        with temp_dir.as_cwd():
+            config = {'tool': {'hatch': {'build': {'exclude': ['foo/bar']}}}}
+            builder = MockBuilder(str(temp_dir), config=config)
+
+            vcs_ignore_file = temp_dir / '.gitignore'
+            vcs_ignore_file.write_text('foo/*\n!foo/bar')
+
+            assert builder.config.path_is_excluded(f'foo{separator}deb') is True
+            assert builder.config.path_is_excluded(f'foo{separator}bar') is True
+
+    @pytest.mark.parametrize('separator', ['/', '\\'])
     def test_vcs_mercurial(self, temp_dir, separator, platform):
         if separator == '\\' and not platform.windows:
             pytest.skip('Not running on Windows')
