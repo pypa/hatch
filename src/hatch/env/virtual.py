@@ -350,7 +350,7 @@ class VirtualEnvironment(EnvironmentInterface):
 
         from platformdirs import user_data_dir
 
-        # https://github.com/ofek/pyapp/blob/v0.12.0/src/app.rs#L27
+        # https://github.com/ofek/pyapp/blob/v0.13.0/src/app.rs#L27
         if Path(user_data_dir('pyapp', appauthor=False)) in parents:
             return False
 

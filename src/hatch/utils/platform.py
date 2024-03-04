@@ -34,6 +34,7 @@ class Platform:
         self.__format_file_uri: Callable[[str], str] | None = None
         self.__join_command_args: Callable[[list[str]], str] | None = None
         self.__name: str | None = None
+        self.__display_name: str | None = None
         self.__home: Path | None = None
 
         # Whether or not an interactive status is being displayed
@@ -258,6 +259,20 @@ class Platform:
             self.__name = get_platform_name()
 
         return self.__name
+
+    @property
+    def display_name(self) -> str:
+        """
+        One of the following:
+
+        - `Linux`
+        - `Windows`
+        - `macOS`
+        """
+        if self.__display_name is None:
+            self.__display_name = 'macOS' if self.macos else self.name.capitalize()
+
+        return self.__display_name
 
     @property
     def home(self) -> Path:

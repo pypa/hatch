@@ -76,7 +76,7 @@ class Application(Terminal):
             isolated_data_directory,
             self.platform,
             self.verbosity,
-            self.get_safe_application(),
+            self,
         )
 
     # Ensure that this method is clearly written since it is
@@ -252,28 +252,6 @@ class Application(Terminal):
         if text:
             self.display_error(text, **kwargs)
         self.__exit_func(code)
-
-    def get_safe_application(self) -> SafeApplication:
-        return SafeApplication(self)
-
-
-class SafeApplication:
-    def __init__(self, app: Application):
-        self.abort = app.abort
-        self.display = app.display
-        self.display_critical = app.display_critical
-        self.display_info = app.display_info
-        self.display_error = app.display_error
-        self.display_success = app.display_success
-        self.display_waiting = app.display_waiting
-        self.display_warning = app.display_warning
-        self.display_debug = app.display_debug
-        self.display_mini_header = app.display_mini_header
-        # Divergence from what the backend provides
-        self.prompt = app.prompt
-        self.confirm = app.confirm
-        self.status = app.status
-        self.status_if = app.status_if
 
 
 class EnvironmentMetadata:

@@ -31,7 +31,7 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
 
@@ -71,7 +71,7 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Set up Python ${{ env.STABLE_PYTHON_VERSION }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ env.STABLE_PYTHON_VERSION }}
 
@@ -126,7 +126,7 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
 
@@ -147,7 +147,7 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Set up Python ${{ env.STABLE_PYTHON_VERSION }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ env.STABLE_PYTHON_VERSION }}
 
@@ -160,7 +160,9 @@ jobs:
       run: pip install --upgrade flit poetry pipenv
 
     - name: Install ourself
-      run: pip install .
+      run: |
+        pip install .
+        pip install ./backend
 
     - name: Benchmark
       run: |

@@ -5,6 +5,7 @@ config-path = "ruff_defaults.toml"
 dependencies = [
   "coverage[toml]>=6.2",
   "filelock>=3.7.1",
+  "pyfakefs",
   "pytest",
   "pytest-cov",
   "pytest-mock",
@@ -48,7 +49,7 @@ generate-summary = "python scripts/generate_coverage_summary.py"
 write-summary-report = "python scripts/write_coverage_summary_report.py"
 
 [envs.types]
-dependencies = [
+extra-dependencies = [
   "mypy>=1.0.0",
 ]
 [envs.types.scripts]

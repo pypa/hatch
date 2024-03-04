@@ -14,9 +14,13 @@ pytestmark = [pytest.mark.usefixtures('devpi'), pytest.mark.usefixtures('local_b
 @pytest.fixture(autouse=True)
 def keyring_store(mocker):
     mock_store = defaultdict(dict)
-    mocker.patch('keyring.get_password', side_effect=lambda system, user: mock_store[system].get(user))
     mocker.patch(
-        'keyring.set_password', side_effect=lambda system, user, auth: mock_store[system].__setitem__(user, auth)
+        'keyring.get_password',
+        side_effect=lambda system, user: mock_store[system].get(user),
+    )
+    mocker.patch(
+        'keyring.set_password',
+        side_effect=lambda system, user, auth: mock_store[system].__setitem__(user, auth),
     )
     return mock_store
 
@@ -342,8 +346,8 @@ def test_prompt(hatch, devpi, temp_dir_cache, helpers, published_project_name, c
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
         f"""
-        Enter your username [__TOKEN__]: {devpi.user}
-        Enter your credentials:{' '}
+        Username for '{devpi.repo}' [__token__]: {devpi.user}
+        Password / Token:{' '}
         {artifacts[0].relative_to(path)} ... success
 
         [{published_project_name}]
@@ -385,8 +389,8 @@ def test_initialize_auth(hatch, devpi, temp_dir_cache, helpers, published_projec
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
         f"""
-        Enter your username [__TOKEN__]: {devpi.user}
-        Enter your credentials:{' '}
+        Username for '{devpi.repo}' [__token__]: {devpi.user}
+        Password / Token:{' '}
         """
     )
 

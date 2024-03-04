@@ -146,7 +146,7 @@ class TestDefaultFileSelection:
 
     def test_default_error(self, temp_dir):
         config = {
-            'project': {'name': 'my-app', 'version': '0.0.1'},
+            'project': {'name': 'MyApp', 'version': '0.0.1'},
             'tool': {'hatch': {'build': {'targets': {'wheel': {'exclude': ['foobarbaz']}}}}},
         }
         builder = WheelBuilder(str(temp_dir), config=config)
@@ -161,15 +161,18 @@ class TestDefaultFileSelection:
                 ValueError,
                 match=(
                     'Unable to determine which files to ship inside the wheel using the following heuristics: '
-                    'https://hatch.pypa.io/latest/plugins/builder/wheel/#default-file-selection\n\nAt least one '
-                    'file selection option must be defined in the `tool.hatch.build.targets.wheel` table, see: '
-                    'https://hatch.pypa.io/latest/config/build/\n\nAs an example, if you intend to ship a '
-                    'directory named `foo` that resides within a `src` directory located at the root of your '
-                    'project, you can define the following:\n\n\\[tool.hatch.build.targets.wheel\\]\n'
+                    'https://hatch.pypa.io/latest/plugins/builder/wheel/#default-file-selection\n\n'
+                    'The most likely cause of this is that there is no directory that matches the name of your '
+                    'project \\(MyApp or myapp\\).\n\n'
+                    'At least one file selection option must be defined in the `tool.hatch.build.targets.wheel` '
+                    'table, see: https://hatch.pypa.io/latest/config/build/\n\n'
+                    'As an example, if you intend to ship a directory named `foo` that resides within a `src` '
+                    'directory located at the root of your project, you can define the following:\n\n'
+                    '\\[tool.hatch.build.targets.wheel\\]\n'
                     'packages = \\["src/foo"\\]'
                 ),
             ):
-                _ = method()
+                method()
 
     def test_bypass_selection_option(self, temp_dir):
         config = {

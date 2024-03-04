@@ -15,6 +15,7 @@ from hatch.cli.project import project
 from hatch.cli.publish import publish
 from hatch.cli.python import python
 from hatch.cli.run import run
+from hatch.cli.self import self_command
 from hatch.cli.shell import shell
 from hatch.cli.status import status
 from hatch.cli.version import version
@@ -207,13 +208,10 @@ hatch.add_command(project)
 hatch.add_command(publish)
 hatch.add_command(python)
 hatch.add_command(run)
+hatch.add_command(self_command)
 hatch.add_command(shell)
 hatch.add_command(status)
 hatch.add_command(version)
-
-__management_command = os.environ.get('PYAPP_COMMAND_NAME', '')
-if __management_command:
-    hatch.add_command(click.Command(name=__management_command, help='Manage this application'))
 
 
 def main():  # no cov
@@ -223,5 +221,6 @@ def main():  # no cov
         from rich.console import Console
 
         console = Console()
-        console.print_exception(suppress=[click])
+        hatch_debug = os.getenv('HATCH_DEBUG') in {'1', 'true'}
+        console.print_exception(suppress=[click], show_locals=hatch_debug)
         return 1

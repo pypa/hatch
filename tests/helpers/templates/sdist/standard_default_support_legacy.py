@@ -26,10 +26,10 @@ License-File: LICENSE.txt
 from setuptools import setup
 
 setup(
-    name='{kwargs["project_name_normalized"]}',
+    name='{kwargs['project_name_normalized']}',
     version='0.0.1',
     packages=[
-        '{kwargs["package_name"]}',
+        '{kwargs['package_name']}',
         'tests',
     ],
 )

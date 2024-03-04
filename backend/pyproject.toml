@@ -35,7 +35,6 @@ classifiers = [
   "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
-  "editables>=0.3",
   "packaging>=21.3",
   "pathspec>=0.10.1",
   "pluggy>=1.0.0",

@@ -116,12 +116,22 @@ nav:
       - Standard: plugins/version-scheme/standard.md
     - Utilities: plugins/utilities.md
   - How-to:
+    - Meta:
+      - Report issues: how-to/meta/report-issues.md
+    - Config:
+      - Dynamic metadata: how-to/config/dynamic-metadata.md
     - Environments:
       - Package indices: how-to/environment/package-indices.md
     - Static analysis:
       - Customize behavior: how-to/static-analysis/behavior.md
     - Plugins:
       - Testing builds: how-to/plugins/testing-builds.md
+    - Publishing:
+        - Authentication: how-to/publish/auth.md
+        - Repository selection: how-to/publish/repo.md
+  - Tutorials:
+    - Environments:
+      - Basic usage: tutorials/environment/basic-usage.md
   - Meta:
     - FAQ: meta/faq.md
     - Authors: meta/authors.md
@@ -134,6 +144,7 @@ watch:
 
 hooks:
 - docs/.hooks/plugin_register.py
+- docs/.hooks/title_from_content.py
 
 plugins:
   # Enable for bug reports

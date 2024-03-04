@@ -93,6 +93,6 @@ def update_release(original_version: Version, new_release_parts: list[int]) -> t
 
 
 def parse_letter_version(*args: Any, **kwargs: Any) -> tuple[str, int]:
-    from packaging.version import _parse_letter_version
+    from packaging.version import _parse_letter_version  # noqa: PLC2701
 
     return cast(Tuple[str, int], _parse_letter_version(*args, **kwargs))

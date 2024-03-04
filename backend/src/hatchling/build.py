@@ -62,10 +62,11 @@ def get_requires_for_build_editable(config_settings: dict[str, Any] | None = Non
     """
     https://peps.python.org/pep-0660/#get-requires-for-build-editable
     """
+    from hatchling.builders.constants import EDITABLES_REQUIREMENT
     from hatchling.builders.wheel import WheelBuilder
 
     builder = WheelBuilder(os.getcwd())
-    return builder.config.dependencies
+    return [*builder.config.dependencies, EDITABLES_REQUIREMENT]
 
 
 def build_editable(
@@ -124,7 +125,8 @@ if 'PIP_BUILD_TRACKER' not in os.environ:
         """
         https://peps.python.org/pep-0660/#prepare-metadata-for-build-editable
         """
-        from hatchling.builders.wheel import EDITABLES_MINIMUM_VERSION, WheelBuilder
+        from hatchling.builders.constants import EDITABLES_REQUIREMENT
+        from hatchling.builders.wheel import WheelBuilder
 
         builder = WheelBuilder(os.getcwd())
 
@@ -134,7 +136,7 @@ if 'PIP_BUILD_TRACKER' not in os.environ:
 
         extra_dependencies = []
         if not builder.config.dev_mode_dirs and builder.config.dev_mode_exact:
-            extra_dependencies.append(f'editables~={EDITABLES_MINIMUM_VERSION}')
+            extra_dependencies.append(EDITABLES_REQUIREMENT)
 
         with open(os.path.join(directory, 'METADATA'), 'w', encoding='utf-8') as f:
             f.write(builder.config.core_metadata_constructor(builder.metadata, extra_dependencies=extra_dependencies))

@@ -27,45 +27,13 @@ hatch publish /path/to/artifacts foo-1.tar.gz
 
 Only files ending with `.whl` or `.tar.gz` will be published.
 
-## Repository
+## Further resources
 
-You can select the repository with which to upload using the `-r`/`--repo` option or by setting the `HATCH_INDEX_REPO` environment variable.
+Please refer to the publisher plugin [reference](plugins/publisher/package-index.md)
+for configuration options.
 
-Rather than specifying the full URL of a repository, you can use a named repository from a `publish.index.repos` table defined in Hatch's [config file](config/hatch.md):
+There's a How-To on [authentication](how-to/publish/auth.md)
+and on options to select the target [repository](how-to/publish/repo.md).
 
-```toml tab="config.toml"
-[publish.index.repos.private]
-url = "..."
-...
-```
-
-The following repository names are reserved by Hatch and cannot be overridden:
-
-| Name | Repository |
-| --- | --- |
-| `main` | https://upload.pypi.org/legacy/ |
-| `test` | https://test.pypi.org/legacy/ |
-
-The `main` repository is used by default.
-
-## Authentication
-
-The first time you publish to a repository you need to authenticate using the `-u`/`--user` (environment variable `HATCH_INDEX_USER`) and `-a`/`--auth` (environment variable `HATCH_INDEX_AUTH`) options. You will be prompted if either option is not provided.
-
-The user that most recently published to the chosen repository is [cached](config/hatch.md#cache), with their credentials saved to the system [keyring](https://github.com/jaraco/keyring), so that they will no longer need to provide authentication information.
-
-For automated releasing to PyPI, it is recommended that you use per-project [API tokens](https://pypi.org/help/#apitoken).
-
-## Confirmation
-
-You can require a confirmation prompt or use of the `-y`/`--yes` flag by setting publishers' `disable` option to `true` in either Hatch's [config file](config/hatch.md) or project-specific configuration (which takes precedence):
-
-```toml tab="config.toml"
-[publish.index]
-disable = true
-```
-
-```toml config-example
-[tool.hatch.publish.index]
-disable = true
-```
+The `publish` command is implemented as a built-in plugin, if you're
+planning your own plugin, read about the [publisher plugin API](plugins/publisher/reference.md). 

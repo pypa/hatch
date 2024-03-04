@@ -6,6 +6,9 @@
 
 Unless an environment is [chosen explicitly](#selection), Hatch will use the `default` environment.
 
+!!! tip
+    For a more comprehensive walk-through, see the [Basic usage](tutorials/environment/basic-usage.md) tutorial.
+
 ## Creation
 
 You can create environments by using the [`env create`](cli/reference.md#hatch-env-create) command. Let's enter the directory of the project we created in the [setup phase](intro.md#new-project):

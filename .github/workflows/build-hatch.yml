@@ -88,7 +88,7 @@ jobs:
       CARGO: cargo
       CARGO_BUILD_TARGET: ${{ matrix.job.target }}
       PYAPP_REPO: pyapp
-      PYAPP_VERSION: "0.11.1"
+      PYAPP_VERSION: "0.14.0"
       PYAPP_PIP_EXTERNAL: "true"
       PYAPP_PASS_LOCATION: "true"
 
@@ -106,12 +106,14 @@ jobs:
         tar --strip-components=1 -xzf - -C $PYAPP_REPO
 
     - name: Set up Python ${{ env.PYTHON_VERSION }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ env.PYTHON_VERSION }}
 
     - name: Install Hatch
-      run: pip install -e .
+      run: |-
+        pip install -e .
+        pip install -e ./backend
 
     - name: Install Rust toolchain
       uses: dtolnay/rust-toolchain@stable
@@ -215,7 +217,7 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Set up Python ${{ env.PYTHON_VERSION }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ env.PYTHON_VERSION }}
 
@@ -285,7 +287,7 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Set up Python ${{ env.PYTHON_VERSION }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ env.PYTHON_VERSION }}
 
@@ -473,4 +475,4 @@ jobs:
           installers/*
 
     - name: Push Python artifacts to PyPI
-      uses: pypa/gh-action-pypi-publish@v1.8.11
+      uses: pypa/gh-action-pypi-publish@v1.8.12

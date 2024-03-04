@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 
 
 class IncludedFile:
-    __slots__ = ('path', 'relative_path', 'distribution_path')
+    __slots__ = ('distribution_path', 'path', 'relative_path')
 
     def __init__(self, path: str, relative_path: str, distribution_path: str) -> None:
         self.path = path
