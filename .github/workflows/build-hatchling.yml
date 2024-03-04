@@ -25,7 +25,7 @@ jobs:
     - uses: actions/upload-artifact@v4
       with:
         name: artifacts
-        path: backend/dist/*
+        path: backend/dist
         if-no-files-found: error
 
   publish:
