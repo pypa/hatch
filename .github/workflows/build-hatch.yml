@@ -191,7 +191,7 @@ jobs:
       if: runner.os != 'Linux'
       uses: actions/upload-artifact@v4
       with:
-        name: staged-${{ runner.os }}
+        name: staged-${{ runner.os }}-${{ matrix.job.target }}
         path: packaging/*
         if-no-files-found: error
 
@@ -199,7 +199,7 @@ jobs:
       if: runner.os == 'Linux'
       uses: actions/upload-artifact@v4
       with:
-        name: standalone
+        name: standalone-${{ matrix.job.target }}
         path: packaging/*
         if-no-files-found: error
 
@@ -227,7 +227,7 @@ jobs:
     - name: Download staged binaries
       uses: actions/download-artifact@v4
       with:
-        name: staged-${{ runner.os }}
+        pattern: staged-${{ runner.os }}-*
         path: archives
 
     - name: Extract staged binaries
@@ -263,15 +263,16 @@ jobs:
     - name: Upload binaries
       uses: actions/upload-artifact@v4
       with:
-        name: standalone
+        name: standalone-${{ runner.os }}
         path: archives/*
         if-no-files-found: error
 
     - name: Upload installers
       uses: actions/upload-artifact@v4
       with:
-        name: installers
+        name: installers-${{ runner.os }}
         path: installers/*
+        if-no-files-found: error
 
   macos-packaging:
     name: Build macOS installer and sign/notarize artifacts
@@ -306,7 +307,7 @@ jobs:
     - name: Download staged binaries
       uses: actions/download-artifact@v4
       with:
-        name: staged-${{ runner.os }}
+        pattern: staged-${{ runner.os }}-*
         path: archives
 
     - name: Extract staged binaries
@@ -424,19 +425,19 @@ jobs:
     - name: Upload binaries
       uses: actions/upload-artifact@v4
       with:
-        name: standalone
+        name: standalone-${{ runner.os }}
         path: archives/*
         if-no-files-found: error
 
     - name: Upload installer
       uses: actions/upload-artifact@v4
       with:
-        name: installers
+        name: installers-${{ runner.os }}
         path: signed/${{ steps.pkg.outputs.path }}
 
   publish:
     name: Publish release
-    if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
+    # if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
     needs:
     - python-artifacts
     - binaries
@@ -458,21 +459,26 @@ jobs:
     - name: Download binaries
       uses: actions/download-artifact@v4
       with:
-        name: standalone
+        pattern: standalone-*
         path: archives
 
     - name: Download installers
       uses: actions/download-artifact@v4
       with:
-        name: installers
+        pattern: installers-*
         path: installers
 
-    - name: Add assets to current release
-      uses: softprops/action-gh-release@v1
-      with:
-        files: |-
-          archives/*
-          installers/*
+    - name: See
+      run: |-
+        ls archives
+        ls installers
 
-    - name: Push Python artifacts to PyPI
-      uses: pypa/gh-action-pypi-publish@v1.8.12
+    # - name: Add assets to current release
+    #   uses: softprops/action-gh-release@v1
+    #   with:
+    #     files: |-
+    #       archives/*
+    #       installers/*
+
+    # - name: Push Python artifacts to PyPI
+    #   uses: pypa/gh-action-pypi-publish@v1.8.12
