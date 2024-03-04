@@ -4,6 +4,9 @@ on:
   push:
     tags:
     - hatchling-v*
+  pull_request:
+    branches:
+    - master
 
 jobs:
   build:
@@ -40,7 +43,12 @@ jobs:
         name: artifacts
         path: dist
 
-    - name: Push build artifacts to PyPI
-      uses: pypa/gh-action-pypi-publish@v1.8.11
-      with:
-        skip-existing: true
+    - name: Build source distribution
+      run: |
+        ls
+        ls dist
+
+    # - name: Push build artifacts to PyPI
+    #   uses: pypa/gh-action-pypi-publish@v1.8.11
+    #   with:
+    #     skip-existing: true
