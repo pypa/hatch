@@ -436,10 +436,11 @@ jobs:
       with:
         name: installers-${{ runner.os }}
         path: signed/${{ steps.pkg.outputs.path }}
+        if-no-files-found: error
 
   publish:
     name: Publish release
-    # if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
+    if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
     needs:
     - python-artifacts
     - binaries
@@ -472,17 +473,12 @@ jobs:
         path: installers
         merge-multiple: true
 
-    - name: See
-      run: |-
-        ls archives
-        ls installers
+    - name: Add assets to current release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |-
+          archives/*
+          installers/*
 
-    # - name: Add assets to current release
-    #   uses: softprops/action-gh-release@v1
-    #   with:
-    #     files: |-
-    #       archives/*
-    #       installers/*
-
-    # - name: Push Python artifacts to PyPI
-    #   uses: pypa/gh-action-pypi-publish@v1.8.12
+    - name: Push Python artifacts to PyPI
+      uses: pypa/gh-action-pypi-publish@v1.8.12
