@@ -52,11 +52,14 @@ jobs:
     - name: Run tests
       run: hatch run full
 
+    - name: Disambiguate coverage filename
+      run: mv .coverage ".coverage.${{ matrix.os }}.${{ matrix.python-version }}"
+
     - name: Upload coverage data
       uses: actions/upload-artifact@v4
       with:
-        name: .coverage.${{ matrix.os }}.${{ matrix.python-version }}
-        path: .coverage
+        name: coverage-${{ matrix.os }}-${{ matrix.python-version }}
+        path: .coverage*
 
   coverage:
     name: Report coverage
@@ -81,7 +84,7 @@ jobs:
     - name: Download coverage data
       uses: actions/download-artifact@v4
       with:
-        pattern: .coverage.*
+        pattern: coverage-*
         merge-multiple: true
 
     - name: Combine coverage data
