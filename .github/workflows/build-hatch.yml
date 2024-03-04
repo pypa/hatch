@@ -463,12 +463,14 @@ jobs:
       with:
         pattern: standalone-*
         path: archives
+        merge-multiple: true
 
     - name: Download installers
       uses: actions/download-artifact@v4
       with:
         pattern: installers-*
         path: installers
+        merge-multiple: true
 
     - name: See
       run: |-
