@@ -229,6 +229,7 @@ jobs:
       with:
         pattern: staged-${{ runner.os }}-*
         path: archives
+        merge-multiple: true
 
     - name: Extract staged binaries
       run: |-
@@ -309,6 +310,7 @@ jobs:
       with:
         pattern: staged-${{ runner.os }}-*
         path: archives
+        merge-multiple: true
 
     - name: Extract staged binaries
       run: |-
