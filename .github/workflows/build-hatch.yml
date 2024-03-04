@@ -41,7 +41,7 @@ jobs:
       run: python -m build
 
     - name: Upload artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: python-artifacts
         path: dist/*
@@ -139,7 +139,7 @@ jobs:
 
     - name: Download Python artifacts
       if: ${{ !startsWith(github.event.ref, 'refs/tags') }}
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: python-artifacts
         path: dist
@@ -189,17 +189,17 @@ jobs:
 
     - name: Upload staged archive
       if: runner.os != 'Linux'
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
-        name: staged-${{ runner.os }}
+        name: staged-${{ runner.os }}-${{ matrix.job.target }}
         path: packaging/*
         if-no-files-found: error
 
     - name: Upload archive
       if: runner.os == 'Linux'
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
-        name: standalone
+        name: standalone-${{ matrix.job.target }}
         path: packaging/*
         if-no-files-found: error
 
@@ -225,10 +225,11 @@ jobs:
       run: pip install pyoxidizer==${{ env.PYOXIDIZER_VERSION }}
 
     - name: Download staged binaries
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
-        name: staged-${{ runner.os }}
+        pattern: staged-${{ runner.os }}-*
         path: archives
+        merge-multiple: true
 
     - name: Extract staged binaries
       run: |-
@@ -261,17 +262,18 @@ jobs:
         mv build/*/release/*/*.{exe,msi} installers
 
     - name: Upload binaries
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
-        name: standalone
+        name: standalone-${{ runner.os }}
         path: archives/*
         if-no-files-found: error
 
     - name: Upload installers
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
-        name: installers
+        name: installers-${{ runner.os }}
         path: installers/*
+        if-no-files-found: error
 
   macos-packaging:
     name: Build macOS installer and sign/notarize artifacts
@@ -304,10 +306,11 @@ jobs:
         tar --strip-components=1 -xzf - -C /usr/local/bin "$ARCHIVE_NAME/rcodesign"
 
     - name: Download staged binaries
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
-        name: staged-${{ runner.os }}
+        pattern: staged-${{ runner.os }}-*
         path: archives
+        merge-multiple: true
 
     - name: Extract staged binaries
       run: |-
@@ -422,17 +425,18 @@ jobs:
         "signed/${{ steps.pkg.outputs.path }}"
 
     - name: Upload binaries
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
-        name: standalone
+        name: standalone-${{ runner.os }}
         path: archives/*
         if-no-files-found: error
 
     - name: Upload installer
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
-        name: installers
+        name: installers-${{ runner.os }}
         path: signed/${{ steps.pkg.outputs.path }}
+        if-no-files-found: error
 
   publish:
     name: Publish release
@@ -450,22 +454,24 @@ jobs:
 
     steps:
     - name: Download Python artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: python-artifacts
         path: dist
 
     - name: Download binaries
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
-        name: standalone
+        pattern: standalone-*
         path: archives
+        merge-multiple: true
 
     - name: Download installers
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
-        name: installers
+        pattern: installers-*
         path: installers
+        merge-multiple: true
 
     - name: Add assets to current release
       uses: softprops/action-gh-release@v1

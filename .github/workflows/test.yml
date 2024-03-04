@@ -56,10 +56,10 @@ jobs:
       run: mv .coverage ".coverage.${{ matrix.os }}.${{ matrix.python-version }}"
 
     - name: Upload coverage data
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
-        name: coverage-data
-        path: .coverage.*
+        name: coverage-${{ matrix.os }}-${{ matrix.python-version }}
+        path: .coverage*
 
   coverage:
     name: Report coverage
@@ -82,9 +82,10 @@ jobs:
       run: hatch build --hooks-only
 
     - name: Download coverage data
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
-        name: coverage-data
+        pattern: coverage-*
+        merge-multiple: true
 
     - name: Combine coverage data
       run: hatch run coverage:combine
@@ -95,7 +96,7 @@ jobs:
         hatch run coverage:report-uncovered-html
 
     - name: Upload uncovered HTML report
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: uncovered-html-report
         path: htmlcov
