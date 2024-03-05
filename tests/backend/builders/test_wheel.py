@@ -1002,10 +1002,12 @@ class TestBuildStandard:
         ('python_constraint', 'expected_template_file'),
         [
             ('>3', 'wheel.standard_default_python_constraint'),
-            ('==3.11.4', 'wheel.standard_default_python_constraint_three_components')
+            ('==3.11.4', 'wheel.standard_default_python_constraint_three_components'),
         ],
     )
-    def test_default_python_constraint(self, hatch, helpers, temp_dir, config_file, python_constraint, expected_template_file):
+    def test_default_python_constraint(
+        self, hatch, helpers, temp_dir, config_file, python_constraint, expected_template_file
+    ):
         config_file.model.template.plugins['default']['src-layout'] = False
         config_file.save()
 
