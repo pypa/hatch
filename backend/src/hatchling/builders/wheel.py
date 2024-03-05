@@ -652,9 +652,13 @@ Root-Is-Purelib: {'true' if build_data['pure_python'] else 'false'}
         supported_python_versions = []
         for major_version in get_known_python_major_versions():
             for minor_version in range(100):
-                if self.metadata.core.python_constraint.contains(f'{major_version}.{minor_version}'):
-                    supported_python_versions.append(f'py{major_version}')
-                    break
+                for micro_version in range(100):
+                    if self.metadata.core.python_constraint.contains(f'{major_version}.{minor_version}.{micro_version}'):
+                        supported_python_versions.append(f'py{major_version}')
+                        break
+                else:
+                    continue
+                break
 
         return f'{".".join(supported_python_versions)}-none-any'
 
