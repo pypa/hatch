@@ -7,6 +7,8 @@ AUTHOR = "Python Packaging Authority"
 def make_msi(target):
     if target == "x86_64-pc-windows-msvc":
         arch = "x64"
+    elif target == "i686-pc-windows-msvc":
+        arch = "x86"
     else:
         arch = "unknown"
 
@@ -46,11 +48,17 @@ def make_exe_installer():
     )
 
     bundle.add_vc_redistributable("x64")
+    bundle.add_vc_redistributable("x86")
 
     bundle.add_wix_msi_builder(
         builder=make_msi("x86_64-pc-windows-msvc"),
         display_internal_ui=True,
         install_condition="VersionNT64",
+    )
+    bundle.add_wix_msi_builder(
+        builder=make_msi("i686-pc-windows-msvc"),
+        display_internal_ui=True,
+        install_condition="Not VersionNT64",
     )
 
     return bundle
