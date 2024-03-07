@@ -998,7 +998,16 @@ class TestBuildStandard:
         )
         helpers.assert_files(extraction_directory, expected_files)
 
-    def test_default_python_constraint(self, hatch, helpers, temp_dir, config_file):
+    @pytest.mark.parametrize(
+        ('python_constraint', 'expected_template_file'),
+        [
+            pytest.param('>3', 'wheel.standard_default_python_constraint', id='>3'),
+            pytest.param('==3.11.4', 'wheel.standard_default_python_constraint_three_components', id='==3.11.4'),
+        ],
+    )
+    def test_default_python_constraint(
+        self, hatch, helpers, temp_dir, config_file, python_constraint, expected_template_file
+    ):
         config_file.model.template.plugins['default']['src-layout'] = False
         config_file.save()
 
@@ -1011,7 +1020,7 @@ class TestBuildStandard:
 
         project_path = temp_dir / 'my-app'
         config = {
-            'project': {'name': project_name, 'requires-python': '>3', 'dynamic': ['version']},
+            'project': {'name': project_name, 'requires-python': python_constraint, 'dynamic': ['version']},
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
@@ -1043,7 +1052,7 @@ class TestBuildStandard:
 
         metadata_directory = f'{builder.project_id}.dist-info'
         expected_files = helpers.get_template_files(
-            'wheel.standard_default_python_constraint', project_name, metadata_directory=metadata_directory
+            expected_template_file, project_name, metadata_directory=metadata_directory
         )
         helpers.assert_files(extraction_directory, expected_files)
 

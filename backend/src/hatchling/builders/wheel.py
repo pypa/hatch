@@ -649,11 +649,28 @@ Root-Is-Purelib: {'true' if build_data['pure_python'] else 'false'}
         return metadata_file.lstrip()
 
     def get_default_tag(self) -> str:
+        known_major_versions = list(get_known_python_major_versions())
+        max_version_part = 100
         supported_python_versions = []
-        for major_version in get_known_python_major_versions():
-            for minor_version in range(100):
-                if self.metadata.core.python_constraint.contains(f'{major_version}.{minor_version}'):
+        for major_version in known_major_versions:
+            for minor_version in range(max_version_part):
+                # Try an artificially high patch version to account for common cases like `>=3.11.4` or `>=3.10,<3.11`
+                if self.metadata.core.python_constraint.contains(f'{major_version}.{minor_version}.{max_version_part}'):
                     supported_python_versions.append(f'py{major_version}')
+                    break
+
+        # Slow path, try all permutations to account for narrow support ranges like `<=3.11.4`
+        if not supported_python_versions:
+            for major_version in known_major_versions:
+                for minor_version in range(max_version_part):
+                    for patch_version in range(max_version_part):
+                        if self.metadata.core.python_constraint.contains(
+                            f'{major_version}.{minor_version}.{patch_version}'
+                        ):
+                            supported_python_versions.append(f'py{major_version}')
+                            break
+                    else:
+                        continue
                     break
 
         return f'{".".join(supported_python_versions)}-none-any'
