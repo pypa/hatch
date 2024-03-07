@@ -95,9 +95,9 @@ classifiers = [
 dependencies = []
 
 [project.urls]
-Documentation = "https://github.com/unknown/{kwargs['project_name_normalized']}#readme"
-Source = "https://github.com/unknown/{kwargs['project_name_normalized']}"
-"Bug Tracker" = "https://github.com/unknown/{kwargs['project_name_normalized']}/issues"
+Documentation = "https://github.com/{kwargs['author']}/{kwargs['project_name_normalized']}#readme"
+Source = "https://github.com/{kwargs['author']}/{kwargs['project_name_normalized']}"
+"Bug Tracker" = "https://github.com/{kwargs['author']}/{kwargs['project_name_normalized']}/issues"
 
 [tool.hatch.version]
 path = "src/{kwargs['package_name']}/__about__.py"
