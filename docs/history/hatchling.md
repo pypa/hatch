@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ***Fixed:***
 
 - Remove `editables` as a direct dependency
+- Fix default wheel tag when the supported Python version declaration is strict
 
 ## [1.21.1](https://github.com/pypa/hatch/releases/tag/hatchling-v1.21.1) - 2024-01-25 ## {: #hatchling-v1.21.1 }
 

@@ -1001,8 +1001,8 @@ class TestBuildStandard:
     @pytest.mark.parametrize(
         ('python_constraint', 'expected_template_file'),
         [
-            ('>3', 'wheel.standard_default_python_constraint'),
-            ('==3.11.4', 'wheel.standard_default_python_constraint_three_components'),
+            pytest.param('>3', 'wheel.standard_default_python_constraint', id='>3'),
+            pytest.param('==3.11.4', 'wheel.standard_default_python_constraint_three_components', id='==3.11.4'),
         ],
     )
     def test_default_python_constraint(
