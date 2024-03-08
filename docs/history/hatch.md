@@ -18,7 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Use the Git user as the default username for new project URL metadata
 - Add `HATCH_DEBUG` environment variable that when enabled will show local variables in the case of unhandled tracebacks
 - Upgrade default CPython distributions to 20240224
-- Upgrade Ruff to 0.2.2
+- Upgrade Ruff to 0.3.1
 - Upgrade PyApp to 0.15.1 for binary builds
 
 ***Fixed:***
