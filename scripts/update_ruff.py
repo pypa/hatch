@@ -32,8 +32,6 @@ UNSELECTED_RULE_PATTERNS: list[str] = [
     'ERA001',
     # Business logic relying on other programs has no choice but to use subprocess
     'S404',
-    # Bad recommendation https://github.com/astral-sh/ruff/issues/10030
-    'S410',
     # Too prone to false positives and might be removed https://github.com/astral-sh/ruff/issues/4045
     'S603',
     # Too prone to false positives https://github.com/astral-sh/ruff/issues/8761
