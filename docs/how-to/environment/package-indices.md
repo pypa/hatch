@@ -1,4 +1,4 @@
-# Package indices
+# How to configure package indices
 
 -----
 

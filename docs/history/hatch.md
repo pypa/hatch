@@ -14,6 +14,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - The reserved environment used for static analysis is now completely configurable
 - Add the following methods to the `environment` interface for complete control over output during life cycle management: `app_status_creation`, `app_status_pre_installation`, `app_status_post_installation`, `app_status_project_installation`, `app_status_dependency_state_check`, `app_status_dependency_installation_check`, `app_status_dependency_synchronization`
 - Add binaries for 32-bit versions of Windows
+- Read configuration from any `~/.pypirc` file for the `index` publisher
+- Use the Git user as the default username for new project URL metadata
+- Add `HATCH_DEBUG` environment variable that when enabled will show local variables in the case of unhandled tracebacks
 - Upgrade default CPython distributions to 20240224
 - Upgrade Ruff to 0.2.2
 - Upgrade PyApp to 0.15.1 for binary builds

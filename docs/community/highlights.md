@@ -1,4 +1,4 @@
-# Highlights
+# Community highlights
 
 -----
 

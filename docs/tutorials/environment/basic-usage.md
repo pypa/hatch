@@ -1,4 +1,4 @@
-# How to manage your environments
+# Managing environments
 
 -----
 

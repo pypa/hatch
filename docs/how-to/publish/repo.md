@@ -1,4 +1,4 @@
-# Repository
+# How to configure repositories for index publishing
 
 ----
 
