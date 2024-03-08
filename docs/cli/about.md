@@ -1,4 +1,4 @@
-# About
+# CLI usage
 
 -----
 

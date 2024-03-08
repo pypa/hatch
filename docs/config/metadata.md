@@ -1,4 +1,4 @@
-# Project metadata
+# Configuring project metadata
 
 -----
 
