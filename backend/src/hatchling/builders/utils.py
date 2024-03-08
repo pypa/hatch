@@ -31,7 +31,7 @@ def safe_walk(path: str) -> Iterable[tuple[str, list[str], list[str]]]:
         yield root, dirs, files
 
 
-def get_known_python_major_versions() -> map:
+def get_known_python_major_versions() -> map[str]:
     return map(str, sorted((2, 3)))
 
 
