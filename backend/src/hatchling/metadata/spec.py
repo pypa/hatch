@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Callable
 if TYPE_CHECKING:
     from hatchling.metadata.core import ProjectMetadata
 
-DEFAULT_METADATA_VERSION = '2.1'
+DEFAULT_METADATA_VERSION = '2.2'
 
 
 def get_core_metadata_constructors() -> dict[str, Callable]:
