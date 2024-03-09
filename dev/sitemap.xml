@@ -216,7 +216,7 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/dev/plugins/builder/app/</loc>
+         <loc>https://hatch.pypa.io/dev/plugins/builder/binary/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
