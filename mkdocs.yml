@@ -87,7 +87,7 @@ nav:
       - Reference: plugins/builder/reference.md
       - Wheel: plugins/builder/wheel.md
       - Source distribution: plugins/builder/sdist.md
-      - Application: plugins/builder/app.md
+      - Binary: plugins/builder/binary.md
       - Custom: plugins/builder/custom.md
     - Build hook:
       - Reference: plugins/build-hook/reference.md
@@ -192,6 +192,7 @@ plugins:
       plugins/publisher.md: plugins/publisher/reference.md
       plugins/version-source.md: plugins/version-source/reference.md
       plugins/version-scheme.md: plugins/version-scheme/reference.md
+      plugins/builder/app.md: plugins/builder/binary.md
       users.md: community/users.md
 
 markdown_extensions:
