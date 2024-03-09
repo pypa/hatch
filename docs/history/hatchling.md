@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Deprecated:***
+
+- The `app` build target has been renamed to `binary` to reduce ambiguity with the name of an upcoming feature. The former name will still be usable for several minor releases.
+
 ***Added:***
 
 - Update SPDX license information to version 3.23

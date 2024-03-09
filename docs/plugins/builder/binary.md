@@ -1,4 +1,4 @@
-# Application builder
+# Binary builder
 
 -----
 
@@ -9,10 +9,10 @@ This uses [PyApp](https://github.com/ofek/pyapp) to build an application that is
 
 ## Configuration
 
-The builder plugin name is `app`.
+The builder plugin name is `binary`.
 
 ```toml config-example
-[tool.hatch.build.targets.app]
+[tool.hatch.build.targets.binary]
 ```
 
 ## Options
