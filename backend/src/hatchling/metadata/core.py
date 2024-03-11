@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import sys
+from contextlib import suppress
 from copy import deepcopy
 from typing import TYPE_CHECKING, Any, Generic, cast
 
@@ -83,6 +84,17 @@ class ProjectMetadata(Generic[PluginManagerBound]):
                 message = 'The `project` configuration must be a table'
                 raise TypeError(message)
 
+            core_raw_metadata = deepcopy(core_raw_metadata)
+            pkg_info = os.path.join(self.root, 'PKG-INFO')
+            if os.path.isfile(pkg_info):
+                from hatchling.metadata.spec import project_metadata_from_core_metadata
+
+                with open(pkg_info, encoding='utf-8') as f:
+                    pkg_info_contents = f.read()
+
+                base_metadata = project_metadata_from_core_metadata(pkg_info_contents)
+                core_raw_metadata.update(base_metadata)
+
             self._core_raw_metadata = core_raw_metadata
 
         return self._core_raw_metadata
@@ -126,8 +138,8 @@ class ProjectMetadata(Generic[PluginManagerBound]):
         """
         if self._version is None:
             self._version = self._get_version()
-            if 'version' in self.dynamic and 'version' in self.core_raw_metadata['dynamic']:
-                self.core_raw_metadata['dynamic'].remove('version')
+            with suppress(ValueError):
+                self.core.dynamic.remove('version')
 
         return self._version
 
@@ -1313,15 +1325,17 @@ class CoreMetadata:
         https://peps.python.org/pep-0621/#dynamic
         """
         if self._dynamic is None:
-            self._dynamic = self.config.get('dynamic', [])
+            dynamic = self.config.get('dynamic', [])
 
-        if not isinstance(self._dynamic, list):
-            message = 'Field `project.dynamic` must be an array'
-            raise TypeError(message)
+            if not isinstance(dynamic, list):
+                message = 'Field `project.dynamic` must be an array'
+                raise TypeError(message)
 
-        if not all(isinstance(entry, str) for entry in self._dynamic):
-            message = 'Field `project.dynamic` must only contain strings'
-            raise TypeError(message)
+            if not all(isinstance(entry, str) for entry in dynamic):
+                message = 'Field `project.dynamic` must only contain strings'
+                raise TypeError(message)
+
+            self._dynamic = sorted(dynamic)
 
         return self._dynamic
 
