@@ -1,7 +1,233 @@
 import pytest
 
 from hatchling.metadata.core import ProjectMetadata
-from hatchling.metadata.spec import get_core_metadata_constructors
+from hatchling.metadata.spec import (
+    LATEST_METADATA_VERSION,
+    get_core_metadata_constructors,
+    project_metadata_from_core_metadata,
+)
+
+
+class TestProjectMetadataFromCoreMetadata:
+    def test_missing_name(self):
+        core_metadata = f"""\
+Metadata-Version: {LATEST_METADATA_VERSION}
+"""
+        with pytest.raises(ValueError, match='^Missing required core metadata: Name$'):
+            project_metadata_from_core_metadata(core_metadata)
+
+    def test_missing_version(self):
+        core_metadata = f"""\
+Metadata-Version: {LATEST_METADATA_VERSION}
+Name: My.App
+"""
+        with pytest.raises(ValueError, match='^Missing required core metadata: Version$'):
+            project_metadata_from_core_metadata(core_metadata)
+
+    def test_dynamic(self):
+        core_metadata = f"""\
+Metadata-Version: {LATEST_METADATA_VERSION}
+Name: My.App
+Version: 0.1.0
+Dynamic: Classifier
+Dynamic: Provides-Extra
+"""
+        assert project_metadata_from_core_metadata(core_metadata) == {
+            'name': 'My.App',
+            'version': '0.1.0',
+            'dynamic': ['classifiers', 'dependencies', 'optional-dependencies'],
+        }
+
+    def test_description(self):
+        core_metadata = f"""\
+Metadata-Version: {LATEST_METADATA_VERSION}
+Name: My.App
+Version: 0.1.0
+Summary: foo
+"""
+        assert project_metadata_from_core_metadata(core_metadata) == {
+            'name': 'My.App',
+            'version': '0.1.0',
+            'description': 'foo',
+        }
+
+    def test_urls(self):
+        core_metadata = f"""\
+Metadata-Version: {LATEST_METADATA_VERSION}
+Name: My.App
+Version: 0.1.0
+Project-URL: foo, bar
+Project-URL: bar, baz
+"""
+        assert project_metadata_from_core_metadata(core_metadata) == {
+            'name': 'My.App',
+            'version': '0.1.0',
+            'urls': {'foo': 'bar', 'bar': 'baz'},
+        }
+
+    def test_authors(self):
+        core_metadata = f"""\
+Metadata-Version: {LATEST_METADATA_VERSION}
+Name: My.App
+Version: 0.1.0
+Author: foobar
+Author-email: foo <bar@domain>, <baz@domain>
+"""
+        assert project_metadata_from_core_metadata(core_metadata) == {
+            'name': 'My.App',
+            'version': '0.1.0',
+            'authors': [{'name': 'foobar'}, {'email': 'bar@domain', 'name': 'foo'}, {'email': 'baz@domain'}],
+        }
+
+    def test_maintainers(self):
+        core_metadata = f"""\
+Metadata-Version: {LATEST_METADATA_VERSION}
+Name: My.App
+Version: 0.1.0
+Maintainer: foobar
+Maintainer-email: foo <bar@domain>, <baz@domain>
+"""
+        assert project_metadata_from_core_metadata(core_metadata) == {
+            'name': 'My.App',
+            'version': '0.1.0',
+            'maintainers': [{'name': 'foobar'}, {'email': 'bar@domain', 'name': 'foo'}, {'email': 'baz@domain'}],
+        }
+
+    def test_keywords(self):
+        core_metadata = f"""\
+Metadata-Version: {LATEST_METADATA_VERSION}
+Name: My.App
+Version: 0.1.0
+Keywords: bar,foo
+"""
+        assert project_metadata_from_core_metadata(core_metadata) == {
+            'name': 'My.App',
+            'version': '0.1.0',
+            'keywords': ['bar', 'foo'],
+        }
+
+    def test_classifiers(self):
+        core_metadata = f"""\
+Metadata-Version: {LATEST_METADATA_VERSION}
+Name: My.App
+Version: 0.1.0
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.11
+"""
+        assert project_metadata_from_core_metadata(core_metadata) == {
+            'name': 'My.App',
+            'version': '0.1.0',
+            'classifiers': ['Programming Language :: Python :: 3.9', 'Programming Language :: Python :: 3.11'],
+        }
+
+    def test_license_files(self):
+        core_metadata = f"""\
+Metadata-Version: {LATEST_METADATA_VERSION}
+Name: My.App
+Version: 0.1.0
+License-File: LICENSES/Apache-2.0.txt
+License-File: LICENSES/MIT.txt
+"""
+        assert project_metadata_from_core_metadata(core_metadata) == {
+            'name': 'My.App',
+            'version': '0.1.0',
+            'license-files': {'paths': ['LICENSES/Apache-2.0.txt', 'LICENSES/MIT.txt']},
+        }
+
+    def test_license_expression(self):
+        core_metadata = f"""\
+Metadata-Version: {LATEST_METADATA_VERSION}
+Name: My.App
+Version: 0.1.0
+License-Expression: MIT
+"""
+        assert project_metadata_from_core_metadata(core_metadata) == {
+            'name': 'My.App',
+            'version': '0.1.0',
+            'license': 'MIT',
+        }
+
+    def test_license_legacy(self):
+        core_metadata = f"""\
+Metadata-Version: {LATEST_METADATA_VERSION}
+Name: My.App
+Version: 0.1.0
+License: foo
+"""
+        assert project_metadata_from_core_metadata(core_metadata) == {
+            'name': 'My.App',
+            'version': '0.1.0',
+            'license': {'text': 'foo'},
+        }
+
+    def test_readme(self):
+        core_metadata = f"""\
+Metadata-Version: {LATEST_METADATA_VERSION}
+Name: My.App
+Version: 0.1.0
+Description-Content-Type: text/markdown
+
+test content
+"""
+        assert project_metadata_from_core_metadata(core_metadata) == {
+            'name': 'My.App',
+            'version': '0.1.0',
+            'readme': {'content-type': 'text/markdown', 'text': 'test content\n'},
+        }
+
+    def test_readme_default_content_type(self):
+        core_metadata = f"""\
+Metadata-Version: {LATEST_METADATA_VERSION}
+Name: My.App
+Version: 0.1.0
+
+test content
+"""
+        assert project_metadata_from_core_metadata(core_metadata) == {
+            'name': 'My.App',
+            'version': '0.1.0',
+            'readme': {'content-type': 'text/plain', 'text': 'test content\n'},
+        }
+
+    def test_requires_python(self):
+        core_metadata = f"""\
+Metadata-Version: {LATEST_METADATA_VERSION}
+Name: My.App
+Version: 0.1.0
+Requires-Python: <2,>=1
+"""
+        assert project_metadata_from_core_metadata(core_metadata) == {
+            'name': 'My.App',
+            'version': '0.1.0',
+            'requires-python': '<2,>=1',
+        }
+
+    def test_dependencies(self):
+        core_metadata = f"""\
+Metadata-Version: {LATEST_METADATA_VERSION}
+Name: My.App
+Version: 0.1.0
+Requires-Dist: bar==5
+Requires-Dist: foo==1
+Provides-Extra: feature1
+Requires-Dist: bar==5; (python_version < '3') and extra == 'feature1'
+Requires-Dist: foo==1; extra == 'feature1'
+Provides-Extra: feature2
+Requires-Dist: bar==5; extra == 'feature2'
+Requires-Dist: foo==1; (python_version < '3') and extra == 'feature2'
+Provides-Extra: feature3
+Requires-Dist: baz@ file:///path/to/project ; extra == 'feature3'
+"""
+        assert project_metadata_from_core_metadata(core_metadata) == {
+            'name': 'My.App',
+            'version': '0.1.0',
+            'dependencies': ['bar==5', 'foo==1'],
+            'optional-dependencies': {
+                'feature1': ['bar==5; python_version < "3"', 'foo==1'],
+                'feature2': ['bar==5', 'foo==1; python_version < "3"'],
+                'feature3': ['baz@ file:///path/to/project'],
+            },
+        }
 
 
 @pytest.mark.parametrize('constructor', [get_core_metadata_constructors()['1.2']])
@@ -770,6 +996,24 @@ class TestCoreMetadataV22:
             """
         )
 
+    def test_dynamic(self, constructor, isolation, helpers):
+        metadata = ProjectMetadata(
+            str(isolation),
+            None,
+            {'project': {'name': 'My.App', 'version': '0.1.0', 'dynamic': ['authors', 'classifiers']}},
+        )
+
+        assert constructor(metadata) == helpers.dedent(
+            """
+            Metadata-Version: 2.2
+            Name: My.App
+            Version: 0.1.0
+            Dynamic: Author
+            Dynamic: Author-email
+            Dynamic: Classifier
+            """
+        )
+
     def test_description(self, constructor, isolation, helpers):
         metadata = ProjectMetadata(
             str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0', 'description': 'foo'}}
@@ -1236,6 +1480,24 @@ class TestCoreMetadataV23:
             """
         )
 
+    def test_dynamic(self, constructor, isolation, helpers):
+        metadata = ProjectMetadata(
+            str(isolation),
+            None,
+            {'project': {'name': 'My.App', 'version': '0.1.0', 'dynamic': ['authors', 'classifiers']}},
+        )
+
+        assert constructor(metadata) == helpers.dedent(
+            """
+            Metadata-Version: 2.3
+            Name: My.App
+            Version: 0.1.0
+            Dynamic: Author
+            Dynamic: Author-email
+            Dynamic: Classifier
+            """
+        )
+
     def test_urls(self, constructor, isolation, helpers):
         metadata = ProjectMetadata(
             str(isolation),
@@ -1380,6 +1642,21 @@ class TestCoreMetadataV23:
             Name: My.App
             Version: 0.1.0
             Maintainer: foo, bar
+            """
+        )
+
+    def test_license(self, constructor, isolation, helpers):
+        metadata = ProjectMetadata(
+            str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0', 'license': {'text': 'foo\nbar'}}}
+        )
+
+        assert constructor(metadata) == helpers.dedent(
+            """
+            Metadata-Version: 2.3
+            Name: My.App
+            Version: 0.1.0
+            License: foo
+                    bar
             """
         )
 

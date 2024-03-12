@@ -62,7 +62,7 @@ class TestMetadata:
         config = {'project': {}}
         builder = MockBuilder(str(isolation), config=config)
 
-        assert builder.project_config is builder.project_config is config['project']
+        assert builder.project_config == builder.project_config == config['project']
 
     def test_hatch(self, isolation):
         config = {'tool': {'hatch': {}}}

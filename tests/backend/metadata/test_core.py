@@ -1,9 +1,19 @@
 import pytest
 
 from hatchling.metadata.core import BuildMetadata, CoreMetadata, HatchMetadata, ProjectMetadata
+from hatchling.metadata.spec import (
+    LATEST_METADATA_VERSION,
+    get_core_metadata_constructors,
+    project_metadata_from_core_metadata,
+)
 from hatchling.plugin.manager import PluginManager
 from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT
 from hatchling.version.source.regex import RegexSource
+
+
+@pytest.fixture(scope='module')
+def latest_spec():
+    return get_core_metadata_constructors()[LATEST_METADATA_VERSION]
 
 
 class TestConfig:
@@ -84,7 +94,6 @@ class TestDynamic:
         dynamic = ['version']
         metadata = ProjectMetadata(str(isolation), None, {'project': {'dynamic': dynamic}})
 
-        assert metadata.core.dynamic is dynamic
         assert metadata.core.dynamic == ['version']
 
     def test_cache_not_array(self, isolation):
@@ -1539,3 +1548,154 @@ class TestHatchPersonalProjectConfigFile:
 
         assert metadata.version == '0.0.2'
         assert metadata.hatch.build_config['reproducible'] is False
+
+
+class TestMetadataConversion:
+    def test_required_only(self, isolation, latest_spec):
+        raw_metadata = {'name': 'My.App', 'version': '0.0.1'}
+        metadata = ProjectMetadata(str(isolation), None, {'project': raw_metadata})
+
+        core_metadata = latest_spec(metadata)
+        assert project_metadata_from_core_metadata(core_metadata) == raw_metadata
+
+    def test_dynamic(self, isolation, latest_spec):
+        raw_metadata = {'name': 'My.App', 'version': '0.0.1', 'dynamic': ['authors', 'classifiers']}
+        metadata = ProjectMetadata(str(isolation), None, {'project': raw_metadata})
+
+        core_metadata = latest_spec(metadata)
+        assert project_metadata_from_core_metadata(core_metadata) == raw_metadata
+
+    def test_description(self, isolation, latest_spec):
+        raw_metadata = {'name': 'My.App', 'version': '0.0.1', 'description': 'foo bar'}
+        metadata = ProjectMetadata(str(isolation), None, {'project': raw_metadata})
+
+        core_metadata = latest_spec(metadata)
+        assert project_metadata_from_core_metadata(core_metadata) == raw_metadata
+
+    def test_urls(self, isolation, latest_spec):
+        raw_metadata = {'name': 'My.App', 'version': '0.0.1', 'urls': {'foo': 'bar', 'bar': 'baz'}}
+        metadata = ProjectMetadata(str(isolation), None, {'project': raw_metadata})
+
+        core_metadata = latest_spec(metadata)
+        assert project_metadata_from_core_metadata(core_metadata) == raw_metadata
+
+    def test_authors(self, isolation, latest_spec):
+        raw_metadata = {
+            'name': 'My.App',
+            'version': '0.0.1',
+            'authors': [{'name': 'foobar'}, {'email': 'bar@domain', 'name': 'foo'}, {'email': 'baz@domain'}],
+        }
+        metadata = ProjectMetadata(str(isolation), None, {'project': raw_metadata})
+
+        core_metadata = latest_spec(metadata)
+        assert project_metadata_from_core_metadata(core_metadata) == raw_metadata
+
+    def test_maintainers(self, isolation, latest_spec):
+        raw_metadata = {
+            'name': 'My.App',
+            'version': '0.0.1',
+            'maintainers': [{'name': 'foobar'}, {'email': 'bar@domain', 'name': 'foo'}, {'email': 'baz@domain'}],
+        }
+        metadata = ProjectMetadata(str(isolation), None, {'project': raw_metadata})
+
+        core_metadata = latest_spec(metadata)
+        assert project_metadata_from_core_metadata(core_metadata) == raw_metadata
+
+    def test_keywords(self, isolation, latest_spec):
+        raw_metadata = {'name': 'My.App', 'version': '0.0.1', 'keywords': ['bar', 'foo']}
+        metadata = ProjectMetadata(str(isolation), None, {'project': raw_metadata})
+
+        core_metadata = latest_spec(metadata)
+        assert project_metadata_from_core_metadata(core_metadata) == raw_metadata
+
+    def test_classifiers(self, isolation, latest_spec):
+        raw_metadata = {
+            'name': 'My.App',
+            'version': '0.0.1',
+            'classifiers': ['Programming Language :: Python :: 3.9', 'Programming Language :: Python :: 3.11'],
+        }
+        metadata = ProjectMetadata(str(isolation), None, {'project': raw_metadata})
+
+        core_metadata = latest_spec(metadata)
+        assert project_metadata_from_core_metadata(core_metadata) == raw_metadata
+
+    def test_license_files(self, temp_dir, latest_spec):
+        raw_metadata = {
+            'name': 'My.App',
+            'version': '0.0.1',
+            'license-files': {'paths': ['LICENSES/Apache-2.0.txt', 'LICENSES/MIT.txt']},
+        }
+        metadata = ProjectMetadata(str(temp_dir), None, {'project': raw_metadata})
+
+        licenses_path = temp_dir / 'LICENSES'
+        licenses_path.mkdir()
+        licenses_path.joinpath('Apache-2.0.txt').touch()
+        licenses_path.joinpath('MIT.txt').touch()
+
+        core_metadata = latest_spec(metadata)
+        assert project_metadata_from_core_metadata(core_metadata) == raw_metadata
+
+    def test_license_expression(self, isolation, latest_spec):
+        raw_metadata = {'name': 'My.App', 'version': '0.0.1', 'license': 'MIT'}
+        metadata = ProjectMetadata(str(isolation), None, {'project': raw_metadata})
+
+        core_metadata = latest_spec(metadata)
+        assert project_metadata_from_core_metadata(core_metadata) == raw_metadata
+
+    def test_license_legacy(self, isolation, latest_spec):
+        raw_metadata = {'name': 'My.App', 'version': '0.0.1', 'license': {'text': 'foo'}}
+        metadata = ProjectMetadata(str(isolation), None, {'project': raw_metadata})
+
+        core_metadata = latest_spec(metadata)
+        assert project_metadata_from_core_metadata(core_metadata) == raw_metadata
+
+    def test_readme(self, isolation, latest_spec):
+        raw_metadata = {
+            'name': 'My.App',
+            'version': '0.0.1',
+            'readme': {'content-type': 'text/markdown', 'text': 'test content\n'},
+        }
+        metadata = ProjectMetadata(str(isolation), None, {'project': raw_metadata})
+
+        core_metadata = latest_spec(metadata)
+        assert project_metadata_from_core_metadata(core_metadata) == raw_metadata
+
+    def test_requires_python(self, isolation, latest_spec):
+        raw_metadata = {'name': 'My.App', 'version': '0.0.1', 'requires-python': '<2,>=1'}
+        metadata = ProjectMetadata(str(isolation), None, {'project': raw_metadata})
+
+        core_metadata = latest_spec(metadata)
+        assert project_metadata_from_core_metadata(core_metadata) == raw_metadata
+
+    def test_dependencies(self, isolation, latest_spec):
+        raw_metadata = {
+            'name': 'My.App',
+            'version': '0.0.1',
+            'dependencies': ['bar==5', 'foo==1'],
+            'optional-dependencies': {
+                'feature1': ['bar==5; python_version < "3"', 'foo==1'],
+                'feature2': ['bar==5', 'foo==1; python_version < "3"'],
+            },
+        }
+        metadata = ProjectMetadata(str(isolation), None, {'project': raw_metadata})
+
+        core_metadata = latest_spec(metadata)
+        assert project_metadata_from_core_metadata(core_metadata) == raw_metadata
+
+
+def test_source_distribution_metadata(temp_dir, helpers, latest_spec):
+    metadata = ProjectMetadata(str(temp_dir), None, {'project': {}})
+
+    pkg_info = temp_dir / 'PKG-INFO'
+    pkg_info.write_text(
+        helpers.dedent(
+            f"""
+            Metadata-Version: {LATEST_METADATA_VERSION}
+            Name: My.App
+            Version: 0.0.1
+            """
+        )
+    )
+
+    core_metadata = latest_spec(metadata)
+    assert project_metadata_from_core_metadata(core_metadata) == {'name': 'My.App', 'version': '0.0.1'}
