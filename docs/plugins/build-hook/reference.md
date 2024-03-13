@@ -57,6 +57,7 @@ build_data['force_include']['/absolute/path/to/src/lib.so'] = 'src/lib.so'
       - build_config
       - target_name
       - directory
+      - dependencies
       - clean
       - initialize
       - finalize

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 from contextlib import contextmanager
+from functools import cached_property
 from typing import TYPE_CHECKING, Any, Generator, TypeVar
 
 import pathspec
@@ -652,9 +653,27 @@ class BuilderConfig:
                     for dependency in self.builder.metadata.core.optional_dependencies[feature]:
                         dependencies[dependency] = None
 
+            for dependency in self.dynamic_dependencies:
+                dependencies[dependency] = None
+
             self.__dependencies = list(dependencies)
 
         return self.__dependencies
+
+    @cached_property
+    def dynamic_dependencies(self) -> list[str]:
+        dependencies = []
+        for hook_name, config in self.hook_config.items():
+            build_hook_cls = self.builder.plugin_manager.build_hook.get(hook_name)
+            if build_hook_cls is None:
+                continue
+
+            build_hook = build_hook_cls(
+                self.root, config, self, self.builder.metadata, '', self.builder.PLUGIN_NAME, self.builder.app
+            )
+            dependencies.extend(build_hook.dependencies())
+
+        return dependencies
 
     @property
     def sources(self) -> dict[str, str]:

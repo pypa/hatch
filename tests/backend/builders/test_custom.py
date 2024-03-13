@@ -284,3 +284,52 @@ def test_multiple_subclasses(hatch, helpers, temp_dir):
         ),
     ), project_path.as_cwd():
         CustomBuilder(str(project_path), config=config)
+
+
+def test_dynamic_dependencies(hatch, helpers, temp_dir, config_file):
+    config_file.model.template.plugins['default']['src-layout'] = False
+    config_file.save()
+
+    project_name = 'My.App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / 'my-app'
+
+    config = {
+        'project': {'name': project_name, 'dynamic': ['version']},
+        'tool': {
+            'hatch': {
+                'version': {'path': 'my_app/__about__.py'},
+                'build': {
+                    'targets': {'custom': {'dependencies': ['foo'], 'hooks': {'custom': {'dependencies': ['bar']}}}}
+                },
+            },
+        },
+    }
+
+    file_path = project_path / DEFAULT_BUILD_SCRIPT
+    file_path.write_text(
+        helpers.dedent(
+            """
+            from hatchling.builders.hooks.plugin.interface import BuildHookInterface
+            from hatchling.builders.wheel import WheelBuilder
+
+            def get_builder():
+                return CustomWheelBuilder
+
+            class CustomWheelBuilder(WheelBuilder):
+                pass
+
+            class CustomHook(BuildHookInterface):
+                def dependencies(self):
+                    return ['baz']
+            """
+        )
+    )
+    builder = CustomBuilder(str(project_path), config=config)
+
+    assert builder.config.dependencies == ['foo', 'bar', 'baz']

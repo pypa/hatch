@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ***Added:***
 
+- Add `dependencies` method to the build hook interface so that hooks can themselves dynamically define dependencies
 - Update the default version of core metadata to 2.3
 - Update SPDX license information to version 3.23
 - Improve error message for when the default heuristics for wheel file inclusion fail
