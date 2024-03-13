@@ -112,6 +112,19 @@ class BuildHookInterface(Generic[BuilderConfigBound]):  # no cov
         """
         return self.__target_name
 
+    def dependencies(self) -> list[str]:  # noqa: PLR6301
+        """
+        A list of extra [dependencies](../../config/dependency.md) that must be installed
+        prior to builds.
+
+        !!! warning
+            - For this to have any effect the hook dependency itself cannot be dynamic and
+                must always be defined in `build-system.requires`.
+            - As the hook must be imported to call this method, imports that require these
+                dependencies must be evaluated lazily.
+        """
+        return []
+
     def clean(self, versions: list[str]) -> None:
         """
         This occurs before the build process if the `-c`/`--clean` flag was passed to
