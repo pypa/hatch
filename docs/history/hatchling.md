@@ -24,6 +24,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Remove `editables` as a direct dependency
 - Fix default wheel tag when the supported Python version declaration is strict
 - Load VCS ignore patterns first so that whitelisted patterns can be excluded by project configuration
+- Don't consider VCS ignore files that are outside of the VCS boundary
 - Metadata for the `wheel` target now defaults to the `PKG-INFO` metadata within source distributions
 - Properly support core metadata version 2.2
 
