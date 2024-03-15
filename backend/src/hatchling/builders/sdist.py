@@ -54,8 +54,8 @@ class SdistArchive:
         with closing(BytesIO(contents)) as buffer:
             self.tf.addfile(tar_info, buffer)
 
-    def normalize_tar_metadata(self, tar_info: tarfile.TarInfo) -> tarfile.TarInfo:
-        if not self.reproducible:
+    def normalize_tar_metadata(self, tar_info: tarfile.TarInfo | None) -> tarfile.TarInfo | None:
+        if not self.reproducible or tar_info is None:
             return tar_info
 
         tar_info = copy(tar_info)
@@ -178,6 +178,8 @@ class SdistBuilder(BuilderInterface):
                         os.path.join(self.artifact_project_id, included_file.distribution_path)
                     ),
                 )
+                if tar_info is None:  # no cov
+                    continue
 
                 if tar_info.isfile():
                     with open(included_file.path, 'rb') as f:
