@@ -20,6 +20,10 @@ EXCLUDED_DIRECTORIES = frozenset((
     # Mypy
     '.mypy_cache',
 ))
+EXCLUDED_FILES = frozenset((
+    # https://en.wikipedia.org/wiki/.DS_Store
+    '.DS_Store',
+))
 
 
 class BuildEnvVars:
