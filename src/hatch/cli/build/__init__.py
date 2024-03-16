@@ -4,8 +4,6 @@ from typing import TYPE_CHECKING
 
 import click
 
-from hatchling.builders.constants import EDITABLES_REQUIREMENT
-
 if TYPE_CHECKING:
     from hatch.cli.application import Application
 
@@ -59,7 +57,7 @@ def build(app: Application, location, targets, hooks_only, no_hooks, ext, clean,
     from hatch.config.constants import AppEnvVars
     from hatch.utils.fs import Path
     from hatch.utils.structures import EnvVars
-    from hatchling.builders.constants import BuildEnvVars
+    from hatchling.builders.constants import EDITABLES_REQUIREMENT, BuildEnvVars
     from hatchling.builders.plugin.interface import BuilderInterface
 
     path = str(Path(location).resolve()) if location else None
