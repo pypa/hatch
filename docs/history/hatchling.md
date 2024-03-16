@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.22.1](https://github.com/pypa/hatch/releases/tag/hatchling-v1.22.1) - 2024-03-16 ## {: #hatchling-v1.22.1 }
+
 ***Fixed:***
 
 - Update the default version of core metadata to 2.3
