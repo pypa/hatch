@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.22.2](https://github.com/pypa/hatch/releases/tag/hatchling-v1.22.2) - 2024-03-16 ## {: #hatchling-v1.22.2 }
+
 ***Fixed:***
 
 - Fix regression when loading metadata from source distributions
