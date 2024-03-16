@@ -1684,7 +1684,7 @@ class TestMetadataConversion:
 
 
 def test_source_distribution_metadata(temp_dir, helpers, latest_spec):
-    metadata = ProjectMetadata(str(temp_dir), None, {'project': {}})
+    metadata = ProjectMetadata(str(temp_dir), None, {'project': {'dynamic': ['version']}})
 
     pkg_info = temp_dir / 'PKG-INFO'
     pkg_info.write_text(

@@ -84,7 +84,6 @@ class ProjectMetadata(Generic[PluginManagerBound]):
                 message = 'The `project` configuration must be a table'
                 raise TypeError(message)
 
-            core_raw_metadata = deepcopy(core_raw_metadata)
             pkg_info = os.path.join(self.root, 'PKG-INFO')
             if os.path.isfile(pkg_info):
                 from hatchling.metadata.spec import project_metadata_from_core_metadata
@@ -92,8 +91,9 @@ class ProjectMetadata(Generic[PluginManagerBound]):
                 with open(pkg_info, encoding='utf-8') as f:
                     pkg_info_contents = f.read()
 
-                base_metadata = project_metadata_from_core_metadata(pkg_info_contents)
-                core_raw_metadata.update(base_metadata)
+                core_raw_metadata = project_metadata_from_core_metadata(pkg_info_contents)
+            else:
+                core_raw_metadata = deepcopy(core_raw_metadata)
 
             self._core_raw_metadata = core_raw_metadata
 
