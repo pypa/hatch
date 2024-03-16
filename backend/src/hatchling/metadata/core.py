@@ -84,6 +84,7 @@ class ProjectMetadata(Generic[PluginManagerBound]):
                 message = 'The `project` configuration must be a table'
                 raise TypeError(message)
 
+            core_raw_metadata = deepcopy(core_raw_metadata)
             pkg_info = os.path.join(self.root, 'PKG-INFO')
             if os.path.isfile(pkg_info):
                 from hatchling.metadata.spec import project_metadata_from_core_metadata
@@ -91,9 +92,9 @@ class ProjectMetadata(Generic[PluginManagerBound]):
                 with open(pkg_info, encoding='utf-8') as f:
                     pkg_info_contents = f.read()
 
-                core_raw_metadata = project_metadata_from_core_metadata(pkg_info_contents)
-            else:
-                core_raw_metadata = deepcopy(core_raw_metadata)
+                base_metadata = project_metadata_from_core_metadata(pkg_info_contents)
+                core_raw_metadata.pop('dynamic', None)
+                core_raw_metadata.update(base_metadata)
 
             self._core_raw_metadata = core_raw_metadata
 
@@ -182,20 +183,21 @@ class ProjectMetadata(Generic[PluginManagerBound]):
                     self._version = self._get_version(metadata)
                     self.core_raw_metadata['version'] = self.version
 
-                for metadata_hook in metadata_hooks.values():
-                    metadata_hook.update(self.core_raw_metadata)
-                    metadata.add_known_classifiers(metadata_hook.get_known_classifiers())
+                if metadata.dynamic:
+                    for metadata_hook in metadata_hooks.values():
+                        metadata_hook.update(self.core_raw_metadata)
+                        metadata.add_known_classifiers(metadata_hook.get_known_classifiers())
 
-                new_fields = set(self.core_raw_metadata) - static_fields
-                for new_field in new_fields:
-                    if new_field in metadata.dynamic:
-                        metadata.dynamic.remove(new_field)
-                    else:
-                        message = (
-                            f'The field `{new_field}` was set dynamically and therefore must be '
-                            f'listed in `project.dynamic`'
-                        )
-                        raise ValueError(message)
+                    new_fields = set(self.core_raw_metadata) - static_fields
+                    for new_field in new_fields:
+                        if new_field in metadata.dynamic:
+                            metadata.dynamic.remove(new_field)
+                        else:
+                            message = (
+                                f'The field `{new_field}` was set dynamically and therefore must be '
+                                f'listed in `project.dynamic`'
+                            )
+                            raise ValueError(message)
 
             self._core = metadata
 
