@@ -20,7 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Upgrade default CPython distributions to 20240224
 - Upgrade Ruff to 0.3.1
 - Upgrade PyApp to 0.15.1 for binary builds
-- Bump the minimum supported version of Hatchling to 1.22.1
+- Bump the minimum supported version of Hatchling to 1.22.2
 
 ***Fixed:***
 

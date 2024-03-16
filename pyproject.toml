@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling>=1.22.1", "hatch-vcs>=0.3.0"]
+requires = ["hatchling>=1.22.2", "hatch-vcs>=0.3.0"]
 build-backend = "hatchling.build"
 
 [project]
@@ -39,7 +39,7 @@ classifiers = [
 ]
 dependencies = [
   "click>=8.0.6",
-  "hatchling>=1.22.1",
+  "hatchling>=1.22.2",
   "httpx>=0.22.0",
   "hyperlink>=21.0.0",
   "keyring>=23.5.0",
