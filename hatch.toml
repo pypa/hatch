@@ -13,6 +13,8 @@ dependencies = [
   "pytest-rerunfailures",
   "pytest-xdist",
   "trustme",
+  # Hatchling dynamic dependency
+  "editables",
 ]
 post-install-commands = [
   "python -m pip install --disable-pip-version-check {verbosity:flag:-1} -e ./backend",
