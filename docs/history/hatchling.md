@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ***Added:***
 
+- Metadata for the `wheel` target now defaults to the `PKG-INFO` metadata within source distributions
 - Add `dependencies` method to the build hook interface so that hooks can themselves dynamically define dependencies
 - Update the default version of core metadata to 2.3
 - Update SPDX license information to version 3.23
@@ -21,13 +22,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ***Fixed:***
 
+- Properly support core metadata version 2.2
 - Remove `editables` as a direct dependency
 - Fix default wheel tag when the supported Python version declaration is strict
 - Load VCS ignore patterns first so that whitelisted patterns can be excluded by project configuration
 - Don't consider VCS ignore files that are outside of the VCS boundary
 - The `sdist` build target now gracefully ignores UNIX socket files
-- Metadata for the `wheel` target now defaults to the `PKG-INFO` metadata within source distributions
-- Properly support core metadata version 2.2
+- Begin ignoring certain files ubiquitously, like `.DS_Store` on macOS
 
 ## [1.21.1](https://github.com/pypa/hatch/releases/tag/hatchling-v1.21.1) - 2024-01-25 ## {: #hatchling-v1.21.1 }
 

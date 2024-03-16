@@ -2,7 +2,7 @@ from os.path import sep as path_sep
 
 import pytest
 
-from hatchling.builders.constants import EXCLUDED_DIRECTORIES
+from hatchling.builders.constants import EXCLUDED_DIRECTORIES, EXCLUDED_FILES
 from hatchling.metadata.core import ProjectMetadata
 from hatchling.plugin.manager import PluginManager
 
@@ -350,6 +350,9 @@ class TestDirectoryRecursion:
                 excluded_dir = bar / name
                 excluded_dir.ensure_dir_exists()
                 (excluded_dir / 'file.ext').touch()
+            for name in EXCLUDED_FILES:
+                excluded_file = bar / name
+                excluded_file.touch()
 
             (project_dir / 'README.md').touch()
             (project_dir / 'tox.ini').touch()
@@ -367,6 +370,9 @@ class TestDirectoryRecursion:
                 excluded_dir = external / name
                 excluded_dir.ensure_dir_exists()
                 (excluded_dir / 'file.ext').touch()
+            for name in EXCLUDED_FILES:
+                excluded_file = external / name
+                excluded_file.touch()
 
             assert [(f.path, f.distribution_path) for f in builder.recurse_included_files()] == [
                 (str(project_dir / 'README.md'), 'README.md'),
