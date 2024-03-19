@@ -668,9 +668,15 @@ class BuilderConfig:
             if build_hook_cls is None:
                 continue
 
-            build_hook = build_hook_cls(
-                self.root, config, self, self.builder.metadata, '', self.builder.PLUGIN_NAME, self.builder.app
-            )
+            # Hook exists but dynamic dependencies are not imported lazily.
+            # This happens for example when using the `custom` build hook.
+            try:
+                build_hook = build_hook_cls(
+                    self.root, config, self, self.builder.metadata, '', self.builder.PLUGIN_NAME, self.builder.app
+                )
+            except ImportError:
+                continue
+
             dependencies.extend(build_hook.dependencies())
 
         return dependencies
