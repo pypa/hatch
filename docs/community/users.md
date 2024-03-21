@@ -15,6 +15,8 @@ The following is not intended to be a complete enumeration. Be sure to view the 
 | [Colorama](https://github.com/tartley/colorama/blob/cd653d75be52f4d8c3953eb6942fe597375f8b97/pyproject.toml#L1-L5)
 | [Django Anymail](https://github.com/anymail/django-anymail/blob/63e355084c057d60bcce41afa1de315b163b6235/pyproject.toml#L1-L3)
 | [Django Debug Toolbar](https://github.com/jazzband/django-debug-toolbar/blob/d04b9d1a666fd6427604c92f86f91380597eae14/pyproject.toml#L1-L5)
+| [Django NYT](https://github.com/django-wiki/django-nyt/blob/b87107f5fadc2a77941bb15e7dfb95dba3d7f40d/pyproject.toml#L1-L3)
+| [Django Places](https://github.com/oscarmcm/django-places/blob/76630ccc1a45380d40cca1262fa4f9a269cf5112/pyproject.toml#L1-L3)
 | [Django Wiki](https://github.com/django-wiki/django-wiki/blob/1b03661c3fe7260b0eb82565cc3812b96de6b674/pyproject.toml#L1-L3)
 | [FastAPI](https://github.com/tiangolo/fastapi/blob/1073062c7f2c48bcc28bcedbdc009c18c171f6fb/pyproject.toml#L1-L3)
 | [filelock](https://github.com/tox-dev/filelock/blob/c06aa983616804c349007c7a536c361d0e1a8cff/pyproject.toml#L1-L6)
