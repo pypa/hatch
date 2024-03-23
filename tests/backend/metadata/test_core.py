@@ -1685,7 +1685,9 @@ class TestMetadataConversion:
 
 def test_source_distribution_metadata(temp_dir, helpers):
     metadata = ProjectMetadata(
-        str(temp_dir), None, {'project': {'scripts': {'foo': 'bar'}, 'dynamic': ['version', 'keywords']}}
+        str(temp_dir),
+        None,
+        {'project': {'name': 'My.App', 'scripts': {'foo': 'bar'}, 'dynamic': ['version', 'keywords']}},
     )
 
     pkg_info = temp_dir / 'PKG-INFO'
@@ -1695,7 +1697,7 @@ def test_source_distribution_metadata(temp_dir, helpers):
             Metadata-Version: {LATEST_METADATA_VERSION}
             Name: My.App
             Version: 0.0.1
-            Dynamic: Keywords
+            Keywords: foo,bar
             """
         )
     )
@@ -1703,6 +1705,6 @@ def test_source_distribution_metadata(temp_dir, helpers):
         assert metadata.core_raw_metadata == {
             'name': 'My.App',
             'version': '0.0.1',
-            'dynamic': ['keywords'],
+            'keywords': ['foo', 'bar'],
             'scripts': {'foo': 'bar'},
         }

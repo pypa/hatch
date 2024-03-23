@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Fixed:***
+
+- Only read source distribution metadata for fields that are explicitly defined as dynamic
+
 ## [1.22.3](https://github.com/pypa/hatch/releases/tag/hatchling-v1.22.3) - 2024-03-19 ## {: #hatchling-v1.22.3 }
 
 ***Fixed:***
