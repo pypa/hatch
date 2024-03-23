@@ -18,6 +18,7 @@ def test_default_scrubbed(hatch, config_file, helpers, default_cache_dir, defaul
         [dirs]
         project = []
         python = "isolated"
+        working_directory = "project"
         data = "{default_data_directory}"
         cache = "{default_cache_directory}"
 
@@ -72,6 +73,7 @@ def test_reveal(hatch, config_file, helpers, default_cache_dir, default_data_dir
         [dirs]
         project = []
         python = "isolated"
+        working_directory = "project"
         data = "{default_data_directory}"
         cache = "{default_cache_directory}"
 

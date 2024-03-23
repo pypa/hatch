@@ -306,3 +306,69 @@ def test_plugin_dependencies_unmet(hatch, helpers, temp_dir, config_file, mock_p
     assert env_path.name == project_path.name
 
     assert str(env_path) in str(output_file.read_text())
+
+
+def test_working_directory_project(hatch, helpers, temp_dir, config_file, mock_plugin_installation):
+    config_file.model.template.plugins['default']['tests'] = False
+    config_file.model.dirs.working_directory = 'project'
+    config_file.save()
+
+    project_name = 'My.App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / 'my-app'
+    data_path = temp_dir / 'data'
+    data_path.mkdir()
+
+    test_path = project_path / 'sub-folder'
+    test_path.mkdir()
+
+    project = Project(project_path)
+    helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
+
+    with test_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch(
+            'env', 'run', '--', 'python', '-c', "import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable)"
+        )
+
+    assert result.exit_code == 0, result.output
+
+    output_file = project_path / 'test.txt'
+    assert output_file.is_file()
+
+
+def test_working_directory_current(hatch, helpers, temp_dir, config_file, mock_plugin_installation):
+    config_file.model.template.plugins['default']['tests'] = False
+    config_file.model.dirs.working_directory = 'current'
+    config_file.save()
+
+    project_name = 'My.App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / 'my-app'
+    data_path = temp_dir / 'data'
+    data_path.mkdir()
+
+    test_path = project_path / 'sub-folder'
+    test_path.mkdir()
+
+    project = Project(project_path)
+    helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
+
+    with test_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch(
+            'env', 'run', '--', 'python', '-c', "import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable)"
+        )
+
+    assert result.exit_code == 0, result.output
+
+    output_file = test_path / 'test.txt'
+    assert output_file.is_file()

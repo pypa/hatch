@@ -310,6 +310,7 @@ class DirsConfig(LazilyParsedConfig):
         self._field_project = FIELD_TO_PARSE
         self._field_env = FIELD_TO_PARSE
         self._field_python = FIELD_TO_PARSE
+        self._field_working_directory = FIELD_TO_PARSE
         self._field_data = FIELD_TO_PARSE
         self._field_cache = FIELD_TO_PARSE
 
@@ -377,6 +378,29 @@ class DirsConfig(LazilyParsedConfig):
     def python(self, value):
         self.raw_data['python'] = value
         self._field_python = FIELD_TO_PARSE
+
+    @property
+    def working_directory(self):
+        if self._field_working_directory is FIELD_TO_PARSE:
+            if 'working_directory' in self.raw_data:
+                working_directory = self.raw_data['working_directory']
+                if not isinstance(working_directory, str):
+                    self.raise_error('must be a string')
+
+                valid_options = ('project', 'current')
+                if working_directory not in valid_options:
+                    self.raise_error(f'must be one of: {", ".join(valid_options)}')
+
+                self._field_working_directory = working_directory
+            else:
+                self._field_working_directory = self.raw_data['working_directory'] = 'project'
+
+        return self._field_working_directory
+
+    @working_directory.setter
+    def working_directory(self, value):
+        self.raw_data['working_directory'] = value
+        self._field_working_directory = FIELD_TO_PARSE
 
     @property
     def data(self):
