@@ -93,8 +93,10 @@ class ProjectMetadata(Generic[PluginManagerBound]):
                     pkg_info_contents = f.read()
 
                 base_metadata = project_metadata_from_core_metadata(pkg_info_contents)
-                core_raw_metadata.pop('dynamic', None)
-                core_raw_metadata.update(base_metadata)
+                defined_dynamic = core_raw_metadata.pop('dynamic', [])
+                for field in defined_dynamic:
+                    if field in base_metadata:
+                        core_raw_metadata[field] = base_metadata[field]
 
             self._core_raw_metadata = core_raw_metadata
 
