@@ -1687,7 +1687,14 @@ def test_source_distribution_metadata(temp_dir, helpers):
     metadata = ProjectMetadata(
         str(temp_dir),
         None,
-        {'project': {'name': 'My.App', 'scripts': {'foo': 'bar'}, 'dynamic': ['version', 'keywords']}},
+        {
+            'project': {
+                'name': 'My.App',
+                'dynamic': ['version', 'keywords'],
+                'dependencies': ['foo==1'],
+                'scripts': {'foo': 'bar'},
+            },
+        },
     )
 
     pkg_info = temp_dir / 'PKG-INFO'
@@ -1698,6 +1705,7 @@ def test_source_distribution_metadata(temp_dir, helpers):
             Name: My.App
             Version: 0.0.1
             Keywords: foo,bar
+            Requires-Dist: bar==5
             """
         )
     )
@@ -1705,6 +1713,7 @@ def test_source_distribution_metadata(temp_dir, helpers):
         assert metadata.core_raw_metadata == {
             'name': 'My.App',
             'version': '0.0.1',
+            'dependencies': ['foo==1'],
             'keywords': ['foo', 'bar'],
             'scripts': {'foo': 'bar'},
         }
