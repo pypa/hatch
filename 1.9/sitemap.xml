@@ -146,37 +146,12 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/1.9/how-to/config/dynamic-metadata/</loc>
-         <lastmod>2020-02-02</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
          <loc>https://hatch.pypa.io/1.9/how-to/environment/package-indices/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/1.9/how-to/meta/report-issues/</loc>
-         <lastmod>2020-02-02</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
          <loc>https://hatch.pypa.io/1.9/how-to/plugins/testing-builds/</loc>
-         <lastmod>2020-02-02</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://hatch.pypa.io/1.9/how-to/publish/auth/</loc>
-         <lastmod>2020-02-02</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://hatch.pypa.io/1.9/how-to/publish/repo/</loc>
-         <lastmod>2020-02-02</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://hatch.pypa.io/1.9/how-to/static-analysis/behavior/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
@@ -216,7 +191,7 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://hatch.pypa.io/1.9/plugins/builder/binary/</loc>
+         <loc>https://hatch.pypa.io/1.9/plugins/builder/app/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
@@ -312,11 +287,6 @@
     </url>
     <url>
          <loc>https://hatch.pypa.io/1.9/plugins/version-source/regex/</loc>
-         <lastmod>2020-02-02</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://hatch.pypa.io/1.9/tutorials/environment/basic-usage/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
     </url>
