@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 import os
 import shutil
@@ -6,7 +8,7 @@ import sys
 import time
 from contextlib import suppress
 from functools import lru_cache
-from typing import Generator, NamedTuple
+from typing import TYPE_CHECKING, Generator, NamedTuple
 
 import pytest
 from click.testing import CliRunner as __CliRunner
@@ -23,6 +25,9 @@ from hatch.venv.core import TempVirtualEnv
 from hatchling.cli import hatchling
 
 from .helpers.templates.licenses import MIT, Apache_2_0
+
+if TYPE_CHECKING:
+    from unittest.mock import MagicMock
 
 PLATFORM = Platform()
 
@@ -288,6 +293,15 @@ def devpi(tmp_path_factory, worker_id):
                     subprocess.run(['docker', 'compose', '-f', compose_file, 'down', '-t', '0'], capture_output=True)  # noqa: PLW1510
 
                 shutil.rmtree(devpi_data)
+
+
+@pytest.fixture
+def env_run(mocker) -> Generator[MagicMock, None, None]:
+    run = mocker.patch('subprocess.run', return_value=subprocess.CompletedProcess([], 0, stdout=b''))
+    mocker.patch('hatch.env.virtual.VirtualEnvironment.exists', return_value=True)
+    mocker.patch('hatch.env.virtual.VirtualEnvironment.dependency_hash', return_value='')
+    mocker.patch('hatch.env.virtual.VirtualEnvironment.command_context')
+    return run
 
 
 @pytest.fixture

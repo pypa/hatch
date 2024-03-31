@@ -2,16 +2,14 @@
 config-path = "ruff_defaults.toml"
 
 [envs.default]
-dependencies = [
-  "coverage[toml]>=6.2",
-  "filelock>=3.7.1",
+post-install-commands = [
+  "python -m pip install --disable-pip-version-check {verbosity:flag:-1} -e ./backend",
+]
+
+[envs.hatch-test]
+extra-dependencies = [
+  "filelock",
   "pyfakefs",
-  "pytest",
-  "pytest-cov",
-  "pytest-mock",
-  "pytest-randomly",
-  "pytest-rerunfailures",
-  "pytest-xdist",
   "trustme",
   # Hatchling dynamic dependency
   "editables",
@@ -19,23 +17,7 @@ dependencies = [
 post-install-commands = [
   "python -m pip install --disable-pip-version-check {verbosity:flag:-1} -e ./backend",
 ]
-[envs.default.overrides]
-env.GITHUB_ACTIONS.env-vars = "COVERAGE_REPORT="
-[envs.default.scripts]
-# --cov must not come before an argument in order to use the sources defined by config
-_cov = "pytest --cov --cov-report={env:COVERAGE_REPORT:term-missing} --cov-config=pyproject.toml"
-dev = "pytest -p no:randomly --no-cov {args:tests}"
-cov = "_cov -p no:randomly {args:tests}"
-full = "_cov -n auto --reruns 5 --reruns-delay 3 -r aR {args:tests}"
-
-[envs.test.overrides]
-env.HERMETIC_TESTS.type = [
-  { value = "container", if = ["true"] },
-  "virtual",
-]
-
-[[envs.test.matrix]]
-python = ["3.8", "3.9", "3.10", "3.11", "3.12"]
+extra-args = ["--dist", "worksteal"]
 
 [envs.coverage]
 detached = true

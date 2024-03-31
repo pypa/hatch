@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     from hatch.cli.application import Application
 
 
-@click.command(short_help='Lint and format source code', context_settings={'ignore_unknown_options': True})
+@click.command(short_help='Format and lint source code', context_settings={'ignore_unknown_options': True})
 @click.argument('args', nargs=-1)
 @click.option('--check', is_flag=True, help='Only check for errors rather than fixing them')
 @click.option('--linter', '-l', is_flag=True, help='Only run the linter')

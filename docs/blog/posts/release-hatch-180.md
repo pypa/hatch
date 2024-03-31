@@ -51,9 +51,9 @@ Additionally, when a requested version cannot be found on PATH it will [automati
 
 There is a new [`fmt`](../../cli/reference.md#hatch-fmt) command, backed entirely by [Ruff](https://github.com/astral-sh/ruff), that checks and fixes your code for formatting and linting issues.
 
-Starting with this release, Hatch maintains [default settings](../../config/static-analysis.md#default-settings) that are guaranteed to be up-to-date and represent best practices for programming in modern Python. The idea is to provide defaults that are so broadly applicable that the majority of users will maintain little if any of their own [overrides](../../config/static-analysis.md#extending-config).
+Starting with this release, Hatch maintains [default settings](../../config/internal/static-analysis.md#default-settings) that are guaranteed to be up-to-date and represent best practices for programming in modern Python. The idea is to provide defaults that are so broadly applicable that the majority of users will maintain little if any of their own [overrides](../../config/internal/static-analysis.md#extending-config).
 
-The default behavior is internal management of settings to provide an OOTB experience that works. It is recommended however that you [persist](../../config/static-analysis.md#persistent-config) the default config file in version control so that other tools like IDEs can utilize your full configuration.
+The default behavior is internal management of settings to provide an OOTB experience that works. It is recommended however that you [persist](../../config/internal/static-analysis.md#persistent-config) the default config file in version control so that other tools like IDEs can utilize your full configuration.
 
 Since Ruff is now provided as a built-in feature, new project templates no longer have such configuration and are much less verbose.
 

@@ -146,26 +146,6 @@ path = "{package_metadata_file_path}"{tests_section}
             package_location = 'src/' if plugin_config['src-layout'] else ''
             tests_section = f"""
 
-[tool.hatch.envs.default]
-dependencies = [
-  "coverage[toml]>=6.5",
-  "pytest",
-]
-[tool.hatch.envs.default.scripts]
-test = "pytest {{args:tests}}"
-test-cov = "coverage run -m pytest {{args:tests}}"
-cov-report = [
-  "- coverage combine",
-  "coverage report",
-]
-cov = [
-  "test-cov",
-  "cov-report",
-]
-
-[[tool.hatch.envs.all.matrix]]
-python = ["3.8", "3.9", "3.10", "3.11", "3.12"]
-
 [tool.hatch.envs.types]
 extra-dependencies = [
   "mypy>=1.0.0",

@@ -58,21 +58,8 @@ The [`run`](cli/reference.md#hatch-run) command allows you to execute commands i
 hatch run python -c "import sys;print(sys.executable)"
 ```
 
-## Scripts
-
-You can also run any [scripts](config/environment/overview.md#scripts) that have been defined.
-
-You'll notice that in the `pyproject.toml` file there are already scripts defined in the `default` environment. Try running the `test` command, which invokes [pytest](https://github.com/pytest-dev/pytest) with some default arguments:
-
-```
-hatch run test
-```
-
-All additional arguments are passed through to that script, so for example if you wanted to see the version of `pytest` and which plugins are installed you could do:
-
-```
-hatch run test -VV
-```
+!!! tip
+    Be sure to check out how to define [scripts](config/environment/overview.md#scripts) for your project.
 
 ## Dependencies
 
