@@ -60,7 +60,7 @@ check = "mypy --install-types --non-interactive {args:backend/src/hatchling src/
 [envs.docs]
 dependencies = [
   "mkdocs~=1.5.3",
-  "mkdocs-material~=9.5.1",
+  "mkdocs-material~=9.5.16",
   # Plugins
   "mkdocs-minify-plugin~=0.7.1",
   "mkdocs-git-revision-date-localized-plugin~=1.2.1",
