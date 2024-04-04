@@ -1683,37 +1683,91 @@ class TestMetadataConversion:
         assert project_metadata_from_core_metadata(core_metadata) == raw_metadata
 
 
-def test_source_distribution_metadata(temp_dir, helpers):
-    metadata = ProjectMetadata(
-        str(temp_dir),
-        None,
-        {
-            'project': {
-                'name': 'My.App',
-                'dynamic': ['version', 'keywords'],
-                'dependencies': ['foo==1'],
-                'scripts': {'foo': 'bar'},
+class TestSourceDistributionMetadata:
+    def test_basic_persistence(self, temp_dir, helpers):
+        metadata = ProjectMetadata(
+            str(temp_dir),
+            None,
+            {
+                'project': {
+                    'name': 'My.App',
+                    'dynamic': ['version', 'keywords'],
+                    'dependencies': ['foo==1'],
+                    'scripts': {'foo': 'bar'},
+                },
             },
-        },
-    )
-
-    pkg_info = temp_dir / 'PKG-INFO'
-    pkg_info.write_text(
-        helpers.dedent(
-            f"""
-            Metadata-Version: {LATEST_METADATA_VERSION}
-            Name: My.App
-            Version: 0.0.1
-            Keywords: foo,bar
-            Requires-Dist: bar==5
-            """
         )
-    )
-    with temp_dir.as_cwd():
-        assert metadata.core_raw_metadata == {
-            'name': 'My.App',
-            'version': '0.0.1',
-            'dependencies': ['foo==1'],
-            'keywords': ['foo', 'bar'],
-            'scripts': {'foo': 'bar'},
-        }
+
+        pkg_info = temp_dir / 'PKG-INFO'
+        pkg_info.write_text(
+            helpers.dedent(
+                f"""
+                Metadata-Version: {LATEST_METADATA_VERSION}
+                Name: My.App
+                Version: 0.0.1
+                Keywords: foo,bar
+                Requires-Dist: bar==5
+                """
+            )
+        )
+        with temp_dir.as_cwd():
+            assert metadata.core.config == {
+                'name': 'My.App',
+                'version': '0.0.1',
+                'dependencies': ['foo==1'],
+                'keywords': ['foo', 'bar'],
+                'scripts': {'foo': 'bar'},
+                'dynamic': [],
+            }
+
+    def test_metadata_hooks(self, temp_dir, helpers):
+        metadata = ProjectMetadata(
+            str(temp_dir),
+            PluginManager(),
+            {
+                'project': {
+                    'name': 'My.App',
+                    'dynamic': ['version', 'keywords', 'description', 'scripts'],
+                    'dependencies': ['foo==1'],
+                },
+                'tool': {'hatch': {'metadata': {'hooks': {'custom': {}}}}},
+            },
+        )
+
+        build_script = temp_dir / DEFAULT_BUILD_SCRIPT
+        build_script.write_text(
+            helpers.dedent(
+                """
+                from hatchling.metadata.plugin.interface import MetadataHookInterface
+
+                class CustomHook(MetadataHookInterface):
+                    def update(self, metadata):
+                        metadata['description'] = metadata['name'] + ' bar'
+                        metadata['scripts'] = {'foo': 'bar'}
+                """
+            )
+        )
+
+        pkg_info = temp_dir / 'PKG-INFO'
+        pkg_info.write_text(
+            helpers.dedent(
+                f"""
+                Metadata-Version: {LATEST_METADATA_VERSION}
+                Name: My.App
+                Version: 0.0.1
+                Summary: My.App bar
+                Keywords: foo,bar
+                Requires-Dist: bar==5
+                """
+            )
+        )
+        with temp_dir.as_cwd():
+            assert metadata.core.config == {
+                'name': 'My.App',
+                'version': '0.0.1',
+                'description': 'My.App bar',
+                'dependencies': ['foo==1'],
+                'keywords': ['foo', 'bar'],
+                'scripts': {'foo': 'bar'},
+                'dynamic': ['scripts'],
+            }
