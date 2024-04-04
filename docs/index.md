@@ -43,13 +43,21 @@ Hatch is a modern, extensible Python project manager. See the [Why Hatch?](why.m
 
     [:octicons-arrow-right-24: Try it](cli/reference.md#hatch-python)
 
+-   :octicons-shield-check-24:{ .lg .middle } __Testing__
+
+    ---
+
+    Test execution with known best practices
+
+    [:octicons-arrow-right-24: Run](tutorials/testing/overview.md)
+
 -   :material-magnify-scan:{ .lg .middle } __Static analysis__
 
     ---
 
     Static analysis backed by Ruff with up-to-date, sane defaults
 
-    [:octicons-arrow-right-24: Learn](config/static-analysis.md)
+    [:octicons-arrow-right-24: Learn](config/internal/static-analysis.md)
 
 -   :material-publish:{ .lg .middle } __Publishing__
 

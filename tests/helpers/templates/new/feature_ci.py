@@ -51,7 +51,7 @@ jobs:
       run: hatch fmt --check
 
     - name: Run tests
-      run: hatch run cov
+      run: hatch test --python ${{ matrix.python-version }} --cover --randomize --parallel --retries 2 --retry-delay 1
 """,  # noqa: E501
         )
     )

@@ -1,40 +1,11 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import click
 
-
-def parse_variable_spec(spec):
-    variable, _, values = spec.partition('=')
-    if variable == 'py':
-        variable = 'python'
-
-    parsed_values = set(values.split(',')) if values else set()
-    return variable, parsed_values
-
-
-def select_matrix_environments(environments, included_variables, excluded_variables):
-    selected_environments = []
-    for env_name, variables in environments.items():
-        included = set(variables)
-        excluded = set()
-
-        for variable, value in variables.items():
-            if variable in excluded_variables:
-                excluded_values = excluded_variables[variable]
-                if not excluded_values or value in excluded_values:
-                    excluded.add(variable)
-                    break
-
-            if included_variables:
-                if variable not in included_variables:
-                    included.remove(variable)
-                else:
-                    included_values = included_variables[variable]
-                    if included_values and value not in included_values:
-                        included.remove(variable)
-
-        if included and not excluded:
-            selected_environments.append(env_name)
-
-    return selected_environments
+if TYPE_CHECKING:
+    from hatch.cli.application import Application
 
 
 def filter_environments(environments, filter_data):
@@ -61,23 +32,24 @@ def filter_environments(environments, filter_data):
 @click.option('--ignore-compat', is_flag=True, help='Ignore incompatibility when selecting specific environments')
 @click.pass_obj
 def run(
-    app,
-    args,
-    env_names,
-    included_variable_specs,
-    excluded_variable_specs,
-    filter_json,
-    force_continue,
-    ignore_compat,
+    app: Application,
+    *,
+    args: tuple[str, ...],
+    env_names: tuple[str, ...],
+    included_variable_specs: tuple[str, ...],
+    excluded_variable_specs: tuple[str, ...],
+    filter_json: str | None,
+    force_continue: bool,
+    ignore_compat: bool,
 ):
     """
     Run commands within project environments.
 
     The `-e`/`--env` option overrides the equivalent [root option](#hatch) and the `HATCH_ENV` environment variable.
 
-    If environments provide matrices, then you may use the `-i`/`--include` and `-x`/`--exclude` options to
-    select or exclude certain variables, optionally followed by specific comma-separated values.
-    For example, if you have the following configuration:
+    The `-i`/`--include` and `-x`/`--exclude` options may be used to include or exclude certain
+    variables, optionally followed by specific comma-separated values, and may be selected multiple
+    times. For example, if you have the following configuration:
 
     \b
     ```toml config-example
@@ -96,24 +68,24 @@ def run(
     would execute `pytest` in the environments `test.py3.10-42` and `test.py3.10-3.14`.
     Note that `py` may be used as an alias for `python`.
     """
+    from hatch.utils.runner import parse_matrix_variables, select_environments
+
+    try:
+        included_variables = parse_matrix_variables(included_variable_specs)
+    except ValueError as e:
+        app.abort(f'Duplicate included variable: {e}')
+
+    try:
+        excluded_variables = parse_matrix_variables(excluded_variable_specs)
+    except ValueError as e:
+        app.abort(f'Duplicate excluded variable: {e}')
+
     app.ensure_environment_plugin_dependencies()
 
     project = app.project
 
-    included_variables = {}
-    excluded_variables = {}
-    for specs, variables, display_type in (
-        (included_variable_specs, included_variables, 'included'),
-        (excluded_variable_specs, excluded_variables, 'excluded'),
-    ):
-        for spec in specs:
-            variable, values = parse_variable_spec(spec)
-            if variable in variables:
-                app.abort(f'Duplicate {display_type} variable: {variable}')
-            variables[variable] = values
-
     if not env_names:
-        env_names = [app.env]
+        env_names = (app.env,)
     elif 'system' in env_names:
         project.config.config['envs'] = {
             'system': {
@@ -124,18 +96,18 @@ def run(
         }
 
     # Deduplicate
-    env_names = list(dict.fromkeys(env_names))
+    ordered_env_names = list(dict.fromkeys(env_names))
 
     environments = []
     matrix_selected = False
-    for env_name in env_names:
+    for env_name in ordered_env_names:
         if env_name in project.config.matrices:
             matrix_selected = True
             env_data = project.config.matrices[env_name]['envs']
             if not env_data:
                 app.abort(f'No variables defined for matrix: {env_name}')
 
-            environments.extend(select_matrix_environments(env_data, included_variables, excluded_variables))
+            environments.extend(select_environments(env_data, included_variables, excluded_variables))
         else:
             environments.append(env_name)
 
@@ -151,45 +123,15 @@ def run(
     if not environments:
         app.abort('No environments were selected')
     elif not matrix_selected and (included_variables or excluded_variables):
-        app.abort(f'Variable selection is unsupported for non-matrix environments: {", ".join(env_names)}')
+        app.abort(f'Variable selection is unsupported for non-matrix environments: {", ".join(ordered_env_names)}')
 
-    should_display_header = app.verbose or matrix_selected or len(environments) > 1
+    for context in app.runner_context(
+        environments,
+        ignore_compat=ignore_compat or matrix_selected,
+        force_continue=force_continue,
+        display_header=matrix_selected,
+    ):
+        if context.env.name == 'system':
+            context.env.exists = lambda: True  # type: ignore[method-assign]
 
-    any_compatible = False
-    incompatible = {}
-    with project.location.as_cwd():
-        for env_name in environments:
-            environment = app.get_environment(env_name)
-            if not environment.exists():
-                try:
-                    environment.check_compatibility()
-                except Exception as e:  # noqa: BLE001
-                    if ignore_compat or matrix_selected:
-                        incompatible[environment.name] = str(e)
-                        continue
-
-                    app.abort(f'Environment `{env_name}` is incompatible: {e}')
-
-            any_compatible = True
-            if should_display_header:
-                app.display_header(environment.name)
-
-            if env_name == 'system':
-                environment.exists = lambda: True
-
-            app.prepare_environment(environment)
-            app.run_shell_commands(
-                environment,
-                [environment.join_command_args(args)],
-                force_continue=force_continue,
-                show_code_on_error=False,
-            )
-
-    if incompatible:
-        num_incompatible = len(incompatible)
-        padding = '\n' if any_compatible else ''
-        app.display_warning(
-            f'{padding}Skipped {num_incompatible} incompatible environment{"s" if num_incompatible > 1 else ""}:'
-        )
-        for env_name, reason in incompatible.items():
-            app.display_warning(f'{env_name} -> {reason}')
+        context.args.extend(args)

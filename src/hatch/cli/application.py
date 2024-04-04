@@ -12,9 +12,12 @@ from hatch.utils.fs import Path
 from hatch.utils.platform import Platform
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
+
     from packaging.requirements import Requirement
 
     from hatch.env.plugin.interface import EnvironmentInterface
+    from hatch.utils.runner import ExecutionContext
 
 
 class Application(Terminal):
@@ -160,6 +163,60 @@ class Application(Terminal):
             if first_error_code and force_continue:
                 self.abort(code=first_error_code)
 
+    def runner_context(
+        self,
+        environments: list[str],
+        *,
+        ignore_compat=False,
+        force_continue=False,
+        display_header=False,
+    ) -> Generator[ExecutionContext, None, None]:
+        from hatch.utils.runner import ExecutionContext
+        from hatch.utils.structures import EnvVars
+
+        if self.verbose or len(environments) > 1:
+            display_header = True
+
+        any_compatible = False
+        incompatible = {}
+        with self.project.location.as_cwd():
+            for env_name in environments:
+                environment = self.get_environment(env_name)
+                if not environment.exists():
+                    try:
+                        environment.check_compatibility()
+                    except Exception as e:  # noqa: BLE001
+                        if ignore_compat:
+                            incompatible[environment.name] = str(e)
+                            continue
+
+                        self.abort(f'Environment `{env_name}` is incompatible: {e}')
+
+                any_compatible = True
+                if display_header:
+                    self.display_header(environment.name)
+
+                context = ExecutionContext(environment)
+                yield context
+
+                self.prepare_environment(environment)
+                with EnvVars(context.env_vars):
+                    self.run_shell_commands(
+                        environment,
+                        [environment.join_command_args(context.args)],
+                        force_continue=force_continue,
+                        show_code_on_error=False,
+                    )
+
+        if incompatible:
+            num_incompatible = len(incompatible)
+            padding = '\n' if any_compatible else ''
+            self.display_warning(
+                f'{padding}Skipped {num_incompatible} incompatible environment{"s" if num_incompatible > 1 else ""}:'
+            )
+            for env_name, reason in incompatible.items():
+                self.display_warning(f'{env_name} -> {reason}')
+
     def ensure_environment_plugin_dependencies(self) -> None:
         self.ensure_plugin_dependencies(
             self.project.config.env_requires_complex, wait_message='Syncing environment plugin requirements'
@@ -232,21 +289,6 @@ class Application(Terminal):
     @cached_property
     def env_metadata(self) -> EnvironmentMetadata:
         return EnvironmentMetadata(self.data_dir / 'env' / '.metadata', self.project.location)
-
-    @staticmethod
-    def is_internal_default_environment(env_name: str, config: dict[str, Any]) -> bool:
-        from hatch.env.internal import get_internal_env_config
-
-        internal_config = get_internal_env_config().get(env_name)
-        if not internal_config:
-            return False
-
-        # Only consider things that would modify the actual installation, other options like extra scripts don't matter
-        for key in ('dependencies', 'extra-dependencies', 'features'):
-            if config.get(key) != internal_config.get(key):
-                return False
-
-        return True
 
     def abort(self, text='', code=1, **kwargs):
         if text:

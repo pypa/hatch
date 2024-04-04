@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from subprocess import CompletedProcess
-
 import pytest
 
 from hatch.config.constants import ConfigEnvVars
@@ -68,7 +66,7 @@ def defaults_file_preview() -> str:
 
 
 class TestDefaults:
-    def test_fix(self, hatch, temp_dir, config_file, mocker, platform, defaults_file_stable):
+    def test_fix(self, hatch, temp_dir, config_file, env_run, mocker, platform, defaults_file_stable):
         config_file.model.template.plugins['default']['tests'] = False
         config_file.save()
 
@@ -83,11 +81,6 @@ class TestDefaults:
         data_path = temp_dir / 'data'
         data_path.mkdir()
 
-        run = mocker.patch('subprocess.run', return_value=CompletedProcess([], 0, stdout=b''))
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.exists', return_value=True)
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.dependency_hash', return_value='')
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.command_context')
-
         with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
             result = hatch('fmt')
 
@@ -100,7 +93,7 @@ class TestDefaults:
         user_config = config_dir / 'pyproject.toml'
         user_config_path = platform.join_command_args([str(user_config)])
 
-        assert run.call_args_list == [
+        assert env_run.call_args_list == [
             mocker.call(f'ruff check --config {user_config_path} --fix .', shell=True),
             mocker.call(f'ruff format --config {user_config_path} .', shell=True),
         ]
@@ -117,7 +110,7 @@ class TestDefaults:
 extend = "{config_path}\""""
         )
 
-    def test_check(self, hatch, temp_dir, config_file, mocker, platform, defaults_file_stable):
+    def test_check(self, hatch, temp_dir, config_file, env_run, mocker, platform, defaults_file_stable):
         config_file.model.template.plugins['default']['tests'] = False
         config_file.save()
 
@@ -132,11 +125,6 @@ extend = "{config_path}\""""
         data_path = temp_dir / 'data'
         data_path.mkdir()
 
-        run = mocker.patch('subprocess.run', return_value=CompletedProcess([], 0, stdout=b''))
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.exists', return_value=True)
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.dependency_hash', return_value='')
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.command_context')
-
         with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
             result = hatch('fmt', '--check')
 
@@ -149,7 +137,7 @@ extend = "{config_path}\""""
         user_config = config_dir / 'pyproject.toml'
         user_config_path = platform.join_command_args([str(user_config)])
 
-        assert run.call_args_list == [
+        assert env_run.call_args_list == [
             mocker.call(f'ruff check --config {user_config_path} .', shell=True),
             mocker.call(f'ruff format --config {user_config_path} --check --diff .', shell=True),
         ]
@@ -166,7 +154,7 @@ extend = "{config_path}\""""
 extend = "{config_path}\""""
         )
 
-    def test_existing_config(self, hatch, temp_dir, config_file, mocker, platform, defaults_file_stable):
+    def test_existing_config(self, hatch, temp_dir, config_file, env_run, mocker, platform, defaults_file_stable):
         config_file.model.template.plugins['default']['tests'] = False
         config_file.save()
 
@@ -185,11 +173,6 @@ extend = "{config_path}\""""
         old_contents = project_file.read_text()
         project_file.write_text(f'[tool.ruff]\n{old_contents}')
 
-        run = mocker.patch('subprocess.run', return_value=CompletedProcess([], 0, stdout=b''))
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.exists', return_value=True)
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.dependency_hash', return_value='')
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.command_context')
-
         with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
             result = hatch('fmt', '--check')
 
@@ -202,7 +185,7 @@ extend = "{config_path}\""""
         user_config = config_dir / 'pyproject.toml'
         user_config_path = platform.join_command_args([str(user_config)])
 
-        assert run.call_args_list == [
+        assert env_run.call_args_list == [
             mocker.call(f'ruff check --config {user_config_path} .', shell=True),
             mocker.call(f'ruff format --config {user_config_path} --check --diff .', shell=True),
         ]
@@ -220,7 +203,7 @@ extend = "{config_path}\"
 
 
 class TestPreview:
-    def test_fix_flag(self, hatch, temp_dir, config_file, mocker, platform, defaults_file_preview):
+    def test_fix_flag(self, hatch, temp_dir, config_file, env_run, mocker, platform, defaults_file_preview):
         config_file.model.template.plugins['default']['tests'] = False
         config_file.save()
 
@@ -235,11 +218,6 @@ class TestPreview:
         data_path = temp_dir / 'data'
         data_path.mkdir()
 
-        run = mocker.patch('subprocess.run', return_value=CompletedProcess([], 0, stdout=b''))
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.exists', return_value=True)
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.dependency_hash', return_value='')
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.command_context')
-
         with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
             result = hatch('fmt', '--preview')
 
@@ -252,7 +230,7 @@ class TestPreview:
         user_config = config_dir / 'pyproject.toml'
         user_config_path = platform.join_command_args([str(user_config)])
 
-        assert run.call_args_list == [
+        assert env_run.call_args_list == [
             mocker.call(f'ruff check --config {user_config_path} --preview --fix .', shell=True),
             mocker.call(f'ruff format --config {user_config_path} --preview .', shell=True),
         ]
@@ -269,7 +247,7 @@ class TestPreview:
 extend = "{config_path}\""""
         )
 
-    def test_check_flag(self, hatch, temp_dir, config_file, mocker, platform, defaults_file_preview):
+    def test_check_flag(self, hatch, temp_dir, config_file, env_run, mocker, platform, defaults_file_preview):
         config_file.model.template.plugins['default']['tests'] = False
         config_file.save()
 
@@ -284,11 +262,6 @@ extend = "{config_path}\""""
         data_path = temp_dir / 'data'
         data_path.mkdir()
 
-        run = mocker.patch('subprocess.run', return_value=CompletedProcess([], 0, stdout=b''))
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.exists', return_value=True)
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.dependency_hash', return_value='')
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.command_context')
-
         with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
             result = hatch('fmt', '--check', '--preview')
 
@@ -301,7 +274,7 @@ extend = "{config_path}\""""
         user_config = config_dir / 'pyproject.toml'
         user_config_path = platform.join_command_args([str(user_config)])
 
-        assert run.call_args_list == [
+        assert env_run.call_args_list == [
             mocker.call(f'ruff check --config {user_config_path} --preview .', shell=True),
             mocker.call(f'ruff format --config {user_config_path} --preview --check --diff .', shell=True),
         ]
@@ -320,7 +293,7 @@ extend = "{config_path}\""""
 
 
 class TestComponents:
-    def test_only_linter(self, hatch, temp_dir, config_file, mocker, platform, defaults_file_stable):
+    def test_only_linter(self, hatch, temp_dir, config_file, env_run, mocker, platform, defaults_file_stable):
         config_file.model.template.plugins['default']['tests'] = False
         config_file.save()
 
@@ -335,11 +308,6 @@ class TestComponents:
         data_path = temp_dir / 'data'
         data_path.mkdir()
 
-        run = mocker.patch('subprocess.run', return_value=CompletedProcess([], 0, stdout=b''))
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.exists', return_value=True)
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.dependency_hash', return_value='')
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.command_context')
-
         with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
             result = hatch('fmt', '--linter')
 
@@ -352,7 +320,7 @@ class TestComponents:
         user_config = config_dir / 'pyproject.toml'
         user_config_path = platform.join_command_args([str(user_config)])
 
-        assert run.call_args_list == [
+        assert env_run.call_args_list == [
             mocker.call(f'ruff check --config {user_config_path} --fix .', shell=True),
         ]
 
@@ -368,7 +336,7 @@ class TestComponents:
 extend = "{config_path}\""""
         )
 
-    def test_only_formatter(self, hatch, temp_dir, config_file, mocker, platform, defaults_file_stable):
+    def test_only_formatter(self, hatch, temp_dir, config_file, env_run, mocker, platform, defaults_file_stable):
         config_file.model.template.plugins['default']['tests'] = False
         config_file.save()
 
@@ -383,11 +351,6 @@ extend = "{config_path}\""""
         data_path = temp_dir / 'data'
         data_path.mkdir()
 
-        run = mocker.patch('subprocess.run', return_value=CompletedProcess([], 0, stdout=b''))
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.exists', return_value=True)
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.dependency_hash', return_value='')
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.command_context')
-
         with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
             result = hatch('fmt', '--formatter')
 
@@ -400,7 +363,7 @@ extend = "{config_path}\""""
         user_config = config_dir / 'pyproject.toml'
         user_config_path = platform.join_command_args([str(user_config)])
 
-        assert run.call_args_list == [
+        assert env_run.call_args_list == [
             mocker.call(f'ruff format --config {user_config_path} .', shell=True),
         ]
 
@@ -416,7 +379,8 @@ extend = "{config_path}\""""
 extend = "{config_path}\""""
         )
 
-    def test_select_multiple(self, hatch, helpers, temp_dir, config_file, mocker):
+    @pytest.mark.usefixtures('env_run')
+    def test_select_multiple(self, hatch, helpers, temp_dir, config_file):
         config_file.model.template.plugins['default']['tests'] = False
         config_file.save()
 
@@ -430,11 +394,6 @@ extend = "{config_path}\""""
         project_path = temp_dir / 'my-app'
         data_path = temp_dir / 'data'
         data_path.mkdir()
-
-        mocker.patch('subprocess.run', return_value=CompletedProcess([], 0, stdout=b''))
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.exists', return_value=True)
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.dependency_hash', return_value='')
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.command_context')
 
         with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
             result = hatch('fmt', '--linter', '--formatter')
@@ -448,7 +407,7 @@ extend = "{config_path}\""""
 
 
 class TestArguments:
-    def test_forwarding(self, hatch, temp_dir, config_file, mocker, platform, defaults_file_stable):
+    def test_forwarding(self, hatch, temp_dir, config_file, env_run, mocker, platform, defaults_file_stable):
         config_file.model.template.plugins['default']['tests'] = False
         config_file.save()
 
@@ -463,11 +422,6 @@ class TestArguments:
         data_path = temp_dir / 'data'
         data_path.mkdir()
 
-        run = mocker.patch('subprocess.run', return_value=CompletedProcess([], 0, stdout=b''))
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.exists', return_value=True)
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.dependency_hash', return_value='')
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.command_context')
-
         with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
             result = hatch('fmt', '--', '--foo', 'bar')
 
@@ -480,7 +434,7 @@ class TestArguments:
         user_config = config_dir / 'pyproject.toml'
         user_config_path = platform.join_command_args([str(user_config)])
 
-        assert run.call_args_list == [
+        assert env_run.call_args_list == [
             mocker.call(f'ruff check --config {user_config_path} --fix --foo bar', shell=True),
             mocker.call(f'ruff format --config {user_config_path} --foo bar', shell=True),
         ]
@@ -499,7 +453,8 @@ extend = "{config_path}\""""
 
 
 class TestConfigPath:
-    def test_sync_without_config(self, hatch, helpers, temp_dir, config_file, mocker):
+    @pytest.mark.usefixtures('env_run')
+    def test_sync_without_config(self, hatch, helpers, temp_dir, config_file):
         config_file.model.template.plugins['default']['tests'] = False
         config_file.save()
 
@@ -514,11 +469,6 @@ class TestConfigPath:
         data_path = temp_dir / 'data'
         data_path.mkdir()
 
-        mocker.patch('subprocess.run', return_value=CompletedProcess([], 0, stdout=b''))
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.exists', return_value=True)
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.dependency_hash', return_value='')
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.command_context')
-
         with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
             result = hatch('fmt', '--sync')
 
@@ -529,7 +479,7 @@ class TestConfigPath:
             """
         )
 
-    def test_sync(self, hatch, temp_dir, config_file, mocker, defaults_file_stable):
+    def test_sync(self, hatch, temp_dir, config_file, env_run, mocker, defaults_file_stable):
         config_file.model.template.plugins['default']['tests'] = False
         config_file.save()
 
@@ -552,11 +502,6 @@ class TestConfigPath:
         config['tool']['ruff'] = {'extend': 'ruff_defaults.toml'}
         project.save_config(config)
 
-        run = mocker.patch('subprocess.run', return_value=CompletedProcess([], 0, stdout=b''))
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.exists', return_value=True)
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.dependency_hash', return_value='')
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.command_context')
-
         with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
             result = hatch('fmt', '--sync')
 
@@ -566,14 +511,14 @@ class TestConfigPath:
         root_data_path = data_path / 'env' / '.internal' / 'hatch-static-analysis' / '.config'
         assert not root_data_path.is_dir()
 
-        assert run.call_args_list == [
+        assert env_run.call_args_list == [
             mocker.call('ruff check --fix .', shell=True),
             mocker.call('ruff format .', shell=True),
         ]
 
         assert default_config_file.read_text() == defaults_file_stable
 
-    def test_no_sync(self, hatch, temp_dir, config_file, mocker):
+    def test_no_sync(self, hatch, temp_dir, config_file, env_run, mocker):
         config_file.model.template.plugins['default']['tests'] = False
         config_file.save()
 
@@ -596,11 +541,6 @@ class TestConfigPath:
         config['tool']['ruff'] = {'extend': 'ruff_defaults.toml'}
         project.save_config(config)
 
-        run = mocker.patch('subprocess.run', return_value=CompletedProcess([], 0, stdout=b''))
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.exists', return_value=True)
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.dependency_hash', return_value='')
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.command_context')
-
         with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
             result = hatch('fmt')
 
@@ -610,14 +550,14 @@ class TestConfigPath:
         root_data_path = data_path / 'env' / '.internal' / 'hatch-static-analysis' / '.config'
         assert not root_data_path.is_dir()
 
-        assert run.call_args_list == [
+        assert env_run.call_args_list == [
             mocker.call('ruff check --fix .', shell=True),
             mocker.call('ruff format .', shell=True),
         ]
 
         assert not default_config_file.read_text()
 
-    def test_sync_legacy_config(self, hatch, temp_dir, config_file, mocker, defaults_file_stable):
+    def test_sync_legacy_config(self, hatch, temp_dir, config_file, env_run, mocker, defaults_file_stable):
         config_file.model.template.plugins['default']['tests'] = False
         config_file.save()
 
@@ -640,11 +580,6 @@ class TestConfigPath:
         config['tool']['ruff'] = {'extend': 'ruff_defaults.toml'}
         project.save_config(config)
 
-        run = mocker.patch('subprocess.run', return_value=CompletedProcess([], 0, stdout=b''))
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.exists', return_value=True)
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.dependency_hash', return_value='')
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.command_context')
-
         with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
             result = hatch('fmt', '--sync')
 
@@ -657,7 +592,7 @@ class TestConfigPath:
         root_data_path = data_path / 'env' / '.internal' / 'hatch-static-analysis' / '.config'
         assert not root_data_path.is_dir()
 
-        assert run.call_args_list == [
+        assert env_run.call_args_list == [
             mocker.call('ruff check --fix .', shell=True),
             mocker.call('ruff format .', shell=True),
         ]
@@ -666,7 +601,7 @@ class TestConfigPath:
 
 
 class TestCustomScripts:
-    def test_only_linter_fix(self, hatch, temp_dir, config_file, mocker):
+    def test_only_linter_fix(self, hatch, temp_dir, config_file, env_run, mocker):
         config_file.model.template.plugins['default']['tests'] = False
         config_file.save()
 
@@ -702,11 +637,6 @@ class TestCustomScripts:
             }
         }
         project.save_config(config)
-
-        run = mocker.patch('subprocess.run', return_value=CompletedProcess([], 0, stdout=b''))
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.exists', return_value=True)
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.dependency_hash', return_value='')
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.command_context')
 
         with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
             result = hatch('fmt', '--linter')
@@ -717,11 +647,11 @@ class TestCustomScripts:
         root_data_path = data_path / 'env' / '.internal' / 'hatch-static-analysis' / '.config'
         assert not root_data_path.is_dir()
 
-        assert run.call_args_list == [
+        assert env_run.call_args_list == [
             mocker.call('flake8 .', shell=True),
         ]
 
-    def test_only_linter_check(self, hatch, temp_dir, config_file, mocker):
+    def test_only_linter_check(self, hatch, temp_dir, config_file, env_run, mocker):
         config_file.model.template.plugins['default']['tests'] = False
         config_file.save()
 
@@ -757,11 +687,6 @@ class TestCustomScripts:
             }
         }
         project.save_config(config)
-
-        run = mocker.patch('subprocess.run', return_value=CompletedProcess([], 0, stdout=b''))
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.exists', return_value=True)
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.dependency_hash', return_value='')
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.command_context')
 
         with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
             result = hatch('fmt', '--check', '--linter')
@@ -772,11 +697,11 @@ class TestCustomScripts:
         root_data_path = data_path / 'env' / '.internal' / 'hatch-static-analysis' / '.config'
         assert not root_data_path.is_dir()
 
-        assert run.call_args_list == [
+        assert env_run.call_args_list == [
             mocker.call('flake8 .', shell=True),
         ]
 
-    def test_only_formatter_fix(self, hatch, temp_dir, config_file, mocker):
+    def test_only_formatter_fix(self, hatch, temp_dir, config_file, env_run, mocker):
         config_file.model.template.plugins['default']['tests'] = False
         config_file.save()
 
@@ -812,11 +737,6 @@ class TestCustomScripts:
             }
         }
         project.save_config(config)
-
-        run = mocker.patch('subprocess.run', return_value=CompletedProcess([], 0, stdout=b''))
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.exists', return_value=True)
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.dependency_hash', return_value='')
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.command_context')
 
         with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
             result = hatch('fmt', '--formatter')
@@ -827,12 +747,12 @@ class TestCustomScripts:
         root_data_path = data_path / 'env' / '.internal' / 'hatch-static-analysis' / '.config'
         assert not root_data_path.is_dir()
 
-        assert run.call_args_list == [
+        assert env_run.call_args_list == [
             mocker.call('isort .', shell=True),
             mocker.call('black .', shell=True),
         ]
 
-    def test_only_formatter_check(self, hatch, temp_dir, config_file, mocker):
+    def test_only_formatter_check(self, hatch, temp_dir, config_file, env_run, mocker):
         config_file.model.template.plugins['default']['tests'] = False
         config_file.save()
 
@@ -868,11 +788,6 @@ class TestCustomScripts:
             }
         }
         project.save_config(config)
-
-        run = mocker.patch('subprocess.run', return_value=CompletedProcess([], 0, stdout=b''))
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.exists', return_value=True)
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.dependency_hash', return_value='')
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.command_context')
 
         with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
             result = hatch('fmt', '--check', '--formatter')
@@ -883,12 +798,12 @@ class TestCustomScripts:
         root_data_path = data_path / 'env' / '.internal' / 'hatch-static-analysis' / '.config'
         assert not root_data_path.is_dir()
 
-        assert run.call_args_list == [
+        assert env_run.call_args_list == [
             mocker.call('black --check --diff .', shell=True),
             mocker.call('isort --check-only --diff .', shell=True),
         ]
 
-    def test_fix(self, hatch, temp_dir, config_file, mocker):
+    def test_fix(self, hatch, temp_dir, config_file, env_run, mocker):
         config_file.model.template.plugins['default']['tests'] = False
         config_file.save()
 
@@ -924,11 +839,6 @@ class TestCustomScripts:
             }
         }
         project.save_config(config)
-
-        run = mocker.patch('subprocess.run', return_value=CompletedProcess([], 0, stdout=b''))
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.exists', return_value=True)
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.dependency_hash', return_value='')
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.command_context')
 
         with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
             result = hatch('fmt')
@@ -939,13 +849,13 @@ class TestCustomScripts:
         root_data_path = data_path / 'env' / '.internal' / 'hatch-static-analysis' / '.config'
         assert not root_data_path.is_dir()
 
-        assert run.call_args_list == [
+        assert env_run.call_args_list == [
             mocker.call('flake8 .', shell=True),
             mocker.call('isort .', shell=True),
             mocker.call('black .', shell=True),
         ]
 
-    def test_check(self, hatch, temp_dir, config_file, mocker):
+    def test_check(self, hatch, temp_dir, config_file, env_run, mocker):
         config_file.model.template.plugins['default']['tests'] = False
         config_file.save()
 
@@ -982,11 +892,6 @@ class TestCustomScripts:
         }
         project.save_config(config)
 
-        run = mocker.patch('subprocess.run', return_value=CompletedProcess([], 0, stdout=b''))
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.exists', return_value=True)
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.dependency_hash', return_value='')
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.command_context')
-
         with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
             result = hatch('fmt', '--check')
 
@@ -996,7 +901,7 @@ class TestCustomScripts:
         root_data_path = data_path / 'env' / '.internal' / 'hatch-static-analysis' / '.config'
         assert not root_data_path.is_dir()
 
-        assert run.call_args_list == [
+        assert env_run.call_args_list == [
             mocker.call('flake8 .', shell=True),
             mocker.call('black --check --diff .', shell=True),
             mocker.call('isort --check-only --diff .', shell=True),

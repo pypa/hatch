@@ -27,6 +27,7 @@ class ProjectConfig:
         self._env_collectors = None
         self._envs = None
         self._internal_envs = None
+        self._internal_matrices = None
         self._matrix_variables = None
         self._publish = None
         self._scripts = None
@@ -118,6 +119,13 @@ class ProjectConfig:
             _ = self.envs
 
         return self._internal_envs
+
+    @property
+    def internal_matrices(self):
+        if self._internal_matrices is None:
+            _ = self.envs
+
+        return self._internal_matrices
 
     @property
     def envs(self):
@@ -406,14 +414,21 @@ class ProjectConfig:
                 environment_collector.finalize_environments(final_config)
 
             self._matrices = all_matrices
+            self._internal_matrices = {}
             self._envs = final_config
             self._matrix_variables = generated_envs
             self._cached_env_overrides.update(cached_overrides)
 
             # Extract the internal environments
-            self._internal_envs = {
-                internal_name: self._envs.pop(internal_name) for internal_name in get_internal_env_config()
-            }
+            self._internal_envs = {}
+            for internal_name in get_internal_env_config():
+                try:
+                    self._internal_envs[internal_name] = self._envs.pop(internal_name)
+                # Matrix
+                except KeyError:
+                    self._internal_matrices[internal_name] = self._matrices.pop(internal_name)
+                    for env_name in [env_name for env_name in self._envs if env_name.startswith(f'{internal_name}.')]:
+                        self._internal_envs[env_name] = self._envs.pop(env_name)
 
         return self._envs
 
@@ -481,10 +496,13 @@ class ProjectConfig:
         if not self._cached_env_overrides:
             return
 
-        for env_name, config in self.envs.items():
-            for override_name, data in self._cached_env_overrides[env_name].items():
-                for condition, condition_value, options in data:
-                    apply_overrides(env_name, override_name, condition, condition_value, options, config, option_types)
+        for environments in (self.envs, self.internal_envs):
+            for env_name, config in environments.items():
+                for override_name, data in self._cached_env_overrides[env_name].items():
+                    for condition, condition_value, options in data:
+                        apply_overrides(
+                            env_name, override_name, condition, condition_value, options, config, option_types
+                        )
 
         self._cached_env_overrides.clear()
 

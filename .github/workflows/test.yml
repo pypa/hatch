@@ -50,7 +50,7 @@ jobs:
       run: hatch run types:check
 
     - name: Run tests
-      run: hatch run full
+      run: hatch test --python ${{ matrix.python-version }} --cover-quiet --randomize --parallel --retries 5 --retry-delay 3
 
     - name: Disambiguate coverage filename
       run: mv .coverage ".coverage.${{ matrix.os }}.${{ matrix.python-version }}"
