@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.22.5](https://github.com/pypa/hatch/releases/tag/hatchling-v1.22.5) - 2024-04-04 ## {: #hatchling-v1.22.5 }
+
 ***Fixed:***
 
 - Fix reading metadata from source distributions when fields are dynamic but not part of core metadata like entry points
