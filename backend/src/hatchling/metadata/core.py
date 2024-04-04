@@ -87,16 +87,17 @@ class ProjectMetadata(Generic[PluginManagerBound]):
             core_raw_metadata = deepcopy(core_raw_metadata)
             pkg_info = os.path.join(self.root, 'PKG-INFO')
             if os.path.isfile(pkg_info):
-                from hatchling.metadata.spec import project_metadata_from_core_metadata
+                from hatchling.metadata.spec import PROJECT_CORE_METADATA_FIELDS, project_metadata_from_core_metadata
 
                 with open(pkg_info, encoding='utf-8') as f:
                     pkg_info_contents = f.read()
 
                 base_metadata = project_metadata_from_core_metadata(pkg_info_contents)
-                defined_dynamic = core_raw_metadata.pop('dynamic', [])
-                for field in defined_dynamic:
-                    if field in base_metadata:
+                defined_dynamic = core_raw_metadata.get('dynamic', [])
+                for field in list(defined_dynamic):
+                    if field in PROJECT_CORE_METADATA_FIELDS and field in base_metadata:
                         core_raw_metadata[field] = base_metadata[field]
+                        defined_dynamic.remove(field)
 
             self._core_raw_metadata = core_raw_metadata
 
