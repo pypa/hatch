@@ -4,7 +4,6 @@ on:
   push:
     tags:
     - hatch-v*
-    - hatchling-v*
   workflow_dispatch:
 
 concurrency:
