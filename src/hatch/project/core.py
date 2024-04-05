@@ -121,7 +121,12 @@ class Project:
             else:
                 from hatch.utils.toml import load_toml_file
 
-                self._raw_config = load_toml_file(str(self._project_file_path))
+                raw_config = load_toml_file(str(self._project_file_path))
+                # Assume environment management only
+                if 'project' not in raw_config:
+                    raw_config['project'] = {'name': self.location.name}
+
+                self._raw_config = raw_config
 
         return self._raw_config
 
