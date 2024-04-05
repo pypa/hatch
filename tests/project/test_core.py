@@ -107,3 +107,30 @@ class TestLocation:
         project = Project(temp_dir)
         assert project.location == temp_dir
         assert project.root == temp_dir
+
+
+class TestRawConfig:
+    def test_missing(self, temp_dir):
+        project = Project(temp_dir)
+        project.find_project_root()
+
+        assert project.raw_config == {'project': {'name': temp_dir.name}}
+
+    def test_exists(self, temp_dir):
+        project_file = temp_dir / 'pyproject.toml'
+        project_file.touch()
+        project = Project(temp_dir)
+        project.find_project_root()
+
+        config = {'project': {'name': 'foo'}, 'bar': 'baz'}
+        project.save_config(config)
+
+        assert project.raw_config == config
+
+    def test_exists_without_project_table(self, temp_dir):
+        project_file = temp_dir / 'pyproject.toml'
+        project_file.touch()
+        project = Project(temp_dir)
+        project.find_project_root()
+
+        assert project.raw_config == {'project': {'name': temp_dir.name}}
