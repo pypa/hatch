@@ -5,7 +5,7 @@ import sys
 
 TOKEN = os.environ.get('GH_TOKEN_MKDOCS_MATERIAL_INSIDERS', '')
 DEP_REF = f'git+https://{TOKEN}@github.com/squidfunk/mkdocs-material-insiders.git'
-GIT_REF = '5ea838ccf4ac5085dc42cf1fbabe52c18653e8a6'
+GIT_REF = '2ab4dc8ce4f249164ac1d8d3e46a12c5c0b71230'
 
 
 def main():
