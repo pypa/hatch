@@ -4,6 +4,7 @@ import os
 import pathlib
 import sys
 from contextlib import contextmanager, suppress
+from functools import cached_property
 from typing import TYPE_CHECKING, Any, Generator
 
 from hatch.utils.structures import EnvVars
@@ -31,6 +32,18 @@ if sys.platform == 'darwin':
 
 
 class Path(_PathBase):
+    @cached_property
+    def id(self) -> str:
+        from base64 import urlsafe_b64encode
+        from hashlib import sha256
+
+        path = str(self)
+        if sys.platform == 'win32' or sys.platform == 'darwin':
+            path = path.casefold()
+
+        digest = sha256(path.encode('utf-8')).digest()
+        return urlsafe_b64encode(digest).decode('utf-8')
+
     def ensure_dir_exists(self) -> None:
         self.mkdir(parents=True, exist_ok=True)
 

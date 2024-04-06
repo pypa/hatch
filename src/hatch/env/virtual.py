@@ -2,10 +2,8 @@ from __future__ import annotations
 
 import os
 import sys
-from base64 import urlsafe_b64encode
 from contextlib import contextmanager, suppress
 from functools import cached_property
-from hashlib import sha256
 from os.path import isabs
 from typing import TYPE_CHECKING, Callable
 
@@ -31,8 +29,7 @@ class VirtualEnvironment(EnvironmentInterface):
         super().__init__(*args, **kwargs)
 
         # Always compute the isolated app path for build environments
-        hashed_root = sha256(str(self.root).encode('utf-8')).digest()
-        checksum = urlsafe_b64encode(hashed_root).decode('utf-8')[:8]
+        checksum = self.root.id[:8]
 
         project_name = self.metadata.name if 'project' in self.metadata.config else f'{checksum}-unmanaged'
         venv_name = project_name if self.name == 'default' else self.name

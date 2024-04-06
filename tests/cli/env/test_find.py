@@ -1,4 +1,7 @@
 import os
+import sys
+
+import pytest
 
 from hatch.project.core import Project
 from hatchling.utils.constants import DEFAULT_CONFIG_FILE
@@ -198,3 +201,37 @@ def test_plugin_dependencies_unmet(hatch, helpers, temp_dir_data, config_file, m
         """
     )
     helpers.assert_plugin_installation(mock_plugin_installation, [dependency])
+
+
+@pytest.mark.skipif(sys.platform not in {'win32', 'darwin'}, reason='Case insensitive file system required')
+def test_case_sensitivity(hatch, temp_dir_data):
+    from hatch.utils.fs import Path
+
+    project_name = 'My.App'
+
+    with temp_dir_data.as_cwd():
+        result = hatch('new', project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir_data / 'my-app'
+
+    with project_path.as_cwd():
+        result = hatch('env', 'find')
+
+    assert result.exit_code == 0, result.output
+    path_default = result.output.strip()
+
+    with Path(str(project_path).upper()).as_cwd():
+        result = hatch('env', 'find')
+
+    assert result.exit_code == 0, result.output
+    path_upper = result.output.strip()
+
+    with Path(str(project_path).lower()).as_cwd():
+        result = hatch('env', 'find')
+
+    assert result.exit_code == 0, result.output
+    path_lower = result.output.strip()
+
+    assert path_default == path_upper == path_lower
