@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING
+from contextlib import contextmanager
+from typing import TYPE_CHECKING, Generator
 
 from hatch.utils.fs import Path
 
@@ -94,6 +95,16 @@ class Project:
                 return None
 
             path = new_path
+
+    @contextmanager
+    def ensure_cwd(self) -> Generator[Path, None, None]:
+        cwd = Path.cwd()
+        location = self.location
+        if location.is_file() or cwd == location or location in cwd.parents:
+            yield cwd
+        else:
+            with location.as_cwd():
+                yield location
 
     @staticmethod
     def canonicalize_name(name: str, *, strict=True) -> str:

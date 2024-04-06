@@ -32,7 +32,7 @@ def shell(app, shell_name, shell_path, shell_args):  # no cov
         if not app.platform.windows:
             shell_path, *shell_args = app.platform.modules.shlex.split(shell_path)
 
-    with app.project.location.as_cwd():
+    with app.project.ensure_cwd():
         environment = app.get_environment()
         app.prepare_environment(environment)
 
