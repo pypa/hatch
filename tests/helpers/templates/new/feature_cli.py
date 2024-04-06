@@ -92,7 +92,7 @@ pip install {kwargs['project_name_normalized']}
 ## License
 
 `{kwargs['project_name_normalized']}` is distributed under the terms of the [MIT](https://spdx.org/licenses/MIT.html) license.
-""",  # noqa: E501
+""",
         ),
         File(
             Path('pyproject.toml'),
@@ -163,6 +163,6 @@ exclude_lines = [
   "if __name__ == .__main__.:",
   "if TYPE_CHECKING:",
 ]
-""",  # noqa: E501
+""",
         ),
     ]

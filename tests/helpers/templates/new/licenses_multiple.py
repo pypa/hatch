@@ -132,6 +132,6 @@ exclude_lines = [
   "if __name__ == .__main__.:",
   "if TYPE_CHECKING:",
 ]
-""",  # noqa: E501
+""",
         ),
     ]

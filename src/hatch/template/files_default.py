@@ -139,7 +139,7 @@ path = "{package_metadata_file_path}"{tests_section}
 
 [project.scripts]
 {template_config['project_name_normalized']} = "{template_config['package_name']}.cli:{template_config['package_name']}"\
-"""  # noqa: E501
+"""
 
         tests_section = ''
         if plugin_config['tests']:
@@ -170,7 +170,7 @@ exclude_lines = [
   "no cov",
   "if __name__ == .__main__.:",
   "if TYPE_CHECKING:",
-]"""  # noqa: E501
+]"""
 
         super().__init__(
             Path('pyproject.toml'),
