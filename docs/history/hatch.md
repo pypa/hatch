@@ -29,6 +29,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ***Fixed:***
 
+- Maintain consistent data paths for case insensitive file systems
 - When projects derive dependencies from metadata hooks, there is now by default a status indicator for when the hooks are executed for better responsiveness
 - Properly support projects with a `pyproject.toml` file but no `project` table e.g. applications
 - Fix dependency inheritance for the template of the `types` environment for new projects

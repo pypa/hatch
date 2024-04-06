@@ -336,10 +336,7 @@ class EnvironmentMetadata:
 
     @cached_property
     def _storage_dir(self) -> Path:
-        from base64 import urlsafe_b64encode
-        from hashlib import sha256
-
-        return self.__data_dir / urlsafe_b64encode(sha256(str(self.__project_path).encode()).digest())[:8].decode()
+        return self.__data_dir / self.__project_path.id[:8]
 
 
 def is_isolated_environment(env_name: str, config: dict[str, Any]) -> bool:

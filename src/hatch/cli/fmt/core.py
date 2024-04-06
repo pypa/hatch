@@ -28,11 +28,7 @@ class StaticAnalysisEnvironment:
 
     @cached_property
     def internal_config_file(self) -> Path:
-        from base64 import urlsafe_b64encode
-        from hashlib import sha256
-
-        project_id = urlsafe_b64encode(sha256(str(self.env.root).encode()).digest())[:8].decode()
-        return self.env.isolated_data_directory / '.config' / project_id / 'ruff_defaults.toml'
+        return self.env.isolated_data_directory / '.config' / self.env.root.id[:8] / 'ruff_defaults.toml'
 
     def construct_config_file(self, *, preview: bool) -> str:
         lines = [

@@ -25,11 +25,7 @@ class PatchedCoverageConfig:
 
     @cached_property
     def internal_config_path(self) -> Path:
-        from base64 import urlsafe_b64encode
-        from hashlib import sha256
-
-        project_id = urlsafe_b64encode(sha256(str(self.project_root).encode()).digest())[:8].decode()
-        return self.data_dir / 'coverage' / project_id / self.user_config_path.name
+        return self.data_dir / 'coverage' / self.project_root.id[:8] / self.user_config_path.name
 
     def write_config_file(self) -> None:
         self.internal_config_path.parent.ensure_dir_exists()
