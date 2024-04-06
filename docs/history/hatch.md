@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ***Changed:***
 
 - The `run`/`env run`, `fmt` and `shell` commands now only change the current working directory to the project root if not already inside the project
+- The `shell` command now accepts a single argument to specify the environment to enter which overrides the standard choice mechanisms. The arguments determining shell options have been converted to flags.
 
 ***Added:***
 
