@@ -23,7 +23,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Use the Git user as the default username for new project URL metadata
 - Add `HATCH_DEBUG` environment variable that when enabled will show local variables in the case of unhandled tracebacks
 - Upgrade default CPython distributions to 20240224
-- Upgrade Ruff to 0.3.1
+- Upgrade Ruff to 0.3.5
 - Upgrade PyApp to 0.15.1 for binary builds
 - Bump the minimum supported version of Hatchling to 1.22.2
 
@@ -32,6 +32,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - When projects derive dependencies from metadata hooks, there is now by default a status indicator for when the hooks are executed for better responsiveness
 - Properly support projects with a `pyproject.toml` file but no `project` table e.g. applications
 - Fix dependency inheritance for the template of the `types` environment for new projects
+- De-select Ruff rule `E501` for the `fmt` command by default since it conflicts with the formatter
 
 ## [1.9.4](https://github.com/pypa/hatch/releases/tag/hatch-v1.9.4) - 2024-03-12 ## {: #hatch-v1.9.4 }
 

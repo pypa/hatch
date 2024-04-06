@@ -359,10 +359,7 @@ class VirtualEnvironment(EnvironmentInterface):
             return False
 
         # via Homebrew
-        if self.platform.macos and Path('/usr/local/Cellar') in parents:
-            return False
-
-        return True
+        return not (self.platform.macos and Path('/usr/local/Cellar') in parents)
 
     @cached_property
     def _python_sources(self) -> list[str]:

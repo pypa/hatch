@@ -28,7 +28,7 @@ README = """\
   <p>For more information on installing and upgrading Hatch, see our <a href="https://hatch.pypa.io/latest/install/">Installation Guide</a>.</p>
 </body>
 </html>
-"""  # noqa: E501
+"""
 
 
 def run_command(command: list[str]) -> None:

@@ -98,8 +98,7 @@ def show(
     }
     matrix_envs = set()
     for i, (matrix_name, matrix_data) in enumerate(target_matrices.items()):
-        for env_name in matrix_data['envs']:
-            matrix_envs.add(env_name)
+        matrix_envs.update(matrix_data['envs'])
 
         if env_names and matrix_name not in env_names:
             continue
