@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Changed:***
+
+- The `run`/`env run`, `fmt` and `shell` commands now only change the current working directory to the project root if not already inside the project
+
 ***Added:***
 
 - Add `test` command

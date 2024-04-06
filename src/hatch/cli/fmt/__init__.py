@@ -26,6 +26,7 @@ def fmt(
 ):
     """Format and lint source code."""
     from hatch.cli.fmt.core import StaticAnalysisEnvironment
+    from hatch.utils.structures import EnvVars
 
     if linter and formatter:
         app.abort('Cannot specify both --linter and --formatter')
@@ -72,7 +73,7 @@ def fmt(
         # Add an extra space if required
         internal_args = f' {internal_args}'
 
-    with app.project.location.as_cwd({'HATCH_FMT_ARGS': internal_args}):
+    with app.project.ensure_cwd(), EnvVars({'HATCH_FMT_ARGS': internal_args}):
         if not sa_env.config_path or sync:
             sa_env.write_config_file(preview=preview)
 

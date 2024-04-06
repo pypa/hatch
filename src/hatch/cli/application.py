@@ -179,7 +179,7 @@ class Application(Terminal):
 
         any_compatible = False
         incompatible = {}
-        with self.project.location.as_cwd():
+        with self.project.ensure_cwd():
             for env_name in environments:
                 environment = self.get_environment(env_name)
                 if not environment.exists():
