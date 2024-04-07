@@ -28,10 +28,15 @@ class VirtualEnvironment(EnvironmentInterface):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Always compute the isolated app path for build environments
-        checksum = self.root.id[:8]
-
-        project_name = self.metadata.name if 'project' in self.metadata.config else f'{checksum}-unmanaged'
+        project_id = self.root.id
+        project_is_script = self.root.is_file()
+        project_name = (
+            project_id
+            if project_is_script
+            else self.metadata.name
+            if 'project' in self.metadata.config
+            else f'{project_id}-unmanaged'
+        )
         venv_name = project_name if self.name == 'default' else self.name
 
         # Conditions requiring a flat structure for build env
@@ -41,15 +46,17 @@ class VirtualEnvironment(EnvironmentInterface):
         ):
             app_virtual_env_path = self.isolated_data_directory / venv_name
         else:
-            app_virtual_env_path = self.isolated_data_directory / project_name / checksum / venv_name
+            app_virtual_env_path = self.isolated_data_directory / project_name / project_id / venv_name
 
         # Explicit path
         chosen_directory = self.get_env_var_option('path') or self.config.get('path', '')
         if chosen_directory:
-            self.storage_path = self.data_directory / project_name / checksum
+            self.storage_path = self.data_directory / project_name / project_id
             self.virtual_env_path = (
                 Path(chosen_directory) if isabs(chosen_directory) else (self.root / chosen_directory).resolve()
             )
+        elif project_is_script:
+            self.storage_path = self.virtual_env_path = self.isolated_data_directory / venv_name
         # Conditions requiring a flat structure
         elif (
             self.data_directory == self.platform.home / '.virtualenvs'
@@ -59,7 +66,7 @@ class VirtualEnvironment(EnvironmentInterface):
             self.virtual_env_path = self.storage_path / venv_name
         # Otherwise the defined app path
         else:
-            self.storage_path = self.data_directory / project_name / checksum
+            self.storage_path = self.data_directory / project_name / project_id
             self.virtual_env_path = self.storage_path / venv_name
 
         self.virtual_env = VirtualEnv(self.virtual_env_path, self.platform, self.verbosity)

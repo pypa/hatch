@@ -27,6 +27,8 @@ class Project:
         self._metadata = None
         self._config = None
 
+        self._explicit_path: Path | None = None
+
     @property
     def plugin_manager(self):
         if self._plugin_manager is None:
@@ -55,7 +57,10 @@ class Project:
 
     @property
     def location(self) -> Path:
-        return self.root or self._path
+        return self._explicit_path or self.root or self._path
+
+    def set_path(self, path: Path) -> None:
+        self._explicit_path = path
 
     @classmethod
     def from_config(cls, config: RootConfig, project: str) -> Project | None:

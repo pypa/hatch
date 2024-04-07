@@ -1,4 +1,11 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import click
+
+if TYPE_CHECKING:
+    from hatch.cli.application import Application
 
 
 @click.command(
@@ -6,9 +13,8 @@ import click
     context_settings={'help_option_names': [], 'ignore_unknown_options': True},
 )
 @click.argument('args', metavar='[ENV:]ARGS...', required=True, nargs=-1)
-@click.pass_obj
 @click.pass_context
-def run(ctx, app, args):
+def run(ctx: click.Context, args: tuple[str, ...]):
     """
     Run commands within project environments.
     This is a convenience wrapper around the [`env run`](#hatch-env-run) command.
@@ -45,9 +51,60 @@ def run(ctx, app, args):
     would execute `pytest` in the environments `test.py3.10-42` and `test.py3.10-3.14`.
     Note that `py` may be used as an alias for `python`.
     """
-    if args[0] in {'-h', '--help'}:
+    app: Application = ctx.obj
+
+    first_arg = args[0]
+    if first_arg in {'-h', '--help'}:
         app.display_info(ctx.get_help())
         return
+
+    from hatch.utils.fs import Path
+
+    if first_arg.endswith('.py') and (script := Path(first_arg)).is_file():
+        from hatch.project.utils import parse_inline_script_metadata
+
+        # Ensure consistent IDs for storage
+        script = script.resolve()
+
+        try:
+            metadata = parse_inline_script_metadata(script.read_text())
+        except ValueError as e:
+            app.abort(f'{e}, {first_arg}')
+
+        # Ignore scripts that don't define metadata blocks or define empty metadata blocks
+        if metadata:
+            from hatch.env.utils import ensure_valid_environment
+
+            config = {'skip-install': True, 'dependencies': metadata.get('dependencies', [])}
+            if (requires_python := metadata.get('requires-python')) is not None:
+                import re
+                import sys
+
+                from packaging.specifiers import SpecifierSet
+
+                from hatch.python.distributions import DISTRIBUTIONS
+
+                current_version = '.'.join(map(str, sys.version_info[:2]))
+                distributions = [name for name in DISTRIBUTIONS if re.match(r'^\d+\.\d+$', name)]
+                distributions.sort(key=lambda name: name != current_version)
+
+                python_constraint = SpecifierSet(requires_python)
+                for distribution in distributions:
+                    # Try an artificially high patch version to account for
+                    # common cases like `>=3.11.4` or `>=3.10,<3.11`
+                    if python_constraint.contains(f'{distribution}.100'):
+                        config['python'] = distribution
+                        break
+                else:
+                    app.abort(f'Unable to satisfy Python version constraint: {requires_python}')
+
+            ensure_valid_environment(config)
+            app.project.config.envs[script.id] = config
+            app.project.set_path(script)
+            for context in app.runner_context([script.id]):
+                context.args.extend(['python', first_arg, *args[1:]])
+
+            return
 
     from hatch.cli.env.run import run as run_command
 
@@ -69,7 +126,7 @@ def run(ctx, app, args):
     if not args:
         app.abort('Missing argument `MATRIX:ARGS...`')
 
-    command, *args = args
+    command, *final_args = args
     env_name, separator, command = command.rpartition(':')
     if not separator:
         env_name = app.env
@@ -78,7 +135,7 @@ def run(ctx, app, args):
 
     ctx.invoke(
         run_command,
-        args=[command, *args],
+        args=[command, *final_args],
         env_names=[env_name],
         included_variable_specs=included_variables,
         excluded_variable_specs=excluded_variables,

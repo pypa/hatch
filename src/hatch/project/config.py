@@ -498,7 +498,7 @@ class ProjectConfig:
 
         for environments in (self.envs, self.internal_envs):
             for env_name, config in environments.items():
-                for override_name, data in self._cached_env_overrides[env_name].items():
+                for override_name, data in self._cached_env_overrides.get(env_name, {}).items():
                     for condition, condition_value, options in data:
                         apply_overrides(
                             env_name, override_name, condition, condition_value, options, config, option_types
@@ -527,9 +527,9 @@ def expand_script_commands(script_name, commands, config, seen, active):
         if possible_script in config:
             expanded_commands.extend(
                 format_script_commands(
-                    expand_script_commands(possible_script, config[possible_script], config, seen, active),
-                    args,
-                    ignore_exit_code,
+                    commands=expand_script_commands(possible_script, config[possible_script], config, seen, active),
+                    args=args,
+                    ignore_exit_code=ignore_exit_code,
                 )
             )
         else:

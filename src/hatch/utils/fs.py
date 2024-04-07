@@ -33,7 +33,7 @@ if sys.platform == 'darwin':
 
 class Path(_PathBase):
     @cached_property
-    def id(self) -> str:
+    def long_id(self) -> str:
         from base64 import urlsafe_b64encode
         from hashlib import sha256
 
@@ -43,6 +43,10 @@ class Path(_PathBase):
 
         digest = sha256(path.encode('utf-8')).digest()
         return urlsafe_b64encode(digest).decode('utf-8')
+
+    @cached_property
+    def id(self) -> str:
+        return self.long_id[:8]
 
     def ensure_dir_exists(self) -> None:
         self.mkdir(parents=True, exist_ok=True)

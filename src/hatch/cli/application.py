@@ -61,7 +61,9 @@ class Application(Terminal):
         if environment_class is None:
             self.abort(f'Environment `{env_name}` has unknown type: {environment_type}')
 
-        if is_isolated_environment(env_name, config):
+        if self.project.location.is_file():
+            data_directory = isolated_data_directory = self.data_dir / 'env' / environment_type / '.scripts'
+        elif is_isolated_environment(env_name, config):
             data_directory = isolated_data_directory = self.data_dir / 'env' / '.internal' / env_name
         else:
             data_directory = self.get_env_directory(environment_type)
@@ -336,7 +338,7 @@ class EnvironmentMetadata:
 
     @cached_property
     def _storage_dir(self) -> Path:
-        return self.__data_dir / self.__project_path.id[:8]
+        return self.__data_dir / self.__project_path.id
 
 
 def is_isolated_environment(env_name: str, config: dict[str, Any]) -> bool:
