@@ -120,6 +120,8 @@ nav:
   - How-to:
     - Meta:
       - Report issues: how-to/meta/report-issues.md
+    - Run:
+      - Python scripts: how-to/run/python-scripts.md
     - Config:
       - Dynamic metadata: how-to/config/dynamic-metadata.md
     - Environments:

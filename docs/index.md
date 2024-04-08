@@ -59,6 +59,14 @@ Hatch is a modern, extensible Python project manager. See the [Why Hatch?](why.m
 
     [:octicons-arrow-right-24: Learn](config/internal/static-analysis.md)
 
+-   :material-console-line:{ .lg .middle } __Script runner__
+
+    ---
+
+    Execute Python scripts with specific dependencies and Python versions
+
+    [:octicons-arrow-right-24: Execute](how-to/run/python-scripts.md)
+
 -   :material-publish:{ .lg .middle } __Publishing__
 
     ---

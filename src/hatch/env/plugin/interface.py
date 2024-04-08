@@ -993,9 +993,11 @@ def expand_script_commands(env_name, script_name, commands, config, seen, active
         if possible_script in config:
             expanded_commands.extend(
                 format_script_commands(
-                    expand_script_commands(env_name, possible_script, config[possible_script], config, seen, active),
-                    args,
-                    ignore_exit_code,
+                    commands=expand_script_commands(
+                        env_name, possible_script, config[possible_script], config, seen, active
+                    ),
+                    args=args,
+                    ignore_exit_code=ignore_exit_code,
                 )
             )
         else:

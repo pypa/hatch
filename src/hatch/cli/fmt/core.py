@@ -28,7 +28,7 @@ class StaticAnalysisEnvironment:
 
     @cached_property
     def internal_config_file(self) -> Path:
-        return self.env.isolated_data_directory / '.config' / self.env.root.id[:8] / 'ruff_defaults.toml'
+        return self.env.isolated_data_directory / '.config' / self.env.root.id / 'ruff_defaults.toml'
 
     def construct_config_file(self, *, preview: bool) -> str:
         lines = [
