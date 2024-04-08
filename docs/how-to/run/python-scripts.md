@@ -4,7 +4,14 @@
 
 The [`run`](../../cli/reference.md#hatch-run) command supports executing Python scripts with [inline metadata](https://packaging.python.org/en/latest/specifications/inline-script-metadata/), such that a dedicated [environment](../../config/environment/overview.md) is automatically created with the required dependencies and with the correct version of Python.
 
-A script metadata block is a comment block that starts with `# /// script` and ends with `# ///`. Every line between those two lines must be a comment line that starts with `#`. For example, the following is an example of Python script with a valid metadata block:
+A script metadata block is a comment block that starts with `# /// script` and ends with `# ///`. Every line between those two lines must be a comment line that starts with `#` and contains a [TOML](https://github.com/toml-lang/toml) document when the comment characters are removed.
+
+The top-level fields are:
+
+- `dependencies`: A list of strings that specifies the runtime dependencies of the script. Each entry must be a valid [dependency specifier](https://packaging.python.org/en/latest/specifications/dependency-specifiers/#dependency-specifiers).
+- `requires-python`: A string that specifies the Python version(s) with which the script is compatible. The value of this field must be a valid [version specifier](https://packaging.python.org/en/latest/specifications/version-specifiers/#version-specifiers).
+
+The following is an example of Python script with a valid metadata block:
 
 === ":octicons-file-code-16: script.py"
 
