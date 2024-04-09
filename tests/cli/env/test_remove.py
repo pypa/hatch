@@ -18,10 +18,10 @@ def test_unknown(hatch, temp_dir_data, helpers):
     with project_path.as_cwd():
         result = hatch('env', 'remove', 'foo')
 
-    assert result.exit_code == 1
+    assert result.exit_code == 1, result.output
     assert result.output == helpers.dedent(
         """
-        Unknown environment: foo
+        Environment `foo` is not defined by project config
         """
     )
 

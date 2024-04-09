@@ -7,11 +7,27 @@ if TYPE_CHECKING:
 
 
 class ExecutionContext:
-    def __init__(self, environment: EnvironmentInterface) -> None:
+    def __init__(
+        self,
+        environment: EnvironmentInterface,
+        *,
+        shell_commands: list[str] | None = None,
+        env_vars: dict[str, str] | None = None,
+        force_continue: bool = False,
+        show_code_on_error: bool = False,
+        hide_commands: bool = False,
+        source: str = 'cmd',
+    ) -> None:
         self.env = environment
+        self.shell_commands: list[str] = shell_commands or []
+        self.env_vars: dict[str, str] = env_vars or {}
+        self.force_continue = force_continue
+        self.show_code_on_error = show_code_on_error
+        self.hide_commands = hide_commands
+        self.source = source
 
-        self.args: list[str] = []
-        self.env_vars: dict[str, str] = {}
+    def add_shell_command(self, command: str | list[str]) -> None:
+        self.shell_commands.append(command if isinstance(command, str) else self.env.join_command_args(command))
 
 
 def parse_matrix_variables(specs: tuple[str, ...]) -> dict[str, set[str]]:

@@ -183,8 +183,7 @@ def test(
         else:
             arguments.extend(context.env.config.get('default-args', ['tests']))
 
-        context.args.append(test_script)
-        context.args.extend(arguments)
+        context.add_shell_command([test_script, *arguments])
         context.env_vars['HATCH_TEST_ARGS'] = internal_args
         if cover:
             context.env_vars['COVERAGE_RCFILE'] = coverage_config_file
@@ -192,8 +191,8 @@ def test(
 
     if cover:
         for context in app.runner_context([selected_envs[0]]):
-            context.args.append('cov-combine')
+            context.add_shell_command('cov-combine')
 
         if not cover_quiet:
             for context in app.runner_context([selected_envs[0]]):
-                context.args.append('cov-report')
+                context.add_shell_command('cov-report')

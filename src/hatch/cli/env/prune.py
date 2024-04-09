@@ -1,9 +1,16 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import click
+
+if TYPE_CHECKING:
+    from hatch.cli.application import Application
 
 
 @click.command(short_help='Remove all environments')
 @click.pass_obj
-def prune(app):
+def prune(app: Application):
     """Remove all environments."""
     app.ensure_environment_plugin_dependencies()
 
