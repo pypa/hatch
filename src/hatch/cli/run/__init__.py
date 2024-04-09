@@ -102,7 +102,7 @@ def run(ctx: click.Context, args: tuple[str, ...]):
             app.project.config.envs[script.id] = config
             app.project.set_path(script)
             for context in app.runner_context([script.id]):
-                context.args.extend(['python', first_arg, *args[1:]])
+                context.add_shell_command(['python', first_arg, *args[1:]])
 
             return
 

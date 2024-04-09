@@ -128,10 +128,10 @@ def run(
     for context in app.runner_context(
         environments,
         ignore_compat=ignore_compat or matrix_selected,
-        force_continue=force_continue,
         display_header=matrix_selected,
     ):
         if context.env.name == 'system':
             context.env.exists = lambda: True  # type: ignore[method-assign]
 
-        context.args.extend(args)
+        context.force_continue = force_continue
+        context.add_shell_command(list(args))

@@ -1,23 +1,23 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import click
+
+if TYPE_CHECKING:
+    from hatch.cli.application import Application
 
 
 @click.command(short_help='Locate environments')
 @click.argument('env_name', default='default')
 @click.pass_obj
-def find(app, env_name):
+def find(app: Application, env_name: str):
     """Locate environments."""
     app.ensure_environment_plugin_dependencies()
 
-    root_env_name = env_name
-    project_config = app.project.config
-    if root_env_name not in project_config.envs and root_env_name not in project_config.matrices:
-        app.abort(f'Environment `{root_env_name}` is not defined by project config')
-
-    environments = (
-        list(project_config.matrices[root_env_name]['envs'])
-        if root_env_name in project_config.matrices
-        else [root_env_name]
-    )
+    environments = app.expand_environments(env_name)
+    if not environments:
+        app.abort(f'Environment `{env_name}` is not defined by project config')
 
     for env in environments:
         environment = app.get_environment(env)

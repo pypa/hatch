@@ -10,6 +10,7 @@ from hatch.config.user import ConfigFile, RootConfig
 from hatch.project.core import Project
 from hatch.utils.fs import Path
 from hatch.utils.platform import Platform
+from hatch.utils.runner import ExecutionContext
 
 if TYPE_CHECKING:
     from collections.abc import Generator
@@ -17,7 +18,6 @@ if TYPE_CHECKING:
     from packaging.requirements import Requirement
 
     from hatch.env.plugin.interface import EnvironmentInterface
-    from hatch.utils.runner import ExecutionContext
 
 
 class Application(Terminal):
@@ -45,16 +45,31 @@ class Application(Terminal):
     def config(self) -> RootConfig:
         return self.config_file.model
 
+    def expand_environments(self, env_name: str) -> list[str]:
+        if env_name in self.project.config.internal_matrices:
+            return list(self.project.config.internal_matrices[env_name]['envs'])
+
+        if env_name in self.project.config.matrices:
+            return list(self.project.config.matrices[env_name]['envs'])
+
+        if env_name in self.project.config.internal_envs:
+            return [env_name]
+
+        if env_name in self.project.config.envs:
+            return [env_name]
+
+        return []
+
     def get_environment(self, env_name: str | None = None) -> EnvironmentInterface:
         if env_name is None:
             env_name = self.env
 
         if env_name in self.project.config.internal_envs:
             config = self.project.config.internal_envs[env_name]
-        elif env_name not in self.project.config.envs:
-            self.abort(f'Unknown environment: {env_name}')
-        else:
+        elif env_name in self.project.config.envs:
             config = self.project.config.envs[env_name]
+        else:
+            self.abort(f'Unknown environment: {env_name}')
 
         environment_type = config['type']
         environment_class = self.plugins.environment.get(environment_type)
@@ -96,7 +111,14 @@ class Application(Terminal):
             if not environment.skip_install:
                 if environment.pre_install_commands:
                     with environment.app_status_pre_installation():
-                        self.run_shell_commands(environment, environment.pre_install_commands, source='pre-install')
+                        self.run_shell_commands(
+                            ExecutionContext(
+                                environment,
+                                shell_commands=environment.pre_install_commands,
+                                source='pre-install',
+                                show_code_on_error=True,
+                            )
+                        )
 
                 with environment.app_status_project_installation():
                     if environment.dev_mode:
@@ -106,7 +128,14 @@ class Application(Terminal):
 
                 if environment.post_install_commands:
                     with environment.app_status_post_installation():
-                        self.run_shell_commands(environment, environment.post_install_commands, source='post-install')
+                        self.run_shell_commands(
+                            ExecutionContext(
+                                environment,
+                                shell_commands=environment.post_install_commands,
+                                source='post-install',
+                                show_code_on_error=True,
+                            )
+                        )
 
         with environment.app_status_dependency_state_check():
             new_dep_hash = environment.dependency_hash()
@@ -123,57 +152,46 @@ class Application(Terminal):
 
             self.env_metadata.update_dependency_hash(environment, new_dep_hash)
 
-    def run_shell_commands(
-        self,
-        environment: EnvironmentInterface,
-        commands: list[str],
-        source='cmd',
-        *,
-        force_continue=False,
-        show_code_on_error=True,
-        hide_commands=False,
-    ):
-        with environment.command_context():
+    def run_shell_commands(self, context: ExecutionContext) -> None:
+        with context.env.command_context():
             try:
-                resolved_commands = list(environment.resolve_commands(commands))
+                resolved_commands = list(context.env.resolve_commands(context.shell_commands))
             except Exception as e:  # noqa: BLE001
                 self.abort(str(e))
 
             first_error_code = None
-            should_display_command = not hide_commands and (self.verbose or len(resolved_commands) > 1)
+            should_display_command = not context.hide_commands and (self.verbose or len(resolved_commands) > 1)
             for i, raw_command in enumerate(resolved_commands, 1):
                 if should_display_command:
-                    self.display(f'{source} [{i}] | {raw_command}')
+                    self.display(f'{context.source} [{i}] | {raw_command}')
 
                 command = raw_command
-                continue_on_error = force_continue
+                continue_on_error = context.force_continue
                 if raw_command.startswith('- '):
                     continue_on_error = True
                     command = command[2:]
 
-                process = environment.run_shell_command(command)
+                process = context.env.run_shell_command(command)
                 if process.returncode:
                     first_error_code = first_error_code or process.returncode
                     if continue_on_error:
                         continue
 
-                    if show_code_on_error:
+                    if context.show_code_on_error:
                         self.abort(f'Failed with exit code: {process.returncode}', code=process.returncode)
                     else:
                         self.abort(code=process.returncode)
 
-            if first_error_code and force_continue:
+            if first_error_code and context.force_continue:
                 self.abort(code=first_error_code)
 
     def runner_context(
         self,
         environments: list[str],
         *,
-        ignore_compat=False,
-        force_continue=False,
-        display_header=False,
+        ignore_compat: bool = False,
+        display_header: bool = False,
     ) -> Generator[ExecutionContext, None, None]:
-        from hatch.utils.runner import ExecutionContext
         from hatch.utils.structures import EnvVars
 
         if self.verbose or len(environments) > 1:
@@ -203,12 +221,7 @@ class Application(Terminal):
 
                 self.prepare_environment(environment)
                 with EnvVars(context.env_vars):
-                    self.run_shell_commands(
-                        environment,
-                        [environment.join_command_args(context.args)],
-                        force_continue=force_continue,
-                        show_code_on_error=False,
-                    )
+                    self.run_shell_commands(context)
 
         if incompatible:
             num_incompatible = len(incompatible)
