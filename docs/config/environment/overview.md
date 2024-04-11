@@ -84,7 +84,7 @@ extra-dependencies = [
 ```
 
 !!! tip
-    Hatch uses [pip](https://pip.pypa.io) to install dependencies so any [configuration](https://pip.pypa.io/en/stable/topics/configuration/) it supports Hatch does as well. For example, if you wanted to only use a private repository you could set the `PIP_INDEX_URL` [environment variable](#environment-variables).
+    Hatch uses [pip](https://github.com/pypa/pip) to install dependencies so any [configuration](https://pip.pypa.io/en/stable/topics/configuration/) it supports Hatch does as well. For example, if you wanted to only use a private repository you could set the `PIP_INDEX_URL` [environment variable](#environment-variables).
 
 ## Installation
 
@@ -213,8 +213,9 @@ error = [
 ]
 ```
 
-!!! tip
-    Individual scripts [inherit](#inheritance) from parent environments just like options.
+### Extra scripts
+
+Individual scripts [inherit](#inheritance) from parent environments just like options. To guarantee that individual scripts do not override those defined by parent environments, you can use the `extra-scripts` option instead which is only capable of adding scripts that have not been defined.
 
 ## Commands
 

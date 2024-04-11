@@ -1064,10 +1064,11 @@ class TestDependencies:
 
 
 class TestScripts:
-    def test_not_table(self, isolation, isolated_data_dir, platform):
+    @pytest.mark.parametrize('field', ['scripts', 'extra-scripts'])
+    def test_not_table(self, isolation, isolated_data_dir, platform, field):
         config = {
             'project': {'name': 'my_app', 'version': '0.0.1'},
-            'tool': {'hatch': {'envs': {'default': {'scripts': 9000}}}},
+            'tool': {'hatch': {'envs': {'default': {field: 9000}}}},
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
@@ -1082,13 +1083,14 @@ class TestScripts:
             0,
         )
 
-        with pytest.raises(TypeError, match='Field `tool.hatch.envs.default.scripts` must be a table'):
+        with pytest.raises(TypeError, match=f'Field `tool.hatch.envs.default.{field}` must be a table'):
             _ = environment.scripts
 
-    def test_name_contains_spaces(self, isolation, isolated_data_dir, platform):
+    @pytest.mark.parametrize('field', ['scripts', 'extra-scripts'])
+    def test_name_contains_spaces(self, isolation, isolated_data_dir, platform, field):
         config = {
             'project': {'name': 'my_app', 'version': '0.0.1'},
-            'tool': {'hatch': {'envs': {'default': {'scripts': {'foo bar': []}}}}},
+            'tool': {'hatch': {'envs': {'default': {field: {'foo bar': []}}}}},
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
@@ -1104,7 +1106,8 @@ class TestScripts:
         )
 
         with pytest.raises(
-            ValueError, match='Script name `foo bar` in field `tool.hatch.envs.default.scripts` must not contain spaces'
+            ValueError,
+            match=f'Script name `foo bar` in field `tool.hatch.envs.default.{field}` must not contain spaces',
         ):
             _ = environment.scripts
 
@@ -1125,11 +1128,12 @@ class TestScripts:
 
         assert environment.scripts == environment.scripts == {}
 
-    def test_single_commands(self, isolation, isolated_data_dir, platform):
+    @pytest.mark.parametrize('field', ['scripts', 'extra-scripts'])
+    def test_single_commands(self, isolation, isolated_data_dir, platform, field):
         script_config = {'foo': 'command1', 'bar': 'command2'}
         config = {
             'project': {'name': 'my_app', 'version': '0.0.1'},
-            'tool': {'hatch': {'envs': {'default': {'scripts': script_config}}}},
+            'tool': {'hatch': {'envs': {'default': {field: script_config}}}},
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
@@ -1146,11 +1150,12 @@ class TestScripts:
 
         assert environment.scripts == {'foo': ['command1'], 'bar': ['command2']}
 
-    def test_multiple_commands(self, isolation, isolated_data_dir, platform):
+    @pytest.mark.parametrize('field', ['scripts', 'extra-scripts'])
+    def test_multiple_commands(self, isolation, isolated_data_dir, platform, field):
         script_config = {'foo': 'command1', 'bar': ['command3', 'command2']}
         config = {
             'project': {'name': 'my_app', 'version': '0.0.1'},
-            'tool': {'hatch': {'envs': {'default': {'scripts': script_config}}}},
+            'tool': {'hatch': {'envs': {'default': {field: script_config}}}},
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
@@ -1167,10 +1172,11 @@ class TestScripts:
 
         assert environment.scripts == {'foo': ['command1'], 'bar': ['command3', 'command2']}
 
-    def test_multiple_commands_not_string(self, isolation, isolated_data_dir, platform):
+    @pytest.mark.parametrize('field', ['scripts', 'extra-scripts'])
+    def test_multiple_commands_not_string(self, isolation, isolated_data_dir, platform, field):
         config = {
             'project': {'name': 'my_app', 'version': '0.0.1'},
-            'tool': {'hatch': {'envs': {'default': {'scripts': {'foo': [9000]}}}}},
+            'tool': {'hatch': {'envs': {'default': {field: {'foo': [9000]}}}}},
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
@@ -1186,14 +1192,15 @@ class TestScripts:
         )
 
         with pytest.raises(
-            TypeError, match='Command #1 in field `tool.hatch.envs.default.scripts.foo` must be a string'
+            TypeError, match=f'Command #1 in field `tool.hatch.envs.default.{field}.foo` must be a string'
         ):
             _ = environment.scripts
 
-    def test_config_invalid_type(self, isolation, isolated_data_dir, platform):
+    @pytest.mark.parametrize('field', ['scripts', 'extra-scripts'])
+    def test_config_invalid_type(self, isolation, isolated_data_dir, platform, field):
         config = {
             'project': {'name': 'my_app', 'version': '0.0.1'},
-            'tool': {'hatch': {'envs': {'default': {'scripts': {'foo': 9000}}}}},
+            'tool': {'hatch': {'envs': {'default': {field: {'foo': 9000}}}}},
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
@@ -1209,15 +1216,16 @@ class TestScripts:
         )
 
         with pytest.raises(
-            TypeError, match='Field `tool.hatch.envs.default.scripts.foo` must be a string or an array of strings'
+            TypeError, match=f'Field `tool.hatch.envs.default.{field}.foo` must be a string or an array of strings'
         ):
             _ = environment.scripts
 
-    def test_command_expansion_basic(self, isolation, isolated_data_dir, platform):
+    @pytest.mark.parametrize('field', ['scripts', 'extra-scripts'])
+    def test_command_expansion_basic(self, isolation, isolated_data_dir, platform, field):
         script_config = {'foo': 'command1', 'bar': ['command3', 'foo']}
         config = {
             'project': {'name': 'my_app', 'version': '0.0.1'},
-            'tool': {'hatch': {'envs': {'default': {'scripts': script_config}}}},
+            'tool': {'hatch': {'envs': {'default': {field: script_config}}}},
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
@@ -1234,7 +1242,8 @@ class TestScripts:
 
         assert environment.scripts == {'foo': ['command1'], 'bar': ['command3', 'command1']}
 
-    def test_command_expansion_multiple_nested(self, isolation, isolated_data_dir, platform):
+    @pytest.mark.parametrize('field', ['scripts', 'extra-scripts'])
+    def test_command_expansion_multiple_nested(self, isolation, isolated_data_dir, platform, field):
         script_config = {
             'foo': 'command3',
             'baz': ['command5', 'bar', 'foo', 'command1'],
@@ -1242,7 +1251,7 @@ class TestScripts:
         }
         config = {
             'project': {'name': 'my_app', 'version': '0.0.1'},
-            'tool': {'hatch': {'envs': {'default': {'scripts': script_config}}}},
+            'tool': {'hatch': {'envs': {'default': {field: script_config}}}},
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
@@ -1263,7 +1272,8 @@ class TestScripts:
             'bar': ['command4', 'command3', 'command2'],
         }
 
-    def test_command_expansion_multiple_nested_ignore_exit_code(self, isolation, isolated_data_dir, platform):
+    @pytest.mark.parametrize('field', ['scripts', 'extra-scripts'])
+    def test_command_expansion_multiple_nested_ignore_exit_code(self, isolation, isolated_data_dir, platform, field):
         script_config = {
             'foo': 'command3',
             'baz': ['command5', '- bar', 'foo', 'command1'],
@@ -1271,7 +1281,7 @@ class TestScripts:
         }
         config = {
             'project': {'name': 'my_app', 'version': '0.0.1'},
-            'tool': {'hatch': {'envs': {'default': {'scripts': script_config}}}},
+            'tool': {'hatch': {'envs': {'default': {field: script_config}}}},
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
@@ -1292,7 +1302,8 @@ class TestScripts:
             'bar': ['command4', '- command3', 'command2'],
         }
 
-    def test_command_expansion_modification(self, isolation, isolated_data_dir, platform):
+    @pytest.mark.parametrize('field', ['scripts', 'extra-scripts'])
+    def test_command_expansion_modification(self, isolation, isolated_data_dir, platform, field):
         script_config = {
             'foo': 'command3',
             'baz': ['command5', 'bar world', 'foo', 'command1'],
@@ -1300,7 +1311,7 @@ class TestScripts:
         }
         config = {
             'project': {'name': 'my_app', 'version': '0.0.1'},
-            'tool': {'hatch': {'envs': {'default': {'scripts': script_config}}}},
+            'tool': {'hatch': {'envs': {'default': {field: script_config}}}},
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
@@ -1344,6 +1355,35 @@ class TestScripts:
             match='Circular expansion detected for field `tool.hatch.envs.default.scripts`: foo -> bar -> foo',
         ):
             _ = environment.scripts
+
+    def test_extra_less_precedence(self, isolation, isolated_data_dir, platform):
+        config = {
+            'project': {'name': 'my_app', 'version': '0.0.1'},
+            'tool': {
+                'hatch': {
+                    'envs': {
+                        'default': {
+                            'extra-scripts': {'foo': 'command4', 'baz': 'command3'},
+                            'scripts': {'foo': 'command1', 'bar': 'command2'},
+                        }
+                    }
+                },
+            },
+        }
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+        )
+
+        assert environment.scripts == {'foo': ['command1'], 'bar': ['command2'], 'baz': ['command3']}
 
 
 class TestPreInstallCommands:

@@ -17,6 +17,7 @@ from platformdirs import user_cache_dir, user_data_dir
 
 from hatch.config.constants import AppEnvVars, ConfigEnvVars, PublishEnvVars
 from hatch.config.user import ConfigFile
+from hatch.env.utils import get_env_var
 from hatch.utils.ci import running_in_ci
 from hatch.utils.fs import Path, temp_directory
 from hatch.utils.platform import Platform
@@ -70,7 +71,7 @@ def helpers():
 
 
 @pytest.fixture(scope='session', autouse=True)
-def isolation() -> Generator[Path, None, None]:
+def isolation(uv_on_path) -> Generator[Path, None, None]:
     with temp_directory() as d:
         data_dir = d / 'data'
         data_dir.mkdir()
@@ -88,6 +89,7 @@ def isolation() -> Generator[Path, None, None]:
             ConfigEnvVars.CACHE: str(cache_dir),
             PublishEnvVars.REPO: 'dev',
             'HATCH_SELF_TESTING': 'true',
+            get_env_var(plugin_name='virtual', option='uv_path'): uv_on_path,
             'PYAPP_COMMAND_NAME': os.urandom(4).hex(),
             'GIT_AUTHOR_NAME': 'Foo Bar',
             'GIT_AUTHOR_EMAIL': 'foo@bar.baz',
@@ -197,6 +199,11 @@ def extract_installed_requirements(helpers, default_virtualenv_installed_require
 @pytest.fixture(scope='session', autouse=True)
 def python_on_path():
     return Path(sys.executable).stem
+
+
+@pytest.fixture(scope='session', autouse=True)
+def uv_on_path():
+    return shutil.which('uv')
 
 
 @pytest.fixture(scope='session')

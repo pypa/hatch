@@ -1,5 +1,17 @@
 from __future__ import annotations
 
+import os
+
+from hatch.config.constants import AppEnvVars
+
+
+def get_env_var(*, plugin_name: str, option: str) -> str:
+    return f'{AppEnvVars.ENV_OPTION_PREFIX}{plugin_name}_{option.replace("-", "_")}'.upper()
+
+
+def get_env_var_option(*, plugin_name: str, option: str, default: str = '') -> str:
+    return os.environ.get(get_env_var(plugin_name=plugin_name, option=option), default)
+
 
 def ensure_valid_environment(env_config: dict):
     env_config.setdefault('type', 'virtual')

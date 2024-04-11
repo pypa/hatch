@@ -67,6 +67,7 @@ class BorrowedStatus(TerminalStatus):
         active = self.__active()
         if self.__status is not None:
             self.__status.stop()
+            self.__finalizer()
 
         old_message, final_text = self.__messages[-1]
         if self.__verbosity > 0 and active:
@@ -116,6 +117,7 @@ class BorrowedStatus(TerminalStatus):
             self.__status = None
             self.__finalizer()
         else:
+            self.__initializer()
             message, _ = self.__messages[-1]
             self.__status = self.__console.status(message, spinner=self.__spinner_style)
             self.__status.start()

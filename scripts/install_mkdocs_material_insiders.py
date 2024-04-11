@@ -1,5 +1,4 @@
 import os
-import shutil
 import subprocess
 import sys
 
@@ -13,11 +12,10 @@ def main():
         print('No token is set, skipping')
         return
 
-    python = shutil.which('python')
     dependency = f'mkdocs-material[imaging] @ {DEP_REF}@{GIT_REF}'
     try:
         process = subprocess.Popen(
-            [python, '-m', 'pip', 'install', '--disable-pip-version-check', dependency],
+            ['uv', 'pip', 'install', dependency],  # noqa: S607
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             encoding='utf-8',

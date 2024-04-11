@@ -4,9 +4,10 @@ import sys
 import pytest
 
 from hatch.config.constants import AppEnvVars, ConfigEnvVars
+from hatch.env.utils import get_env_var
 from hatch.project.core import Project
 from hatch.utils.structures import EnvVars
-from hatch.venv.core import VirtualEnv
+from hatch.venv.core import UVVirtualEnv, VirtualEnv
 from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT, DEFAULT_CONFIG_FILE
 from hatchling.utils.fs import path_to_uri
 
@@ -108,6 +109,65 @@ def test_new(hatch, helpers, temp_dir, config_file):
         'default': {'type': 'virtual', 'skip-install': True},
         'test': {},
     }
+
+    env_data_path = data_path / 'env' / 'virtual'
+    assert env_data_path.is_dir()
+
+    project_data_path = env_data_path / project_path.name
+    assert project_data_path.is_dir()
+
+    storage_dirs = list(project_data_path.iterdir())
+    assert len(storage_dirs) == 1
+
+    storage_path = storage_dirs[0]
+    assert len(storage_path.name) == 8
+
+    env_dirs = list(storage_path.iterdir())
+    assert len(env_dirs) == 1
+
+    env_path = env_dirs[0]
+
+    assert env_path.name == 'test'
+
+
+def test_uv(hatch, helpers, temp_dir, config_file):
+    config_file.model.template.plugins['default']['tests'] = False
+    config_file.save()
+
+    project_name = 'My.App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / 'my-app'
+    data_path = temp_dir / 'data'
+    data_path.mkdir()
+
+    project = Project(project_path)
+    helpers.update_project_environment(
+        project,
+        'default',
+        {'skip-install': True, 'uv': True, **project.config.envs['default']},
+    )
+    helpers.update_project_environment(project, 'test', {})
+
+    with project_path.as_cwd(), EnvVars(
+        {ConfigEnvVars.DATA: str(data_path)}, exclude=[get_env_var(plugin_name='virtual', option='uv_path')]
+    ):
+        result = hatch('env', 'create', 'test')
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        """
+        Creating environment: test
+        Creating environment: hatch-uv
+        Checking dependencies
+        Syncing dependencies
+        Checking dependencies
+        """
+    )
 
     env_data_path = data_path / 'env' / 'virtual'
     assert env_data_path.is_dir()
@@ -887,11 +947,8 @@ def test_incompatible_matrix_partial(hatch, helpers, temp_dir, config_file):
 
 @pytest.mark.requires_internet
 def test_install_project_default_dev_mode(
-    hatch, helpers, temp_dir, platform, config_file, extract_installed_requirements
+    hatch, helpers, temp_dir, platform, uv_on_path, extract_installed_requirements
 ):
-    config_file.model.template.plugins['default']['tests'] = False
-    config_file.save()
-
     project_name = 'My.App'
 
     with temp_dir.as_cwd():
@@ -937,19 +994,18 @@ def test_install_project_default_dev_mode(
 
     assert env_path.name == 'test'
 
-    with VirtualEnv(env_path, platform):
-        output = platform.run_command(['pip', 'freeze'], check=True, capture_output=True).stdout.decode('utf-8')
+    with UVVirtualEnv(env_path, platform):
+        output = platform.run_command([uv_on_path, 'pip', 'freeze'], check=True, capture_output=True).stdout.decode(
+            'utf-8'
+        )
         requirements = extract_installed_requirements(output.splitlines())
 
         assert len(requirements) == 1
-        assert requirements[0].lower() == f'-e {str(project_path).lower()}'
+        assert requirements[0].lower() == f'-e {project_path.as_uri().lower()}'
 
 
 @pytest.mark.requires_internet
-def test_install_project_no_dev_mode(hatch, helpers, temp_dir, platform, config_file, extract_installed_requirements):
-    config_file.model.template.plugins['default']['tests'] = False
-    config_file.save()
-
+def test_install_project_no_dev_mode(hatch, helpers, temp_dir, platform, uv_on_path, extract_installed_requirements):
     project_name = 'My.App'
 
     with temp_dir.as_cwd():
@@ -996,12 +1052,14 @@ def test_install_project_no_dev_mode(hatch, helpers, temp_dir, platform, config_
 
     assert env_path.name == 'test'
 
-    with VirtualEnv(env_path, platform):
-        output = platform.run_command(['pip', 'freeze'], check=True, capture_output=True).stdout.decode('utf-8')
+    with UVVirtualEnv(env_path, platform):
+        output = platform.run_command([uv_on_path, 'pip', 'freeze'], check=True, capture_output=True).stdout.decode(
+            'utf-8'
+        )
         requirements = extract_installed_requirements(output.splitlines())
 
         assert len(requirements) == 1
-        assert requirements[0].startswith('my-app @')
+        assert requirements[0].lower() == f'my-app @ {project_path.as_uri().lower()}'
 
 
 @pytest.mark.requires_internet
@@ -1163,10 +1221,7 @@ def test_post_install_commands_error(hatch, helpers, temp_dir, config_file):
 
 
 @pytest.mark.requires_internet
-def test_sync_dependencies(hatch, helpers, temp_dir, platform, config_file, extract_installed_requirements):
-    config_file.model.template.plugins['default']['tests'] = False
-    config_file.save()
-
+def test_sync_dependencies_uv(hatch, helpers, temp_dir, platform, uv_on_path, extract_installed_requirements):
     project_name = 'My.App'
 
     with temp_dir.as_cwd():
@@ -1224,6 +1279,78 @@ def test_sync_dependencies(hatch, helpers, temp_dir, platform, config_file, extr
 
     assert env_path.name == 'test'
 
+    with UVVirtualEnv(env_path, platform):
+        output = platform.run_command([uv_on_path, 'pip', 'freeze'], check=True, capture_output=True).stdout.decode(
+            'utf-8'
+        )
+        requirements = extract_installed_requirements(output.splitlines())
+
+        assert len(requirements) == 2
+        assert requirements[0].startswith('binary==')
+        assert requirements[1].lower() == f'-e {project_path.as_uri().lower()}'
+
+
+@pytest.mark.requires_internet
+def test_sync_dependencies_pip(hatch, helpers, temp_dir, platform, extract_installed_requirements):
+    project_name = 'My.App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / 'my-app'
+    data_path = temp_dir / 'data'
+    data_path.mkdir()
+
+    project = Project(project_path)
+    helpers.update_project_environment(
+        project,
+        'default',
+        {
+            'dependencies': ['binary'],
+            'post-install-commands': ["python -c \"with open('test.txt', 'w') as f: f.write('content')\""],
+            **project.config.envs['default'],
+        },
+    )
+    helpers.update_project_environment(project, 'test', {})
+
+    with project_path.as_cwd(), EnvVars(
+        {ConfigEnvVars.DATA: str(data_path)}, exclude=[get_env_var(plugin_name='virtual', option='uv_path')]
+    ):
+        result = hatch('env', 'create', 'test')
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        """
+        Creating environment: test
+        Installing project in development mode
+        Running post-installation commands
+        Checking dependencies
+        Syncing dependencies
+        """
+    )
+    assert (project_path / 'test.txt').is_file()
+
+    env_data_path = data_path / 'env' / 'virtual'
+    assert env_data_path.is_dir()
+
+    project_data_path = env_data_path / project_path.name
+    assert project_data_path.is_dir()
+
+    storage_dirs = list(project_data_path.iterdir())
+    assert len(storage_dirs) == 1
+
+    storage_path = storage_dirs[0]
+    assert len(storage_path.name) == 8
+
+    env_dirs = list(storage_path.iterdir())
+    assert len(env_dirs) == 1
+
+    env_path = env_dirs[0]
+
+    assert env_path.name == 'test'
+
     with VirtualEnv(env_path, platform):
         output = platform.run_command(['pip', 'freeze'], check=True, capture_output=True).stdout.decode('utf-8')
         requirements = extract_installed_requirements(output.splitlines())
@@ -1234,10 +1361,7 @@ def test_sync_dependencies(hatch, helpers, temp_dir, platform, config_file, extr
 
 
 @pytest.mark.requires_internet
-def test_features(hatch, helpers, temp_dir, platform, config_file, extract_installed_requirements):
-    config_file.model.template.plugins['default']['tests'] = False
-    config_file.save()
-
+def test_features(hatch, helpers, temp_dir, platform, uv_on_path, extract_installed_requirements):
     project_name = 'My.App'
 
     with temp_dir.as_cwd():
@@ -1287,20 +1411,19 @@ def test_features(hatch, helpers, temp_dir, platform, config_file, extract_insta
 
     assert env_path.name == 'test'
 
-    with VirtualEnv(env_path, platform):
-        output = platform.run_command(['pip', 'freeze'], check=True, capture_output=True).stdout.decode('utf-8')
+    with UVVirtualEnv(env_path, platform):
+        output = platform.run_command([uv_on_path, 'pip', 'freeze'], check=True, capture_output=True).stdout.decode(
+            'utf-8'
+        )
         requirements = extract_installed_requirements(output.splitlines())
 
         assert len(requirements) == 2
         assert requirements[0].startswith('binary==')
-        assert requirements[1].lower() == f'-e {str(project_path).lower()}'
+        assert requirements[1].lower() == f'-e {project_path.as_uri().lower()}'
 
 
 @pytest.mark.requires_internet
-def test_sync_dynamic_dependencies(hatch, helpers, temp_dir, platform, config_file, extract_installed_requirements):
-    config_file.model.template.plugins['default']['tests'] = False
-    config_file.save()
-
+def test_sync_dynamic_dependencies(hatch, helpers, temp_dir, platform, uv_on_path, extract_installed_requirements):
     project_name = 'My.App'
 
     with temp_dir.as_cwd():
@@ -1385,15 +1508,17 @@ def test_sync_dynamic_dependencies(hatch, helpers, temp_dir, platform, config_fi
 
     assert env_path.name == 'test'
 
-    with VirtualEnv(env_path, platform):
-        output = platform.run_command(['pip', 'freeze'], check=True, capture_output=True).stdout.decode('utf-8')
+    with UVVirtualEnv(env_path, platform):
+        output = platform.run_command([uv_on_path, 'pip', 'freeze'], check=True, capture_output=True).stdout.decode(
+            'utf-8'
+        )
         requirements = extract_installed_requirements(output.splitlines())
 
         assert len(requirements) == 4
         assert requirements[0].startswith('binary==')
-        assert requirements[1].lower() == f'-e {str(project_path).lower()}'
-        assert requirements[2].lower() == f'my-app0 @ {path_to_uri(project_path).lower()}/../my-app0'
-        assert requirements[3].lower() == f'my-app1 @ {path_to_uri(project_path).lower()}/../my-app1'
+        assert requirements[1].lower() == f'-e {project_path.as_uri().lower()}'
+        assert requirements[2].lower() == f'my-app0 @ {project_path.parent.as_uri().lower()}/my-app0'
+        assert requirements[3].lower() == f'my-app1 @ {project_path.parent.as_uri().lower()}/my-app1'
 
 
 @pytest.mark.requires_internet
