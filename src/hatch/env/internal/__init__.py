@@ -6,13 +6,14 @@ from hatch.env.utils import ensure_valid_environment
 
 
 def get_internal_env_config() -> dict[str, Any]:
-    from hatch.env.internal import build, static_analysis, test
+    from hatch.env.internal import build, static_analysis, test, uv
 
     internal_config = {}
     for env_name, env_config in (
         ('hatch-build', build.get_default_config()),
         ('hatch-static-analysis', static_analysis.get_default_config()),
         ('hatch-test', test.get_default_config()),
+        ('hatch-uv', uv.get_default_config()),
     ):
         env_config['template'] = env_name
         ensure_valid_environment(env_config)

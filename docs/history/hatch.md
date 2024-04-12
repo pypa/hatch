@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Add `test` command
 - The `run` command can now execute scripts that define inline metadata for dependencies and Python version constraints
+- The `virtual` environment type now supports the ability to use UV in place of pip & virtualenv
 - Add `self report` command for submitting pre-populated bug reports to GitHub
 - The reserved environment used for static analysis is now completely configurable
 - Add the following methods to the `environment` interface for complete control over output during life cycle management: `app_status_creation`, `app_status_pre_installation`, `app_status_post_installation`, `app_status_project_installation`, `app_status_dependency_state_check`, `app_status_dependency_installation_check`, `app_status_dependency_synchronization`
@@ -36,6 +37,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Properly support projects with a `pyproject.toml` file but no `project` table e.g. applications
 - Fix dependency inheritance for the template of the `types` environment for new projects
 - De-select Ruff rule `E501` for the `fmt` command by default since it conflicts with the formatter
+- Fix colored output from build targets on the first run (build environment creation status indicator issue)
 
 ## [1.9.4](https://github.com/pypa/hatch/releases/tag/hatch-v1.9.4) - 2024-03-12 ## {: #hatch-v1.9.4 }
 

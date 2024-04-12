@@ -2,7 +2,7 @@
 
 -----
 
-This uses virtual environments backed by the standard [virtualenv](https://github.com/pypa/virtualenv) tool.
+This uses virtual environments backed by [virtualenv](https://github.com/pypa/virtualenv) or [UV](https://github.com/astral-sh/uv).
 
 ## Configuration
 
@@ -21,6 +21,7 @@ type = "virtual"
 | `python-sources` | `['external', 'internal']` | This may be set to an array of strings that are either the literal `internal` or `external`. External considers only Python executables that are already on `PATH`. Internal considers only [internally managed Python distributions](#internal-distributions). |
 | `path` | | An explicit path to the virtual environment. The path may be absolute or relative to the project root. Any environments that [inherit](../../config/environment/overview.md#inheritance) this option will also use this path. The environment variable `HATCH_ENV_TYPE_VIRTUAL_PATH` may be used, which will take precedence. |
 | `system-packages` | `false` | Whether or not to give the virtual environment access to the system `site-packages` directory |
+| `uv` | `false` | Whether or not to use [UV](https://github.com/astral-sh/uv) in place of virtualenv & pip for virtual environment creation and dependency management, respectively. By default, Hatch will manage UV itself in an isolated environment. If you intend to provide UV instead, you may set the `HATCH_ENV_TYPE_VIRTUAL_UV_PATH` environment variable which should be the absolute path to a UV binary. This environment variable implicitly enables the `uv` option (if unset). |
 
 ## Location
 

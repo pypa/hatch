@@ -2,22 +2,28 @@
 config-path = "ruff_defaults.toml"
 
 [envs.default]
+uv = true
 post-install-commands = [
-  "python -m pip install --disable-pip-version-check {verbosity:flag:-1} -e ./backend",
+  "uv pip install {verbosity:flag:-1} -e ./backend",
 ]
 
 [envs.hatch-test]
+uv = true
 extra-dependencies = [
   "filelock",
   "pyfakefs",
   "trustme",
+  "uv",
   # Hatchling dynamic dependency
   "editables",
 ]
 post-install-commands = [
-  "python -m pip install --disable-pip-version-check {verbosity:flag:-1} -e ./backend",
+  "pip install {verbosity:flag:-1} -e ./backend",
 ]
 extra-args = ["--dist", "worksteal"]
+
+[envs.hatch-test.extra-scripts]
+pip = "uv pip {args}"
 
 [envs.coverage]
 detached = true
@@ -86,6 +92,7 @@ build-check = [
 
 [envs.backend]
 detached = true
+uv = true
 dependencies = [
   "build~=0.7.0",
   "httpx",
@@ -99,6 +106,7 @@ version = "cd backend && hatch version {args}"
 
 [envs.upkeep]
 detached = true
+uv = true
 dependencies = [
   "httpx",
   "ruff",
@@ -114,12 +122,13 @@ update-hatchling = [
 update-distributions = "python scripts/update_distributions.py"
 update-licenses = "python backend/scripts/update_licenses.py"
 update-ruff = [
-  "python -m pip install --disable-pip-version-check --upgrade ruff",
+  "pip install --upgrade ruff",
   "python scripts/update_ruff.py",
 ]
 
 [envs.release]
 detached = true
+uv = true
 dependencies = [
   "hatchling",
 ]

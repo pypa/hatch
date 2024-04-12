@@ -31,7 +31,7 @@ Hatch is a modern, extensible Python project manager. See the [Why Hatch?](why.m
 
     ---
 
-    Robust environment management with support for custom scripts
+    Robust environment management with support for custom scripts and UV
 
     [:octicons-arrow-right-24: Getting started](environment.md)
 

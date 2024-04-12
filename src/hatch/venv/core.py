@@ -1,7 +1,7 @@
 import os
 from tempfile import TemporaryDirectory
 
-from hatch.env.utils import add_verbosity_flag
+from hatch.env.utils import add_verbosity_flag, get_env_var_option
 from hatch.utils.env import PythonInfo
 from hatch.utils.fs import Path
 from hatch.venv.utils import get_random_venv_name
@@ -127,3 +127,17 @@ class TempVirtualEnv(VirtualEnv):
     def __exit__(self, exc_type, exc_value, traceback):
         super().__exit__(exc_type, exc_value, traceback)
         self.remove()
+
+
+class UVVirtualEnv(VirtualEnv):
+    def create(self, python, *, allow_system_packages=False):
+        uv_path = get_env_var_option(plugin_name='virtual', option='uv_path', default='uv')
+        command = [uv_path, 'venv', str(self.directory), '--python', python]
+        if allow_system_packages:
+            command.append('--system-site-packages')
+
+        add_verbosity_flag(command, self.verbosity, adjustment=-1)
+        self.platform.run_command(command)
+
+
+class TempUVVirtualEnv(TempVirtualEnv, UVVirtualEnv): ...

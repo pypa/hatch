@@ -2,6 +2,7 @@ import os
 
 import pytest
 
+from hatch.env.utils import get_env_var
 from hatch.project.core import Project
 from hatch.utils.structures import EnvVars
 from hatchling.utils.constants import DEFAULT_CONFIG_FILE
@@ -9,7 +10,7 @@ from hatchling.utils.constants import DEFAULT_CONFIG_FILE
 
 @pytest.fixture(scope='module', autouse=True)
 def _terminal_width():
-    with EnvVars({'COLUMNS': '200'}):
+    with EnvVars({'COLUMNS': '200'}, exclude=[get_env_var(plugin_name='virtual', option='uv_path')]):
         yield
 
 

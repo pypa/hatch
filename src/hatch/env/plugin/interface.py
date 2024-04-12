@@ -8,7 +8,7 @@ from os.path import isabs
 from typing import TYPE_CHECKING
 
 from hatch.config.constants import AppEnvVars
-from hatch.env.utils import add_verbosity_flag
+from hatch.env.utils import add_verbosity_flag, get_env_var_option
 from hatch.project.utils import format_script_commands, parse_script_command
 from hatch.utils.structures import EnvVars
 
@@ -469,40 +469,45 @@ class EnvironmentInterface(ABC):
     @property
     def scripts(self):
         if self._scripts is None:
-            script_config = self.config.get('scripts', {})
-            if not isinstance(script_config, dict):
-                message = f'Field `tool.hatch.envs.{self.name}.scripts` must be a table'
-                raise TypeError(message)
-
             config = {}
 
-            for name, data in script_config.items():
-                if ' ' in name:
-                    message = (
-                        f'Script name `{name}` in field `tool.hatch.envs.{self.name}.scripts` must not contain spaces'
-                    )
-                    raise ValueError(message)
-
-                commands = []
-
-                if isinstance(data, str):
-                    commands.append(data)
-                elif isinstance(data, list):
-                    for i, command in enumerate(data, 1):
-                        if not isinstance(command, str):
-                            message = (
-                                f'Command #{i} in field `tool.hatch.envs.{self.name}.scripts.{name}` must be a string'
-                            )
-                            raise TypeError(message)
-
-                        commands.append(command)
-                else:
-                    message = (
-                        f'Field `tool.hatch.envs.{self.name}.scripts.{name}` must be a string or an array of strings'
-                    )
+            # Extra scripts should come first to give less precedence
+            for field in ('extra-scripts', 'scripts'):
+                script_config = self.config.get(field, {})
+                if not isinstance(script_config, dict):
+                    message = f'Field `tool.hatch.envs.{self.name}.{field}` must be a table'
                     raise TypeError(message)
 
-                config[name] = commands
+                for name, data in script_config.items():
+                    if ' ' in name:
+                        message = (
+                            f'Script name `{name}` in field `tool.hatch.envs.{self.name}.{field}` '
+                            f'must not contain spaces'
+                        )
+                        raise ValueError(message)
+
+                    commands = []
+
+                    if isinstance(data, str):
+                        commands.append(data)
+                    elif isinstance(data, list):
+                        for i, command in enumerate(data, 1):
+                            if not isinstance(command, str):
+                                message = (
+                                    f'Command #{i} in field `tool.hatch.envs.{self.name}.{field}.{name}` '
+                                    f'must be a string'
+                                )
+                                raise TypeError(message)
+
+                            commands.append(command)
+                    else:
+                        message = (
+                            f'Field `tool.hatch.envs.{self.name}.{field}.{name}` must be '
+                            f'a string or an array of strings'
+                        )
+                        raise TypeError(message)
+
+                    config[name] = commands
 
             seen = {}
             active = []
@@ -837,6 +842,9 @@ class EnvironmentInterface(ABC):
 
         with self.apply_context():
             if possible_script in self.scripts:
+                if args is not None:
+                    args = self.metadata.context.format(args)
+
                 for cmd in self.scripts[possible_script]:
                     yield self.metadata.context.format(cmd, args=args).strip()
             else:
@@ -941,7 +949,7 @@ class EnvironmentInterface(ABC):
         """
         Returns the value of the upper-cased environment variable `HATCH_ENV_TYPE_<PLUGIN_NAME>_<option>`.
         """
-        return os.environ.get(f'{AppEnvVars.ENV_OPTION_PREFIX}{self.PLUGIN_NAME}_{option}'.upper(), '')
+        return get_env_var_option(plugin_name=self.PLUGIN_NAME, option=option)
 
     def get_context(self):
         """

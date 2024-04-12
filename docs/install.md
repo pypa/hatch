@@ -86,7 +86,7 @@ After downloading the archive corresponding to your platform and architecture, e
 
 ## pip
 
-Hatch is available on PyPI and can be installed with [pip](https://pip.pypa.io).
+Hatch is available on PyPI and can be installed with [pip](https://github.com/pypa/pip).
 
 ```
 pip install hatch
