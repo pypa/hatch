@@ -43,12 +43,18 @@ class Distribution(ABC):
             import tarfile
 
             with tarfile.open(archive, 'r:gz') as tf:
-                tf.extractall(directory)  # noqa: S202
+                if sys.version_info[:2] >= (3, 12):
+                    tf.extractall(directory, filter='data')
+                else:
+                    tf.extractall(directory)  # noqa: S202
         elif self.source.endswith('.tar.bz2'):
             import tarfile
 
             with tarfile.open(archive, 'r:bz2') as tf:
-                tf.extractall(directory)  # noqa: S202
+                if sys.version_info[:2] >= (3, 12):
+                    tf.extractall(directory, filter='data')
+                else:
+                    tf.extractall(directory)  # noqa: S202
         elif self.source.endswith('.tar.zst'):
             import tarfile
 
@@ -57,7 +63,10 @@ class Distribution(ABC):
             with open(archive, 'rb') as ifh:
                 dctx = zstandard.ZstdDecompressor()
                 with dctx.stream_reader(ifh) as reader, tarfile.open(mode='r|', fileobj=reader) as tf:
-                    tf.extractall(directory)  # noqa: S202
+                    if sys.version_info[:2] >= (3, 12):
+                        tf.extractall(directory, filter='data')
+                    else:
+                        tf.extractall(directory)  # noqa: S202
         else:
             message = f'Unknown archive type: {archive}'
             raise ValueError(message)

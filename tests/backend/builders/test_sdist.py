@@ -695,7 +695,7 @@ class TestBuildStandard:
         extraction_directory.mkdir()
 
         with tarfile.open(str(expected_artifact), 'r:gz') as tar_archive:
-            tar_archive.extractall(str(extraction_directory))
+            tar_archive.extractall(str(extraction_directory), **helpers.tarfile_extraction_compat_options())
 
         expected_files = helpers.get_template_files(
             'sdist.standard_default', project_name, relative_root=builder.project_id
@@ -746,7 +746,7 @@ class TestBuildStandard:
         extraction_directory.mkdir()
 
         with tarfile.open(str(expected_artifact), 'r:gz') as tar_archive:
-            tar_archive.extractall(str(extraction_directory))
+            tar_archive.extractall(str(extraction_directory), **helpers.tarfile_extraction_compat_options())
 
         expected_files = helpers.get_template_files(
             'sdist.standard_default', project_name, relative_root=builder.project_id
@@ -797,7 +797,7 @@ class TestBuildStandard:
         extraction_directory.mkdir()
 
         with tarfile.open(str(expected_artifact), 'r:gz') as tar_archive:
-            tar_archive.extractall(str(extraction_directory))
+            tar_archive.extractall(str(extraction_directory), **helpers.tarfile_extraction_compat_options())
 
         expected_files = helpers.get_template_files(
             'sdist.standard_default_support_legacy', project_name, relative_root=builder.project_id
@@ -871,7 +871,7 @@ class TestBuildStandard:
         extraction_directory.mkdir()
 
         with tarfile.open(str(expected_artifact), 'r:gz') as tar_archive:
-            tar_archive.extractall(str(extraction_directory))
+            tar_archive.extractall(str(extraction_directory), **helpers.tarfile_extraction_compat_options())
 
         expected_files = helpers.get_template_files(
             'sdist.standard_default_build_script_artifacts', project_name, relative_root=builder.project_id
@@ -946,7 +946,7 @@ class TestBuildStandard:
         extraction_directory.mkdir()
 
         with tarfile.open(str(expected_artifact), 'r:gz') as tar_archive:
-            tar_archive.extractall(str(extraction_directory))
+            tar_archive.extractall(str(extraction_directory), **helpers.tarfile_extraction_compat_options())
 
         expected_files = helpers.get_template_files(
             'sdist.standard_default_build_script_extra_dependencies', project_name, relative_root=builder.project_id
@@ -995,7 +995,7 @@ class TestBuildStandard:
         extraction_directory.mkdir()
 
         with tarfile.open(str(expected_artifact), 'r:gz') as tar_archive:
-            tar_archive.extractall(str(extraction_directory))
+            tar_archive.extractall(str(extraction_directory), **helpers.tarfile_extraction_compat_options())
 
         expected_files = helpers.get_template_files(
             'sdist.standard_include', project_name, relative_root=builder.project_id
@@ -1056,7 +1056,7 @@ class TestBuildStandard:
         extraction_directory.mkdir()
 
         with tarfile.open(str(expected_artifact), 'r:gz') as tar_archive:
-            tar_archive.extractall(str(extraction_directory))
+            tar_archive.extractall(str(extraction_directory), **helpers.tarfile_extraction_compat_options())
 
         expected_files = helpers.get_template_files(
             'sdist.standard_include', project_name, relative_root=builder.project_id
@@ -1119,7 +1119,7 @@ class TestBuildStandard:
         extraction_directory.mkdir()
 
         with tarfile.open(str(expected_artifact), 'r:gz') as tar_archive:
-            tar_archive.extractall(str(extraction_directory))
+            tar_archive.extractall(str(extraction_directory), **helpers.tarfile_extraction_compat_options())
 
         expected_files = helpers.get_template_files(
             'sdist.standard_include_config_file', project_name, relative_root=builder.project_id
@@ -1169,7 +1169,7 @@ class TestBuildStandard:
         extraction_directory.mkdir()
 
         with tarfile.open(str(expected_artifact), 'r:gz') as tar_archive:
-            tar_archive.extractall(str(extraction_directory))
+            tar_archive.extractall(str(extraction_directory), **helpers.tarfile_extraction_compat_options())
 
         expected_files = helpers.get_template_files(
             'sdist.standard_include', project_name, relative_root=builder.project_id
@@ -1226,7 +1226,7 @@ class TestBuildStandard:
         extraction_directory.mkdir()
 
         with tarfile.open(str(expected_artifact), 'r:gz') as tar_archive:
-            tar_archive.extractall(str(extraction_directory))
+            tar_archive.extractall(str(extraction_directory), **helpers.tarfile_extraction_compat_options())
 
         expected_files = helpers.get_template_files(
             'sdist.standard_include', project_name, relative_root=builder.project_id
@@ -1276,7 +1276,7 @@ class TestBuildStandard:
         extraction_directory.mkdir()
 
         with tarfile.open(str(expected_artifact), 'r:gz') as tar_archive:
-            tar_archive.extractall(str(extraction_directory))
+            tar_archive.extractall(str(extraction_directory), **helpers.tarfile_extraction_compat_options())
 
         expected_files = helpers.get_template_files(
             'sdist.standard_include', project_name, relative_root=builder.project_id
@@ -1333,7 +1333,7 @@ class TestBuildStandard:
         extraction_directory.mkdir()
 
         with tarfile.open(str(expected_artifact), 'r:gz') as tar_archive:
-            tar_archive.extractall(str(extraction_directory))
+            tar_archive.extractall(str(extraction_directory), **helpers.tarfile_extraction_compat_options())
 
         expected_files = helpers.get_template_files(
             'sdist.standard_include', project_name, relative_root=builder.project_id
@@ -1394,7 +1394,7 @@ class TestBuildStandard:
         extraction_directory.mkdir()
 
         with tarfile.open(str(expected_artifact), 'r:gz') as tar_archive:
-            tar_archive.extractall(str(extraction_directory))
+            tar_archive.extractall(str(extraction_directory), **helpers.tarfile_extraction_compat_options())
 
         expected_files = helpers.get_template_files(
             'sdist.standard_default_vcs_git_exclusion_files', project_name, relative_root=builder.project_id
@@ -1466,7 +1466,7 @@ class TestBuildStandard:
         extraction_directory.mkdir()
 
         with tarfile.open(str(expected_artifact), 'r:gz') as tar_archive:
-            tar_archive.extractall(str(extraction_directory))
+            tar_archive.extractall(str(extraction_directory), **helpers.tarfile_extraction_compat_options())
 
         expected_files = helpers.get_template_files(
             'sdist.standard_default_vcs_mercurial_exclusion_files', project_name, relative_root=builder.project_id
@@ -1513,7 +1513,7 @@ class TestBuildStandard:
         extraction_directory.mkdir()
 
         with tarfile.open(str(expected_artifact), 'r:gz') as tar_archive:
-            tar_archive.extractall(str(extraction_directory))
+            tar_archive.extractall(str(extraction_directory), **helpers.tarfile_extraction_compat_options())
 
         expected_files = helpers.get_template_files(
             'sdist.standard_default', project_name, relative_root=builder.artifact_project_id
