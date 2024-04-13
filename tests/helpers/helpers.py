@@ -78,8 +78,14 @@ def assert_files(directory, expected_files, *, check_contents=True):
             seen_relative_file_paths.add(relative_file_path)
 
             if check_contents and relative_file_path in expected_relative_files:
-                with open(os.path.join(start, relative_file_path), encoding='utf-8') as f:
-                    assert f.read() == expected_relative_files[relative_file_path], relative_file_path
+                file_path = os.path.join(start, relative_file_path)
+                expected_contents = expected_relative_files[relative_file_path]
+                try:
+                    with open(file_path, encoding='utf-8') as f:
+                        assert f.read() == expected_contents, relative_file_path
+                except UnicodeDecodeError:
+                    with open(file_path, 'rb') as f:
+                        assert f.read() == expected_contents, (relative_file_path, expected_contents)
             else:  # no cov
                 pass
 

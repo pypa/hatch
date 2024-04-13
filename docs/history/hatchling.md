@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Added:***
+
+- Add `shared-scripts` option for the `wheel` target
+
 ***Fixed:***
 
 - Set the `packaging` dependency version as `>=23.2` to avoid its URL validation which can conflict with context formatting
