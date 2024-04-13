@@ -25,10 +25,12 @@ def fmt(
     sync: bool,
 ):
     """Format and lint source code."""
-    from hatch.cli.fmt.core import StaticAnalysisEnvironment
-
     if linter and formatter:
         app.abort('Cannot specify both --linter and --formatter')
+
+    from hatch.cli.fmt.core import StaticAnalysisEnvironment
+
+    app.ensure_environment_plugin_dependencies()
 
     for context in app.runner_context(['hatch-static-analysis']):
         sa_env = StaticAnalysisEnvironment(context.env)
