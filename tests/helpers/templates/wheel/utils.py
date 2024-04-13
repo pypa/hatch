@@ -15,14 +15,23 @@ def update_record_file_contents(record_file, files, generated_files=()):
             f.path.parts,
         ),
     ):
-        raw_contents = template_file.contents.encode('utf-8')
+        if isinstance(template_file.contents, bytes):
+            is_binary = True
+            raw_contents = template_file.contents
+        else:
+            is_binary = False
+            raw_contents = template_file.contents.encode('utf-8')
 
         template_file_path = str(template_file.path)
-        if os.linesep != '\n' and (
-            'LICENSE' in template_file_path
-            or (
-                not template_file.path.parts[0].endswith('.dist-info')
-                and all(f not in template_file_path for f in generated_files)
+        if (
+            not is_binary
+            and os.linesep != '\n'
+            and (
+                'LICENSE' in template_file_path
+                or (
+                    not template_file.path.parts[0].endswith('.dist-info')
+                    and all(f not in template_file_path for f in generated_files)
+                )
             )
         ):
             raw_contents = raw_contents.replace(b'\n', b'\r\n')

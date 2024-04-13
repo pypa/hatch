@@ -123,6 +123,10 @@ class WheelArchive:
         relative_path = f'{self.metadata_directory}/{normalize_archive_path(relative_path)}'
         return self.write_file(relative_path, contents)
 
+    def write_shared_script(self, relative_path: str, contents: str | bytes) -> tuple[str, str, str]:
+        relative_path = f'{self.shared_data_directory}/scripts/{normalize_archive_path(relative_path)}'
+        return self.write_file(relative_path, contents)
+
     def add_shared_file(self, shared_file: IncludedFile) -> tuple[str, str, str]:
         shared_file.distribution_path = f'{self.shared_data_directory}/data/{shared_file.distribution_path}'
         return self.add_file(shared_file)
@@ -163,6 +167,7 @@ class WheelBuilderConfig(BuilderConfig):
 
         self.__core_metadata_constructor: Callable[..., str] | None = None
         self.__shared_data: dict[str, str] | None = None
+        self.__shared_scripts: dict[str, str] | None = None
         self.__extra_metadata: dict[str, str] | None = None
         self.__strict_naming: bool | None = None
         self.__macos_max_compat: bool | None = None
@@ -288,6 +293,40 @@ class WheelBuilderConfig(BuilderConfig):
             self.__shared_data = normalize_inclusion_map(shared_data, self.root)
 
         return self.__shared_data
+
+    @property
+    def shared_scripts(self) -> dict[str, str]:
+        if self.__shared_scripts is None:
+            shared_scripts = self.target_config.get('shared-scripts', {})
+            if not isinstance(shared_scripts, dict):
+                message = f'Field `tool.hatch.build.targets.{self.plugin_name}.shared-scripts` must be a mapping'
+                raise TypeError(message)
+
+            for i, (source, relative_path) in enumerate(shared_scripts.items(), 1):
+                if not source:
+                    message = (
+                        f'Source #{i} in field `tool.hatch.build.targets.{self.plugin_name}.shared-scripts` '
+                        f'cannot be an empty string'
+                    )
+                    raise ValueError(message)
+
+                if not isinstance(relative_path, str):
+                    message = (
+                        f'Path for source `{source}` in field '
+                        f'`tool.hatch.build.targets.{self.plugin_name}.shared-scripts` must be a string'
+                    )
+                    raise TypeError(message)
+
+                if not relative_path:
+                    message = (
+                        f'Path for source `{source}` in field '
+                        f'`tool.hatch.build.targets.{self.plugin_name}.shared-scripts` cannot be an empty string'
+                    )
+                    raise ValueError(message)
+
+            self.__shared_scripts = normalize_inclusion_map(shared_scripts, self.root)
+
+        return self.__shared_scripts
 
     @property
     def extra_metadata(self) -> dict[str, str]:
@@ -547,6 +586,7 @@ class WheelBuilder(BuilderInterface):
         self, archive: WheelArchive, records: RecordFile, build_data: dict[str, Any], extra_dependencies: Sequence[str]
     ) -> None:
         self.add_shared_data(archive, records)
+        self.add_shared_scripts(archive, records)
 
         # Ensure metadata is written last, see https://peps.python.org/pep-0427/#recommended-archiver-features
         self.write_metadata(archive, records, build_data, extra_dependencies=extra_dependencies)
@@ -554,6 +594,35 @@ class WheelBuilder(BuilderInterface):
     def add_shared_data(self, archive: WheelArchive, records: RecordFile) -> None:
         for shared_file in self.recurse_explicit_files(self.config.shared_data):
             record = archive.add_shared_file(shared_file)
+            records.write(record)
+
+    def add_shared_scripts(self, archive: WheelArchive, records: RecordFile) -> None:
+        import re
+        from io import BytesIO
+
+        # https://packaging.python.org/en/latest/specifications/binary-distribution-format/#recommended-installer-features
+        shebang = re.compile(rb'^#!.*(?:pythonw?|pypyw?)[0-9.]*(.*)', flags=re.DOTALL)
+
+        for shared_script in self.recurse_explicit_files(self.config.shared_scripts):
+            with open(shared_script.path, 'rb') as f:
+                content = BytesIO()
+                for line in f:
+                    # Ignore leading blank lines
+                    if not line.strip():
+                        continue
+
+                    match = shebang.match(line)
+                    if match is None:
+                        content.write(line)
+                    else:
+                        content.write(b'#!python')
+                        if remaining := match.group(1):
+                            content.write(remaining)
+
+                    content.write(f.read())
+                    break
+
+            record = archive.write_shared_script(shared_script.distribution_path, content.getvalue())
             records.write(record)
 
     def write_metadata(

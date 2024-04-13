@@ -360,6 +360,95 @@ class TestSharedData:
         }
 
 
+class TestSharedScripts:
+    def test_default(self, isolation):
+        builder = WheelBuilder(str(isolation))
+
+        assert builder.config.shared_scripts == builder.config.shared_scripts == {}
+
+    def test_invalid_type(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'wheel': {'shared-scripts': 42}}}}}}
+        builder = WheelBuilder(str(isolation), config=config)
+
+        with pytest.raises(TypeError, match='Field `tool.hatch.build.targets.wheel.shared-scripts` must be a mapping'):
+            _ = builder.config.shared_scripts
+
+    def test_absolute(self, isolation):
+        config = {
+            'tool': {
+                'hatch': {'build': {'targets': {'wheel': {'shared-scripts': {str(isolation / 'source'): '/target/'}}}}}
+            }
+        }
+        builder = WheelBuilder(str(isolation), config=config)
+
+        assert builder.config.shared_scripts == {str(isolation / 'source'): 'target'}
+
+    def test_relative(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'wheel': {'shared-scripts': {'../source': '/target/'}}}}}}}
+        builder = WheelBuilder(str(isolation / 'foo'), config=config)
+
+        assert builder.config.shared_scripts == {str(isolation / 'source'): 'target'}
+
+    def test_source_empty_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'wheel': {'shared-scripts': {'': '/target/'}}}}}}}
+        builder = WheelBuilder(str(isolation), config=config)
+
+        with pytest.raises(
+            ValueError,
+            match='Source #1 in field `tool.hatch.build.targets.wheel.shared-scripts` cannot be an empty string',
+        ):
+            _ = builder.config.shared_scripts
+
+    def test_relative_path_not_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'wheel': {'shared-scripts': {'source': 0}}}}}}}
+        builder = WheelBuilder(str(isolation), config=config)
+
+        with pytest.raises(
+            TypeError,
+            match='Path for source `source` in field `tool.hatch.build.targets.wheel.shared-scripts` must be a string',
+        ):
+            _ = builder.config.shared_scripts
+
+    def test_relative_path_empty_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'wheel': {'shared-scripts': {'source': ''}}}}}}}
+        builder = WheelBuilder(str(isolation), config=config)
+
+        with pytest.raises(
+            ValueError,
+            match=(
+                'Path for source `source` in field `tool.hatch.build.targets.wheel.shared-scripts` '
+                'cannot be an empty string'
+            ),
+        ):
+            _ = builder.config.shared_scripts
+
+    def test_order(self, isolation):
+        config = {
+            'tool': {
+                'hatch': {
+                    'build': {
+                        'targets': {
+                            'wheel': {
+                                'shared-scripts': {
+                                    '../very-nested': 'target1/embedded',
+                                    '../source1': '/target2/',
+                                    '../source2': '/target1/',
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        builder = WheelBuilder(str(isolation / 'foo'), config=config)
+
+        assert builder.config.shared_scripts == {
+            str(isolation / 'source2'): 'target1',
+            str(isolation / 'very-nested'): f'target1{os.sep}embedded',
+            str(isolation / 'source1'): 'target2',
+        }
+
+
 class TestExtraMetadata:
     def test_default(self, isolation):
         builder = WheelBuilder(str(isolation))
@@ -1829,6 +1918,111 @@ class TestBuildStandard:
             project_name,
             metadata_directory=metadata_directory,
             shared_data_directory=shared_data_directory,
+        )
+        helpers.assert_files(extraction_directory, expected_files)
+
+    def test_default_shared_scripts(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
+        project_name = 'My.App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / 'my-app'
+
+        shared_data_path = temp_dir / 'data'
+        shared_data_path.ensure_dir_exists()
+
+        binary_contents = os.urandom(1024)
+        (shared_data_path / 'binary').write_bytes(binary_contents)
+        (shared_data_path / 'other_script.sh').write_text(
+            helpers.dedent(
+                """
+
+                #!/bin/sh arg1 arg2
+                echo "Hello, World!"
+                """
+            )
+        )
+        (shared_data_path / 'python_script.sh').write_text(
+            helpers.dedent(
+                """
+
+                #!/usr/bin/env python3.11 arg1 arg2
+                print("Hello, World!")
+                """
+            )
+        )
+        (shared_data_path / 'pythonw_script.sh').write_text(
+            helpers.dedent(
+                """
+
+                #!/usr/bin/pythonw3.11 arg1 arg2
+                print("Hello, World!")
+                """
+            )
+        )
+        (shared_data_path / 'pypy_script.sh').write_text(
+            helpers.dedent(
+                """
+
+                #!/usr/bin/env pypy
+                print("Hello, World!")
+                """
+            )
+        )
+        (shared_data_path / 'pypyw_script.sh').write_text(
+            helpers.dedent(
+                """
+
+                #!pypyw3.11 arg1 arg2
+                print("Hello, World!")
+                """
+            )
+        )
+
+        config = {
+            'project': {'name': project_name, 'requires-python': '>3', 'dynamic': ['version']},
+            'tool': {
+                'hatch': {
+                    'version': {'path': 'my_app/__about__.py'},
+                    'build': {'targets': {'wheel': {'versions': ['standard'], 'shared-scripts': {'../data': '/'}}}},
+                },
+            },
+        }
+        builder = WheelBuilder(str(project_path), config=config)
+
+        build_path = project_path / 'dist'
+        build_path.mkdir()
+
+        with project_path.as_cwd():
+            artifacts = list(builder.build(directory=str(build_path)))
+
+        assert len(artifacts) == 1
+        expected_artifact = artifacts[0]
+
+        build_artifacts = list(build_path.iterdir())
+        assert len(build_artifacts) == 1
+        assert expected_artifact == str(build_artifacts[0])
+
+        extraction_directory = temp_dir / '_archive'
+        extraction_directory.mkdir()
+
+        with zipfile.ZipFile(str(expected_artifact), 'r') as zip_archive:
+            zip_archive.extractall(str(extraction_directory))
+
+        metadata_directory = f'{builder.project_id}.dist-info'
+        shared_data_directory = f'{builder.project_id}.data'
+        expected_files = helpers.get_template_files(
+            'wheel.standard_default_shared_scripts',
+            project_name,
+            metadata_directory=metadata_directory,
+            shared_data_directory=shared_data_directory,
+            binary_contents=binary_contents,
         )
         helpers.assert_files(extraction_directory, expected_files)
 
