@@ -25,6 +25,11 @@ def dedent(text):
     return _dedent(text[1:])
 
 
+@lru_cache
+def tarfile_extraction_compat_options():
+    return {'filter': 'data'} if sys.version_info >= (3, 12) else {}
+
+
 def remove_trailing_spaces(text):
     return ''.join(f'{line.rstrip()}\n' for line in text.splitlines(True))
 

@@ -684,7 +684,7 @@ class TestSourceDistribution:
         extraction_directory = path / 'extraction'
 
         with tarfile.open(artifact_path, 'r:gz') as tar_archive:
-            tar_archive.extractall(extraction_directory)
+            tar_archive.extractall(extraction_directory, **helpers.tarfile_extraction_compat_options())
 
         metadata_file_path = extraction_directory / f'{published_project_name}-{current_version}' / 'PKG-INFO'
         metadata_file_path.write_text(remove_metadata_field(field, metadata_file_path.read_text()))
