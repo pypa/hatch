@@ -131,8 +131,14 @@ class ProjectConfig:
     def envs(self):
         from hatch.env.internal import get_internal_env_config
         from hatch.utils.platform import get_platform_name
+        from hatch.utils.toml import merge_dictionaries_recursively
 
         if self._envs is None:
+            all_config = self.config.get('envs', {}).get('__all__', {})
+            if len(all_config) > 0:
+                del self.config['envs']['__all__']
+                for env_name in self.config.get('envs').keys():
+                    self.config['envs'][env_name] = merge_dictionaries_recursively(self.config['envs'][env_name], all_config)
             env_config = self.config.get('envs', {})
             if not isinstance(env_config, dict):
                 message = 'Field `tool.hatch.envs` must be a table'
