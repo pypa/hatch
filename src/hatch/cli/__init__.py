@@ -218,11 +218,13 @@ hatch.add_command(version)
 
 def main():  # no cov
     try:
-        return hatch(prog_name='hatch', windows_expand_args=False)
+        hatch(prog_name='hatch', windows_expand_args=False)
     except Exception:  # noqa: BLE001
+        import sys
+
         from rich.console import Console
 
         console = Console()
         hatch_debug = os.getenv('HATCH_DEBUG') in {'1', 'true'}
         console.print_exception(suppress=[click], show_locals=hatch_debug)
-        return 1
+        sys.exit(1)
