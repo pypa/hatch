@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ***Fixed:***
 
+- Support recursive optional dependencies
 - Set the `packaging` dependency version as `>=23.2` to avoid its URL validation which can conflict with context formatting
 
 ## [1.22.5](https://github.com/pypa/hatch/releases/tag/hatchling-v1.22.5) - 2024-04-04 ## {: #hatchling-v1.22.5 }
