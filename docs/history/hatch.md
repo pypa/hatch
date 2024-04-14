@@ -41,6 +41,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - De-select Ruff rule `E501` for the `fmt` command by default since it conflicts with the formatter
 - Fix colored output from build targets on the first run (build environment creation status indicator issue)
 - Set the `packaging` dependency version as `>=23.2` to avoid its URL validation which can conflict with context formatting
+- Fix the exit code when there happens to be an unhandled exception
 
 ## [1.9.4](https://github.com/pypa/hatch/releases/tag/hatch-v1.9.4) - 2024-03-12 ## {: #hatch-v1.9.4 }
 
