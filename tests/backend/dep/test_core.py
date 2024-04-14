@@ -75,7 +75,7 @@ def test_extra_met(platform, uv_on_path):
 
 @pytest.mark.requires_internet
 @pytest.mark.requires_git
-def test_dependency_git(platform):
+def test_dependency_git_pip(platform):
     with TempVirtualEnv(sys.executable, platform) as venv:
         platform.run_command(
             ['pip', 'install', 'requests@git+https://github.com/psf/requests'], check=True, capture_output=True
@@ -85,12 +85,38 @@ def test_dependency_git(platform):
 
 @pytest.mark.requires_internet
 @pytest.mark.requires_git
-def test_dependency_git_revision(platform):
+def test_dependency_git_uv(platform, uv_on_path):
+    with TempUVVirtualEnv(sys.executable, platform) as venv:
+        platform.run_command(
+            [uv_on_path, 'pip', 'install', 'requests@git+https://github.com/psf/requests'],
+            check=True,
+            capture_output=True,
+        )
+        assert not dependencies_in_sync([Requirement('requests@git+https://github.com/psf/requests')], venv.sys_path)
+
+
+@pytest.mark.requires_internet
+@pytest.mark.requires_git
+def test_dependency_git_revision_pip(platform):
     with TempVirtualEnv(sys.executable, platform) as venv:
         platform.run_command(
             ['pip', 'install', 'requests@git+https://github.com/psf/requests@main'], check=True, capture_output=True
         )
         assert dependencies_in_sync([Requirement('requests@git+https://github.com/psf/requests@main')], venv.sys_path)
+
+
+@pytest.mark.requires_internet
+@pytest.mark.requires_git
+def test_dependency_git_revision_uv(platform, uv_on_path):
+    with TempUVVirtualEnv(sys.executable, platform) as venv:
+        platform.run_command(
+            [uv_on_path, 'pip', 'install', 'requests@git+https://github.com/psf/requests@main'],
+            check=True,
+            capture_output=True,
+        )
+        assert not dependencies_in_sync(
+            [Requirement('requests@git+https://github.com/psf/requests@main')], venv.sys_path
+        )
 
 
 @pytest.mark.requires_internet

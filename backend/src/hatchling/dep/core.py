@@ -110,7 +110,7 @@ def dependency_in_sync(
                     else:
                         return False
                     result = subprocess.run(vcs_cmd, capture_output=True, text=True)  # noqa: PLW1510
-                    if result.returncode:
+                    if result.returncode or not result.stdout.strip():
                         return False
                     latest_commit_id, *_ = result.stdout.split()
                     return commit_id == latest_commit_id
