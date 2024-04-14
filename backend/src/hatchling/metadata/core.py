@@ -1320,7 +1320,7 @@ class CoreMetadata:
                             entries[format_dependency(requirement)] = requirement
 
                 normalized_options[normalized_option] = option
-                optional_dependency_entries[normalized_option] = dict(sorted(entries.items()))
+                optional_dependency_entries[normalized_option] = entries
 
             visited: set[str] = set()
             resolved: set[str] = set()
@@ -1329,7 +1329,9 @@ class CoreMetadata:
                     optional_dependency_entries, dependent_option, inherited_options, visited, resolved
                 )
 
-            self._optional_dependencies_complex = dict(sorted(optional_dependency_entries.items()))
+            self._optional_dependencies_complex = {
+                option: dict(sorted(entries.items())) for option, entries in sorted(optional_dependency_entries.items())
+            }
 
         return self._optional_dependencies_complex
 
@@ -1617,6 +1619,12 @@ def _resolve_optional_dependencies(
             _resolve_optional_dependencies(
                 optional_dependencies_complex, selected_option, inherited_options, visited, resolved
             )
+            if selected_option not in optional_dependencies_complex:
+                message = (
+                    f'Unknown recursive dependency group in field `project.optional-dependencies`: {selected_option}'
+                )
+                raise ValueError(message)
+
             optional_dependencies_complex[dependent_option].update(optional_dependencies_complex[selected_option])
 
     resolved.add(dependent_option)

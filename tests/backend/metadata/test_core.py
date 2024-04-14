@@ -1306,7 +1306,7 @@ class TestOptionalDependencies:
         ):
             _ = metadata.core.optional_dependencies
 
-    def test_circular_dependency(self, isolation):
+    def test_recursive_circular(self, isolation):
         metadata = ProjectMetadata(
             str(isolation),
             None,
@@ -1316,6 +1316,19 @@ class TestOptionalDependencies:
         with pytest.raises(
             ValueError,
             match='Field `project.optional-dependencies` defines a circular dependency group: foo',
+        ):
+            _ = metadata.core.optional_dependencies
+
+    def test_recursive_unknown(self, isolation):
+        metadata = ProjectMetadata(
+            str(isolation),
+            None,
+            {'project': {'name': 'my-app', 'optional-dependencies': {'foo': ['my-app[bar]']}}},
+        )
+
+        with pytest.raises(
+            ValueError,
+            match='Unknown recursive dependency group in field `project.optional-dependencies`: bar',
         ):
             _ = metadata.core.optional_dependencies
 
@@ -1388,10 +1401,12 @@ class TestOptionalDependencies:
                             'bAr.Baz[TLS, Zu.Bat, EdDSA, Zu_Bat]   >=1.2RC5 , <9000B1',
                             'Foo;python_version<"3.8"',
                             'fOO;     python_version<    "3.8"',
+                            'MY-APP[zZz]',
                         ],
                         'bar': ['foo', 'bar', 'Baz'],
                         'baz': ['my___app[XYZ]'],
                         'xyz': ['my...app[Bar]'],
+                        'zzz': ['aaa'],
                     },
                 },
             },
@@ -1404,11 +1419,13 @@ class TestOptionalDependencies:
                 'bar': ['bar', 'baz', 'foo'],
                 'baz': ['bar', 'baz', 'foo'],
                 'foo': [
+                    'aaa',
                     'bar-baz[eddsa,tls,zu-bat]<9000b1,>=1.2rc5',
                     "foo; python_version < '3.8'",
                     "python-dateutil; platform_python_implementation == 'CPython'",
                 ],
                 'xyz': ['bar', 'baz', 'foo'],
+                'zzz': ['aaa'],
             }
         )
 
