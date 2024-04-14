@@ -1306,6 +1306,19 @@ class TestOptionalDependencies:
         ):
             _ = metadata.core.optional_dependencies
 
+    def test_circular_dependency(self, isolation):
+        metadata = ProjectMetadata(
+            str(isolation),
+            None,
+            {'project': {'name': 'my-app', 'optional-dependencies': {'foo': ['my-app[bar]'], 'bar': ['my-app[foo]']}}},
+        )
+
+        with pytest.raises(
+            ValueError,
+            match='Field `project.optional-dependencies` defines a circular dependency group: foo',
+        ):
+            _ = metadata.core.optional_dependencies
+
     def test_allow_ambiguity(self, isolation):
         metadata = ProjectMetadata(
             str(isolation),
@@ -1339,7 +1352,7 @@ class TestOptionalDependencies:
             str(isolation),
             None,
             {
-                'project': {'optional-dependencies': {'foo': ['proj @ {root:uri}']}},
+                'project': {'name': 'my-app', 'optional-dependencies': {'foo': ['proj @ {root:uri}']}},
                 'tool': {'hatch': {'metadata': {'allow-direct-references': True}}},
             },
         )
@@ -1352,7 +1365,10 @@ class TestOptionalDependencies:
             str(isolation),
             None,
             {
-                'project': {'optional-dependencies': {'foo': ['proj @ git+https://github.com/org/proj.git@v1']}},
+                'project': {
+                    'name': 'my-app',
+                    'optional-dependencies': {'foo': ['proj @ git+https://github.com/org/proj.git@v1']},
+                },
                 'tool': {'hatch': {'metadata': {'allow-direct-references': True}}},
             },
         )
@@ -1365,6 +1381,7 @@ class TestOptionalDependencies:
             None,
             {
                 'project': {
+                    'name': 'my-app',
                     'optional-dependencies': {
                         'foo': [
                             'python___dateutil;platform_python_implementation=="CPython"',
@@ -1373,6 +1390,8 @@ class TestOptionalDependencies:
                             'fOO;     python_version<    "3.8"',
                         ],
                         'bar': ['foo', 'bar', 'Baz'],
+                        'baz': ['my___app[XYZ]'],
+                        'xyz': ['my...app[Bar]'],
                     },
                 },
             },
@@ -1383,11 +1402,13 @@ class TestOptionalDependencies:
             == metadata.core.optional_dependencies
             == {
                 'bar': ['bar', 'baz', 'foo'],
+                'baz': ['bar', 'baz', 'foo'],
                 'foo': [
                     'bar-baz[eddsa,tls,zu-bat]<9000b1,>=1.2rc5',
                     "foo; python_version < '3.8'",
                     "python-dateutil; platform_python_implementation == 'CPython'",
                 ],
+                'xyz': ['bar', 'baz', 'foo'],
             }
         )
 

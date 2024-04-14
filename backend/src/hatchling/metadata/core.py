@@ -6,7 +6,12 @@ from contextlib import suppress
 from copy import deepcopy
 from typing import TYPE_CHECKING, Any, Generic, cast
 
-from hatchling.metadata.utils import get_normalized_dependency, is_valid_project_name, normalize_project_name
+from hatchling.metadata.utils import (
+    format_dependency,
+    is_valid_project_name,
+    normalize_project_name,
+    normalize_requirement,
+)
 from hatchling.plugin.manager import PluginManagerBound
 from hatchling.utils.constants import DEFAULT_CONFIG_FILE
 from hatchling.utils.fs import locate_file
@@ -1209,7 +1214,8 @@ class CoreMetadata:
                         )
                         raise ValueError(message)
 
-                    dependencies_complex[get_normalized_dependency(requirement)] = requirement
+                    normalize_requirement(requirement)
+                    dependencies_complex[format_dependency(requirement)] = requirement
 
             self._dependencies_complex = dict(sorted(dependencies_complex.items()))
 
@@ -1250,6 +1256,7 @@ class CoreMetadata:
 
             normalized_options: dict[str, str] = {}
             optional_dependency_entries = {}
+            inherited_options: dict[str, set[str]] = {}
 
             for option, dependencies in optional_dependencies.items():
                 if not is_valid_project_name(option):
@@ -1257,6 +1264,16 @@ class CoreMetadata:
                         f'Optional dependency group `{option}` of field `project.optional-dependencies` must only '
                         f'contain ASCII letters/digits, underscores, hyphens, and periods, and must begin and end with '
                         f'ASCII letters/digits.'
+                    )
+                    raise ValueError(message)
+
+                normalized_option = (
+                    option if self.hatch_metadata.allow_ambiguous_features else normalize_project_name(option)
+                )
+                if normalized_option in normalized_options:
+                    message = (
+                        f'Optional dependency groups `{normalized_options[normalized_option]}` and `{option}` of '
+                        f'field `project.optional-dependencies` both evaluate to `{normalized_option}`.'
                     )
                     raise ValueError(message)
 
@@ -1293,20 +1310,24 @@ class CoreMetadata:
                             )
                             raise ValueError(message)
 
-                        entries[get_normalized_dependency(requirement)] = requirement
-
-                normalized_option = (
-                    option if self.hatch_metadata.allow_ambiguous_features else normalize_project_name(option)
-                )
-                if normalized_option in normalized_options:
-                    message = (
-                        f'Optional dependency groups `{normalized_options[normalized_option]}` and `{option}` of '
-                        f'field `project.optional-dependencies` both evaluate to `{normalized_option}`.'
-                    )
-                    raise ValueError(message)
+                        normalize_requirement(requirement)
+                        if requirement.name == self.name:
+                            if normalized_option in inherited_options:
+                                inherited_options[normalized_option].update(requirement.extras)
+                            else:
+                                inherited_options[normalized_option] = set(requirement.extras)
+                        else:
+                            entries[format_dependency(requirement)] = requirement
 
                 normalized_options[normalized_option] = option
                 optional_dependency_entries[normalized_option] = dict(sorted(entries.items()))
+
+            visited: set[str] = set()
+            resolved: set[str] = set()
+            for dependent_option in inherited_options:
+                _resolve_optional_dependencies(
+                    optional_dependency_entries, dependent_option, inherited_options, visited, resolved
+                )
 
             self._optional_dependencies_complex = dict(sorted(optional_dependency_entries.items()))
 
@@ -1578,3 +1599,25 @@ class HatchMetadataSettings(Generic[PluginManagerBound]):
             self._hooks = configured_hooks
 
         return self._hooks
+
+
+def _resolve_optional_dependencies(
+    optional_dependencies_complex, dependent_option, inherited_options, visited, resolved
+):
+    if dependent_option in resolved:
+        return
+
+    if dependent_option in visited:
+        message = f'Field `project.optional-dependencies` defines a circular dependency group: {dependent_option}'
+        raise ValueError(message)
+
+    visited.add(dependent_option)
+    if dependent_option in inherited_options:
+        for selected_option in inherited_options[dependent_option]:
+            _resolve_optional_dependencies(
+                optional_dependencies_complex, selected_option, inherited_options, visited, resolved
+            )
+            optional_dependencies_complex[dependent_option].update(optional_dependencies_complex[selected_option])
+
+    resolved.add(dependent_option)
+    visited.remove(dependent_option)
