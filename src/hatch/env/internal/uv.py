@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+from typing import Any
 
-def get_default_config() -> dict:
+
+def get_default_config() -> dict[str, Any]:
     return {
         'skip-install': True,
-        'dependencies': ['uv==0.1.31'],
+        'uv': True,
     }

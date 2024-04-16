@@ -8,12 +8,10 @@ post-install-commands = [
 ]
 
 [envs.hatch-test]
-uv = true
 extra-dependencies = [
   "filelock",
   "pyfakefs",
   "trustme",
-  "uv",
   # Hatchling dynamic dependency
   "editables",
 ]
@@ -23,7 +21,7 @@ post-install-commands = [
 extra-args = ["--dist", "worksteal"]
 
 [envs.hatch-test.extra-scripts]
-pip = "uv pip {args}"
+pip = "{env:HATCH_UV} pip {args}"
 
 [envs.coverage]
 detached = true
