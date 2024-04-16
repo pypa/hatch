@@ -1921,6 +1921,81 @@ class TestBuildStandard:
         )
         helpers.assert_files(extraction_directory, expected_files)
 
+    def test_default_shared_data_from_build_data(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
+        project_name = 'My.App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / 'my-app'
+
+        shared_data_path = temp_dir / 'data'
+        shared_data_path.ensure_dir_exists()
+        (shared_data_path / 'foo.txt').touch()
+        nested_data_path = shared_data_path / 'nested'
+        nested_data_path.ensure_dir_exists()
+        (nested_data_path / 'bar.txt').touch()
+
+        build_script = project_path / DEFAULT_BUILD_SCRIPT
+        build_script.write_text(
+            helpers.dedent(
+                """
+                import pathlib
+
+                from hatchling.builders.hooks.plugin.interface import BuildHookInterface
+
+                class CustomHook(BuildHookInterface):
+                    def initialize(self, version, build_data):
+                        build_data['shared_data']['../data'] = '/'
+                """
+            )
+        )
+
+        config = {
+            'project': {'name': project_name, 'requires-python': '>3', 'dynamic': ['version']},
+            'tool': {
+                'hatch': {
+                    'version': {'path': 'my_app/__about__.py'},
+                    'build': {'targets': {'wheel': {'versions': ['standard'], 'hooks': {'custom': {}}}}},
+                },
+            },
+        }
+        builder = WheelBuilder(str(project_path), config=config)
+
+        build_path = project_path / 'dist'
+        build_path.mkdir()
+
+        with project_path.as_cwd():
+            artifacts = list(builder.build(directory=str(build_path)))
+
+        assert len(artifacts) == 1
+        expected_artifact = artifacts[0]
+
+        build_artifacts = list(build_path.iterdir())
+        assert len(build_artifacts) == 1
+        assert expected_artifact == str(build_artifacts[0])
+
+        extraction_directory = temp_dir / '_archive'
+        extraction_directory.mkdir()
+
+        with zipfile.ZipFile(str(expected_artifact), 'r') as zip_archive:
+            zip_archive.extractall(str(extraction_directory))
+
+        metadata_directory = f'{builder.project_id}.dist-info'
+        shared_data_directory = f'{builder.project_id}.data'
+        expected_files = helpers.get_template_files(
+            'wheel.standard_default_shared_data',
+            project_name,
+            metadata_directory=metadata_directory,
+            shared_data_directory=shared_data_directory,
+        )
+        helpers.assert_files(extraction_directory, expected_files)
+
     def test_default_shared_scripts(self, hatch, helpers, temp_dir, config_file):
         config_file.model.template.plugins['default']['src-layout'] = False
         config_file.save()
@@ -1991,6 +2066,126 @@ class TestBuildStandard:
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
                     'build': {'targets': {'wheel': {'versions': ['standard'], 'shared-scripts': {'../data': '/'}}}},
+                },
+            },
+        }
+        builder = WheelBuilder(str(project_path), config=config)
+
+        build_path = project_path / 'dist'
+        build_path.mkdir()
+
+        with project_path.as_cwd():
+            artifacts = list(builder.build(directory=str(build_path)))
+
+        assert len(artifacts) == 1
+        expected_artifact = artifacts[0]
+
+        build_artifacts = list(build_path.iterdir())
+        assert len(build_artifacts) == 1
+        assert expected_artifact == str(build_artifacts[0])
+
+        extraction_directory = temp_dir / '_archive'
+        extraction_directory.mkdir()
+
+        with zipfile.ZipFile(str(expected_artifact), 'r') as zip_archive:
+            zip_archive.extractall(str(extraction_directory))
+
+        metadata_directory = f'{builder.project_id}.dist-info'
+        shared_data_directory = f'{builder.project_id}.data'
+        expected_files = helpers.get_template_files(
+            'wheel.standard_default_shared_scripts',
+            project_name,
+            metadata_directory=metadata_directory,
+            shared_data_directory=shared_data_directory,
+            binary_contents=binary_contents,
+        )
+        helpers.assert_files(extraction_directory, expected_files)
+
+    def test_default_shared_scripts_from_build_data(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
+        project_name = 'My.App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / 'my-app'
+
+        shared_data_path = temp_dir / 'data'
+        shared_data_path.ensure_dir_exists()
+
+        binary_contents = os.urandom(1024)
+        (shared_data_path / 'binary').write_bytes(binary_contents)
+        (shared_data_path / 'other_script.sh').write_text(
+            helpers.dedent(
+                """
+
+                #!/bin/sh arg1 arg2
+                echo "Hello, World!"
+                """
+            )
+        )
+        (shared_data_path / 'python_script.sh').write_text(
+            helpers.dedent(
+                """
+
+                #!/usr/bin/env python3.11 arg1 arg2
+                print("Hello, World!")
+                """
+            )
+        )
+        (shared_data_path / 'pythonw_script.sh').write_text(
+            helpers.dedent(
+                """
+
+                #!/usr/bin/pythonw3.11 arg1 arg2
+                print("Hello, World!")
+                """
+            )
+        )
+        (shared_data_path / 'pypy_script.sh').write_text(
+            helpers.dedent(
+                """
+
+                #!/usr/bin/env pypy
+                print("Hello, World!")
+                """
+            )
+        )
+        (shared_data_path / 'pypyw_script.sh').write_text(
+            helpers.dedent(
+                """
+
+                #!pypyw3.11 arg1 arg2
+                print("Hello, World!")
+                """
+            )
+        )
+
+        build_script = project_path / DEFAULT_BUILD_SCRIPT
+        build_script.write_text(
+            helpers.dedent(
+                """
+                import pathlib
+
+                from hatchling.builders.hooks.plugin.interface import BuildHookInterface
+
+                class CustomHook(BuildHookInterface):
+                    def initialize(self, version, build_data):
+                        build_data['shared_scripts']['../data'] = '/'
+                """
+            )
+        )
+
+        config = {
+            'project': {'name': project_name, 'requires-python': '>3', 'dynamic': ['version']},
+            'tool': {
+                'hatch': {
+                    'version': {'path': 'my_app/__about__.py'},
+                    'build': {'targets': {'wheel': {'versions': ['standard'], 'hooks': {'custom': {}}}}},
                 },
             },
         }
