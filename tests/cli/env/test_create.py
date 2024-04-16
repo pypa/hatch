@@ -130,7 +130,7 @@ def test_new(hatch, helpers, temp_dir, config_file):
     assert env_path.name == 'test'
 
 
-def test_uv(hatch, helpers, temp_dir, config_file):
+def test_uv_shipped(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
@@ -162,9 +162,6 @@ def test_uv(hatch, helpers, temp_dir, config_file):
     assert result.output == helpers.dedent(
         """
         Creating environment: test
-        Creating environment: hatch-uv
-        Checking dependencies
-        Syncing dependencies
         Checking dependencies
         """
     )
@@ -187,6 +184,64 @@ def test_uv(hatch, helpers, temp_dir, config_file):
     env_path = env_dirs[0]
 
     assert env_path.name == 'test'
+
+
+def test_uv_env(hatch, helpers, temp_dir, config_file):
+    config_file.model.template.plugins['default']['tests'] = False
+    config_file.save()
+
+    project_name = 'My.App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / 'my-app'
+    data_path = temp_dir / 'data'
+    data_path.mkdir()
+
+    project = Project(project_path)
+    helpers.update_project_environment(
+        project,
+        'default',
+        {'skip-install': True, 'uv': True, **project.config.envs['default']},
+    )
+    helpers.update_project_environment(project, 'hatch-uv', {'dependencies': ['uv>=0.1.31']})
+    helpers.update_project_environment(project, 'test', {})
+
+    with project_path.as_cwd(), EnvVars(
+        {ConfigEnvVars.DATA: str(data_path)}, exclude=[get_env_var(plugin_name='virtual', option='uv_path')]
+    ):
+        result = hatch('env', 'create', 'test')
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        """
+        Creating environment: test
+        Creating environment: hatch-uv
+        Checking dependencies
+        Syncing dependencies
+        Checking dependencies
+        """
+    )
+
+    env_data_path = data_path / 'env' / 'virtual'
+    assert env_data_path.is_dir()
+
+    project_data_path = env_data_path / project_path.name
+    assert project_data_path.is_dir()
+
+    storage_dirs = list(project_data_path.iterdir())
+    assert len(storage_dirs) == 1
+
+    storage_path = storage_dirs[0]
+    assert len(storage_path.name) == 8
+
+    env_dirs = list(storage_path.iterdir())
+    assert len(env_dirs) == 2
+
+    assert sorted(p.name for p in env_dirs) == ['hatch-uv', 'test']
 
 
 def test_new_selected_python(hatch, helpers, temp_dir, config_file, python_on_path, mocker):

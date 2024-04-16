@@ -12,6 +12,7 @@ from hatch.env.plugin.interface import EnvironmentInterface
 from hatch.env.utils import add_verbosity_flag
 from hatch.utils.fs import Path
 from hatch.utils.shells import ShellManager
+from hatch.utils.structures import EnvVars
 from hatch.venv.core import UVVirtualEnv, VirtualEnv
 
 if TYPE_CHECKING:
@@ -80,36 +81,47 @@ class VirtualEnvironment(EnvironmentInterface):
 
     @cached_property
     def use_uv(self) -> bool:
-        # Prevent recursive loop
-        if self.name == 'hatch-uv':
-            return False
-
         return self.config.get('uv', bool(self.explicit_uv_path))
+
+    @cached_property
+    def explicit_uv_path(self) -> str:
+        return self.get_env_var_option('uv_path') or self.config.get('uv-path', '')
 
     @cached_property
     def virtual_env_cls(self) -> type[VirtualEnv]:
         return UVVirtualEnv if self.use_uv else VirtualEnv
 
-    @cached_property
-    def uv_ready(self):
-        if not self.use_uv or self.explicit_uv_path:
+    def expose_uv(self):
+        if not (self.use_uv or self.uv_path):
             return nullcontext()
 
-        uv_env = self.app.get_environment('hatch-uv')
-        self.app.prepare_environment(uv_env)
-        return uv_env
+        return EnvVars({'HATCH_UV': self.uv_path})
 
     @cached_property
     def uv_path(self) -> str:
         if self.explicit_uv_path:
             return self.explicit_uv_path
 
-        with self.uv_ready:
-            return self.platform.modules.shutil.which('uv')
+        from hatch.env.internal import is_default_environment
 
-    @cached_property
-    def explicit_uv_path(self) -> str:
-        return self.get_env_var_option('uv_path') or self.config.get('uv-path', '')
+        env_name = 'hatch-uv'
+        if not (
+            # Prevent recursive loop
+            self.name == env_name
+            # Only if dependencies have been set by the user
+            or is_default_environment(env_name, self.app.project.config.internal_envs[env_name])
+        ):
+            uv_env = self.app.get_environment(env_name)
+            self.app.prepare_environment(uv_env)
+            with uv_env:
+                return self.platform.modules.shutil.which('uv')
+
+        import sysconfig
+
+        scripts_dir = sysconfig.get_path('scripts')
+        old_path = os.environ.get('PATH', os.defpath)
+        new_path = f'{scripts_dir}{os.pathsep}{old_path}'
+        return self.platform.modules.shutil.which('uv', path=new_path)
 
     @staticmethod
     def get_option_types() -> dict:
@@ -138,7 +150,7 @@ class VirtualEnvironment(EnvironmentInterface):
 """
                 )
 
-        with self.uv_ready:
+        with self.expose_uv():
             self.virtual_env.create(self.parent_python, allow_system_packages=self.config.get('system-packages', False))
 
     def remove(self):
@@ -186,7 +198,7 @@ class VirtualEnvironment(EnvironmentInterface):
         from hatchling.dep.core import dependencies_in_sync
 
         if not self.build_environment_exists():
-            with self.uv_ready:
+            with self.expose_uv():
                 self.build_virtual_env.create(self.parent_python)
 
         with self.get_env_vars(), self.build_virtual_env:
@@ -226,7 +238,7 @@ class VirtualEnvironment(EnvironmentInterface):
             with self.safe_activation():
                 self.platform.exit_with_command([path, *args])
         else:
-            with self.get_env_vars():
+            with self.expose_uv(), self.get_env_vars():
                 shell_executor(path, args, self.virtual_env.executables_directory)
 
     def check_compatibility(self):
@@ -436,7 +448,7 @@ class VirtualEnvironment(EnvironmentInterface):
     def safe_activation(self):
         # In order of precedence:
         # - This environment
-        # - UV environment (if enabled)
+        # - UV
         # - User-defined environment variables
-        with self.get_env_vars(), self.uv_ready, self:
+        with self.get_env_vars(), self.expose_uv(), self:
             yield

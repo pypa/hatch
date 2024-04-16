@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+from typing import Any
 
-def get_default_config() -> dict:
+
+def get_default_config() -> dict[str, Any]:
     return {
+        'uv': True,
         'dependencies': [
             'coverage-enable-subprocess==1.0',
             'coverage[toml]~=7.4',

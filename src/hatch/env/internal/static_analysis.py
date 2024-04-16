@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+from typing import Any
 
-def get_default_config() -> dict:
+
+def get_default_config() -> dict[str, Any]:
     return {
         'skip-install': True,
+        'uv': True,
         'dependencies': [f'ruff=={RUFF_DEFAULT_VERSION}'],
         'scripts': {
             'format-check': 'ruff format{env:HATCH_FMT_ARGS:} --check --diff {args:.}',

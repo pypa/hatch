@@ -51,6 +51,7 @@ dependencies = [
   "tomli-w>=1.0",
   "tomlkit>=0.11.1",
   "userpath~=1.7",
+  "uv>=0.1.32",
   "virtualenv>=20.16.2",
   "zstandard<1",
 ]

@@ -106,3 +106,12 @@ The `run` script is the default behavior while the `run-cov` script is used inst
 
 !!! note
     The `HATCH_TEST_ARGS` environment variable is how the [`test`](../../cli/reference.md#hatch-test) command's flags are translated and internally populated without affecting the user's arguments. This is also the way that [extra arguments](#extra-arguments) are passed.
+
+### Installer
+
+By default, [UV is enabled](../../how-to/environment/select-installer.md). You may disable that behavior as follows:
+
+```toml config-example
+[tool.hatch.envs.hatch-test]
+uv = false
+```

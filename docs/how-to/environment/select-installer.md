@@ -9,17 +9,15 @@ The [virtual](../../plugins/environment/virtual.md) environment type by default 
 !!! warning "caveat"
     UV is under active development and may not work for all dependencies.
 
-To do so, enable the `uv` [option](../../plugins/environment/virtual.md#options). For example, if you wanted to enable this functionality for your [test environments](../../config/internal/testing.md#customize-environment), you could set the following:
+To do so, enable the `uv` [option](../../plugins/environment/virtual.md#options). For example, if you wanted to enable this functionality for the [default](../../config/environment/overview.md#inheritance) environment, you could set the following:
 
 ```toml config-example
-[tool.hatch.envs.hatch-test]
+[tool.hatch.envs.default]
 uv = true
 ```
 
-The next time you use environments, Hatch will create a dedicated environment for UV (if it does not yet exist) which will be used for all subsequent environment creation and dependency resolution & installation.
-
 !!! tip
-    All environments that enable UV will have `uv` available on PATH.
+    All environments that enable UV will have the path to `uv` available as the `HATCH_UV` environment variable.
 
 ## Configuring the version
 
@@ -34,7 +32,7 @@ dependencies = [
 
 ## Externally managed
 
-If you want to manage UV yourself, you can expose it to Hatch by setting the `HATCH_ENV_TYPE_VIRTUAL_UV_PATH` environment variable. This should be the absolute path to a UV binary which Hatch will use instead of the internal environment. This implicitly [enables](#enabling-uv) the `uv` option.
+If you want to manage UV yourself, you can expose it to Hatch by setting the `HATCH_ENV_TYPE_VIRTUAL_UV_PATH` environment variable which should be the absolute path to a UV binary for Hatch to use instead. This implicitly [enables](#enabling-uv) the `uv` option.
 
 ## Installer script alias
 
@@ -50,16 +48,13 @@ matrix.installer.uv = [
   { value = false, if = ["pip"] },
 ]
 matrix.installer.scripts = [
-  { key = "pip", value = "uv pip {args}", if = ["uv"] },
+  { key = "pip", value = "{env:HATCH_UV} pip {args}", if = ["uv"] },
 ]
 ```
 
-Another common use case is to enable UV for all [test environments](../../config/internal/testing.md). In this case, you often wouldn't want to modify the `scripts` mapping directly but rather add an [extra script](../../config/environment/overview.md#extra-scripts):
+Another common use case is to expose UV to all [test environments](../../config/internal/testing.md). In this case, you often wouldn't want to modify the `scripts` mapping directly but rather add an [extra script](../../config/environment/overview.md#extra-scripts):
 
 ```toml config-example
-[tool.hatch.envs.hatch-test]
-uv = true
-
 [tool.hatch.envs.hatch-test.extra-scripts]
-pip = "uv pip {args}"
+pip = "{env:HATCH_UV} pip {args}"
 ```

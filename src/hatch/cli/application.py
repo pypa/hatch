@@ -76,6 +76,8 @@ class Application(Terminal):
         if environment_class is None:
             self.abort(f'Environment `{env_name}` has unknown type: {environment_type}')
 
+        from hatch.env.internal import is_isolated_environment
+
         if self.project.location.is_file():
             data_directory = isolated_data_directory = self.data_dir / 'env' / environment_type / '.scripts'
         elif is_isolated_environment(env_name, config):
@@ -344,6 +346,8 @@ class EnvironmentMetadata:
         metadata_file.write_text(json.dumps(metadata))
 
     def _metadata_file(self, environment: EnvironmentInterface) -> Path:
+        from hatch.env.internal import is_isolated_environment
+
         if is_isolated_environment(environment.name, environment.config):
             return self.__data_dir / '.internal' / f'{environment.name}.json'
 
@@ -352,30 +356,3 @@ class EnvironmentMetadata:
     @cached_property
     def _storage_dir(self) -> Path:
         return self.__data_dir / self.__project_path.id
-
-
-def is_isolated_environment(env_name: str, config: dict[str, Any]) -> bool:
-    # Provide super isolation and immunity to project-level environment removal only when the environment:
-    #
-    # 1. Does not require the project being installed
-    # 2. The default configuration is used
-    #
-    # For example, the environment for static analysis depends only on Ruff at a specific default
-    # version. This environment does not require the project and can be reused by every project to
-    # improve responsiveness. However, if the user for some reason chooses to override the dependencies
-    # to use a different version of Ruff, then the project would get its own environment.
-    if not config.get('skip-install', False):
-        return False
-
-    from hatch.env.internal import get_internal_env_config
-
-    internal_config = get_internal_env_config().get(env_name)
-    if not internal_config:
-        return False
-
-    # Only consider things that would modify the actual installation, other options like extra scripts don't matter
-    for key in ('dependencies', 'extra-dependencies', 'features'):
-        if config.get(key) != internal_config.get(key):
-            return False
-
-    return True

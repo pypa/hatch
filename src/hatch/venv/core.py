@@ -1,7 +1,7 @@
 import os
 from tempfile import TemporaryDirectory
 
-from hatch.env.utils import add_verbosity_flag, get_env_var_option
+from hatch.env.utils import add_verbosity_flag
 from hatch.utils.env import PythonInfo
 from hatch.utils.fs import Path
 from hatch.venv.utils import get_random_venv_name
@@ -26,7 +26,7 @@ class VirtualEnv:
         old_path = os.environ.pop('PATH', None)
         self._env_vars_to_restore['PATH'] = old_path
         if old_path is None:
-            os.environ['PATH'] = str(self.executables_directory)
+            os.environ['PATH'] = f'{self.executables_directory}{os.pathsep}{os.defpath}'
         else:
             os.environ['PATH'] = f'{self.executables_directory}{os.pathsep}{old_path}'
 
@@ -131,8 +131,7 @@ class TempVirtualEnv(VirtualEnv):
 
 class UVVirtualEnv(VirtualEnv):
     def create(self, python, *, allow_system_packages=False):
-        uv_path = get_env_var_option(plugin_name='virtual', option='uv_path', default='uv')
-        command = [uv_path, 'venv', str(self.directory), '--python', python]
+        command = [os.environ.get('HATCH_UV', 'uv'), 'venv', str(self.directory), '--python', python]
         if allow_system_packages:
             command.append('--system-site-packages')
 
