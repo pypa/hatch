@@ -585,25 +585,31 @@ class WheelBuilder(BuilderInterface):
     def write_data(
         self, archive: WheelArchive, records: RecordFile, build_data: dict[str, Any], extra_dependencies: Sequence[str]
     ) -> None:
-        self.add_shared_data(archive, records)
-        self.add_shared_scripts(archive, records)
+        self.add_shared_data(archive, records, build_data)
+        self.add_shared_scripts(archive, records, build_data)
 
         # Ensure metadata is written last, see https://peps.python.org/pep-0427/#recommended-archiver-features
         self.write_metadata(archive, records, build_data, extra_dependencies=extra_dependencies)
 
-    def add_shared_data(self, archive: WheelArchive, records: RecordFile) -> None:
-        for shared_file in self.recurse_explicit_files(self.config.shared_data):
+    def add_shared_data(self, archive: WheelArchive, records: RecordFile, build_data: dict[str, Any]) -> None:
+        shared_data = dict(self.config.shared_data)
+        shared_data.update(normalize_inclusion_map(build_data['shared_data'], self.root))
+
+        for shared_file in self.recurse_explicit_files(shared_data):
             record = archive.add_shared_file(shared_file)
             records.write(record)
 
-    def add_shared_scripts(self, archive: WheelArchive, records: RecordFile) -> None:
+    def add_shared_scripts(self, archive: WheelArchive, records: RecordFile, build_data: dict[str, Any]) -> None:
         import re
         from io import BytesIO
 
         # https://packaging.python.org/en/latest/specifications/binary-distribution-format/#recommended-installer-features
         shebang = re.compile(rb'^#!.*(?:pythonw?|pypyw?)[0-9.]*(.*)', flags=re.DOTALL)
 
-        for shared_script in self.recurse_explicit_files(self.config.shared_scripts):
+        shared_scripts = dict(self.config.shared_scripts)
+        shared_scripts.update(normalize_inclusion_map(build_data['shared_scripts'], self.root))
+
+        for shared_script in self.recurse_explicit_files(shared_scripts):
             with open(shared_script.path, 'rb') as f:
                 content = BytesIO()
                 for line in f:
@@ -784,6 +790,8 @@ Root-Is-Purelib: {'true' if build_data['pure_python'] else 'false'}
             'dependencies': [],
             'force_include_editable': {},
             'extra_metadata': {},
+            'shared_data': {},
+            'shared_scripts': {},
         }
 
     def get_forced_inclusion_map(self, build_data: dict[str, Any]) -> dict[str, str]:
