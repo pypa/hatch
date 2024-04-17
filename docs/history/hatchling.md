@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Fixed:***
+
+- Maintain file permissions for `shared-scripts` option/`shared_scripts` build data of the `wheel` target
+
 ## [1.24.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.24.0) - 2024-04-16 ## {: #hatchling-v1.24.0 }
 
 ***Added:***
