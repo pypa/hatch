@@ -112,6 +112,7 @@ def normalize_file_permissions(st_mode: int) -> int:
 
 def set_zip_info_mode(zip_info: ZipInfo, mode: int = 0o644) -> None:
     """
+    https://github.com/python/cpython/blob/v3.12.3/Lib/zipfile/__init__.py#L574
     https://github.com/takluyver/flit/commit/3889583719888aef9f28baaa010e698cb7884904
     """
-    zip_info.external_attr = mode << 16
+    zip_info.external_attr = (mode & 0xFFFF) << 16

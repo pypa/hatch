@@ -98,7 +98,7 @@ class WheelArchive:
 
             # https://github.com/takluyver/flit/pull/66
             new_mode = normalize_file_permissions(file_stat.st_mode)
-            set_zip_info_mode(zip_info, new_mode & 0xFFFF)
+            set_zip_info_mode(zip_info, new_mode)
             if stat.S_ISDIR(file_stat.st_mode):  # no cov
                 zip_info.external_attr |= 0x10
         else:
@@ -123,9 +123,19 @@ class WheelArchive:
         relative_path = f'{self.metadata_directory}/{normalize_archive_path(relative_path)}'
         return self.write_file(relative_path, contents)
 
-    def write_shared_script(self, relative_path: str, contents: str | bytes) -> tuple[str, str, str]:
-        relative_path = f'{self.shared_data_directory}/scripts/{normalize_archive_path(relative_path)}'
-        return self.write_file(relative_path, contents)
+    def write_shared_script(self, included_file: IncludedFile, contents: str | bytes) -> tuple[str, str, str]:
+        relative_path = (
+            f'{self.shared_data_directory}/scripts/{normalize_archive_path(included_file.distribution_path)}'
+        )
+        if sys.platform == 'win32':
+            return self.write_file(relative_path, contents)
+
+        file_stat = os.stat(included_file.path)
+        return self.write_file(
+            relative_path,
+            contents,
+            mode=normalize_file_permissions(file_stat.st_mode) if self.reproducible else file_stat.st_mode,
+        )
 
     def add_shared_file(self, shared_file: IncludedFile) -> tuple[str, str, str]:
         shared_file.distribution_path = f'{self.shared_data_directory}/data/{shared_file.distribution_path}'
@@ -137,13 +147,22 @@ class WheelArchive:
         )
         return self.add_file(extra_metadata_file)
 
-    def write_file(self, relative_path: str, contents: str | bytes) -> tuple[str, str, str]:
+    def write_file(
+        self,
+        relative_path: str,
+        contents: str | bytes,
+        *,
+        mode: int | None = None,
+    ) -> tuple[str, str, str]:
         if not isinstance(contents, bytes):
             contents = contents.encode('utf-8')
 
         time_tuple = self.time_tuple or (2020, 2, 2, 0, 0, 0)
         zip_info = zipfile.ZipInfo(relative_path, time_tuple)
-        set_zip_info_mode(zip_info)
+        if mode is None:
+            set_zip_info_mode(zip_info)
+        else:
+            set_zip_info_mode(zip_info, mode)
 
         hash_obj = hashlib.sha256(contents)
         hash_digest = format_file_hash(hash_obj.digest())
@@ -628,7 +647,7 @@ class WheelBuilder(BuilderInterface):
                     content.write(f.read())
                     break
 
-            record = archive.write_shared_script(shared_script.distribution_path, content.getvalue())
+            record = archive.write_shared_script(shared_script, content.getvalue())
             records.write(record)
 
     def write_metadata(

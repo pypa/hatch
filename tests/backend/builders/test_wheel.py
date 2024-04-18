@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 import os
 import platform
 import sys
 import zipfile
+from typing import TYPE_CHECKING
 
 import pytest
 from packaging.tags import sys_tags
@@ -12,6 +15,9 @@ from hatchling.builders.wheel import WheelBuilder
 from hatchling.metadata.spec import DEFAULT_METADATA_VERSION, get_core_metadata_constructors
 from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT
 
+if TYPE_CHECKING:
+    from hatch.utils.fs import Path
+
 # https://github.com/python/cpython/pull/26184
 fixed_pathlib_resolution = pytest.mark.skipif(
     sys.platform == 'win32' and (sys.version_info < (3, 8) or sys.implementation.name == 'pypy'),
@@ -21,6 +27,17 @@ fixed_pathlib_resolution = pytest.mark.skipif(
 
 def get_python_versions_tag():
     return '.'.join(f'py{major_version}' for major_version in get_known_python_major_versions())
+
+
+def extract_zip(zip_path: Path, target: Path) -> None:
+    with zipfile.ZipFile(zip_path, 'r') as z:
+        for name in z.namelist():
+            member = z.getinfo(name)
+            path = z.extract(member, target)
+            if member.is_dir():
+                os.chmod(path, 0o755)
+            else:
+                os.chmod(path, member.external_attr >> 16)
 
 
 def test_class():
@@ -1996,7 +2013,7 @@ class TestBuildStandard:
         )
         helpers.assert_files(extraction_directory, expected_files)
 
-    def test_default_shared_scripts(self, hatch, helpers, temp_dir, config_file):
+    def test_default_shared_scripts(self, hatch, platform, helpers, temp_dir, config_file):
         config_file.model.template.plugins['default']['src-layout'] = False
         config_file.save()
 
@@ -2013,7 +2030,12 @@ class TestBuildStandard:
         shared_data_path.ensure_dir_exists()
 
         binary_contents = os.urandom(1024)
-        (shared_data_path / 'binary').write_bytes(binary_contents)
+        binary_file = shared_data_path / 'binary'
+        binary_file.write_bytes(binary_contents)
+        if not platform.windows:
+            expected_mode = 0o755
+            binary_file.chmod(expected_mode)
+
         (shared_data_path / 'other_script.sh').write_text(
             helpers.dedent(
                 """
@@ -2085,10 +2107,7 @@ class TestBuildStandard:
         assert expected_artifact == str(build_artifacts[0])
 
         extraction_directory = temp_dir / '_archive'
-        extraction_directory.mkdir()
-
-        with zipfile.ZipFile(str(expected_artifact), 'r') as zip_archive:
-            zip_archive.extractall(str(extraction_directory))
+        extract_zip(expected_artifact, extraction_directory)
 
         metadata_directory = f'{builder.project_id}.dist-info'
         shared_data_directory = f'{builder.project_id}.data'
@@ -2101,7 +2120,11 @@ class TestBuildStandard:
         )
         helpers.assert_files(extraction_directory, expected_files)
 
-    def test_default_shared_scripts_from_build_data(self, hatch, helpers, temp_dir, config_file):
+        if not platform.windows:
+            extracted_binary = extraction_directory / shared_data_directory / 'scripts' / 'binary'
+            assert extracted_binary.stat().st_mode & 0o777 == expected_mode
+
+    def test_default_shared_scripts_from_build_data(self, hatch, platform, helpers, temp_dir, config_file):
         config_file.model.template.plugins['default']['src-layout'] = False
         config_file.save()
 
@@ -2118,7 +2141,12 @@ class TestBuildStandard:
         shared_data_path.ensure_dir_exists()
 
         binary_contents = os.urandom(1024)
-        (shared_data_path / 'binary').write_bytes(binary_contents)
+        binary_file = shared_data_path / 'binary'
+        binary_file.write_bytes(binary_contents)
+        if not platform.windows:
+            expected_mode = 0o755
+            binary_file.chmod(expected_mode)
+
         (shared_data_path / 'other_script.sh').write_text(
             helpers.dedent(
                 """
@@ -2205,10 +2233,7 @@ class TestBuildStandard:
         assert expected_artifact == str(build_artifacts[0])
 
         extraction_directory = temp_dir / '_archive'
-        extraction_directory.mkdir()
-
-        with zipfile.ZipFile(str(expected_artifact), 'r') as zip_archive:
-            zip_archive.extractall(str(extraction_directory))
+        extract_zip(expected_artifact, extraction_directory)
 
         metadata_directory = f'{builder.project_id}.dist-info'
         shared_data_directory = f'{builder.project_id}.data'
@@ -2220,6 +2245,10 @@ class TestBuildStandard:
             binary_contents=binary_contents,
         )
         helpers.assert_files(extraction_directory, expected_files)
+
+        if not platform.windows:
+            extracted_binary = extraction_directory / shared_data_directory / 'scripts' / 'binary'
+            assert extracted_binary.stat().st_mode & 0o777 == expected_mode
 
     def test_default_extra_metadata(self, hatch, helpers, temp_dir, config_file):
         config_file.model.template.plugins['default']['src-layout'] = False
