@@ -13,24 +13,22 @@ The top-level fields are:
 
 The following is an example of Python script with a valid metadata block:
 
-=== ":octicons-file-code-16: script.py"
+```python tab="script.py"
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#   "httpx",
+#   "rich",
+# ]
+# ///
 
-    ```python
-    # /// script
-    # requires-python = ">=3.11"
-    # dependencies = [
-    #   "httpx",
-    #   "rich",
-    # ]
-    # ///
+import httpx
+from rich.pretty import pprint
 
-    import httpx
-    from rich.pretty import pprint
-
-    resp = httpx.get("https://peps.python.org/api/peps.json")
-    data = resp.json()
-    pprint([(k, v["title"]) for k, v in data.items()][:10])
-    ```
+resp = httpx.get("https://peps.python.org/api/peps.json")
+data = resp.json()
+pprint([(k, v["title"]) for k, v in data.items()][:10])
+```
 
 Run it directly:
 
