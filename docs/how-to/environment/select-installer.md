@@ -21,7 +21,7 @@ uv = true
 
 ## Configuring the version
 
-The UV that is shared by all environments uses a specific version that is known to work with Hatch. If you want to use a different version, you can override the [dependencies](../../config/environment/overview.md#dependencies) for the internal `hatch-uv` environment:
+The UV that is shared by all environments uses a specific version range that is known to work with Hatch. If you want to use a different version, you can override the [dependencies](../../config/environment/overview.md#dependencies) for the internal `hatch-uv` environment:
 
 ```toml config-example
 [tool.hatch.envs.hatch-uv]
