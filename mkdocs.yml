@@ -120,6 +120,8 @@ nav:
   - How-to:
     - Meta:
       - Report issues: how-to/meta/report-issues.md
+    - Integrate:
+      - Visual Studio Code: how-to/integrate/vscode.md
     - Run:
       - Python scripts: how-to/run/python-scripts.md
     - Config:
