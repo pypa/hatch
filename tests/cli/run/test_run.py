@@ -2432,6 +2432,62 @@ class TestScriptRunner:
         assert data_path in executable.parents
         assert unit_conversion == "(1.0, 'KiB')"
 
+    @pytest.mark.requires_internet
+    def test_dependencies_from_tool_config(self, hatch, helpers, temp_dir):
+        data_path = temp_dir / 'data'
+        data_path.mkdir()
+        script = (temp_dir / 'script.py').resolve()
+        script.write_text(
+            helpers.dedent(
+                """
+                # /// script
+                # dependencies = []
+                #
+                # [tool.hatch]
+                # dependencies = [
+                #   "binary",
+                # ]
+                # ///
+                import pathlib
+                import sys
+
+                import binary
+
+                pathlib.Path('test.txt').write_text(
+                    f'{sys.executable}\\n{str(binary.convert_units(1024))}'
+                )
+                """
+            )
+        )
+
+        with temp_dir.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+            result = hatch('run', 'script.py')
+
+        assert result.exit_code == 0, result.output
+        assert result.output == helpers.dedent(
+            f"""
+            Creating environment: {script.id}
+            Checking dependencies
+            Syncing dependencies
+            """
+        )
+        output_file = temp_dir / 'test.txt'
+        assert output_file.is_file()
+
+        env_data_path = data_path / 'env' / 'virtual' / '.scripts'
+        assert env_data_path.is_dir()
+
+        env_path = env_data_path / script.id
+        assert env_path.is_dir()
+        assert env_path.name == script.id
+
+        executable_path, unit_conversion = output_file.read_text().splitlines()
+        executable = Path(executable_path)
+
+        assert executable.is_file()
+        assert data_path in executable.parents
+        assert unit_conversion == "(1.0, 'KiB')"
+
     def test_unsupported_python_version(self, hatch, helpers, temp_dir):
         data_path = temp_dir / 'data'
         data_path.mkdir()
@@ -2475,6 +2531,56 @@ class TestScriptRunner:
                 f"""
                 # /// script
                 # requires-python = "<{major}.{minor}"
+                # ///
+                import pathlib
+                import sys
+
+                pathlib.Path('test.txt').write_text(sys.executable)
+                """
+            )
+        )
+
+        with temp_dir.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+            result = hatch('run', 'script.py')
+
+        assert result.exit_code == 0, result.output
+        assert result.output == helpers.dedent(
+            f"""
+            Creating environment: {script.id}
+            Checking dependencies
+            """
+        )
+        output_file = temp_dir / 'test.txt'
+        assert output_file.is_file()
+
+        env_data_path = data_path / 'env' / 'virtual' / '.scripts'
+        assert env_data_path.is_dir()
+
+        env_path = env_data_path / script.id
+        assert env_path.is_dir()
+        assert env_path.name == script.id
+
+        executable = Path(output_file.read_text())
+        assert executable.is_file()
+        assert data_path in executable.parents
+
+    def test_python_version_constraint_from_tool_config(self, hatch, helpers, temp_dir):
+        data_path = temp_dir / 'data'
+        data_path.mkdir()
+        script = (temp_dir / 'script.py').resolve()
+
+        # Use the current minor version so that the current Python
+        # will be used and distributions don't have to be downloaded
+        major, minor = sys.version_info[:2]
+
+        script.write_text(
+            helpers.dedent(
+                f"""
+                # /// script
+                # requires-python = ">9000"
+                #
+                # [tool.hatch]
+                # python = "{major}.{minor}"
                 # ///
                 import pathlib
                 import sys

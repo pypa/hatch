@@ -54,3 +54,15 @@ Syncing dependencies
 !!! note "notes"
     - The informational text in this example is only temporarily shown in your terminal on the first run.
     - Although the environment name is based on the script's absolute path, the command line argument does not have to be.
+
+## Environment configuration
+
+You may use the `[tool.hatch]` table directly to control the script's [environment](../../config/environment/overview.md). For example, if you wanted to disable UV (which is [enabled](../environment/select-installer.md) by default for scripts), you could add the following:
+
+```python tab="script.py"
+# /// script
+# ...
+# [tool.hatch]
+# uv = false
+# ///
+```
