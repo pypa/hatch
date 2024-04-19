@@ -121,6 +121,15 @@ The `format-*` scripts correspond to the `--formatter`/`-f` flag while the `lint
 !!! note "Reminder"
     If you choose to use different tools for static analysis, be sure to update the required [dependencies](#dependencies).
 
+### Installer
+
+By default, [UV is enabled](../../how-to/environment/select-installer.md). You may disable that behavior as follows:
+
+```toml config-example
+[tool.hatch.envs.hatch-static-analysis]
+uv = false
+```
+
 ## Default settings
 
 ### Non-rule settings

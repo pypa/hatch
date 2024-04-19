@@ -90,6 +90,12 @@ Hatch will create a dedicated environment for that script using a version of Pyt
 
 See the [how-to guide](../../how-to/run/python-scripts.md) for more information.
 
+## Static analysis
+
+The environment used for static analysis is now [completely configurable](../../config/internal/static-analysis.md#customize-behavior) such that you can fully alter the underlying behavior of the [`fmt`](../../cli/reference.md#hatch-fmt) command.
+
+Additionally, Ruff has been updated to version 1.4.0 and the rules selected by default have been updated accordingly. Check out their [blog post](https://astral.sh/blog/ruff-v0.4.0) about how the new hand-written parser has made it twice as fast!
+
 ## Community highlights
 
 ### Visual Studio Code
