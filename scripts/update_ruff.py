@@ -45,9 +45,9 @@ UNSELECTED_RULE_PATTERNS: list[str] = [
     # Conflicts with formatter, see:
     # https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules
     'COM812', 'COM819', 'D206', 'D300', 'E111', 'E114', 'E117', 'E301', 'E302', 'E303', 'E304', 'E305', 'E306', "E501", 'ISC001', 'ISC002', 'Q000', 'Q001', 'Q002', 'Q003', 'Q004', 'W191',
+    # Conflicts with context formatting in dependencies
+    'RUF200',
     # Currently broken
-    # https://github.com/astral-sh/ruff/issues/10911
-    'PLR6104',
 ]
 PER_FILE_IGNORED_RULES: dict[str, list[str]] = {
     '**/scripts/*': [
