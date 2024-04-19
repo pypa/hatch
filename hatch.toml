@@ -120,7 +120,7 @@ update-hatchling = [
 update-distributions = "python scripts/update_distributions.py"
 update-licenses = "python backend/scripts/update_licenses.py"
 update-ruff = [
-  "pip install --upgrade ruff",
+  "{env:HATCH_UV} pip install --upgrade ruff",
   "python scripts/update_ruff.py",
 ]
 
