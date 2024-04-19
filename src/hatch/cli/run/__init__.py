@@ -75,8 +75,13 @@ def run(ctx: click.Context, args: tuple[str, ...]):
         if metadata:
             from hatch.env.utils import ensure_valid_environment
 
-            config = {'skip-install': True, 'dependencies': metadata.get('dependencies', [])}
-            if (requires_python := metadata.get('requires-python')) is not None:
+            config = metadata.get('tool', {}).get('hatch', {})
+            config['skip-install'] = True
+            config.setdefault('uv', True)
+            config.setdefault('dependencies', [])
+            config['dependencies'].extend(metadata.get('dependencies', []))
+
+            if 'python' not in config and (requires_python := metadata.get('requires-python')) is not None:
                 import re
                 import sys
 
