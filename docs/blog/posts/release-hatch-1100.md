@@ -106,4 +106,21 @@ See the [how-to guide](../../how-to/integrate/vscode.md) detailed instructions.
 
 ### CMake build plugin
 
-The extension module builder [scikit-build-core](https://github.com/scikit-build/scikit-build-core) has introduced a [build plugin](https://scikit-build-core.readthedocs.io/en/latest/plugins/hatchling.html) for Hatchling. This means that you can use Hatchling as your build backend while also shipping extension modules built with CMake.
+A [new release](https://github.com/scikit-build/scikit-build-core/releases/tag/v0.9.0) of the extension module builder [scikit-build-core](https://github.com/scikit-build/scikit-build-core) has introduced a [build plugin](https://scikit-build-core.readthedocs.io/en/stable/plugins/hatchling.html) for Hatchling. This means that you can use Hatchling as your build backend while also shipping extension modules built with CMake.
+
+To get started, add the dependency to your [build requirements](../../config/build.md#build-system):
+
+```toml tab="pyproject.toml"
+[build-system]
+requires = ["hatchling>=1.24.1", "scikit-build-core~=0.9.0"]
+build-backend = "hatchling.build"
+```
+
+Then explicitly enable the `experimental` option (acknowledging that the plugin will move to a dedicated package in the future):
+
+```toml config-example
+[tool.hatch.build.targets.wheel.hooks.scikit-build]
+experimental = true
+```
+
+At this point, you can create your `CMakeLists.txt` file as usual and start building your extension modules with CMake! Check out the dedicated [example project](https://github.com/scikit-build/scikit-build-sample-projects/tree/main/projects/hatchling-pybind11-hello) for a complete demonstration.
