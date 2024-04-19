@@ -102,7 +102,7 @@ Additionally, Ruff has been updated to version 1.4.0 and the rules selected by d
 
 Visual Studio Code [announced support](https://code.visualstudio.com/updates/v1_88#_hatch-environment-discovery) for Hatch environments in their latest release. This means that you can now easily discover and select Hatch environments for your projects directly from the editor.
 
-See the [how-to guide](../../how-to/integrations/vscode.md) for more information.
+See the [how-to guide](../../how-to/integrate/vscode.md) detailed instructions.
 
 ### CMake build plugin
 
