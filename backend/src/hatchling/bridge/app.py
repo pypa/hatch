@@ -27,7 +27,7 @@ class Application:
     @staticmethod
     def display(message: str = '', **kwargs: Any) -> None:  # noqa: ARG004
         # Do not document
-        _display(message)
+        _display(message, always=True)
 
     def display_info(self, message: str = '', **kwargs: Any) -> None:  # noqa: ARG002
         """
@@ -107,4 +107,5 @@ class SafeApplication:
         self.display_mini_header = app.display_mini_header
 
 
-_display = print
+def _display(message: str, *, always: bool = False) -> None:
+    print(message, file=None if always else sys.stderr)

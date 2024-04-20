@@ -122,7 +122,8 @@ class Platform:
 
         process = self.modules.subprocess.run(self.format_for_subprocess(command, shell=shell), shell=shell, **kwargs)
         if process.returncode:
-            self.__display_func(process.stdout.decode('utf-8'))
+            # Callers might not want to merge both streams so try stderr first
+            self.__display_func((process.stderr or process.stdout).decode('utf-8'))
             self.exit_with_code(process.returncode)
 
         return process.stdout.decode('utf-8')
