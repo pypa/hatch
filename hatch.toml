@@ -1,6 +1,7 @@
 [envs.hatch-static-analysis]
 config-path = "ruff_defaults.toml"
 
+
 [envs.default]
 uv = true
 post-install-commands = [
