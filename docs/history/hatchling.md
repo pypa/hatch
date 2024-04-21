@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ***Fixed:***
 
+- Add `.venv` to the list of directories that cannot be traversed
 - Output from the core Application utility now writes to stderr
 
 ## [1.24.1](https://github.com/pypa/hatch/releases/tag/hatchling-v1.24.1) - 2024-04-18 ## {: #hatchling-v1.24.1 }

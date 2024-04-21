@@ -3,6 +3,8 @@ DEFAULT_BUILD_DIRECTORY = 'dist'
 EXCLUDED_DIRECTORIES = frozenset((
     # Python bytecode
     '__pycache__',
+    # Single virtual environment
+    '.venv',
     # Git
     '.git',
     # Mercurial
