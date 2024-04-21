@@ -282,6 +282,7 @@ jobs:
 
     env:
       VERSION: ${{ needs.binaries.outputs.version }}
+      NOTARY_WAIT_TIME: "3600"  # 1 hour
 
     steps:
     - name: Checkout code
@@ -356,6 +357,7 @@ jobs:
         cd ../notarize-bin
         for f in *; do
           rcodesign notary-submit -vv \
+          --max-wait-seconds ${{ env.NOTARY_WAIT_TIME }} \
           --api-key-path /tmp/app-store-connect.json \
           "$f"
         done
@@ -418,7 +420,8 @@ jobs:
 
     - name: Notarize PKG
       run: >-
-        rcodesign notary-submit
+        rcodesign notary-submit -vv
+        --max-wait-seconds ${{ env.NOTARY_WAIT_TIME }}
         --api-key-path /tmp/app-store-connect.json
         --staple
         "signed/${{ steps.pkg.outputs.path }}"
