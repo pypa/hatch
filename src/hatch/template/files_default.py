@@ -29,7 +29,7 @@ class Readme(File):
 {extra_badges}
 -----
 
-**Table of Contents**
+## Table of Contents
 
 - [Installation](#installation)
 {extra_toc}
