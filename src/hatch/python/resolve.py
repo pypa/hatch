@@ -152,7 +152,7 @@ def get_distribution(name: str, source: str = '', variant: str = '') -> Distribu
         abi = 'gnu' if any(platform.libc_ver()) else 'musl'
 
     if not variant:
-        variant = _get_default_variant(name, system, arch, abi)
+        variant = _get_default_variant(name, system, arch)
 
     key = (system, arch, abi, variant)
 
@@ -178,19 +178,11 @@ def get_compatible_distributions() -> dict[str, Distribution]:
     return distributions
 
 
-def _get_default_variant(name: str, system: str, arch: str, abi: str) -> str:
+def _get_default_variant(name: str, system: str, arch: str) -> str:
     # not PyPy
     if name[0].isdigit():
         # https://gregoryszorc.com/docs/python-build-standalone/main/running.html
         variant = os.environ.get(f'HATCH_PYTHON_VARIANT_{system.upper()}', '').lower()
-
-        if system == 'windows':
-            # Shared versus static
-            if variant:
-                return variant
-
-            if abi == 'msvc':
-                return 'shared'
 
         if system == 'linux' and arch == 'x86_64':
             # Intel-specific optimizations depending on age of release

@@ -14,7 +14,7 @@ class TestErrors:
             get_distribution('foo')
 
     @pytest.mark.skipif(
-        not (sys.platform == 'win32' or (sys.platform != 'darwin' and machine().lower() == 'x86_64')),
+        not (sys.platform == 'linux' and machine().lower() == 'x86_64'),
         reason='No variants for this platform and architecture combination',
     )
     def test_resolution_error(self, platform):
@@ -46,8 +46,6 @@ class TestDistributionVersions:
 @pytest.mark.parametrize(
     ('system', 'variant'),
     [
-        ('windows', 'shared'),
-        ('windows', 'static'),
         ('linux', 'v1'),
         ('linux', 'v2'),
         ('linux', 'v3'),
