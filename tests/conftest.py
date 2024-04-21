@@ -311,6 +311,19 @@ def env_run(mocker) -> Generator[MagicMock, None, None]:
     return run
 
 
+def is_hatchling_command(command) -> bool:
+    if not isinstance(command, list):
+        return False
+
+    if command[0] != 'python':
+        return False
+
+    if '-m' not in command:
+        return False
+
+    return command[command.index('-m') + 1] == 'hatchling'
+
+
 @pytest.fixture
 def mock_backend_process(request, mocker):
     if 'allow_backend_process' in request.keywords:
@@ -319,7 +332,7 @@ def mock_backend_process(request, mocker):
 
     def mock_process_api(api):
         def mock_process(command, **kwargs):
-            if not isinstance(command, list) or command[1:4] != ['-u', '-m', 'hatchling']:  # no cov
+            if not is_hatchling_command(command):  # no cov
                 return api(command, **kwargs)
 
             original_args = sys.argv
@@ -357,7 +370,7 @@ def mock_backend_process_output(request, mocker):
 
     def mock_process_api(api):
         def mock_process(command, **kwargs):
-            if not isinstance(command, list) or command[1:4] != ['-u', '-m', 'hatchling']:  # no cov
+            if not is_hatchling_command(command):  # no cov
                 return api(command, **kwargs)
 
             output_queue.clear()
@@ -375,7 +388,7 @@ def mock_backend_process_output(request, mocker):
                 else:
                     mock.returncode = 0
 
-                mock.stdout = ''.join(output_queue).encode('utf-8')
+                mock.stdout = mock.stderr = ''.join(output_queue).encode('utf-8')
                 return mock
             finally:
                 sys.argv = original_args
@@ -383,7 +396,7 @@ def mock_backend_process_output(request, mocker):
         return mock_process
 
     mocker.patch('subprocess.run', side_effect=mock_process_api(subprocess.run))
-    mocker.patch('hatchling.bridge.app._display', side_effect=lambda cmd: output_queue.append(f'{cmd}\n'))
+    mocker.patch('hatchling.bridge.app._display', side_effect=lambda cmd, **_: output_queue.append(f'{cmd}\n'))
 
     yield True
 

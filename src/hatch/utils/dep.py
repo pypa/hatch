@@ -59,7 +59,11 @@ def get_project_dependencies_complex(
 
         with environment.root.as_cwd(), environment.build_environment(environment.metadata.build.requires):
             command = ['python', '-u', '-W', 'ignore', '-m', 'hatchling', 'metadata', '--compact']
-            output = environment.platform.check_command_output(command)
+            output = environment.platform.check_command_output(
+                command,
+                # Only capture stdout
+                stderr=environment.platform.modules.subprocess.PIPE,
+            )
             project_metadata = json.loads(output)
 
             for dependency in project_metadata.get('dependencies', []):

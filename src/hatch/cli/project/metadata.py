@@ -46,7 +46,7 @@ def metadata(app, field):
                 output = app.platform.check_command_output(
                     ['python', '-u', '-m', 'hatchling', 'metadata', '--compact'],
                     # Only capture stdout
-                    stderr=None,
+                    stderr=app.platform.modules.subprocess.PIPE,
                 )
                 project_metadata = json.loads(output)
 
