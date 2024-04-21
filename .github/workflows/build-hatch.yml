@@ -297,10 +297,10 @@ jobs:
 
     - name: Install rcodesign
       env:
-        ARCHIVE_NAME: "apple-codesign-0.26.0-x86_64-apple-darwin"
+        ARCHIVE_NAME: "apple-codesign-0.27.0-x86_64-apple-darwin"
       run: >-
         curl -L
-        "https://github.com/indygreg/apple-platform-rs/releases/download/apple-codesign%2F0.26.0/$ARCHIVE_NAME.tar.gz"
+        "https://github.com/indygreg/apple-platform-rs/releases/download/apple-codesign%2F0.27.0/$ARCHIVE_NAME.tar.gz"
         |
         tar --strip-components=1 -xzf - -C /usr/local/bin "$ARCHIVE_NAME/rcodesign"
 
