@@ -27,7 +27,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Add `HATCH_DEBUG` environment variable that when enabled will show local variables in the case of unhandled tracebacks
 - Upgrade default CPython distributions to 20240224
 - Upgrade Ruff to 0.4.0
-- Upgrade PyApp to 0.16.0 for binary builds
+- Upgrade PyApp to 0.17.0 for binary builds
 - Bump the minimum supported version of Hatchling to 1.24.1
 
 ***Fixed:***
