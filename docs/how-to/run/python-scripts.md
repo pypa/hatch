@@ -57,12 +57,12 @@ Syncing dependencies
 
 ## Environment configuration
 
-You may use the `[tool.hatch]` table directly to control the script's [environment](../../config/environment/overview.md). For example, if you wanted to disable UV (which is [enabled](../environment/select-installer.md) by default for scripts), you could add the following:
+You may use the `[tool.hatch]` table directly to control the script's [environment](../../config/environment/overview.md). For example, if you wanted to disable UV (which is [enabled](../environment/select-installer.md#enabling-uv) by default for scripts), you could add the following:
 
 ```python tab="script.py"
 # /// script
 # ...
 # [tool.hatch]
-# uv = false
+# installer = "pip"
 # ///
 ```

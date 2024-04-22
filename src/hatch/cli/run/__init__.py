@@ -77,7 +77,7 @@ def run(ctx: click.Context, args: tuple[str, ...]):
 
             config = metadata.get('tool', {}).get('hatch', {})
             config['skip-install'] = True
-            config.setdefault('uv', True)
+            config.setdefault('installer', 'uv')
             config.setdefault('dependencies', [])
             config['dependencies'].extend(metadata.get('dependencies', []))
 

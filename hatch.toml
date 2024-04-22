@@ -2,7 +2,7 @@
 config-path = "ruff_defaults.toml"
 
 [envs.default]
-uv = true
+installer = "uv"
 post-install-commands = [
   "uv pip install {verbosity:flag:-1} -e ./backend",
 ]
@@ -90,7 +90,7 @@ build-check = [
 
 [envs.backend]
 detached = true
-uv = true
+installer = "uv"
 dependencies = [
   "build~=0.7.0",
   "httpx",
@@ -104,7 +104,7 @@ version = "cd backend && hatch version {args}"
 
 [envs.upkeep]
 detached = true
-uv = true
+installer = "uv"
 dependencies = [
   "httpx",
   "ruff",
@@ -126,7 +126,7 @@ update-ruff = [
 
 [envs.release]
 detached = true
-uv = true
+installer = "uv"
 dependencies = [
   "hatchling",
 ]
