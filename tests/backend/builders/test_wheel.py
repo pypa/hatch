@@ -34,10 +34,7 @@ def extract_zip(zip_path: Path, target: Path) -> None:
         for name in z.namelist():
             member = z.getinfo(name)
             path = z.extract(member, target)
-            if member.is_dir():
-                os.chmod(path, 0o755)
-            else:
-                os.chmod(path, member.external_attr >> 16)
+            os.chmod(path, member.external_attr >> 16)
 
 
 def test_class():
