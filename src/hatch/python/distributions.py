@@ -195,38 +195,38 @@ DISTRIBUTIONS: dict[str, dict[tuple[str, ...], str]] = {
     },
     'pypy3.10': {
         ('linux', 'aarch64', 'gnu', ''):
-            'https://downloads.python.org/pypy/pypy3.10-v7.3.12-aarch64.tar.bz2',
+            'https://downloads.python.org/pypy/pypy3.10-v7.3.15-aarch64.tar.bz2',
         ('linux', 'x86_64', 'gnu', ''):
-            'https://downloads.python.org/pypy/pypy3.10-v7.3.12-linux64.tar.bz2',
+            'https://downloads.python.org/pypy/pypy3.10-v7.3.15-linux64.tar.bz2',
         ('windows', 'amd64', 'msvc', ''):
-            'https://downloads.python.org/pypy/pypy3.10-v7.3.12-win64.zip',
+            'https://downloads.python.org/pypy/pypy3.10-v7.3.15-win64.zip',
         ('macos', 'arm64', '', ''):
-            'https://downloads.python.org/pypy/pypy3.10-v7.3.12-macos_arm64.tar.bz2',
+            'https://downloads.python.org/pypy/pypy3.10-v7.3.15-macos_arm64.tar.bz2',
         ('macos', 'x86_64', '', ''):
-            'https://downloads.python.org/pypy/pypy3.10-v7.3.12-macos_x86_64.tar.bz2',
+            'https://downloads.python.org/pypy/pypy3.10-v7.3.15-macos_x86_64.tar.bz2',
     },
     'pypy3.9': {
         ('linux', 'aarch64', 'gnu', ''):
-            'https://downloads.python.org/pypy/pypy3.9-v7.3.12-aarch64.tar.bz2',
+            'https://downloads.python.org/pypy/pypy3.9-v7.3.15-aarch64.tar.bz2',
         ('linux', 'x86_64', 'gnu', ''):
-            'https://downloads.python.org/pypy/pypy3.9-v7.3.12-linux64.tar.bz2',
+            'https://downloads.python.org/pypy/pypy3.9-v7.3.15-linux64.tar.bz2',
         ('windows', 'amd64', 'msvc', ''):
-            'https://downloads.python.org/pypy/pypy3.9-v7.3.12-win64.zip',
+            'https://downloads.python.org/pypy/pypy3.9-v7.3.15-win64.zip',
         ('macos', 'arm64', '', ''):
-            'https://downloads.python.org/pypy/pypy3.9-v7.3.12-macos_arm64.tar.bz2',
+            'https://downloads.python.org/pypy/pypy3.9-v7.3.15-macos_arm64.tar.bz2',
         ('macos', 'x86_64', '', ''):
-            'https://downloads.python.org/pypy/pypy3.9-v7.3.12-macos_x86_64.tar.bz2',
+            'https://downloads.python.org/pypy/pypy3.9-v7.3.15-macos_x86_64.tar.bz2',
     },
     'pypy2.7': {
         ('linux', 'aarch64', 'gnu', ''):
-            'https://downloads.python.org/pypy/pypy2.7-v7.3.12-aarch64.tar.bz2',
+            'https://downloads.python.org/pypy/pypy2.7-v7.3.15-aarch64.tar.bz2',
         ('linux', 'x86_64', 'gnu', ''):
-            'https://downloads.python.org/pypy/pypy2.7-v7.3.12-linux64.tar.bz2',
+            'https://downloads.python.org/pypy/pypy2.7-v7.3.15-linux64.tar.bz2',
         ('windows', 'amd64', 'msvc', ''):
-            'https://downloads.python.org/pypy/pypy2.7-v7.3.12-win64.zip',
+            'https://downloads.python.org/pypy/pypy2.7-v7.3.15-win64.zip',
         ('macos', 'arm64', '', ''):
-            'https://downloads.python.org/pypy/pypy2.7-v7.3.12-macos_arm64.tar.bz2',
+            'https://downloads.python.org/pypy/pypy2.7-v7.3.15-macos_arm64.tar.bz2',
         ('macos', 'x86_64', '', ''):
-            'https://downloads.python.org/pypy/pypy2.7-v7.3.12-macos_x86_64.tar.bz2',
+            'https://downloads.python.org/pypy/pypy2.7-v7.3.15-macos_x86_64.tar.bz2',
     },
 }
