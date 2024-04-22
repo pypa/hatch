@@ -149,7 +149,7 @@ def test_uv_shipped(hatch, helpers, temp_dir, config_file):
     helpers.update_project_environment(
         project,
         'default',
-        {'skip-install': True, 'uv': True, **project.config.envs['default']},
+        {'skip-install': True, 'installer': 'uv', **project.config.envs['default']},
     )
     helpers.update_project_environment(project, 'test', {})
 
@@ -205,7 +205,7 @@ def test_uv_env(hatch, helpers, temp_dir, config_file):
     helpers.update_project_environment(
         project,
         'default',
-        {'skip-install': True, 'uv': True, **project.config.envs['default']},
+        {'skip-install': True, 'installer': 'uv', **project.config.envs['default']},
     )
     helpers.update_project_environment(project, 'hatch-uv', {'dependencies': ['uv>=0.1.31']})
     helpers.update_project_environment(project, 'test', {})

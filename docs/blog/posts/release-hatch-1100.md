@@ -29,16 +29,16 @@ See the [tutorial](../../tutorials/testing/overview.md) for a detailed walk-thro
 
 ## UV
 
-The package installer [UV](https://github.com/astral-sh/uv), brought to you by the same folks behind [Ruff](https://github.com/astral-sh/ruff), is now supported. In any environment, you can enable the `uv` option to use UV in place of [virtualenv](https://github.com/pypa/virtualenv) & [pip](https://github.com/pypa/pip) for virtual environment creation and dependency management, respectively. This often results in a significant performance benefit.
+The package installer [UV](https://github.com/astral-sh/uv), brought to you by the same folks behind [Ruff](https://github.com/astral-sh/ruff), is now supported. In any environment, you can set the `installer` option to `uv` to use UV in place of [virtualenv](https://github.com/pypa/virtualenv) & [pip](https://github.com/pypa/pip) for virtual environment creation and dependency management, respectively. This often results in a significant performance benefit.
 
 For example, if you wanted to enable this functionality for the [default](../../config/environment/overview.md#inheritance) environment, you could set the following:
 
 ```toml config-example
 [tool.hatch.envs.default]
-uv = true
+installer = "uv"
 ```
 
-Semi-internal environments like those used for [testing](../../config/internal/testing.md) and [static analysis](../../config/internal/static-analysis.md) have this option enabled by default.
+Semi-internal environments like those used for [testing](../../config/internal/testing.md) and [static analysis](../../config/internal/static-analysis.md) have this UV enabled by default.
 
 See the [how-to guide](../../how-to/environment/select-installer.md) for more information about switching the installer.
 

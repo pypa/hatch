@@ -6,5 +6,5 @@ from typing import Any
 def get_default_config() -> dict[str, Any]:
     return {
         'skip-install': True,
-        'uv': True,
+        'installer': 'uv',
     }

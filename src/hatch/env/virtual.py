@@ -81,7 +81,11 @@ class VirtualEnvironment(EnvironmentInterface):
 
     @cached_property
     def use_uv(self) -> bool:
-        return self.config.get('uv', bool(self.explicit_uv_path))
+        return self.installer == 'uv' or bool(self.explicit_uv_path)
+
+    @cached_property
+    def installer(self) -> str:
+        return self.config.get('installer', 'pip')
 
     @cached_property
     def explicit_uv_path(self) -> str:
@@ -125,7 +129,7 @@ class VirtualEnvironment(EnvironmentInterface):
 
     @staticmethod
     def get_option_types() -> dict:
-        return {'system-packages': bool, 'path': str, 'python-sources': list, 'uv': bool}
+        return {'system-packages': bool, 'path': str, 'python-sources': list, 'installer': str, 'uv-path': str}
 
     def activate(self):
         self.virtual_env.activate()

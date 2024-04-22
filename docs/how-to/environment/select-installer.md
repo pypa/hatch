@@ -9,15 +9,15 @@ The [virtual](../../plugins/environment/virtual.md) environment type by default 
 !!! warning "caveat"
     UV is under active development and may not work for all dependencies.
 
-To do so, enable the `uv` [option](../../plugins/environment/virtual.md#options). For example, if you wanted to enable this functionality for the [default](../../config/environment/overview.md#inheritance) environment, you could set the following:
+To do so, set the `installer` [option](../../plugins/environment/virtual.md#options) to `uv`. For example, if you wanted to enable this functionality for the [default](../../config/environment/overview.md#inheritance) environment, you could set the following:
 
 ```toml config-example
 [tool.hatch.envs.default]
-uv = true
+installer = "uv"
 ```
 
 !!! tip
-    All environments that enable UV will have the path to `uv` available as the `HATCH_UV` environment variable.
+    All environments that enable UV will have the path to UV available as the `HATCH_UV` environment variable.
 
 ## Configuring the version
 
@@ -32,7 +32,7 @@ dependencies = [
 
 ## Externally managed
 
-If you want to manage UV yourself, you can expose it to Hatch by setting the `HATCH_ENV_TYPE_VIRTUAL_UV_PATH` environment variable which should be the absolute path to a UV binary for Hatch to use instead. This implicitly [enables](#enabling-uv) the `uv` option.
+If you want to manage UV yourself, you can expose it to Hatch by setting the `HATCH_ENV_TYPE_VIRTUAL_UV_PATH` environment variable which should be the absolute path to a UV binary for Hatch to use instead. This implicitly [enables UV](#enabling-uv).
 
 ## Installer script alias
 
@@ -40,14 +40,11 @@ If you have [scripts](../../config/environment/overview.md#scripts) or [commands
 
 ```toml config-example
 [[tool.hatch.envs.example.matrix]]
-installer = ["uv", "pip"]
+tool = ["uv", "pip"]
 
 [tool.hatch.envs.example.overrides]
-matrix.installer.uv = [
-  { value = true, if = ["uv"] },
-  { value = false, if = ["pip"] },
-]
-matrix.installer.scripts = [
+matrix.tool.installer = { value = "{matrix:tool}" }
+matrix.tool.scripts = [
   { key = "pip", value = "{env:HATCH_UV} pip {args}", if = ["uv"] },
 ]
 ```

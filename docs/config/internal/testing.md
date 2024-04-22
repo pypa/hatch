@@ -113,5 +113,5 @@ By default, [UV is enabled](../../how-to/environment/select-installer.md). You m
 
 ```toml config-example
 [tool.hatch.envs.hatch-test]
-uv = false
+installer = "pip"
 ```
