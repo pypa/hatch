@@ -17,7 +17,7 @@ def get_files(**kwargs):
 
 -----
 
-**Table of Contents**
+## Table of Contents
 
 - [Installation](#installation)
 

@@ -44,6 +44,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Set the `packaging` dependency version as `>=23.2` to avoid its URL validation which can conflict with context formatting
 - Fix the exit code when there happens to be an unhandled exception
 - No longer capture both stdout and stderr streams when parsing metadata payloads from build environments
+- Fix the `README.md` file template for new projects to avoid Markdown linting issues
 
 ## [1.9.4](https://github.com/pypa/hatch/releases/tag/hatch-v1.9.4) - 2024-03-12 ## {: #hatch-v1.9.4 }
 
