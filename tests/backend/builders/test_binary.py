@@ -21,7 +21,7 @@ class ExpectedEnvVars:
     def __eq__(self, other):
         return all(not (key not in other or other[key] != value) for key, value in self.env_vars.items())
 
-    def __hash__(self):
+    def __hash__(self):  # no cov
         return hash(self.env_vars)
 
 

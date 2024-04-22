@@ -127,7 +127,6 @@ class TestBuildValidation:
         }
         builder = MockBuilder(str(isolation), config=config)
         builder.PLUGIN_NAME = 'foo'
-        builder.get_version_api = lambda: {'1': lambda *_args, **_kwargs: ''}
 
         with pytest.raises(
             ValueError,
