@@ -66,9 +66,6 @@ jobs:
         - target: x86_64-unknown-linux-musl
           os: ubuntu-22.04
           cross: true
-        - target: i686-unknown-linux-gnu
-          os: ubuntu-22.04
-          cross: true
         - target: powerpc64le-unknown-linux-gnu
           os: ubuntu-22.04
           cross: true
