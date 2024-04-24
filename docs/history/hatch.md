@@ -46,11 +46,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - No longer capture both stdout and stderr streams when parsing metadata payloads from build environments
 - Fix the `README.md` file template for new projects to avoid Markdown linting issues
 
-## [1.9.5](https://github.com/pypa/hatch/releases/tag/hatch-v1.9.5) - 2024-04-24 ## {: #hatch-v1.9.5 }
+## [1.9.6](https://github.com/pypa/hatch/releases/tag/hatch-v1.9.6) - 2024-04-24 ## {: #hatch-v1.9.6 }
 
 ***Fixed:***
 
 - Limit the maximum version of virtualenv due to a backward incompatible change
+- Upgrade PyApp to 0.12.0 for binary builds
 
 ## [1.9.4](https://github.com/pypa/hatch/releases/tag/hatch-v1.9.4) - 2024-03-12 ## {: #hatch-v1.9.4 }
 
