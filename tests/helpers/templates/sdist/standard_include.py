@@ -31,7 +31,7 @@ Description-Content-Type: text/markdown
 
 -----
 
-**Table of Contents**
+## Table of Contents
 
 - [Installation](#installation)
 - [License](#license)

@@ -48,7 +48,7 @@ __version__ = "0.0.1"
 
 -----
 
-**Table of Contents**
+## Table of Contents
 
 - [Installation](#installation)
 - [License](#license)

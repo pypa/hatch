@@ -78,7 +78,7 @@ def {kwargs['package_name']}():
 
 -----
 
-**Table of Contents**
+## Table of Contents
 
 - [Installation](#installation)
 - [License](#license)
