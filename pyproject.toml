@@ -51,7 +51,7 @@ dependencies = [
   "tomli-w>=1.0",
   "tomlkit>=0.11.1",
   "userpath~=1.7",
-  "virtualenv>=20.16.2",
+  "virtualenv<20.26.0",
   "zstandard<1",
 ]
 dynamic = ["version"]
