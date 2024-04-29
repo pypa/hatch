@@ -29,49 +29,43 @@ def show(
 
     from hatch.config.constants import AppEnvVars
 
-    if internal:
-        target_standalone_envs = app.project.config.internal_envs
-        target_matrices = app.project.config.internal_matrices
-    else:
-        target_standalone_envs = app.project.config.envs
-        target_matrices = app.project.config.matrices
-
     if as_json:
         import json
 
         contextual_config = {}
-        for env_name, config in target_standalone_envs.items():
-            environment = app.get_environment(env_name)
-            new_config = contextual_config[env_name] = dict(config)
+        for environments in (app.project.config.envs, app.project.config.internal_envs):
+            for env_name, config in environments.items():
+                environment = app.get_environment(env_name)
+                new_config = contextual_config[env_name] = dict(config)
 
-            env_vars = dict(environment.env_vars)
-            env_vars.pop(AppEnvVars.ENV_ACTIVE)
-            if env_vars:
-                new_config['env-vars'] = env_vars
+                env_vars = dict(environment.env_vars)
+                env_vars.pop(AppEnvVars.ENV_ACTIVE)
+                if env_vars:
+                    new_config['env-vars'] = env_vars
 
-            num_dependencies = len(config.get('dependencies', []))
-            dependencies = environment.environment_dependencies[:num_dependencies]
-            if dependencies:
-                new_config['dependencies'] = dependencies
+                num_dependencies = len(config.get('dependencies', []))
+                dependencies = environment.environment_dependencies[:num_dependencies]
+                if dependencies:
+                    new_config['dependencies'] = dependencies
 
-            extra_dependencies = environment.environment_dependencies[num_dependencies:]
-            if extra_dependencies:
-                new_config['extra-dependencies'] = extra_dependencies
+                extra_dependencies = environment.environment_dependencies[num_dependencies:]
+                if extra_dependencies:
+                    new_config['extra-dependencies'] = extra_dependencies
 
-            if environment.pre_install_commands:
-                new_config['pre-install-commands'] = list(
-                    environment.resolve_commands(environment.pre_install_commands)
-                )
+                if environment.pre_install_commands:
+                    new_config['pre-install-commands'] = list(
+                        environment.resolve_commands(environment.pre_install_commands)
+                    )
 
-            if environment.post_install_commands:
-                new_config['post-install-commands'] = list(
-                    environment.resolve_commands(environment.post_install_commands)
-                )
+                if environment.post_install_commands:
+                    new_config['post-install-commands'] = list(
+                        environment.resolve_commands(environment.post_install_commands)
+                    )
 
-            if environment.scripts:
-                new_config['scripts'] = {
-                    script: list(environment.resolve_commands([script])) for script in environment.scripts
-                }
+                if environment.scripts:
+                    new_config['scripts'] = {
+                        script: list(environment.resolve_commands([script])) for script in environment.scripts
+                    }
 
         app.display(json.dumps(contextual_config, separators=(',', ':')))
         return
@@ -79,6 +73,13 @@ def show(
     from packaging.requirements import InvalidRequirement, Requirement
 
     from hatchling.metadata.utils import get_normalized_dependency, normalize_project_name
+
+    if internal:
+        target_standalone_envs = app.project.config.internal_envs
+        target_matrices = app.project.config.internal_matrices
+    else:
+        target_standalone_envs = app.project.config.envs
+        target_matrices = app.project.config.matrices
 
     for env_name in envs:
         if env_name not in target_standalone_envs and env_name not in target_matrices:

@@ -25,6 +25,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Read configuration from any `~/.pypirc` file for the `index` publisher
 - Use the Git user as the default username for new project URL metadata
 - Add `HATCH_DEBUG` environment variable that when enabled will show local variables in the case of unhandled tracebacks
+- The `env show` command now outputs data about all internal environments when using the `--json` flag
 - Upgrade default CPython distributions to 20240415
 - Upgrade default PyPy distributions to 7.3.15
 - Upgrade Ruff to 0.4.1
