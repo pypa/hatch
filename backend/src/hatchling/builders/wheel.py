@@ -779,8 +779,8 @@ Root-Is-Purelib: {'true' if build_data['pure_python'] else 'false'}
         tag = next(iter(t for t in sys_tags() if 'manylinux' not in t.platform and 'musllinux' not in t.platform))
         tag_parts = [tag.interpreter, tag.abi, tag.platform]
 
-        archflags = os.environ.get('ARCHFLAGS', '')
         if sys.platform == 'darwin':
+            archflags = os.environ.get('ARCHFLAGS', '')
             if archflags and sys.version_info[:2] >= (3, 8):
                 import platform
                 import re
@@ -798,9 +798,10 @@ Root-Is-Purelib: {'true' if build_data['pure_python'] else 'false'}
                 plat = tag_parts[2]
                 sdk_match = re.search(r'macosx_(\d+_\d+)', plat)
                 if sdk_match:
+                    replacement = "11_0" if plat.endswith("arm64") else "10_16"
                     sdk_version_part = sdk_match.group(1)
                     if tuple(map(int, sdk_version_part.split('_'))) >= (11, 0):
-                        tag_parts[2] = plat.replace(sdk_version_part, '10_16', 1)
+                        tag_parts[2] = plat.replace(sdk_version_part, replacement, 1)
 
         return '-'.join(tag_parts)
 
