@@ -30,6 +30,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Upgrade Ruff to 0.4.1
 - Upgrade PyApp to 0.19.0 for binary builds
 - Bump the minimum supported version of Hatchling to 1.24.2
+- Bump the minimum supported version of virtualenv to 20.26.1
 
 ***Fixed:***
 

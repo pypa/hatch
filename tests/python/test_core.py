@@ -9,7 +9,10 @@ from hatch.python.resolve import get_distribution
 
 @pytest.mark.requires_internet
 @pytest.mark.parametrize('name', ORDERED_DISTRIBUTIONS)
-def test_installation(temp_dir, platform, name):
+def test_installation(temp_dir, platform, current_arch, name):
+    if platform.name == 'macos' and current_arch == 'arm64' and name == '3.7':
+        pytest.skip('No macOS 3.7 distribution for ARM')
+
     # Ensure the source and any parent directories get created
     manager = PythonManager(temp_dir / 'foo' / 'bar')
     dist = manager.install(name)
