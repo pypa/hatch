@@ -6,8 +6,8 @@ import sys
 import zipfile
 from typing import TYPE_CHECKING
 
+import packaging.tags
 import pytest
-from packaging.tags import sys_tags
 
 from hatchling.builders.plugin.interface import BuilderInterface
 from hatchling.builders.utils import get_known_python_major_versions
@@ -17,6 +17,13 @@ from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT
 
 if TYPE_CHECKING:
     from hatch.utils.fs import Path
+
+
+def sys_tags():
+    return iter(
+        p for p in packaging.tags.sys_tags() if 'manylinux' not in p.platform and 'muslllinux' not in p.platform
+    )
+
 
 # https://github.com/python/cpython/pull/26184
 fixed_pathlib_resolution = pytest.mark.skipif(
