@@ -48,7 +48,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - No longer capture both stdout and stderr streams when parsing metadata payloads from build environments
 - Fix the `README.md` file template for new projects to avoid Markdown linting issues
 
-## [1.9.6](https://github.com/pypa/hatch/releases/tag/hatch-v1.9.6) - 2024-04-24 ## {: #hatch-v1.9.6 }
+## [1.9.7](https://github.com/pypa/hatch/releases/tag/hatch-v1.9.7) - 2024-04-24 ## {: #hatch-v1.9.7 }
 
 ***Fixed:***
 
