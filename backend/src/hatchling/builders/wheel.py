@@ -776,7 +776,7 @@ Root-Is-Purelib: {'true' if build_data['pure_python'] else 'false'}
 
         # Linux tag is after many/musl; packaging tools are required to skip
         # many/musl, see https://github.com/pypa/packaging/issues/160
-        tag = next(iter(p for p in sys_tags() if 'manylinux' not in p.platform and 'musllinux' not in p.platform))
+        tag = next(iter(t for t in sys_tags() if 'manylinux' not in t.platform and 'musllinux' not in t.platform))
         tag_parts = [tag.interpreter, tag.abi, tag.platform]
 
         archflags = os.environ.get('ARCHFLAGS', '')

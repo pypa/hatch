@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
 def sys_tags():
     return iter(
-        p for p in packaging.tags.sys_tags() if 'manylinux' not in p.platform and 'muslllinux' not in p.platform
+        t for t in packaging.tags.sys_tags() if 'manylinux' not in t.platform and 'muslllinux' not in t.platform
     )
 
 
