@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Fixed:***
+
+- Ignore `manylinux`/`musllinux` tags for the `wheel` target artifact name when enabling the `infer_tag` build data
+
 ## [1.24.2](https://github.com/pypa/hatch/releases/tag/hatchling-v1.24.2) - 2024-04-22 ## {: #hatchling-v1.24.2 }
 
 ***Fixed:***
