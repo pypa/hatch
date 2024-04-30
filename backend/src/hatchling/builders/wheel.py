@@ -792,16 +792,15 @@ Root-Is-Purelib: {'true' if build_data['pure_python'] else 'false'}
                     new_arch = 'universal2' if set(archs) == {'x86_64', 'arm64'} else archs[0]
                     tag_parts[2] = f'{plat[: plat.rfind(current_arch)]}{new_arch}'
 
-            if self.config.macos_max_compat:
+            plat = tag_parts[2]
+            if self.config.macos_max_compat and not plat.endswith('arm64'):
                 import re
 
-                plat = tag_parts[2]
                 sdk_match = re.search(r'macosx_(\d+_\d+)', plat)
                 if sdk_match:
-                    replacement = "11_0" if plat.endswith("arm64") else "10_16"
                     sdk_version_part = sdk_match.group(1)
                     if tuple(map(int, sdk_version_part.split('_'))) >= (11, 0):
-                        tag_parts[2] = plat.replace(sdk_version_part, replacement, 1)
+                        tag_parts[2] = plat.replace(sdk_version_part, '10_16', 1)
 
         return '-'.join(tag_parts)
 
