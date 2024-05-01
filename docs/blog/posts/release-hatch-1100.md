@@ -17,13 +17,17 @@ Hatch [v1.10.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.10.0) brings
 
 The new [`test`](../../cli/reference.md#hatch-test) command allows you to easily run tests for your project on multiple versions of Python. The default behavior follows best practices, using [pytest](https://github.com/pytest-dev/pytest) with select plugins for test execution and [coverage.py](https://github.com/nedbat/coveragepy) for code coverage measurement.
 
-The command is designed to be both simple to use while also satisfying the needs of most projects. For example, running the following command:
+The command is designed to be both simple to use while also satisfying the needs of most projects. For example, the following shows Hatch running tests for [Jinja](https://github.com/pallets/jinja) in all environments in the [default matrix](../../config/internal/testing.md#matrix):
 
-```
-hatch test -aprc
-```
+<figure markdown>
+  ![Testing Jinja example](release-hatch-1100/testing-jinja.gif){ loading=lazy role="img" }
+</figure>
 
-will run tests in all environments in the matrix, with parallelized test execution in each, with a randomized test order and will report the code coverage at the end.
+Here is us testing [Rich](https://github.com/Textualize/rich), with a bit of configuration:
+
+<figure markdown>
+  ![Testing Rich example](release-hatch-1100/testing-rich.gif){ loading=lazy role="img" }
+</figure>
 
 See the [tutorial](../../tutorials/testing/overview.md) for a detailed walk-through and the [config reference](../../config/internal/testing.md) for options.
 
@@ -68,25 +72,14 @@ pprint([(k, v["title"]) for k, v in data.items()][:10])
 If you run the script for the first time as follows:
 
 ```
-hatch run /path/to/script.py
+hatch run script.py
 ```
 
-Hatch will create a dedicated environment for that script using a version of Python greater than or equal to 3.11 with dependencies `httpx` and `rich`. You should then see the following output:
+Hatch will create a dedicated environment for that script using a version of Python greater than or equal to 3.11 with dependencies `httpx` and `rich`.
 
-```
-[
-│   ('1', 'PEP Purpose and Guidelines'),
-│   ('2', 'Procedure for Adding New Modules'),
-│   ('3', 'Guidelines for Handling Bug Reports'),
-│   ('4', 'Deprecation of Standard Modules'),
-│   ('5', 'Guidelines for Language Evolution'),
-│   ('6', 'Bug Fix Releases'),
-│   ('7', 'Style Guide for C Code'),
-│   ('8', 'Style Guide for Python Code'),
-│   ('9', 'Sample Plaintext PEP Template'),
-│   ('10', 'Voting Guidelines')
-]
-```
+<figure markdown>
+  ![Script running example](release-hatch-1100/run-script.gif){ loading=lazy role="img" }
+</figure>
 
 See the [how-to guide](../../how-to/run/python-scripts.md) for more information.
 
@@ -112,7 +105,7 @@ To get started, add the dependency to your [build requirements](../../config/bui
 
 ```toml tab="pyproject.toml"
 [build-system]
-requires = ["hatchling>=1.24.1", "scikit-build-core~=0.9.0"]
+requires = ["hatchling>=1.24.2", "scikit-build-core~=0.9.3"]
 build-backend = "hatchling.build"
 ```
 
