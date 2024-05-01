@@ -402,7 +402,7 @@ class WheelBuilderConfig(BuilderConfig):
     @property
     def macos_max_compat(self) -> bool:
         if self.__macos_max_compat is None:
-            macos_max_compat = self.target_config.get('macos-max-compat', True)
+            macos_max_compat = self.target_config.get('macos-max-compat', False)
             if not isinstance(macos_max_compat, bool):
                 message = f'Field `tool.hatch.build.targets.{self.plugin_name}.macos-max-compat` must be a boolean'
                 raise TypeError(message)

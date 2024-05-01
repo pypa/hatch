@@ -602,13 +602,13 @@ class TestMacOSMaxCompat:
     def test_default(self, isolation):
         builder = WheelBuilder(str(isolation))
 
-        assert builder.config.macos_max_compat is builder.config.macos_max_compat is True
+        assert builder.config.macos_max_compat is builder.config.macos_max_compat is False
 
     def test_correct(self, isolation):
-        config = {'tool': {'hatch': {'build': {'targets': {'wheel': {'macos-max-compat': False}}}}}}
+        config = {'tool': {'hatch': {'build': {'targets': {'wheel': {'macos-max-compat': True}}}}}}
         builder = WheelBuilder(str(isolation), config=config)
 
-        assert builder.config.macos_max_compat is False
+        assert builder.config.macos_max_compat is True
 
     def test_not_boolean(self, isolation):
         config = {'tool': {'hatch': {'build': {'targets': {'wheel': {'macos-max-compat': 9000}}}}}}
