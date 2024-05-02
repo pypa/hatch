@@ -117,3 +117,22 @@ experimental = true
 ```
 
 At this point, you can create your `CMakeLists.txt` file as usual and start building your extension modules with CMake! Check out the dedicated [example project](https://github.com/scikit-build/scikit-build-sample-projects/tree/main/projects/hatchling-pybind11-hello) for a complete demonstration.
+
+## Meta
+
+### Docs
+
+The efforts toward documentation improvements have increased substantially and the priorities have [shifted](https://github.com/pypa/hatch/issues/1245). From now on expect to see far more tutorials and how-to guides rather than just reference material.
+
+### Future
+
+Upcoming features include:
+
+- workspaces functionality [similar to Cargo](https://doc.rust-lang.org/book/ch14-03-cargo-workspaces.html)
+- commands to manage dependencies
+- Windows release artifacts signed by the PSF (just like macOS)
+- performance improvements for both the CLI and the Hatchling build system
+
+### Support
+
+If you or your organization finds value in what Hatch provides, consider a [sponsorship](https://github.com/sponsors/ofek) to assist with maintenance and more rapid development!
