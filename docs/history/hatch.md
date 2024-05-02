@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.10.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.10.0) - 2024-05-02 ## {: #hatch-v1.10.0 }
+
 ***Changed:***
 
 - The `run`/`env run`, `fmt` and `shell` commands now only change the current working directory to the project root if not already inside the project
