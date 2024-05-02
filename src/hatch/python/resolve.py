@@ -83,6 +83,17 @@ class Distribution(ABC):
 
 
 class CPythonStandaloneDistribution(Distribution):
+    @property
+    def source(self) -> str:
+        source = super().source
+        custom_source = os.environ.get('HATCH_CUSTOM_CPYTHON_SOURCE')
+        if custom_source:
+            source = super().source.replace(
+                'https://github.com/indygreg/python-build-standalone/releases/download/',
+                custom_source.rstrip('/') + '/',
+            )
+        return source
+
     @cached_property
     def version(self) -> Version:
         from packaging.version import Version
@@ -110,6 +121,14 @@ class CPythonStandaloneDistribution(Distribution):
 
 
 class PyPyOfficialDistribution(Distribution):
+    @property
+    def source(self) -> str:
+        source = super().source
+        custom_source = os.environ.get('HATCH_CUSTOM_PYPY_SOURCE')
+        if custom_source:
+            source = super().source.replace('https://downloads.python.org/pypy/', custom_source.rstrip('/') + '/')
+        return source
+
     @cached_property
     def version(self) -> Version:
         from packaging.version import Version

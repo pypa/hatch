@@ -36,6 +36,11 @@ def install(app: Application, *, names: tuple[str, ...], private: bool, update: 
     ```
     hatch python install all
     ```
+
+    If you run your own mirror you can tell Hatch to use it by setting these environment variables to your mirrors URL:
+
+    * ``HATCH_CUSTOM_CPYTHON_SOURCE``
+    * ``HATCH_CUSTOM_PYPY_SOURCE``
     """
     from hatch.errors import PythonDistributionResolutionError, PythonDistributionUnknownError
     from hatch.python.distributions import ORDERED_DISTRIBUTIONS
