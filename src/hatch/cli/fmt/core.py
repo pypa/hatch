@@ -742,6 +742,7 @@ PREVIEW_RULES: tuple[str, ...] = (
     'FURB180',
     'FURB181',
     'FURB187',
+    'FURB192',
     'PERF403',
     'PLC0415',
     'PLC1901',

@@ -28,7 +28,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - The `env show` command now outputs data about all internal environments when using the `--json` flag
 - Upgrade default CPython distributions to 20240415
 - Upgrade default PyPy distributions to 7.3.15
-- Upgrade Ruff to 0.4.1
+- Upgrade Ruff to 0.4.2
 - Upgrade PyApp to 0.19.0 for binary builds
 - Bump the minimum supported version of Hatchling to 1.24.2
 - Bump the minimum supported version of virtualenv to 20.26.1
