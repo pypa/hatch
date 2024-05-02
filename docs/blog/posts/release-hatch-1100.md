@@ -1,5 +1,5 @@
 ---
-date: 2024-04-18
+date: 2024-05-02
 authors: [ofek,flying-sheep]
 description: >-
   Hatch v1.10.0 brings a test command, support for UV, and a Python script runner.
