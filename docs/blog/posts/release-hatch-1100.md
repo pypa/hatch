@@ -42,7 +42,7 @@ For example, if you wanted to enable this functionality for the [default](../../
 installer = "uv"
 ```
 
-Semi-internal environments like those used for [testing](../../config/internal/testing.md) and [static analysis](../../config/internal/static-analysis.md) have this UV enabled by default.
+Semi-internal environments like those used for [testing](../../config/internal/testing.md) and [static analysis](../../config/internal/static-analysis.md) have this enabled by default.
 
 See the [how-to guide](../../how-to/environment/select-installer.md) for more information about switching the installer.
 
@@ -95,7 +95,7 @@ Additionally, Ruff has been updated to version 1.4.0 and the rules selected by d
 
 Visual Studio Code [announced support](https://code.visualstudio.com/updates/v1_88#_hatch-environment-discovery) for Hatch environments in their latest release. This means that you can now easily discover and select Hatch environments for your projects directly from the editor.
 
-See the [how-to guide](../../how-to/integrate/vscode.md) detailed instructions.
+See the [how-to guide](../../how-to/integrate/vscode.md) for detailed instructions.
 
 ### CMake build plugin
 
