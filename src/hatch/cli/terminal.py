@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Callable
 import click
 from rich.console import Console
 from rich.errors import StyleSyntaxError
+from rich.spinner import Spinner
 from rich.style import Style
 from rich.text import Text
 
@@ -197,8 +198,17 @@ class Terminal:
                     parsed_style = Style.parse(default_level)
 
                 setattr(self, attribute, parsed_style)
+            elif option == 'spinner':
+                try:
+                    Spinner(style)
+                except KeyError as e:
+                    errors.append(
+                        f'Invalid style definition for `{option}`, defaulting to `{self._style_spinner}`: {e.args[0]}'
+                    )
+                else:
+                    self._style_spinner = style
             else:
-                setattr(self, attribute, f'_style_{option}')
+                setattr(self, f'_style_{option}', style)
 
         return errors
 
