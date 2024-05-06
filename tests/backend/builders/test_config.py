@@ -62,6 +62,27 @@ class TestDirectory:
 
         assert builder.config.directory == absolute_path
 
+    def test_context_formatting(self, isolation, uri_slash_prefix):
+        absolute_path = str(isolation)
+        config = {
+            'tool': {
+                'hatch': {
+                    'build': {
+                        'dependencies': ['proj1 @ {root:uri}'],
+                        'targets': {'foo': {'dependencies': ['proj2 @ {root:uri}']}},
+                    },
+                }
+            }
+        }
+        builder = MockBuilder(absolute_path, config=config)
+        builder.PLUGIN_NAME = 'foo'
+
+        normalized_path = absolute_path.replace('\\', '/')
+        assert builder.config.dependencies == [
+            f'proj2 @ file:{uri_slash_prefix}{normalized_path}',
+            f'proj1 @ file:{uri_slash_prefix}{normalized_path}',
+        ]
+
 
 class TestSkipExcludedDirs:
     def test_default(self, isolation):
