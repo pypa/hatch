@@ -3684,9 +3684,6 @@ class TestBuildStandard:
 
         tag = next(sys_tags())
         tag_parts = [tag.interpreter, tag.abi, tag.platform]
-        sdk_version_major, sdk_version_minor = tag_parts[2].split('_')[1:3]
-        if int(sdk_version_major) >= 11:
-            tag_parts[2] = tag_parts[2].replace(f'{sdk_version_major}_{sdk_version_minor}', '10_16', 1)
 
         expected_tag = '-'.join(tag_parts)
         assert expected_artifact == str(build_path / f'{builder.project_id}-{expected_tag}.whl')
