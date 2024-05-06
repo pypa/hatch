@@ -1342,7 +1342,7 @@ class TestBuildStandard:
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
                     'build': {
-                        'targets': {'wheel': {'versions': ['standard'], 'macos-max-compat': False}},
+                        'targets': {'wheel': {'versions': ['standard']}},
                         'artifacts': ['my_app/lib.so'],
                         'hooks': {'custom': {'path': DEFAULT_BUILD_SCRIPT}},
                     },
@@ -1424,7 +1424,7 @@ class TestBuildStandard:
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
                     'build': {
-                        'targets': {'wheel': {'versions': ['standard'], 'macos-max-compat': False}},
+                        'targets': {'wheel': {'versions': ['standard']}},
                         'artifacts': ['my_app/lib.so'],
                         'hooks': {'custom': {'path': DEFAULT_BUILD_SCRIPT}},
                     },
@@ -1507,7 +1507,7 @@ class TestBuildStandard:
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
                     'build': {
-                        'targets': {'wheel': {'versions': ['standard'], 'macos-max-compat': False}},
+                        'targets': {'wheel': {'versions': ['standard']}},
                         'artifacts': ['my_app/lib.so'],
                         'hooks': {'custom': {'path': DEFAULT_BUILD_SCRIPT}},
                     },
@@ -1590,7 +1590,7 @@ class TestBuildStandard:
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
                     'build': {
-                        'targets': {'wheel': {'versions': ['standard'], 'macos-max-compat': False}},
+                        'targets': {'wheel': {'versions': ['standard']}},
                         'hooks': {'custom': {'path': DEFAULT_BUILD_SCRIPT}},
                     },
                 },
@@ -1675,7 +1675,7 @@ class TestBuildStandard:
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
                     'build': {
-                        'targets': {'wheel': {'versions': ['standard'], 'macos-max-compat': False}},
+                        'targets': {'wheel': {'versions': ['standard']}},
                         'hooks': {'custom': {'path': DEFAULT_BUILD_SCRIPT}},
                     },
                 },
@@ -1761,7 +1761,7 @@ class TestBuildStandard:
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
                     'build': {
-                        'targets': {'wheel': {'versions': ['standard'], 'macos-max-compat': False}},
+                        'targets': {'wheel': {'versions': ['standard']}},
                         'hooks': {'custom': {'path': DEFAULT_BUILD_SCRIPT}},
                     },
                 },
@@ -1842,7 +1842,7 @@ class TestBuildStandard:
                 'hatch': {
                     'version': {'path': 'src/my_app/__about__.py'},
                     'build': {
-                        'targets': {'wheel': {'versions': ['standard'], 'macos-max-compat': False}},
+                        'targets': {'wheel': {'versions': ['standard']}},
                         'hooks': {'custom': {'path': DEFAULT_BUILD_SCRIPT}},
                     },
                 },
@@ -2430,7 +2430,7 @@ class TestBuildStandard:
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
                     'build': {
-                        'targets': {'wheel': {'versions': ['standard'], 'macos-max-compat': False}},
+                        'targets': {'wheel': {'versions': ['standard']}},
                         'artifacts': ['my_app/lib.so'],
                         'hooks': {'custom': {'path': DEFAULT_BUILD_SCRIPT}},
                     },
@@ -3575,7 +3575,7 @@ class TestBuildStandard:
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
                     'build': {
-                        'targets': {'wheel': {'versions': ['standard'], 'macos-max-compat': False}},
+                        'targets': {'wheel': {'versions': ['standard']}},
                         'artifacts': ['my_app/lib.so'],
                         'hooks': {'custom': {'path': DEFAULT_BUILD_SCRIPT}},
                     },
@@ -3619,7 +3619,8 @@ class TestBuildStandard:
         helpers.assert_files(extraction_directory, expected_files)
 
     @pytest.mark.requires_macos
-    def test_macos_max_compat(self, hatch, helpers, temp_dir, config_file):
+    @pytest.mark.parametrize('macos_max_compat', [True, False])
+    def test_macos_max_compat(self, hatch, helpers, temp_dir, config_file, macos_max_compat):
         config_file.model.template.plugins['default']['src-layout'] = False
         config_file.save()
 
@@ -3660,7 +3661,7 @@ class TestBuildStandard:
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
                     'build': {
-                        'targets': {'wheel': {'versions': ['standard']}},
+                        'targets': {'wheel': {'versions': ['standard'], 'macos-max-compat': macos_max_compat}},
                         'artifacts': ['my_app/lib.so'],
                         'hooks': {'custom': {'path': DEFAULT_BUILD_SCRIPT}},
                     },
@@ -3684,6 +3685,10 @@ class TestBuildStandard:
 
         tag = next(sys_tags())
         tag_parts = [tag.interpreter, tag.abi, tag.platform]
+        if macos_max_compat:
+            sdk_version_major, sdk_version_minor = tag_parts[2].split('_')[1:3]
+            if int(sdk_version_major) >= 11:
+                tag_parts[2] = tag_parts[2].replace(f'{sdk_version_major}_{sdk_version_minor}', '10_16', 1)
 
         expected_tag = '-'.join(tag_parts)
         assert expected_artifact == str(build_path / f'{builder.project_id}-{expected_tag}.whl')
