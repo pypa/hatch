@@ -147,4 +147,12 @@ installer = "pip"
 
 The following rules are based on version <HATCH_RUFF_VERSION> of Ruff. Rules with a ^P^ are only selected when [preview](https://docs.astral.sh/ruff/preview/) mode is enabled.
 
+There are <HATCH_RUFF_STABLE_RULES_COUNT> selected stable rules and <HATCH_RUFF_PREVIEW_RULES_COUNT> selected preview rules.
+
 <HATCH_RUFF_SELECTED_RULES>
+
+#### Unselected
+
+There are <HATCH_RUFF_UNSELECTED_RULES_COUNT> unselected rules.
+
+<HATCH_RUFF_UNSELECTED_RULES>
