@@ -135,9 +135,9 @@ installer = "pip"
 ### Non-rule settings
 
 - [Line length](https://docs.astral.sh/ruff/settings/#line-length) set to 120
-- [Docstring formatting](https://docs.astral.sh/ruff/formatter/#docstring-formatting) enabled with [line length](https://docs.astral.sh/ruff/settings/#format-docstring-code-line-length) set to 80
-- Only absolute imports [are allowed](https://docs.astral.sh/ruff/settings/#flake8-tidy-imports-ban-relative-imports), [except for tests](#per-file-ignored-rules)
-- The normalized [project name](../metadata.md#name) is a [known first party](https://docs.astral.sh/ruff/settings/#isort-known-first-party) import
+- [Docstring formatting](https://docs.astral.sh/ruff/formatter/#docstring-formatting) enabled with [line length](https://docs.astral.sh/ruff/settings/#format_docstring-code-line-length) set to 80
+- Only absolute imports [are allowed](https://docs.astral.sh/ruff/settings/#lint_flake8-tidy-imports_ban-relative-imports), [except for tests](#per-file-ignored-rules)
+- The normalized [project name](../metadata.md#name) is a [known first party](https://docs.astral.sh/ruff/settings/#lint_isort_known-first-party) import
 
 ### Per-file ignored rules
 
