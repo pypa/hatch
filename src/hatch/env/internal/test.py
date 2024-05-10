@@ -18,8 +18,8 @@ def get_default_config() -> dict[str, Any]:
         'scripts': {
             'run': 'pytest{env:HATCH_TEST_ARGS:} {args}',
             'run-cov': 'coverage run -m pytest{env:HATCH_TEST_ARGS:} {args}',
-            'cov-combine': 'coverage combine',
-            'cov-report': 'coverage report',
+            'cov-combine': 'coverage combine {args}',
+            'cov-report': 'coverage {env:HATCH_COV_REPORTING_STYLE:} {args}',
         },
         'matrix': [{'python': ['3.12', '3.11', '3.10', '3.9', '3.8']}],
     }

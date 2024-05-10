@@ -191,8 +191,12 @@ def test(
 
     if cover:
         for context in app.runner_context([selected_envs[0]]):
-            context.add_shell_command('cov-combine')
+            combine_args: list[str] = list(context.env.config.get('combine-args', []))
+            context.add_shell_command(['cov-combine', *combine_args])
 
         if not cover_quiet:
             for context in app.runner_context([selected_envs[0]]):
-                context.add_shell_command('cov-report')
+                reporting: str = context.env.config.get('reporting', 'report')
+                reporting_args: list[str] = list(context.env.config.get('reporting-args', []))
+                context.env_vars['HATCH_COV_REPORTING_STYLE'] = reporting
+                context.add_shell_command(['cov-report', *reporting_args])
