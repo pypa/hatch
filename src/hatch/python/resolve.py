@@ -178,12 +178,24 @@ def get_compatible_distributions() -> dict[str, Distribution]:
     return distributions
 
 
+def _guess_linux_variant() -> str:
+    with open('/proc/cpuinfo', encoding='ascii') as infh:
+        for spam in infh:
+            text = spam.strip()
+            if text.startswith('flags'):
+                if 'avx' in text:
+                    return 'v3'
+                if 'ssse3' in text:
+                    return 'v2'
+                return 'v1'
+    return ''
+
+
 def _get_default_variant(name: str, system: str, arch: str) -> str:
     # not PyPy
     if name[0].isdigit():
         # https://gregoryszorc.com/docs/python-build-standalone/main/running.html
         variant = os.environ.get(f'HATCH_PYTHON_VARIANT_{system.upper()}', '').lower()
-
         if system == 'linux' and arch == 'x86_64':
             # Intel-specific optimizations depending on age of release
             if variant:
@@ -193,7 +205,7 @@ def _get_default_variant(name: str, system: str, arch: str) -> str:
                 return 'v1'
 
             if name != '3.7':
-                return 'v3'
+                return _guess_linux_variant()
 
     return ''
 

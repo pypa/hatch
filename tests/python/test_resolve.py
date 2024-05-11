@@ -1,5 +1,7 @@
 import sys
+from io import StringIO
 from platform import machine
+from unittest.mock import patch
 
 import pytest
 
@@ -63,3 +65,34 @@ def test_variants(platform, system, variant, current_arch):
         assert variant not in dist.source
     else:
         assert variant in dist.source
+
+
+V3_FLAGS = 'flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch cpuid_fault epb invpcid_single pti ssbd ibrs ibpb stibp tpr_shadow flexpriority ept vpid ept_ad fsgsbase tsc_adjust bmi1 hle avx2 smep bmi2 erms invpcid rtm rdseed adx smap intel_pt xsaveopt dtherm ida arat pln pts vnmi md_clear flush_l1d'
+V2_FLAGS = 'flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ht tm pbe syscall nx rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni dtes64 monitor ds_cpl smx est tm2 ssse3 cx16 xtpr pdcm sse4_1 sse4_2 popcnt lahf_lm pti ssbd ibrs ibpb stibp dtherm ida flush_l1d'
+# Just guessing here...
+V1_FLAGS = 'flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ht tm pbe syscall nx rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni dtes64 monitor ds_cpl smx est tm2'
+
+
+class MockFlags:
+    def __init__(self, text):
+        self.text = text
+
+    def __call__(self, path, *_, **__):
+        assert path == '/proc/cpuinfo'
+        return StringIO(self.text)
+
+
+def test_guess_variant():
+    with EnvVars({'HATCH_PYTHON_VARIANT_LINUX': ''}):
+        with patch('hatch.python.resolve.open', MockFlags(V3_FLAGS)):
+            dist = get_distribution('3.11')
+            assert 'v3' in dist.source
+        with patch('hatch.python.resolve.open', MockFlags(V2_FLAGS)):
+            dist = get_distribution('3.11')
+            assert 'v2' in dist.source
+        with patch('hatch.python.resolve.open', MockFlags(V1_FLAGS)):
+            dist = get_distribution('3.11')
+            assert 'v1' not in dist.source
+            assert 'v2' not in dist.source
+            assert 'v3' not in dist.source
+            assert 'v4' not in dist.source
