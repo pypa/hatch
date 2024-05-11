@@ -6,7 +6,7 @@
 
 === "macOS"
     === "GUI installer"
-        1. In your browser, download the `.pkg` file: [hatch-<HATCH_LATEST_VERSION>.pkg](https://github.com/pypa/hatch/releases/download/hatch-v<HATCH_LATEST_VERSION>/hatch-<HATCH_LATEST_VERSION>.pkg)
+        1. In your browser, download the `.pkg` file: [hatch-universal.pkg](https://github.com/pypa/hatch/releases/latest/download/hatch-universal.pkg)
         2. Run your downloaded file and follow the on-screen instructions.
         3. Restart your terminal.
         4. To verify that the shell can find and run the `hatch` command in your `PATH`, use the following command.
@@ -16,15 +16,15 @@
             <HATCH_LATEST_VERSION>
             ```
     === "Command line installer"
-        1. Download the file using the `curl` command. The `-o` option specifies the file name that the downloaded package is written to. In this example, the file is written to `hatch-<HATCH_LATEST_VERSION>.pkg` in the current directory.
+        1. Download the file using the `curl` command. The `-o` option specifies the file name that the downloaded package is written to. In this example, the file is written to `hatch-universal.pkg` in the current directory.
 
             ```
-            curl -o hatch-<HATCH_LATEST_VERSION>.pkg https://github.com/pypa/hatch/releases/download/hatch-v<HATCH_LATEST_VERSION>/hatch-<HATCH_LATEST_VERSION>.pkg
+            curl -o hatch-universal.pkg https://github.com/pypa/hatch/releases/latest/download/hatch-universal.pkg
             ```
         2. Run the standard macOS [`installer`](https://ss64.com/osx/installer.html) program, specifying the downloaded `.pkg` file as the source. Use the `-pkg` parameter to specify the name of the package to install, and the `-target /` parameter for the drive in which to install the package. The files are installed to `/usr/local/hatch`, and an entry is created at `/etc/paths.d/hatch` that instructs shells to add the `/usr/local/hatch` directory to. You must include sudo on the command to grant write permissions to those folders.
 
             ```
-            sudo installer -pkg ./hatch-<HATCH_LATEST_VERSION>.pkg -target /
+            sudo installer -pkg ./hatch-universal.pkg -target /
             ```
         3. Restart your terminal.
         4. To verify that the shell can find and run the `hatch` command in your `PATH`, use the following command.
@@ -37,7 +37,7 @@
 === "Windows"
     === "GUI installer"
         1. In your browser, download one the `.msi` files:
-              - [hatch-<HATCH_LATEST_VERSION>-x64.msi](https://github.com/pypa/hatch/releases/download/hatch-v<HATCH_LATEST_VERSION>/hatch-<HATCH_LATEST_VERSION>-x64.msi)
+              - [hatch-x64.msi](https://github.com/pypa/hatch/releases/latest/download/hatch-x64.msi)
         2. Run your downloaded file and follow the on-screen instructions.
         3. Restart your terminal.
         4. To verify that the shell can find and run the `hatch` command in your `PATH`, use the following command.
@@ -51,11 +51,11 @@
 
             === "x64"
                 ```
-                msiexec /passive /i https://github.com/pypa/hatch/releases/download/hatch-v<HATCH_LATEST_VERSION>/hatch-<HATCH_LATEST_VERSION>-x64.msi
+                msiexec /passive /i https://github.com/pypa/hatch/releases/latest/download/hatch-x64.msi
                 ```
             === "x86"
                 ```
-                msiexec /passive /i https://github.com/pypa/hatch/releases/download/hatch-v<HATCH_LATEST_VERSION>/hatch-<HATCH_LATEST_VERSION>-x86.msi
+                msiexec /passive /i https://github.com/pypa/hatch/releases/latest/download/hatch-x86.msi
                 ```
         2. Restart your terminal.
         3. To verify that the shell can find and run the `hatch` command in your `PATH`, use the following command.
@@ -70,19 +70,19 @@
 After downloading the archive corresponding to your platform and architecture, extract the binary to a directory that is on your PATH and rename to `hatch`.
 
 === "Linux"
-    - [hatch-<HATCH_LATEST_VERSION>-aarch64-unknown-linux-gnu.tar.gz](https://github.com/pypa/hatch/releases/download/hatch-v<HATCH_LATEST_VERSION>/hatch-<HATCH_LATEST_VERSION>-aarch64-unknown-linux-gnu.tar.gz)
-    - [hatch-<HATCH_LATEST_VERSION>-x86_64-unknown-linux-gnu.tar.gz](https://github.com/pypa/hatch/releases/download/hatch-v<HATCH_LATEST_VERSION>/hatch-<HATCH_LATEST_VERSION>-x86_64-unknown-linux-gnu.tar.gz)
-    - [hatch-<HATCH_LATEST_VERSION>-x86_64-unknown-linux-musl.tar.gz](https://github.com/pypa/hatch/releases/download/hatch-v<HATCH_LATEST_VERSION>/hatch-<HATCH_LATEST_VERSION>-x86_64-unknown-linux-musl.tar.gz)
-    - [hatch-<HATCH_LATEST_VERSION>-i686-unknown-linux-gnu.tar.gz](https://github.com/pypa/hatch/releases/download/hatch-v<HATCH_LATEST_VERSION>/hatch-<HATCH_LATEST_VERSION>-i686-unknown-linux-gnu.tar.gz)
-    - [hatch-<HATCH_LATEST_VERSION>-powerpc64le-unknown-linux-gnu.tar.gz](https://github.com/pypa/hatch/releases/download/hatch-v<HATCH_LATEST_VERSION>/hatch-<HATCH_LATEST_VERSION>-powerpc64le-unknown-linux-gnu.tar.gz)
+    - [hatch-aarch64-unknown-linux-gnu.tar.gz](https://github.com/pypa/hatch/releases/latest/download/hatch-aarch64-unknown-linux-gnu.tar.gz)
+    - [hatch-x86_64-unknown-linux-gnu.tar.gz](https://github.com/pypa/hatch/releases/latest/download/hatch-x86_64-unknown-linux-gnu.tar.gz)
+    - [hatch-x86_64-unknown-linux-musl.tar.gz](https://github.com/pypa/hatch/releases/latest/download/hatch-x86_64-unknown-linux-musl.tar.gz)
+    - [hatch-i686-unknown-linux-gnu.tar.gz](https://github.com/pypa/hatch/releases/latest/download/hatch-i686-unknown-linux-gnu.tar.gz)
+    - [hatch-powerpc64le-unknown-linux-gnu.tar.gz](https://github.com/pypa/hatch/releases/latest/download/hatch-powerpc64le-unknown-linux-gnu.tar.gz)
 
 === "macOS"
-    - [hatch-<HATCH_LATEST_VERSION>-aarch64-apple-darwin.tar.gz](https://github.com/pypa/hatch/releases/download/hatch-v<HATCH_LATEST_VERSION>/hatch-<HATCH_LATEST_VERSION>-aarch64-apple-darwin.tar.gz)
-    - [hatch-<HATCH_LATEST_VERSION>-x86_64-apple-darwin.tar.gz](https://github.com/pypa/hatch/releases/download/hatch-v<HATCH_LATEST_VERSION>/hatch-<HATCH_LATEST_VERSION>-x86_64-apple-darwin.tar.gz)
+    - [hatch-aarch64-apple-darwin.tar.gz](https://github.com/pypa/hatch/releases/latest/download/hatch-aarch64-apple-darwin.tar.gz)
+    - [hatch-x86_64-apple-darwin.tar.gz](https://github.com/pypa/hatch/releases/latest/download/hatch-x86_64-apple-darwin.tar.gz)
 
 === "Windows"
-    - [hatch-<HATCH_LATEST_VERSION>-x86_64-pc-windows-msvc.zip](https://github.com/pypa/hatch/releases/download/hatch-v<HATCH_LATEST_VERSION>/hatch-<HATCH_LATEST_VERSION>-x86_64-pc-windows-msvc.zip)
-    - [hatch-<HATCH_LATEST_VERSION>-i686-pc-windows-msvc.zip](https://github.com/pypa/hatch/releases/download/hatch-v<HATCH_LATEST_VERSION>/hatch-<HATCH_LATEST_VERSION>-i686-pc-windows-msvc.zip)
+    - [hatch-x86_64-pc-windows-msvc.zip](https://github.com/pypa/hatch/releases/latest/download/hatch-x86_64-pc-windows-msvc.zip)
+    - [hatch-i686-pc-windows-msvc.zip](https://github.com/pypa/hatch/releases/latest/download/hatch-i686-pc-windows-msvc.zip)
 
 ## pip
 

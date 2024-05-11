@@ -152,7 +152,7 @@ jobs:
         echo "PYAPP_PROJECT_PATH=$wheel" >> $GITHUB_ENV
 
     - name: Build binary
-      run: hatch build --target app
+      run: hatch build --target binary
 
     # Windows installers don't accept non-integer versions so we ubiquitously
     # perform the following transformation: X.Y.Z.devN -> X.Y.Z.N
@@ -163,7 +163,7 @@ jobs:
         version="${old_version/dev/}"
 
         if [[ "$version" != "$old_version" ]]; then
-          cd dist/app
+          cd dist/binary
           old_binary="$(ls)"
           binary="${old_binary/$old_version/$version}"
           mv "$old_binary" "$binary"
@@ -175,15 +175,19 @@ jobs:
     - name: Archive binary
       run: |-
         mkdir packaging
-        cd dist/app
+        cd dist/binary
 
-        binary="$(ls)"
+        old_binary="$(ls)"
 
-        if [[ "$binary" =~ -pc-windows- ]]; then
-          7z a "../../packaging/${binary:0:-4}.zip" "$binary"
+        if [[ "$old_binary" =~ -pc-windows- ]]; then
+          new_binary="${{ env.APP_NAME }}.exe"
+          mv "$old_binary" "$new_binary"
+          7z a "../../packaging/${{ env.APP_NAME }}-${{ matrix.job.target }}.zip" "$new_binary"
         else
-          chmod +x "$binary"
-          tar -czf "../../packaging/$binary.tar.gz" "$binary"
+          new_binary="${{ env.APP_NAME }}"
+          mv "$old_binary" "$new_binary"
+          chmod +x "$new_binary"
+          tar -czf "../../packaging/${{ env.APP_NAME }}-${{ matrix.job.target }}.tar.gz" "$new_binary"
         fi
 
     - name: Upload staged archive
@@ -233,16 +237,20 @@ jobs:
     - name: Extract staged binaries
       run: |-
         mkdir bin
-        for f in archives/*; do
-          7z e "$f" -obin
+
+        cd archives
+        for f in *; do
+          binary_id=${f:0:-4}
+          7z e "$f" -o../bin
+          mv "../bin/${{ env.APP_NAME }}.exe" "../bin/$binary_id.exe"
         done
 
-    # bin/<APP_NAME>-<VERSION>-<TARGET>.exe -> targets/<TARGET>/<APP_NAME>.exe
+    # bin/<APP_NAME>-<TARGET>.exe -> targets/<TARGET>/<APP_NAME>.exe
     - name: Prepare binaries
       run: |-
         mkdir targets
         for f in bin/*; do
-          if [[ "$f" =~ ${{ env.VERSION }}-(.+).exe$ ]]; then
+          if [[ "$f" =~ ${{ env.APP_NAME }}-(.+).exe$ ]]; then
             target="${BASH_REMATCH[1]}"
             mkdir "targets/$target"
             mv "$f" "targets/$target/${{ env.APP_NAME }}.exe"
@@ -259,6 +267,10 @@ jobs:
       run: |-
         mkdir installers
         mv build/*/release/*/*.{exe,msi} installers
+
+        cd installers
+        universal_installer="$(ls *.exe)"
+        mv "$universal_installer" "${{ env.APP_NAME }}-universal.exe"
 
     - name: Upload binaries
       uses: actions/upload-artifact@v4
@@ -315,8 +327,12 @@ jobs:
     - name: Extract staged binaries
       run: |-
         mkdir bin
-        for f in archives/*; do
-          tar -xzf "$f" -C bin
+
+        cd archives
+        for f in *; do
+          binary_id=${f:0:${#f}-7}
+          tar -xzf "$f" -C ../bin
+          mv "../bin/${{ env.APP_NAME }}" "../bin/$binary_id"
         done
 
     - name: Write credentials
@@ -365,18 +381,20 @@ jobs:
     - name: Archive binaries
       run: |-
         rm archives/*
-        cd bin
 
+        cd bin
         for f in *; do
-          tar -czf "../archives/$f.tar.gz" "$f"
+          mv "$f" "${{ env.APP_NAME }}"
+          tar -czf "../archives/$f.tar.gz" "${{ env.APP_NAME }}"
+          mv "${{ env.APP_NAME }}" "$f"
         done
 
-    # bin/<APP_NAME>-<VERSION>-<TARGET> -> targets/<TARGET>/<APP_NAME>
+    # bin/<APP_NAME>-<TARGET> -> targets/<TARGET>/<APP_NAME>
     - name: Prepare binaries
       run: |-
         mkdir targets
         for f in bin/*; do
-          if [[ "$f" =~ ${{ env.VERSION }}-(.+)$ ]]; then
+          if [[ "$f" =~ ${{ env.APP_NAME }}-(.+)$ ]]; then
             target="${BASH_REMATCH[1]}"
             mkdir "targets/$target"
             mv "$f" "targets/$target/${{ env.APP_NAME }}"
