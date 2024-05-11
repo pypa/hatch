@@ -20,7 +20,7 @@ def make_msi(target):
         product_manufacturer=AUTHOR,
         arch=arch,
     )
-    msi.msi_filename = DISPLAY_NAME + "-" + VERSION + "-" + arch + ".msi"
+    msi.msi_filename = APP_NAME + "-" + arch + ".msi"
     msi.help_url = "https://hatch.pypa.io/latest/"
     msi.license_path = CWD + "/LICENSE.txt"
 
