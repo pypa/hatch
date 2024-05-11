@@ -96,10 +96,10 @@ jobs:
     - name: Archive distribution
       run: >-
         docker exec builder
-        tar czf dist-${{ matrix.job.target }}.tar.gz python
+        tar czf hatch-dist-${{ matrix.job.target }}.tar.gz python
 
     - name: Move to host
-      run: docker cp builder:/home/dist-${{ matrix.job.target }}.tar.gz .
+      run: docker cp builder:/home/hatch-dist-${{ matrix.job.target }}.tar.gz .
 
     - name: Check original size
       run: >-
@@ -107,13 +107,13 @@ jobs:
         ls -lh cpython-${{ env.DIST_PYTHON_VERSION }}+${{ env.DIST_VERSION }}-${{ matrix.job.target }}-install_only.tar.gz
 
     - name: Check final size
-      run: ls -lh dist-${{ matrix.job.target }}.tar.gz
+      run: ls -lh hatch-dist-${{ matrix.job.target }}.tar.gz
 
     - name: Upload archive
       uses: actions/upload-artifact@v4
       with:
         name: distribution-${{ matrix.job.target }}
-        path: dist-${{ matrix.job.target }}.tar.gz
+        path: hatch-dist-${{ matrix.job.target }}.tar.gz
 
   distributions-windows-macos:
     name: Distribution ${{ matrix.job.target }}
@@ -155,16 +155,16 @@ jobs:
       shell: pwsh
 
     - name: Archive distribution
-      run: tar czf dist-${{ matrix.job.target }}.tar.gz python
+      run: tar czf hatch-dist-${{ matrix.job.target }}.tar.gz python
 
     - name: Check original size
       run: ls -lh cpython-${{ env.DIST_PYTHON_VERSION }}+${{ env.DIST_VERSION }}-${{ matrix.job.target }}-install_only.tar.gz
 
     - name: Check final size
-      run: ls -lh dist-${{ matrix.job.target }}.tar.gz
+      run: ls -lh hatch-dist-${{ matrix.job.target }}.tar.gz
 
     - name: Upload archive
       uses: actions/upload-artifact@v4
       with:
         name: distribution-${{ matrix.job.target }}
-        path: dist-${{ matrix.job.target }}.tar.gz
+        path: hatch-dist-${{ matrix.job.target }}.tar.gz
