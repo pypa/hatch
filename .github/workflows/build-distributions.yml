@@ -1,0 +1,170 @@
+name: build distributions
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        required: false
+        type: string
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  DIST_URL: "https://github.com/indygreg/python-build-standalone/releases/download"
+  DIST_VERSION: "20240415"
+  DIST_PYTHON_VERSION: "3.12.3"
+  PYTHONDONTWRITEBYTECODE: "1"
+  PIP_ONLY_BINARY: ":all:"
+  # Some pip environment variables are weird, this means do not compile
+  PIP_NO_COMPILE: "0"
+
+jobs:
+  ensure-installable:
+    name: Ensure Hatch is installable
+    runs-on: ubuntu-22.04
+
+    steps:
+    - name: Set up Python ${{ env.DIST_PYTHON_VERSION }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.DIST_PYTHON_VERSION }}
+
+    - name: Install Hatch
+      if: inputs.version
+      # Try to install the specific version of Hatch that was just released until successful
+      run: |-
+        for i in {1..20}; do
+          pip install hatch==${{ inputs.version }} && break || sleep 5
+        done
+
+  distributions-linux:
+    name: Distribution ${{ matrix.job.target }}
+    needs: ensure-installable
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        job:
+        - target: x86_64-unknown-linux-gnu
+          image: quay.io/pypa/manylinux2014_x86_64
+        - target: aarch64-unknown-linux-gnu
+          image: quay.io/pypa/manylinux_2_28_aarch64
+          emulation: arm64
+
+    steps:
+    - name: Checkout code
+      if: ${{ !inputs.version }}
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up QEMU
+      if: matrix.job.emulation
+      uses: docker/setup-qemu-action@v3
+
+    - name: Set up Docker container
+      run: >-
+        docker run --rm -d
+        --name builder
+        --workdir /home
+        --env PYTHONDONTWRITEBYTECODE
+        --env PIP_ONLY_BINARY
+        --env PIP_NO_COMPILE
+        --volume ${{ github.workspace }}:/home/hatch
+        ${{ matrix.job.image }}
+        sleep infinity
+
+    - name: Download distribution
+      run: >-
+        docker exec builder
+        curl -LO
+        ${{ env.DIST_URL }}/${{ env.DIST_VERSION }}/cpython-${{ env.DIST_PYTHON_VERSION }}+${{ env.DIST_VERSION }}-${{ matrix.job.target }}-install_only.tar.gz
+
+    - name: Unpack distribution
+      run: >-
+        docker exec builder
+        tar xzf cpython-${{ env.DIST_PYTHON_VERSION }}+${{ env.DIST_VERSION }}-${{ matrix.job.target }}-install_only.tar.gz
+
+    - name: Install Hatch
+      run: >-
+        docker exec builder
+        /home/python/bin/python -m pip install
+        ${{ inputs.version && format('hatch=={0}', inputs.version) || '/home/hatch' }}
+
+    - name: Archive distribution
+      run: >-
+        docker exec builder
+        tar czf dist-${{ matrix.job.target }}.tar.gz python
+
+    - name: Move to host
+      run: docker cp builder:/home/dist-${{ matrix.job.target }}.tar.gz .
+
+    - name: Check original size
+      run: >-
+        docker exec builder
+        ls -lh cpython-${{ env.DIST_PYTHON_VERSION }}+${{ env.DIST_VERSION }}-${{ matrix.job.target }}-install_only.tar.gz
+
+    - name: Check final size
+      run: ls -lh dist-${{ matrix.job.target }}.tar.gz
+
+    - name: Upload archive
+      uses: actions/upload-artifact@v4
+      with:
+        name: distribution-${{ matrix.job.target }}
+        path: dist-${{ matrix.job.target }}.tar.gz
+
+  distributions-windows-macos:
+    name: Distribution ${{ matrix.job.target }}
+    needs: ensure-installable
+    runs-on: ${{ matrix.job.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        job:
+        - target: x86_64-pc-windows-msvc
+          os: windows-2019
+        - target: aarch64-apple-darwin
+          os: macos-14
+        - target: x86_64-apple-darwin
+          os: macos-12
+
+    steps:
+    - name: Checkout code
+      if: ${{ !inputs.version }}
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Download distribution
+      run: curl -LO ${{ env.DIST_URL }}/${{ env.DIST_VERSION }}/cpython-${{ env.DIST_PYTHON_VERSION }}+${{ env.DIST_VERSION }}-${{ matrix.job.target }}-install_only.tar.gz
+
+    - name: Unpack distribution
+      run: tar xzf cpython-${{ env.DIST_PYTHON_VERSION }}+${{ env.DIST_VERSION }}-${{ matrix.job.target }}-install_only.tar.gz
+
+    - name: Install Hatch
+      run: >-
+        ${{ startsWith(matrix.job.os, 'windows-') && '.\\python\\python.exe' || './python/bin/python' }}
+        -m pip install
+        ${{ inputs.version && format('hatch=={0}', inputs.version) || '.' }}
+
+    - name: Remove debug symbols
+      if: startsWith(matrix.job.os, 'windows-')
+      run: Get-ChildItem -Path python -Filter "*.pdb" -Recurse | Remove-Item
+      shell: pwsh
+
+    - name: Archive distribution
+      run: tar czf dist-${{ matrix.job.target }}.tar.gz python
+
+    - name: Check original size
+      run: ls -lh cpython-${{ env.DIST_PYTHON_VERSION }}+${{ env.DIST_VERSION }}-${{ matrix.job.target }}-install_only.tar.gz
+
+    - name: Check final size
+      run: ls -lh dist-${{ matrix.job.target }}.tar.gz
+
+    - name: Upload archive
+      uses: actions/upload-artifact@v4
+      with:
+        name: distribution-${{ matrix.job.target }}
+        path: dist-${{ matrix.job.target }}.tar.gz
