@@ -82,6 +82,10 @@ class MockFlags:
         return StringIO(self.text)
 
 
+@pytest.mark.skipif(
+    not (sys.platform == 'linux' and machine().lower() == 'x86_64'),
+    reason='No variants for this platform and architecture combination',
+)
 def test_guess_variant():
     with EnvVars({'HATCH_PYTHON_VARIANT_LINUX': ''}):
         with patch('hatch.python.resolve.open', MockFlags(V3_FLAGS)):
