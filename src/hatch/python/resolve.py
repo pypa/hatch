@@ -182,9 +182,9 @@ def get_compatible_distributions() -> dict[str, Distribution]:
 # instructions for each architecture variant and
 # https://github.com/torvalds/linux/blob/master/arch/x86/include/asm/cpufeatures.h
 # for the corresponding Linux flags
-V4_FLAGS = {'avx512f', 'avx512bw', 'avx512cd', 'avx512dq', 'avx512vl'}
-V3_FLAGS = {'avx', 'avx2', 'bmi1', 'bmi2', 'f16c', 'fma', 'movbe', 'xsave'}
 V2_FLAGS = {'cx16', 'lahf_lm', 'popcnt', 'pni', 'sse4_1', 'sse4_2', 'ssse3'}
+V3_FLAGS = {'avx', 'avx2', 'bmi1', 'bmi2', 'f16c', 'fma', 'movbe', 'xsave'} | V2_FLAGS
+V4_FLAGS = {'avx512f', 'avx512bw', 'avx512cd', 'avx512dq', 'avx512vl'} | V3_FLAGS
 
 
 def _guess_linux_variant() -> str:
