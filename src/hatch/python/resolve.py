@@ -178,20 +178,26 @@ def get_compatible_distributions() -> dict[str, Distribution]:
     return distributions
 
 
+# See https://clang.llvm.org/docs/UsersManual.html#x86 for the
+# instructions for each architecture variant and
+# https://github.com/torvalds/linux/blob/master/arch/x86/include/asm/cpufeatures.h
+# for the corresponding Linux flags
+V4_FLAGS = {'avx512f', 'avx512bw', 'avx512cd', 'avx512dq', 'avx512vl'}
+V3_FLAGS = {'avx', 'avx2', 'bmi1', 'bmi2', 'f16c', 'fma', 'movbe', 'xsave'}
+V2_FLAGS = {'cx16', 'lahf_lm', 'popcnt', 'pni', 'sse4_1', 'sse4_2', 'ssse3'}
+
+
 def _guess_linux_variant() -> str:
     with open('/proc/cpuinfo', encoding='ascii') as infh:
         for spam in infh:
-            text = spam.strip()
-            if text.startswith('flags'):
-                # from arch/x86/asm/cpufeatures.h:
-                # X86_FEATURE_AVX512F ( 9*32+16) /* AVX-512 Foundation */
-                if 'avx512f' in text:
+            key, _, values = spam.partition(':')
+            if key.strip() == 'flags':
+                flags = set(values.strip().split())
+                if flags & V4_FLAGS == V4_FLAGS:
                     return 'v4'
-                # X86_FEATURE_AVX ( 4*32+28) /* Advanced Vector Extensions */
-                if 'avx' in text:
+                if flags & V3_FLAGS == V3_FLAGS:
                     return 'v3'
-                # X86_FEATURE_XMM3 ( 4*32+ 0) /* "pni" SSE-3 */
-                if 'pni' in text:
+                if flags & V2_FLAGS == V2_FLAGS:
                     return 'v2'
                 return 'v1'
     return ''
