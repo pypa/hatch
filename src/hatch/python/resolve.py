@@ -183,9 +183,15 @@ def _guess_linux_variant() -> str:
         for spam in infh:
             text = spam.strip()
             if text.startswith('flags'):
+                # from arch/x86/asm/cpufeatures.h:
+                # X86_FEATURE_AVX512F ( 9*32+16) /* AVX-512 Foundation */
+                if 'avx512f' in text:
+                    return 'v4'
+                # X86_FEATURE_AVX ( 4*32+28) /* Advanced Vector Extensions */
                 if 'avx' in text:
                     return 'v3'
-                if 'ssse3' in text:
+                # X86_FEATURE_XMM3 ( 4*32+ 0) /* "pni" SSE-3 */
+                if 'pni' in text:
                     return 'v2'
                 return 'v1'
     return ''
