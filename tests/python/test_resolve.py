@@ -70,7 +70,7 @@ def test_variants(platform, system, variant, current_arch):
     not (sys.platform == 'linux' and machine().lower() == 'x86_64'),
     reason='No variants for this platform and architecture combination',
 )
-@pytest.mark.parametrize("fs", [[None, [hatch.utils.fs]]], indirect=True)
+@pytest.mark.parametrize('fs', [[None, [hatch.utils.fs]]], indirect=True)
 @pytest.mark.parametrize(
     ('variant', 'flags'),
     [
