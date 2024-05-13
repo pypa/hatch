@@ -4,6 +4,7 @@ from platform import machine
 
 import pytest
 
+import hatch.utils.fs
 from hatch.errors import PythonDistributionResolutionError, PythonDistributionUnknownError
 from hatch.python.resolve import get_distribution
 from hatch.utils.structures import EnvVars
@@ -66,19 +67,11 @@ def test_variants(platform, system, variant, current_arch):
         assert variant in dist.source
 
 
-class MockFlags:
-    def __init__(self, text):
-        self.text = text
-
-    def __call__(self, path, *_, **__):
-        assert path == '/proc/cpuinfo'
-        return StringIO(self.text)
-
-
 @pytest.mark.skipif(
     not (sys.platform == 'linux' and machine().lower() == 'x86_64'),
     reason='No variants for this platform and architecture combination',
 )
+@pytest.mark.parametrize("fs", [[None, [hatch.utils.fs]]], indirect=True)
 @pytest.mark.parametrize(
     ('variant', 'flags'),
     [
