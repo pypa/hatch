@@ -1,7 +1,6 @@
 import sys
 from io import StringIO
 from platform import machine
-from unittest.mock import patch
 
 import pytest
 
@@ -67,16 +66,6 @@ def test_variants(platform, system, variant, current_arch):
         assert variant in dist.source
 
 
-# Intel Core i5-5300U
-V3_FLAGS = 'flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch cpuid_fault epb invpcid_single pti ssbd ibrs ibpb stibp tpr_shadow flexpriority ept vpid ept_ad fsgsbase tsc_adjust bmi1 hle avx2 smep bmi2 erms invpcid rtm rdseed adx smap intel_pt xsaveopt dtherm ida arat pln pts vnmi md_clear flush_l1d'
-# Intel Core i7-860
-V2_FLAGS = 'flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ht tm pbe syscall nx rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni dtes64 monitor ds_cpl smx est tm2 ssse3 cx16 xtpr pdcm sse4_1 sse4_2 popcnt lahf_lm pti ssbd ibrs ibpb stibp dtherm ida flush_l1d'
-# Just guessing here...
-V1_FLAGS = 'flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ht tm pbe syscall nx rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni dtes64 monitor ds_cpl smx est tm2'
-# Just guessing here too...
-V4_FLAGS = 'flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch cpuid_fault epb invpcid_single pti ssbd ibrs ibpb stibp tpr_shadow flexpriority ept vpid ept_ad fsgsbase tsc_adjust bmi1 hle avx2 smep bmi2 erms invpcid rtm rdseed adx smap intel_pt xsaveopt dtherm ida arat pln pts vnmi md_clear flush_l1d avx512f avx512bw avx512cd avx512dq avx512vl'
-
-
 class MockFlags:
     def __init__(self, text):
         self.text = text
@@ -90,20 +79,38 @@ class MockFlags:
     not (sys.platform == 'linux' and machine().lower() == 'x86_64'),
     reason='No variants for this platform and architecture combination',
 )
-def test_guess_variant():
+@pytest.mark.parametrize(
+    ('variant', 'flags'),
+    [
+        (
+            'v1',
+            # Just guessing here...
+            'flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ht tm pbe syscall nx rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni dtes64 monitor ds_cpl smx est tm2',
+        ),
+        (
+            'v2',
+            # Intel Core i7-860
+            'flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ht tm pbe syscall nx rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni dtes64 monitor ds_cpl smx est tm2 ssse3 cx16 xtpr pdcm sse4_1 sse4_2 popcnt lahf_lm pti ssbd ibrs ibpb stibp dtherm ida flush_l1d',
+        ),
+        (
+            'v3',
+            # Intel Core i5-5300U
+            'flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch cpuid_fault epb invpcid_single pti ssbd ibrs ibpb stibp tpr_shadow flexpriority ept vpid ept_ad fsgsbase tsc_adjust bmi1 hle avx2 smep bmi2 erms invpcid rtm rdseed adx smap intel_pt xsaveopt dtherm ida arat pln pts vnmi md_clear flush_l1d',
+        ),
+        (
+            'v4',
+            # Just guessing here...
+            'flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch cpuid_fault epb invpcid_single pti ssbd ibrs ibpb stibp tpr_shadow flexpriority ept vpid ept_ad fsgsbase tsc_adjust bmi1 hle avx2 smep bmi2 erms invpcid rtm rdseed adx smap intel_pt xsaveopt dtherm ida arat pln pts vnmi md_clear flush_l1d avx512f avx512bw avx512cd avx512dq avx512vl',
+        ),
+    ],
+)
+def test_guess_variant(fs, variant, flags):
+    fs.create_file('/proc/cpuinfo', contents=flags)
+
     with EnvVars({'HATCH_PYTHON_VARIANT_LINUX': ''}):
-        with patch('hatch.python.resolve.open', MockFlags(V4_FLAGS)):
-            dist = get_distribution('3.11')
-            assert 'v4' in dist.source
-        with patch('hatch.python.resolve.open', MockFlags(V3_FLAGS)):
-            dist = get_distribution('3.11')
-            assert 'v3' in dist.source
-        with patch('hatch.python.resolve.open', MockFlags(V2_FLAGS)):
-            dist = get_distribution('3.11')
-            assert 'v2' in dist.source
-        with patch('hatch.python.resolve.open', MockFlags(V1_FLAGS)):
-            dist = get_distribution('3.11')
-            assert 'v1' not in dist.source
-            assert 'v2' not in dist.source
-            assert 'v3' not in dist.source
-            assert 'v4' not in dist.source
+        dist = get_distribution('3.11')
+        if variant == 'v1':
+            for v in ('v1', 'v2', 'v3', 'v4'):
+                assert v not in dist.source
+        else:
+            assert variant in dist.source

@@ -178,28 +178,39 @@ def get_compatible_distributions() -> dict[str, Distribution]:
     return distributions
 
 
-# See https://clang.llvm.org/docs/UsersManual.html#x86 for the
-# instructions for each architecture variant and
-# https://github.com/torvalds/linux/blob/master/arch/x86/include/asm/cpufeatures.h
-# for the corresponding Linux flags
-V2_FLAGS = {'cx16', 'lahf_lm', 'popcnt', 'pni', 'sse4_1', 'sse4_2', 'ssse3'}
-V3_FLAGS = {'avx', 'avx2', 'bmi1', 'bmi2', 'f16c', 'fma', 'movbe', 'xsave'} | V2_FLAGS
-V4_FLAGS = {'avx512f', 'avx512bw', 'avx512cd', 'avx512dq', 'avx512vl'} | V3_FLAGS
-
-
 def _guess_linux_variant() -> str:
-    with open('/proc/cpuinfo', encoding='ascii') as infh:
-        for spam in infh:
-            key, _, values = spam.partition(':')
-            if key.strip() == 'flags':
-                flags = set(values.strip().split())
-                if flags & V4_FLAGS == V4_FLAGS:
-                    return 'v4'
-                if flags & V3_FLAGS == V3_FLAGS:
-                    return 'v3'
-                if flags & V2_FLAGS == V2_FLAGS:
-                    return 'v2'
-                return 'v1'
+    from hatch.utils.fs import Path
+
+    cpuinfo = Path('/proc/cpuinfo')
+    try:
+        contents = cpuinfo.read_text()
+    except OSError:
+        return ''
+
+    # See https://clang.llvm.org/docs/UsersManual.html#x86 for the
+    # instructions for each architecture variant and
+    # https://github.com/torvalds/linux/blob/master/arch/x86/include/asm/cpufeatures.h
+    # for the corresponding Linux flags
+    v2_flags = {'cx16', 'lahf_lm', 'popcnt', 'pni', 'sse4_1', 'sse4_2', 'ssse3'}
+    v3_flags = {'avx', 'avx2', 'bmi1', 'bmi2', 'f16c', 'fma', 'movbe', 'xsave'} | v2_flags
+    v4_flags = {'avx512f', 'avx512bw', 'avx512cd', 'avx512dq', 'avx512vl'} | v3_flags
+
+    for line in contents.splitlines():
+        key, _, value = line.partition(':')
+        if key.strip() == 'flags':
+            flags = set(value.strip().split())
+
+            if flags.issuperset(v4_flags):
+                return 'v4'
+
+            if flags.issuperset(v3_flags):
+                return 'v3'
+
+            if flags.issuperset(v2_flags):
+                return 'v2'
+
+            return 'v1'
+
     return ''
 
 
