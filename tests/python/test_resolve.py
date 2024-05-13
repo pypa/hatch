@@ -1,5 +1,4 @@
 import sys
-from io import StringIO
 from platform import machine
 
 import pytest
