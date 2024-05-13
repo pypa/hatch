@@ -91,7 +91,7 @@ def new(app, name, location, interactive, feature_cli, initialize, setuptools_op
     if 'plugins' in template_config and not template_config['plugins']:
         del template_config['plugins']
 
-    TemplateConfig(template_config, ('template',)).parse_fields()
+    TemplateConfig(**template_config)  # .parse_fields()
 
     plugin_config = template_config.pop('plugins')
 

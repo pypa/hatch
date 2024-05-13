@@ -33,7 +33,7 @@ class ConfigFile:
         self.path.write_atomic(content, 'w', encoding='utf-8')
 
     def load(self):
-        self.model = RootConfig(load_toml_data(self.read()))
+        self.model = RootConfig(**load_toml_data(self.read()))
 
     def read(self) -> str:
         return self.path.read_text('utf-8')
@@ -41,15 +41,14 @@ class ConfigFile:
     def read_scrubbed(self) -> str:
         import tomli_w
 
-        config = RootConfig(load_toml_data(self.read()))
+        config = RootConfig(**load_toml_data(self.read()))
         config.raw_data.pop('publish', None)
         return tomli_w.dumps(config.raw_data)
 
     def restore(self):
         import tomli_w
 
-        config = RootConfig({})
-        config.parse_fields()
+        config = RootConfig()
 
         content = tomli_w.dumps(config.raw_data)
         self.save(content)
@@ -57,7 +56,6 @@ class ConfigFile:
         self.model = config
 
     def update(self):  # no cov
-        self.model.parse_fields()
         self.save()
 
     @classmethod

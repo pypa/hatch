@@ -127,7 +127,7 @@ def set_value(app, key, value):
                 del table_body[-2]
 
     try:
-        RootConfig(user_config).parse_fields()
+        RootConfig(**user_config)  # .parse_fields()
     except ConfigurationError as e:
         app.display_error(str(e))
         app.abort()

@@ -149,7 +149,6 @@ def hatch(ctx: click.Context, env_name, project, verbose, quiet, color, interact
     except OSError as e:  # no cov
         app.abort(f'Error loading configuration: {e}')
 
-    app.config.terminal.styles.parse_fields()
     errors = app.initialize_styles(app.config.terminal.styles.raw_data)
     if errors and color is not False and not app.quiet:  # no cov
         for error in errors:

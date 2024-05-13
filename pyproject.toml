@@ -54,6 +54,7 @@ dependencies = [
   "uv>=0.1.35",
   "virtualenv>=20.26.1",
   "zstandard<1",
+  "pydantic>=2.7"
 ]
 dynamic = ["version"]
 

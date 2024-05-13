@@ -157,7 +157,7 @@ class Terminal:
         self._style_level_debug: Style | str = 'bold'
 
         # Chosen as the default since it's compatible everywhere and looks nice
-        self._style_spinner = 'simpleDotsScrolling'
+        self._style_spinner: str = 'simpleDotsScrolling'
 
     @cached_property
     def kv_separator(self) -> Text:
@@ -181,6 +181,9 @@ class Terminal:
     def style_debug(self, text: str) -> Text:
         return Text(text, style=self._style_level_debug)
 
+    def style_spinner(self, text: str) -> Text:
+        return Text(text, style=self._style_spinner)
+
     def initialize_styles(self, styles: dict):  # no cov
         # Lazily display errors so that they use the correct style
         errors = []
@@ -189,6 +192,8 @@ class Terminal:
             attribute = f'_style_level_{option}'
 
             default_level = getattr(self, attribute, None)
+            if option == 'spinner':
+                setattr(self, f'_style_{option}', style)
             if default_level:
                 try:
                     parsed_style = Style.parse(style)
