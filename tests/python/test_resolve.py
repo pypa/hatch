@@ -3,7 +3,6 @@ from platform import machine
 
 import pytest
 
-import hatch.utils.fs
 from hatch.errors import PythonDistributionResolutionError, PythonDistributionUnknownError
 from hatch.python.resolve import get_distribution
 from hatch.utils.structures import EnvVars
