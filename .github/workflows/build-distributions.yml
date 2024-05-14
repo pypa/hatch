@@ -39,7 +39,7 @@ jobs:
           pip install hatch==${{ inputs.version }} && break || sleep 5
         done
 
-  distributions-linux:
+  linux:
     name: Distribution ${{ matrix.job.target }}
     needs: ensure-installable
     runs-on: ubuntu-22.04
@@ -115,7 +115,7 @@ jobs:
         name: distribution-${{ matrix.job.target }}
         path: hatch-dist-${{ matrix.job.target }}.tar.gz
 
-  distributions-windows-macos:
+  windows-macos:
     name: Distribution ${{ matrix.job.target }}
     needs: ensure-installable
     runs-on: ${{ matrix.job.os }}
@@ -168,3 +168,29 @@ jobs:
       with:
         name: distribution-${{ matrix.job.target }}
         path: hatch-dist-${{ matrix.job.target }}.tar.gz
+
+  publish:
+    name: Publish distributions
+    if: inputs.version
+    needs:
+    - linux
+    - windows-macos
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      id-token: write
+
+    steps:
+    - name: Download distributions
+      uses: actions/download-artifact@v4
+      with:
+        name: distribution-*
+        path: distributions
+        merge-multiple: true
+
+    - name: Add assets to current release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: |-
+          distributions/*

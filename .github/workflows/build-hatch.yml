@@ -519,6 +519,8 @@ jobs:
 
     - name: Push Python artifacts to PyPI
       uses: pypa/gh-action-pypi-publish@v1.8.14
+      with:
+        skip-existing: true
 
   distributions-release:
     name: Build release distributions
@@ -529,6 +531,7 @@ jobs:
     uses: ./.github/workflows/build-distributions.yml
     with:
       version: ${{ needs.binaries.outputs.version }}
+    secrets: inherit
 
   distributions-dev:
     name: Build development distributions
@@ -537,28 +540,3 @@ jobs:
     # This actually does not need the binary jobs but we want to prioritize
     # resources for the test jobs therefore this forces these later on
     needs: binaries
-
-  publish-distributions:
-    name: Publish distribution artifacts
-    if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
-    needs:
-    - distributions-release
-    runs-on: ubuntu-latest
-
-    permissions:
-      contents: write
-      id-token: write
-
-    steps:
-    - name: Download distributions
-      uses: actions/download-artifact@v4
-      with:
-        name: distribution-*
-        path: distributions
-        merge-multiple: true
-
-    - name: Add assets to current release
-      uses: softprops/action-gh-release@v2
-      with:
-        files: |-
-          distributions/*
