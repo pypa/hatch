@@ -29,14 +29,30 @@ jobs:
     name: Build wheel and source distribution
     runs-on: ubuntu-latest
 
+    outputs:
+      old-version: ${{ steps.version.outputs.old-version }}
+      version: ${{ steps.version.outputs.version }}
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
-    - name: Install build frontend
-      run: python -m pip install --upgrade build
+    - name: Install tools
+      run: python -m pip install --upgrade build hatch
+
+    # Windows installers don't accept non-integer versions so we ubiquitously
+    # perform the following transformation: X.Y.Z.devN -> X.Y.Z.N
+    - name: Set project version
+      id: version
+      run: |-
+        old_version="$(hatch version)"
+        version="${old_version/dev/}"
+
+        echo "old-version=$old_version" >> $GITHUB_OUTPUT
+        echo "version=$version" >> $GITHUB_OUTPUT
+        echo "$version"
 
     - name: Build
       run: python -m build
@@ -86,14 +102,11 @@ jobs:
           os: macos-12
           use-dist: true
 
-    outputs:
-      version: ${{ steps.version.outputs.version }}
-
     env:
       CARGO: cargo
       CARGO_BUILD_TARGET: ${{ matrix.job.target }}
       PYAPP_REPO: pyapp
-      PYAPP_VERSION: "0.20.0"
+      PYAPP_VERSION: "0.20.1"
       PYAPP_UV_ENABLED: "true"
       PYAPP_PASS_LOCATION: "true"
 
@@ -162,7 +175,7 @@ jobs:
       run: |-
         echo "PYAPP_SKIP_INSTALL=true" >> $GITHUB_ENV
         echo "PYAPP_FULL_ISOLATION=true" >> $GITHUB_ENV
-        echo "PYAPP_DISTRIBUTION_SOURCE=${{ env.DIST_URL }}/hatch-${{ github.ref_name }}/hatch-dist-${{ matrix.job.target }}.tar.gz" >> $GITHUB_ENV
+        echo "PYAPP_DISTRIBUTION_SOURCE=${{ env.DIST_URL }}/hatch-v${{ needs.python-artifacts.outputs.version }}/hatch-dist-${{ matrix.job.target }}.tar.gz" >> $GITHUB_ENV
         echo "PYAPP_DISTRIBUTION_PYTHON_PATH=${{ startsWith(matrix.job.os, 'windows-') && 'python\\python.exe' || 'python/bin/python3' }}" >> $GITHUB_ENV
 
         # Disable in the case of self updates
@@ -171,13 +184,10 @@ jobs:
     - name: Build binary
       run: hatch build --target binary
 
-    # Windows installers don't accept non-integer versions so we ubiquitously
-    # perform the following transformation: X.Y.Z.devN -> X.Y.Z.N
-    - name: Set project version
-      id: version
+    - name: Correct binary version
       run: |-
-        old_version="$(hatch version)"
-        version="${old_version/dev/}"
+        old_version="${{ needs.python-artifacts.outputs.old-version }}"
+        version="${{ needs.python-artifacts.outputs.version }}"
 
         if [[ "$version" != "$old_version" ]]; then
           cd dist/binary
@@ -185,9 +195,6 @@ jobs:
           binary="${old_binary/$old_version/$version}"
           mv "$old_binary" "$binary"
         fi
-
-        echo "version=$version" >> $GITHUB_OUTPUT
-        echo "$version"
 
     - name: Archive binary
       run: |-
@@ -226,11 +233,13 @@ jobs:
   windows-packaging:
     name: Build Windows installers
     if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
-    needs: binaries
+    needs:
+    - binaries
+    - python-artifacts
     runs-on: windows-2022
 
     env:
-      VERSION: ${{ needs.binaries.outputs.version }}
+      VERSION: ${{ needs.python-artifacts.outputs.version }}
 
     steps:
     - name: Checkout code
@@ -306,11 +315,13 @@ jobs:
   macos-packaging:
     name: Build macOS installer and sign/notarize artifacts
     if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
-    needs: binaries
+    needs:
+    - binaries
+    - python-artifacts
     runs-on: macos-12
 
     env:
-      VERSION: ${{ needs.binaries.outputs.version }}
+      VERSION: ${{ needs.python-artifacts.outputs.version }}
       NOTARY_WAIT_TIME: "3600"  # 1 hour
 
     steps:
@@ -475,19 +486,11 @@ jobs:
         path: signed/${{ steps.pkg.outputs.path }}
         if-no-files-found: error
 
-  publish-project:
-    name: Publish release artifacts
+  publish-pypi:
+    name: Publish to PyPI
     if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
-    needs:
-    - python-artifacts
-    - binaries
-    - windows-packaging
-    - macos-packaging
+    needs: python-artifacts
     runs-on: ubuntu-latest
-
-    permissions:
-      contents: write
-      id-token: write
 
     steps:
     - name: Download Python artifacts
@@ -495,6 +498,51 @@ jobs:
       with:
         name: python-artifacts
         path: dist
+
+    - name: Push Python artifacts to PyPI
+      uses: pypa/gh-action-pypi-publish@v1.8.14
+      with:
+        skip-existing: true
+
+  distributions-release:
+    name: Build release distributions
+    needs:
+    - python-artifacts
+    - publish-pypi
+    if: startsWith(github.event.ref, 'refs/tags')
+    uses: ./.github/workflows/build-distributions.yml
+    with:
+      version: ${{ needs.python-artifacts.outputs.version }}
+
+  distributions-dev:
+    name: Build development distributions
+    if: ${{ !startsWith(github.event.ref, 'refs/tags') }}
+    uses: ./.github/workflows/build-distributions.yml
+    # This actually does not need the binary jobs but we want to prioritize
+    # resources for the test jobs therefore this forces these later on
+    needs: binaries
+
+  publish-release:
+    name: Publish distributions
+    if: startsWith(github.event.ref, 'refs/tags')
+    needs:
+    - binaries
+    - windows-packaging
+    - macos-packaging
+    - distributions-release
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      id-token: write
+
+    steps:
+    - name: Download distributions
+      uses: actions/download-artifact@v4
+      with:
+        pattern: distribution-*
+        path: distributions
+        merge-multiple: true
 
     - name: Download binaries
       uses: actions/download-artifact@v4
@@ -515,28 +563,5 @@ jobs:
       with:
         files: |-
           archives/*
+          distributions/*
           installers/*
-
-    - name: Push Python artifacts to PyPI
-      uses: pypa/gh-action-pypi-publish@v1.8.14
-      with:
-        skip-existing: true
-
-  distributions-release:
-    name: Build release distributions
-    needs:
-    - binaries
-    - publish-project
-    if: startsWith(github.event.ref, 'refs/tags')
-    uses: ./.github/workflows/build-distributions.yml
-    with:
-      version: ${{ needs.binaries.outputs.version }}
-    secrets: inherit
-
-  distributions-dev:
-    name: Build development distributions
-    if: ${{ !startsWith(github.event.ref, 'refs/tags') }}
-    uses: ./.github/workflows/build-distributions.yml
-    # This actually does not need the binary jobs but we want to prioritize
-    # resources for the test jobs therefore this forces these later on
-    needs: binaries
