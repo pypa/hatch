@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Callable
 import click
 from rich.console import Console
 from rich.errors import StyleSyntaxError
+from rich.spinner import Spinner
 from rich.style import Style
 from rich.text import Text
 
@@ -148,53 +149,68 @@ class Terminal:
         )
 
         # Set defaults so we can pretty print before loading user config
-        self._style_level_success: Style | str = 'bold cyan'
-        self._style_level_error: Style | str = 'bold red'
-        self._style_level_warning: Style | str = 'bold yellow'
-        self._style_level_waiting: Style | str = 'bold magenta'
+        self._style_success: Style | str = 'bold cyan'
+        self._style_error: Style | str = 'bold red'
+        self._style_warning: Style | str = 'bold yellow'
+        self._style_waiting: Style | str = 'bold magenta'
         # Default is simply bold rather than bold white for shells that have been configured with a white background
-        self._style_level_info: Style | str = 'bold'
-        self._style_level_debug: Style | str = 'bold'
+        self._style_info: Style | str = 'bold'
+        self._style_debug: Style | str = 'bold'
 
         # Chosen as the default since it's compatible everywhere and looks nice
-        self._style_spinner = 'simpleDotsScrolling'
+        self._style_spinner: str = 'simpleDotsScrolling'
 
     @cached_property
     def kv_separator(self) -> Text:
         return self.style_warning('->')
 
     def style_success(self, text: str) -> Text:
-        return Text(text, style=self._style_level_success)
+        return Text(text, style=self._style_success)
 
     def style_error(self, text: str) -> Text:
-        return Text(text, style=self._style_level_error)
+        return Text(text, style=self._style_error)
 
     def style_warning(self, text: str) -> Text:
-        return Text(text, style=self._style_level_warning)
+        return Text(text, style=self._style_warning)
 
     def style_waiting(self, text: str) -> Text:
-        return Text(text, style=self._style_level_waiting)
+        return Text(text, style=self._style_waiting)
 
     def style_info(self, text: str) -> Text:
-        return Text(text, style=self._style_level_info)
+        return Text(text, style=self._style_info)
 
     def style_debug(self, text: str) -> Text:
-        return Text(text, style=self._style_level_debug)
+        return Text(text, style=self._style_debug)
+
+    def style_spinner(self, text: str) -> Spinner:
+        return Spinner(name=self._style_spinner, text=text)
 
     def initialize_styles(self, styles: dict):  # no cov
         # Lazily display errors so that they use the correct style
         errors = []
 
         for option, style in styles.items():
-            attribute = f'_style_level_{option}'
+            attribute = f'_style_{option}'
 
             default_level = getattr(self, attribute, None)
             if default_level:
-                try:
-                    parsed_style = Style.parse(style)
-                except StyleSyntaxError as e:  # no cov
-                    errors.append(f'Invalid style definition for `{option}`, defaulting to `{default_level}`: {e}')
-                    parsed_style = Style.parse(default_level)
+                if option == 'spinner':
+                    # Check if spinner is a valid spinner separately from the style
+                    try:
+                        # The Spinner object doesn't have a nice 'name' attribute so we have to set
+                        # these separately, Spinner() is just the validation.
+                        _ = Spinner(name=style)
+                        parsed_style = style
+                    except KeyError as e:  # no cov
+                        errors.append(f'Invalid spinner definition {style!r}, defaulting to {default_level!r}: {e}')
+                        _ = Spinner(name=default_level)
+                        parsed_style = default_level
+                else:
+                    try:
+                        parsed_style = Style.parse(style)
+                    except StyleSyntaxError as e:  # no cov
+                        errors.append(f'Invalid style definition for {option!r}, defaulting to {default_level!r}: {e}')
+                        parsed_style = Style.parse(default_level)
 
                 setattr(self, attribute, parsed_style)
             else:
@@ -203,14 +219,12 @@ class Terminal:
         return errors
 
     def display(self, text='', **kwargs):
-        self.console.print(text, style=self._style_level_info, overflow='ignore', no_wrap=True, crop=False, **kwargs)
+        self.console.print(text, style=self._style_info, overflow='ignore', no_wrap=True, crop=False, **kwargs)
 
     def display_critical(self, text='', **kwargs):
         self.console.stderr = True
         try:
-            self.console.print(
-                text, style=self._style_level_error, overflow='ignore', no_wrap=True, crop=False, **kwargs
-            )
+            self.console.print(text, style=self._style_error, overflow='ignore', no_wrap=True, crop=False, **kwargs)
         finally:
             self.console.stderr = False
 
@@ -218,31 +232,31 @@ class Terminal:
         if self.verbosity < -2:  # noqa: PLR2004
             return
 
-        self._output(text, self._style_level_error, stderr=stderr, indent=indent, link=link, **kwargs)
+        self._output(text, self._style_error, stderr=stderr, indent=indent, link=link, **kwargs)
 
     def display_warning(self, text='', *, stderr=True, indent=None, link=None, **kwargs):
         if self.verbosity < -1:
             return
 
-        self._output(text, self._style_level_warning, stderr=stderr, indent=indent, link=link, **kwargs)
+        self._output(text, self._style_warning, stderr=stderr, indent=indent, link=link, **kwargs)
 
     def display_info(self, text='', *, stderr=True, indent=None, link=None, **kwargs):
         if self.verbosity < 0:
             return
 
-        self._output(text, self._style_level_info, stderr=stderr, indent=indent, link=link, **kwargs)
+        self._output(text, self._style_info, stderr=stderr, indent=indent, link=link, **kwargs)
 
     def display_success(self, text='', *, stderr=True, indent=None, link=None, **kwargs):
         if self.verbosity < 0:
             return
 
-        self._output(text, self._style_level_success, stderr=stderr, indent=indent, link=link, **kwargs)
+        self._output(text, self._style_success, stderr=stderr, indent=indent, link=link, **kwargs)
 
     def display_waiting(self, text='', *, stderr=True, indent=None, link=None, **kwargs):
         if self.verbosity < 0:
             return
 
-        self._output(text, self._style_level_waiting, stderr=stderr, indent=indent, link=link, **kwargs)
+        self._output(text, self._style_waiting, stderr=stderr, indent=indent, link=link, **kwargs)
 
     def display_debug(self, text='', level=1, *, stderr=True, indent=None, link=None, **kwargs):
         if not 1 <= level <= 3:  # noqa: PLR2004
@@ -252,7 +266,7 @@ class Terminal:
         if self.verbosity < level:
             return
 
-        self._output(text, self._style_level_debug, stderr=stderr, indent=indent, link=link, **kwargs)
+        self._output(text, self._style_debug, stderr=stderr, indent=indent, link=link, **kwargs)
 
     def display_mini_header(self, text, *, stderr=False, indent=None, link=None):
         if self.verbosity < 0:
@@ -263,7 +277,7 @@ class Terminal:
         self.display_info(']', stderr=stderr)
 
     def display_header(self, title=''):
-        self.console.rule(Text(title, self._style_level_success))
+        self.console.rule(Text(title, self._style_success))
 
     def display_markdown(self, text, **kwargs):  # no cov
         from rich.markdown import Markdown
@@ -312,8 +326,8 @@ class Terminal:
             is_interactive=self.console.is_interactive,
             verbosity=self.verbosity,
             spinner_style=self._style_spinner,
-            waiting_style=self._style_level_waiting,  # type: ignore[arg-type]
-            success_style=self._style_level_success,  # type: ignore[arg-type]
+            waiting_style=self._style_waiting,  # type: ignore[arg-type]
+            success_style=self._style_success,  # type: ignore[arg-type]
             initializer=lambda: setattr(self.platform, 'displaying_status', True),  # type: ignore[attr-defined]
             finalizer=lambda: setattr(self.platform, 'displaying_status', False),  # type: ignore[attr-defined]
         )
