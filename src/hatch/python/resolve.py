@@ -179,12 +179,14 @@ def get_compatible_distributions() -> dict[str, Distribution]:
 
 
 def _guess_linux_variant() -> str:
-    # Don't use our utility Path so we can properly mock
+    # Use the highest that we know is most common when we can't parse CPU data
+    default = 'v3'
     try:
+        # Don't use our utility Path so we can properly mock
         with open('/proc/cpuinfo', encoding='utf-8') as f:
             contents = f.read()
     except OSError:
-        return ''
+        return default
 
     # See https://clang.llvm.org/docs/UsersManual.html#x86 for the
     # instructions for each architecture variant and
@@ -210,7 +212,7 @@ def _guess_linux_variant() -> str:
 
             return 'v1'
 
-    return ''
+    return default
 
 
 def _get_default_variant(name: str, system: str, arch: str) -> str:
@@ -218,6 +220,7 @@ def _get_default_variant(name: str, system: str, arch: str) -> str:
     if name[0].isdigit():
         # https://gregoryszorc.com/docs/python-build-standalone/main/running.html
         variant = os.environ.get(f'HATCH_PYTHON_VARIANT_{system.upper()}', '').lower()
+
         if system == 'linux' and arch == 'x86_64':
             # Intel-specific optimizations depending on age of release
             if variant:
