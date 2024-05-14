@@ -22,6 +22,7 @@ env:
   APP_NAME: hatch
   PYTHON_VERSION: "3.11"
   PYOXIDIZER_VERSION: "0.24.0"
+  DIST_URL: "https://github.com/pypa/hatch/releases/download"
 
 jobs:
   python-artifacts:
@@ -59,9 +60,11 @@ jobs:
         # Linux
         - target: aarch64-unknown-linux-gnu
           os: ubuntu-22.04
+          use-dist: true
           cross: true
         - target: x86_64-unknown-linux-gnu
           os: ubuntu-22.04
+          use-dist: true
           cross: true
         - target: x86_64-unknown-linux-musl
           os: ubuntu-22.04
@@ -72,13 +75,16 @@ jobs:
         # Windows
         - target: x86_64-pc-windows-msvc
           os: windows-2022
+          use-dist: true
         - target: i686-pc-windows-msvc
           os: windows-2022
         # macOS
         - target: aarch64-apple-darwin
           os: macos-12
+          use-dist: true
         - target: x86_64-apple-darwin
           os: macos-12
+          use-dist: true
 
     outputs:
       version: ${{ steps.version.outputs.version }}
@@ -87,7 +93,7 @@ jobs:
       CARGO: cargo
       CARGO_BUILD_TARGET: ${{ matrix.job.target }}
       PYAPP_REPO: pyapp
-      PYAPP_VERSION: "0.19.0"
+      PYAPP_VERSION: "0.20.0"
       PYAPP_UV_ENABLED: "true"
       PYAPP_PASS_LOCATION: "true"
 
@@ -150,6 +156,17 @@ jobs:
         wheel="$(echo *.whl)"
         mv "$wheel" "../$PYAPP_REPO"
         echo "PYAPP_PROJECT_PATH=$wheel" >> $GITHUB_ENV
+
+    - name: Configure release with distribution
+      if: startsWith(github.event.ref, 'refs/tags') && matrix.job.use-dist
+      run: |-
+        echo "PYAPP_SKIP_INSTALL=true" >> $GITHUB_ENV
+        echo "PYAPP_FULL_ISOLATION=true" >> $GITHUB_ENV
+        echo "PYAPP_DISTRIBUTION_SOURCE=${{ env.DIST_URL }}/hatch-${{ github.ref_name }}/hatch-dist-${{ matrix.job.target }}.tar.gz" >> $GITHUB_ENV
+        echo "PYAPP_DISTRIBUTION_PYTHON_PATH=${{ startsWith(matrix.job.os, 'windows-') && 'python\\python.exe' || 'python/bin/python3' }}" >> $GITHUB_ENV
+
+        # Disable in the case of self updates
+        echo "PYAPP_UV_ENABLED=false" >> $GITHUB_ENV
 
     - name: Build binary
       run: hatch build --target binary
