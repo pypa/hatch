@@ -179,11 +179,10 @@ def get_compatible_distributions() -> dict[str, Distribution]:
 
 
 def _guess_linux_variant() -> str:
-    from hatch.utils.fs import Path
-
-    cpuinfo = Path('/proc/cpuinfo')
+    # Don't use our utility Path so we can properly mock
     try:
-        contents = cpuinfo.read_text()
+        with open('/proc/cpuinfo', encoding='utf-8') as f:
+            contents = f.read()
     except OSError:
         return ''
 
