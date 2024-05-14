@@ -64,6 +64,27 @@ jobs:
         path: dist/*
         if-no-files-found: error
 
+  publish-pypi:
+    name: Publish to PyPI
+    if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
+    needs: python-artifacts
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+
+    steps:
+    - name: Download Python artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: python-artifacts
+        path: dist
+
+    - name: Push Python artifacts to PyPI
+      uses: pypa/gh-action-pypi-publish@v1.8.14
+      with:
+        skip-existing: true
+
   binaries:
     name: ${{ matrix.job.target }} (${{ matrix.job.os }})
     needs:
@@ -486,23 +507,13 @@ jobs:
         path: signed/${{ steps.pkg.outputs.path }}
         if-no-files-found: error
 
-  publish-pypi:
-    name: Publish to PyPI
-    if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
-    needs: python-artifacts
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Download Python artifacts
-      uses: actions/download-artifact@v4
-      with:
-        name: python-artifacts
-        path: dist
-
-    - name: Push Python artifacts to PyPI
-      uses: pypa/gh-action-pypi-publish@v1.8.14
-      with:
-        skip-existing: true
+  distributions-dev:
+    name: Build development distributions
+    if: ${{ !startsWith(github.event.ref, 'refs/tags') }}
+    uses: ./.github/workflows/build-distributions.yml
+    # This actually does not need the binary jobs but we want to prioritize
+    # resources for the test jobs therefore this forces these later on
+    needs: binaries
 
   distributions-release:
     name: Build release distributions
@@ -513,14 +524,6 @@ jobs:
     uses: ./.github/workflows/build-distributions.yml
     with:
       version: ${{ needs.python-artifacts.outputs.version }}
-
-  distributions-dev:
-    name: Build development distributions
-    if: ${{ !startsWith(github.event.ref, 'refs/tags') }}
-    uses: ./.github/workflows/build-distributions.yml
-    # This actually does not need the binary jobs but we want to prioritize
-    # resources for the test jobs therefore this forces these later on
-    needs: binaries
 
   publish-release:
     name: Publish distributions
