@@ -593,13 +593,13 @@ class TestTerminal:
     def test_default(self):
         config = RootConfig()
 
-        assert config.terminal.styles.info == config.terminal.styles.info == 'bold'
-        assert config.terminal.styles.success == config.terminal.styles.success == 'bold cyan'
-        assert config.terminal.styles.error == config.terminal.styles.error == 'bold red'
-        assert config.terminal.styles.warning == config.terminal.styles.warning == 'bold yellow'
-        assert config.terminal.styles.waiting == config.terminal.styles.waiting == 'bold magenta'
-        assert config.terminal.styles.debug == config.terminal.styles.debug == 'bold'
-        assert config.terminal.styles.spinner == config.terminal.styles.spinner == 'simpleDotsScrolling'
+        assert config.terminal.styles.info.raw_data == config.terminal.styles.info.raw_data == 'bold'
+        assert config.terminal.styles.success.raw_data == config.terminal.styles.success.raw_data == 'bold cyan'
+        assert config.terminal.styles.error.raw_data == config.terminal.styles.error.raw_data == 'bold red'
+        assert config.terminal.styles.warning.raw_data == config.terminal.styles.warning.raw_data == 'bold yellow'
+        assert config.terminal.styles.waiting.raw_data == config.terminal.styles.waiting.raw_data == 'bold magenta'
+        assert config.terminal.styles.debug.raw_data == config.terminal.styles.debug.raw_data == 'bold'
+        assert config.terminal.styles.spinner.raw_data == config.terminal.styles.spinner.raw_data == 'simpleDotsScrolling'
         assert dict_superset(
             config.raw_data,
             {
@@ -638,10 +638,10 @@ class TestTerminal:
             config.terminal.styles = 9000
 
     def test_styles_info(self):
-        config = RootConfig(terminal={'styles': {'info': 'foo'}})
+        config = RootConfig(terminal={'styles': {'info': 'bold magenta'}})
 
-        assert config.terminal.styles.info == 'foo'
-        assert dict_superset(config.raw_data, {'terminal': {'styles': {'info': 'foo'}}})
+        assert config.terminal.styles.info.raw_data == 'bold magenta'
+        assert dict_superset(config.raw_data, {'terminal': {'styles': {'info': 'bold magenta'}}})
 
     def test_styles_info_not_string(self):
         with pytest.raises(ValidationError):
@@ -654,10 +654,10 @@ class TestTerminal:
             config.terminal.styles.info = 9000
 
     def test_styles_success(self):
-        config = RootConfig(terminal={'styles': {'success': 'foo'}})
+        config = RootConfig(terminal={'styles': {'success': 'italic blue'}})
 
-        assert config.terminal.styles.success == 'foo'
-        assert dict_superset(config.raw_data, {'terminal': {'styles': {'success': 'foo'}}})
+        assert config.terminal.styles.success.raw_data == 'italic blue'
+        assert dict_superset(config.raw_data, {'terminal': {'styles': {'success': 'italic blue'}}})
 
     def test_styles_success_not_string(self):
         with pytest.raises(ValidationError):
@@ -670,10 +670,10 @@ class TestTerminal:
             config.terminal.styles.success = 9000
 
     def test_styles_error(self):
-        config = RootConfig(terminal={'styles': {'error': 'foo'}})
+        config = RootConfig(terminal={'styles': {'error': 'green'}})
 
-        assert config.terminal.styles.error == 'foo'
-        assert dict_superset(config.raw_data, {'terminal': {'styles': {'error': 'foo'}}})
+        assert config.terminal.styles.error.raw_data == 'green'
+        assert dict_superset(config.raw_data, {'terminal': {'styles': {'error': 'green'}}})
 
     def test_styles_error_not_string(self):
         with pytest.raises(ValidationError):
@@ -686,10 +686,10 @@ class TestTerminal:
             config.terminal.styles.error = 9000
 
     def test_styles_warning(self):
-        config = RootConfig(terminal={'styles': {'warning': 'foo'}})
+        config = RootConfig(terminal={'styles': {'warning': 'yellow'}})
 
-        assert config.terminal.styles.warning == 'foo'
-        assert dict_superset(config.raw_data, {'terminal': {'styles': {'warning': 'foo'}}})
+        assert config.terminal.styles.warning.raw_data == 'yellow'
+        assert dict_superset(config.raw_data, {'terminal': {'styles': {'warning': 'yellow'}}})
 
     def test_styles_warning_not_string(self):
         with pytest.raises(ValidationError):
@@ -702,10 +702,11 @@ class TestTerminal:
             config.terminal.styles.warning = 9000
 
     def test_styles_waiting(self):
-        config = RootConfig(terminal={'styles': {'waiting': 'foo'}})
+        s = 'bold magenta'
+        config = RootConfig(terminal={'styles': {'waiting': s}})
 
-        assert config.terminal.styles.waiting == 'foo'
-        assert dict_superset(config.raw_data, {'terminal': {'styles': {'waiting': 'foo'}}})
+        assert config.terminal.styles.waiting.raw_data == s
+        assert dict_superset(config.raw_data, {'terminal': {'styles': {'waiting': s}}})
 
     def test_styles_waiting_not_string(self):
         with pytest.raises(ValidationError):
@@ -718,10 +719,10 @@ class TestTerminal:
             config.terminal.styles.waiting = 9000
 
     def test_styles_debug(self):
-        config = RootConfig(terminal={'styles': {'debug': 'foo'}})
+        config = RootConfig(terminal={'styles': {'debug': 'dim white'}})
 
-        assert config.terminal.styles.debug == 'foo'
-        assert dict_superset(config.raw_data, {'terminal': {'styles': {'debug': 'foo'}}})
+        assert config.terminal.styles.debug.raw_data == 'dim white'
+        assert dict_superset(config.raw_data, {'terminal': {'styles': {'debug': 'dim white'}}})
 
     def test_styles_debug_not_string(self):
         with pytest.raises(ValidationError):
@@ -734,10 +735,10 @@ class TestTerminal:
             config.terminal.styles.debug = 9000
 
     def test_styles_spinner(self):
-        config = RootConfig(terminal={'styles': {'spinner': 'foo'}})
+        config = RootConfig(terminal={'styles': {'spinner': 'dots3'}})
 
-        assert config.terminal.styles.spinner == 'foo'
-        assert dict_superset(config.raw_data, {'terminal': {'styles': {'spinner': 'foo'}}})
+        assert config.terminal.styles.spinner.raw_data == 'dots3'
+        assert dict_superset(config.raw_data, {'terminal': {'styles': {'spinner': 'dots3'}}})
 
     def test_styles_spinner_not_string(self):
         with pytest.raises(ValidationError):

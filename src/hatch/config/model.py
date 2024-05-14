@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+from functools import cached_property
 import os
-from typing import Literal
+from typing import Any, Literal
+from hatch.utils.structures import StyleType, PydanticSpinnerType
 
 from platformdirs import user_cache_dir, user_data_dir
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 
 
 class ConfigurationError(Exception):
@@ -15,36 +17,33 @@ class ConfigurationError(Exception):
     def __str__(self):
         return f'Error parsing config:\n{self.location}\n  {super().__str__()}'
 
+type DeepDict = dict[str, bool | str | DeepDict]
 
-class BaseConfig(BaseModel, validate_assignment=True):
+class BaseConfig(BaseModel, validate_assignment=True, validate_default=True, validate_return=True):
     @property
-    def raw_data(self):
-        d = {}
+    def raw_data(self) -> DeepDict:
+        d: DeepDict = {}
         for k, v in self.__dict__.items():
             if v is not None:
-                if isinstance(v, BaseConfig):
+                if hasattr(v, 'raw_data'):
                     d[k] = v.raw_data
                 elif isinstance(v, dict):
-                    d[k] = {j: (i.raw_data if isinstance(i, BaseConfig) else i) for j, i in v.items()}
+                    d[k] = {i: (j.raw_data if hasattr(j, 'raw_data') else j) for i, j in v.items()}
                 elif isinstance(v, list):
-                    d[k] = [(i.raw_data if isinstance(i, BaseConfig) else i) for i in v]
+                    d[k] = [(i.raw_data if hasattr(i, 'raw_data') else i) for i in v]
                 else:
                     d[k] = v
         return d
 
-    # @raw_data.setter
-    # def raw_data(self, _):
-    #     pass
-
 
 class DirsConfig(BaseConfig):
     python: str = 'isolated'
-    cache: str = None
-    data: str = None
+    cache: str = ''
+    data: str = ''
     env: dict[str, str] = {}
     project: str | list[str] = []
 
-    def model_post_init(self, _):
+    def model_post_init(self, _) -> None:
         if not self.cache:
             self.cache = user_cache_dir('hatch', appauthor=False)
         if not self.data:
@@ -56,12 +55,12 @@ class ShellConfig(BaseConfig):
     path: str = ''
     args: list[str] = []
 
-    def model_post_init(self, _):
+    def model_post_init(self, _) -> None:
         if not self.path:
             self.path = self.name
 
     @property
-    def raw_data(self):
+    def raw_data(self) -> DeepDict:
         if not self.args and (self.name == self.path):
             return self.name
         return super().raw_data
@@ -75,10 +74,10 @@ class LicenseConfig(BaseConfig):
 class TemplateConfig(BaseConfig):
     name: str = ''
     email: str = ''
-    licenses: LicenseConfig = None
+    licenses: LicenseConfig = {}
     plugins: dict[str, dict[str, bool | str]] = {'default': {'ci': False, 'src-layout': True, 'tests': True}}
 
-    def model_post_init(self, _):
+    def model_post_init(self, _) -> None:
         if not self.licenses:
             self.licenses = LicenseConfig()
 
@@ -109,19 +108,18 @@ class TemplateConfig(BaseConfig):
 
 
 class StylesConfig(BaseConfig):
-    info: str = 'bold'
-    success: str = 'bold cyan'
-    error: str = 'bold red'
-    warning: str = 'bold yellow'
-    waiting: str = 'bold magenta'
-    debug: str = 'bold'
-    spinner: str = 'simpleDotsScrolling'
-
+    info: StyleType    = 'bold'
+    success: StyleType = 'bold cyan'
+    error: StyleType   = 'bold red'
+    warning: StyleType = 'bold yellow'
+    waiting: StyleType = 'bold magenta'
+    debug: StyleType   = 'bold'
+    spinner: PydanticSpinnerType = 'simpleDotsScrolling'
 
 class TerminalConfig(BaseConfig):
-    styles: StylesConfig = StylesConfig()
+    styles: StylesConfig = {}
 
-    def model_post_init(self, _):
+    def model_post_init(self, _) -> None:
         if not self.styles:
             self.styles = StylesConfig()
 
@@ -130,21 +128,21 @@ class ProjectConfig(BaseConfig):
     location: str
 
     @property
-    def raw_data(self):
+    def raw_data(self) -> str:
         return self.location
 
 
 class RootConfig(BaseConfig):
-    dirs: DirsConfig = None
+    dirs: DirsConfig = {}
     mode: Literal['local', 'aware', 'project'] = 'local'
     project: str = ''
     projects: dict[str, ProjectConfig | str] = {}
     publish: dict[str, dict[str, str]] = {'index': {'repo': 'main'}}
     shell: str | ShellConfig = ''
-    template: TemplateConfig = None
-    terminal: TerminalConfig = None
+    template: TemplateConfig = {}
+    terminal: TerminalConfig = {}
 
-    def model_post_init(self, _):
+    def model_post_init(self, _) -> None:
         if not self.template:
             self.template = TemplateConfig()
         if not self.terminal:
