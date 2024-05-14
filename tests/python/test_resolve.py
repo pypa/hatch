@@ -70,13 +70,9 @@ def test_variants(platform, system, variant, current_arch):
     not (sys.platform == 'linux' and machine().lower() == 'x86_64'),
     reason='No variants for this platform and architecture combination',
 )
-@(
-    (lambda f: f)
-    # I have no idea why but the module must be reloaded on Python 3.10 and
-    # doing so causes flakiness so we limit to just that version
-    if sys.version_info[:2] == (3, 10)
-    else pytest.mark.parametrize('fs', [[None, [hatch.utils.fs]]], indirect=True)
-)
+# I have no idea why but the module must be reloaded on Python 3.10 and
+# doing so causes flakiness so we limit to just that version
+@pytest.mark.parametrize('fs', [[None, [hatch.utils.fs] if sys.version_info[:2] == (3, 10) else []]], indirect=True)
 @pytest.mark.parametrize(
     ('variant', 'flags'),
     [
