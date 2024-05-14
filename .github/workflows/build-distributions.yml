@@ -93,6 +93,11 @@ jobs:
         /home/python/bin/python -m pip install
         ${{ inputs.version && format('hatch=={0}', inputs.version) || '/home/hatch' }}
 
+    - name: Strip debug symbols
+      run: >-
+        docker exec builder
+        sh -c "find /home/python -name '*.so' | xargs strip -S"
+
     - name: Archive distribution
       run: >-
         docker exec builder
@@ -148,6 +153,10 @@ jobs:
         ${{ startsWith(matrix.job.os, 'windows-') && '.\\python\\python.exe' || './python/bin/python' }}
         -m pip install
         ${{ inputs.version && format('hatch=={0}', inputs.version) || '.' }}
+
+    - name: Strip debug symbols
+      if: startsWith(matrix.job.os, 'macos-')
+      run: find python -name '*.so' | xargs strip -S
 
     - name: Remove debug symbols
       if: startsWith(matrix.job.os, 'windows-')
