@@ -599,7 +599,9 @@ class TestTerminal:
         assert config.terminal.styles.warning.raw_data == config.terminal.styles.warning.raw_data == 'bold yellow'
         assert config.terminal.styles.waiting.raw_data == config.terminal.styles.waiting.raw_data == 'bold magenta'
         assert config.terminal.styles.debug.raw_data == config.terminal.styles.debug.raw_data == 'bold'
-        assert config.terminal.styles.spinner.raw_data == config.terminal.styles.spinner.raw_data == 'simpleDotsScrolling'
+        assert (
+            config.terminal.styles.spinner.raw_data == config.terminal.styles.spinner.raw_data == 'simpleDotsScrolling'
+        )
         assert dict_superset(
             config.raw_data,
             {

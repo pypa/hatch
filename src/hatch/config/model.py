@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from functools import cached_property
 import os
-from typing import Any, Literal
-from hatch.utils.structures import StyleType, PydanticSpinnerType
+from typing import Literal
 
 from platformdirs import user_cache_dir, user_data_dir
-from pydantic import BaseModel, validator
+from pydantic import BaseModel
+
+from hatch.utils.structures import PydanticSpinnerType, StyleType  # noqa: TCH001
 
 
 class ConfigurationError(Exception):
@@ -108,12 +108,12 @@ class TemplateConfig(BaseConfig):
 
 
 class StylesConfig(BaseConfig):
-    info: StyleType    = 'bold'
+    info: StyleType = 'bold'
     success: StyleType = 'bold cyan'
-    error: StyleType   = 'bold red'
+    error: StyleType = 'bold red'
     warning: StyleType = 'bold yellow'
     waiting: StyleType = 'bold magenta'
-    debug: StyleType   = 'bold'
+    debug: StyleType = 'bold'
     spinner: PydanticSpinnerType = 'simpleDotsScrolling'
 
 class TerminalConfig(BaseConfig):

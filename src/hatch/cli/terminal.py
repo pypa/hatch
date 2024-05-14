@@ -8,13 +8,12 @@ from typing import TYPE_CHECKING, Callable
 
 import click
 from rich.console import Console
-from rich.errors import StyleSyntaxError
-from rich.style import Style
+from rich.spinner import Spinner  # noqa: TCH002
+from rich.style import Style  # noqa: TCH002
 from rich.text import Text
-from rich.spinner import Spinner
 
 from hatch.config.model import StylesConfig
-from hatch.utils.structures import SpinnerType, StyleType
+from hatch.utils.structures import StyleType  # noqa: TCH001
 
 if TYPE_CHECKING:
     from rich.status import Status
@@ -182,7 +181,7 @@ class Terminal:
     def style_spinner(self, text: str) -> Text:
         return Text(text, style=self._style_spinner)
 
-    def initialize_styles(self, styles: dict[str, StyleType]):  # no cov
+    def initialize_styles(self, styles: StyleType):  # no cov
         # Lazily display errors so that they use the correct style
         errors = []
 

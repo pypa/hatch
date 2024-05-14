@@ -4,16 +4,15 @@ import os
 from fnmatch import fnmatch
 from typing import TYPE_CHECKING, Any, Self
 
-from pydantic_core import CoreSchema, core_schema
-from rich.style import Style
-from rich.spinner import Spinner
-from typing_extensions import Annotated
-
-from pydantic import (
+from pydantic import (  # noqa: TCH002
     GetCoreSchemaHandler,
     GetJsonSchemaHandler,
 )
-from pydantic.json_schema import JsonSchemaValue
+from pydantic.json_schema import JsonSchemaValue  # noqa: TCH002
+from pydantic_core import CoreSchema, core_schema
+from rich.spinner import Spinner
+from rich.style import Style
+from typing_extensions import Annotated
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -56,7 +55,7 @@ class EnvVars(dict):
 
 class StyleType(Style):
     @classmethod
-    def __get_pydantic_core_schema__(cls, source_type: Any, handler: GetCoreSchemaHandler) -> CoreSchema:
+    def __get_pydantic_core_schema__(cls, source_type: Any, handler: GetCoreSchemaHandler) -> CoreSchema:  # noqa: PLW3201
         return core_schema.no_info_after_validator_function(
             cls.parse,
             core_schema.str_schema(),
@@ -84,7 +83,7 @@ class SpinnerType(Spinner):
 
 class _SpinnerTypePydanticAnnotation:
     @classmethod
-    def __get_pydantic_core_schema__(
+    def __get_pydantic_core_schema__(  # noqa: PLW3201
         cls,
         _source_type: Any,
         _handler: GetCoreSchemaHandler,
@@ -111,7 +110,7 @@ class _SpinnerTypePydanticAnnotation:
         )
 
     @classmethod
-    def __get_pydantic_json_schema__(
+    def __get_pydantic_json_schema__(  # noqa: PLW3201
         cls, _core_schema: core_schema.CoreSchema, handler: GetJsonSchemaHandler
     ) -> JsonSchemaValue:
         # Use the same schema that would be used for `int`
