@@ -86,7 +86,7 @@ jobs:
     - name: Unpack distribution
       run: >-
         docker exec builder
-        tar xzf cpython-${{ env.DIST_PYTHON_VERSION }}+${{ env.DIST_VERSION }}-${{ matrix.job.target }}-install_only.tar.gz
+        tar xzf cpython-${{ env.DIST_PYTHON_VERSION }}+${{ env.DIST_VERSION }}-${{ matrix.job.target-override || matrix.job.target }}-install_only.tar.gz
 
     - name: Install Hatch
       run: >-
