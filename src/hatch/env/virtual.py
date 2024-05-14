@@ -288,6 +288,7 @@ class VirtualEnvironment(EnvironmentInterface):
         python_dirs = [str(dist.python_path.parent) for dist in self.python_manager.get_installed().values()]
         if not python_dirs:
             return env
+
         internal_path = os.pathsep.join(python_dirs)
         old_path = env.pop('PATH', None)
         env['PATH'] = internal_path if old_path is None else f'{old_path}{os.pathsep}{internal_path}'
@@ -363,10 +364,8 @@ class VirtualEnvironment(EnvironmentInterface):
 
         virtualenv_discovery.propose_interpreters = _patched_propose_interpreters
         try:
-            installed_python = self.python_manager.get_installed().get(python_version)
-            try_first_with = (installed_python.python_path,) if installed_python else ()
             python_info = virtualenv_discovery.get_interpreter(
-                python_version, try_first_with, env=self.get_interpreter_resolver_env()
+                python_version, (), env=self.get_interpreter_resolver_env()
             )
             if python_info is not None:
                 return python_info.executable
@@ -379,6 +378,7 @@ class VirtualEnvironment(EnvironmentInterface):
         compatible_distributions = get_compatible_distributions()
         for installed_distribution in self.python_manager.get_installed():
             compatible_distributions.pop(installed_distribution, None)
+
         if not python_version:
             # Only try providing CPython distributions
             available_distributions = [d for d in compatible_distributions if not d.startswith('pypy')]
