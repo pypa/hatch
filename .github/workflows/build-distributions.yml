@@ -110,7 +110,7 @@ jobs:
     - name: Check original size
       run: >-
         docker exec builder
-        ls -lh cpython-${{ env.DIST_PYTHON_VERSION }}+${{ env.DIST_VERSION }}-${{ matrix.job.target }}-install_only.tar.gz
+        ls -lh cpython-${{ env.DIST_PYTHON_VERSION }}+${{ env.DIST_VERSION }}-${{ matrix.job.target-override || matrix.job.target }}-install_only.tar.gz
 
     - name: Check final size
       run: ls -lh hatch-dist-${{ matrix.job.target }}.tar.gz
