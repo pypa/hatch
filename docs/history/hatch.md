@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Added:***
+
+- Upgrade PyApp to 0.20.0 for binary builds
+
 ***Fixed:***
 
 - On Linux, install the highest compatible Python distribution variant based on CPU architecture rather than assuming recent hardware
