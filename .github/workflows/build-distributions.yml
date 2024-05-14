@@ -168,28 +168,3 @@ jobs:
       with:
         name: distribution-${{ matrix.job.target }}
         path: hatch-dist-${{ matrix.job.target }}.tar.gz
-
-  publish:
-    name: Publish distributions
-    if: inputs.version
-    needs:
-    - linux
-    - windows-macos
-    runs-on: ubuntu-latest
-
-    permissions:
-      contents: write
-      id-token: write
-
-    steps:
-    - name: Download distributions
-      uses: actions/download-artifact@v4
-      with:
-        path: distributions
-        merge-multiple: true
-
-    - name: Add assets to current release
-      uses: softprops/action-gh-release@v2
-      with:
-        files: |-
-          distributions/*
