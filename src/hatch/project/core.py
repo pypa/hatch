@@ -156,8 +156,8 @@ class Project:
     def initialize(project_file_path, template_config):
         import tomlkit
 
-        with open(str(project_file_path), encoding='utf-8') as f:
-            raw_config = tomlkit.parse(f.read())
+        with open(project_file_path, encoding='utf-8') as f:
+            raw_config = tomlkit.parse(f.read()).unwrap()
 
         build_system_config = raw_config.setdefault('build-system', {})
 

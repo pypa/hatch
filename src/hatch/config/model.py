@@ -1,12 +1,83 @@
 from __future__ import annotations
 
 import os
-from typing import Literal
+from typing import Any, Literal
 
 from platformdirs import user_cache_dir, user_data_dir
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, computed_field, field_validator, ValidationError
 
-from hatch.utils.structures import PydanticSpinnerType, StyleType  # noqa: TCH001
+from rich.errors import StyleSyntaxError
+from hatch.utils.pydantic import SpinnerType, StyleType, validate_bool, validate_string, validate_string_strict  # noqa: TCH001
+
+from pydantic_core import core_schema
+from rich.spinner import Spinner
+from rich.style import Style
+from typing_extensions import Annotated
+
+from collections.abc import MutableMapping, Mapping
+
+from tomlkit.items import Bool, String, Item
+
+class BaseConfig(
+    BaseModel,
+    # Mapping,
+    MutableMapping,
+    validate_assignment=True,
+    validate_default=True,
+    validate_return=True,
+    extra='allow',
+    strict=True
+):
+    # Class for configurations
+    # @computed_field
+    @property
+    def raw_data(self) -> DeepDict:
+        d: DeepDict = {}
+        for k, v in self.items():
+            if v is not None:
+                if hasattr(v, 'raw_data'):
+                    d[k] = v.raw_data
+                elif isinstance(v, dict):
+                    d[k] = {i: (j.raw_data if hasattr(j, 'raw_data') else j) for i, j in v.items()}
+                elif isinstance(v, list):
+                    d[k] = [(i.raw_data if hasattr(i, 'raw_data') else i) for i in v]
+                else:
+                    d[k] = v
+        return d
+
+    def update(self, **data) -> None:
+        newself = self.model_validate(data, from_attributes=True)
+        for k, v in newself.items():
+            if k not in self:
+                self.__setattr__(k, v)
+
+    def __len__(self) -> int:
+        return self.model_fields_set.__len__()
+
+    def __iter__(self):
+        return (i for i in self.model_dump().keys())
+
+    def __getitem__(self, key: Any) -> Any:
+        try:
+            return self.__getattribute__(key)
+        except AttributeError as e:
+            try:
+                return self.__getattr__(key)
+            except AttributeError as f:
+                raise KeyError(e, f)
+
+
+    # def get(self, key: str, default=None) -> Any:
+    #     try:
+    #         return self.__getitem__(key)
+    #     except (KeyError, AttributeError) as e:
+    #         return default
+
+    def __setitem__(self, key: str, value: Any) -> None:
+        return self.__setattr__(key, value)
+
+    def __delitem__(self, key: str) -> None:
+        return self.__delattr__(key)
 
 
 class ConfigurationError(Exception):
@@ -18,22 +89,6 @@ class ConfigurationError(Exception):
         return f'Error parsing config:\n{self.location}\n  {super().__str__()}'
 
 type DeepDict = dict[str, bool | str | DeepDict]
-
-class BaseConfig(BaseModel, validate_assignment=True, validate_default=True, validate_return=True):
-    @property
-    def raw_data(self) -> DeepDict:
-        d: DeepDict = {}
-        for k, v in self.__dict__.items():
-            if v is not None:
-                if hasattr(v, 'raw_data'):
-                    d[k] = v.raw_data
-                elif isinstance(v, dict):
-                    d[k] = {i: (j.raw_data if hasattr(j, 'raw_data') else j) for i, j in v.items()}
-                elif isinstance(v, list):
-                    d[k] = [(i.raw_data if hasattr(i, 'raw_data') else i) for i in v]
-                else:
-                    d[k] = v
-        return d
 
 
 class DirsConfig(BaseConfig):
@@ -59,6 +114,7 @@ class ShellConfig(BaseConfig):
         if not self.path:
             self.path = self.name
 
+    # @computed_field
     @property
     def raw_data(self) -> DeepDict:
         if not self.args and (self.name == self.path):
@@ -66,55 +122,51 @@ class ShellConfig(BaseConfig):
         return super().raw_data
 
 
-class LicenseConfig(BaseConfig):
-    headers: bool = True
-    default: list[str] = ['MIT']
+class LicenseConfig(BaseConfig, ):
+    headers: bool = Field(default=True)
+    default: list[str] = Field(default=['MIT'])
+
+    _validate_headers = field_validator('headers', mode='before')(validate_bool)
 
 
 class TemplateConfig(BaseConfig):
-    name: str = ''
-    email: str = ''
-    licenses: LicenseConfig = {}
-    plugins: dict[str, dict[str, bool | str]] = {'default': {'ci': False, 'src-layout': True, 'tests': True}}
+    name: str = Field(default='')
+    email: str = Field(default='')
+    licenses: LicenseConfig = Field(default_factory=LicenseConfig)
+    plugins: dict[str, dict[str, bool | str]] = Field(
+        default={'default': {'ci': False, 'src-layout': True, 'tests': True}})
+
+    def _try_git(self, var: str, default: str = ''):
+        attr = f'{var}'
+        try:
+            item = os.getenv(f'GIT_AUTHOR_{var}')
+            setattr(self, attr, item)
+        except (ValidationError, ValueError, TypeError, KeyError) as e:
+            import subprocess
+            try:
+                setattr(
+                    self, attr,
+                    subprocess.check_output(
+                        ['git', 'config', '--get', f'user.{var}']
+                    ).strip().decode()
+                )
+            except:
+                setattr(self, attr, default)
 
     def model_post_init(self, _) -> None:
-        if not self.licenses:
-            self.licenses = LicenseConfig()
-
-        for i in ['name', 'email']:
-            if not getattr(self, i):
-                try:
-                    item = os.getenv(f'GIT_AUTHOR_{i.upper()}')
-                    setattr(self, i, item)
-                except ValueError:  # ValidationError:
-                    try:
-                        _ = subprocess.DEVNULL
-                    except NameError:
-                        import subprocess
-                    try:
-                        setattr(
-                            self,
-                            i,
-                            subprocess.check_output(
-                                ['git', 'config', '--get', f'user.{i}'],  # noqa: S607
-                                text=True,
-                            ).strip(),
-                        )
-                    except Exception:  # noqa: BLE001
-                        if i == 'name':
-                            setattr(self, i, 'U.N. Owen')
-                        else:
-                            setattr(self, i, 'void@some.where')
-
+        for k, v in [('name', 'U.N. Owen'), ('email', 'void@some.where')]:
+            if not getattr(self, k):
+                self._try_git(k, v)
 
 class StylesConfig(BaseConfig):
-    info: StyleType = 'bold'
-    success: StyleType = 'bold cyan'
-    error: StyleType = 'bold red'
-    warning: StyleType = 'bold yellow'
-    waiting: StyleType = 'bold magenta'
-    debug: StyleType = 'bold'
-    spinner: PydanticSpinnerType = 'simpleDotsScrolling'
+    info: StyleType      = Field('bold')
+    success: StyleType   = Field('bold cyan')
+    error: StyleType     = Field('bold red')
+    warning: StyleType   = Field('bold yellow')
+    waiting: StyleType   = Field('bold magenta')
+    debug: StyleType     = Field('bold')
+    spinner: SpinnerType = Field('simpleDotsScrolling')
+
 
 class TerminalConfig(BaseConfig):
     styles: StylesConfig = {}
@@ -125,22 +177,45 @@ class TerminalConfig(BaseConfig):
 
 
 class ProjectConfig(BaseConfig):
-    location: str
+    location: str = Field(default='')
 
     @property
     def raw_data(self) -> str:
         return self.location
 
 
+class PluginConfig(BaseConfig):
+    pass
+
+
 class RootConfig(BaseConfig):
-    dirs: DirsConfig = {}
-    mode: Literal['local', 'aware', 'project'] = 'local'
-    project: str = ''
-    projects: dict[str, ProjectConfig | str] = {}
+    dirs: DirsConfig = Field(default_factory=DirsConfig)
+    mode: Literal['local', 'aware', 'project'] = Field(default='local')
+    project: str = Field(default='')
+    projects: dict[str, ProjectConfig] = Field(default_factory=dict)
     publish: dict[str, dict[str, str]] = {'index': {'repo': 'main'}}
-    shell: str | ShellConfig = ''
-    template: TemplateConfig = {}
-    terminal: TerminalConfig = {}
+    shell: str | ShellConfig = Field(default='')
+    template: TemplateConfig = Field(default_factory=TemplateConfig)
+    terminal: TerminalConfig = Field(default_factory=TerminalConfig)
+
+    _normalize_strings = field_validator('mode', 'project', mode='before')(validate_string_strict)
+
+    @field_validator('projects', mode='before')
+    @classmethod
+    def _fixup_projects(cls, projs: dict[str, ProjectConfig | str]) -> dict[str, ProjectConfig]:
+        if not isinstance(projs, dict):
+            raise TypeError(f'Projects ({projs!r}) is not a dictionary.')
+        if not projs:
+            return {}
+        r: dict[str, ProjectConfig] = dict()
+        for k, v in projs.items():
+            if not v:
+                raise TypeError(f'Project {k} has no location ({v!r})')
+            if isinstance(v, str):
+                r[k] = ProjectConfig(location=v)
+            else:
+                r[k] = v
+        return r
 
     def model_post_init(self, _) -> None:
         if not self.template:
@@ -149,7 +224,6 @@ class RootConfig(BaseConfig):
             self.terminal = TerminalConfig()
         if not self.dirs:
             self.dirs = DirsConfig()
-        self.projects = {k: (ProjectConfig(location=v) if isinstance(v, str) else v) for k, v in self.projects.items()}
 
         if isinstance(self.shell, str):
             self.shell = ShellConfig(name=self.shell)

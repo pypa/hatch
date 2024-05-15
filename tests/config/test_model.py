@@ -3,7 +3,7 @@ import subprocess
 import pytest
 from pydantic import ValidationError
 
-from hatch.config.model import RootConfig
+from hatch.config.model import RootConfig, TemplateConfig
 
 
 def dict_subset(d1: dict, d2: dict) -> bool:
@@ -79,7 +79,7 @@ class TestMode:
         assert dict_superset(config.raw_data, {'mode': 'aware'})
 
     def test_not_string(self):
-        with pytest.raises(ValidationError):
+        with pytest.raises(TypeError):
             RootConfig(mode=9000)
 
     def test_unknown(self):
@@ -88,7 +88,7 @@ class TestMode:
 
     def test_set_error(self):
         config = RootConfig()
-        with pytest.raises(ValidationError):
+        with pytest.raises(TypeError):
             config.mode = 9000
 
 
@@ -106,13 +106,13 @@ class TestProject:
         assert dict_superset(config.raw_data, {'project': 'foo'})
 
     def test_not_string(self):
-        with pytest.raises(ValidationError):
+        with pytest.raises(TypeError):
             RootConfig(project=9000)
 
     def test_set_error(self):
         config = RootConfig()
 
-        with pytest.raises(ValidationError):
+        with pytest.raises(TypeError):
             config.project = 9000
 
 
@@ -330,13 +330,13 @@ class TestProjects:
         assert dict_superset(config.raw_data, {'projects': {}})
 
     def test_not_table(self):
-        with pytest.raises(ValidationError):
+        with pytest.raises(TypeError):
             RootConfig(projects=9000)
 
     def test_set_error(self):
         config = RootConfig()
 
-        with pytest.raises(ValidationError):
+        with pytest.raises(TypeError):
             config.projects = 9000
 
     def test_entry_invalid_type(self):
@@ -358,7 +358,7 @@ class TestProjects:
         assert config.raw_data.items() >= {'projects': {'foo': 'bar'}}.items()
 
     def test_table_no_location(self):
-        with pytest.raises(ValidationError):
+        with pytest.raises(TypeError):
             RootConfig(projects={'foo': {}})
 
     def test_location_not_string(self):
@@ -424,10 +424,11 @@ class TestTemplate:
         assert config.template.name == 'Foo Bar'
         assert dict_superset(config.raw_data, {'template': {'name': 'Foo Bar'}})
 
-    def test_name_default_git(self, temp_dir):
+    def test_name_default_git(self, temp_dir, monkeypatch):
         with temp_dir.as_cwd(exclude=['GIT_AUTHOR_NAME']):
             subprocess.check_output(['git', 'init'])
             subprocess.check_output(['git', 'config', '--local', 'user.name', 'test'])
+            print(subprocess.check_output(['git', 'var', '-l']).splitlines())
 
             config = RootConfig()
 
@@ -435,7 +436,7 @@ class TestTemplate:
             assert dict_superset(config.raw_data, {'template': {'name': 'test'}})
 
     def test_name_default_no_git(self, temp_dir, monkeypatch):
-        monkeypatch.delenv('GIT_AUTHOR_NAME')
+        monkeypatch.delenv('GIT_AUTHOR_NAME', raising=False)
         monkeypatch.setenv('HOME', '.')
         config = RootConfig()
 
@@ -521,13 +522,13 @@ class TestTemplate:
         )
 
     def test_licenses_headers_not_boolean(self):
-        with pytest.raises(ValidationError):
+        with pytest.raises(TypeError):
             RootConfig(template={'licenses': {'headers': 9000}})
 
     def test_licenses_headers_set_error(self):
         config = RootConfig()
 
-        with pytest.raises(ValidationError):
+        with pytest.raises(TypeError):
             config.template.licenses.headers = 9000
 
     def test_licenses_default(self):
@@ -646,13 +647,13 @@ class TestTerminal:
         assert dict_superset(config.raw_data, {'terminal': {'styles': {'info': 'bold magenta'}}})
 
     def test_styles_info_not_string(self):
-        with pytest.raises(ValidationError):
+        with pytest.raises(TypeError):
             RootConfig(terminal={'styles': {'info': 9000}})
 
     def test_styles_info_set_error(self):
         config = RootConfig()
 
-        with pytest.raises(ValidationError):
+        with pytest.raises(TypeError):
             config.terminal.styles.info = 9000
 
     def test_styles_success(self):
@@ -662,13 +663,13 @@ class TestTerminal:
         assert dict_superset(config.raw_data, {'terminal': {'styles': {'success': 'italic blue'}}})
 
     def test_styles_success_not_string(self):
-        with pytest.raises(ValidationError):
+        with pytest.raises(TypeError):
             RootConfig(terminal={'styles': {'success': 9000}})
 
     def test_styles_success_set_error(self):
         config = RootConfig()
 
-        with pytest.raises(ValidationError):
+        with pytest.raises(TypeError):
             config.terminal.styles.success = 9000
 
     def test_styles_error(self):
@@ -678,13 +679,13 @@ class TestTerminal:
         assert dict_superset(config.raw_data, {'terminal': {'styles': {'error': 'green'}}})
 
     def test_styles_error_not_string(self):
-        with pytest.raises(ValidationError):
+        with pytest.raises(TypeError):
             RootConfig(terminal={'styles': {'error': 9000}})
 
     def test_styles_error_set_error(self):
         config = RootConfig()
 
-        with pytest.raises(ValidationError):
+        with pytest.raises(TypeError):
             config.terminal.styles.error = 9000
 
     def test_styles_warning(self):
@@ -694,13 +695,13 @@ class TestTerminal:
         assert dict_superset(config.raw_data, {'terminal': {'styles': {'warning': 'yellow'}}})
 
     def test_styles_warning_not_string(self):
-        with pytest.raises(ValidationError):
+        with pytest.raises(TypeError):
             RootConfig(terminal={'styles': {'warning': 9000}})
 
     def test_styles_warning_set_error(self):
         config = RootConfig()
 
-        with pytest.raises(ValidationError):
+        with pytest.raises(TypeError):
             config.terminal.styles.warning = 9000
 
     def test_styles_waiting(self):
@@ -711,13 +712,13 @@ class TestTerminal:
         assert dict_superset(config.raw_data, {'terminal': {'styles': {'waiting': s}}})
 
     def test_styles_waiting_not_string(self):
-        with pytest.raises(ValidationError):
+        with pytest.raises(TypeError):
             RootConfig(terminal={'styles': {'waiting': 9000}})
 
     def test_styles_waiting_set_error(self):
         config = RootConfig()
 
-        with pytest.raises(ValidationError):
+        with pytest.raises(TypeError):
             config.terminal.styles.waiting = 9000
 
     def test_styles_debug(self):
@@ -727,13 +728,13 @@ class TestTerminal:
         assert dict_superset(config.raw_data, {'terminal': {'styles': {'debug': 'dim white'}}})
 
     def test_styles_debug_not_string(self):
-        with pytest.raises(ValidationError):
+        with pytest.raises(TypeError):
             RootConfig(terminal={'styles': {'debug': 9000}})
 
     def test_styles_debug_set_error(self):
         config = RootConfig()
 
-        with pytest.raises(ValidationError):
+        with pytest.raises(TypeError):
             config.terminal.styles.debug = 9000
 
     def test_styles_spinner(self):
@@ -743,11 +744,11 @@ class TestTerminal:
         assert dict_superset(config.raw_data, {'terminal': {'styles': {'spinner': 'dots3'}}})
 
     def test_styles_spinner_not_string(self):
-        with pytest.raises(ValidationError):
+        with pytest.raises(TypeError):
             RootConfig(terminal={'styles': {'spinner': 9000}})
 
     def test_styles_spinner_set_error(self):
         config = RootConfig()
 
-        with pytest.raises(ValidationError):
+        with pytest.raises(TypeError):
             config.terminal.styles.spinner = 9000

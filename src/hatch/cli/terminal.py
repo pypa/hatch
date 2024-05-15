@@ -13,7 +13,7 @@ from rich.style import Style  # noqa: TCH002
 from rich.text import Text
 
 from hatch.config.model import StylesConfig
-from hatch.utils.structures import StyleType  # noqa: TCH001
+from hatch.utils.pydantic import StyleType  # noqa: TCH001
 
 if TYPE_CHECKING:
     from rich.status import Status
@@ -153,7 +153,7 @@ class Terminal:
         self._defaults: StylesConfig = StylesConfig()
         # Set defaults so we can pretty print before loading user config. These should all be 100%
         # type correct as they're coming from a pydantic class
-        for st, _ in self._defaults:
+        for st, _ in self._defaults.items():
             setattr(self, f'_style_{st}', getattr(self._defaults, st))
 
     @cached_property
@@ -185,7 +185,7 @@ class Terminal:
         # Lazily display errors so that they use the correct style
         errors = []
 
-        for option, style in styles:
+        for option, style in styles.items():
             attribute = f'_style_{option}'
 
             default_level = getattr(self, attribute, None)

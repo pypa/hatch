@@ -119,9 +119,10 @@ def test_prevent_invalid_config(hatch, config_file, helpers):
     assert result.exit_code == 1
     assert result.output == helpers.dedent(
         """
-        Error parsing config:
+        1 validation error for RootConfig
         mode
-          must be one of: aware, local, project
+          Input should be 'local', 'aware' or 'project' [type=literal_error, input_value='foo', input_type=str]
+            For further information visit https://errors.pydantic.dev/2.7/v/literal_error
         """
     )
 
