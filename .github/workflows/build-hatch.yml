@@ -127,7 +127,7 @@ jobs:
       CARGO: cargo
       CARGO_BUILD_TARGET: ${{ matrix.job.target }}
       PYAPP_REPO: pyapp
-      PYAPP_VERSION: "0.20.1"
+      PYAPP_VERSION: "0.21.0"
       PYAPP_UV_ENABLED: "true"
       PYAPP_PASS_LOCATION: "true"
 
@@ -197,7 +197,8 @@ jobs:
         echo "PYAPP_SKIP_INSTALL=true" >> $GITHUB_ENV
         echo "PYAPP_FULL_ISOLATION=true" >> $GITHUB_ENV
         echo "PYAPP_DISTRIBUTION_SOURCE=${{ env.DIST_URL }}/hatch-v${{ needs.python-artifacts.outputs.version }}/hatch-dist-${{ matrix.job.target }}.tar.gz" >> $GITHUB_ENV
-        echo "PYAPP_DISTRIBUTION_PYTHON_PATH=${{ startsWith(matrix.job.os, 'windows-') && 'python\\python.exe' || 'python/bin/python3' }}" >> $GITHUB_ENV
+        echo "PYAPP_DISTRIBUTION_PATH_PREFIX=python" >> $GITHUB_ENV
+        echo "PYAPP_ALLOW_UPDATES=true" >> $GITHUB_ENV
 
         # Disable in the case of self updates
         echo "PYAPP_UV_ENABLED=false" >> $GITHUB_ENV
