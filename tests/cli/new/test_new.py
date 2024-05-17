@@ -1,6 +1,7 @@
 import pytest
 
 from hatch.config.constants import ConfigEnvVars
+from hatch.template import File
 
 
 def remove_trailing_spaces(text):
@@ -99,6 +100,35 @@ def test_default_explicit_path(hatch, helpers, temp_dir):
         └── __init__.py
         LICENSE.txt
         README.md
+        pyproject.toml
+        """
+    )
+
+
+def test_default_explicit_path_forced(hatch, helpers, temp_dir):
+    project_name = 'My.App'
+
+    with temp_dir.as_cwd():
+        path = temp_dir / 'foo'
+        path.touch()
+
+        result = hatch('new', project_name, '.', '-f')
+
+    expected_files = [*helpers.get_template_files('new.default', project_name), File('foo')]
+    helpers.assert_files(temp_dir, expected_files)
+
+    assert result.exit_code == 0, result.output
+    assert remove_trailing_spaces(result.output) == helpers.dedent(
+        """
+        src
+        └── my_app
+            ├── __about__.py
+            └── __init__.py
+        tests
+        └── __init__.py
+        LICENSE.txt
+        README.md
+        foo
         pyproject.toml
         """
     )
