@@ -55,7 +55,7 @@ class CodeSource(VersionSourceInterface):
             sys.path[:] = old_search_paths
 
         # Execute the expression to determine the version
-        version = eval(expression, vars(module))  # noqa: PGH001, S307
+        version = eval(expression, vars(module))  # noqa: S307
 
         return {'version': version}
 
