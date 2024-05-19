@@ -94,6 +94,11 @@ jobs:
         /home/python/bin/python -m pip install
         ${{ inputs.version && format('hatch=={0}', inputs.version) || '/home/hatch' }}
 
+    - name: Make scripts portable
+      run: >-
+        docker exec builder
+        /home/python/bin/python /home/hatch/release/unix/make_scripts_portable.py
+
     - name: Strip debug symbols
       run: >-
         docker exec builder
@@ -154,6 +159,10 @@ jobs:
         ${{ startsWith(matrix.job.os, 'windows-') && '.\\python\\python.exe' || './python/bin/python' }}
         -m pip install
         ${{ inputs.version && format('hatch=={0}', inputs.version) || '.' }}
+
+    - name: Make scripts portable
+      if: startsWith(matrix.job.os, 'macos-')
+      run: ./python/bin/python release/unix/make_scripts_portable.py
 
     - name: Strip debug symbols
       if: startsWith(matrix.job.os, 'macos-')
