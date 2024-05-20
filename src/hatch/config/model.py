@@ -92,11 +92,11 @@ type DeepDict = dict[str, bool | str | DeepDict]
 
 
 class DirsConfig(BaseConfig):
-    python: str = 'isolated'
-    cache: str = ''
-    data: str = ''
-    env: dict[str, str] = {}
     project: str | list[str] = []
+    python: str = 'isolated'
+    data: str = ''
+    cache: str = ''
+    env: dict[str, str] = {}
 
     def model_post_init(self, _) -> None:
         if not self.cache:
@@ -133,8 +133,8 @@ class TemplateConfig(BaseConfig):
     name: str = Field(default='')
     email: str = Field(default='')
     licenses: LicenseConfig = Field(default_factory=LicenseConfig)
-    plugins: dict[str, dict[str, bool | str]] = Field(
-        default={'default': {'ci': False, 'src-layout': True, 'tests': True}})
+    plugins: dict[str, dict[str, bool | str | dict[str, str]]] = Field(
+        default={'default': {'tests': True, 'ci': False, 'src-layout': True}})
 
     def _try_git(self, var: str, default: str = ''):
         attr = f'{var}'

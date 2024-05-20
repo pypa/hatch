@@ -42,7 +42,7 @@ class ConfigFile:
         import tomli_w
 
         config = RootConfig(**load_toml_data(self.read()))
-        config.raw_data.pop('publish', None)
+        del config.publish
         return tomli_w.dumps(config.raw_data)
 
     def restore(self):
