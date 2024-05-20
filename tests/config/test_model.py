@@ -5,78 +5,70 @@ from pydantic import ValidationError
 
 from hatch.config.model import RootConfig, TemplateConfig
 
+def deep_superset(d1: dict, d2: dict) -> dict:
+    rd = dict()
+    for k, v in (d1 | d2).items():
+        if isinstance(v, dict):
+            rd[k] = deep_superset(d1.get(k), v)
+        else:
+            rd[k] = v
+    return rd
 
-def dict_subset(d1: dict, d2: dict) -> bool:
-    if len(d1) > len(d2):
-        return False
-    d = []
-    for k in d2:
-        if d1.get(k):
-            if isinstance(d1.get(k), dict) and (isinstance(d2.get(k), dict)):
-                dict_subset(d1.get(k), d2.get(k))
-            else:
-                d.append(d1.get(k) == d2.get(k))
-    return all(d)
+def assert_deep_superset(d1: dict, d2: dict) -> bool:
+    assert d1 == deep_superset(d1, d2)
 
+class TestDefault:
+    def test_default(self, default_data_dir, default_cache_dir, monkeypatch):
+        monkeypatch.setenv('GIT_AUTHOR_NAME', 'Foo Bar')
+        monkeypatch.setenv('GIT_AUTHOR_EMAIL', 'foo@bar.baz')
+        config = RootConfig()
 
-def dict_superset(d1: dict, d2: dict) -> bool:
-    return dict_subset(d2, d1)
-
-
-def test_default(default_cache_dir, default_data_dir, monkeypatch):
-    monkeypatch.setenv('GIT_AUTHOR_NAME', 'Foo Bar')
-    monkeypatch.setenv('GIT_AUTHOR_EMAIL', 'foo@bar.baz')
-    config = RootConfig()
-
-    default_config = {
-        'mode': 'local',
-        'project': '',
-        'shell': '',
-        'dirs': {
-            'project': [],
-            'env': {},
-            'python': 'isolated',
-            'data': str(default_data_dir),
-            'cache': str(default_cache_dir),
-        },
-        'projects': {},
-        'publish': {'index': {'repo': 'main'}},
-        'template': {
-            'name': 'Foo Bar',
-            'email': 'foo@bar.baz',
-            'licenses': {'default': ['MIT'], 'headers': True},
-            'plugins': {'default': {'ci': False, 'src-layout': True, 'tests': True}},
-        },
-        'terminal': {
-            'styles': {
-                'info': 'bold',
-                'success': 'bold cyan',
-                'error': 'bold red',
-                'warning': 'bold yellow',
-                'waiting': 'bold magenta',
-                'debug': 'bold',
-                'spinner': 'simpleDotsScrolling',
+        default_config = {
+            'mode': 'local',
+            'project': '',
+            'shell': '',
+            'dirs': {
+                'project': [],
+                'env': {},
+                'python': 'isolated',
+                'data': str(default_data_dir),
+                'cache': str(default_cache_dir),
             },
-        },
-    }
+            'projects': {},
+            'publish': {'index': {'repo': 'main'}},
+            'template': {
+                'name': 'Foo Bar',
+                'email': 'foo@bar.baz',
+                'licenses': {'default': ['MIT'], 'headers': True},
+                'plugins': {'default': {'ci': False, 'src-layout': True, 'tests': True}},
+            },
+            'terminal': {
+                'styles': {
+                    'info': 'bold',
+                    'success': 'bold cyan',
+                    'error': 'bold red',
+                    'warning': 'bold yellow',
+                    'waiting': 'bold magenta',
+                    'debug': 'bold',
+                    'spinner': 'simpleDotsScrolling',
+                },
+            },
+        }
 
-    assert dict_subset(default_config, config.raw_data)
-    assert dict_superset(default_config, config.raw_data)
-    assert default_config == config.raw_data
-
+        assert_deep_superset(default_config, config.raw_data)
 
 class TestMode:
     def test_default(self):
         config = RootConfig()
 
-        assert config.mode == config.mode == 'local'
-        assert dict_superset(config.raw_data, {'mode': 'local'})
+        assert config.mode == 'local'
+        assert_deep_superset(config.raw_data, {'mode': 'local'})
 
     def test_defined(self):
         config = RootConfig(mode='aware')
 
         assert config.mode == 'aware'
-        assert dict_superset(config.raw_data, {'mode': 'aware'})
+        assert_deep_superset(config.raw_data, {'mode': 'aware'})
 
     def test_not_string(self):
         with pytest.raises(TypeError):
@@ -97,13 +89,13 @@ class TestProject:
         config = RootConfig()
 
         assert config.project == config.project == ''
-        assert dict_superset(config.raw_data, {'project': ''})
+        assert_deep_superset(config.raw_data, {'project': ''})
 
     def test_defined(self):
         config = RootConfig(project='foo')
 
         assert config.project == 'foo'
-        assert dict_superset(config.raw_data, {'project': 'foo'})
+        assert_deep_superset(config.raw_data, {'project': 'foo'})
 
     def test_not_string(self):
         with pytest.raises(TypeError):
@@ -123,7 +115,7 @@ class TestShell:
         assert config.shell.name == config.shell.name == ''
         assert config.shell.path == config.shell.path == ''
         assert config.shell.args == config.shell.args == []
-        assert dict_superset(config.raw_data, {'shell': ''})
+        assert_deep_superset(config.raw_data, {'shell': ''})
 
     def test_invalid_type(self):
         with pytest.raises(ValidationError):
@@ -135,7 +127,7 @@ class TestShell:
         assert config.shell.name == 'foo'
         assert config.shell.path == 'foo'
         assert config.shell.args == []
-        assert dict_superset(config.raw_data, {'shell': 'foo'})
+        assert_deep_superset(config.raw_data, {'shell': 'foo'})
 
     def test_table(self):
         config = RootConfig(shell={'name': 'foo'})
@@ -239,7 +231,7 @@ class TestDirs:
         config = RootConfig(dirs={'project': ['foo']})
 
         assert config.dirs.project == ['foo']
-        assert dict_superset(config.raw_data, {'dirs': {'project': ['foo']}})
+        assert_deep_superset(config.raw_data, {'dirs': {'project': ['foo']}})
 
     def test_project_not_array(self):
         with pytest.raises(ValidationError):
@@ -258,7 +250,7 @@ class TestDirs:
         config = RootConfig(dirs={'env': {'foo': 'bar'}})
 
         assert config.dirs.env == {'foo': 'bar'}
-        assert dict_superset(config.raw_data, {'env': {'foo': 'bar'}})
+        assert_deep_superset(config.raw_data, {'dirs': {'env': {'foo': 'bar'}}})
 
     def test_env_not_table(self):
         with pytest.raises(ValidationError):
@@ -277,7 +269,7 @@ class TestDirs:
         config = RootConfig(dirs={'python': 'foo'})
 
         assert config.dirs.python == 'foo'
-        assert dict_superset(config.raw_data, {'dirs': {'python': 'foo'}})
+        assert_deep_superset(config.raw_data, {'dirs': {'python': 'foo'}})
 
     def test_python_not_string(self):
         with pytest.raises(ValidationError):
@@ -293,7 +285,7 @@ class TestDirs:
         config = RootConfig(dirs={'data': 'foo'})
 
         assert config.dirs.data == 'foo'
-        assert dict_superset(config.raw_data, {'dirs': {'data': 'foo'}})
+        assert_deep_superset(config.raw_data, {'dirs': {'data': 'foo'}})
 
     def test_data_not_string(self):
         with pytest.raises(ValidationError):
@@ -309,7 +301,7 @@ class TestDirs:
         config = RootConfig(dirs={'cache': 'foo'})
 
         assert config.dirs.cache == 'foo'
-        assert dict_superset(config.raw_data, {'dirs': {'cache': 'foo'}})
+        assert_deep_superset(config.raw_data, {'dirs': {'cache': 'foo'}})
 
     def test_cache_not_string(self):
         with pytest.raises(ValidationError):
@@ -327,7 +319,7 @@ class TestProjects:
         config = RootConfig()
 
         assert config.projects == config.projects == {}
-        assert dict_superset(config.raw_data, {'projects': {}})
+        assert_deep_superset(config.raw_data, {'projects': {}})
 
     def test_not_table(self):
         with pytest.raises(TypeError):
@@ -348,7 +340,7 @@ class TestProjects:
 
         project = config.projects['foo']
         assert project.location == project.location == 'bar'
-        assert dict_superset(config.raw_data, {'projects': {'foo': 'bar'}})
+        assert_deep_superset(config.raw_data, {'projects': {'foo': 'bar'}})
 
     def test_table(self):
         config = RootConfig(projects={'foo': {'location': 'bar'}})
@@ -416,13 +408,13 @@ class TestTemplate:
         config = RootConfig(template={'name': 'foo'})
 
         assert config.template.name == config.template.name == 'foo'
-        assert dict_superset(config.raw_data, {'template': {'name': 'foo'}})
+        assert_deep_superset(config.raw_data, {'template': {'name': 'foo'}})
 
     def test_name_default_env_var(self):
         config = RootConfig()
 
         assert config.template.name == 'Foo Bar'
-        assert dict_superset(config.raw_data, {'template': {'name': 'Foo Bar'}})
+        assert_deep_superset(config.raw_data, {'template': {'name': 'Foo Bar'}})
 
     def test_name_default_git(self, temp_dir, monkeypatch):
         with temp_dir.as_cwd(exclude=['GIT_AUTHOR_NAME']):
@@ -433,7 +425,7 @@ class TestTemplate:
             config = RootConfig()
 
             assert config.template.name == 'test'
-            assert dict_superset(config.raw_data, {'template': {'name': 'test'}})
+            assert_deep_superset(config.raw_data, {'template': {'name': 'test'}})
 
     def test_name_default_no_git(self, temp_dir, monkeypatch):
         monkeypatch.delenv('GIT_AUTHOR_NAME', raising=False)
@@ -442,7 +434,7 @@ class TestTemplate:
 
         with temp_dir.as_cwd(exclude=['*']):
             assert config.template.name == 'U.N. Owen'
-            assert dict_superset(config.raw_data, {'template': {'name': 'U.N. Owen'}})
+            assert_deep_superset(config.raw_data, {'template': {'name': 'U.N. Owen'}})
 
     def test_name_not_string(self):
         with pytest.raises(ValidationError):
@@ -458,14 +450,14 @@ class TestTemplate:
         config = RootConfig(template={'email': 'foo'})
 
         assert config.template.email == config.template.email == 'foo'
-        assert dict_superset(config.raw_data, {'template': {'email': 'foo'}})
+        assert_deep_superset(config.raw_data, {'template': {'email': 'foo'}})
 
     def test_email_default_env_var(self, monkeypatch):
         monkeypatch.setenv('GIT_AUTHOR_EMAIL', 'foo@bar.baz')
         config = RootConfig()
 
         assert config.template.email == 'foo@bar.baz'
-        assert dict_superset(config.raw_data, {'template': {'email': 'foo@bar.baz'}})
+        assert_deep_superset(config.raw_data, {'template': {'email': 'foo@bar.baz'}})
 
     def test_email_default_git(self, temp_dir):
         with temp_dir.as_cwd(exclude=['GIT_AUTHOR_EMAIL']):
@@ -475,7 +467,7 @@ class TestTemplate:
             config = RootConfig()
 
             assert config.template.email == 'test'
-            assert dict_superset(config.raw_data, {'template': {'email': 'test'}})
+            assert_deep_superset(config.raw_data, {'template': {'email': 'test'}})
 
     def test_email_default_no_git(self, temp_dir, monkeypatch):
         monkeypatch.delenv('GIT_AUTHOR_EMAIL')
@@ -484,7 +476,7 @@ class TestTemplate:
 
         with temp_dir.as_cwd(exclude=['*']):
             assert config.template.email == 'void@some.where'
-            assert dict_superset(config.raw_data, {'template': {'email': 'void@some.where'}})
+            assert_deep_superset(config.raw_data, {'template': {'email': 'void@some.where'}})
 
     def test_email_not_string(self):
         with pytest.raises(ValidationError):
@@ -510,13 +502,13 @@ class TestTemplate:
         config = RootConfig(template={'licenses': {'headers': False}})
 
         assert config.template.licenses.headers is config.template.licenses.headers is False
-        assert dict_superset(config.raw_data, {'template': {'licenses': {'headers': False}}})
+        assert_deep_superset(config.raw_data, {'template': {'licenses': {'headers': False}}})
 
     def test_licenses_headers_default(self):
         config = RootConfig()
 
         assert config.template.licenses.headers is config.template.licenses.headers is True
-        assert dict_superset(
+        assert_deep_superset(
             config.raw_data,
             {'template': {'licenses': {'headers': True, 'default': ['MIT']}}},
         )
@@ -535,7 +527,7 @@ class TestTemplate:
         config = RootConfig(template={'licenses': {'default': ['Apache-2.0', 'MIT']}})
 
         assert config.template.licenses.default == config.template.licenses.default == ['Apache-2.0', 'MIT']
-        assert dict_superset(
+        assert_deep_superset(
             config.raw_data,
             {'template': {'licenses': {'default': ['Apache-2.0', 'MIT']}}},
         )
@@ -544,7 +536,7 @@ class TestTemplate:
         config = RootConfig()
 
         assert config.template.licenses.default == ['MIT']
-        assert dict_superset(config.raw_data, {'template': {'licenses': {'default': ['MIT']}}})
+        assert_deep_superset(config.raw_data, {'template': {'licenses': {'default': ['MIT']}}})
 
     def test_licenses_default_not_array(self):
         with pytest.raises(ValidationError):
@@ -564,13 +556,13 @@ class TestTemplate:
         config = RootConfig(template={'plugins': {'foo': {'bar': 'baz'}}})
 
         assert config.template.plugins == config.template.plugins == {'foo': {'bar': 'baz'}}
-        assert dict_superset(config.raw_data, {'template': {'plugins': {'foo': {'bar': 'baz'}}}})
+        assert_deep_superset(config.raw_data, {'template': {'plugins': {'foo': {'bar': 'baz'}}}})
 
     def test_plugins_default(self):
         config = RootConfig()
 
         assert config.template.plugins == {'default': {'ci': False, 'src-layout': True, 'tests': True}}
-        assert dict_superset(
+        assert_deep_superset(
             config.raw_data,
             {'template': {'plugins': {'default': {'ci': False, 'src-layout': True, 'tests': True}}}},
         )
@@ -603,7 +595,7 @@ class TestTerminal:
         assert (
             config.terminal.styles.spinner.raw_data == config.terminal.styles.spinner.raw_data == 'simpleDotsScrolling'
         )
-        assert dict_superset(
+        assert_deep_superset(
             config.raw_data,
             {
                 'terminal': {
@@ -644,7 +636,7 @@ class TestTerminal:
         config = RootConfig(terminal={'styles': {'info': 'bold magenta'}})
 
         assert config.terminal.styles.info.raw_data == 'bold magenta'
-        assert dict_superset(config.raw_data, {'terminal': {'styles': {'info': 'bold magenta'}}})
+        assert_deep_superset(config.raw_data, {'terminal': {'styles': {'info': 'bold magenta'}}})
 
     def test_styles_info_not_string(self):
         with pytest.raises(TypeError):
@@ -660,7 +652,7 @@ class TestTerminal:
         config = RootConfig(terminal={'styles': {'success': 'italic blue'}})
 
         assert config.terminal.styles.success.raw_data == 'italic blue'
-        assert dict_superset(config.raw_data, {'terminal': {'styles': {'success': 'italic blue'}}})
+        assert_deep_superset(config.raw_data, {'terminal': {'styles': {'success': 'italic blue'}}})
 
     def test_styles_success_not_string(self):
         with pytest.raises(TypeError):
@@ -676,7 +668,7 @@ class TestTerminal:
         config = RootConfig(terminal={'styles': {'error': 'green'}})
 
         assert config.terminal.styles.error.raw_data == 'green'
-        assert dict_superset(config.raw_data, {'terminal': {'styles': {'error': 'green'}}})
+        assert_deep_superset(config.raw_data, {'terminal': {'styles': {'error': 'green'}}})
 
     def test_styles_error_not_string(self):
         with pytest.raises(TypeError):
@@ -692,7 +684,7 @@ class TestTerminal:
         config = RootConfig(terminal={'styles': {'warning': 'yellow'}})
 
         assert config.terminal.styles.warning.raw_data == 'yellow'
-        assert dict_superset(config.raw_data, {'terminal': {'styles': {'warning': 'yellow'}}})
+        assert_deep_superset(config.raw_data, {'terminal': {'styles': {'warning': 'yellow'}}})
 
     def test_styles_warning_not_string(self):
         with pytest.raises(TypeError):
@@ -709,7 +701,7 @@ class TestTerminal:
         config = RootConfig(terminal={'styles': {'waiting': s}})
 
         assert config.terminal.styles.waiting.raw_data == s
-        assert dict_superset(config.raw_data, {'terminal': {'styles': {'waiting': s}}})
+        assert_deep_superset(config.raw_data, {'terminal': {'styles': {'waiting': s}}})
 
     def test_styles_waiting_not_string(self):
         with pytest.raises(TypeError):
@@ -725,7 +717,7 @@ class TestTerminal:
         config = RootConfig(terminal={'styles': {'debug': 'dim white'}})
 
         assert config.terminal.styles.debug.raw_data == 'dim white'
-        assert dict_superset(config.raw_data, {'terminal': {'styles': {'debug': 'dim white'}}})
+        assert_deep_superset(config.raw_data, {'terminal': {'styles': {'debug': 'dim white'}}})
 
     def test_styles_debug_not_string(self):
         with pytest.raises(TypeError):
@@ -741,7 +733,7 @@ class TestTerminal:
         config = RootConfig(terminal={'styles': {'spinner': 'dots3'}})
 
         assert config.terminal.styles.spinner.raw_data == 'dots3'
-        assert dict_superset(config.raw_data, {'terminal': {'styles': {'spinner': 'dots3'}}})
+        assert_deep_superset(config.raw_data, {'terminal': {'styles': {'spinner': 'dots3'}}})
 
     def test_styles_spinner_not_string(self):
         with pytest.raises(TypeError):
