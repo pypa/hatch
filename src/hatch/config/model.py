@@ -120,9 +120,7 @@ class ShellConfig(BaseConfig):
         return super().raw_data
 
 
-class LicenseConfig(
-    BaseConfig,
-):
+class LicenseConfig(BaseConfig):
     headers: bool = Field(default=True)
     default: list[str] = Field(default=['MIT'])
 
