@@ -1,22 +1,20 @@
 from __future__ import annotations
 
 import os
+from collections.abc import MutableMapping
+from subprocess import CalledProcessError
 from typing import Any, Literal
 
 from platformdirs import user_cache_dir, user_data_dir
-from pydantic import BaseModel, Field, computed_field, field_validator, ValidationError
+from pydantic import BaseModel, Field, ValidationError, field_validator
 
-from rich.errors import StyleSyntaxError
-from hatch.utils.pydantic import SpinnerType, StyleType, validate_bool, validate_string, validate_string_strict  # noqa: TCH001
+from hatch.utils.pydantic import (
+    SpinnerType,
+    StyleType,
+    validate_bool,
+    validate_string_strict,
+)
 
-from pydantic_core import core_schema
-from rich.spinner import Spinner
-from rich.style import Style
-from typing_extensions import Annotated
-
-from collections.abc import MutableMapping, Mapping
-
-from tomlkit.items import Bool, String, Item
 
 class BaseConfig(
     BaseModel,
@@ -26,7 +24,7 @@ class BaseConfig(
     validate_default=True,
     validate_return=True,
     extra='allow',
-    strict=True
+    strict=True,
 ):
     # Class for configurations
     # @computed_field
@@ -49,23 +47,22 @@ class BaseConfig(
         newself = self.model_validate(data, from_attributes=True)
         for k, v in newself.items():
             if k not in self:
-                self.__setattr__(k, v)
+                setattr(self, k, v)
 
     def __len__(self) -> int:
         return self.model_fields_set.__len__()
 
     def __iter__(self):
-        return (i for i in self.model_dump().keys())
+        return (i for i in self.model_dump())
 
     def __getitem__(self, key: Any) -> Any:
         try:
             return self.__getattribute__(key)
-        except AttributeError as e:
+        except AttributeError:
             try:
                 return self.__getattr__(key)
             except AttributeError as f:
-                raise KeyError(e, f)
-
+                raise KeyError from f
 
     # def get(self, key: str, default=None) -> Any:
     #     try:
@@ -87,6 +84,7 @@ class ConfigurationError(Exception):
 
     def __str__(self):
         return f'Error parsing config:\n{self.location}\n  {super().__str__()}'
+
 
 type DeepDict = dict[str, bool | str | DeepDict]
 
@@ -122,7 +120,9 @@ class ShellConfig(BaseConfig):
         return super().raw_data
 
 
-class LicenseConfig(BaseConfig, ):
+class LicenseConfig(
+    BaseConfig,
+):
     headers: bool = Field(default=True)
     default: list[str] = Field(default=['MIT'])
 
@@ -134,23 +134,28 @@ class TemplateConfig(BaseConfig):
     email: str = Field(default='')
     licenses: LicenseConfig = Field(default_factory=LicenseConfig)
     plugins: dict[str, dict[str, bool | str | dict[str, str]]] = Field(
-        default={'default': {'tests': True, 'ci': False, 'src-layout': True}})
+        default={'default': {'tests': True, 'ci': False, 'src-layout': True}}
+    )
 
     def _try_git(self, var: str, default: str = ''):
         attr = f'{var}'
         try:
             item = os.getenv(f'GIT_AUTHOR_{var}')
             setattr(self, attr, item)
-        except (ValidationError, ValueError, TypeError, KeyError) as e:
+        except (ValidationError, ValueError, TypeError, KeyError):
             import subprocess
+
             try:
                 setattr(
-                    self, attr,
+                    self,
+                    attr,
                     subprocess.check_output(
-                        ['git', 'config', '--get', f'user.{var}']
-                    ).strip().decode()
+                        ['git', 'config', '--get', f'user.{var}']  # noqa: S607
+                    )
+                    .strip()
+                    .decode(),
                 )
-            except:
+            except (CalledProcessError, ValidationError):
                 setattr(self, attr, default)
 
     def model_post_init(self, _) -> None:
@@ -158,13 +163,14 @@ class TemplateConfig(BaseConfig):
             if not getattr(self, k):
                 self._try_git(k, v)
 
+
 class StylesConfig(BaseConfig):
-    info: StyleType      = Field('bold')
-    success: StyleType   = Field('bold cyan')
-    error: StyleType     = Field('bold red')
-    warning: StyleType   = Field('bold yellow')
-    waiting: StyleType   = Field('bold magenta')
-    debug: StyleType     = Field('bold')
+    info: StyleType = Field('bold')
+    success: StyleType = Field('bold cyan')
+    error: StyleType = Field('bold red')
+    warning: StyleType = Field('bold yellow')
+    waiting: StyleType = Field('bold magenta')
+    debug: StyleType = Field('bold')
     spinner: SpinnerType = Field('simpleDotsScrolling')
 
 
@@ -204,13 +210,15 @@ class RootConfig(BaseConfig):
     @classmethod
     def _fixup_projects(cls, projs: dict[str, ProjectConfig | str]) -> dict[str, ProjectConfig]:
         if not isinstance(projs, dict):
-            raise TypeError(f'Projects ({projs!r}) is not a dictionary.')
+            em = f'Projects ({projs!r}) is not a dictionary.'
+            raise TypeError(em)
         if not projs:
             return {}
-        r: dict[str, ProjectConfig] = dict()
+        r: dict[str, ProjectConfig] = {}
         for k, v in projs.items():
             if not v:
-                raise TypeError(f'Project {k} has no location ({v!r})')
+                em = f'Project {k} has no location ({v!r})'
+                raise TypeError(em)
             if isinstance(v, str):
                 r[k] = ProjectConfig(location=v)
             else:

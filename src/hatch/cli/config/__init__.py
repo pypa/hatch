@@ -66,7 +66,7 @@ def set_value(app, key, value):
 
     import tomlkit
 
-    from hatch.config.model import ConfigurationError, RootConfig
+    from hatch.config.model import RootConfig
     from hatch.config.utils import create_toml_document, save_toml_document
 
     scrubbing = key.startswith('publish.')

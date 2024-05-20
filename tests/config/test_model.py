@@ -3,10 +3,11 @@ import subprocess
 import pytest
 from pydantic import ValidationError
 
-from hatch.config.model import RootConfig, TemplateConfig
+from hatch.config.model import RootConfig
+
 
 def deep_superset(d1: dict, d2: dict) -> dict:
-    rd = dict()
+    rd: dict = {}
     for k, v in (d1 | d2).items():
         if isinstance(v, dict):
             rd[k] = deep_superset(d1.get(k), v)
@@ -14,8 +15,10 @@ def deep_superset(d1: dict, d2: dict) -> dict:
             rd[k] = v
     return rd
 
+
 def assert_deep_superset(d1: dict, d2: dict) -> bool:
     assert d1 == deep_superset(d1, d2)
+
 
 class TestDefault:
     def test_default(self, default_data_dir, default_cache_dir, monkeypatch):
@@ -56,6 +59,7 @@ class TestDefault:
         }
 
         assert_deep_superset(default_config, config.raw_data)
+
 
 class TestMode:
     def test_default(self):
@@ -416,11 +420,10 @@ class TestTemplate:
         assert config.template.name == 'Foo Bar'
         assert_deep_superset(config.raw_data, {'template': {'name': 'Foo Bar'}})
 
-    def test_name_default_git(self, temp_dir, monkeypatch):
+    def test_name_default_git(self, temp_dir):
         with temp_dir.as_cwd(exclude=['GIT_AUTHOR_NAME']):
             subprocess.check_output(['git', 'init'])
             subprocess.check_output(['git', 'config', '--local', 'user.name', 'test'])
-            print(subprocess.check_output(['git', 'var', '-l']).splitlines())
 
             config = RootConfig()
 

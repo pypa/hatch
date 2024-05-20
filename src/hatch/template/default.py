@@ -30,7 +30,6 @@ class DefaultTemplate(TemplateInterface):
             config.license_header = ''
             return
 
-
         cached_licenses_dir = self.cache_dir / 'licenses'
         cached_licenses_dir.ensure_dir_exists()
 

@@ -1,42 +1,40 @@
-from typing import TYPE_CHECKING, Any, LiteralString, Self
+from __future__ import annotations
 
-from pydantic import (  # noqa: TCH002
-    GetCoreSchemaHandler,
-    GetJsonSchemaHandler,
-    GetPydanticSchema,
-    ValidationError,
-)
-from pydantic.json_schema import JsonSchemaValue  # noqa: TCH002
+from typing import Any, LiteralString, Self
+
+from pydantic import GetCoreSchemaHandler  # noqa: TCH002
 from pydantic_core import CoreSchema, core_schema
-from rich.spinner import Spinner, SPINNERS
-from rich.style import Style
-from rich.errors import StyleSyntaxError
 from rich.color import ColorParseError
-from typing_extensions import Annotated
-from tomlkit.items import Bool, String, Item
+from rich.errors import StyleSyntaxError
+from rich.spinner import SPINNERS, Spinner
+from rich.style import Style
+from tomlkit.items import Bool, String
 
 # Validators
+
 
 def validate_bool(b: Any) -> bool:
     if isinstance(b, bool | Bool):
         return bool(b)
-    else:
-        raise TypeError(f"{b!r} is not a boolean or related type.")
+    em = f'{b!r} is not a boolean or related type.'
+    raise TypeError(em)
+
 
 def validate_string(s: Any) -> str:
     if isinstance(s, str | String | bytes | LiteralString):
         return str(s)
-    else:
-        try:
-            return str(s)
-        except Exception as e:
-            raise TypeError(f'{s!r} could not be cast to a string.')
+    try:
+        return str(s)
+    except Exception as e:
+        em = f'{s!r} could not be cast to a string.'
+        raise TypeError(em) from e
+
 
 def validate_string_strict(s: Any) -> str:
     if isinstance(s, str | String | bytes | LiteralString):
         return str(s)
-    else:
-        raise TypeError(f'{s!r} is not a string type. {type(s)!r}')
+    em = f'{s!r} is not a string type. {type(s)!r}'
+    raise TypeError(em)
 
 
 class HatchConfigBase:
@@ -45,8 +43,7 @@ class HatchConfigBase:
         return self.to_string()
 
     def to_string(self) -> str:
-        return self.__str__()
-
+        return str(self)
 
 
 class StyleType(HatchConfigBase, Style):
@@ -58,28 +55,22 @@ class StyleType(HatchConfigBase, Style):
             try:
                 s = super().parse(style_definition)
             except StyleSyntaxError as e:  # And get us out if it's not.
-                raise TypeError('Not a valid style string.', e)
+                raise TypeError from e
         elif isinstance(style_definition, Style):
             # If it's actually already a style then just pass it along.
             s = style_definition
-        else: # Raise an error if it's not a string or style.
-            raise TypeError(f'Input must be a string or style type, got {type(style_definition)!r} instead.')
+        else:  # Raise an error if it's not a string or style.
+            em = f'Input must be a string or style type, got {type(style_definition)!r} instead.'
+            raise TypeError(em)
         try:
             return StyleType(**{x: y for x, y, _ in s.__rich_repr__()})
-        except ColorParseError as e: # Actually have no idea how to get here...
-            raise TypeError(
-                'Something went wrong in the instance creation.',
-                f'Check on the rich_repr:',
-                s.__rich_repr__(),
-                e)
+        except ColorParseError as e:  # Actually have no idea how to get here...
+            em = 'Something went wrong in the instance creation.\n' 'Check on the rich_repr:\n' + s.__rich_repr__()
+            raise TypeError(em) from e
 
     @classmethod
-    def __get_pydantic_core_schema__(cls, source_type: Any, handler: GetCoreSchemaHandler) -> CoreSchema:
-        return core_schema.chain_schema([
-            core_schema.no_info_plain_validator_function(
-                function=cls.parse
-            )
-        ])
+    def __get_pydantic_core_schema__(cls, source_type: Any, handler: GetCoreSchemaHandler) -> CoreSchema:  # noqa: PLW3201
+        return core_schema.chain_schema([core_schema.no_info_plain_validator_function(function=cls.parse)])
 
 
 class SpinnerType(HatchConfigBase, Spinner):
@@ -93,31 +84,28 @@ class SpinnerType(HatchConfigBase, Spinner):
     @classmethod
     def name_lookup(cls, spinner: Spinner) -> str:
         try:
-            return (
-                x for x, y in SPINNERS.items()
-                if y == {'frames': spinner.frames, 'interval': spinner.interval}).__next__()
+            return next(
+                (x for x, y in SPINNERS.items() if y == {'frames': spinner.frames, 'interval': spinner.interval})
+            )
         except StopIteration:
-            raise IndexError(f'Something is broken with {spinner!r}. Check your versions.')
+            e = f'Something is broken with {spinner!r}.'
+            raise IndexError from e
 
     @classmethod
     def parse(cls, p: str | Spinner) -> Self:
         if isinstance(p, SpinnerType):
             return p
-        elif isinstance(p, Spinner):
+        if isinstance(p, Spinner):
             return cls(name=cls.name_lookup(p))
-        elif isinstance(p, str):
+        if isinstance(p, str):
             return cls(name=p)
-        else:
-            raise TypeError(f"Not a valid type for {p!r}")
-
+        e = f'Not a valid type for {p!r}'
+        raise TypeError(e)
 
     def __str__(self) -> str:
         return self.name
 
+    # @override
     @classmethod
-    def __get_pydantic_core_schema__(cls, source_type: Any, handler: GetCoreSchemaHandler) -> CoreSchema:
-        return core_schema.chain_schema([
-            core_schema.no_info_plain_validator_function(
-                function=cls.parse
-            )
-        ])
+    def __get_pydantic_core_schema__(cls, source_type: Any, handler: GetCoreSchemaHandler) -> CoreSchema:  # noqa: PLW3201
+        return core_schema.chain_schema([core_schema.no_info_plain_validator_function(function=cls.parse)])

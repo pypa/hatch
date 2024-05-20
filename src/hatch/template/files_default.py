@@ -53,7 +53,7 @@ pip install {project_name_normalized}
         if template_config.license_data:
             extra_toc += '- [License](#license)\n'
             license_info += (
-                f"\n\n## License\n\n`{template_config.project_name_normalized}` is distributed under the terms of "
+                f'\n\n## License\n\n`{template_config.project_name_normalized}` is distributed under the terms of '
             )
 
             license_data = template_config.license_data

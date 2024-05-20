@@ -153,7 +153,7 @@ class Terminal:
         self._defaults: StylesConfig = StylesConfig()
         # Set defaults so we can pretty print before loading user config. These should all be 100%
         # type correct as they're coming from a pydantic class
-        for st, _ in self._defaults.items():
+        for st in self._defaults:
             setattr(self, f'_style_{st}', getattr(self._defaults, st))
 
     @cached_property
@@ -203,9 +203,7 @@ class Terminal:
     def display_critical(self, text='', **kwargs):
         self.console.stderr = True
         try:
-            self.console.print(
-                text, style=self._style_error, overflow='ignore', no_wrap=True, crop=False, **kwargs
-            )
+            self.console.print(text, style=self._style_error, overflow='ignore', no_wrap=True, crop=False, **kwargs)
         finally:
             self.console.stderr = False
 
