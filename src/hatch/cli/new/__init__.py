@@ -89,7 +89,7 @@ def new(app, name, location, interactive, feature_cli, initialize, setuptools_op
 
     template_config = deepcopy(app.config.template)
     if hasattr(template_config, 'plugins') and not template_config.plugins:
-        delattr(template_config, 'plugins')
+        template_config.plugins = TemplateConfig().plugins
 
     # TemplateConfig(**template_config)  # .parse_fields()
 
