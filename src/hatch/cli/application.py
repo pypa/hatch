@@ -11,6 +11,7 @@ from hatch.project.core import Project
 from hatch.utils.fs import Path
 from hatch.utils.platform import Platform
 from hatch.utils.runner import ExecutionContext
+from hatch.utils.shells import detect_shell
 
 if TYPE_CHECKING:
     from collections.abc import Generator
@@ -295,13 +296,7 @@ class Application(Terminal):
 
     @cached_property
     def shell_data(self) -> tuple[str, str]:
-        import shellingham
-
-        try:
-            return shellingham.detect_shell()
-        except shellingham.ShellDetectionFailure:
-            path = self.platform.default_shell
-            return Path(path).stem, path
+        return detect_shell(self.platform)
 
     @cached_property
     def env_metadata(self) -> EnvironmentMetadata:

@@ -3,12 +3,35 @@ from __future__ import annotations
 import sys
 from typing import TYPE_CHECKING
 
+from hatch.utils.fs import Path
+
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
     from types import FrameType
+    from typing import TypeAlias
 
     from hatch.env.plugin.interface import EnvironmentInterface
-    from hatch.utils.fs import Path
+    from hatch.utils.platform import Platform
+
+
+Shell: TypeAlias = tuple[str, str]
+
+
+def detect_shell(platform: Platform) -> Shell:
+    import shellingham
+
+    try:
+        return shellingham.detect_shell()
+    except shellingham.ShellDetectionFailure:
+        path = platform.default_shell
+        return Path(path).stem, path
+
+
+def get_shell_names(shell: Shell, platform: Platform, *, private: bool = False) -> list[str]:
+    shells = []
+    if not private and not platform.windows:
+        shells.append(shell[0])
+    return shells
 
 
 class ShellManager:
