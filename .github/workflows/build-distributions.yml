@@ -134,8 +134,8 @@ jobs:
       fail-fast: false
       matrix:
         job:
-        # - target: x86_64-pc-windows-msvc
-        #   os: windows-2019
+        - target: x86_64-pc-windows-msvc
+          os: windows-2019
         - target: aarch64-apple-darwin
           os: macos-14
         - target: x86_64-apple-darwin
@@ -160,9 +160,20 @@ jobs:
         -m pip install
         ${{ inputs.version && format('hatch=={0}', inputs.version) || '.' }}
 
+    - name: Set up Windows trampoline
+      if: startsWith(matrix.job.os, 'windows-')
+      run: |-
+        git clone -q --depth 1 -b relative-trampoline https://github.com/ofek/uv.git
+        cd uv/crates/uv-trampoline
+        rustup toolchain install nightly-2024-03-19
+        rustup target add ${{ matrix.job.target }}
+        rustup component add rust-src --toolchain nightly-2024-03-19-${{ matrix.job.target }}
+        cargo build --release --target ${{ matrix.job.target }}
+
     - name: Make scripts portable
-      if: startsWith(matrix.job.os, 'macos-')
-      run: ./python/bin/python release/unix/make_scripts_portable.py
+      run: >-
+        ${{ startsWith(matrix.job.os, 'windows-') && '.\\python\\python.exe' || './python/bin/python' }}
+        release/${{ startsWith(matrix.job.os, 'windows-') && 'windows' || 'unix' }}/make_scripts_portable.py
 
     - name: Strip debug symbols
       if: startsWith(matrix.job.os, 'macos-')

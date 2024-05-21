@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Fixed:***
+
+- Fix entry points in the pre-built distribution that binaries use
+
 ## [1.11.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.11.0) - 2024-05-14 ## {: #hatch-v1.11.0 }
 
 ***Added:***
