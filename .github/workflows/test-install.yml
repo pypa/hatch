@@ -30,7 +30,9 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Install
-      run: ${{ runner.os == 'Windows' && 'bash ' || '' }}${{ github.workspace }}${{ env.SEP }}main.sh
+      # Command needs to be wrapped in single quotes so backslashes are preserved for Windows paths
+      run: "'${{ github.workspace }}${{ env.SEP }}main.sh'"
+      shell: bash
       env:
         SEP: ${{ runner.os == 'Windows' && '\' || '/' }}
         VERSION: latest
