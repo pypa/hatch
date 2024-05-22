@@ -8,9 +8,10 @@ from io import BytesIO
 from os.path import relpath
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from urllib.request import urlopen
 from zipfile import ZIP_DEFLATED, ZipFile, ZipInfo
 
-LAUNCHERS_DIR = Path('uv\\crates\\uv-trampoline\\target\\x86_64-pc-windows-msvc\\release').resolve()
+LAUNCHERS_URL = 'https://raw.githubusercontent.com/astral-sh/uv/main/crates/uv-trampoline/trampolines'
 SCRIPT_TEMPLATE = """\
 #!{executable}
 # -*- coding: utf-8 -*-
@@ -27,18 +28,23 @@ def select_entry_points(ep, group):
     return ep.select(group=group) if sys.version_info[:2] >= (3, 10) else ep.get(group, [])
 
 
+def fetch_launcher(launcher_name):
+    with urlopen(f'{LAUNCHERS_URL}/{launcher_name}') as f:  # noqa: S310
+        return f.read()
+
+
 def main():
     interpreters_dir = Path(sys.executable).parent
     scripts_dir = Path(sysconfig.get_path('scripts'))
 
     ep = entry_points()
     for group, interpreter_name, launcher_name in (
-        ('console_scripts', 'python.exe', 'uv-trampoline-console.exe'),
-        ('gui_scripts', 'pythonw.exe', 'uv-trampoline-gui.exe'),
+        ('console_scripts', 'python.exe', 'uv-trampoline-x86_64-console.exe'),
+        ('gui_scripts', 'pythonw.exe', 'uv-trampoline-x86_64-gui.exe'),
     ):
         interpreter = interpreters_dir / interpreter_name
         relative_interpreter_path = relpath(interpreter, scripts_dir)
-        launcher_data = (LAUNCHERS_DIR / launcher_name).read_bytes()
+        launcher_data = fetch_launcher(launcher_name)
 
         for script in select_entry_points(ep, group):
             # https://github.com/astral-sh/uv/tree/main/crates/uv-trampoline#how-do-you-use-it

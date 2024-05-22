@@ -160,16 +160,6 @@ jobs:
         -m pip install
         ${{ inputs.version && format('hatch=={0}', inputs.version) || '.' }}
 
-    - name: Set up Windows trampoline
-      if: startsWith(matrix.job.os, 'windows-')
-      run: |-
-        git clone -q --depth 1 -b relative-trampoline https://github.com/ofek/uv.git
-        cd uv/crates/uv-trampoline
-        rustup toolchain install nightly-2024-03-19
-        rustup target add ${{ matrix.job.target }}
-        rustup component add rust-src --toolchain nightly-2024-03-19-${{ matrix.job.target }}
-        cargo build --release --target ${{ matrix.job.target }}
-
     - name: Make scripts portable
       run: >-
         ${{ startsWith(matrix.job.os, 'windows-') && '.\\python\\python.exe' || './python/bin/python' }}
