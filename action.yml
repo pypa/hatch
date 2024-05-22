@@ -1,0 +1,19 @@
+name: Install Hatch Action
+description: Install and configure Hatch
+branding:
+  icon: download-cloud
+  color: purple
+
+inputs:
+  version:
+    description: The version of Hatch to install
+    default: latest
+
+runs:
+  using: composite
+  steps:
+  - name: Install and configure Hatch
+    run: ${{ runner.os == 'Windows' && 'bash ' || '' }}${{ github.action_path }}${{ env.SEP }}main.sh
+    env:
+      SEP: ${{ runner.os == 'Windows' && '\' || '/' }}
+      VERSION: ${{ inputs.version }}
