@@ -14,6 +14,7 @@ runs:
   steps:
   - name: Install and configure Hatch
     run: ${{ runner.os == 'Windows' && 'bash ' || '' }}${{ github.action_path }}${{ env.SEP }}main.sh
+    shell: bash
     env:
       SEP: ${{ runner.os == 'Windows' && '\' || '/' }}
       VERSION: ${{ inputs.version }}
