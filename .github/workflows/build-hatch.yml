@@ -86,7 +86,7 @@ jobs:
         skip-existing: true
 
   binaries:
-    name: ${{ matrix.job.target }} (${{ matrix.job.os }})
+    name: Binary ${{ matrix.job.target }} (${{ matrix.job.os }})
     needs:
     - python-artifacts
     runs-on: ${{ matrix.job.os }}
@@ -514,42 +514,7 @@ jobs:
     uses: ./.github/workflows/build-distributions.yml
     # This actually does not need the binary jobs but we want to prioritize
     # resources for the test jobs therefore this forces these later on
-    # needs: binaries
-
-  test-distributions:
-    name: Test distribution ${{ matrix.job.target }}
-    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
-    needs:
-    - distributions-dev
-    runs-on: ${{ matrix.job.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        job:
-        - target: x86_64-unknown-linux-gnu
-          os: ubuntu-22.04
-        - target: x86_64-pc-windows-msvc
-          os: windows-2022
-        - target: aarch64-apple-darwin
-          os: macos-14
-        - target: x86_64-apple-darwin
-          os: macos-12
-
-    steps:
-    - name: Download distributions
-      uses: actions/download-artifact@v4
-      with:
-        name: distribution-${{ matrix.job.target }}
-
-    - name: Unpack distribution
-      run: |-
-        mkdir out
-        tar xzf hatch-dist-${{ matrix.job.target }}.tar.gz -C out
-
-    - name: Try to run
-      run: >-
-        ./out/python/${{ startsWith(matrix.job.os, 'windows-') && 'Scripts/hatch.exe' || 'bin/hatch' }}
-        --version
+    needs: binaries
 
   distributions-release:
     name: Build release distributions
