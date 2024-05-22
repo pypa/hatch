@@ -86,7 +86,7 @@ jobs:
         skip-existing: true
 
   binaries:
-    name: ${{ matrix.job.target }} (${{ matrix.job.os }})
+    name: Binary ${{ matrix.job.target }} (${{ matrix.job.os }})
     needs:
     - python-artifacts
     runs-on: ${{ matrix.job.os }}
