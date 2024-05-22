@@ -2,6 +2,15 @@
 
 -----
 
+## GitHub Actions
+
+```yaml
+- name: Install Hatch
+  uses: pypa/hatch@install
+```
+
+Refer to the [official action](https://github.com/pypa/hatch/tree/install) for more information.
+
 ## Installers
 
 === "macOS"
@@ -19,7 +28,7 @@
         1. Download the file using the `curl` command. The `-o` option specifies the file name that the downloaded package is written to. In this example, the file is written to `hatch-universal.pkg` in the current directory.
 
             ```
-            curl -o hatch-universal.pkg https://github.com/pypa/hatch/releases/latest/download/hatch-universal.pkg
+            curl -Lo hatch-universal.pkg https://github.com/pypa/hatch/releases/latest/download/hatch-universal.pkg
             ```
         2. Run the standard macOS [`installer`](https://ss64.com/osx/installer.html) program, specifying the downloaded `.pkg` file as the source. Use the `-pkg` parameter to specify the name of the package to install, and the `-target /` parameter for the drive in which to install the package. The files are installed to `/usr/local/hatch`, and an entry is created at `/etc/paths.d/hatch` that instructs shells to add the `/usr/local/hatch` directory to. You must include sudo on the command to grant write permissions to those folders.
 
@@ -73,7 +82,6 @@ After downloading the archive corresponding to your platform and architecture, e
     - [hatch-aarch64-unknown-linux-gnu.tar.gz](https://github.com/pypa/hatch/releases/latest/download/hatch-aarch64-unknown-linux-gnu.tar.gz)
     - [hatch-x86_64-unknown-linux-gnu.tar.gz](https://github.com/pypa/hatch/releases/latest/download/hatch-x86_64-unknown-linux-gnu.tar.gz)
     - [hatch-x86_64-unknown-linux-musl.tar.gz](https://github.com/pypa/hatch/releases/latest/download/hatch-x86_64-unknown-linux-musl.tar.gz)
-    - [hatch-i686-unknown-linux-gnu.tar.gz](https://github.com/pypa/hatch/releases/latest/download/hatch-i686-unknown-linux-gnu.tar.gz)
     - [hatch-powerpc64le-unknown-linux-gnu.tar.gz](https://github.com/pypa/hatch/releases/latest/download/hatch-powerpc64le-unknown-linux-gnu.tar.gz)
 
 === "macOS"
