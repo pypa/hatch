@@ -13,7 +13,7 @@ You must [use](https://docs.github.com/en/actions/using-workflows/workflow-synta
   uses: pypa/hatch@install
 ```
 
-For strict security guarantees, it's best practice to [pin](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-using-versioned-actions) the action to a specific commit like so:
+For strict security guarantees, it's best practice to [pin](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-using-versioned-actions) the action to a specific commit (of the [`install` branch](https://github.com/pypa/hatch/tree/install)) like so:
 
 ```yaml
 - name: Install Hatch
@@ -28,7 +28,7 @@ Name | Default | Description
 
 ## External consumers
 
-It's possible to use the [install script](main.py) outside of GitHub Actions assuming you set up your environment as follows:
+It's possible to use the [install script](https://github.com/pypa/hatch/blob/install/main.sh) outside of GitHub Actions assuming you set up your environment as follows:
 
 - Set the `RUNNER_TOOL_CACHE` environment variable to the directory where you want to install Hatch.
 - Set the `GITHUB_PATH` environment variable to a file that is writable which will contain the directory where Hatch is installed (usually `$RUNNER_TOOL_CACHE/.hatch`).
@@ -39,4 +39,5 @@ It's possible to use the [install script](main.py) outside of GitHub Actions ass
 - Set the `RUNNER_ARCH` environment variable to the current architecture using one of the following values:
     - `X64`
     - `ARM64`
+- Set the `SEP` environment variable to the current platform's path separator (`/` for Linux/macOS, `\` for Windows).
 - Install [pipx](https://github.com/pypa/pipx) as a fallback installation method for when there is no [standalone binary](https://hatch.pypa.io/latest/install/#standalone-binaries) available.
