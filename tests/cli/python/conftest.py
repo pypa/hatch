@@ -7,7 +7,7 @@ from hatch.utils.shells import detect_shell
 
 @pytest.fixture(autouse=True)
 def default_shells(platform):
-    return [] if platform.windows else detect_shell(platform)[0]
+    return [] if platform.windows else [detect_shell(platform)[0]]
 
 
 @pytest.fixture(autouse=True)
