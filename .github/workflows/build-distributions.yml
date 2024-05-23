@@ -56,10 +56,9 @@ jobs:
 
     steps:
     - name: Checkout code
-      if: ${{ !inputs.version }}
       uses: actions/checkout@v4
       with:
-        fetch-depth: 0
+        fetch-depth: ${{ inputs.version && 1 || 0 }}
 
     - name: Set up QEMU
       if: matrix.job.emulation
@@ -143,10 +142,9 @@ jobs:
 
     steps:
     - name: Checkout code
-      if: ${{ !inputs.version }}
       uses: actions/checkout@v4
       with:
-        fetch-depth: 0
+        fetch-depth: ${{ inputs.version && 1 || 0 }}
 
     - name: Download distribution
       run: curl -LO ${{ env.DIST_URL }}/${{ env.DIST_VERSION }}/cpython-${{ env.DIST_PYTHON_VERSION }}+${{ env.DIST_VERSION }}-${{ matrix.job.target }}-install_only.tar.gz
