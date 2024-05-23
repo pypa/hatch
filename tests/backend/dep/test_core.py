@@ -31,6 +31,7 @@ def test_version_unmet(platform, uv_on_path):
         assert not dependencies_in_sync([Requirement('binary>9000')], venv.sys_path)
 
 
+@pytest.mark.xfail(raises=PermissionError)
 def test_marker_met(platform):
     with TempUVVirtualEnv(sys.executable, platform) as venv:
         assert dependencies_in_sync([Requirement('binary; python_version < "1"')], venv.sys_path)

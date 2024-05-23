@@ -1,6 +1,7 @@
 import os
 
 import click
+from pydantic import ValidationError
 
 
 @click.group(short_help='Manage the config file')
@@ -65,7 +66,7 @@ def set_value(app, key, value):
 
     import tomlkit
 
-    from hatch.config.model import ConfigurationError, RootConfig
+    from hatch.config.model import RootConfig
     from hatch.config.utils import create_toml_document, save_toml_document
 
     scrubbing = key.startswith('publish.')
@@ -76,7 +77,8 @@ def set_value(app, key, value):
     if setting_project_location and not value.startswith('~'):
         value = os.path.abspath(value)
 
-    user_config = new_config = tomlkit.parse(app.config_file.read())
+    # Make sure it's a pure python object with .unwrap()
+    user_config = new_config = tomlkit.parse(app.config_file.read())  # .unwrap()
 
     data = [value]
     data.extend(reversed(key.split('.')))
@@ -127,8 +129,8 @@ def set_value(app, key, value):
                 del table_body[-2]
 
     try:
-        RootConfig(user_config).parse_fields()
-    except ConfigurationError as e:
+        RootConfig(**user_config)  # .parse_fields()
+    except ValidationError as e:
         app.display_error(str(e))
         app.abort()
     else:

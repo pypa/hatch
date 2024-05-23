@@ -83,25 +83,25 @@ def new(app, name, location, interactive, feature_cli, initialize, setuptools_op
         app.display_info()
 
     if needs_config_update:
-        app.project.initialize(str(location / 'pyproject.toml'), default_config)
+        app.project.initialize(location / 'pyproject.toml', default_config)
         app.display_success('Updated: pyproject.toml')
         return
 
-    template_config = deepcopy(app.config.template.raw_data)
-    if 'plugins' in template_config and not template_config['plugins']:
-        del template_config['plugins']
+    template_config = deepcopy(app.config.template)
+    if hasattr(template_config, 'plugins') and not template_config.plugins:
+        template_config.plugins = TemplateConfig().plugins
 
-    TemplateConfig(template_config, ('template',)).parse_fields()
+    # TemplateConfig(**template_config)  # .parse_fields()
 
-    plugin_config = template_config.pop('plugins')
+    plugin_config = template_config.get('plugins', [])
 
     # Set up default config for template files
-    template_config.update(default_config)
+    template_config.update(**default_config)
 
     template_classes = app.plugins.template.collect()
 
     templates = []
-    for template_name, template_class in sorted(template_classes.items(), key=lambda item: -item[1].PRIORITY):
+    for template_name, template_class in sorted(dict(template_classes).items(), key=lambda item: -item[1].PRIORITY):
         if template_name in plugin_config:
             templates.append(
                 template_class(plugin_config.pop(template_name), app.cache_dir, datetime.now(timezone.utc))

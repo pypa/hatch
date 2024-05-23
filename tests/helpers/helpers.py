@@ -103,7 +103,7 @@ def get_template_files(template_name, project_name, **kwargs):
     kwargs['project_name_normalized'] = project_name.lower().replace('.', '-')
     kwargs['package_name'] = kwargs['project_name_normalized'].replace('-', '_')
 
-    config = RootConfig({})
+    config = RootConfig()
     kwargs.setdefault('author', config.template.name)
     kwargs.setdefault('email', config.template.email)
     kwargs.setdefault('year', str(datetime.now(timezone.utc).year))

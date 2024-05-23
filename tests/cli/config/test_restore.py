@@ -1,3 +1,6 @@
+from hatch.config.model import BaseConfig
+
+
 def test_standard(hatch, config_file):
     config_file.model.project = 'foo'
     config_file.save()
@@ -12,7 +15,8 @@ def test_standard(hatch, config_file):
 
 
 def test_allow_invalid_config(hatch, config_file, helpers):
-    config_file.model.project = ['foo']
+    # This gives us a usable but also broken config
+    config_file.model = BaseConfig()
     config_file.save()
 
     result = hatch('config', 'restore')
