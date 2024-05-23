@@ -2,13 +2,12 @@ import secrets
 
 import pytest
 
-from hatch.utils.shells import detect_shell, get_shell_names
+from hatch.utils.shells import detect_shell
 
 
 @pytest.fixture(autouse=True)
 def default_shells(platform):
-    shell = detect_shell(platform)
-    return get_shell_names(shell, platform)
+    return [] if platform.windows else detect_shell(platform)[0]
 
 
 @pytest.fixture(autouse=True)

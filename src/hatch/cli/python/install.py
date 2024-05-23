@@ -4,8 +4,6 @@ from typing import TYPE_CHECKING
 
 import click
 
-from hatch.utils.shells import get_shell_names
-
 if TYPE_CHECKING:
     from hatch.cli.application import Application
 
@@ -43,7 +41,10 @@ def install(app: Application, *, names: tuple[str, ...], private: bool, update: 
     from hatch.python.distributions import ORDERED_DISTRIBUTIONS
     from hatch.python.resolve import get_distribution
 
-    shells = get_shell_names(app.shell_data, app.platform, private=private)
+    shells = []
+    if not private and not app.platform.windows:
+        shell_name, _ = app.shell_data
+        shells.append(shell_name)
 
     manager = app.get_python_manager(directory)
     installed = manager.get_installed()

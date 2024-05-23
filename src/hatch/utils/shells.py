@@ -8,16 +8,12 @@ from hatch.utils.fs import Path
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
     from types import FrameType
-    from typing import TypeAlias
 
     from hatch.env.plugin.interface import EnvironmentInterface
     from hatch.utils.platform import Platform
 
 
-Shell: TypeAlias = tuple[str, str]
-
-
-def detect_shell(platform: Platform) -> Shell:
+def detect_shell(platform: Platform) -> tuple[str, str]:
     import shellingham
 
     try:
@@ -25,13 +21,6 @@ def detect_shell(platform: Platform) -> Shell:
     except shellingham.ShellDetectionFailure:
         path = platform.default_shell
         return Path(path).stem, path
-
-
-def get_shell_names(shell: Shell, platform: Platform, *, private: bool = False) -> list[str]:
-    shells = []
-    if not private and not platform.windows:
-        shells.append(shell[0])
-    return shells
 
 
 class ShellManager:
