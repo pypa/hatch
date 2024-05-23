@@ -14,8 +14,7 @@ runs:
   steps:
   - name: Install and configure Hatch
     # Command needs to be wrapped in single quotes so backslashes are preserved for Windows paths
-    run: "'${{ github.action_path }}${{ env.SEP }}main.sh'"
+    run: "'${{ github.action_path }}${{ runner.os == 'Windows' && '\\' || '/' }}main.sh'"
     shell: bash
     env:
-      SEP: ${{ runner.os == 'Windows' && '\' || '/' }}
       VERSION: ${{ inputs.version }}

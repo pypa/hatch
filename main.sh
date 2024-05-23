@@ -2,9 +2,15 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-INSTALL_PATH="${RUNNER_TOOL_CACHE}${SEP}.hatch"
 PURPLE="\033[1;35m"
 RESET="\033[0m"
+
+if [[ "${RUNNER_OS}" == "Windows" ]]; then
+  SEP="\\"
+else
+  SEP="/"
+fi
+INSTALL_PATH="${RUNNER_TOOL_CACHE}${SEP}.hatch"
 
 install_hatch() {
   mkdir -p "${INSTALL_PATH}"
