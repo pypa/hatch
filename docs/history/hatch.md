@@ -8,6 +8,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Fixed:***
+
+- Fix entry points in the pre-built distribution that binaries use
+
+## [1.11.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.11.0) - 2024-05-14 ## {: #hatch-v1.11.0 }
+
+***Added:***
+
+- Upgrade PyApp to 0.21.1 for binary builds
+
+***Fixed:***
+
+- On Linux, install the highest compatible Python distribution variant based on CPU architecture rather than assuming recent hardware
+
 ## [1.10.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.10.0) - 2024-05-02 ## {: #hatch-v1.10.0 }
 
 ***Changed:***

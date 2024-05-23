@@ -4,9 +4,13 @@ import json
 import re
 import subprocess
 import sys
+import typing
 from importlib.metadata import version
 
 from utils import ROOT
+
+if typing.TYPE_CHECKING:
+    from pathlib import Path
 
 # fmt: off
 UNSELECTED_RULE_PATTERNS: list[str] = [
@@ -72,6 +76,20 @@ PER_FILE_IGNORED_RULES: dict[str, list[str]] = {
 # fmt: on
 
 
+def get_lines_until(file_path: Path, marker: str) -> list[str]:
+    lines = file_path.read_text(encoding='utf-8').splitlines()
+    for i, line in enumerate(lines):
+        if line.startswith(marker):
+            block_start = i
+            break
+    else:
+        message = f'Could not find {marker}: {file_path.relative_to(ROOT)}'
+        raise ValueError(message)
+
+    del lines[block_start:]
+    return lines
+
+
 def main():
     process = subprocess.run(  # noqa: PLW1510
         [sys.executable, '-m', 'ruff', 'rule', '--all', '--output-format', 'json'],
@@ -84,16 +102,7 @@ def main():
         raise OSError(process.stdout)
 
     data_file = ROOT / 'src' / 'hatch' / 'cli' / 'fmt' / 'core.py'
-    lines = data_file.read_text(encoding='utf-8').splitlines()
-    for i, line in enumerate(lines):
-        if line.startswith('STABLE_RULES'):
-            block_start = i
-            break
-    else:
-        message = 'Could not find STABLE_RULES'
-        raise ValueError(message)
-
-    del lines[block_start:]
+    lines = get_lines_until(data_file, 'STABLE_RULES')
 
     ignored_pattern = re.compile(f'^({"|".join(UNSELECTED_RULE_PATTERNS)})$')
     # https://github.com/astral-sh/ruff/issues/9891#issuecomment-1951403651
@@ -101,9 +110,11 @@ def main():
 
     stable_rules: set[str] = set()
     preview_rules: set[str] = set()
+    unselected_rules: set[str] = set()
     for rule in json.loads(process.stdout):
         code = rule['code']
         if ignored_pattern.match(code) or removed_pattern.search(rule['explanation']):
+            unselected_rules.add(code)
             continue
 
         if rule['preview']:
@@ -141,6 +152,20 @@ def main():
         ),
         encoding='utf-8',
     )
+
+    data_file = ROOT / 'docs' / '.hooks' / 'render_ruff_defaults.py'
+    lines = get_lines_until(data_file, 'UNSELECTED_RULES')
+
+    lines.append('UNSELECTED_RULES: tuple[str, ...] = (')
+    lines.extend(f'    {rule!r},' for rule in sorted(unselected_rules))
+    lines.append(')')
+
+    lines.append('')
+    data_file.write_text('\n'.join(lines), encoding='utf-8')
+
+    print(f'Stable rules: {len(stable_rules)}')
+    print(f'Preview rules: {len(preview_rules)}')
+    print(f'Unselected rules: {len(unselected_rules)}')
 
 
 if __name__ == '__main__':

@@ -295,13 +295,9 @@ class Application(Terminal):
 
     @cached_property
     def shell_data(self) -> tuple[str, str]:
-        import shellingham
+        from hatch.utils.shells import detect_shell
 
-        try:
-            return shellingham.detect_shell()
-        except shellingham.ShellDetectionFailure:
-            path = self.platform.default_shell
-            return Path(path).stem, path
+        return detect_shell(self.platform)
 
     @cached_property
     def env_metadata(self) -> EnvironmentMetadata:
