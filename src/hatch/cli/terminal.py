@@ -8,8 +8,6 @@ from typing import TYPE_CHECKING, Callable
 
 import click
 from rich.console import Console
-from rich.errors import StyleSyntaxError
-from rich.spinner import Spinner
 from rich.style import Style
 from rich.text import Text
 
@@ -183,6 +181,9 @@ class Terminal:
         return Text(text, style=self._style_level_debug)
 
     def initialize_styles(self, styles: dict):  # no cov
+        from rich.errors import StyleSyntaxError
+        from rich.spinner import Spinner
+
         # Lazily display errors so that they use the correct style
         errors = []
 
