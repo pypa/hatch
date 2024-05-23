@@ -17,7 +17,7 @@ For strict security guarantees, it's best practice to [pin](https://docs.github.
 
 ```yaml
 - name: Install Hatch
-  uses: pypa/hatch@f4b68bbda7951a6654d3c9f9bb5e92fe9f68a14f
+  uses: pypa/hatch@a3c83ab3d481fbc2dc91dd0088628817488dd1d5
 ```
 
 ## Options
@@ -32,7 +32,7 @@ It's possible to use the [install script](https://github.com/pypa/hatch/blob/ins
 
 - Set every [option](#options) to an environment variable with uppercasing and replacing hyphens with underscores.
 - Set the `RUNNER_TOOL_CACHE` environment variable to the directory where you want to install Hatch.
-- Set the `GITHUB_PATH` environment variable to a file that is writable which will contain the directory where Hatch is installed (usually `$RUNNER_TOOL_CACHE/.hatch`).
+- Set the `GITHUB_PATH` environment variable to a file that is writable which will contain the final directory where Hatch gets installed (usually `$RUNNER_TOOL_CACHE/.hatch`).
 - Set the `RUNNER_OS` environment variable to the current platform using one of the following values:
     - `Linux`
     - `Windows`
@@ -40,4 +40,4 @@ It's possible to use the [install script](https://github.com/pypa/hatch/blob/ins
 - Set the `RUNNER_ARCH` environment variable to the current architecture using one of the following values:
     - `X64`
     - `ARM64`
-- Install [pipx](https://github.com/pypa/pipx) as a fallback installation method for when there is no [standalone binary](https://hatch.pypa.io/latest/install/#standalone-binaries) available.
+- Install [pipx](https://github.com/pypa/pipx) as a fallback installation method for when there is no [standalone binary](https://hatch.pypa.io/latest/install/#standalone-binaries) available. In this case, nothing will be written to `GITHUB_PATH`.
