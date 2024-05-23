@@ -31,10 +31,9 @@ jobs:
 
     - name: Install
       # Command needs to be wrapped in single quotes so backslashes are preserved for Windows paths
-      run: "'${{ github.workspace }}${{ env.SEP }}main.sh'"
+      run: "'${{ github.workspace }}${{ runner.os == 'Windows' && '\\' || '/' }}main.sh'"
       shell: bash
       env:
-        SEP: ${{ runner.os == 'Windows' && '\' || '/' }}
         VERSION: latest
 
     - name: Verify
