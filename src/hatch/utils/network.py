@@ -12,6 +12,10 @@ if TYPE_CHECKING:
 
 MINIMUM_SLEEP = 2
 MAXIMUM_SLEEP = 20
+# The timeout should be slightly larger than a multiple of 3,
+# which is the default TCP packet retransmission window. See:
+# https://tools.ietf.org/html/rfc2988
+DEFAULT_TIMEOUT = 10
 
 
 @contextmanager
@@ -34,6 +38,8 @@ def streaming_response(*args: Any, **kwargs: Any) -> Generator[httpx.Response, N
 
 
 def download_file(path: Path, *args: Any, **kwargs: Any) -> None:
+    kwargs.setdefault('timeout', DEFAULT_TIMEOUT)
+
     with path.open(mode='wb', buffering=0) as f, streaming_response('GET', *args, **kwargs) as response:
         for chunk in response.iter_bytes(16384):
             f.write(chunk)
