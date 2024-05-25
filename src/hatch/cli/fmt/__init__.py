@@ -72,7 +72,6 @@ def fmt(
         for script in scripts:
             context.add_shell_command(f'{script} {formatted_args}')
 
-        context.hide_commands = True
         context.env_vars['HATCH_FMT_ARGS'] = internal_args
 
         if not sa_env.config_path or sync:
