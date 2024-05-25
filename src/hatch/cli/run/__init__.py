@@ -50,6 +50,12 @@ def run(ctx: click.Context, args: tuple[str, ...]):
 
     would execute `pytest` in the environments `test.py3.10-42` and `test.py3.10-3.14`.
     Note that `py` may be used as an alias for `python`.
+
+    \b
+    !!! note
+        Inclusions are treated as an intersection while exclusions are treated as a union i.e.
+        an environment must match all of the included variables to be selected while matching
+        any of the excluded variables will prevent selection.
     """
     app: Application = ctx.obj
 
