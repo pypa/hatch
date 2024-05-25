@@ -67,6 +67,12 @@ def run(
 
     would execute `pytest` in the environments `test.py3.10-42` and `test.py3.10-3.14`.
     Note that `py` may be used as an alias for `python`.
+
+    \b
+    !!! note
+        The inclusion option is treated as an intersection while the exclusion option is treated as a
+        union i.e. an environment must match all of the included variables to be selected while matching
+        any of the excluded variables will prevent selection.
     """
     from hatch.utils.runner import parse_matrix_variables, select_environments
 

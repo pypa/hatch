@@ -65,6 +65,12 @@ def test(
     would run tests in the environments `hatch-test.py3.10-42` and `hatch-test.py3.10-3.14`.
 
     The `-py`/`--python` option is a shortcut for specifying the inclusion `-i py=...`.
+
+    \b
+    !!! note
+        The inclusion option is treated as an intersection while the exclusion option is treated as a
+        union i.e. an environment must match all of the included variables to be selected while matching
+        any of the excluded variables will prevent selection.
     """
     app: Application = ctx.obj
 
