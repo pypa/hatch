@@ -45,21 +45,21 @@ check = "mypy --install-types --non-interactive {args:backend/src/hatchling src/
 
 [envs.docs]
 dependencies = [
-  "mkdocs~=1.5.3",
-  "mkdocs-material~=9.5.18",
+  "mkdocs~=1.6.0",
+  "mkdocs-material~=9.5.24",
   # Plugins
   "mkdocs-minify-plugin~=0.8.0",
-  "mkdocs-git-revision-date-localized-plugin~=1.2.4",
+  "mkdocs-git-revision-date-localized-plugin~=1.2.5",
   "mkdocs-git-committers-plugin-2~=2.3.0",
-  "mkdocstrings-python~=1.10.0",
+  "mkdocstrings-python~=1.10.3",
   "mkdocs-redirects~=1.2.1",
-  "mkdocs-glightbox~=0.3.7",
-  "mike~=2.0.0",
+  "mkdocs-glightbox~=0.4.0",
+  "mike~=2.1.1",
   # Extensions
   "mkdocs-click~=0.8.1",
-  "pymdown-extensions~=10.8.0",
+  "pymdown-extensions~=10.8.1",
   # Necessary for syntax highlighting in code blocks
-  "pygments~=2.17.2",
+  "pygments~=2.18.0",
   # Validation
   # https://github.com/linkchecker/linkchecker/pull/669#issuecomment-1267236287
   "linkchecker @ git+https://github.com/linkchecker/linkchecker.git@d9265bb71c2054bf57b8c5734a4825d62505c779",
