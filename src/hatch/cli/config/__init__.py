@@ -30,10 +30,8 @@ def show(app, all_keys):
     if not app.config_file.path.is_file():  # no cov
         app.display_critical('No config file found! Please try `hatch config restore`.')
     else:
-        from rich.syntax import Syntax
-
         text = app.config_file.read() if all_keys else app.config_file.read_scrubbed()
-        app.output(Syntax(text.rstrip(), 'toml', background_color='default'))
+        app.display_syntax(text.rstrip(), 'toml')
 
 
 @config.command(short_help='Update the config file with any new fields')
