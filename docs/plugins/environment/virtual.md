@@ -56,7 +56,7 @@ If no version has been chosen, then each resolver will try to find a version tha
 The following options are recognized for internal Python resolution.
 
 !!! tip
-    You can set custom sources for distributions by setting the `HATCH_PYTHON_SOURCE_<ID>` environment variable where `<ID>` is the uppercased version of the distribution name with periods replaced by underscores e.g. `HATCH_PYTHON_SOURCE_PYPY3_10`.
+    You can set custom sources for distributions by setting the `HATCH_PYTHON_SOURCE_<ID>` environment variable where `<ID>` is the uppercased version of the distribution ID with periods replaced by underscores e.g. `HATCH_PYTHON_SOURCE_PYPY3_10`.
 
 ### CPython
 
