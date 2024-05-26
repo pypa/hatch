@@ -134,6 +134,9 @@ class BorrowedStatus(TerminalStatus):
 
 class Terminal:
     def __init__(self, *, verbosity: int, enable_color: bool | None, interactive: bool | None):
+        # Force consistent output for test assertions
+        self.testing = 'HATCH_SELF_TESTING' in os.environ
+
         self.verbosity = verbosity
         self.console = Console(
             force_terminal=enable_color,
@@ -142,8 +145,7 @@ class Terminal:
             markup=False,
             emoji=False,
             highlight=False,
-            # Force consistent output for test assertions
-            legacy_windows=False if 'HATCH_SELF_TESTING' in os.environ else None,
+            legacy_windows=False if self.testing else None,
         )
 
         # Set defaults so we can pretty print before loading user config
@@ -275,6 +277,12 @@ class Terminal:
 
     def display_header(self, title=''):
         self.console.rule(Text(title, self._style_level_success))
+
+    def display_syntax(self, *args, **kwargs):
+        from rich.syntax import Syntax
+
+        kwargs.setdefault('background_color', 'default' if self.testing else None)
+        self.output(Syntax(*args, **kwargs))
 
     def display_markdown(self, text, **kwargs):  # no cov
         from rich.markdown import Markdown
