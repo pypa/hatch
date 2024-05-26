@@ -7,6 +7,7 @@ from abc import ABC, abstractmethod
 from functools import cached_property
 from typing import TYPE_CHECKING
 
+from hatch.config.constants import PythonEnvVars
 from hatch.errors import PythonDistributionResolutionError, PythonDistributionUnknownError
 from hatch.python.distributions import DISTRIBUTIONS, ORDERED_DISTRIBUTIONS
 
@@ -25,9 +26,10 @@ class Distribution(ABC):
     def name(self) -> str:
         return self.__name
 
-    @property
+    @cached_property
     def source(self) -> str:
-        return self.__source
+        env_var = f'{PythonEnvVars.SOURCE_PREFIX}{self.name.upper().replace(".", "_")}'
+        return os.environ.get(env_var, self.__source)
 
     @cached_property
     def archive_name(self) -> str:
@@ -83,17 +85,6 @@ class Distribution(ABC):
 
 
 class CPythonStandaloneDistribution(Distribution):
-    @property
-    def source(self) -> str:
-        source = super().source
-        custom_source = os.environ.get('HATCH_CUSTOM_CPYTHON_SOURCE')
-        if custom_source:
-            source = super().source.replace(
-                'https://github.com/indygreg/python-build-standalone/releases/download/',
-                custom_source.rstrip('/') + '/',
-            )
-        return source
-
     @cached_property
     def version(self) -> Version:
         from packaging.version import Version
@@ -121,14 +112,6 @@ class CPythonStandaloneDistribution(Distribution):
 
 
 class PyPyOfficialDistribution(Distribution):
-    @property
-    def source(self) -> str:
-        source = super().source
-        custom_source = os.environ.get('HATCH_CUSTOM_PYPY_SOURCE')
-        if custom_source:
-            source = super().source.replace('https://downloads.python.org/pypy/', custom_source.rstrip('/') + '/')
-        return source
-
     @cached_property
     def version(self) -> Version:
         from packaging.version import Version

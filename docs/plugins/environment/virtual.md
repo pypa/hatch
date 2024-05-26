@@ -55,6 +55,9 @@ If no version has been chosen, then each resolver will try to find a version tha
 
 The following options are recognized for internal Python resolution.
 
+!!! tip
+    You can set custom sources for distributions by setting the `HATCH_PYTHON_SOURCE_<ID>` environment variable where `<ID>` is the uppercased version of the distribution name with periods replaced by underscores e.g. `HATCH_PYTHON_SOURCE_PYPY3_10`.
+
 ### CPython
 
 | ID |
@@ -75,8 +78,6 @@ Some distributions have [variants](https://gregoryszorc.com/docs/python-build-st
 | Linux | <ul><li><code>v1</code></li><li><code>v2</code></li><li><code>v3</code> (default)</li><li><code>v4</code></li></ul> |
 | Windows | <ul><li><code>shared</code> (default)</li><li><code>static</code></li></ul> |
 
-You can configure Hatch to use a mirror of these distributions by setting the `HATCH_CUSTOM_CPYTHON_SOURCE` environment variable to your mirror. The custom source is expected to contain the releases following the upstreams structure `<calver>/cpython-X.Y.Z%2B<calver>-aarch64-unknown-linux-gnu-install_only.tar.gz`.
-
 ### PyPy
 
 | ID |
@@ -86,8 +87,6 @@ You can configure Hatch to use a mirror of these distributions by setting the `H
 | `pypy3.10` |
 
 The source of distributions is the [PyPy](https://www.pypy.org) project.
-
-You can configure Hatch to use a mirror of these distributions by setting the `HATCH_CUSTOM_PYPY_SOURCE` environment variable to your mirror. The custom source is expected to contain the releases following the upstreams structure `pypyX.Y-vA.B.C-aarch64.tar.bz2`.
 
 ## Troubleshooting
 
