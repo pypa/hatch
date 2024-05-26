@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - The `fmt` command no longer hides the commands that are being executed
 - Add default timeout for network requests, useful when installing Python distributions
 - Fix syntax highlighting contrast for the `config show` command
+- Upgrade PyApp to 0.22.0 for binary builds
 
 ## [1.11.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.11.1) - 2024-05-23 ## {: #hatch-v1.11.1 }
 
