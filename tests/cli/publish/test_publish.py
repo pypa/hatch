@@ -8,7 +8,12 @@ import pytest
 
 from hatch.config.constants import PublishEnvVars
 
-pytestmark = [pytest.mark.usefixtures('devpi'), pytest.mark.usefixtures('local_backend_process')]
+pytestmark = [
+    pytest.mark.requires_docker,
+    pytest.mark.requires_internet,
+    pytest.mark.usefixtures('devpi'),
+    pytest.mark.usefixtures('local_backend_process'),
+]
 
 
 @pytest.fixture(autouse=True)

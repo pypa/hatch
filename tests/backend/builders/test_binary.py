@@ -13,6 +13,8 @@ from hatchling.builders.app import AppBuilder
 from hatchling.builders.binary import BinaryBuilder
 from hatchling.builders.plugin.interface import BuilderInterface
 
+pytestmark = [pytest.mark.requires_cargo, pytest.mark.requires_internet]
+
 
 class ExpectedEnvVars:
     def __init__(self, env_vars: dict):
