@@ -458,8 +458,14 @@ def pytest_runtest_setup(item):
         if marker.name == 'requires_unix' and PLATFORM.windows:
             pytest.skip('Not running on a Linux-based platform')
 
-        if marker.name == 'requires_git' and not shutil.which('git'):  # no cov
+        if marker.name == 'requires_git' and not git_available():  # no cov
             pytest.skip('Git not present in the environment')
+
+        if marker.name == 'requires_docker' and not docker_available():  # no cov
+            pytest.skip('Docker not present in the environment')
+
+        if marker.name == 'requires_cargo' and not cargo_available():  # no cov
+            pytest.skip('Cargo not present in the environment')
 
 
 def pytest_configure(config):
@@ -469,6 +475,12 @@ def pytest_configure(config):
     config.addinivalue_line('markers', 'requires_unix: Tests intended for Linux-based operating systems')
     config.addinivalue_line('markers', 'requires_internet: Tests that require access to the internet')
     config.addinivalue_line('markers', 'requires_git: Tests that require the git command available in the environment')
+    config.addinivalue_line(
+        'markers', 'requires_docker: Tests that require the docker command available in the environment'
+    )
+    config.addinivalue_line(
+        'markers', 'requires_cargo: Tests that require the cargo command available in the environment'
+    )
 
     config.addinivalue_line('markers', 'allow_backend_process: Force the use of backend communication')
 
@@ -491,3 +503,27 @@ def network_connectivity():  # no cov
         return True
 
     return False
+
+
+@lru_cache
+def git_available():  # no cov
+    if running_in_ci():
+        return True
+
+    return shutil.which('git') is not None
+
+
+@lru_cache
+def docker_available():  # no cov
+    if running_in_ci():
+        return True
+
+    return shutil.which('docker') is not None
+
+
+@lru_cache
+def cargo_available():  # no cov
+    if running_in_ci():
+        return True
+
+    return shutil.which('cargo') is not None

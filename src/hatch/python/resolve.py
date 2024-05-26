@@ -197,6 +197,43 @@ def get_compatible_distributions() -> dict[str, Distribution]:
     return distributions
 
 
+def _guess_linux_variant() -> str:
+    # Use the highest that we know is most common when we can't parse CPU data
+    default = 'v3'
+    try:
+        # Don't use our utility Path so we can properly mock
+        with open('/proc/cpuinfo', encoding='utf-8') as f:
+            contents = f.read()
+    except OSError:
+        return default
+
+    # See https://clang.llvm.org/docs/UsersManual.html#x86 for the
+    # instructions for each architecture variant and
+    # https://github.com/torvalds/linux/blob/master/arch/x86/include/asm/cpufeatures.h
+    # for the corresponding Linux flags
+    v2_flags = {'cx16', 'lahf_lm', 'popcnt', 'pni', 'sse4_1', 'sse4_2', 'ssse3'}
+    v3_flags = {'avx', 'avx2', 'bmi1', 'bmi2', 'f16c', 'fma', 'movbe', 'xsave'} | v2_flags
+    v4_flags = {'avx512f', 'avx512bw', 'avx512cd', 'avx512dq', 'avx512vl'} | v3_flags
+
+    for line in contents.splitlines():
+        key, _, value = line.partition(':')
+        if key.strip() == 'flags':
+            flags = set(value.strip().split())
+
+            if flags.issuperset(v4_flags):
+                return 'v4'
+
+            if flags.issuperset(v3_flags):
+                return 'v3'
+
+            if flags.issuperset(v2_flags):
+                return 'v2'
+
+            return 'v1'
+
+    return default
+
+
 def _get_default_variant(name: str, system: str, arch: str) -> str:
     # not PyPy
     if name[0].isdigit():
@@ -212,7 +249,7 @@ def _get_default_variant(name: str, system: str, arch: str) -> str:
                 return 'v1'
 
             if name != '3.7':
-                return 'v3'
+                return _guess_linux_variant()
 
     return ''
 

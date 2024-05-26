@@ -21,7 +21,7 @@ The builder plugin name is `wheel`.
 | `shared-scripts` | | A mapping similar to the [forced inclusion](../../config/build.md#forced-inclusion) option corresponding to the `scripts` subdirectory within the standard [data directory](https://packaging.python.org/en/latest/specifications/binary-distribution-format/#the-data-directory) that will be installed in a given Python environment, usually under `Scripts` on Windows or `bin` otherwise, and would normally be available on PATH |
 | `extra-metadata` | | A mapping similar to the [forced inclusion](../../config/build.md#forced-inclusion) option corresponding to extra [metadata](https://peps.python.org/pep-0427/#the-dist-info-directory) that will be shipped in a directory named `extra_metadata` |
 | `strict-naming` | `true` | Whether or not file names should contain the normalized version of the project name |
-| `macos-max-compat` | `true` | Whether or not on macOS, when build hooks have set the `infer_tag` [build data](#build-data), the wheel name should signal broad support rather than specific versions for newer SDK versions.<br><br>Note: The default will become `false`, and this option eventually removed, sometime after consumers like pip start supporting these newer SDK versions. |
+| `macos-max-compat` | `false` | Whether or not on macOS, when build hooks have set the `infer_tag` [build data](#build-data), the wheel name should signal broad support rather than specific versions for newer SDK versions.<br><br>Note: This option will eventually be removed. |
 | `bypass-selection` | `false` | Whether or not to suppress the error when one has not defined any file selection options and all heuristics have failed to determine what to ship |
 
 ## Versions

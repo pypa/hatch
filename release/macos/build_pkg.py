@@ -97,7 +97,7 @@ def main():
         # This is where we build the final artifact
         build_dir = temp_dir / 'build'
         build_dir.mkdir()
-        product_archive = build_dir / f'{binary_name}-{version}.pkg'
+        product_archive = build_dir / f'{binary_name}-universal.pkg'
 
         run_command([
             'productbuild',

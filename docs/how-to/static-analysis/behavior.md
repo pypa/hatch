@@ -2,7 +2,7 @@
 
 -----
 
-You can [fully alter](../../config/internal/static-analysis.md#customize-behavior) the static analysis performed by the [`fmt`](../../cli/reference.md#hatch-fmt) command by modifing the reserved [environment](../../config/environment/overview.md) named `hatch-static-analysis`. For example, you could define the following if you wanted to replace the default behavior with a mix of [Black](https://github.com/psf/black), [isort](https://github.com/PyCQA/isort) and basic [flake8](https://github.com/PyCQA/flake8):
+You can [fully alter](../../config/internal/static-analysis.md#customize-behavior) the static analysis performed by the [`fmt`](../../cli/reference.md#hatch-fmt) command by modifying the reserved [environment](../../config/environment/overview.md) named `hatch-static-analysis`. For example, you could define the following if you wanted to replace the default behavior with a mix of [Black](https://github.com/psf/black), [isort](https://github.com/PyCQA/isort) and basic [flake8](https://github.com/PyCQA/flake8):
 
 ```toml config-example
 [tool.hatch.envs.hatch-static-analysis]

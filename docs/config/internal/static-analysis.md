@@ -135,9 +135,9 @@ installer = "pip"
 ### Non-rule settings
 
 - [Line length](https://docs.astral.sh/ruff/settings/#line-length) set to 120
-- [Docstring formatting](https://docs.astral.sh/ruff/formatter/#docstring-formatting) enabled with [line length](https://docs.astral.sh/ruff/settings/#format-docstring-code-line-length) set to 80
-- Only absolute imports [are allowed](https://docs.astral.sh/ruff/settings/#flake8-tidy-imports-ban-relative-imports), [except for tests](#per-file-ignored-rules)
-- The normalized [project name](../metadata.md#name) is a [known first party](https://docs.astral.sh/ruff/settings/#isort-known-first-party) import
+- [Docstring formatting](https://docs.astral.sh/ruff/formatter/#docstring-formatting) enabled with [line length](https://docs.astral.sh/ruff/settings/#format_docstring-code-line-length) set to 80
+- Only absolute imports [are allowed](https://docs.astral.sh/ruff/settings/#lint_flake8-tidy-imports_ban-relative-imports), [except for tests](#per-file-ignored-rules)
+- The normalized [project name](../metadata.md#name) is a [known first party](https://docs.astral.sh/ruff/settings/#lint_isort_known-first-party) import
 
 ### Per-file ignored rules
 
@@ -147,4 +147,12 @@ installer = "pip"
 
 The following rules are based on version <HATCH_RUFF_VERSION> of Ruff. Rules with a ^P^ are only selected when [preview](https://docs.astral.sh/ruff/preview/) mode is enabled.
 
+There are <HATCH_RUFF_STABLE_RULES_COUNT> selected stable rules and <HATCH_RUFF_PREVIEW_RULES_COUNT> selected preview rules.
+
 <HATCH_RUFF_SELECTED_RULES>
+
+#### Unselected
+
+There are <HATCH_RUFF_UNSELECTED_RULES_COUNT> unselected rules.
+
+<HATCH_RUFF_UNSELECTED_RULES>

@@ -52,25 +52,30 @@ def select_environments(
 ):
     selected_environments = []
     for env_name, variables in environments.items():
-        included = set(variables)
-        excluded = set()
+        exclude = False
+        for excluded_variable, excluded_values in excluded_variables.items():
+            if excluded_variable not in variables:
+                continue
 
-        for variable, value in variables.items():
-            if variable in excluded_variables:
-                excluded_values = excluded_variables[variable]
-                if not excluded_values or value in excluded_values:
-                    excluded.add(variable)
-                    break
+            value = variables[excluded_variable]
+            if not excluded_values or value in excluded_values:
+                exclude = True
+                break
 
-            if included_variables:
-                if variable not in included_variables:
-                    included.remove(variable)
-                else:
-                    included_values = included_variables[variable]
-                    if included_values and value not in included_values:
-                        included.remove(variable)
+        if exclude:
+            continue
 
-        if included and not excluded:
+        for included_variable, included_values in included_variables.items():
+            if included_variable not in variables:
+                exclude = True
+                break
+
+            value = variables[included_variable]
+            if included_values and value not in included_values:
+                exclude = True
+                break
+
+        if not exclude:
             selected_environments.append(env_name)
 
     return selected_environments
