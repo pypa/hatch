@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+from functools import cached_property
 from typing import TYPE_CHECKING
 
-import httpx
 import hyperlink
 
 if TYPE_CHECKING:
+    import httpx
+
     from hatch.utils.fs import Path
 
 
@@ -33,17 +35,26 @@ class PackageIndex:
         self.user = user
         self.auth = auth
 
-        cert = None
+        self.__cert = None
         if client_cert:
-            cert = client_cert
+            self.__cert = client_cert
             if client_key:
-                cert = (client_cert, client_key)
+                self.__cert = (client_cert, client_key)
 
-        verify = True
+        self.__verify = True
         if ca_cert:
-            verify = ca_cert
+            self.__verify = ca_cert
 
-        self.client = httpx.Client(timeout=10, transport=httpx.HTTPTransport(retries=3, verify=verify, cert=cert))
+    @cached_property
+    def client(self) -> httpx.Client:
+        import httpx
+
+        from hatch.utils.network import DEFAULT_TIMEOUT
+
+        return httpx.Client(
+            transport=httpx.HTTPTransport(retries=3, verify=self.__verify, cert=self.__cert),
+            timeout=DEFAULT_TIMEOUT,
+        )
 
     def upload_artifact(self, artifact: Path, data: dict):
         import hashlib
