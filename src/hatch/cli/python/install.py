@@ -36,6 +36,10 @@ def install(app: Application, *, names: tuple[str, ...], private: bool, update: 
     ```
     hatch python install all
     ```
+
+    You can set custom sources for distributions by setting the `HATCH_PYTHON_SOURCE_<NAME>` environment variable
+    where `<NAME>` is the uppercased version of the distribution name with periods replaced by underscores e.g.
+    `HATCH_PYTHON_SOURCE_PYPY3_10`.
     """
     from hatch.errors import PythonDistributionResolutionError, PythonDistributionUnknownError
     from hatch.python.distributions import ORDERED_DISTRIBUTIONS
