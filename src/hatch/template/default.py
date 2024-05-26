@@ -43,7 +43,7 @@ class DefaultTemplate(TemplateInterface):
                 url = f'https://raw.githubusercontent.com/spdx/license-list-data/v{VERSION}/text/{license_file_name}'
                 for _ in range(5):
                     try:
-                        download_file(cached_license_path, url, timeout=2)
+                        download_file(cached_license_path, url)
                     except Exception:  # noqa: BLE001, S112
                         continue
                     else:

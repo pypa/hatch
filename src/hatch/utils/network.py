@@ -2,12 +2,11 @@ from __future__ import annotations
 
 import time
 from contextlib import contextmanager
-from secrets import choice
 from typing import TYPE_CHECKING, Any, Generator
 
-import httpx
-
 if TYPE_CHECKING:
+    import httpx
+
     from hatch.utils.fs import Path
 
 MINIMUM_SLEEP = 2
@@ -20,6 +19,10 @@ DEFAULT_TIMEOUT = 10
 
 @contextmanager
 def streaming_response(*args: Any, **kwargs: Any) -> Generator[httpx.Response, None, None]:
+    from secrets import choice
+
+    import httpx
+
     attempts = 0
     while True:
         attempts += 1
