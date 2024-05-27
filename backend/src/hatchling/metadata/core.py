@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+import contextlib
 import os
 import sys
 from contextlib import suppress
 from copy import deepcopy
-from typing import TYPE_CHECKING, Any, Generic, cast
+from typing import TYPE_CHECKING, Any, Generic, cast, Generator
 
 from hatchling.metadata.utils import (
     format_dependency,
@@ -36,12 +37,20 @@ def load_toml(path: str) -> dict[str, Any]:
         return tomllib.loads(f.read())
 
 
+@contextlib.contextmanager
+def set_version(hook: MetadataHookInterface, version: str) -> Generator[None, None, None]:
+    old_version = hook.version
+    hook.version = version
+    yield
+    hook.version = old_version
+
 class ProjectMetadata(Generic[PluginManagerBound]):
     def __init__(
         self,
         root: str,
         plugin_manager: PluginManagerBound | None,
         config: dict[str, Any] | None = None,
+        build_versions: list[str] | None = None,
     ) -> None:
         self.root = root
         self.plugin_manager = plugin_manager
@@ -57,6 +66,7 @@ class ProjectMetadata(Generic[PluginManagerBound]):
         self._name: str | None = None
         self._version: str | None = None
         self._project_file: str | None = None
+        self._build_versions = build_versions
 
         # App already loaded config
         if config is not None and root is not None:
@@ -193,8 +203,9 @@ class ProjectMetadata(Generic[PluginManagerBound]):
 
                 if metadata.dynamic:
                     for metadata_hook in metadata_hooks.values():
-                        metadata_hook.update(self.core_raw_metadata)
-                        metadata.add_known_classifiers(metadata_hook.get_known_classifiers())
+                        with set_version(metadata_hook, self.version):
+                            metadata_hook.update(self.core_raw_metadata)
+                            metadata.add_known_classifiers(metadata_hook.get_known_classifiers())
 
                     new_fields = set(self.core_raw_metadata) - static_fields
                     for new_field in new_fields:

@@ -495,7 +495,6 @@ class WheelBuilder(BuilderInterface):
         from editables import EditableProject
 
         build_data['tag'] = self.get_default_tag()
-
         with WheelArchive(
             self.artifact_project_id, reproducible=self.config.reproducible
         ) as archive, RecordFile() as records:
