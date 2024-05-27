@@ -17,6 +17,26 @@ if TYPE_CHECKING:
     from hatch.utils.fs import Path
 
 
+# Use an artificially high epoch to ensure that custom distributions are always considered newer
+CUSTOM_DISTRIBUTION_VERSION_EPOCH = 100
+
+
+def custom_env_var(prefix: str, name: str) -> str:
+    return f'{prefix}{name.upper().replace(".", "_")}'
+
+
+def get_custom_source(name: str) -> str | None:
+    return os.environ.get(custom_env_var(PythonEnvVars.CUSTOM_SOURCE_PREFIX, name))
+
+
+def get_custom_version(name: str) -> str | None:
+    return os.environ.get(custom_env_var(PythonEnvVars.CUSTOM_VERSION_PREFIX, name))
+
+
+def get_custom_path(name: str) -> str | None:
+    return os.environ.get(custom_env_var(PythonEnvVars.CUSTOM_PATH_PREFIX, name))
+
+
 class Distribution(ABC):
     def __init__(self, name: str, source: str) -> None:
         self.__name = name
@@ -28,8 +48,7 @@ class Distribution(ABC):
 
     @cached_property
     def source(self) -> str:
-        env_var = f'{PythonEnvVars.SOURCE_PREFIX}{self.name.upper().replace(".", "_")}'
-        return os.environ.get(env_var, self.__source)
+        return self.__source if (custom_source := get_custom_source(self.name)) is None else custom_source
 
     @cached_property
     def archive_name(self) -> str:
@@ -41,7 +60,7 @@ class Distribution(ABC):
 
             with zipfile.ZipFile(archive, 'r') as zf:
                 zf.extractall(directory)
-        elif self.source.endswith('.tar.gz'):
+        elif self.source.endswith(('.tar.gz', '.tgz')):
             import tarfile
 
             with tarfile.open(archive, 'r:gz') as tf:
@@ -49,7 +68,7 @@ class Distribution(ABC):
                     tf.extractall(directory, filter='data')
                 else:
                     tf.extractall(directory)  # noqa: S202
-        elif self.source.endswith('.tar.bz2'):
+        elif self.source.endswith(('.tar.bz2', '.bz2')):
             import tarfile
 
             with tarfile.open(archive, 'r:bz2') as tf:
@@ -57,7 +76,7 @@ class Distribution(ABC):
                     tf.extractall(directory, filter='data')
                 else:
                     tf.extractall(directory)  # noqa: S202
-        elif self.source.endswith('.tar.zst'):
+        elif self.source.endswith(('.tar.zst', '.tar.zstd')):
             import tarfile
 
             import zstandard
@@ -89,6 +108,9 @@ class CPythonStandaloneDistribution(Distribution):
     def version(self) -> Version:
         from packaging.version import Version
 
+        if (custom_version := get_custom_version(self.name)) is not None:
+            return Version(f'{CUSTOM_DISTRIBUTION_VERSION_EPOCH}!{custom_version}')
+
         # .../cpython-3.12.0%2B20231002-...
         # .../cpython-3.7.9-...
         _, _, remaining = self.source.partition('/cpython-')
@@ -99,6 +121,9 @@ class CPythonStandaloneDistribution(Distribution):
 
     @cached_property
     def python_path(self) -> str:
+        if (custom_path := get_custom_path(self.name)) is not None:
+            return custom_path
+
         if self.name == '3.7':
             if sys.platform == 'win32':
                 return r'python\install\python.exe'
@@ -116,12 +141,18 @@ class PyPyOfficialDistribution(Distribution):
     def version(self) -> Version:
         from packaging.version import Version
 
+        if (custom_version := get_custom_version(self.name)) is not None:
+            return Version(f'{CUSTOM_DISTRIBUTION_VERSION_EPOCH}!{custom_version}')
+
         *_, remaining = self.source.partition('/pypy/')
         _, version, *_ = remaining.split('-')
         return Version(f'0!{version[1:]}')
 
     @cached_property
     def python_path(self) -> str:
+        if (custom_path := get_custom_path(self.name)) is not None:
+            return custom_path
+
         directory = self.archive_name
         for extension in ('.tar.bz2', '.zip'):
             if directory.endswith(extension):
