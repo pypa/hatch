@@ -30,13 +30,13 @@ jobs:
     - name: Validate history
       run: python scripts/validate_history.py
 
-    - name: Ensure latest pip
-      run: python -m pip install --upgrade pip
+    - name: Install UV
+      run: curl -LsSf https://astral.sh/uv/install.sh | sh
 
     - name: Install ourself
       run: |
-        pip install -e .
-        pip install -e ./backend
+        uv pip install --system -e .
+        uv pip install --system -e ./backend
 
     - name: Display full version
       run: hatch version
