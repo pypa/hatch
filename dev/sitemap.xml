@@ -346,6 +346,11 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://hatch.pypa.io/dev/tutorials/python/manage/</loc>
+         <lastmod>2020-02-02</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://hatch.pypa.io/dev/tutorials/testing/overview/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
