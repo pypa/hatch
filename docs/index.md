@@ -41,7 +41,7 @@ Hatch is a modern, extensible Python project manager. See the [Why Hatch?](why.m
 
     Choose between easy manual installations or automatic as part of environments
 
-    [:octicons-arrow-right-24: Try it](cli/reference.md#hatch-python)
+    [:octicons-arrow-right-24: Try it](tutorials/python/manage.md)
 
 -   :octicons-shield-check-24:{ .lg .middle } __Testing__
 

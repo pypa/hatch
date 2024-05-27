@@ -201,6 +201,6 @@ The only caveat is that currently there is no support for re-creating an environ
 
 ## Fast CLI?
 
-The claim about being faster than other tools is [based on timings](https://github.com/pypa/hatch/blob/f47653ab41cb42aaf66744ecd801fe83b7537310/.github/workflows/test.yml#L138-L169) that are always checked in CI.
+The claim about being faster than other tools is [based on timings](https://github.com/pypa/hatch/actions/workflows/cli.yml) that are always checked in CI.
 
 Hatch achieves this by using lazy imports, lazily performing computation manually and with [functools.cached_property](https://docs.python.org/3/library/functools.html#functools.cached_property), using hacks like `not not ...` instead of `bool(...)`, etc.
