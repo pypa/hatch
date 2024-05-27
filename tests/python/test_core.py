@@ -5,7 +5,7 @@ import pytest
 from hatch.config.constants import PythonEnvVars
 from hatch.python.core import InstalledDistribution, PythonManager
 from hatch.python.distributions import ORDERED_DISTRIBUTIONS
-from hatch.python.resolve import get_distribution
+from hatch.python.resolve import custom_env_var, get_distribution
 from hatch.utils.structures import EnvVars
 
 
@@ -15,7 +15,7 @@ def test_custom_source(platform, current_arch, name):
         pytest.skip('No macOS 3.7 distribution for ARM')
 
     dist = get_distribution(name)
-    with EnvVars({f'{PythonEnvVars.SOURCE_PREFIX}{name.upper().replace(".", "_")}': 'foo'}):
+    with EnvVars({custom_env_var(PythonEnvVars.CUSTOM_SOURCE_PREFIX, name): 'foo'}):
         assert dist.source == 'foo'
 
 

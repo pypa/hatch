@@ -131,11 +131,13 @@ nav:
       - Dependency resolution: how-to/environment/dependency-resolution.md
     - Static analysis:
       - Customize behavior: how-to/static-analysis/behavior.md
-    - Plugins:
-      - Testing builds: how-to/plugins/testing-builds.md
+    - Python:
+      - Custom distributions: how-to/python/custom.md
     - Publishing:
         - Authentication: how-to/publish/auth.md
         - Repository selection: how-to/publish/repo.md
+    - Plugins:
+      - Testing builds: how-to/plugins/testing-builds.md
   - Tutorials:
     - Python:
       - Management: tutorials/python/manage.md

@@ -3,8 +3,9 @@ from platform import machine
 
 import pytest
 
+from hatch.config.constants import PythonEnvVars
 from hatch.errors import PythonDistributionResolutionError, PythonDistributionUnknownError
-from hatch.python.resolve import get_distribution
+from hatch.python.resolve import custom_env_var, get_distribution
 from hatch.utils.structures import EnvVars
 
 
@@ -34,6 +35,15 @@ class TestDistributionVersions:
         assert version.epoch == 0
         assert version.base_version == '3.11.3'
 
+    def test_cpython_standalone_custom(self):
+        name = '3.11'
+        dist = get_distribution(name)
+        with EnvVars({custom_env_var(PythonEnvVars.CUSTOM_VERSION_PREFIX, name): '9000.42'}):
+            version = dist.version
+
+        assert version.epoch == 100
+        assert '.'.join(map(str, version.release)) == '9000.42'
+
     def test_pypy(self):
         url = 'https://downloads.python.org/pypy/pypy3.10-v7.3.12-aarch64.tar.bz2'
         dist = get_distribution('pypy3.10', url)
@@ -41,6 +51,29 @@ class TestDistributionVersions:
 
         assert version.epoch == 0
         assert version.base_version == '7.3.12'
+
+    def test_pypy_custom(self):
+        name = 'pypy3.10'
+        dist = get_distribution(name)
+        with EnvVars({custom_env_var(PythonEnvVars.CUSTOM_VERSION_PREFIX, name): '9000.42'}):
+            version = dist.version
+
+        assert version.epoch == 100
+        assert '.'.join(map(str, version.release)) == '9000.42'
+
+
+class TestDistributionPaths:
+    def test_cpython_standalone_custom(self):
+        name = '3.11'
+        dist = get_distribution(name)
+        with EnvVars({custom_env_var(PythonEnvVars.CUSTOM_PATH_PREFIX, name): 'foo/bar/python'}):
+            assert dist.python_path == 'foo/bar/python'
+
+    def test_pypy_custom(self):
+        name = 'pypy3.10'
+        dist = get_distribution(name)
+        with EnvVars({custom_env_var(PythonEnvVars.CUSTOM_PATH_PREFIX, name): 'foo/bar/python'}):
+            assert dist.python_path == 'foo/bar/python'
 
 
 @pytest.mark.parametrize(
