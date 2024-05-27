@@ -20,7 +20,7 @@ defaults:
 
 env:
   APP_NAME: hatch
-  PYTHON_VERSION: "3.11"
+  PYTHON_VERSION: "3.12"
   PYOXIDIZER_VERSION: "0.24.0"
   DIST_URL: "https://github.com/pypa/hatch/releases/download"
 
@@ -39,8 +39,16 @@ jobs:
       with:
         fetch-depth: 0
 
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install UV
+      run: curl -LsSf https://astral.sh/uv/install.sh | sh
+
     - name: Install tools
-      run: python -m pip install --upgrade build hatch
+      run: uv pip install --system build hatch
 
     # Windows installers don't accept non-integer versions so we ubiquitously
     # perform the following transformation: X.Y.Z.devN -> X.Y.Z.N
@@ -149,10 +157,13 @@ jobs:
       with:
         python-version: ${{ env.PYTHON_VERSION }}
 
+    - name: Install UV
+      run: curl -LsSf https://astral.sh/uv/install.sh | sh
+
     - name: Install Hatch
       run: |-
-        pip install -e .
-        pip install -e ./backend
+        uv pip install --system -e .
+        uv pip install --system -e ./backend
 
     - name: Install Rust toolchain
       uses: dtolnay/rust-toolchain@stable
@@ -272,8 +283,11 @@ jobs:
       with:
         python-version: ${{ env.PYTHON_VERSION }}
 
+    - name: Install UV
+      run: curl -LsSf https://astral.sh/uv/install.sh | sh
+
     - name: Install PyOxidizer ${{ env.PYOXIDIZER_VERSION }}
-      run: pip install pyoxidizer==${{ env.PYOXIDIZER_VERSION }}
+      run: uv pip install --system pyoxidizer==${{ env.PYOXIDIZER_VERSION }}
 
     - name: Download staged binaries
       uses: actions/download-artifact@v4
@@ -355,8 +369,11 @@ jobs:
       with:
         python-version: ${{ env.PYTHON_VERSION }}
 
+    - name: Install UV
+      run: curl -LsSf https://astral.sh/uv/install.sh | sh
+
     - name: Install PyOxidizer ${{ env.PYOXIDIZER_VERSION }}
-      run: pip install pyoxidizer==${{ env.PYOXIDIZER_VERSION }}
+      run: uv pip install --system pyoxidizer==${{ env.PYOXIDIZER_VERSION }}
 
     - name: Install rcodesign
       env:

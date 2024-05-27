@@ -31,12 +31,15 @@ jobs:
       with:
         python-version: ${{ env.DIST_PYTHON_VERSION }}
 
+    - name: Install UV
+      run: curl -LsSf https://astral.sh/uv/install.sh | sh
+
     - name: Install Hatch
       if: inputs.version
       # Try to install the specific version of Hatch that was just released until successful
       run: |-
         for i in {1..20}; do
-          pip install hatch==${{ inputs.version }} && break || sleep 5
+          uv pip install --system hatch==${{ inputs.version }} && break || sleep 5
         done
 
   linux:

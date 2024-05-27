@@ -5,6 +5,9 @@ on:
     tags:
     - hatchling-v*
 
+env:
+  PYTHON_VERSION: "3.12"
+
 jobs:
   build:
     name: Build wheels and source distribution
@@ -13,8 +16,16 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install UV
+      run: curl -LsSf https://astral.sh/uv/install.sh | sh
+
     - name: Install build dependencies
-      run: python -m pip install --upgrade build
+      run: uv pip install --system --upgrade build
 
     - name: Build source distribution
       run: python -m build backend
