@@ -79,9 +79,10 @@ def install(app: Application, *, names: tuple[str, ...], private: bool, update: 
     for name in compatible:
         needs_update = False
         if name in installed:
-            needs_update = installed[name].needs_update()
+            installed_dist = installed[name]
+            needs_update = installed_dist.needs_update()
             if not needs_update:
-                app.display_warning(f'The latest version is already installed: {name}')
+                app.display_warning(f'The latest version is already installed: {installed_dist.version}')
                 continue
 
             if not (update or app.confirm(f'Update {name}?')):

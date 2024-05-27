@@ -97,14 +97,14 @@ def test_installation(
 def test_already_installed_latest(hatch, helpers, temp_dir_data, path_append, dist_name, mocker):
     install = mocker.patch('hatch.python.core.PythonManager.install')
     install_dir = temp_dir_data / 'data' / 'pythons'
-    helpers.write_distribution(install_dir, dist_name)
+    installed_dist = helpers.write_distribution(install_dir, dist_name)
 
     result = hatch('python', 'install', dist_name)
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
         f"""
-        The latest version is already installed: {dist_name}
+        The latest version is already installed: {installed_dist.version}
         """
     )
 

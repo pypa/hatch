@@ -45,7 +45,7 @@ If you are using `nox` and you wish to migrate, and for some reason you [notify]
 
 ## Python management
 
-Here we compare [Python management](cli/reference.md#hatch-python) to that of [pyenv](https://github.com/pyenv/pyenv).
+Here we compare [Python management](tutorials/python/manage.md) to that of [pyenv](https://github.com/pyenv/pyenv).
 
 - ***Cross-platform:*** Hatch allows for the same experience no matter the system whereas `pyenv` does not support Windows so you must use an [entirely different project](https://github.com/pyenv-win/pyenv-win) that tries to emulate the functionality.
 - ***No build dependencies:*** Hatch guarantees that every [available distribution](cli/reference.md#hatch-python-show) is prebuilt whereas the alternative requires one to maintain a precise [build environment](https://github.com/pyenv/pyenv/wiki#suggested-build-environment) which differs by platform and potentially Python version. Another benefit to this is extremely fast installations since the distributions are simply downloaded and unpacked.

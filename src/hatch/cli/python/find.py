@@ -18,7 +18,7 @@ def find(app: Application, *, name: str, parent: bool, directory: str | None):
     manager = app.get_python_manager(directory)
     installed = manager.get_installed()
     if name not in installed:
-        app.abort('Distribution not installed')
+        app.abort(f'Distribution not installed: {name}')
 
     dist = installed[name]
     app.display(str(dist.python_path.parent if parent else dist.python_path))

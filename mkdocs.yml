@@ -137,6 +137,8 @@ nav:
         - Authentication: how-to/publish/auth.md
         - Repository selection: how-to/publish/repo.md
   - Tutorials:
+    - Python:
+      - Management: tutorials/python/manage.md
     - Environments:
       - Basic usage: tutorials/environment/basic-usage.md
     - Testing:

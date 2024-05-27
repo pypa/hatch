@@ -1,10 +1,11 @@
 def test_not_installed(hatch, helpers):
-    result = hatch('python', 'find', '3.10')
+    name = '3.10'
+    result = hatch('python', 'find', name)
 
     assert result.exit_code == 1, result.output
     assert result.output == helpers.dedent(
-        """
-        Distribution not installed
+        f"""
+        Distribution not installed: {name}
         """
     )
 
