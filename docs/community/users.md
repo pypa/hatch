@@ -95,7 +95,7 @@ The following is not intended to be a complete enumeration. Be sure to view the 
 
 ## Organizations
 
-- [Free Ebook Foundation](https://ebookfoundation.org) <sup>\[[1](https://github.com/EbookFoundation/alt-text/blob/068b4df6ea1f4d1f8900e3e14cbb36d906ec9dcf/pyproject.toml#L1-L11)\]</sup>
+- [Free Ebook Foundation](https://ebookfoundation.org) <sup>\[[1](https://github.com/EbookFoundation/alt-text/blob/00433b1a971309a441ef4822322cc6ea6347d9b2/pyproject.toml#L1-L3)\]</sup>
 - [Greater Paris University Hospitals (AP-HP)](https://www.aphp.fr) <sup>\[[1](https://github.com/aphp/edspdf/blob/ec083ed7fedddbdbb398c6feee530e05273f7dbb/pyproject.toml#L195-L197)\]</sup>
 - [Massachusetts General Hospital](https://www.massgeneral.org) <sup>\[[1](https://github.com/pinellolab/DNA-Diffusion/blob/6530de4ae4e0ff95f6e0852cd0d77ee763fb8833/pyproject.toml#L1-L3)\]</sup>
 - [Let's Encrypt](https://letsencrypt.org) <sup>\[[1](https://github.com/letsencrypt/mariadb-sequential-partition-manager-py/blob/666de864bcd3e17001513cd14f8919b01be7dd58/pyproject.toml#L1-L3)\]</sup>
