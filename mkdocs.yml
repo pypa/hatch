@@ -134,8 +134,8 @@ nav:
     - Python:
       - Custom distributions: how-to/python/custom.md
     - Publishing:
-        - Authentication: how-to/publish/auth.md
-        - Repository selection: how-to/publish/repo.md
+      - Authentication: how-to/publish/auth.md
+      - Repository selection: how-to/publish/repo.md
     - Plugins:
       - Testing builds: how-to/plugins/testing-builds.md
   - Tutorials:
