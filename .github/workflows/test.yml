@@ -35,7 +35,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Install UV
-      run: curl -LsSf https://astral.sh/uv/install.sh | sh
+      run: curl -LsSf https://github.com/astral-sh/uv/releases/latest/download/uv-installer.sh | sh
 
     - name: Install ourself
       run: |
