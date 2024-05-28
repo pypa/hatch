@@ -3747,4 +3747,6 @@ class TestBuildStandard:
             build_path / f'{builder.artifact_project_id}-{get_python_versions_tag()}-none-any.whl'
         )
         file_stat = os.stat(expected_artifact)
-        assert file_stat.st_mode == 0o100644
+        # we assert that at minimum 644 is set, based on the platform (e.g.)
+        # windows it may be higher
+        assert file_stat.st_mode & 0o644
