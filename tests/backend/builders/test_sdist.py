@@ -1523,7 +1523,7 @@ class TestBuildStandard:
         stat = os.stat(str(extraction_directory / builder.artifact_project_id / 'PKG-INFO'))
         assert stat.st_mtime == get_reproducible_timestamp()
 
-    def test_file_permissions_normalized(self, hatch, helpers, temp_dir, config_file):
+    def test_file_permissions_normalized(self, hatch, temp_dir, config_file):
         config_file.model.template.plugins['default']['src-layout'] = False
         config_file.save()
 

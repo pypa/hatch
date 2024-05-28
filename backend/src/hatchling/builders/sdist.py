@@ -15,6 +15,7 @@ from hatchling.builders.plugin.interface import BuilderInterface
 from hatchling.builders.utils import (
     get_reproducible_timestamp,
     normalize_archive_path,
+    normalize_artifact_permissions,
     normalize_file_permissions,
     normalize_relative_path,
     replace_file,
@@ -36,10 +37,8 @@ class SdistArchive:
         self.timestamp: int | None = get_reproducible_timestamp() if reproducible else None
 
         raw_fd, self.path = tempfile.mkstemp(suffix='.tar.gz')
+        normalize_artifact_permissions(self.path)
         self.fd = os.fdopen(raw_fd, 'w+b')
-        file_stat = os.stat(self.path)
-        new_mode = normalize_file_permissions(file_stat.st_mode)
-        os.chmod(self.path, new_mode)
         self.gz = gzip.GzipFile(fileobj=self.fd, mode='wb', mtime=self.timestamp)
         self.tf = tarfile.TarFile(fileobj=self.gz, mode='w', format=tarfile.PAX_FORMAT)
         self.gettarinfo = lambda *args, **kwargs: self.normalize_tar_metadata(self.tf.gettarinfo(*args, **kwargs))

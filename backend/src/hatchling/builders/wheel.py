@@ -20,6 +20,7 @@ from hatchling.builders.utils import (
     get_known_python_major_versions,
     get_reproducible_timestamp,
     normalize_archive_path,
+    normalize_artifact_permissions,
     normalize_file_permissions,
     normalize_inclusion_map,
     replace_file,
@@ -79,9 +80,7 @@ class WheelArchive:
             self.time_tuple = None
 
         raw_fd, self.path = tempfile.mkstemp(suffix='.whl')
-        file_stat = os.stat(self.path)
-        new_mode = normalize_file_permissions(file_stat.st_mode)
-        os.chmod(self.path, new_mode)
+        normalize_artifact_permissions(self.path)
         self.fd = os.fdopen(raw_fd, 'w+b')
         self.zf = zipfile.ZipFile(self.fd, 'w', compression=zipfile.ZIP_DEFLATED)
 
