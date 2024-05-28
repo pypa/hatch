@@ -145,8 +145,8 @@ The only caveat is that currently there is no support for re-creating an environ
     ```ini tab="tox.ini"
     [tox]
     envlist =
-        py{27,38}-{42,3.14}
-        py{38,39}-{9000}-{foo,bar}
+        py{38,39}-{42,3.14}
+        py{39,310}-{9000}-{foo,bar}
 
     [testenv]
     usedevelop = true
@@ -184,19 +184,19 @@ The only caveat is that currently there is no support for re-creating an environ
 
     [tool.hatch.envs.default.overrides]
     matrix.version.env-vars = "PRODUCT_VERSION"
-    matrix.features.env-vars = "EXPERIMENTAL=true"
-    matrix.features.dependencies = [
+    matrix.feature.env-vars = "EXPERIMENTAL=true"
+    matrix.feature.dependencies = [
       { value = "cryptography", if = ["foo"] },
     ]
 
     [[tool.hatch.envs.default.matrix]]
-    python = ["2.7", "3.8"]
+    python = ["3.8", "3.9"]
     version = ["42", "3.14"]
 
     [[tool.hatch.envs.default.matrix]]
-    python = ["3.8", "3.9"]
+    python = ["3.9", "3.10"]
     version = ["9000"]
-    features = ["foo", "bar"]
+    feature = ["foo", "bar"]
     ```
 
 ## Fast CLI?
