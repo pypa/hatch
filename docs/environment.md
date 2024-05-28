@@ -35,7 +35,7 @@ $ hatch shell
 Now confirm the project has been installed:
 
 ```console
-(hatch-demo) $ pip show hatch-demo
+(hatch-demo) $ hatch run pip show hatch-demo
 Name: hatch-demo
 Version: 0.0.1
 ...
