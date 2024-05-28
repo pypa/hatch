@@ -45,6 +45,28 @@ You can disable inheritance by setting `template` to the environment's own name:
 template = "foo"
 ```
 
+### Global environment configurations
+
+Environment configurations set using the environment ``__all__`` create global configurations
+for all environments, but can be overwritten for each individual environment.
+
+```toml config-example
+[tool.hatch.envs.__all__.env-vars]
+PYTHONPATH = src
+
+[tool.hatch.envs.__all__]
+dev-mode = false
+
+[tool.hatch.envs.foo]
+dev-mode = true
+```
+
+In the above example, dev-mode is true for all environments, but 
+overwritten by ``foo``.
+
+!!! note
+    This means that the environment name ``__all__`` is shadowed.
+
 ### Detached environments
 
 A common use case is standalone environments that do not require inheritance nor the installation of the project, such as for linting or sometimes building documentation. Enabling the `detached` option will make the environment [self-referential](#self-referential-environments) and will [skip project installation](#skip-install):

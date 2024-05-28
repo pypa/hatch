@@ -53,6 +53,26 @@ class TestEnvVars:
 
         assert environment.env_vars == environment.env_vars == {AppEnvVars.ENV_ACTIVE: 'default'}
 
+    def test_global_env_vars(self, isolation, isolated_data_dir, platform):
+        config = {
+            'project': {'name': 'my_app', 'version': '0.0.1'},
+            'tool': {'hatch': {'envs': {'__all__': {'env-vars': {'ALL': 1}}}}},
+        }
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+        )
+
+        assert environment.env_vars == environment.env_vars == {AppEnvVars.ENV_ACTIVE: 'default'}
+
     def test_not_table(self, isolation, isolated_data_dir, platform):
         config = {
             'project': {'name': 'my_app', 'version': '0.0.1'},
@@ -100,7 +120,8 @@ class TestEnvVars:
     def test_correct(self, isolation, isolated_data_dir, platform):
         config = {
             'project': {'name': 'my_app', 'version': '0.0.1'},
-            'tool': {'hatch': {'envs': {'default': {'env-vars': {'foo': 'bar'}}}}},
+            'tool': {'hatch': {'envs': {'default': {'env-vars': {'foo': 'bar'}},
+                                        '__all__': {'env-vars': {'foo1': 'bar'}}}}},
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
@@ -115,7 +136,7 @@ class TestEnvVars:
             0,
         )
 
-        assert environment.env_vars == {AppEnvVars.ENV_ACTIVE: 'default', 'foo': 'bar'}
+        assert environment.env_vars == {AppEnvVars.ENV_ACTIVE: 'default', 'foo': 'bar', 'foo1': 'bar'}
 
     def test_context_formatting(self, isolation, isolated_data_dir, platform):
         config = {
