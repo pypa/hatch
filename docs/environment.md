@@ -131,13 +131,13 @@ dependencies = [
 ]
 
 [[tool.hatch.envs.test.matrix]]
-python = ["2.7", "3.8"]
+python = ["3.10", "3.11"]
 version = ["42", "3.14"]
 
 [[tool.hatch.envs.test.matrix]]
-python = ["3.8", "3.9"]
+python = ["3.11", "3.12"]
 version = ["9000"]
-features = ["foo", "bar"]
+feature = ["foo", "bar"]
 ```
 
 Using the [`env show`](cli/reference.md#hatch-env-show) command would then display:
@@ -150,19 +150,19 @@ $ hatch env show --ascii
 +=========+=========+
 | default | virtual |
 +---------+---------+
-                       Matrices
-+------+---------+---------------------+--------------+
-| Name | Type    | Envs                | Dependencies |
-+======+=========+=====================+==============+
-| test | virtual | test.py2.7-42       | pytest       |
-|      |         | test.py2.7-3.14     |              |
-|      |         | test.py3.8-42       |              |
-|      |         | test.py3.8-3.14     |              |
-|      |         | test.py3.8-9000-foo |              |
-|      |         | test.py3.8-9000-bar |              |
-|      |         | test.py3.9-9000-foo |              |
-|      |         | test.py3.9-9000-bar |              |
-+------+---------+---------------------+--------------+
+                        Matrices
++------+---------+----------------------+--------------+
+| Name | Type    | Envs                 | Dependencies |
++======+=========+======================+==============+
+| test | virtual | test.py3.10-42       | pytest       |
+|      |         | test.py3.10-3.14     |              |
+|      |         | test.py3.11-42       |              |
+|      |         | test.py3.11-3.14     |              |
+|      |         | test.py3.11-9000-foo |              |
+|      |         | test.py3.11-9000-bar |              |
+|      |         | test.py3.12-9000-foo |              |
+|      |         | test.py3.12-9000-bar |              |
++------+---------+----------------------+--------------+
 ```
 
 ## Removal

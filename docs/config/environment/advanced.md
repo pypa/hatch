@@ -25,11 +25,11 @@ dependencies = [
 ]
 
 [[tool.hatch.envs.test.matrix]]
-python = ["2.7", "3.8"]
+python = ["3.10", "3.11"]
 version = ["42", "3.14"]
 
 [[tool.hatch.envs.test.matrix]]
-python = ["3.8", "3.9"]
+python = ["3.11", "3.12"]
 version = ["9000"]
 feature = ["foo", "bar"]
 ```
@@ -117,7 +117,7 @@ dependencies = [
 cov = 'pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=pkg --cov=tests'
 
 [[tool.hatch.envs.test.matrix]]
-python = ["2.7", "3.8"]
+python = ["3.11", "3.12"]
 version = ["42", "3.14"]
 ```
 
@@ -177,7 +177,7 @@ matrix.auth.features = [
 ]
 
 [[tool.hatch.envs.test.matrix]]
-python = ["2.7", "3.8"]
+python = ["3.11", "3.12"]
 version = ["legacy", "latest"]
 auth = ["oauth2", "kerberos", "noauth"]
 ```
