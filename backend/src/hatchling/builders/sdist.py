@@ -37,6 +37,9 @@ class SdistArchive:
 
         raw_fd, self.path = tempfile.mkstemp(suffix='.tar.gz')
         self.fd = os.fdopen(raw_fd, 'w+b')
+        file_stat = os.stat(self.path)
+        new_mode = normalize_file_permissions(file_stat.st_mode)
+        os.chmod(self.path, new_mode)
         self.gz = gzip.GzipFile(fileobj=self.fd, mode='wb', mtime=self.timestamp)
         self.tf = tarfile.TarFile(fileobj=self.gz, mode='w', format=tarfile.PAX_FORMAT)
         self.gettarinfo = lambda *args, **kwargs: self.normalize_tar_metadata(self.tf.gettarinfo(*args, **kwargs))

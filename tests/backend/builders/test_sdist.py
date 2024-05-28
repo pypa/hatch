@@ -1522,3 +1522,42 @@ class TestBuildStandard:
 
         stat = os.stat(str(extraction_directory / builder.artifact_project_id / 'PKG-INFO'))
         assert stat.st_mtime == get_reproducible_timestamp()
+
+    def test_file_permissions_normalized(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
+        project_name = 'My.App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / 'my-app'
+        config = {
+            'project': {'name': project_name, 'dynamic': ['version']},
+            'tool': {
+                'hatch': {
+                    'version': {'path': 'my_app/__about__.py'},
+                    'build': {'targets': {'sdist': {'versions': ['standard']}}},
+                },
+            },
+        }
+        builder = SdistBuilder(str(project_path), config=config)
+
+        build_path = project_path / 'dist'
+
+        with project_path.as_cwd():
+            artifacts = list(builder.build())
+
+        assert len(artifacts) == 1
+        expected_artifact = artifacts[0]
+
+        build_artifacts = list(build_path.iterdir())
+        assert len(build_artifacts) == 1
+        assert expected_artifact == str(build_artifacts[0])
+        assert expected_artifact == str(build_path / f'{builder.artifact_project_id}.tar.gz')
+
+        file_stat = os.stat(expected_artifact)
+        assert file_stat.st_mode == 0o100644

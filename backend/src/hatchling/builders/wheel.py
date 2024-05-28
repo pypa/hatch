@@ -79,6 +79,9 @@ class WheelArchive:
             self.time_tuple = None
 
         raw_fd, self.path = tempfile.mkstemp(suffix='.whl')
+        file_stat = os.stat(self.path)
+        new_mode = normalize_file_permissions(file_stat.st_mode)
+        os.chmod(self.path, new_mode)
         self.fd = os.fdopen(raw_fd, 'w+b')
         self.zf = zipfile.ZipFile(self.fd, 'w', compression=zipfile.ZIP_DEFLATED)
 
