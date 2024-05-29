@@ -80,7 +80,6 @@ class WheelArchive:
             self.time_tuple = None
 
         raw_fd, self.path = tempfile.mkstemp(suffix='.whl')
-        normalize_artifact_permissions(self.path)
         self.fd = os.fdopen(raw_fd, 'w+b')
         self.zf = zipfile.ZipFile(self.fd, 'w', compression=zipfile.ZIP_DEFLATED)
 
@@ -485,6 +484,7 @@ class WheelBuilder(BuilderInterface):
         target = os.path.join(directory, f"{self.artifact_project_id}-{build_data['tag']}.whl")
 
         replace_file(archive.path, target)
+        normalize_artifact_permissions(target)
         return target
 
     def build_editable(self, directory: str, **build_data: Any) -> str:
@@ -573,6 +573,7 @@ class WheelBuilder(BuilderInterface):
         target = os.path.join(directory, f"{self.artifact_project_id}-{build_data['tag']}.whl")
 
         replace_file(archive.path, target)
+        normalize_artifact_permissions(target)
         return target
 
     def build_editable_explicit(self, directory: str, **build_data: Any) -> str:
@@ -601,6 +602,7 @@ class WheelBuilder(BuilderInterface):
         target = os.path.join(directory, f"{self.artifact_project_id}-{build_data['tag']}.whl")
 
         replace_file(archive.path, target)
+        normalize_artifact_permissions(target)
         return target
 
     def write_data(

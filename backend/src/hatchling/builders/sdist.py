@@ -37,7 +37,6 @@ class SdistArchive:
         self.timestamp: int | None = get_reproducible_timestamp() if reproducible else None
 
         raw_fd, self.path = tempfile.mkstemp(suffix='.tar.gz')
-        normalize_artifact_permissions(self.path)
         self.fd = os.fdopen(raw_fd, 'w+b')
         self.gz = gzip.GzipFile(fileobj=self.fd, mode='wb', mtime=self.timestamp)
         self.tf = tarfile.TarFile(fileobj=self.gz, mode='w', format=tarfile.PAX_FORMAT)
@@ -204,6 +203,7 @@ class SdistBuilder(BuilderInterface):
         target = os.path.join(directory, f'{self.artifact_project_id}.tar.gz')
 
         replace_file(archive.path, target)
+        normalize_artifact_permissions(target)
         return target
 
     @property
