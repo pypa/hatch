@@ -189,7 +189,9 @@ class SdistBuilder(BuilderInterface):
                     archive.addfile(tar_info)
 
             archive.create_file(
-                self.config.core_metadata_constructor(self.metadata, extra_dependencies=build_data['dependencies']),
+                self.config.core_metadata_constructor(self.metadata,
+                                                      extra_dependencies=build_data['dependencies'],
+                                                      normalize_requirement=self.releasable_requirement),
                 'PKG-INFO',
             )
 

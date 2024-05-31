@@ -701,7 +701,9 @@ Root-Is-Purelib: {'true' if build_data['pure_python'] else 'false'}
         self, archive: WheelArchive, records: RecordFile, extra_dependencies: Sequence[str] = ()
     ) -> None:
         record = archive.write_metadata(
-            'METADATA', self.config.core_metadata_constructor(self.metadata, extra_dependencies=extra_dependencies)
+            'METADATA', self.config.core_metadata_constructor(self.metadata,
+                                                              extra_dependencies=extra_dependencies,
+                                                              normalize_requirement=self.releasable_requirement)
         )
         records.write(record)
 

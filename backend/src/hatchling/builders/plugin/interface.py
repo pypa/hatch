@@ -5,6 +5,8 @@ import re
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Callable, Generator, Generic, Iterable, cast
 
+from packaging.requirements import Requirement
+
 from hatchling.builders.config import BuilderConfig, BuilderConfigBound, env_var_enabled
 from hatchling.builders.constants import EXCLUDED_DIRECTORIES, EXCLUDED_FILES, BuildEnvVars
 from hatchling.builders.utils import get_relative_path, safe_walk
@@ -439,3 +441,22 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
         https://peps.python.org/pep-0427/#escaping-and-unicode
         """
         return re.sub(r'[^\w\d.]+', '_', file_name, flags=re.UNICODE)
+
+    def releasable_requirement(self, req: Requirement) -> Requirement:
+        if not req.url:
+            return req
+        req_url = req.url
+        if req_url.startswith("file://"):
+            req_url = req.url[len("file://") :]
+        elif ":" in req_url:
+            return req
+        if req_url.startswith("/"):
+            p_path = req_url
+        else:
+            p_path = os.path.normpath(os.path.join(self.root, req_url))
+        if not os.path.isdir(p_path):
+            return req
+        p_meta = ProjectMetadata(p_path, plugin_manager=self.metadata.plugin_manager)
+        p_ver = p_meta.version
+        return Requirement(f"{req.name}=={p_ver}")
+
