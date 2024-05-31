@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Generic, cast
 
+from packaging.requirements import Requirement
+
 from hatchling.builders.config import BuilderConfigBound
 
 if TYPE_CHECKING:
@@ -111,6 +113,14 @@ class BuildHookInterface(Generic[BuilderConfigBound]):  # no cov
         The plugin name of the build target.
         """
         return self.__target_name
+
+    def publishable_local(self, req: Requirement) -> Requirement:
+        """
+        Converts a local requirement to publishable.
+        @param req: requirement
+        @return: publishable requirement or original
+        """
+        return req
 
     def dependencies(self) -> list[str]:  # noqa: PLR6301
         """

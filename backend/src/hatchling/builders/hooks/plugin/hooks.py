@@ -3,6 +3,7 @@ from __future__ import annotations
 import typing
 
 from hatchling.builders.hooks.custom import CustomBuildHook
+from hatchling.builders.hooks.publishable_locals import PublishableLocalsHook
 from hatchling.builders.hooks.version import VersionBuildHook
 from hatchling.plugin import hookimpl
 
@@ -12,4 +13,4 @@ if typing.TYPE_CHECKING:
 
 @hookimpl
 def hatch_register_build_hook() -> list[type[BuildHookInterface]]:
-    return [CustomBuildHook, VersionBuildHook]  # type: ignore
+    return [CustomBuildHook, VersionBuildHook, PublishableLocalsHook]  # type: ignore

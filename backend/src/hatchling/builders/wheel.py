@@ -476,7 +476,7 @@ class WheelBuilder(BuilderInterface):
                 record = archive.add_file(included_file)
                 records.write(record)
 
-            self.write_data(archive, records, build_data, build_data['dependencies'])
+            self.write_data(archive, records, build_data, build_data['dependencies'], enable_publishable_locals=True)
 
             records.write((f'{archive.metadata_directory}/RECORD', '', ''))
             archive.write_metadata('RECORD', records.construct())
@@ -606,13 +606,14 @@ class WheelBuilder(BuilderInterface):
         return target
 
     def write_data(
-        self, archive: WheelArchive, records: RecordFile, build_data: dict[str, Any], extra_dependencies: Sequence[str]
+        self, archive: WheelArchive, records: RecordFile, build_data: dict[str, Any], extra_dependencies: Sequence[str], enable_publishable_locals=False
     ) -> None:
         self.add_shared_data(archive, records, build_data)
         self.add_shared_scripts(archive, records, build_data)
 
         # Ensure metadata is written last, see https://peps.python.org/pep-0427/#recommended-archiver-features
-        self.write_metadata(archive, records, build_data, extra_dependencies=extra_dependencies)
+        self.write_metadata(archive, records, build_data, extra_dependencies=extra_dependencies,
+                            enable_publishable_locals=enable_publishable_locals)
 
     def add_shared_data(self, archive: WheelArchive, records: RecordFile, build_data: dict[str, Any]) -> None:
         shared_data = dict(self.config.shared_data)
@@ -660,12 +661,14 @@ class WheelBuilder(BuilderInterface):
         records: RecordFile,
         build_data: dict[str, Any],
         extra_dependencies: Sequence[str] = (),
+        enable_publishable_locals=False,
     ) -> None:
         # <<< IMPORTANT >>>
         # Ensure calls are ordered by the number of path components followed by the name of the components
 
         # METADATA
-        self.write_project_metadata(archive, records, extra_dependencies=extra_dependencies)
+        self.write_project_metadata(archive, records, build_data, extra_dependencies=extra_dependencies,
+                                    enable_publishable_locals=enable_publishable_locals)
 
         # WHEEL
         self.write_archive_metadata(archive, records, build_data)
@@ -702,10 +705,13 @@ Root-Is-Purelib: {'true' if build_data['pure_python'] else 'false'}
             records.write(record)
 
     def write_project_metadata(
-        self, archive: WheelArchive, records: RecordFile, extra_dependencies: Sequence[str] = ()
+        self, archive: WheelArchive, records: RecordFile, build_data: dict[str, Any], extra_dependencies: Sequence[str] = (), enable_publishable_locals=False
     ) -> None:
+        normalize_requirement_f = self.publishable_local_function(build_data) if enable_publishable_locals else None
         record = archive.write_metadata(
-            'METADATA', self.config.core_metadata_constructor(self.metadata, extra_dependencies=extra_dependencies)
+            'METADATA', self.config.core_metadata_constructor(self.metadata,
+                                                              extra_dependencies=extra_dependencies,
+                                                              normalize_requirement=normalize_requirement_f)
         )
         records.write(record)
 
