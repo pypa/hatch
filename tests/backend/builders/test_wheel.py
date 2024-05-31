@@ -3707,3 +3707,46 @@ class TestBuildStandard:
             tag=expected_tag,
         )
         helpers.assert_files(extraction_directory, expected_files)
+
+    def test_file_permissions_normalized(self, hatch, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
+        project_name = 'My.App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / 'my-app'
+
+        config = {
+            'project': {'name': project_name, 'dynamic': ['version']},
+            'tool': {
+                'hatch': {
+                    'version': {'path': 'my_app/__about__.py'},
+                    'build': {'targets': {'wheel': {'versions': ['standard'], 'strict-naming': False}}},
+                },
+            },
+        }
+        builder = WheelBuilder(str(project_path), config=config)
+
+        build_path = project_path / 'dist'
+
+        with project_path.as_cwd():
+            artifacts = list(builder.build())
+
+        assert len(artifacts) == 1
+        expected_artifact = artifacts[0]
+
+        build_artifacts = list(build_path.iterdir())
+        assert len(build_artifacts) == 1
+        assert expected_artifact == str(build_artifacts[0])
+        assert expected_artifact == str(
+            build_path / f'{builder.artifact_project_id}-{get_python_versions_tag()}-none-any.whl'
+        )
+        file_stat = os.stat(expected_artifact)
+        # we assert that at minimum 644 is set, based on the platform (e.g.)
+        # windows it may be higher
+        assert file_stat.st_mode & 0o644

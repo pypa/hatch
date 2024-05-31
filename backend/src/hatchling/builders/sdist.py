@@ -15,6 +15,7 @@ from hatchling.builders.plugin.interface import BuilderInterface
 from hatchling.builders.utils import (
     get_reproducible_timestamp,
     normalize_archive_path,
+    normalize_artifact_permissions,
     normalize_file_permissions,
     normalize_relative_path,
     replace_file,
@@ -202,6 +203,7 @@ class SdistBuilder(BuilderInterface):
         target = os.path.join(directory, f'{self.artifact_project_id}.tar.gz')
 
         replace_file(archive.path, target)
+        normalize_artifact_permissions(target)
         return target
 
     @property

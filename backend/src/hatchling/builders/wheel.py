@@ -20,6 +20,7 @@ from hatchling.builders.utils import (
     get_known_python_major_versions,
     get_reproducible_timestamp,
     normalize_archive_path,
+    normalize_artifact_permissions,
     normalize_file_permissions,
     normalize_inclusion_map,
     replace_file,
@@ -483,6 +484,7 @@ class WheelBuilder(BuilderInterface):
         target = os.path.join(directory, f"{self.artifact_project_id}-{build_data['tag']}.whl")
 
         replace_file(archive.path, target)
+        normalize_artifact_permissions(target)
         return target
 
     def build_editable(self, directory: str, **build_data: Any) -> str:
@@ -571,6 +573,7 @@ class WheelBuilder(BuilderInterface):
         target = os.path.join(directory, f"{self.artifact_project_id}-{build_data['tag']}.whl")
 
         replace_file(archive.path, target)
+        normalize_artifact_permissions(target)
         return target
 
     def build_editable_explicit(self, directory: str, **build_data: Any) -> str:
@@ -599,6 +602,7 @@ class WheelBuilder(BuilderInterface):
         target = os.path.join(directory, f"{self.artifact_project_id}-{build_data['tag']}.whl")
 
         replace_file(archive.path, target)
+        normalize_artifact_permissions(target)
         return target
 
     def write_data(

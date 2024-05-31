@@ -1,7 +1,8 @@
 import hashlib
 import os
+import tempfile
 
-from hatchling.builders.utils import format_file_hash
+from hatchling.builders.utils import format_file_hash, normalize_artifact_permissions
 
 
 def update_record_file_contents(record_file, files, generated_files=()):
@@ -42,3 +43,18 @@ def update_record_file_contents(record_file, files, generated_files=()):
         record_file.contents += f'{template_file.path.as_posix()},sha256={hash_digest},{len(raw_contents)}\n'
 
     record_file.contents += f'{record_file.path.as_posix()},,\n'
+
+
+def test_normalize_artifact_permissions():
+    """
+    assert that this func does what we expect on a tmpfile that that starts at 600
+    """
+    _, path = tempfile.mkstemp()
+
+    file_stat = os.stat(path)
+    assert file_stat.st_mode == 0o100600
+
+    normalize_artifact_permissions(path)
+
+    file_stat = os.stat(path)
+    assert file_stat.st_mode == 0o100644
