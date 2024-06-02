@@ -36,6 +36,7 @@ def prune(app: Application):
                 app.data_dir / 'env' / environment_type,
                 app.platform,
                 app.verbosity,
+                app,
             )
             if environment.exists() or environment.build_environment_exists():
                 with app.status(f'Removing environment: {env_name}'):
