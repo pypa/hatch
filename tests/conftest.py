@@ -214,6 +214,14 @@ def compatible_python_distributions():
 
 
 @pytest.fixture(scope='session')
+def global_application():
+    # This is only required for the EnvironmentInterface constructor and will never be used
+    from hatch.cli.application import Application
+
+    return Application(sys.exit, verbosity=0, enable_color=False, interactive=False)
+
+
+@pytest.fixture(scope='session')
 def devpi(tmp_path_factory, worker_id):
     import platform
 
