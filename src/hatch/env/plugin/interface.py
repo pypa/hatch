@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 from contextlib import contextmanager
 from functools import cached_property
 from os.path import isabs
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Generator
 
 from hatch.config.constants import AppEnvVars
 from hatch.env.utils import add_verbosity_flag, get_env_var_option
@@ -16,6 +16,8 @@ from hatch.utils.structures import EnvVars
 if TYPE_CHECKING:
     from collections.abc import Generator, Iterable
 
+    from hatch.dep.core import Dependency
+    from hatch.project.core import Project
     from hatch.utils.fs import Path
 
 
@@ -24,23 +26,23 @@ class EnvironmentInterface(ABC):
     Example usage:
 
     ```python tab="plugin.py"
-        from hatch.env.plugin.interface import EnvironmentInterface
+    from hatch.env.plugin.interface import EnvironmentInterface
 
 
-        class SpecialEnvironment(EnvironmentInterface):
-            PLUGIN_NAME = 'special'
-            ...
+    class SpecialEnvironment(EnvironmentInterface):
+        PLUGIN_NAME = 'special'
+        ...
     ```
 
     ```python tab="hooks.py"
-        from hatchling.plugin import hookimpl
+    from hatchling.plugin import hookimpl
 
-        from .plugin import SpecialEnvironment
+    from .plugin import SpecialEnvironment
 
 
-        @hookimpl
-        def hatch_register_environment():
-            return SpecialEnvironment
+    @hookimpl
+    def hatch_register_environment():
+        return SpecialEnvironment
     ```
     """
 
@@ -70,6 +72,8 @@ class EnvironmentInterface(ABC):
         self.__platform = platform
         self.__verbosity = verbosity
         self.__app = app
+
+        self.additional_dependencies = []
 
     @property
     def matrix_variables(self):
@@ -181,7 +185,7 @@ class EnvironmentInterface(ABC):
         return system_python
 
     @cached_property
-    def env_vars(self) -> dict:
+    def env_vars(self) -> dict[str, str]:
         """
         ```toml config-example
         [tool.hatch.envs.<ENV_NAME>.env-vars]
@@ -248,10 +252,10 @@ class EnvironmentInterface(ABC):
         return env_exclude
 
     @cached_property
-    def environment_dependencies_complex(self):
-        from packaging.requirements import InvalidRequirement, Requirement
+    def environment_dependencies_complex(self) -> list[Dependency]:
+        from hatch.dep.core import Dependency, InvalidDependencyError
 
-        dependencies_complex = []
+        dependencies_complex: list[Dependency] = []
         with self.apply_context():
             for option in ("dependencies", "extra-dependencies"):
                 dependencies = self.config.get(option, [])
@@ -265,9 +269,9 @@ class EnvironmentInterface(ABC):
                         raise TypeError(message)
 
                     try:
-                        dependencies_complex.append(Requirement(self.metadata.context.format(entry)))
-                    except InvalidRequirement as e:
-                        message = f"Dependency #{i} of field `tool.hatch.envs.{self.name}.{option}` is invalid: {e}"
+                        dependencies_complex.append(Dependency(self.metadata.context.format(entry)))
+                    except InvalidDependencyError as e:
+                        message = f'Dependency #{i} of field `tool.hatch.envs.{self.name}.{option}` is invalid: {e}'
                         raise ValueError(message) from None
 
         return dependencies_complex
@@ -280,46 +284,103 @@ class EnvironmentInterface(ABC):
         return [str(dependency) for dependency in self.environment_dependencies_complex]
 
     @cached_property
-    def dependencies_complex(self):
+    def project_dependencies_complex(self) -> list[Dependency]:
+        workspace_dependencies = self.workspace.get_dependencies()
+        if self.skip_install and not self.features and not workspace_dependencies:
+            return []
+
+        from hatch.dep.core import Dependency
+        from hatch.utils.dep import get_complex_dependencies, get_complex_features
+
+        all_dependencies_complex = list(map(Dependency, workspace_dependencies))
+        dependencies, optional_dependencies = self.app.project.get_dependencies()
+        dependencies_complex = get_complex_dependencies(dependencies)
+        optional_dependencies_complex = get_complex_features(optional_dependencies)
+
+        if not self.skip_install:
+            all_dependencies_complex.extend(dependencies_complex.values())
+
+        for feature in self.features:
+            if feature not in optional_dependencies_complex:
+                message = (
+                    f'Feature `{feature}` of field `tool.hatch.envs.{self.name}.features` is not '
+                    f'defined in the dynamic field `project.optional-dependencies`'
+                )
+                raise ValueError(message)
+
+            all_dependencies_complex.extend(optional_dependencies_complex[feature].values())
+
+        return all_dependencies_complex
+
+    @cached_property
+    def project_dependencies(self) -> list[str]:
+        """
+        The list of all [project dependencies](../../config/metadata.md#dependencies) (if
+        [installed](../../config/environment/overview.md#skip-install)), selected
+        [optional dependencies](../../config/environment/overview.md#features), and
+        workspace dependencies.
+        """
+        return [str(dependency) for dependency in self.project_dependencies_complex]
+
+    @cached_property
+    def local_dependencies_complex(self) -> list[Dependency]:
+        from hatch.dep.core import Dependency
+
+        local_dependencies_complex = []
+        if not self.skip_install:
+            root = 'file://' if self.sep == '/' else 'file:///'
+            local_dependencies_complex.append(
+                Dependency(f'{self.metadata.name} @ {root}{self.project_root}', editable=self.dev_mode)
+            )
+
+        local_dependencies_complex.extend(
+            Dependency(f'{member.project.metadata.name} @ {member.project.location.as_uri()}', editable=self.dev_mode)
+            for member in self.workspace.members
+        )
+
+        return local_dependencies_complex
+
+    @cached_property
+    def dependencies_complex(self) -> list[Dependency]:
         all_dependencies_complex = list(self.environment_dependencies_complex)
+        all_dependencies_complex.extend(self.additional_dependencies)
         if self.builder:
+            from hatch.dep.core import Dependency
+            from hatch.project.constants import BuildEnvVars
+
             all_dependencies_complex.extend(self.metadata.build.requires_complex)
+            for target in os.environ.get(BuildEnvVars.REQUESTED_TARGETS, '').split():
+                target_config = self.app.project.config.build.target(target)
+                all_dependencies_complex.extend(map(Dependency, target_config.dependencies))
+
             return all_dependencies_complex
 
         # Ensure these are checked last to speed up initial environment creation since
         # they will already be installed along with the project
-        if (not self.skip_install and self.dev_mode) or self.features:
-            from hatch.utils.dep import get_complex_dependencies, get_complex_features
-
-            dependencies, optional_dependencies = self.app.project.get_dependencies()
-            dependencies_complex = get_complex_dependencies(dependencies)
-            optional_dependencies_complex = get_complex_features(optional_dependencies)
-
-            if not self.skip_install and self.dev_mode:
-                all_dependencies_complex.extend(dependencies_complex.values())
-
-            for feature in self.features:
-                if feature not in optional_dependencies_complex:
-                    message = (
-                        f"Feature `{feature}` of field `tool.hatch.envs.{self.name}.features` is not "
-                        f"defined in the dynamic field `project.optional-dependencies`"
-                    )
-                    raise ValueError(message)
-
-                all_dependencies_complex.extend(optional_dependencies_complex[feature].values())
+        if self.dev_mode:
+            all_dependencies_complex.extend(self.project_dependencies_complex)
 
         return all_dependencies_complex
 
     @cached_property
     def dependencies(self) -> list[str]:
         """
-        The list of all [project dependencies](../../config/metadata.md#dependencies) (if
-        [installed](../../config/environment/overview.md#skip-install) and in
-        [dev mode](../../config/environment/overview.md#dev-mode)), selected
-        [optional dependencies](../../config/environment/overview.md#features), and
+        The list of all
+        [project dependencies](reference.md#hatch.env.plugin.interface.EnvironmentInterface.project_dependencies)
+        (if in [dev mode](../../config/environment/overview.md#dev-mode)) and
         [environment dependencies](../../config/environment/overview.md#dependencies).
         """
         return [str(dependency) for dependency in self.dependencies_complex]
+
+    @cached_property
+    def all_dependencies_complex(self) -> list[Dependency]:
+        all_dependencies_complex = list(self.local_dependencies_complex)
+        all_dependencies_complex.extend(self.dependencies_complex)
+        return all_dependencies_complex
+
+    @cached_property
+    def all_dependencies(self) -> list[str]:
+        return [str(dependency) for dependency in self.all_dependencies_complex]
 
     @cached_property
     def platforms(self) -> list[str]:
@@ -513,6 +574,15 @@ class EnvironmentInterface(ABC):
 
         return list(post_install_commands)
 
+    @cached_property
+    def workspace(self) -> Workspace:
+        config = self.config.get('workspace', {})
+        if not isinstance(config, dict):
+            message = f'Field `tool.hatch.envs.{self.name}.workspace` must be a table'
+            raise TypeError(message)
+
+        return Workspace(self, config)
+
     def activate(self):
         """
         A convenience method called when using the environment as a context manager:
@@ -617,7 +687,7 @@ class EnvironmentInterface(ABC):
         """
         from hatch.utils.dep import hash_dependencies
 
-        return hash_dependencies(self.dependencies_complex)
+        return hash_dependencies(self.all_dependencies_complex)
 
     @contextmanager
     def app_status_creation(self):
@@ -907,6 +977,203 @@ class FileSystemContext:
         """
 
 
+class Workspace:
+    def __init__(self, env: EnvironmentInterface, config: dict[str, Any]):
+        self.env = env
+        self.config = config
+
+    @cached_property
+    def parallel(self) -> bool:
+        parallel = self.config.get('parallel', True)
+        if not isinstance(parallel, bool):
+            message = f'Field `tool.hatch.envs.{self.env.name}.workspace.parallel` must be a boolean'
+            raise TypeError(message)
+
+        return parallel
+
+    def get_dependencies(self) -> list[str]:
+        static_members: list[WorkspaceMember] = []
+        dynamic_members: list[WorkspaceMember] = []
+        for member in self.members:
+            if member.has_static_dependencies:
+                static_members.append(member)
+            else:
+                dynamic_members.append(member)
+
+        all_dependencies = []
+        for member in static_members:
+            dependencies, features = member.get_dependencies()
+            all_dependencies.extend(dependencies)
+            for feature in member.features:
+                all_dependencies.extend(features.get(feature, []))
+
+        if not self.parallel:
+            for member in dynamic_members:
+                with self.env.app.status(f'Checking workspace member: {member.name}'):
+                    dependencies, features = member.get_dependencies()
+                    all_dependencies.extend(dependencies)
+                    for feature in member.features:
+                        all_dependencies.extend(features.get(feature, []))
+
+        return all_dependencies
+
+    @cached_property
+    def members(self) -> list[WorkspaceMember]:
+        from hatch.project.core import Project
+        from hatch.utils.fs import Path
+        from hatchling.metadata.utils import normalize_project_name
+
+        raw_members = self.config.get('members', [])
+        if not isinstance(raw_members, list):
+            message = f'Field `tool.hatch.envs.{self.env.name}.workspace.members` must be an array'
+            raise TypeError(message)
+
+        # First normalize configuration
+        member_data: list[dict[str, Any]] = []
+        for i, data in enumerate(raw_members, 1):
+            if isinstance(data, str):
+                member_data.append({'path': data, 'features': ()})
+            elif isinstance(data, dict):
+                if 'path' not in data:
+                    message = (
+                        f'Member #{i} of field `tool.hatch.envs.{self.env.name}.workspace.members` must define '
+                        f'a `path` key'
+                    )
+                    raise TypeError(message)
+
+                path = data['path']
+                if not isinstance(path, str):
+                    message = (
+                        f'Option `path` of member #{i} of field `tool.hatch.envs.{self.env.name}.workspace.members` '
+                        f'must be a string'
+                    )
+                    raise TypeError(message)
+
+                if not path:
+                    message = (
+                        f'Option `path` of member #{i} of field `tool.hatch.envs.{self.env.name}.workspace.members` '
+                        f'cannot be an empty string'
+                    )
+                    raise ValueError(message)
+
+                features = data.get('features', [])
+                if not isinstance(features, list):
+                    message = (
+                        f'Option `features` of member #{i} of field `tool.hatch.envs.{self.env.name}.workspace.'
+                        f'members` must be an array of strings'
+                    )
+                    raise TypeError(message)
+
+                all_features: set[str] = set()
+                for j, feature in enumerate(features, 1):
+                    if not isinstance(feature, str):
+                        message = (
+                            f'Feature #{j} of option `features` of member #{i} of field '
+                            f'`tool.hatch.envs.{self.env.name}.workspace.members` must be a string'
+                        )
+                        raise TypeError(message)
+
+                    if not feature:
+                        message = (
+                            f'Feature #{j} of option `features` of member #{i} of field '
+                            f'`tool.hatch.envs.{self.env.name}.workspace.members` cannot be an empty string'
+                        )
+                        raise ValueError(message)
+
+                    normalized_feature = normalize_project_name(feature)
+                    if normalized_feature in all_features:
+                        message = (
+                            f'Feature #{j} of option `features` of member #{i} of field '
+                            f'`tool.hatch.envs.{self.env.name}.workspace.members` is a duplicate'
+                        )
+                        raise ValueError(message)
+
+                    all_features.add(normalized_feature)
+
+                member_data.append({'path': path, 'features': tuple(sorted(all_features))})
+            else:
+                message = (
+                    f'Member #{i} of field `tool.hatch.envs.{self.env.name}.workspace.members` must be '
+                    f'a string or an inline table'
+                )
+                raise TypeError(message)
+
+        root = str(self.env.root)
+        member_paths: dict[str, WorkspaceMember] = {}
+        for data in member_data:
+            # Given root R and member spec M, we need to find:
+            #
+            # 1. The absolute path AP of R/M
+            # 2. The shared prefix SP of R and AP
+            # 3. The relative path RP of M from AP
+            #
+            # For example, if:
+            #
+            # R = /foo/bar/baz
+            # M = ../dir/pkg-*
+            #
+            # Then:
+            #
+            # AP = /foo/bar/dir/pkg-*
+            # SP = /foo/bar
+            # RP = dir/pkg-*
+            path_spec = data['path']
+            normalized_path = os.path.normpath(os.path.join(root, path_spec))
+            absolute_path = os.path.abspath(normalized_path)
+            shared_prefix = os.path.commonprefix([root, absolute_path])
+            relative_path = os.path.relpath(absolute_path, shared_prefix)
+
+            # Now we have the necessary information to perform an optimized glob search for members
+            members_found = False
+            for member_path in find_members(root, relative_path.split(os.sep)):
+                project_file = os.path.join(member_path, 'pyproject.toml')
+                if not os.path.isfile(project_file):
+                    message = (
+                        f'Member derived from `{path_spec}` of field '
+                        f'`tool.hatch.envs.{self.env.name}.workspace.members` is not a project (no `pyproject.toml` '
+                        f'file): {member_path}'
+                    )
+                    raise OSError(message)
+
+                members_found = True
+                if member_path in member_paths:
+                    message = (
+                        f'Member derived from `{path_spec}` of field '
+                        f'`tool.hatch.envs.{self.env.name}.workspace.members` is a duplicate: {member_path}'
+                    )
+                    raise ValueError(message)
+
+                project = Project(Path(member_path), locate=False)
+                project.set_app(self.env.app)
+                member_paths[member_path] = WorkspaceMember(project, features=data['features'])
+
+            if not members_found:
+                message = (
+                    f'No members could be derived from `{path_spec}` of field '
+                    f'`tool.hatch.envs.{self.env.name}.workspace.members`: {absolute_path}'
+                )
+                raise OSError(message)
+
+        return list(member_paths.values())
+
+
+class WorkspaceMember:
+    def __init__(self, project: Project, *, features: tuple[str]):
+        self.project = project
+        self.features = features
+
+    @cached_property
+    def name(self) -> str:
+        return self.project.metadata.name
+
+    @cached_property
+    def has_static_dependencies(self) -> bool:
+        return self.project.has_static_dependencies
+
+    def get_dependencies(self) -> tuple[list[str], dict[str, list[str]]]:
+        return self.project.get_dependencies()
+
+
 def expand_script_commands(env_name, script_name, commands, config, seen, active):
     if script_name in seen:
         return seen[script_name]
@@ -941,3 +1208,30 @@ def expand_script_commands(env_name, script_name, commands, config, seen, active
     active.pop()
 
     return expanded_commands
+
+
+def find_members(root, relative_components):
+    import fnmatch
+    import re
+
+    component_matchers = []
+    for component in relative_components:
+        if any(special in component for special in '*?['):
+            pattern = re.compile(fnmatch.translate(component))
+            component_matchers.append(lambda entry, pattern=pattern: pattern.search(entry.name))
+        else:
+            component_matchers.append(lambda entry, component=component: component == entry.name)
+
+    yield from _recurse_members(root, 0, component_matchers)
+
+
+def _recurse_members(root, matcher_index, matchers):
+    if matcher_index == len(matchers):
+        yield root
+        return
+
+    matcher = matchers[matcher_index]
+    with os.scandir(root) as it:
+        for entry in it:
+            if entry.is_dir() and matcher(entry):
+                yield from _recurse_members(entry.path, matcher_index + 1, matchers)

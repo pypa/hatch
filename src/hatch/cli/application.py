@@ -15,8 +15,7 @@ from hatch.utils.runner import ExecutionContext
 if TYPE_CHECKING:
     from collections.abc import Generator
 
-    from packaging.requirements import Requirement
-
+    from hatch.dep.core import Dependency
     from hatch.env.plugin.interface import EnvironmentInterface
 
 
@@ -141,11 +140,11 @@ class Application(Terminal):
             self.project.config.env_requires_complex, wait_message="Syncing environment plugin requirements"
         )
 
-    def ensure_plugin_dependencies(self, dependencies: list[Requirement], *, wait_message: str) -> None:
+    def ensure_plugin_dependencies(self, dependencies: list[Dependency], *, wait_message: str) -> None:
         if not dependencies:
             return
 
-        from hatch.dep.sync import dependencies_in_sync
+        from hatch.dep.sync import InstalledDistributions
         from hatch.env.utils import add_verbosity_flag
 
         if app_path := os.environ.get("PYAPP"):
@@ -154,12 +153,14 @@ class Application(Terminal):
             management_command = os.environ["PYAPP_COMMAND_NAME"]
             executable = self.platform.check_command_output([app_path, management_command, "python-path"]).strip()
             python_info = PythonInfo(self.platform, executable=executable)
-            if dependencies_in_sync(dependencies, sys_path=python_info.sys_path):
+            distributions = InstalledDistributions(sys_path=python_info.sys_path)
+            if distributions.dependencies_in_sync(dependencies):
                 return
 
             pip_command = [app_path, management_command, "pip"]
         else:
-            if dependencies_in_sync(dependencies):
+            distributions = InstalledDistributions()
+            if distributions.dependencies_in_sync(dependencies):
                 return
 
             pip_command = [sys.executable, "-u", "-m", "pip"]

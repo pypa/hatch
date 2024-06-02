@@ -1959,3 +1959,76 @@ def test_no_compatible_python_ok_if_not_installed(hatch, helpers, temp_dir, conf
     env_path = env_dirs[0]
 
     assert env_path.name == project_path.name
+
+
+@pytest.mark.requires_internet
+def test_workspace(hatch, helpers, temp_dir, platform, uv_on_path, extract_installed_requirements):
+    project_name = 'My.App'
+
+    with temp_dir.as_cwd():
+        result = hatch('new', project_name)
+        assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / 'my-app'
+    data_path = temp_dir / 'data'
+    data_path.mkdir()
+
+    members = ['foo', 'bar', 'baz']
+    for member in members:
+        with project_path.as_cwd():
+            result = hatch('new', member)
+            assert result.exit_code == 0, result.output
+
+    project = Project(project_path)
+    helpers.update_project_environment(
+        project,
+        'default',
+        {
+            'workspace': {'members': [{'path': member} for member in members]},
+            **project.config.envs['default'],
+        },
+    )
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch('env', 'create')
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        """
+        Creating environment: default
+        Installing project in development mode
+        Checking dependencies
+        Syncing dependencies
+        """
+    )
+
+    env_data_path = data_path / 'env' / 'virtual'
+    assert env_data_path.is_dir()
+
+    project_data_path = env_data_path / project_path.name
+    assert project_data_path.is_dir()
+
+    storage_dirs = list(project_data_path.iterdir())
+    assert len(storage_dirs) == 1
+
+    storage_path = storage_dirs[0]
+    assert len(storage_path.name) == 8
+
+    env_dirs = list(storage_path.iterdir())
+    assert len(env_dirs) == 1
+
+    env_path = env_dirs[0]
+
+    assert env_path.name == project_path.name
+
+    with UVVirtualEnv(env_path, platform):
+        output = platform.run_command([uv_on_path, 'pip', 'freeze'], check=True, capture_output=True).stdout.decode(
+            'utf-8'
+        )
+        requirements = extract_installed_requirements(output.splitlines())
+
+        assert len(requirements) == 4
+        assert requirements[0].lower() == f'-e {project_path.as_uri().lower()}/bar'
+        assert requirements[1].lower() == f'-e {project_path.as_uri().lower()}/baz'
+        assert requirements[2].lower() == f'-e {project_path.as_uri().lower()}/foo'
+        assert requirements[3].lower() == f'-e {project_path.as_uri().lower()}'
