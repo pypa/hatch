@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import sys
+from functools import cached_property
 from typing import TYPE_CHECKING, Any, Callable
 
 from hatchling.builders.config import BuilderConfig
@@ -20,8 +21,6 @@ class BinaryBuilderConfig(BuilderConfig):
         self.__scripts: list[str] | None = None
         self.__python_version: str | None = None
         self.__pyapp_version: str | None = None
-        self.__env_vars: dict[str, str] | None = None
-        self.__outputs: list[dict[str, Any]] | None = None
 
     @property
     def scripts(self) -> list[str]:
@@ -83,51 +82,54 @@ class BinaryBuilderConfig(BuilderConfig):
 
         return self.__pyapp_version
 
-    @property
-    def env_vars(self) -> dict[str, str]:
-        if self.__env_vars is None:
-            env_vars = self.target_config.get('env-vars')
+    @cached_property
+    def env_vars(self) -> dict:
+        """
+        ```toml config-example
+        [tool.hatch.build.targets.binary.env-vars]
+        ```
+        """
+        env_vars = self.target_config.get('env-vars', {})
+        if not isinstance(env_vars, dict):
+            message = f'Field `tool.hatch.envs.{self.plugin_name}.env-vars` must be a mapping'
+            raise TypeError(message)
 
-            if env_vars is None:
-                self.__env_vars = {}
-            elif isinstance(env_vars, dict):
-                self.__env_vars = env_vars
-            else:
-                message = f'Field `tool.hatch.build.targets.{self.plugin_name}.env-vars` must be a table'
+        for key, value in env_vars.items():
+            if not isinstance(value, str):
+                message = f'Environment variable `{key}` of field `tool.hatch.envs.{self.plugin_name}.env-vars` must be a string'
                 raise TypeError(message)
 
-        return self.__env_vars
+        return env_vars
 
-    @property
+    @cached_property
     def outputs(self) -> list[dict[str, Any]]:
         """
         Allows specifying multiple build targets, each with its own options/environment variables.
 
         This extends the previously non-customizable script build targets by full control over what is built.
         """
-        if self.__outputs is None:
-            outputs = self.target_config.get('outputs')
+        outputs = self.target_config.get('outputs')
 
-            if not outputs:  # None or empty table
-                # Fill in the default build targets.
-                # First check the scripts section, if it is empty, fall-back to the default build target.
-                if self.scripts:
-                    self.__outputs = [
-                        {
-                            'exe-stem': f'{script}-{{version}}',  # version will be interpolated later
-                            'env-vars': {'PYAPP_EXEC_SPEC': self.builder.metadata.core.scripts[script]},
-                        }
-                        for script in self.scripts
-                    ]
-                else:  # the default if nothing is defined - at least one empty table must be defined
-                    self.__outputs = [{}]
-            elif isinstance(outputs, list):
-                self.__outputs = outputs
-            else:
-                message = f'Field `tool.hatch.build.targets.{self.plugin_name}.outputs` must be an array of tables'
-                raise TypeError(message)
+        if not outputs:  # None or empty array
+            # Fill in the default build targets.
+            # First check the scripts section, if it is empty, fall-back to the default build target.
+            if not self.scripts:
+                # the default if nothing is defined - at least one empty table must be defined
+                return [{}]
 
-        return self.__outputs
+            return [
+                {
+                    'exe-stem': f'{script}-{{version}}',  # version will be interpolated later
+                    'env-vars': {'PYAPP_EXEC_SPEC': self.builder.metadata.core.scripts[script]},
+                }
+                for script in self.scripts
+            ]
+
+        if isinstance(outputs, list):
+            return outputs
+
+        message = f'Field `tool.hatch.build.targets.{self.plugin_name}.outputs` must be an array of tables'
+        raise TypeError(message)
 
 
 class BinaryBuilder(BuilderInterface):
