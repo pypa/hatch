@@ -173,6 +173,9 @@ class BinaryBuilder(BuilderInterface):
                 **self.config.env_vars,
                 **output_spec.get('env-vars', {}),
             }
+            # Format values with context
+            context = self.metadata.context
+            env_vars = {k: context.format(v) for k, v in env_vars.items()}
 
             with EnvVars(env_vars):
                 cargo_path = os.environ.get('CARGO', '')

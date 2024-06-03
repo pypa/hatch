@@ -753,7 +753,7 @@ class TestBuildBootstrap:
                                 'env-vars': {
                                     'PYAPP_DISTIBUTION_EMBED': 'true',
                                     'PYAPP_PIP_EXTRA_INDEX_ARGS': '--index-url foobar',
-                                    'CARGO_TARGET_DIR': (project_path / 'pyapp_cargo').as_posix(),
+                                    'CARGO_TARGET_DIR': '{root}/pyapp_cargo',
                                 },
                                 'outputs': [
                                     {
@@ -782,7 +782,7 @@ class TestBuildBootstrap:
             ['cargo', 'install', 'pyapp', '--force', '--root', mocker.ANY],
             cwd=mocker.ANY,
             env=ExpectedEnvVars({
-                'CARGO_TARGET_DIR': (temp_dir / 'my-app/pyapp_cargo').as_posix(),
+                'CARGO_TARGET_DIR': f'{project_path}/pyapp_cargo',
                 'PYAPP_DISTIBUTION_EMBED': 'true',
                 'PYAPP_EXEC_MODULE': 'myapp',
                 'PYAPP_IS_GUI': 'true',
