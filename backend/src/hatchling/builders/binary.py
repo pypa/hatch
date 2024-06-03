@@ -2,11 +2,13 @@ from __future__ import annotations
 
 import os
 import sys
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any, Callable
 
-from hatch.utils.structures import EnvVars
 from hatchling.builders.config import BuilderConfig
 from hatchling.builders.plugin.interface import BuilderInterface
+
+if TYPE_CHECKING:
+    from types import TracebackType
 
 
 class BinaryBuilderConfig(BuilderConfig):
@@ -18,8 +20,8 @@ class BinaryBuilderConfig(BuilderConfig):
         self.__scripts: list[str] | None = None
         self.__python_version: str | None = None
         self.__pyapp_version: str | None = None
-        self.__options: dict[str, str] | None = None
-        self.__build_targets: dict[str, dict[str, Any]] | None = None
+        self.__env_vars: dict[str, str] | None = None
+        self.__outputs: list[dict[str, Any]] | None = None
 
     @property
     def scripts(self) -> list[str]:
@@ -82,54 +84,50 @@ class BinaryBuilderConfig(BuilderConfig):
         return self.__pyapp_version
 
     @property
-    def options(self) -> dict[str, str]:
-        if self.__options is None:
-            options = self.target_config.get('options')
+    def env_vars(self) -> dict[str, str]:
+        if self.__env_vars is None:
+            env_vars = self.target_config.get('env-vars')
 
-            if options is None:
-                self.__options = {}
-            elif isinstance(options, dict):
-                self.__options = options
+            if env_vars is None:
+                self.__env_vars = {}
+            elif isinstance(env_vars, dict):
+                self.__env_vars = env_vars
             else:
-                message = f'Field `tool.hatch.build.targets.{self.plugin_name}.options` must be a table'
+                message = f'Field `tool.hatch.build.targets.{self.plugin_name}.env-vars` must be a table'
                 raise TypeError(message)
 
-        return self.__options
+        return self.__env_vars
 
     @property
-    def build_targets(self) -> dict[str, dict[str, Any]]:
+    def outputs(self) -> list[dict[str, Any]]:
         """
         Allows specifying multiple build targets, each with its own options/environment variables.
 
         This extends the previously non-customizable script build targets by full control over what is built.
         """
-        if self.__build_targets is None:
-            build_targets = self.target_config.get('build-targets')
+        if self.__outputs is None:
+            outputs = self.target_config.get('outputs')
 
-            if not build_targets:  # None or empty table
+            if not outputs:  # None or empty table
                 # Fill in the default build targets.
                 # First check the scripts section, if it is empty, fall-back to the default build target.
                 if self.scripts:
-                    self.__build_targets = {
-                        script: {
+                    self.__outputs = [
+                        {
                             'exe_stem': f'{script}-{{version}}',  # version will be interpolated later
-                            'options': {'exec-spec': self.builder.metadata.core.scripts[script]},
+                            'env-vars': {'PYAPP_EXEC_SPEC': self.builder.metadata.core.scripts[script]},
                         }
                         for script in self.scripts
-                    }
-                else:  # the default if nothing is defined
-                    self.__build_targets = {
-                        'default': {
-                            'exe_stem': '{name}-{version}'  # name & version will be interpolated later
-                        }
-                    }
-            elif isinstance(build_targets, dict):
-                self.__build_targets = build_targets
+                    ]
+                else:  # the default if nothing is defined - at least one empty table must be defined
+                    self.__outputs = [{}]
+            elif isinstance(outputs, list):
+                self.__outputs = outputs
             else:
-                message = f'Field `tool.hatch.build.targets.{self.plugin_name}.build_targets` must be a table'
+                message = f'Field `tool.hatch.build.targets.{self.plugin_name}.outputs` must be an array of tables'
                 raise TypeError(message)
 
-        return self.__build_targets
+        return self.__outputs
 
 
 class BinaryBuilder(BuilderInterface):
@@ -168,13 +166,13 @@ class BinaryBuilder(BuilderInterface):
         if not os.path.isdir(app_dir):
             os.makedirs(app_dir)
 
-        for build_target_name, build_target_spec in self.config.build_targets.items():
-            options = {  # merge options from the parent options table and the build target options table
-                **options_to_env_vars(self.config.options),
-                **options_to_env_vars(build_target_spec.get('options', {})),
+        for output_spec in self.config.outputs:
+            env_vars = {  # merge options from the parent options table and the build target options table
+                **self.config.env_vars,
+                **output_spec.get('env-vars', {}),
             }
 
-            with EnvVars(options):
+            with EnvVars(env_vars):
                 cargo_path = os.environ.get('CARGO', '')
                 if not cargo_path:
                     if not shutil.which('cargo'):
@@ -217,7 +215,7 @@ class BinaryBuilder(BuilderInterface):
 
                     self.cargo_build(install_command, cwd=context_dir, env=base_env)
 
-                    exe_stem_template = build_target_spec.get('exe_stem', build_target_name)
+                    exe_stem_template = output_spec.get('exe_stem', '{name}-{version}')
                     exe_stem = exe_stem_template.format(name=self.metadata.name, version=self.metadata.version)
                     if build_target:
                         exe_stem = f'{exe_stem}-{build_target}'
@@ -244,20 +242,22 @@ class BinaryBuilder(BuilderInterface):
         return BinaryBuilderConfig
 
 
-def options_to_env_vars(options: dict[str, str]) -> dict[str, str]:
+class EnvVars(dict):
     """
-    Converts a dictionary of options to environment variables by uppercasing the keys and replacing dashes with
-    underscores.
-    Keys that no start with "CARGO_" will be prefixed with "PYAPP_".
-
-    Examples:
-
-    {'full-isolation': 'true', 'cargo-target-dir': 'tmp'} --> {'PYAPP_FULL_ISOLATION': 'true', 'CARGO_TARGET_DIR': 'tmp'}
+    Context manager to temporarily set environment variables
     """
-    env_vars = {}
-    for key, value in options.items():
-        sluggified_key = key.replace('-', '_').upper()
-        if not sluggified_key.startswith('CARGO_'):
-            sluggified_key = f'PYAPP_{sluggified_key}'
-        env_vars[sluggified_key] = str(value)
-    return env_vars
+
+    def __init__(self, env_vars: dict) -> None:
+        super().__init__(os.environ)
+        self.old_env = dict(self)
+        self.update(env_vars)
+
+    def __enter__(self) -> None:
+        os.environ.clear()
+        os.environ.update(self)
+
+    def __exit__(
+        self, exc_type: type[BaseException] | None, exc_value: BaseException | None, traceback: TracebackType | None
+    ) -> None:
+        os.environ.clear()
+        os.environ.update(self.old_env)

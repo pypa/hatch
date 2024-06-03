@@ -299,7 +299,7 @@ class TestBuildBootstrap:
             'project': {'name': project_name, 'version': '0.1.0'},
             'tool': {
                 'hatch': {
-                    'build': {'targets': {'binary': {'versions': ['bootstrap']}}},
+                    'build': {'targets': {'binary': {'versions': ['bootstrap'], 'env-vars': {'FOO': 'BAR'}}}},
                 },
             },
         }
@@ -313,7 +313,7 @@ class TestBuildBootstrap:
         subprocess_run.assert_called_once_with(
             ['cargo', 'install', 'pyapp', '--force', '--root', mocker.ANY],
             cwd=mocker.ANY,
-            env=ExpectedEnvVars({'PYAPP_PROJECT_NAME': 'my-app', 'PYAPP_PROJECT_VERSION': '0.1.0'}),
+            env=ExpectedEnvVars({'PYAPP_PROJECT_NAME': 'my-app', 'PYAPP_PROJECT_VERSION': '0.1.0', 'FOO': 'BAR'}),
         )
 
         assert len(artifacts) == 1
@@ -341,7 +341,7 @@ class TestBuildBootstrap:
             'project': {'name': project_name, 'version': '0.1.0', 'scripts': {'foo': 'bar.baz:cli'}},
             'tool': {
                 'hatch': {
-                    'build': {'targets': {'binary': {'versions': ['bootstrap']}}},
+                    'build': {'targets': {'binary': {'versions': ['bootstrap'], 'env-vars': {'FOO': 'BAR'}}}},
                 },
             },
         }
@@ -359,6 +359,7 @@ class TestBuildBootstrap:
                 'PYAPP_PROJECT_NAME': 'my-app',
                 'PYAPP_PROJECT_VERSION': '0.1.0',
                 'PYAPP_EXEC_SPEC': 'bar.baz:cli',
+                'FOO': 'BAR',
             }),
         )
 
@@ -385,7 +386,7 @@ class TestBuildBootstrap:
             'project': {'name': project_name, 'version': '0.1.0', 'scripts': {'foo': 'bar.baz:cli'}},
             'tool': {
                 'hatch': {
-                    'build': {'targets': {'binary': {'versions': ['bootstrap']}}},
+                    'build': {'targets': {'binary': {'versions': ['bootstrap'], 'env-vars': {'FOO': 'BAR'}}}},
                 },
             },
         }
@@ -403,6 +404,7 @@ class TestBuildBootstrap:
                 'PYAPP_PROJECT_NAME': 'my-app',
                 'PYAPP_PROJECT_VERSION': '0.1.0',
                 'PYAPP_EXEC_SPEC': 'bar.baz:cli',
+                'FOO': 'BAR',
             }),
         )
 
@@ -739,6 +741,7 @@ class TestBuildBootstrap:
         assert result.exit_code == 0, result.output
 
         project_path = temp_dir / 'my-app'
+
         config = {
             'project': {'name': project_name, 'version': '0.1.0'},
             'tool': {
@@ -747,23 +750,28 @@ class TestBuildBootstrap:
                         'targets': {
                             'binary': {
                                 'versions': ['bootstrap'],
-                                'options': {
-                                    'distibution-embed': 'true',
-                                    'pip-extra-index-args': '--index-url foobar',
-                                    'cargo-target-dir': (project_path / 'pyapp_cargo').as_posix(),
+                                'env-vars': {
+                                    'PYAPP_DISTIBUTION_EMBED': 'true',
+                                    'PYAPP_PIP_EXTRA_INDEX_ARGS': '--index-url foobar',
+                                    'CARGO_TARGET_DIR': (project_path / 'pyapp_cargo').as_posix(),
                                 },
-                                'build-targets': {
-                                    'myapp-gui': {
+                                'outputs': [
+                                    {
+                                        'name': 'myapp-gui',
                                         'exe_stem': '{name}-{version}-gui',
-                                        'options': {'is-gui': 'true', 'exec-module': 'myapp'},
+                                        'env-vars': {
+                                            'PYAPP_IS_GUI': 'true',
+                                            'PYAPP_EXEC_MODULE': 'myapp',
+                                        },
                                     },
-                                },
-                            }
+                                ],
+                            },
                         }
                     },
                 },
             },
         }
+
         builder = BinaryBuilder(str(project_path), config=config)
 
         build_path = project_path / 'dist'
