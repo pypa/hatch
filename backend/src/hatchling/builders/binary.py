@@ -4,6 +4,7 @@ import os
 import sys
 from typing import Any, Callable
 
+from hatch.utils.structures import EnvVars
 from hatchling.builders.config import BuilderConfig
 from hatchling.builders.plugin.interface import BuilderInterface
 
@@ -17,6 +18,8 @@ class BinaryBuilderConfig(BuilderConfig):
         self.__scripts: list[str] | None = None
         self.__python_version: str | None = None
         self.__pyapp_version: str | None = None
+        self.__options: dict[str, str] | None = None
+        self.__build_targets: dict[str, dict[str, Any]] | None = None
 
     @property
     def scripts(self) -> list[str]:
@@ -78,6 +81,56 @@ class BinaryBuilderConfig(BuilderConfig):
 
         return self.__pyapp_version
 
+    @property
+    def options(self) -> dict[str, str]:
+        if self.__options is None:
+            options = self.target_config.get('options')
+
+            if options is None:
+                self.__options = {}
+            elif isinstance(options, dict):
+                self.__options = options
+            else:
+                message = f'Field `tool.hatch.build.targets.{self.plugin_name}.options` must be a table'
+                raise TypeError(message)
+
+        return self.__options
+
+    @property
+    def build_targets(self) -> dict[str, dict[str, Any]]:
+        """
+        Allows specifying multiple build targets, each with its own options/environment variables.
+
+        This extends the previously non-customizable script build targets by full control over what is built.
+        """
+        if self.__build_targets is None:
+            build_targets = self.target_config.get('build-targets')
+
+            if not build_targets:  # None or empty table
+                # Fill in the default build targets.
+                # First check the scripts section, if it is empty, fall-back to the default build target.
+                if self.scripts:
+                    self.__build_targets = {
+                        script: {
+                            'exe_stem': f'{script}-{{version}}',  # version will be interpolated later
+                            'options': {'exec-spec': self.builder.metadata.core.scripts[script]},
+                        }
+                        for script in self.scripts
+                    }
+                else:  # the default if nothing is defined
+                    self.__build_targets = {
+                        'default': {
+                            'exe_stem': '{name}-{version}'  # name & version will be interpolated later
+                        }
+                    }
+            elif isinstance(build_targets, dict):
+                self.__build_targets = build_targets
+            else:
+                message = f'Field `tool.hatch.build.targets.{self.plugin_name}.build_targets` must be a table'
+                raise TypeError(message)
+
+        return self.__build_targets
+
 
 class BinaryBuilder(BuilderInterface):
     """
@@ -111,74 +164,66 @@ class BinaryBuilder(BuilderInterface):
         import shutil
         import tempfile
 
-        cargo_path = os.environ.get('CARGO', '')
-        if not cargo_path:
-            if not shutil.which('cargo'):
-                message = 'Executable `cargo` could not be found on PATH'
-                raise OSError(message)
-
-            cargo_path = 'cargo'
-
         app_dir = os.path.join(directory, self.PLUGIN_NAME)
         if not os.path.isdir(app_dir):
             os.makedirs(app_dir)
 
-        on_windows = sys.platform == 'win32'
-        base_env = dict(os.environ)
-        base_env['PYAPP_PROJECT_NAME'] = self.metadata.name
-        base_env['PYAPP_PROJECT_VERSION'] = self.metadata.version
+        for build_target_name, build_target_spec in self.config.build_targets.items():
+            options = {  # merge options from the parent options table and the build target options table
+                **options_to_env_vars(self.config.options),
+                **options_to_env_vars(build_target_spec.get('options', {})),
+            }
 
-        if self.config.python_version:
-            base_env['PYAPP_PYTHON_VERSION'] = self.config.python_version
+            with EnvVars(options):
+                cargo_path = os.environ.get('CARGO', '')
+                if not cargo_path:
+                    if not shutil.which('cargo'):
+                        message = 'Executable `cargo` could not be found on PATH'
+                        raise OSError(message)
 
-        # https://doc.rust-lang.org/cargo/reference/config.html#buildtarget
-        build_target = os.environ.get('CARGO_BUILD_TARGET', '')
+                    cargo_path = 'cargo'
 
-        # This will determine whether we install from crates.io or build locally and is currently required for
-        # cross compilation: https://github.com/cross-rs/cross/issues/1215
-        repo_path = os.environ.get('PYAPP_REPO', '')
+                on_windows = sys.platform == 'win32'
+                base_env = dict(os.environ)
+                base_env['PYAPP_PROJECT_NAME'] = self.metadata.name
+                base_env['PYAPP_PROJECT_VERSION'] = self.metadata.version
 
-        with tempfile.TemporaryDirectory() as temp_dir:
-            exe_name = 'pyapp.exe' if on_windows else 'pyapp'
-            if repo_path:
-                context_dir = repo_path
-                target_dir = os.path.join(temp_dir, 'build')
-                if build_target:
-                    temp_exe_path = os.path.join(target_dir, build_target, 'release', exe_name)
-                else:
-                    temp_exe_path = os.path.join(target_dir, 'release', exe_name)
-                install_command = [cargo_path, 'build', '--release', '--target-dir', target_dir]
-            else:
-                context_dir = temp_dir
-                temp_exe_path = os.path.join(temp_dir, 'bin', exe_name)
-                install_command = [cargo_path, 'install', 'pyapp', '--force', '--root', temp_dir]
-                if self.config.pyapp_version:
-                    install_command.extend(['--version', self.config.pyapp_version])
+                if self.config.python_version:
+                    base_env['PYAPP_PYTHON_VERSION'] = self.config.python_version
 
-            if self.config.scripts:
-                for script in self.config.scripts:
-                    env = dict(base_env)
-                    env['PYAPP_EXEC_SPEC'] = self.metadata.core.scripts[script]
+                # https://doc.rust-lang.org/cargo/reference/config.html#buildtarget
+                build_target = os.environ.get('CARGO_BUILD_TARGET', '')
 
-                    self.cargo_build(install_command, cwd=context_dir, env=env)
+                # This will determine whether we install from crates.io or build locally and is currently required for
+                # cross compilation: https://github.com/cross-rs/cross/issues/1215
+                repo_path = os.environ.get('PYAPP_REPO', '')
 
-                    exe_stem = (
-                        f'{script}-{self.metadata.version}-{build_target}'
-                        if build_target
-                        else f'{script}-{self.metadata.version}'
-                    )
+                with tempfile.TemporaryDirectory() as temp_dir:
+                    exe_name = 'pyapp.exe' if on_windows else 'pyapp'
+                    if repo_path:
+                        context_dir = repo_path
+                        target_dir = os.path.join(temp_dir, 'build')
+                        if build_target:
+                            temp_exe_path = os.path.join(target_dir, build_target, 'release', exe_name)
+                        else:
+                            temp_exe_path = os.path.join(target_dir, 'release', exe_name)
+                        install_command = [cargo_path, 'build', '--release', '--target-dir', target_dir]
+                    else:
+                        context_dir = temp_dir
+                        temp_exe_path = os.path.join(temp_dir, 'bin', exe_name)
+                        install_command = [cargo_path, 'install', 'pyapp', '--force', '--root', temp_dir]
+                        if self.config.pyapp_version:
+                            install_command.extend(['--version', self.config.pyapp_version])
+
+                    self.cargo_build(install_command, cwd=context_dir, env=base_env)
+
+                    exe_stem_template = build_target_spec.get('exe_stem', build_target_name)
+                    exe_stem = exe_stem_template.format(name=self.metadata.name, version=self.metadata.version)
+                    if build_target:
+                        exe_stem = f'{exe_stem}-{build_target}'
+
                     exe_path = os.path.join(app_dir, f'{exe_stem}.exe' if on_windows else exe_stem)
                     shutil.move(temp_exe_path, exe_path)
-            else:
-                self.cargo_build(install_command, cwd=context_dir, env=base_env)
-
-                exe_stem = (
-                    f'{self.metadata.name}-{self.metadata.version}-{build_target}'
-                    if build_target
-                    else f'{self.metadata.name}-{self.metadata.version}'
-                )
-                exe_path = os.path.join(app_dir, f'{exe_stem}.exe' if on_windows else exe_stem)
-                shutil.move(temp_exe_path, exe_path)
 
         return app_dir
 
@@ -197,3 +242,22 @@ class BinaryBuilder(BuilderInterface):
     @classmethod
     def get_config_class(cls) -> type[BinaryBuilderConfig]:
         return BinaryBuilderConfig
+
+
+def options_to_env_vars(options: dict[str, str]) -> dict[str, str]:
+    """
+    Converts a dictionary of options to environment variables by uppercasing the keys and replacing dashes with
+    underscores.
+    Keys that no start with "CARGO_" will be prefixed with "PYAPP_".
+
+    Examples:
+
+    {'full-isolation': 'true', 'cargo-target-dir': 'tmp'} --> {'PYAPP_FULL_ISOLATION': 'true', 'CARGO_TARGET_DIR': 'tmp'}
+    """
+    env_vars = {}
+    for key, value in options.items():
+        sluggified_key = key.replace('-', '_').upper()
+        if not sluggified_key.startswith('CARGO_'):
+            sluggified_key = f'PYAPP_{sluggified_key}'
+        env_vars[sluggified_key] = str(value)
+    return env_vars
