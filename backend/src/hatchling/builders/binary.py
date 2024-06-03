@@ -114,7 +114,7 @@ class BinaryBuilderConfig(BuilderConfig):
                 if self.scripts:
                     self.__outputs = [
                         {
-                            'exe_stem': f'{script}-{{version}}',  # version will be interpolated later
+                            'exe-stem': f'{script}-{{version}}',  # version will be interpolated later
                             'env-vars': {'PYAPP_EXEC_SPEC': self.builder.metadata.core.scripts[script]},
                         }
                         for script in self.scripts
