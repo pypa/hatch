@@ -215,7 +215,7 @@ class BinaryBuilder(BuilderInterface):
 
                     self.cargo_build(install_command, cwd=context_dir, env=base_env)
 
-                    exe_stem_template = output_spec.get('exe_stem', '{name}-{version}')
+                    exe_stem_template = output_spec.get('exe-stem', '{name}-{version}')
                     exe_stem = exe_stem_template.format(name=self.metadata.name, version=self.metadata.version)
                     if build_target:
                         exe_stem = f'{exe_stem}-{build_target}'

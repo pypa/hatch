@@ -757,8 +757,7 @@ class TestBuildBootstrap:
                                 },
                                 'outputs': [
                                     {
-                                        'name': 'myapp-gui',
-                                        'exe_stem': '{name}-{version}-gui',
+                                        'exe-stem': '{name}-{version}-gui',
                                         'env-vars': {
                                             'PYAPP_IS_GUI': 'true',
                                             'PYAPP_EXEC_MODULE': 'myapp',
