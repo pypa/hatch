@@ -23,7 +23,9 @@ def version_impl(
 
     if 'version' in metadata.config.get('project', {}):
         if desired_version:
-            app.abort('Use `hatch version ...` to update version when it is statically defined by the `project.version` field')
+            app.abort(
+                'Use `hatch version ...` to update version when it is statically defined by the `project.version` field'
+            )
         else:
             app.display(metadata.core.version)
             return
