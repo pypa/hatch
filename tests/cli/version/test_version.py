@@ -279,4 +279,4 @@ def test_set_static(hatch, temp_dir):
 
     project = Project(path)
 
-    assert project.raw_config['project']['version'] == '2.0.0rc0', 'should update static version'
+    assert project.raw_config['project']['version'] == '1.3.0rc0', 'should update static version'
