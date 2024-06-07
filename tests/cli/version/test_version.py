@@ -258,7 +258,7 @@ def test_show_static(hatch, temp_dir):
     assert result.output == '1.2.3\n'
 
 
-def test_set_static(hatch, helpers, temp_dir):
+def test_set_static(hatch, temp_dir):
     project_name = 'My.App'
 
     with temp_dir.as_cwd():
@@ -279,4 +279,4 @@ def test_set_static(hatch, helpers, temp_dir):
 
     project = Project(path)
 
-    assert config['project']['version'] == '2.0.0rc0', "should update static version"
+    assert config['project']['version'] == '2.0.0rc0', 'should update static version'
