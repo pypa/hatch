@@ -21,10 +21,24 @@ def version(app: Application, desired_version: str | None):
 
     if 'version' in app.project.metadata.config.get('project', {}):
         if desired_version:
-            app.abort('Cannot set version when it is statically defined by the `project.version` field')
-        else:
-            app.display(app.project.metadata.config['project']['version'])
+            import tomlkit.toml_file
+
+            original_version = app.project.metadata.config['project']['version']
+
+            updated_version = app.project.metadata.hatch.version.scheme.update(desired_version, original_version, {})
+
+            file = tomlkit.toml_file.TOMLFile(app.project.location.joinpath('pyproject.toml'))
+
+            data = file.read()
+            data['project']['version'] = updated_version
+            file.write(data)
+
+            app.display_info(f'Old: {original_version}')
+            app.display_info(f'New: {updated_version}')
+
             return
+        app.display(app.project.metadata.config['project']['version'])
+        return
 
     from hatchling.dep.core import dependencies_in_sync
 
