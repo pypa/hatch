@@ -30,7 +30,7 @@ def version(app: Application, desired_version: str | None):
             file = tomlkit.toml_file.TOMLFile(app.project.location.joinpath('pyproject.toml'))
 
             data = file.read()
-            data['project']['version'] = updated_version
+            data['project']['version'] = updated_version  # type: ignore
             file.write(data)
 
             app.display_info(f'Old: {original_version}')
