@@ -25,7 +25,11 @@ def version(app: Application, desired_version: str | None):
         if desired_version:
             import tomlkit.toml_file
 
-            updated_version = app.project.metadata.hatch.version.scheme.update(desired_version, original_version, {})
+            from hatchling.version.scheme.standard import StandardScheme
+
+            updated_version = StandardScheme(str(app.project.location), {}).update(
+                desired_version, original_version, {}
+            )
 
             # keep toml style
             file = tomlkit.toml_file.TOMLFile(app.project.location.joinpath('pyproject.toml'))
