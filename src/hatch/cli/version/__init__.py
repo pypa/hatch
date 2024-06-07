@@ -20,13 +20,14 @@ def version(app: Application, desired_version: str | None):
             app.abort(f'Project {app.project.chosen_name} (not a project)')
 
     if 'version' in app.project.metadata.config.get('project', {}):
+        original_version = app.project.metadata.config['project']['version']
+
         if desired_version:
             import tomlkit.toml_file
 
-            original_version = app.project.metadata.config['project']['version']
-
             updated_version = app.project.metadata.hatch.version.scheme.update(desired_version, original_version, {})
 
+            # keep toml style
             file = tomlkit.toml_file.TOMLFile(app.project.location.joinpath('pyproject.toml'))
 
             data = file.read()
@@ -35,9 +36,9 @@ def version(app: Application, desired_version: str | None):
 
             app.display_info(f'Old: {original_version}')
             app.display_info(f'New: {updated_version}')
-
             return
-        app.display(app.project.metadata.config['project']['version'])
+
+        app.display(original_version)
         return
 
     from hatchling.dep.core import dependencies_in_sync
