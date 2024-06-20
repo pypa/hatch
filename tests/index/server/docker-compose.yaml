@@ -1,5 +1,3 @@
-version: '3'
-
 services:
   devpi:
     container_name: hatch-devpi
