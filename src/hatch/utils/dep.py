@@ -37,7 +37,7 @@ def hash_dependencies(requirements: list[Requirement]) -> str:
 def get_project_dependencies_complex(
     environment: EnvironmentInterface,
 ) -> tuple[dict[str, Requirement], dict[str, dict[str, Requirement]]]:
-    from hatchling.dep.core import dependencies_in_sync
+    from hatch.dep.sync import dependencies_in_sync
 
     dependencies_complex = {}
     optional_dependencies_complex = {}

@@ -184,7 +184,7 @@ class VirtualEnvironment(EnvironmentInterface):
         if not self.dependencies:
             return True
 
-        from hatchling.dep.core import dependencies_in_sync
+        from hatch.dep.sync import dependencies_in_sync
 
         with self.safe_activation():
             return dependencies_in_sync(
@@ -199,7 +199,7 @@ class VirtualEnvironment(EnvironmentInterface):
     def build_environment(self, dependencies):
         from packaging.requirements import Requirement
 
-        from hatchling.dep.core import dependencies_in_sync
+        from hatch.dep.sync import dependencies_in_sync
 
         if not self.build_environment_exists():
             with self.expose_uv():
