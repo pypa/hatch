@@ -18,7 +18,7 @@ def metadata(app, field):
     """
     import json
 
-    from hatchling.dep.core import dependencies_in_sync
+    from hatch.dep.sync import dependencies_in_sync
 
     if dependencies_in_sync(app.project.metadata.build.requires_complex):
         from hatchling.metadata.utils import resolve_metadata_fields

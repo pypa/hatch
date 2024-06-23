@@ -243,8 +243,8 @@ class Application(Terminal):
         if not dependencies:
             return
 
+        from hatch.dep.sync import dependencies_in_sync
         from hatch.env.utils import add_verbosity_flag
-        from hatchling.dep.core import dependencies_in_sync
 
         if app_path := os.environ.get('PYAPP'):
             from hatch.utils.env import PythonInfo

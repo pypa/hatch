@@ -3,8 +3,8 @@ import sys
 import pytest
 from packaging.requirements import Requirement
 
+from hatch.dep.sync import dependencies_in_sync
 from hatch.venv.core import TempUVVirtualEnv, TempVirtualEnv
-from hatchling.dep.core import dependencies_in_sync
 
 
 def test_no_dependencies(platform):

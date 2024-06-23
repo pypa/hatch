@@ -37,7 +37,7 @@ class SystemEnvironment(EnvironmentInterface):
         if not self.dependencies:
             return True
 
-        from hatchling.dep.core import dependencies_in_sync
+        from hatch.dep.sync import dependencies_in_sync
 
         return dependencies_in_sync(
             self.dependencies_complex, sys_path=self.python_info.sys_path, environment=self.python_info.environment
