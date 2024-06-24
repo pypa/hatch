@@ -112,6 +112,7 @@ source_pkgs = ["hatch", "hatchling", "tests"]
 omit = [
   "backend/src/hatchling/__main__.py",
   "backend/src/hatchling/bridge/*",
+  "backend/src/hatchling/cli/dep/*",
   "backend/src/hatchling/ouroboros.py",
   "src/hatch/__main__.py",
   "src/hatch/cli/new/migrate.py",

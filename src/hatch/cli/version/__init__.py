@@ -26,7 +26,7 @@ def version(app: Application, desired_version: str | None):
             app.display(app.project.metadata.config['project']['version'])
             return
 
-    from hatchling.dep.core import dependencies_in_sync
+    from hatch.dep.sync import dependencies_in_sync
 
     with app.project.location.as_cwd():
         if not (

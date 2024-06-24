@@ -8,9 +8,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.25.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.25.0) - 2024-06-22 ## {: #hatchling-v1.25.0 }
+
+***Changed:***
+
+- The `macos-max-compat` option for the `wheel` target is now disabled by default and will be removed in a future release
+
+***Added:***
+
+- Artifacts for the `wheel` and `sdist` targets now have their permission bits normalized
+
 ***Fixed:***
 
 - Ignore `manylinux`/`musllinux` tags for the `wheel` target artifact name when enabling the `infer_tag` build data
+- The `wheel` target build data `infer_tag` when enabled now respects the `MACOSX_DEPLOYMENT_TARGET` environment variable
 
 ## [1.24.2](https://github.com/pypa/hatch/releases/tag/hatchling-v1.24.2) - 2024-04-22 ## {: #hatchling-v1.24.2 }
 

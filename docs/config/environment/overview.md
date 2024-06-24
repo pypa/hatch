@@ -105,7 +105,7 @@ features = [
 
 ### Dev mode
 
-By default, environments will always reflect the current state of your project on disk. Set `dev-mode` to `false` to disable this behavior:
+By default, environments will always reflect the current state of your project on disk, for example, by installing it in editable mode in a Python environment. Set `dev-mode` to `false` to disable this behavior and have your project installed only upon creation of a new environment. From then on, you need to manage your project installation manually.
 
 ```toml config-example
 [tool.hatch.envs.static]
