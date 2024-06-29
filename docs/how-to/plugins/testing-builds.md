@@ -75,7 +75,7 @@ version = "0.1.0"
     ...
 ```
 
-Alternatively, you may wish to perform `pip cache remove hatch-plugin-name` before testing it manually on some project with `hatch build --target hatch-plugin-target`. This is suitable when developing a plugin in tandem with another project consuming it. However, it is not advisable for writing tests inside a builder plugin project, self-contained, as it modifying the global cache of the system rather than working around it at the test level. For writing tests, the former method is advisable.
+Alternatively, you may wish to perform `pip cache remove hatch-plugin-name` before testing it manually on some project with `hatch build --target hatch-plugin-target`. This is suitable when developing a plugin in tandem with another project consuming it. However, it is not advisable for writing tests inside a builder plugin project, self-contained, as it modifies the global cache of the system rather than working around it at the test level. For writing tests, the former method is advisable.
 
 !!! note
     This example chooses to ignore copying `.git` for performance reasons. You may want to ignore more patterns, or copy only specific paths like [this plugin](https://github.com/hynek/hatch-fancy-pypi-readme/blob/main/tests/conftest.py) does.
