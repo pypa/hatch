@@ -174,7 +174,7 @@ def project_metadata_from_core_metadata(core_metadata: str) -> dict[str, Any]:
                     left, _, right = marker
                     if left.value == 'extra':
                         extra = right.value
-                        del markers[i]
+                        del markers[i]  # noqa: B909
                         # If there was only one marker then there will be an unnecessary
                         # trailing semicolon in the string representation
                         if not markers:
