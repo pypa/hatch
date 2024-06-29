@@ -4,6 +4,8 @@
 
 See the documentation for [build configuration](../../config/build.md).
 
+See the How-To for [testing plugins](../../how-to/plugins/testing-builds.md).
+
 ## Known third-party
 
 - [hatch-aws](https://github.com/aka-raccoon/hatch-aws) - used for building AWS Lambda functions with SAM
