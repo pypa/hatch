@@ -34,6 +34,7 @@ class MetadataHookInterface(ABC):  # no cov
     def __init__(self, root: str, config: dict) -> None:
         self.__root = root
         self.__config = config
+        self.__version: str = "standard"
 
     @property
     def root(self) -> str:
@@ -52,6 +53,20 @@ class MetadataHookInterface(ABC):  # no cov
         ```
         """
         return self.__config
+
+    @property
+    def version(self) -> str:
+        """
+        Gets the version of build (standard/editable) that is being run.
+        """
+        return self.__version
+
+    @version.setter
+    def version(self, version: str) -> None:
+        """
+        This sets the version of build (standard/editable) that is being run.
+        """
+        self.__version = version
 
     @abstractmethod
     def update(self, metadata: dict) -> None:

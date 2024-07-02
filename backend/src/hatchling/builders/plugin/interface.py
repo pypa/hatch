@@ -60,6 +60,7 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
         config: dict[str, Any] | None = None,
         metadata: ProjectMetadata | None = None,
         app: Application | None = None,
+        versions: list[str] | None = None,
     ) -> None:
         self.__root = root
         self.__plugin_manager = cast(PluginManagerBound, plugin_manager)
@@ -67,6 +68,7 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
         self.__metadata = metadata
         self.__app = app
         self.__config = cast(BuilderConfigBound, None)
+        self.__versions = versions
         self.__project_config: dict[str, Any] | None = None
         self.__hatch_config: dict[str, Any] | None = None
         self.__build_config: dict[str, Any] | None = None
@@ -80,7 +82,6 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
         self,
         *,
         directory: str | None = None,
-        versions: list[str] | None = None,
         hooks_only: bool | None = None,
         clean: bool | None = None,
         clean_hooks_after: bool | None = None,
@@ -101,7 +102,7 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
 
         version_api = self.get_version_api()
 
-        versions = versions or self.config.versions
+        versions = self.__versions or self.config.versions
         if versions:
             unknown_versions = set(versions) - set(version_api)
             if unknown_versions:
@@ -290,8 +291,8 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
         if self.__metadata is None:
             from hatchling.metadata.core import ProjectMetadata
 
-            self.__metadata = ProjectMetadata(self.root, self.plugin_manager, self.__raw_config)
-
+            self.__metadata = ProjectMetadata(self.root, self.plugin_manager, self.__raw_config,
+                                              self.__versions)
         return self.__metadata
 
     @property

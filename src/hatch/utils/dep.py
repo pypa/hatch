@@ -58,7 +58,8 @@ def get_project_dependencies_complex(
         from packaging.requirements import Requirement
 
         with environment.root.as_cwd(), environment.build_environment(environment.metadata.build.requires):
-            command = ['python', '-u', '-W', 'ignore', '-m', 'hatchling', 'metadata', '--compact']
+            command = ['python', '-u', '-W', 'ignore', '-m', 'hatchling', 'metadata', '--compact',
+                       "--version", "editable" if environment.dev_mode else "standard"]
             output = environment.platform.check_command_output(
                 command,
                 # Only capture stdout

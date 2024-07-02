@@ -30,8 +30,8 @@ def build_sdist(sdist_directory: str, config_settings: dict[str, Any] | None = N
     """
     from hatchling.builders.sdist import SdistBuilder
 
-    builder = SdistBuilder(os.getcwd())
-    return os.path.basename(next(builder.build(directory=sdist_directory, versions=['standard'])))
+    builder = SdistBuilder(os.getcwd(), versions=['standard'])
+    return os.path.basename(next(builder.build(directory=sdist_directory)))
 
 
 def get_requires_for_build_wheel(config_settings: dict[str, Any] | None = None) -> list[str]:  # noqa: ARG001
@@ -54,8 +54,8 @@ def build_wheel(
     """
     from hatchling.builders.wheel import WheelBuilder
 
-    builder = WheelBuilder(os.getcwd())
-    return os.path.basename(next(builder.build(directory=wheel_directory, versions=['standard'])))
+    builder = WheelBuilder(os.getcwd(), versions=['standard'])
+    return os.path.basename(next(builder.build(directory=wheel_directory)))
 
 
 def get_requires_for_build_editable(config_settings: dict[str, Any] | None = None) -> list[str]:  # noqa: ARG001
@@ -79,9 +79,8 @@ def build_editable(
     """
     from hatchling.builders.wheel import WheelBuilder
 
-    builder = WheelBuilder(os.getcwd())
-    return os.path.basename(next(builder.build(directory=wheel_directory, versions=['editable'])))
-
+    builder = WheelBuilder(os.getcwd(), versions=['editable'])
+    return os.path.basename(next(builder.build(directory=wheel_directory)))
 
 # Any builder that has build-time hooks like Hatchling and setuptools cannot technically keep PEP 517's identical
 # metadata promise e.g. C extensions would require different tags in the `WHEEL` file. Therefore, we consider the
@@ -106,8 +105,7 @@ if 'PIP_BUILD_TRACKER' not in os.environ:
         https://peps.python.org/pep-0517/#prepare-metadata-for-build-wheel
         """
         from hatchling.builders.wheel import WheelBuilder
-
-        builder = WheelBuilder(os.getcwd())
+        builder = WheelBuilder(os.getcwd(), versions=["standard"])
 
         directory = os.path.join(metadata_directory, f'{builder.artifact_project_id}.dist-info')
         if not os.path.isdir(directory):
@@ -128,7 +126,7 @@ if 'PIP_BUILD_TRACKER' not in os.environ:
         from hatchling.builders.constants import EDITABLES_REQUIREMENT
         from hatchling.builders.wheel import WheelBuilder
 
-        builder = WheelBuilder(os.getcwd())
+        builder = WheelBuilder(os.getcwd(), versions=['editable'])
 
         directory = os.path.join(metadata_directory, f'{builder.artifact_project_id}.dist-info')
         if not os.path.isdir(directory):

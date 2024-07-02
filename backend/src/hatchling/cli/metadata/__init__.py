@@ -9,6 +9,7 @@ def metadata_impl(
     called_by_app: bool,  # noqa: ARG001
     field: str,
     compact: bool,
+    version: str = "standard",
 ) -> None:
     import json
     import os
@@ -22,7 +23,7 @@ def metadata_impl(
 
     root = os.getcwd()
     plugin_manager = PluginManager()
-    project_metadata = ProjectMetadata(root, plugin_manager)
+    project_metadata = ProjectMetadata(root, plugin_manager, build_versions=[version])
 
     metadata = resolve_metadata_fields(project_metadata)
     if field:  # no cov
@@ -55,4 +56,5 @@ def metadata_command(
     parser.add_argument('field', nargs='?')
     parser.add_argument('-c', '--compact', action='store_true')
     parser.add_argument('--app', dest='called_by_app', action='store_true', help=argparse.SUPPRESS)
+    parser.add_argument('--version', dest='version', default="standard")
     parser.set_defaults(func=metadata_impl)
