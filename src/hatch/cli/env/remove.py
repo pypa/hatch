@@ -19,7 +19,7 @@ def remove(ctx: click.Context, env_name: str):
     if (parameter_source := ctx.get_parameter_source('env_name')) is not None and parameter_source.name == 'DEFAULT':
         env_name = app.env
 
-    environments = app.expand_environments(env_name)
+    environments = app.project.expand_environments(env_name)
     if not environments:
         app.abort(f'Environment `{env_name}` is not defined by project config')
 
@@ -28,7 +28,7 @@ def remove(ctx: click.Context, env_name: str):
             app.abort(f'Cannot remove active environment: {env_name}')
 
     for env_name in environments:
-        environment = app.get_environment(env_name)
-        if environment.exists() or environment.build_environment_exists():
+        environment = app.project.get_environment(env_name)
+        if environment.exists():
             with app.status(f'Removing environment: {env_name}'):
                 environment.remove()

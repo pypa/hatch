@@ -2,11 +2,13 @@ from __future__ import annotations
 
 import re
 from copy import deepcopy
+from functools import cached_property
 from itertools import product
 from os import environ
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from hatch.env.utils import ensure_valid_environment
+from hatch.project.constants import DEFAULT_BUILD_DIRECTORY, BuildEnvVars
 from hatch.project.env import apply_overrides
 from hatch.project.utils import format_script_commands, parse_script_command
 
@@ -32,6 +34,15 @@ class ProjectConfig:
         self._publish = None
         self._scripts = None
         self._cached_env_overrides = {}
+
+    @cached_property
+    def build(self):
+        config = self.config.get('build', {})
+        if not isinstance(config, dict):
+            message = 'Field `tool.hatch.build` must be a table'
+            raise TypeError(message)
+
+        return BuildConfig(config)
 
     @property
     def env(self):
@@ -507,6 +518,121 @@ class ProjectConfig:
         self._cached_env_overrides.clear()
 
 
+class BuildConfig:
+    def __init__(self, config: dict[str, Any]) -> None:
+        self.__config = config
+        self.__targets: dict[str, BuildTargetConfig] = config
+
+    @cached_property
+    def directory(self) -> str:
+        directory = self.__config.get('directory', DEFAULT_BUILD_DIRECTORY)
+        if not isinstance(directory, str):
+            message = 'Field `tool.hatch.build.directory` must be a string'
+            raise TypeError(message)
+
+        return directory
+
+    @cached_property
+    def dependencies(self) -> list[str]:
+        dependencies: list[str] = self.__config.get('dependencies', [])
+        if not isinstance(dependencies, list):
+            message = 'Field `tool.hatch.build.dependencies` must be an array'
+            raise TypeError(message)
+
+        for i, dependency in enumerate(dependencies, 1):
+            if not isinstance(dependency, str):
+                message = f'Dependency #{i} in field `tool.hatch.build.dependencies` must be a string'
+                raise TypeError(message)
+
+        return list(dependencies)
+
+    @cached_property
+    def hook_config(self) -> dict[str, dict[str, Any]]:
+        hook_config: dict[str, dict[str, Any]] = self.__config.get('hooks', {})
+        if not isinstance(hook_config, dict):
+            message = 'Field `tool.hatch.build.hooks` must be a table'
+            raise TypeError(message)
+
+        for hook_name, config in hook_config.items():
+            if not isinstance(config, dict):
+                message = f'Field `tool.hatch.build.hooks.{hook_name}` must be a table'
+                raise TypeError(message)
+
+        return finalize_hook_config(hook_config)
+
+    @cached_property
+    def __target_config(self) -> dict[str, Any]:
+        config = self.__config.get('targets', {})
+        if not isinstance(config, dict):
+            message = 'Field `tool.hatch.build.targets` must be a table'
+            raise TypeError(message)
+
+        return config
+
+    def target(self, target: str) -> BuildTargetConfig:
+        if target in self.__targets:
+            return self.__targets[target]
+
+        config = self.__target_config.get(target, {})
+        if not isinstance(config, dict):
+            message = f'Field `tool.hatch.build.targets.{target}` must be a table'
+            raise TypeError(message)
+
+        target_config = BuildTargetConfig(target, config, self)
+        self.__targets[target] = target_config
+        return target_config
+
+
+class BuildTargetConfig:
+    def __init__(self, name: str, config: dict[str, Any], global_config: BuildConfig) -> None:
+        self.__name = name
+        self.__config = config
+        self.__global_config = global_config
+
+    @cached_property
+    def directory(self) -> str:
+        directory = self.__config.get('directory', self.__global_config.directory)
+        if not isinstance(directory, str):
+            message = f'Field `tool.hatch.build.targets.{self.__name}.directory` must be a string'
+            raise TypeError(message)
+
+        return directory
+
+    @cached_property
+    def dependencies(self) -> list[str]:
+        dependencies: list[str] = self.__config.get('dependencies', [])
+        if not isinstance(dependencies, list):
+            message = f'Field `tool.hatch.build.targets.{self.__name}.dependencies` must be an array'
+            raise TypeError(message)
+
+        for i, dependency in enumerate(dependencies, 1):
+            if not isinstance(dependency, str):
+                message = (
+                    f'Dependency #{i} in field `tool.hatch.build.targets.{self.__name}.dependencies` must be a string'
+                )
+                raise TypeError(message)
+
+        all_dependencies = list(self.__global_config.dependencies)
+        all_dependencies.extend(dependencies)
+        return all_dependencies
+
+    @cached_property
+    def hook_config(self) -> dict[str, dict[str, Any]]:
+        hook_config: dict[str, dict[str, Any]] = self.__config.get('hooks', {})
+        if not isinstance(hook_config, dict):
+            message = f'Field `tool.hatch.build.targets.{self.__name}.hooks` must be a table'
+            raise TypeError(message)
+
+        for hook_name, config in hook_config.items():
+            if not isinstance(config, dict):
+                message = f'Field `tool.hatch.build.targets.{self.__name}.hooks.{hook_name}` must be a table'
+                raise TypeError(message)
+
+        config = self.__global_config.hook_config.copy()
+        config.update(hook_config)
+        return finalize_hook_config(config)
+
+
 def expand_script_commands(script_name, commands, config, seen, active):
     if script_name in seen:
         return seen[script_name]
@@ -583,3 +709,27 @@ def _populate_default_env_values(env_name, data, config, seen, active):
 
     seen.add(env_name)
     active.pop()
+
+
+def finalize_hook_config(hook_config: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    if env_var_enabled(BuildEnvVars.NO_HOOKS):
+        return {}
+
+    all_hooks_enabled = env_var_enabled(BuildEnvVars.HOOKS_ENABLE)
+    final_hook_config: dict[str, dict[str, Any]] = {
+        hook_name: config
+        for hook_name, config in hook_config.items()
+        if (
+            all_hooks_enabled
+            or config.get('enable-by-default', True)
+            or env_var_enabled(f'{BuildEnvVars.HOOK_ENABLE_PREFIX}{hook_name.upper()}')
+        )
+    }
+    return final_hook_config
+
+
+def env_var_enabled(env_var: str, *, default: bool = False) -> bool:
+    if env_var in environ:
+        return environ[env_var] in {'1', 'true'}
+
+    return default

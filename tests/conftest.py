@@ -17,6 +17,7 @@ from platformdirs import user_cache_dir, user_data_dir
 
 from hatch.config.constants import AppEnvVars, ConfigEnvVars, PublishEnvVars
 from hatch.config.user import ConfigFile
+from hatch.env.internal import get_internal_env_config
 from hatch.env.utils import get_env_var
 from hatch.utils.ci import running_in_ci
 from hatch.utils.fs import Path, temp_directory
@@ -221,6 +222,19 @@ def global_application():
     return Application(sys.exit, verbosity=0, enable_color=False, interactive=False)
 
 
+@pytest.fixture
+def temp_application():
+    # This is only required for the EnvironmentInterface constructor and will never be used
+    from hatch.cli.application import Application
+
+    return Application(sys.exit, verbosity=0, enable_color=False, interactive=False)
+
+
+@pytest.fixture
+def build_env_config():
+    return get_internal_env_config()['hatch-build']
+
+
 @pytest.fixture(scope='session')
 def devpi(tmp_path_factory, worker_id):
     import platform
@@ -319,9 +333,9 @@ def env_run(mocker) -> Generator[MagicMock, None, None]:
     return run
 
 
-def is_hatchling_command(command) -> bool:
-    if not isinstance(command, list):
-        return False
+def is_hatchling_command(command: list[str] | str) -> bool:
+    if isinstance(command, str):
+        command = command.split()
 
     if command[0] != 'python':
         return False
@@ -339,9 +353,12 @@ def mock_backend_process(request, mocker):
         return
 
     def mock_process_api(api):
-        def mock_process(command, **kwargs):
+        def mock_process(command: list[str] | str, **kwargs):
             if not is_hatchling_command(command):  # no cov
                 return api(command, **kwargs)
+
+            if isinstance(command, str):
+                command = command.split()
 
             original_args = sys.argv
             try:
@@ -380,6 +397,9 @@ def mock_backend_process_output(request, mocker):
         def mock_process(command, **kwargs):
             if not is_hatchling_command(command):  # no cov
                 return api(command, **kwargs)
+
+            if isinstance(command, str):
+                command = command.split()
 
             output_queue.clear()
             original_args = sys.argv
@@ -428,22 +448,6 @@ def mock_plugin_installation(mocker):
     mocker.patch('subprocess.run', side_effect=_mock)
 
     return mocked_subprocess_run
-
-
-@pytest.fixture
-def local_backend_process(mock_backend_process, mocker):
-    if mock_backend_process:
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.build_environment')
-
-    return mock_backend_process
-
-
-@pytest.fixture
-def local_backend_process_output(mock_backend_process_output, mocker):
-    if mock_backend_process_output:
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.build_environment')
-
-    return mock_backend_process_output
 
 
 def pytest_runtest_setup(item):
