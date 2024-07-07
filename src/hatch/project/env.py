@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from hatch.utils.fs import Path
 
 RESERVED_OPTIONS = {
+    'builder': bool,
     'dependencies': list,
     'extra-dependencies': list,
     'dev-mode': bool,
