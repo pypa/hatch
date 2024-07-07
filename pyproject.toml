@@ -46,6 +46,7 @@ dependencies = [
   "packaging>=23.2",
   "pexpect~=4.8",
   "platformdirs>=2.5.0",
+  "pyproject-hooks",
   "rich>=11.2.0",
   "shellingham>=1.4.0",
   "tomli-w>=1.0",
@@ -116,6 +117,7 @@ omit = [
   "backend/src/hatchling/ouroboros.py",
   "src/hatch/__main__.py",
   "src/hatch/cli/new/migrate.py",
+  "src/hatch/project/frontend/scripts/*",
   "src/hatch/utils/shells.py",
 ]
 

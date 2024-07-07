@@ -1,6 +1,14 @@
+from __future__ import annotations
+
+from functools import cached_property
 from os import environ
+from typing import TYPE_CHECKING, Any
 
 from hatch.utils.platform import get_platform_name
+
+if TYPE_CHECKING:
+    from hatch.env.plugin.interface import EnvironmentInterface
+    from hatch.utils.fs import Path
 
 RESERVED_OPTIONS = {
     'dependencies': list,
@@ -364,3 +372,48 @@ TYPE_OVERRIDES = {
     str: _apply_override_to_string,
     bool: _apply_override_to_boolean,
 }
+
+
+class EnvironmentMetadata:
+    def __init__(self, data_dir: Path, project_path: Path):
+        self.__data_dir = data_dir
+        self.__project_path = project_path
+
+    def dependency_hash(self, environment: EnvironmentInterface) -> str:
+        return self._read(environment).get('dependency_hash', '')
+
+    def update_dependency_hash(self, environment: EnvironmentInterface, dependency_hash: str) -> None:
+        metadata = self._read(environment)
+        metadata['dependency_hash'] = dependency_hash
+        self._write(environment, metadata)
+
+    def reset(self, environment: EnvironmentInterface) -> None:
+        self._metadata_file(environment).unlink(missing_ok=True)
+
+    def _read(self, environment: EnvironmentInterface) -> dict[str, Any]:
+        import json
+
+        metadata_file = self._metadata_file(environment)
+        if not metadata_file.is_file():
+            return {}
+
+        return json.loads(metadata_file.read_text())
+
+    def _write(self, environment: EnvironmentInterface, metadata: dict[str, Any]) -> None:
+        import json
+
+        metadata_file = self._metadata_file(environment)
+        metadata_file.parent.ensure_dir_exists()
+        metadata_file.write_text(json.dumps(metadata))
+
+    def _metadata_file(self, environment: EnvironmentInterface) -> Path:
+        from hatch.env.internal import is_isolated_environment
+
+        if is_isolated_environment(environment.name, environment.config):
+            return self.__data_dir / '.internal' / f'{environment.name}.json'
+
+        return self._storage_dir / environment.config['type'] / f'{environment.name}.json'
+
+    @cached_property
+    def _storage_dir(self) -> Path:
+        return self.__data_dir / self.__project_path.id

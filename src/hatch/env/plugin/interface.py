@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 from contextlib import contextmanager
 from functools import cached_property
 from os.path import isabs
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Generator
 
 from hatch.config.constants import AppEnvVars
 from hatch.env.utils import add_verbosity_flag, get_env_var_option
@@ -15,6 +15,8 @@ from hatch.utils.structures import EnvVars
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+
+    from hatch.utils.fs import Path
 
 
 class EnvironmentInterface(ABC):
@@ -91,7 +93,7 @@ class EnvironmentInterface(ABC):
     @property
     def root(self):
         """
-        The root of the project tree as a path-like object.
+        The root of the local project tree as a path-like object.
         """
         return self.__root
 
@@ -138,6 +140,28 @@ class EnvironmentInterface(ABC):
         ```
         """
         return self.__config
+
+    @cached_property
+    def project_root(self) -> str:
+        """
+        The root of the project tree as a string. If the environment is not running locally,
+        this should be the remote path to the project.
+        """
+        return str(self.root)
+
+    @cached_property
+    def sep(self) -> str:
+        """
+        The character used to separate directories in paths. By default, this is `\\` on Windows and `/` otherwise.
+        """
+        return os.sep
+
+    @cached_property
+    def pathsep(self) -> str:
+        """
+        The character used to separate paths. By default, this is `;` on Windows and `:` otherwise.
+        """
+        return os.pathsep
 
     @cached_property
     def system_python(self):
@@ -258,13 +282,18 @@ class EnvironmentInterface(ABC):
     @cached_property
     def dependencies_complex(self):
         all_dependencies_complex = list(self.environment_dependencies_complex)
+        if self.builder:
+            all_dependencies_complex.extend(self.metadata.build.requires_complex)
+            return all_dependencies_complex
 
         # Ensure these are checked last to speed up initial environment creation since
         # they will already be installed along with the project
         if (not self.skip_install and self.dev_mode) or self.features:
-            from hatch.utils.dep import get_project_dependencies_complex
+            from hatch.utils.dep import get_complex_dependencies, get_complex_features
 
-            dependencies_complex, optional_dependencies_complex = get_project_dependencies_complex(self)
+            dependencies, optional_dependencies = self.app.project.get_dependencies()
+            dependencies_complex = get_complex_dependencies(dependencies)
+            optional_dependencies_complex = get_complex_features(optional_dependencies)
 
             if not self.skip_install and self.dev_mode:
                 all_dependencies_complex.extend(dependencies_complex.values())
@@ -343,6 +372,21 @@ class EnvironmentInterface(ABC):
             raise TypeError(message)
 
         return dev_mode
+
+    @cached_property
+    def builder(self) -> bool:
+        """
+        ```toml config-example
+        [tool.hatch.envs.<ENV_NAME>]
+        builder = ...
+        ```
+        """
+        builder = self.config.get('builder', False)
+        if not isinstance(builder, bool):
+            message = f'Field `tool.hatch.envs.{self.name}.builder` must be a boolean'
+            raise TypeError(message)
+
+        return builder
 
     @cached_property
     def features(self):
@@ -518,10 +562,6 @@ class EnvironmentInterface(ABC):
         This should perform the necessary steps to completely remove the environment from the system and will only
         be triggered manually by users with the [`env remove`](../../cli/reference.md#hatch-env-remove) or
         [`env prune`](../../cli/reference.md#hatch-env-prune) commands.
-
-        If the
-        [build environment](reference.md#hatch.env.plugin.interface.EnvironmentInterface.build_environment)
-        has a caching mechanism, this should remove that as well.
         """
 
     @abstractmethod
@@ -648,58 +688,15 @@ class EnvironmentInterface(ABC):
             yield
 
     @contextmanager
-    def build_environment(
-        self,
-        dependencies: list[str],  # noqa: ARG002
-    ):
+    def fs_context(self) -> Generator[FileSystemContext, None, None]:
         """
-        This should set up an isolated environment in which to [`build`](../../cli/reference.md#hatch-build) the project
-        given a set of dependencies and must be a context manager:
-
-        ```python
-        with environment.build_environment([...]):
-            ...
-        ```
-
-        The build environment should reflect any
-        [environment variables](reference.md#hatch.env.plugin.interface.EnvironmentInterface.get_env_vars)
-        the user defined either currently or at the time of
-        [creation](reference.md#hatch.env.plugin.interface.EnvironmentInterface.create).
+        A context manager that must yield a subclass of
+        [FileSystemContext](../utilities.md#hatch.env.plugin.interface.FileSystemContext).
         """
-        with self.get_env_vars():
-            yield
+        from hatch.utils.fs import temp_directory
 
-    def run_builder(
-        self,
-        build_environment,  # noqa: ARG002
-        **kwargs,
-    ):
-        """
-        This will be called when the
-        [build environment](reference.md#hatch.env.plugin.interface.EnvironmentInterface.build_environment)
-        is active:
-
-        ```python
-        with environment.build_environment([...]) as build_env:
-            process = environment.run_builder(build_env, ...)
-        ```
-
-        This should return the standard library's
-        [subprocess.CompletedProcess](https://docs.python.org/3/library/subprocess.html#subprocess.CompletedProcess).
-        The command is constructed by passing all keyword arguments to
-        [construct_build_command](reference.md#hatch.env.plugin.interface.EnvironmentInterface.construct_build_command).
-
-        For an example, open the default implementation below:
-        """
-        return self.platform.run_command(self.construct_build_command(**kwargs))
-
-    def build_environment_exists(self):  # noqa: PLR6301
-        """
-        If the
-        [build environment](reference.md#hatch.env.plugin.interface.EnvironmentInterface.build_environment)
-        has a caching mechanism, this should indicate whether or not it has already been created.
-        """
-        return False
+        with temp_directory() as temp_dir:
+            yield FileSystemContext(self, local_path=temp_dir, env_path=str(temp_dir))
 
     def enter_shell(
         self,
@@ -765,47 +762,6 @@ class EnvironmentInterface(ABC):
                     yield self.metadata.context.format(cmd, args=args).strip()
             else:
                 yield self.metadata.context.format(command, args=args).strip()
-
-    def construct_build_command(  # noqa: PLR6301
-        self,
-        *,
-        directory=None,
-        targets=(),
-        hooks_only=False,
-        no_hooks=False,
-        clean=False,
-        clean_hooks_after=False,
-        clean_only=False,
-    ):
-        """
-        This is the canonical way [`build`](../../cli/reference.md#hatch-build) command options are translated to
-        a subprocess command issued to [builders](../builder/reference.md).
-        """
-        command = ['python', '-u', '-m', 'hatchling', 'build']
-
-        if directory:
-            command.extend(('--directory', directory))
-
-        if targets:
-            for target in targets:
-                command.extend(('--target', target))
-
-        if hooks_only:
-            command.append('--hooks-only')
-
-        if no_hooks:
-            command.append('--no-hooks')
-
-        if clean:
-            command.append('--clean')
-
-        if clean_hooks_after:
-            command.append('--clean-hooks-after')
-
-        if clean_only:
-            command.append('--clean-only')
-
-        return command
 
     def construct_pip_install_command(self, args: list[str]):
         """
@@ -895,6 +851,63 @@ class EnvironmentInterface(ABC):
 
     def __exit__(self, exc_type, exc_value, traceback):
         self.deactivate()
+
+
+class FileSystemContext:
+    """
+    This class represents a synchronized path between the local file system and a potentially remote environment.
+    """
+
+    def __init__(self, env: EnvironmentInterface, *, local_path: Path, env_path: str):
+        self.__env = env
+        self.__local_path = local_path
+        self.__env_path = env_path
+
+    @property
+    def env(self) -> EnvironmentInterface:
+        """
+        Returns the environment to which this context belongs.
+        """
+        return self.__env
+
+    @property
+    def local_path(self) -> Path:
+        """
+        Returns the local path to which this context refers as a path-like object.
+        """
+        return self.__local_path
+
+    @property
+    def env_path(self) -> str:
+        """
+        Returns the environment path to which this context refers as a string. The environment
+        may not be on the local file system.
+        """
+        return self.__env_path
+
+    def join(self, relative_path: str) -> FileSystemContext:
+        """
+        Returns a new instance of this class with the given relative path appended to the local and
+        environment paths.
+
+        This method should not need overwriting.
+        """
+        local_path = self.local_path / relative_path
+        env_path = f'{self.env_path}{self.__env.sep.join(["", *os.path.normpath(relative_path).split(os.sep)])}'
+        return FileSystemContext(self.__env, local_path=local_path, env_path=env_path)
+
+    def sync_env(self):
+        """
+        Synchronizes the [environment path](utilities.md#hatch.env.plugin.interface.FileSystemContext.env_path)
+        with the [local path](utilities.md#hatch.env.plugin.interface.FileSystemContext.local_path) as the source.
+        """
+
+    def sync_local(self):
+        """
+        Synchronizes the [local path](utilities.md#hatch.env.plugin.interface.FileSystemContext.local_path) as the
+        source with the [environment path](utilities.md#hatch.env.plugin.interface.FileSystemContext.env_path) as
+        the source.
+        """
 
 
 def expand_script_commands(env_name, script_name, commands, config, seen, active):

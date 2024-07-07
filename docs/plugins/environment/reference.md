@@ -26,14 +26,14 @@ requires = [
 
 Whenever an environment is used, the following logic is performed:
 
-::: hatch.cli.application.Application.prepare_environment
+::: hatch.project.core.Project.prepare_environment
     options:
       show_root_heading: false
       show_root_toc_entry: false
 
 ## Build environments
 
-All environment types should [offer support](#hatch.env.plugin.interface.EnvironmentInterface.build_environment) for a special sub-environment in which projects can be built. This environment is used in the following scenarios:
+All environment types should [offer support](#hatch.env.plugin.interface.EnvironmentInterface.fs_context) for synchronized storage between the local file system and the environment. This functionality is used in the following scenarios:
 
 - the [`build`](../../cli/reference.md#hatch-build) command
 - commands that read dependencies, like [`dep hash`](../../cli/reference.md#hatch-dep-hash), if any [project dependencies](../../config/metadata.md#dependencies) are [set dynamically](../../config/metadata.md#dynamic)
@@ -51,8 +51,10 @@ All environment types should [offer support](#hatch.env.plugin.interface.Environ
       - dependencies_in_sync
       - sync_dependencies
       - dependency_hash
-      - build_environment
-      - build_environment_exists
+      - project_root
+      - sep
+      - pathsep
+      - fs_context
       - activate
       - deactivate
       - app_status_creation
@@ -78,8 +80,6 @@ All environment types should [offer support](#hatch.env.plugin.interface.Environ
       - skip_install
       - dev_mode
       - description
-      - run_builder
-      - construct_build_command
       - command_context
       - enter_shell
       - run_shell_command

@@ -25,14 +25,19 @@ def get_internal_env_config() -> dict[str, Any]:
 def is_isolated_environment(env_name: str, config: dict[str, Any]) -> bool:
     # Provide super isolation and immunity to project-level environment removal only when the environment:
     #
-    # 1. Does not require the project being installed
-    # 2. The default configuration is used
+    # 1. Is not used for builds
+    # 2. Does not require the project being installed
+    # 3. The default configuration is used
     #
     # For example, the environment for static analysis depends only on Ruff at a specific default
     # version. This environment does not require the project and can be reused by every project to
     # improve responsiveness. However, if the user for some reason chooses to override the dependencies
     # to use a different version of Ruff, then the project would get its own environment.
-    return config.get('skip-install', False) and is_default_environment(env_name, config)
+    return (
+        not config.get('builder', False)
+        and config.get('skip-install', False)
+        and is_default_environment(env_name, config)
+    )
 
 
 def is_default_environment(env_name: str, config: dict[str, Any]) -> bool:
