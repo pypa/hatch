@@ -136,6 +136,11 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://hatch.pypa.io/dev/config/internal/build/</loc>
+         <lastmod>2020-02-02</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://hatch.pypa.io/dev/config/internal/static-analysis/</loc>
          <lastmod>2020-02-02</lastmod>
          <changefreq>daily</changefreq>
