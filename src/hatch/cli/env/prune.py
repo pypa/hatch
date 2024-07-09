@@ -38,6 +38,6 @@ def prune(app: Application):
                 app.verbosity,
                 app,
             )
-            if environment.exists() or environment.build_environment_exists():
+            if environment.exists():
                 with app.status(f'Removing environment: {env_name}'):
                     environment.remove()

@@ -16,14 +16,14 @@ Hatch [v1.6.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.6.0) brings i
 
 ## Build environments
 
-Originally, the environment interface method for [providing builder sub-environments](../../plugins/environment/reference.md#hatch.env.plugin.interface.EnvironmentInterface.build_environment) was intended to be used in conjunction with some cleanup logic in order to provide a fresh setup every time. However, this is unnecessary in practice because build dependencies rarely change.
+Originally, the environment interface method for providing builder sub-environments was intended to be used in conjunction with some cleanup logic in order to provide a fresh setup every time. However, this is unnecessary in practice because build dependencies rarely change.
 
 Without caching, repeat build environment use is slow which affects the following scenarios:
 
 - the [`build`](../../cli/reference.md#hatch-build) command
 - commands that read project metadata, like [`dep hash`](../../cli/reference.md#hatch-dep-hash), if any fields are [set dynamically](../../config/metadata.md#dynamic)
 
-Now a new environment interface method [`build_environment_exists`](../../plugins/environment/reference.md#hatch.env.plugin.interface.EnvironmentInterface.build_environment_exists) is used by Hatch to determine whether or not it has already been created, for implementations that have a caching mechanism.
+Now a new environment interface method `build_environment_exists` is used by Hatch to determine whether or not it has already been created, for implementations that have a caching mechanism.
 
 The [`virtual`](../../plugins/environment/virtual.md) environment type now uses this method to cache build environments.
 

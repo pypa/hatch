@@ -58,3 +58,14 @@
       show_source: false
       members:
       - formatters
+
+::: hatch.env.plugin.interface.FileSystemContext
+    options:
+      show_source: false
+      members:
+      - env
+      - sync_local
+      - sync_env
+      - local_path
+      - env_path
+      - join

@@ -14,18 +14,20 @@ def hash_dependencies(app, project_only, env_only):
     """Output a hash of the currently defined dependencies."""
     app.ensure_environment_plugin_dependencies()
 
-    from hatch.utils.dep import get_project_dependencies_complex, hash_dependencies
+    from hatch.utils.dep import get_complex_dependencies, hash_dependencies
 
-    environment = app.get_environment()
+    environment = app.project.get_environment()
 
     all_requirements = []
     if project_only:
-        dependencies_complex, _ = get_project_dependencies_complex(environment)
+        dependencies, _ = app.project.get_dependencies()
+        dependencies_complex = get_complex_dependencies(dependencies)
         all_requirements.extend(dependencies_complex.values())
     elif env_only:
         all_requirements.extend(environment.environment_dependencies_complex)
     else:
-        dependencies_complex, _ = get_project_dependencies_complex(environment)
+        dependencies, _ = app.project.get_dependencies()
+        dependencies_complex = get_complex_dependencies(dependencies)
         all_requirements.extend(dependencies_complex.values())
         all_requirements.extend(environment.environment_dependencies_complex)
 
@@ -49,19 +51,21 @@ def table(app, project_only, env_only, show_lines, force_ascii):
 
     from packaging.requirements import Requirement
 
-    from hatch.utils.dep import get_normalized_dependencies, get_project_dependencies_complex, normalize_marker_quoting
+    from hatch.utils.dep import get_complex_dependencies, get_normalized_dependencies, normalize_marker_quoting
 
-    environment = app.get_environment()
+    environment = app.project.get_environment()
 
     project_requirements = []
     environment_requirements = []
     if project_only:
-        dependencies_complex, _ = get_project_dependencies_complex(environment)
+        dependencies, _ = app.project.get_dependencies()
+        dependencies_complex = get_complex_dependencies(dependencies)
         project_requirements.extend(dependencies_complex.values())
     elif env_only:
         environment_requirements.extend(environment.environment_dependencies_complex)
     else:
-        dependencies_complex, _ = get_project_dependencies_complex(environment)
+        dependencies, _ = app.project.get_dependencies()
+        dependencies_complex = get_complex_dependencies(dependencies)
         project_requirements.extend(dependencies_complex.values())
         environment_requirements.extend(environment.environment_dependencies_complex)
 
@@ -116,11 +120,13 @@ def requirements(app, project_only, env_only, features, all_features):
     """Enumerate dependencies as a list of requirements."""
     app.ensure_environment_plugin_dependencies()
 
-    from hatch.utils.dep import get_normalized_dependencies, get_project_dependencies_complex
+    from hatch.utils.dep import get_complex_dependencies, get_complex_features, get_normalized_dependencies
     from hatchling.metadata.utils import normalize_project_name
 
-    environment = app.get_environment()
-    dependencies_complex, optional_dependencies_complex = get_project_dependencies_complex(environment)
+    environment = app.project.get_environment()
+    dependencies, optional_dependencies = app.project.get_dependencies()
+    dependencies_complex = get_complex_dependencies(dependencies)
+    optional_dependencies_complex = get_complex_features(optional_dependencies)
 
     all_requirements = []
     if features:

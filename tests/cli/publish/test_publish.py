@@ -12,7 +12,7 @@ pytestmark = [
     pytest.mark.requires_docker,
     pytest.mark.requires_internet,
     pytest.mark.usefixtures('devpi'),
-    pytest.mark.usefixtures('local_backend_process'),
+    pytest.mark.usefixtures('mock_backend_process'),
 ]
 
 

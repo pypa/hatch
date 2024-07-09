@@ -4,7 +4,6 @@ from hatch.config.constants import AppEnvVars
 from hatch.env.plugin.interface import EnvironmentInterface
 from hatch.project.core import Project
 from hatch.utils.structures import EnvVars
-from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT
 
 
 class MockEnvironment(EnvironmentInterface):  # no cov
@@ -551,6 +550,69 @@ class TestDevMode:
         assert environment.dev_mode is False
 
 
+class TestBuilder:
+    def test_default(self, isolation, isolated_data_dir, platform, global_application):
+        config = {'project': {'name': 'my_app', 'version': '0.0.1'}}
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            global_application,
+        )
+
+        assert environment.builder is False
+
+    def test_not_boolean(self, isolation, isolated_data_dir, platform, global_application):
+        config = {
+            'project': {'name': 'my_app', 'version': '0.0.1'},
+            'tool': {'hatch': {'envs': {'default': {'builder': 9000}}}},
+        }
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            global_application,
+        )
+
+        with pytest.raises(TypeError, match='Field `tool.hatch.envs.default.builder` must be a boolean'):
+            _ = environment.builder
+
+    def test_enable(self, isolation, isolated_data_dir, platform, global_application):
+        config = {
+            'project': {'name': 'my_app', 'version': '0.0.1'},
+            'tool': {'hatch': {'envs': {'default': {'builder': True}}}},
+        }
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            'default',
+            project.config.envs['default'],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            global_application,
+        )
+
+        assert environment.builder is True
+
+
 class TestFeatures:
     def test_default(self, isolation, isolated_data_dir, platform, global_application):
         config = {'project': {'name': 'my_app', 'version': '0.0.1'}}
@@ -753,12 +815,14 @@ class TestDescription:
 
 
 class TestDependencies:
-    def test_default(self, isolation, isolated_data_dir, platform, global_application):
+    def test_default(self, isolation, isolated_data_dir, platform, temp_application):
         config = {
             'project': {'name': 'my_app', 'version': '0.0.1', 'dependencies': ['dep1']},
             'tool': {'hatch': {'envs': {'default': {'skip-install': False}}}},
         }
         project = Project(isolation, config=config)
+        project.set_app(temp_application)
+        temp_application.project = project
         environment = MockEnvironment(
             isolation,
             project.metadata,
@@ -769,7 +833,7 @@ class TestDependencies:
             isolated_data_dir,
             platform,
             0,
-            global_application,
+            temp_application,
         )
 
         assert environment.dependencies == environment.dependencies == ['dep1']
@@ -915,7 +979,7 @@ class TestDependencies:
         ):
             _ = environment.dependencies
 
-    def test_full(self, isolation, isolated_data_dir, platform, global_application):
+    def test_full(self, isolation, isolated_data_dir, platform, temp_application):
         config = {
             'project': {'name': 'my_app', 'version': '0.0.1', 'dependencies': ['dep1']},
             'tool': {
@@ -927,6 +991,8 @@ class TestDependencies:
             },
         }
         project = Project(isolation, config=config)
+        project.set_app(temp_application)
+        temp_application.project = project
         environment = MockEnvironment(
             isolation,
             project.metadata,
@@ -937,12 +1003,12 @@ class TestDependencies:
             isolated_data_dir,
             platform,
             0,
-            global_application,
+            temp_application,
         )
 
         assert environment.dependencies == ['dep2', 'dep3', 'dep1']
 
-    def test_context_formatting(self, isolation, isolated_data_dir, platform, global_application, uri_slash_prefix):
+    def test_context_formatting(self, isolation, isolated_data_dir, platform, temp_application, uri_slash_prefix):
         config = {
             'project': {'name': 'my_app', 'version': '0.0.1', 'dependencies': ['dep1']},
             'tool': {
@@ -958,6 +1024,8 @@ class TestDependencies:
             },
         }
         project = Project(isolation, config=config)
+        project.set_app(temp_application)
+        temp_application.project = project
         environment = MockEnvironment(
             isolation,
             project.metadata,
@@ -968,7 +1036,7 @@ class TestDependencies:
             isolated_data_dir,
             platform,
             0,
-            global_application,
+            temp_application,
         )
 
         normalized_path = str(isolation).replace('\\', '/')
@@ -1001,7 +1069,7 @@ class TestDependencies:
 
         assert environment.dependencies == ['dep2', 'dep3']
 
-    def test_full_skip_install_and_features(self, isolation, isolated_data_dir, platform, global_application):
+    def test_full_skip_install_and_features(self, isolation, isolated_data_dir, platform, temp_application):
         config = {
             'project': {
                 'name': 'my_app',
@@ -1023,6 +1091,8 @@ class TestDependencies:
             },
         }
         project = Project(isolation, config=config)
+        project.set_app(temp_application)
+        temp_application.project = project
         environment = MockEnvironment(
             isolation,
             project.metadata,
@@ -1033,7 +1103,7 @@ class TestDependencies:
             isolated_data_dir,
             platform,
             0,
-            global_application,
+            temp_application,
         )
 
         assert environment.dependencies == ['dep2', 'dep3', 'dep4']
@@ -1063,19 +1133,17 @@ class TestDependencies:
 
         assert environment.dependencies == ['dep2', 'dep3']
 
-    def test_unknown_dynamic_feature(self, helpers, temp_dir, isolated_data_dir, platform, global_application):
+    def test_builder(self, isolation, isolated_data_dir, platform, global_application):
         config = {
-            'project': {'name': 'my_app', 'version': '0.0.1', 'dynamic': ['optional-dependencies']},
+            'build-system': {'requires': ['dep2']},
+            'project': {'name': 'my_app', 'version': '0.0.1', 'dependencies': ['dep1']},
             'tool': {
-                'hatch': {
-                    'metadata': {'hooks': {'custom': {}}},
-                    'envs': {'default': {'skip-install': False, 'features': ['foo']}},
-                },
+                'hatch': {'envs': {'default': {'skip-install': False, 'builder': True, 'dependencies': ['dep3']}}}
             },
         }
-        project = Project(temp_dir, config=config)
+        project = Project(isolation, config=config)
         environment = MockEnvironment(
-            temp_dir,
+            isolation,
             project.metadata,
             'default',
             project.config.envs['default'],
@@ -1087,26 +1155,7 @@ class TestDependencies:
             global_application,
         )
 
-        build_script = temp_dir / DEFAULT_BUILD_SCRIPT
-        build_script.write_text(
-            helpers.dedent(
-                """
-                from hatchling.metadata.plugin.interface import MetadataHookInterface
-                class CustomHook(MetadataHookInterface):
-                    def update(self, metadata):
-                        metadata['optional-dependencies'] = {'bar': ['binary']}
-                """
-            )
-        )
-
-        with pytest.raises(
-            ValueError,
-            match=(
-                'Feature `foo` of field `tool.hatch.envs.default.features` is not defined in the dynamic '
-                'field `project.optional-dependencies`'
-            ),
-        ):
-            _ = environment.dependencies
+        assert environment.dependencies == ['dep3', 'dep2']
 
 
 class TestScripts:
