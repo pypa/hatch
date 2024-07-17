@@ -134,7 +134,7 @@ def test(
 
         candidate_envs: list[EnvironmentInterface] = []
         for candidate_name in candidate_names:
-            environment = app.get_environment(candidate_name)
+            environment = app.project.get_environment(candidate_name)
             if environment.exists():
                 selected_envs.append(candidate_name)
                 break

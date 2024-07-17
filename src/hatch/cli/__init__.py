@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import os
+from typing import cast
 
 import click
 
@@ -159,13 +162,16 @@ def hatch(ctx: click.Context, env_name, project, verbose, quiet, color, interact
     app.cache_dir = Path(cache_dir or app.config.dirs.cache).expand()
 
     if project:
-        app.project = Project.from_config(app.config, project)
-        if app.project is None or app.project.root is None:
+        potential_project = Project.from_config(app.config, project)
+        if potential_project is None or potential_project.root is None:
             app.abort(f'Unable to locate project {project}')
 
+        app.project = cast(Project, potential_project)
+        app.project.set_app(app)
         return
 
     app.project = Project(Path.cwd())
+    app.project.set_app(app)
 
     if app.config.mode == 'local':
         return
@@ -182,6 +188,7 @@ def hatch(ctx: click.Context, env_name, project, verbose, quiet, color, interact
         else:
             app.project = possible_project
 
+        app.project.set_app(app)
         return
 
     if app.config.mode == 'aware' and app.project.root is None:
@@ -195,6 +202,7 @@ def hatch(ctx: click.Context, env_name, project, verbose, quiet, color, interact
         else:
             app.project = possible_project
 
+        app.project.set_app(app)
         return
 
 

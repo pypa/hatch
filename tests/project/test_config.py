@@ -5,6 +5,7 @@ import pytest
 from hatch.plugin.constants import DEFAULT_CUSTOM_SCRIPT
 from hatch.plugin.manager import PluginManager
 from hatch.project.config import ProjectConfig
+from hatch.project.constants import DEFAULT_BUILD_DIRECTORY, BuildEnvVars
 from hatch.project.env import RESERVED_OPTIONS
 from hatch.utils.structures import EnvVars
 
@@ -2700,3 +2701,247 @@ class TestScripts:
             ValueError, match='Circular expansion detected for field `tool.hatch.scripts`: foo -> bar -> foo'
         ):
             _ = project_config.scripts
+
+
+class TestBuild:
+    def test_not_table(self, isolation):
+        config = {'build': 9000}
+        project_config = ProjectConfig(isolation, config)
+
+        with pytest.raises(TypeError, match='Field `tool.hatch.build` must be a table'):
+            _ = project_config.build
+
+    def test_targets_not_table(self, isolation):
+        config = {'build': {'targets': 9000}}
+        project_config = ProjectConfig(isolation, config)
+
+        with pytest.raises(TypeError, match='Field `tool.hatch.build.targets` must be a table'):
+            _ = project_config.build.target('foo')
+
+    def test_target_not_table(self, isolation):
+        config = {'build': {'targets': {'foo': 9000}}}
+        project_config = ProjectConfig(isolation, config)
+
+        with pytest.raises(TypeError, match='Field `tool.hatch.build.targets.foo` must be a table'):
+            _ = project_config.build.target('foo')
+
+    def test_directory_global_not_table(self, isolation):
+        config = {'build': {'directory': 9000}}
+        project_config = ProjectConfig(isolation, config)
+
+        with pytest.raises(TypeError, match='Field `tool.hatch.build.directory` must be a string'):
+            _ = project_config.build.target('foo').directory
+
+    def test_directory_not_table(self, isolation):
+        config = {'build': {'targets': {'foo': {'directory': 9000}}}}
+        project_config = ProjectConfig(isolation, config)
+
+        with pytest.raises(TypeError, match='Field `tool.hatch.build.targets.foo.directory` must be a string'):
+            _ = project_config.build.target('foo').directory
+
+    def test_directory_default(self, isolation):
+        project_config = ProjectConfig(isolation, {})
+
+        assert project_config.build.target('foo').directory == DEFAULT_BUILD_DIRECTORY
+
+    def test_directory_global_correct(self, isolation):
+        config = {'build': {'directory': 'bar'}}
+        project_config = ProjectConfig(isolation, config)
+
+        assert project_config.build.target('foo').directory == 'bar'
+
+    def test_directory_target_override(self, isolation):
+        config = {'build': {'directory': 'bar', 'targets': {'foo': {'directory': 'baz'}}}}
+        project_config = ProjectConfig(isolation, config)
+
+        assert project_config.build.target('foo').directory == 'baz'
+
+    def test_dependencies_global_not_array(self, isolation):
+        config = {'build': {'dependencies': 9000}}
+        project_config = ProjectConfig(isolation, config)
+
+        with pytest.raises(TypeError, match='Field `tool.hatch.build.dependencies` must be an array'):
+            _ = project_config.build.target('foo').dependencies
+
+    def test_dependencies_global_entry_not_string(self, isolation):
+        config = {'build': {'dependencies': [9000]}}
+        project_config = ProjectConfig(isolation, config)
+
+        with pytest.raises(TypeError, match='Dependency #1 in field `tool.hatch.build.dependencies` must be a string'):
+            _ = project_config.build.target('foo').dependencies
+
+    def test_dependencies_not_array(self, isolation):
+        config = {'build': {'targets': {'foo': {'dependencies': 9000}}}}
+        project_config = ProjectConfig(isolation, config)
+
+        with pytest.raises(TypeError, match='Field `tool.hatch.build.targets.foo.dependencies` must be an array'):
+            _ = project_config.build.target('foo').dependencies
+
+    def test_dependencies_entry_not_string(self, isolation):
+        config = {'build': {'targets': {'foo': {'dependencies': [9000]}}}}
+        project_config = ProjectConfig(isolation, config)
+
+        with pytest.raises(
+            TypeError, match='Dependency #1 in field `tool.hatch.build.targets.foo.dependencies` must be a string'
+        ):
+            _ = project_config.build.target('foo').dependencies
+
+    def test_dependencies_target_merge(self, isolation):
+        config = {'build': {'dependencies': ['baz'], 'targets': {'foo': {'dependencies': ['bar']}}}}
+        project_config = ProjectConfig(isolation, config)
+
+        assert project_config.build.target('foo').dependencies == ['baz', 'bar']
+
+    def test_hooks_global_not_table(self, isolation):
+        config = {'build': {'hooks': 9000}}
+        project_config = ProjectConfig(isolation, config)
+
+        with pytest.raises(TypeError, match='Field `tool.hatch.build.hooks` must be a table'):
+            _ = project_config.build.target('foo').hook_config
+
+    def test_hook_config_global_not_table(self, isolation):
+        config = {'build': {'hooks': {'hook1': 9000}}}
+        project_config = ProjectConfig(isolation, config)
+
+        with pytest.raises(TypeError, match='Field `tool.hatch.build.hooks.hook1` must be a table'):
+            _ = project_config.build.target('foo').hook_config
+
+    def test_hooks_not_table(self, isolation):
+        config = {'build': {'targets': {'foo': {'hooks': 9000}}}}
+        project_config = ProjectConfig(isolation, config)
+
+        with pytest.raises(TypeError, match='Field `tool.hatch.build.targets.foo.hooks` must be a table'):
+            _ = project_config.build.target('foo').hook_config
+
+    def test_hook_config_not_table(self, isolation):
+        config = {'build': {'targets': {'foo': {'hooks': {'hook1': 9000}}}}}
+        project_config = ProjectConfig(isolation, config)
+
+        with pytest.raises(TypeError, match='Field `tool.hatch.build.targets.foo.hooks.hook1` must be a table'):
+            _ = project_config.build.target('foo').hook_config
+
+    def test_hook_config_target_override(self, isolation):
+        config = {
+            'build': {
+                'hooks': {
+                    'hook1': {'foo': 'bar', 'enable-by-default': False},
+                    'hook2': {'foo': 'bar'},
+                    'hook3': {'foo': 'bar'},
+                    'hook4': {'foo': 'bar'},
+                },
+                'targets': {
+                    'foo': {
+                        'hooks': {
+                            'hook3': {'bar': 'foo'},
+                            'hook4': {'bar': 'foo', 'enable-by-default': False},
+                            'hook5': {'bar': 'foo'},
+                            'hook6': {'bar': 'foo', 'enable-by-default': False},
+                        },
+                    },
+                },
+            }
+        }
+        project_config = ProjectConfig(isolation, config)
+
+        hook_config = project_config.build.target('foo').hook_config
+        assert hook_config == {
+            'hook2': {'foo': 'bar'},
+            'hook3': {'bar': 'foo'},
+            'hook5': {'bar': 'foo'},
+        }
+
+    def test_hook_config_all_enabled(self, isolation):
+        config = {
+            'build': {
+                'hooks': {
+                    'hook1': {'foo': 'bar', 'enable-by-default': False},
+                    'hook2': {'foo': 'bar'},
+                    'hook3': {'foo': 'bar'},
+                    'hook4': {'foo': 'bar'},
+                },
+                'targets': {
+                    'foo': {
+                        'hooks': {
+                            'hook3': {'bar': 'foo'},
+                            'hook4': {'bar': 'foo', 'enable-by-default': False},
+                            'hook5': {'bar': 'foo'},
+                            'hook6': {'bar': 'foo', 'enable-by-default': False},
+                        },
+                    },
+                },
+            }
+        }
+        project_config = ProjectConfig(isolation, config)
+
+        with EnvVars({BuildEnvVars.HOOKS_ENABLE: 'true'}):
+            hook_config = project_config.build.target('foo').hook_config
+
+        assert hook_config == {
+            'hook1': {'foo': 'bar', 'enable-by-default': False},
+            'hook2': {'foo': 'bar'},
+            'hook3': {'bar': 'foo'},
+            'hook4': {'bar': 'foo', 'enable-by-default': False},
+            'hook5': {'bar': 'foo'},
+            'hook6': {'bar': 'foo', 'enable-by-default': False},
+        }
+
+    def test_hook_config_all_disabled(self, isolation):
+        config = {
+            'build': {
+                'hooks': {
+                    'hook1': {'foo': 'bar', 'enable-by-default': False},
+                    'hook2': {'foo': 'bar'},
+                    'hook3': {'foo': 'bar'},
+                    'hook4': {'foo': 'bar'},
+                },
+                'targets': {
+                    'foo': {
+                        'hooks': {
+                            'hook3': {'bar': 'foo'},
+                            'hook4': {'bar': 'foo', 'enable-by-default': False},
+                            'hook5': {'bar': 'foo'},
+                            'hook6': {'bar': 'foo', 'enable-by-default': False},
+                        },
+                    },
+                },
+            }
+        }
+        project_config = ProjectConfig(isolation, config)
+
+        with EnvVars({BuildEnvVars.NO_HOOKS: 'true'}):
+            hook_config = project_config.build.target('foo').hook_config
+
+        assert not hook_config
+
+    def test_hook_config_specific_enabled(self, isolation):
+        config = {
+            'build': {
+                'hooks': {
+                    'hook1': {'foo': 'bar', 'enable-by-default': False},
+                    'hook2': {'foo': 'bar'},
+                    'hook3': {'foo': 'bar'},
+                    'hook4': {'foo': 'bar'},
+                },
+                'targets': {
+                    'foo': {
+                        'hooks': {
+                            'hook3': {'bar': 'foo'},
+                            'hook4': {'bar': 'foo', 'enable-by-default': False},
+                            'hook5': {'bar': 'foo'},
+                            'hook6': {'bar': 'foo', 'enable-by-default': False},
+                        },
+                    },
+                },
+            }
+        }
+        project_config = ProjectConfig(isolation, config)
+
+        with EnvVars({f'{BuildEnvVars.HOOK_ENABLE_PREFIX}HOOK6': 'true'}):
+            hook_config = project_config.build.target('foo').hook_config
+
+        assert hook_config == {
+            'hook2': {'foo': 'bar'},
+            'hook3': {'bar': 'foo'},
+            'hook5': {'bar': 'foo'},
+            'hook6': {'bar': 'foo', 'enable-by-default': False},
+        }

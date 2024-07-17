@@ -26,12 +26,21 @@ def version(app: Application, desired_version: str | None):
             app.display(app.project.metadata.config['project']['version'])
             return
 
-    from hatch.dep.sync import dependencies_in_sync
+    from hatch.project.constants import BUILD_BACKEND
 
     with app.project.location.as_cwd():
-        if not (
-            'version' in app.project.metadata.dynamic or app.project.metadata.hatch.metadata.hook_config
-        ) or dependencies_in_sync(app.project.metadata.build.requires_complex):
+        if app.project.metadata.build.build_backend != BUILD_BACKEND:
+            if desired_version:
+                app.abort('The version can only be set when Hatchling is the build backend')
+
+            app.ensure_environment_plugin_dependencies()
+            app.project.prepare_build_environment()
+
+            with app.project.location.as_cwd(), app.project.build_env.get_env_vars():
+                project_metadata = app.project.build_frontend.get_core_metadata()
+
+            app.display(project_metadata['version'])
+        elif 'version' not in app.project.metadata.dynamic:
             source = app.project.metadata.hatch.version.source
 
             version_data = source.get_version_data()
@@ -49,26 +58,15 @@ def version(app: Application, desired_version: str | None):
             app.display_info(f'Old: {original_version}')
             app.display_info(f'New: {updated_version}')
         else:
+            from hatch.utils.runner import ExecutionContext
+
             app.ensure_environment_plugin_dependencies()
+            app.project.prepare_build_environment()
 
-            environment = app.get_environment()
-            build_environment_exists = environment.build_environment_exists()
-            if not build_environment_exists:
-                try:
-                    environment.check_compatibility()
-                except Exception as e:  # noqa: BLE001
-                    app.abort(f'Environment `{environment.name}` is incompatible: {e}')
+            command = ['python', '-u', '-m', 'hatchling', 'version']
+            if desired_version:
+                command.append(desired_version)
 
-            with app.status_if(
-                'Setting up build environment for missing dependencies',
-                condition=not build_environment_exists,
-            ) as status, environment.build_environment(app.project.metadata.build.requires):
-                status.stop()
-
-                command = ['python', '-u', '-m', 'hatchling', 'version']
-                if desired_version:
-                    command.append(desired_version)
-
-                process = app.platform.run_command(command)
-                if process.returncode:
-                    app.abort(code=process.returncode)
+            context = ExecutionContext(app.project.build_env)
+            context.add_shell_command(command)
+            app.execute_context(context)

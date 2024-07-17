@@ -65,6 +65,16 @@ class Path(_PathBase):
 
             shutil.rmtree(self, ignore_errors=False)
 
+    def move(self, target: Path) -> None:
+        try:
+            self.replace(target)
+        # Happens when on different filesystems like /tmp or caused by layering in containers
+        except OSError:
+            import shutil
+
+            shutil.copy2(self, target)
+            self.unlink()
+
     def wait_for_dir_removed(self, timeout: int = 5) -> None:
         import shutil
         import time

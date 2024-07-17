@@ -3,11 +3,13 @@ from __future__ import annotations
 import importlib
 import json
 import os
+import re
 import sys
 from datetime import datetime, timezone
 from functools import lru_cache
 from textwrap import dedent as _dedent
 from typing import TYPE_CHECKING
+from unittest.mock import call
 
 import tomli_w
 
@@ -45,7 +47,7 @@ def get_current_timestamp():
     return datetime.now(timezone.utc).timestamp()
 
 
-def assert_plugin_installation(subprocess_run, dependencies: list[str], *, verbosity=0):
+def assert_plugin_installation(subprocess_run, dependencies: list[str], *, verbosity=0, count=1):
     command = [
         sys.executable,
         '-u',
@@ -58,7 +60,7 @@ def assert_plugin_installation(subprocess_run, dependencies: list[str], *, verbo
     add_verbosity_flag(command, verbosity, adjustment=-1)
     command.extend(dependencies)
 
-    subprocess_run.assert_called_once_with(command, shell=False)
+    assert subprocess_run.call_args_list == [call(command, shell=False)] * count
 
 
 def assert_files(directory, expected_files, *, check_contents=True):
@@ -96,6 +98,11 @@ def assert_files(directory, expected_files, *, check_contents=True):
 
     extra_files = seen_relative_file_paths - expected_relative_file_paths
     assert not extra_files, f'Extra files: {", ".join(sorted(extra_files))}'
+
+
+def assert_output_match(output: str, pattern: str, *, exact: bool = True):
+    flags = re.MULTILINE if exact else re.MULTILINE | re.DOTALL
+    assert re.search(dedent(pattern), output, flags=flags) is not None, output
 
 
 def get_template_files(template_name, project_name, **kwargs):

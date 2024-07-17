@@ -1,10 +1,17 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import click
+
+if TYPE_CHECKING:
+    from hatch.cli.application import Application
 
 
 @click.command(short_help='Display project metadata')
 @click.argument('field', required=False)
 @click.pass_obj
-def metadata(app, field):
+def metadata(app: Application, field: str | None):
     """
     Display project metadata.
 
@@ -16,39 +23,19 @@ def metadata(app, field):
     hatch project metadata | jq -r .readme
     ```
     """
+    app.ensure_environment_plugin_dependencies()
+
     import json
 
-    from hatch.dep.sync import dependencies_in_sync
+    from hatch.project.constants import BUILD_BACKEND
 
-    if dependencies_in_sync(app.project.metadata.build.requires_complex):
-        from hatchling.metadata.utils import resolve_metadata_fields
-
-        with app.project.location.as_cwd():
-            project_metadata = resolve_metadata_fields(app.project.metadata)
-    else:
-        app.ensure_environment_plugin_dependencies()
-
-        with app.project.location.as_cwd():
-            environment = app.get_environment()
-            build_environment_exists = environment.build_environment_exists()
-            if not build_environment_exists:
-                try:
-                    environment.check_compatibility()
-                except Exception as e:  # noqa: BLE001
-                    app.abort(f'Environment `{environment.name}` is incompatible: {e}')
-
-            with app.status_if(
-                'Setting up build environment for missing dependencies',
-                condition=not build_environment_exists,
-            ) as status, environment.build_environment(app.project.metadata.build.requires):
-                status.stop()
-
-                output = app.platform.check_command_output(
-                    ['python', '-u', '-m', 'hatchling', 'metadata', '--compact'],
-                    # Only capture stdout
-                    stderr=app.platform.modules.subprocess.PIPE,
-                )
-                project_metadata = json.loads(output)
+    app.project.prepare_build_environment()
+    build_backend = app.project.metadata.build.build_backend
+    with app.project.location.as_cwd(), app.project.build_env.get_env_vars():
+        if build_backend != BUILD_BACKEND:
+            project_metadata = app.project.build_frontend.get_core_metadata()
+        else:
+            project_metadata = app.project.build_frontend.hatch.get_core_metadata()
 
     if field:
         if field not in project_metadata:
