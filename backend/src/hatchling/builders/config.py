@@ -883,6 +883,11 @@ class BuilderConfig:
                     if glob_mode:
                         patterns.append(line)
 
+        # validate project root is not excluded by vcs
+        exclude_spec = pathspec.GitIgnoreSpec.from_lines(patterns)
+        if exclude_spec.match_file(self.root):
+            return []
+
         return patterns
 
     def normalize_build_directory(self, build_directory: str) -> str:
