@@ -38,7 +38,7 @@ def version_impl(
         app.display(original_version)
         return
 
-    updated_version = metadata.hatch.version.scheme.update(desired_version, original_version, version_data, force)
+    updated_version = metadata.hatch.version.scheme.update(desired_version, original_version, version_data, force=force)
     source.set_version(updated_version, version_data)
 
     app.display_info(f'Old: {original_version}')
