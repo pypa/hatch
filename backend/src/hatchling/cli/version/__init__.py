@@ -8,6 +8,7 @@ def version_impl(
     *,
     called_by_app: bool,  # noqa: ARG001
     desired_version: str,
+    force: bool = False,
 ) -> None:
     import os
 
@@ -37,7 +38,7 @@ def version_impl(
         app.display(original_version)
         return
 
-    updated_version = metadata.hatch.version.scheme.update(desired_version, original_version, version_data)
+    updated_version = metadata.hatch.version.scheme.update(desired_version, original_version, version_data, force)
     source.set_version(updated_version, version_data)
 
     app.display_info(f'Old: {original_version}')
@@ -48,4 +49,5 @@ def version_command(subparsers: argparse._SubParsersAction, defaults: Any) -> No
     parser = subparsers.add_parser('version')
     parser.add_argument('desired_version', default='', nargs='?', **defaults)
     parser.add_argument('--app', dest='called_by_app', action='store_true', help=argparse.SUPPRESS)
+    parser.add_argument('--force', dest='force', action='store_true', help=argparse.SUPPRESS)
     parser.set_defaults(func=version_impl)

@@ -10,8 +10,16 @@ if TYPE_CHECKING:
 
 @click.command(short_help="View or set a project's version")
 @click.argument('desired_version', required=False)
+@click.option(
+    '--force',
+    '-f',
+    is_flag=True,
+    default=False,
+    show_default=True,
+    help='Allow an explicit downgrading version to be given',
+)
 @click.pass_obj
-def version(app: Application, desired_version: str | None):
+def version(app: Application, desired_version: str | None, *, force: bool):
     """View or set a project's version."""
     if app.project.root is None:
         if app.project.chosen_name is None:
@@ -65,6 +73,8 @@ def version(app: Application, desired_version: str | None):
 
             command = ['python', '-u', '-m', 'hatchling', 'version']
             if desired_version:
+                if force:
+                    command.append('--force')
                 command.append(desired_version)
 
             context = ExecutionContext(app.project.build_env)
