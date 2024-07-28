@@ -8,6 +8,7 @@ See the documentation for [build configuration](../../config/build.md).
 
 - [hatch-aws](https://github.com/aka-raccoon/hatch-aws) - used for building AWS Lambda functions with SAM
 - [hatch-zipped-directory](https://github.com/dairiki/hatch-zipped-directory) - used for building ZIP archives for installation into various foreign package installation systems
+- [hatch-pyz](https://github.com/djcopley/hatch-pyz) - used for building python [zip applications](https://docs.python.org/3/library/zipapp.html)
 
 ::: hatchling.builders.plugin.interface.BuilderInterface
     options:
