@@ -31,9 +31,9 @@ SOURCE_DATE_EPOCH = "1580601600"
 
 ## Installer
 
-By default, [UV is enabled](../../how-to/environment/select-installer.md). You may disable that behavior as follows:
+By default, [pip is enabled](../../how-to/environment/select-installer.md). You may specify UV instead as follows:
 
 ```toml config-example
 [tool.hatch.envs.hatch-build]
-installer = "pip"
+installer = "uv"
 ```
