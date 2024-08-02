@@ -11,6 +11,11 @@ def test_not_higher(isolation):
         scheme.update('1.0.0', '1.0', {})
 
 
+def test_not_higher_with_force(isolation):
+    scheme = StandardScheme(str(isolation), {})
+    assert scheme.update('1.9.0', '2.0.0', {}, force=True) == '1.9.0'
+
+
 def test_specific(isolation):
     scheme = StandardScheme(str(isolation), {})
 

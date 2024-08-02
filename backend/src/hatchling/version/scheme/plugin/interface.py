@@ -52,7 +52,7 @@ class VersionSchemeInterface(ABC):  # no cov
         return self.__config
 
     @abstractmethod
-    def update(self, desired_version: str, original_version: str, version_data: dict) -> str:
+    def update(self, desired_version: str, original_version: str, version_data: dict, *, force: bool = False) -> str:
         """
         This should return a normalized form of the desired version and verify that it
         is higher than the original version.

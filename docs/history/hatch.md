@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ***Added:***
 
 - The `version` and `project metadata` commands now support projects that do not use Hatchling as the build backend
+- The `version` command accepts a `--force` option, allowing for downgrades when an explicit version number is given.
 - Build environments can now be configured, the default build environment is `hatch-build`
 - The environment interface now has the following methods and properties in order to better support builds on remote machines: `project_root`, `sep`, `pathsep`, `fs_context`
 
