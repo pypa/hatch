@@ -222,10 +222,17 @@ class VirtualEnvironment(EnvironmentInterface):
             with self.expose_uv(), self.get_env_vars():
                 shell_executor(path, args, self.virtual_env.executables_directory)
 
+    def _read_dot_python_version(self) -> str:
+        path = self.root / '.python-version'
+        try:
+            return path.read_text().splitlines()[0].strip()
+        except Exception:  # noqa: BLE001
+            return ''
+
     def check_compatibility(self):
         super().check_compatibility()
 
-        python_version = self.config.get('python', '')
+        python_version = self.config.get('python', '') or self._read_dot_python_version()
         if (
             os.environ.get(AppEnvVars.PYTHON)
             or self._find_existing_interpreter(python_version) is not None
@@ -251,6 +258,9 @@ class VirtualEnvironment(EnvironmentInterface):
 
         if explicit_default := os.environ.get(AppEnvVars.PYTHON):
             return sys.executable if explicit_default == 'self' else explicit_default
+
+        if python_version := self._read_dot_python_version():
+            return self._get_concrete_interpreter_path(python_version)
 
         return self._get_concrete_interpreter_path()
 
