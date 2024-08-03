@@ -70,6 +70,7 @@ def new(app, name, location, interactive, feature_cli, initialize, setuptools_op
 
     default_config = {
         'description': '',
+        'name': '',
         'dependencies': set(),
         'package_name': normalized_name.replace('-', '_'),
         'project_name': name,
@@ -79,7 +80,8 @@ def new(app, name, location, interactive, feature_cli, initialize, setuptools_op
 
     if interactive:
         default_config['description'] = app.prompt('Description', default='')
-
+        default_config['name'] = app.prompt('Author Name', default='U.N Owen')
+        
         app.display_info()
 
     if needs_config_update:
