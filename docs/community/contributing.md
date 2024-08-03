@@ -23,13 +23,13 @@ git checkout -b add-my-contribution
 Run the test suite while developing:
 
 ```bash
-hatch run dev
+hatch test
 ```
 
 Run the test suite with coverage report:
 
 ```bash
-hatch run cov
+hatch test --cover
 ```
 
 Run the extended test suite with coverage:
@@ -43,13 +43,13 @@ hatch run full
 Run automated formatting:
 
 ```bash
-hatch run lint:fmt
+hatch fmt --formatter
 ```
 
 Run full linting and type checking:
 
 ```bash
-hatch run lint:all
+hatch fmt
 ```
 
 ## Docs
