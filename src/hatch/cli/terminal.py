@@ -42,8 +42,8 @@ class BorrowedStatus(TerminalStatus):
         is_interactive: bool,
         verbosity: int,
         spinner_style: str,
-        waiting_style: Style,
-        success_style: Style,
+        waiting_style: Style | str,
+        success_style: Style | str,
         initializer: Callable,
         finalizer: Callable,
     ):
