@@ -331,8 +331,8 @@ class Terminal:
             is_interactive=self.console.is_interactive,
             verbosity=self.verbosity,
             spinner_style=self._style_spinner,
-            waiting_style=self._style_level_waiting,  # type: ignore[arg-type]
-            success_style=self._style_level_success,  # type: ignore[arg-type]
+            waiting_style=self._style_level_waiting,
+            success_style=self._style_level_success,
             initializer=lambda: setattr(self.platform, 'displaying_status', True),  # type: ignore[attr-defined]
             finalizer=lambda: setattr(self.platform, 'displaying_status', False),  # type: ignore[attr-defined]
         )
