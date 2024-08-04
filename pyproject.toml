@@ -90,6 +90,7 @@ exclude = [
 [tool.mypy]
 disallow_untyped_defs = false
 disallow_incomplete_defs = false
+enable_error_code = ["ignore-without-code"]
 follow_imports = "normal"
 ignore_missing_imports = true
 pretty = true
