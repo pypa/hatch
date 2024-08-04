@@ -186,6 +186,7 @@ def test_uv_shipped(hatch, helpers, temp_dir, config_file):
     assert env_path.name == 'test'
 
 
+@pytest.mark.requires_internet
 def test_uv_env(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
