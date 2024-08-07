@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any, Callable, Optional
+
+from packaging.requirements import Requirement
 
 if TYPE_CHECKING:
     from hatchling.metadata.core import ProjectMetadata
@@ -196,7 +198,8 @@ def project_metadata_from_core_metadata(core_metadata: str) -> dict[str, Any]:
     return metadata
 
 
-def construct_metadata_file_1_2(metadata: ProjectMetadata, extra_dependencies: tuple[str] | None = None) -> str:
+def construct_metadata_file_1_2(metadata: ProjectMetadata, extra_dependencies: tuple[str] | None = None,
+                                normalize_requirement: Optional[Callable[[Requirement], Requirement]] = None) -> str:
     """
     https://peps.python.org/pep-0345/
     """
@@ -244,8 +247,12 @@ def construct_metadata_file_1_2(metadata: ProjectMetadata, extra_dependencies: t
     if metadata.core.requires_python:
         metadata_file += f'Requires-Python: {metadata.core.requires_python}\n'
 
-    if metadata.core.dependencies:
-        for dependency in metadata.core.dependencies:
+    if metadata.core.dependencies_complex:
+        for dependency, req in metadata.core.dependencies_complex.items():
+            if normalize_requirement:
+                new_req = normalize_requirement(req)
+                if new_req is not req:
+                    dependency = str(new_req)
             metadata_file += f'Requires-Dist: {dependency}\n'
 
     if extra_dependencies:
@@ -255,7 +262,8 @@ def construct_metadata_file_1_2(metadata: ProjectMetadata, extra_dependencies: t
     return metadata_file
 
 
-def construct_metadata_file_2_1(metadata: ProjectMetadata, extra_dependencies: tuple[str] | None = None) -> str:
+def construct_metadata_file_2_1(metadata: ProjectMetadata, extra_dependencies: tuple[str] | None = None,
+                                normalize_requirement: Optional[Callable[[Requirement], Requirement]] = None) -> str:
     """
     https://peps.python.org/pep-0566/
     """
@@ -310,8 +318,12 @@ def construct_metadata_file_2_1(metadata: ProjectMetadata, extra_dependencies: t
     if metadata.core.requires_python:
         metadata_file += f'Requires-Python: {metadata.core.requires_python}\n'
 
-    if metadata.core.dependencies:
-        for dependency in metadata.core.dependencies:
+    if metadata.core.dependencies_complex:
+        for dependency, req in metadata.core.dependencies_complex.items():
+            if normalize_requirement:
+                new_req = normalize_requirement(req)
+                if new_req is not req:
+                    dependency = str(new_req)
             metadata_file += f'Requires-Dist: {dependency}\n'
 
     if extra_dependencies:
@@ -337,7 +349,8 @@ def construct_metadata_file_2_1(metadata: ProjectMetadata, extra_dependencies: t
     return metadata_file
 
 
-def construct_metadata_file_2_2(metadata: ProjectMetadata, extra_dependencies: tuple[str] | None = None) -> str:
+def construct_metadata_file_2_2(metadata: ProjectMetadata, extra_dependencies: tuple[str] | None = None,
+                                normalize_requirement: Optional[Callable[[Requirement], Requirement]] = None) -> str:
     """
     https://peps.python.org/pep-0643/
     """
@@ -401,8 +414,12 @@ def construct_metadata_file_2_2(metadata: ProjectMetadata, extra_dependencies: t
     if metadata.core.requires_python:
         metadata_file += f'Requires-Python: {metadata.core.requires_python}\n'
 
-    if metadata.core.dependencies:
-        for dependency in metadata.core.dependencies:
+    if metadata.core.dependencies_complex:
+        for dependency, req in metadata.core.dependencies_complex.items():
+            if normalize_requirement:
+                new_req = normalize_requirement(req)
+                if new_req is not req:
+                    dependency = str(new_req)
             metadata_file += f'Requires-Dist: {dependency}\n'
 
     if extra_dependencies:
@@ -428,7 +445,8 @@ def construct_metadata_file_2_2(metadata: ProjectMetadata, extra_dependencies: t
     return metadata_file
 
 
-def construct_metadata_file_2_3(metadata: ProjectMetadata, extra_dependencies: tuple[str] | None = None) -> str:
+def construct_metadata_file_2_3(metadata: ProjectMetadata, extra_dependencies: tuple[str] | None = None,
+                                normalize_requirement: Optional[Callable[[Requirement], Requirement]] = None) -> str:
     """
     https://peps.python.org/pep-0639/
     """
@@ -492,8 +510,12 @@ def construct_metadata_file_2_3(metadata: ProjectMetadata, extra_dependencies: t
     if metadata.core.requires_python:
         metadata_file += f'Requires-Python: {metadata.core.requires_python}\n'
 
-    if metadata.core.dependencies:
-        for dependency in metadata.core.dependencies:
+    if metadata.core.dependencies_complex:
+        for dependency, req in metadata.core.dependencies_complex.items():
+            if normalize_requirement:
+                new_req = normalize_requirement(req)
+                if new_req is not req:
+                    dependency = str(new_req)
             metadata_file += f'Requires-Dist: {dependency}\n'
 
     if extra_dependencies:

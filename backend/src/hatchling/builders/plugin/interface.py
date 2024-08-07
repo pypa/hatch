@@ -3,16 +3,18 @@ from __future__ import annotations
 import os
 import re
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Callable, Generator, Generic, Iterable, cast
+from typing import TYPE_CHECKING, Any, Callable, Generator, Generic, Iterable, cast, Optional
+
+from packaging.requirements import Requirement
 
 from hatchling.builders.config import BuilderConfig, BuilderConfigBound, env_var_enabled
 from hatchling.builders.constants import EXCLUDED_DIRECTORIES, EXCLUDED_FILES, BuildEnvVars
+from hatchling.builders.hooks.plugin.interface import BuildHookInterface
 from hatchling.builders.utils import get_relative_path, safe_walk
 from hatchling.plugin.manager import PluginManagerBound
 
 if TYPE_CHECKING:
     from hatchling.bridge.app import Application
-    from hatchling.builders.hooks.plugin.interface import BuildHookInterface
     from hatchling.metadata.core import ProjectMetadata
 
 
@@ -141,6 +143,16 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
 
             # Allow inspection of configured build hooks and the order in which they run
             build_data['build_hooks'] = tuple(configured_build_hooks)
+
+            pub_local_hook = None
+            for build_hook in build_hooks:
+                if type(build_hook).publishable_local is not BuildHookInterface.publishable_local:
+                    if pub_local_hook is None:
+                        pub_local_hook = build_hook
+                    else:
+                        raise ValueError(f'Hooks {pub_local_hook.PLUGIN_NAME} and {build_hook.PLUGIN_NAME} provide conflicting `publishable_local`')
+            if pub_local_hook:
+                build_data['publishable_local_function'] = pub_local_hook.publishable_local
 
             # Execute all `initialize` build hooks
             for build_hook in build_hooks:
@@ -439,3 +451,7 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
         https://peps.python.org/pep-0427/#escaping-and-unicode
         """
         return re.sub(r'[^\w\d.]+', '_', file_name, flags=re.UNICODE)
+
+    @staticmethod
+    def publishable_local_function(build_data: dict[str, Any]) -> Optional[Callable[[Requirement], Requirement]]:
+        return build_data.get('publishable_local_function', None)
