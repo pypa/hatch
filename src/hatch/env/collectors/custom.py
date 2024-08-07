@@ -11,7 +11,7 @@ from hatch.plugin.utils import load_plugin_from_script
 class CustomEnvironmentCollector:
     PLUGIN_NAME = 'custom'
 
-    def __new__(  # type: ignore
+    def __new__(  # type: ignore[misc]
         cls,
         root: str,
         config: dict[str, Any],

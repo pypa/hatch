@@ -12,4 +12,4 @@ if TYPE_CHECKING:
 
 @hookimpl
 def hatch_register_environment_collector() -> list[type[EnvironmentCollectorInterface]]:
-    return [CustomEnvironmentCollector, DefaultEnvironmentCollector]  # type: ignore
+    return [CustomEnvironmentCollector, DefaultEnvironmentCollector]  # type: ignore[list-item]

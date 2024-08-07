@@ -11,7 +11,7 @@ from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT
 class CustomBuildHook:
     PLUGIN_NAME = 'custom'
 
-    def __new__(  # type: ignore
+    def __new__(  # type: ignore[misc]
         cls,
         root: str,
         config: dict[str, Any],

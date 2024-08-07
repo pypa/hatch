@@ -67,7 +67,7 @@ def project_metadata_from_core_metadata(core_metadata: str) -> dict[str, Any]:
     header_registry = HeaderRegistry()
 
     message = email.message_from_string(core_metadata)
-    metadata = {}
+    metadata: dict[str, Any] = {}
 
     if name := message.get('Name'):
         metadata['name'] = name

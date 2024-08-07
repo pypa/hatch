@@ -15,4 +15,4 @@ if typing.TYPE_CHECKING:
 
 @hookimpl
 def hatch_register_builder() -> list[type[BuilderInterface]]:
-    return [AppBuilder, BinaryBuilder, CustomBuilder, SdistBuilder, WheelBuilder]  # type: ignore
+    return [AppBuilder, BinaryBuilder, CustomBuilder, SdistBuilder, WheelBuilder]  # type: ignore[list-item]

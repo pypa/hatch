@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 class CustomBuilder(Generic[PluginManagerBound]):
     PLUGIN_NAME = 'custom'
 
-    def __new__(  # type: ignore
+    def __new__(  # type: ignore[misc]
         cls,
         root: str,
         plugin_manager: PluginManagerBound | None = None,
@@ -45,7 +45,7 @@ class CustomBuilder(Generic[PluginManagerBound]):
             message = f'Build script does not exist: {build_script}'
             raise OSError(message)
 
-        hook_class = load_plugin_from_script(path, build_script, BuilderInterface, 'builder')  # type: ignore
+        hook_class = load_plugin_from_script(path, build_script, BuilderInterface, 'builder')  # type: ignore[type-abstract]
         hook = hook_class(root, plugin_manager=plugin_manager, config=config, metadata=metadata, app=app)
 
         # Always keep the name to avoid confusion
