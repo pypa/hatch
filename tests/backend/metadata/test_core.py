@@ -30,7 +30,7 @@ class TestConfig:
 
     def test_read(self, temp_dir):
         project_file = temp_dir / 'pyproject.toml'
-        project_file.write_text('foo = 5')
+        project_file.write_text('foo = 5', encoding='utf-8')
 
         with temp_dir.as_cwd():
             metadata = ProjectMetadata(str(temp_dir), None)
@@ -120,7 +120,7 @@ class TestDynamic:
 
         file_path = temp_dir / 'a' / 'b'
         file_path.ensure_parent_dir_exists()
-        file_path.write_text('__version__ = "0.0.1"')
+        file_path.write_text('__version__ = "0.0.1"', encoding='utf-8')
 
         file_path = temp_dir / DEFAULT_BUILD_SCRIPT
         file_path.write_text(
@@ -132,7 +132,8 @@ class TestDynamic:
                     def update(self, metadata):
                         metadata['description'] = metadata['name'] + 'bar'
                 """
-            )
+            ),
+            encoding='utf-8',
         )
 
         # Trigger hooks with `metadata.core` first
@@ -279,7 +280,7 @@ class TestVersion:
 
         file_path = temp_dir / 'a' / 'b'
         file_path.ensure_parent_dir_exists()
-        file_path.write_text('__version__ = "0.0.1"')
+        file_path.write_text('__version__ = "0.0.1"', encoding='utf-8')
 
         assert metadata.hatch.version.source is metadata.hatch.version.source
         assert isinstance(metadata.hatch.version.source, RegexSource)
@@ -294,7 +295,7 @@ class TestVersion:
 
         file_path = temp_dir / 'a' / 'b'
         file_path.ensure_parent_dir_exists()
-        file_path.write_text('__version__ = "0..0"')
+        file_path.write_text('__version__ = "0..0"', encoding='utf-8')
 
         with pytest.raises(
             ValueError, match='Invalid version `0..0` from source `regex`, see https://peps.python.org/pep-0440/'
@@ -394,7 +395,7 @@ class TestReadme:
 
         file_path = temp_dir / 'foo' / f'bar{extension}'
         file_path.ensure_parent_dir_exists()
-        file_path.write_text('test content')
+        file_path.write_text('test content', encoding='utf-8')
 
         assert metadata.core.readme == metadata.core.readme == 'test content'
         assert metadata.core.readme_content_type == metadata.core.readme_content_type == content_type
@@ -461,7 +462,7 @@ class TestReadme:
 
         file_path = temp_dir / 'foo' / 'bar.markdown'
         file_path.ensure_parent_dir_exists()
-        file_path.write_text('test content')
+        file_path.write_text('test content', encoding='utf-8')
 
         assert metadata.core.readme == metadata.core.readme == 'test content'
         assert metadata.core.readme_content_type == metadata.core.readme_content_type == 'text/markdown'
@@ -590,7 +591,7 @@ class TestLicense:
 
         file_path = temp_dir / 'foo' / 'bar.md'
         file_path.ensure_parent_dir_exists()
-        file_path.write_text('test content')
+        file_path.write_text('test content', encoding='utf-8')
 
         assert metadata.core.license == 'test content'
 
@@ -1461,7 +1462,7 @@ class TestHook:
 
         file_path = temp_dir / 'a' / 'b'
         file_path.ensure_parent_dir_exists()
-        file_path.write_text('__version__ = "0.0.1"')
+        file_path.write_text('__version__ = "0.0.1"', encoding='utf-8')
 
         file_path = temp_dir / DEFAULT_BUILD_SCRIPT
         file_path.write_text(
@@ -1477,7 +1478,8 @@ class TestHook:
                     def get_known_classifiers(self):
                         return ['Framework :: Foo']
                 """
-            )
+            ),
+            encoding='utf-8',
         )
 
         assert 'custom' in metadata.hatch.metadata.hooks
@@ -1504,7 +1506,7 @@ class TestHook:
 
         file_path = temp_dir / 'a' / 'b'
         file_path.ensure_parent_dir_exists()
-        file_path.write_text('__version__ = "0.0.1"')
+        file_path.write_text('__version__ = "0.0.1"', encoding='utf-8')
 
         file_path = temp_dir / DEFAULT_BUILD_SCRIPT
         file_path.write_text(
@@ -1516,7 +1518,8 @@ class TestHook:
                     def update(self, metadata):
                         metadata['description'] = metadata['name'] + 'bar'
                 """
-            )
+            ),
+            encoding='utf-8',
         )
 
         with pytest.raises(
@@ -1539,7 +1542,7 @@ class TestHatchPersonalProjectConfigFile:
 
         file_path = temp_dir / 'a' / 'b'
         file_path.ensure_parent_dir_exists()
-        file_path.write_text('__version__ = "0.0.1"')
+        file_path.write_text('__version__ = "0.0.1"', encoding='utf-8')
 
         (temp_dir / 'pyproject.toml').touch()
         file_path = temp_dir / 'hatch.toml'
@@ -1549,7 +1552,8 @@ class TestHatchPersonalProjectConfigFile:
                 [version]
                 path = 'a/b'
                 """
-            )
+            ),
+            encoding='utf-8',
         )
 
         assert metadata.version == '0.0.1'
@@ -1567,11 +1571,11 @@ class TestHatchPersonalProjectConfigFile:
 
         file_path = temp_dir / 'a' / 'b'
         file_path.ensure_parent_dir_exists()
-        file_path.write_text('__version__ = "0.0.1"')
+        file_path.write_text('__version__ = "0.0.1"', encoding='utf-8')
 
         file_path = temp_dir / 'c' / 'd'
         file_path.ensure_parent_dir_exists()
-        file_path.write_text('__version__ = "0.0.2"')
+        file_path.write_text('__version__ = "0.0.2"', encoding='utf-8')
 
         (temp_dir / 'pyproject.toml').touch()
         file_path = temp_dir / 'hatch.toml'
@@ -1581,7 +1585,8 @@ class TestHatchPersonalProjectConfigFile:
                 [version]
                 path = 'c/d'
                 """
-            )
+            ),
+            encoding='utf-8',
         )
 
         assert metadata.version == '0.0.2'
@@ -1746,7 +1751,8 @@ class TestSourceDistributionMetadata:
                 Keywords: foo,bar
                 Requires-Dist: bar==5
                 """
-            )
+            ),
+            encoding='utf-8',
         )
         with temp_dir.as_cwd():
             assert metadata.core.config == {
@@ -1783,7 +1789,8 @@ class TestSourceDistributionMetadata:
                         metadata['description'] = metadata['name'] + ' bar'
                         metadata['scripts'] = {'foo': 'bar'}
                 """
-            )
+            ),
+            encoding='utf-8',
         )
 
         pkg_info = temp_dir / 'PKG-INFO'
@@ -1797,7 +1804,8 @@ class TestSourceDistributionMetadata:
                 Keywords: foo,bar
                 Requires-Dist: bar==5
                 """
-            )
+            ),
+            encoding='utf-8',
         )
         with temp_dir.as_cwd():
             assert metadata.core.config == {

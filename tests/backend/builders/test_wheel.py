@@ -1188,7 +1188,8 @@ class TestBuildStandard:
                 class CustomHook(BuildHookInterface):
                     pass
                 """
-            )
+            ),
+            encoding='utf-8',
         )
 
         config = {
@@ -1256,7 +1257,8 @@ class TestBuildStandard:
                     def initialize(self, version, build_data):
                         build_data['tag'] = 'foo-bar-baz'
                 """
-            )
+            ),
+            encoding='utf-8',
         )
 
         config = {
@@ -1315,7 +1317,7 @@ class TestBuildStandard:
         project_path = temp_dir / 'my-app'
 
         vcs_ignore_file = project_path / '.gitignore'
-        vcs_ignore_file.write_text('*.pyc\n*.so\n*.h')
+        vcs_ignore_file.write_text('*.pyc\n*.so\n*.h', encoding='utf-8')
 
         build_script = project_path / DEFAULT_BUILD_SCRIPT
         build_script.write_text(
@@ -1333,7 +1335,8 @@ class TestBuildStandard:
                         pathlib.Path('my_app', 'lib.so').touch()
                         pathlib.Path('my_app', 'lib.h').touch()
                 """
-            )
+            ),
+            encoding='utf-8',
         )
 
         config = {
@@ -1397,7 +1400,7 @@ class TestBuildStandard:
         project_path = temp_dir / 'my-app'
 
         vcs_ignore_file = project_path / '.gitignore'
-        vcs_ignore_file.write_text('*.pyc\n*.so\n*.h')
+        vcs_ignore_file.write_text('*.pyc\n*.so\n*.h', encoding='utf-8')
 
         build_script = project_path / DEFAULT_BUILD_SCRIPT
         build_script.write_text(
@@ -1412,10 +1415,11 @@ class TestBuildStandard:
                         build_data['pure_python'] = False
                         build_data['infer_tag'] = True
 
-                        pathlib.Path('my_app', 'lib.so').write_text(','.join(build_data['build_hooks']))
-                        pathlib.Path('my_app', 'lib.h').write_text(','.join(build_data['build_hooks']))
+                        pathlib.Path('my_app', 'lib.so').write_text(','.join(build_data['build_hooks']), encoding='utf-8')
+                        pathlib.Path('my_app', 'lib.h').write_text(','.join(build_data['build_hooks']), encoding='utf-8')
                 """
-            )
+            ),
+            encoding='utf-8',
         )
 
         config = {
@@ -1479,7 +1483,7 @@ class TestBuildStandard:
         project_path = temp_dir / 'my-app'
 
         vcs_ignore_file = project_path / '.gitignore'
-        vcs_ignore_file.write_text('*.pyc\n*.so\n*.h')
+        vcs_ignore_file.write_text('*.pyc\n*.so\n*.h', encoding='utf-8')
 
         build_script = project_path / DEFAULT_BUILD_SCRIPT
         build_script.write_text(
@@ -1498,7 +1502,8 @@ class TestBuildStandard:
                         pathlib.Path('my_app', 'lib.so').touch()
                         pathlib.Path('my_app', 'lib.h').touch()
                 """
-            )
+            ),
+            encoding='utf-8',
         )
 
         config = {
@@ -1562,7 +1567,7 @@ class TestBuildStandard:
         project_path = temp_dir / 'my-app'
 
         vcs_ignore_file = project_path / '.gitignore'
-        vcs_ignore_file.write_text('*.pyc\n*.so\n*.h')
+        vcs_ignore_file.write_text('*.pyc\n*.so\n*.h', encoding='utf-8')
 
         build_script = project_path / DEFAULT_BUILD_SCRIPT
         build_script.write_text(
@@ -1581,7 +1586,8 @@ class TestBuildStandard:
                         pathlib.Path('my_app', 'lib.so').touch()
                         pathlib.Path('my_app', 'lib.h').touch()
                 """
-            )
+            ),
+            encoding='utf-8',
         )
 
         config = {
@@ -1644,7 +1650,7 @@ class TestBuildStandard:
         project_path = temp_dir / 'my-app'
 
         vcs_ignore_file = project_path / '.gitignore'
-        vcs_ignore_file.write_text('*.pyc\n*.so\n*.h')
+        vcs_ignore_file.write_text('*.pyc\n*.so\n*.h', encoding='utf-8')
 
         build_script = project_path / DEFAULT_BUILD_SCRIPT
         build_script.write_text(
@@ -1666,7 +1672,8 @@ class TestBuildStandard:
                         (artifact_path / 'lib.so').touch()
                         (artifact_path / 'lib.h').touch()
                 """
-            )
+            ),
+            encoding='utf-8',
         )
 
         config = {
@@ -1729,10 +1736,10 @@ class TestBuildStandard:
         project_path = temp_dir / 'my-app'
 
         vcs_ignore_file = project_path / '.gitignore'
-        vcs_ignore_file.write_text('*.pyc\n*.so\n*.h')
+        vcs_ignore_file.write_text('*.pyc\n*.so\n*.h', encoding='utf-8')
 
         target_file = project_path / 'my_app' / 'z.py'
-        target_file.write_text('print("hello world")')
+        target_file.write_text('print("hello world")', encoding='utf-8')
 
         build_script = project_path / DEFAULT_BUILD_SCRIPT
         build_script.write_text(
@@ -1752,7 +1759,8 @@ class TestBuildStandard:
                         tmp_path.mkdir()
                         (tmp_path / 'new_z.py').write_bytes(pathlib.Path('my_app/z.py').read_bytes())
                 """
-            )
+            ),
+            encoding='utf-8',
         )
 
         config = {
@@ -1812,7 +1820,7 @@ class TestBuildStandard:
         project_path = temp_dir / 'my-app'
 
         vcs_ignore_file = project_path / '.gitignore'
-        vcs_ignore_file.write_text('*.pyc\n*.so\n*.pyd\n*.h')
+        vcs_ignore_file.write_text('*.pyc\n*.so\n*.pyd\n*.h', encoding='utf-8')
 
         build_script = project_path / DEFAULT_BUILD_SCRIPT
         build_script.write_text(
@@ -1833,7 +1841,8 @@ class TestBuildStandard:
                         pathlib.Path('src', 'lib.h').touch()
                         pathlib.Path('src', 'zlib.pyd').touch()
                 """
-            )
+            ),
+            encoding='utf-8',
         )
 
         config = {
@@ -1974,7 +1983,8 @@ class TestBuildStandard:
                     def initialize(self, version, build_data):
                         build_data['shared_data']['../data'] = '/'
                 """
-            )
+            ),
+            encoding='utf-8',
         )
 
         config = {
@@ -2047,7 +2057,8 @@ class TestBuildStandard:
                 #!/bin/sh arg1 arg2
                 echo "Hello, World!"
                 """
-            )
+            ),
+            encoding='utf-8',
         )
         (shared_data_path / 'python_script.sh').write_text(
             helpers.dedent(
@@ -2056,7 +2067,8 @@ class TestBuildStandard:
                 #!/usr/bin/env python3.11 arg1 arg2
                 print("Hello, World!")
                 """
-            )
+            ),
+            encoding='utf-8',
         )
         (shared_data_path / 'pythonw_script.sh').write_text(
             helpers.dedent(
@@ -2065,7 +2077,8 @@ class TestBuildStandard:
                 #!/usr/bin/pythonw3.11 arg1 arg2
                 print("Hello, World!")
                 """
-            )
+            ),
+            encoding='utf-8',
         )
         (shared_data_path / 'pypy_script.sh').write_text(
             helpers.dedent(
@@ -2074,7 +2087,8 @@ class TestBuildStandard:
                 #!/usr/bin/env pypy
                 print("Hello, World!")
                 """
-            )
+            ),
+            encoding='utf-8',
         )
         (shared_data_path / 'pypyw_script.sh').write_text(
             helpers.dedent(
@@ -2083,7 +2097,8 @@ class TestBuildStandard:
                 #!pypyw3.11 arg1 arg2
                 print("Hello, World!")
                 """
-            )
+            ),
+            encoding='utf-8',
         )
 
         config = {
@@ -2158,7 +2173,8 @@ class TestBuildStandard:
                 #!/bin/sh arg1 arg2
                 echo "Hello, World!"
                 """
-            )
+            ),
+            encoding='utf-8',
         )
         (shared_data_path / 'python_script.sh').write_text(
             helpers.dedent(
@@ -2167,7 +2183,8 @@ class TestBuildStandard:
                 #!/usr/bin/env python3.11 arg1 arg2
                 print("Hello, World!")
                 """
-            )
+            ),
+            encoding='utf-8',
         )
         (shared_data_path / 'pythonw_script.sh').write_text(
             helpers.dedent(
@@ -2176,7 +2193,8 @@ class TestBuildStandard:
                 #!/usr/bin/pythonw3.11 arg1 arg2
                 print("Hello, World!")
                 """
-            )
+            ),
+            encoding='utf-8',
         )
         (shared_data_path / 'pypy_script.sh').write_text(
             helpers.dedent(
@@ -2185,7 +2203,8 @@ class TestBuildStandard:
                 #!/usr/bin/env pypy
                 print("Hello, World!")
                 """
-            )
+            ),
+            encoding='utf-8',
         )
         (shared_data_path / 'pypyw_script.sh').write_text(
             helpers.dedent(
@@ -2194,7 +2213,8 @@ class TestBuildStandard:
                 #!pypyw3.11 arg1 arg2
                 print("Hello, World!")
                 """
-            )
+            ),
+            encoding='utf-8',
         )
 
         build_script = project_path / DEFAULT_BUILD_SCRIPT
@@ -2209,7 +2229,8 @@ class TestBuildStandard:
                     def initialize(self, version, build_data):
                         build_data['shared_scripts']['../data'] = '/'
                 """
-            )
+            ),
+            encoding='utf-8',
         )
 
         config = {
@@ -2344,7 +2365,8 @@ class TestBuildStandard:
                     def initialize(self, version, build_data):
                         build_data['extra_metadata']['../data'] = '/'
                 """
-            )
+            ),
+            encoding='utf-8',
         )
 
         config = {
@@ -2400,7 +2422,7 @@ class TestBuildStandard:
         project_path = temp_dir / 'my-app'
 
         vcs_ignore_file = project_path / '.gitignore'
-        vcs_ignore_file.write_text('*.pyc\n*.so\n*.h')
+        vcs_ignore_file.write_text('*.pyc\n*.so\n*.h', encoding='utf-8')
 
         (temp_dir / 'foo.so').write_bytes(b'data')
 
@@ -2421,7 +2443,8 @@ class TestBuildStandard:
                         pathlib.Path('my_app', 'lib.so').symlink_to(os.path.abspath(os.path.join('..', 'foo.so')))
                         pathlib.Path('my_app', 'lib.h').touch()
                 """
-            )
+            ),
+            encoding='utf-8',
         )
 
         config = {
@@ -2551,7 +2574,8 @@ class TestBuildStandard:
                     def initialize(self, version, build_data):
                         build_data['dependencies'].append('binary')
                 """
-            )
+            ),
+            encoding='utf-8',
         )
 
         config = {
@@ -2624,7 +2648,8 @@ class TestBuildStandard:
                         # Prefix z just to satisfy our ordering test assertion
                         build_data['force_include_editable']['src/my_app/__about__.py'] = 'zfoo.py'
                 """
-            )
+            ),
+            encoding='utf-8',
         )
 
         config = {
@@ -2883,7 +2908,8 @@ class TestBuildStandard:
                     def initialize(self, version, build_data):
                         build_data['dependencies'].append('binary')
                 """
-            )
+            ),
+            encoding='utf-8',
         )
 
         config = {
@@ -2963,7 +2989,8 @@ class TestBuildStandard:
                         # Prefix z just to satisfy our ordering test assertion
                         build_data['force_include_editable']['my_app/__about__.py'] = 'zfoo.py'
                 """
-            )
+            ),
+            encoding='utf-8',
         )
 
         config = {
@@ -3111,7 +3138,8 @@ class TestBuildStandard:
                         # Prefix z just to satisfy our ordering test assertion
                         build_data['force_include_editable']['my_app/__about__.py'] = 'zfoo.py'
                 """
-            )
+            ),
+            encoding='utf-8',
         )
 
         config = {
@@ -3548,7 +3576,7 @@ class TestBuildStandard:
         project_path = temp_dir / 'my-app'
 
         vcs_ignore_file = project_path / '.gitignore'
-        vcs_ignore_file.write_text('*.pyc\n*.so\n*.h')
+        vcs_ignore_file.write_text('*.pyc\n*.so\n*.h', encoding='utf-8')
 
         build_script = project_path / DEFAULT_BUILD_SCRIPT
         build_script.write_text(
@@ -3566,7 +3594,8 @@ class TestBuildStandard:
                         pathlib.Path('my_app', 'lib.so').touch()
                         pathlib.Path('my_app', 'lib.h').touch()
                 """
-            )
+            ),
+            encoding='utf-8',
         )
 
         config = {
@@ -3634,7 +3663,7 @@ class TestBuildStandard:
         project_path = temp_dir / 'my-app'
 
         vcs_ignore_file = project_path / '.gitignore'
-        vcs_ignore_file.write_text('*.pyc\n*.so\n*.h')
+        vcs_ignore_file.write_text('*.pyc\n*.so\n*.h', encoding='utf-8')
 
         build_script = project_path / DEFAULT_BUILD_SCRIPT
         build_script.write_text(
@@ -3652,7 +3681,8 @@ class TestBuildStandard:
                         pathlib.Path('my_app', 'lib.so').touch()
                         pathlib.Path('my_app', 'lib.h').touch()
                 """
-            )
+            ),
+            encoding='utf-8',
         )
 
         config = {

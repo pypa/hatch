@@ -81,8 +81,8 @@ def isolation(uv_on_path) -> Generator[Path, None, None]:
 
         licenses_dir = cache_dir / 'licenses'
         licenses_dir.mkdir()
-        licenses_dir.joinpath('Apache-2.0.txt').write_text(Apache_2_0)
-        licenses_dir.joinpath('MIT.txt').write_text(MIT)
+        licenses_dir.joinpath('Apache-2.0.txt').write_text(Apache_2_0, encoding='utf-8')
+        licenses_dir.joinpath('MIT.txt').write_text(MIT, encoding='utf-8')
 
         default_env_vars = {
             AppEnvVars.NO_COLOR: '1',
@@ -255,7 +255,7 @@ def devpi(tmp_path_factory, worker_id):
     devpi_docker_data = devpi_data / 'docker'
     with FileLock(lock_file):
         if devpi_data_file.is_file():
-            data = json.loads(devpi_data_file.read_text())
+            data = json.loads(devpi_data_file.read_text(encoding='utf-8'))
         else:
             import trustme
 

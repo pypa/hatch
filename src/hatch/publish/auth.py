@@ -74,7 +74,7 @@ class AuthenticationCredentials:
 
     def _read_previous_working_user_data(self) -> str | None:
         if self._pwu_path.is_file():
-            contents = self._pwu_path.read_text()
+            contents = self._pwu_path.read_text(encoding='utf-8')
             if contents:
                 import json
 
@@ -85,7 +85,7 @@ class AuthenticationCredentials:
         import configparser
 
         pypirc = configparser.ConfigParser()
-        pypirc.read(Path.home() / '.pypirc')
+        pypirc.read(Path.home() / '.pypirc', encoding='utf-8')
         repo = self._repo or 'pypi'
 
         if pypirc.has_section(repo):
@@ -106,7 +106,7 @@ class AuthenticationCredentials:
 
             self.__pwu_data[self._repo] = self.__username
             self._pwu_path.ensure_parent_dir_exists()
-            self._pwu_path.write_text(json.dumps(self.__pwu_data))
+            self._pwu_path.write_text(json.dumps(self.__pwu_data), encoding='utf-8')
 
         if self.__password_was_read:
             import keyring

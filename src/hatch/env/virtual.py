@@ -151,7 +151,8 @@ class VirtualEnvironment(EnvironmentInterface):
                     """\
 # This file was automatically created by Hatch
 *
-"""
+""",
+                    encoding='utf-8',
                 )
 
         with self.expose_uv():
