@@ -275,6 +275,51 @@ def test_set_dynamic(hatch, helpers, temp_dir):
     )
 
 
+@pytest.mark.usefixtures('mock_backend_process')
+def test_set_dynamic_downgrade(hatch, helpers, temp_dir):
+    project_name = 'My.App'
+
+    with temp_dir.as_cwd():
+        hatch('new', project_name)
+
+    path = temp_dir / 'my-app'
+    data_path = temp_dir / 'data'
+    data_path.mkdir()
+
+    (path / 'src' / 'my_app' / '__about__.py').write_text('__version__ = "21.1.2"')
+
+    # This one fails, because it's a downgrade without --force
+    with path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch('version', '21.1.0', catch_exceptions=True)
+
+    assert result.exit_code == 1, result.output
+    assert str(result.exception) == 'Version `21.1.0` is not higher than the original version `21.1.2`'
+
+    # Try again, this time with --force
+    with path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch('version', '--force', '21.1.0')
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        """
+        Inspecting build dependencies
+        Old: 21.1.2
+        New: 21.1.0
+        """
+    )
+
+    with path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch('version')
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        """
+        Inspecting build dependencies
+        21.1.0
+        """
+    )
+
+
 def test_show_static(hatch, temp_dir):
     project_name = 'My.App'
 
