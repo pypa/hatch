@@ -176,7 +176,7 @@ class Platform:
     @staticmethod
     def stream_process_output(process: Popen) -> Iterable[str]:
         # To avoid blocking never use a pipe's file descriptor iterator. See https://bugs.python.org/issue3907
-        for line in iter(process.stdout.readline, b''):  # type: ignore
+        for line in iter(process.stdout.readline, b''):  # type: ignore[union-attr]
             yield line.decode('utf-8')
 
     @property
