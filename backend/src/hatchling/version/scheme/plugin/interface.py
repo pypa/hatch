@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import os
 from abc import ABC, abstractmethod
+from functools import cached_property
 
 
 class VersionSchemeInterface(ABC):  # no cov
@@ -51,9 +53,33 @@ class VersionSchemeInterface(ABC):  # no cov
         """
         return self.__config
 
-    @abstractmethod
-    def update(self, desired_version: str, original_version: str, version_data: dict, *, force: bool = False) -> str:
+    @cached_property
+    def validate_bump(self) -> bool:
         """
-        This should return a normalized form of the desired version and verify that it
-        is higher than the original version.
+        This is the value of the `validate-bump` option, with the `HATCH_VERSION_VALIDATE_BUMP`
+        environment variable taking precedence. Validation is enabled by default.
+
+        ```toml config-example
+        [tool.hatch.version]
+        validate-bump = true
+        ```
+        """
+        from hatchling.utils.constants import VersionEnvVars
+
+        if VersionEnvVars.VALIDATE_BUMP in os.environ:
+            return os.environ[VersionEnvVars.VALIDATE_BUMP] not in {'false', '0'}
+
+        validate_bump = self.config.get('validate-bump', True)
+        if not isinstance(validate_bump, bool):
+            message = 'option `validate-bump` must be a boolean'
+            raise TypeError(message)
+
+        return validate_bump
+
+    @abstractmethod
+    def update(self, desired_version: str, original_version: str, version_data: dict) -> str:
+        """
+        This should return a normalized form of the desired version. If the
+        [validate_bump](reference.md#hatchling.version.scheme.plugin.interface.VersionSchemeInterface.validate_bump)
+        property is `True`, this method should also verify that the version is higher than the original version.
         """

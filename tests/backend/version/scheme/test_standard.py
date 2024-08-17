@@ -1,6 +1,8 @@
 import pytest
 from packaging.version import _parse_letter_version  # noqa: PLC2701
 
+from hatch.utils.structures import EnvVars
+from hatchling.utils.constants import VersionEnvVars
 from hatchling.version.scheme.standard import StandardScheme
 
 
@@ -11,21 +13,23 @@ def test_not_higher(isolation):
         scheme.update('1.0.0', '1.0', {})
 
 
-def test_not_higher_with_force(isolation):
-    scheme = StandardScheme(str(isolation), {})
-    assert scheme.update('1.9.0', '2.0.0', {}, force=True) == '1.9.0'
-
-
 def test_specific(isolation):
     scheme = StandardScheme(str(isolation), {})
 
     assert scheme.update('9000.0.0-rc.1', '1.0', {}) == '9000.0.0rc1'
 
 
-def test_specific_not_higher_allowed(isolation):
+def test_specific_not_higher_allowed_config(isolation):
     scheme = StandardScheme(str(isolation), {'validate-bump': False})
 
     assert scheme.update('0.24.4', '1.0.0.dev0', {}) == '0.24.4'
+
+
+def test_specific_not_higher_allowed_env_var(isolation):
+    scheme = StandardScheme(str(isolation), {})
+
+    with EnvVars({VersionEnvVars.VALIDATE_BUMP: 'false'}):
+        assert scheme.update('0.24.4', '1.0.0.dev0', {}) == '0.24.4'
 
 
 def test_release(isolation):

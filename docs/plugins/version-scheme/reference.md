@@ -12,4 +12,5 @@
       - PLUGIN_NAME
       - root
       - config
+      - validate_bump
       - update

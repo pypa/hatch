@@ -14,12 +14,10 @@ if TYPE_CHECKING:
     '--force',
     '-f',
     is_flag=True,
-    default=False,
-    show_default=True,
     help='Allow an explicit downgrading version to be given',
 )
 @click.pass_obj
-def version(app: Application, desired_version: str | None, *, force: bool):
+def version(app: Application, *, desired_version: str | None, force: bool):
     """View or set a project's version."""
     if app.project.root is None:
         if app.project.chosen_name is None:
@@ -34,6 +32,7 @@ def version(app: Application, desired_version: str | None, *, force: bool):
             app.display(app.project.metadata.config['project']['version'])
             return
 
+    from hatch.config.constants import VersionEnvVars
     from hatch.project.constants import BUILD_BACKEND
 
     with app.project.location.as_cwd():
@@ -48,35 +47,18 @@ def version(app: Application, desired_version: str | None, *, force: bool):
                 project_metadata = app.project.build_frontend.get_core_metadata()
 
             app.display(project_metadata['version'])
-        elif 'version' not in app.project.metadata.dynamic:
-            source = app.project.metadata.hatch.version.source
-
-            version_data = source.get_version_data()
-            original_version = version_data['version']
-
-            if not desired_version:
-                app.display(original_version)
-                return
-
-            updated_version = app.project.metadata.hatch.version.scheme.update(
-                desired_version, original_version, version_data
-            )
-            source.set_version(updated_version, version_data)
-
-            app.display_info(f'Old: {original_version}')
-            app.display_info(f'New: {updated_version}')
         else:
             from hatch.utils.runner import ExecutionContext
 
             app.ensure_environment_plugin_dependencies()
             app.project.prepare_build_environment()
 
+            context = ExecutionContext(app.project.build_env)
             command = ['python', '-u', '-m', 'hatchling', 'version']
             if desired_version:
-                if force:
-                    command.append('--force')
                 command.append(desired_version)
+                if force:
+                    context.env_vars[VersionEnvVars.VALIDATE_BUMP] = 'false'
 
-            context = ExecutionContext(app.project.build_env)
             context.add_shell_command(command)
             app.execute_context(context)

@@ -20,8 +20,6 @@ class StandardScheme(VersionSchemeInterface):
         desired_version: str,
         original_version: str,
         version_data: dict,  # noqa: ARG002
-        *,
-        force: bool = False,
     ) -> str:
         from packaging.version import Version
 
@@ -59,11 +57,7 @@ class StandardScheme(VersionSchemeInterface):
                     raise ValueError(message)
 
                 next_version = Version(version)
-                if next_version <= original and not force and self.config.get('validate-bump', True):
-                    # `hatch version --force` takes precedence and allows a
-                    # downgrade.  There is no --no-force option.  If --force
-                    # is not given, then consult the `validate-bump`
-                    # configuration option.
+                if self.validate_bump and next_version <= original:
                     message = f'Version `{version}` is not higher than the original version `{original_version}`'
                     raise ValueError(message)
 
