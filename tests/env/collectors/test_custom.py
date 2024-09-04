@@ -42,7 +42,8 @@ def test_default(temp_dir, helpers):
                 def foo(self):
                     return self.PLUGIN_NAME, self.root
             """
-        )
+        ),
+        encoding='utf-8',
     )
 
     with temp_dir.as_cwd():
@@ -65,7 +66,8 @@ def test_explicit_path(temp_dir, helpers):
                 def foo(self):
                     return self.PLUGIN_NAME, self.root
             """
-        )
+        ),
+        encoding='utf-8',
     )
 
     with temp_dir.as_cwd():
@@ -90,7 +92,8 @@ def test_no_subclass(temp_dir, helpers):
             class CustomHook:
                 pass
             """
-        )
+        ),
+        encoding='utf-8',
     )
 
     with pytest.raises(

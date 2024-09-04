@@ -36,7 +36,8 @@ def test(hatch, temp_dir, helpers, config_file, mock_plugin_installation):
                     if self.target_name == 'wheel':
                         pathlib.Path('my_app', 'lib.so').touch()
             """
-        )
+        ),
+        encoding='utf-8',
     )
 
     project = Project(path)
@@ -63,7 +64,8 @@ def test(hatch, temp_dir, helpers, config_file, mock_plugin_installation):
             [env]
             requires = ["{dependency}"]
             """
-        )
+        ),
+        encoding='utf-8',
     )
 
     with path.as_cwd():

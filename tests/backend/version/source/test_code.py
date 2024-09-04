@@ -62,7 +62,7 @@ def test_match_default_expression(temp_dir):
 
     file_path = temp_dir / 'a' / 'b.py'
     file_path.ensure_parent_dir_exists()
-    file_path.write_text('__version__ = "0.0.1"')
+    file_path.write_text('__version__ = "0.0.1"', encoding='utf-8')
 
     with temp_dir.as_cwd():
         assert source.get_version_data()['version'] == '0.0.1'
@@ -73,7 +73,7 @@ def test_match_custom_expression_basic(temp_dir):
 
     file_path = temp_dir / 'a' / 'b.py'
     file_path.ensure_parent_dir_exists()
-    file_path.write_text('VER = "0.0.1"')
+    file_path.write_text('VER = "0.0.1"', encoding='utf-8')
 
     with temp_dir.as_cwd():
         assert source.get_version_data()['version'] == '0.0.1'
@@ -92,7 +92,8 @@ def test_match_custom_expression_complex(temp_dir, helpers):
             def foo():
                 return '.'.join(str(part) for part in __version_info__)
             """
-        )
+        ),
+        encoding='utf-8',
     )
 
     with temp_dir.as_cwd():
@@ -112,7 +113,8 @@ def test_search_paths(temp_dir, helpers):
 
             __version__ = foo((1, 0, 0, 1, 'dev0'))
             """
-        )
+        ),
+        encoding='utf-8',
     )
     (parent_dir / 'c.py').write_text(
         helpers.dedent(
@@ -120,7 +122,8 @@ def test_search_paths(temp_dir, helpers):
             def foo(version_info):
                 return '.'.join(str(part) for part in version_info)
             """
-        )
+        ),
+        encoding='utf-8',
     )
 
     with temp_dir.as_cwd():

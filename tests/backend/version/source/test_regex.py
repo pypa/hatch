@@ -55,7 +55,7 @@ def test_pattern_no_version_group(temp_dir):
 
     file_path = temp_dir / 'a' / 'b'
     file_path.ensure_parent_dir_exists()
-    file_path.write_text('foo')
+    file_path.write_text('foo', encoding='utf-8')
 
     with temp_dir.as_cwd(), pytest.raises(ValueError, match='no group named `version` was defined in the pattern'):
         source.get_version_data()
@@ -66,7 +66,7 @@ def test_match_custom_pattern(temp_dir):
 
     file_path = temp_dir / 'a' / 'b'
     file_path.ensure_parent_dir_exists()
-    file_path.write_text('VER = "0.0.1"')
+    file_path.write_text('VER = "0.0.1"', encoding='utf-8')
 
     with temp_dir.as_cwd():
         assert source.get_version_data()['version'] == '0.0.1'
@@ -88,7 +88,8 @@ def test_match_default_pattern(temp_dir, helpers, variable, quote, prefix):
             def foo():
                 return {quote}bar{quote}
             """
-        )
+        ),
+        encoding='utf-8',
     )
 
     with temp_dir.as_cwd():
@@ -111,7 +112,8 @@ def test_set_default_pattern(temp_dir, helpers, variable, quote, prefix):
             def foo():
                 return {quote}bar{quote}
             """
-        )
+        ),
+        encoding='utf-8',
     )
 
     with temp_dir.as_cwd():

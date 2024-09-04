@@ -84,7 +84,7 @@ class StaticAnalysisEnvironment:
             return
 
         self.internal_config_file.parent.ensure_dir_exists()
-        self.internal_config_file.write_text(config_contents)
+        self.internal_config_file.write_text(config_contents, encoding='utf-8')
 
         # TODO: remove everything below once this is fixed https://github.com/astral-sh/ruff/issues/8737
         if self.internal_user_config_file is None:
@@ -93,7 +93,7 @@ class StaticAnalysisEnvironment:
         if self.user_config_file is None:
             return
 
-        old_contents = self.user_config_file.read_text()
+        old_contents = self.user_config_file.read_text(encoding='utf-8')
         config_path = str(self.internal_config_file).replace('\\', '\\\\')
         if self.user_config_file.name == 'pyproject.toml':
             lines = old_contents.splitlines()
@@ -112,7 +112,7 @@ class StaticAnalysisEnvironment:
         else:
             contents = f'extend = "{config_path}"\n{old_contents}'
 
-        self.internal_user_config_file.write_text(contents)
+        self.internal_user_config_file.write_text(contents, encoding='utf-8')
 
     @cached_property
     def internal_user_config_file(self) -> Path | None:
@@ -137,7 +137,7 @@ class StaticAnalysisEnvironment:
 
         from hatch.utils.toml import load_toml_data
 
-        return load_toml_data(self.user_config_file.read_text())
+        return load_toml_data(self.user_config_file.read_text(encoding='utf-8'))
 
     @cached_property
     def linter_preview(self) -> bool:

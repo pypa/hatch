@@ -42,7 +42,7 @@ class TestRawConfig:
 
     def test_read(self, temp_dir):
         project_file = temp_dir / 'pyproject.toml'
-        project_file.write_text('foo = 5')
+        project_file.write_text('foo = 5', encoding='utf-8')
 
         with temp_dir.as_cwd():
             builder = MockBuilder(str(temp_dir))
