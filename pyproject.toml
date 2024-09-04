@@ -102,6 +102,8 @@ warn_unused_ignores = true
 module = [
     "*.hatchling.*",
     "*.hatch.utils.*",
+    "hatch.plugin.*",
+    "hatch.template.*",
 ]
 disallow_untyped_defs = true
 disallow_incomplete_defs = true
