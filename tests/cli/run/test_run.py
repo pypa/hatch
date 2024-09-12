@@ -2516,6 +2516,7 @@ class TestScriptRunner:
             """
         )
 
+    @pytest.mark.requires_internet
     def test_python_version_constraint(self, hatch, helpers, temp_dir):
         data_path = temp_dir / 'data'
         data_path.mkdir()
