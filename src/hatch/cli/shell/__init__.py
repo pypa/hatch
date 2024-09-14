@@ -41,8 +41,8 @@ def shell(app: Application, env_name: str | None, name: str, path: str):  # no c
             path, *args = app.platform.modules.shlex.split(path)
 
     with app.project.ensure_cwd():
-        environment = app.get_environment(chosen_env)
-        app.prepare_environment(environment)
+        environment = app.project.get_environment(chosen_env)
+        app.project.prepare_environment(environment)
 
         first_run_indicator = app.cache_dir / 'shell' / 'first_run'
         if not first_run_indicator.is_file():

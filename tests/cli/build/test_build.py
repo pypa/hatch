@@ -1,13 +1,13 @@
 import os
+import re
 
 import pytest
 
 from hatch.config.constants import ConfigEnvVars
+from hatch.project.constants import DEFAULT_BUILD_SCRIPT, DEFAULT_CONFIG_FILE, BuildEnvVars
 from hatch.project.core import Project
-from hatchling.builders.constants import BuildEnvVars
-from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT, DEFAULT_CONFIG_FILE
 
-pytestmark = [pytest.mark.usefixtures('local_backend_process')]
+pytestmark = [pytest.mark.usefixtures('mock_backend_process')]
 
 
 @pytest.mark.requires_internet
@@ -37,41 +37,66 @@ class TestOtherBackend:
 
         with path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
             result = hatch('build')
+            assert result.exit_code == 0, result.output
+
+        assert build_directory.is_dir()
+
+        artifacts = list(build_directory.iterdir())
+        assert len(artifacts) == 2
+
+        wheel_path = build_directory / 'my_app-0.0.1-py3-none-any.whl'
+        assert wheel_path.is_file()
+
+        sdist_path = build_directory / 'my_app-0.0.1.tar.gz'
+        assert sdist_path.is_file()
 
         assert result.exit_code == 0, result.output
         assert result.output == helpers.dedent(
-            """
+            f"""
             Creating environment: hatch-build
             Checking dependencies
             Syncing dependencies
+            Inspecting build dependencies
+            ──────────────────────────────────── sdist ─────────────────────────────────────
+            {sdist_path.relative_to(path)}
+            ──────────────────────────────────── wheel ─────────────────────────────────────
+            {wheel_path.relative_to(path)}
             """
         )
-
-        assert build_directory.is_dir()
-        assert (build_directory / 'my_app-0.0.1-py3-none-any.whl').is_file()
-        assert (build_directory / 'my_app-0.0.1.tar.gz').is_file()
 
         build_directory.remove()
         with path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
             result = hatch('build', '-t', 'wheel')
 
         assert result.exit_code == 0, result.output
-        assert not result.output
+        assert result.output == helpers.dedent(
+            f"""
+            Inspecting build dependencies
+            ──────────────────────────────────── wheel ─────────────────────────────────────
+            {wheel_path.relative_to(path)}
+            """
+        )
 
         assert build_directory.is_dir()
-        assert (build_directory / 'my_app-0.0.1-py3-none-any.whl').is_file()
-        assert not (build_directory / 'my_app-0.0.1.tar.gz').is_file()
+        assert wheel_path.is_file()
+        assert not sdist_path.is_file()
 
         build_directory.remove()
         with path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
             result = hatch('build', '-t', 'sdist')
 
         assert result.exit_code == 0, result.output
-        assert not result.output
+        assert result.output == helpers.dedent(
+            f"""
+            Inspecting build dependencies
+            ──────────────────────────────────── sdist ─────────────────────────────────────
+            {sdist_path.relative_to(path)}
+            """
+        )
 
         assert build_directory.is_dir()
-        assert not (build_directory / 'my_app-0.0.1-py3-none-any.whl').is_file()
-        assert (build_directory / 'my_app-0.0.1.tar.gz').is_file()
+        assert not wheel_path.is_file()
+        assert sdist_path.is_file()
 
     def test_legacy(self, hatch, temp_dir, helpers):
         path = temp_dir / 'tmp'
@@ -97,29 +122,43 @@ setuptools.setup(name="tmp", version="0.0.1")
 print("Hello World!")
 """
         )
+        (path / 'README.md').touch()
 
         build_directory = path / 'dist'
         assert not build_directory.is_dir()
 
         with path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
             result = hatch('build')
+            assert result.exit_code == 0, result.output
+
+        assert build_directory.is_dir()
+
+        artifacts = list(build_directory.iterdir())
+        assert len(artifacts) == 2
+
+        wheel_path = build_directory / 'tmp-0.0.1-py3-none-any.whl'
+        assert wheel_path.is_file()
+
+        sdist_path = build_directory / 'tmp-0.0.1.tar.gz'
+        assert sdist_path.is_file()
 
         assert result.exit_code == 0, result.output
         assert result.output == helpers.dedent(
-            """
+            f"""
             Creating environment: hatch-build
             Checking dependencies
             Syncing dependencies
+            Inspecting build dependencies
+            ──────────────────────────────────── sdist ─────────────────────────────────────
+            {sdist_path.relative_to(path)}
+            ──────────────────────────────────── wheel ─────────────────────────────────────
+            {wheel_path.relative_to(path)}
             """
         )
 
-        assert build_directory.is_dir()
-        assert (build_directory / 'tmp-0.0.1-py3-none-any.whl').is_file()
-        assert (build_directory / 'tmp-0.0.1.tar.gz').is_file()
-
 
 @pytest.mark.allow_backend_process
-def test_incompatible_environment(hatch, temp_dir, helpers):
+def test_incompatible_environment(hatch, temp_dir, helpers, build_env_config):
     project_name = 'My.App'
 
     with temp_dir.as_cwd():
@@ -129,9 +168,7 @@ def test_incompatible_environment(hatch, temp_dir, helpers):
     path = temp_dir / 'my-app'
 
     project = Project(path)
-    helpers.update_project_environment(
-        project, 'default', {'skip-install': True, 'python': '9000', **project.config.envs['default']}
-    )
+    helpers.update_project_environment(project, 'hatch-build', {'python': '9000', **build_env_config})
 
     with path.as_cwd():
         result = hatch('build')
@@ -139,7 +176,7 @@ def test_incompatible_environment(hatch, temp_dir, helpers):
     assert result.exit_code == 1, result.output
     assert result.output == helpers.dedent(
         """
-        Environment `default` is incompatible: cannot locate Python: 9000
+        Environment `hatch-build` is incompatible: cannot locate Python: 9000
         """
     )
 
@@ -159,6 +196,7 @@ def test_no_compatibility_check_if_exists(hatch, temp_dir, helpers, mocker):
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
         result = hatch('build')
+        assert result.exit_code == 0, result.output
 
     build_directory = project_path / 'dist'
     assert build_directory.is_dir()
@@ -169,8 +207,11 @@ def test_no_compatibility_check_if_exists(hatch, temp_dir, helpers, mocker):
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
         """
+        Creating environment: hatch-build
+        Checking dependencies
+        Syncing dependencies
+        Inspecting build dependencies
         ──────────────────────────────────── sdist ─────────────────────────────────────
-        Setting up build environment
         ──────────────────────────────────── wheel ─────────────────────────────────────
         """
     )
@@ -179,6 +220,7 @@ def test_no_compatibility_check_if_exists(hatch, temp_dir, helpers, mocker):
     mocker.patch('hatch.env.virtual.VirtualEnvironment.check_compatibility', side_effect=Exception('incompatible'))
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
         result = hatch('build')
+        assert result.exit_code == 0, result.output
 
     artifacts = list(build_directory.iterdir())
     assert len(artifacts) == 2
@@ -186,6 +228,7 @@ def test_no_compatibility_check_if_exists(hatch, temp_dir, helpers, mocker):
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
         """
+        Inspecting build dependencies
         ──────────────────────────────────── sdist ─────────────────────────────────────
         ──────────────────────────────────── wheel ─────────────────────────────────────
         """
@@ -207,8 +250,11 @@ def test_unknown_targets(hatch, temp_dir, helpers):
     assert result.exit_code == 1, result.output
     assert result.output == helpers.dedent(
         """
+        Creating environment: hatch-build
+        Checking dependencies
+        Syncing dependencies
+        Inspecting build dependencies
         ───────────────────────────────────── foo ──────────────────────────────────────
-        Setting up build environment
         Unknown build targets: foo
         """
     )
@@ -229,8 +275,11 @@ def test_mutually_exclusive_hook_options(hatch, temp_dir, helpers):
     assert result.exit_code == 1, result.output
     assert result.output == helpers.dedent(
         """
+        Creating environment: hatch-build
+        Checking dependencies
+        Syncing dependencies
+        Inspecting build dependencies
         ──────────────────────────────────── sdist ─────────────────────────────────────
-        Setting up build environment
         Cannot use both --hooks-only and --no-hooks together
         """
     )
@@ -247,8 +296,7 @@ def test_default(hatch, temp_dir, helpers):
 
     with path.as_cwd():
         result = hatch('build')
-
-    assert result.exit_code == 0, result.output
+        assert result.exit_code == 0, result.output
 
     build_directory = path / 'dist'
     assert build_directory.is_dir()
@@ -261,11 +309,13 @@ def test_default(hatch, temp_dir, helpers):
 
     assert result.output == helpers.dedent(
         f"""
+        Creating environment: hatch-build
+        Checking dependencies
+        Syncing dependencies
+        Inspecting build dependencies
         ──────────────────────────────────── sdist ─────────────────────────────────────
-        Setting up build environment
         {sdist_path.relative_to(path)}
         ──────────────────────────────────── wheel ─────────────────────────────────────
-        Setting up build environment
         {wheel_path.relative_to(path)}
         """
     )
@@ -282,8 +332,7 @@ def test_explicit_targets(hatch, temp_dir, helpers):
 
     with path.as_cwd():
         result = hatch('build', '-t', 'wheel')
-
-    assert result.exit_code == 0, result.output
+        assert result.exit_code == 0, result.output
 
     build_directory = path / 'dist'
     assert build_directory.is_dir()
@@ -295,8 +344,11 @@ def test_explicit_targets(hatch, temp_dir, helpers):
 
     assert result.output == helpers.dedent(
         f"""
+        Creating environment: hatch-build
+        Checking dependencies
+        Syncing dependencies
+        Inspecting build dependencies
         ──────────────────────────────────── wheel ─────────────────────────────────────
-        Setting up build environment
         {wheel_path.relative_to(path)}
         """
     )
@@ -326,11 +378,13 @@ def test_explicit_directory(hatch, temp_dir, helpers):
 
     assert result.output == helpers.dedent(
         f"""
+        Creating environment: hatch-build
+        Checking dependencies
+        Syncing dependencies
+        Inspecting build dependencies
         ──────────────────────────────────── sdist ─────────────────────────────────────
-        Setting up build environment
         {sdist_path}
         ──────────────────────────────────── wheel ─────────────────────────────────────
-        Setting up build environment
         {wheel_path}
         """
     )
@@ -360,11 +414,13 @@ def test_explicit_directory_env_var(hatch, temp_dir, helpers):
 
     assert result.output == helpers.dedent(
         f"""
+        Creating environment: hatch-build
+        Checking dependencies
+        Syncing dependencies
+        Inspecting build dependencies
         ──────────────────────────────────── sdist ─────────────────────────────────────
-        Setting up build environment
         {sdist_path}
         ──────────────────────────────────── wheel ─────────────────────────────────────
-        Setting up build environment
         {wheel_path}
         """
     )
@@ -445,11 +501,10 @@ def test_clean(hatch, temp_dir, helpers, config_file):
 
     assert result.output == helpers.dedent(
         f"""
+        Inspecting build dependencies
         ──────────────────────────────────── sdist ─────────────────────────────────────
-        Setting up build environment
         {sdist_path.relative_to(path)}
         ──────────────────────────────────── wheel ─────────────────────────────────────
-        Setting up build environment
         {wheel_path.relative_to(path)}
         """
     )
@@ -502,11 +557,10 @@ def test_clean_env_var(hatch, temp_dir, helpers):
 
     assert result.output == helpers.dedent(
         f"""
+        Inspecting build dependencies
         ──────────────────────────────────── sdist ─────────────────────────────────────
-        Setting up build environment
         {sdist_path.relative_to(path)}
         ──────────────────────────────────── wheel ─────────────────────────────────────
-        Setting up build environment
         {wheel_path.relative_to(path)}
         """
     )
@@ -573,8 +627,7 @@ def test_clean_only(hatch, temp_dir, helpers, config_file):
 
     assert result.output == helpers.dedent(
         """
-        Setting up build environment
-        Setting up build environment
+        Inspecting build dependencies
         """
     )
 
@@ -640,8 +693,7 @@ def test_clean_only_hooks_only(hatch, temp_dir, helpers, config_file):
 
     assert result.output == helpers.dedent(
         """
-        Setting up build environment
-        Setting up build environment
+        Inspecting build dependencies
         """
     )
 
@@ -699,11 +751,13 @@ def test_clean_hooks_after(hatch, temp_dir, helpers, config_file):
 
     assert result.output == helpers.dedent(
         f"""
+        Creating environment: hatch-build
+        Checking dependencies
+        Syncing dependencies
+        Inspecting build dependencies
         ──────────────────────────────────── sdist ─────────────────────────────────────
-        Setting up build environment
         {sdist_path.relative_to(path)}
         ──────────────────────────────────── wheel ─────────────────────────────────────
-        Setting up build environment
         {wheel_path.relative_to(path)}
         """
     )
@@ -762,11 +816,13 @@ def test_clean_hooks_after_env_var(hatch, temp_dir, helpers, config_file):
 
     assert result.output == helpers.dedent(
         f"""
+        Creating environment: hatch-build
+        Checking dependencies
+        Syncing dependencies
+        Inspecting build dependencies
         ──────────────────────────────────── sdist ─────────────────────────────────────
-        Setting up build environment
         {sdist_path.relative_to(path)}
         ──────────────────────────────────── wheel ─────────────────────────────────────
-        Setting up build environment
         {wheel_path.relative_to(path)}
         """
     )
@@ -833,8 +889,7 @@ def test_clean_only_no_hooks(hatch, temp_dir, helpers, config_file):
 
     assert result.output == helpers.dedent(
         """
-        Setting up build environment
-        Setting up build environment
+        Inspecting build dependencies
         """
     )
 
@@ -874,8 +929,7 @@ def test_hooks_only(hatch, temp_dir, helpers, config_file):
 
     with path.as_cwd():
         result = hatch('-v', 'build', '-t', 'wheel', '--hooks-only')
-
-    assert result.exit_code == 0, result.output
+        assert result.exit_code == 0, result.output
 
     build_directory = path / 'dist'
     assert build_directory.is_dir()
@@ -884,13 +938,19 @@ def test_hooks_only(hatch, temp_dir, helpers, config_file):
     assert len(artifacts) == 0
     assert (path / 'my_app' / 'lib.so').is_file()
 
-    assert result.output == helpers.dedent(
-        """
+    helpers.assert_output_match(
+        result.output,
+        r"""
+        Creating environment: hatch-build
+        Checking dependencies
+        Syncing dependencies
+        Inspecting build dependencies
+        cmd \[1\] \| python -u .+
         ──────────────────────────────────── wheel ─────────────────────────────────────
-        Setting up build environment
+        cmd \[1\] \| python -u -m hatchling build --target wheel --hooks-only
         Building `wheel` version `standard`
         Only ran build hooks for `wheel` version `standard`
-        """
+        """,
     )
 
 
@@ -929,8 +989,7 @@ def test_hooks_only_env_var(hatch, temp_dir, helpers, config_file):
 
     with path.as_cwd({BuildEnvVars.HOOKS_ONLY: 'true'}):
         result = hatch('-v', 'build', '-t', 'wheel')
-
-    assert result.exit_code == 0, result.output
+        assert result.exit_code == 0, result.output
 
     build_directory = path / 'dist'
     assert build_directory.is_dir()
@@ -939,13 +998,19 @@ def test_hooks_only_env_var(hatch, temp_dir, helpers, config_file):
     assert len(artifacts) == 0
     assert (path / 'my_app' / 'lib.so').is_file()
 
-    assert result.output == helpers.dedent(
-        """
+    helpers.assert_output_match(
+        result.output,
+        r"""
+        Creating environment: hatch-build
+        Checking dependencies
+        Syncing dependencies
+        Inspecting build dependencies
+        cmd \[1\] \| python -u .+
         ──────────────────────────────────── wheel ─────────────────────────────────────
-        Setting up build environment
+        cmd \[1\] \| python -u -m hatchling build --target wheel --hooks-only
         Building `wheel` version `standard`
         Only ran build hooks for `wheel` version `standard`
-        """
+        """,
     )
 
 
@@ -984,8 +1049,7 @@ def test_extensions_only(hatch, temp_dir, helpers, config_file):
 
     with path.as_cwd():
         result = hatch('-v', 'build', '--ext')
-
-    assert result.exit_code == 0, result.output
+        assert result.exit_code == 0, result.output
 
     build_directory = path / 'dist'
     assert build_directory.is_dir()
@@ -994,13 +1058,19 @@ def test_extensions_only(hatch, temp_dir, helpers, config_file):
     assert len(artifacts) == 0
     assert (path / 'my_app' / 'lib.so').is_file()
 
-    assert result.output == helpers.dedent(
-        """
+    helpers.assert_output_match(
+        result.output,
+        r"""
+        Creating environment: hatch-build
+        Checking dependencies
+        Syncing dependencies
+        Inspecting build dependencies
+        cmd \[1\] \| python -u .+
         ──────────────────────────────────── wheel ─────────────────────────────────────
-        Setting up build environment
+        cmd \[1\] \| python -u -m hatchling build --target wheel --hooks-only
         Building `wheel` version `standard`
         Only ran build hooks for `wheel` version `standard`
-        """
+        """,
     )
 
 
@@ -1036,8 +1106,7 @@ def test_no_hooks(hatch, temp_dir, helpers):
 
     with path.as_cwd():
         result = hatch('build', '-t', 'wheel', '--no-hooks')
-
-    assert result.exit_code == 0, result.output
+        assert result.exit_code == 0, result.output
 
     build_directory = path / 'dist'
     assert build_directory.is_dir()
@@ -1050,8 +1119,11 @@ def test_no_hooks(hatch, temp_dir, helpers):
 
     assert result.output == helpers.dedent(
         f"""
+        Creating environment: hatch-build
+        Checking dependencies
+        Syncing dependencies
+        Inspecting build dependencies
         ──────────────────────────────────── wheel ─────────────────────────────────────
-        Setting up build environment
         {wheel_path.relative_to(path)}
         """
     )
@@ -1089,8 +1161,7 @@ def test_no_hooks_env_var(hatch, temp_dir, helpers):
 
     with path.as_cwd({BuildEnvVars.NO_HOOKS: 'true'}):
         result = hatch('build', '-t', 'wheel')
-
-    assert result.exit_code == 0, result.output
+        assert result.exit_code == 0, result.output
 
     build_directory = path / 'dist'
     assert build_directory.is_dir()
@@ -1103,8 +1174,11 @@ def test_no_hooks_env_var(hatch, temp_dir, helpers):
 
     assert result.output == helpers.dedent(
         f"""
+        Creating environment: hatch-build
+        Checking dependencies
+        Syncing dependencies
+        Inspecting build dependencies
         ──────────────────────────────────── wheel ─────────────────────────────────────
-        Setting up build environment
         {wheel_path.relative_to(path)}
         """
     )
@@ -1121,8 +1195,7 @@ def test_debug_verbosity(hatch, temp_dir, helpers):
 
     with path.as_cwd():
         result = hatch('-v', 'build', '-t', 'wheel:standard')
-
-    assert result.exit_code == 0, result.output
+        assert result.exit_code == 0, result.output
 
     build_directory = path / 'dist'
     assert build_directory.is_dir()
@@ -1132,13 +1205,18 @@ def test_debug_verbosity(hatch, temp_dir, helpers):
 
     wheel_path = next(artifact for artifact in artifacts if artifact.name.endswith('.whl'))
 
-    assert result.output == helpers.dedent(
-        f"""
+    helpers.assert_output_match(
+        result.output,
+        rf"""
+        Creating environment: hatch-build
+        Checking dependencies
+        Syncing dependencies
+        Inspecting build dependencies
         ──────────────────────────────────── wheel ─────────────────────────────────────
-        Setting up build environment
+        cmd \[1\] \| python -u -m hatchling build --target wheel:standard
         Building `wheel` version `standard`
-        {wheel_path.relative_to(path)}
-        """
+        {re.escape(str(wheel_path.relative_to(path)))}
+        """,
     )
 
 
@@ -1157,8 +1235,7 @@ def test_shipped(hatch, temp_dir, helpers):
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
         result = hatch('build')
-
-    assert result.exit_code == 0, result.output
+        assert result.exit_code == 0, result.output
 
     env_data_path = data_path / 'env' / 'virtual'
     assert env_data_path.is_dir()
@@ -1177,7 +1254,7 @@ def test_shipped(hatch, temp_dir, helpers):
 
     env_path = env_dirs[0]
 
-    assert env_path.name == f'{project_path.name}-build'
+    assert env_path.name == 'hatch-build'
 
     build_directory = project_path / 'dist'
     assert build_directory.is_dir()
@@ -1187,20 +1264,23 @@ def test_shipped(hatch, temp_dir, helpers):
 
     assert result.output == helpers.dedent(
         """
+        Creating environment: hatch-build
+        Checking dependencies
+        Syncing dependencies
+        Inspecting build dependencies
         ──────────────────────────────────── sdist ─────────────────────────────────────
-        Setting up build environment
         ──────────────────────────────────── wheel ─────────────────────────────────────
         """
     )
 
     # Test removal while we're here
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('env', 'remove')
+        result = hatch('env', 'remove', 'hatch-build')
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
         """
-        Removing environment: default
+        Removing environment: hatch-build
         """
     )
 
@@ -1249,8 +1329,7 @@ def test_build_dependencies(hatch, temp_dir, helpers):
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
         result = hatch('build', '-t', 'custom')
-
-    assert result.exit_code == 0, result.output
+        assert result.exit_code == 0, result.output
 
     build_directory = project_path / 'dist'
     assert build_directory.is_dir()
@@ -1265,8 +1344,12 @@ def test_build_dependencies(hatch, temp_dir, helpers):
 
     assert result.output == helpers.dedent(
         """
+        Creating environment: hatch-build
+        Checking dependencies
+        Syncing dependencies
+        Inspecting build dependencies
+        Syncing dependencies
         ──────────────────────────────────── custom ────────────────────────────────────
-        Setting up build environment
         """
     )
 
@@ -1292,8 +1375,7 @@ def test_plugin_dependencies_unmet(hatch, temp_dir, helpers, mock_plugin_install
 
     with path.as_cwd():
         result = hatch('build')
-
-    assert result.exit_code == 0, result.output
+        assert result.exit_code == 0, result.output
 
     build_directory = path / 'dist'
     assert build_directory.is_dir()
@@ -1307,11 +1389,13 @@ def test_plugin_dependencies_unmet(hatch, temp_dir, helpers, mock_plugin_install
     assert result.output == helpers.dedent(
         f"""
         Syncing environment plugin requirements
+        Creating environment: hatch-build
+        Checking dependencies
+        Syncing dependencies
+        Inspecting build dependencies
         ──────────────────────────────────── sdist ─────────────────────────────────────
-        Setting up build environment
         {sdist_path.relative_to(path)}
         ──────────────────────────────────── wheel ─────────────────────────────────────
-        Setting up build environment
         {wheel_path.relative_to(path)}
         """
     )

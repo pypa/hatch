@@ -35,7 +35,7 @@ def show(
         contextual_config = {}
         for environments in (app.project.config.envs, app.project.config.internal_envs):
             for env_name, config in environments.items():
-                environment = app.get_environment(env_name)
+                environment = app.project.get_environment(env_name)
                 new_config = contextual_config[env_name] = dict(config)
 
                 env_vars = dict(environment.env_vars)
@@ -165,7 +165,7 @@ def show(
         if env_names and env_name not in env_names:
             continue
 
-        environment = app.get_environment(env_name)
+        environment = app.project.get_environment(env_name)
 
         standalone_columns['Name'][i] = env_name
         standalone_columns['Type'][i] = config['type']

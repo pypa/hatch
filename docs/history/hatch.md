@@ -8,6 +8,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Changed:***
+
+- Environment type plugins are now no longer expected to support a pseudo-build environment as any environment now may be used for building. The following methods have been removed: `build_environment`, `build_environment_exists`, `run_builder`, `construct_build_command`
+
+***Added:***
+
+- The `version` and `project metadata` commands now support projects that do not use Hatchling as the build backend
+- The `version` command accepts a `--force` option, allowing for downgrades when an explicit version number is given.
+- Build environments can now be configured, the default build environment is `hatch-build`
+- The environment interface now has the following methods and properties in order to better support builds on remote machines: `project_root`, `sep`, `pathsep`, `fs_context`
+
 ## [1.12.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.12.0) - 2024-05-28 ## {: #hatch-v1.12.0 }
 
 ***Changed:***

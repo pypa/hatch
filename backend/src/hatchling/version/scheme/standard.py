@@ -57,7 +57,7 @@ class StandardScheme(VersionSchemeInterface):
                     raise ValueError(message)
 
                 next_version = Version(version)
-                if self.config.get('validate-bump', True) and next_version <= original:
+                if self.validate_bump and next_version <= original:
                     message = f'Version `{version}` is not higher than the original version `{original_version}`'
                     raise ValueError(message)
 

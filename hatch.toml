@@ -10,6 +10,8 @@ post-install-commands = [
 [envs.hatch-test]
 extra-dependencies = [
   "filelock",
+  "flit-core",
+  "hatchling",
   "pyfakefs",
   "trustme",
   # Hatchling dynamic dependency

@@ -11,7 +11,7 @@ from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT
 class CustomMetadataHook:
     PLUGIN_NAME = 'custom'
 
-    def __new__(  # type: ignore
+    def __new__(  # type: ignore[misc]
         cls,
         root: str,
         config: dict[str, Any],
@@ -32,7 +32,7 @@ class CustomMetadataHook:
             message = f'Build script does not exist: {build_script}'
             raise OSError(message)
 
-        hook_class = load_plugin_from_script(path, build_script, MetadataHookInterface, 'metadata_hook')  # type: ignore
+        hook_class = load_plugin_from_script(path, build_script, MetadataHookInterface, 'metadata_hook')  # type: ignore[type-abstract]
         hook = hook_class(root, config, *args, **kwargs)
 
         # Always keep the name to avoid confusion

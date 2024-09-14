@@ -15,10 +15,10 @@ def find(app: Application, env_name: str):
     """Locate environments."""
     app.ensure_environment_plugin_dependencies()
 
-    environments = app.expand_environments(env_name)
+    environments = app.project.expand_environments(env_name)
     if not environments:
         app.abort(f'Environment `{env_name}` is not defined by project config')
 
     for env in environments:
-        environment = app.get_environment(env)
+        environment = app.project.get_environment(env)
         app.display(environment.find())

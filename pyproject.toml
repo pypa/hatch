@@ -46,6 +46,7 @@ dependencies = [
   "packaging>=23.2",
   "pexpect~=4.8",
   "platformdirs>=2.5.0",
+  "pyproject-hooks",
   "rich>=11.2.0",
   "shellingham>=1.4.0",
   "tomli-w>=1.0",
@@ -89,11 +90,11 @@ exclude = [
 [tool.mypy]
 disallow_untyped_defs = false
 disallow_incomplete_defs = false
+enable_error_code = ["ignore-without-code", "truthy-bool"]
 follow_imports = "normal"
 ignore_missing_imports = true
 pretty = true
 show_column_numbers = true
-show_error_codes = true
 warn_no_return = false
 warn_unused_ignores = true
 
@@ -112,9 +113,11 @@ source_pkgs = ["hatch", "hatchling", "tests"]
 omit = [
   "backend/src/hatchling/__main__.py",
   "backend/src/hatchling/bridge/*",
+  "backend/src/hatchling/cli/dep/*",
   "backend/src/hatchling/ouroboros.py",
   "src/hatch/__main__.py",
   "src/hatch/cli/new/migrate.py",
+  "src/hatch/project/frontend/scripts/*",
   "src/hatch/utils/shells.py",
 ]
 

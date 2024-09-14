@@ -115,8 +115,8 @@ class VirtualEnvironment(EnvironmentInterface):
             # Only if dependencies have been set by the user
             or is_default_environment(env_name, self.app.project.config.internal_envs[env_name])
         ):
-            uv_env = self.app.get_environment(env_name)
-            self.app.prepare_environment(uv_env)
+            uv_env = self.app.project.get_environment(env_name)
+            self.app.project.prepare_environment(uv_env)
             with uv_env:
                 return self.platform.modules.shutil.which('uv')
 
@@ -184,7 +184,7 @@ class VirtualEnvironment(EnvironmentInterface):
         if not self.dependencies:
             return True
 
-        from hatchling.dep.core import dependencies_in_sync
+        from hatch.dep.sync import dependencies_in_sync
 
         with self.safe_activation():
             return dependencies_in_sync(
@@ -194,29 +194,6 @@ class VirtualEnvironment(EnvironmentInterface):
     def sync_dependencies(self):
         with self.safe_activation():
             self.platform.check_command(self.construct_pip_install_command(self.dependencies))
-
-    @contextmanager
-    def build_environment(self, dependencies):
-        from packaging.requirements import Requirement
-
-        from hatchling.dep.core import dependencies_in_sync
-
-        if not self.build_environment_exists():
-            with self.expose_uv():
-                self.build_virtual_env.create(self.parent_python)
-
-        with self.get_env_vars(), self.build_virtual_env:
-            if not dependencies_in_sync(
-                [Requirement(d) for d in dependencies],
-                sys_path=self.build_virtual_env.sys_path,
-                environment=self.build_virtual_env.environment,
-            ):
-                self.platform.check_command(self.construct_pip_install_command(dependencies))
-
-            yield
-
-    def build_environment_exists(self):
-        return self.build_virtual_env.exists()
 
     @contextmanager
     def command_context(self):

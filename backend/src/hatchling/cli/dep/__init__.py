@@ -13,7 +13,7 @@ def synced_impl(*, dependencies: list[str], python: str) -> None:
 
     from packaging.requirements import Requirement
 
-    from hatchling.dep.core import dependencies_in_sync
+    from hatchling.cli.dep.core import dependencies_in_sync
 
     sys_path = None
     if python:
