@@ -102,6 +102,8 @@ class WheelArchive:
             set_zip_info_mode(zip_info, new_mode)
             if stat.S_ISDIR(file_stat.st_mode):  # no cov
                 zip_info.external_attr |= 0x10
+            else:
+                zip_info.file_size = file_stat.st_size
         else:
             zip_info = zipfile.ZipInfo.from_file(included_file.path, relative_path)
 
