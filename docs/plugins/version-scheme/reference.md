@@ -4,6 +4,7 @@
 
 ## Known third-party
 
+- [hatch-calver](https://github.com/akx/hatch-calver) - uses [calendar versioning](https://calver.org)
 - [hatch-semver](https://github.com/Nagidal/hatch-semver) - uses [semantic versioning](https://semver.org)
 
 ::: hatchling.version.scheme.plugin.interface.VersionSchemeInterface
