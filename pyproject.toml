@@ -138,5 +138,5 @@ exclude_lines = [
 # Ref: https://github.com/codespell-project/codespell#using-a-config-file
 skip = '.git*,*.svg,venv,*.css'
 check-hidden = true
-# ignore-regex = ''
+ignore-regex = '\baNULL\b'
 # ignore-words-list = ''
