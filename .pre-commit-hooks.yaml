@@ -5,3 +5,24 @@
   language: python
   minimum_pre_commit_version: 2.9.2
   require_serial: true
+- id: hatch-requirements-project-only
+  name: hatch-requirements-project-only
+  description: "Hatch: Write project requirements to requirements.txt"
+  entry: "sh -c 'hatch dep show requirements > requirements.txt'"
+  language: python
+  minimum_pre_commit_version: 2.9.2
+  require_serial: true
+- id: hatch-requirements-env-only
+  name: hatch-requirements-env-only
+  description: "Hatch: Write project requirements to requirements.txt"
+  entry: "sh -c 'hatch dep show requirements > requirements.txt'"
+  language: python
+  minimum_pre_commit_version: 2.9.2
+  require_serial: true
+- id: hatch-requirements-all
+  name: hatch-requirements-all
+  description: "Hatch: Write project requirements to requirements.txt"
+  entry: "sh -c 'hatch dep show requirements > requirements.txt'"
+  language: python
+  minimum_pre_commit_version: 2.9.2
+  require_serial: true
