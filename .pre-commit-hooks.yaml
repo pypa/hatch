@@ -1,0 +1,7 @@
+- id: hatch
+  name: hatch
+  description: "Hatch: Hatch is a modern, extensible Python project manager."
+  entry: hatch
+  language: python
+  minimum_pre_commit_version: 2.9.2
+  require_serial: true
