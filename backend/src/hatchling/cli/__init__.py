@@ -17,7 +17,18 @@ def hatchling() -> int:
     metadata_command(subparsers, defaults)
     version_command(subparsers, defaults)
 
-    kwargs = vars(parser.parse_args())
+    # Parse known arguments
+    kwargs, extras = parser.parse_known_args()
+    
+    # Extras can exist to be detected in custom hooks and plugins,
+    # but they must be after a '--' separator
+    if extras and extras[0] != "--":
+        parser.print_help()
+        return 1
+
+    # Wrap the parsed arguments in a dictionary
+    kwargs = vars(kwargs)
+
     try:
         command = kwargs.pop('func')
     except KeyError:
