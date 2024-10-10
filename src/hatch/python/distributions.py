@@ -8,178 +8,215 @@ ORDERED_DISTRIBUTIONS: tuple[str, ...] = (
     '3.10',
     '3.11',
     '3.12',
+    '3.13',
     'pypy2.7',
     'pypy3.9',
     'pypy3.10',
 )
 DISTRIBUTIONS: dict[str, dict[tuple[str, ...], str]] = {
+    '3.13': {
+        ('linux', 'aarch64', 'gnu', ''):
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.13.0%2B20241008-aarch64-unknown-linux-gnu-install_only.tar.gz',
+        ('linux', 'armv7', 'gnueabi', ''):
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.13.0%2B20241008-armv7-unknown-linux-gnueabi-install_only.tar.gz',
+        ('linux', 'armv7', 'gnueabihf', ''):
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.13.0%2B20241008-armv7-unknown-linux-gnueabihf-install_only.tar.gz',
+        ('linux', 'ppc64le', 'gnu', ''):
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.13.0%2B20241008-ppc64le-unknown-linux-gnu-install_only.tar.gz',
+        ('linux', 's390x', 'gnu', ''):
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.13.0%2B20241008-s390x-unknown-linux-gnu-install_only.tar.gz',
+        ('linux', 'x86_64', 'gnu', 'v1'):
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.13.0%2B20241008-x86_64-unknown-linux-gnu-install_only.tar.gz',
+        ('linux', 'x86_64', 'gnu', 'v2'):
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.13.0%2B20241008-x86_64_v2-unknown-linux-gnu-install_only.tar.gz',
+        ('linux', 'x86_64', 'gnu', 'v3'):
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.13.0%2B20241008-x86_64_v3-unknown-linux-gnu-install_only.tar.gz',
+        ('linux', 'x86_64', 'gnu', 'v4'):
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.13.0%2B20241008-x86_64_v4-unknown-linux-gnu-install_only.tar.gz',
+        ('linux', 'x86_64', 'musl', 'v1'):
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.13.0%2B20241008-x86_64-unknown-linux-musl-install_only.tar.gz',
+        ('linux', 'x86_64', 'musl', 'v2'):
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.13.0%2B20241008-x86_64_v2-unknown-linux-musl-install_only.tar.gz',
+        ('linux', 'x86_64', 'musl', 'v3'):
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.13.0%2B20241008-x86_64_v3-unknown-linux-musl-install_only.tar.gz',
+        ('linux', 'x86_64', 'musl', 'v4'):
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.13.0%2B20241008-x86_64_v4-unknown-linux-musl-install_only.tar.gz',
+        ('windows', 'i386', 'msvc', ''):
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.13.0%2B20241008-i686-pc-windows-msvc-install_only.tar.gz',
+        ('windows', 'amd64', 'msvc', ''):
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.13.0%2B20241008-x86_64-pc-windows-msvc-install_only.tar.gz',
+        ('macos', 'arm64', '', ''):
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.13.0%2B20241008-aarch64-apple-darwin-install_only.tar.gz',
+        ('macos', 'x86_64', '', ''):
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.13.0%2B20241008-x86_64-apple-darwin-install_only.tar.gz',
+    },
     '3.12': {
         ('linux', 'aarch64', 'gnu', ''):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.12.3%2B20240415-aarch64-unknown-linux-gnu-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.12.7%2B20241008-aarch64-unknown-linux-gnu-install_only.tar.gz',
         ('linux', 'armv7', 'gnueabi', ''):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.12.3%2B20240415-armv7-unknown-linux-gnueabi-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.12.7%2B20241008-armv7-unknown-linux-gnueabi-install_only.tar.gz',
         ('linux', 'armv7', 'gnueabihf', ''):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.12.3%2B20240415-armv7-unknown-linux-gnueabihf-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.12.7%2B20241008-armv7-unknown-linux-gnueabihf-install_only.tar.gz',
         ('linux', 'ppc64le', 'gnu', ''):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.12.3%2B20240415-ppc64le-unknown-linux-gnu-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.12.7%2B20241008-ppc64le-unknown-linux-gnu-install_only.tar.gz',
         ('linux', 's390x', 'gnu', ''):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.12.3%2B20240415-s390x-unknown-linux-gnu-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.12.7%2B20241008-s390x-unknown-linux-gnu-install_only.tar.gz',
         ('linux', 'x86_64', 'gnu', 'v1'):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.12.3%2B20240415-x86_64-unknown-linux-gnu-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.12.7%2B20241008-x86_64-unknown-linux-gnu-install_only.tar.gz',
         ('linux', 'x86_64', 'gnu', 'v2'):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.12.3%2B20240415-x86_64_v2-unknown-linux-gnu-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.12.7%2B20241008-x86_64_v2-unknown-linux-gnu-install_only.tar.gz',
         ('linux', 'x86_64', 'gnu', 'v3'):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.12.3%2B20240415-x86_64_v3-unknown-linux-gnu-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.12.7%2B20241008-x86_64_v3-unknown-linux-gnu-install_only.tar.gz',
         ('linux', 'x86_64', 'gnu', 'v4'):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.12.3%2B20240415-x86_64_v4-unknown-linux-gnu-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.12.7%2B20241008-x86_64_v4-unknown-linux-gnu-install_only.tar.gz',
         ('linux', 'x86_64', 'musl', 'v1'):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.12.3%2B20240415-x86_64-unknown-linux-musl-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.12.7%2B20241008-x86_64-unknown-linux-musl-install_only.tar.gz',
         ('linux', 'x86_64', 'musl', 'v2'):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.12.3%2B20240415-x86_64_v2-unknown-linux-musl-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.12.7%2B20241008-x86_64_v2-unknown-linux-musl-install_only.tar.gz',
         ('linux', 'x86_64', 'musl', 'v3'):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.12.3%2B20240415-x86_64_v3-unknown-linux-musl-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.12.7%2B20241008-x86_64_v3-unknown-linux-musl-install_only.tar.gz',
         ('linux', 'x86_64', 'musl', 'v4'):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.12.3%2B20240415-x86_64_v4-unknown-linux-musl-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.12.7%2B20241008-x86_64_v4-unknown-linux-musl-install_only.tar.gz',
         ('windows', 'i386', 'msvc', ''):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.12.3%2B20240415-i686-pc-windows-msvc-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.12.7%2B20241008-i686-pc-windows-msvc-install_only.tar.gz',
         ('windows', 'amd64', 'msvc', ''):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.12.3%2B20240415-x86_64-pc-windows-msvc-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.12.7%2B20241008-x86_64-pc-windows-msvc-install_only.tar.gz',
         ('macos', 'arm64', '', ''):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.12.3%2B20240415-aarch64-apple-darwin-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.12.7%2B20241008-aarch64-apple-darwin-install_only.tar.gz',
         ('macos', 'x86_64', '', ''):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.12.3%2B20240415-x86_64-apple-darwin-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.12.7%2B20241008-x86_64-apple-darwin-install_only.tar.gz',
     },
     '3.11': {
         ('linux', 'aarch64', 'gnu', ''):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.11.9%2B20240415-aarch64-unknown-linux-gnu-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.11.10%2B20241008-aarch64-unknown-linux-gnu-install_only.tar.gz',
         ('linux', 'armv7', 'gnueabi', ''):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.11.9%2B20240415-armv7-unknown-linux-gnueabi-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.11.10%2B20241008-armv7-unknown-linux-gnueabi-install_only.tar.gz',
         ('linux', 'armv7', 'gnueabihf', ''):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.11.9%2B20240415-armv7-unknown-linux-gnueabihf-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.11.10%2B20241008-armv7-unknown-linux-gnueabihf-install_only.tar.gz',
         ('linux', 'ppc64le', 'gnu', ''):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.11.9%2B20240415-ppc64le-unknown-linux-gnu-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.11.10%2B20241008-ppc64le-unknown-linux-gnu-install_only.tar.gz',
         ('linux', 's390x', 'gnu', ''):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.11.9%2B20240415-s390x-unknown-linux-gnu-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.11.10%2B20241008-s390x-unknown-linux-gnu-install_only.tar.gz',
         ('linux', 'i686', 'gnu', ''):
             'https://github.com/indygreg/python-build-standalone/releases/download/20230826/cpython-3.11.5%2B20230826-i686-unknown-linux-gnu-install_only.tar.gz',
         ('linux', 'x86_64', 'gnu', 'v1'):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.11.9%2B20240415-x86_64-unknown-linux-gnu-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.11.10%2B20241008-x86_64-unknown-linux-gnu-install_only.tar.gz',
         ('linux', 'x86_64', 'gnu', 'v2'):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.11.9%2B20240415-x86_64_v2-unknown-linux-gnu-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.11.10%2B20241008-x86_64_v2-unknown-linux-gnu-install_only.tar.gz',
         ('linux', 'x86_64', 'gnu', 'v3'):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.11.9%2B20240415-x86_64_v3-unknown-linux-gnu-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.11.10%2B20241008-x86_64_v3-unknown-linux-gnu-install_only.tar.gz',
         ('linux', 'x86_64', 'gnu', 'v4'):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.11.9%2B20240415-x86_64_v4-unknown-linux-gnu-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.11.10%2B20241008-x86_64_v4-unknown-linux-gnu-install_only.tar.gz',
         ('linux', 'x86_64', 'musl', 'v1'):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.11.9%2B20240415-x86_64-unknown-linux-musl-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.11.10%2B20241008-x86_64-unknown-linux-musl-install_only.tar.gz',
         ('linux', 'x86_64', 'musl', 'v2'):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.11.9%2B20240415-x86_64_v2-unknown-linux-musl-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.11.10%2B20241008-x86_64_v2-unknown-linux-musl-install_only.tar.gz',
         ('linux', 'x86_64', 'musl', 'v3'):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.11.9%2B20240415-x86_64_v3-unknown-linux-musl-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.11.10%2B20241008-x86_64_v3-unknown-linux-musl-install_only.tar.gz',
         ('linux', 'x86_64', 'musl', 'v4'):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.11.9%2B20240415-x86_64_v4-unknown-linux-musl-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.11.10%2B20241008-x86_64_v4-unknown-linux-musl-install_only.tar.gz',
         ('windows', 'i386', 'msvc', ''):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.11.9%2B20240415-i686-pc-windows-msvc-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.11.10%2B20241008-i686-pc-windows-msvc-install_only.tar.gz',
         ('windows', 'amd64', 'msvc', ''):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.11.9%2B20240415-x86_64-pc-windows-msvc-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.11.10%2B20241008-x86_64-pc-windows-msvc-install_only.tar.gz',
         ('macos', 'arm64', '', ''):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.11.9%2B20240415-aarch64-apple-darwin-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.11.10%2B20241008-aarch64-apple-darwin-install_only.tar.gz',
         ('macos', 'x86_64', '', ''):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.11.9%2B20240415-x86_64-apple-darwin-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.11.10%2B20241008-x86_64-apple-darwin-install_only.tar.gz',
     },
     '3.10': {
         ('linux', 'aarch64', 'gnu', ''):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.10.14%2B20240415-aarch64-unknown-linux-gnu-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.10.15%2B20241008-aarch64-unknown-linux-gnu-install_only.tar.gz',
         ('linux', 'armv7', 'gnueabi', ''):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.10.14%2B20240415-armv7-unknown-linux-gnueabi-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.10.15%2B20241008-armv7-unknown-linux-gnueabi-install_only.tar.gz',
         ('linux', 'armv7', 'gnueabihf', ''):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.10.14%2B20240415-armv7-unknown-linux-gnueabihf-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.10.15%2B20241008-armv7-unknown-linux-gnueabihf-install_only.tar.gz',
         ('linux', 'ppc64le', 'gnu', ''):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.10.14%2B20240415-ppc64le-unknown-linux-gnu-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.10.15%2B20241008-ppc64le-unknown-linux-gnu-install_only.tar.gz',
         ('linux', 's390x', 'gnu', ''):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.10.14%2B20240415-s390x-unknown-linux-gnu-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.10.15%2B20241008-s390x-unknown-linux-gnu-install_only.tar.gz',
         ('linux', 'i686', 'gnu', ''):
             'https://github.com/indygreg/python-build-standalone/releases/download/20230826/cpython-3.10.13%2B20230826-i686-unknown-linux-gnu-install_only.tar.gz',
         ('linux', 'x86_64', 'gnu', 'v1'):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.10.14%2B20240415-x86_64-unknown-linux-gnu-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.10.15%2B20241008-x86_64-unknown-linux-gnu-install_only.tar.gz',
         ('linux', 'x86_64', 'gnu', 'v2'):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.10.14%2B20240415-x86_64_v2-unknown-linux-gnu-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.10.15%2B20241008-x86_64_v2-unknown-linux-gnu-install_only.tar.gz',
         ('linux', 'x86_64', 'gnu', 'v3'):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.10.14%2B20240415-x86_64_v3-unknown-linux-gnu-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.10.15%2B20241008-x86_64_v3-unknown-linux-gnu-install_only.tar.gz',
         ('linux', 'x86_64', 'gnu', 'v4'):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.10.14%2B20240415-x86_64_v4-unknown-linux-gnu-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.10.15%2B20241008-x86_64_v4-unknown-linux-gnu-install_only.tar.gz',
         ('linux', 'x86_64', 'musl', 'v1'):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.10.14%2B20240415-x86_64-unknown-linux-musl-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.10.15%2B20241008-x86_64-unknown-linux-musl-install_only.tar.gz',
         ('linux', 'x86_64', 'musl', 'v2'):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.10.14%2B20240415-x86_64_v2-unknown-linux-musl-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.10.15%2B20241008-x86_64_v2-unknown-linux-musl-install_only.tar.gz',
         ('linux', 'x86_64', 'musl', 'v3'):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.10.14%2B20240415-x86_64_v3-unknown-linux-musl-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.10.15%2B20241008-x86_64_v3-unknown-linux-musl-install_only.tar.gz',
         ('linux', 'x86_64', 'musl', 'v4'):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.10.14%2B20240415-x86_64_v4-unknown-linux-musl-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.10.15%2B20241008-x86_64_v4-unknown-linux-musl-install_only.tar.gz',
         ('windows', 'i386', 'msvc', ''):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.10.14%2B20240415-i686-pc-windows-msvc-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.10.15%2B20241008-i686-pc-windows-msvc-install_only.tar.gz',
         ('windows', 'amd64', 'msvc', ''):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.10.14%2B20240415-x86_64-pc-windows-msvc-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.10.15%2B20241008-x86_64-pc-windows-msvc-install_only.tar.gz',
         ('macos', 'arm64', '', ''):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.10.14%2B20240415-aarch64-apple-darwin-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.10.15%2B20241008-aarch64-apple-darwin-install_only.tar.gz',
         ('macos', 'x86_64', '', ''):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.10.14%2B20240415-x86_64-apple-darwin-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.10.15%2B20241008-x86_64-apple-darwin-install_only.tar.gz',
     },
     '3.9': {
         ('linux', 'aarch64', 'gnu', ''):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.9.19%2B20240415-aarch64-unknown-linux-gnu-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.9.19%2B20241008-aarch64-unknown-linux-gnu-install_only.tar.gz',
         ('linux', 'armv7', 'gnueabi', ''):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.9.19%2B20240415-armv7-unknown-linux-gnueabi-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.9.19%2B20241008-armv7-unknown-linux-gnueabi-install_only.tar.gz',
         ('linux', 'armv7', 'gnueabihf', ''):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.9.19%2B20240415-armv7-unknown-linux-gnueabihf-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.9.19%2B20241008-armv7-unknown-linux-gnueabihf-install_only.tar.gz',
         ('linux', 'ppc64le', 'gnu', ''):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.9.19%2B20240415-ppc64le-unknown-linux-gnu-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.9.19%2B20241008-ppc64le-unknown-linux-gnu-install_only.tar.gz',
         ('linux', 's390x', 'gnu', ''):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.9.19%2B20240415-s390x-unknown-linux-gnu-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.9.19%2B20241008-s390x-unknown-linux-gnu-install_only.tar.gz',
         ('linux', 'i686', 'gnu', ''):
             'https://github.com/indygreg/python-build-standalone/releases/download/20230826/cpython-3.9.18%2B20230826-i686-unknown-linux-gnu-install_only.tar.gz',
         ('linux', 'x86_64', 'gnu', 'v1'):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.9.19%2B20240415-x86_64-unknown-linux-gnu-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.9.19%2B20241008-x86_64-unknown-linux-gnu-install_only.tar.gz',
         ('linux', 'x86_64', 'gnu', 'v2'):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.9.19%2B20240415-x86_64_v2-unknown-linux-gnu-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.9.19%2B20241008-x86_64_v2-unknown-linux-gnu-install_only.tar.gz',
         ('linux', 'x86_64', 'gnu', 'v3'):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.9.19%2B20240415-x86_64_v3-unknown-linux-gnu-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.9.19%2B20241008-x86_64_v3-unknown-linux-gnu-install_only.tar.gz',
         ('linux', 'x86_64', 'gnu', 'v4'):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.9.19%2B20240415-x86_64_v4-unknown-linux-gnu-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.9.19%2B20241008-x86_64_v4-unknown-linux-gnu-install_only.tar.gz',
         ('linux', 'x86_64', 'musl', 'v1'):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.9.19%2B20240415-x86_64-unknown-linux-musl-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.9.19%2B20241008-x86_64-unknown-linux-musl-install_only.tar.gz',
         ('linux', 'x86_64', 'musl', 'v2'):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.9.19%2B20240415-x86_64_v2-unknown-linux-musl-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.9.19%2B20241008-x86_64_v2-unknown-linux-musl-install_only.tar.gz',
         ('linux', 'x86_64', 'musl', 'v3'):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.9.19%2B20240415-x86_64_v3-unknown-linux-musl-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.9.19%2B20241008-x86_64_v3-unknown-linux-musl-install_only.tar.gz',
         ('linux', 'x86_64', 'musl', 'v4'):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.9.19%2B20240415-x86_64_v4-unknown-linux-musl-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.9.19%2B20241008-x86_64_v4-unknown-linux-musl-install_only.tar.gz',
         ('windows', 'i386', 'msvc', ''):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.9.19%2B20240415-i686-pc-windows-msvc-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.9.19%2B20241008-i686-pc-windows-msvc-install_only.tar.gz',
         ('windows', 'amd64', 'msvc', ''):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.9.19%2B20240415-x86_64-pc-windows-msvc-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.9.19%2B20241008-x86_64-pc-windows-msvc-install_only.tar.gz',
         ('macos', 'arm64', '', ''):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.9.19%2B20240415-aarch64-apple-darwin-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.9.19%2B20241008-aarch64-apple-darwin-install_only.tar.gz',
         ('macos', 'x86_64', '', ''):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.9.19%2B20240415-x86_64-apple-darwin-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241008/cpython-3.9.19%2B20241008-x86_64-apple-darwin-install_only.tar.gz',
     },
     '3.8': {
         ('linux', 'aarch64', 'gnu', ''):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.8.19%2B20240415-aarch64-unknown-linux-gnu-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241002/cpython-3.8.20%2B20241002-aarch64-unknown-linux-gnu-install_only.tar.gz',
         ('linux', 'i686', 'gnu', ''):
             'https://github.com/indygreg/python-build-standalone/releases/download/20230826/cpython-3.8.17%2B20230826-i686-unknown-linux-gnu-install_only.tar.gz',
         ('linux', 'x86_64', 'gnu', 'v1'):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.8.19%2B20240415-x86_64-unknown-linux-gnu-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241002/cpython-3.8.20%2B20241002-x86_64-unknown-linux-gnu-install_only.tar.gz',
         ('linux', 'x86_64', 'musl', 'v1'):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.8.19%2B20240415-x86_64-unknown-linux-musl-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241002/cpython-3.8.20%2B20241002-x86_64-unknown-linux-musl-install_only.tar.gz',
         ('windows', 'i386', 'msvc', ''):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.8.19%2B20240415-i686-pc-windows-msvc-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241002/cpython-3.8.20%2B20241002-i686-pc-windows-msvc-install_only.tar.gz',
         ('windows', 'amd64', 'msvc', ''):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.8.19%2B20240415-x86_64-pc-windows-msvc-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241002/cpython-3.8.20%2B20241002-x86_64-pc-windows-msvc-install_only.tar.gz',
         ('macos', 'arm64', '', ''):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.8.19%2B20240415-aarch64-apple-darwin-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241002/cpython-3.8.20%2B20241002-aarch64-apple-darwin-install_only.tar.gz',
         ('macos', 'x86_64', '', ''):
-            'https://github.com/indygreg/python-build-standalone/releases/download/20240415/cpython-3.8.19%2B20240415-x86_64-apple-darwin-install_only.tar.gz',
+            'https://github.com/indygreg/python-build-standalone/releases/download/20241002/cpython-3.8.20%2B20241002-x86_64-apple-darwin-install_only.tar.gz',
     },
     '3.7': {
         ('linux', 'x86_64', 'gnu', ''):
