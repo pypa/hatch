@@ -2,6 +2,7 @@
 requires = ["hatchling>=1.24.2", "hatch-vcs>=0.3.0"]
 build-backend = "hatchling.build"
 
+
 [project]
 name = "hatch"
 description = "Modern, extensible Python project management"
