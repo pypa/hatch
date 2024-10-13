@@ -68,15 +68,16 @@ The following options are recognized for internal Python resolution.
 | `3.10` |
 | `3.11` |
 | `3.12` |
+| `3.13` |
 
 The source of distributions is the [python-build-standalone](https://github.com/indygreg/python-build-standalone) project.
 
-Some distributions have [variants](https://gregoryszorc.com/docs/python-build-standalone/main/running.html) that may be configured with the `HATCH_PYTHON_VARIANT_<PLATFORM>` environment variable where `<PLATFORM>` is the uppercase version of one of the following:
+Some distributions have [variants](https://gregoryszorc.com/docs/python-build-standalone/main/running.html) that may be configured. Options may be combined.
 
-| Platform | Options |
-| --- | --- |
-| Linux | <ul><li><code>v1</code></li><li><code>v2</code></li><li><code>v3</code> (default)</li><li><code>v4</code></li></ul> |
-| Windows | <ul><li><code>shared</code> (default)</li><li><code>static</code></li></ul> |
+| Option | Platforms | Allowed values |
+| --- | --- | --- |
+| `HATCH_PYTHON_VARIANT_CPU` | <ul><li>Linux</li></ul> | <ul><li><code>v1</code></li><li><code>v2</code></li><li><code>v3</code> (default)</li><li><code>v4</code></li></ul> |
+| `HATCH_PYTHON_VARIANT_GIL` | <ul><li>Linux</li><li>Windows</li><li>macOS</li></ul> | <ul><li><code>freethreaded</code></li></ul> |
 
 ### PyPy
 
