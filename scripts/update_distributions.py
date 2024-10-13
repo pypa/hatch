@@ -11,8 +11,8 @@ URL = 'https://raw.githubusercontent.com/ofek/pyapp/master/build.rs'
 OUTPUT_FILE = ROOT / 'src' / 'hatch' / 'python' / 'distributions.py'
 ARCHES = {('linux', 'x86'): 'i686', ('windows', 'x86_64'): 'amd64', ('windows', 'x86'): 'i386'}
 
-# system, architecture, ABI, variant
-MAX_IDENTIFIER_COMPONENTS = 4
+# system, architecture, ABI, CPU variant, GIL variant
+MAX_IDENTIFIER_COMPONENTS = 5
 
 
 def parse_distributions(contents: str, constant: str):
@@ -34,9 +34,9 @@ def parse_distributions(contents: str, constant: str):
         elif os == 'macos' and arch == 'aarch64':
             arch = 'arm64'
 
-        # Force everything to have a variant to maintain structure
+        # Force everything to have the proper number of variants to maintain structure
         if len(data) != MAX_IDENTIFIER_COMPONENTS:
-            data.append('')
+            data.extend(('', ''))
 
         data[1] = ARCHES.get((os, arch), arch)
         yield identifier, tuple(data), source
