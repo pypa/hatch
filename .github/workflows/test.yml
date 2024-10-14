@@ -33,6 +33,7 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
+        allow-prereleases: true
 
     - name: Install UV
       run: curl -LsSf https://github.com/astral-sh/uv/releases/latest/download/uv-installer.sh | sh
@@ -124,6 +125,7 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
+        allow-prereleases: true
 
     - name: Install tools
       run: pip install --upgrade -r backend/tests/downstream/requirements.txt
