@@ -52,7 +52,12 @@ def test_automatic_creation(hatch, helpers, temp_dir, config_file):
     helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('run', 'python', '-c', "import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable)")
+        result = hatch(
+            'run',
+            'python',
+            '-c',
+            "import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable, encoding='utf-8')",
+        )
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -83,7 +88,7 @@ def test_automatic_creation(hatch, helpers, temp_dir, config_file):
 
     assert env_path.name == project_path.name
 
-    assert str(env_path) in str(output_file.read_text())
+    assert str(env_path) in str(output_file.read_text(encoding='utf-8'))
 
 
 def test_no_compatibility_check_if_exists(hatch, helpers, temp_dir, config_file, mocker):
@@ -105,7 +110,12 @@ def test_no_compatibility_check_if_exists(hatch, helpers, temp_dir, config_file,
     helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('run', 'python', '-c', "import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable)")
+        result = hatch(
+            'run',
+            'python',
+            '-c',
+            "import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable, encoding='utf-8')",
+        )
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -136,16 +146,21 @@ def test_no_compatibility_check_if_exists(hatch, helpers, temp_dir, config_file,
 
     assert env_path.name == project_path.name
 
-    assert str(env_path) in str(output_file.read_text())
+    assert str(env_path) in str(output_file.read_text(encoding='utf-8'))
 
     output_file.unlink()
     mocker.patch('hatch.env.virtual.VirtualEnvironment.check_compatibility', side_effect=Exception('incompatible'))
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('run', 'python', '-c', "import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable)")
+        result = hatch(
+            'run',
+            'python',
+            '-c',
+            "import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable, encoding='utf-8')",
+        )
 
     assert result.exit_code == 0, result.output
     assert not result.output
-    assert str(env_path) in str(output_file.read_text())
+    assert str(env_path) in str(output_file.read_text(encoding='utf-8'))
 
 
 def test_enter_project_directory(hatch, config_file, helpers, temp_dir):
@@ -173,7 +188,12 @@ def test_enter_project_directory(hatch, config_file, helpers, temp_dir):
     helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
 
     with EnvVars({ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('run', 'python', '-c', "import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable)")
+        result = hatch(
+            'run',
+            'python',
+            '-c',
+            "import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable, encoding='utf-8')",
+        )
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -204,7 +224,7 @@ def test_enter_project_directory(hatch, config_file, helpers, temp_dir):
 
     assert env_path.name == project_path.name
 
-    assert str(env_path) in str(output_file.read_text())
+    assert str(env_path) in str(output_file.read_text(encoding='utf-8'))
 
 
 @pytest.mark.requires_internet
@@ -266,7 +286,7 @@ def test_sync_dependencies(hatch, helpers, temp_dir, config_file):
             'run',
             'python',
             '-c',
-            "import binary,pathlib,sys;pathlib.Path('test.txt').write_text(str(binary.convert_units(1024)))",
+            "import binary,pathlib,sys;pathlib.Path('test.txt').write_text(str(binary.convert_units(1024)), encoding='utf-8')",
         )
 
     assert result.exit_code == 0, result.output
@@ -279,7 +299,7 @@ def test_sync_dependencies(hatch, helpers, temp_dir, config_file):
     output_file = project_path / 'test.txt'
     assert output_file.is_file()
 
-    assert str(output_file.read_text()) == "(1.0, 'KiB')"
+    assert str(output_file.read_text(encoding='utf-8')) == "(1.0, 'KiB')"
 
 
 @pytest.mark.requires_internet
@@ -339,7 +359,7 @@ def test_sync_project_dependencies(hatch, helpers, temp_dir, config_file):
             'run',
             'python',
             '-c',
-            "import binary,pathlib,sys;pathlib.Path('test.txt').write_text(str(binary.convert_units(1024)))",
+            "import binary,pathlib,sys;pathlib.Path('test.txt').write_text(str(binary.convert_units(1024)), encoding='utf-8')",
         )
 
     assert result.exit_code == 0, result.output
@@ -352,7 +372,7 @@ def test_sync_project_dependencies(hatch, helpers, temp_dir, config_file):
     output_file = project_path / 'test.txt'
     assert output_file.is_file()
 
-    assert str(output_file.read_text()) == "(1.0, 'KiB')"
+    assert str(output_file.read_text(encoding='utf-8')) == "(1.0, 'KiB')"
 
 
 @pytest.mark.requires_internet
@@ -418,7 +438,7 @@ def test_sync_project_features(hatch, helpers, temp_dir, config_file):
             'run',
             'python',
             '-c',
-            "import binary,pathlib,sys;pathlib.Path('test.txt').write_text(str(binary.convert_units(1024)))",
+            "import binary,pathlib,sys;pathlib.Path('test.txt').write_text(str(binary.convert_units(1024)), encoding='utf-8')",
         )
 
     assert result.exit_code == 0, result.output
@@ -431,7 +451,7 @@ def test_sync_project_features(hatch, helpers, temp_dir, config_file):
     output_file = project_path / 'test.txt'
     assert output_file.is_file()
 
-    assert str(output_file.read_text()) == "(1.0, 'KiB')"
+    assert str(output_file.read_text(encoding='utf-8')) == "(1.0, 'KiB')"
 
 
 @pytest.mark.requires_internet
@@ -493,7 +513,7 @@ def test_dependency_hash_checking(hatch, helpers, temp_dir, config_file, mocker)
             'run',
             'python',
             '-c',
-            "import binary,pathlib,sys;pathlib.Path('test.txt').write_text(str(binary.convert_units(1024)))",
+            "import binary,pathlib,sys;pathlib.Path('test.txt').write_text(str(binary.convert_units(1024)), encoding='utf-8')",
         )
 
     assert result.exit_code == 0, result.output
@@ -506,7 +526,7 @@ def test_dependency_hash_checking(hatch, helpers, temp_dir, config_file, mocker)
     output_file = project_path / 'test.txt'
     assert output_file.is_file()
 
-    assert str(output_file.read_text()) == "(1.0, 'KiB')"
+    assert str(output_file.read_text(encoding='utf-8')) == "(1.0, 'KiB')"
     output_file.unlink()
 
     # Now there should be no output because there is no dependency checking
@@ -515,7 +535,7 @@ def test_dependency_hash_checking(hatch, helpers, temp_dir, config_file, mocker)
             'run',
             'python',
             '-c',
-            "import binary,pathlib,sys;pathlib.Path('test.txt').write_text(str(binary.convert_units(1024)))",
+            "import binary,pathlib,sys;pathlib.Path('test.txt').write_text(str(binary.convert_units(1024)), encoding='utf-8')",
         )
 
     assert result.exit_code == 0, result.output
@@ -524,7 +544,7 @@ def test_dependency_hash_checking(hatch, helpers, temp_dir, config_file, mocker)
     output_file = project_path / 'test.txt'
     assert output_file.is_file()
 
-    assert str(output_file.read_text()) == "(1.0, 'KiB')"
+    assert str(output_file.read_text(encoding='utf-8')) == "(1.0, 'KiB')"
     output_file.unlink()
 
     mocker.patch('hatch.env.virtual.VirtualEnvironment.dependencies_in_sync', return_value=False)
@@ -536,7 +556,7 @@ def test_dependency_hash_checking(hatch, helpers, temp_dir, config_file, mocker)
             'run',
             'python',
             '-c',
-            "import binary,pathlib,sys;pathlib.Path('test.txt').write_text(str(binary.convert_units(1024)))",
+            "import binary,pathlib,sys;pathlib.Path('test.txt').write_text(str(binary.convert_units(1024)), encoding='utf-8')",
         )
 
     assert result.exit_code == 0, result.output
@@ -550,7 +570,7 @@ def test_dependency_hash_checking(hatch, helpers, temp_dir, config_file, mocker)
     output_file = project_path / 'test.txt'
     assert output_file.is_file()
 
-    assert str(output_file.read_text()) == "(1.0, 'KiB')"
+    assert str(output_file.read_text(encoding='utf-8')) == "(1.0, 'KiB')"
     output_file.unlink()
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
@@ -558,7 +578,7 @@ def test_dependency_hash_checking(hatch, helpers, temp_dir, config_file, mocker)
             'run',
             'python',
             '-c',
-            "import binary,pathlib,sys;pathlib.Path('test.txt').write_text(str(binary.convert_units(1024)))",
+            "import binary,pathlib,sys;pathlib.Path('test.txt').write_text(str(binary.convert_units(1024)), encoding='utf-8')",
         )
 
     assert result.exit_code == 0, result.output
@@ -567,7 +587,7 @@ def test_dependency_hash_checking(hatch, helpers, temp_dir, config_file, mocker)
     output_file = project_path / 'test.txt'
     assert output_file.is_file()
 
-    assert str(output_file.read_text()) == "(1.0, 'KiB')"
+    assert str(output_file.read_text(encoding='utf-8')) == "(1.0, 'KiB')"
 
 
 def test_scripts(hatch, helpers, temp_dir, config_file):
@@ -593,7 +613,9 @@ def test_scripts(hatch, helpers, temp_dir, config_file):
     )
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('run', 'py', "import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable)")
+        result = hatch(
+            'run', 'py', "import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable, encoding='utf-8')"
+        )
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -624,7 +646,7 @@ def test_scripts(hatch, helpers, temp_dir, config_file):
 
     assert env_path.name == project_path.name
 
-    assert str(env_path) in str(output_file.read_text())
+    assert str(env_path) in str(output_file.read_text(encoding='utf-8'))
 
 
 def test_scripts_specific_environment(hatch, helpers, temp_dir, config_file):
@@ -655,7 +677,7 @@ def test_scripts_specific_environment(hatch, helpers, temp_dir, config_file):
             'run',
             'test:py',
             "import os,pathlib,sys;pathlib.Path('test.txt').write_text("
-            "sys.executable+os.linesep[-1]+os.environ['foo'])",
+            "sys.executable+os.linesep[-1]+os.environ['foo'], encoding='utf-8')",
         )
 
     assert result.exit_code == 0, result.output
@@ -687,7 +709,7 @@ def test_scripts_specific_environment(hatch, helpers, temp_dir, config_file):
 
     assert env_path.name == 'test'
 
-    python_executable_path, env_var_value = str(output_file.read_text()).splitlines()
+    python_executable_path, env_var_value = str(output_file.read_text(encoding='utf-8')).splitlines()
     assert str(env_path) in python_executable_path
     assert env_var_value == 'bar'
 
@@ -714,7 +736,9 @@ def test_scripts_no_environment(hatch, helpers, temp_dir, config_file):
     project.save_config(config)
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('run', ':py', "import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable)")
+        result = hatch(
+            'run', ':py', "import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable, encoding='utf-8')"
+        )
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -729,7 +753,10 @@ def test_scripts_no_environment(hatch, helpers, temp_dir, config_file):
     env_data_path = data_path / 'env' / 'virtual'
     assert not env_data_path.exists()
 
-    assert os.path.realpath(output_file.read_text().strip()).lower() == os.path.realpath(sys.executable).lower()
+    assert (
+        os.path.realpath(output_file.read_text(encoding='utf-8').strip()).lower()
+        == os.path.realpath(sys.executable).lower()
+    )
 
 
 def test_error(hatch, helpers, temp_dir, config_file):
@@ -756,7 +783,7 @@ def test_error(hatch, helpers, temp_dir, config_file):
             'scripts': {
                 'error': [
                     'python -c "import sys;sys.exit(3)"',
-                    'python -c "import pathlib,sys;pathlib.Path(\'test.txt\').write_text(sys.executable)"',
+                    "python -c \"import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable, encoding='utf-8')\"",
                 ],
             },
             **project.config.envs['default'],
@@ -802,7 +829,7 @@ def test_ignore_error(hatch, helpers, temp_dir, config_file):
             'scripts': {
                 'error': [
                     '- python -c "import sys;sys.exit(3)"',
-                    'python -c "import pathlib,sys;pathlib.Path(\'test.txt\').write_text(sys.executable)"',
+                    "python -c \"import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable, encoding='utf-8')\"",
                 ],
             },
             **project.config.envs['default'],
@@ -818,7 +845,7 @@ def test_ignore_error(hatch, helpers, temp_dir, config_file):
         Creating environment: default
         Checking dependencies
         cmd [1] | - python -c "import sys;sys.exit(3)"
-        cmd [2] | python -c "import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable)"
+        cmd [2] | python -c "import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable, encoding='utf-8')"
         """
     )
     output_file = project_path / 'test.txt'
@@ -843,7 +870,7 @@ def test_ignore_error(hatch, helpers, temp_dir, config_file):
 
     assert env_path.name == project_path.name
 
-    assert str(env_path) in str(output_file.read_text())
+    assert str(env_path) in str(output_file.read_text(encoding='utf-8'))
 
 
 def test_command_expansion_error(hatch, helpers, temp_dir, config_file):
@@ -906,9 +933,9 @@ def test_verbosity(hatch, helpers, temp_dir, config_file):
             'skip-install': True,
             'scripts': {
                 'write-exe': [
-                    'python -c "import pathlib,sys;pathlib.Path(\'{args}1.txt\').write_text(sys.executable)"',
-                    'python -c "import pathlib,sys;pathlib.Path(\'{args}2.txt\').write_text(sys.executable)"',
-                    'python -c "import pathlib,sys;pathlib.Path(\'{args}3.txt\').write_text(sys.executable)"',
+                    "python -c \"import pathlib,sys;pathlib.Path('{args}1.txt').write_text(sys.executable, encoding='utf-8')\"",
+                    "python -c \"import pathlib,sys;pathlib.Path('{args}2.txt').write_text(sys.executable, encoding='utf-8')\"",
+                    "python -c \"import pathlib,sys;pathlib.Path('{args}3.txt').write_text(sys.executable, encoding='utf-8')\"",
                 ],
             },
             **project.config.envs['default'],
@@ -924,9 +951,9 @@ def test_verbosity(hatch, helpers, temp_dir, config_file):
         ─────────────────────────────────── default ────────────────────────────────────
         Creating environment: default
         Checking dependencies
-        cmd [1] | python -c "import pathlib,sys;pathlib.Path('test1.txt').write_text(sys.executable)"
-        cmd [2] | python -c "import pathlib,sys;pathlib.Path('test2.txt').write_text(sys.executable)"
-        cmd [3] | python -c "import pathlib,sys;pathlib.Path('test3.txt').write_text(sys.executable)"
+        cmd [1] | python -c "import pathlib,sys;pathlib.Path('test1.txt').write_text(sys.executable, encoding='utf-8')"
+        cmd [2] | python -c "import pathlib,sys;pathlib.Path('test2.txt').write_text(sys.executable, encoding='utf-8')"
+        cmd [3] | python -c "import pathlib,sys;pathlib.Path('test3.txt').write_text(sys.executable, encoding='utf-8')"
         """
     )
     output_files = []
@@ -955,7 +982,7 @@ def test_verbosity(hatch, helpers, temp_dir, config_file):
     assert env_path.name == project_path.name
 
     for output_file in output_files:
-        assert str(env_path) in str(output_file.read_text())
+        assert str(env_path) in str(output_file.read_text(encoding='utf-8'))
 
 
 def test_matrix_no_environments(hatch, helpers, temp_dir, config_file):
@@ -979,7 +1006,10 @@ def test_matrix_no_environments(hatch, helpers, temp_dir, config_file):
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
         result = hatch(
-            'run', 'test:python', '-c', "import os,sys;open('test.txt', 'a').write(sys.executable+os.linesep[-1])"
+            'run',
+            'test:python',
+            '-c',
+            "import os,sys;open('test.txt', 'a', encoding='utf-8').write(sys.executable+os.linesep[-1])",
         )
 
     assert result.exit_code == 1, result.output
@@ -1011,7 +1041,10 @@ def test_matrix(hatch, helpers, temp_dir, config_file):
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
         result = hatch(
-            'run', 'test:python', '-c', "import os,sys;open('test.txt', 'a').write(sys.executable+os.linesep[-1])"
+            'run',
+            'test:python',
+            '-c',
+            "import os,sys;open('test.txt', 'a', encoding='utf-8').write(sys.executable+os.linesep[-1])",
         )
 
     assert result.exit_code == 0, result.output
@@ -1043,7 +1076,7 @@ def test_matrix(hatch, helpers, temp_dir, config_file):
     env_dirs = sorted(storage_path.iterdir(), key=lambda d: d.name)[::-1]
     assert len(env_dirs) == 2
 
-    python_path1, python_path2 = str(output_file.read_text()).splitlines()
+    python_path1, python_path2 = str(output_file.read_text(encoding='utf-8')).splitlines()
     for python_path, env_dir, env_name in zip((python_path1, python_path2), env_dirs, ('test.9000', 'test.42')):
         assert env_dir.name == env_name
         assert str(env_dir) in python_path
@@ -1072,7 +1105,10 @@ def test_incompatible_single(hatch, helpers, temp_dir, config_file):
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
         result = hatch(
-            'run', 'test:python', '-c', "import os,sys;open('test.txt', 'a').write(sys.executable+os.linesep[-1])"
+            'run',
+            'test:python',
+            '-c',
+            "import os,sys;open('test.txt', 'a', encoding='utf-8').write(sys.executable+os.linesep[-1])",
         )
 
     assert result.exit_code == 1
@@ -1111,7 +1147,10 @@ def test_incompatible_matrix_full(hatch, helpers, temp_dir, config_file):
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
         result = hatch(
-            'run', 'test:python', '-c', "import os,sys;open('test.txt', 'a').write(sys.executable+os.linesep[-1])"
+            'run',
+            'test:python',
+            '-c',
+            "import os,sys;open('test.txt', 'a', encoding='utf-8').write(sys.executable+os.linesep[-1])",
         )
 
     assert result.exit_code == 0, result.output
@@ -1157,7 +1196,10 @@ def test_incompatible_matrix_partial(hatch, helpers, temp_dir, config_file):
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
         result = hatch(
-            'run', 'test:python', '-c', "import os,sys;open('test.txt', 'a').write(sys.executable+os.linesep[-1])"
+            'run',
+            'test:python',
+            '-c',
+            "import os,sys;open('test.txt', 'a', encoding='utf-8').write(sys.executable+os.linesep[-1])",
         )
 
     assert result.exit_code == 0, result.output
@@ -1192,7 +1234,7 @@ def test_incompatible_matrix_partial(hatch, helpers, temp_dir, config_file):
     env_path = env_dirs[0]
     assert env_path.name == 'test.42'
 
-    python_path = str(output_file.read_text()).strip()
+    python_path = str(output_file.read_text(encoding='utf-8')).strip()
     assert str(env_path) in python_path
 
 
@@ -1218,7 +1260,10 @@ def test_incompatible_missing_python(hatch, helpers, temp_dir, config_file):
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
         result = hatch(
-            'run', 'test:python', '-c', "import os,sys;open('test.txt', 'a').write(sys.executable+os.linesep[-1])"
+            'run',
+            'test:python',
+            '-c',
+            "import os,sys;open('test.txt', 'a', encoding='utf-8').write(sys.executable+os.linesep[-1])",
         )
 
     padding = '─'
@@ -1257,7 +1302,7 @@ def test_incompatible_missing_python(hatch, helpers, temp_dir, config_file):
     env_path = env_dirs[0]
     assert env_path.name == f'test.py{known_version}'
 
-    python_path = str(output_file.read_text()).strip()
+    python_path = str(output_file.read_text(encoding='utf-8')).strip()
     assert str(env_path) in python_path
 
 
@@ -1321,14 +1366,19 @@ def test_env_detection(hatch, helpers, temp_dir, config_file):
     assert env_dirs[1].name == 'my-app'
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path), AppEnvVars.ENV_ACTIVE: 'foo'}):
-        result = hatch('run', 'python', '-c', "import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable)")
+        result = hatch(
+            'run',
+            'python',
+            '-c',
+            "import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable, encoding='utf-8')",
+        )
 
     assert result.exit_code == 0, result.output
 
     output_file = project_path / 'test.txt'
     assert output_file.is_file()
 
-    python_path = str(output_file.read_text()).strip()
+    python_path = str(output_file.read_text(encoding='utf-8')).strip()
     assert str(env_dirs[0]) in python_path
 
 
@@ -1393,7 +1443,10 @@ def test_env_detection_override(hatch, helpers, temp_dir, config_file):
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path), AppEnvVars.ENV_ACTIVE: 'foo'}):
         result = hatch(
-            'run', 'default:python', '-c', "import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable)"
+            'run',
+            'default:python',
+            '-c',
+            "import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable, encoding='utf-8')",
         )
 
     assert result.exit_code == 0, result.output
@@ -1401,7 +1454,7 @@ def test_env_detection_override(hatch, helpers, temp_dir, config_file):
     output_file = project_path / 'test.txt'
     assert output_file.is_file()
 
-    python_path = str(output_file.read_text()).strip()
+    python_path = str(output_file.read_text(encoding='utf-8')).strip()
     assert str(env_dirs[1]) in python_path
 
 
@@ -1461,7 +1514,7 @@ def test_matrix_variable_selection_duplicate_inclusion(hatch, helpers, temp_dir,
             '+version=42',
             'python',
             '-c',
-            "import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable)",
+            "import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable, encoding='utf-8')",
         )
 
     assert result.exit_code == 1, result.output
@@ -1498,7 +1551,7 @@ def test_matrix_variable_selection_duplicate_exclusion(hatch, helpers, temp_dir,
             '-version=42',
             'python',
             '-c',
-            "import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable)",
+            "import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable, encoding='utf-8')",
         )
 
     assert result.exit_code == 1, result.output
@@ -1535,7 +1588,7 @@ def test_matrix_variable_selection_python_alias(hatch, helpers, temp_dir, config
             '+python=42',
             'python',
             '-c',
-            "import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable)",
+            "import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable, encoding='utf-8')",
         )
 
     assert result.exit_code == 1, result.output
@@ -1571,7 +1624,7 @@ def test_matrix_variable_selection_not_matrix(hatch, helpers, temp_dir, config_f
             '+version=9000',
             'python',
             '-c',
-            "import os,sys;open('test.txt', 'a').write(sys.executable+os.linesep[-1])",
+            "import os,sys;open('test.txt', 'a', encoding='utf-8').write(sys.executable+os.linesep[-1])",
         )
 
     assert result.exit_code == 1, result.output
@@ -1607,7 +1660,7 @@ def test_matrix_variable_selection_inclusion(hatch, helpers, temp_dir, config_fi
             '+version=9000',
             'test:python',
             '-c',
-            "import os,sys;open('test.txt', 'a').write(sys.executable+os.linesep[-1])",
+            "import os,sys;open('test.txt', 'a', encoding='utf-8').write(sys.executable+os.linesep[-1])",
         )
 
     assert result.exit_code == 0, result.output
@@ -1639,7 +1692,7 @@ def test_matrix_variable_selection_inclusion(hatch, helpers, temp_dir, config_fi
     env_path = env_dirs[0]
     assert env_path.name == 'test.9000'
 
-    python_path = str(output_file.read_text()).strip()
+    python_path = str(output_file.read_text(encoding='utf-8')).strip()
     assert str(env_path) in python_path
 
 
@@ -1668,7 +1721,7 @@ def test_matrix_variable_selection_exclusion(hatch, helpers, temp_dir, config_fi
             '-version=9000',
             'test:python',
             '-c',
-            "import os,sys;open('test.txt', 'a').write(sys.executable+os.linesep[-1])",
+            "import os,sys;open('test.txt', 'a', encoding='utf-8').write(sys.executable+os.linesep[-1])",
         )
 
     assert result.exit_code == 0, result.output
@@ -1700,7 +1753,7 @@ def test_matrix_variable_selection_exclusion(hatch, helpers, temp_dir, config_fi
     env_path = env_dirs[0]
     assert env_path.name == 'test.42'
 
-    python_path = str(output_file.read_text()).strip()
+    python_path = str(output_file.read_text(encoding='utf-8')).strip()
     assert str(env_path) in python_path
 
 
@@ -1729,7 +1782,7 @@ def test_matrix_variable_selection_exclude_all(hatch, helpers, temp_dir, config_
             '-version',
             'test:python',
             '-c',
-            "import os,sys;open('test.txt', 'a').write(sys.executable+os.linesep[-1])",
+            "import os,sys;open('test.txt', 'a', encoding='utf-8').write(sys.executable+os.linesep[-1])",
         )
 
     assert result.exit_code == 1, result.output
@@ -1765,7 +1818,7 @@ def test_matrix_variable_selection_include_none(hatch, helpers, temp_dir, config
             '+version=3.14',
             'test:python',
             '-c',
-            "import os,sys;open('test.txt', 'a').write(sys.executable+os.linesep[-1])",
+            "import os,sys;open('test.txt', 'a', encoding='utf-8').write(sys.executable+os.linesep[-1])",
         )
 
     assert result.exit_code == 1, result.output
@@ -1803,7 +1856,7 @@ def test_matrix_variable_selection_inclusion_multiple_variables(hatch, helpers, 
             '+version1=9000',
             'test:python',
             '-c',
-            "import os,sys;open('test.txt', 'a').write(sys.executable+os.linesep[-1])",
+            "import os,sys;open('test.txt', 'a', encoding='utf-8').write(sys.executable+os.linesep[-1])",
         )
 
     assert result.exit_code == 0, result.output
@@ -1835,7 +1888,7 @@ def test_matrix_variable_selection_inclusion_multiple_variables(hatch, helpers, 
     env_path = env_dirs[0]
     assert env_path.name == 'test.9000-3.14'
 
-    python_path = str(output_file.read_text()).strip()
+    python_path = str(output_file.read_text(encoding='utf-8')).strip()
     assert str(env_path) in python_path
 
 
@@ -1868,7 +1921,7 @@ def test_context_formatting_recursion(hatch, helpers, temp_dir, config_file):
     with project_path.as_cwd(
         env_vars={
             ConfigEnvVars.DATA: str(data_path),
-            'BAZ': "import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable)",
+            'BAZ': "import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable, encoding='utf-8')",
         }
     ):
         result = hatch('run', 'py')
@@ -1902,7 +1955,7 @@ def test_context_formatting_recursion(hatch, helpers, temp_dir, config_file):
 
     assert env_path.name == project_path.name
 
-    assert str(env_path) in str(output_file.read_text())
+    assert str(env_path) in str(output_file.read_text(encoding='utf-8'))
 
 
 def test_plugin_dependencies_unmet(hatch, helpers, temp_dir, config_file, mock_plugin_installation):
@@ -1927,14 +1980,20 @@ def test_plugin_dependencies_unmet(hatch, helpers, temp_dir, config_file, mock_p
             [env]
             requires = ["{dependency}"]
             """
-        )
+        ),
+        encoding='utf-8',
     )
 
     project = Project(project_path)
     helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('run', 'python', '-c', "import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable)")
+        result = hatch(
+            'run',
+            'python',
+            '-c',
+            "import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable, encoding='utf-8')",
+        )
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -1968,7 +2027,7 @@ def test_plugin_dependencies_unmet(hatch, helpers, temp_dir, config_file, mock_p
 
     assert env_path.name == project_path.name
 
-    assert str(env_path) in str(output_file.read_text())
+    assert str(env_path) in str(output_file.read_text(encoding='utf-8'))
 
 
 @pytest.mark.requires_internet
@@ -2000,7 +2059,10 @@ def test_install_python_specific(hatch, helpers, temp_dir, config_file, mocker, 
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
         result = hatch(
-            'run', 'python', '-c', "import os,sys;open('test.txt', 'a').write(sys.executable+os.linesep[-1])"
+            'run',
+            'python',
+            '-c',
+            "import os,sys;open('test.txt', 'a', encoding='utf-8').write(sys.executable+os.linesep[-1])",
         )
 
     assert result.exit_code == 0, result.output
@@ -2033,7 +2095,7 @@ def test_install_python_specific(hatch, helpers, temp_dir, config_file, mocker, 
 
     assert env_path.name == project_path.name
 
-    assert str(env_path) in str(output_file.read_text())
+    assert str(env_path) in str(output_file.read_text(encoding='utf-8'))
 
     assert list(manager.get_installed()) == [available_python_version]
 
@@ -2072,7 +2134,10 @@ def test_update_python_specific(hatch, helpers, temp_dir, config_file, mocker, a
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
         result = hatch(
-            'run', 'python', '-c', "import os,sys;open('test.txt', 'a').write(sys.executable+os.linesep[-1])"
+            'run',
+            'python',
+            '-c',
+            "import os,sys;open('test.txt', 'a', encoding='utf-8').write(sys.executable+os.linesep[-1])",
         )
 
     assert result.exit_code == 0, result.output
@@ -2105,7 +2170,7 @@ def test_update_python_specific(hatch, helpers, temp_dir, config_file, mocker, a
 
     assert env_path.name == project_path.name
 
-    assert str(env_path) in str(output_file.read_text())
+    assert str(env_path) in str(output_file.read_text(encoding='utf-8'))
 
 
 @pytest.mark.requires_internet
@@ -2133,7 +2198,10 @@ def test_install_python_max_compatible(hatch, helpers, temp_dir, config_file, mo
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
         result = hatch(
-            'run', 'python', '-c', "import os,sys;open('test.txt', 'a').write(sys.executable+os.linesep[-1])"
+            'run',
+            'python',
+            '-c',
+            "import os,sys;open('test.txt', 'a', encoding='utf-8').write(sys.executable+os.linesep[-1])",
         )
 
     assert result.exit_code == 0, result.output
@@ -2166,7 +2234,7 @@ def test_install_python_max_compatible(hatch, helpers, temp_dir, config_file, mo
 
     assert env_path.name == project_path.name
 
-    assert str(env_path) in str(output_file.read_text())
+    assert str(env_path) in str(output_file.read_text(encoding='utf-8'))
 
     assert list(manager.get_installed()) == [available_python_version]
 
@@ -2201,7 +2269,10 @@ def test_update_python_max_compatible(hatch, helpers, temp_dir, config_file, moc
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
         result = hatch(
-            'run', 'python', '-c', "import os,sys;open('test.txt', 'a').write(sys.executable+os.linesep[-1])"
+            'run',
+            'python',
+            '-c',
+            "import os,sys;open('test.txt', 'a', encoding='utf-8').write(sys.executable+os.linesep[-1])",
         )
 
     assert result.exit_code == 0, result.output
@@ -2234,7 +2305,7 @@ def test_update_python_max_compatible(hatch, helpers, temp_dir, config_file, moc
 
     assert env_path.name == project_path.name
 
-    assert str(env_path) in str(output_file.read_text())
+    assert str(env_path) in str(output_file.read_text(encoding='utf-8'))
 
 
 @pytest.mark.requires_internet
@@ -2277,7 +2348,8 @@ def test_python_installation_with_metadata_hook(
                 def update(self, metadata):
                     import binary
             """
-        )
+        ),
+        encoding='utf-8',
     )
 
     mocker.patch('hatch.env.virtual.VirtualEnvironment._interpreter_is_compatible', return_value=False)
@@ -2286,7 +2358,10 @@ def test_python_installation_with_metadata_hook(
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
         result = hatch(
-            'run', 'python', '-c', "import os,sys;open('test.txt', 'a').write(sys.executable+os.linesep[-1])"
+            'run',
+            'python',
+            '-c',
+            "import os,sys;open('test.txt', 'a', encoding='utf-8').write(sys.executable+os.linesep[-1])",
         )
 
     assert result.exit_code == 0, result.output
@@ -2319,7 +2394,7 @@ def test_python_installation_with_metadata_hook(
 
     assert env_path.name == project_path.name
 
-    assert str(env_path) in str(output_file.read_text())
+    assert str(env_path) in str(output_file.read_text(encoding='utf-8'))
 
     assert list(manager.get_installed()) == [available_python_version]
 
@@ -2346,7 +2421,11 @@ class TestScriptRunner:
         )
 
         with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-            result = hatch('run', 'script.py', "import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable)")
+            result = hatch(
+                'run',
+                'script.py',
+                "import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable, encoding='utf-8')",
+            )
 
         assert result.exit_code == 0, result.output
         assert result.output == helpers.dedent(
@@ -2377,7 +2456,7 @@ class TestScriptRunner:
 
         assert env_path.name == project_path.name
 
-        assert str(env_path) in str(output_file.read_text())
+        assert str(env_path) in str(output_file.read_text(encoding='utf-8'))
 
     @pytest.mark.requires_internet
     def test_dependencies(self, hatch, helpers, temp_dir):
@@ -2398,10 +2477,12 @@ class TestScriptRunner:
                 import binary
 
                 pathlib.Path('test.txt').write_text(
-                    f'{sys.executable}\\n{str(binary.convert_units(1024))}'
+                    f'{sys.executable}\\n{str(binary.convert_units(1024))}',
+                    encoding='utf-8'
                 )
                 """
-            )
+            ),
+            encoding='utf-8',
         )
 
         with temp_dir.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
@@ -2425,7 +2506,7 @@ class TestScriptRunner:
         assert env_path.is_dir()
         assert env_path.name == script.id
 
-        executable_path, unit_conversion = output_file.read_text().splitlines()
+        executable_path, unit_conversion = output_file.read_text(encoding='utf-8').splitlines()
         executable = Path(executable_path)
 
         assert executable.is_file()
@@ -2454,10 +2535,12 @@ class TestScriptRunner:
                 import binary
 
                 pathlib.Path('test.txt').write_text(
-                    f'{sys.executable}\\n{str(binary.convert_units(1024))}'
+                    f'{sys.executable}\\n{str(binary.convert_units(1024))}',
+                    encoding='utf-8'
                 )
                 """
-            )
+            ),
+            encoding='utf-8',
         )
 
         with temp_dir.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
@@ -2481,7 +2564,7 @@ class TestScriptRunner:
         assert env_path.is_dir()
         assert env_path.name == script.id
 
-        executable_path, unit_conversion = output_file.read_text().splitlines()
+        executable_path, unit_conversion = output_file.read_text(encoding='utf-8').splitlines()
         executable = Path(executable_path)
 
         assert executable.is_file()
@@ -2501,9 +2584,10 @@ class TestScriptRunner:
                 import pathlib
                 import sys
 
-                pathlib.Path('test.txt').write_text(sys.executable)
+                pathlib.Path('test.txt').write_text(sys.executable, encoding='utf-8')
                 """
-            )
+            ),
+            encoding='utf-8',
         )
 
         with temp_dir.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
@@ -2535,9 +2619,10 @@ class TestScriptRunner:
                 import pathlib
                 import sys
 
-                pathlib.Path('test.txt').write_text(sys.executable)
+                pathlib.Path('test.txt').write_text(sys.executable, encoding='utf-8')
                 """
-            )
+            ),
+            encoding='utf-8',
         )
 
         with temp_dir.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
@@ -2560,7 +2645,7 @@ class TestScriptRunner:
         assert env_path.is_dir()
         assert env_path.name == script.id
 
-        executable = Path(output_file.read_text())
+        executable = Path(output_file.read_text(encoding='utf-8'))
         assert executable.is_file()
         assert data_path in executable.parents
 
@@ -2585,9 +2670,10 @@ class TestScriptRunner:
                 import pathlib
                 import sys
 
-                pathlib.Path('test.txt').write_text(sys.executable)
+                pathlib.Path('test.txt').write_text(sys.executable, encoding='utf-8')
                 """
-            )
+            ),
+            encoding='utf-8',
         )
 
         with temp_dir.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
@@ -2610,6 +2696,6 @@ class TestScriptRunner:
         assert env_path.is_dir()
         assert env_path.name == script.id
 
-        executable = Path(output_file.read_text())
+        executable = Path(output_file.read_text(encoding='utf-8'))
         assert executable.is_file()
         assert data_path in executable.parents

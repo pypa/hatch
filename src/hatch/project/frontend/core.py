@@ -36,7 +36,7 @@ class BuildFrontend:
 
             script_context = fs_context.join('build_sdist.py')
             script_context.local_path.parent.ensure_dir_exists()
-            script_context.local_path.write_text(script)
+            script_context.local_path.write_text(script, encoding='utf-8')
             script_context.sync_env()
 
             context = ExecutionContext(self.__env)
@@ -45,7 +45,7 @@ class BuildFrontend:
             output_context.sync_local()
 
             output_path = output_context.local_path / 'output.json'
-            output = json.loads(output_path.read_text())
+            output = json.loads(output_path.read_text(encoding='utf-8'))
 
             work_dir = output_context.local_path / 'work'
             artifact_path = Path(work_dir / output['return_val'])
@@ -60,7 +60,7 @@ class BuildFrontend:
 
             script_context = fs_context.join('build_wheel.py')
             script_context.local_path.parent.ensure_dir_exists()
-            script_context.local_path.write_text(script)
+            script_context.local_path.write_text(script, encoding='utf-8')
             script_context.sync_env()
 
             context = ExecutionContext(self.__env)
@@ -69,7 +69,7 @@ class BuildFrontend:
             output_context.sync_local()
 
             output_path = output_context.local_path / 'output.json'
-            output = json.loads(output_path.read_text())
+            output = json.loads(output_path.read_text(encoding='utf-8'))
 
             work_dir = output_context.local_path / 'work'
             artifact_path = Path(work_dir / output['return_val'])
@@ -86,7 +86,7 @@ class BuildFrontend:
 
             script_context = fs_context.join(f'get_requires_{build}.py')
             script_context.local_path.parent.ensure_dir_exists()
-            script_context.local_path.write_text(script)
+            script_context.local_path.write_text(script, encoding='utf-8')
             script_context.sync_env()
 
             context = ExecutionContext(self.__env)
@@ -95,7 +95,7 @@ class BuildFrontend:
             output_context.sync_local()
 
             output_path = output_context.local_path / 'output.json'
-            output = json.loads(output_path.read_text())
+            output = json.loads(output_path.read_text(encoding='utf-8'))
             return output['return_val']
 
     def get_core_metadata(self, *, editable: bool = False) -> dict[str, Any]:
@@ -110,7 +110,7 @@ class BuildFrontend:
 
             script_context = fs_context.join('get_core_metadata.py')
             script_context.local_path.parent.ensure_dir_exists()
-            script_context.local_path.write_text(script)
+            script_context.local_path.write_text(script, encoding='utf-8')
             script_context.sync_env()
 
             context = ExecutionContext(self.__env)
@@ -119,11 +119,11 @@ class BuildFrontend:
             output_context.sync_local()
 
             output_path = output_context.local_path / 'output.json'
-            output = json.loads(output_path.read_text())
+            output = json.loads(output_path.read_text(encoding='utf-8'))
 
             work_dir = output_context.local_path / 'work'
             metadata_file = Path(work_dir) / output['return_val'] / 'METADATA'
-            return project_metadata_from_core_metadata(metadata_file.read_text())
+            return project_metadata_from_core_metadata(metadata_file.read_text(encoding='utf-8'))
 
 
 class HatchBuildFrontend:
@@ -146,7 +146,7 @@ class HatchBuildFrontend:
 
             script_context = fs_context.join(f'get_build_deps_{"_".join(targets)}.py')
             script_context.local_path.parent.ensure_dir_exists()
-            script_context.local_path.write_text(script)
+            script_context.local_path.write_text(script, encoding='utf-8')
             script_context.sync_env()
 
             context = ExecutionContext(self.__env)
@@ -155,7 +155,7 @@ class HatchBuildFrontend:
             output_context.sync_local()
 
             output_path = output_context.local_path / 'output.json'
-            output: list[str] = json.loads(output_path.read_text())
+            output: list[str] = json.loads(output_path.read_text(encoding='utf-8'))
             return output
 
     def get_core_metadata(self) -> dict[str, Any]:
@@ -168,7 +168,7 @@ class HatchBuildFrontend:
 
             script_context = fs_context.join('get_core_metadata.py')
             script_context.local_path.parent.ensure_dir_exists()
-            script_context.local_path.write_text(script)
+            script_context.local_path.write_text(script, encoding='utf-8')
             script_context.sync_env()
 
             context = ExecutionContext(self.__env)
@@ -177,7 +177,7 @@ class HatchBuildFrontend:
             output_context.sync_local()
 
             output_path = output_context.local_path / 'output.json'
-            output: dict[str, Any] = json.loads(output_path.read_text())
+            output: dict[str, Any] = json.loads(output_path.read_text(encoding='utf-8'))
             return output
 
     def get_required_build_deps(self, targets: list[str]) -> list[str]:

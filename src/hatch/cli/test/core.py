@@ -33,7 +33,7 @@ class PatchedCoverageConfig:
             from configparser import ConfigParser
 
             cfg = ConfigParser()
-            cfg.read(str(self.user_config_path))
+            cfg.read(str(self.user_config_path), encoding='utf-8')
 
             if 'run' not in cfg:
                 cfg['run'] = {'parallel': 'true'}
@@ -47,9 +47,9 @@ class PatchedCoverageConfig:
 
             from hatch.utils.toml import load_toml_data
 
-            project_data = load_toml_data(self.user_config_path.read_text())
+            project_data = load_toml_data(self.user_config_path.read_text(encoding='utf-8'))
             project_data.setdefault('tool', {}).setdefault('coverage', {}).setdefault('run', {})['parallel'] = True
-            self.internal_config_path.write_text(tomli_w.dumps(project_data))
+            self.internal_config_path.write_text(tomli_w.dumps(project_data), encoding='utf-8')
 
     def _write_ini(self, cfg: ConfigParser) -> None:
         with self.internal_config_path.open('w', encoding='utf-8') as f:
