@@ -31,16 +31,6 @@ class BuilderConfig:
         self.__build_config = build_config
         self.__target_config = target_config
 
-        # Possible pathspec.GitIgnoreSpec
-        self.__include_spec: pathspec.GitIgnoreSpec | None = None
-        self.__exclude_spec: pathspec.GitIgnoreSpec | None = None
-        self.__artifact_spec: pathspec.GitIgnoreSpec | None = None
-
-        # These are used to create the pathspecs and will never be `None` after the first match attempt
-        self.__include_patterns: list[str] | None = None
-        self.__exclude_patterns: list[str] | None = None
-        self.__artifact_patterns: list[str] | None = None
-
         # This is used when the only file selection is based on forced inclusion or build-time artifacts. This
         # instructs to `exclude` every encountered path without doing pattern matching that matches everything.
         self.__exclude_all: bool = False
@@ -122,117 +112,105 @@ class BuilderConfig:
             or (self.skip_excluded_dirs and self.path_is_excluded(f'{relative_directory}/'))
         )
 
-    @property
+    @cached_property
     def include_spec(self) -> pathspec.GitIgnoreSpec | None:
-        if self.__include_patterns is None:
-            if 'include' in self.target_config:
-                include_config = self.target_config
-                include_location = f'tool.hatch.build.targets.{self.plugin_name}.include'
-            else:
-                include_config = self.build_config
-                include_location = 'tool.hatch.build.include'
+        if 'include' in self.target_config:
+            include_config = self.target_config
+            include_location = f'tool.hatch.build.targets.{self.plugin_name}.include'
+        else:
+            include_config = self.build_config
+            include_location = 'tool.hatch.build.include'
 
-            all_include_patterns = []
+        all_include_patterns = []
 
-            include_patterns = include_config.get('include', self.default_include())
-            if not isinstance(include_patterns, list):
-                message = f'Field `{include_location}` must be an array of strings'
+        include_patterns = include_config.get('include', self.default_include())
+        if not isinstance(include_patterns, list):
+            message = f'Field `{include_location}` must be an array of strings'
+            raise TypeError(message)
+
+        for i, include_pattern in enumerate(include_patterns, 1):
+            if not isinstance(include_pattern, str):
+                message = f'Pattern #{i} in field `{include_location}` must be a string'
                 raise TypeError(message)
 
-            for i, include_pattern in enumerate(include_patterns, 1):
-                if not isinstance(include_pattern, str):
-                    message = f'Pattern #{i} in field `{include_location}` must be a string'
-                    raise TypeError(message)
+            if not include_pattern:
+                message = f'Pattern #{i} in field `{include_location}` cannot be an empty string'
+                raise ValueError(message)
 
-                if not include_pattern:
-                    message = f'Pattern #{i} in field `{include_location}` cannot be an empty string'
-                    raise ValueError(message)
+            all_include_patterns.append(include_pattern)
 
-                all_include_patterns.append(include_pattern)
+        # Matching only at the root requires a forward slash, back slashes do not work. As such,
+        # normalize to forward slashes for consistency.
+        all_include_patterns.extend(f"/{relative_path.replace(os.sep, '/')}/" for relative_path in self.packages)
 
-            # Matching only at the root requires a forward slash, back slashes do not work. As such,
-            # normalize to forward slashes for consistency.
-            all_include_patterns.extend(f"/{relative_path.replace(os.sep, '/')}/" for relative_path in self.packages)
+        if all_include_patterns:
+            return pathspec.GitIgnoreSpec.from_lines(all_include_patterns)
+        return None
 
-            if all_include_patterns:
-                self.__include_spec = pathspec.GitIgnoreSpec.from_lines(all_include_patterns)
-
-            self.__include_patterns = all_include_patterns
-
-        return self.__include_spec
-
-    @property
+    @cached_property
     def exclude_spec(self) -> pathspec.GitIgnoreSpec | None:
-        if self.__exclude_patterns is None:
-            if 'exclude' in self.target_config:
-                exclude_config = self.target_config
-                exclude_location = f'tool.hatch.build.targets.{self.plugin_name}.exclude'
-            else:
-                exclude_config = self.build_config
-                exclude_location = 'tool.hatch.build.exclude'
+        if 'exclude' in self.target_config:
+            exclude_config = self.target_config
+            exclude_location = f'tool.hatch.build.targets.{self.plugin_name}.exclude'
+        else:
+            exclude_config = self.build_config
+            exclude_location = 'tool.hatch.build.exclude'
 
-            all_exclude_patterns = self.default_global_exclude()
+        all_exclude_patterns = self.default_global_exclude()
 
-            if not self.ignore_vcs:
-                all_exclude_patterns.extend(self.load_vcs_exclusion_patterns())
+        if not self.ignore_vcs:
+            all_exclude_patterns.extend(self.load_vcs_exclusion_patterns())
 
-            exclude_patterns = exclude_config.get('exclude', self.default_exclude())
-            if not isinstance(exclude_patterns, list):
-                message = f'Field `{exclude_location}` must be an array of strings'
+        exclude_patterns = exclude_config.get('exclude', self.default_exclude())
+        if not isinstance(exclude_patterns, list):
+            message = f'Field `{exclude_location}` must be an array of strings'
+            raise TypeError(message)
+
+        for i, exclude_pattern in enumerate(exclude_patterns, 1):
+            if not isinstance(exclude_pattern, str):
+                message = f'Pattern #{i} in field `{exclude_location}` must be a string'
                 raise TypeError(message)
 
-            for i, exclude_pattern in enumerate(exclude_patterns, 1):
-                if not isinstance(exclude_pattern, str):
-                    message = f'Pattern #{i} in field `{exclude_location}` must be a string'
-                    raise TypeError(message)
+            if not exclude_pattern:
+                message = f'Pattern #{i} in field `{exclude_location}` cannot be an empty string'
+                raise ValueError(message)
 
-                if not exclude_pattern:
-                    message = f'Pattern #{i} in field `{exclude_location}` cannot be an empty string'
-                    raise ValueError(message)
+            all_exclude_patterns.append(exclude_pattern)
 
-                all_exclude_patterns.append(exclude_pattern)
-
-            if all_exclude_patterns:
-                self.__exclude_spec = pathspec.GitIgnoreSpec.from_lines(all_exclude_patterns)
-
-            self.__exclude_patterns = all_exclude_patterns
-
-        return self.__exclude_spec
+        if all_exclude_patterns:
+            return pathspec.GitIgnoreSpec.from_lines(all_exclude_patterns)
+        return None
 
     @property
     def artifact_spec(self) -> pathspec.GitIgnoreSpec | None:
-        if self.__artifact_patterns is None:
-            if 'artifacts' in self.target_config:
-                artifact_config = self.target_config
-                artifact_location = f'tool.hatch.build.targets.{self.plugin_name}.artifacts'
-            else:
-                artifact_config = self.build_config
-                artifact_location = 'tool.hatch.build.artifacts'
+        if 'artifacts' in self.target_config:
+            artifact_config = self.target_config
+            artifact_location = f'tool.hatch.build.targets.{self.plugin_name}.artifacts'
+        else:
+            artifact_config = self.build_config
+            artifact_location = 'tool.hatch.build.artifacts'
 
-            all_artifact_patterns = []
+        all_artifact_patterns = []
 
-            artifact_patterns = artifact_config.get('artifacts', [])
-            if not isinstance(artifact_patterns, list):
-                message = f'Field `{artifact_location}` must be an array of strings'
+        artifact_patterns = artifact_config.get('artifacts', [])
+        if not isinstance(artifact_patterns, list):
+            message = f'Field `{artifact_location}` must be an array of strings'
+            raise TypeError(message)
+
+        for i, artifact_pattern in enumerate(artifact_patterns, 1):
+            if not isinstance(artifact_pattern, str):
+                message = f'Pattern #{i} in field `{artifact_location}` must be a string'
                 raise TypeError(message)
 
-            for i, artifact_pattern in enumerate(artifact_patterns, 1):
-                if not isinstance(artifact_pattern, str):
-                    message = f'Pattern #{i} in field `{artifact_location}` must be a string'
-                    raise TypeError(message)
+            if not artifact_pattern:
+                message = f'Pattern #{i} in field `{artifact_location}` cannot be an empty string'
+                raise ValueError(message)
 
-                if not artifact_pattern:
-                    message = f'Pattern #{i} in field `{artifact_location}` cannot be an empty string'
-                    raise ValueError(message)
+            all_artifact_patterns.append(artifact_pattern)
 
-                all_artifact_patterns.append(artifact_pattern)
-
-            if all_artifact_patterns:
-                self.__artifact_spec = pathspec.GitIgnoreSpec.from_lines(all_artifact_patterns)
-
-            self.__artifact_patterns = all_artifact_patterns
-
-        return self.__artifact_spec
+        if all_artifact_patterns:
+            return pathspec.GitIgnoreSpec.from_lines(all_artifact_patterns)
+        return None
 
     @cached_property
     def hook_config(self) -> dict[str, Any]:
