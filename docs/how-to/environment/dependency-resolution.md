@@ -12,9 +12,15 @@ PIP_INDEX_URL = "https://token:{env:GITLAB_API_TOKEN}@gitlab.com/api/v4/groups/<
 PIP_EXTRA_INDEX_URL = "https://token:{env:GITLAB_API_TOKEN}@gitlab.com/api/v4/groups/<group2_path>/-/packages/pypi/simple/ https://pypi.org/simple/"
 ```
 
+Note that Hatch's *internal* environments, such as the `hatch-test`
+matrix used by the [`test` command](../../../cli/reference/#hatch-test),
+now use `uv`.  Therefore if you wish change their dependency
+resolution behaviour, you will need to also set the corresponding
+environment variables, as described below.
+
 ## UV
 
-If you're [using UV](select-installer.md), a different set of [environment variables](https://github.com/astral-sh/uv/tree/0.1.35#environment-variables) are available to configure its behavior. The previous example would look like this instead:
+ you're [using UV](select-installer.md), a different set of [environment variables](https://github.com/astral-sh/uv/tree/0.1.35#environment-variables) are available to configure its behavior. The previous example would look like this instead:
 
 ```toml config-example
 [tool.hatch.envs.default.env-vars]
