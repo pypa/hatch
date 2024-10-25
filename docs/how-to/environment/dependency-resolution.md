@@ -20,7 +20,7 @@ environment variables, as described below.
 
 ## UV
 
- you're [using UV](select-installer.md), a different set of [environment variables](https://github.com/astral-sh/uv/tree/0.1.35#environment-variables) are available to configure its behavior. The previous example would look like this instead:
+If you're [using UV](select-installer.md), a different set of [environment variables](https://github.com/astral-sh/uv/tree/0.1.35#environment-variables) are available to configure its behavior. The previous example would look like this instead:
 
 ```toml config-example
 [tool.hatch.envs.default.env-vars]
