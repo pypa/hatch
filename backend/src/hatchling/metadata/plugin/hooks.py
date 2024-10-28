@@ -11,4 +11,4 @@ if TYPE_CHECKING:
 
 @hookimpl
 def hatch_register_metadata_hook() -> type[MetadataHookInterface]:
-    return CustomMetadataHook  # type: ignore
+    return CustomMetadataHook  # type: ignore[return-value]

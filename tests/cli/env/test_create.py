@@ -1538,6 +1538,10 @@ def test_sync_dynamic_dependencies(hatch, helpers, temp_dir, platform, uv_on_pat
         Installing project in development mode
         Running post-installation commands
         Polling dependency state
+        Creating environment: hatch-build
+        Checking dependencies
+        Syncing dependencies
+        Inspecting build dependencies
         Checking dependencies
         Syncing dependencies
         """
@@ -1556,12 +1560,10 @@ def test_sync_dynamic_dependencies(hatch, helpers, temp_dir, platform, uv_on_pat
     storage_path = storage_dirs[0]
     assert len(storage_path.name) == 8
 
-    env_dirs = list(storage_path.iterdir())
-    assert len(env_dirs) == 1
+    env_dirs = sorted(storage_path.iterdir())
+    assert [d.name for d in env_dirs] == ['hatch-build', 'test']
 
-    env_path = env_dirs[0]
-
-    assert env_path.name == 'test'
+    env_path = env_dirs[1]
 
     with UVVirtualEnv(env_path, platform):
         output = platform.run_command([uv_on_path, 'pip', 'freeze'], check=True, capture_output=True).stdout.decode(
