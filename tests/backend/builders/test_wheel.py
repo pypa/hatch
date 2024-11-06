@@ -1,16 +1,29 @@
+from __future__ import annotations
+
 import os
 import platform
 import sys
 import zipfile
+from typing import TYPE_CHECKING
 
+import packaging.tags
 import pytest
-from packaging.tags import sys_tags
 
 from hatchling.builders.plugin.interface import BuilderInterface
 from hatchling.builders.utils import get_known_python_major_versions
 from hatchling.builders.wheel import WheelBuilder
 from hatchling.metadata.spec import DEFAULT_METADATA_VERSION, get_core_metadata_constructors
 from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT
+
+if TYPE_CHECKING:
+    from hatch.utils.fs import Path
+
+
+def sys_tags():
+    return iter(
+        t for t in packaging.tags.sys_tags() if 'manylinux' not in t.platform and 'muslllinux' not in t.platform
+    )
+
 
 # https://github.com/python/cpython/pull/26184
 fixed_pathlib_resolution = pytest.mark.skipif(
@@ -21,6 +34,14 @@ fixed_pathlib_resolution = pytest.mark.skipif(
 
 def get_python_versions_tag():
     return '.'.join(f'py{major_version}' for major_version in get_known_python_major_versions())
+
+
+def extract_zip(zip_path: Path, target: Path) -> None:
+    with zipfile.ZipFile(zip_path, 'r') as z:
+        for name in z.namelist():
+            member = z.getinfo(name)
+            path = z.extract(member, target)
+            os.chmod(path, member.external_attr >> 16)
 
 
 def test_class():
@@ -360,6 +381,95 @@ class TestSharedData:
         }
 
 
+class TestSharedScripts:
+    def test_default(self, isolation):
+        builder = WheelBuilder(str(isolation))
+
+        assert builder.config.shared_scripts == builder.config.shared_scripts == {}
+
+    def test_invalid_type(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'wheel': {'shared-scripts': 42}}}}}}
+        builder = WheelBuilder(str(isolation), config=config)
+
+        with pytest.raises(TypeError, match='Field `tool.hatch.build.targets.wheel.shared-scripts` must be a mapping'):
+            _ = builder.config.shared_scripts
+
+    def test_absolute(self, isolation):
+        config = {
+            'tool': {
+                'hatch': {'build': {'targets': {'wheel': {'shared-scripts': {str(isolation / 'source'): '/target/'}}}}}
+            }
+        }
+        builder = WheelBuilder(str(isolation), config=config)
+
+        assert builder.config.shared_scripts == {str(isolation / 'source'): 'target'}
+
+    def test_relative(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'wheel': {'shared-scripts': {'../source': '/target/'}}}}}}}
+        builder = WheelBuilder(str(isolation / 'foo'), config=config)
+
+        assert builder.config.shared_scripts == {str(isolation / 'source'): 'target'}
+
+    def test_source_empty_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'wheel': {'shared-scripts': {'': '/target/'}}}}}}}
+        builder = WheelBuilder(str(isolation), config=config)
+
+        with pytest.raises(
+            ValueError,
+            match='Source #1 in field `tool.hatch.build.targets.wheel.shared-scripts` cannot be an empty string',
+        ):
+            _ = builder.config.shared_scripts
+
+    def test_relative_path_not_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'wheel': {'shared-scripts': {'source': 0}}}}}}}
+        builder = WheelBuilder(str(isolation), config=config)
+
+        with pytest.raises(
+            TypeError,
+            match='Path for source `source` in field `tool.hatch.build.targets.wheel.shared-scripts` must be a string',
+        ):
+            _ = builder.config.shared_scripts
+
+    def test_relative_path_empty_string(self, isolation):
+        config = {'tool': {'hatch': {'build': {'targets': {'wheel': {'shared-scripts': {'source': ''}}}}}}}
+        builder = WheelBuilder(str(isolation), config=config)
+
+        with pytest.raises(
+            ValueError,
+            match=(
+                'Path for source `source` in field `tool.hatch.build.targets.wheel.shared-scripts` '
+                'cannot be an empty string'
+            ),
+        ):
+            _ = builder.config.shared_scripts
+
+    def test_order(self, isolation):
+        config = {
+            'tool': {
+                'hatch': {
+                    'build': {
+                        'targets': {
+                            'wheel': {
+                                'shared-scripts': {
+                                    '../very-nested': 'target1/embedded',
+                                    '../source1': '/target2/',
+                                    '../source2': '/target1/',
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        builder = WheelBuilder(str(isolation / 'foo'), config=config)
+
+        assert builder.config.shared_scripts == {
+            str(isolation / 'source2'): 'target1',
+            str(isolation / 'very-nested'): f'target1{os.sep}embedded',
+            str(isolation / 'source1'): 'target2',
+        }
+
+
 class TestExtraMetadata:
     def test_default(self, isolation):
         builder = WheelBuilder(str(isolation))
@@ -492,13 +602,13 @@ class TestMacOSMaxCompat:
     def test_default(self, isolation):
         builder = WheelBuilder(str(isolation))
 
-        assert builder.config.macos_max_compat is builder.config.macos_max_compat is True
+        assert builder.config.macos_max_compat is builder.config.macos_max_compat is False
 
     def test_correct(self, isolation):
-        config = {'tool': {'hatch': {'build': {'targets': {'wheel': {'macos-max-compat': False}}}}}}
+        config = {'tool': {'hatch': {'build': {'targets': {'wheel': {'macos-max-compat': True}}}}}}
         builder = WheelBuilder(str(isolation), config=config)
 
-        assert builder.config.macos_max_compat is False
+        assert builder.config.macos_max_compat is True
 
     def test_not_boolean(self, isolation):
         config = {'tool': {'hatch': {'build': {'targets': {'wheel': {'macos-max-compat': 9000}}}}}}
@@ -998,7 +1108,16 @@ class TestBuildStandard:
         )
         helpers.assert_files(extraction_directory, expected_files)
 
-    def test_default_python_constraint(self, hatch, helpers, temp_dir, config_file):
+    @pytest.mark.parametrize(
+        ('python_constraint', 'expected_template_file'),
+        [
+            pytest.param('>3', 'wheel.standard_default_python_constraint', id='>3'),
+            pytest.param('==3.11.4', 'wheel.standard_default_python_constraint_three_components', id='==3.11.4'),
+        ],
+    )
+    def test_default_python_constraint(
+        self, hatch, helpers, temp_dir, config_file, python_constraint, expected_template_file
+    ):
         config_file.model.template.plugins['default']['src-layout'] = False
         config_file.save()
 
@@ -1011,7 +1130,7 @@ class TestBuildStandard:
 
         project_path = temp_dir / 'my-app'
         config = {
-            'project': {'name': project_name, 'requires-python': '>3', 'dynamic': ['version']},
+            'project': {'name': project_name, 'requires-python': python_constraint, 'dynamic': ['version']},
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
@@ -1043,7 +1162,7 @@ class TestBuildStandard:
 
         metadata_directory = f'{builder.project_id}.dist-info'
         expected_files = helpers.get_template_files(
-            'wheel.standard_default_python_constraint', project_name, metadata_directory=metadata_directory
+            expected_template_file, project_name, metadata_directory=metadata_directory
         )
         helpers.assert_files(extraction_directory, expected_files)
 
@@ -1223,7 +1342,7 @@ class TestBuildStandard:
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
                     'build': {
-                        'targets': {'wheel': {'versions': ['standard'], 'macos-max-compat': False}},
+                        'targets': {'wheel': {'versions': ['standard']}},
                         'artifacts': ['my_app/lib.so'],
                         'hooks': {'custom': {'path': DEFAULT_BUILD_SCRIPT}},
                     },
@@ -1305,7 +1424,7 @@ class TestBuildStandard:
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
                     'build': {
-                        'targets': {'wheel': {'versions': ['standard'], 'macos-max-compat': False}},
+                        'targets': {'wheel': {'versions': ['standard']}},
                         'artifacts': ['my_app/lib.so'],
                         'hooks': {'custom': {'path': DEFAULT_BUILD_SCRIPT}},
                     },
@@ -1388,7 +1507,7 @@ class TestBuildStandard:
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
                     'build': {
-                        'targets': {'wheel': {'versions': ['standard'], 'macos-max-compat': False}},
+                        'targets': {'wheel': {'versions': ['standard']}},
                         'artifacts': ['my_app/lib.so'],
                         'hooks': {'custom': {'path': DEFAULT_BUILD_SCRIPT}},
                     },
@@ -1471,7 +1590,7 @@ class TestBuildStandard:
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
                     'build': {
-                        'targets': {'wheel': {'versions': ['standard'], 'macos-max-compat': False}},
+                        'targets': {'wheel': {'versions': ['standard']}},
                         'hooks': {'custom': {'path': DEFAULT_BUILD_SCRIPT}},
                     },
                 },
@@ -1556,7 +1675,7 @@ class TestBuildStandard:
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
                     'build': {
-                        'targets': {'wheel': {'versions': ['standard'], 'macos-max-compat': False}},
+                        'targets': {'wheel': {'versions': ['standard']}},
                         'hooks': {'custom': {'path': DEFAULT_BUILD_SCRIPT}},
                     },
                 },
@@ -1642,7 +1761,7 @@ class TestBuildStandard:
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
                     'build': {
-                        'targets': {'wheel': {'versions': ['standard'], 'macos-max-compat': False}},
+                        'targets': {'wheel': {'versions': ['standard']}},
                         'hooks': {'custom': {'path': DEFAULT_BUILD_SCRIPT}},
                     },
                 },
@@ -1723,7 +1842,7 @@ class TestBuildStandard:
                 'hatch': {
                     'version': {'path': 'src/my_app/__about__.py'},
                     'build': {
-                        'targets': {'wheel': {'versions': ['standard'], 'macos-max-compat': False}},
+                        'targets': {'wheel': {'versions': ['standard']}},
                         'hooks': {'custom': {'path': DEFAULT_BUILD_SCRIPT}},
                     },
                 },
@@ -1822,6 +1941,318 @@ class TestBuildStandard:
             shared_data_directory=shared_data_directory,
         )
         helpers.assert_files(extraction_directory, expected_files)
+
+    def test_default_shared_data_from_build_data(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
+        project_name = 'My.App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / 'my-app'
+
+        shared_data_path = temp_dir / 'data'
+        shared_data_path.ensure_dir_exists()
+        (shared_data_path / 'foo.txt').touch()
+        nested_data_path = shared_data_path / 'nested'
+        nested_data_path.ensure_dir_exists()
+        (nested_data_path / 'bar.txt').touch()
+
+        build_script = project_path / DEFAULT_BUILD_SCRIPT
+        build_script.write_text(
+            helpers.dedent(
+                """
+                import pathlib
+
+                from hatchling.builders.hooks.plugin.interface import BuildHookInterface
+
+                class CustomHook(BuildHookInterface):
+                    def initialize(self, version, build_data):
+                        build_data['shared_data']['../data'] = '/'
+                """
+            )
+        )
+
+        config = {
+            'project': {'name': project_name, 'requires-python': '>3', 'dynamic': ['version']},
+            'tool': {
+                'hatch': {
+                    'version': {'path': 'my_app/__about__.py'},
+                    'build': {'targets': {'wheel': {'versions': ['standard'], 'hooks': {'custom': {}}}}},
+                },
+            },
+        }
+        builder = WheelBuilder(str(project_path), config=config)
+
+        build_path = project_path / 'dist'
+        build_path.mkdir()
+
+        with project_path.as_cwd():
+            artifacts = list(builder.build(directory=str(build_path)))
+
+        assert len(artifacts) == 1
+        expected_artifact = artifacts[0]
+
+        build_artifacts = list(build_path.iterdir())
+        assert len(build_artifacts) == 1
+        assert expected_artifact == str(build_artifacts[0])
+
+        extraction_directory = temp_dir / '_archive'
+        extraction_directory.mkdir()
+
+        with zipfile.ZipFile(str(expected_artifact), 'r') as zip_archive:
+            zip_archive.extractall(str(extraction_directory))
+
+        metadata_directory = f'{builder.project_id}.dist-info'
+        shared_data_directory = f'{builder.project_id}.data'
+        expected_files = helpers.get_template_files(
+            'wheel.standard_default_shared_data',
+            project_name,
+            metadata_directory=metadata_directory,
+            shared_data_directory=shared_data_directory,
+        )
+        helpers.assert_files(extraction_directory, expected_files)
+
+    def test_default_shared_scripts(self, hatch, platform, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
+        project_name = 'My.App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / 'my-app'
+
+        shared_data_path = temp_dir / 'data'
+        shared_data_path.ensure_dir_exists()
+
+        binary_contents = os.urandom(1024)
+        binary_file = shared_data_path / 'binary'
+        binary_file.write_bytes(binary_contents)
+        if not platform.windows:
+            expected_mode = 0o755
+            binary_file.chmod(expected_mode)
+
+        (shared_data_path / 'other_script.sh').write_text(
+            helpers.dedent(
+                """
+
+                #!/bin/sh arg1 arg2
+                echo "Hello, World!"
+                """
+            )
+        )
+        (shared_data_path / 'python_script.sh').write_text(
+            helpers.dedent(
+                """
+
+                #!/usr/bin/env python3.11 arg1 arg2
+                print("Hello, World!")
+                """
+            )
+        )
+        (shared_data_path / 'pythonw_script.sh').write_text(
+            helpers.dedent(
+                """
+
+                #!/usr/bin/pythonw3.11 arg1 arg2
+                print("Hello, World!")
+                """
+            )
+        )
+        (shared_data_path / 'pypy_script.sh').write_text(
+            helpers.dedent(
+                """
+
+                #!/usr/bin/env pypy
+                print("Hello, World!")
+                """
+            )
+        )
+        (shared_data_path / 'pypyw_script.sh').write_text(
+            helpers.dedent(
+                """
+
+                #!pypyw3.11 arg1 arg2
+                print("Hello, World!")
+                """
+            )
+        )
+
+        config = {
+            'project': {'name': project_name, 'requires-python': '>3', 'dynamic': ['version']},
+            'tool': {
+                'hatch': {
+                    'version': {'path': 'my_app/__about__.py'},
+                    'build': {'targets': {'wheel': {'versions': ['standard'], 'shared-scripts': {'../data': '/'}}}},
+                },
+            },
+        }
+        builder = WheelBuilder(str(project_path), config=config)
+
+        build_path = project_path / 'dist'
+        build_path.mkdir()
+
+        with project_path.as_cwd():
+            artifacts = list(builder.build(directory=str(build_path)))
+
+        assert len(artifacts) == 1
+        expected_artifact = artifacts[0]
+
+        build_artifacts = list(build_path.iterdir())
+        assert len(build_artifacts) == 1
+        assert expected_artifact == str(build_artifacts[0])
+
+        extraction_directory = temp_dir / '_archive'
+        extract_zip(expected_artifact, extraction_directory)
+
+        metadata_directory = f'{builder.project_id}.dist-info'
+        shared_data_directory = f'{builder.project_id}.data'
+        expected_files = helpers.get_template_files(
+            'wheel.standard_default_shared_scripts',
+            project_name,
+            metadata_directory=metadata_directory,
+            shared_data_directory=shared_data_directory,
+            binary_contents=binary_contents,
+        )
+        helpers.assert_files(extraction_directory, expected_files)
+
+        if not platform.windows:
+            extracted_binary = extraction_directory / shared_data_directory / 'scripts' / 'binary'
+            assert extracted_binary.stat().st_mode & 0o777 == expected_mode
+
+    def test_default_shared_scripts_from_build_data(self, hatch, platform, helpers, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
+        project_name = 'My.App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / 'my-app'
+
+        shared_data_path = temp_dir / 'data'
+        shared_data_path.ensure_dir_exists()
+
+        binary_contents = os.urandom(1024)
+        binary_file = shared_data_path / 'binary'
+        binary_file.write_bytes(binary_contents)
+        if not platform.windows:
+            expected_mode = 0o755
+            binary_file.chmod(expected_mode)
+
+        (shared_data_path / 'other_script.sh').write_text(
+            helpers.dedent(
+                """
+
+                #!/bin/sh arg1 arg2
+                echo "Hello, World!"
+                """
+            )
+        )
+        (shared_data_path / 'python_script.sh').write_text(
+            helpers.dedent(
+                """
+
+                #!/usr/bin/env python3.11 arg1 arg2
+                print("Hello, World!")
+                """
+            )
+        )
+        (shared_data_path / 'pythonw_script.sh').write_text(
+            helpers.dedent(
+                """
+
+                #!/usr/bin/pythonw3.11 arg1 arg2
+                print("Hello, World!")
+                """
+            )
+        )
+        (shared_data_path / 'pypy_script.sh').write_text(
+            helpers.dedent(
+                """
+
+                #!/usr/bin/env pypy
+                print("Hello, World!")
+                """
+            )
+        )
+        (shared_data_path / 'pypyw_script.sh').write_text(
+            helpers.dedent(
+                """
+
+                #!pypyw3.11 arg1 arg2
+                print("Hello, World!")
+                """
+            )
+        )
+
+        build_script = project_path / DEFAULT_BUILD_SCRIPT
+        build_script.write_text(
+            helpers.dedent(
+                """
+                import pathlib
+
+                from hatchling.builders.hooks.plugin.interface import BuildHookInterface
+
+                class CustomHook(BuildHookInterface):
+                    def initialize(self, version, build_data):
+                        build_data['shared_scripts']['../data'] = '/'
+                """
+            )
+        )
+
+        config = {
+            'project': {'name': project_name, 'requires-python': '>3', 'dynamic': ['version']},
+            'tool': {
+                'hatch': {
+                    'version': {'path': 'my_app/__about__.py'},
+                    'build': {'targets': {'wheel': {'versions': ['standard'], 'hooks': {'custom': {}}}}},
+                },
+            },
+        }
+        builder = WheelBuilder(str(project_path), config=config)
+
+        build_path = project_path / 'dist'
+        build_path.mkdir()
+
+        with project_path.as_cwd():
+            artifacts = list(builder.build(directory=str(build_path)))
+
+        assert len(artifacts) == 1
+        expected_artifact = artifacts[0]
+
+        build_artifacts = list(build_path.iterdir())
+        assert len(build_artifacts) == 1
+        assert expected_artifact == str(build_artifacts[0])
+
+        extraction_directory = temp_dir / '_archive'
+        extract_zip(expected_artifact, extraction_directory)
+
+        metadata_directory = f'{builder.project_id}.dist-info'
+        shared_data_directory = f'{builder.project_id}.data'
+        expected_files = helpers.get_template_files(
+            'wheel.standard_default_shared_scripts',
+            project_name,
+            metadata_directory=metadata_directory,
+            shared_data_directory=shared_data_directory,
+            binary_contents=binary_contents,
+        )
+        helpers.assert_files(extraction_directory, expected_files)
+
+        if not platform.windows:
+            extracted_binary = extraction_directory / shared_data_directory / 'scripts' / 'binary'
+            assert extracted_binary.stat().st_mode & 0o777 == expected_mode
 
     def test_default_extra_metadata(self, hatch, helpers, temp_dir, config_file):
         config_file.model.template.plugins['default']['src-layout'] = False
@@ -1999,7 +2430,7 @@ class TestBuildStandard:
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
                     'build': {
-                        'targets': {'wheel': {'versions': ['standard'], 'macos-max-compat': False}},
+                        'targets': {'wheel': {'versions': ['standard']}},
                         'artifacts': ['my_app/lib.so'],
                         'hooks': {'custom': {'path': DEFAULT_BUILD_SCRIPT}},
                     },
@@ -3144,7 +3575,7 @@ class TestBuildStandard:
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
                     'build': {
-                        'targets': {'wheel': {'versions': ['standard'], 'macos-max-compat': False}},
+                        'targets': {'wheel': {'versions': ['standard']}},
                         'artifacts': ['my_app/lib.so'],
                         'hooks': {'custom': {'path': DEFAULT_BUILD_SCRIPT}},
                     },
@@ -3188,7 +3619,8 @@ class TestBuildStandard:
         helpers.assert_files(extraction_directory, expected_files)
 
     @pytest.mark.requires_macos
-    def test_macos_max_compat(self, hatch, helpers, temp_dir, config_file):
+    @pytest.mark.parametrize('macos_max_compat', [True, False])
+    def test_macos_max_compat(self, hatch, helpers, temp_dir, config_file, macos_max_compat):
         config_file.model.template.plugins['default']['src-layout'] = False
         config_file.save()
 
@@ -3229,7 +3661,7 @@ class TestBuildStandard:
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},
                     'build': {
-                        'targets': {'wheel': {'versions': ['standard']}},
+                        'targets': {'wheel': {'versions': ['standard'], 'macos-max-compat': macos_max_compat}},
                         'artifacts': ['my_app/lib.so'],
                         'hooks': {'custom': {'path': DEFAULT_BUILD_SCRIPT}},
                     },
@@ -3253,9 +3685,10 @@ class TestBuildStandard:
 
         tag = next(sys_tags())
         tag_parts = [tag.interpreter, tag.abi, tag.platform]
-        sdk_version_major, sdk_version_minor = tag_parts[2].split('_')[1:3]
-        if int(sdk_version_major) >= 11:
-            tag_parts[2] = tag_parts[2].replace(f'{sdk_version_major}_{sdk_version_minor}', '10_16', 1)
+        if macos_max_compat:
+            sdk_version_major, sdk_version_minor = tag_parts[2].split('_')[1:3]
+            if int(sdk_version_major) >= 11:
+                tag_parts[2] = tag_parts[2].replace(f'{sdk_version_major}_{sdk_version_minor}', '10_16', 1)
 
         expected_tag = '-'.join(tag_parts)
         assert expected_artifact == str(build_path / f'{builder.project_id}-{expected_tag}.whl')
@@ -3274,3 +3707,46 @@ class TestBuildStandard:
             tag=expected_tag,
         )
         helpers.assert_files(extraction_directory, expected_files)
+
+    def test_file_permissions_normalized(self, hatch, temp_dir, config_file):
+        config_file.model.template.plugins['default']['src-layout'] = False
+        config_file.save()
+
+        project_name = 'My.App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / 'my-app'
+
+        config = {
+            'project': {'name': project_name, 'dynamic': ['version']},
+            'tool': {
+                'hatch': {
+                    'version': {'path': 'my_app/__about__.py'},
+                    'build': {'targets': {'wheel': {'versions': ['standard'], 'strict-naming': False}}},
+                },
+            },
+        }
+        builder = WheelBuilder(str(project_path), config=config)
+
+        build_path = project_path / 'dist'
+
+        with project_path.as_cwd():
+            artifacts = list(builder.build())
+
+        assert len(artifacts) == 1
+        expected_artifact = artifacts[0]
+
+        build_artifacts = list(build_path.iterdir())
+        assert len(build_artifacts) == 1
+        assert expected_artifact == str(build_artifacts[0])
+        assert expected_artifact == str(
+            build_path / f'{builder.artifact_project_id}-{get_python_versions_tag()}-none-any.whl'
+        )
+        file_stat = os.stat(expected_artifact)
+        # we assert that at minimum 644 is set, based on the platform (e.g.)
+        # windows it may be higher
+        assert file_stat.st_mode & 0o644

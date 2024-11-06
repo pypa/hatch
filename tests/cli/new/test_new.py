@@ -229,9 +229,9 @@ def test_licenses_empty(hatch, helpers, config_file, temp_dir):
 def test_projects_urls_space_in_label(hatch, helpers, config_file, temp_dir):
     project_name = 'My.App'
     config_file.model.template.plugins['default']['project_urls'] = {
-        'Documentation': 'https://github.com/unknown/{project_name_normalized}#readme',
-        'Source': 'https://github.com/unknown/{project_name_normalized}',
-        'Bug Tracker': 'https://github.com/unknown/{project_name_normalized}/issues',
+        'Documentation': 'https://github.com/{name}/{project_name_normalized}#readme',
+        'Source': 'https://github.com/{name}/{project_name_normalized}',
+        'Bug Tracker': 'https://github.com/{name}/{project_name_normalized}/issues',
     }
     config_file.save()
 

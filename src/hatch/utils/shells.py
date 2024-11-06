@@ -3,12 +3,24 @@ from __future__ import annotations
 import sys
 from typing import TYPE_CHECKING
 
+from hatch.utils.fs import Path
+
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
     from types import FrameType
 
     from hatch.env.plugin.interface import EnvironmentInterface
-    from hatch.utils.fs import Path
+    from hatch.utils.platform import Platform
+
+
+def detect_shell(platform: Platform) -> tuple[str, str]:
+    import shellingham
+
+    try:
+        return shellingham.detect_shell()
+    except shellingham.ShellDetectionFailure:
+        path = platform.default_shell
+        return Path(path).stem, path
 
 
 class ShellManager:

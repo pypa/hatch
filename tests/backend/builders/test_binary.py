@@ -10,7 +10,10 @@ import pytest
 from hatch.utils.fs import Path
 from hatch.utils.structures import EnvVars
 from hatchling.builders.app import AppBuilder
+from hatchling.builders.binary import BinaryBuilder
 from hatchling.builders.plugin.interface import BuilderInterface
+
+pytestmark = [pytest.mark.requires_cargo, pytest.mark.requires_internet]
 
 
 class ExpectedEnvVars:
@@ -20,7 +23,7 @@ class ExpectedEnvVars:
     def __eq__(self, other):
         return all(not (key not in other or other[key] != value) for key, value in self.env_vars.items())
 
-    def __hash__(self):
+    def __hash__(self):  # no cov
         return hash(self.env_vars)
 
 
@@ -50,11 +53,15 @@ def cargo_install(*args: Any, **_kwargs: Any) -> subprocess.CompletedProcess:
 
 
 def test_class():
-    assert issubclass(AppBuilder, BuilderInterface)
+    assert issubclass(BinaryBuilder, BuilderInterface)
+
+
+def test_class_legacy():
+    assert issubclass(AppBuilder, BinaryBuilder)
 
 
 def test_default_versions(isolation):
-    builder = AppBuilder(str(isolation))
+    builder = BinaryBuilder(str(isolation))
 
     assert builder.get_default_versions() == ['bootstrap']
 
@@ -62,7 +69,7 @@ def test_default_versions(isolation):
 class TestScripts:
     def test_unset(self, isolation):
         config = {'project': {'name': 'My.App', 'version': '0.1.0'}}
-        builder = AppBuilder(str(isolation), config=config)
+        builder = BinaryBuilder(str(isolation), config=config)
 
         assert builder.config.scripts == builder.config.scripts == []
 
@@ -74,7 +81,7 @@ class TestScripts:
                 'scripts': {'b': 'foo.bar.baz:cli', 'a': 'baz.bar.foo:cli'},
             }
         }
-        builder = AppBuilder(str(isolation), config=config)
+        builder = BinaryBuilder(str(isolation), config=config)
 
         assert builder.config.scripts == ['a', 'b']
 
@@ -85,9 +92,9 @@ class TestScripts:
                 'version': '0.1.0',
                 'scripts': {'b': 'foo.bar.baz:cli', 'a': 'baz.bar.foo:cli'},
             },
-            'tool': {'hatch': {'build': {'targets': {'app': {'scripts': ['a', 'a']}}}}},
+            'tool': {'hatch': {'build': {'targets': {'binary': {'scripts': ['a', 'a']}}}}},
         }
-        builder = AppBuilder(str(isolation), config=config)
+        builder = BinaryBuilder(str(isolation), config=config)
 
         assert builder.config.scripts == ['a']
 
@@ -98,11 +105,11 @@ class TestScripts:
                 'version': '0.1.0',
                 'scripts': {'b': 'foo.bar.baz:cli', 'a': 'baz.bar.foo:cli'},
             },
-            'tool': {'hatch': {'build': {'targets': {'app': {'scripts': 9000}}}}},
+            'tool': {'hatch': {'build': {'targets': {'binary': {'scripts': 9000}}}}},
         }
-        builder = AppBuilder(str(isolation), config=config)
+        builder = BinaryBuilder(str(isolation), config=config)
 
-        with pytest.raises(TypeError, match='Field `tool.hatch.build.targets.app.scripts` must be an array'):
+        with pytest.raises(TypeError, match='Field `tool.hatch.build.targets.binary.scripts` must be an array'):
             _ = builder.config.scripts
 
     def test_script_not_string(self, isolation):
@@ -112,12 +119,12 @@ class TestScripts:
                 'version': '0.1.0',
                 'scripts': {'b': 'foo.bar.baz:cli', 'a': 'baz.bar.foo:cli'},
             },
-            'tool': {'hatch': {'build': {'targets': {'app': {'scripts': [9000]}}}}},
+            'tool': {'hatch': {'build': {'targets': {'binary': {'scripts': [9000]}}}}},
         }
-        builder = AppBuilder(str(isolation), config=config)
+        builder = BinaryBuilder(str(isolation), config=config)
 
         with pytest.raises(
-            TypeError, match='Script #1 of field `tool.hatch.build.targets.app.scripts` must be a string'
+            TypeError, match='Script #1 of field `tool.hatch.build.targets.binary.scripts` must be a string'
         ):
             _ = builder.config.scripts
 
@@ -128,24 +135,24 @@ class TestScripts:
                 'version': '0.1.0',
                 'scripts': {'b': 'foo.bar.baz:cli', 'a': 'baz.bar.foo:cli'},
             },
-            'tool': {'hatch': {'build': {'targets': {'app': {'scripts': ['c']}}}}},
+            'tool': {'hatch': {'build': {'targets': {'binary': {'scripts': ['c']}}}}},
         }
-        builder = AppBuilder(str(isolation), config=config)
+        builder = BinaryBuilder(str(isolation), config=config)
 
-        with pytest.raises(ValueError, match='Unknown script in field `tool.hatch.build.targets.app.scripts`: c'):
+        with pytest.raises(ValueError, match='Unknown script in field `tool.hatch.build.targets.binary.scripts`: c'):
             _ = builder.config.scripts
 
 
 class TestPythonVersion:
     def test_default_no_source(self, isolation):
         config = {'project': {'name': 'My.App', 'version': '0.1.0'}}
-        builder = AppBuilder(str(isolation), config=config)
+        builder = BinaryBuilder(str(isolation), config=config)
 
         assert builder.config.python_version == builder.config.python_version == builder.config.SUPPORTED_VERSIONS[0]
 
     def test_default_explicit_source(self, isolation):
         config = {'project': {'name': 'My.App', 'version': '0.1.0'}}
-        builder = AppBuilder(str(isolation), config=config)
+        builder = BinaryBuilder(str(isolation), config=config)
 
         with EnvVars({'PYAPP_DISTRIBUTION_SOURCE': 'url'}):
             assert builder.config.python_version == builder.config.python_version == ''
@@ -156,9 +163,9 @@ class TestPythonVersion:
                 'name': 'My.App',
                 'version': '0.1.0',
             },
-            'tool': {'hatch': {'build': {'targets': {'app': {'python-version': '4.0'}}}}},
+            'tool': {'hatch': {'build': {'targets': {'binary': {'python-version': '4.0'}}}}},
         }
-        builder = AppBuilder(str(isolation), config=config)
+        builder = BinaryBuilder(str(isolation), config=config)
 
         assert builder.config.python_version == '4.0'
 
@@ -168,11 +175,11 @@ class TestPythonVersion:
                 'name': 'My.App',
                 'version': '0.1.0',
             },
-            'tool': {'hatch': {'build': {'targets': {'app': {'python-version': 9000}}}}},
+            'tool': {'hatch': {'build': {'targets': {'binary': {'python-version': 9000}}}}},
         }
-        builder = AppBuilder(str(isolation), config=config)
+        builder = BinaryBuilder(str(isolation), config=config)
 
-        with pytest.raises(TypeError, match='Field `tool.hatch.build.targets.app.python-version` must be a string'):
+        with pytest.raises(TypeError, match='Field `tool.hatch.build.targets.binary.python-version` must be a string'):
             _ = builder.config.python_version
 
     def test_compatibility(self, isolation):
@@ -183,7 +190,7 @@ class TestPythonVersion:
                 'requires-python': '<3.11',
             },
         }
-        builder = AppBuilder(str(isolation), config=config)
+        builder = BinaryBuilder(str(isolation), config=config)
 
         assert builder.config.python_version == '3.10'
 
@@ -195,7 +202,7 @@ class TestPythonVersion:
                 'requires-python': '>9000',
             },
         }
-        builder = AppBuilder(str(isolation), config=config)
+        builder = BinaryBuilder(str(isolation), config=config)
 
         with pytest.raises(
             ValueError, match='Field `project.requires-python` is incompatible with the known distributions'
@@ -206,7 +213,7 @@ class TestPythonVersion:
 class TestPyAppVersion:
     def test_default(self, isolation):
         config = {'project': {'name': 'My.App', 'version': '0.1.0'}}
-        builder = AppBuilder(str(isolation), config=config)
+        builder = BinaryBuilder(str(isolation), config=config)
 
         assert builder.config.pyapp_version == builder.config.pyapp_version == ''
 
@@ -216,9 +223,9 @@ class TestPyAppVersion:
                 'name': 'My.App',
                 'version': '0.1.0',
             },
-            'tool': {'hatch': {'build': {'targets': {'app': {'pyapp-version': '9000'}}}}},
+            'tool': {'hatch': {'build': {'targets': {'binary': {'pyapp-version': '9000'}}}}},
         }
-        builder = AppBuilder(str(isolation), config=config)
+        builder = BinaryBuilder(str(isolation), config=config)
 
         assert builder.config.pyapp_version == '9000'
 
@@ -228,11 +235,11 @@ class TestPyAppVersion:
                 'name': 'My.App',
                 'version': '0.1.0',
             },
-            'tool': {'hatch': {'build': {'targets': {'app': {'pyapp-version': 9000}}}}},
+            'tool': {'hatch': {'build': {'targets': {'binary': {'pyapp-version': 9000}}}}},
         }
-        builder = AppBuilder(str(isolation), config=config)
+        builder = BinaryBuilder(str(isolation), config=config)
 
-        with pytest.raises(TypeError, match='Field `tool.hatch.build.targets.app.pyapp-version` must be a string'):
+        with pytest.raises(TypeError, match='Field `tool.hatch.build.targets.binary.pyapp-version` must be a string'):
             _ = builder.config.pyapp_version
 
 
@@ -252,11 +259,11 @@ class TestBuildBootstrap:
             'project': {'name': project_name, 'version': '0.1.0'},
             'tool': {
                 'hatch': {
-                    'build': {'targets': {'app': {'versions': ['bootstrap']}}},
+                    'build': {'targets': {'binary': {'versions': ['bootstrap']}}},
                 },
             },
         }
-        builder = AppBuilder(str(project_path), config=config)
+        builder = BinaryBuilder(str(project_path), config=config)
 
         build_path = project_path / 'dist'
 
@@ -275,7 +282,7 @@ class TestBuildBootstrap:
         build_artifacts = list(build_path.iterdir())
         assert len(build_artifacts) == 1
         assert expected_artifact == str(build_artifacts[0])
-        assert (build_path / 'app' / ('my-app-0.1.0.exe' if sys.platform == 'win32' else 'my-app-0.1.0')).is_file()
+        assert (build_path / 'binary' / ('my-app-0.1.0.exe' if sys.platform == 'win32' else 'my-app-0.1.0')).is_file()
 
     def test_default_build_target(self, hatch, temp_dir, mocker):
         subprocess_run = mocker.patch('subprocess.run', side_effect=cargo_install)
@@ -292,11 +299,11 @@ class TestBuildBootstrap:
             'project': {'name': project_name, 'version': '0.1.0'},
             'tool': {
                 'hatch': {
-                    'build': {'targets': {'app': {'versions': ['bootstrap']}}},
+                    'build': {'targets': {'binary': {'versions': ['bootstrap']}}},
                 },
             },
         }
-        builder = AppBuilder(str(project_path), config=config)
+        builder = BinaryBuilder(str(project_path), config=config)
 
         build_path = project_path / 'dist'
 
@@ -316,7 +323,7 @@ class TestBuildBootstrap:
         assert len(build_artifacts) == 1
         assert expected_artifact == str(build_artifacts[0])
         assert (
-            build_path / 'app' / ('my-app-0.1.0-target.exe' if sys.platform == 'win32' else 'my-app-0.1.0-target')
+            build_path / 'binary' / ('my-app-0.1.0-target.exe' if sys.platform == 'win32' else 'my-app-0.1.0-target')
         ).is_file()
 
     def test_scripts(self, hatch, temp_dir, mocker):
@@ -334,11 +341,11 @@ class TestBuildBootstrap:
             'project': {'name': project_name, 'version': '0.1.0', 'scripts': {'foo': 'bar.baz:cli'}},
             'tool': {
                 'hatch': {
-                    'build': {'targets': {'app': {'versions': ['bootstrap']}}},
+                    'build': {'targets': {'binary': {'versions': ['bootstrap']}}},
                 },
             },
         }
-        builder = AppBuilder(str(project_path), config=config)
+        builder = BinaryBuilder(str(project_path), config=config)
 
         build_path = project_path / 'dist'
 
@@ -361,7 +368,7 @@ class TestBuildBootstrap:
         build_artifacts = list(build_path.iterdir())
         assert len(build_artifacts) == 1
         assert expected_artifact == str(build_artifacts[0])
-        assert (build_path / 'app' / ('foo-0.1.0.exe' if sys.platform == 'win32' else 'foo-0.1.0')).is_file()
+        assert (build_path / 'binary' / ('foo-0.1.0.exe' if sys.platform == 'win32' else 'foo-0.1.0')).is_file()
 
     def test_scripts_build_target(self, hatch, temp_dir, mocker):
         subprocess_run = mocker.patch('subprocess.run', side_effect=cargo_install)
@@ -378,11 +385,11 @@ class TestBuildBootstrap:
             'project': {'name': project_name, 'version': '0.1.0', 'scripts': {'foo': 'bar.baz:cli'}},
             'tool': {
                 'hatch': {
-                    'build': {'targets': {'app': {'versions': ['bootstrap']}}},
+                    'build': {'targets': {'binary': {'versions': ['bootstrap']}}},
                 },
             },
         }
-        builder = AppBuilder(str(project_path), config=config)
+        builder = BinaryBuilder(str(project_path), config=config)
 
         build_path = project_path / 'dist'
 
@@ -406,7 +413,7 @@ class TestBuildBootstrap:
         assert len(build_artifacts) == 1
         assert expected_artifact == str(build_artifacts[0])
         assert (
-            build_path / 'app' / ('foo-0.1.0-target.exe' if sys.platform == 'win32' else 'foo-0.1.0-target')
+            build_path / 'binary' / ('foo-0.1.0-target.exe' if sys.platform == 'win32' else 'foo-0.1.0-target')
         ).is_file()
 
     def test_custom_cargo(self, hatch, temp_dir, mocker):
@@ -424,11 +431,11 @@ class TestBuildBootstrap:
             'project': {'name': project_name, 'version': '0.1.0'},
             'tool': {
                 'hatch': {
-                    'build': {'targets': {'app': {'versions': ['bootstrap']}}},
+                    'build': {'targets': {'binary': {'versions': ['bootstrap']}}},
                 },
             },
         }
-        builder = AppBuilder(str(project_path), config=config)
+        builder = BinaryBuilder(str(project_path), config=config)
 
         build_path = project_path / 'dist'
 
@@ -447,7 +454,7 @@ class TestBuildBootstrap:
         build_artifacts = list(build_path.iterdir())
         assert len(build_artifacts) == 1
         assert expected_artifact == str(build_artifacts[0])
-        assert (build_path / 'app' / ('my-app-0.1.0.exe' if sys.platform == 'win32' else 'my-app-0.1.0')).is_file()
+        assert (build_path / 'binary' / ('my-app-0.1.0.exe' if sys.platform == 'win32' else 'my-app-0.1.0')).is_file()
 
     def test_no_cargo(self, hatch, temp_dir, mocker):
         mocker.patch('shutil.which', return_value=None)
@@ -464,11 +471,11 @@ class TestBuildBootstrap:
             'project': {'name': project_name, 'version': '0.1.0'},
             'tool': {
                 'hatch': {
-                    'build': {'targets': {'app': {'versions': ['bootstrap']}}},
+                    'build': {'targets': {'binary': {'versions': ['bootstrap']}}},
                 },
             },
         }
-        builder = AppBuilder(str(project_path), config=config)
+        builder = BinaryBuilder(str(project_path), config=config)
 
         with pytest.raises(OSError, match='Executable `cargo` could not be found on PATH'), project_path.as_cwd():
             next(builder.build())
@@ -488,11 +495,11 @@ class TestBuildBootstrap:
             'project': {'name': project_name, 'version': '0.1.0'},
             'tool': {
                 'hatch': {
-                    'build': {'targets': {'app': {'versions': ['bootstrap'], 'python-version': '4.0'}}},
+                    'build': {'targets': {'binary': {'versions': ['bootstrap'], 'python-version': '4.0'}}},
                 },
             },
         }
-        builder = AppBuilder(str(project_path), config=config)
+        builder = BinaryBuilder(str(project_path), config=config)
 
         build_path = project_path / 'dist'
 
@@ -515,7 +522,7 @@ class TestBuildBootstrap:
         build_artifacts = list(build_path.iterdir())
         assert len(build_artifacts) == 1
         assert expected_artifact == str(build_artifacts[0])
-        assert (build_path / 'app' / ('my-app-0.1.0.exe' if sys.platform == 'win32' else 'my-app-0.1.0')).is_file()
+        assert (build_path / 'binary' / ('my-app-0.1.0.exe' if sys.platform == 'win32' else 'my-app-0.1.0')).is_file()
 
     def test_pyapp_version(self, hatch, temp_dir, mocker):
         subprocess_run = mocker.patch('subprocess.run', side_effect=cargo_install)
@@ -532,11 +539,11 @@ class TestBuildBootstrap:
             'project': {'name': project_name, 'version': '0.1.0'},
             'tool': {
                 'hatch': {
-                    'build': {'targets': {'app': {'versions': ['bootstrap'], 'pyapp-version': '9000'}}},
+                    'build': {'targets': {'binary': {'versions': ['bootstrap'], 'pyapp-version': '9000'}}},
                 },
             },
         }
-        builder = AppBuilder(str(project_path), config=config)
+        builder = BinaryBuilder(str(project_path), config=config)
 
         build_path = project_path / 'dist'
 
@@ -555,7 +562,7 @@ class TestBuildBootstrap:
         build_artifacts = list(build_path.iterdir())
         assert len(build_artifacts) == 1
         assert expected_artifact == str(build_artifacts[0])
-        assert (build_path / 'app' / ('my-app-0.1.0.exe' if sys.platform == 'win32' else 'my-app-0.1.0')).is_file()
+        assert (build_path / 'binary' / ('my-app-0.1.0.exe' if sys.platform == 'win32' else 'my-app-0.1.0')).is_file()
 
     def test_verbosity(self, hatch, temp_dir, mocker):
         subprocess_run = mocker.patch('subprocess.run', side_effect=cargo_install)
@@ -572,11 +579,11 @@ class TestBuildBootstrap:
             'project': {'name': project_name, 'version': '0.1.0'},
             'tool': {
                 'hatch': {
-                    'build': {'targets': {'app': {'versions': ['bootstrap']}}},
+                    'build': {'targets': {'binary': {'versions': ['bootstrap']}}},
                 },
             },
         }
-        builder = AppBuilder(str(project_path), config=config)
+        builder = BinaryBuilder(str(project_path), config=config)
 
         build_path = project_path / 'dist'
 
@@ -597,7 +604,7 @@ class TestBuildBootstrap:
         build_artifacts = list(build_path.iterdir())
         assert len(build_artifacts) == 1
         assert expected_artifact == str(build_artifacts[0])
-        assert (build_path / 'app' / ('my-app-0.1.0.exe' if sys.platform == 'win32' else 'my-app-0.1.0')).is_file()
+        assert (build_path / 'binary' / ('my-app-0.1.0.exe' if sys.platform == 'win32' else 'my-app-0.1.0')).is_file()
 
     def test_local_build_with_build_target(self, hatch, temp_dir, mocker):
         subprocess_run = mocker.patch('subprocess.run', side_effect=cargo_install)
@@ -614,11 +621,11 @@ class TestBuildBootstrap:
             'project': {'name': project_name, 'version': '0.1.0'},
             'tool': {
                 'hatch': {
-                    'build': {'targets': {'app': {'versions': ['bootstrap']}}},
+                    'build': {'targets': {'binary': {'versions': ['bootstrap']}}},
                 },
             },
         }
-        builder = AppBuilder(str(project_path), config=config)
+        builder = BinaryBuilder(str(project_path), config=config)
 
         build_path = project_path / 'dist'
 
@@ -638,10 +645,50 @@ class TestBuildBootstrap:
         assert len(build_artifacts) == 1
         assert expected_artifact == str(build_artifacts[0])
         assert (
-            build_path / 'app' / ('my-app-0.1.0-target.exe' if sys.platform == 'win32' else 'my-app-0.1.0-target')
+            build_path / 'binary' / ('my-app-0.1.0-target.exe' if sys.platform == 'win32' else 'my-app-0.1.0-target')
         ).is_file()
 
     def test_local_build_no_build_target(self, hatch, temp_dir, mocker):
+        subprocess_run = mocker.patch('subprocess.run', side_effect=cargo_install)
+
+        project_name = 'My.App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / 'my-app'
+        config = {
+            'project': {'name': project_name, 'version': '0.1.0'},
+            'tool': {
+                'hatch': {
+                    'build': {'targets': {'binary': {'versions': ['bootstrap']}}},
+                },
+            },
+        }
+        builder = BinaryBuilder(str(project_path), config=config)
+
+        build_path = project_path / 'dist'
+
+        with project_path.as_cwd({'PYAPP_REPO': 'test-path'}):
+            artifacts = list(builder.build())
+
+        subprocess_run.assert_called_once_with(
+            ['cargo', 'build', '--release', '--target-dir', mocker.ANY],
+            cwd='test-path',
+            env=ExpectedEnvVars({'PYAPP_PROJECT_NAME': 'my-app', 'PYAPP_PROJECT_VERSION': '0.1.0'}),
+        )
+
+        assert len(artifacts) == 1
+        expected_artifact = artifacts[0]
+
+        build_artifacts = list(build_path.iterdir())
+        assert len(build_artifacts) == 1
+        assert expected_artifact == str(build_artifacts[0])
+        assert (build_path / 'binary' / ('my-app-0.1.0.exe' if sys.platform == 'win32' else 'my-app-0.1.0')).is_file()
+
+    def test_legacy(self, hatch, temp_dir, mocker):
         subprocess_run = mocker.patch('subprocess.run', side_effect=cargo_install)
 
         project_name = 'My.App'
@@ -664,12 +711,12 @@ class TestBuildBootstrap:
 
         build_path = project_path / 'dist'
 
-        with project_path.as_cwd({'PYAPP_REPO': 'test-path'}):
+        with project_path.as_cwd():
             artifacts = list(builder.build())
 
         subprocess_run.assert_called_once_with(
-            ['cargo', 'build', '--release', '--target-dir', mocker.ANY],
-            cwd='test-path',
+            ['cargo', 'install', 'pyapp', '--force', '--root', mocker.ANY],
+            cwd=mocker.ANY,
             env=ExpectedEnvVars({'PYAPP_PROJECT_NAME': 'my-app', 'PYAPP_PROJECT_VERSION': '0.1.0'}),
         )
 

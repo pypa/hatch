@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 import os
 import shutil
@@ -6,7 +8,7 @@ import sys
 import time
 from contextlib import suppress
 from functools import lru_cache
-from typing import Generator, NamedTuple
+from typing import TYPE_CHECKING, Generator, NamedTuple
 
 import pytest
 from click.testing import CliRunner as __CliRunner
@@ -15,6 +17,8 @@ from platformdirs import user_cache_dir, user_data_dir
 
 from hatch.config.constants import AppEnvVars, ConfigEnvVars, PublishEnvVars
 from hatch.config.user import ConfigFile
+from hatch.env.internal import get_internal_env_config
+from hatch.env.utils import get_env_var
 from hatch.utils.ci import running_in_ci
 from hatch.utils.fs import Path, temp_directory
 from hatch.utils.platform import Platform
@@ -23,6 +27,9 @@ from hatch.venv.core import TempVirtualEnv
 from hatchling.cli import hatchling
 
 from .helpers.templates.licenses import MIT, Apache_2_0
+
+if TYPE_CHECKING:
+    from unittest.mock import MagicMock
 
 PLATFORM = Platform()
 
@@ -65,7 +72,7 @@ def helpers():
 
 
 @pytest.fixture(scope='session', autouse=True)
-def isolation() -> Generator[Path, None, None]:
+def isolation(uv_on_path) -> Generator[Path, None, None]:
     with temp_directory() as d:
         data_dir = d / 'data'
         data_dir.mkdir()
@@ -83,6 +90,7 @@ def isolation() -> Generator[Path, None, None]:
             ConfigEnvVars.CACHE: str(cache_dir),
             PublishEnvVars.REPO: 'dev',
             'HATCH_SELF_TESTING': 'true',
+            get_env_var(plugin_name='virtual', option='uv_path'): uv_on_path,
             'PYAPP_COMMAND_NAME': os.urandom(4).hex(),
             'GIT_AUTHOR_NAME': 'Foo Bar',
             'GIT_AUTHOR_EMAIL': 'foo@bar.baz',
@@ -194,11 +202,37 @@ def python_on_path():
     return Path(sys.executable).stem
 
 
+@pytest.fixture(scope='session', autouse=True)
+def uv_on_path():
+    return shutil.which('uv')
+
+
 @pytest.fixture(scope='session')
 def compatible_python_distributions():
     from hatch.python.resolve import get_compatible_distributions
 
     return tuple(get_compatible_distributions())
+
+
+@pytest.fixture(scope='session')
+def global_application():
+    # This is only required for the EnvironmentInterface constructor and will never be used
+    from hatch.cli.application import Application
+
+    return Application(sys.exit, verbosity=0, enable_color=False, interactive=False)
+
+
+@pytest.fixture
+def temp_application():
+    # This is only required for the EnvironmentInterface constructor and will never be used
+    from hatch.cli.application import Application
+
+    return Application(sys.exit, verbosity=0, enable_color=False, interactive=False)
+
+
+@pytest.fixture
+def build_env_config():
+    return get_internal_env_config()['hatch-build']
 
 
 @pytest.fixture(scope='session')
@@ -291,15 +325,40 @@ def devpi(tmp_path_factory, worker_id):
 
 
 @pytest.fixture
+def env_run(mocker) -> Generator[MagicMock, None, None]:
+    run = mocker.patch('subprocess.run', return_value=subprocess.CompletedProcess([], 0, stdout=b''))
+    mocker.patch('hatch.env.virtual.VirtualEnvironment.exists', return_value=True)
+    mocker.patch('hatch.env.virtual.VirtualEnvironment.dependency_hash', return_value='')
+    mocker.patch('hatch.env.virtual.VirtualEnvironment.command_context')
+    return run
+
+
+def is_hatchling_command(command: list[str] | str) -> bool:
+    if isinstance(command, str):
+        command = command.split()
+
+    if command[0] != 'python':
+        return False
+
+    if '-m' not in command:
+        return False
+
+    return command[command.index('-m') + 1] == 'hatchling'
+
+
+@pytest.fixture
 def mock_backend_process(request, mocker):
     if 'allow_backend_process' in request.keywords:
         yield False
         return
 
     def mock_process_api(api):
-        def mock_process(command, **kwargs):
-            if not isinstance(command, list) or command[1:4] != ['-u', '-m', 'hatchling']:  # no cov
+        def mock_process(command: list[str] | str, **kwargs):
+            if not is_hatchling_command(command):  # no cov
                 return api(command, **kwargs)
+
+            if isinstance(command, str):
+                command = command.split()
 
             original_args = sys.argv
             try:
@@ -336,8 +395,11 @@ def mock_backend_process_output(request, mocker):
 
     def mock_process_api(api):
         def mock_process(command, **kwargs):
-            if not isinstance(command, list) or command[1:4] != ['-u', '-m', 'hatchling']:  # no cov
+            if not is_hatchling_command(command):  # no cov
                 return api(command, **kwargs)
+
+            if isinstance(command, str):
+                command = command.split()
 
             output_queue.clear()
             original_args = sys.argv
@@ -354,7 +416,7 @@ def mock_backend_process_output(request, mocker):
                 else:
                     mock.returncode = 0
 
-                mock.stdout = ''.join(output_queue).encode('utf-8')
+                mock.stdout = mock.stderr = ''.join(output_queue).encode('utf-8')
                 return mock
             finally:
                 sys.argv = original_args
@@ -362,7 +424,7 @@ def mock_backend_process_output(request, mocker):
         return mock_process
 
     mocker.patch('subprocess.run', side_effect=mock_process_api(subprocess.run))
-    mocker.patch('hatchling.bridge.app._display', side_effect=lambda cmd: output_queue.append(f'{cmd}\n'))
+    mocker.patch('hatchling.bridge.app._display', side_effect=lambda cmd, **_: output_queue.append(f'{cmd}\n'))
 
     yield True
 
@@ -388,22 +450,6 @@ def mock_plugin_installation(mocker):
     return mocked_subprocess_run
 
 
-@pytest.fixture
-def local_backend_process(mock_backend_process, mocker):
-    if mock_backend_process:
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.build_environment')
-
-    return mock_backend_process
-
-
-@pytest.fixture
-def local_backend_process_output(mock_backend_process_output, mocker):
-    if mock_backend_process_output:
-        mocker.patch('hatch.env.virtual.VirtualEnvironment.build_environment')
-
-    return mock_backend_process_output
-
-
 def pytest_runtest_setup(item):
     for marker in item.iter_markers():
         if marker.name == 'requires_internet' and not network_connectivity():  # no cov
@@ -424,8 +470,14 @@ def pytest_runtest_setup(item):
         if marker.name == 'requires_unix' and PLATFORM.windows:
             pytest.skip('Not running on a Linux-based platform')
 
-        if marker.name == 'requires_git' and not shutil.which('git'):
+        if marker.name == 'requires_git' and not git_available():  # no cov
             pytest.skip('Git not present in the environment')
+
+        if marker.name == 'requires_docker' and not docker_available():  # no cov
+            pytest.skip('Docker not present in the environment')
+
+        if marker.name == 'requires_cargo' and not cargo_available():  # no cov
+            pytest.skip('Cargo not present in the environment')
 
 
 def pytest_configure(config):
@@ -435,6 +487,12 @@ def pytest_configure(config):
     config.addinivalue_line('markers', 'requires_unix: Tests intended for Linux-based operating systems')
     config.addinivalue_line('markers', 'requires_internet: Tests that require access to the internet')
     config.addinivalue_line('markers', 'requires_git: Tests that require the git command available in the environment')
+    config.addinivalue_line(
+        'markers', 'requires_docker: Tests that require the docker command available in the environment'
+    )
+    config.addinivalue_line(
+        'markers', 'requires_cargo: Tests that require the cargo command available in the environment'
+    )
 
     config.addinivalue_line('markers', 'allow_backend_process: Force the use of backend communication')
 
@@ -457,3 +515,27 @@ def network_connectivity():  # no cov
         return True
 
     return False
+
+
+@lru_cache
+def git_available():  # no cov
+    if running_in_ci():
+        return True
+
+    return shutil.which('git') is not None
+
+
+@lru_cache
+def docker_available():  # no cov
+    if running_in_ci():
+        return True
+
+    return shutil.which('docker') is not None
+
+
+@lru_cache
+def cargo_available():  # no cov
+    if running_in_ci():
+        return True
+
+    return shutil.which('cargo') is not None

@@ -1,4 +1,4 @@
-# Authentication
+# How to authenticate for index publishing
 
 ----
 

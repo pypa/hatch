@@ -107,3 +107,79 @@ class TestLocation:
         project = Project(temp_dir)
         assert project.location == temp_dir
         assert project.root == temp_dir
+
+
+class TestRawConfig:
+    def test_missing(self, temp_dir):
+        project = Project(temp_dir)
+        project.find_project_root()
+
+        assert project.raw_config == {'project': {'name': temp_dir.name}}
+
+    def test_exists(self, temp_dir):
+        project_file = temp_dir / 'pyproject.toml'
+        project_file.touch()
+        project = Project(temp_dir)
+        project.find_project_root()
+
+        config = {'project': {'name': 'foo'}, 'bar': 'baz'}
+        project.save_config(config)
+
+        assert project.raw_config == config
+
+    def test_exists_without_project_table(self, temp_dir):
+        project_file = temp_dir / 'pyproject.toml'
+        project_file.touch()
+        project = Project(temp_dir)
+        project.find_project_root()
+
+        assert project.raw_config == {'project': {'name': temp_dir.name}}
+
+
+class TestEnsureCWD:
+    def test_location_is_file(self, temp_dir, mocker):
+        script_path = temp_dir / 'script.py'
+        script_path.touch()
+        project = Project(script_path)
+        project.find_project_root()
+
+        with temp_dir.as_cwd():
+            mocker.patch('hatch.utils.fs.Path.as_cwd', side_effect=Exception)
+            with project.ensure_cwd() as cwd:
+                assert cwd == temp_dir
+
+    def test_cwd_is_location(self, temp_dir, mocker):
+        project_file = temp_dir / 'pyproject.toml'
+        project_file.touch()
+        project = Project(temp_dir)
+        project.find_project_root()
+
+        with temp_dir.as_cwd():
+            mocker.patch('hatch.utils.fs.Path.as_cwd', side_effect=Exception)
+            with project.ensure_cwd() as cwd:
+                assert cwd == temp_dir
+
+    def test_cwd_inside_location(self, temp_dir, mocker):
+        project_file = temp_dir / 'pyproject.toml'
+        project_file.touch()
+        project = Project(temp_dir)
+        project.find_project_root()
+
+        subdir = temp_dir / 'subdir'
+        subdir.mkdir()
+
+        with subdir.as_cwd():
+            mocker.patch('hatch.utils.fs.Path.as_cwd', side_effect=Exception)
+            with project.ensure_cwd() as cwd:
+                assert cwd == subdir
+
+    def test_cwd_outside_location(self, temp_dir):
+        subdir = temp_dir / 'subdir'
+        subdir.mkdir()
+        project_file = subdir / 'pyproject.toml'
+        project_file.touch()
+        project = Project(subdir)
+        project.find_project_root()
+
+        with temp_dir.as_cwd(), project.ensure_cwd() as cwd:
+            assert cwd == subdir

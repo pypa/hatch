@@ -17,7 +17,7 @@ def get_files(**kwargs):
 
 -----
 
-**Table of Contents**
+## Table of Contents
 
 - [Installation](#installation)
 
@@ -60,35 +60,15 @@ classifiers = [
 dependencies = []
 
 [project.urls]
-Documentation = "https://github.com/unknown/{kwargs['project_name_normalized']}#readme"
-Issues = "https://github.com/unknown/{kwargs['project_name_normalized']}/issues"
-Source = "https://github.com/unknown/{kwargs['project_name_normalized']}"
+Documentation = "https://github.com/{kwargs['author']}/{kwargs['project_name_normalized']}#readme"
+Issues = "https://github.com/{kwargs['author']}/{kwargs['project_name_normalized']}/issues"
+Source = "https://github.com/{kwargs['author']}/{kwargs['project_name_normalized']}"
 
 [tool.hatch.version]
 path = "src/{kwargs['package_name']}/__about__.py"
 
-[tool.hatch.envs.default]
-dependencies = [
-  "coverage[toml]>=6.5",
-  "pytest",
-]
-[tool.hatch.envs.default.scripts]
-test = "pytest {{args:tests}}"
-test-cov = "coverage run -m pytest {{args:tests}}"
-cov-report = [
-  "- coverage combine",
-  "coverage report",
-]
-cov = [
-  "test-cov",
-  "cov-report",
-]
-
-[[tool.hatch.envs.all.matrix]]
-python = ["3.8", "3.9", "3.10", "3.11", "3.12"]
-
 [tool.hatch.envs.types]
-dependencies = [
+extra-dependencies = [
   "mypy>=1.0.0",
 ]
 [tool.hatch.envs.types.scripts]
@@ -112,6 +92,6 @@ exclude_lines = [
   "if __name__ == .__main__.:",
   "if TYPE_CHECKING:",
 ]
-""",  # noqa: E501
+""",
         ),
     ]

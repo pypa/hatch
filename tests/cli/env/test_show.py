@@ -1,7 +1,9 @@
+import json
 import os
 
 import pytest
 
+from hatch.env.utils import get_env_var
 from hatch.project.core import Project
 from hatch.utils.structures import EnvVars
 from hatchling.utils.constants import DEFAULT_CONFIG_FILE
@@ -9,7 +11,7 @@ from hatchling.utils.constants import DEFAULT_CONFIG_FILE
 
 @pytest.fixture(scope='module', autouse=True)
 def _terminal_width():
-    with EnvVars({'COLUMNS': '200'}):
+    with EnvVars({'COLUMNS': '200'}, exclude=[get_env_var(plugin_name='virtual', option='uv_path')]):
         yield
 
 
@@ -44,7 +46,7 @@ def test_default(hatch, helpers, temp_dir, config_file):
     )
 
 
-def test_default_as_json(hatch, helpers, temp_dir, config_file):
+def test_default_as_json(hatch, temp_dir, config_file):
     config_file.model.template.plugins['default']['tests'] = False
     config_file.save()
 
@@ -63,11 +65,21 @@ def test_default_as_json(hatch, helpers, temp_dir, config_file):
         result = hatch('env', 'show', '--json')
 
     assert result.exit_code == 0, result.output
-    assert helpers.remove_trailing_spaces(result.output) == helpers.dedent(
-        """
-        {"default":{"type":"virtual"}}
-        """
-    )
+
+    environments = json.loads(result.output)
+    assert list(environments) == [
+        'default',
+        'hatch-build',
+        'hatch-static-analysis',
+        'hatch-test.py3.13',
+        'hatch-test.py3.12',
+        'hatch-test.py3.11',
+        'hatch-test.py3.10',
+        'hatch-test.py3.9',
+        'hatch-test.py3.8',
+        'hatch-uv',
+    ]
+    assert environments['default'] == {'type': 'virtual'}
 
 
 def test_single_only(hatch, helpers, temp_dir, config_file):
@@ -386,7 +398,7 @@ occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim 
         |         |         |            |          |                             |                       |         | Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt       |
         |         |         |            |          |                             |                       |         | mollit anim id est laborum.                                                              |
         +---------+---------+------------+----------+-----------------------------+-----------------------+---------+------------------------------------------------------------------------------------------+
-        """  # noqa: E501
+        """
     )
 
 

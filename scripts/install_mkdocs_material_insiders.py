@@ -1,11 +1,10 @@
 import os
-import shutil
 import subprocess
 import sys
 
 TOKEN = os.environ.get('GH_TOKEN_MKDOCS_MATERIAL_INSIDERS', '')
 DEP_REF = f'git+https://{TOKEN}@github.com/squidfunk/mkdocs-material-insiders.git'
-GIT_REF = '4aa87aab257ebbfd458fe1a36027391a1e8d96e7'
+GIT_REF = 'f2d5b41b2e590baf73ae5f51166d88b233ba96aa'
 
 
 def main():
@@ -13,11 +12,10 @@ def main():
         print('No token is set, skipping')
         return
 
-    python = shutil.which('python')
     dependency = f'mkdocs-material[imaging] @ {DEP_REF}@{GIT_REF}'
     try:
         process = subprocess.Popen(
-            [python, '-m', 'pip', 'install', '--disable-pip-version-check', dependency],
+            ['uv', 'pip', 'install', dependency],  # noqa: S607
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             encoding='utf-8',

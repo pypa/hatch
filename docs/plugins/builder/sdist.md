@@ -16,7 +16,7 @@ The builder plugin name is `sdist`.
 
 | Option | Default | Description |
 | --- | --- | --- |
-| `core-metadata-version` | `"2.1"` | The version of [core metadata](https://packaging.python.org/specifications/core-metadata/) to use |
+| `core-metadata-version` | `"2.3"` | The version of [core metadata](https://packaging.python.org/specifications/core-metadata/) to use |
 | `strict-naming` | `true` | Whether or not file names should contain the normalized version of the project name |
 | `support-legacy` | `false` | Whether or not to include a `setup.py` file to support legacy installation mechanisms |
 

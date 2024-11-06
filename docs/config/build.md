@@ -225,7 +225,7 @@ dev-mode-exact = true
 
 A build target can be provided by any [builder plugin](../plugins/builder/reference.md). There are three built-in build targets: [wheel](../plugins/builder/wheel.md), [sdist](../plugins/builder/sdist.md), and [custom](../plugins/builder/custom.md).
 
-### Dependencies
+### Dependencies ### {: #target-dependencies }
 
 You can specify additional dependencies that will be installed in each build environment, such as for third party builders:
 
@@ -283,7 +283,7 @@ or to specific build targets:
 [tool.hatch.build.targets.<TARGET_NAME>.hooks.<HOOK_NAME>]
 ```
 
-### Dependencies
+### Dependencies ### {: #hook-dependencies }
 
 You can specify additional dependencies that will be installed in each build environment, such as for third party build hooks:
 

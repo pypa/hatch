@@ -2,7 +2,7 @@
 
 -----
 
-This uses virtual environments backed by the standard [virtualenv](https://github.com/pypa/virtualenv) tool.
+This uses virtual environments backed by [virtualenv](https://github.com/pypa/virtualenv) or [UV](https://github.com/astral-sh/uv).
 
 ## Configuration
 
@@ -21,6 +21,7 @@ type = "virtual"
 | `python-sources` | `['external', 'internal']` | This may be set to an array of strings that are either the literal `internal` or `external`. External considers only Python executables that are already on `PATH`. Internal considers only [internally managed Python distributions](#internal-distributions). |
 | `path` | | An explicit path to the virtual environment. The path may be absolute or relative to the project root. Any environments that [inherit](../../config/environment/overview.md#inheritance) this option will also use this path. The environment variable `HATCH_ENV_TYPE_VIRTUAL_PATH` may be used, which will take precedence. |
 | `system-packages` | `false` | Whether or not to give the virtual environment access to the system `site-packages` directory |
+| `installer` | `pip` | When set to `uv`, [UV](https://github.com/astral-sh/uv) will be used in place of virtualenv & pip for virtual environment creation and dependency management, respectively. If you intend to provide UV yourself, you may set the `HATCH_ENV_TYPE_VIRTUAL_UV_PATH` environment variable which should be the absolute path to a UV binary. This environment variable implicitly sets the `installer` option to `uv` (if unset). |
 
 ## Location
 
@@ -54,9 +55,12 @@ If no version has been chosen, then each resolver will try to find a version tha
 
 The following options are recognized for internal Python resolution.
 
+!!! tip
+    You can set custom sources for distributions by setting the `HATCH_PYTHON_SOURCE_<NAME>` environment variable where `<NAME>` is the uppercased version of the distribution name with periods replaced by underscores e.g. `HATCH_PYTHON_SOURCE_PYPY3_10`.
+
 ### CPython
 
-| ID |
+| NAME |
 | --- |
 | `3.7` |
 | `3.8` |
@@ -64,19 +68,20 @@ The following options are recognized for internal Python resolution.
 | `3.10` |
 | `3.11` |
 | `3.12` |
+| `3.13` |
 
 The source of distributions is the [python-build-standalone](https://github.com/indygreg/python-build-standalone) project.
 
-Some distributions have [variants](https://gregoryszorc.com/docs/python-build-standalone/main/running.html) that may be configured with the `HATCH_PYTHON_VARIANT_<PLATFORM>` environment variable where `<PLATFORM>` is the uppercase version of one of the following:
+Some distributions have [variants](https://gregoryszorc.com/docs/python-build-standalone/main/running.html) that may be configured with environment variables. Options may be combined.
 
-| Platform | Options |
-| --- | --- |
-| Linux | <ul><li><code>v1</code></li><li><code>v2</code></li><li><code>v3</code> (default)</li><li><code>v4</code></li></ul> |
-| Windows | <ul><li><code>shared</code> (default)</li><li><code>static</code></li></ul> |
+| Option | Platforms | Allowed values |
+| --- | --- | --- |
+| `HATCH_PYTHON_VARIANT_CPU` | <ul><li>Linux</li></ul> | <ul><li><code>v1</code></li><li><code>v2</code></li><li><code>v3</code> (default)</li><li><code>v4</code></li></ul> |
+| `HATCH_PYTHON_VARIANT_GIL` | <ul><li>Linux</li><li>Windows</li><li>macOS</li></ul> | <ul><li><code>freethreaded</code></li></ul> |
 
 ### PyPy
 
-| ID |
+| NAME |
 | --- |
 | `pypy2.7` |
 | `pypy3.9` |

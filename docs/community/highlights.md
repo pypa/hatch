@@ -1,10 +1,11 @@
-# Highlights
+# Community highlights
 
 -----
 
 ## Integration
 
 - Project Jupyter - https://blog.jupyter.org/packaging-for-jupyter-in-2022-c7be64c38926
+- Visual Studio Code - https://code.visualstudio.com/updates/v1_88#_hatch-environment-discovery
 
 ## Adoption
 

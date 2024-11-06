@@ -2,38 +2,28 @@
 config-path = "ruff_defaults.toml"
 
 [envs.default]
-dependencies = [
-  "coverage[toml]>=6.2",
-  "filelock>=3.7.1",
+installer = "uv"
+post-install-commands = [
+  "uv pip install {verbosity:flag:-1} -e ./backend",
+]
+
+[envs.hatch-test]
+extra-dependencies = [
+  "filelock",
+  "flit-core",
+  "hatchling",
   "pyfakefs",
-  "pytest",
-  "pytest-cov",
-  "pytest-mock",
-  "pytest-randomly",
-  "pytest-rerunfailures",
-  "pytest-xdist",
   "trustme",
+  # Hatchling dynamic dependency
+  "editables",
 ]
 post-install-commands = [
-  "python -m pip install --disable-pip-version-check {verbosity:flag:-1} -e ./backend",
+  "pip install {verbosity:flag:-1} -e ./backend",
 ]
-[envs.default.overrides]
-env.GITHUB_ACTIONS.env-vars = "COVERAGE_REPORT="
-[envs.default.scripts]
-# --cov must not come before an argument in order to use the sources defined by config
-_cov = "pytest --cov --cov-report={env:COVERAGE_REPORT:term-missing} --cov-config=pyproject.toml"
-dev = "pytest -p no:randomly --no-cov {args:tests}"
-cov = "_cov -p no:randomly {args:tests}"
-full = "_cov -n auto --reruns 5 --reruns-delay 3 -r aR {args:tests}"
+extra-args = ["--dist", "worksteal"]
 
-[envs.test.overrides]
-env.HERMETIC_TESTS.type = [
-  { value = "container", if = ["true"] },
-  "virtual",
-]
-
-[[envs.test.matrix]]
-python = ["3.8", "3.9", "3.10", "3.11", "3.12"]
+[envs.hatch-test.extra-scripts]
+pip = "{env:HATCH_UV} pip {args}"
 
 [envs.coverage]
 detached = true
@@ -49,7 +39,7 @@ generate-summary = "python scripts/generate_coverage_summary.py"
 write-summary-report = "python scripts/write_coverage_summary_report.py"
 
 [envs.types]
-dependencies = [
+extra-dependencies = [
   "mypy>=1.0.0",
 ]
 [envs.types.scripts]
@@ -57,21 +47,21 @@ check = "mypy --install-types --non-interactive {args:backend/src/hatchling src/
 
 [envs.docs]
 dependencies = [
-  "mkdocs~=1.5.3",
-  "mkdocs-material~=9.5.1",
+  "mkdocs~=1.6.0",
+  "mkdocs-material~=9.5.24",
   # Plugins
-  "mkdocs-minify-plugin~=0.7.1",
-  "mkdocs-git-revision-date-localized-plugin~=1.2.1",
-  "mkdocs-git-committers-plugin-2~=2.2.2",
-  "mkdocstrings-python~=1.7.5",
+  "mkdocs-minify-plugin~=0.8.0",
+  "mkdocs-git-revision-date-localized-plugin~=1.2.5",
+  "mkdocs-git-committers-plugin-2~=2.3.0",
+  "mkdocstrings-python~=1.10.3",
   "mkdocs-redirects~=1.2.1",
-  "mkdocs-glightbox~=0.3.5",
-  "mike~=2.0.0",
+  "mkdocs-glightbox~=0.4.0",
+  "mike~=2.1.1",
   # Extensions
   "mkdocs-click~=0.8.1",
-  "pymdown-extensions~=10.5.0",
+  "pymdown-extensions~=10.8.1",
   # Necessary for syntax highlighting in code blocks
-  "pygments~=2.17.2",
+  "pygments~=2.18.0",
   # Validation
   # https://github.com/linkchecker/linkchecker/pull/669#issuecomment-1267236287
   "linkchecker @ git+https://github.com/linkchecker/linkchecker.git@d9265bb71c2054bf57b8c5734a4825d62505c779",
@@ -102,6 +92,7 @@ build-check = [
 
 [envs.backend]
 detached = true
+installer = "uv"
 dependencies = [
   "build~=0.7.0",
   "httpx",
@@ -115,6 +106,7 @@ version = "cd backend && hatch version {args}"
 
 [envs.upkeep]
 detached = true
+installer = "uv"
 dependencies = [
   "httpx",
   "ruff",
@@ -130,12 +122,13 @@ update-hatchling = [
 update-distributions = "python scripts/update_distributions.py"
 update-licenses = "python backend/scripts/update_licenses.py"
 update-ruff = [
-  "python -m pip install --disable-pip-version-check --upgrade ruff",
+  "{env:HATCH_UV} pip install --upgrade ruff",
   "python scripts/update_ruff.py",
 ]
 
 [envs.release]
 detached = true
+installer = "uv"
 dependencies = [
   "hatchling",
 ]

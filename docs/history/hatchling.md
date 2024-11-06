@@ -8,6 +8,106 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.25.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.25.0) - 2024-06-22 ## {: #hatchling-v1.25.0 }
+
+***Changed:***
+
+- The `macos-max-compat` option for the `wheel` target is now disabled by default and will be removed in a future release
+
+***Added:***
+
+- Artifacts for the `wheel` and `sdist` targets now have their permission bits normalized
+
+***Fixed:***
+
+- Ignore `manylinux`/`musllinux` tags for the `wheel` target artifact name when enabling the `infer_tag` build data
+- The `wheel` target build data `infer_tag` when enabled now respects the `MACOSX_DEPLOYMENT_TARGET` environment variable
+
+## [1.24.2](https://github.com/pypa/hatch/releases/tag/hatchling-v1.24.2) - 2024-04-22 ## {: #hatchling-v1.24.2 }
+
+***Fixed:***
+
+- Add `.venv` to the list of directories that cannot be traversed
+- Output from the core Application utility now writes to stderr
+
+## [1.24.1](https://github.com/pypa/hatch/releases/tag/hatchling-v1.24.1) - 2024-04-18 ## {: #hatchling-v1.24.1 }
+
+***Fixed:***
+
+- Maintain file permissions for `shared-scripts` option/`shared_scripts` build data of the `wheel` target
+
+## [1.24.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.24.0) - 2024-04-16 ## {: #hatchling-v1.24.0 }
+
+***Added:***
+
+- Add `shared_data` and `shared_scripts` build data for the `wheel` target
+
+## [1.23.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.23.0) - 2024-04-14 ## {: #hatchling-v1.23.0 }
+
+***Added:***
+
+- Add `shared-scripts` option for the `wheel` target
+
+***Fixed:***
+
+- Support recursive optional dependencies
+- Set the `packaging` dependency version as `>=23.2` to avoid its URL validation which can conflict with context formatting
+
+## [1.22.5](https://github.com/pypa/hatch/releases/tag/hatchling-v1.22.5) - 2024-04-04 ## {: #hatchling-v1.22.5 }
+
+***Fixed:***
+
+- Fix reading metadata from source distributions when fields are dynamic but not part of core metadata like entry points
+
+## [1.22.4](https://github.com/pypa/hatch/releases/tag/hatchling-v1.22.4) - 2024-03-23 ## {: #hatchling-v1.22.4 }
+
+***Fixed:***
+
+- Only read source distribution metadata for fields that are explicitly defined as dynamic
+
+## [1.22.3](https://github.com/pypa/hatch/releases/tag/hatchling-v1.22.3) - 2024-03-19 ## {: #hatchling-v1.22.3 }
+
+***Fixed:***
+
+- Fix the `custom` build hook when using dynamic dependencies
+
+## [1.22.2](https://github.com/pypa/hatch/releases/tag/hatchling-v1.22.2) - 2024-03-16 ## {: #hatchling-v1.22.2 }
+
+***Fixed:***
+
+- Fix regression when loading metadata from source distributions
+- Fix metadata hooks when building wheels from source distributions
+
+## [1.22.1](https://github.com/pypa/hatch/releases/tag/hatchling-v1.22.1) - 2024-03-16 ## {: #hatchling-v1.22.1 }
+
+***Fixed:***
+
+- Update the default version of core metadata to 2.3
+
+## [1.22.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.22.0) - 2024-03-16 ## {: #hatchling-v1.22.0 }
+
+***Deprecated:***
+
+- The `app` build target has been renamed to `binary` to reduce ambiguity with the name of an upcoming feature. The former name will still be usable for several minor releases.
+
+***Added:***
+
+- Metadata for the `wheel` target now defaults to the `PKG-INFO` metadata within source distributions
+- Add `dependencies` method to the build hook interface so that hooks can themselves dynamically define dependencies
+- Update the default version of core metadata to 2.2
+- Update SPDX license information to version 3.23
+- Improve error message for when the default heuristics for wheel file inclusion fail
+
+***Fixed:***
+
+- Properly support core metadata version 2.2
+- Remove `editables` as a direct dependency
+- Fix default wheel tag when the supported Python version declaration is strict
+- Load VCS ignore patterns first so that whitelisted patterns can be excluded by project configuration
+- Don't consider VCS ignore files that are outside of the VCS boundary
+- The `sdist` build target now gracefully ignores UNIX socket files
+- Begin ignoring certain files ubiquitously, like `.DS_Store` on macOS
+
 ## [1.21.1](https://github.com/pypa/hatch/releases/tag/hatchling-v1.21.1) - 2024-01-25 ## {: #hatchling-v1.21.1 }
 
 ***Fixed:***

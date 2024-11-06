@@ -87,7 +87,7 @@ def test_activation_path_env_var_missing(temp_dir, platform):
 
         venv.activate()
 
-        assert os.environ['PATH'] == str(venv.executables_directory)
+        assert os.environ['PATH'] == f'{venv.executables_directory}{os.pathsep}{os.defpath}'
         assert os.environ['VIRTUAL_ENV'] == str(venv_dir)
         for env_var in VirtualEnv.IGNORED_ENV_VARS:
             assert env_var not in os.environ

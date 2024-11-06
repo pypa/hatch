@@ -4,6 +4,7 @@ import os
 import pathlib
 import sys
 from contextlib import contextmanager, suppress
+from functools import cached_property
 from typing import TYPE_CHECKING, Any, Generator
 
 from hatch.utils.structures import EnvVars
@@ -31,6 +32,22 @@ if sys.platform == 'darwin':
 
 
 class Path(_PathBase):
+    @cached_property
+    def long_id(self) -> str:
+        from base64 import urlsafe_b64encode
+        from hashlib import sha256
+
+        path = str(self)
+        if sys.platform == 'win32' or sys.platform == 'darwin':
+            path = path.casefold()
+
+        digest = sha256(path.encode('utf-8')).digest()
+        return urlsafe_b64encode(digest).decode('utf-8')
+
+    @cached_property
+    def id(self) -> str:
+        return self.long_id[:8]
+
     def ensure_dir_exists(self) -> None:
         self.mkdir(parents=True, exist_ok=True)
 
@@ -47,6 +64,16 @@ class Path(_PathBase):
             import shutil
 
             shutil.rmtree(self, ignore_errors=False)
+
+    def move(self, target: Path) -> None:
+        try:
+            self.replace(target)
+        # Happens when on different filesystems like /tmp or caused by layering in containers
+        except OSError:
+            import shutil
+
+            shutil.copy2(self, target)
+            self.unlink()
 
     def wait_for_dir_removed(self, timeout: int = 5) -> None:
         import shutil

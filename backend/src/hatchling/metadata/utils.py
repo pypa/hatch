@@ -21,7 +21,7 @@ def normalize_project_name(project_name: str) -> str:
     return re.sub(r'[-_.]+', '-', project_name).lower()
 
 
-def get_normalized_dependency(requirement: Requirement) -> str:
+def normalize_requirement(requirement: Requirement) -> None:
     # Changes to this function affect reproducibility between versions
     from packaging.specifiers import SpecifierSet
 
@@ -33,8 +33,15 @@ def get_normalized_dependency(requirement: Requirement) -> str:
     if requirement.extras:
         requirement.extras = {normalize_project_name(extra) for extra in requirement.extras}
 
+
+def format_dependency(requirement: Requirement) -> str:
     # All TOML writers use double quotes, so allow direct writing or copy/pasting to avoid escaping
     return str(requirement).replace('"', "'")
+
+
+def get_normalized_dependency(requirement: Requirement) -> str:
+    normalize_requirement(requirement)
+    return format_dependency(requirement)
 
 
 def resolve_metadata_fields(metadata: ProjectMetadata) -> dict[str, Any]:

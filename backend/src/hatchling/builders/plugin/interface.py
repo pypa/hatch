@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Callable, Generator, Generic, Iterable, cast
 
 from hatchling.builders.config import BuilderConfig, BuilderConfigBound, env_var_enabled
-from hatchling.builders.constants import EXCLUDED_DIRECTORIES, BuildEnvVars
+from hatchling.builders.constants import EXCLUDED_DIRECTORIES, EXCLUDED_FILES, BuildEnvVars
 from hatchling.builders.utils import get_relative_path, safe_walk
 from hatchling.plugin.manager import PluginManagerBound
 
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 
 
 class IncludedFile:
-    __slots__ = ('path', 'relative_path', 'distribution_path')
+    __slots__ = ('distribution_path', 'path', 'relative_path')
 
     def __init__(self, path: str, relative_path: str, distribution_path: str) -> None:
         self.path = path
@@ -191,6 +191,9 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
             files.sort()
             is_package = '__init__.py' in files
             for f in files:
+                if f in EXCLUDED_FILES:
+                    continue
+
                 relative_file_path = os.path.join(relative_path, f)
                 distribution_path = self.config.get_distribution_path(relative_file_path)
                 if self.config.path_is_reserved(distribution_path):
@@ -218,6 +221,9 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
 
                     files.sort()
                     for f in files:
+                        if f in EXCLUDED_FILES:
+                            continue
+
                         relative_file_path = os.path.join(target_path, relative_directory, f)
                         distribution_path = self.config.get_distribution_path(relative_file_path)
                         if not self.config.path_is_reserved(distribution_path):
@@ -250,6 +256,9 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
                     files.sort()
                     is_package = '__init__.py' in files
                     for f in files:
+                        if f in EXCLUDED_FILES:
+                            continue
+
                         relative_file_path = os.path.join(target_path, relative_directory, f)
                         distribution_path = self.config.get_distribution_path(relative_file_path)
                         if self.config.path_is_reserved(distribution_path):

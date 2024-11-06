@@ -2,18 +2,18 @@ from __future__ import annotations
 
 import os
 import sys
-from base64 import urlsafe_b64encode
-from contextlib import contextmanager, suppress
+from contextlib import contextmanager, nullcontext, suppress
 from functools import cached_property
-from hashlib import sha256
 from os.path import isabs
 from typing import TYPE_CHECKING, Callable
 
 from hatch.config.constants import AppEnvVars
 from hatch.env.plugin.interface import EnvironmentInterface
+from hatch.env.utils import add_verbosity_flag
 from hatch.utils.fs import Path
 from hatch.utils.shells import ShellManager
-from hatch.venv.core import VirtualEnv
+from hatch.utils.structures import EnvVars
+from hatch.venv.core import UVVirtualEnv, VirtualEnv
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -30,11 +30,15 @@ class VirtualEnvironment(EnvironmentInterface):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Always compute the isolated app path for build environments
-        hashed_root = sha256(str(self.root).encode('utf-8')).digest()
-        checksum = urlsafe_b64encode(hashed_root).decode('utf-8')[:8]
-
-        project_name = self.metadata.name if 'project' in self.metadata.config else f'{checksum}-unmanaged'
+        project_id = self.root.id
+        project_is_script = self.root.is_file()
+        project_name = (
+            project_id
+            if project_is_script
+            else self.metadata.name
+            if 'project' in self.metadata.config
+            else f'{project_id}-unmanaged'
+        )
         venv_name = project_name if self.name == 'default' else self.name
 
         # Conditions requiring a flat structure for build env
@@ -44,15 +48,17 @@ class VirtualEnvironment(EnvironmentInterface):
         ):
             app_virtual_env_path = self.isolated_data_directory / venv_name
         else:
-            app_virtual_env_path = self.isolated_data_directory / project_name / checksum / venv_name
+            app_virtual_env_path = self.isolated_data_directory / project_name / project_id / venv_name
 
         # Explicit path
         chosen_directory = self.get_env_var_option('path') or self.config.get('path', '')
         if chosen_directory:
-            self.storage_path = self.data_directory / project_name / checksum
+            self.storage_path = self.data_directory / project_name / project_id
             self.virtual_env_path = (
                 Path(chosen_directory) if isabs(chosen_directory) else (self.root / chosen_directory).resolve()
             )
+        elif project_is_script:
+            self.storage_path = self.virtual_env_path = self.isolated_data_directory / venv_name
         # Conditions requiring a flat structure
         elif (
             self.data_directory == self.platform.home / '.virtualenvs'
@@ -62,20 +68,68 @@ class VirtualEnvironment(EnvironmentInterface):
             self.virtual_env_path = self.storage_path / venv_name
         # Otherwise the defined app path
         else:
-            self.storage_path = self.data_directory / project_name / checksum
+            self.storage_path = self.data_directory / project_name / project_id
             self.virtual_env_path = self.storage_path / venv_name
 
-        self.virtual_env = VirtualEnv(self.virtual_env_path, self.platform, self.verbosity)
-        self.build_virtual_env = VirtualEnv(
+        self.virtual_env = self.virtual_env_cls(self.virtual_env_path, self.platform, self.verbosity)
+        self.build_virtual_env = self.virtual_env_cls(
             app_virtual_env_path.parent / f'{app_virtual_env_path.name}-build', self.platform, self.verbosity
         )
         self.shells = ShellManager(self)
 
         self._parent_python = None
 
+    @cached_property
+    def use_uv(self) -> bool:
+        return self.installer == 'uv' or bool(self.explicit_uv_path)
+
+    @cached_property
+    def installer(self) -> str:
+        return self.config.get('installer', 'pip')
+
+    @cached_property
+    def explicit_uv_path(self) -> str:
+        return self.get_env_var_option('uv_path') or self.config.get('uv-path', '')
+
+    @cached_property
+    def virtual_env_cls(self) -> type[VirtualEnv]:
+        return UVVirtualEnv if self.use_uv else VirtualEnv
+
+    def expose_uv(self):
+        if not (self.use_uv or self.uv_path):
+            return nullcontext()
+
+        return EnvVars({'HATCH_UV': self.uv_path})
+
+    @cached_property
+    def uv_path(self) -> str:
+        if self.explicit_uv_path:
+            return self.explicit_uv_path
+
+        from hatch.env.internal import is_default_environment
+
+        env_name = 'hatch-uv'
+        if not (
+            # Prevent recursive loop
+            self.name == env_name
+            # Only if dependencies have been set by the user
+            or is_default_environment(env_name, self.app.project.config.internal_envs[env_name])
+        ):
+            uv_env = self.app.project.get_environment(env_name)
+            self.app.project.prepare_environment(uv_env)
+            with uv_env:
+                return self.platform.modules.shutil.which('uv')
+
+        import sysconfig
+
+        scripts_dir = sysconfig.get_path('scripts')
+        old_path = os.environ.get('PATH', os.defpath)
+        new_path = f'{scripts_dir}{os.pathsep}{old_path}'
+        return self.platform.modules.shutil.which('uv', path=new_path)
+
     @staticmethod
     def get_option_types() -> dict:
-        return {'system-packages': bool, 'path': str, 'python-sources': list}
+        return {'system-packages': bool, 'path': str, 'python-sources': list, 'installer': str, 'uv-path': str}
 
     def activate(self):
         self.virtual_env.activate()
@@ -100,7 +154,8 @@ class VirtualEnvironment(EnvironmentInterface):
 """
                 )
 
-        self.virtual_env.create(self.parent_python, allow_system_packages=self.config.get('system-packages', False))
+        with self.expose_uv():
+            self.virtual_env.create(self.parent_python, allow_system_packages=self.config.get('system-packages', False))
 
     def remove(self):
         self.virtual_env.remove()
@@ -129,7 +184,7 @@ class VirtualEnvironment(EnvironmentInterface):
         if not self.dependencies:
             return True
 
-        from hatchling.dep.core import dependencies_in_sync
+        from hatch.dep.sync import dependencies_in_sync
 
         with self.safe_activation():
             return dependencies_in_sync(
@@ -141,31 +196,21 @@ class VirtualEnvironment(EnvironmentInterface):
             self.platform.check_command(self.construct_pip_install_command(self.dependencies))
 
     @contextmanager
-    def build_environment(self, dependencies):
-        from packaging.requirements import Requirement
-
-        from hatchling.dep.core import dependencies_in_sync
-
-        if not self.build_environment_exists():
-            self.build_virtual_env.create(self.parent_python)
-
-        with self.get_env_vars(), self.build_virtual_env:
-            if not dependencies_in_sync(
-                [Requirement(d) for d in dependencies],
-                sys_path=self.build_virtual_env.sys_path,
-                environment=self.build_virtual_env.environment,
-            ):
-                self.platform.check_command(self.construct_pip_install_command(dependencies))
-
-            yield
-
-    def build_environment_exists(self):
-        return self.build_virtual_env.exists()
-
-    @contextmanager
     def command_context(self):
         with self.safe_activation():
             yield
+
+    def construct_pip_install_command(self, args: list[str]):
+        if not self.use_uv:
+            return super().construct_pip_install_command(args)
+
+        command = [self.uv_path, 'pip', 'install']
+
+        # Default to -1 verbosity
+        add_verbosity_flag(command, self.verbosity, adjustment=-1)
+
+        command.extend(args)
+        return command
 
     def enter_shell(self, name: str, path: str, args: Iterable[str]):
         shell_executor = getattr(self.shells, f'enter_{name}', None)
@@ -174,7 +219,7 @@ class VirtualEnvironment(EnvironmentInterface):
             with self.safe_activation():
                 self.platform.exit_with_command([path, *args])
         else:
-            with self.get_env_vars():
+            with self.expose_uv(), self.get_env_vars():
                 shell_executor(path, args, self.virtual_env.executables_directory)
 
     def check_compatibility(self):
@@ -359,10 +404,7 @@ class VirtualEnvironment(EnvironmentInterface):
             return False
 
         # via Homebrew
-        if self.platform.macos and Path('/usr/local/Cellar') in parents:
-            return False
-
-        return True
+        return not (self.platform.macos and Path('/usr/local/Cellar') in parents)
 
     @cached_property
     def _python_sources(self) -> list[str]:
@@ -385,6 +427,9 @@ class VirtualEnvironment(EnvironmentInterface):
 
     @contextmanager
     def safe_activation(self):
-        # Set user-defined environment variables first so ours take precedence
-        with self.get_env_vars(), self:
+        # In order of precedence:
+        # - This environment
+        # - UV
+        # - User-defined environment variables
+        with self.get_env_vars(), self.expose_uv(), self:
             yield

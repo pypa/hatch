@@ -8,7 +8,12 @@ import pytest
 
 from hatch.config.constants import PublishEnvVars
 
-pytestmark = [pytest.mark.usefixtures('devpi'), pytest.mark.usefixtures('local_backend_process')]
+pytestmark = [
+    pytest.mark.requires_docker,
+    pytest.mark.requires_internet,
+    pytest.mark.usefixtures('devpi'),
+    pytest.mark.usefixtures('mock_backend_process'),
+]
 
 
 @pytest.fixture(autouse=True)
@@ -684,7 +689,7 @@ class TestSourceDistribution:
         extraction_directory = path / 'extraction'
 
         with tarfile.open(artifact_path, 'r:gz') as tar_archive:
-            tar_archive.extractall(extraction_directory)
+            tar_archive.extractall(extraction_directory, **helpers.tarfile_extraction_compat_options())
 
         metadata_file_path = extraction_directory / f'{published_project_name}-{current_version}' / 'PKG-INFO'
         metadata_file_path.write_text(remove_metadata_field(field, metadata_file_path.read_text()))

@@ -3,6 +3,8 @@ DEFAULT_BUILD_DIRECTORY = 'dist'
 EXCLUDED_DIRECTORIES = frozenset((
     # Python bytecode
     '__pycache__',
+    # Single virtual environment
+    '.venv',
     # Git
     '.git',
     # Mercurial
@@ -20,6 +22,10 @@ EXCLUDED_DIRECTORIES = frozenset((
     # Mypy
     '.mypy_cache',
 ))
+EXCLUDED_FILES = frozenset((
+    # https://en.wikipedia.org/wiki/.DS_Store
+    '.DS_Store',
+))
 
 
 class BuildEnvVars:
@@ -30,3 +36,6 @@ class BuildEnvVars:
     HOOK_ENABLE_PREFIX = 'HATCH_BUILD_HOOK_ENABLE_'
     CLEAN = 'HATCH_BUILD_CLEAN'
     CLEAN_HOOKS_AFTER = 'HATCH_BUILD_CLEAN_HOOKS_AFTER'
+
+
+EDITABLES_REQUIREMENT = 'editables~=0.3'

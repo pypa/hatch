@@ -10,7 +10,7 @@ echo "==:> Starting server"
 devpi-server --host 0.0.0.0 --port 3141 &
 
 echo "==:> Waiting on server"
-timeout 10 ash -c 'while ! echo exit | nc localhost 3141; do sleep 1; done'
+sleep 5
 
 echo "==:> Setting up index"
 devpi use http://localhost:3141

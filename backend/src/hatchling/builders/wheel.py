@@ -13,12 +13,14 @@ from typing import TYPE_CHECKING, Any, Callable, Iterable, NamedTuple, Sequence,
 
 from hatchling.__about__ import __version__
 from hatchling.builders.config import BuilderConfig
+from hatchling.builders.constants import EDITABLES_REQUIREMENT
 from hatchling.builders.plugin.interface import BuilderInterface
 from hatchling.builders.utils import (
     format_file_hash,
     get_known_python_major_versions,
     get_reproducible_timestamp,
     normalize_archive_path,
+    normalize_artifact_permissions,
     normalize_file_permissions,
     normalize_inclusion_map,
     replace_file,
@@ -31,8 +33,6 @@ if TYPE_CHECKING:
 
     from hatchling.builders.plugin.interface import IncludedFile
 
-
-EDITABLES_MINIMUM_VERSION = '0.3'
 
 TIME_TUPLE = Tuple[int, int, int, int, int, int]
 
@@ -99,7 +99,7 @@ class WheelArchive:
 
             # https://github.com/takluyver/flit/pull/66
             new_mode = normalize_file_permissions(file_stat.st_mode)
-            set_zip_info_mode(zip_info, new_mode & 0xFFFF)
+            set_zip_info_mode(zip_info, new_mode)
             if stat.S_ISDIR(file_stat.st_mode):  # no cov
                 zip_info.external_attr |= 0x10
         else:
@@ -124,6 +124,20 @@ class WheelArchive:
         relative_path = f'{self.metadata_directory}/{normalize_archive_path(relative_path)}'
         return self.write_file(relative_path, contents)
 
+    def write_shared_script(self, included_file: IncludedFile, contents: str | bytes) -> tuple[str, str, str]:
+        relative_path = (
+            f'{self.shared_data_directory}/scripts/{normalize_archive_path(included_file.distribution_path)}'
+        )
+        if sys.platform == 'win32':
+            return self.write_file(relative_path, contents)
+
+        file_stat = os.stat(included_file.path)
+        return self.write_file(
+            relative_path,
+            contents,
+            mode=normalize_file_permissions(file_stat.st_mode) if self.reproducible else file_stat.st_mode,
+        )
+
     def add_shared_file(self, shared_file: IncludedFile) -> tuple[str, str, str]:
         shared_file.distribution_path = f'{self.shared_data_directory}/data/{shared_file.distribution_path}'
         return self.add_file(shared_file)
@@ -134,13 +148,22 @@ class WheelArchive:
         )
         return self.add_file(extra_metadata_file)
 
-    def write_file(self, relative_path: str, contents: str | bytes) -> tuple[str, str, str]:
+    def write_file(
+        self,
+        relative_path: str,
+        contents: str | bytes,
+        *,
+        mode: int | None = None,
+    ) -> tuple[str, str, str]:
         if not isinstance(contents, bytes):
             contents = contents.encode('utf-8')
 
         time_tuple = self.time_tuple or (2020, 2, 2, 0, 0, 0)
         zip_info = zipfile.ZipInfo(relative_path, time_tuple)
-        set_zip_info_mode(zip_info)
+        if mode is None:
+            set_zip_info_mode(zip_info)
+        else:
+            set_zip_info_mode(zip_info, mode)
 
         hash_obj = hashlib.sha256(contents)
         hash_digest = format_file_hash(hash_obj.digest())
@@ -164,6 +187,7 @@ class WheelBuilderConfig(BuilderConfig):
 
         self.__core_metadata_constructor: Callable[..., str] | None = None
         self.__shared_data: dict[str, str] | None = None
+        self.__shared_scripts: dict[str, str] | None = None
         self.__extra_metadata: dict[str, str] | None = None
         self.__strict_naming: bool | None = None
         self.__macos_max_compat: bool | None = None
@@ -291,6 +315,40 @@ class WheelBuilderConfig(BuilderConfig):
         return self.__shared_data
 
     @property
+    def shared_scripts(self) -> dict[str, str]:
+        if self.__shared_scripts is None:
+            shared_scripts = self.target_config.get('shared-scripts', {})
+            if not isinstance(shared_scripts, dict):
+                message = f'Field `tool.hatch.build.targets.{self.plugin_name}.shared-scripts` must be a mapping'
+                raise TypeError(message)
+
+            for i, (source, relative_path) in enumerate(shared_scripts.items(), 1):
+                if not source:
+                    message = (
+                        f'Source #{i} in field `tool.hatch.build.targets.{self.plugin_name}.shared-scripts` '
+                        f'cannot be an empty string'
+                    )
+                    raise ValueError(message)
+
+                if not isinstance(relative_path, str):
+                    message = (
+                        f'Path for source `{source}` in field '
+                        f'`tool.hatch.build.targets.{self.plugin_name}.shared-scripts` must be a string'
+                    )
+                    raise TypeError(message)
+
+                if not relative_path:
+                    message = (
+                        f'Path for source `{source}` in field '
+                        f'`tool.hatch.build.targets.{self.plugin_name}.shared-scripts` cannot be an empty string'
+                    )
+                    raise ValueError(message)
+
+            self.__shared_scripts = normalize_inclusion_map(shared_scripts, self.root)
+
+        return self.__shared_scripts
+
+    @property
     def extra_metadata(self) -> dict[str, str]:
         if self.__extra_metadata is None:
             extra_metadata = self.target_config.get('extra-metadata', {})
@@ -345,7 +403,7 @@ class WheelBuilderConfig(BuilderConfig):
     @property
     def macos_max_compat(self) -> bool:
         if self.__macos_max_compat is None:
-            macos_max_compat = self.target_config.get('macos-max-compat', True)
+            macos_max_compat = self.target_config.get('macos-max-compat', False)
             if not isinstance(macos_max_compat, bool):
                 message = f'Field `tool.hatch.build.targets.{self.plugin_name}.macos-max-compat` must be a boolean'
                 raise TypeError(message)
@@ -426,6 +484,7 @@ class WheelBuilder(BuilderInterface):
         target = os.path.join(directory, f"{self.artifact_project_id}-{build_data['tag']}.whl")
 
         replace_file(archive.path, target)
+        normalize_artifact_permissions(target)
         return target
 
     def build_editable(self, directory: str, **build_data: Any) -> str:
@@ -465,7 +524,7 @@ class WheelBuilder(BuilderInterface):
                     try:
                         exposed_packages[distribution_module] = os.path.join(
                             self.root,
-                            f'{relative_path[:relative_path.index(distribution_path)]}{distribution_module}',
+                            f'{relative_path[: relative_path.index(distribution_path)]}{distribution_module}',
                         )
                     except ValueError:
                         message = (
@@ -500,7 +559,7 @@ class WheelBuilder(BuilderInterface):
             for raw_dependency in editable_project.dependencies():
                 dependency = raw_dependency
                 if dependency == 'editables':
-                    dependency += f'~={EDITABLES_MINIMUM_VERSION}'
+                    dependency = EDITABLES_REQUIREMENT
                 else:  # no cov
                     pass
 
@@ -514,6 +573,7 @@ class WheelBuilder(BuilderInterface):
         target = os.path.join(directory, f"{self.artifact_project_id}-{build_data['tag']}.whl")
 
         replace_file(archive.path, target)
+        normalize_artifact_permissions(target)
         return target
 
     def build_editable_explicit(self, directory: str, **build_data: Any) -> str:
@@ -542,19 +602,56 @@ class WheelBuilder(BuilderInterface):
         target = os.path.join(directory, f"{self.artifact_project_id}-{build_data['tag']}.whl")
 
         replace_file(archive.path, target)
+        normalize_artifact_permissions(target)
         return target
 
     def write_data(
         self, archive: WheelArchive, records: RecordFile, build_data: dict[str, Any], extra_dependencies: Sequence[str]
     ) -> None:
-        self.add_shared_data(archive, records)
+        self.add_shared_data(archive, records, build_data)
+        self.add_shared_scripts(archive, records, build_data)
 
         # Ensure metadata is written last, see https://peps.python.org/pep-0427/#recommended-archiver-features
         self.write_metadata(archive, records, build_data, extra_dependencies=extra_dependencies)
 
-    def add_shared_data(self, archive: WheelArchive, records: RecordFile) -> None:
-        for shared_file in self.recurse_explicit_files(self.config.shared_data):
+    def add_shared_data(self, archive: WheelArchive, records: RecordFile, build_data: dict[str, Any]) -> None:
+        shared_data = dict(self.config.shared_data)
+        shared_data.update(normalize_inclusion_map(build_data['shared_data'], self.root))
+
+        for shared_file in self.recurse_explicit_files(shared_data):
             record = archive.add_shared_file(shared_file)
+            records.write(record)
+
+    def add_shared_scripts(self, archive: WheelArchive, records: RecordFile, build_data: dict[str, Any]) -> None:
+        import re
+        from io import BytesIO
+
+        # https://packaging.python.org/en/latest/specifications/binary-distribution-format/#recommended-installer-features
+        shebang = re.compile(rb'^#!.*(?:pythonw?|pypyw?)[0-9.]*(.*)', flags=re.DOTALL)
+
+        shared_scripts = dict(self.config.shared_scripts)
+        shared_scripts.update(normalize_inclusion_map(build_data['shared_scripts'], self.root))
+
+        for shared_script in self.recurse_explicit_files(shared_scripts):
+            with open(shared_script.path, 'rb') as f:
+                content = BytesIO()
+                for line in f:
+                    # Ignore leading blank lines
+                    if not line.strip():
+                        continue
+
+                    match = shebang.match(line)
+                    if match is None:
+                        content.write(line)
+                    else:
+                        content.write(b'#!python')
+                        if remaining := match.group(1):
+                            content.write(remaining)
+
+                    content.write(f.read())
+                    break
+
+            record = archive.write_shared_script(shared_script, content.getvalue())
             records.write(record)
 
     def write_metadata(
@@ -650,11 +747,28 @@ Root-Is-Purelib: {'true' if build_data['pure_python'] else 'false'}
         return metadata_file.lstrip()
 
     def get_default_tag(self) -> str:
+        known_major_versions = list(get_known_python_major_versions())
+        max_version_part = 100
         supported_python_versions = []
-        for major_version in get_known_python_major_versions():
-            for minor_version in range(100):
-                if self.metadata.core.python_constraint.contains(f'{major_version}.{minor_version}'):
+        for major_version in known_major_versions:
+            for minor_version in range(max_version_part):
+                # Try an artificially high patch version to account for common cases like `>=3.11.4` or `>=3.10,<3.11`
+                if self.metadata.core.python_constraint.contains(f'{major_version}.{minor_version}.{max_version_part}'):
                     supported_python_versions.append(f'py{major_version}')
+                    break
+
+        # Slow path, try all permutations to account for narrow support ranges like `<=3.11.4`
+        if not supported_python_versions:
+            for major_version in known_major_versions:
+                for minor_version in range(max_version_part):
+                    for patch_version in range(max_version_part):
+                        if self.metadata.core.python_constraint.contains(
+                            f'{major_version}.{minor_version}.{patch_version}'
+                        ):
+                            supported_python_versions.append(f'py{major_version}')
+                            break
+                    else:
+                        continue
                     break
 
         return f'{".".join(supported_python_versions)}-none-any'
@@ -664,31 +778,15 @@ Root-Is-Purelib: {'true' if build_data['pure_python'] else 'false'}
 
         from packaging.tags import sys_tags
 
-        tag = next(sys_tags())
+        # Linux tag is after many/musl; packaging tools are required to skip
+        # many/musl, see https://github.com/pypa/packaging/issues/160
+        tag = next(iter(t for t in sys_tags() if 'manylinux' not in t.platform and 'musllinux' not in t.platform))
         tag_parts = [tag.interpreter, tag.abi, tag.platform]
 
-        archflags = os.environ.get('ARCHFLAGS', '')
         if sys.platform == 'darwin':
-            if archflags and sys.version_info[:2] >= (3, 8):
-                import platform
-                import re
+            from hatchling.builders.macos import process_macos_plat_tag
 
-                archs = re.findall(r'-arch (\S+)', archflags)
-                if archs:
-                    plat = tag_parts[2]
-                    current_arch = platform.mac_ver()[2]
-                    new_arch = 'universal2' if set(archs) == {'x86_64', 'arm64'} else archs[0]
-                    tag_parts[2] = f'{plat[:plat.rfind(current_arch)]}{new_arch}'
-
-            if self.config.macos_max_compat:
-                import re
-
-                plat = tag_parts[2]
-                sdk_match = re.search(r'macosx_(\d+_\d+)', plat)
-                if sdk_match:
-                    sdk_version_part = sdk_match.group(1)
-                    if tuple(map(int, sdk_version_part.split('_'))) >= (11, 0):
-                        tag_parts[2] = plat.replace(sdk_version_part, '10_16', 1)
+            tag_parts[2] = process_macos_plat_tag(tag_parts[2], compat=self.config.macos_max_compat)
 
         return '-'.join(tag_parts)
 
@@ -699,6 +797,8 @@ Root-Is-Purelib: {'true' if build_data['pure_python'] else 'false'}
             'dependencies': [],
             'force_include_editable': {},
             'extra_metadata': {},
+            'shared_data': {},
+            'shared_scripts': {},
         }
 
     def get_forced_inclusion_map(self, build_data: dict[str, Any]) -> dict[str, str]:

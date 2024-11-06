@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 from contextlib import contextmanager
+from functools import cached_property
 from typing import TYPE_CHECKING, Any, Generator, TypeVar
 
 import pathspec
@@ -191,6 +192,9 @@ class BuilderConfig:
 
             all_exclude_patterns = self.default_global_exclude()
 
+            if not self.ignore_vcs:
+                all_exclude_patterns.extend(self.load_vcs_exclusion_patterns())
+
             exclude_patterns = exclude_config.get('exclude', self.default_exclude())
             if not isinstance(exclude_patterns, list):
                 message = f'Field `{exclude_location}` must be an array of strings'
@@ -206,9 +210,6 @@ class BuilderConfig:
                     raise ValueError(message)
 
                 all_exclude_patterns.append(exclude_pattern)
-
-            if not self.ignore_vcs:
-                all_exclude_patterns.extend(self.load_vcs_exclusion_patterns())
 
             if all_exclude_patterns:
                 self.__exclude_spec = pathspec.GitIgnoreSpec.from_lines(all_exclude_patterns)
@@ -589,7 +590,7 @@ class BuilderConfig:
                 dependencies[dependency] = None
 
             require_runtime_dependencies = self.require_runtime_dependencies
-            require_runtime_features = {feature: None for feature in self.require_runtime_features}
+            require_runtime_features = dict.fromkeys(self.require_runtime_features)
             for hook_name, config in self.hook_config.items():
                 hook_require_runtime_dependencies = config.get('require-runtime-dependencies', False)
                 if not isinstance(hook_require_runtime_dependencies, bool):
@@ -652,9 +653,33 @@ class BuilderConfig:
                     for dependency in self.builder.metadata.core.optional_dependencies[feature]:
                         dependencies[dependency] = None
 
+            for dependency in self.dynamic_dependencies:
+                dependencies[dependency] = None
+
             self.__dependencies = list(dependencies)
 
         return self.__dependencies
+
+    @cached_property
+    def dynamic_dependencies(self) -> list[str]:
+        dependencies = []
+        for hook_name, config in self.hook_config.items():
+            build_hook_cls = self.builder.plugin_manager.build_hook.get(hook_name)
+            if build_hook_cls is None:
+                continue
+
+            # Hook exists but dynamic dependencies are not imported lazily.
+            # This happens for example when using the `custom` build hook.
+            try:
+                build_hook = build_hook_cls(
+                    self.root, config, self, self.builder.metadata, '', self.builder.PLUGIN_NAME, self.builder.app
+                )
+            except ImportError:
+                continue
+
+            dependencies.extend(build_hook.dependencies())
+
+        return dependencies
 
     @property
     def sources(self) -> dict[str, str]:
@@ -821,11 +846,11 @@ class BuilderConfig:
         if self.__vcs_exclusion_files is None:
             exclusion_files: dict[str, list[str]] = {'git': [], 'hg': []}
 
-            local_gitignore = locate_file(self.root, '.gitignore')
+            local_gitignore = locate_file(self.root, '.gitignore', boundary='.git')
             if local_gitignore is not None:
                 exclusion_files['git'].append(local_gitignore)
 
-            local_hgignore = locate_file(self.root, '.hgignore')
+            local_hgignore = locate_file(self.root, '.hgignore', boundary='.hg')
             if local_hgignore is not None:
                 exclusion_files['hg'].append(local_hgignore)
 

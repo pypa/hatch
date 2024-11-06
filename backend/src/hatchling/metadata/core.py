@@ -2,10 +2,16 @@ from __future__ import annotations
 
 import os
 import sys
+from contextlib import suppress
 from copy import deepcopy
 from typing import TYPE_CHECKING, Any, Generic, cast
 
-from hatchling.metadata.utils import get_normalized_dependency, is_valid_project_name, normalize_project_name
+from hatchling.metadata.utils import (
+    format_dependency,
+    is_valid_project_name,
+    normalize_project_name,
+    normalize_requirement,
+)
 from hatchling.plugin.manager import PluginManagerBound
 from hatchling.utils.constants import DEFAULT_CONFIG_FILE
 from hatchling.utils.fs import locate_file
@@ -83,6 +89,21 @@ class ProjectMetadata(Generic[PluginManagerBound]):
                 message = 'The `project` configuration must be a table'
                 raise TypeError(message)
 
+            core_raw_metadata = deepcopy(core_raw_metadata)
+            pkg_info = os.path.join(self.root, 'PKG-INFO')
+            if os.path.isfile(pkg_info):
+                from hatchling.metadata.spec import PROJECT_CORE_METADATA_FIELDS, project_metadata_from_core_metadata
+
+                with open(pkg_info, encoding='utf-8') as f:
+                    pkg_info_contents = f.read()
+
+                base_metadata = project_metadata_from_core_metadata(pkg_info_contents)
+                defined_dynamic = core_raw_metadata.get('dynamic', [])
+                for field in list(defined_dynamic):
+                    if field in PROJECT_CORE_METADATA_FIELDS and field in base_metadata:
+                        core_raw_metadata[field] = base_metadata[field]
+                        defined_dynamic.remove(field)
+
             self._core_raw_metadata = core_raw_metadata
 
         return self._core_raw_metadata
@@ -126,8 +147,8 @@ class ProjectMetadata(Generic[PluginManagerBound]):
         """
         if self._version is None:
             self._version = self._get_version()
-            if 'version' in self.dynamic and 'version' in self.core_raw_metadata['dynamic']:
-                self.core_raw_metadata['dynamic'].remove('version')
+            with suppress(ValueError):
+                self.core.dynamic.remove('version')
 
         return self._version
 
@@ -170,20 +191,21 @@ class ProjectMetadata(Generic[PluginManagerBound]):
                     self._version = self._get_version(metadata)
                     self.core_raw_metadata['version'] = self.version
 
-                for metadata_hook in metadata_hooks.values():
-                    metadata_hook.update(self.core_raw_metadata)
-                    metadata.add_known_classifiers(metadata_hook.get_known_classifiers())
+                if metadata.dynamic:
+                    for metadata_hook in metadata_hooks.values():
+                        metadata_hook.update(self.core_raw_metadata)
+                        metadata.add_known_classifiers(metadata_hook.get_known_classifiers())
 
-                new_fields = set(self.core_raw_metadata) - static_fields
-                for new_field in new_fields:
-                    if new_field in metadata.dynamic:
-                        metadata.dynamic.remove(new_field)
-                    else:
-                        message = (
-                            f'The field `{new_field}` was set dynamically and therefore must be '
-                            f'listed in `project.dynamic`'
-                        )
-                        raise ValueError(message)
+                    new_fields = set(self.core_raw_metadata) - static_fields
+                    for new_field in new_fields:
+                        if new_field in metadata.dynamic:
+                            metadata.dynamic.remove(new_field)
+                        else:
+                            message = (
+                                f'The field `{new_field}` was set dynamically and therefore must be '
+                                f'listed in `project.dynamic`'
+                            )
+                            raise ValueError(message)
 
             self._core = metadata
 
@@ -632,7 +654,7 @@ class CoreMetadata:
         return cast(SpecifierSet, self._python_constraint)
 
     @property
-    def license(self) -> str:  # noqa: A003
+    def license(self) -> str:
         """
         https://peps.python.org/pep-0621/#license
         """
@@ -1192,7 +1214,8 @@ class CoreMetadata:
                         )
                         raise ValueError(message)
 
-                    dependencies_complex[get_normalized_dependency(requirement)] = requirement
+                    normalize_requirement(requirement)
+                    dependencies_complex[format_dependency(requirement)] = requirement
 
             self._dependencies_complex = dict(sorted(dependencies_complex.items()))
 
@@ -1233,6 +1256,7 @@ class CoreMetadata:
 
             normalized_options: dict[str, str] = {}
             optional_dependency_entries = {}
+            inherited_options: dict[str, set[str]] = {}
 
             for option, dependencies in optional_dependencies.items():
                 if not is_valid_project_name(option):
@@ -1240,6 +1264,16 @@ class CoreMetadata:
                         f'Optional dependency group `{option}` of field `project.optional-dependencies` must only '
                         f'contain ASCII letters/digits, underscores, hyphens, and periods, and must begin and end with '
                         f'ASCII letters/digits.'
+                    )
+                    raise ValueError(message)
+
+                normalized_option = (
+                    option if self.hatch_metadata.allow_ambiguous_features else normalize_project_name(option)
+                )
+                if normalized_option in normalized_options:
+                    message = (
+                        f'Optional dependency groups `{normalized_options[normalized_option]}` and `{option}` of '
+                        f'field `project.optional-dependencies` both evaluate to `{normalized_option}`.'
                     )
                     raise ValueError(message)
 
@@ -1276,22 +1310,28 @@ class CoreMetadata:
                             )
                             raise ValueError(message)
 
-                        entries[get_normalized_dependency(requirement)] = requirement
-
-                normalized_option = (
-                    option if self.hatch_metadata.allow_ambiguous_features else normalize_project_name(option)
-                )
-                if normalized_option in normalized_options:
-                    message = (
-                        f'Optional dependency groups `{normalized_options[normalized_option]}` and `{option}` of '
-                        f'field `project.optional-dependencies` both evaluate to `{normalized_option}`.'
-                    )
-                    raise ValueError(message)
+                        normalize_requirement(requirement)
+                        if requirement.name == self.name:
+                            if normalized_option in inherited_options:
+                                inherited_options[normalized_option].update(requirement.extras)
+                            else:
+                                inherited_options[normalized_option] = set(requirement.extras)
+                        else:
+                            entries[format_dependency(requirement)] = requirement
 
                 normalized_options[normalized_option] = option
-                optional_dependency_entries[normalized_option] = dict(sorted(entries.items()))
+                optional_dependency_entries[normalized_option] = entries
 
-            self._optional_dependencies_complex = dict(sorted(optional_dependency_entries.items()))
+            visited: set[str] = set()
+            resolved: set[str] = set()
+            for dependent_option in inherited_options:
+                _resolve_optional_dependencies(
+                    optional_dependency_entries, dependent_option, inherited_options, visited, resolved
+                )
+
+            self._optional_dependencies_complex = {
+                option: dict(sorted(entries.items())) for option, entries in sorted(optional_dependency_entries.items())
+            }
 
         return self._optional_dependencies_complex
 
@@ -1313,15 +1353,17 @@ class CoreMetadata:
         https://peps.python.org/pep-0621/#dynamic
         """
         if self._dynamic is None:
-            self._dynamic = self.config.get('dynamic', [])
+            dynamic = self.config.get('dynamic', [])
 
-        if not isinstance(self._dynamic, list):
-            message = 'Field `project.dynamic` must be an array'
-            raise TypeError(message)
+            if not isinstance(dynamic, list):
+                message = 'Field `project.dynamic` must be an array'
+                raise TypeError(message)
 
-        if not all(isinstance(entry, str) for entry in self._dynamic):
-            message = 'Field `project.dynamic` must only contain strings'
-            raise TypeError(message)
+            if not all(isinstance(entry, str) for entry in dynamic):
+                message = 'Field `project.dynamic` must only contain strings'
+                raise TypeError(message)
+
+            self._dynamic = sorted(dynamic)
 
         return self._dynamic
 
@@ -1559,3 +1601,31 @@ class HatchMetadataSettings(Generic[PluginManagerBound]):
             self._hooks = configured_hooks
 
         return self._hooks
+
+
+def _resolve_optional_dependencies(
+    optional_dependencies_complex, dependent_option, inherited_options, visited, resolved
+):
+    if dependent_option in resolved:
+        return
+
+    if dependent_option in visited:
+        message = f'Field `project.optional-dependencies` defines a circular dependency group: {dependent_option}'
+        raise ValueError(message)
+
+    visited.add(dependent_option)
+    if dependent_option in inherited_options:
+        for selected_option in inherited_options[dependent_option]:
+            _resolve_optional_dependencies(
+                optional_dependencies_complex, selected_option, inherited_options, visited, resolved
+            )
+            if selected_option not in optional_dependencies_complex:
+                message = (
+                    f'Unknown recursive dependency group in field `project.optional-dependencies`: {selected_option}'
+                )
+                raise ValueError(message)
+
+            optional_dependencies_complex[dependent_option].update(optional_dependencies_complex[selected_option])
+
+    resolved.add(dependent_option)
+    visited.remove(dependent_option)

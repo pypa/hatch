@@ -74,7 +74,10 @@ nav:
     - Environments:
       - Overview: config/environment/overview.md
       - Advanced: config/environment/advanced.md
-    - Static analysis: config/static-analysis.md
+    - Internal:
+      - Testing: config/internal/testing.md
+      - Static analysis: config/internal/static-analysis.md
+      - Building: config/internal/build.md
     - Context formatting: config/context.md
     - Project templates: config/project-templates.md
     - Hatch: config/hatch.md
@@ -87,7 +90,7 @@ nav:
       - Reference: plugins/builder/reference.md
       - Wheel: plugins/builder/wheel.md
       - Source distribution: plugins/builder/sdist.md
-      - Application: plugins/builder/app.md
+      - Binary: plugins/builder/binary.md
       - Custom: plugins/builder/custom.md
     - Build hook:
       - Reference: plugins/build-hook/reference.md
@@ -118,15 +121,31 @@ nav:
   - How-to:
     - Meta:
       - Report issues: how-to/meta/report-issues.md
+    - Integrate:
+      - Visual Studio Code: how-to/integrate/vscode.md
+    - Run:
+      - Python scripts: how-to/run/python-scripts.md
+    - Config:
+      - Dynamic metadata: how-to/config/dynamic-metadata.md
     - Environments:
-      - Package indices: how-to/environment/package-indices.md
+      - Select installer: how-to/environment/select-installer.md
+      - Dependency resolution: how-to/environment/dependency-resolution.md
     - Static analysis:
       - Customize behavior: how-to/static-analysis/behavior.md
+    - Python:
+      - Custom distributions: how-to/python/custom.md
+    - Publishing:
+      - Authentication: how-to/publish/auth.md
+      - Repository selection: how-to/publish/repo.md
     - Plugins:
       - Testing builds: how-to/plugins/testing-builds.md
-    - Publishing:
-        - Authentication: how-to/publish/auth.md
-        - Repository selection: how-to/publish/repo.md
+  - Tutorials:
+    - Python:
+      - Management: tutorials/python/manage.md
+    - Environments:
+      - Basic usage: tutorials/environment/basic-usage.md
+    - Testing:
+      - Overview: tutorials/testing/overview.md
   - Meta:
     - FAQ: meta/faq.md
     - Authors: meta/authors.md
@@ -178,7 +197,9 @@ plugins:
   redirects:
     redirect_maps:
       config/environment.md: config/environment/overview.md
+      config/static-analysis.md: config/internal/static-analysis.md
       history.md: history/hatch.md
+      how-to/environment/package-indices.md: how-to/environment/dependency-resolution.md
       plugins/builder.md: plugins/builder/reference.md
       plugins/build-hook.md: plugins/build-hook/reference.md
       plugins/metadata-hook.md: plugins/metadata-hook/reference.md
@@ -187,6 +208,7 @@ plugins:
       plugins/publisher.md: plugins/publisher/reference.md
       plugins/version-source.md: plugins/version-source/reference.md
       plugins/version-scheme.md: plugins/version-scheme/reference.md
+      plugins/builder/app.md: plugins/builder/binary.md
       users.md: community/users.md
 
 markdown_extensions:

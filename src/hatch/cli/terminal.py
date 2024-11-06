@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING, Callable
 
 import click
 from rich.console import Console
-from rich.errors import StyleSyntaxError
 from rich.style import Style
 from rich.text import Text
 
@@ -43,8 +42,8 @@ class BorrowedStatus(TerminalStatus):
         is_interactive: bool,
         verbosity: int,
         spinner_style: str,
-        waiting_style: Style,
-        success_style: Style,
+        waiting_style: Style | str,
+        success_style: Style | str,
         initializer: Callable,
         finalizer: Callable,
     ):
@@ -67,6 +66,7 @@ class BorrowedStatus(TerminalStatus):
         active = self.__active()
         if self.__status is not None:
             self.__status.stop()
+            self.__finalizer()
 
         old_message, final_text = self.__messages[-1]
         if self.__verbosity > 0 and active:
@@ -116,6 +116,7 @@ class BorrowedStatus(TerminalStatus):
             self.__status = None
             self.__finalizer()
         else:
+            self.__initializer()
             message, _ = self.__messages[-1]
             self.__status = self.__console.status(message, spinner=self.__spinner_style)
             self.__status.start()
@@ -133,6 +134,9 @@ class BorrowedStatus(TerminalStatus):
 
 class Terminal:
     def __init__(self, *, verbosity: int, enable_color: bool | None, interactive: bool | None):
+        # Force consistent output for test assertions
+        self.testing = 'HATCH_SELF_TESTING' in os.environ
+
         self.verbosity = verbosity
         self.console = Console(
             force_terminal=enable_color,
@@ -141,8 +145,7 @@ class Terminal:
             markup=False,
             emoji=False,
             highlight=False,
-            # Force consistent output for test assertions
-            legacy_windows=False if 'HATCH_SELF_TESTING' in os.environ else None,
+            legacy_windows=False if self.testing else None,
         )
 
         # Set defaults so we can pretty print before loading user config
@@ -180,6 +183,9 @@ class Terminal:
         return Text(text, style=self._style_level_debug)
 
     def initialize_styles(self, styles: dict):  # no cov
+        from rich.errors import StyleSyntaxError
+        from rich.spinner import Spinner
+
         # Lazily display errors so that they use the correct style
         errors = []
 
@@ -195,8 +201,17 @@ class Terminal:
                     parsed_style = Style.parse(default_level)
 
                 setattr(self, attribute, parsed_style)
+            elif option == 'spinner':
+                try:
+                    Spinner(style)
+                except KeyError as e:
+                    errors.append(
+                        f'Invalid style definition for `{option}`, defaulting to `{self._style_spinner}`: {e.args[0]}'
+                    )
+                else:
+                    self._style_spinner = style
             else:
-                setattr(self, attribute, f'_style_{option}')
+                setattr(self, f'_style_{option}', style)
 
         return errors
 
@@ -263,6 +278,12 @@ class Terminal:
     def display_header(self, title=''):
         self.console.rule(Text(title, self._style_level_success))
 
+    def display_syntax(self, *args, **kwargs):
+        from rich.syntax import Syntax
+
+        kwargs.setdefault('background_color', 'default' if self.testing else None)
+        self.output(Syntax(*args, **kwargs))
+
     def display_markdown(self, text, **kwargs):  # no cov
         from rich.markdown import Markdown
 
@@ -310,8 +331,8 @@ class Terminal:
             is_interactive=self.console.is_interactive,
             verbosity=self.verbosity,
             spinner_style=self._style_spinner,
-            waiting_style=self._style_level_waiting,  # type: ignore[arg-type]
-            success_style=self._style_level_success,  # type: ignore[arg-type]
+            waiting_style=self._style_level_waiting,
+            success_style=self._style_level_success,
             initializer=lambda: setattr(self.platform, 'displaying_status', True),  # type: ignore[attr-defined]
             finalizer=lambda: setattr(self.platform, 'displaying_status', False),  # type: ignore[attr-defined]
         )

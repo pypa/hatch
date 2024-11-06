@@ -2,7 +2,7 @@
 
 -----
 
-Static analysis performed by the [`fmt`](../cli/reference.md#hatch-fmt) command is ([by default](#customize-behavior)) backed entirely by [Ruff](https://github.com/astral-sh/ruff).
+Static analysis performed by the [`fmt`](../../cli/reference.md#hatch-fmt) command is ([by default](#customize-behavior)) backed entirely by [Ruff](https://github.com/astral-sh/ruff).
 
 Hatch provides [default settings](#default-settings) that user configuration can [extend](#extending-config).
 
@@ -73,7 +73,7 @@ Then instruct Ruff to consider your configuration as an extension of the default
     extend = "ruff_defaults.toml"
     ```
 
-Anytime you wish to update the defaults (such as when upgrading Hatch), you must run the [`fmt`](../cli/reference.md#hatch-fmt) command once with the `--sync` flag e.g.:
+Anytime you wish to update the defaults (such as when upgrading Hatch), you must run the [`fmt`](../../cli/reference.md#hatch-fmt) command once with the `--sync` flag e.g.:
 
 ```
 hatch fmt --check --sync
@@ -93,11 +93,11 @@ config-path = "none"
 
 ## Customize behavior
 
-You can fully alter the behavior of the environment used by the [`fmt`](../cli/reference.md#hatch-fmt) command. See the [how-to](../how-to/static-analysis/behavior.md) for a detailed example.
+You can fully alter the behavior of the environment used by the [`fmt`](../../cli/reference.md#hatch-fmt) command. See the [how-to](../../how-to/static-analysis/behavior.md) for a detailed example.
 
 ### Dependencies
 
-Pin the particular version of Ruff by explicitly defining the environment [dependencies](environment/overview.md#dependencies):
+Pin the particular version of Ruff by explicitly defining the environment [dependencies](../environment/overview.md#dependencies):
 
 ```toml config-example
 [tool.hatch.envs.hatch-static-analysis]
@@ -106,7 +106,7 @@ dependencies = ["ruff==X.Y.Z"]
 
 ### Scripts
 
-If you want to change the default commands that are executed, you can override the [scripts](environment/overview.md#scripts). The following four scripts must be defined:
+If you want to change the default commands that are executed, you can override the [scripts](../environment/overview.md#scripts). The following four scripts must be defined:
 
 ```toml config-example
 [tool.hatch.envs.hatch-static-analysis.scripts]
@@ -121,14 +121,23 @@ The `format-*` scripts correspond to the `--formatter`/`-f` flag while the `lint
 !!! note "Reminder"
     If you choose to use different tools for static analysis, be sure to update the required [dependencies](#dependencies).
 
+### Installer
+
+By default, [UV is enabled](../../how-to/environment/select-installer.md). You may disable that behavior as follows:
+
+```toml config-example
+[tool.hatch.envs.hatch-static-analysis]
+installer = "pip"
+```
+
 ## Default settings
 
 ### Non-rule settings
 
 - [Line length](https://docs.astral.sh/ruff/settings/#line-length) set to 120
-- [Docstring formatting](https://docs.astral.sh/ruff/formatter/#docstring-formatting) enabled with [line length](https://docs.astral.sh/ruff/settings/#format-docstring-code-line-length) set to 80
-- Only absolute imports [are allowed](https://docs.astral.sh/ruff/settings/#flake8-tidy-imports-ban-relative-imports), [except for tests](#per-file-ignored-rules)
-- The normalized [project name](metadata.md#name) is a [known first party](https://docs.astral.sh/ruff/settings/#isort-known-first-party) import
+- [Docstring formatting](https://docs.astral.sh/ruff/formatter/#docstring-formatting) enabled with [line length](https://docs.astral.sh/ruff/settings/#format_docstring-code-line-length) set to 80
+- Only absolute imports [are allowed](https://docs.astral.sh/ruff/settings/#lint_flake8-tidy-imports_ban-relative-imports), [except for tests](#per-file-ignored-rules)
+- The normalized [project name](../metadata.md#name) is a [known first party](https://docs.astral.sh/ruff/settings/#lint_isort_known-first-party) import
 
 ### Per-file ignored rules
 
@@ -138,4 +147,12 @@ The `format-*` scripts correspond to the `--formatter`/`-f` flag while the `lint
 
 The following rules are based on version <HATCH_RUFF_VERSION> of Ruff. Rules with a ^P^ are only selected when [preview](https://docs.astral.sh/ruff/preview/) mode is enabled.
 
+There are <HATCH_RUFF_STABLE_RULES_COUNT> selected stable rules and <HATCH_RUFF_PREVIEW_RULES_COUNT> selected preview rules.
+
 <HATCH_RUFF_SELECTED_RULES>
+
+#### Unselected
+
+There are <HATCH_RUFF_UNSELECTED_RULES_COUNT> unselected rules.
+
+<HATCH_RUFF_UNSELECTED_RULES>

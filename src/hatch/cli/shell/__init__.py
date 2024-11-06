@@ -1,40 +1,48 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import click
+
+if TYPE_CHECKING:
+    from hatch.cli.application import Application
 
 
 @click.command(short_help="Enter a shell within a project's environment")
-@click.argument('shell_name', required=False)
-@click.argument('shell_path', required=False)
-@click.argument('shell_args', required=False, nargs=-1)
+@click.argument('env_name', required=False)
+@click.option('--name')
+@click.option('--path')
 @click.pass_obj
-def shell(app, shell_name, shell_path, shell_args):  # no cov
+def shell(app: Application, env_name: str | None, name: str, path: str):  # no cov
     """Enter a shell within a project's environment."""
     app.ensure_environment_plugin_dependencies()
 
-    if app.env == app.env_active:
-        app.abort(f'Already in environment: {app.env}')
+    chosen_env = env_name or app.env
+    if chosen_env == app.env_active:
+        app.abort(f'Already in environment: {chosen_env}')
 
-    if app.env in app.project.config.matrices:
-        app.display_error(f'Environment `{app.env}` defines a matrix, choose one of the following instead:\n')
-        for env_name in app.project.config.matrices[app.env]['envs']:
-            app.display_error(env_name)
+    for matrices in (app.project.config.matrices, app.project.config.internal_matrices):
+        if chosen_env in matrices:
+            app.display_error(f'Environment `{chosen_env}` defines a matrix, choose one of the following instead:\n')
+            for generated_name in matrices[chosen_env]['envs']:
+                app.display_error(generated_name)
 
-        app.abort()
+            app.abort()
 
-    if not shell_name:
-        shell_name = app.config.shell.name
-    if not shell_path:
-        shell_path = app.config.shell.path
-    if not shell_args:
-        shell_args = app.config.shell.args
+    if not name:
+        name = app.config.shell.name
+    if not path:
+        path = app.config.shell.path
 
-    if not shell_path:
-        shell_name, shell_path = app.shell_data
+    args = app.config.shell.args
+    if not path:
+        name, path = app.shell_data
         if not app.platform.windows:
-            shell_path, *shell_args = app.platform.modules.shlex.split(shell_path)
+            path, *args = app.platform.modules.shlex.split(path)
 
-    with app.project.location.as_cwd():
-        environment = app.get_environment()
-        app.prepare_environment(environment)
+    with app.project.ensure_cwd():
+        environment = app.project.get_environment(chosen_env)
+        app.project.prepare_environment(environment)
 
         first_run_indicator = app.cache_dir / 'shell' / 'first_run'
         if not first_run_indicator.is_file():
@@ -45,4 +53,4 @@ def shell(app, shell_name, shell_path, shell_args):  # no cov
             first_run_indicator.parent.ensure_dir_exists()
             first_run_indicator.touch()
 
-        environment.enter_shell(shell_name, shell_path, shell_args)
+        environment.enter_shell(name, path, args)

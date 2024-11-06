@@ -55,78 +55,76 @@ def build(app: Application, location, targets, hooks_only, no_hooks, ext, clean,
     app.ensure_environment_plugin_dependencies()
 
     from hatch.config.constants import AppEnvVars
+    from hatch.project.config import env_var_enabled
+    from hatch.project.constants import BUILD_BACKEND, DEFAULT_BUILD_DIRECTORY, BuildEnvVars
     from hatch.utils.fs import Path
+    from hatch.utils.runner import ExecutionContext
     from hatch.utils.structures import EnvVars
-    from hatchling.builders.constants import BuildEnvVars
-    from hatchling.builders.plugin.interface import BuilderInterface
 
-    path = str(Path(location).resolve()) if location else None
-
+    build_dir = Path(location).resolve() if location else None
     if ext:
         hooks_only = True
         targets = ('wheel',)
     elif not targets:
         targets = ('sdist', 'wheel')
 
-    if app.project.metadata.build.build_backend != 'hatchling.build':
-        script = 'build-sdist' if targets == ('sdist',) else 'build-wheel' if targets == ('wheel',) else 'build-all'
-        environment = app.get_environment('hatch-build')
-        app.prepare_environment(environment)
-        app.run_shell_commands(
-            environment,
-            [environment.join_command_args([script])],
-            show_code_on_error=False,
-        )
-
-        return
-
     env_vars = {}
-    if no_hooks:
-        env_vars[BuildEnvVars.NO_HOOKS] = 'true'
-
     if app.verbose:
         env_vars[AppEnvVars.VERBOSE] = str(app.verbosity)
     elif app.quiet:
         env_vars[AppEnvVars.QUIET] = str(abs(app.verbosity))
 
-    class Builder(BuilderInterface):
-        def get_version_api(self):  # noqa: PLR6301
-            return {}
+    with EnvVars(env_vars):
+        app.project.prepare_build_environment(targets=[target.split(':')[0] for target in targets])
 
-    with app.project.location.as_cwd(env_vars):
-        environment = app.get_environment()
-        if not environment.build_environment_exists():
-            try:
-                environment.check_compatibility()
-            except Exception as e:  # noqa: BLE001
-                app.abort(f'Environment `{environment.name}` is incompatible: {e}')
-
+    build_backend = app.project.metadata.build.build_backend
+    with app.project.location.as_cwd(), app.project.build_env.get_env_vars():
         for target in targets:
             target_name, _, _ = target.partition(':')
-            builder = Builder(str(app.project.location))
-            builder.PLUGIN_NAME = target_name
-
             if not clean_only:
                 app.display_header(target_name)
 
-            dependencies = list(app.project.metadata.build.requires)
-            with environment.get_env_vars(), EnvVars(env_vars):
-                dependencies.extend(builder.config.dependencies)
+            if build_backend != BUILD_BACKEND:
+                if target_name == 'sdist':
+                    directory = build_dir or app.project.location / DEFAULT_BUILD_DIRECTORY
+                    directory.ensure_dir_exists()
+                    artifact_path = app.project.build_frontend.build_sdist(directory)
+                elif target_name == 'wheel':
+                    directory = build_dir or app.project.location / DEFAULT_BUILD_DIRECTORY
+                    directory.ensure_dir_exists()
+                    artifact_path = app.project.build_frontend.build_wheel(directory)
+                else:
+                    app.abort(f'Target `{target_name}` is not supported by `{build_backend}`')
 
-            with app.status_if(
-                'Setting up build environment', condition=not environment.build_environment_exists()
-            ) as status, environment.build_environment(dependencies) as build_environment:
-                status.stop()
-
-                process = environment.run_builder(
-                    build_environment,
-                    directory=path,
-                    targets=(target,),
-                    hooks_only=hooks_only,
-                    no_hooks=no_hooks,
-                    clean=clean,
-                    clean_hooks_after=clean_hooks_after,
-                    clean_only=clean_only,
+                app.display_info(
+                    str(artifact_path.relative_to(app.project.location))
+                    if app.project.location in artifact_path.parents
+                    else str(artifact_path)
                 )
-                if process.returncode:
-                    app.abort(code=process.returncode)
+            else:
+                command = ['python', '-u', '-m', 'hatchling', 'build', '--target', target]
+
+                # We deliberately pass the location unchanged so that absolute paths may be non-local
+                # and reflect wherever builds actually take place
+                if location:
+                    command.extend(('--directory', location))
+
+                if hooks_only or env_var_enabled(BuildEnvVars.HOOKS_ONLY):
+                    command.append('--hooks-only')
+
+                if no_hooks or env_var_enabled(BuildEnvVars.NO_HOOKS):
+                    command.append('--no-hooks')
+
+                if clean or env_var_enabled(BuildEnvVars.CLEAN):
+                    command.append('--clean')
+
+                if clean_hooks_after or env_var_enabled(BuildEnvVars.CLEAN_HOOKS_AFTER):
+                    command.append('--clean-hooks-after')
+
+                if clean_only:
+                    command.append('--clean-only')
+
+                context = ExecutionContext(app.project.build_env)
+                context.add_shell_command(command)
+                context.env_vars.update(env_vars)
+                app.execute_context(context)

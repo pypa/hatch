@@ -29,7 +29,7 @@ class Readme(File):
 {extra_badges}
 -----
 
-**Table of Contents**
+## Table of Contents
 
 - [Installation](#installation)
 {extra_toc}
@@ -117,9 +117,9 @@ path = "{package_metadata_file_path}"{tests_section}
             plugin_config['project_urls']
             if 'project_urls' in plugin_config
             else {
-                'Documentation': 'https://github.com/unknown/{project_name_normalized}#readme',
-                'Issues': 'https://github.com/unknown/{project_name_normalized}/issues',
-                'Source': 'https://github.com/unknown/{project_name_normalized}',
+                'Documentation': 'https://github.com/{name}/{project_name_normalized}#readme',
+                'Issues': 'https://github.com/{name}/{project_name_normalized}/issues',
+                'Source': 'https://github.com/{name}/{project_name_normalized}',
             }
         )
         if project_urls:
@@ -139,35 +139,15 @@ path = "{package_metadata_file_path}"{tests_section}
 
 [project.scripts]
 {template_config['project_name_normalized']} = "{template_config['package_name']}.cli:{template_config['package_name']}"\
-"""  # noqa: E501
+"""
 
         tests_section = ''
         if plugin_config['tests']:
             package_location = 'src/' if plugin_config['src-layout'] else ''
             tests_section = f"""
 
-[tool.hatch.envs.default]
-dependencies = [
-  "coverage[toml]>=6.5",
-  "pytest",
-]
-[tool.hatch.envs.default.scripts]
-test = "pytest {{args:tests}}"
-test-cov = "coverage run -m pytest {{args:tests}}"
-cov-report = [
-  "- coverage combine",
-  "coverage report",
-]
-cov = [
-  "test-cov",
-  "cov-report",
-]
-
-[[tool.hatch.envs.all.matrix]]
-python = ["3.8", "3.9", "3.10", "3.11", "3.12"]
-
 [tool.hatch.envs.types]
-dependencies = [
+extra-dependencies = [
   "mypy>=1.0.0",
 ]
 [tool.hatch.envs.types.scripts]
@@ -190,7 +170,7 @@ exclude_lines = [
   "no cov",
   "if __name__ == .__main__.:",
   "if TYPE_CHECKING:",
-]"""  # noqa: E501
+]"""
 
         super().__init__(
             Path('pyproject.toml'),

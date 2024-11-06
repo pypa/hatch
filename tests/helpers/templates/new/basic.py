@@ -39,7 +39,7 @@ __version__ = "0.0.1"
 
 -----
 
-**Table of Contents**
+## Table of Contents
 
 - [Installation](#installation)
 - [License](#license)
@@ -53,7 +53,7 @@ pip install {kwargs['project_name_normalized']}
 ## License
 
 `{kwargs['project_name_normalized']}` is distributed under the terms of the [MIT](https://spdx.org/licenses/MIT.html) license.
-""",  # noqa: E501
+""",
         ),
         File(
             Path('pyproject.toml'),
@@ -87,9 +87,9 @@ classifiers = [
 dependencies = []
 
 [project.urls]
-Documentation = "https://github.com/unknown/{kwargs['project_name_normalized']}#readme"
-Issues = "https://github.com/unknown/{kwargs['project_name_normalized']}/issues"
-Source = "https://github.com/unknown/{kwargs['project_name_normalized']}"
+Documentation = "https://github.com/{kwargs['author']}/{kwargs['project_name_normalized']}#readme"
+Issues = "https://github.com/{kwargs['author']}/{kwargs['project_name_normalized']}/issues"
+Source = "https://github.com/{kwargs['author']}/{kwargs['project_name_normalized']}"
 
 [tool.hatch.version]
 path = "src/{kwargs['package_name']}/__about__.py"

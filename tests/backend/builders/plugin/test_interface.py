@@ -2,7 +2,7 @@ from os.path import sep as path_sep
 
 import pytest
 
-from hatchling.builders.constants import EXCLUDED_DIRECTORIES
+from hatchling.builders.constants import EXCLUDED_DIRECTORIES, EXCLUDED_FILES
 from hatchling.metadata.core import ProjectMetadata
 from hatchling.plugin.manager import PluginManager
 
@@ -62,7 +62,7 @@ class TestMetadata:
         config = {'project': {}}
         builder = MockBuilder(str(isolation), config=config)
 
-        assert builder.project_config is builder.project_config is config['project']
+        assert builder.project_config == builder.project_config == config['project']
 
     def test_hatch(self, isolation):
         config = {'tool': {'hatch': {}}}
@@ -127,7 +127,6 @@ class TestBuildValidation:
         }
         builder = MockBuilder(str(isolation), config=config)
         builder.PLUGIN_NAME = 'foo'
-        builder.get_version_api = lambda: {'1': lambda *_args, **_kwargs: ''}
 
         with pytest.raises(
             ValueError,
@@ -350,6 +349,9 @@ class TestDirectoryRecursion:
                 excluded_dir = bar / name
                 excluded_dir.ensure_dir_exists()
                 (excluded_dir / 'file.ext').touch()
+            for name in EXCLUDED_FILES:
+                excluded_file = bar / name
+                excluded_file.touch()
 
             (project_dir / 'README.md').touch()
             (project_dir / 'tox.ini').touch()
@@ -367,6 +369,9 @@ class TestDirectoryRecursion:
                 excluded_dir = external / name
                 excluded_dir.ensure_dir_exists()
                 (excluded_dir / 'file.ext').touch()
+            for name in EXCLUDED_FILES:
+                excluded_file = external / name
+                excluded_file.touch()
 
             assert [(f.path, f.distribution_path) for f in builder.recurse_included_files()] == [
                 (str(project_dir / 'README.md'), 'README.md'),

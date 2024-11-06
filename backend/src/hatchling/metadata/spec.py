@@ -1,11 +1,50 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING, Any, Callable
 
 if TYPE_CHECKING:
     from hatchling.metadata.core import ProjectMetadata
 
-DEFAULT_METADATA_VERSION = '2.1'
+DEFAULT_METADATA_VERSION = '2.3'
+LATEST_METADATA_VERSION = '2.3'
+CORE_METADATA_PROJECT_FIELDS = {
+    'Author': ('authors',),
+    'Author-email': ('authors',),
+    'Classifier': ('classifiers',),
+    'Description': ('readme',),
+    'Description-Content-Type': ('readme',),
+    'Dynamic': ('dynamic',),
+    'Keywords': ('keywords',),
+    'License': ('license',),
+    'License-Expression': ('license',),
+    'License-Files': ('license-files',),
+    'Maintainer': ('maintainers',),
+    'Maintainer-email': ('maintainers',),
+    'Name': ('name',),
+    'Provides-Extra': ('dependencies', 'optional-dependencies'),
+    'Requires-Dist': ('dependencies',),
+    'Requires-Python': ('requires-python',),
+    'Summary': ('description',),
+    'Project-URL': ('urls',),
+    'Version': ('version',),
+}
+PROJECT_CORE_METADATA_FIELDS = {
+    'authors': ('Author', 'Author-email'),
+    'classifiers': ('Classifier',),
+    'dependencies': ('Requires-Dist',),
+    'dynamic': ('Dynamic',),
+    'keywords': ('Keywords',),
+    'license': ('License', 'License-Expression'),
+    'license-files': ('License-Files',),
+    'maintainers': ('Maintainer', 'Maintainer-email'),
+    'name': ('Name',),
+    'optional-dependencies': ('Requires-Dist', 'Provides-Extra'),
+    'readme': ('Description', 'Description-Content-Type'),
+    'requires-python': ('Requires-Python',),
+    'description': ('Summary',),
+    'urls': ('Project-URL',),
+    'version': ('Version',),
+}
 
 
 def get_core_metadata_constructors() -> dict[str, Callable]:
@@ -18,6 +57,143 @@ def get_core_metadata_constructors() -> dict[str, Callable]:
         '2.2': construct_metadata_file_2_2,
         '2.3': construct_metadata_file_2_3,
     }
+
+
+def project_metadata_from_core_metadata(core_metadata: str) -> dict[str, Any]:
+    # https://packaging.python.org/en/latest/specifications/core-metadata/
+    import email
+    from email.headerregistry import HeaderRegistry
+
+    header_registry = HeaderRegistry()
+
+    message = email.message_from_string(core_metadata)
+    metadata: dict[str, Any] = {}
+
+    if name := message.get('Name'):
+        metadata['name'] = name
+    else:
+        error_message = 'Missing required core metadata: Name'
+        raise ValueError(error_message)
+
+    if version := message.get('Version'):
+        metadata['version'] = version
+    else:
+        error_message = 'Missing required core metadata: Version'
+        raise ValueError(error_message)
+
+    if (dynamic_fields := message.get_all('Dynamic')) is not None:
+        # Use as an ordered set to retain bidirectional formatting.
+        # This likely doesn't matter but we try hard around here.
+        metadata['dynamic'] = list({
+            project_field: None
+            for core_metadata_field in dynamic_fields
+            for project_field in CORE_METADATA_PROJECT_FIELDS.get(core_metadata_field, ())
+        })
+
+    if description := message.get_payload():
+        metadata['readme'] = {
+            'content-type': message.get('Description-Content-Type', 'text/plain'),
+            'text': description,
+        }
+
+    if (license_expression := message.get('License-Expression')) is not None:
+        metadata['license'] = license_expression
+    elif (license_text := message.get('License')) is not None:
+        metadata['license'] = {'text': license_text}
+
+    if (license_files := message.get_all('License-File')) is not None:
+        metadata['license-files'] = {'paths': license_files}
+
+    if (summary := message.get('Summary')) is not None:
+        metadata['description'] = summary
+
+    if (keywords := message.get('Keywords')) is not None:
+        metadata['keywords'] = keywords.split(',')
+
+    if (classifiers := message.get_all('Classifier')) is not None:
+        metadata['classifiers'] = classifiers
+
+    if (project_urls := message.get_all('Project-URL')) is not None:
+        urls = {}
+        for project_url in project_urls:
+            label, url = project_url.split(',', maxsplit=1)
+            urls[label.strip()] = url.strip()
+        metadata['urls'] = urls
+
+    authors = []
+    if (author := message.get('Author')) is not None:
+        authors.append({'name': author})
+
+    if (author_email := message.get('Author-email')) is not None:
+        address_header = header_registry('resent-from', author_email)
+        for address in address_header.addresses:  # type: ignore[attr-defined]
+            data = {'email': address.addr_spec}
+            if name := address.display_name:
+                data['name'] = name
+            authors.append(data)
+
+    if authors:
+        metadata['authors'] = authors
+
+    maintainers = []
+    if (maintainer := message.get('Maintainer')) is not None:
+        maintainers.append({'name': maintainer})
+
+    if (maintainer_email := message.get('Maintainer-email')) is not None:
+        address_header = header_registry('resent-from', maintainer_email)
+        for address in address_header.addresses:  # type: ignore[attr-defined]
+            data = {'email': address.addr_spec}
+            if name := address.display_name:
+                data['name'] = name
+            maintainers.append(data)
+
+    if maintainers:
+        metadata['maintainers'] = maintainers
+
+    if (requires_python := message.get('Requires-Python')) is not None:
+        metadata['requires-python'] = requires_python
+
+    optional_dependencies: dict[str, list[str]] = {}
+    if (extras := message.get_all('Provides-Extra')) is not None:
+        for extra in extras:
+            optional_dependencies[extra] = []
+
+    if (requirements := message.get_all('Requires-Dist')) is not None:
+        from packaging.requirements import Requirement
+
+        dependencies = []
+        for requirement in requirements:
+            req = Requirement(requirement)
+            if req.marker is None:
+                dependencies.append(str(req))
+                continue
+
+            markers = req.marker._markers  # noqa: SLF001
+            for i, marker in enumerate(markers):
+                if isinstance(marker, tuple):
+                    left, _, right = marker
+                    if left.value == 'extra':
+                        extra = right.value
+                        del markers[i]
+                        # If there was only one marker then there will be an unnecessary
+                        # trailing semicolon in the string representation
+                        if not markers:
+                            req.marker = None
+                        # Otherwise we need to remove the preceding `and` operation
+                        else:
+                            del markers[i - 1]
+
+                        optional_dependencies.setdefault(extra, []).append(str(req))
+                        break
+            else:
+                dependencies.append(str(req))
+
+        metadata['dependencies'] = dependencies
+
+    if optional_dependencies:
+        metadata['optional-dependencies'] = optional_dependencies
+
+    return metadata
 
 
 def construct_metadata_file_1_2(metadata: ProjectMetadata, extra_dependencies: tuple[str] | None = None) -> str:
@@ -169,6 +345,15 @@ def construct_metadata_file_2_2(metadata: ProjectMetadata, extra_dependencies: t
     metadata_file += f'Name: {metadata.core.raw_name}\n'
     metadata_file += f'Version: {metadata.version}\n'
 
+    if metadata.core.dynamic:
+        # Ordered set
+        for field in {
+            core_metadata_field: None
+            for project_field in metadata.core.dynamic
+            for core_metadata_field in PROJECT_CORE_METADATA_FIELDS.get(project_field, ())
+        }:
+            metadata_file += f'Dynamic: {field}\n'
+
     if metadata.core.description:
         metadata_file += f'Summary: {metadata.core.description}\n'
 
@@ -251,6 +436,15 @@ def construct_metadata_file_2_3(metadata: ProjectMetadata, extra_dependencies: t
     metadata_file += f'Name: {metadata.core.raw_name}\n'
     metadata_file += f'Version: {metadata.version}\n'
 
+    if metadata.core.dynamic:
+        # Ordered set
+        for field in {
+            core_metadata_field: None
+            for project_field in metadata.core.dynamic
+            for core_metadata_field in PROJECT_CORE_METADATA_FIELDS.get(project_field, ())
+        }:
+            metadata_file += f'Dynamic: {field}\n'
+
     if metadata.core.description:
         metadata_file += f'Summary: {metadata.core.description}\n'
 
@@ -269,6 +463,17 @@ def construct_metadata_file_2_3(metadata: ProjectMetadata, extra_dependencies: t
         metadata_file += f"Maintainer: {', '.join(maintainers_data['name'])}\n"
     if maintainers_data['email']:
         metadata_file += f"Maintainer-email: {', '.join(maintainers_data['email'])}\n"
+
+    if metadata.core.license:
+        license_start = 'License: '
+        indent = ' ' * (len(license_start) - 1)
+        metadata_file += license_start
+
+        for i, line in enumerate(metadata.core.license.splitlines()):
+            if i == 0:
+                metadata_file += f'{line}\n'
+            else:
+                metadata_file += f'{indent}{line}\n'
 
     if metadata.core.license_expression:
         metadata_file += f'License-Expression: {metadata.core.license_expression}\n'

@@ -110,7 +110,7 @@ def dependency_in_sync(
                     else:
                         return False
                     result = subprocess.run(vcs_cmd, capture_output=True, text=True)  # noqa: PLW1510
-                    if result.returncode:
+                    if result.returncode or not result.stdout.strip():
                         return False
                     latest_commit_id, *_ = result.stdout.split()
                     return commit_id == latest_commit_id
@@ -126,7 +126,7 @@ def dependencies_in_sync(
     if sys_path is None:
         sys_path = sys.path
     if environment is None:
-        environment = default_environment()
+        environment = default_environment()  # type: ignore[assignment]
 
     installed_distributions = DistributionCache(sys_path)
-    return all(dependency_in_sync(requirement, environment, installed_distributions) for requirement in requirements)
+    return all(dependency_in_sync(requirement, environment, installed_distributions) for requirement in requirements)  # type: ignore[arg-type]

@@ -2,11 +2,13 @@ from __future__ import annotations
 
 import re
 from copy import deepcopy
+from functools import cached_property
 from itertools import product
 from os import environ
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from hatch.env.utils import ensure_valid_environment
+from hatch.project.constants import DEFAULT_BUILD_DIRECTORY, BuildEnvVars
 from hatch.project.env import apply_overrides
 from hatch.project.utils import format_script_commands, parse_script_command
 
@@ -27,10 +29,20 @@ class ProjectConfig:
         self._env_collectors = None
         self._envs = None
         self._internal_envs = None
+        self._internal_matrices = None
         self._matrix_variables = None
         self._publish = None
         self._scripts = None
         self._cached_env_overrides = {}
+
+    @cached_property
+    def build(self):
+        config = self.config.get('build', {})
+        if not isinstance(config, dict):
+            message = 'Field `tool.hatch.build` must be a table'
+            raise TypeError(message)
+
+        return BuildConfig(config)
 
     @property
     def env(self):
@@ -118,6 +130,13 @@ class ProjectConfig:
             _ = self.envs
 
         return self._internal_envs
+
+    @property
+    def internal_matrices(self):
+        if self._internal_matrices is None:
+            _ = self.envs
+
+        return self._internal_matrices
 
     @property
     def envs(self):
@@ -406,14 +425,21 @@ class ProjectConfig:
                 environment_collector.finalize_environments(final_config)
 
             self._matrices = all_matrices
+            self._internal_matrices = {}
             self._envs = final_config
             self._matrix_variables = generated_envs
             self._cached_env_overrides.update(cached_overrides)
 
             # Extract the internal environments
-            self._internal_envs = {
-                internal_name: self._envs.pop(internal_name) for internal_name in get_internal_env_config()
-            }
+            self._internal_envs = {}
+            for internal_name in get_internal_env_config():
+                try:
+                    self._internal_envs[internal_name] = self._envs.pop(internal_name)
+                # Matrix
+                except KeyError:
+                    self._internal_matrices[internal_name] = self._matrices.pop(internal_name)
+                    for env_name in [env_name for env_name in self._envs if env_name.startswith(f'{internal_name}.')]:
+                        self._internal_envs[env_name] = self._envs.pop(env_name)
 
         return self._envs
 
@@ -481,12 +507,130 @@ class ProjectConfig:
         if not self._cached_env_overrides:
             return
 
-        for env_name, config in self.envs.items():
-            for override_name, data in self._cached_env_overrides[env_name].items():
-                for condition, condition_value, options in data:
-                    apply_overrides(env_name, override_name, condition, condition_value, options, config, option_types)
+        for environments in (self.envs, self.internal_envs):
+            for env_name, config in environments.items():
+                for override_name, data in self._cached_env_overrides.get(env_name, {}).items():
+                    for condition, condition_value, options in data:
+                        apply_overrides(
+                            env_name, override_name, condition, condition_value, options, config, option_types
+                        )
 
         self._cached_env_overrides.clear()
+
+
+class BuildConfig:
+    def __init__(self, config: dict[str, Any]) -> None:
+        self.__config = config
+        self.__targets: dict[str, BuildTargetConfig] = config
+
+    @cached_property
+    def directory(self) -> str:
+        directory = self.__config.get('directory', DEFAULT_BUILD_DIRECTORY)
+        if not isinstance(directory, str):
+            message = 'Field `tool.hatch.build.directory` must be a string'
+            raise TypeError(message)
+
+        return directory
+
+    @cached_property
+    def dependencies(self) -> list[str]:
+        dependencies: list[str] = self.__config.get('dependencies', [])
+        if not isinstance(dependencies, list):
+            message = 'Field `tool.hatch.build.dependencies` must be an array'
+            raise TypeError(message)
+
+        for i, dependency in enumerate(dependencies, 1):
+            if not isinstance(dependency, str):
+                message = f'Dependency #{i} in field `tool.hatch.build.dependencies` must be a string'
+                raise TypeError(message)
+
+        return list(dependencies)
+
+    @cached_property
+    def hook_config(self) -> dict[str, dict[str, Any]]:
+        hook_config: dict[str, dict[str, Any]] = self.__config.get('hooks', {})
+        if not isinstance(hook_config, dict):
+            message = 'Field `tool.hatch.build.hooks` must be a table'
+            raise TypeError(message)
+
+        for hook_name, config in hook_config.items():
+            if not isinstance(config, dict):
+                message = f'Field `tool.hatch.build.hooks.{hook_name}` must be a table'
+                raise TypeError(message)
+
+        return finalize_hook_config(hook_config)
+
+    @cached_property
+    def __target_config(self) -> dict[str, Any]:
+        config = self.__config.get('targets', {})
+        if not isinstance(config, dict):
+            message = 'Field `tool.hatch.build.targets` must be a table'
+            raise TypeError(message)
+
+        return config
+
+    def target(self, target: str) -> BuildTargetConfig:
+        if target in self.__targets:
+            return self.__targets[target]
+
+        config = self.__target_config.get(target, {})
+        if not isinstance(config, dict):
+            message = f'Field `tool.hatch.build.targets.{target}` must be a table'
+            raise TypeError(message)
+
+        target_config = BuildTargetConfig(target, config, self)
+        self.__targets[target] = target_config
+        return target_config
+
+
+class BuildTargetConfig:
+    def __init__(self, name: str, config: dict[str, Any], global_config: BuildConfig) -> None:
+        self.__name = name
+        self.__config = config
+        self.__global_config = global_config
+
+    @cached_property
+    def directory(self) -> str:
+        directory = self.__config.get('directory', self.__global_config.directory)
+        if not isinstance(directory, str):
+            message = f'Field `tool.hatch.build.targets.{self.__name}.directory` must be a string'
+            raise TypeError(message)
+
+        return directory
+
+    @cached_property
+    def dependencies(self) -> list[str]:
+        dependencies: list[str] = self.__config.get('dependencies', [])
+        if not isinstance(dependencies, list):
+            message = f'Field `tool.hatch.build.targets.{self.__name}.dependencies` must be an array'
+            raise TypeError(message)
+
+        for i, dependency in enumerate(dependencies, 1):
+            if not isinstance(dependency, str):
+                message = (
+                    f'Dependency #{i} in field `tool.hatch.build.targets.{self.__name}.dependencies` must be a string'
+                )
+                raise TypeError(message)
+
+        all_dependencies = list(self.__global_config.dependencies)
+        all_dependencies.extend(dependencies)
+        return all_dependencies
+
+    @cached_property
+    def hook_config(self) -> dict[str, dict[str, Any]]:
+        hook_config: dict[str, dict[str, Any]] = self.__config.get('hooks', {})
+        if not isinstance(hook_config, dict):
+            message = f'Field `tool.hatch.build.targets.{self.__name}.hooks` must be a table'
+            raise TypeError(message)
+
+        for hook_name, config in hook_config.items():
+            if not isinstance(config, dict):
+                message = f'Field `tool.hatch.build.targets.{self.__name}.hooks.{hook_name}` must be a table'
+                raise TypeError(message)
+
+        config = self.__global_config.hook_config.copy()
+        config.update(hook_config)
+        return finalize_hook_config(config)
 
 
 def expand_script_commands(script_name, commands, config, seen, active):
@@ -509,9 +653,9 @@ def expand_script_commands(script_name, commands, config, seen, active):
         if possible_script in config:
             expanded_commands.extend(
                 format_script_commands(
-                    expand_script_commands(possible_script, config[possible_script], config, seen, active),
-                    args,
-                    ignore_exit_code,
+                    commands=expand_script_commands(possible_script, config[possible_script], config, seen, active),
+                    args=args,
+                    ignore_exit_code=ignore_exit_code,
                 )
             )
         else:
@@ -565,3 +709,27 @@ def _populate_default_env_values(env_name, data, config, seen, active):
 
     seen.add(env_name)
     active.pop()
+
+
+def finalize_hook_config(hook_config: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    if env_var_enabled(BuildEnvVars.NO_HOOKS):
+        return {}
+
+    all_hooks_enabled = env_var_enabled(BuildEnvVars.HOOKS_ENABLE)
+    final_hook_config: dict[str, dict[str, Any]] = {
+        hook_name: config
+        for hook_name, config in hook_config.items()
+        if (
+            all_hooks_enabled
+            or config.get('enable-by-default', True)
+            or env_var_enabled(f'{BuildEnvVars.HOOK_ENABLE_PREFIX}{hook_name.upper()}')
+        )
+    }
+    return final_hook_config
+
+
+def env_var_enabled(env_var: str, *, default: bool = False) -> bool:
+    if env_var in environ:
+        return environ[env_var] in {'1', 'true'}
+
+    return default

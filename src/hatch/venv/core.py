@@ -26,7 +26,7 @@ class VirtualEnv:
         old_path = os.environ.pop('PATH', None)
         self._env_vars_to_restore['PATH'] = old_path
         if old_path is None:
-            os.environ['PATH'] = str(self.executables_directory)
+            os.environ['PATH'] = f'{self.executables_directory}{os.pathsep}{os.defpath}'
         else:
             os.environ['PATH'] = f'{self.executables_directory}{os.pathsep}{old_path}'
 
@@ -127,3 +127,16 @@ class TempVirtualEnv(VirtualEnv):
     def __exit__(self, exc_type, exc_value, traceback):
         super().__exit__(exc_type, exc_value, traceback)
         self.remove()
+
+
+class UVVirtualEnv(VirtualEnv):
+    def create(self, python, *, allow_system_packages=False):
+        command = [os.environ.get('HATCH_UV', 'uv'), 'venv', str(self.directory), '--python', python]
+        if allow_system_packages:
+            command.append('--system-site-packages')
+
+        add_verbosity_flag(command, self.verbosity, adjustment=-1)
+        self.platform.run_command(command)
+
+
+class TempUVVirtualEnv(TempVirtualEnv, UVVirtualEnv): ...

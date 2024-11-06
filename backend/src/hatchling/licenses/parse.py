@@ -51,7 +51,7 @@ def normalize_license_expression(raw_license_expression: str) -> str:
 
     python_expression = ' '.join(python_tokens)
     try:
-        result = eval(python_expression)  # noqa: PGH001, S307
+        result = eval(python_expression)  # noqa: S307
     except Exception:  # noqa: BLE001
         result = True
 

@@ -13,7 +13,7 @@ The [storage location](../hatch.md#environments) for environments is completely 
 Unless an environment is explicitly selected on the command line, the `default` environment will be used. The [type](#type) of this environment defaults to `virtual`.
 
 !!! info
-    Environments prefixed by `hatch-` are used for special purposes e.g. [static analysis](../static-analysis.md#persistent-config).
+    Environments prefixed by `hatch-` are used for special purposes e.g. [testing](../internal/testing.md).
 
 ## Inheritance
 
@@ -84,7 +84,7 @@ extra-dependencies = [
 ```
 
 !!! tip
-    Hatch uses [pip](https://pip.pypa.io) to install dependencies so any [configuration](https://pip.pypa.io/en/stable/topics/configuration/) it supports Hatch does as well. For example, if you wanted to only use a private repository you could set the `PIP_INDEX_URL` [environment variable](#environment-variables).
+    Hatch uses [pip](https://github.com/pypa/pip) to install dependencies so any [configuration](https://pip.pypa.io/en/stable/topics/configuration/) it supports Hatch does as well. For example, if you wanted to only use a private repository you could set the `PIP_INDEX_URL` [environment variable](#environment-variables).
 
 ## Installation
 
@@ -105,7 +105,7 @@ features = [
 
 ### Dev mode
 
-By default, environments will always reflect the current state of your project on disk. Set `dev-mode` to `false` to disable this behavior:
+By default, environments will always reflect the current state of your project on disk, for example, by installing it in editable mode in a Python environment. Set `dev-mode` to `false` to disable this behavior and have your project installed only upon creation of a new environment. From then on, you need to manage your project installation manually.
 
 ```toml config-example
 [tool.hatch.envs.static]
@@ -213,8 +213,9 @@ error = [
 ]
 ```
 
-!!! tip
-    Individual scripts [inherit](#inheritance) from parent environments just like options.
+### Extra scripts
+
+Individual scripts [inherit](#inheritance) from parent environments just like options. To guarantee that individual scripts do not override those defined by parent environments, you can use the `extra-scripts` option instead which is only capable of adding scripts that have not been defined.
 
 ## Commands
 

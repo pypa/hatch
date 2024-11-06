@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import os
+from typing import cast
 
 import click
 
@@ -18,6 +21,7 @@ from hatch.cli.run import run
 from hatch.cli.self import self_command
 from hatch.cli.shell import shell
 from hatch.cli.status import status
+from hatch.cli.test import test
 from hatch.cli.version import version
 from hatch.config.constants import AppEnvVars, ConfigEnvVars
 from hatch.project.core import Project
@@ -158,13 +162,16 @@ def hatch(ctx: click.Context, env_name, project, verbose, quiet, color, interact
     app.cache_dir = Path(cache_dir or app.config.dirs.cache).expand()
 
     if project:
-        app.project = Project.from_config(app.config, project)
-        if app.project is None or app.project.root is None:
+        potential_project = Project.from_config(app.config, project)
+        if potential_project is None or potential_project.root is None:
             app.abort(f'Unable to locate project {project}')
 
+        app.project = cast(Project, potential_project)
+        app.project.set_app(app)
         return
 
     app.project = Project(Path.cwd())
+    app.project.set_app(app)
 
     if app.config.mode == 'local':
         return
@@ -181,6 +188,7 @@ def hatch(ctx: click.Context, env_name, project, verbose, quiet, color, interact
         else:
             app.project = possible_project
 
+        app.project.set_app(app)
         return
 
     if app.config.mode == 'aware' and app.project.root is None:
@@ -194,6 +202,7 @@ def hatch(ctx: click.Context, env_name, project, verbose, quiet, color, interact
         else:
             app.project = possible_project
 
+        app.project.set_app(app)
         return
 
 
@@ -211,15 +220,19 @@ hatch.add_command(run)
 hatch.add_command(self_command)
 hatch.add_command(shell)
 hatch.add_command(status)
+hatch.add_command(test)
 hatch.add_command(version)
 
 
 def main():  # no cov
     try:
-        return hatch(prog_name='hatch', windows_expand_args=False)
+        hatch(prog_name='hatch', windows_expand_args=False)
     except Exception:  # noqa: BLE001
+        import sys
+
         from rich.console import Console
 
         console = Console()
-        console.print_exception(suppress=[click])
-        return 1
+        hatch_debug = os.getenv('HATCH_DEBUG') in {'1', 'true'}
+        console.print_exception(suppress=[click], show_locals=hatch_debug)
+        sys.exit(1)

@@ -1,12 +1,29 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import click
+
+if TYPE_CHECKING:
+    from hatch.cli.application import Application
 
 
 @click.command(short_help='Show the available environments')
 @click.argument('envs', required=False, nargs=-1)
 @click.option('--ascii', 'force_ascii', is_flag=True, help='Whether or not to only use ASCII characters')
 @click.option('--json', 'as_json', is_flag=True, help='Whether or not to output in JSON format')
+@click.option('--internal', '-i', is_flag=True, help='Show internal environments')
+@click.option('--hide-titles', is_flag=True, hidden=True)
 @click.pass_obj
-def show(app, envs, force_ascii, as_json):
+def show(
+    app: Application,
+    *,
+    envs: tuple[str, ...],
+    force_ascii: bool,
+    as_json: bool,
+    internal: bool,
+    hide_titles: bool,
+):
     """Show the available environments."""
     app.ensure_environment_plugin_dependencies()
 
@@ -16,38 +33,39 @@ def show(app, envs, force_ascii, as_json):
         import json
 
         contextual_config = {}
-        for env_name, config in app.project.config.envs.items():
-            environment = app.get_environment(env_name)
-            new_config = contextual_config[env_name] = dict(config)
+        for environments in (app.project.config.envs, app.project.config.internal_envs):
+            for env_name, config in environments.items():
+                environment = app.project.get_environment(env_name)
+                new_config = contextual_config[env_name] = dict(config)
 
-            env_vars = dict(environment.env_vars)
-            env_vars.pop(AppEnvVars.ENV_ACTIVE)
-            if env_vars:
-                new_config['env-vars'] = env_vars
+                env_vars = dict(environment.env_vars)
+                env_vars.pop(AppEnvVars.ENV_ACTIVE)
+                if env_vars:
+                    new_config['env-vars'] = env_vars
 
-            num_dependencies = len(config.get('dependencies', []))
-            dependencies = environment.environment_dependencies[:num_dependencies]
-            if dependencies:
-                new_config['dependencies'] = dependencies
+                num_dependencies = len(config.get('dependencies', []))
+                dependencies = environment.environment_dependencies[:num_dependencies]
+                if dependencies:
+                    new_config['dependencies'] = dependencies
 
-            extra_dependencies = environment.environment_dependencies[num_dependencies:]
-            if extra_dependencies:
-                new_config['extra-dependencies'] = extra_dependencies
+                extra_dependencies = environment.environment_dependencies[num_dependencies:]
+                if extra_dependencies:
+                    new_config['extra-dependencies'] = extra_dependencies
 
-            if environment.pre_install_commands:
-                new_config['pre-install-commands'] = list(
-                    environment.resolve_commands(environment.pre_install_commands)
-                )
+                if environment.pre_install_commands:
+                    new_config['pre-install-commands'] = list(
+                        environment.resolve_commands(environment.pre_install_commands)
+                    )
 
-            if environment.post_install_commands:
-                new_config['post-install-commands'] = list(
-                    environment.resolve_commands(environment.post_install_commands)
-                )
+                if environment.post_install_commands:
+                    new_config['post-install-commands'] = list(
+                        environment.resolve_commands(environment.post_install_commands)
+                    )
 
-            if environment.scripts:
-                new_config['scripts'] = {
-                    script: list(environment.resolve_commands([script])) for script in environment.scripts
-                }
+                if environment.scripts:
+                    new_config['scripts'] = {
+                        script: list(environment.resolve_commands([script])) for script in environment.scripts
+                    }
 
         app.display(json.dumps(contextual_config, separators=(',', ':')))
         return
@@ -56,15 +74,20 @@ def show(app, envs, force_ascii, as_json):
 
     from hatchling.metadata.utils import get_normalized_dependency, normalize_project_name
 
-    project_config = app.project.config
+    if internal:
+        target_standalone_envs = app.project.config.internal_envs
+        target_matrices = app.project.config.internal_matrices
+    else:
+        target_standalone_envs = app.project.config.envs
+        target_matrices = app.project.config.matrices
 
     for env_name in envs:
-        if env_name not in project_config.envs and env_name not in project_config.matrices:
+        if env_name not in target_standalone_envs and env_name not in target_matrices:
             app.abort(f'Environment `{env_name}` is not defined by project config')
 
     env_names = set(envs)
 
-    matrix_columns = {
+    matrix_columns: dict[str, dict[int, str]] = {
         'Name': {},
         'Type': {},
         'Envs': {},
@@ -75,9 +98,8 @@ def show(app, envs, force_ascii, as_json):
         'Description': {},
     }
     matrix_envs = set()
-    for i, (matrix_name, matrix_data) in enumerate(project_config.matrices.items()):
-        for env_name in matrix_data['envs']:
-            matrix_envs.add(env_name)
+    for i, (matrix_name, matrix_data) in enumerate(target_matrices.items()):
+        matrix_envs.update(matrix_data['envs'])
 
         if env_names and matrix_name not in env_names:
             continue
@@ -125,7 +147,7 @@ def show(app, envs, force_ascii, as_json):
         if config.get('description'):
             matrix_columns['Description'][i] = config['description'].strip()
 
-    standalone_columns = {
+    standalone_columns: dict[str, dict[int, str]] = {
         'Name': {},
         'Type': {},
         'Features': {},
@@ -136,14 +158,14 @@ def show(app, envs, force_ascii, as_json):
     }
     standalone_envs = (
         (env_name, config)
-        for env_name, config in project_config.envs.items()
+        for env_name, config in target_standalone_envs.items()
         if env_names or env_name not in matrix_envs
     )
     for i, (env_name, config) in enumerate(standalone_envs):
         if env_names and env_name not in env_names:
             continue
 
-        environment = app.get_environment(env_name)
+        environment = app.project.get_environment(env_name)
 
         standalone_columns['Name'][i] = env_name
         standalone_columns['Type'][i] = config['type']
@@ -177,8 +199,16 @@ def show(app, envs, force_ascii, as_json):
             column_options[title] = {'no_wrap': True}
 
     app.display_table(
-        'Standalone', standalone_columns, show_lines=True, column_options=column_options, force_ascii=force_ascii
+        '' if hide_titles else 'Standalone',
+        standalone_columns,
+        show_lines=True,
+        column_options=column_options,
+        force_ascii=force_ascii,
     )
     app.display_table(
-        'Matrices', matrix_columns, show_lines=True, column_options=column_options, force_ascii=force_ascii
+        '' if hide_titles else 'Matrices',
+        matrix_columns,
+        show_lines=True,
+        column_options=column_options,
+        force_ascii=force_ascii,
     )

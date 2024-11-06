@@ -8,7 +8,7 @@
 | --- | --- |
 | CI/CD | [![CI - Test](https://github.com/pypa/hatch/actions/workflows/test.yml/badge.svg){ loading=lazy .off-glb }](https://github.com/pypa/hatch/actions/workflows/test.yml) [![CD - Build Hatch](https://github.com/pypa/hatch/actions/workflows/build-hatch.yml/badge.svg){ loading=lazy .off-glb }](https://github.com/pypa/hatch/actions/workflows/build-hatch.yml) [![CD - Build Hatchling](https://github.com/pypa/hatch/actions/workflows/build-hatchling.yml/badge.svg){ loading=lazy .off-glb }](https://github.com/pypa/hatch/actions/workflows/build-hatchling.yml) |
 | Docs | [![Docs - Release](https://github.com/pypa/hatch/actions/workflows/docs-release.yml/badge.svg){ loading=lazy .off-glb }](https://github.com/pypa/hatch/actions/workflows/docs-release.yml) [![Docs - Dev](https://github.com/pypa/hatch/actions/workflows/docs-dev.yml/badge.svg){ loading=lazy .off-glb }](https://github.com/pypa/hatch/actions/workflows/docs-dev.yml) |
-| Package | [![PyPI - Version](https://img.shields.io/pypi/v/hatch.svg?logo=pypi&label=PyPI&logoColor=gold){ loading=lazy .off-glb }](https://pypi.org/project/hatch/) [![PyPI - Downloads](https://img.shields.io/pypi/dm/hatchling.svg?color=blue&label=Downloads&logo=pypi&logoColor=gold){ loading=lazy .off-glb }](https://pypi.org/project/hatch/) [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/hatch.svg?logo=python&label=Python&logoColor=gold){ loading=lazy .off-glb }](https://pypi.org/project/hatch/) |
+| Package | [![PyPI - Version](https://img.shields.io/pypi/v/hatch.svg?logo=pypi&label=PyPI&logoColor=gold){ loading=lazy .off-glb }](https://pypi.org/project/hatch/) [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/hatch.svg?logo=python&label=Python&logoColor=gold){ loading=lazy .off-glb }](https://pypi.org/project/hatch/) [![PyPI - Installs](https://img.shields.io/pypi/dm/hatchling.svg?color=blue&label=Installs&logo=pypi&logoColor=gold){ loading=lazy .off-glb }](https://pypi.org/project/hatch/) [![Release - Downloads](https://img.shields.io/github/downloads/pypa/hatch/total?label=Downloads){ loading=lazy .off-glb }](https://github.com/pypa/hatch/releases) |
 | Meta | [![Hatch project](https://img.shields.io/badge/%F0%9F%A5%9A-Hatch-4051b5.svg){ loading=lazy .off-glb }](https://github.com/pypa/hatch) [![linting - Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json){ loading=lazy .off-glb }](https://github.com/astral-sh/ruff) [![types - Mypy](https://img.shields.io/badge/types-Mypy-blue.svg){ loading=lazy .off-glb }](https://github.com/python/mypy) [![License - MIT](https://img.shields.io/badge/license-MIT-9400d3.svg){ loading=lazy .off-glb }](https://spdx.org/licenses/) [![GitHub Sponsors](https://img.shields.io/github/sponsors/ofek?logo=GitHub%20Sponsors&style=social){ loading=lazy .off-glb }](https://github.com/sponsors/ofek) |
 
 </div>
@@ -31,7 +31,7 @@ Hatch is a modern, extensible Python project manager. See the [Why Hatch?](why.m
 
     ---
 
-    Robust environment management with support for custom scripts
+    Robust environment management with support for custom scripts and UV
 
     [:octicons-arrow-right-24: Getting started](environment.md)
 
@@ -41,7 +41,15 @@ Hatch is a modern, extensible Python project manager. See the [Why Hatch?](why.m
 
     Choose between easy manual installations or automatic as part of environments
 
-    [:octicons-arrow-right-24: Try it](cli/reference.md#hatch-python)
+    [:octicons-arrow-right-24: Try it](tutorials/python/manage.md)
+
+-   :octicons-shield-check-24:{ .lg .middle } __Testing__
+
+    ---
+
+    Test execution with known best practices
+
+    [:octicons-arrow-right-24: Run](tutorials/testing/overview.md)
 
 -   :material-magnify-scan:{ .lg .middle } __Static analysis__
 
@@ -49,7 +57,15 @@ Hatch is a modern, extensible Python project manager. See the [Why Hatch?](why.m
 
     Static analysis backed by Ruff with up-to-date, sane defaults
 
-    [:octicons-arrow-right-24: Learn](config/static-analysis.md)
+    [:octicons-arrow-right-24: Learn](config/internal/static-analysis.md)
+
+-   :material-console-line:{ .lg .middle } __Script runner__
+
+    ---
+
+    Execute Python scripts with specific dependencies and Python versions
+
+    [:octicons-arrow-right-24: Execute](how-to/run/python-scripts.md)
 
 -   :material-publish:{ .lg .middle } __Publishing__
 

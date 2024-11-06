@@ -45,17 +45,17 @@ class CodeSource(VersionSourceInterface):
             absolute_search_paths.append(os.path.normpath(os.path.join(self.root, search_path)))
 
         spec = spec_from_file_location(os.path.splitext(path)[0], path)
-        module = module_from_spec(spec)  # type: ignore
+        module = module_from_spec(spec)  # type: ignore[arg-type]
 
         old_search_paths = list(sys.path)
         try:
             sys.path[:] = [*absolute_search_paths, *old_search_paths]
-            spec.loader.exec_module(module)  # type: ignore
+            spec.loader.exec_module(module)  # type: ignore[union-attr]
         finally:
             sys.path[:] = old_search_paths
 
         # Execute the expression to determine the version
-        version = eval(expression, vars(module))  # noqa: PGH001, S307
+        version = eval(expression, vars(module))  # noqa: S307
 
         return {'version': version}
 
