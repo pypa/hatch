@@ -7,6 +7,11 @@ To publish to an index such as PyPI or TestPyPI you need two things:
 1. a username (e.g. `__token__` for PyPI)
 2. a token value or other form of trusted authentication from the index (PyPI)
 
+
+
+!!! warning "PyPI requires 2FA"
+    PyPI now requires 2-factor Authentication (2FA) for all publication processes. Be sure to set this up before proceeding with publishing your package to TestPyPI or PyPI.
+
 ## Storing your PyPI credentials 
 
 You can chose to either enter your username when using `hatch publish` or you can store it.
