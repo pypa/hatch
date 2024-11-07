@@ -34,7 +34,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ***Added:***
 
 - Add ability to control the source of Python distributions
-- Upgrade Ruff to 0.6.8
+- Upgrade Ruff to 0.4.5
 - Upgrade PyApp to 0.22.0 for binary builds
 
 ***Fixed:***
