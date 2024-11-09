@@ -990,8 +990,10 @@ class CoreMetadata:
 
                 # combined text-numeric sort that ensures that Python versions sort correctly
                 split_re = re.compile(r'(\D*)(\d*)')
-                sort_key = lambda value: [(a, int(b) if b else None) for a, b in split_re.findall(value)]
-                sorted_classifiers = sorted(classifiers, key=sort_key)
+                sorted_classifiers = sorted(
+                    classifiers,
+                    key=lambda value: ([(a, int(b) if b else None) for a, b in split_re.findall(value)]),
+                )
 
             self._classifiers = sorted(
                 unique_classifiers, key=lambda c: -1 if self.__classifier_is_private(c) else sorted_classifiers.index(c)
