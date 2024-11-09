@@ -734,65 +734,35 @@ class CoreMetadata:
         https://peps.python.org/pep-0639/
         """
         if self._license_files is None:
-            if 'license-files' not in self.config:
-                data = {'globs': ['LICEN[CS]E*', 'COPYING*', 'NOTICE*', 'AUTHORS*']}
-            else:
+            if 'license-files' in self.config:
+                globs = self.config['license-files']
                 if 'license-files' in self.dynamic:
                     message = (
                         'Metadata field `license-files` cannot be both statically defined and '
                         'listed in field `project.dynamic`'
                     )
                     raise ValueError(message)
-
-                data = self.config['license-files']
-                if not isinstance(data, dict):
-                    message = 'Field `project.license-files` must be a table'
-                    raise TypeError(message)
-
-                if 'paths' in data and 'globs' in data:
-                    message = 'Cannot specify both `paths` and `globs` in the `project.license-files` table'
-                    raise ValueError(message)
-
-            license_files = []
-            if 'paths' in data:
-                paths = data['paths']
-                if not isinstance(paths, list):
-                    message = 'Field `paths` in the `project.license-files` table must be an array'
-                    raise TypeError(message)
-
-                for i, relative_path in enumerate(paths, 1):
-                    if not isinstance(relative_path, str):
-                        message = f'Entry #{i} in field `paths` in the `project.license-files` table must be a string'
-                        raise TypeError(message)
-
-                    path = os.path.normpath(os.path.join(self.root, relative_path))
-                    if not os.path.isfile(path):
-                        message = f'License file does not exist: {relative_path}'
-                        raise OSError(message)
-
-                    license_files.append(os.path.relpath(path, self.root).replace('\\', '/'))
-            elif 'globs' in data:
-                from glob import glob
-
-                globs = data['globs']
-                if not isinstance(globs, list):
-                    message = 'Field `globs` in the `project.license-files` table must be an array'
-                    raise TypeError(message)
-
-                for i, pattern in enumerate(globs, 1):
-                    if not isinstance(pattern, str):
-                        message = f'Entry #{i} in field `globs` in the `project.license-files` table must be a string'
-                        raise TypeError(message)
-
-                    full_pattern = os.path.normpath(os.path.join(self.root, pattern))
-                    license_files.extend(
-                        os.path.relpath(path, self.root).replace('\\', '/')
-                        for path in glob(full_pattern)
-                        if os.path.isfile(path)
-                    )
             else:
-                message = 'Must specify either `paths` or `globs` in the `project.license-files` table if defined'
-                raise ValueError(message)
+                globs = ['LICEN[CS]E*', 'COPYING*', 'NOTICE*', 'AUTHORS*']
+
+            from glob import glob
+
+            license_files: list[str] = []
+            if not isinstance(globs, list):
+                message = 'Field `project.license-files` must be an array'
+                raise TypeError(message)
+
+            for i, pattern in enumerate(globs, 1):
+                if not isinstance(pattern, str):
+                    message = f'Entry #{i} of field `project.license-files` must be a string'
+                    raise TypeError(message)
+
+                full_pattern = os.path.normpath(os.path.join(self.root, pattern))
+                license_files.extend(
+                    os.path.relpath(path, self.root).replace('\\', '/')
+                    for path in glob(full_pattern)
+                    if os.path.isfile(path)
+                )
 
             self._license_files = sorted(license_files)
 

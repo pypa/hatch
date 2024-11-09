@@ -10,7 +10,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ***Added:***
 
+- Update the default version of core metadata to 2.4
 - Bump the minimum supported version of `packaging` to 24.2
+
+***Fixed:***
+
+- No longer write package metadata for license expressions and files for versions of core metadata prior to 2.4
 
 ## [1.25.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.25.0) - 2024-06-22 ## {: #hatchling-v1.25.0 }
 
