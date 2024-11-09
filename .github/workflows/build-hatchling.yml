@@ -22,7 +22,7 @@ jobs:
         python-version: ${{ env.PYTHON_VERSION }}
 
     - name: Install UV
-      run: curl -LsSf https://github.com/astral-sh/uv/releases/latest/download/uv-installer.sh | sh
+      uses: astral-sh/setup-uv@v3
 
     - name: Install build dependencies
       run: uv pip install --system --upgrade build
