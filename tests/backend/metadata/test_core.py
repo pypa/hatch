@@ -558,7 +558,7 @@ class TestLicense:
     def test_invalid_expression(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {'project': {'license': 'mit or foo'}})
 
-        with pytest.raises(ValueError, match='Error parsing field `project.license` - unknown license: foo'):
+        with pytest.raises(ValueError, match="Error parsing field `project.license` - Unknown license: 'foo'"):
             _ = metadata.core.license_expression
 
     def test_multiple_options(self, isolation):

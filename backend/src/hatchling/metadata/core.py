@@ -674,10 +674,10 @@ class CoreMetadata:
                 self._license = ''
                 self._license_expression = ''
             elif isinstance(data, str):
-                from hatchling.licenses.parse import normalize_license_expression
+                from packaging.licenses import canonicalize_license_expression
 
                 try:
-                    self._license_expression = normalize_license_expression(data)
+                    self._license_expression = str(canonicalize_license_expression(data))
                 except ValueError as e:
                     message = f'Error parsing field `project.license` - {e}'
                     raise ValueError(message) from None
