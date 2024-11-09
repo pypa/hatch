@@ -962,7 +962,7 @@ class CoreMetadata:
                 message = 'Field `project.classifiers` must be an array'
                 raise TypeError(message)
 
-            verify_classifiers = not os.environ.get("HATCH_NO_VERIFY_TROVE_CLASSIFIERS")
+            verify_classifiers = not os.environ.get('HATCH_METADATA_CLASSIFIERS_NO_VERIFY')
             if verify_classifiers:
                 import trove_classifiers
 
@@ -979,7 +979,11 @@ class CoreMetadata:
                     message = f'Classifier #{i} of field `project.classifiers` must be a string'
                     raise TypeError(message)
 
-                if not self.__classifier_is_private(classifier) and verify_classifiers and classifier not in known_classifiers:
+                if (
+                    not self.__classifier_is_private(classifier)
+                    and verify_classifiers
+                    and classifier not in known_classifiers
+                ):
                     message = f'Unknown classifier in field `project.classifiers`: {classifier}'
                     raise ValueError(message)
 

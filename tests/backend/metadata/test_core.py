@@ -899,14 +899,14 @@ class TestClassifiers:
             _ = metadata.core.classifiers
 
     def test_entry_unknown(self, isolation, monkeypatch):
-        monkeypatch.delenv("HATCH_NO_VERIFY_TROVE_CLASSIFIERS", False)
+        monkeypatch.delenv('HATCH_METADATA_CLASSIFIERS_NO_VERIFY', False)
         metadata = ProjectMetadata(str(isolation), None, {'project': {'classifiers': ['foo']}})
 
         with pytest.raises(ValueError, match='Unknown classifier in field `project.classifiers`: foo'):
             _ = metadata.core.classifiers
 
     def test_entry_unknown_no_verify(self, isolation, monkeypatch):
-        monkeypatch.setenv("HATCH_NO_VERIFY_TROVE_CLASSIFIERS", "1")
+        monkeypatch.setenv('HATCH_METADATA_CLASSIFIERS_NO_VERIFY', '1')
         classifiers = [
             'Programming Language :: Python :: 3.11',
             'Programming Language :: Python :: 3.11',
