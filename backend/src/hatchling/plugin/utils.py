@@ -14,8 +14,8 @@ def load_plugin_from_script(path: str, script_name: str, plugin_class: type[T], 
     from importlib.util import module_from_spec, spec_from_file_location
 
     spec = spec_from_file_location(script_name, path)
-    module = module_from_spec(spec)  # type: ignore
-    spec.loader.exec_module(module)  # type: ignore
+    module = module_from_spec(spec)  # type: ignore[arg-type]
+    spec.loader.exec_module(module)  # type: ignore[union-attr]
 
     plugin_finder = f'get_{plugin_id}'
     names = dir(module)

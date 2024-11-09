@@ -135,7 +135,7 @@ Once the environment is active, you can run commands like you would in any Pytho
 
 Notice below that when running `pip list` in the test environment, you can see:
 
-1. That you package is installed in editable mode.
+1. That your package is installed in editable mode.
 2. That the environment contains both `pytest` and `pytest-cov` as specified above in the `pyproject.toml` file.
 
 ```
