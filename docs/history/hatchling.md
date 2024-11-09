@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Added:***
+
+- Bump the minimum supported version of `packaging` to 24.2
+
 ## [1.25.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.25.0) - 2024-06-22 ## {: #hatchling-v1.25.0 }
 
 ***Changed:***
