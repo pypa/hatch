@@ -38,7 +38,7 @@ class DefaultTemplate(TemplateInterface):
             license_file_name = f'{license_id}.txt'
             cached_license_path = cached_licenses_dir / license_file_name
             if not cached_license_path.is_file():
-                from hatchling.licenses.supported import VERSION
+                from packaging.licenses._spdx import VERSION  # noqa: PLC2701
 
                 url = f'https://raw.githubusercontent.com/spdx/license-list-data/v{VERSION}/text/{license_file_name}'
                 for _ in range(5):
