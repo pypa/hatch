@@ -21,6 +21,8 @@ EXCLUDED_DIRECTORIES = frozenset((
     '.pytest_cache',
     # Mypy
     '.mypy_cache',
+    # pixi
+    '.pixi',
 ))
 EXCLUDED_FILES = frozenset((
     # https://en.wikipedia.org/wiki/.DS_Store

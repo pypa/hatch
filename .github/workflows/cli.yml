@@ -30,7 +30,7 @@ jobs:
         python-version: ${{ env.STABLE_PYTHON_VERSION }}
 
     - name: Install UV
-      run: curl -LsSf https://github.com/astral-sh/uv/releases/latest/download/uv-installer.sh | sh
+      uses: astral-sh/setup-uv@v3
 
     - name: Install hyperfine
       uses: taiki-e/install-action@v2

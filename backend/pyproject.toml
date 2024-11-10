@@ -35,7 +35,7 @@ classifiers = [
   "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
-  "packaging>=23.2",
+  "packaging>=24.2",
   "pathspec>=0.10.1",
   "pluggy>=1.0.0",
   "tomli>=1.2.2; python_version < '3.11'",
