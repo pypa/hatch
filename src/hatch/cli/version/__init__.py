@@ -51,7 +51,6 @@ def version(app: Application, *, desired_version: str | None, force: bool):
         app.display(original_version)
         return
 
-    from hatch.dep.sync import dependencies_in_sync
     from hatch.config.constants import VersionEnvVars
     from hatch.project.constants import BUILD_BACKEND
 
