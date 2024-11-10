@@ -674,10 +674,10 @@ class CoreMetadata:
                 self._license = ''
                 self._license_expression = ''
             elif isinstance(data, str):
-                from hatchling.licenses.parse import normalize_license_expression
+                from packaging.licenses import canonicalize_license_expression
 
                 try:
-                    self._license_expression = normalize_license_expression(data)
+                    self._license_expression = str(canonicalize_license_expression(data))
                 except ValueError as e:
                     message = f'Error parsing field `project.license` - {e}'
                     raise ValueError(message) from None
@@ -734,65 +734,35 @@ class CoreMetadata:
         https://peps.python.org/pep-0639/
         """
         if self._license_files is None:
-            if 'license-files' not in self.config:
-                data = {'globs': ['LICEN[CS]E*', 'COPYING*', 'NOTICE*', 'AUTHORS*']}
-            else:
+            if 'license-files' in self.config:
+                globs = self.config['license-files']
                 if 'license-files' in self.dynamic:
                     message = (
                         'Metadata field `license-files` cannot be both statically defined and '
                         'listed in field `project.dynamic`'
                     )
                     raise ValueError(message)
-
-                data = self.config['license-files']
-                if not isinstance(data, dict):
-                    message = 'Field `project.license-files` must be a table'
-                    raise TypeError(message)
-
-                if 'paths' in data and 'globs' in data:
-                    message = 'Cannot specify both `paths` and `globs` in the `project.license-files` table'
-                    raise ValueError(message)
-
-            license_files = []
-            if 'paths' in data:
-                paths = data['paths']
-                if not isinstance(paths, list):
-                    message = 'Field `paths` in the `project.license-files` table must be an array'
-                    raise TypeError(message)
-
-                for i, relative_path in enumerate(paths, 1):
-                    if not isinstance(relative_path, str):
-                        message = f'Entry #{i} in field `paths` in the `project.license-files` table must be a string'
-                        raise TypeError(message)
-
-                    path = os.path.normpath(os.path.join(self.root, relative_path))
-                    if not os.path.isfile(path):
-                        message = f'License file does not exist: {relative_path}'
-                        raise OSError(message)
-
-                    license_files.append(os.path.relpath(path, self.root).replace('\\', '/'))
-            elif 'globs' in data:
-                from glob import glob
-
-                globs = data['globs']
-                if not isinstance(globs, list):
-                    message = 'Field `globs` in the `project.license-files` table must be an array'
-                    raise TypeError(message)
-
-                for i, pattern in enumerate(globs, 1):
-                    if not isinstance(pattern, str):
-                        message = f'Entry #{i} in field `globs` in the `project.license-files` table must be a string'
-                        raise TypeError(message)
-
-                    full_pattern = os.path.normpath(os.path.join(self.root, pattern))
-                    license_files.extend(
-                        os.path.relpath(path, self.root).replace('\\', '/')
-                        for path in glob(full_pattern)
-                        if os.path.isfile(path)
-                    )
             else:
-                message = 'Must specify either `paths` or `globs` in the `project.license-files` table if defined'
-                raise ValueError(message)
+                globs = ['LICEN[CS]E*', 'COPYING*', 'NOTICE*', 'AUTHORS*']
+
+            from glob import glob
+
+            license_files: list[str] = []
+            if not isinstance(globs, list):
+                message = 'Field `project.license-files` must be an array'
+                raise TypeError(message)
+
+            for i, pattern in enumerate(globs, 1):
+                if not isinstance(pattern, str):
+                    message = f'Entry #{i} of field `project.license-files` must be a string'
+                    raise TypeError(message)
+
+                full_pattern = os.path.normpath(os.path.join(self.root, pattern))
+                license_files.extend(
+                    os.path.relpath(path, self.root).replace('\\', '/')
+                    for path in glob(full_pattern)
+                    if os.path.isfile(path)
+                )
 
             self._license_files = sorted(license_files)
 
@@ -977,8 +947,6 @@ class CoreMetadata:
         if self._classifiers is None:
             import bisect
 
-            import trove_classifiers
-
             if 'classifiers' in self.config:
                 classifiers = self.config['classifiers']
                 if 'classifiers' in self.dynamic:
@@ -994,7 +962,16 @@ class CoreMetadata:
                 message = 'Field `project.classifiers` must be an array'
                 raise TypeError(message)
 
-            known_classifiers = trove_classifiers.classifiers | self._extra_classifiers
+            verify_classifiers = not os.environ.get('HATCH_METADATA_CLASSIFIERS_NO_VERIFY')
+            if verify_classifiers:
+                import trove_classifiers
+
+                known_classifiers = trove_classifiers.classifiers | self._extra_classifiers
+                sorted_classifiers = list(trove_classifiers.sorted_classifiers)
+
+                for classifier in sorted(self._extra_classifiers - trove_classifiers.classifiers):
+                    bisect.insort(sorted_classifiers, classifier)
+
             unique_classifiers = set()
 
             for i, classifier in enumerate(classifiers, 1):
@@ -1002,15 +979,25 @@ class CoreMetadata:
                     message = f'Classifier #{i} of field `project.classifiers` must be a string'
                     raise TypeError(message)
 
-                if not self.__classifier_is_private(classifier) and classifier not in known_classifiers:
+                if (
+                    not self.__classifier_is_private(classifier)
+                    and verify_classifiers
+                    and classifier not in known_classifiers
+                ):
                     message = f'Unknown classifier in field `project.classifiers`: {classifier}'
                     raise ValueError(message)
 
                 unique_classifiers.add(classifier)
 
-            sorted_classifiers = list(trove_classifiers.sorted_classifiers)
-            for classifier in sorted(self._extra_classifiers - trove_classifiers.classifiers):
-                bisect.insort(sorted_classifiers, classifier)
+            if not verify_classifiers:
+                import re
+
+                # combined text-numeric sort that ensures that Python versions sort correctly
+                split_re = re.compile(r'(\D*)(\d*)')
+                sorted_classifiers = sorted(
+                    classifiers,
+                    key=lambda value: ([(a, int(b) if b else None) for a, b in split_re.findall(value)]),
+                )
 
             self._classifiers = sorted(
                 unique_classifiers, key=lambda c: -1 if self.__classifier_is_private(c) else sorted_classifiers.index(c)

@@ -1561,12 +1561,10 @@ def test_sync_dynamic_dependencies(hatch, helpers, temp_dir, platform, uv_on_pat
     storage_path = storage_dirs[0]
     assert len(storage_path.name) == 8
 
-    env_dirs = list(storage_path.iterdir())
-    assert len(env_dirs) == 2
+    env_dirs = sorted(storage_path.iterdir())
+    assert [d.name for d in env_dirs] == ['hatch-build', 'test']
 
     env_path = env_dirs[1]
-
-    assert env_path.name == 'test'
 
     with UVVirtualEnv(env_path, platform):
         output = platform.run_command([uv_on_path, 'pip', 'freeze'], check=True, capture_output=True).stdout.decode(
