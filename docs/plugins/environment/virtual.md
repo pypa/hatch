@@ -72,7 +72,7 @@ The following options are recognized for internal Python resolution.
 
 The source of distributions is the [python-build-standalone](https://github.com/indygreg/python-build-standalone) project.
 
-Some distributions have [variants](https://gregoryszorc.com/docs/python-build-standalone/main/running.html) that may be configured. Options may be combined.
+Some distributions have [variants](https://gregoryszorc.com/docs/python-build-standalone/main/running.html) that may be configured with environment variables. Options may be combined.
 
 | Option | Platforms | Allowed values |
 | --- | --- | --- |

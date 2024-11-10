@@ -126,7 +126,7 @@ When there are no updates available for a distribution, a warning will be displa
 
 ```
 $ hatch python update 3.12
-The latest version is already installed: 3.12.3
+The latest version is already installed: 3.12.7
 ```
 
 ## Removal
