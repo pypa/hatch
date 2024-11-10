@@ -898,11 +898,36 @@ class TestClassifiers:
         with pytest.raises(TypeError, match='Classifier #1 of field `project.classifiers` must be a string'):
             _ = metadata.core.classifiers
 
-    def test_entry_unknown(self, isolation):
+    def test_entry_unknown(self, isolation, monkeypatch):
+        monkeypatch.delenv('HATCH_METADATA_CLASSIFIERS_NO_VERIFY', False)
         metadata = ProjectMetadata(str(isolation), None, {'project': {'classifiers': ['foo']}})
 
         with pytest.raises(ValueError, match='Unknown classifier in field `project.classifiers`: foo'):
             _ = metadata.core.classifiers
+
+    def test_entry_unknown_no_verify(self, isolation, monkeypatch):
+        monkeypatch.setenv('HATCH_METADATA_CLASSIFIERS_NO_VERIFY', '1')
+        classifiers = [
+            'Programming Language :: Python :: 3.11',
+            'Programming Language :: Python :: 3.11',
+            'Programming Language :: Python :: 3.9',
+            'Development Status :: 4 - Beta',
+            'Private :: Do Not Upload',
+            'Foo',
+        ]
+        metadata = ProjectMetadata(str(isolation), None, {'project': {'classifiers': classifiers}})
+
+        assert (
+            metadata.core.classifiers
+            == metadata.core.classifiers
+            == [
+                'Private :: Do Not Upload',
+                'Development Status :: 4 - Beta',
+                'Foo',
+                'Programming Language :: Python :: 3.9',
+                'Programming Language :: Python :: 3.11',
+            ]
+        )
 
     def test_correct(self, isolation):
         classifiers = [
