@@ -44,7 +44,7 @@ dependencies = [
   "httpx>=0.22.0",
   "hyperlink>=21.0.0",
   "keyring>=23.5.0",
-  "packaging>=23.2",
+  "packaging>=24.2",
   "pexpect~=4.8",
   "platformdirs>=2.5.0",
   "pyproject-hooks",

@@ -270,6 +270,7 @@ UNSELECTED_RULES: tuple[str, ...] = (
     'PLR0915',
     'PLR0916',
     'PLR0917',
+    'PLR1701',
     'PLR1702',
     'PLR1706',
     'PT004',

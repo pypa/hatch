@@ -8,6 +8,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.26.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.26.0) - 2024-11-10 ## {: #hatchling-v1.26.0 }
+
+***Added:***
+
+- Support version 2.4 of core metadata for the `wheel` and `sdist` targets
+- Add `HATCH_METADATA_CLASSIFIERS_NO_VERIFY` environment variable to disable trove classifier verification
+- Add `.pixi` to the list of directories that cannot be traversed
+- Bump the minimum supported version of `packaging` to 24.2
+
+***Fixed:***
+
+- No longer write package metadata for license expressions and files for versions of core metadata prior to 2.4
+- Properly enable Zip64 support for the `wheel` target
+- Properly ignore parent `.gitingore` files when the project root matches one of the patterns
+
 ## [1.25.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.25.0) - 2024-06-22 ## {: #hatchling-v1.25.0 }
 
 ***Changed:***
