@@ -8,7 +8,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Fixed:***
+
+- Add backward compatibility for the old `license-files` metadata field
+- Support an old import path that is still used by some consumers like Hatch
+
 ## [1.26.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.26.0) - 2024-11-10 ## {: #hatchling-v1.26.0 }
+
+***Changed:***
+
+- The `license-files` metadata field has been updated to the latest spec and is now just an array of glob patterns
 
 ***Added:***
 

@@ -742,6 +742,9 @@ class CoreMetadata:
                         'listed in field `project.dynamic`'
                     )
                     raise ValueError(message)
+
+                if isinstance(globs, dict):
+                    globs = globs.get('globs', globs.get('paths', []))
             else:
                 globs = ['LICEN[CS]E*', 'COPYING*', 'NOTICE*', 'AUTHORS*']
 
