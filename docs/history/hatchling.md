@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.26.1](https://github.com/pypa/hatch/releases/tag/hatchling-v1.26.1) - 2024-11-10 ## {: #hatchling-v1.26.1 }
+
 ***Fixed:***
 
 - Add backward compatibility for the old `license-files` metadata field
