@@ -947,8 +947,6 @@ class CoreMetadata:
         if self._classifiers is None:
             import bisect
 
-            import trove_classifiers
-
             if 'classifiers' in self.config:
                 classifiers = self.config['classifiers']
                 if 'classifiers' in self.dynamic:
@@ -964,7 +962,16 @@ class CoreMetadata:
                 message = 'Field `project.classifiers` must be an array'
                 raise TypeError(message)
 
-            known_classifiers = trove_classifiers.classifiers | self._extra_classifiers
+            verify_classifiers = not os.environ.get('HATCH_METADATA_CLASSIFIERS_NO_VERIFY')
+            if verify_classifiers:
+                import trove_classifiers
+
+                known_classifiers = trove_classifiers.classifiers | self._extra_classifiers
+                sorted_classifiers = list(trove_classifiers.sorted_classifiers)
+
+                for classifier in sorted(self._extra_classifiers - trove_classifiers.classifiers):
+                    bisect.insort(sorted_classifiers, classifier)
+
             unique_classifiers = set()
 
             for i, classifier in enumerate(classifiers, 1):
@@ -972,15 +979,25 @@ class CoreMetadata:
                     message = f'Classifier #{i} of field `project.classifiers` must be a string'
                     raise TypeError(message)
 
-                if not self.__classifier_is_private(classifier) and classifier not in known_classifiers:
+                if (
+                    not self.__classifier_is_private(classifier)
+                    and verify_classifiers
+                    and classifier not in known_classifiers
+                ):
                     message = f'Unknown classifier in field `project.classifiers`: {classifier}'
                     raise ValueError(message)
 
                 unique_classifiers.add(classifier)
 
-            sorted_classifiers = list(trove_classifiers.sorted_classifiers)
-            for classifier in sorted(self._extra_classifiers - trove_classifiers.classifiers):
-                bisect.insort(sorted_classifiers, classifier)
+            if not verify_classifiers:
+                import re
+
+                # combined text-numeric sort that ensures that Python versions sort correctly
+                split_re = re.compile(r'(\D*)(\d*)')
+                sorted_classifiers = sorted(
+                    classifiers,
+                    key=lambda value: ([(a, int(b) if b else None) for a, b in split_re.findall(value)]),
+                )
 
             self._classifiers = sorted(
                 unique_classifiers, key=lambda c: -1 if self.__classifier_is_private(c) else sorted_classifiers.index(c)
