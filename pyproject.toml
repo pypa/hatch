@@ -33,6 +33,7 @@ classifiers = [
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
   "Topic :: Software Development :: Build Tools",
@@ -43,7 +44,7 @@ dependencies = [
   "httpx>=0.22.0",
   "hyperlink>=21.0.0",
   "keyring>=23.5.0",
-  "packaging>=23.2",
+  "packaging>=24.2",
   "pexpect~=4.8",
   "platformdirs>=2.5.0",
   "pyproject-hooks",
@@ -90,11 +91,11 @@ exclude = [
 [tool.mypy]
 disallow_untyped_defs = false
 disallow_incomplete_defs = false
+enable_error_code = ["ignore-without-code", "truthy-bool"]
 follow_imports = "normal"
 ignore_missing_imports = true
 pretty = true
 show_column_numbers = true
-show_error_codes = true
 warn_no_return = false
 warn_unused_ignores = true
 
