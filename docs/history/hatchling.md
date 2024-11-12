@@ -8,6 +8,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Fixed:***
+
+- Back-populate string `license` fields (`License-Expression`) for core metadata versions prior to 2.4
+- Remove the `License-Expression` and `License-Files` core metadata from version 2.2 that was missed in the previous minor release
+
 ## [1.26.1](https://github.com/pypa/hatch/releases/tag/hatchling-v1.26.1) - 2024-11-10 ## {: #hatchling-v1.26.1 }
 
 ***Fixed:***
