@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.26.3](https://github.com/pypa/hatch/releases/tag/hatchling-v1.26.3) - 2024-11-12 ## {: #hatchling-v1.26.3 }
+
 ***Fixed:***
 
 - Support an old import path that is still used by some consumers like Hatch
