@@ -46,10 +46,6 @@ class AuthenticationCredentials:
         if password is not None:
             return password
 
-        password = keyring.get_password(self._repo, self.username)
-        if password is not None:
-            return password
-
         if self._options['no_prompt']:
             self._app.abort('Missing required option: auth')
 
@@ -77,6 +73,8 @@ class AuthenticationCredentials:
         creds = keyring.get_credential(self._repo, None)
         if not creds:
             return None
+        self.__password = creds.password
+        self.__password_was_read = True
         return creds.username
 
     def _read_previous_working_user_data(self) -> str | None:
