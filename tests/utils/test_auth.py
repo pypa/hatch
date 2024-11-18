@@ -1,6 +1,22 @@
+import pytest
+
 import hatch.publish.auth
 from hatch.publish.auth import AuthenticationCredentials
 from hatch.utils.fs import Path
+
+
+@pytest.fixture(autouse=True)
+def mock_keyring(monkeypatch):
+    class MockKeyring:
+        @staticmethod
+        def get_credential(*_):
+            class Credential:
+                username = 'gat'
+                password = 'guido'
+
+            return Credential()
+
+    monkeypatch.setattr(hatch.publish.auth, 'keyring', MockKeyring)
 
 
 def test_pypirc(fs):
@@ -45,21 +61,7 @@ def test_pypirc(fs):
     assert credentials.password == 'gat'
 
 
-def test_keyring_credentials(monkeypatch):
-    class MockKeyring:
-        @staticmethod
-        def get_credential(*_):
-            class Credential:
-                username = 'gat'
-
-            return Credential()
-
-        @staticmethod
-        def get_password(*_):
-            return 'guido'
-
-    monkeypatch.setattr(hatch.publish.auth, 'keyring', MockKeyring)
-
+def test_keyring_credentials():
     credentials = AuthenticationCredentials(
         app=None,
         cache_dir=Path('/none'),
