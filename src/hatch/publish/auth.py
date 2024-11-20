@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import keyring
-
 from hatch.utils.fs import Path
 
 
@@ -70,6 +68,8 @@ class AuthenticationCredentials:
         return self._app.prompt(f"Username for '{self._repo_config['url']}' [__token__]") or '__token__'
 
     def _read_keyring(self) -> str | None:
+        import keyring
+
         creds = keyring.get_credential(self._repo, None)
         if not creds:
             return None
