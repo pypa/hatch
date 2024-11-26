@@ -768,7 +768,16 @@ class EnvironmentInterface(ABC):
         A convenience method for constructing a [`pip install`](https://pip.pypa.io/en/stable/cli/pip_install/)
         command with the given verbosity. The default verbosity is set to one less than Hatch's verbosity.
         """
-        command = ['python', '-u', '-m', 'pip', 'install', '--disable-pip-version-check', '--no-python-version-warning']
+        command = [
+            'python',
+            '-u',
+            '-m',
+            'pip',
+            'install',
+            '--disable-pip-version-check',
+            '--no-python-version-warning',
+            '--no-input',
+        ]
 
         # Default to -1 verbosity
         add_verbosity_flag(command, self.verbosity, adjustment=-1)
