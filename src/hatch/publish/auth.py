@@ -44,12 +44,6 @@ class AuthenticationCredentials:
         if password is not None:
             return password
 
-        import keyring
-
-        password = keyring.get_password(self._repo, self.username)
-        if password is not None:
-            return password
-
         if self._options['no_prompt']:
             self._app.abort('Missing required option: auth')
 
@@ -62,6 +56,7 @@ class AuthenticationCredentials:
             or self._repo_config.get('user')
             or self._read_pypirc()
             or self._read_previous_working_user_data()
+            or self._read_keyring()
         )
         if username is not None:
             return username
@@ -71,6 +66,16 @@ class AuthenticationCredentials:
 
         self.__username_was_read = True
         return self._app.prompt(f"Username for '{self._repo_config['url']}' [__token__]") or '__token__'
+
+    def _read_keyring(self) -> str | None:
+        import keyring
+
+        creds = keyring.get_credential(self._repo, None)
+        if not creds:
+            return None
+        self.__password = creds.password
+        self.__password_was_read = True
+        return creds.username
 
     def _read_previous_working_user_data(self) -> str | None:
         if self._pwu_path.is_file():
