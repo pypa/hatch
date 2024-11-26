@@ -90,7 +90,19 @@ class PackageIndex:
                 files={'content': (artifact.name, f, 'application/octet-stream')},
                 auth=(self.user, self.auth),
             )
-            response.raise_for_status()
+            if response.is_error:
+                import re
+
+                import httpx
+
+                # strip all html tags
+                post_res = re.sub(r'<[^>]+>', '', response.text)
+                exc_text = f'{response.status_code} {response.reason_phrase}\n{post_res}'
+                raise httpx.HTTPStatusError(
+                    message=exc_text,
+                    request=response.request,
+                    response=response,
+                )
 
     def get_simple_api(self, project: str) -> httpx.Response:
         return self.client.get(
