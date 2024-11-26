@@ -69,7 +69,7 @@ class PythonManager:
             if not metadata_file.is_file():
                 continue
 
-            metadata = json.loads(metadata_file.read_text())
+            metadata = json.loads(metadata_file.read_text(encoding='utf-8'))
             distribution = get_distribution(path.name, source=metadata.get('source', ''))
             if not (path / distribution.python_path).is_file():
                 continue
@@ -117,7 +117,7 @@ class PythonManager:
 
         metadata = {'source': dist.source, 'python_path': dist.python_path}
         metadata_file = path / InstalledDistribution.metadata_filename()
-        metadata_file.write_text(json.dumps(metadata, indent=2))
+        metadata_file.write_text(json.dumps(metadata, indent=2), encoding='utf-8')
 
         return InstalledDistribution(path, dist, metadata)
 

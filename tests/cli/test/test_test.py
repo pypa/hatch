@@ -203,7 +203,7 @@ class TestCoverage:
         config_dir = next(root_config_path.iterdir())
         coverage_config_file = next(config_dir.iterdir())
 
-        assert coverage_config_file.read_text().strip().splitlines()[-2:] == [
+        assert coverage_config_file.read_text(encoding='utf-8').strip().splitlines()[-2:] == [
             '[tool.coverage.run]',
             'parallel = true',
         ]
@@ -239,7 +239,7 @@ class TestCoverage:
         config_dir = next(root_config_path.iterdir())
         coverage_config_file = next(config_dir.iterdir())
 
-        assert coverage_config_file.read_text().strip().splitlines()[-2:] == [
+        assert coverage_config_file.read_text(encoding='utf-8').strip().splitlines()[-2:] == [
             '[tool.coverage.run]',
             'parallel = true',
         ]
@@ -274,7 +274,7 @@ class TestCoverage:
         config_dir = next(root_config_path.iterdir())
         coverage_config_file = next(config_dir.iterdir())
 
-        assert coverage_config_file.read_text().strip().splitlines()[-2:] == [
+        assert coverage_config_file.read_text(encoding='utf-8').strip().splitlines()[-2:] == [
             '[tool.coverage.run]',
             'parallel = true',
         ]
@@ -312,7 +312,7 @@ class TestCoverage:
         config_dir = next(root_config_path.iterdir())
         coverage_config_file = next(config_dir.iterdir())
 
-        assert coverage_config_file.read_text().strip().splitlines() == [
+        assert coverage_config_file.read_text(encoding='utf-8').strip().splitlines() == [
             '[run]',
             'parallel = true',
         ]
@@ -332,7 +332,7 @@ class TestCoverage:
         data_path = temp_dir / 'data'
         data_path.mkdir()
 
-        (project_path / '.coveragerc').write_text('[run]\nparallel = false\nbranch = true\n')
+        (project_path / '.coveragerc').write_text('[run]\nparallel = false\nbranch = true\n', encoding='utf-8')
 
         with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
             result = hatch('test', '--cover')
@@ -350,7 +350,7 @@ class TestCoverage:
         config_dir = next(root_config_path.iterdir())
         coverage_config_file = next(config_dir.iterdir())
 
-        assert coverage_config_file.read_text().strip().splitlines() == [
+        assert coverage_config_file.read_text(encoding='utf-8').strip().splitlines() == [
             '[run]',
             'parallel = true',
             'branch = true',
@@ -818,7 +818,7 @@ class TestCustomScripts:
         config_dir = next(root_config_path.iterdir())
         coverage_config_file = next(config_dir.iterdir())
 
-        assert coverage_config_file.read_text().strip().splitlines()[-2:] == [
+        assert coverage_config_file.read_text(encoding='utf-8').strip().splitlines()[-2:] == [
             '[tool.coverage.run]',
             'parallel = true',
         ]

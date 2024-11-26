@@ -10,7 +10,7 @@ pytestmark = [pytest.mark.usefixtures('mock_backend_process_output')]
 
 
 def read_readme(project_dir):
-    return repr((project_dir / 'README.txt').read_text())[1:-1]
+    return repr((project_dir / 'README.txt').read_text(encoding='utf-8'))[1:-1]
 
 
 def test_other_backend(hatch, temp_dir, helpers):
@@ -176,7 +176,7 @@ Creating environment: hatch-build
 Checking dependencies
 Syncing dependencies
 Inspecting build dependencies
-{(path / 'README.txt').read_text()}
+{(path / 'README.txt').read_text(encoding='utf-8')}
 """
     )
 
@@ -281,7 +281,8 @@ def test_plugin_dependencies_unmet(hatch, temp_dir, helpers, mock_plugin_install
             [env]
             requires = ["{dependency}"]
             """
-        )
+        ),
+        encoding='utf-8',
     )
 
     (path / 'README.md').replace(path / 'README.txt')
