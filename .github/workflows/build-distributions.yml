@@ -32,7 +32,7 @@ jobs:
         python-version: ${{ env.DIST_PYTHON_VERSION }}
 
     - name: Install UV
-      uses: astral-sh/setup-uv@v3
+      uses: astral-sh/setup-uv@v4
 
     - name: Install Hatch
       if: inputs.version

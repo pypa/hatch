@@ -22,7 +22,7 @@ jobs:
         python-version: ${{ env.PYTHON_VERSION }}
 
     - name: Install UV
-      uses: astral-sh/setup-uv@v3
+      uses: astral-sh/setup-uv@v4
 
     - name: Install build dependencies
       run: uv pip install --system --upgrade build
