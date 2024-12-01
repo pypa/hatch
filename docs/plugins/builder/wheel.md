@@ -16,7 +16,7 @@ The builder plugin name is `wheel`.
 
 | Option | Default | Description |
 | --- | --- | --- |
-| `core-metadata-version` | `"2.3"` | The version of [core metadata](https://packaging.python.org/specifications/core-metadata/) to use |
+| `core-metadata-version` | `"2.4"` | The version of [core metadata](https://packaging.python.org/specifications/core-metadata/) to use |
 | `shared-data` | | A mapping similar to the [forced inclusion](../../config/build.md#forced-inclusion) option corresponding to the `data` subdirectory within the standard [data directory](https://packaging.python.org/en/latest/specifications/binary-distribution-format/#the-data-directory) that will be installed globally in a given Python environment, usually under `#!python sys.prefix` |
 | `shared-scripts` | | A mapping similar to the [forced inclusion](../../config/build.md#forced-inclusion) option corresponding to the `scripts` subdirectory within the standard [data directory](https://packaging.python.org/en/latest/specifications/binary-distribution-format/#the-data-directory) that will be installed in a given Python environment, usually under `Scripts` on Windows or `bin` otherwise, and would normally be available on PATH |
 | `extra-metadata` | | A mapping similar to the [forced inclusion](../../config/build.md#forced-inclusion) option corresponding to extra [metadata](https://peps.python.org/pep-0427/#the-dist-info-directory) that will be shipped in a directory named `extra_metadata` |

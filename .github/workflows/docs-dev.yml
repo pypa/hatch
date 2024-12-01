@@ -33,7 +33,7 @@ jobs:
       run: python scripts/validate_history.py
 
     - name: Install UV
-      run: curl -LsSf https://github.com/astral-sh/uv/releases/latest/download/uv-installer.sh | sh
+      uses: astral-sh/setup-uv@v3
 
     - name: Install ourself
       run: |

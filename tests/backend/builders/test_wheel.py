@@ -909,7 +909,7 @@ class TestBuildStandard:
         (project_path / 'LICENSES' / 'test').mkdir()
 
         config = {
-            'project': {'name': project_name, 'dynamic': ['version'], 'license-files': {'globs': ['LICENSES/*']}},
+            'project': {'name': project_name, 'dynamic': ['version'], 'license-files': ['LICENSES/*']},
             'tool': {
                 'hatch': {
                     'version': {'path': 'my_app/__about__.py'},

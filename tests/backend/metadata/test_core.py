@@ -558,7 +558,7 @@ class TestLicense:
     def test_invalid_expression(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {'project': {'license': 'mit or foo'}})
 
-        with pytest.raises(ValueError, match='Error parsing field `project.license` - unknown license: foo'):
+        with pytest.raises(ValueError, match="Error parsing field `project.license` - Unknown license: 'foo'"):
             _ = metadata.core.license_expression
 
     def test_multiple_options(self, isolation):
@@ -621,54 +621,16 @@ class TestLicenseFiles:
         ):
             _ = metadata.core.license_files
 
-    def test_not_table(self, isolation):
+    def test_not_array(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {'project': {'license-files': 9000}})
 
-        with pytest.raises(TypeError, match='Field `project.license-files` must be a table'):
+        with pytest.raises(TypeError, match='Field `project.license-files` must be an array'):
             _ = metadata.core.license_files
 
-    def test_multiple_options(self, isolation):
-        metadata = ProjectMetadata(str(isolation), None, {'project': {'license-files': {'paths': [], 'globs': []}}})
+    def test_entry_not_string(self, isolation):
+        metadata = ProjectMetadata(str(isolation), None, {'project': {'license-files': [9000]}})
 
-        with pytest.raises(
-            ValueError, match='Cannot specify both `paths` and `globs` in the `project.license-files` table'
-        ):
-            _ = metadata.core.license_files
-
-    def test_no_option(self, isolation):
-        metadata = ProjectMetadata(str(isolation), None, {'project': {'license-files': {}}})
-
-        with pytest.raises(
-            ValueError, match='Must specify either `paths` or `globs` in the `project.license-files` table if defined'
-        ):
-            _ = metadata.core.license_files
-
-    def test_paths_not_array(self, isolation):
-        metadata = ProjectMetadata(str(isolation), None, {'project': {'license-files': {'paths': 9000}}})
-
-        with pytest.raises(TypeError, match='Field `paths` in the `project.license-files` table must be an array'):
-            _ = metadata.core.license_files
-
-    def test_paths_entry_not_string(self, isolation):
-        metadata = ProjectMetadata(str(isolation), None, {'project': {'license-files': {'paths': [9000]}}})
-
-        with pytest.raises(
-            TypeError, match='Entry #1 in field `paths` in the `project.license-files` table must be a string'
-        ):
-            _ = metadata.core.license_files
-
-    def test_globs_not_array(self, isolation):
-        metadata = ProjectMetadata(str(isolation), None, {'project': {'license-files': {'globs': 9000}}})
-
-        with pytest.raises(TypeError, match='Field `globs` in the `project.license-files` table must be an array'):
-            _ = metadata.core.license_files
-
-    def test_globs_entry_not_string(self, isolation):
-        metadata = ProjectMetadata(str(isolation), None, {'project': {'license-files': {'globs': [9000]}}})
-
-        with pytest.raises(
-            TypeError, match='Entry #1 in field `globs` in the `project.license-files` table must be a string'
-        ):
+        with pytest.raises(TypeError, match='Entry #1 of field `project.license-files` must be a string'):
             _ = metadata.core.license_files
 
     def test_default_globs_no_licenses(self, isolation):
@@ -693,7 +655,7 @@ class TestLicenseFiles:
         assert metadata.core.license_files == sorted(expected)
 
     def test_globs_with_licenses(self, temp_dir):
-        metadata = ProjectMetadata(str(temp_dir), None, {'project': {'license-files': {'globs': ['LICENSES/*']}}})
+        metadata = ProjectMetadata(str(temp_dir), None, {'project': {'license-files': ['LICENSES/*']}})
 
         licenses_dir = temp_dir / 'LICENSES'
         licenses_dir.mkdir()
@@ -709,7 +671,7 @@ class TestLicenseFiles:
         metadata = ProjectMetadata(
             str(temp_dir),
             None,
-            {'project': {'license-files': {'paths': ['LICENSES/Apache-2.0.txt', 'LICENSES/MIT.txt', 'COPYING']}}},
+            {'project': {'license-files': ['LICENSES/Apache-2.0.txt', 'LICENSES/MIT.txt', 'COPYING']}},
         )
 
         licenses_dir = temp_dir / 'LICENSES'
@@ -721,20 +683,6 @@ class TestLicenseFiles:
             (temp_dir / name).touch()
 
         assert metadata.core.license_files == ['COPYING', 'LICENSES/Apache-2.0.txt', 'LICENSES/MIT.txt']
-
-    def test_paths_missing_license(self, temp_dir):
-        metadata = ProjectMetadata(
-            str(temp_dir),
-            None,
-            {'project': {'license-files': {'paths': ['LICENSES/MIT.txt']}}},
-        )
-
-        licenses_dir = temp_dir / 'LICENSES'
-        licenses_dir.mkdir()
-        (licenses_dir / 'Apache-2.0.txt').touch()
-
-        with pytest.raises(OSError, match='License file does not exist: LICENSES/MIT.txt'):
-            _ = metadata.core.license_files
 
 
 class TestAuthors:
@@ -950,11 +898,36 @@ class TestClassifiers:
         with pytest.raises(TypeError, match='Classifier #1 of field `project.classifiers` must be a string'):
             _ = metadata.core.classifiers
 
-    def test_entry_unknown(self, isolation):
+    def test_entry_unknown(self, isolation, monkeypatch):
+        monkeypatch.delenv('HATCH_METADATA_CLASSIFIERS_NO_VERIFY', False)
         metadata = ProjectMetadata(str(isolation), None, {'project': {'classifiers': ['foo']}})
 
         with pytest.raises(ValueError, match='Unknown classifier in field `project.classifiers`: foo'):
             _ = metadata.core.classifiers
+
+    def test_entry_unknown_no_verify(self, isolation, monkeypatch):
+        monkeypatch.setenv('HATCH_METADATA_CLASSIFIERS_NO_VERIFY', '1')
+        classifiers = [
+            'Programming Language :: Python :: 3.11',
+            'Programming Language :: Python :: 3.11',
+            'Programming Language :: Python :: 3.9',
+            'Development Status :: 4 - Beta',
+            'Private :: Do Not Upload',
+            'Foo',
+        ]
+        metadata = ProjectMetadata(str(isolation), None, {'project': {'classifiers': classifiers}})
+
+        assert (
+            metadata.core.classifiers
+            == metadata.core.classifiers
+            == [
+                'Private :: Do Not Upload',
+                'Development Status :: 4 - Beta',
+                'Foo',
+                'Programming Language :: Python :: 3.9',
+                'Programming Language :: Python :: 3.11',
+            ]
+        )
 
     def test_correct(self, isolation):
         classifiers = [
@@ -1661,7 +1634,7 @@ class TestMetadataConversion:
         raw_metadata = {
             'name': 'My.App',
             'version': '0.0.1',
-            'license-files': {'paths': ['LICENSES/Apache-2.0.txt', 'LICENSES/MIT.txt']},
+            'license-files': ['LICENSES/Apache-2.0.txt', 'LICENSES/MIT.txt'],
         }
         metadata = ProjectMetadata(str(temp_dir), None, {'project': raw_metadata})
 

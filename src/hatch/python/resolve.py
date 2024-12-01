@@ -165,7 +165,7 @@ class PyPyOfficialDistribution(Distribution):
         return f'{directory}/bin/pypy'
 
 
-def get_distribution(name: str, source: str = '', variant: str = '') -> Distribution:
+def get_distribution(name: str, source: str = '', variant_cpu: str = '', variant_gil: str = '') -> Distribution:
     if source:
         return _get_distribution_class(source)(name, source)
 
@@ -184,14 +184,17 @@ def get_distribution(name: str, source: str = '', variant: str = '') -> Distribu
         system = 'linux'
         abi = 'gnu' if any(platform.libc_ver()) else 'musl'
 
-    if not variant:
-        variant = _get_default_variant(name, system, arch)
+    if not variant_cpu:
+        variant_cpu = _get_default_variant_cpu(name, system, arch)
 
-    key = (system, arch, abi, variant)
+    if not variant_gil:
+        variant_gil = _get_default_variant_gil()
+
+    key = (system, arch, abi, variant_cpu, variant_gil)
 
     keys: dict[tuple, str] = DISTRIBUTIONS[name]
     if key not in keys:
-        message = f'Could not find a default source for {name=} {system=} {arch=} {abi=} {variant=}'
+        message = f'Could not find a default source for {name=} {system=} {arch=} {abi=} {variant_cpu=} {variant_gil=}'
         raise PythonDistributionResolutionError(message)
 
     source = keys[key]
@@ -211,7 +214,7 @@ def get_compatible_distributions() -> dict[str, Distribution]:
     return distributions
 
 
-def _guess_linux_variant() -> str:
+def _guess_linux_variant_cpu() -> str:
     # Use the highest that we know is most common when we can't parse CPU data
     default = 'v3'
     try:
@@ -248,12 +251,16 @@ def _guess_linux_variant() -> str:
     return default
 
 
-def _get_default_variant(name: str, system: str, arch: str) -> str:
+def _get_default_variant_cpu(name: str, system: str, arch: str) -> str:
     # not PyPy
     if name[0].isdigit():
-        # https://gregoryszorc.com/docs/python-build-standalone/main/running.html
-        variant = os.environ.get(f'HATCH_PYTHON_VARIANT_{system.upper()}', '').lower()
+        variant = os.environ.get(
+            'HATCH_PYTHON_VARIANT_CPU',
+            # Legacy name
+            os.environ.get(f'HATCH_PYTHON_VARIANT_{system.upper()}', ''),
+        ).lower()
 
+        # https://gregoryszorc.com/docs/python-build-standalone/main/running.html
         if system == 'linux' and arch == 'x86_64':
             # Intel-specific optimizations depending on age of release
             if variant:
@@ -263,9 +270,13 @@ def _get_default_variant(name: str, system: str, arch: str) -> str:
                 return 'v1'
 
             if name != '3.7':
-                return _guess_linux_variant()
+                return _guess_linux_variant_cpu()
 
     return ''
+
+
+def _get_default_variant_gil() -> str:
+    return os.environ.get('HATCH_PYTHON_VARIANT_GIL', '').lower()
 
 
 def _get_distribution_class(source: str) -> type[Distribution]:

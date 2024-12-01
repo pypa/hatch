@@ -113,21 +113,11 @@ For more information, see [PEP 639][].
 
     === "Files"
 
-        === "Paths"
-
-            ```toml
-            [project]
-            ...
-            license-files = { paths = ["LICENSE.txt"] }
-            ```
-
-        === "Globs"
-
-            ```toml
-            [project]
-            ...
-            license-files = { globs = ["LICENSES/*"] }
-            ```
+        ```toml
+        [project]
+        ...
+        license-files = ["LICENSES/*"]
+        ```
 
 ## Ownership
 

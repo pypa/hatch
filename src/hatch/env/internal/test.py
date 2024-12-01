@@ -21,5 +21,5 @@ def get_default_config() -> dict[str, Any]:
             'cov-combine': 'coverage combine',
             'cov-report': 'coverage report',
         },
-        'matrix': [{'python': ['3.12', '3.11', '3.10', '3.9', '3.8']}],
+        'matrix': [{'python': ['3.13', '3.12', '3.11', '3.10', '3.9', '3.8']}],
     }
