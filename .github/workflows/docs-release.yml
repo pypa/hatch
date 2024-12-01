@@ -31,7 +31,7 @@ jobs:
       run: python scripts/validate_history.py
 
     - name: Install UV
-      uses: astral-sh/setup-uv@v3
+      uses: astral-sh/setup-uv@v4
 
     - name: Install ourself
       run: |
