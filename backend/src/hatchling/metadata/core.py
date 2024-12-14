@@ -4,6 +4,7 @@ import os
 import sys
 from contextlib import suppress
 from copy import deepcopy
+from functools import cached_property
 from typing import TYPE_CHECKING, Any, Generic, cast
 
 from hatchling.metadata.utils import (
