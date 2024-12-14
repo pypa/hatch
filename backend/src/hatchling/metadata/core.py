@@ -98,7 +98,7 @@ class ProjectMetadata(Generic[PluginManagerBound]):
     @cached_property
     def dynamic(self) -> list[str]:
         # Here we maintain a copy of the dynamic fields from `self.core raw metadata`.
-        # This property should never be mutated. In contrast, the fields in 
+        # This property should never be mutated. In contrast, the fields in
         # `self.core.dynamic` are depopulated on the first evaulation of `self.core`
         # or `self.version` as the actual values are computed.
         dynamic = self.core_raw_metadata.get('dynamic', [])
@@ -161,7 +161,11 @@ class ProjectMetadata(Generic[PluginManagerBound]):
     def core(self) -> CoreMetadata:
         metadata = CoreMetadata(self.root, self.core_raw_metadata, self.hatch.metadata, self.context)
 
-        # Save the fields
+        # Make a copy of the dynamic fields before they are computed.
+        # The corresponding `CoreMetadata.dynamic` here in the `metadata`
+        # variable will be depopulated once the values are computed, either
+        # directly below by the metadata hooks, or from a version source
+        # via `ProjectMetadata.version`.
         _ = self.dynamic
 
         metadata_hooks = self.hatch.metadata.hooks
@@ -1249,9 +1253,11 @@ class CoreMetadata:
     @cached_property
     def dynamic(self) -> list[str]:
         """
+        Dynamic metadata whose values have not yet been resolved.
+
         https://peps.python.org/pep-0621/#dynamic
 
-        WARNING: This property is mutable, and dynamic fields will be removed as
+        WARNING: The returned list is mutable, and dynamic fields will be removed after
         they are resolved.
         """
         dynamic = self.config.get('dynamic', [])
