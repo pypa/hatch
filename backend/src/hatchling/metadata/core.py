@@ -336,19 +336,13 @@ class CoreMetadata:
         self.hatch_metadata = hatch_metadata
         self.context = context
 
-        self._raw_name: str | None = None
-        self._name: str | None = None
         self._version: str | None = None
-        self._description: str | None = None
         self._readme: str | None = None
         self._readme_content_type: str | None = None
         self._readme_path: str | None = None
-        self._requires_python: str | None = None
         self._python_constraint: SpecifierSet | None = None
         self._license: str | None = None
         self._license_expression: str | None = None
-        self._license_files: list[str] | None = None
-        self._authors: list[str] | None = None
         self._authors_data: dict[str, list[str]] | None = None
         self._maintainers: list[str] | None = None
         self._maintainers_data: dict[str, list[str]] | None = None
@@ -363,50 +357,43 @@ class CoreMetadata:
         self._dependencies: list[str] | None = None
         self._optional_dependencies_complex: dict[str, dict[str, Requirement]] | None = None
         self._optional_dependencies: dict[str, list[str]] | None = None
-        self._dynamic: list[str] | None = None
 
         # Indicates that the version has been successfully set dynamically
         self._version_set: bool = False
 
-    @property
+    @cached_property
     def raw_name(self) -> str:
         """
         https://peps.python.org/pep-0621/#name
         """
-        if self._raw_name is None:
-            if 'name' in self.dynamic:
-                message = 'Static metadata field `name` cannot be present in field `project.dynamic`'
-                raise ValueError(message)
+        if 'name' in self.dynamic:
+            message = 'Static metadata field `name` cannot be present in field `project.dynamic`'
+            raise ValueError(message)
 
-            raw_name = self.config.get('name', '')
-            if not raw_name:
-                message = 'Missing required field `project.name`'
-                raise ValueError(message)
+        raw_name = self.config.get('name', '')
+        if not raw_name:
+            message = 'Missing required field `project.name`'
+            raise ValueError(message)
 
-            if not isinstance(raw_name, str):
-                message = 'Field `project.name` must be a string'
-                raise TypeError(message)
+        if not isinstance(raw_name, str):
+            message = 'Field `project.name` must be a string'
+            raise TypeError(message)
 
-            if not is_valid_project_name(raw_name):
-                message = (
-                    'Required field `project.name` must only contain ASCII letters/digits, underscores, '
-                    'hyphens, and periods, and must begin and end with ASCII letters/digits.'
-                )
-                raise ValueError(message)
+        if not is_valid_project_name(raw_name):
+            message = (
+                'Required field `project.name` must only contain ASCII letters/digits, underscores, '
+                'hyphens, and periods, and must begin and end with ASCII letters/digits.'
+            )
+            raise ValueError(message)
 
-            self._raw_name = raw_name
+        return raw_name
 
-        return self._raw_name
-
-    @property
+    @cached_property
     def name(self) -> str:
         """
         https://peps.python.org/pep-0621/#name
         """
-        if self._name is None:
-            self._name = normalize_project_name(self.raw_name)
-
-        return self._name
+        return normalize_project_name(self.raw_name)
 
     @property
     def version(self) -> str | None:
@@ -445,29 +432,26 @@ class CoreMetadata:
 
         return cast(str, self._version)
 
-    @property
+    @cached_property
     def description(self) -> str:
         """
         https://peps.python.org/pep-0621/#description
         """
-        if self._description is None:
-            if 'description' in self.config:
-                description = self.config['description']
-                if 'description' in self.dynamic:
-                    message = (
-                        'Metadata field `description` cannot be both statically defined and '
-                        'listed in field `project.dynamic`'
-                    )
-                    raise ValueError(message)
-            else:
-                description = ''
+        if 'description' in self.config:
+            description = self.config['description']
+            if 'description' in self.dynamic:
+                message = (
+                    'Metadata field `description` cannot be both statically defined and '
+                    'listed in field `project.dynamic`'
+                )
+                raise ValueError(message)
+        else:
+            description = ''
 
-            if not isinstance(description, str):
-                message = 'Field `project.description` must be a string'
-                raise TypeError(message)
-            self._description = ' '.join(description.splitlines())
-
-        return self._description
+        if not isinstance(description, str):
+            message = 'Field `project.description` must be a string'
+            raise TypeError(message)
+        return ' '.join(description.splitlines())
 
     @property
     def readme(self) -> str:
@@ -591,38 +575,35 @@ class CoreMetadata:
 
         return cast(str, self._readme_path)
 
-    @property
+    @cached_property
     def requires_python(self) -> str:
         """
         https://peps.python.org/pep-0621/#requires-python
         """
-        if self._requires_python is None:
-            from packaging.specifiers import InvalidSpecifier, SpecifierSet
+        from packaging.specifiers import InvalidSpecifier, SpecifierSet
 
-            if 'requires-python' in self.config:
-                requires_python = self.config['requires-python']
-                if 'requires-python' in self.dynamic:
-                    message = (
-                        'Metadata field `requires-python` cannot be both statically defined and '
-                        'listed in field `project.dynamic`'
-                    )
-                    raise ValueError(message)
-            else:
-                requires_python = ''
+        if 'requires-python' in self.config:
+            requires_python = self.config['requires-python']
+            if 'requires-python' in self.dynamic:
+                message = (
+                    'Metadata field `requires-python` cannot be both statically defined and '
+                    'listed in field `project.dynamic`'
+                )
+                raise ValueError(message)
+        else:
+            requires_python = ''
 
-            if not isinstance(requires_python, str):
-                message = 'Field `project.requires-python` must be a string'
-                raise TypeError(message)
+        if not isinstance(requires_python, str):
+            message = 'Field `project.requires-python` must be a string'
+            raise TypeError(message)
 
-            try:
-                self._python_constraint = SpecifierSet(requires_python)
-            except InvalidSpecifier as e:
-                message = f'Field `project.requires-python` is invalid: {e}'
-                raise ValueError(message) from None
+        try:
+            self._python_constraint = SpecifierSet(requires_python)
+        except InvalidSpecifier as e:
+            message = f'Field `project.requires-python` is invalid: {e}'
+            raise ValueError(message) from None
 
-            self._requires_python = str(self._python_constraint)
-
-        return self._requires_python
+        return str(self._python_constraint)
 
     @property
     def python_constraint(self) -> SpecifierSet:
@@ -708,50 +689,47 @@ class CoreMetadata:
 
         return cast(str, self._license_expression)
 
-    @property
+    @cached_property
     def license_files(self) -> list[str]:
         """
         https://peps.python.org/pep-0639/
         """
-        if self._license_files is None:
-            if 'license-files' in self.config:
-                globs = self.config['license-files']
-                if 'license-files' in self.dynamic:
-                    message = (
-                        'Metadata field `license-files` cannot be both statically defined and '
-                        'listed in field `project.dynamic`'
-                    )
-                    raise ValueError(message)
+        if 'license-files' in self.config:
+            globs = self.config['license-files']
+            if 'license-files' in self.dynamic:
+                message = (
+                    'Metadata field `license-files` cannot be both statically defined and '
+                    'listed in field `project.dynamic`'
+                )
+                raise ValueError(message)
 
-                if isinstance(globs, dict):
-                    globs = globs.get('globs', globs.get('paths', []))
-            else:
-                globs = ['LICEN[CS]E*', 'COPYING*', 'NOTICE*', 'AUTHORS*']
+            if isinstance(globs, dict):
+                globs = globs.get('globs', globs.get('paths', []))
+        else:
+            globs = ['LICEN[CS]E*', 'COPYING*', 'NOTICE*', 'AUTHORS*']
 
-            from glob import glob
+        from glob import glob
 
-            license_files: list[str] = []
-            if not isinstance(globs, list):
-                message = 'Field `project.license-files` must be an array'
+        license_files: list[str] = []
+        if not isinstance(globs, list):
+            message = 'Field `project.license-files` must be an array'
+            raise TypeError(message)
+
+        for i, pattern in enumerate(globs, 1):
+            if not isinstance(pattern, str):
+                message = f'Entry #{i} of field `project.license-files` must be a string'
                 raise TypeError(message)
 
-            for i, pattern in enumerate(globs, 1):
-                if not isinstance(pattern, str):
-                    message = f'Entry #{i} of field `project.license-files` must be a string'
-                    raise TypeError(message)
+            full_pattern = os.path.normpath(os.path.join(self.root, pattern))
+            license_files.extend(
+                os.path.relpath(path, self.root).replace('\\', '/')
+                for path in glob(full_pattern)
+                if os.path.isfile(path)
+            )
 
-                full_pattern = os.path.normpath(os.path.join(self.root, pattern))
-                license_files.extend(
-                    os.path.relpath(path, self.root).replace('\\', '/')
-                    for path in glob(full_pattern)
-                    if os.path.isfile(path)
-                )
+        return sorted(license_files)
 
-            self._license_files = sorted(license_files)
-
-        return self._license_files
-
-    @property
+    @cached_property
     def authors(self) -> list[str]:
         """
         https://peps.python.org/pep-0621/#authors-maintainers
@@ -759,56 +737,53 @@ class CoreMetadata:
         authors: list[str]
         authors_data: dict[str, list[str]]
 
-        if self._authors is None:
-            if 'authors' in self.config:
-                authors = self.config['authors']
-                if 'authors' in self.dynamic:
-                    message = (
-                        'Metadata field `authors` cannot be both statically defined and '
-                        'listed in field `project.dynamic`'
-                    )
-                    raise ValueError(message)
-            else:
-                authors = []
+        if 'authors' in self.config:
+            authors = self.config['authors']
+            if 'authors' in self.dynamic:
+                message = (
+                    'Metadata field `authors` cannot be both statically defined and '
+                    'listed in field `project.dynamic`'
+                )
+                raise ValueError(message)
+        else:
+            authors = []
 
-            if not isinstance(authors, list):
-                message = 'Field `project.authors` must be an array'
+        if not isinstance(authors, list):
+            message = 'Field `project.authors` must be an array'
+            raise TypeError(message)
+
+        from email.headerregistry import Address
+
+        authors = deepcopy(authors)
+        authors_data = {'name': [], 'email': []}
+
+        for i, data in enumerate(authors, 1):
+            if not isinstance(data, dict):
+                message = f'Author #{i} of field `project.authors` must be an inline table'
                 raise TypeError(message)
 
-            from email.headerregistry import Address
+            name = data.get('name', '')
+            if not isinstance(name, str):
+                message = f'Name of author #{i} of field `project.authors` must be a string'
+                raise TypeError(message)
 
-            authors = deepcopy(authors)
-            authors_data = {'name': [], 'email': []}
+            email = data.get('email', '')
+            if not isinstance(email, str):
+                message = f'Email of author #{i} of field `project.authors` must be a string'
+                raise TypeError(message)
 
-            for i, data in enumerate(authors, 1):
-                if not isinstance(data, dict):
-                    message = f'Author #{i} of field `project.authors` must be an inline table'
-                    raise TypeError(message)
+            if name and email:
+                authors_data['email'].append(str(Address(display_name=name, addr_spec=email)))
+            elif email:
+                authors_data['email'].append(str(Address(addr_spec=email)))
+            elif name:
+                authors_data['name'].append(name)
+            else:
+                message = f'Author #{i} of field `project.authors` must specify either `name` or `email`'
+                raise ValueError(message)
 
-                name = data.get('name', '')
-                if not isinstance(name, str):
-                    message = f'Name of author #{i} of field `project.authors` must be a string'
-                    raise TypeError(message)
-
-                email = data.get('email', '')
-                if not isinstance(email, str):
-                    message = f'Email of author #{i} of field `project.authors` must be a string'
-                    raise TypeError(message)
-
-                if name and email:
-                    authors_data['email'].append(str(Address(display_name=name, addr_spec=email)))
-                elif email:
-                    authors_data['email'].append(str(Address(addr_spec=email)))
-                elif name:
-                    authors_data['name'].append(name)
-                else:
-                    message = f'Author #{i} of field `project.authors` must specify either `name` or `email`'
-                    raise ValueError(message)
-
-            self._authors = authors
-            self._authors_data = authors_data
-
-        return self._authors
+        self._authors_data = authors_data
+        return authors
 
     @property
     def authors_data(self) -> dict[str, list[str]]:
@@ -1317,25 +1292,25 @@ class CoreMetadata:
 
         return self._optional_dependencies
 
-    @property
+    @cached_property
     def dynamic(self) -> list[str]:
         """
         https://peps.python.org/pep-0621/#dynamic
+
+        WARNING: This property is mutable, and dynamic fields will be removed as
+        they are resolved.
         """
-        if self._dynamic is None:
-            dynamic = self.config.get('dynamic', [])
+        dynamic = self.config.get('dynamic', [])
 
-            if not isinstance(dynamic, list):
-                message = 'Field `project.dynamic` must be an array'
-                raise TypeError(message)
+        if not isinstance(dynamic, list):
+            message = 'Field `project.dynamic` must be an array'
+            raise TypeError(message)
 
-            if not all(isinstance(entry, str) for entry in dynamic):
-                message = 'Field `project.dynamic` must only contain strings'
-                raise TypeError(message)
+        if not all(isinstance(entry, str) for entry in dynamic):
+            message = 'Field `project.dynamic` must only contain strings'
+            raise TypeError(message)
 
-            self._dynamic = sorted(dynamic)
-
-        return self._dynamic
+        return sorted(dynamic)
 
     def add_known_classifiers(self, classifiers: list[str]) -> None:
         self._extra_classifiers.update(classifiers)
