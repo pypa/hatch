@@ -885,8 +885,6 @@ class CoreMetadata:
         """
         https://peps.python.org/pep-0621/#classifiers
         """
-        import bisect
-
         if 'classifiers' in self.config:
             classifiers = self.config['classifiers']
             if 'classifiers' in self.dynamic:
@@ -904,6 +902,8 @@ class CoreMetadata:
 
         verify_classifiers = not os.environ.get('HATCH_METADATA_CLASSIFIERS_NO_VERIFY')
         if verify_classifiers:
+            import bisect
+
             import trove_classifiers
 
             known_classifiers = trove_classifiers.classifiers | self._extra_classifiers
