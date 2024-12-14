@@ -1356,88 +1356,67 @@ class HatchVersionConfig(Generic[PluginManagerBound]):
         self.config = config
         self.plugin_manager = plugin_manager
 
-        self._cached: str | None = None
-        self._source_name: str | None = None
-        self._scheme_name: str | None = None
-        self._source: VersionSourceInterface | None = None
-        self._scheme: VersionSchemeInterface | None = None
-
-    @property
+    @cached_property
     def cached(self) -> str:
-        if self._cached is None:
-            try:
-                self._cached = self.source.get_version_data()['version']
-            except Exception as e:  # noqa: BLE001
-                message = f'Error getting the version from source `{self.source.PLUGIN_NAME}`: {e}'
-                raise type(e)(message) from None
+        try:
+            return self.source.get_version_data()['version']
+        except Exception as e:  # noqa: BLE001
+            message = f'Error getting the version from source `{self.source.PLUGIN_NAME}`: {e}'
+            raise type(e)(message) from None
 
-        return self._cached
-
-    @property
+    @cached_property
     def source_name(self) -> str:
-        if self._source_name is None:
-            source: str = self.config.get('source', 'regex')
-            if not source:
-                message = 'The `source` option under the `tool.hatch.version` table must not be empty if defined'
-                raise ValueError(message)
+        source: str = self.config.get('source', 'regex')
+        if not source:
+            message = 'The `source` option under the `tool.hatch.version` table must not be empty if defined'
+            raise ValueError(message)
 
-            if not isinstance(source, str):
-                message = 'Field `tool.hatch.version.source` must be a string'
-                raise TypeError(message)
+        if not isinstance(source, str):
+            message = 'Field `tool.hatch.version.source` must be a string'
+            raise TypeError(message)
 
-            self._source_name = source
+        return source
 
-        return self._source_name
-
-    @property
+    @cached_property
     def scheme_name(self) -> str:
-        if self._scheme_name is None:
-            scheme: str = self.config.get('scheme', 'standard')
-            if not scheme:
-                message = 'The `scheme` option under the `tool.hatch.version` table must not be empty if defined'
-                raise ValueError(message)
+        scheme: str = self.config.get('scheme', 'standard')
+        if not scheme:
+            message = 'The `scheme` option under the `tool.hatch.version` table must not be empty if defined'
+            raise ValueError(message)
 
-            if not isinstance(scheme, str):
-                message = 'Field `tool.hatch.version.scheme` must be a string'
-                raise TypeError(message)
+        if not isinstance(scheme, str):
+            message = 'Field `tool.hatch.version.scheme` must be a string'
+            raise TypeError(message)
 
-            self._scheme_name = scheme
+        return scheme
 
-        return self._scheme_name
-
-    @property
+    @cached_property
     def source(self) -> VersionSourceInterface:
-        if self._source is None:
-            from copy import deepcopy
+        from copy import deepcopy
 
-            source_name = self.source_name
-            version_source = self.plugin_manager.version_source.get(source_name)
-            if version_source is None:
-                from hatchling.plugin.exceptions import UnknownPluginError
+        source_name = self.source_name
+        version_source = self.plugin_manager.version_source.get(source_name)
+        if version_source is None:
+            from hatchling.plugin.exceptions import UnknownPluginError
 
-                message = f'Unknown version source: {source_name}'
-                raise UnknownPluginError(message)
+            message = f'Unknown version source: {source_name}'
+            raise UnknownPluginError(message)
 
-            self._source = version_source(self.root, deepcopy(self.config))
+        return version_source(self.root, deepcopy(self.config))
 
-        return self._source
-
-    @property
+    @cached_property
     def scheme(self) -> VersionSchemeInterface:
-        if self._scheme is None:
-            from copy import deepcopy
+        from copy import deepcopy
 
-            scheme_name = self.scheme_name
-            version_scheme = self.plugin_manager.version_scheme.get(scheme_name)
-            if version_scheme is None:
-                from hatchling.plugin.exceptions import UnknownPluginError
+        scheme_name = self.scheme_name
+        version_scheme = self.plugin_manager.version_scheme.get(scheme_name)
+        if version_scheme is None:
+            from hatchling.plugin.exceptions import UnknownPluginError
 
-                message = f'Unknown version scheme: {scheme_name}'
-                raise UnknownPluginError(message)
+            message = f'Unknown version scheme: {scheme_name}'
+            raise UnknownPluginError(message)
 
-            self._scheme = version_scheme(self.root, deepcopy(self.config))
-
-        return self._scheme
+        return version_scheme(self.root, deepcopy(self.config))
 
 
 class HatchMetadataSettings(Generic[PluginManagerBound]):
