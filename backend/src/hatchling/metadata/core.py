@@ -344,19 +344,8 @@ class CoreMetadata:
         self._license: str | None = None
         self._license_expression: str | None = None
         self._authors_data: dict[str, list[str]] | None = None
-        self._maintainers: list[str] | None = None
         self._maintainers_data: dict[str, list[str]] | None = None
-        self._keywords: list[str] | None = None
-        self._classifiers: list[str] | None = None
         self._extra_classifiers: set[str] = set()
-        self._urls: dict[str, str] | None = None
-        self._scripts: dict[str, str] | None = None
-        self._gui_scripts: dict[str, str] | None = None
-        self._entry_points: dict[str, dict[str, str]] | None = None
-        self._dependencies_complex: dict[str, Requirement] | None = None
-        self._dependencies: list[str] | None = None
-        self._optional_dependencies_complex: dict[str, dict[str, Requirement]] | None = None
-        self._optional_dependencies: dict[str, list[str]] | None = None
 
         # Indicates that the version has been successfully set dynamically
         self._version_set: bool = False
@@ -795,63 +784,60 @@ class CoreMetadata:
 
         return cast(dict, self._authors_data)
 
-    @property
+    @cached_property
     def maintainers(self) -> list[str]:
         """
         https://peps.python.org/pep-0621/#authors-maintainers
         """
         maintainers: list[str]
 
-        if self._maintainers is None:
-            if 'maintainers' in self.config:
-                maintainers = self.config['maintainers']
-                if 'maintainers' in self.dynamic:
-                    message = (
-                        'Metadata field `maintainers` cannot be both statically defined and '
-                        'listed in field `project.dynamic`'
-                    )
-                    raise ValueError(message)
-            else:
-                maintainers = []
+        if 'maintainers' in self.config:
+            maintainers = self.config['maintainers']
+            if 'maintainers' in self.dynamic:
+                message = (
+                    'Metadata field `maintainers` cannot be both statically defined and '
+                    'listed in field `project.dynamic`'
+                )
+                raise ValueError(message)
+        else:
+            maintainers = []
 
-            if not isinstance(maintainers, list):
-                message = 'Field `project.maintainers` must be an array'
+        if not isinstance(maintainers, list):
+            message = 'Field `project.maintainers` must be an array'
+            raise TypeError(message)
+
+        from email.headerregistry import Address
+
+        maintainers = deepcopy(maintainers)
+        maintainers_data: dict[str, list[str]] = {'name': [], 'email': []}
+
+        for i, data in enumerate(maintainers, 1):
+            if not isinstance(data, dict):
+                message = f'Maintainer #{i} of field `project.maintainers` must be an inline table'
                 raise TypeError(message)
 
-            from email.headerregistry import Address
+            name = data.get('name', '')
+            if not isinstance(name, str):
+                message = f'Name of maintainer #{i} of field `project.maintainers` must be a string'
+                raise TypeError(message)
 
-            maintainers = deepcopy(maintainers)
-            maintainers_data: dict[str, list[str]] = {'name': [], 'email': []}
+            email = data.get('email', '')
+            if not isinstance(email, str):
+                message = f'Email of maintainer #{i} of field `project.maintainers` must be a string'
+                raise TypeError(message)
 
-            for i, data in enumerate(maintainers, 1):
-                if not isinstance(data, dict):
-                    message = f'Maintainer #{i} of field `project.maintainers` must be an inline table'
-                    raise TypeError(message)
+            if name and email:
+                maintainers_data['email'].append(str(Address(display_name=name, addr_spec=email)))
+            elif email:
+                maintainers_data['email'].append(str(Address(addr_spec=email)))
+            elif name:
+                maintainers_data['name'].append(name)
+            else:
+                message = f'Maintainer #{i} of field `project.maintainers` must specify either `name` or `email`'
+                raise ValueError(message)
 
-                name = data.get('name', '')
-                if not isinstance(name, str):
-                    message = f'Name of maintainer #{i} of field `project.maintainers` must be a string'
-                    raise TypeError(message)
-
-                email = data.get('email', '')
-                if not isinstance(email, str):
-                    message = f'Email of maintainer #{i} of field `project.maintainers` must be a string'
-                    raise TypeError(message)
-
-                if name and email:
-                    maintainers_data['email'].append(str(Address(display_name=name, addr_spec=email)))
-                elif email:
-                    maintainers_data['email'].append(str(Address(addr_spec=email)))
-                elif name:
-                    maintainers_data['name'].append(name)
-                else:
-                    message = f'Maintainer #{i} of field `project.maintainers` must specify either `name` or `email`'
-                    raise ValueError(message)
-
-            self._maintainers = maintainers
-            self._maintainers_data = maintainers_data
-
-        return self._maintainers
+        self._maintainers_data = maintainers_data
+        return maintainers
 
     @property
     def maintainers_data(self) -> dict[str, list[str]]:
@@ -863,434 +849,402 @@ class CoreMetadata:
 
         return cast(dict, self._maintainers_data)
 
-    @property
+    @cached_property
     def keywords(self) -> list[str]:
         """
         https://peps.python.org/pep-0621/#keywords
         """
-        if self._keywords is None:
-            if 'keywords' in self.config:
-                keywords = self.config['keywords']
-                if 'keywords' in self.dynamic:
-                    message = (
-                        'Metadata field `keywords` cannot be both statically defined and '
-                        'listed in field `project.dynamic`'
-                    )
-                    raise ValueError(message)
-            else:
-                keywords = []
+        if 'keywords' in self.config:
+            keywords = self.config['keywords']
+            if 'keywords' in self.dynamic:
+                message = (
+                    'Metadata field `keywords` cannot be both statically defined and '
+                    'listed in field `project.dynamic`'
+                )
+                raise ValueError(message)
+        else:
+            keywords = []
 
-            if not isinstance(keywords, list):
-                message = 'Field `project.keywords` must be an array'
+        if not isinstance(keywords, list):
+            message = 'Field `project.keywords` must be an array'
+            raise TypeError(message)
+
+        unique_keywords = set()
+
+        for i, keyword in enumerate(keywords, 1):
+            if not isinstance(keyword, str):
+                message = f'Keyword #{i} of field `project.keywords` must be a string'
                 raise TypeError(message)
 
-            unique_keywords = set()
+            unique_keywords.add(keyword)
 
-            for i, keyword in enumerate(keywords, 1):
-                if not isinstance(keyword, str):
-                    message = f'Keyword #{i} of field `project.keywords` must be a string'
-                    raise TypeError(message)
+        return sorted(unique_keywords)
 
-                unique_keywords.add(keyword)
-
-            self._keywords = sorted(unique_keywords)
-
-        return self._keywords
-
-    @property
+    @cached_property
     def classifiers(self) -> list[str]:
         """
         https://peps.python.org/pep-0621/#classifiers
         """
-        if self._classifiers is None:
-            import bisect
+        import bisect
 
-            if 'classifiers' in self.config:
-                classifiers = self.config['classifiers']
-                if 'classifiers' in self.dynamic:
-                    message = (
-                        'Metadata field `classifiers` cannot be both statically defined and '
-                        'listed in field `project.dynamic`'
-                    )
-                    raise ValueError(message)
-            else:
-                classifiers = []
+        if 'classifiers' in self.config:
+            classifiers = self.config['classifiers']
+            if 'classifiers' in self.dynamic:
+                message = (
+                    'Metadata field `classifiers` cannot be both statically defined and '
+                    'listed in field `project.dynamic`'
+                )
+                raise ValueError(message)
+        else:
+            classifiers = []
 
-            if not isinstance(classifiers, list):
-                message = 'Field `project.classifiers` must be an array'
+        if not isinstance(classifiers, list):
+            message = 'Field `project.classifiers` must be an array'
+            raise TypeError(message)
+
+        verify_classifiers = not os.environ.get('HATCH_METADATA_CLASSIFIERS_NO_VERIFY')
+        if verify_classifiers:
+            import trove_classifiers
+
+            known_classifiers = trove_classifiers.classifiers | self._extra_classifiers
+            sorted_classifiers = list(trove_classifiers.sorted_classifiers)
+
+            for classifier in sorted(self._extra_classifiers - trove_classifiers.classifiers):
+                bisect.insort(sorted_classifiers, classifier)
+
+        unique_classifiers = set()
+
+        for i, classifier in enumerate(classifiers, 1):
+            if not isinstance(classifier, str):
+                message = f'Classifier #{i} of field `project.classifiers` must be a string'
                 raise TypeError(message)
 
-            verify_classifiers = not os.environ.get('HATCH_METADATA_CLASSIFIERS_NO_VERIFY')
-            if verify_classifiers:
-                import trove_classifiers
+            if (
+                not self.__classifier_is_private(classifier)
+                and verify_classifiers
+                and classifier not in known_classifiers
+            ):
+                message = f'Unknown classifier in field `project.classifiers`: {classifier}'
+                raise ValueError(message)
 
-                known_classifiers = trove_classifiers.classifiers | self._extra_classifiers
-                sorted_classifiers = list(trove_classifiers.sorted_classifiers)
+            unique_classifiers.add(classifier)
 
-                for classifier in sorted(self._extra_classifiers - trove_classifiers.classifiers):
-                    bisect.insort(sorted_classifiers, classifier)
+        if not verify_classifiers:
+            import re
 
-            unique_classifiers = set()
-
-            for i, classifier in enumerate(classifiers, 1):
-                if not isinstance(classifier, str):
-                    message = f'Classifier #{i} of field `project.classifiers` must be a string'
-                    raise TypeError(message)
-
-                if (
-                    not self.__classifier_is_private(classifier)
-                    and verify_classifiers
-                    and classifier not in known_classifiers
-                ):
-                    message = f'Unknown classifier in field `project.classifiers`: {classifier}'
-                    raise ValueError(message)
-
-                unique_classifiers.add(classifier)
-
-            if not verify_classifiers:
-                import re
-
-                # combined text-numeric sort that ensures that Python versions sort correctly
-                split_re = re.compile(r'(\D*)(\d*)')
-                sorted_classifiers = sorted(
-                    classifiers,
-                    key=lambda value: ([(a, int(b) if b else None) for a, b in split_re.findall(value)]),
-                )
-
-            self._classifiers = sorted(
-                unique_classifiers, key=lambda c: -1 if self.__classifier_is_private(c) else sorted_classifiers.index(c)
+            # combined text-numeric sort that ensures that Python versions sort correctly
+            split_re = re.compile(r'(\D*)(\d*)')
+            sorted_classifiers = sorted(
+                classifiers,
+                key=lambda value: ([(a, int(b) if b else None) for a, b in split_re.findall(value)]),
             )
 
-        return self._classifiers
+        return sorted(
+            unique_classifiers, key=lambda c: -1 if self.__classifier_is_private(c) else sorted_classifiers.index(c)
+        )
 
-    @property
+    @cached_property
     def urls(self) -> dict[str, str]:
         """
         https://peps.python.org/pep-0621/#urls
         """
-        if self._urls is None:
-            if 'urls' in self.config:
-                urls = self.config['urls']
-                if 'urls' in self.dynamic:
-                    message = (
-                        'Metadata field `urls` cannot be both statically defined and listed in field `project.dynamic`'
-                    )
-                    raise ValueError(message)
-            else:
-                urls = {}
+        if 'urls' in self.config:
+            urls = self.config['urls']
+            if 'urls' in self.dynamic:
+                message = (
+                    'Metadata field `urls` cannot be both statically defined and listed in field `project.dynamic`'
+                )
+                raise ValueError(message)
+        else:
+            urls = {}
 
-            if not isinstance(urls, dict):
-                message = 'Field `project.urls` must be a table'
+        if not isinstance(urls, dict):
+            message = 'Field `project.urls` must be a table'
+            raise TypeError(message)
+
+        sorted_urls = {}
+
+        for label, url in urls.items():
+            if not isinstance(url, str):
+                message = f'URL `{label}` of field `project.urls` must be a string'
                 raise TypeError(message)
 
-            sorted_urls = {}
+            sorted_urls[label] = url
 
-            for label, url in urls.items():
-                if not isinstance(url, str):
-                    message = f'URL `{label}` of field `project.urls` must be a string'
-                    raise TypeError(message)
+        return sorted_urls
 
-                sorted_urls[label] = url
-
-            self._urls = sorted_urls
-
-        return self._urls
-
-    @property
+    @cached_property
     def scripts(self) -> dict[str, str]:
         """
         https://peps.python.org/pep-0621/#entry-points
         """
-        if self._scripts is None:
-            if 'scripts' in self.config:
-                scripts = self.config['scripts']
-                if 'scripts' in self.dynamic:
-                    message = (
-                        'Metadata field `scripts` cannot be both statically defined and '
-                        'listed in field `project.dynamic`'
-                    )
-                    raise ValueError(message)
-            else:
-                scripts = {}
+        if 'scripts' in self.config:
+            scripts = self.config['scripts']
+            if 'scripts' in self.dynamic:
+                message = (
+                    'Metadata field `scripts` cannot be both statically defined and '
+                    'listed in field `project.dynamic`'
+                )
+                raise ValueError(message)
+        else:
+            scripts = {}
 
-            if not isinstance(scripts, dict):
-                message = 'Field `project.scripts` must be a table'
+        if not isinstance(scripts, dict):
+            message = 'Field `project.scripts` must be a table'
+            raise TypeError(message)
+
+        sorted_scripts = {}
+
+        for name, object_ref in sorted(scripts.items()):
+            if not isinstance(object_ref, str):
+                message = f'Object reference `{name}` of field `project.scripts` must be a string'
                 raise TypeError(message)
 
-            sorted_scripts = {}
+            sorted_scripts[name] = object_ref
 
-            for name, object_ref in sorted(scripts.items()):
-                if not isinstance(object_ref, str):
-                    message = f'Object reference `{name}` of field `project.scripts` must be a string'
-                    raise TypeError(message)
+        return sorted_scripts
 
-                sorted_scripts[name] = object_ref
-
-            self._scripts = sorted_scripts
-
-        return self._scripts
-
-    @property
+    @cached_property
     def gui_scripts(self) -> dict[str, str]:
         """
         https://peps.python.org/pep-0621/#entry-points
         """
-        if self._gui_scripts is None:
-            if 'gui-scripts' in self.config:
-                gui_scripts = self.config['gui-scripts']
-                if 'gui-scripts' in self.dynamic:
-                    message = (
-                        'Metadata field `gui-scripts` cannot be both statically defined and '
-                        'listed in field `project.dynamic`'
-                    )
-                    raise ValueError(message)
-            else:
-                gui_scripts = {}
+        if 'gui-scripts' in self.config:
+            gui_scripts = self.config['gui-scripts']
+            if 'gui-scripts' in self.dynamic:
+                message = (
+                    'Metadata field `gui-scripts` cannot be both statically defined and '
+                    'listed in field `project.dynamic`'
+                )
+                raise ValueError(message)
+        else:
+            gui_scripts = {}
 
-            if not isinstance(gui_scripts, dict):
-                message = 'Field `project.gui-scripts` must be a table'
+        if not isinstance(gui_scripts, dict):
+            message = 'Field `project.gui-scripts` must be a table'
+            raise TypeError(message)
+
+        sorted_gui_scripts = {}
+
+        for name, object_ref in sorted(gui_scripts.items()):
+            if not isinstance(object_ref, str):
+                message = f'Object reference `{name}` of field `project.gui-scripts` must be a string'
                 raise TypeError(message)
 
-            sorted_gui_scripts = {}
+            sorted_gui_scripts[name] = object_ref
 
-            for name, object_ref in sorted(gui_scripts.items()):
-                if not isinstance(object_ref, str):
-                    message = f'Object reference `{name}` of field `project.gui-scripts` must be a string'
-                    raise TypeError(message)
+        return sorted_gui_scripts
 
-                sorted_gui_scripts[name] = object_ref
-
-            self._gui_scripts = sorted_gui_scripts
-
-        return self._gui_scripts
-
-    @property
+    @cached_property
     def entry_points(self) -> dict[str, dict[str, str]]:
         """
         https://peps.python.org/pep-0621/#entry-points
         """
-        if self._entry_points is None:
-            if 'entry-points' in self.config:
-                defined_entry_point_groups = self.config['entry-points']
-                if 'entry-points' in self.dynamic:
-                    message = (
-                        'Metadata field `entry-points` cannot be both statically defined and '
-                        'listed in field `project.dynamic`'
-                    )
-                    raise ValueError(message)
-            else:
-                defined_entry_point_groups = {}
+        if 'entry-points' in self.config:
+            defined_entry_point_groups = self.config['entry-points']
+            if 'entry-points' in self.dynamic:
+                message = (
+                    'Metadata field `entry-points` cannot be both statically defined and '
+                    'listed in field `project.dynamic`'
+                )
+                raise ValueError(message)
+        else:
+            defined_entry_point_groups = {}
 
-            if not isinstance(defined_entry_point_groups, dict):
-                message = 'Field `project.entry-points` must be a table'
+        if not isinstance(defined_entry_point_groups, dict):
+            message = 'Field `project.entry-points` must be a table'
+            raise TypeError(message)
+
+        for forbidden_field, expected_field in (('console_scripts', 'scripts'), ('gui-scripts', 'gui-scripts')):
+            if forbidden_field in defined_entry_point_groups:
+                message = (
+                    f'Field `{forbidden_field}` must be defined as `project.{expected_field}` '
+                    f'instead of in the `project.entry-points` table'
+                )
+                raise ValueError(message)
+
+        entry_point_groups = {}
+
+        for group, entry_point_data in sorted(defined_entry_point_groups.items()):
+            if not isinstance(entry_point_data, dict):
+                message = f'Field `project.entry-points.{group}` must be a table'
                 raise TypeError(message)
 
-            for forbidden_field, expected_field in (('console_scripts', 'scripts'), ('gui-scripts', 'gui-scripts')):
-                if forbidden_field in defined_entry_point_groups:
-                    message = (
-                        f'Field `{forbidden_field}` must be defined as `project.{expected_field}` '
-                        f'instead of in the `project.entry-points` table'
-                    )
-                    raise ValueError(message)
+            entry_points = {}
 
-            entry_point_groups = {}
-
-            for group, entry_point_data in sorted(defined_entry_point_groups.items()):
-                if not isinstance(entry_point_data, dict):
-                    message = f'Field `project.entry-points.{group}` must be a table'
+            for name, object_ref in sorted(entry_point_data.items()):
+                if not isinstance(object_ref, str):
+                    message = f'Object reference `{name}` of field `project.entry-points.{group}` must be a string'
                     raise TypeError(message)
 
-                entry_points = {}
+                entry_points[name] = object_ref
 
-                for name, object_ref in sorted(entry_point_data.items()):
-                    if not isinstance(object_ref, str):
-                        message = f'Object reference `{name}` of field `project.entry-points.{group}` must be a string'
-                        raise TypeError(message)
+            if entry_points:
+                entry_point_groups[group] = entry_points
 
-                    entry_points[name] = object_ref
+        return entry_point_groups
 
-                if entry_points:
-                    entry_point_groups[group] = entry_points
-
-            self._entry_points = entry_point_groups
-
-        return self._entry_points
-
-    @property
+    @cached_property
     def dependencies_complex(self) -> dict[str, Requirement]:
         """
         https://peps.python.org/pep-0621/#dependencies-optional-dependencies
         """
-        if self._dependencies_complex is None:
-            from packaging.requirements import InvalidRequirement, Requirement
+        from packaging.requirements import InvalidRequirement, Requirement
 
-            if 'dependencies' in self.config:
-                dependencies = self.config['dependencies']
-                if 'dependencies' in self.dynamic:
-                    message = (
-                        'Metadata field `dependencies` cannot be both statically defined and '
-                        'listed in field `project.dynamic`'
-                    )
-                    raise ValueError(message)
-            else:
-                dependencies = []
+        if 'dependencies' in self.config:
+            dependencies = self.config['dependencies']
+            if 'dependencies' in self.dynamic:
+                message = (
+                    'Metadata field `dependencies` cannot be both statically defined and '
+                    'listed in field `project.dynamic`'
+                )
+                raise ValueError(message)
+        else:
+            dependencies = []
 
-            if not isinstance(dependencies, list):
-                message = 'Field `project.dependencies` must be an array'
+        if not isinstance(dependencies, list):
+            message = 'Field `project.dependencies` must be an array'
+            raise TypeError(message)
+
+        dependencies_complex = {}
+
+        for i, entry in enumerate(dependencies, 1):
+            if not isinstance(entry, str):
+                message = f'Dependency #{i} of field `project.dependencies` must be a string'
                 raise TypeError(message)
 
-            dependencies_complex = {}
+            try:
+                requirement = Requirement(self.context.format(entry))
+            except InvalidRequirement as e:
+                message = f'Dependency #{i} of field `project.dependencies` is invalid: {e}'
+                raise ValueError(message) from None
+            else:
+                if requirement.url and not self.hatch_metadata.allow_direct_references:
+                    message = (
+                        f'Dependency #{i} of field `project.dependencies` cannot be a direct reference unless '
+                        f'field `tool.hatch.metadata.allow-direct-references` is set to `true`'
+                    )
+                    raise ValueError(message)
+
+                normalize_requirement(requirement)
+                dependencies_complex[format_dependency(requirement)] = requirement
+
+        return dict(sorted(dependencies_complex.items()))
+
+    @cached_property
+    def dependencies(self) -> list[str]:
+        """
+        https://peps.python.org/pep-0621/#dependencies-optional-dependencies
+        """
+        return list(self.dependencies_complex)
+
+    @cached_property
+    def optional_dependencies_complex(self) -> dict[str, dict[str, Requirement]]:
+        """
+        https://peps.python.org/pep-0621/#dependencies-optional-dependencies
+        """
+        from packaging.requirements import InvalidRequirement, Requirement
+
+        if 'optional-dependencies' in self.config:
+            optional_dependencies = self.config['optional-dependencies']
+            if 'optional-dependencies' in self.dynamic:
+                message = (
+                    'Metadata field `optional-dependencies` cannot be both statically defined and '
+                    'listed in field `project.dynamic`'
+                )
+                raise ValueError(message)
+        else:
+            optional_dependencies = {}
+
+        if not isinstance(optional_dependencies, dict):
+            message = 'Field `project.optional-dependencies` must be a table'
+            raise TypeError(message)
+
+        normalized_options: dict[str, str] = {}
+        optional_dependency_entries = {}
+        inherited_options: dict[str, set[str]] = {}
+
+        for option, dependencies in optional_dependencies.items():
+            if not is_valid_project_name(option):
+                message = (
+                    f'Optional dependency group `{option}` of field `project.optional-dependencies` must only '
+                    f'contain ASCII letters/digits, underscores, hyphens, and periods, and must begin and end with '
+                    f'ASCII letters/digits.'
+                )
+                raise ValueError(message)
+
+            normalized_option = (
+                option if self.hatch_metadata.allow_ambiguous_features else normalize_project_name(option)
+            )
+            if normalized_option in normalized_options:
+                message = (
+                    f'Optional dependency groups `{normalized_options[normalized_option]}` and `{option}` of '
+                    f'field `project.optional-dependencies` both evaluate to `{normalized_option}`.'
+                )
+                raise ValueError(message)
+
+            if not isinstance(dependencies, list):
+                message = (
+                    f'Dependencies for option `{option}` of field `project.optional-dependencies` must be an array'
+                )
+                raise TypeError(message)
+
+            entries = {}
 
             for i, entry in enumerate(dependencies, 1):
                 if not isinstance(entry, str):
-                    message = f'Dependency #{i} of field `project.dependencies` must be a string'
+                    message = (
+                        f'Dependency #{i} of option `{option}` of field `project.optional-dependencies` '
+                        f'must be a string'
+                    )
                     raise TypeError(message)
 
                 try:
                     requirement = Requirement(self.context.format(entry))
                 except InvalidRequirement as e:
-                    message = f'Dependency #{i} of field `project.dependencies` is invalid: {e}'
+                    message = (
+                        f'Dependency #{i} of option `{option}` of field `project.optional-dependencies` '
+                        f'is invalid: {e}'
+                    )
                     raise ValueError(message) from None
                 else:
                     if requirement.url and not self.hatch_metadata.allow_direct_references:
                         message = (
-                            f'Dependency #{i} of field `project.dependencies` cannot be a direct reference unless '
-                            f'field `tool.hatch.metadata.allow-direct-references` is set to `true`'
+                            f'Dependency #{i} of option `{option}` of field `project.optional-dependencies` '
+                            f'cannot be a direct reference unless field '
+                            f'`tool.hatch.metadata.allow-direct-references` is set to `true`'
                         )
                         raise ValueError(message)
 
                     normalize_requirement(requirement)
-                    dependencies_complex[format_dependency(requirement)] = requirement
-
-            self._dependencies_complex = dict(sorted(dependencies_complex.items()))
-
-        return self._dependencies_complex
-
-    @property
-    def dependencies(self) -> list[str]:
-        """
-        https://peps.python.org/pep-0621/#dependencies-optional-dependencies
-        """
-        if self._dependencies is None:
-            self._dependencies = list(self.dependencies_complex)
-
-        return self._dependencies
-
-    @property
-    def optional_dependencies_complex(self) -> dict[str, dict[str, Requirement]]:
-        """
-        https://peps.python.org/pep-0621/#dependencies-optional-dependencies
-        """
-        if self._optional_dependencies_complex is None:
-            from packaging.requirements import InvalidRequirement, Requirement
-
-            if 'optional-dependencies' in self.config:
-                optional_dependencies = self.config['optional-dependencies']
-                if 'optional-dependencies' in self.dynamic:
-                    message = (
-                        'Metadata field `optional-dependencies` cannot be both statically defined and '
-                        'listed in field `project.dynamic`'
-                    )
-                    raise ValueError(message)
-            else:
-                optional_dependencies = {}
-
-            if not isinstance(optional_dependencies, dict):
-                message = 'Field `project.optional-dependencies` must be a table'
-                raise TypeError(message)
-
-            normalized_options: dict[str, str] = {}
-            optional_dependency_entries = {}
-            inherited_options: dict[str, set[str]] = {}
-
-            for option, dependencies in optional_dependencies.items():
-                if not is_valid_project_name(option):
-                    message = (
-                        f'Optional dependency group `{option}` of field `project.optional-dependencies` must only '
-                        f'contain ASCII letters/digits, underscores, hyphens, and periods, and must begin and end with '
-                        f'ASCII letters/digits.'
-                    )
-                    raise ValueError(message)
-
-                normalized_option = (
-                    option if self.hatch_metadata.allow_ambiguous_features else normalize_project_name(option)
-                )
-                if normalized_option in normalized_options:
-                    message = (
-                        f'Optional dependency groups `{normalized_options[normalized_option]}` and `{option}` of '
-                        f'field `project.optional-dependencies` both evaluate to `{normalized_option}`.'
-                    )
-                    raise ValueError(message)
-
-                if not isinstance(dependencies, list):
-                    message = (
-                        f'Dependencies for option `{option}` of field `project.optional-dependencies` must be an array'
-                    )
-                    raise TypeError(message)
-
-                entries = {}
-
-                for i, entry in enumerate(dependencies, 1):
-                    if not isinstance(entry, str):
-                        message = (
-                            f'Dependency #{i} of option `{option}` of field `project.optional-dependencies` '
-                            f'must be a string'
-                        )
-                        raise TypeError(message)
-
-                    try:
-                        requirement = Requirement(self.context.format(entry))
-                    except InvalidRequirement as e:
-                        message = (
-                            f'Dependency #{i} of option `{option}` of field `project.optional-dependencies` '
-                            f'is invalid: {e}'
-                        )
-                        raise ValueError(message) from None
-                    else:
-                        if requirement.url and not self.hatch_metadata.allow_direct_references:
-                            message = (
-                                f'Dependency #{i} of option `{option}` of field `project.optional-dependencies` '
-                                f'cannot be a direct reference unless field '
-                                f'`tool.hatch.metadata.allow-direct-references` is set to `true`'
-                            )
-                            raise ValueError(message)
-
-                        normalize_requirement(requirement)
-                        if requirement.name == self.name:
-                            if normalized_option in inherited_options:
-                                inherited_options[normalized_option].update(requirement.extras)
-                            else:
-                                inherited_options[normalized_option] = set(requirement.extras)
+                    if requirement.name == self.name:
+                        if normalized_option in inherited_options:
+                            inherited_options[normalized_option].update(requirement.extras)
                         else:
-                            entries[format_dependency(requirement)] = requirement
+                            inherited_options[normalized_option] = set(requirement.extras)
+                    else:
+                        entries[format_dependency(requirement)] = requirement
 
-                normalized_options[normalized_option] = option
-                optional_dependency_entries[normalized_option] = entries
+            normalized_options[normalized_option] = option
+            optional_dependency_entries[normalized_option] = entries
 
-            visited: set[str] = set()
-            resolved: set[str] = set()
-            for dependent_option in inherited_options:
-                _resolve_optional_dependencies(
-                    optional_dependency_entries, dependent_option, inherited_options, visited, resolved
-                )
+        visited: set[str] = set()
+        resolved: set[str] = set()
+        for dependent_option in inherited_options:
+            _resolve_optional_dependencies(
+                optional_dependency_entries, dependent_option, inherited_options, visited, resolved
+            )
 
-            self._optional_dependencies_complex = {
-                option: dict(sorted(entries.items())) for option, entries in sorted(optional_dependency_entries.items())
-            }
+        return {
+            option: dict(sorted(entries.items())) for option, entries in sorted(optional_dependency_entries.items())
+        }
 
-        return self._optional_dependencies_complex
-
-    @property
+    @cached_property
     def optional_dependencies(self) -> dict[str, list[str]]:
         """
         https://peps.python.org/pep-0621/#dependencies-optional-dependencies
         """
-        if self._optional_dependencies is None:
-            self._optional_dependencies = {
-                option: list(entries) for option, entries in self.optional_dependencies_complex.items()
-            }
-
-        return self._optional_dependencies
+        return {option: list(entries) for option, entries in self.optional_dependencies_complex.items()}
 
     @cached_property
     def dynamic(self) -> list[str]:
