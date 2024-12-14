@@ -48,9 +48,6 @@ class ProjectMetadata(Generic[PluginManagerBound]):
         self.plugin_manager = plugin_manager
         self._config = config
 
-        self._core_raw_metadata: dict[str, Any] | None = None
-        self._dynamic: list[str] | None = None
-        self._name: str | None = None
         self._version: str | None = None
         self._project_file: str | None = None
 
@@ -70,68 +67,62 @@ class ProjectMetadata(Generic[PluginManagerBound]):
 
         return Context(self.root)
 
-    @property
+    @cached_property
     def core_raw_metadata(self) -> dict[str, Any]:
-        if self._core_raw_metadata is None:
-            if 'project' not in self.config:
-                message = 'Missing `project` metadata table in configuration'
-                raise ValueError(message)
+        if 'project' not in self.config:
+            message = 'Missing `project` metadata table in configuration'
+            raise ValueError(message)
 
-            core_raw_metadata = self.config['project']
-            if not isinstance(core_raw_metadata, dict):
-                message = 'The `project` configuration must be a table'
-                raise TypeError(message)
+        core_raw_metadata = self.config['project']
+        if not isinstance(core_raw_metadata, dict):
+            message = 'The `project` configuration must be a table'
+            raise TypeError(message)
 
-            core_raw_metadata = deepcopy(core_raw_metadata)
-            pkg_info = os.path.join(self.root, 'PKG-INFO')
-            if os.path.isfile(pkg_info):
-                from hatchling.metadata.spec import PROJECT_CORE_METADATA_FIELDS, project_metadata_from_core_metadata
+        core_raw_metadata = deepcopy(core_raw_metadata)
+        pkg_info = os.path.join(self.root, 'PKG-INFO')
+        if os.path.isfile(pkg_info):
+            from hatchling.metadata.spec import PROJECT_CORE_METADATA_FIELDS, project_metadata_from_core_metadata
 
-                with open(pkg_info, encoding='utf-8') as f:
-                    pkg_info_contents = f.read()
+            with open(pkg_info, encoding='utf-8') as f:
+                pkg_info_contents = f.read()
 
-                base_metadata = project_metadata_from_core_metadata(pkg_info_contents)
-                defined_dynamic = core_raw_metadata.get('dynamic', [])
-                for field in list(defined_dynamic):
-                    if field in PROJECT_CORE_METADATA_FIELDS and field in base_metadata:
-                        core_raw_metadata[field] = base_metadata[field]
-                        defined_dynamic.remove(field)
+            base_metadata = project_metadata_from_core_metadata(pkg_info_contents)
+            defined_dynamic = core_raw_metadata.get('dynamic', [])
+            for field in list(defined_dynamic):
+                if field in PROJECT_CORE_METADATA_FIELDS and field in base_metadata:
+                    core_raw_metadata[field] = base_metadata[field]
+                    defined_dynamic.remove(field)
 
-            self._core_raw_metadata = core_raw_metadata
+        return core_raw_metadata
 
-        return self._core_raw_metadata
-
-    @property
+    @cached_property
     def dynamic(self) -> list[str]:
-        # Keep track of the original dynamic fields before depopulation
-        if self._dynamic is None:
-            dynamic = self.core_raw_metadata.get('dynamic', [])
-            if not isinstance(dynamic, list):
-                message = 'Field `project.dynamic` must be an array'
+        # Here we maintain a copy of the dynamic fields from `self.core raw metadata`.
+        # This property should never be mutated. In contrast, the fields in 
+        # `self.core.dynamic` are depopulated on the first evaulation of `self.core`
+        # or `self.version` as the actual values are computed.
+        dynamic = self.core_raw_metadata.get('dynamic', [])
+        if not isinstance(dynamic, list):
+            message = 'Field `project.dynamic` must be an array'
+            raise TypeError(message)
+
+        for i, field in enumerate(dynamic, 1):
+            if not isinstance(field, str):
+                message = f'Field #{i} of field `project.dynamic` must be a string'
                 raise TypeError(message)
 
-            for i, field in enumerate(dynamic, 1):
-                if not isinstance(field, str):
-                    message = f'Field #{i} of field `project.dynamic` must be a string'
-                    raise TypeError(message)
+        return list(dynamic)
 
-            self._dynamic = list(dynamic)
-
-        return self._dynamic
-
-    @property
+    @cached_property
     def name(self) -> str:
         # Duplicate the name parsing here for situations where it's
         # needed but metadata plugins might not be available
-        if self._name is None:
-            name = self.core_raw_metadata.get('name', '')
-            if not name:
-                message = 'Missing required field `project.name`'
-                raise ValueError(message)
+        name = self.core_raw_metadata.get('name', '')
+        if not name:
+            message = 'Missing required field `project.name`'
+            raise ValueError(message)
 
-            self._name = normalize_project_name(name)
-
-        return self._name
+        return normalize_project_name(name)
 
     @property
     def version(self) -> str:
