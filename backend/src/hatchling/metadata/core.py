@@ -86,11 +86,12 @@ class ProjectMetadata(Generic[PluginManagerBound]):
             with open(pkg_info, encoding='utf-8') as f:
                 pkg_info_contents = f.read()
 
-            base_metadata = project_metadata_from_core_metadata(pkg_info_contents)
+            # Give `PKG-INFO` first priority to set the values of dynamic metadata
+            pkg_info_metadata = project_metadata_from_core_metadata(pkg_info_contents)
             defined_dynamic = core_raw_metadata.get('dynamic', [])
             for field in list(defined_dynamic):
-                if field in PROJECT_CORE_METADATA_FIELDS and field in base_metadata:
-                    core_raw_metadata[field] = base_metadata[field]
+                if field in PROJECT_CORE_METADATA_FIELDS and field in pkg_info_metadata:
+                    core_raw_metadata[field] = pkg_info_metadata[field]
                     defined_dynamic.remove(field)
 
         return core_raw_metadata
