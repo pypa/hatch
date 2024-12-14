@@ -48,11 +48,6 @@ class ProjectMetadata(Generic[PluginManagerBound]):
         self.plugin_manager = plugin_manager
         self._config = config
 
-        self._context: Context | None = None
-        self._build: BuildMetadata | None = None
-        self._core: CoreMetadata | None = None
-        self._hatch: HatchMetadata | None = None
-
         self._core_raw_metadata: dict[str, Any] | None = None
         self._dynamic: list[str] | None = None
         self._name: str | None = None
@@ -69,14 +64,11 @@ class ProjectMetadata(Generic[PluginManagerBound]):
             return False
         return os.path.isfile(self._project_file)
 
-    @property
+    @cached_property
     def context(self) -> Context:
-        if self._context is None:
-            from hatchling.utils.context import Context
+        from hatchling.utils.context import Context
 
-            self._context = Context(self.root)
-
-        return self._context
+        return Context(self.root)
 
     @property
     def core_raw_metadata(self) -> dict[str, Any]:
@@ -165,80 +157,71 @@ class ProjectMetadata(Generic[PluginManagerBound]):
 
         return self._config
 
-    @property
+    @cached_property
     def build(self) -> BuildMetadata:
-        if self._build is None:
-            build_metadata = self.config.get('build-system', {})
-            if not isinstance(build_metadata, dict):
-                message = 'The `build-system` configuration must be a table'
-                raise TypeError(message)
+        build_metadata = self.config.get('build-system', {})
+        if not isinstance(build_metadata, dict):
+            message = 'The `build-system` configuration must be a table'
+            raise TypeError(message)
 
-            self._build = BuildMetadata(self.root, build_metadata)
+        return BuildMetadata(self.root, build_metadata)
 
-        return self._build
-
-    @property
+    @cached_property
     def core(self) -> CoreMetadata:
-        if self._core is None:
-            metadata = CoreMetadata(self.root, self.core_raw_metadata, self.hatch.metadata, self.context)
+        metadata = CoreMetadata(self.root, self.core_raw_metadata, self.hatch.metadata, self.context)
 
-            # Save the fields
-            _ = self.dynamic
+        # Save the fields
+        _ = self.dynamic
 
-            metadata_hooks = self.hatch.metadata.hooks
-            if metadata_hooks:
-                static_fields = set(self.core_raw_metadata)
-                if 'version' in self.hatch.config:
-                    self._version = self._get_version(metadata)
-                    self.core_raw_metadata['version'] = self.version
+        metadata_hooks = self.hatch.metadata.hooks
+        if metadata_hooks:
+            static_fields = set(self.core_raw_metadata)
+            if 'version' in self.hatch.config:
+                self._version = self._get_version(metadata)
+                self.core_raw_metadata['version'] = self.version
 
-                if metadata.dynamic:
-                    for metadata_hook in metadata_hooks.values():
-                        metadata_hook.update(self.core_raw_metadata)
-                        metadata.add_known_classifiers(metadata_hook.get_known_classifiers())
+            if metadata.dynamic:
+                for metadata_hook in metadata_hooks.values():
+                    metadata_hook.update(self.core_raw_metadata)
+                    metadata.add_known_classifiers(metadata_hook.get_known_classifiers())
 
-                    new_fields = set(self.core_raw_metadata) - static_fields
-                    for new_field in new_fields:
-                        if new_field in metadata.dynamic:
-                            metadata.dynamic.remove(new_field)
-                        else:
-                            message = (
-                                f'The field `{new_field}` was set dynamically and therefore must be '
-                                f'listed in `project.dynamic`'
-                            )
-                            raise ValueError(message)
+                new_fields = set(self.core_raw_metadata) - static_fields
+                for new_field in new_fields:
+                    if new_field in metadata.dynamic:
+                        metadata.dynamic.remove(new_field)
+                    else:
+                        message = (
+                            f'The field `{new_field}` was set dynamically and therefore must be '
+                            f'listed in `project.dynamic`'
+                        )
+                        raise ValueError(message)
 
-            self._core = metadata
+        return metadata
 
-        return self._core
-
-    @property
+    @cached_property
     def hatch(self) -> HatchMetadata:
-        if self._hatch is None:
-            tool_config = self.config.get('tool', {})
-            if not isinstance(tool_config, dict):
-                message = 'The `tool` configuration must be a table'
-                raise TypeError(message)
+        tool_config = self.config.get('tool', {})
+        if not isinstance(tool_config, dict):
+            message = 'The `tool` configuration must be a table'
+            raise TypeError(message)
 
-            hatch_config = tool_config.get('hatch', {})
-            if not isinstance(hatch_config, dict):
-                message = 'The `tool.hatch` configuration must be a table'
-                raise TypeError(message)
+        hatch_config = tool_config.get('hatch', {})
+        if not isinstance(hatch_config, dict):
+            message = 'The `tool.hatch` configuration must be a table'
+            raise TypeError(message)
 
-            hatch_file = (
-                os.path.join(os.path.dirname(self._project_file), DEFAULT_CONFIG_FILE)
-                if self._project_file is not None
-                else locate_file(self.root, DEFAULT_CONFIG_FILE) or ''
-            )
+        hatch_file = (
+            os.path.join(os.path.dirname(self._project_file), DEFAULT_CONFIG_FILE)
+            if self._project_file is not None
+            else locate_file(self.root, DEFAULT_CONFIG_FILE) or ''
+        )
 
-            if hatch_file and os.path.isfile(hatch_file):
-                config = load_toml(hatch_file)
-                hatch_config = hatch_config.copy()
-                hatch_config.update(config)
+        if hatch_file and os.path.isfile(hatch_file):
+            config = load_toml(hatch_file)
+            hatch_config = hatch_config.copy()
+            hatch_config.update(config)
 
-            self._hatch = HatchMetadata(self.root, hatch_config, self.plugin_manager)
-
-        return self._hatch
+        return HatchMetadata(self.root, hatch_config, self.plugin_manager)
 
     def _get_version(self, core_metadata: CoreMetadata | None = None) -> str:
         if core_metadata is None:
