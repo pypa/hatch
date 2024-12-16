@@ -431,7 +431,8 @@ def test_plugin_dependencies_unmet(hatch, helpers, temp_dir_data, config_file, m
             [env]
             requires = ["{dependency}"]
             """
-        )
+        ),
+        encoding='utf-8',
     )
 
     with project_path.as_cwd():

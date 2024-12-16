@@ -27,7 +27,8 @@ def test_sdist(hatch, helpers, temp_dir, config_file):
             [tool.hatch.build.targets.sdist]
             versions = '9000'
             """
-        )
+        ),
+        encoding='utf-8',
     )
 
     build_path = project_path / 'dist'
@@ -68,7 +69,8 @@ def test_wheel(hatch, helpers, temp_dir, config_file):
             [tool.hatch.build.targets.wheel]
             versions = '9000'
             """
-        )
+        ),
+        encoding='utf-8',
     )
 
     build_path = project_path / 'dist'
@@ -109,7 +111,8 @@ def test_editable(hatch, helpers, temp_dir, config_file):
             [tool.hatch.build.targets.wheel]
             versions = '9000'
             """
-        )
+        ),
+        encoding='utf-8',
     )
 
     build_path = project_path / 'dist'

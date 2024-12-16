@@ -69,7 +69,7 @@ def test_installation(
 
     install_dir = temp_dir_data / 'data' / 'pythons' / dist_name
     metadata_file = install_dir / InstalledDistribution.metadata_filename()
-    python_path = install_dir / json.loads(metadata_file.read_text())['python_path']
+    python_path = install_dir / json.loads(metadata_file.read_text(encoding='utf-8'))['python_path']
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
