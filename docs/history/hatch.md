@@ -8,11 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
-## [1.13.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.13.1) - 2024-12-16 ## {: #hatch-v1.13.1 }
-
 ***Added:***
 
 - Upgrade default CPython distributions to 20241206
+- Bump the minimum supported version of Hatchling to 1.26.3
 - Update `virtualenv` dependency
 
 ## [1.13.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.13.0) - 2024-10-13 ## {: #hatch-v1.13.0 }
