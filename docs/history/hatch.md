@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.14.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.14.0) - 2024-12-16 ## {: #hatch-v1.14.0 }
+
 ***Added:***
 
 - Upgrade default CPython distributions to 20241206
