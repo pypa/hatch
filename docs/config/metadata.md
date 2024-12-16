@@ -99,25 +99,19 @@ requires-python = ">=3.8"
 
 ## License
 
-For more information, see [PEP 639][].
+For more information, see [PEP 639][]. `license` must be a valid
+[SPDX license expression](https://peps.python.org/pep-0639/#spdx-license-expression-syntax),
+`license-files` a list of glob patterns which match license files. If not specified,
+`license-files` will default to `['LICEN[CS]E*', 'COPYING*', 'NOTICE*', 'AUTHORS*']`.
 
 === ":octicons-file-code-16: pyproject.toml"
 
-    === "SPDX expression"
-
-        ```toml
-        [project]
-        ...
-        license = "Apache-2.0 OR MIT"
-        ```
-
-    === "Files"
-
-        ```toml
-        [project]
-        ...
-        license-files = ["LICENSES/*"]
-        ```
+    ```toml
+    [project]
+    ...
+    license = "Apache-2.0 OR MIT"
+    license-files = ["LICENSES/*"]
+    ```
 
 ## Ownership
 
