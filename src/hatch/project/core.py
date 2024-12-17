@@ -52,7 +52,7 @@ class Project:
         if self._config is None:
             from hatch.project.config import ProjectConfig
 
-            self._config = ProjectConfig(self.location, self.metadata.hatch.config, self.plugin_manager)
+            self._config = ProjectConfig(self.location, self.metadata.hatch.config, self.plugin_manager, self.metadata)
 
         return self._config
 

@@ -91,6 +91,15 @@ class TestEnvRequires:
 
         assert project_config.env_requires == ['foo', 'bar', 'baz']
 
+    def test_context_formatting(self, isolation, uri_slash_prefix):
+        absolute_path = str(isolation)
+        project_config = ProjectConfig(isolation, {'env': {'requires': ['plugin@ {root:uri}']}})
+
+        normalized_path = absolute_path.replace('\\', '/')
+        assert project_config.env_requires == [
+            f'plugin@ file:{uri_slash_prefix}{normalized_path}',
+        ]
+
 
 class TestEnvCollectors:
     def test_not_table(self, isolation):
