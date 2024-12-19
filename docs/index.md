@@ -25,7 +25,7 @@ Hatch is a modern, extensible Python project manager. See the [Why Hatch?](why.m
 
     Reproducible builds by default with a rich ecosystem of plugins
 
-    [:octicons-arrow-right-24: Configure builds](config/build.md#build-systems)
+    [:octicons-arrow-right-24: Configure builds](config/build.md#build-system)
 
 -   :material-lock:{ .lg .middle } __Environments__
 
