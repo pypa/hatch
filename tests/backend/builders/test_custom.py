@@ -83,7 +83,8 @@ def test_default(hatch, helpers, temp_dir, config_file):
                         os.replace(artifact, new_path)
                         yield new_path
             """
-        )
+        ),
+        encoding='utf-8',
     )
     builder = CustomBuilder(str(project_path), config=config)
 
@@ -162,7 +163,8 @@ def test_explicit_path(hatch, helpers, temp_dir, config_file):
                         os.replace(artifact, new_path)
                         yield new_path
             """
-        )
+        ),
+        encoding='utf-8',
     )
     builder = CustomBuilder(str(project_path), config=config)
 
@@ -231,7 +233,8 @@ def test_no_subclass(hatch, helpers, temp_dir):
             class CustomBuilder:
                 pass
             """
-        )
+        ),
+        encoding='utf-8',
     )
 
     with pytest.raises(
@@ -273,7 +276,8 @@ def test_multiple_subclasses(hatch, helpers, temp_dir):
             class CustomWheelBuilder(WheelBuilder):
                 pass
             """
-        )
+        ),
+        encoding='utf-8',
     )
 
     with pytest.raises(
@@ -328,7 +332,8 @@ def test_dynamic_dependencies(hatch, helpers, temp_dir, config_file):
                 def dependencies(self):
                     return ['baz']
             """
-        )
+        ),
+        encoding='utf-8',
     )
     builder = CustomBuilder(str(project_path), config=config)
 

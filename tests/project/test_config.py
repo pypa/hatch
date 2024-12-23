@@ -2511,7 +2511,8 @@ class TestEnvs:
                     def finalize_config(self, config):
                         config['default']['type'] = 'foo'
                 """
-            )
+            ),
+            encoding='utf-8',
         )
 
         env_config = {
@@ -2546,7 +2547,8 @@ class TestEnvs:
                     def finalize_environments(self, config):
                         config['foo.42']['type'] = 'foo'
                 """
-            )
+            ),
+            encoding='utf-8',
         )
 
         env_config = {

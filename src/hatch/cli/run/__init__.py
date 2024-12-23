@@ -73,7 +73,7 @@ def run(ctx: click.Context, args: tuple[str, ...]):
         script = script.resolve()
 
         try:
-            metadata = parse_inline_script_metadata(script.read_text())
+            metadata = parse_inline_script_metadata(script.read_text(encoding='utf-8'))
         except ValueError as e:
             app.abort(f'{e}, {first_arg}')
 
