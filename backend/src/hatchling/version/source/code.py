@@ -46,6 +46,9 @@ class CodeSource(VersionSourceInterface):
 
         spec = spec_from_file_location(os.path.splitext(path)[0], path)
         module = module_from_spec(spec)  # type: ignore[arg-type]
+
+        # This fixes using PEP 563 (__future__ annotations) with dataclasses.
+        # https://github.com/pypa/hatch/issues/1863
         sys.modules[os.path.splitext(path)[0]] = module
 
         old_search_paths = list(sys.path)
