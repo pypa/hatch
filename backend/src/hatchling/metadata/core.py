@@ -69,6 +69,7 @@ class ProjectMetadata(Generic[PluginManagerBound]):
 
     @cached_property
     def core_raw_metadata(self) -> dict[str, Any]:
+        """Metadata from `pyproject.toml` or similar, possibly with dynamic fields overwritten by `PKG-INFO`."""
         if 'project' not in self.config:
             message = 'Missing `project` metadata table in configuration'
             raise ValueError(message)
@@ -139,6 +140,7 @@ class ProjectMetadata(Generic[PluginManagerBound]):
 
     @property
     def config(self) -> dict[str, Any]:
+        """The config dict, directly from `pyproject.toml` or similar."""
         if self._config is None:
             project_file = locate_file(self.root, 'pyproject.toml')
             if project_file is None:
