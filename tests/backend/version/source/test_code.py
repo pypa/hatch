@@ -125,3 +125,65 @@ def test_search_paths(temp_dir, helpers):
 
     with temp_dir.as_cwd():
         assert source.get_version_data()['version'] == '1.0.0.1.dev0'
+
+
+def test_pep563_with_dataclasses_1(temp_dir, helpers):
+    """
+    Test postponed evaluation of annotations (using __future__) with dataclasses.
+
+    References:
+       - https://github.com/pypa/hatch/issues/1863
+    """
+    source = CodeSource(str(temp_dir), {'path': 'a/b.py'})
+
+    file_path = temp_dir / 'a' / 'b.py'
+    file_path.ensure_parent_dir_exists()
+    file_path.write_text(
+        helpers.dedent(
+            """
+            from __future__ import annotations
+
+            from dataclasses import dataclass
+
+            @dataclass
+            class VersionConfig:
+                test_dir: str | None = None
+                verbose: bool = False
+
+            __version__ = "0.1.1"
+            """
+        )
+    )
+
+    with temp_dir.as_cwd():
+        assert source.get_version_data()['version'] == '0.1.1'
+
+
+def test_pep563_with_dataclasses_2(temp_dir, helpers):
+    """
+    Test postponed evaluation of annotations (using "type" string) with dataclasses.
+
+    References:
+       - https://github.com/pypa/hatch/issues/1863
+    """
+    source = CodeSource(str(temp_dir), {'path': 'a/b.py'})
+
+    file_path = temp_dir / 'a' / 'b.py'
+    file_path.ensure_parent_dir_exists()
+    file_path.write_text(
+        helpers.dedent(
+            """
+            from dataclasses import dataclass
+
+            @dataclass
+            class VersionConfig:
+                test_dir: "str | None" = None
+                verbose: bool = False
+
+            __version__ = "0.1.1"
+            """
+        )
+    )
+
+    with temp_dir.as_cwd():
+        assert source.get_version_data()['version'] == '0.1.1'
