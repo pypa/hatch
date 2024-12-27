@@ -434,9 +434,13 @@ class CoreMetadata:
         return self._name
 
     @property
-    def version(self) -> str:
+    def version(self) -> str | None:
         """
         https://peps.python.org/pep-0621/#version
+
+        If the version is dynamic, but not yet computed, return `None`.
+        Otherwise, return the static version, the version from PKG-INFO,
+        or the dynamically-computed version.
         """
         version: str
 
@@ -448,20 +452,21 @@ class CoreMetadata:
                         'if `version` is in field `project.dynamic`'
                     )
                     raise ValueError(message)
-            else:
-                if 'version' in self.dynamic:
-                    message = (
-                        'Metadata field `version` cannot be both statically defined and '
-                        'listed in field `project.dynamic`'
-                    )
-                    raise ValueError(message)
+                # The version is dynamic, but not yet computed.
+                return None
+            if 'version' in self.dynamic:
+                message = (
+                    'Metadata field `version` cannot be both statically defined and '
+                    'listed in field `project.dynamic`'
+                )
+                raise ValueError(message)
 
-                version = self.config['version']
-                if not isinstance(version, str):
-                    message = 'Field `project.version` must be a string'
-                    raise TypeError(message)
+            version = self.config['version']
+            if not isinstance(version, str):
+                message = 'Field `project.version` must be a string'
+                raise TypeError(message)
 
-                self._version = version
+            self._version = version
 
         return cast(str, self._version)
 

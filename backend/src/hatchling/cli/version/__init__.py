@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import argparse
-from typing import Any
+from typing import Any, cast
 
 
 def version_impl(
@@ -25,7 +25,8 @@ def version_impl(
         if desired_version:
             app.abort('Cannot set version when it is statically defined by the `project.version` field')
         else:
-            app.display(metadata.core.version)
+            static_version = cast(str, metadata.core.version)
+            app.display(static_version)
             return
 
     source = metadata.hatch.version.source
