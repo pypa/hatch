@@ -63,8 +63,7 @@ dependencies = [
   # Necessary for syntax highlighting in code blocks
   "pygments~=2.18.0",
   # Validation
-  # https://github.com/linkchecker/linkchecker/pull/669#issuecomment-1267236287
-  "linkchecker @ git+https://github.com/linkchecker/linkchecker.git@d9265bb71c2054bf57b8c5734a4825d62505c779",
+  "linkchecker~=10.5.0",
   "griffe<1.0",
 ]
 pre-install-commands = [
