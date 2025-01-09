@@ -52,6 +52,7 @@ def assert_plugin_installation(subprocess_run, dependencies: list[str], *, verbo
         sys.executable,
         '-u',
         '-m',
+        'uv',
         'pip',
         'install',
         '--disable-pip-version-check',
