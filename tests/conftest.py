@@ -440,6 +440,10 @@ def mock_plugin_installation(mocker):
                 mocked_subprocess_run(command, **kwargs)
                 return mocked_subprocess_run
 
+            if command[:6] == [sys.executable, '-u', '-m', 'uv', 'pip', 'install']:
+                mocked_subprocess_run(command, **kwargs)
+                return mocked_subprocess_run
+
             if command[:3] == [sys.executable, 'self', 'python-path']:
                 return mocker.MagicMock(returncode=0, stdout=sys.executable.encode())
 

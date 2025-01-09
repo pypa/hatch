@@ -48,15 +48,7 @@ def get_current_timestamp():
 
 
 def assert_plugin_installation(subprocess_run, dependencies: list[str], *, verbosity=0, count=1):
-    command = [
-        sys.executable,
-        '-u',
-        '-m',
-        'pip',
-        'install',
-        '--disable-pip-version-check',
-        '--no-python-version-warning',
-    ]
+    command = [sys.executable, '-u', '-m', 'uv', 'pip', 'install']
     add_verbosity_flag(command, verbosity, adjustment=-1)
     command.extend(dependencies)
 
