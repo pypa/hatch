@@ -160,9 +160,9 @@ class Application(Terminal):
             if dependencies_in_sync(dependencies):
                 return
 
-            pip_command = [sys.executable, '-u', '-m', 'pip']
+            pip_command = [sys.executable, '-u', '-m', 'uv', 'pip']
 
-        pip_command.extend(['install', '--disable-pip-version-check', '--no-python-version-warning'])
+        pip_command.extend(['install'])
 
         # Default to -1 verbosity
         add_verbosity_flag(pip_command, self.verbosity, adjustment=-1)
