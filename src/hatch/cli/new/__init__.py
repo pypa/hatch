@@ -7,9 +7,19 @@ import click
 @click.option('--interactive', '-i', 'interactive', is_flag=True, help='Interactively choose details about the project')
 @click.option('--cli', 'feature_cli', is_flag=True, help='Give the project a command line interface')
 @click.option('--init', 'initialize', is_flag=True, help='Initialize an existing project')
+@click.option(
+    '--force',
+    '-f',
+    is_flag=True,
+    help=(
+        'Force project creation if location is not empty. '
+        'Any pre-existing files that are also part of the project template will be overwritten. '
+        'Use with caution as it may lead to loss of data.'
+    ),
+)
 @click.option('-so', 'setuptools_options', multiple=True, hidden=True)
 @click.pass_obj
-def new(app, name, location, interactive, feature_cli, initialize, setuptools_options):
+def new(app, name, location, interactive, feature_cli, initialize, force, setuptools_options):
     """Create or initialize a project."""
     import sys
     from copy import deepcopy
@@ -46,7 +56,7 @@ def new(app, name, location, interactive, feature_cli, initialize, setuptools_op
     if location.is_file():
         app.abort(f'Path `{location}` points to a file.')
     elif location.is_dir() and any(location.iterdir()):
-        if not initialize:
+        if not initialize and not force:
             app.abort(f'Directory `{location}` is not empty.')
 
         needs_config_update = (location / 'pyproject.toml').is_file()
