@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING
 from unittest.mock import call
 
 import tomli_w
+from uv import find_uv_bin
 
 from hatch.config.user import RootConfig
 from hatch.env.utils import add_verbosity_flag
@@ -48,15 +49,8 @@ def get_current_timestamp():
 
 
 def assert_plugin_installation(subprocess_run, dependencies: list[str], *, verbosity=0, count=1):
-    command = [
-        sys.executable,
-        '-u',
-        '-m',
-        'uv',
-        'pip',
-        'install',
-        '--disable-pip-version-check',
-    ]
+    uv_bin = find_uv_bin()
+    command = [uv_bin, 'pip', 'install', '--disable-pip-version-check']
     add_verbosity_flag(command, verbosity, adjustment=-1)
     command.extend(dependencies)
 

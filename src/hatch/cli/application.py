@@ -12,6 +12,8 @@ from hatch.utils.fs import Path
 from hatch.utils.platform import Platform
 from hatch.utils.runner import ExecutionContext
 
+from uv import find_uv_bin
+
 if TYPE_CHECKING:
     from collections.abc import Generator
 
@@ -160,7 +162,8 @@ class Application(Terminal):
             if dependencies_in_sync(dependencies):
                 return
 
-            pip_command = [sys.executable, '-u', '-m', 'uv', 'pip']
+            uv_bin = find_uv_bin()
+            pip_command = [uv_bin, 'pip']
 
         pip_command.extend(['install', '--disable-pip-version-check'])
 

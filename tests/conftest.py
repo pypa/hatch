@@ -14,6 +14,7 @@ import pytest
 from click.testing import CliRunner as __CliRunner
 from filelock import FileLock
 from platformdirs import user_cache_dir, user_data_dir
+from uv import find_uv_bin
 
 from hatch.config.constants import AppEnvVars, ConfigEnvVars, PublishEnvVars
 from hatch.config.user import ConfigFile
@@ -440,7 +441,8 @@ def mock_plugin_installation(mocker):
                 mocked_subprocess_run(command, **kwargs)
                 return mocked_subprocess_run
 
-            if command[:6] == [sys.executable, '-u', '-m', 'uv', 'pip', 'install']:
+            uv_bin = find_uv_bin()
+            if command[:3] == [uv_bin, 'pip', 'install']:
                 mocked_subprocess_run(command, **kwargs)
                 return mocked_subprocess_run
 
