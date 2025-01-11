@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib
 import json
 import os
+import pathlib
 import re
 import sys
 from datetime import datetime, timezone
@@ -50,7 +51,14 @@ def get_current_timestamp():
 
 def assert_plugin_installation(subprocess_run, dependencies: list[str], *, verbosity=0, count=1):
     uv_bin = find_uv_bin()
-    command = [uv_bin, 'pip', 'install', '--disable-pip-version-check']
+    command = [
+        uv_bin,
+        'pip',
+        'install',
+        '--disable-pip-version-check',
+        '--directory',
+        str(pathlib.Path(sys.executable).parent.parent),
+    ]
     add_verbosity_flag(command, verbosity, adjustment=-1)
     command.extend(dependencies)
 

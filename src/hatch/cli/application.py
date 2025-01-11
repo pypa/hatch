@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import os
+import pathlib
 import sys
 from functools import cached_property
 from typing import TYPE_CHECKING, cast
+
+from uv import find_uv_bin
 
 from hatch.cli.terminal import Terminal
 from hatch.config.user import ConfigFile, RootConfig
@@ -11,8 +14,6 @@ from hatch.project.core import Project
 from hatch.utils.fs import Path
 from hatch.utils.platform import Platform
 from hatch.utils.runner import ExecutionContext
-
-from uv import find_uv_bin
 
 if TYPE_CHECKING:
     from collections.abc import Generator
@@ -165,7 +166,7 @@ class Application(Terminal):
             uv_bin = find_uv_bin()
             pip_command = [uv_bin, 'pip']
 
-        pip_command.extend(['install', '--disable-pip-version-check'])
+        pip_command.extend(['install', '--directory', str(pathlib.Path(sys.executable).parent.parent), '--disable-pip-version-check'])
 
         # Default to -1 verbosity
         add_verbosity_flag(pip_command, self.verbosity, adjustment=-1)
