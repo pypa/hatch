@@ -56,8 +56,8 @@ def assert_plugin_installation(subprocess_run, dependencies: list[str], *, verbo
         'pip',
         'install',
         '--disable-pip-version-check',
-        '--directory',
-        str(pathlib.Path(sys.executable).parent.parent),
+        '--python',
+        sys.executable,
     ]
     add_verbosity_flag(command, verbosity, adjustment=-1)
     command.extend(dependencies)

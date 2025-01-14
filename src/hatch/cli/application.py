@@ -166,7 +166,7 @@ class Application(Terminal):
             uv_bin = find_uv_bin()
             pip_command = [uv_bin, 'pip']
 
-        pip_command.extend(['install', '--directory', str(pathlib.Path(sys.executable).parent.parent), '--disable-pip-version-check'])
+        pip_command.extend(['install', '--disable-pip-version-check', '--python', sys.executable])
 
         # Default to -1 verbosity
         add_verbosity_flag(pip_command, self.verbosity, adjustment=-1)
