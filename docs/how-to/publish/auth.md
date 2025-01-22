@@ -4,7 +4,7 @@
 
 To publish to a package index such as PyPI or TestPyPI you need two things:
 
-1. a username (e.g. `__token__` for PyPI)
+1. a username (e.g. `__token__` for PyPI to select two-factor authentication aka. 2FA)
 2. a token value or other form of trusted authentication from the index (PyPI)
 
 
