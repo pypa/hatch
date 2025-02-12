@@ -16,8 +16,7 @@ if TYPE_CHECKING:
     'targets',
     multiple=True,
     help=(
-        'The target to build, overriding project defaults. '
-        'This may be selected multiple times e.g. `-t sdist -t wheel`'
+        'The target to build, overriding project defaults. This may be selected multiple times e.g. `-t sdist -t wheel`'
     ),
 )
 @click.option(
