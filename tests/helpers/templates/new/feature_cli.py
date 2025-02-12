@@ -8,8 +8,8 @@ def get_files(**kwargs):
     return [
         File(
             Path('LICENSE.txt'),
-            MIT.replace('<year>', f"{kwargs['year']}-present", 1).replace(
-                '<copyright holders>', f"{kwargs['author']} <{kwargs['email']}>", 1
+            MIT.replace('<year>', f'{kwargs["year"]}-present', 1).replace(
+                '<copyright holders>', f'{kwargs["author"]} <{kwargs["email"]}>', 1
             ),
         ),
         File(
