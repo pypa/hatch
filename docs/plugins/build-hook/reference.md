@@ -12,6 +12,7 @@ A build hook provides code that will be executed at various stages of the build 
 - [hatch-cython](https://github.com/joshua-auchincloss/hatch-cython) - build [Cython](https://github.com/cython/cython) extensions
 - [hatch-gettext](https://github.com/damonlynch/hatch-gettext) - compiles multi-lingual messages with GNU `gettext` tools
 - [hatch-jupyter-builder](https://github.com/jupyterlab/hatch-jupyter-builder) - used for packages in the Project Jupyter ecosystem
+- [hatch-minify](https://github.com/djcopley/hatch-minify) - minifies python with [python-minifier](https://github.com/dflook/python-minifier)
 - [hatch-mypyc](https://github.com/ofek/hatch-mypyc) - compiles code with [Mypyc](https://github.com/mypyc/mypyc)
 - [hatch-odoo](https://github.com/acsone/hatch-odoo) - package Odoo add-ons into the appropriate namespace
 - [scikit-build-core](https://github.com/scikit-build/scikit-build-core) - build extension modules with CMake
