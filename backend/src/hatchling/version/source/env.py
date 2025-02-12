@@ -24,6 +24,6 @@ class EnvSource(VersionSourceInterface):
 
         return {'version': os.environ[variable]}
 
-    def set_version(self, version: str, version_data: dict) -> None:  # noqa: ARG002, PLR6301
+    def set_version(self, version: str, version_data: dict) -> None:
         message = 'Cannot set environment variables'
         raise NotImplementedError(message)
