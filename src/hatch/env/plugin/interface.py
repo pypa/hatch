@@ -169,10 +169,11 @@ class EnvironmentInterface(ABC):
         if system_python == 'self':
             system_python = sys.executable
 
+        # Prefer `python3` over `python` in a system context. See PEP-394 for details.
         system_python = (
             system_python
-            or self.platform.modules.shutil.which('python')
             or self.platform.modules.shutil.which('python3')
+            or self.platform.modules.shutil.which('python')
             or sys.executable
         )
         if not isabs(system_python):
@@ -768,7 +769,18 @@ class EnvironmentInterface(ABC):
         A convenience method for constructing a [`pip install`](https://pip.pypa.io/en/stable/cli/pip_install/)
         command with the given verbosity. The default verbosity is set to one less than Hatch's verbosity.
         """
-        command = ['python', '-u', '-m', 'pip', 'install', '--disable-pip-version-check', '--no-python-version-warning']
+        # TODO: we should better use either `self.system_python` (in a system context) or `python` (in a virtual environment).
+        # Since we are called from `hatch.env.virtual` and `hatch.env.system`, we need to handle both contexts.
+        # According to PEP-394, `python3` should be a safe choice under all circumstances.
+        command = [
+            'python3',
+            '-u',
+            '-m',
+            'pip',
+            'install',
+            '--disable-pip-version-check',
+            '--no-python-version-warning',
+        ]
 
         # Default to -1 verbosity
         add_verbosity_flag(command, self.verbosity, adjustment=-1)
