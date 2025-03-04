@@ -15,12 +15,15 @@ from hatch.project.utils import format_script_commands, parse_script_command
 if TYPE_CHECKING:
     from packaging.requirements import Requirement
 
+    from hatchling.utils.context import Context
+
 
 class ProjectConfig:
-    def __init__(self, root, config, plugin_manager=None):
+    def __init__(self, root, config, plugin_manager=None, metadata=None):
         self.root = root
         self.config = config
         self.plugin_manager = plugin_manager
+        self.metadata = metadata
 
         self._matrices = None
         self._env = None
@@ -34,6 +37,18 @@ class ProjectConfig:
         self._publish = None
         self._scripts = None
         self._cached_env_overrides = {}
+        self._context = None
+
+    @property
+    def context(self) -> Context:
+        if self._context is None:
+            if self.metadata:
+                self._context = self.metadata.context
+            else:
+                from hatchling.utils.context import Context
+
+                self._context = Context(self.root)
+        return self._context
 
     @cached_property
     def build(self):
@@ -74,7 +89,7 @@ class ProjectConfig:
                     raise TypeError(message)
 
                 try:
-                    requires_complex.append(Requirement(entry))
+                    requires_complex.append(Requirement(self.context.format(entry)))
                 except InvalidRequirement as e:
                     message = f'Requirement #{i} in `tool.hatch.env.requires` is invalid: {e}'
                     raise ValueError(message) from None
