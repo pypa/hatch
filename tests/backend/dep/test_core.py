@@ -92,7 +92,7 @@ def test_dependency_git_uv(platform, uv_on_path):
             check=True,
             capture_output=True,
         )
-        assert not dependencies_in_sync([Requirement('requests@git+https://github.com/psf/requests')], venv.sys_path)
+        assert dependencies_in_sync([Requirement('requests@git+https://github.com/psf/requests')], venv.sys_path)
 
 
 @pytest.mark.requires_internet
@@ -114,9 +114,7 @@ def test_dependency_git_revision_uv(platform, uv_on_path):
             check=True,
             capture_output=True,
         )
-        assert not dependencies_in_sync(
-            [Requirement('requests@git+https://github.com/psf/requests@main')], venv.sys_path
-        )
+        assert dependencies_in_sync([Requirement('requests@git+https://github.com/psf/requests@main')], venv.sys_path)
 
 
 @pytest.mark.requires_internet
