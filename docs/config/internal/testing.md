@@ -60,6 +60,34 @@ You can also set the number of seconds to wait between retries by setting the `r
 retry-delay = 1
 ```
 
+### Coverage combine arguments
+
+You can define arguments for the coverage [combine](https://coverage.readthedocs.io/en/latest/cmd.html#cmd-combine) command by setting the `combine-args` option, which must be an array of strings. For example, if you wanted to keep the original coverage files so that they are not automatically deleted, you could set the following:
+
+```toml config-example
+[tool.hatch.envs.hatch-test]
+combine-args = ["--keep"]
+```
+
+### Coverage reporting style
+
+You can define the coverage [reporting](https://coverage.readthedocs.io/en/latest/cmd.html#reporting) style by setting the `reporting` option, which must be a string. For example, if you wanted to generate a report in the `html` style, you could set the following:
+
+```toml config-example
+[tool.hatch.envs.hatch-test]
+reporting = "html"
+```
+The default reporting style is `report`.
+
+### Coverage reporting arguments
+
+You can define arguments for the coverage [reporting style](#coverage-reporting-style) by setting the `reporting-args` option, which must be an array of strings. For example, if you wanted to show line numbers of statements in each module that were not executed, you could set the following:
+
+```toml config-example
+[tool.hatch.envs.hatch-test]
+reporting-args = ["--show-missing"]
+```
+
 ## Customize environment
 
 You can fully alter the behavior of the environment used by the [`test`](../../cli/reference.md#hatch-test) command.
