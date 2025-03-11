@@ -453,8 +453,7 @@ class EnvironmentInterface(ABC):
             for name, data in script_config.items():
                 if ' ' in name:
                     message = (
-                        f'Script name `{name}` in field `tool.hatch.envs.{self.name}.{field}` '
-                        f'must not contain spaces'
+                        f'Script name `{name}` in field `tool.hatch.envs.{self.name}.{field}` must not contain spaces'
                     )
                     raise ValueError(message)
 
@@ -466,16 +465,14 @@ class EnvironmentInterface(ABC):
                     for i, command in enumerate(data, 1):
                         if not isinstance(command, str):
                             message = (
-                                f'Command #{i} in field `tool.hatch.envs.{self.name}.{field}.{name}` '
-                                f'must be a string'
+                                f'Command #{i} in field `tool.hatch.envs.{self.name}.{field}.{name}` must be a string'
                             )
                             raise TypeError(message)
 
                         commands.append(command)
                 else:
                     message = (
-                        f'Field `tool.hatch.envs.{self.name}.{field}.{name}` must be '
-                        f'a string or an array of strings'
+                        f'Field `tool.hatch.envs.{self.name}.{field}.{name}` must be a string or an array of strings'
                     )
                     raise TypeError(message)
 

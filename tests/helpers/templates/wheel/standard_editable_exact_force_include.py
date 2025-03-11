@@ -18,10 +18,10 @@ def get_files(**kwargs):
         elif f.path.parts[-1] == '__about__.py':
             files.append(File(Path('zfoo.py'), f.contents))
 
-    pth_file_name = f"_{kwargs['package_name']}.pth"
-    loader_file_name = f"_editable_impl_{kwargs['package_name']}.py"
+    pth_file_name = f'_{kwargs["package_name"]}.pth'
+    loader_file_name = f'_editable_impl_{kwargs["package_name"]}.py'
     files.extend((
-        File(Path(pth_file_name), f"import _editable_impl_{kwargs['package_name']}"),
+        File(Path(pth_file_name), f'import _editable_impl_{kwargs["package_name"]}'),
         File(
             Path(loader_file_name),
             f"""\

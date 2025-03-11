@@ -615,8 +615,7 @@ class TestLicenseFiles:
         with pytest.raises(
             ValueError,
             match=(
-                'Metadata field `license-files` cannot be both statically defined and '
-                'listed in field `project.dynamic`'
+                'Metadata field `license-files` cannot be both statically defined and listed in field `project.dynamic`'
             ),
         ):
             _ = metadata.core.license_files
