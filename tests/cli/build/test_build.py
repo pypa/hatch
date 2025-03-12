@@ -109,18 +109,21 @@ class TestOtherBackend:
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
-"""
+""",
+            encoding='utf-8',
         )
         (path / 'setup.py').write_text(
             """\
 import setuptools
 setuptools.setup(name="tmp", version="0.0.1")
-"""
+""",
+            encoding='utf-8',
         )
         (path / 'tmp.py').write_text(
             """\
 print("Hello World!")
-"""
+""",
+            encoding='utf-8',
         )
         (path / 'README.md').touch()
 
@@ -454,7 +457,8 @@ def test_clean(hatch, temp_dir, helpers, config_file):
                     if self.target_name == 'wheel':
                         pathlib.Path('my_app', 'lib.so').touch()
             """
-        )
+        ),
+        encoding='utf-8',
     )
 
     project = Project(path)
@@ -594,7 +598,8 @@ def test_clean_only(hatch, temp_dir, helpers, config_file):
                     if self.target_name == 'wheel':
                         pathlib.Path('my_app', 'lib.so').touch()
             """
-        )
+        ),
+        encoding='utf-8',
     )
 
     project = Project(path)
@@ -660,7 +665,8 @@ def test_clean_only_hooks_only(hatch, temp_dir, helpers, config_file):
                     if self.target_name == 'wheel':
                         pathlib.Path('my_app', 'lib.so').touch()
             """
-        )
+        ),
+        encoding='utf-8',
     )
 
     project = Project(path)
@@ -726,7 +732,8 @@ def test_clean_hooks_after(hatch, temp_dir, helpers, config_file):
                     if self.target_name == 'wheel':
                         pathlib.Path('my_app', 'lib.so').touch()
             """
-        )
+        ),
+        encoding='utf-8',
     )
 
     project = Project(path)
@@ -791,7 +798,8 @@ def test_clean_hooks_after_env_var(hatch, temp_dir, helpers, config_file):
                     if self.target_name == 'wheel':
                         pathlib.Path('my_app', 'lib.so').touch()
             """
-        )
+        ),
+        encoding='utf-8',
     )
 
     project = Project(path)
@@ -856,7 +864,8 @@ def test_clean_only_no_hooks(hatch, temp_dir, helpers, config_file):
                     if self.target_name == 'wheel':
                         pathlib.Path('my_app', 'lib.so').touch()
             """
-        )
+        ),
+        encoding='utf-8',
     )
 
     project = Project(path)
@@ -919,7 +928,8 @@ def test_hooks_only(hatch, temp_dir, helpers, config_file):
                     if self.target_name == 'wheel':
                         pathlib.Path('my_app', 'lib.so').touch()
             """
-        )
+        ),
+        encoding='utf-8',
     )
 
     project = Project(path)
@@ -979,7 +989,8 @@ def test_hooks_only_env_var(hatch, temp_dir, helpers, config_file):
                     if self.target_name == 'wheel':
                         pathlib.Path('my_app', 'lib.so').touch()
             """
-        )
+        ),
+        encoding='utf-8',
     )
 
     project = Project(path)
@@ -1039,7 +1050,8 @@ def test_extensions_only(hatch, temp_dir, helpers, config_file):
                     if self.target_name == 'wheel':
                         pathlib.Path('my_app', 'lib.so').touch()
             """
-        )
+        ),
+        encoding='utf-8',
     )
 
     project = Project(path)
@@ -1096,7 +1108,8 @@ def test_no_hooks(hatch, temp_dir, helpers):
                     if self.target_name == 'wheel':
                         pathlib.Path('my_app', 'lib.so').touch()
             """
-        )
+        ),
+        encoding='utf-8',
     )
 
     project = Project(path)
@@ -1151,7 +1164,8 @@ def test_no_hooks_env_var(hatch, temp_dir, helpers):
                     if self.target_name == 'wheel':
                         pathlib.Path('my_app', 'lib.so').touch()
             """
-        )
+        ),
+        encoding='utf-8',
     )
 
     project = Project(path)
@@ -1314,10 +1328,11 @@ def test_build_dependencies(hatch, temp_dir, helpers):
 
             class CustomWheelBuilder(WheelBuilder):
                 def build(self, **kwargs):
-                    pathlib.Path('test.txt').write_text(str(binary.convert_units(1024)))
+                    pathlib.Path('test.txt').write_text(str(binary.convert_units(1024)), encoding='utf-8')
                     yield from super().build(**kwargs)
             """
-        )
+        ),
+        encoding='utf-8',
     )
 
     project = Project(project_path)
@@ -1340,7 +1355,7 @@ def test_build_dependencies(hatch, temp_dir, helpers):
     output_file = project_path / 'test.txt'
     assert output_file.is_file()
 
-    assert str(output_file.read_text()) == "(1.0, 'KiB')"
+    assert str(output_file.read_text(encoding='utf-8')) == "(1.0, 'KiB')"
 
     assert result.output == helpers.dedent(
         """
@@ -1370,7 +1385,8 @@ def test_plugin_dependencies_unmet(hatch, temp_dir, helpers, mock_plugin_install
             [env]
             requires = ["{dependency}"]
             """
-        )
+        ),
+        encoding='utf-8',
     )
 
     with path.as_cwd():
