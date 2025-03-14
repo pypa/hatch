@@ -8,6 +8,13 @@ def config():
     pass
 
 
+@config.command(short_help='Open the config file in your configured terminal editor')
+@click.pass_obj
+def edit(app):
+    """Open the config file in your configured terminal editor."""
+    click.edit(filename=str(app.config_file.path))
+
+
 @config.command(short_help='Open the config location in your file manager')
 @click.pass_obj
 def explore(app):
