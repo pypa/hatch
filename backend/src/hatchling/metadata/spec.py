@@ -214,15 +214,15 @@ def construct_metadata_file_1_2(metadata: ProjectMetadata, extra_dependencies: t
 
     authors_data = metadata.core.authors_data
     if authors_data['name']:
-        metadata_file += f"Author: {', '.join(authors_data['name'])}\n"
+        metadata_file += f'Author: {", ".join(authors_data["name"])}\n'
     if authors_data['email']:
-        metadata_file += f"Author-email: {', '.join(authors_data['email'])}\n"
+        metadata_file += f'Author-email: {", ".join(authors_data["email"])}\n'
 
     maintainers_data = metadata.core.maintainers_data
     if maintainers_data['name']:
-        metadata_file += f"Maintainer: {', '.join(maintainers_data['name'])}\n"
+        metadata_file += f'Maintainer: {", ".join(maintainers_data["name"])}\n'
     if maintainers_data['email']:
-        metadata_file += f"Maintainer-email: {', '.join(maintainers_data['email'])}\n"
+        metadata_file += f'Maintainer-email: {", ".join(maintainers_data["email"])}\n'
 
     if metadata.core.license:
         license_start = 'License: '
@@ -238,7 +238,7 @@ def construct_metadata_file_1_2(metadata: ProjectMetadata, extra_dependencies: t
         metadata_file += f'License: {metadata.core.license_expression}\n'
 
     if metadata.core.keywords:
-        metadata_file += f"Keywords: {','.join(metadata.core.keywords)}\n"
+        metadata_file += f'Keywords: {",".join(metadata.core.keywords)}\n'
 
     if metadata.core.classifiers:
         for classifier in metadata.core.classifiers:
@@ -275,15 +275,15 @@ def construct_metadata_file_2_1(metadata: ProjectMetadata, extra_dependencies: t
 
     authors_data = metadata.core.authors_data
     if authors_data['name']:
-        metadata_file += f"Author: {', '.join(authors_data['name'])}\n"
+        metadata_file += f'Author: {", ".join(authors_data["name"])}\n'
     if authors_data['email']:
-        metadata_file += f"Author-email: {', '.join(authors_data['email'])}\n"
+        metadata_file += f'Author-email: {", ".join(authors_data["email"])}\n'
 
     maintainers_data = metadata.core.maintainers_data
     if maintainers_data['name']:
-        metadata_file += f"Maintainer: {', '.join(maintainers_data['name'])}\n"
+        metadata_file += f'Maintainer: {", ".join(maintainers_data["name"])}\n'
     if maintainers_data['email']:
-        metadata_file += f"Maintainer-email: {', '.join(maintainers_data['email'])}\n"
+        metadata_file += f'Maintainer-email: {", ".join(maintainers_data["email"])}\n'
 
     if metadata.core.license:
         license_start = 'License: '
@@ -299,7 +299,7 @@ def construct_metadata_file_2_1(metadata: ProjectMetadata, extra_dependencies: t
         metadata_file += f'License: {metadata.core.license_expression}\n'
 
     if metadata.core.keywords:
-        metadata_file += f"Keywords: {','.join(metadata.core.keywords)}\n"
+        metadata_file += f'Keywords: {",".join(metadata.core.keywords)}\n'
 
     if metadata.core.classifiers:
         for classifier in metadata.core.classifiers:
@@ -361,15 +361,15 @@ def construct_metadata_file_2_2(metadata: ProjectMetadata, extra_dependencies: t
 
     authors_data = metadata.core.authors_data
     if authors_data['name']:
-        metadata_file += f"Author: {', '.join(authors_data['name'])}\n"
+        metadata_file += f'Author: {", ".join(authors_data["name"])}\n'
     if authors_data['email']:
-        metadata_file += f"Author-email: {', '.join(authors_data['email'])}\n"
+        metadata_file += f'Author-email: {", ".join(authors_data["email"])}\n'
 
     maintainers_data = metadata.core.maintainers_data
     if maintainers_data['name']:
-        metadata_file += f"Maintainer: {', '.join(maintainers_data['name'])}\n"
+        metadata_file += f'Maintainer: {", ".join(maintainers_data["name"])}\n'
     if maintainers_data['email']:
-        metadata_file += f"Maintainer-email: {', '.join(maintainers_data['email'])}\n"
+        metadata_file += f'Maintainer-email: {", ".join(maintainers_data["email"])}\n'
 
     if metadata.core.license:
         license_start = 'License: '
@@ -385,7 +385,7 @@ def construct_metadata_file_2_2(metadata: ProjectMetadata, extra_dependencies: t
         metadata_file += f'License: {metadata.core.license_expression}\n'
 
     if metadata.core.keywords:
-        metadata_file += f"Keywords: {','.join(metadata.core.keywords)}\n"
+        metadata_file += f'Keywords: {",".join(metadata.core.keywords)}\n'
 
     if metadata.core.classifiers:
         for classifier in metadata.core.classifiers:
@@ -447,15 +447,15 @@ def construct_metadata_file_2_3(metadata: ProjectMetadata, extra_dependencies: t
 
     authors_data = metadata.core.authors_data
     if authors_data['name']:
-        metadata_file += f"Author: {', '.join(authors_data['name'])}\n"
+        metadata_file += f'Author: {", ".join(authors_data["name"])}\n'
     if authors_data['email']:
-        metadata_file += f"Author-email: {', '.join(authors_data['email'])}\n"
+        metadata_file += f'Author-email: {", ".join(authors_data["email"])}\n'
 
     maintainers_data = metadata.core.maintainers_data
     if maintainers_data['name']:
-        metadata_file += f"Maintainer: {', '.join(maintainers_data['name'])}\n"
+        metadata_file += f'Maintainer: {", ".join(maintainers_data["name"])}\n'
     if maintainers_data['email']:
-        metadata_file += f"Maintainer-email: {', '.join(maintainers_data['email'])}\n"
+        metadata_file += f'Maintainer-email: {", ".join(maintainers_data["email"])}\n'
 
     if metadata.core.license:
         license_start = 'License: '
@@ -471,7 +471,7 @@ def construct_metadata_file_2_3(metadata: ProjectMetadata, extra_dependencies: t
         metadata_file += f'License: {metadata.core.license_expression}\n'
 
     if metadata.core.keywords:
-        metadata_file += f"Keywords: {','.join(metadata.core.keywords)}\n"
+        metadata_file += f'Keywords: {",".join(metadata.core.keywords)}\n'
 
     if metadata.core.classifiers:
         for classifier in metadata.core.classifiers:
@@ -533,15 +533,15 @@ def construct_metadata_file_2_4(metadata: ProjectMetadata, extra_dependencies: t
 
     authors_data = metadata.core.authors_data
     if authors_data['name']:
-        metadata_file += f"Author: {', '.join(authors_data['name'])}\n"
+        metadata_file += f'Author: {", ".join(authors_data["name"])}\n'
     if authors_data['email']:
-        metadata_file += f"Author-email: {', '.join(authors_data['email'])}\n"
+        metadata_file += f'Author-email: {", ".join(authors_data["email"])}\n'
 
     maintainers_data = metadata.core.maintainers_data
     if maintainers_data['name']:
-        metadata_file += f"Maintainer: {', '.join(maintainers_data['name'])}\n"
+        metadata_file += f'Maintainer: {", ".join(maintainers_data["name"])}\n'
     if maintainers_data['email']:
-        metadata_file += f"Maintainer-email: {', '.join(maintainers_data['email'])}\n"
+        metadata_file += f'Maintainer-email: {", ".join(maintainers_data["email"])}\n'
 
     if metadata.core.license:
         license_start = 'License: '
@@ -562,7 +562,7 @@ def construct_metadata_file_2_4(metadata: ProjectMetadata, extra_dependencies: t
             metadata_file += f'License-File: {license_file}\n'
 
     if metadata.core.keywords:
-        metadata_file += f"Keywords: {','.join(metadata.core.keywords)}\n"
+        metadata_file += f'Keywords: {",".join(metadata.core.keywords)}\n'
 
     if metadata.core.classifiers:
         for classifier in metadata.core.classifiers:
