@@ -140,7 +140,6 @@ def main():
             'download',
             '-q',
             '--disable-pip-version-check',
-            '--no-python-version-warning',
             '-d',
             links_dir,
             os.path.join(links_dir, os.listdir(links_dir)[0]),
@@ -230,7 +229,6 @@ def main():
                         'install',
                         '-q',
                         '--disable-pip-version-check',
-                        '--no-python-version-warning',
                         '--find-links',
                         links_dir,
                         '--no-deps',
@@ -243,7 +241,6 @@ def main():
                         'install',
                         '-q',
                         '--disable-pip-version-check',
-                        '--no-python-version-warning',
                         repo_dir,
                     ])
 
