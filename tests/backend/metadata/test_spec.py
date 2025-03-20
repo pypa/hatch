@@ -419,6 +419,22 @@ class TestCoreMetadataV12:
             """
         )
 
+    def test_license_expression(self, constructor, isolation, helpers):
+        metadata = ProjectMetadata(
+            str(isolation),
+            None,
+            {'project': {'name': 'My.App', 'version': '0.1.0', 'license': 'mit'}},
+        )
+
+        assert constructor(metadata) == helpers.dedent(
+            """
+            Metadata-Version: 1.2
+            Name: My.App
+            Version: 0.1.0
+            License: MIT
+            """
+        )
+
     def test_keywords_single(self, constructor, isolation, helpers):
         metadata = ProjectMetadata(
             str(isolation), None, {'project': {'name': 'My.App', 'version': '0.1.0', 'keywords': ['foo']}}
@@ -762,7 +778,7 @@ class TestCoreMetadataV21:
             Metadata-Version: 2.1
             Name: My.App
             Version: 0.1.0
-            License-Expression: MIT
+            License: MIT
             """
         )
 
@@ -961,7 +977,6 @@ class TestCoreMetadataV21:
             Maintainer-email: foo <bar@domain>
             License: foo
                     bar
-            License-File: LICENSE.txt
             Keywords: bar,foo
             Classifier: Programming Language :: Python :: 3.9
             Classifier: Programming Language :: Python :: 3.11
@@ -1202,7 +1217,7 @@ class TestCoreMetadataV22:
             Metadata-Version: 2.2
             Name: My.App
             Version: 0.1.0
-            License-Expression: MIT
+            License: MIT
             """
         )
 
@@ -1431,7 +1446,6 @@ class TestCoreMetadataV22:
             Maintainer-email: foo <bar@domain>
             License: foo
                     bar
-            License-File: LICENSE.txt
             Keywords: bar,foo
             Classifier: Programming Language :: Python :: 3.9
             Classifier: Programming Language :: Python :: 3.11
@@ -1657,6 +1671,22 @@ class TestCoreMetadataV23:
             Version: 0.1.0
             License: foo
                     bar
+            """
+        )
+
+    def test_license_expression(self, constructor, isolation, helpers):
+        metadata = ProjectMetadata(
+            str(isolation),
+            None,
+            {'project': {'name': 'My.App', 'version': '0.1.0', 'license': 'mit'}},
+        )
+
+        assert constructor(metadata) == helpers.dedent(
+            """
+            Metadata-Version: 2.3
+            Name: My.App
+            Version: 0.1.0
+            License: MIT
             """
         )
 

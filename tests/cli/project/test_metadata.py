@@ -28,7 +28,7 @@ def test_other_backend(hatch, temp_dir, helpers):
 
     project = Project(path)
     config = dict(project.raw_config)
-    config['build-system']['requires'] = ['flit-core']
+    config['build-system']['requires'] = ['flit-core==3.10.1']
     config['build-system']['build-backend'] = 'flit_core.buildapi'
     config['project']['version'] = '0.0.1'
     config['project']['dynamic'] = []

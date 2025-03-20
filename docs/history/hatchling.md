@@ -8,6 +8,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.27.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.27.0) - 2024-11-26 ## {: #hatchling-v1.27.0 }
+
+***Added:***
+
+- Update the default version of core metadata to 2.4
+
+## [1.26.3](https://github.com/pypa/hatch/releases/tag/hatchling-v1.26.3) - 2024-11-12 ## {: #hatchling-v1.26.3 }
+
+***Fixed:***
+
+- Support an old import path that is still used by some consumers like Hatch
+
+## [1.26.2](https://github.com/pypa/hatch/releases/tag/hatchling-v1.26.2) - 2024-11-12 ## {: #hatchling-v1.26.2 }
+
+***Fixed:***
+
+- Back-populate string `license` fields (`License-Expression`) for core metadata versions prior to 2.4
+- Remove the `License-Expression` and `License-Files` core metadata from version 2.2 that was missed in the previous minor release
+
 ## [1.26.1](https://github.com/pypa/hatch/releases/tag/hatchling-v1.26.1) - 2024-11-10 ## {: #hatchling-v1.26.1 }
 
 ***Fixed:***
