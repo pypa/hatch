@@ -262,7 +262,7 @@ class Application(Terminal):
 
             pip_command = [sys.executable, '-u', '-m', 'pip']
 
-        pip_command.extend(['install', '--disable-pip-version-check', '--no-python-version-warning'])
+        pip_command.extend(['install', '--disable-pip-version-check'])
 
         # Default to -1 verbosity
         add_verbosity_flag(pip_command, self.verbosity, adjustment=-1)
