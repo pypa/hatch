@@ -48,7 +48,10 @@ jobs:
       uses: astral-sh/setup-uv@v3
 
     - name: Install tools
-      run: uv pip install --system build hatch
+      run: |-
+        uv pip install --system build
+        uv pip install --system .
+        uv pip install --system ./backend
 
     # Windows installers don't accept non-integer versions so we ubiquitously
     # perform the following transformation: X.Y.Z.devN -> X.Y.Z.N
@@ -89,7 +92,7 @@ jobs:
         path: dist
 
     - name: Push Python artifacts to PyPI
-      uses: pypa/gh-action-pypi-publish@v1.11.0
+      uses: pypa/gh-action-pypi-publish@v1.12.3
       with:
         skip-existing: true
 
@@ -125,10 +128,10 @@ jobs:
           os: windows-2022
         # macOS
         - target: aarch64-apple-darwin
-          os: macos-12
+          os: macos-13
           use-dist: true
         - target: x86_64-apple-darwin
-          os: macos-12
+          os: macos-13
           use-dist: true
 
     env:
@@ -354,7 +357,7 @@ jobs:
     needs:
     - binaries
     - python-artifacts
-    runs-on: macos-12
+    runs-on: macos-13
 
     env:
       VERSION: ${{ needs.python-artifacts.outputs.version }}

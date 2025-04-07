@@ -788,7 +788,7 @@ class BuilderConfig:
         # validate project root is not excluded by vcs
         exclude_spec = pathspec.GitIgnoreSpec.from_lines(patterns)
         if exclude_spec.match_file(self.root):
-            return patterns
+            return []
 
         return patterns
 

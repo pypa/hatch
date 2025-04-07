@@ -234,6 +234,8 @@ def construct_metadata_file_1_2(metadata: ProjectMetadata, extra_dependencies: t
                 metadata_file += f'{line}\n'
             else:
                 metadata_file += f'{indent}{line}\n'
+    elif metadata.core.license_expression:
+        metadata_file += f'License: {metadata.core.license_expression}\n'
 
     if metadata.core.keywords:
         metadata_file += f"Keywords: {','.join(metadata.core.keywords)}\n"
@@ -293,13 +295,8 @@ def construct_metadata_file_2_1(metadata: ProjectMetadata, extra_dependencies: t
                 metadata_file += f'{line}\n'
             else:
                 metadata_file += f'{indent}{line}\n'
-
-    if metadata.core.license_expression:
-        metadata_file += f'License-Expression: {metadata.core.license_expression}\n'
-
-    if metadata.core.license_files:
-        for license_file in metadata.core.license_files:
-            metadata_file += f'License-File: {license_file}\n'
+    elif metadata.core.license_expression:
+        metadata_file += f'License: {metadata.core.license_expression}\n'
 
     if metadata.core.keywords:
         metadata_file += f"Keywords: {','.join(metadata.core.keywords)}\n"
@@ -384,13 +381,8 @@ def construct_metadata_file_2_2(metadata: ProjectMetadata, extra_dependencies: t
                 metadata_file += f'{line}\n'
             else:
                 metadata_file += f'{indent}{line}\n'
-
-    if metadata.core.license_expression:
-        metadata_file += f'License-Expression: {metadata.core.license_expression}\n'
-
-    if metadata.core.license_files:
-        for license_file in metadata.core.license_files:
-            metadata_file += f'License-File: {license_file}\n'
+    elif metadata.core.license_expression:
+        metadata_file += f'License: {metadata.core.license_expression}\n'
 
     if metadata.core.keywords:
         metadata_file += f"Keywords: {','.join(metadata.core.keywords)}\n"
@@ -475,6 +467,8 @@ def construct_metadata_file_2_3(metadata: ProjectMetadata, extra_dependencies: t
                 metadata_file += f'{line}\n'
             else:
                 metadata_file += f'{indent}{line}\n'
+    elif metadata.core.license_expression:
+        metadata_file += f'License: {metadata.core.license_expression}\n'
 
     if metadata.core.keywords:
         metadata_file += f"Keywords: {','.join(metadata.core.keywords)}\n"
