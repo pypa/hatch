@@ -91,14 +91,6 @@ Hatch is a modern, extensible Python project manager. See the [Why Hatch?](why.m
 
     [:octicons-arrow-right-24: Project setup](intro.md#setup)
 
--   :material-speedometer:{ .lg .middle } __Responsive CLI__
-
-    ---
-
-    Hatch is up to 3x faster than equivalent tools
-
-    [:octicons-arrow-right-24: CLI reference](cli/about.md)
-
 </div>
 
 ## License
