@@ -483,7 +483,7 @@ class WheelBuilder(BuilderInterface):
             records.write((f'{archive.metadata_directory}/RECORD', '', ''))
             archive.write_metadata('RECORD', records.construct())
 
-        target = os.path.join(directory, f"{self.artifact_project_id}-{build_data['tag']}.whl")
+        target = os.path.join(directory, f'{self.artifact_project_id}-{build_data["tag"]}.whl')
 
         replace_file(archive.path, target)
         normalize_artifact_permissions(target)
@@ -572,7 +572,7 @@ class WheelBuilder(BuilderInterface):
             records.write((f'{archive.metadata_directory}/RECORD', '', ''))
             archive.write_metadata('RECORD', records.construct())
 
-        target = os.path.join(directory, f"{self.artifact_project_id}-{build_data['tag']}.whl")
+        target = os.path.join(directory, f'{self.artifact_project_id}-{build_data["tag"]}.whl')
 
         replace_file(archive.path, target)
         normalize_artifact_permissions(target)
@@ -589,7 +589,7 @@ class WheelBuilder(BuilderInterface):
                 for relative_directory in self.config.dev_mode_dirs
             )
 
-            record = archive.write_file(f"_{self.metadata.core.name.replace('-', '_')}.pth", '\n'.join(directories))
+            record = archive.write_file(f'_{self.metadata.core.name.replace("-", "_")}.pth', '\n'.join(directories))
             records.write(record)
 
             for included_file in self.recurse_forced_files(self.get_forced_inclusion_map(build_data)):
@@ -601,7 +601,7 @@ class WheelBuilder(BuilderInterface):
             records.write((f'{archive.metadata_directory}/RECORD', '', ''))
             archive.write_metadata('RECORD', records.construct())
 
-        target = os.path.join(directory, f"{self.artifact_project_id}-{build_data['tag']}.whl")
+        target = os.path.join(directory, f'{self.artifact_project_id}-{build_data["tag"]}.whl')
 
         replace_file(archive.path, target)
         normalize_artifact_permissions(target)

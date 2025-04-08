@@ -150,6 +150,9 @@ class RuffDefaultsPreprocessor(Preprocessor):
 
 UNSELECTED_RULES: tuple[str, ...] = (
     'AIR001',
+    'AIR301',
+    'AIR302',
+    'AIR303',
     'ANN001',
     'ANN002',
     'ANN003',
@@ -229,6 +232,7 @@ UNSELECTED_RULES: tuple[str, ...] = (
     'E305',
     'E306',
     'E501',
+    'E999',
     'ERA001',
     'FBT003',
     'FIX001',
@@ -307,6 +311,8 @@ UNSELECTED_RULES: tuple[str, ...] = (
     'PTH205',
     'PTH206',
     'PTH207',
+    'PTH208',
+    'PTH210',
     'Q000',
     'Q001',
     'Q002',
@@ -315,6 +321,7 @@ UNSELECTED_RULES: tuple[str, ...] = (
     'RET501',
     'RET502',
     'RUF011',
+    'RUF035',
     'RUF200',
     'S404',
     'S410',
@@ -324,5 +331,6 @@ UNSELECTED_RULES: tuple[str, ...] = (
     'TD002',
     'TD003',
     'TRY200',
+    'UP027',
     'W191',
 )
