@@ -10,6 +10,8 @@ class EnvSource(VersionSourceInterface):
 
     def get_version_data(self) -> dict:
         variable = self.config.get('variable', '')
+        default_value = self.config.get('default-value', '')
+
         if not variable:
             message = 'option `variable` must be specified'
             raise ValueError(message)
@@ -18,11 +20,15 @@ class EnvSource(VersionSourceInterface):
             message = 'option `variable` must be a string'
             raise TypeError(message)
 
-        if variable not in os.environ:
+        if default_value and not isinstance(default_value, str):
+            message = 'option `default-value` must be a string'
+            raise TypeError(message)
+
+        if variable not in os.environ and not default_value:
             message = f'environment variable `{variable}` is not set'
             raise RuntimeError(message)
 
-        return {'version': os.environ[variable]}
+        return {'version': os.getenv(variable, default_value)}
 
     def set_version(self, version: str, version_data: dict) -> None:  # noqa: ARG002, PLR6301
         message = 'Cannot set environment variables'
