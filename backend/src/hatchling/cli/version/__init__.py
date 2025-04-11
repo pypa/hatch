@@ -21,11 +21,12 @@ def version_impl(
     plugin_manager = PluginManager()
     metadata = ProjectMetadata(root, plugin_manager)
 
-    if 'version' in metadata.config.get('project', {}):
+    static_version = metadata.core.version
+    if static_version is not None:
         if desired_version:
             app.abort('Cannot set version when it is statically defined by the `project.version` field')
         else:
-            app.display(metadata.core.version)
+            app.display(static_version)
             return
 
     source = metadata.hatch.version.source
