@@ -92,7 +92,7 @@ jobs:
         path: dist
 
     - name: Push Python artifacts to PyPI
-      uses: pypa/gh-action-pypi-publish@v1.12.3
+      uses: pypa/gh-action-pypi-publish@v1.12.4
       with:
         skip-existing: true
 
