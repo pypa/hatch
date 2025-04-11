@@ -288,8 +288,8 @@ class EnvironmentInterface(ABC):
 
         # Ensure these are checked last to speed up initial environment creation since
         # they will already be installed along with the project
-        if (not self.skip_install and self.dev_mode) or self.features:
-            from hatch.utils.dep import get_complex_dependencies, get_complex_features
+        if (not self.skip_install and self.dev_mode) or self.features or self.dependency_groups:
+            from hatch.utils.dep import get_complex_dependencies, get_complex_dependency_group, get_complex_features
 
             dependencies, optional_dependencies = self.app.project.get_dependencies()
             dependencies_complex = get_complex_dependencies(dependencies)
@@ -307,6 +307,11 @@ class EnvironmentInterface(ABC):
                     raise ValueError(message)
 
                 all_dependencies_complex.extend(optional_dependencies_complex[feature].values())
+
+            for dependency_group in self.dependency_groups:
+                all_dependencies_complex.extend(
+                    get_complex_dependency_group(self.app.project.dependency_groups, dependency_group)
+                )
 
         return all_dependencies_complex
 
@@ -423,6 +428,42 @@ class EnvironmentInterface(ABC):
             all_features.add(normalized_feature)
 
         return sorted(all_features)
+
+    @cached_property
+    def dependency_groups(self):
+        from hatchling.metadata.utils import normalize_project_name
+
+        dependency_groups = self.config.get('dependency-groups', [])
+        if not isinstance(dependency_groups, list):
+            message = f'Field `tool.hatch.envs.{self.name}.dependency-groups` must be an array of strings'
+            raise TypeError(message)
+
+        all_dependency_groups = set()
+        for i, dependency_group in enumerate(dependency_groups, 1):
+            if not isinstance(dependency_group, str):
+                message = (
+                    f'Dependency Group #{i} of field `tool.hatch.envs.{self.name}.dependency-groups` must be a string'
+                )
+                raise TypeError(message)
+
+            if not dependency_group:
+                message = f'Dependency Group #{i} of field `tool.hatch.envs.{self.name}.dependency-groups` cannot be an empty string'
+                raise ValueError(message)
+
+            normalized_dependency_group = normalize_project_name(dependency_group)
+            if (
+                not self.metadata.hatch.metadata.hook_config
+                and normalized_dependency_group not in self.app.project.dependency_groups
+            ):
+                message = (
+                    f'Dependency Group `{normalized_dependency_group}` of field `tool.hatch.envs.{self.name}.dependency-groups` is not '
+                    f'defined in field `dependency-groups`'
+                )
+                raise ValueError(message)
+
+            all_dependency_groups.add(normalized_dependency_group)
+
+        return sorted(all_dependency_groups)
 
     @cached_property
     def description(self) -> str:
