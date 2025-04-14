@@ -57,7 +57,8 @@ build-backend = "{backend_api}"
 name = "foo"
 version = "9000.42"
 description = "text"
-"""
+""",
+            encoding='utf-8',
         )
 
         package_dir = project_dir / 'foo'
@@ -85,10 +86,10 @@ description = "text"
         )
         platform.check_command([sys.executable, '-c', script])
         work_dir = output_dir / 'work'
-        output = json.loads((output_dir / 'output.json').read_text())
+        output = json.loads((output_dir / 'output.json').read_text(encoding='utf-8'))
         metadata_file = work_dir / output['return_val'] / 'METADATA'
 
-        assert project_metadata_from_core_metadata(metadata_file.read_text()) == {
+        assert project_metadata_from_core_metadata(metadata_file.read_text(encoding='utf-8')) == {
             'name': 'foo',
             'version': '9000.42',
             'description': 'text',
@@ -111,7 +112,8 @@ build-backend = "{backend_api}"
 name = "foo"
 version = "9000.42"
 description = "text"
-"""
+""",
+            encoding='utf-8',
         )
 
         package_dir = project_dir / 'foo'
@@ -139,10 +141,10 @@ description = "text"
         )
         platform.check_command([sys.executable, '-c', script])
         work_dir = output_dir / 'work'
-        output = json.loads((output_dir / 'output.json').read_text())
+        output = json.loads((output_dir / 'output.json').read_text(encoding='utf-8'))
         metadata_file = work_dir / output['return_val'] / 'METADATA'
 
-        assert project_metadata_from_core_metadata(metadata_file.read_text()) == {
+        assert project_metadata_from_core_metadata(metadata_file.read_text(encoding='utf-8')) == {
             'name': 'foo',
             'version': '9000.42',
             'description': 'text',
@@ -167,7 +169,8 @@ build-backend = "{backend_api}"
 name = "foo"
 version = "9000.42"
 description = "text"
-"""
+""",
+            encoding='utf-8',
         )
 
         package_dir = project_dir / 'foo'
@@ -193,7 +196,7 @@ description = "text"
         script = project.build_frontend.scripts.build_wheel(output_dir=str(output_dir), project_root=str(project_dir))
         platform.check_command([sys.executable, '-c', script])
         work_dir = output_dir / 'work'
-        output = json.loads((output_dir / 'output.json').read_text())
+        output = json.loads((output_dir / 'output.json').read_text(encoding='utf-8'))
         wheel_path = work_dir / output['return_val']
 
         assert wheel_path.is_file()
@@ -217,7 +220,8 @@ build-backend = "{backend_api}"
 name = "foo"
 version = "9000.42"
 description = "text"
-"""
+""",
+            encoding='utf-8',
         )
 
         package_dir = project_dir / 'foo'
@@ -245,7 +249,7 @@ description = "text"
         )
         platform.check_command([sys.executable, '-c', script])
         work_dir = output_dir / 'work'
-        output = json.loads((output_dir / 'output.json').read_text())
+        output = json.loads((output_dir / 'output.json').read_text(encoding='utf-8'))
         wheel_path = work_dir / output['return_val']
 
         assert wheel_path.is_file()
@@ -271,7 +275,8 @@ build-backend = "{backend_api}"
 name = "foo"
 version = "9000.42"
 description = "text"
-"""
+""",
+            encoding='utf-8',
         )
 
         package_dir = project_dir / 'foo'
@@ -297,7 +302,7 @@ description = "text"
         script = project.build_frontend.scripts.build_sdist(output_dir=str(output_dir), project_root=str(project_dir))
         platform.check_command([sys.executable, '-c', script])
         work_dir = output_dir / 'work'
-        output = json.loads((output_dir / 'output.json').read_text())
+        output = json.loads((output_dir / 'output.json').read_text(encoding='utf-8'))
         sdist_path = work_dir / output['return_val']
 
         assert sdist_path.is_file()
@@ -323,7 +328,8 @@ build-backend = "{backend_api}"
 name = "foo"
 version = "9000.42"
 description = "text"
-"""
+""",
+            encoding='utf-8',
         )
 
         package_dir = project_dir / 'foo'
@@ -350,7 +356,7 @@ description = "text"
             output_dir=str(output_dir), project_root=str(project_dir), build=build
         )
         platform.check_command([sys.executable, '-c', script])
-        output = json.loads((output_dir / 'output.json').read_text())
+        output = json.loads((output_dir / 'output.json').read_text(encoding='utf-8'))
 
         assert output['return_val'] == (
             [EDITABLES_REQUIREMENT] if backend_pkg == 'hatchling' and build == 'editable' else []
@@ -370,7 +376,8 @@ build-backend = "hatchling.build"
 [project]
 name = "foo"
 version = "9000.42"
-"""
+""",
+            encoding='utf-8',
         )
 
         package_dir = project_dir / 'foo'
@@ -397,6 +404,6 @@ version = "9000.42"
             output_dir=str(output_dir), project_root=str(project_dir), targets=['sdist', 'wheel']
         )
         platform.check_command([sys.executable, '-c', script])
-        output = json.loads((output_dir / 'output.json').read_text())
+        output = json.loads((output_dir / 'output.json').read_text(encoding='utf-8'))
 
         assert output == []

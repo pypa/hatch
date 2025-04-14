@@ -398,14 +398,14 @@ class EnvironmentMetadata:
         if not metadata_file.is_file():
             return {}
 
-        return json.loads(metadata_file.read_text())
+        return json.loads(metadata_file.read_text(encoding='utf-8'))
 
     def _write(self, environment: EnvironmentInterface, metadata: dict[str, Any]) -> None:
         import json
 
         metadata_file = self._metadata_file(environment)
         metadata_file.parent.ensure_dir_exists()
-        metadata_file.write_text(json.dumps(metadata))
+        metadata_file.write_text(json.dumps(metadata), encoding='utf-8')
 
     def _metadata_file(self, environment: EnvironmentInterface) -> Path:
         from hatch.env.internal import is_isolated_environment

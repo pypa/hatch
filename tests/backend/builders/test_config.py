@@ -1832,7 +1832,7 @@ class TestPatternExclude:
             builder = MockBuilder(str(temp_dir), config=config)
 
             vcs_ignore_file = temp_dir / '.gitignore'
-            vcs_ignore_file.write_text('/bar\n*.pyc')
+            vcs_ignore_file.write_text('/bar\n*.pyc', encoding='utf-8')
 
             assert builder.config.exclude_spec.match_file(f'foo{separator}file.py')
             assert builder.config.exclude_spec.match_file(f'bar{separator}file.py')
@@ -1849,7 +1849,7 @@ class TestPatternExclude:
             builder = MockBuilder(str(temp_dir), config=config)
 
             vcs_ignore_file = temp_dir / '.gitignore'
-            vcs_ignore_file.write_text('/bar\n*.pyc')
+            vcs_ignore_file.write_text('/bar\n*.pyc', encoding='utf-8')
 
             assert builder.config.exclude_spec.match_file(f'foo{separator}file.py')
             assert not builder.config.exclude_spec.match_file(f'bar{separator}file.py')
@@ -1868,7 +1868,7 @@ class TestPatternExclude:
             builder = MockBuilder(str(project_dir), config=config)
 
             vcs_ignore_file = temp_dir / '.gitignore'
-            vcs_ignore_file.write_text('/bar\n*.pyc')
+            vcs_ignore_file.write_text('/bar\n*.pyc', encoding='utf-8')
 
             assert builder.config.exclude_spec.match_file(f'foo{separator}file.py')
             assert not builder.config.exclude_spec.match_file(f'bar{separator}file.py')
@@ -1883,7 +1883,7 @@ class TestPatternExclude:
             builder = MockBuilder(str(temp_dir), config=config)
 
             vcs_ignore_file = temp_dir / '.gitignore'
-            vcs_ignore_file.write_text('foo/*\n!foo/bar')
+            vcs_ignore_file.write_text('foo/*\n!foo/bar', encoding='utf-8')
 
             assert builder.config.path_is_excluded(f'foo{separator}deb') is True
             assert builder.config.path_is_excluded(f'foo{separator}bar') is True
@@ -1898,7 +1898,7 @@ class TestPatternExclude:
             builder = MockBuilder(str(temp_dir), config=config)
 
             vcs_ignore_file = temp_dir / '.hgignore'
-            vcs_ignore_file.write_text('syntax: glob\n/bar\n*.pyc')
+            vcs_ignore_file.write_text('syntax: glob\n/bar\n*.pyc', encoding='utf-8')
 
             assert builder.config.exclude_spec.match_file(f'foo{separator}file.py')
             assert builder.config.exclude_spec.match_file(f'bar{separator}file.py')
@@ -1915,7 +1915,7 @@ class TestPatternExclude:
             builder = MockBuilder(str(temp_dir), config=config)
 
             vcs_ignore_file = temp_dir / '.hgignore'
-            vcs_ignore_file.write_text('syntax: glob\n/bar\n*.pyc')
+            vcs_ignore_file.write_text('syntax: glob\n/bar\n*.pyc', encoding='utf-8')
 
             assert builder.config.exclude_spec.match_file(f'foo{separator}file.py')
             assert not builder.config.exclude_spec.match_file(f'bar{separator}file.py')
@@ -1934,7 +1934,7 @@ class TestPatternExclude:
             builder = MockBuilder(str(project_dir), config=config)
 
             vcs_ignore_file = temp_dir / '.hgignore'
-            vcs_ignore_file.write_text('syntax: glob\n/bar\n*.pyc')
+            vcs_ignore_file.write_text('syntax: glob\n/bar\n*.pyc', encoding='utf-8')
 
             assert builder.config.exclude_spec.match_file(f'foo{separator}file.py')
             assert not builder.config.exclude_spec.match_file(f'bar{separator}file.py')

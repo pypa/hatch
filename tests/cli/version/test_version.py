@@ -48,7 +48,7 @@ def test_other_backend_show(hatch, temp_dir, helpers):
     data_path = temp_dir / 'data'
     data_path.mkdir()
 
-    (path / 'src' / 'my_app' / '__init__.py').write_text('__version__ = "9000.42"')
+    (path / 'src' / 'my_app' / '__init__.py').write_text('__version__ = "9000.42"', encoding='utf-8')
 
     project = Project(path)
     config = dict(project.raw_config)
@@ -173,7 +173,8 @@ def test_plugin_dependencies_unmet(hatch, helpers, temp_dir, mock_plugin_install
             [env]
             requires = ["{dependency}"]
             """
-        )
+        ),
+        encoding='utf-8',
     )
 
     with path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):

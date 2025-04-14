@@ -29,7 +29,7 @@ def test_filter_not_mapping(hatch, helpers, temp_dir, config_file):
             'scripts': {
                 'error': [
                     'python -c "import sys;sys.exit(3)"',
-                    'python -c "import pathlib,sys;pathlib.Path(\'test.txt\').write_text(sys.executable)"',
+                    "python -c \"import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable, encoding='utf-8')\"",
                 ],
             },
             **project.config.envs['default'],
@@ -84,7 +84,7 @@ def test_filter(hatch, helpers, temp_dir, config_file):
             '--',
             'python',
             '-c',
-            "import os,sys;open('test.txt', 'a').write(sys.executable+os.linesep[-1])",
+            "import os,sys;open('test.txt', 'a', encoding='utf-8').write(sys.executable+os.linesep[-1])",
         )
 
     assert result.exit_code == 0, result.output
@@ -116,7 +116,7 @@ def test_filter(hatch, helpers, temp_dir, config_file):
     env_path = env_dirs[0]
     assert env_path.name == 'test.42'
 
-    python_path = str(output_file.read_text()).strip()
+    python_path = str(output_file.read_text(encoding='utf-8')).strip()
     assert str(env_path) in python_path
 
 
@@ -146,7 +146,7 @@ def test_force_continue(hatch, helpers, temp_dir, config_file):
                     'python -c "import sys;sys.exit(2)"',
                     '- python -c "import sys;sys.exit(3)"',
                     'python -c "import sys;sys.exit(1)"',
-                    'python -c "import pathlib,sys;pathlib.Path(\'test.txt\').write_text(sys.executable)"',
+                    "python -c \"import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable, encoding='utf-8')\"",
                 ],
             },
             **project.config.envs['default'],
@@ -164,7 +164,7 @@ def test_force_continue(hatch, helpers, temp_dir, config_file):
         cmd [1] | python -c "import sys;sys.exit(2)"
         cmd [2] | - python -c "import sys;sys.exit(3)"
         cmd [3] | python -c "import sys;sys.exit(1)"
-        cmd [4] | python -c "import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable)"
+        cmd [4] | python -c "import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable, encoding='utf-8')"
         """
     )
     output_file = project_path / 'test.txt'
@@ -189,7 +189,7 @@ def test_force_continue(hatch, helpers, temp_dir, config_file):
 
     assert env_path.name == project_path.name
 
-    assert str(env_path) in str(output_file.read_text())
+    assert str(env_path) in str(output_file.read_text(encoding='utf-8'))
 
 
 def test_ignore_compatibility(hatch, helpers, temp_dir, config_file):
@@ -223,7 +223,7 @@ def test_ignore_compatibility(hatch, helpers, temp_dir, config_file):
             '--',
             'python',
             '-c',
-            "import os,sys;open('test.txt', 'a').write(sys.executable+os.linesep[-1])",
+            "import os,sys;open('test.txt', 'a', encoding='utf-8').write(sys.executable+os.linesep[-1])",
         )
 
     assert result.exit_code == 0
@@ -262,7 +262,8 @@ def test_plugin_dependencies_unmet(hatch, helpers, temp_dir, config_file, mock_p
             [env]
             requires = ["{dependency}"]
             """
-        )
+        ),
+        encoding='utf-8',
     )
 
     project = Project(project_path)
@@ -270,7 +271,12 @@ def test_plugin_dependencies_unmet(hatch, helpers, temp_dir, config_file, mock_p
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
         result = hatch(
-            'env', 'run', '--', 'python', '-c', "import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable)"
+            'env',
+            'run',
+            '--',
+            'python',
+            '-c',
+            "import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable, encoding='utf-8')",
         )
 
     assert result.exit_code == 0, result.output
@@ -305,4 +311,4 @@ def test_plugin_dependencies_unmet(hatch, helpers, temp_dir, config_file, mock_p
 
     assert env_path.name == project_path.name
 
-    assert str(env_path) in str(output_file.read_text())
+    assert str(env_path) in str(output_file.read_text(encoding='utf-8'))

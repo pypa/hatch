@@ -13,7 +13,7 @@ PACKAGES = {
 
 def main():
     coverage_report = ROOT / 'coverage.xml'
-    root = etree.fromstring(coverage_report.read_text())  # nosec B320  # noqa: S320
+    root = etree.fromstring(coverage_report.read_text(encoding='utf-8'))  # nosec B320  # noqa: S320
 
     raw_package_data = defaultdict(lambda: {'hits': 0, 'misses': 0})
     for package in root.find('packages'):

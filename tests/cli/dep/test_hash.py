@@ -108,7 +108,8 @@ def test_plugin_dependencies_unmet(hatch, helpers, temp_dir, mock_plugin_install
             [env]
             requires = ["{dependency}"]
             """
-        )
+        ),
+        encoding='utf-8',
     )
 
     project = Project(project_path)

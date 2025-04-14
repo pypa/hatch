@@ -542,7 +542,8 @@ dynamic = ["version"]
 
 [tool.hatch.version]
 path = "o/__init__.py"
-"""
+""",
+        encoding='utf-8',
     )
 
     with temp_dir.as_cwd():
@@ -558,7 +559,7 @@ path = "o/__init__.py"
         """
     )
     assert len(list(temp_dir.iterdir())) == 1
-    assert project_file.read_text() == (
+    assert project_file.read_text(encoding='utf-8') == (
         f"""\
 [build-system]
 requires = ["hatchling"]
@@ -593,7 +594,8 @@ author = U.N. Owen
 author_email = void@some.where
 url = https://example.com
 license = MIT
-"""
+""",
+        encoding='utf-8',
     )
 
     with temp_dir.as_cwd():
@@ -607,7 +609,7 @@ license = MIT
     )
 
     project_file = temp_dir / 'pyproject.toml'
-    assert project_file.read_text() == (
+    assert project_file.read_text(encoding='utf-8') == (
         """\
 [build-system]
 requires = ["hatchling"]

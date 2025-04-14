@@ -147,14 +147,14 @@ def write_distribution(directory: Path, name: str):
 
     metadata = {'source': dist.source, 'python_path': dist.python_path}
     metadata_file = path / InstalledDistribution.metadata_filename()
-    metadata_file.write_text(json.dumps(metadata))
+    metadata_file.write_text(json.dumps(metadata), encoding='utf-8')
 
     return InstalledDistribution(path, dist, metadata)
 
 
 def downgrade_distribution_metadata(dist_dir: Path):
     metadata_file = dist_dir / InstalledDistribution.metadata_filename()
-    metadata = json.loads(metadata_file.read_text())
+    metadata = json.loads(metadata_file.read_text(encoding='utf-8'))
     dist = InstalledDistribution(dist_dir, get_distribution(dist_dir.name), metadata)
 
     source = metadata['source']
@@ -172,7 +172,7 @@ def downgrade_distribution_metadata(dist_dir: Path):
         new_python_path.parent.ensure_dir_exists()
         (dist_dir / python_path).rename(new_python_path)
 
-    metadata_file.write_text(json.dumps(metadata))
+    metadata_file.write_text(json.dumps(metadata), encoding='utf-8')
     return metadata
 
 

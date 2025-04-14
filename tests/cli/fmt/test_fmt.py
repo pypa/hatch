@@ -102,12 +102,12 @@ class TestDefaults:
             mocker.call(f'ruff format --config {user_config_path} .', shell=True),
         ]
 
-        assert default_config.read_text() == defaults_file_stable
+        assert default_config.read_text(encoding='utf-8') == defaults_file_stable
 
-        old_contents = (project_path / 'pyproject.toml').read_text()
+        old_contents = (project_path / 'pyproject.toml').read_text(encoding='utf-8')
         config_path = str(default_config).replace('\\', '\\\\')
         assert (
-            user_config.read_text()
+            user_config.read_text(encoding='utf-8')
             == f"""\
 {old_contents}
 [tool.ruff]
@@ -150,12 +150,12 @@ extend = "{config_path}\""""
             mocker.call(f'ruff format --config {user_config_path} --check --diff .', shell=True),
         ]
 
-        assert default_config.read_text() == defaults_file_stable
+        assert default_config.read_text(encoding='utf-8') == defaults_file_stable
 
-        old_contents = (project_path / 'pyproject.toml').read_text()
+        old_contents = (project_path / 'pyproject.toml').read_text(encoding='utf-8')
         config_path = str(default_config).replace('\\', '\\\\')
         assert (
-            user_config.read_text()
+            user_config.read_text(encoding='utf-8')
             == f"""\
 {old_contents}
 [tool.ruff]
@@ -185,8 +185,8 @@ extend = "{config_path}\""""
         user_config_path = platform.join_command_args([str(user_config)])
 
         project_file = project_path / 'pyproject.toml'
-        old_contents = project_file.read_text()
-        project_file.write_text(f'[tool.ruff]\n{old_contents}')
+        old_contents = project_file.read_text(encoding='utf-8')
+        project_file.write_text(f'[tool.ruff]\n{old_contents}', encoding='utf-8')
 
         with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
             result = hatch('fmt', '--check')
@@ -204,11 +204,11 @@ extend = "{config_path}\""""
             mocker.call(f'ruff format --config {user_config_path} --check --diff .', shell=True),
         ]
 
-        assert default_config.read_text() == defaults_file_stable
+        assert default_config.read_text(encoding='utf-8') == defaults_file_stable
 
         config_path = str(default_config).replace('\\', '\\\\')
         assert (
-            user_config.read_text()
+            user_config.read_text(encoding='utf-8')
             == f"""\
 [tool.ruff]
 extend = "{config_path}\"
@@ -253,12 +253,12 @@ class TestPreview:
             mocker.call(f'ruff format --config {user_config_path} --preview .', shell=True),
         ]
 
-        assert default_config.read_text() == defaults_file_preview
+        assert default_config.read_text(encoding='utf-8') == defaults_file_preview
 
-        old_contents = (project_path / 'pyproject.toml').read_text()
+        old_contents = (project_path / 'pyproject.toml').read_text(encoding='utf-8')
         config_path = str(default_config).replace('\\', '\\\\')
         assert (
-            user_config.read_text()
+            user_config.read_text(encoding='utf-8')
             == f"""\
 {old_contents}
 [tool.ruff]
@@ -301,12 +301,12 @@ extend = "{config_path}\""""
             mocker.call(f'ruff format --config {user_config_path} --preview --check --diff .', shell=True),
         ]
 
-        assert default_config.read_text() == defaults_file_preview
+        assert default_config.read_text(encoding='utf-8') == defaults_file_preview
 
-        old_contents = (project_path / 'pyproject.toml').read_text()
+        old_contents = (project_path / 'pyproject.toml').read_text(encoding='utf-8')
         config_path = str(default_config).replace('\\', '\\\\')
         assert (
-            user_config.read_text()
+            user_config.read_text(encoding='utf-8')
             == f"""\
 {old_contents}
 [tool.ruff]
@@ -346,12 +346,12 @@ class TestComponents:
             mocker.call(f'ruff check --config {user_config_path} --fix .', shell=True),
         ]
 
-        assert default_config.read_text() == defaults_file_stable
+        assert default_config.read_text(encoding='utf-8') == defaults_file_stable
 
-        old_contents = (project_path / 'pyproject.toml').read_text()
+        old_contents = (project_path / 'pyproject.toml').read_text(encoding='utf-8')
         config_path = str(default_config).replace('\\', '\\\\')
         assert (
-            user_config.read_text()
+            user_config.read_text(encoding='utf-8')
             == f"""\
 {old_contents}
 [tool.ruff]
@@ -389,12 +389,12 @@ extend = "{config_path}\""""
             mocker.call(f'ruff format --config {user_config_path} .', shell=True),
         ]
 
-        assert default_config.read_text() == defaults_file_stable
+        assert default_config.read_text(encoding='utf-8') == defaults_file_stable
 
-        old_contents = (project_path / 'pyproject.toml').read_text()
+        old_contents = (project_path / 'pyproject.toml').read_text(encoding='utf-8')
         config_path = str(default_config).replace('\\', '\\\\')
         assert (
-            user_config.read_text()
+            user_config.read_text(encoding='utf-8')
             == f"""\
 {old_contents}
 [tool.ruff]
@@ -465,12 +465,12 @@ class TestArguments:
             mocker.call(f'ruff format --config {user_config_path} --foo bar', shell=True),
         ]
 
-        assert default_config.read_text() == defaults_file_stable
+        assert default_config.read_text(encoding='utf-8') == defaults_file_stable
 
-        old_contents = (project_path / 'pyproject.toml').read_text()
+        old_contents = (project_path / 'pyproject.toml').read_text(encoding='utf-8')
         config_path = str(default_config).replace('\\', '\\\\')
         assert (
-            user_config.read_text()
+            user_config.read_text(encoding='utf-8')
             == f"""\
 {old_contents}
 [tool.ruff]
@@ -547,7 +547,7 @@ class TestConfigPath:
             mocker.call('ruff format .', shell=True),
         ]
 
-        assert default_config_file.read_text() == defaults_file_stable
+        assert default_config_file.read_text(encoding='utf-8') == defaults_file_stable
 
     def test_no_sync(self, hatch, helpers, temp_dir, config_file, env_run, mocker):
         config_file.model.template.plugins['default']['tests'] = False
@@ -591,7 +591,7 @@ class TestConfigPath:
             mocker.call('ruff format .', shell=True),
         ]
 
-        assert not default_config_file.read_text()
+        assert not default_config_file.read_text(encoding='utf-8')
 
     def test_sync_legacy_config(self, hatch, helpers, temp_dir, config_file, env_run, mocker, defaults_file_stable):
         config_file.model.template.plugins['default']['tests'] = False
@@ -636,7 +636,7 @@ class TestConfigPath:
             mocker.call('ruff format .', shell=True),
         ]
 
-        assert default_config_file.read_text() == defaults_file_stable
+        assert default_config_file.read_text(encoding='utf-8') == defaults_file_stable
 
 
 class TestCustomScripts:

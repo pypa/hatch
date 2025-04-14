@@ -1139,7 +1139,9 @@ def test_pre_install_commands(hatch, helpers, temp_dir, config_file):
         project,
         'default',
         {
-            'pre-install-commands': ["python -c \"with open('test.txt', 'w') as f: f.write('content')\""],
+            'pre-install-commands': [
+                "python -c \"with open('test.txt', 'w', encoding='utf-8') as f: f.write('content')\""
+            ],
             **project.config.envs['default'],
         },
     )
@@ -1217,7 +1219,9 @@ def test_post_install_commands(hatch, helpers, temp_dir, config_file):
         project,
         'default',
         {
-            'post-install-commands': ["python -c \"with open('test.txt', 'w') as f: f.write('content')\""],
+            'post-install-commands': [
+                "python -c \"with open('test.txt', 'w', encoding='utf-8') as f: f.write('content')\""
+            ],
             **project.config.envs['default'],
         },
     )
@@ -1295,7 +1299,9 @@ def test_sync_dependencies_uv(hatch, helpers, temp_dir, platform, uv_on_path, ex
         'default',
         {
             'dependencies': ['binary'],
-            'post-install-commands': ["python -c \"with open('test.txt', 'w') as f: f.write('content')\""],
+            'post-install-commands': [
+                "python -c \"with open('test.txt', 'w', encoding='utf-8') as f: f.write('content')\""
+            ],
             **project.config.envs['default'],
         },
     )
@@ -1365,7 +1371,9 @@ def test_sync_dependencies_pip(hatch, helpers, temp_dir, platform, extract_insta
         'default',
         {
             'dependencies': ['binary'],
-            'post-install-commands': ["python -c \"with open('test.txt', 'w') as f: f.write('content')\""],
+            'post-install-commands': [
+                "python -c \"with open('test.txt', 'w', encoding='utf-8') as f: f.write('content')\""
+            ],
             **project.config.envs['default'],
         },
     )
@@ -1509,7 +1517,9 @@ def test_sync_dynamic_dependencies(hatch, helpers, temp_dir, platform, uv_on_pat
         {
             'dependencies': ['my-app1 @ {root:uri}/../my-app1'],
             'features': ['foo'],
-            'post-install-commands': ["python -c \"with open('test.txt', 'w') as f: f.write('content')\""],
+            'post-install-commands': [
+                "python -c \"with open('test.txt', 'w', encoding='utf-8') as f: f.write('content')\""
+            ],
             **project.config.envs['default'],
         },
     )
@@ -1526,7 +1536,8 @@ def test_sync_dynamic_dependencies(hatch, helpers, temp_dir, platform, uv_on_pat
                     metadata['dependencies'] = ['my-app0 @ {root:uri}/../my-app0']
                     metadata['optional-dependencies'] = {'foo': ['binary']}
             """
-        )
+        ),
+        encoding='utf-8',
     )
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
@@ -1611,7 +1622,9 @@ def test_unknown_dynamic_feature(hatch, helpers, temp_dir, config_file):
         'default',
         {
             'features': ['foo'],
-            'post-install-commands': ["python -c \"with open('test.txt', 'w') as f: f.write('content')\""],
+            'post-install-commands': [
+                "python -c \"with open('test.txt', 'w', encoding='utf-8') as f: f.write('content')\""
+            ],
             **project.config.envs['default'],
         },
     )
@@ -1627,7 +1640,8 @@ def test_unknown_dynamic_feature(hatch, helpers, temp_dir, config_file):
                 def update(self, metadata):
                     metadata['optional-dependencies'] = {'bar': ['binary']}
             """
-        )
+        ),
+        encoding='utf-8',
     )
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}), pytest.raises(
@@ -1710,7 +1724,8 @@ def test_plugin_dependencies_unmet(hatch, config_file, helpers, temp_dir, mock_p
             [env]
             requires = ["{dependency}"]
             """
-        )
+        ),
+        encoding='utf-8',
     )
 
     project = Project(project_path)
@@ -1772,7 +1787,8 @@ def test_plugin_dependencies_met(hatch, config_file, helpers, temp_dir):
             [env]
             requires = ["{dependency}"]
             """
-        )
+        ),
+        encoding='utf-8',
     )
 
     project = Project(project_path)
@@ -1832,7 +1848,8 @@ def test_plugin_dependencies_met_as_app(hatch, config_file, helpers, temp_dir):
             [env]
             requires = ["{dependency}"]
             """
-        )
+        ),
+        encoding='utf-8',
     )
 
     project = Project(project_path)
