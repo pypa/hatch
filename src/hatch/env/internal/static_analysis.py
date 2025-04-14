@@ -12,7 +12,7 @@ def get_default_config() -> dict[str, Any]:
             'format-check': 'ruff format{env:HATCH_FMT_ARGS:} --check --diff {args:.}',
             'format-fix': 'ruff format{env:HATCH_FMT_ARGS:} {args:.}',
             'lint-check': 'ruff check{env:HATCH_FMT_ARGS:} {args:.}',
-            'lint-fix': 'ruff check{env:HATCH_FMT_ARGS:} --fix {args:.}',
+            'lint-fix': 'ruff check{env:HATCH_FMT_ARGS:} --fix --show-fixes {args:.}',
         },
     }
 
