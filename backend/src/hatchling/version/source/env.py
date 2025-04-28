@@ -21,7 +21,7 @@ class EnvSource(VersionSourceInterface):
         if variable not in os.environ:
             default = self.config.get('default')
             if default is None:
-                message = f'environment variable `{variable}` is not set'
+                message = f'environment variable `{variable}` is not set and the `default` option was not set'
                 raise RuntimeError(message)
             if not isinstance(default, str):
                 message = 'option `default` must be a string'
