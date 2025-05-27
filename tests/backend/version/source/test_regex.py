@@ -117,3 +117,28 @@ def test_set_default_pattern(temp_dir, helpers, variable, quote, prefix):
     with temp_dir.as_cwd():
         source.set_version('foo', source.get_version_data())
         assert source.get_version_data()['version'] == 'foo'
+
+
+@pytest.mark.parametrize(
+    ('file_contents', 'default', 'expected_version'),
+    [
+        ('1.2.3', '0.0.0', '1.2.3'),
+        ('1.2.3', '0.0.1', '1.2.3'),
+        (None, '0.dev', '0.dev'),
+        (None, '9.9.9', '9.9.9'),
+    ],
+)
+def test_with_default_value(temp_dir, file_contents, default, expected_version):
+    source = RegexSource(
+        str(temp_dir),
+        {'path': 'x/y', 'pattern': '^(?P<version>.+)$', 'default': default},
+    )
+
+    file_path = temp_dir / 'x' / 'y'
+    file_path.ensure_parent_dir_exists()
+
+    if file_contents is not None:
+        file_path.write_text(file_contents)
+
+    with temp_dir.as_cwd():
+        assert source.get_version_data()['version'] == expected_version
