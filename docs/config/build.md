@@ -180,6 +180,22 @@ skip-excluded-dirs = true
 !!! warning
     This may result in not shipping desired files. For example, if you want to include the file `a/b/c.txt` but your [VCS ignores](#vcs) `a/b`, the file `c.txt` will not be seen because its parent directory will not be entered. In such cases you can use the [`force-include`](#forced-inclusion) option.
 
+#### Compression level
+
+You can change the level used for compressing the sdist tarballs and wheels. In some circumstances, lowering it from the default of 9 can massively reduce build times without affecting the output size too much.
+
+Note that for widely distributed packages it probably makes the most sense to use the default, highest compression level to conserve the amount of bytes transferred over the network.
+
+```toml config-example
+[tool.hatch.build.targets.sdist]
+compress-level = 1
+
+[tool.hatch.build.targets.wheel]
+compress-level = 1
+```
+
+Accepted values are 0 (no compression) to 9 (highest compression).
+
 ## Reproducible builds
 
 By default, [build targets](#build-targets) will build in a reproducible manner provided that they support that behavior. To disable this, set `reproducible` to `false`:

@@ -28,7 +28,7 @@ if TYPE_CHECKING:
 
 
 class SdistArchive:
-    def __init__(self, name: str, *, reproducible: bool) -> None:
+    def __init__(self, name: str, *, reproducible: bool, compress_level: int) -> None:
         """
         https://peps.python.org/pep-0517/#source-distributions
         """
@@ -38,7 +38,8 @@ class SdistArchive:
 
         raw_fd, self.path = tempfile.mkstemp(suffix='.tar.gz')
         self.fd = os.fdopen(raw_fd, 'w+b')
-        self.gz = gzip.GzipFile(fileobj=self.fd, mode='wb', mtime=self.timestamp)
+
+        self.gz = gzip.GzipFile(fileobj=self.fd, mode='wb', mtime=self.timestamp, compresslevel=compress_level)
         self.tf = tarfile.TarFile(fileobj=self.gz, mode='w', format=tarfile.PAX_FORMAT)
         self.gettarinfo = lambda *args, **kwargs: self.normalize_tar_metadata(self.tf.gettarinfo(*args, **kwargs))
 
@@ -90,9 +91,31 @@ class SdistBuilderConfig(BuilderConfig):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
+        self.__compress_level: int | None = None
         self.__core_metadata_constructor: Callable[..., str] | None = None
         self.__strict_naming: bool | None = None
         self.__support_legacy: bool | None = None
+
+    @property
+    def compress_level(self) -> int:
+        if self.__compress_level is None:
+            try:
+                compress_level = int(self.target_config.get('compress-level', 9))
+            except ValueError as e:
+                message = f'Field `tool.hatch.build.{self.plugin_name}.compress-level` must be an integer'
+                raise TypeError(message) from e
+
+            if not (0 <= compress_level <= 9):  # noqa: PLR2004
+                message = (
+                    'Value field '
+                    f'`tool.hatch.build.targets.{self.plugin_name}.compress-level` '
+                    'must be an integer from 0 to 9'
+                )
+                raise ValueError(message)
+
+            self.__compress_level = compress_level
+
+        return self.__compress_level
 
     @property
     def core_metadata_constructor(self) -> Callable[..., str]:
@@ -166,7 +189,9 @@ class SdistBuilder(BuilderInterface):
     def build_standard(self, directory: str, **build_data: Any) -> str:
         found_packages = set()
 
-        with SdistArchive(self.artifact_project_id, reproducible=self.config.reproducible) as archive:
+        with SdistArchive(
+            self.artifact_project_id, reproducible=self.config.reproducible, compress_level=self.config.compress_level
+        ) as archive:
             for included_file in self.recurse_included_files():
                 if self.config.support_legacy:
                     possible_package, file_name = os.path.split(included_file.relative_path)
