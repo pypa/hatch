@@ -111,6 +111,14 @@ pip install hatch
 pipx install hatch
 ```
 
+## uvx
+
+Similar to [pipx](#pipx), [uvx](https://docs.astral.sh/uv/concepts/tools/) allows for the global installation of Python applications in isolated environments managed by [uv](https://docs.astral.sh/uv/).
+
+```
+uv tool install hatch@latest
+```
+
 ## Homebrew
 
 See the [formula](https://formulae.brew.sh/formula/hatch) for more details.
