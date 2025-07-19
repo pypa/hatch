@@ -3,6 +3,8 @@ from __future__ import annotations
 import os
 from typing import Any
 
+from hatchling.builders.variant_constants import VARIANT_DIST_INFO_FILENAME
+
 __all__ = [
     'build_editable',
     'build_sdist',
@@ -115,6 +117,9 @@ if 'PIP_BUILD_TRACKER' not in os.environ:
 
         with open(os.path.join(directory, 'METADATA'), 'w', encoding='utf-8') as f:
             f.write(builder.config.core_metadata_constructor(builder.metadata))
+
+        with open(os.path.join(directory, VARIANT_DIST_INFO_FILENAME), 'w', encoding='utf-8') as f:
+            f.write(builder.config.variants_json_constructor(builder.metadata))
 
         return os.path.basename(directory)
 

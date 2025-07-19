@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import hashlib
 import os
 import sys
 from contextlib import suppress
 from copy import deepcopy
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Generic, cast
 
 from hatchling.metadata.utils import (
@@ -31,9 +33,120 @@ else:
     import tomli as tomllib
 
 
+VARIANT_HASH_LEN = 8
+
+
 def load_toml(path: str) -> dict[str, Any]:
     with open(path, encoding='utf-8') as f:
         return tomllib.loads(f.read())
+
+
+@dataclass
+class VariantProviderConfig:
+    requires: list[str]
+    plugin_api: str | None = None
+    enable_if: str | None = None
+    optional: bool = False
+
+    @classmethod
+    def from_dict(cls, data: dict):
+        """Creates an instance of VariantProviderConfig from a dictionary."""
+        # Convert hyphenated keys to underscored keys
+        data = {key.replace("-", "_"): value for key, value in data.items()}
+
+        # Create an instance of VariantProviderConfig
+        return cls(**data)
+
+    def validate(self):
+        """Validates the VariantProviderConfig instance."""
+        if not self.requires:
+            raise ValueError("Requires list cannot be empty")
+
+
+@dataclass
+class VariantConfig:
+    vhash: str
+    properties: list[str]
+    default_priorities: dict[str, list[str]]
+    providers: dict[str, VariantProviderConfig]
+
+    @classmethod
+    def from_dict(cls, data: dict, vprops: list[str] | None,
+                  variant_label: str | None):
+        """Creates an instance of VariantConfig from a dictionary."""
+        data = data.copy()
+
+        if vprops is None:
+            data["vhash"] = None
+            data["properties"] = None
+
+
+        elif len(vprops) == 0:
+            data["vhash"] = "0" * VARIANT_HASH_LEN
+            data["properties"] = []
+
+        else:
+            # Normalizing
+            _vprops = [
+                [el.strip() for el in vprop.split("::")]
+                for vprop in vprops
+            ]
+            for vprop in _vprops:
+                assert len(vprop) == 3, f"Invalid variant property: {vprop}"
+
+            data["properties"] = [" :: ".join(vprop) for vprop in sorted(_vprops)]
+
+            hash_object = hashlib.sha256()
+            for vprop in data["properties"]:
+                hash_object.update(f"{vprop}\n".encode())
+            data["vhash"] = hash_object.hexdigest()[:VARIANT_HASH_LEN]
+
+        if variant_label is not None:
+            data["vhash"] = variant_label
+
+        # Convert hyphenated keys to underscored keys
+        data = {key.replace("-", "_"): value for key, value in data.items()}
+
+        # Convert providers to VariantProviderConfig instances
+        data["providers"] = {
+            provider: VariantProviderConfig.from_dict(provider_data)
+            for provider, provider_data in data["providers"].items()
+        }
+
+        # Create an instance of VariantConfig
+        return cls(**data)
+
+    def validate(self):
+        """Validates the VariantConfig instance."""
+        for namespace in self.default_priorities["namespace"]:
+            if namespace not in self.providers:
+                raise ValueError(
+                    f"Namespace '{namespace}' is not defined in the variant providers"
+                )
+
+        for provider_cfg in self.providers.values():
+            provider_cfg.validate()
+
+    def to_variant_cfg_dict(self) -> dict[str, Any]:
+        """Converts the VariantConfig instance to a metadata dictionary."""
+        return {
+            "variant_hash": self.vhash,
+            "variant_properties": self.properties,
+            "variant_plugins": {
+                namespace: {
+                    "requires": provider_cfg.requires,
+                    "plugin_api": provider_cfg.plugin_api,
+                    "enable_if": provider_cfg.enable_if,
+                    "optional": provider_cfg.optional,
+                }
+                for namespace, provider_cfg in self.providers.items()
+            },
+            "variant_default_priorities": {
+                "namespace": self.default_priorities.get("namespace", []),
+                "feature": self.default_priorities.get("feature", {}),
+                "property": self.default_priorities.get("property", {})
+            }
+        }
 
 
 class ProjectMetadata(Generic[PluginManagerBound]):
@@ -57,6 +170,8 @@ class ProjectMetadata(Generic[PluginManagerBound]):
         self._name: str | None = None
         self._version: str | None = None
         self._project_file: str | None = None
+
+        self.variant_hash: str | None = None
 
         # App already loaded config
         if config is not None and root is not None:

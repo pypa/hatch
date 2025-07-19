@@ -15,7 +15,15 @@ def build_impl(
     clean_hooks_after: bool,
     clean_only: bool,
     show_dynamic_deps: bool,
+    variant_props: list[str],
+    variant_null: bool,
+    variant_label: str | None,
 ) -> None:
+    print(f"{__file__}::build_impl")
+    print(f'{variant_props=}')
+    print(f'{variant_null=}')
+    print(f'{variant_label=}')
+
     import os
 
     from hatchling.bridge.app import Application
@@ -72,7 +80,9 @@ def build_impl(
         if not (clean_only or show_dynamic_deps) and len(target_data) > 1:
             app.display_mini_header(target_name)
 
+        print(f"{metadata=}")
         builder = builder_class(root, plugin_manager=plugin_manager, metadata=metadata, app=app.get_safe_application())
+
         if show_dynamic_deps:
             for dependency in builder.config.dynamic_dependencies:
                 dynamic_dependencies[dependency] = None
@@ -116,4 +126,28 @@ def build_command(subparsers: argparse._SubParsersAction, defaults: Any) -> None
     parser.add_argument('--clean-only', dest='clean_only', action='store_true')
     parser.add_argument('--show-dynamic-deps', dest='show_dynamic_deps', action='store_true')
     parser.add_argument('--app', dest='called_by_app', action='store_true', help=argparse.SUPPRESS)
+
+    group = parser.add_mutually_exclusive_group(required=False)
+    group.add_argument(
+        '-p',
+        '--variant-property',
+        dest='variant_props',
+        type=str,
+        action='extend',
+        nargs='+',
+        help=('Variant Properties to add to the Wheel Variant, can be repeated as many times as needed'),
+        default=None,
+    )
+    group.add_argument(
+        '--null-variant',
+        dest='variant_null',
+        action='store_true',
+        help='Make the variant a `null variant` - no variant property.',
+    )
+    parser.add_argument(
+        '--variant-label',
+        dest='variant_label',
+        help='Use a custom variant label (the default is variant hash)',
+    )
+
     parser.set_defaults(func=build_impl)
