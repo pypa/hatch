@@ -15,15 +15,10 @@ def build_impl(
     clean_hooks_after: bool,
     clean_only: bool,
     show_dynamic_deps: bool,
-    variant_props: list[str],
-    variant_null: bool,
+    variant_props: list[str] | None = None,
+    variant_null: bool = False,
     variant_label: str | None,
 ) -> None:
-    print(f"{__file__}::build_impl")
-    print(f'{variant_props=}')
-    print(f'{variant_null=}')
-    print(f'{variant_label=}')
-
     import os
 
     from hatchling.bridge.app import Application
@@ -80,8 +75,20 @@ def build_impl(
         if not (clean_only or show_dynamic_deps) and len(target_data) > 1:
             app.display_mini_header(target_name)
 
-        print(f"{metadata=}")
-        builder = builder_class(root, plugin_manager=plugin_manager, metadata=metadata, app=app.get_safe_application())
+        variant_build_kwargs = {}
+        if f'{builder_class.__module__}.{builder_class.__name__}' == 'hatchling.builders.wheel.WheelBuilder':
+            variant_build_kwargs = {
+                "variant_props": variant_props if not variant_null else [],
+                "variant_label": variant_label,
+            }
+
+        builder = builder_class(
+            root,
+            plugin_manager=plugin_manager,
+            metadata=metadata,
+            app=app.get_safe_application(),
+            **variant_build_kwargs,
+        )
 
         if show_dynamic_deps:
             for dependency in builder.config.dynamic_dependencies:

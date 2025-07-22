@@ -14,7 +14,9 @@ from io import StringIO
 from typing import TYPE_CHECKING, Any, Callable, Iterable, NamedTuple, Sequence, Tuple, cast
 
 if TYPE_CHECKING:
+    from hatchling.bridge.app import Application
     from hatchling.metadata.core import ProjectMetadata
+    from hatchling.plugin.manager import PluginManagerBound
 
 from hatchling.__about__ import __version__
 from hatchling.builders.config import BuilderConfig
@@ -47,6 +49,7 @@ from hatchling.builders.variant_constants import (
     VARIANTS_JSON_SCHEMA_URL,
     VARIANTS_JSON_VARIANT_DATA_KEY,
 )
+from hatchling.metadata.core import VariantConfig
 from hatchling.metadata.spec import DEFAULT_METADATA_VERSION, get_core_metadata_constructors
 
 if TYPE_CHECKING:
@@ -307,75 +310,73 @@ class WheelBuilderConfig(BuilderConfig):
     @property
     def variants_json_constructor(self) -> Callable[..., str]:
         if self.__variants_json_constructor is None:
-            def constructor(metadata: ProjectMetadata) -> str:
-                if metadata.variant_hash is not None:
-                    data = {
-                        VARIANTS_JSON_SCHEMA_KEY: VARIANTS_JSON_SCHEMA_URL,
-                        VARIANT_INFO_DEFAULT_PRIO_KEY: {},
-                        VARIANT_INFO_PROVIDER_DATA_KEY: {},
-                        VARIANTS_JSON_VARIANT_DATA_KEY: {}
-                    }
+            def constructor(variant_config: VariantConfig) -> str:
+                data = {
+                    VARIANTS_JSON_SCHEMA_KEY: VARIANTS_JSON_SCHEMA_URL,
+                    VARIANT_INFO_DEFAULT_PRIO_KEY: {},
+                    VARIANT_INFO_PROVIDER_DATA_KEY: {},
+                    VARIANTS_JSON_VARIANT_DATA_KEY: {}
+                }
 
-                    # ==================== VARIANT_INFO_DEFAULT_PRIO_KEY ==================== #
+                # ==================== VARIANT_INFO_DEFAULT_PRIO_KEY ==================== #
 
-                    if (ns_prio := metadata.variant_default_priorities["namespace"]):
-                        data[VARIANT_INFO_DEFAULT_PRIO_KEY][VARIANT_INFO_NAMESPACE_KEY] = ns_prio
+                if (ns_prio := variant_config.default_priorities["namespace"]):
+                    data[VARIANT_INFO_DEFAULT_PRIO_KEY][VARIANT_INFO_NAMESPACE_KEY] = ns_prio
 
-                    if (feat_prio := metadata.variant_default_priorities["feature"]):
-                        data[VARIANT_INFO_DEFAULT_PRIO_KEY][VARIANT_INFO_FEATURE_KEY] = feat_prio
+                if (feat_prio := variant_config.default_priorities["feature"]):
+                    data[VARIANT_INFO_DEFAULT_PRIO_KEY][VARIANT_INFO_FEATURE_KEY] = feat_prio
 
-                    if (prop_prio := metadata.variant_default_priorities["property"]):
-                        data[VARIANT_INFO_DEFAULT_PRIO_KEY][VARIANT_INFO_PROPERTY_KEY] = prop_prio
+                if (prop_prio := variant_config.default_priorities["property"]):
+                    data[VARIANT_INFO_DEFAULT_PRIO_KEY][VARIANT_INFO_PROPERTY_KEY] = prop_prio
 
-                    if not data[VARIANT_INFO_DEFAULT_PRIO_KEY]:
-                        # If no default priorities are set, remove the key
-                        del data[VARIANT_INFO_DEFAULT_PRIO_KEY]
+                if not data[VARIANT_INFO_DEFAULT_PRIO_KEY]:
+                    # If no default priorities are set, remove the key
+                    del data[VARIANT_INFO_DEFAULT_PRIO_KEY]
 
-                    # ==================== VARIANT_INFO_PROVIDER_DATA_KEY ==================== #
+                # ==================== VARIANT_INFO_PROVIDER_DATA_KEY ==================== #
 
-                    variant_providers = defaultdict(dict)
-                    for ns, plugin_conf in metadata.variant_plugins.items():
-                        variant_providers[ns][VARIANT_INFO_PROVIDER_REQUIRES_KEY] = plugin_conf.get("requires", [])
+                variant_providers = defaultdict(dict)
+                for ns, provider_cfg in variant_config.providers.items():
+                    variant_providers[ns][VARIANT_INFO_PROVIDER_REQUIRES_KEY] = provider_cfg.requires
 
-                        if (enable_if := plugin_conf.get("enable_if", None)) is not None:
-                            variant_providers[ns][VARIANT_INFO_PROVIDER_ENABLE_IF_KEY] = enable_if
+                    if provider_cfg.enable_if is not None:
+                        variant_providers[ns][VARIANT_INFO_PROVIDER_ENABLE_IF_KEY] = provider_cfg.enable_if
 
-                        if plugin_conf.get("optional", False):
-                            variant_providers[ns][VARIANT_INFO_PROVIDER_OPTIONAL_KEY] = True
+                    if provider_cfg.optional:
+                        variant_providers[ns][VARIANT_INFO_PROVIDER_OPTIONAL_KEY] = True
 
-                        if (plugin_api := plugin_conf.get("plugin_api", None)) is not None:
-                            variant_providers[ns][VARIANT_INFO_PROVIDER_PLUGIN_API_KEY] = plugin_api
+                    if provider_cfg.plugin_api is not None:
+                        variant_providers[ns][VARIANT_INFO_PROVIDER_PLUGIN_API_KEY] = provider_cfg.plugin_api
 
-                    data[VARIANT_INFO_PROVIDER_DATA_KEY] = variant_providers
+                data[VARIANT_INFO_PROVIDER_DATA_KEY] = variant_providers
 
-                    # ==================== VARIANTS_JSON_VARIANT_DATA_KEY ==================== #
+                # ==================== VARIANTS_JSON_VARIANT_DATA_KEY ==================== #
 
-                    variant_data = defaultdict(lambda: defaultdict(set))
-                    for vprop_str in metadata.variant_properties:
-                        match = VALIDATION_PROPERTY_REGEX.match(vprop_str)
-                        if not match:
-                            raise ValueError(
-                                f"Invalid variant property '{vprop_str}' in variant {metadata.variant_hash}"
-                            )
-                        namespace = match.group('namespace')
-                        feature = match.group('feature')
-                        value = match.group('value')
-                        variant_data[namespace][feature].add(value)
-                    data[VARIANTS_JSON_VARIANT_DATA_KEY][metadata.variant_hash] = variant_data
+                variant_data = defaultdict(lambda: defaultdict(set))
+                for vprop_str in (variant_config.properties or []):
+                    match = VALIDATION_PROPERTY_REGEX.match(vprop_str)
+                    if not match:
+                        raise ValueError(
+                            f"Invalid variant property '{vprop_str}' in variant {variant_config.variant_hash}"
+                        )
+                    namespace = match.group('namespace')
+                    feature = match.group('feature')
+                    value = match.group('value')
+                    variant_data[namespace][feature].add(value)
+                data[VARIANTS_JSON_VARIANT_DATA_KEY][variant_config.vhash] = variant_data
 
-                    def preprocess(data):
-                        """Preprocess the data to ensure it is JSON serializable."""
-                        if isinstance(data, (defaultdict, dict)):
-                            return {k: preprocess(v) for k, v in data.items()}
-                        if isinstance(data, set):
-                            return list(data)
-                        return data
+                def preprocess(data):
+                    """Preprocess the data to ensure it is JSON serializable."""
+                    if isinstance(data, (defaultdict, dict)):
+                        return {k: preprocess(v) for k, v in data.items()}
+                    if isinstance(data, set):
+                        return list(data)
+                    return data
 
-                    return json.dumps(
-                        preprocess(data), indent=4, sort_keys=True, ensure_ascii=False
-                    )
-                return ''
-            self.__variants_json_constructor = constructor
+                return json.dumps(
+                    preprocess(data), indent=4, sort_keys=True, ensure_ascii=False
+                )
+        self.__variants_json_constructor = constructor
         return self.__variants_json_constructor
 
     @property
@@ -545,6 +546,32 @@ class WheelBuilder(BuilderInterface):
 
     PLUGIN_NAME = 'wheel'
 
+    def __init__(
+        self,
+        root: str,
+        plugin_manager: PluginManagerBound | None = None,
+        config: dict[str, Any] | None = None,
+        metadata: ProjectMetadata | None = None,
+        app: Application | None = None,
+        variant_props: list[str] | None = None,
+        variant_label: str | None = None,
+    ):
+        metadata.variant_config = VariantConfig.from_dict(
+            data=metadata.variant_config_data,
+            vprops=variant_props,
+            variant_label=variant_label,
+        )
+        metadata.variant_config.validate()
+        metadata.variant_hash = metadata.variant_config.vhash
+
+        super().__init__(
+            root=root,
+            plugin_manager=plugin_manager,
+            config=config,
+            metadata=metadata,
+            app=app,
+        )
+
     def get_version_api(self) -> dict[str, Callable]:
         return {'standard': self.build_standard, 'editable': self.build_editable}
 
@@ -579,7 +606,11 @@ class WheelBuilder(BuilderInterface):
             records.write((f'{archive.metadata_directory}/RECORD', '', ''))
             archive.write_metadata('RECORD', records.construct())
 
-        target = os.path.join(directory, f"{self.artifact_project_id}-{build_data['tag']}.whl")
+        if self.metadata.variant_hash is not None:
+            wheel_name = f"{self.artifact_project_id}-{build_data['tag']}-{self.metadata.variant_hash}.whl"
+        else:
+            wheel_name = f"{self.artifact_project_id}-{build_data['tag']}.whl"
+        target = os.path.join(directory, wheel_name)
 
         replace_file(archive.path, target)
         normalize_artifact_permissions(target)
@@ -806,11 +837,12 @@ Root-Is-Purelib: {'true' if build_data['pure_python'] else 'false'}
             'METADATA', self.config.core_metadata_constructor(self.metadata, extra_dependencies=extra_dependencies)
         )
         records.write(record)
-        record = archive.write_metadata(
-            VARIANT_DIST_INFO_FILENAME,
-            self.config.variants_json_constructor(self.metadata),
-        )
-        records.write(record)
+        if self.metadata.variant_hash is not None:
+            record = archive.write_metadata(
+                VARIANT_DIST_INFO_FILENAME,
+                self.config.variants_json_constructor(self.metadata.variant_config),
+            )
+            records.write(record)
 
     def add_licenses(self, archive: WheelArchive, records: RecordFile) -> None:
         for relative_path in self.metadata.core.license_files:

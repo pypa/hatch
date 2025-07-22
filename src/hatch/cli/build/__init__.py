@@ -127,7 +127,7 @@ def build(
                     else str(artifact_path)
                 )
             else:
-                command = ['/workspace/.venv/bin/python', '-u', '-m', 'hatchling', 'build', '--target', target]
+                command = ['python', '-u', '-m', 'hatchling', 'build', '--target', target]
                 # Pass variant flags to Hatchling
                 for prop in variant_props:
                     command.extend(['-p', prop])

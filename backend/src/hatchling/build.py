@@ -118,8 +118,9 @@ if 'PIP_BUILD_TRACKER' not in os.environ:
         with open(os.path.join(directory, 'METADATA'), 'w', encoding='utf-8') as f:
             f.write(builder.config.core_metadata_constructor(builder.metadata))
 
-        with open(os.path.join(directory, VARIANT_DIST_INFO_FILENAME), 'w', encoding='utf-8') as f:
-            f.write(builder.config.variants_json_constructor(builder.metadata))
+        if builder.metadata.variant_hash is not None:
+            with open(os.path.join(directory, VARIANT_DIST_INFO_FILENAME), 'w', encoding='utf-8') as f:
+                f.write(builder.config.variants_json_constructor(builder.metadata.variant_config))
 
         return os.path.basename(directory)
 

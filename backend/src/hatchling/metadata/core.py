@@ -127,27 +127,6 @@ class VariantConfig:
         for provider_cfg in self.providers.values():
             provider_cfg.validate()
 
-    def to_variant_cfg_dict(self) -> dict[str, Any]:
-        """Converts the VariantConfig instance to a metadata dictionary."""
-        return {
-            "variant_hash": self.vhash,
-            "variant_properties": self.properties,
-            "variant_plugins": {
-                namespace: {
-                    "requires": provider_cfg.requires,
-                    "plugin_api": provider_cfg.plugin_api,
-                    "enable_if": provider_cfg.enable_if,
-                    "optional": provider_cfg.optional,
-                }
-                for namespace, provider_cfg in self.providers.items()
-            },
-            "variant_default_priorities": {
-                "namespace": self.default_priorities.get("namespace", []),
-                "feature": self.default_priorities.get("feature", {}),
-                "property": self.default_priorities.get("property", {})
-            }
-        }
-
 
 class ProjectMetadata(Generic[PluginManagerBound]):
     def __init__(
@@ -172,6 +151,8 @@ class ProjectMetadata(Generic[PluginManagerBound]):
         self._project_file: str | None = None
 
         self.variant_hash: str | None = None
+        self.variant_config: VariantConfig | None = None
+        self._variant_config_data: dict[str, Any] | None = None
 
         # App already loaded config
         if config is not None and root is not None:
@@ -240,6 +221,13 @@ class ProjectMetadata(Generic[PluginManagerBound]):
             self._dynamic = list(dynamic)
 
         return self._dynamic
+
+    @property
+    def variant_config_data(self) -> dict[str, Any]:
+        """Variant configuration data fetched from pyproject.toml"""
+        if self._variant_config_data is None:
+            self._variant_config_data = self.config.get('variant', {})
+        return self._variant_config_data
 
     @property
     def name(self) -> str:
