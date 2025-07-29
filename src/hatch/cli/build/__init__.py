@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import sys
 import click
 
 if TYPE_CHECKING:
@@ -127,7 +128,7 @@ def build(
                     else str(artifact_path)
                 )
             else:
-                command = ['python', '-u', '-m', 'hatchling', 'build', '--target', target]
+                command = [sys.executable, '-u', '-m', 'hatchling', 'build', '--target', target]
                 # Pass variant flags to Hatchling
                 for prop in variant_props:
                     command.extend(['-p', prop])
