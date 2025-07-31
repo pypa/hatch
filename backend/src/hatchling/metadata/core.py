@@ -102,6 +102,9 @@ class VariantConfig:
             data["vhash"] = hash_object.hexdigest()[:VARIANT_HASH_LEN]
 
         if variant_label is not None:
+            if data["properties"] is None or len(data["properties"]) == 0:
+                raise ValueError("Variant Properties cannot be empty when a variant label is provided")
+            
             data["vhash"] = variant_label
 
         # Convert hyphenated keys to underscored keys
