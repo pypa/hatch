@@ -14,7 +14,6 @@ from zipfile import ZIP_DEFLATED, ZipFile, ZipInfo
 LAUNCHERS_URL = 'https://raw.githubusercontent.com/astral-sh/uv/main/crates/uv-trampoline/trampolines'
 SCRIPT_TEMPLATE = """\
 #!{executable}
-# -*- coding: utf-8 -*-
 import re
 import sys
 from {module} import {import_name}

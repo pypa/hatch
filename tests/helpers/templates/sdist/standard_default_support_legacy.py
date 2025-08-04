@@ -22,7 +22,6 @@ License-File: LICENSE.txt
         File(
             Path(relative_root, 'setup.py'),
             f"""\
-# -*- coding: utf-8 -*-
 from setuptools import setup
 
 setup(

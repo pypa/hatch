@@ -109,7 +109,6 @@ class TestConstructSetupPyFile:
 
         assert builder.construct_setup_py_file([]) == helpers.dedent(
             """
-            # -*- coding: utf-8 -*-
             from setuptools import setup
 
             setup(
@@ -125,7 +124,6 @@ class TestConstructSetupPyFile:
 
         assert builder.construct_setup_py_file(['my_app', os.path.join('my_app', 'pkg')]) == helpers.dedent(
             """
-            # -*- coding: utf-8 -*-
             from setuptools import setup
 
             setup(
@@ -145,7 +143,6 @@ class TestConstructSetupPyFile:
 
         assert builder.construct_setup_py_file(['my_app', os.path.join('my_app', 'pkg')]) == helpers.dedent(
             """
-            # -*- coding: utf-8 -*-
             from setuptools import setup
 
             setup(
@@ -172,7 +169,6 @@ class TestConstructSetupPyFile:
 
         assert builder.construct_setup_py_file(['my_app', os.path.join('my_app', 'pkg')]) == helpers.dedent(
             """
-            # -*- coding: utf-8 -*-
             from setuptools import setup
 
             setup(
@@ -193,7 +189,6 @@ class TestConstructSetupPyFile:
 
         assert builder.construct_setup_py_file(['my_app', os.path.join('my_app', 'pkg')]) == helpers.dedent(
             """
-            # -*- coding: utf-8 -*-
             from setuptools import setup
 
             setup(
@@ -214,7 +209,6 @@ class TestConstructSetupPyFile:
 
         assert builder.construct_setup_py_file(['my_app', os.path.join('my_app', 'pkg')]) == helpers.dedent(
             """
-            # -*- coding: utf-8 -*-
             from setuptools import setup
 
             setup(
@@ -237,7 +231,6 @@ class TestConstructSetupPyFile:
 
         assert builder.construct_setup_py_file(['my_app', os.path.join('my_app', 'pkg')]) == helpers.dedent(
             """
-            # -*- coding: utf-8 -*-
             from setuptools import setup
 
             setup(
@@ -258,7 +251,6 @@ class TestConstructSetupPyFile:
 
         assert builder.construct_setup_py_file(['my_app', os.path.join('my_app', 'pkg')]) == helpers.dedent(
             """
-            # -*- coding: utf-8 -*-
             from setuptools import setup
 
             setup(
@@ -279,7 +271,6 @@ class TestConstructSetupPyFile:
 
         assert builder.construct_setup_py_file(['my_app', os.path.join('my_app', 'pkg')]) == helpers.dedent(
             """
-            # -*- coding: utf-8 -*-
             from setuptools import setup
 
             setup(
@@ -300,7 +291,6 @@ class TestConstructSetupPyFile:
 
         assert builder.construct_setup_py_file(['my_app', os.path.join('my_app', 'pkg')]) == helpers.dedent(
             """
-            # -*- coding: utf-8 -*-
             from setuptools import setup
 
             setup(
@@ -323,7 +313,6 @@ class TestConstructSetupPyFile:
 
         assert builder.construct_setup_py_file(['my_app', os.path.join('my_app', 'pkg')]) == helpers.dedent(
             """
-            # -*- coding: utf-8 -*-
             from setuptools import setup
 
             setup(
@@ -344,7 +333,6 @@ class TestConstructSetupPyFile:
 
         assert builder.construct_setup_py_file(['my_app', os.path.join('my_app', 'pkg')]) == helpers.dedent(
             """
-            # -*- coding: utf-8 -*-
             from setuptools import setup
 
             setup(
@@ -369,7 +357,6 @@ class TestConstructSetupPyFile:
 
         assert builder.construct_setup_py_file(['my_app', os.path.join('my_app', 'pkg')]) == helpers.dedent(
             """
-            # -*- coding: utf-8 -*-
             from setuptools import setup
 
             setup(
@@ -393,7 +380,6 @@ class TestConstructSetupPyFile:
 
         assert builder.construct_setup_py_file(['my_app', os.path.join('my_app', 'pkg')]) == helpers.dedent(
             """
-            # -*- coding: utf-8 -*-
             from setuptools import setup
 
             setup(
@@ -417,7 +403,6 @@ class TestConstructSetupPyFile:
 
         assert builder.construct_setup_py_file(['my_app', os.path.join('my_app', 'pkg')], ['baz==3']) == helpers.dedent(
             """
-            # -*- coding: utf-8 -*-
             from setuptools import setup
 
             setup(
@@ -451,7 +436,6 @@ class TestConstructSetupPyFile:
 
         assert builder.construct_setup_py_file(['my_app', os.path.join('my_app', 'pkg')]) == helpers.dedent(
             """
-            # -*- coding: utf-8 -*-
             from setuptools import setup
 
             setup(
@@ -481,7 +465,6 @@ class TestConstructSetupPyFile:
 
         assert builder.construct_setup_py_file(['my_app', os.path.join('my_app', 'pkg')]) == helpers.dedent(
             """
-            # -*- coding: utf-8 -*-
             from setuptools import setup
 
             setup(
@@ -509,7 +492,6 @@ class TestConstructSetupPyFile:
 
         assert builder.construct_setup_py_file(['my_app', os.path.join('my_app', 'pkg')]) == helpers.dedent(
             """
-            # -*- coding: utf-8 -*-
             from setuptools import setup
 
             setup(
@@ -544,7 +526,6 @@ class TestConstructSetupPyFile:
 
         assert builder.construct_setup_py_file(['my_app', os.path.join('my_app', 'pkg')]) == helpers.dedent(
             """
-            # -*- coding: utf-8 -*-
             from setuptools import setup
 
             setup(
@@ -599,7 +580,6 @@ class TestConstructSetupPyFile:
 
         assert builder.construct_setup_py_file(['my_app', os.path.join('my_app', 'pkg')]) == helpers.dedent(
             """
-            # -*- coding: utf-8 -*-
             from setuptools import setup
 
             setup(
