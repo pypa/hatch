@@ -357,13 +357,14 @@ class WheelBuilderConfig(BuilderConfig):
                     match = VALIDATION_PROPERTY_REGEX.match(vprop_str)
                     if not match:
                         raise ValueError(
-                            f"Invalid variant property '{vprop_str}' in variant {variant_config.variant_hash}"
+                            f"Invalid variant property '{vprop_str}' in variant `{variant_config.variant_label}`"
                         )
                     namespace = match.group('namespace')
                     feature = match.group('feature')
                     value = match.group('value')
                     variant_data[namespace][feature].add(value)
-                data[VARIANTS_JSON_VARIANT_DATA_KEY][variant_config.vhash] = variant_data
+
+                data[VARIANTS_JSON_VARIANT_DATA_KEY][variant_config.vlabel] = variant_data
 
                 def preprocess(data):
                     """Preprocess the data to ensure it is JSON serializable."""
@@ -564,7 +565,7 @@ class WheelBuilder(BuilderInterface):
                 variant_label=variant_label,
             )
             metadata.variant_config.validate()
-            metadata.variant_hash = metadata.variant_config.vhash
+            metadata.variant_label = metadata.variant_config.vlabel
 
         super().__init__(
             root=root,
@@ -608,8 +609,8 @@ class WheelBuilder(BuilderInterface):
             records.write((f'{archive.metadata_directory}/RECORD', '', ''))
             archive.write_metadata('RECORD', records.construct())
 
-        if self.metadata.variant_hash is not None:
-            wheel_name = f"{self.artifact_project_id}-{build_data['tag']}-{self.metadata.variant_hash}.whl"
+        if self.metadata.variant_label is not None:
+            wheel_name = f"{self.artifact_project_id}-{build_data['tag']}-{self.metadata.variant_label}.whl"
         else:
             wheel_name = f"{self.artifact_project_id}-{build_data['tag']}.whl"
         target = os.path.join(directory, wheel_name)
@@ -839,7 +840,7 @@ Root-Is-Purelib: {'true' if build_data['pure_python'] else 'false'}
             'METADATA', self.config.core_metadata_constructor(self.metadata, extra_dependencies=extra_dependencies)
         )
         records.write(record)
-        if self.metadata.variant_hash is not None:
+        if self.metadata.variant_label is not None:
             record = archive.write_metadata(
                 VARIANT_DIST_INFO_FILENAME,
                 self.config.variants_json_constructor(self.metadata.variant_config),

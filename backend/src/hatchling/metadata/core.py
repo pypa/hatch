@@ -65,7 +65,7 @@ class VariantProviderConfig:
 
 @dataclass
 class VariantConfig:
-    vhash: str
+    vlabel: str
     properties: list[str]
     default_priorities: dict[str, list[str]]
     providers: dict[str, VariantProviderConfig]
@@ -77,12 +77,12 @@ class VariantConfig:
         data = data.copy()
 
         if vprops is None:
-            data["vhash"] = None
+            data["vlabel"] = None
             data["properties"] = None
 
 
         elif len(vprops) == 0:
-            data["vhash"] = "0" * VARIANT_HASH_LEN
+            data["vlabel"] = "null"
             data["properties"] = []
 
         else:
@@ -99,13 +99,13 @@ class VariantConfig:
             hash_object = hashlib.sha256()
             for vprop in data["properties"]:
                 hash_object.update(f"{vprop}\n".encode())
-            data["vhash"] = hash_object.hexdigest()[:VARIANT_HASH_LEN]
+            data["vlabel"] = hash_object.hexdigest()[:VARIANT_HASH_LEN]
 
         if variant_label is not None:
             if data["properties"] is None or len(data["properties"]) == 0:
                 raise ValueError("Variant Properties cannot be empty when a variant label is provided")
             
-            data["vhash"] = variant_label
+            data["vlabel"] = variant_label
 
         # Convert hyphenated keys to underscored keys
         data = {key.replace("-", "_"): value for key, value in data.items()}
@@ -153,7 +153,7 @@ class ProjectMetadata(Generic[PluginManagerBound]):
         self._version: str | None = None
         self._project_file: str | None = None
 
-        self.variant_hash: str | None = None
+        self.variant_label: str | None = None
         self.variant_config: VariantConfig | None = None
         self._variant_config_data: dict[str, Any] | None = None
 
