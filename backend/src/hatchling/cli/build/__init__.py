@@ -16,7 +16,7 @@ def build_impl(
     clean_only: bool,
     show_dynamic_deps: bool,
     variant_props: list[str] | None = None,
-    variant_null: bool = False,
+    null_variant: bool = False,
     variant_label: str | None,
 ) -> None:
     import os
@@ -78,7 +78,7 @@ def build_impl(
         variant_build_kwargs = {}
         if f'{builder_class.__module__}.{builder_class.__name__}' == 'hatchling.builders.wheel.WheelBuilder':
             variant_build_kwargs = {
-                "variant_props": variant_props if not variant_null else [],
+                "variant_props": variant_props if not null_variant else [],
                 "variant_label": variant_label,
             }
 
@@ -147,7 +147,7 @@ def build_command(subparsers: argparse._SubParsersAction, defaults: Any) -> None
     )
     group.add_argument(
         '--null-variant',
-        dest='variant_null',
+        dest='null_variant',
         action='store_true',
         help='Make the variant a `null variant` - no variant property.',
     )

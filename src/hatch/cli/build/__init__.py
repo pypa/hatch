@@ -62,7 +62,7 @@ if TYPE_CHECKING:
 )
 @click.option(
     '--null-variant',
-    'variant_null',
+    'null_variant',
     is_flag=True,
     help='Make the variant a `null variant` - no variant property.',
 )
@@ -74,7 +74,7 @@ if TYPE_CHECKING:
 @click.pass_obj
 def build(
     app: Application, location, targets, hooks_only, no_hooks, ext, clean, clean_hooks_after, clean_only,
-    variant_props, variant_null, variant_label,
+    variant_props, null_variant, variant_label,
 ):
     """Build a project."""
     app.ensure_environment_plugin_dependencies()
@@ -132,7 +132,7 @@ def build(
                 # Pass variant flags to Hatchling
                 for prop in variant_props:
                     command.extend(['-p', prop])
-                if variant_null:
+                if null_variant:
                     command.append('--null-variant')
                 if variant_label:
                     command.extend(['--variant-label', variant_label])
