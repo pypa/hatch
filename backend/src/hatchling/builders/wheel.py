@@ -368,7 +368,7 @@ class WheelBuilderConfig(BuilderConfig):
 
                 def preprocess(data):
                     """Preprocess the data to ensure it is JSON serializable."""
-                    if isinstance(data, (defaultdict, dict)):
+                    if isinstance(data, dict):
                         return {k: preprocess(v) for k, v in data.items()}
                     if isinstance(data, set):
                         return list(data)

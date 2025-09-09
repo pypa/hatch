@@ -8,6 +8,7 @@ from copy import deepcopy
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Generic, cast
 
+from hatchling.builders.variant_constants import VARIANT_LABEL_LENGTH
 from hatchling.metadata.utils import (
     format_dependency,
     is_valid_project_name,
@@ -31,9 +32,6 @@ if sys.version_info >= (3, 11):
     import tomllib
 else:
     import tomli as tomllib
-
-
-VARIANT_HASH_LEN = 8
 
 
 def load_toml(path: str) -> dict[str, Any]:
@@ -65,8 +63,8 @@ class VariantProviderConfig:
 
 @dataclass
 class VariantConfig:
-    vlabel: str
-    properties: list[str]
+    vlabel: str | None
+    properties: list[str] | None
     default_priorities: dict[str, list[str]]
     providers: dict[str, VariantProviderConfig]
 
@@ -92,19 +90,20 @@ class VariantConfig:
                 for vprop in vprops
             ]
             for vprop in _vprops:
-                assert len(vprop) == 3, f"Invalid variant property: {vprop}"
+                if len(vprop) != 3:
+                    raise ValueError(f"Invalid variant property: {vprop}")
 
             data["properties"] = [" :: ".join(vprop) for vprop in sorted(_vprops)]
 
-            hash_object = hashlib.sha256()
-            for vprop in data["properties"]:
-                hash_object.update(f"{vprop}\n".encode())
-            data["vlabel"] = hash_object.hexdigest()[:VARIANT_HASH_LEN]
+            if variant_label is None:
+                hash_object = hashlib.sha256()
+                for vprop in data["properties"]:
+                    hash_object.update(f"{vprop}\n".encode())
+                data["vlabel"] = hash_object.hexdigest()[:VARIANT_LABEL_LENGTH]
 
         if variant_label is not None:
             if data["properties"] is None or len(data["properties"]) == 0:
                 raise ValueError("Variant Properties cannot be empty when a variant label is provided")
-            
             data["vlabel"] = variant_label
 
         # Convert hyphenated keys to underscored keys
