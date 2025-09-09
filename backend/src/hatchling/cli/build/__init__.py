@@ -75,19 +75,13 @@ def build_impl(
         if not (clean_only or show_dynamic_deps) and len(target_data) > 1:
             app.display_mini_header(target_name)
 
-        variant_build_kwargs = {}
-        if f'{builder_class.__module__}.{builder_class.__name__}' == 'hatchling.builders.wheel.WheelBuilder':
-            variant_build_kwargs = {
-                "variant_props": variant_props if not null_variant else [],
-                "variant_label": variant_label,
-            }
-
         builder = builder_class(
             root,
             plugin_manager=plugin_manager,
             metadata=metadata,
             app=app.get_safe_application(),
-            **variant_build_kwargs,
+            variant_props=variant_props if not null_variant else [],
+            variant_label=variant_label,
         )
 
         if show_dynamic_deps:

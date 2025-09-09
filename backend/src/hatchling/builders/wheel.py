@@ -557,7 +557,7 @@ class WheelBuilder(BuilderInterface):
         variant_props: list[str] | None = None,
         variant_label: str | None = None,
     ):
-        
+
         if metadata is not None:
             metadata.variant_config = VariantConfig.from_dict(
                 data=metadata.variant_config_data,
