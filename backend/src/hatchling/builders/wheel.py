@@ -357,7 +357,7 @@ class WheelBuilderConfig(BuilderConfig):
                     match = VALIDATION_PROPERTY_REGEX.match(vprop_str)
                     if not match:
                         raise ValueError(
-                            f"Invalid variant property '{vprop_str}' in variant `{variant_config.variant_label}`"
+                            f"Invalid variant property '{vprop_str}' in variant `{variant_config.vlabel}`"
                         )
                     namespace = match.group('namespace')
                     feature = match.group('feature')

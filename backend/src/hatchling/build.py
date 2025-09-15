@@ -48,15 +48,32 @@ def get_requires_for_build_wheel(config_settings: dict[str, Any] | None = None) 
 
 def build_wheel(
     wheel_directory: str,
-    config_settings: dict[str, Any] | None = None,  # noqa: ARG001
+    config_settings: dict[str, Any] | None = None,
     metadata_directory: str | None = None,  # noqa: ARG001
 ) -> str:
     """
     https://peps.python.org/pep-0517/#build-wheel
     """
     from hatchling.builders.wheel import WheelBuilder
+    from hatchling.metadata.core import ProjectMetadata
+    from hatchling.plugin.manager import PluginManager
 
-    builder = WheelBuilder(os.getcwd())
+    root_dir = os.getcwd()
+    plugin_manager = PluginManager()
+    metadata = ProjectMetadata(root_dir, plugin_manager)
+
+    variant_props, variant_label = None, None
+    if "variant-property" in config_settings:
+        variant_props = config_settings["variant-property"]
+    if "variant-label" in config_settings:
+        variant_label = config_settings["variant-label"]
+    builder = WheelBuilder(
+        root_dir,
+        plugin_manager=plugin_manager,
+        metadata=metadata,
+        variant_props=variant_props,
+        variant_label=variant_label,
+    )
     return os.path.basename(next(builder.build(directory=wheel_directory, versions=['standard'])))
 
 
