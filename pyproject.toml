@@ -44,7 +44,7 @@ dependencies = [
   "httpx>=0.22.0",
   "hyperlink>=21.0.0",
   "keyring>=23.5.0",
-  "packaging>=23.2",
+  "packaging>=24.2",
   "pexpect~=4.8",
   "platformdirs>=2.5.0",
   "pyproject-hooks",
@@ -53,8 +53,8 @@ dependencies = [
   "tomli-w>=1.0",
   "tomlkit>=0.11.1",
   "userpath~=1.7",
-  "uv>=0.1.35",
-  "virtualenv>=20.26.1",
+  "uv>=0.5.23",
+  "virtualenv>=20.26.6",
   "zstandard<1",
 ]
 dynamic = ["version"]
