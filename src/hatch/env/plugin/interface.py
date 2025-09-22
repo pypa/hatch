@@ -342,13 +342,27 @@ class EnvironmentInterface(ABC):
 
     @cached_property
     def dependencies_complex(self) -> list[Dependency]:
+        from hatch.dep.core import Dependency
+
         all_dependencies_complex = list(self.environment_dependencies_complex)
-        all_dependencies_complex.extend(self.additional_dependencies)
+
+        # Convert additional_dependencies to Dependency objects
+        for dep in self.additional_dependencies:
+            if isinstance(dep, Dependency):
+                all_dependencies_complex.append(dep)
+            else:
+                all_dependencies_complex.append(Dependency(str(dep)))
+
         if self.builder:
-            from hatch.dep.core import Dependency
             from hatch.project.constants import BuildEnvVars
 
-            all_dependencies_complex.extend(self.metadata.build.requires_complex)
+            # Convert build requirements to Dependency objects
+            for req in self.metadata.build.requires_complex:
+                if isinstance(req, Dependency):
+                    all_dependencies_complex.append(req)
+                else:
+                    all_dependencies_complex.append(Dependency(str(req)))
+
             for target in os.environ.get(BuildEnvVars.REQUESTED_TARGETS, '').split():
                 target_config = self.app.project.config.build.target(target)
                 all_dependencies_complex.extend(map(Dependency, target_config.dependencies))
@@ -374,9 +388,10 @@ class EnvironmentInterface(ABC):
 
     @cached_property
     def all_dependencies_complex(self) -> list[Dependency]:
+        from hatch.dep.core import Dependency
         all_dependencies_complex = list(self.local_dependencies_complex)
         all_dependencies_complex.extend(self.dependencies_complex)
-        return all_dependencies_complex
+        return [dep if isinstance(dep, Dependency) else Dependency(str(dep)) for dep in all_dependencies_complex]
 
     @cached_property
     def all_dependencies(self) -> list[str]:
