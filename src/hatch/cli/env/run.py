@@ -25,7 +25,7 @@ def filter_environments(environments, filter_data):
 @click.option('--env', '-e', 'env_names', multiple=True, help='The environments to target')
 @click.option('--include', '-i', 'included_variable_specs', multiple=True, help='The matrix variables to include')
 @click.option('--exclude', '-x', 'excluded_variable_specs', multiple=True, help='The matrix variables to exclude')
-@click.option('--filter', '-f', 'filter_json', help='The JSON data used to select environments')
+@click.option('--filter', '-f', 'filter_json', default=None, help='The JSON data used to select environments')
 @click.option(
     '--force-continue', is_flag=True, help='Run every command and if there were any errors exit with the first code'
 )
