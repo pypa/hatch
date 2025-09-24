@@ -126,7 +126,7 @@ def dependencies_in_sync(
     if sys_path is None:
         sys_path = sys.path
     if environment is None:
-        environment = default_environment()
+        environment = default_environment()  # type: ignore
 
     installed_distributions = DistributionCache(sys_path)
-    return all(dependency_in_sync(requirement, environment, installed_distributions) for requirement in requirements)
+    return all(dependency_in_sync(requirement, environment, installed_distributions) for requirement in requirements)  # type: ignore

@@ -8,6 +8,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.14.2](https://github.com/pypa/hatch/releases/tag/hatch-v1.14.2) - 2025-09-24 ## {: #hatch-v1.14.2 }
+
+***Fixed:***
+
+- Fix compatibility with recent versions of Click
+
 ## [1.14.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.14.1) - 2025-04-07 ## {: #hatch-v1.14.1 }
 
 ***Fixed:***
