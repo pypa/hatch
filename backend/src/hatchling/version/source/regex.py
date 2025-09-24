@@ -20,8 +20,13 @@ class RegexSource(VersionSourceInterface):
             message = 'option `pattern` must be a string'
             raise TypeError(message)
 
+        default = self.config.get('default')
+        if default is not None and not isinstance(default, str):
+            message = 'option `default` must be a string'
+            raise TypeError(message)
+
         version_file = VersionFile(self.root, relative_path)
-        version = version_file.read(pattern=pattern)
+        version = version_file.read(pattern=pattern, default=default)
 
         return {'version': version, 'version_file': version_file}
 

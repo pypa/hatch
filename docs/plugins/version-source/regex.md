@@ -23,3 +23,4 @@ source = "regex"
 | --- | --- |
 | `path` (required) | A relative path to a file containing the project's version |
 | `pattern` | A regular expression that has a named group called `version` that represents the version. The default pattern looks for a variable named `__version__` or `VERSION` that is set to a string containing the version, optionally prefixed with the lowercase letter `v`. |
+| `default` | A value used as the version if the file at `path` does not exist. |
