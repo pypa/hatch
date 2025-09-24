@@ -65,7 +65,7 @@ class RecordFile:
 
 
 class WheelArchive:
-    def __init__(self, project_id: str, *, reproducible: bool) -> None:
+    def __init__(self, project_id: str, *, reproducible: bool, compress_level: int) -> None:
         """
         https://peps.python.org/pep-0427/#abstract
         """
@@ -81,7 +81,7 @@ class WheelArchive:
 
         raw_fd, self.path = tempfile.mkstemp(suffix='.whl')
         self.fd = os.fdopen(raw_fd, 'w+b')
-        self.zf = zipfile.ZipFile(self.fd, 'w', compression=zipfile.ZIP_DEFLATED)
+        self.zf = zipfile.ZipFile(self.fd, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=compress_level)
 
     @staticmethod
     def get_reproducible_time_tuple() -> TIME_TUPLE:
@@ -187,12 +187,34 @@ class WheelBuilderConfig(BuilderConfig):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
+        self.__compress_level: int | None = None
         self.__core_metadata_constructor: Callable[..., str] | None = None
         self.__shared_data: dict[str, str] | None = None
         self.__shared_scripts: dict[str, str] | None = None
         self.__extra_metadata: dict[str, str] | None = None
         self.__strict_naming: bool | None = None
         self.__macos_max_compat: bool | None = None
+
+    @property
+    def compress_level(self) -> int:
+        if self.__compress_level is None:
+            try:
+                compress_level = int(self.target_config.get('compress-level', 9))
+            except ValueError as e:
+                message = f'Field `tool.hatch.build.{self.plugin_name}.compress-level` must be an integer'
+                raise TypeError(message) from e
+
+            if not (0 <= compress_level <= 9):  # noqa: PLR2004
+                message = (
+                    'Value field '
+                    f'`tool.hatch.build.targets.{self.plugin_name}.compress-level` '
+                    'must be an integer from 0 to 9'
+                )
+                raise ValueError(message)
+
+            self.__compress_level = compress_level
+
+        return self.__compress_level
 
     @cached_property
     def default_file_selection_options(self) -> FileSelectionOptions:
@@ -472,7 +494,7 @@ class WheelBuilder(BuilderInterface):
                 build_data['tag'] = self.get_default_tag()
 
         with WheelArchive(
-            self.artifact_project_id, reproducible=self.config.reproducible
+            self.artifact_project_id, reproducible=self.config.reproducible, compress_level=self.config.compress_level
         ) as archive, RecordFile() as records:
             for included_file in self.recurse_included_files():
                 record = archive.add_file(included_file)
@@ -501,7 +523,7 @@ class WheelBuilder(BuilderInterface):
         build_data['tag'] = self.get_default_tag()
 
         with WheelArchive(
-            self.artifact_project_id, reproducible=self.config.reproducible
+            self.artifact_project_id, reproducible=self.config.reproducible, compress_level=self.config.compress_level
         ) as archive, RecordFile() as records:
             exposed_packages = {}
             for included_file in self.recurse_selected_project_files():
@@ -582,7 +604,7 @@ class WheelBuilder(BuilderInterface):
         build_data['tag'] = self.get_default_tag()
 
         with WheelArchive(
-            self.artifact_project_id, reproducible=self.config.reproducible
+            self.artifact_project_id, reproducible=self.config.reproducible, compress_level=self.config.compress_level
         ) as archive, RecordFile() as records:
             directories = sorted(
                 os.path.normpath(os.path.join(self.root, relative_directory))
