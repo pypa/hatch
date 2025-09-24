@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import sys
 import click
 
 if TYPE_CHECKING:
@@ -49,8 +50,32 @@ if TYPE_CHECKING:
     ),
 )
 @click.option('--clean-only', is_flag=True, hidden=True)
+@click.option(
+    '-p',
+    '--variant-property',
+    'variant_props',
+    multiple=True,
+    help=(
+        "Variant Properties to add to the Wheel Variant, can be repeated as many "
+        "times as needed"
+    ),
+)
+@click.option(
+    '--null-variant',
+    'null_variant',
+    is_flag=True,
+    help='Make the variant a `null variant` - no variant property.',
+)
+@click.option(
+    '--variant-label',
+    'variant_label',
+    help='Use a custom variant label (the default is variant hash)',
+)
 @click.pass_obj
-def build(app: Application, location, targets, hooks_only, no_hooks, ext, clean, clean_hooks_after, clean_only):
+def build(
+    app: Application, location, targets, hooks_only, no_hooks, ext, clean, clean_hooks_after, clean_only,
+    variant_props, null_variant, variant_label,
+):
     """Build a project."""
     app.ensure_environment_plugin_dependencies()
 
@@ -85,6 +110,7 @@ def build(app: Application, location, targets, hooks_only, no_hooks, ext, clean,
                 app.display_header(target_name)
 
             if build_backend != BUILD_BACKEND:
+                # TODO(hcho3): Should we pass variant flags to non-Hatchling backend??
                 if target_name == 'sdist':
                     directory = build_dir or app.project.location / DEFAULT_BUILD_DIRECTORY
                     directory.ensure_dir_exists()
@@ -102,7 +128,14 @@ def build(app: Application, location, targets, hooks_only, no_hooks, ext, clean,
                     else str(artifact_path)
                 )
             else:
-                command = ['python', '-u', '-m', 'hatchling', 'build', '--target', target]
+                command = [sys.executable, '-u', '-m', 'hatchling', 'build', '--target', target]
+                # Pass variant flags to Hatchling
+                for prop in variant_props:
+                    command.extend(['-p', prop])
+                if null_variant:
+                    command.append('--null-variant')
+                if variant_label:
+                    command.extend(['--variant-label', variant_label])
 
                 # We deliberately pass the location unchanged so that absolute paths may be non-local
                 # and reflect wherever builds actually take place

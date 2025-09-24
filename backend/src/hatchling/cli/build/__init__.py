@@ -15,6 +15,9 @@ def build_impl(
     clean_hooks_after: bool,
     clean_only: bool,
     show_dynamic_deps: bool,
+    variant_props: list[str] | None = None,
+    null_variant: bool = False,
+    variant_label: str | None,
 ) -> None:
     import os
 
@@ -72,7 +75,15 @@ def build_impl(
         if not (clean_only or show_dynamic_deps) and len(target_data) > 1:
             app.display_mini_header(target_name)
 
-        builder = builder_class(root, plugin_manager=plugin_manager, metadata=metadata, app=app.get_safe_application())
+        builder = builder_class(
+            root,
+            plugin_manager=plugin_manager,
+            metadata=metadata,
+            app=app.get_safe_application(),
+            variant_props=variant_props if not null_variant else [],
+            variant_label=variant_label,
+        )
+
         if show_dynamic_deps:
             for dependency in builder.config.dynamic_dependencies:
                 dynamic_dependencies[dependency] = None
@@ -116,4 +127,28 @@ def build_command(subparsers: argparse._SubParsersAction, defaults: Any) -> None
     parser.add_argument('--clean-only', dest='clean_only', action='store_true')
     parser.add_argument('--show-dynamic-deps', dest='show_dynamic_deps', action='store_true')
     parser.add_argument('--app', dest='called_by_app', action='store_true', help=argparse.SUPPRESS)
+
+    group = parser.add_mutually_exclusive_group(required=False)
+    group.add_argument(
+        '-p',
+        '--variant-property',
+        dest='variant_props',
+        type=str,
+        action='extend',
+        nargs='+',
+        help=('Variant Properties to add to the Wheel Variant, can be repeated as many times as needed'),
+        default=None,
+    )
+    group.add_argument(
+        '--null-variant',
+        dest='null_variant',
+        action='store_true',
+        help='Make the variant a `null variant` - no variant property.',
+    )
+    parser.add_argument(
+        '--variant-label',
+        dest='variant_label',
+        help='Use a custom variant label (the default is variant hash)',
+    )
+
     parser.set_defaults(func=build_impl)
