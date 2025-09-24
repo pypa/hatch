@@ -299,7 +299,7 @@ class TestBuildBootstrap:
             'project': {'name': project_name, 'version': '0.1.0'},
             'tool': {
                 'hatch': {
-                    'build': {'targets': {'binary': {'versions': ['bootstrap']}}},
+                    'build': {'targets': {'binary': {'versions': ['bootstrap'], 'env-vars': {'FOO': 'BAR'}}}},
                 },
             },
         }
@@ -313,7 +313,7 @@ class TestBuildBootstrap:
         subprocess_run.assert_called_once_with(
             ['cargo', 'install', 'pyapp', '--force', '--root', mocker.ANY],
             cwd=mocker.ANY,
-            env=ExpectedEnvVars({'PYAPP_PROJECT_NAME': 'my-app', 'PYAPP_PROJECT_VERSION': '0.1.0'}),
+            env=ExpectedEnvVars({'PYAPP_PROJECT_NAME': 'my-app', 'PYAPP_PROJECT_VERSION': '0.1.0', 'FOO': 'BAR'}),
         )
 
         assert len(artifacts) == 1
@@ -341,7 +341,7 @@ class TestBuildBootstrap:
             'project': {'name': project_name, 'version': '0.1.0', 'scripts': {'foo': 'bar.baz:cli'}},
             'tool': {
                 'hatch': {
-                    'build': {'targets': {'binary': {'versions': ['bootstrap']}}},
+                    'build': {'targets': {'binary': {'versions': ['bootstrap'], 'env-vars': {'FOO': 'BAR'}}}},
                 },
             },
         }
@@ -359,6 +359,7 @@ class TestBuildBootstrap:
                 'PYAPP_PROJECT_NAME': 'my-app',
                 'PYAPP_PROJECT_VERSION': '0.1.0',
                 'PYAPP_EXEC_SPEC': 'bar.baz:cli',
+                'FOO': 'BAR',
             }),
         )
 
@@ -385,7 +386,7 @@ class TestBuildBootstrap:
             'project': {'name': project_name, 'version': '0.1.0', 'scripts': {'foo': 'bar.baz:cli'}},
             'tool': {
                 'hatch': {
-                    'build': {'targets': {'binary': {'versions': ['bootstrap']}}},
+                    'build': {'targets': {'binary': {'versions': ['bootstrap'], 'env-vars': {'FOO': 'BAR'}}}},
                 },
             },
         }
@@ -403,6 +404,7 @@ class TestBuildBootstrap:
                 'PYAPP_PROJECT_NAME': 'my-app',
                 'PYAPP_PROJECT_VERSION': '0.1.0',
                 'PYAPP_EXEC_SPEC': 'bar.baz:cli',
+                'FOO': 'BAR',
             }),
         )
 
@@ -727,3 +729,73 @@ class TestBuildBootstrap:
         assert len(build_artifacts) == 1
         assert expected_artifact == str(build_artifacts[0])
         assert (build_path / 'app' / ('my-app-0.1.0.exe' if sys.platform == 'win32' else 'my-app-0.1.0')).is_file()
+
+    def test_custom_build_targets(self, hatch, temp_dir, mocker):
+        subprocess_run = mocker.patch('subprocess.run', side_effect=cargo_install)
+
+        project_name = 'My.App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / 'my-app'
+
+        config = {
+            'project': {'name': project_name, 'version': '0.1.0'},
+            'tool': {
+                'hatch': {
+                    'build': {
+                        'targets': {
+                            'binary': {
+                                'versions': ['bootstrap'],
+                                'env-vars': {
+                                    'PYAPP_DISTIBUTION_EMBED': 'true',
+                                    'PYAPP_PIP_EXTRA_INDEX_ARGS': '--index-url foobar',
+                                    'CARGO_TARGET_DIR': '{root}/pyapp_cargo',
+                                },
+                                'outputs': [
+                                    {
+                                        'exe-stem': '{name}-{version}-gui',
+                                        'env-vars': {
+                                            'PYAPP_IS_GUI': 'true',
+                                            'PYAPP_EXEC_MODULE': 'myapp',
+                                        },
+                                    },
+                                ],
+                            },
+                        }
+                    },
+                },
+            },
+        }
+
+        builder = BinaryBuilder(str(project_path), config=config)
+
+        build_path = project_path / 'dist'
+
+        with project_path.as_cwd():
+            artifacts = list(builder.build())
+
+        subprocess_run.assert_called_once_with(
+            ['cargo', 'install', 'pyapp', '--force', '--root', mocker.ANY],
+            cwd=mocker.ANY,
+            env=ExpectedEnvVars({
+                'CARGO_TARGET_DIR': f'{project_path}/pyapp_cargo',
+                'PYAPP_DISTIBUTION_EMBED': 'true',
+                'PYAPP_EXEC_MODULE': 'myapp',
+                'PYAPP_IS_GUI': 'true',
+                'PYAPP_PIP_EXTRA_INDEX_ARGS': '--index-url foobar',
+            }),
+        )
+
+        assert len(artifacts) == 1
+        expected_artifact = artifacts[0]
+
+        build_artifacts = list(build_path.iterdir())
+        assert len(build_artifacts) == 1
+        assert expected_artifact == str(build_artifacts[0])
+        assert (
+            build_path / 'binary' / ('my-app-0.1.0-gui.exe' if sys.platform == 'win32' else 'my-app-0.1.0-gui')
+        ).is_file()
