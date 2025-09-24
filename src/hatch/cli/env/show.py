@@ -50,7 +50,10 @@ def show(
 
                 extra_dependencies = environment.environment_dependencies[num_dependencies:]
                 if extra_dependencies:
-                    new_config['extra-dependencies'] = extra_dependencies
+                    if dependencies:
+                        new_config['dependencies'].extend(extra_dependencies)
+                    else:
+                        new_config['dependencies'] = extra_dependencies
 
                 if environment.pre_install_commands:
                     new_config['pre-install-commands'] = list(
