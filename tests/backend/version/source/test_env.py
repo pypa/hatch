@@ -18,6 +18,13 @@ def test_variable_not_string(isolation):
         source.get_version_data()
 
 
+def test_default_value_not_string(isolation):
+    source = EnvSource(str(isolation), {'variable': 'ENV_VERSION', 'default-value': 1})
+
+    with pytest.raises(TypeError, match='option `default-value` must be a string'):
+        source.get_version_data()
+
+
 def test_variable_not_available(isolation):
     source = EnvSource(str(isolation), {'variable': 'ENV_VERSION'})
 
@@ -25,6 +32,13 @@ def test_variable_not_available(isolation):
         RuntimeError, match='environment variable `ENV_VERSION` is not set'
     ):
         source.get_version_data()
+
+
+def test_variable_not_available_with_default_value(isolation):
+    source = EnvSource(str(isolation), {'variable': 'ENV_VERSION', 'default-value': '0.0.1'})
+
+    with EnvVars(exclude=['ENV_VERSION']):
+        assert source.get_version_data()['version'] == '0.0.1'
 
 
 def test_variable_contains_version(isolation):

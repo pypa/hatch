@@ -22,3 +22,4 @@ source = "env"
 | Option | Description |
 | --- | --- |
 | `variable` (required) | The name of the environment variable |
+| `default-value` | The value to use if the environment variable is not set |
