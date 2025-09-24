@@ -215,7 +215,7 @@ class SdistBuilder(BuilderInterface):
         )
 
     def construct_setup_py_file(self, packages: list[str], extra_dependencies: tuple[()] = ()) -> str:
-        contents = '# -*- coding: utf-8 -*-\nfrom setuptools import setup\n\n'
+        contents = 'from setuptools import setup\n\n'
 
         contents += 'setup(\n'
 
