@@ -26,11 +26,21 @@ def version(app: Application, *, desired_version: str | None, force: bool):
             app.abort(f'Project {app.project.chosen_name} (not a project)')
 
     if 'version' in app.project.metadata.config.get('project', {}):
+        version = app.project.metadata.config['project']['version']
         if desired_version:
-            app.abort('Cannot set version when it is statically defined by the `project.version` field')
+            from hatchling.version.scheme.standard import StandardScheme
+
+            updated_version = StandardScheme(str(app.project.location), {}).update(
+                desired_version, version, {}
+            )
+            app.project.metadata.config['project']['version'] = updated_version
+            app.project.save_config(app.project.raw_config)
+
+            app.display_info(f'Old: {version}')
+            app.display_info(f'New: {updated_version}')
         else:
-            app.display(app.project.metadata.config['project']['version'])
-            return
+            app.display(version)
+        return
 
     from hatch.config.constants import VersionEnvVars
     from hatch.project.constants import BUILD_BACKEND
