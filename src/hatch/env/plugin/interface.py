@@ -168,7 +168,7 @@ class EnvironmentInterface(ABC):
         return os.pathsep
 
     @cached_property
-    def system_python(self):
+    def system_python(self) -> str:
         system_python = os.environ.get(AppEnvVars.PYTHON)
         if system_python == 'self':
             system_python = sys.executable
@@ -308,7 +308,7 @@ class EnvironmentInterface(ABC):
                 )
                 raise ValueError(message)
 
-            all_dependencies_complex.extend(optional_dependencies_complex[feature].values())
+            all_dependencies_complex.extend([dep if isinstance(dep, Dependency) else Dependency(str(dep)) for dep in optional_dependencies_complex[feature]])
 
         return all_dependencies_complex
 
@@ -328,9 +328,8 @@ class EnvironmentInterface(ABC):
 
         local_dependencies_complex = []
         if not self.skip_install:
-            root = 'file://' if self.sep == '/' else 'file:///'
             local_dependencies_complex.append(
-                Dependency(f'{self.metadata.name} @ {root}{self.project_root}', editable=self.dev_mode)
+                Dependency(f'{self.metadata.name} @ {self.root.as_uri()}', editable=self.dev_mode)
             )
 
         local_dependencies_complex.extend(
@@ -1025,7 +1024,22 @@ class Workspace:
             for feature in member.features:
                 all_dependencies.extend(features.get(feature, []))
 
-        if not self.parallel:
+        if self.parallel:
+            from concurrent.futures import ThreadPoolExecutor
+
+            def get_member_deps(member):
+                with self.env.app.status(f'Checking workspace member: {member.name}'):
+                    dependencies, features = member.get_dependencies()
+                    deps = list(dependencies)
+                    for feature in member.features:
+                        deps.extend(features.get(feature, []))
+                    return deps
+
+            with ThreadPoolExecutor() as executor:
+                results = executor.map(get_member_deps, dynamic_members)
+                for deps in results:
+                    all_dependencies.extend(deps)
+        else:
             for member in dynamic_members:
                 with self.env.app.status(f'Checking workspace member: {member.name}'):
                     dependencies, features = member.get_dependencies()
@@ -1240,7 +1254,8 @@ def find_members(root, relative_components):
         else:
             component_matchers.append(lambda entry, component=component: component == entry.name)
 
-    yield from _recurse_members(root, 0, component_matchers)
+    results = list(_recurse_members(root, 0, component_matchers))
+    yield from sorted(results, key=lambda path: os.path.basename(path))
 
 
 def _recurse_members(root, matcher_index, matchers):

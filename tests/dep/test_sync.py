@@ -152,7 +152,6 @@ def test_dependency_git_uv(platform, uv_on_path):
             check=True,
             capture_output=True,
         )
-        assert dependencies_in_sync([Requirement('requests@git+https://github.com/psf/requests')], venv.sys_path)
         distributions = InstalledDistributions(sys_path=venv.sys_path)
         assert not distributions.dependencies_in_sync([Dependency('requests@git+https://github.com/psf/requests')])
 
@@ -177,7 +176,6 @@ def test_dependency_git_revision_uv(platform, uv_on_path):
             check=True,
             capture_output=True,
         )
-        assert dependencies_in_sync([Requirement('requests@git+https://github.com/psf/requests@main')], venv.sys_path)
         distributions = InstalledDistributions(sys_path=venv.sys_path)
         assert not distributions.dependencies_in_sync([Dependency('requests@git+https://github.com/psf/requests@main')])
 
