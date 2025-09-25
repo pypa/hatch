@@ -35,4 +35,4 @@ class Dependency(Requirement):
         if uri.scheme != 'file':
             return None
 
-        return Path(os.sep.join(uri.path))
+        return Path.from_uri(self.url)
