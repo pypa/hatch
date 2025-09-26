@@ -12,4 +12,4 @@ if typing.TYPE_CHECKING:
 
 @hookimpl
 def hatch_register_build_hook() -> list[type[BuildHookInterface]]:
-    return [CustomBuildHook, VersionBuildHook]  # type: ignore[list-item]
+    return [CustomBuildHook, VersionBuildHook]
