@@ -17,3 +17,4 @@
 - Olga Matoula [:material-github:](https://github.com/olgarithms) [:material-twitter:](https://twitter.com/olgarithms_)
 - Philip Blair [:material-email:](mailto:philip@pblair.org)
 - Robert Rosca [:material-github:](https://github.com/robertrosca)
+- Cary Hawkins [:material-github](https://github.com/cjames23)

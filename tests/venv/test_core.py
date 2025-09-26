@@ -134,7 +134,6 @@ def test_creation_allow_system_packages(temp_dir, platform, extract_installed_re
 
     with venv:
         output = platform.run_command(['pip', 'freeze'], check=True, capture_output=True).stdout.decode('utf-8')
-
         assert len(extract_installed_requirements(output.splitlines())) > 0
 
 

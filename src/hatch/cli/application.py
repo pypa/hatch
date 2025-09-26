@@ -70,6 +70,8 @@ class Application(Terminal):
                     command = command[2:]
 
                 process = context.env.run_shell_command(command)
+                sys.stdout.flush()
+                sys.stderr.flush()
                 if process.returncode:
                     first_error_code = first_error_code or process.returncode
                     if continue_on_error:

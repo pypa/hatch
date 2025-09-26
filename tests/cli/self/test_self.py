@@ -2,6 +2,6 @@ import os
 
 
 def test(hatch):
-    result = hatch(os.environ['PYAPP_COMMAND_NAME'])
+    result = hatch()
 
     assert result.exit_code == 0, result.output
