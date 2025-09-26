@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 from functools import cached_property
 
 from packaging.requirements import InvalidRequirement, Requirement
