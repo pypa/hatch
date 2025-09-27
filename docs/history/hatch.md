@@ -8,12 +8,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 ***Changed:***
+
 - Drop support for Python 3.8
 - Environment type plugins are now no longer expected to support a pseudo-build environment as any environment now may be used for building. The following methods have been removed: `build_environment`, `build_environment_exists`, `run_builder`, `construct_build_command`
-
-***Fixed:***
-- Fix issue where terminal output would be out of sync during build.
-- Fix for Click Sentinel value when using `run` command
 
 ***Added:***
 
@@ -22,6 +19,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Build environments can now be configured, the default build environment is `hatch-build`
 - The environment interface now has the following methods and properties in order to better support builds on remote machines: `project_root`, `sep`, `pathsep`, `fs_context`
 - Bump the minimum supported version of `packaging` to 24.2
+
+***Fixed:***
+
+- Fix issue where terminal output would be out of sync during build.
+- Fix for Click Sentinel value when using `run` command
 
 ## [1.13.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.13.0) - 2024-10-13 ## {: #hatch-v1.13.0 }
 
