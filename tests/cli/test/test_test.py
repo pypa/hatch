@@ -356,6 +356,140 @@ class TestCoverage:
             'branch = true',
         ]
 
+    def test_combine_args(self, hatch, temp_dir, config_file, env_run, mocker):
+        config_file.model.template.plugins['default']['tests'] = False
+        config_file.save()
+
+        project_name = 'My.App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / 'my-app'
+        data_path = temp_dir / 'data'
+        data_path.mkdir()
+
+        project = Project(project_path)
+        config = dict(project.raw_config)
+        config['tool']['hatch']['envs'] = {'hatch-test': {'combine-args': ['-q', '--keep']}}
+        project.save_config(config)
+
+        with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+            result = hatch('test', '--cover')
+
+        assert result.exit_code == 0, result.output
+        assert not result.output
+
+        assert env_run.call_args_list == [
+            mocker.call('coverage run -m pytest -p no:randomly tests', shell=True),
+            mocker.call('coverage combine -q --keep', shell=True),
+            mocker.call('coverage report', shell=True),
+        ]
+
+    def test_reporting_style(self, hatch, temp_dir, config_file, env_run, mocker):
+        config_file.model.template.plugins['default']['tests'] = False
+        config_file.save()
+
+        project_name = 'My.App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / 'my-app'
+        data_path = temp_dir / 'data'
+        data_path.mkdir()
+
+        project = Project(project_path)
+        config = dict(project.raw_config)
+        config['tool']['hatch']['envs'] = {'hatch-test': {'reporting': 'xml'}}
+        project.save_config(config)
+
+        with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+            result = hatch('test', '--cover')
+
+        assert result.exit_code == 0, result.output
+        assert not result.output
+
+        assert env_run.call_args_list == [
+            mocker.call('coverage run -m pytest -p no:randomly tests', shell=True),
+            mocker.call('coverage combine', shell=True),
+            mocker.call('coverage xml', shell=True),
+        ]
+
+    def test_reporting_args(self, hatch, temp_dir, config_file, env_run, mocker):
+        config_file.model.template.plugins['default']['tests'] = False
+        config_file.save()
+
+        project_name = 'My.App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / 'my-app'
+        data_path = temp_dir / 'data'
+        data_path.mkdir()
+
+        project = Project(project_path)
+        config = dict(project.raw_config)
+        config['tool']['hatch']['envs'] = {'hatch-test': {'reporting-args': ['-m', '--skip-covered']}}
+        project.save_config(config)
+
+        with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+            result = hatch('test', '--cover')
+
+        assert result.exit_code == 0, result.output
+        assert not result.output
+
+        assert env_run.call_args_list == [
+            mocker.call('coverage run -m pytest -p no:randomly tests', shell=True),
+            mocker.call('coverage combine', shell=True),
+            mocker.call('coverage report -m --skip-covered', shell=True),
+        ]
+
+    def test_combine_and_reporting(self, hatch, temp_dir, config_file, env_run, mocker):
+        config_file.model.template.plugins['default']['tests'] = False
+        config_file.save()
+
+        project_name = 'My.App'
+
+        with temp_dir.as_cwd():
+            result = hatch('new', project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / 'my-app'
+        data_path = temp_dir / 'data'
+        data_path.mkdir()
+
+        project = Project(project_path)
+        config = dict(project.raw_config)
+        config['tool']['hatch']['envs'] = {
+            'hatch-test': {
+                'combine-args': ['a'],
+                'reporting': 'html',
+                'reporting-args': ['b'],
+            }
+        }
+        project.save_config(config)
+
+        with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+            result = hatch('test', '--cover')
+
+        assert result.exit_code == 0, result.output
+        assert not result.output
+
+        assert env_run.call_args_list == [
+            mocker.call('coverage run -m pytest -p no:randomly tests', shell=True),
+            mocker.call('coverage combine a', shell=True),
+            mocker.call('coverage html b', shell=True),
+        ]
+
 
 class TestRandomize:
     def test_flag(self, hatch, temp_dir, config_file, env_run, mocker):
