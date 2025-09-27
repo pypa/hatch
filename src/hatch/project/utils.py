@@ -1,6 +1,9 @@
 from __future__ import annotations
 
-from typing import Any, Iterable
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 
 def parse_script_command(command: str) -> tuple[str, str, bool]:

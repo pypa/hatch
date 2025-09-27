@@ -8,7 +8,7 @@ import sys
 import time
 from contextlib import suppress
 from functools import lru_cache
-from typing import TYPE_CHECKING, Generator, NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 import pytest
 from click.testing import CliRunner as __CliRunner
@@ -29,6 +29,7 @@ from hatchling.cli import hatchling
 from .helpers.templates.licenses import MIT, Apache_2_0
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
     from unittest.mock import MagicMock
 
 PLATFORM = Platform()

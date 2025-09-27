@@ -2,18 +2,19 @@ from __future__ import annotations
 
 import os
 import sys
-from functools import lru_cache
+from functools import cache
 from importlib import import_module
-from typing import TYPE_CHECKING, Any, Callable, Iterable, cast
+from typing import TYPE_CHECKING, Any, Callable, cast
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
     from subprocess import CompletedProcess, Popen
     from types import ModuleType
 
     from hatch.utils.fs import Path
 
 
-@lru_cache(maxsize=None)
+@cache
 def get_platform_name() -> str:
     import platform
 

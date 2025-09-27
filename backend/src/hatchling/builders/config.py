@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 from contextlib import contextmanager
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Generator, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
 import pathspec
 
@@ -13,6 +13,8 @@ from hatchling.metadata.utils import normalize_project_name
 from hatchling.utils.fs import locate_file
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
+
     from hatchling.builders.plugin.interface import BuilderInterface
 
 

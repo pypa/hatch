@@ -9,7 +9,7 @@ import tempfile
 import zipfile
 from functools import cached_property
 from io import StringIO
-from typing import TYPE_CHECKING, Any, Callable, Iterable, NamedTuple, Sequence, Tuple, cast
+from typing import TYPE_CHECKING, Any, Callable, NamedTuple, cast
 
 from hatchling.__about__ import __version__
 from hatchling.builders.config import BuilderConfig
@@ -29,12 +29,13 @@ from hatchling.builders.utils import (
 from hatchling.metadata.spec import DEFAULT_METADATA_VERSION, get_core_metadata_constructors
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable, Sequence
     from types import TracebackType
 
     from hatchling.builders.plugin.interface import IncludedFile
 
 
-TIME_TUPLE = Tuple[int, int, int, int, int, int]
+TIME_TUPLE = tuple[int, int, int, int, int, int]
 
 
 class FileSelectionOptions(NamedTuple):

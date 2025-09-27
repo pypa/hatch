@@ -3,9 +3,10 @@ from __future__ import annotations
 import os
 import shutil
 from base64 import urlsafe_b64encode
-from typing import TYPE_CHECKING, Iterable
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
     from zipfile import ZipInfo
 
 

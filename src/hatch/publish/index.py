@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 import re
-from typing import Iterable
+from typing import TYPE_CHECKING
 
 from hatch.publish.plugin.interface import PublisherInterface
 from hatch.utils.fs import Path
 from hatchling.metadata.utils import normalize_project_name
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 
 class IndexPublisher(PublisherInterface):

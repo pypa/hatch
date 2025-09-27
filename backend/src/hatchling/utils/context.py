@@ -5,9 +5,12 @@ import string
 from abc import ABC, abstractmethod
 from collections import ChainMap
 from contextlib import contextmanager
-from typing import Any, Iterable, Iterator, Mapping, MutableMapping, Sequence
+from typing import TYPE_CHECKING, Any
 
 from hatchling.utils.fs import path_to_uri
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator, Mapping, MutableMapping, Sequence
 
 
 class ContextFormatter(ABC):

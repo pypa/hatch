@@ -1,8 +1,7 @@
 from __future__ import annotations
 
 import json
-import sys
-from functools import lru_cache
+from functools import cache
 from typing import TYPE_CHECKING, Any, Literal
 
 from hatch.utils.fs import Path
@@ -295,58 +294,33 @@ class HatchBuildFrontendScripts(BuildFrontendScripts):
         )
 
 
-if sys.version_info[:2] >= (3, 9):
+@cache
+def hook_caller_script() -> str:
+    from importlib.resources import files
 
-    @lru_cache(maxsize=None)
-    def hook_caller_script() -> str:
-        from importlib.resources import files
+    script = files('pyproject_hooks._in_process') / '_in_process.py'
+    return script.read_text(encoding='utf-8')
 
-        script = files('pyproject_hooks._in_process') / '_in_process.py'
-        return script.read_text(encoding='utf-8')
 
-    @lru_cache(maxsize=None)
-    def runner_script() -> str:
-        from importlib.resources import files
+@cache
+def runner_script() -> str:
+    from importlib.resources import files
 
-        script = files('hatch.project.frontend.scripts') / 'standard.py'
-        return script.read_text(encoding='utf-8')
+    script = files('hatch.project.frontend.scripts') / 'standard.py'
+    return script.read_text(encoding='utf-8')
 
-    @lru_cache(maxsize=None)
-    def hatch_build_deps_script() -> str:
-        from importlib.resources import files
 
-        script = files('hatch.project.frontend.scripts') / 'build_deps.py'
-        return script.read_text(encoding='utf-8')
+@cache
+def hatch_build_deps_script() -> str:
+    from importlib.resources import files
 
-    @lru_cache(maxsize=None)
-    def hatch_core_metadata_script() -> str:
-        from importlib.resources import files
+    script = files('hatch.project.frontend.scripts') / 'build_deps.py'
+    return script.read_text(encoding='utf-8')
 
-        script = files('hatch.project.frontend.scripts') / 'core_metadata.py'
-        return script.read_text(encoding='utf-8')
 
-else:
+@cache
+def hatch_core_metadata_script() -> str:
+    from importlib.resources import files
 
-    @lru_cache(maxsize=None)
-    def hook_caller_script() -> str:
-        from importlib.resources import read_text
-
-        return read_text('pyproject_hooks._in_process', '_in_process.py')
-
-    @lru_cache(maxsize=None)
-    def runner_script() -> str:
-        from importlib.resources import read_text
-
-        return read_text('hatch.project.frontend.scripts', 'standard.py')
-
-    @lru_cache(maxsize=None)
-    def hatch_build_deps_script() -> str:
-        from importlib.resources import read_text
-
-        return read_text('hatch.project.frontend.scripts', 'build_deps.py')
-
-    @lru_cache(maxsize=None)
-    def hatch_core_metadata_script() -> str:
-        from importlib.resources import read_text
-
-        return read_text('hatch.project.frontend.scripts', 'core_metadata.py')
+    script = files('hatch.project.frontend.scripts') / 'core_metadata.py'
+    return script.read_text(encoding='utf-8')
