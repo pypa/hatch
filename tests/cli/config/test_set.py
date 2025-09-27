@@ -184,6 +184,7 @@ def test_project_location_basic_set_first_project(hatch, config_file, helpers, t
         f"""
         New setting:
         project = "foo"
+
         [projects]
         foo = "{path}"
         """
@@ -205,6 +206,7 @@ def test_project_location_complex_set_first_project(hatch, config_file, helpers,
         f"""
         New setting:
         project = "foo"
+
         [projects.foo]
         location = "{path}"
         """
