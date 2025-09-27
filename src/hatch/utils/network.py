@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import time
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, Generator
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
+
     import httpx
 
     from hatch.utils.fs import Path

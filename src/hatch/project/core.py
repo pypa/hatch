@@ -3,13 +3,15 @@ from __future__ import annotations
 import re
 from contextlib import contextmanager
 from functools import cached_property
-from typing import TYPE_CHECKING, Generator, cast
+from typing import TYPE_CHECKING, cast
 
 from hatch.project.env import EnvironmentMetadata
 from hatch.utils.fs import Path
 from hatch.utils.runner import ExecutionContext
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
+
     from hatch.cli.application import Application
     from hatch.config.model import RootConfig
     from hatch.env.plugin.interface import EnvironmentInterface

@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 from contextlib import contextmanager
 from functools import cached_property
 from os.path import isabs
-from typing import TYPE_CHECKING, Generator
+from typing import TYPE_CHECKING
 
 from hatch.config.constants import AppEnvVars
 from hatch.env.utils import add_verbosity_flag, get_env_var_option
@@ -14,7 +14,7 @@ from hatch.project.utils import format_script_commands, parse_script_command
 from hatch.utils.structures import EnvVars
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Generator, Iterable
 
     from hatch.utils.fs import Path
 

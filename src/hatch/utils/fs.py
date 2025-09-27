@@ -5,11 +5,13 @@ import pathlib
 import sys
 from contextlib import contextmanager, suppress
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Generator
+from typing import TYPE_CHECKING, Any
 
 from hatch.utils.structures import EnvVars
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
+
     from _typeshed import FileDescriptorLike
 
 # There is special recognition in Mypy for `sys.platform`, not `os.name`
