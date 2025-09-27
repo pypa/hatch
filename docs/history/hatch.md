@@ -5,19 +5,14 @@
 All notable changes to Hatch will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
 ## Unreleased
 ***Changed:***
 - Drop support for Python 3.8
+- Environment type plugins are now no longer expected to support a pseudo-build environment as any environment now may be used for building. The following methods have been removed: `build_environment`, `build_environment_exists`, `run_builder`, `construct_build_command`
 
 ***Fixed:***
 - Fix issue where terminal output would be out of sync during build.
-
-## [1.41.2](https://github.com/pypa/hatch/releases/tag/hatch-v1.14.2) 2025-09-23 ## {: #hatch-v1.14.2 }
-
-***Changed:***
-
-- Drop support for Python 3.8
-- Environment type plugins are now no longer expected to support a pseudo-build environment as any environment now may be used for building. The following methods have been removed: `build_environment`, `build_environment_exists`, `run_builder`, `construct_build_command`
 - Fix for Click Sentinel value when using `run` command
 
 ***Added:***
