@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 import sys
-from typing import Any
+from typing import Any, NoReturn
 
 
 class Application:
@@ -80,7 +80,7 @@ class Application:
         if self.__verbosity >= 0:
             _display(f'[{message}]')
 
-    def abort(self, message: str = '', code: int = 1, **kwargs: Any) -> None:  # noqa: ARG002
+    def abort(self, message: str = '', code: int = 1, **kwargs: Any) -> NoReturn:  # noqa: ARG002
         """
         Terminate the program with the given return code.
         """
