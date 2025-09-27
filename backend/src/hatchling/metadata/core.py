@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+import hashlib
 import os
 import sys
 from contextlib import suppress
 from copy import deepcopy
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Generic, cast
 
+from hatchling.builders.variant_constants import VARIANT_LABEL_LENGTH
 from hatchling.metadata.utils import (
     format_dependency,
     is_valid_project_name,
@@ -36,6 +39,97 @@ def load_toml(path: str) -> dict[str, Any]:
         return tomllib.loads(f.read())
 
 
+@dataclass
+class VariantProviderConfig:
+    requires: list[str]
+    plugin_api: str | None = None
+    enable_if: str | None = None
+    optional: bool = False
+
+    @classmethod
+    def from_dict(cls, data: dict):
+        """Creates an instance of VariantProviderConfig from a dictionary."""
+        # Convert hyphenated keys to underscored keys
+        data = {key.replace("-", "_"): value for key, value in data.items()}
+
+        # Create an instance of VariantProviderConfig
+        return cls(**data)
+
+    def validate(self):
+        """Validates the VariantProviderConfig instance."""
+        if not self.requires:
+            raise ValueError("Requires list cannot be empty")
+
+
+@dataclass
+class VariantConfig:
+    vlabel: str | None
+    properties: list[str] | None
+    default_priorities: dict[str, list[str]]
+    providers: dict[str, VariantProviderConfig]
+
+    @classmethod
+    def from_dict(cls, data: dict, vprops: list[str] | None,
+                  variant_label: str | None):
+        """Creates an instance of VariantConfig from a dictionary."""
+        data = data.copy()
+
+        if vprops is None:
+            data["vlabel"] = None
+            data["properties"] = None
+
+
+        elif len(vprops) == 0:
+            data["vlabel"] = "null"
+            data["properties"] = []
+
+        else:
+            # Normalizing
+            _vprops = [
+                [el.strip() for el in vprop.split("::")]
+                for vprop in vprops
+            ]
+            for vprop in _vprops:
+                if len(vprop) != 3:
+                    raise ValueError(f"Invalid variant property: {vprop}")
+
+            data["properties"] = [" :: ".join(vprop) for vprop in sorted(_vprops)]
+
+            if variant_label is None:
+                hash_object = hashlib.sha256()
+                for vprop in data["properties"]:
+                    hash_object.update(f"{vprop}\n".encode())
+                data["vlabel"] = hash_object.hexdigest()[:VARIANT_LABEL_LENGTH]
+
+        if variant_label is not None:
+            if data["properties"] is None or len(data["properties"]) == 0:
+                raise ValueError("Variant Properties cannot be empty when a variant label is provided")
+            data["vlabel"] = variant_label
+
+        # Convert hyphenated keys to underscored keys
+        data = {key.replace("-", "_"): value for key, value in data.items()}
+
+        # Convert providers to VariantProviderConfig instances
+        data["providers"] = {
+            provider: VariantProviderConfig.from_dict(provider_data)
+            for provider, provider_data in data["providers"].items()
+        }
+
+        # Create an instance of VariantConfig
+        return cls(**data)
+
+    def validate(self):
+        """Validates the VariantConfig instance."""
+        for namespace in self.default_priorities["namespace"]:
+            if namespace not in self.providers:
+                raise ValueError(
+                    f"Namespace '{namespace}' is not defined in the variant providers"
+                )
+
+        for provider_cfg in self.providers.values():
+            provider_cfg.validate()
+
+
 class ProjectMetadata(Generic[PluginManagerBound]):
     def __init__(
         self,
@@ -57,6 +151,10 @@ class ProjectMetadata(Generic[PluginManagerBound]):
         self._name: str | None = None
         self._version: str | None = None
         self._project_file: str | None = None
+
+        self.variant_label: str | None = None
+        self.variant_config: VariantConfig | None = None
+        self._variant_config_data: dict[str, Any] | None = None
 
         # App already loaded config
         if config is not None and root is not None:
@@ -125,6 +223,13 @@ class ProjectMetadata(Generic[PluginManagerBound]):
             self._dynamic = list(dynamic)
 
         return self._dynamic
+
+    @property
+    def variant_config_data(self) -> dict[str, Any]:
+        """Variant configuration data fetched from pyproject.toml"""
+        if self._variant_config_data is None:
+            self._variant_config_data = self.config.get('variant', {})
+        return self._variant_config_data
 
     @property
     def name(self) -> str:

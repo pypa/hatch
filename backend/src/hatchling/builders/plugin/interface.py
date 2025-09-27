@@ -62,6 +62,8 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
         config: dict[str, Any] | None = None,
         metadata: ProjectMetadata | None = None,
         app: Application | None = None,
+        variant_props: list[str] | None = None,  # noqa: ARG002
+        variant_label: str | None = None,  # noqa: ARG002
     ) -> None:
         self.__root = root
         self.__plugin_manager = cast(PluginManagerBound, plugin_manager)
