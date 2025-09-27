@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Tuple, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from hatchling.version.scheme.plugin.interface import VersionSchemeInterface
 
@@ -95,4 +95,4 @@ def update_release(original_version: Version, new_release_parts: list[int]) -> t
 def parse_letter_version(*args: Any, **kwargs: Any) -> tuple[str, int]:
     from packaging.version import _parse_letter_version  # noqa: PLC2701
 
-    return cast(Tuple[str, int], _parse_letter_version(*args, **kwargs))
+    return cast(tuple[str, int], _parse_letter_version(*args, **kwargs))
