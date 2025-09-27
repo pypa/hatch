@@ -141,7 +141,7 @@ def hatch(ctx: click.Context, env_name, project, verbose, quiet, color, interact
             )
 
     if not ctx.invoked_subcommand:
-        app.display_info(ctx.get_help())
+        click.echo(ctx.get_help())
         return
 
     # Persist app data for sub-commands

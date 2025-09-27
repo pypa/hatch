@@ -61,7 +61,7 @@ def run(ctx: click.Context, args: tuple[str, ...]):
 
     first_arg = args[0]
     if first_arg in {'-h', '--help'}:
-        app.display_info(ctx.get_help())
+        click.echo(ctx.get_help())
         return
 
     from hatch.utils.fs import Path
