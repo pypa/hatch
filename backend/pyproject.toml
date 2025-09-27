@@ -9,6 +9,7 @@ dynamic = ["version"]
 description = "Modern, extensible Python build backend"
 readme = "README.md"
 license = "MIT"
+license-files = ["LICENSE.txt"]
 requires-python = ">=3.9"
 keywords = [
   "build",
@@ -21,7 +22,6 @@ authors = [
 classifiers = [
   "Development Status :: 5 - Production/Stable",
   "Intended Audience :: Developers",
-  "License :: OSI Approved :: MIT License",
   "Natural Language :: English",
   "Operating System :: OS Independent",
   "Programming Language :: Python :: 3.9",
