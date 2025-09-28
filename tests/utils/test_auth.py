@@ -37,7 +37,7 @@ def test_pypirc(fs):
         app=None,
         cache_dir=Path("/none"),
         options={},
-        repo="arbritrary",
+        repo="arbitrary",
         repo_config={"url": "https://kaashandel.nl/"},
     )
     assert credentials.username == "guido"
