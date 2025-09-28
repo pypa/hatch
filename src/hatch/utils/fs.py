@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 # There is special recognition in Mypy for `sys.platform`, not `os.name`
 # https://github.com/python/cpython/blob/09d7319bfe0006d9aa3fc14833b69c24ccafdca6/Lib/pathlib.py#L957
-if sys.platform == 'win32':
+if sys.platform == "win32":
     _PathBase = pathlib.WindowsPath
 else:
     _PathBase = pathlib.PosixPath
@@ -24,10 +24,10 @@ else:
 disk_sync = os.fsync
 # https://mjtsai.com/blog/2022/02/17/apple-ssd-benchmarks-and-f_fullsync/
 # https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/fsync.2.html
-if sys.platform == 'darwin':
+if sys.platform == "darwin":
     import fcntl
 
-    if hasattr(fcntl, 'F_FULLFSYNC'):
+    if hasattr(fcntl, "F_FULLFSYNC"):
 
         def disk_sync(fd: FileDescriptorLike) -> None:
             fcntl.fcntl(fd, fcntl.F_FULLFSYNC)
@@ -40,11 +40,11 @@ class Path(_PathBase):
         from hashlib import sha256
 
         path = str(self)
-        if sys.platform == 'win32' or sys.platform == 'darwin':
+        if sys.platform == "win32" or sys.platform == "darwin":
             path = path.casefold()
 
-        digest = sha256(path.encode('utf-8')).digest()
-        return urlsafe_b64encode(digest).decode('utf-8')
+        digest = sha256(path.encode("utf-8")).digest()
+        return urlsafe_b64encode(digest).decode("utf-8")
 
     @cached_property
     def id(self) -> str:

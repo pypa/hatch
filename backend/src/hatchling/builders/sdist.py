@@ -36,15 +36,15 @@ class SdistArchive:
         self.reproducible = reproducible
         self.timestamp: int | None = get_reproducible_timestamp() if reproducible else None
 
-        raw_fd, self.path = tempfile.mkstemp(suffix='.tar.gz')
-        self.fd = os.fdopen(raw_fd, 'w+b')
-        self.gz = gzip.GzipFile(fileobj=self.fd, mode='wb', mtime=self.timestamp)
-        self.tf = tarfile.TarFile(fileobj=self.gz, mode='w', format=tarfile.PAX_FORMAT)
+        raw_fd, self.path = tempfile.mkstemp(suffix=".tar.gz")
+        self.fd = os.fdopen(raw_fd, "w+b")
+        self.gz = gzip.GzipFile(fileobj=self.fd, mode="wb", mtime=self.timestamp)
+        self.tf = tarfile.TarFile(fileobj=self.gz, mode="w", format=tarfile.PAX_FORMAT)
         self.gettarinfo = lambda *args, **kwargs: self.normalize_tar_metadata(self.tf.gettarinfo(*args, **kwargs))
 
     def create_file(self, contents: str | bytes, *relative_paths: str) -> None:
         if not isinstance(contents, bytes):
-            contents = contents.encode('utf-8')
+            contents = contents.encode("utf-8")
         tar_info = tarfile.TarInfo(normalize_archive_path(os.path.join(self.name, *relative_paths)))
         tar_info.size = len(contents)
         if self.reproducible and self.timestamp is not None:
@@ -62,8 +62,8 @@ class SdistArchive:
         tar_info = copy(tar_info)
         tar_info.uid = 0
         tar_info.gid = 0
-        tar_info.uname = ''
-        tar_info.gname = ''
+        tar_info.uname = ""
+        tar_info.gname = ""
         tar_info.mode = normalize_file_permissions(tar_info.mode)
         if self.timestamp is not None:
             tar_info.mtime = self.timestamp
@@ -97,17 +97,17 @@ class SdistBuilderConfig(BuilderConfig):
     @property
     def core_metadata_constructor(self) -> Callable[..., str]:
         if self.__core_metadata_constructor is None:
-            core_metadata_version = self.target_config.get('core-metadata-version', DEFAULT_METADATA_VERSION)
+            core_metadata_version = self.target_config.get("core-metadata-version", DEFAULT_METADATA_VERSION)
             if not isinstance(core_metadata_version, str):
-                message = f'Field `tool.hatch.build.targets.{self.plugin_name}.core-metadata-version` must be a string'
+                message = f"Field `tool.hatch.build.targets.{self.plugin_name}.core-metadata-version` must be a string"
                 raise TypeError(message)
 
             constructors = get_core_metadata_constructors()
             if core_metadata_version not in constructors:
                 message = (
-                    f'Unknown metadata version `{core_metadata_version}` for field '
-                    f'`tool.hatch.build.targets.{self.plugin_name}.core-metadata-version`. '
-                    f'Available: {", ".join(sorted(constructors))}'
+                    f"Unknown metadata version `{core_metadata_version}` for field "
+                    f"`tool.hatch.build.targets.{self.plugin_name}.core-metadata-version`. "
+                    f"Available: {', '.join(sorted(constructors))}"
                 )
                 raise ValueError(message)
 
@@ -118,15 +118,15 @@ class SdistBuilderConfig(BuilderConfig):
     @property
     def strict_naming(self) -> bool:
         if self.__strict_naming is None:
-            if 'strict-naming' in self.target_config:
-                strict_naming = self.target_config['strict-naming']
+            if "strict-naming" in self.target_config:
+                strict_naming = self.target_config["strict-naming"]
                 if not isinstance(strict_naming, bool):
-                    message = f'Field `tool.hatch.build.targets.{self.plugin_name}.strict-naming` must be a boolean'
+                    message = f"Field `tool.hatch.build.targets.{self.plugin_name}.strict-naming` must be a boolean"
                     raise TypeError(message)
             else:
-                strict_naming = self.build_config.get('strict-naming', True)
+                strict_naming = self.build_config.get("strict-naming", True)
                 if not isinstance(strict_naming, bool):
-                    message = 'Field `tool.hatch.build.strict-naming` must be a boolean'
+                    message = "Field `tool.hatch.build.strict-naming` must be a boolean"
                     raise TypeError(message)
 
             self.__strict_naming = strict_naming
@@ -136,7 +136,7 @@ class SdistBuilderConfig(BuilderConfig):
     @property
     def support_legacy(self) -> bool:
         if self.__support_legacy is None:
-            self.__support_legacy = bool(self.target_config.get('support-legacy', False))
+            self.__support_legacy = bool(self.target_config.get("support-legacy", False))
 
         return self.__support_legacy
 
@@ -146,13 +146,13 @@ class SdistBuilder(BuilderInterface):
     Build an archive of the source files
     """
 
-    PLUGIN_NAME = 'sdist'
+    PLUGIN_NAME = "sdist"
 
     def get_version_api(self) -> dict[str, Callable]:
-        return {'standard': self.build_standard}
+        return {"standard": self.build_standard}
 
     def get_default_versions(self) -> list[str]:  # noqa: PLR6301
-        return ['standard']
+        return ["standard"]
 
     def clean(  # noqa: PLR6301
         self,
@@ -160,7 +160,7 @@ class SdistBuilder(BuilderInterface):
         versions: list[str],  # noqa: ARG002
     ) -> None:
         for filename in os.listdir(directory):
-            if filename.endswith('.tar.gz'):
+            if filename.endswith(".tar.gz"):
                 os.remove(os.path.join(directory, filename))
 
     def build_standard(self, directory: str, **build_data: Any) -> str:
@@ -170,7 +170,7 @@ class SdistBuilder(BuilderInterface):
             for included_file in self.recurse_included_files():
                 if self.config.support_legacy:
                     possible_package, file_name = os.path.split(included_file.relative_path)
-                    if file_name == '__init__.py':
+                    if file_name == "__init__.py":
                         found_packages.add(possible_package)
 
                 tar_info = archive.gettarinfo(
@@ -183,24 +183,24 @@ class SdistBuilder(BuilderInterface):
                     continue
 
                 if tar_info.isfile():
-                    with open(included_file.path, 'rb') as f:
+                    with open(included_file.path, "rb") as f:
                         archive.addfile(tar_info, f)
                 else:  # no cov
                     # TODO: Investigate if this is necessary (for symlinks, etc.)
                     archive.addfile(tar_info)
 
             archive.create_file(
-                self.config.core_metadata_constructor(self.metadata, extra_dependencies=build_data['dependencies']),
-                'PKG-INFO',
+                self.config.core_metadata_constructor(self.metadata, extra_dependencies=build_data["dependencies"]),
+                "PKG-INFO",
             )
 
             if self.config.support_legacy:
                 archive.create_file(
-                    self.construct_setup_py_file(sorted(found_packages), extra_dependencies=build_data['dependencies']),
-                    'setup.py',
+                    self.construct_setup_py_file(sorted(found_packages), extra_dependencies=build_data["dependencies"]),
+                    "setup.py",
                 )
 
-        target = os.path.join(directory, f'{self.artifact_project_id}.tar.gz')
+        target = os.path.join(directory, f"{self.artifact_project_id}.tar.gz")
 
         replace_file(archive.path, target)
         normalize_artifact_permissions(target)
@@ -211,73 +211,73 @@ class SdistBuilder(BuilderInterface):
         return (
             self.project_id
             if self.config.strict_naming
-            else f'{self.normalize_file_name_component(self.metadata.core.raw_name)}-{self.metadata.version}'
+            else f"{self.normalize_file_name_component(self.metadata.core.raw_name)}-{self.metadata.version}"
         )
 
     def construct_setup_py_file(self, packages: list[str], extra_dependencies: tuple[()] = ()) -> str:
-        contents = 'from setuptools import setup\n\n'
+        contents = "from setuptools import setup\n\n"
 
-        contents += 'setup(\n'
+        contents += "setup(\n"
 
-        contents += f'    name={self.metadata.core.name!r},\n'
-        contents += f'    version={self.metadata.version!r},\n'
+        contents += f"    name={self.metadata.core.name!r},\n"
+        contents += f"    version={self.metadata.version!r},\n"
 
         if self.metadata.core.description:
-            contents += f'    description={self.metadata.core.description!r},\n'
+            contents += f"    description={self.metadata.core.description!r},\n"
 
         if self.metadata.core.readme:
-            contents += f'    long_description={self.metadata.core.readme!r},\n'
+            contents += f"    long_description={self.metadata.core.readme!r},\n"
 
         authors_data = self.metadata.core.authors_data
-        if authors_data['name']:
+        if authors_data["name"]:
             contents += f"    author={', '.join(authors_data['name'])!r},\n"
-        if authors_data['email']:
+        if authors_data["email"]:
             contents += f"    author_email={', '.join(authors_data['email'])!r},\n"
 
         maintainers_data = self.metadata.core.maintainers_data
-        if maintainers_data['name']:
+        if maintainers_data["name"]:
             contents += f"    maintainer={', '.join(maintainers_data['name'])!r},\n"
-        if maintainers_data['email']:
+        if maintainers_data["email"]:
             contents += f"    maintainer_email={', '.join(maintainers_data['email'])!r},\n"
 
         if self.metadata.core.classifiers:
-            contents += '    classifiers=[\n'
+            contents += "    classifiers=[\n"
 
             for classifier in self.metadata.core.classifiers:
-                contents += f'        {classifier!r},\n'
+                contents += f"        {classifier!r},\n"
 
-            contents += '    ],\n'
+            contents += "    ],\n"
 
         dependencies = list(self.metadata.core.dependencies)
         dependencies.extend(extra_dependencies)
         if dependencies:
-            contents += '    install_requires=[\n'
+            contents += "    install_requires=[\n"
 
             for raw_specifier in dependencies:
                 specifier = raw_specifier.replace("'", '"')
-                contents += f'        {specifier!r},\n'
+                contents += f"        {specifier!r},\n"
 
-            contents += '    ],\n'
+            contents += "    ],\n"
 
         if self.metadata.core.optional_dependencies:
-            contents += '    extras_require={\n'
+            contents += "    extras_require={\n"
 
             for option, specifiers in self.metadata.core.optional_dependencies.items():
                 if not specifiers:
                     continue
 
-                contents += f'        {option!r}: [\n'
+                contents += f"        {option!r}: [\n"
 
                 for raw_specifier in specifiers:
                     specifier = raw_specifier.replace("'", '"')
-                    contents += f'            {specifier!r},\n'
+                    contents += f"            {specifier!r},\n"
 
-                contents += '        ],\n'
+                contents += "        ],\n"
 
-            contents += '    },\n'
+            contents += "    },\n"
 
         if self.metadata.core.scripts or self.metadata.core.gui_scripts or self.metadata.core.entry_points:
-            contents += '    entry_points={\n'
+            contents += "    entry_points={\n"
 
             if self.metadata.core.scripts:
                 contents += "        'console_scripts': [\n"
@@ -285,7 +285,7 @@ class SdistBuilder(BuilderInterface):
                 for name, object_ref in self.metadata.core.scripts.items():
                     contents += f"            '{name} = {object_ref}',\n"
 
-                contents += '        ],\n'
+                contents += "        ],\n"
 
             if self.metadata.core.gui_scripts:
                 contents += "        'gui_scripts': [\n"
@@ -293,46 +293,46 @@ class SdistBuilder(BuilderInterface):
                 for name, object_ref in self.metadata.core.gui_scripts.items():
                     contents += f"            '{name} = {object_ref}',\n"
 
-                contents += '        ],\n'
+                contents += "        ],\n"
 
             if self.metadata.core.entry_points:
                 for group, entry_points in self.metadata.core.entry_points.items():
-                    contents += f'        {group!r}: [\n'
+                    contents += f"        {group!r}: [\n"
 
                     for name, object_ref in entry_points.items():
                         contents += f"            '{name} = {object_ref}',\n"
 
-                    contents += '        ],\n'
+                    contents += "        ],\n"
 
-            contents += '    },\n'
+            contents += "    },\n"
 
         if packages:
             src_layout = False
-            contents += '    packages=[\n'
+            contents += "    packages=[\n"
 
             for package in packages:
-                if package.startswith(f'src{os.sep}'):
+                if package.startswith(f"src{os.sep}"):
                     src_layout = True
                     contents += f"        {package.replace(os.sep, '.')[4:]!r},\n"
                 else:
                     contents += f"        {package.replace(os.sep, '.')!r},\n"
 
-            contents += '    ],\n'
+            contents += "    ],\n"
 
             if src_layout:
                 contents += "    package_dir={'': 'src'},\n"
 
-        contents += ')\n'
+        contents += ")\n"
 
         return contents
 
     def get_default_build_data(self) -> dict[str, Any]:
         force_include = {}
-        for filename in ['pyproject.toml', DEFAULT_CONFIG_FILE, DEFAULT_BUILD_SCRIPT]:
+        for filename in ["pyproject.toml", DEFAULT_CONFIG_FILE, DEFAULT_BUILD_SCRIPT]:
             path = os.path.join(self.root, filename)
             if os.path.exists(path):
                 force_include[path] = filename
-        build_data = {'force_include': force_include, 'dependencies': []}
+        build_data = {"force_include": force_include, "dependencies": []}
 
         for exclusion_files in self.config.vcs_exclusion_files.values():
             for exclusion_file in exclusion_files:

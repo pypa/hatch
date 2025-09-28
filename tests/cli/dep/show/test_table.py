@@ -8,32 +8,32 @@ from hatch.utils.structures import EnvVars
 from hatchling.utils.constants import DEFAULT_CONFIG_FILE
 
 
-@pytest.fixture(scope='module', autouse=True)
+@pytest.fixture(scope="module", autouse=True)
 def _terminal_width():
-    with EnvVars({'COLUMNS': '200'}):
+    with EnvVars({"COLUMNS": "200"}):
         yield
 
 
 def test_incompatible_environment(hatch, temp_dir, helpers, build_env_config):
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
         assert result.exit_code == 0, result.output
 
-    path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
     project = Project(path)
     config = dict(project.raw_config)
-    config['build-system']['requires'].append('foo')
-    config['project']['dynamic'].append('dependencies')
+    config["build-system"]["requires"].append("foo")
+    config["project"]["dynamic"].append("dependencies")
     project.save_config(config)
-    helpers.update_project_environment(project, 'hatch-build', {'python': '9000', **build_env_config})
+    helpers.update_project_environment(project, "hatch-build", {"python": "9000", **build_env_config})
 
     with path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('dep', 'show', 'table')
+        result = hatch("dep", "show", "table")
 
     assert result.exit_code == 1, result.output
     assert result.output == helpers.dedent(
@@ -44,27 +44,27 @@ def test_incompatible_environment(hatch, temp_dir, helpers, build_env_config):
 
 
 def test_project_only(hatch, helpers, temp_dir, config_file):
-    config_file.model.template.plugins['default']['tests'] = False
+    config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
     project = Project(project_path)
     config = dict(project.raw_config)
-    config['project']['dependencies'] = ['foo-bar-baz']
+    config["project"]["dependencies"] = ["foo-bar-baz"]
     project.save_config(config)
 
     with project_path.as_cwd():
-        result = hatch('dep', 'show', 'table', '--ascii', '-p')
+        result = hatch("dep", "show", "table", "--ascii", "-p")
 
     assert result.exit_code == 0, result.output
     assert helpers.remove_trailing_spaces(result.output) == helpers.dedent(
@@ -80,25 +80,25 @@ def test_project_only(hatch, helpers, temp_dir, config_file):
 
 
 def test_environment_only(hatch, helpers, temp_dir, config_file):
-    config_file.model.template.plugins['default']['tests'] = False
+    config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
     project = Project(project_path)
-    helpers.update_project_environment(project, 'default', {'dependencies': ['foo-bar-baz']})
+    helpers.update_project_environment(project, "default", {"dependencies": ["foo-bar-baz"]})
 
     with project_path.as_cwd():
-        result = hatch('dep', 'show', 'table', '--ascii', '-e')
+        result = hatch("dep", "show", "table", "--ascii", "-e")
 
     assert result.exit_code == 0, result.output
     assert helpers.remove_trailing_spaces(result.output) == helpers.dedent(
@@ -114,28 +114,28 @@ def test_environment_only(hatch, helpers, temp_dir, config_file):
 
 
 def test_default_both(hatch, helpers, temp_dir, config_file):
-    config_file.model.template.plugins['default']['tests'] = False
+    config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
     project = Project(project_path)
     config = dict(project.raw_config)
-    config['project']['dependencies'] = ['foo-bar-baz']
+    config["project"]["dependencies"] = ["foo-bar-baz"]
     project.save_config(config)
-    helpers.update_project_environment(project, 'default', {'dependencies': ['baz-bar-foo']})
+    helpers.update_project_environment(project, "default", {"dependencies": ["baz-bar-foo"]})
 
     with project_path.as_cwd():
-        result = hatch('dep', 'show', 'table', '--ascii')
+        result = hatch("dep", "show", "table", "--ascii")
 
     assert result.exit_code == 0, result.output
     assert helpers.remove_trailing_spaces(result.output) == helpers.dedent(
@@ -157,41 +157,41 @@ def test_default_both(hatch, helpers, temp_dir, config_file):
 
 
 def test_optional_columns(hatch, helpers, temp_dir, config_file):
-    config_file.model.template.plugins['default']['tests'] = False
+    config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
     project = Project(project_path)
     config = dict(project.raw_config)
-    config['project']['dependencies'] = [
-        'python___dateutil',
-        'bAr.Baz[TLS, EdDSA]   >=1.2RC5',
+    config["project"]["dependencies"] = [
+        "python___dateutil",
+        "bAr.Baz[TLS, EdDSA]   >=1.2RC5",
         'Foo;python_version<"3.8"',
     ]
     project.save_config(config)
     helpers.update_project_environment(
         project,
-        'default',
+        "default",
         {
-            'dependencies': [
-                'proj @ git+https://github.com/org/proj.git@v1',
+            "dependencies": [
+                "proj @ git+https://github.com/org/proj.git@v1",
                 'bAr.Baz   [TLS, EdDSA]   >=1.2RC5;python_version<"3.8"',
             ],
         },
     )
 
     with project_path.as_cwd():
-        result = hatch('dep', 'show', 'table', '--ascii')
+        result = hatch("dep", "show", "table", "--ascii")
 
     assert result.exit_code == 0, result.output
     assert helpers.remove_trailing_spaces(result.output) == helpers.dedent(
@@ -216,18 +216,18 @@ def test_optional_columns(hatch, helpers, temp_dir, config_file):
 
 
 def test_plugin_dependencies_unmet(hatch, helpers, temp_dir, config_file, mock_plugin_installation):
-    config_file.model.template.plugins['default']['tests'] = False
+    config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
     dependency = os.urandom(16).hex()
@@ -242,11 +242,11 @@ def test_plugin_dependencies_unmet(hatch, helpers, temp_dir, config_file, mock_p
 
     project = Project(project_path)
     config = dict(project.raw_config)
-    config['project']['dependencies'] = ['foo-bar-baz']
+    config["project"]["dependencies"] = ["foo-bar-baz"]
     project.save_config(config)
 
     with project_path.as_cwd():
-        result = hatch('dep', 'show', 'table', '--ascii', '-p')
+        result = hatch("dep", "show", "table", "--ascii", "-p")
 
     assert result.exit_code == 0, result.output
     assert helpers.remove_trailing_spaces(result.output) == helpers.dedent(

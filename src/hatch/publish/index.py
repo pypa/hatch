@@ -12,31 +12,31 @@ if TYPE_CHECKING:
 
 
 class IndexPublisher(PublisherInterface):
-    PLUGIN_NAME = 'index'
+    PLUGIN_NAME = "index"
 
     def get_repos(self):
         global_plugin_config = self.plugin_config.copy()
-        defined_repos = self.plugin_config.pop('repos', {})
-        self.plugin_config.pop('repo', None)
+        defined_repos = self.plugin_config.pop("repos", {})
+        self.plugin_config.pop("repo", None)
 
         # Normalize type
         repos = {}
         for repo, data in defined_repos.items():
             if isinstance(data, str):
-                repos[repo] = {'url': data}
+                repos[repo] = {"url": data}
             elif not isinstance(data, dict):
-                self.app.abort(f'Hatch config field `publish.index.repos.{repo}` must be a string or a mapping')
-            elif 'url' not in data:
-                self.app.abort(f'Hatch config field `publish.index.repos.{repo}` must define a `url` key')
+                self.app.abort(f"Hatch config field `publish.index.repos.{repo}` must be a string or a mapping")
+            elif "url" not in data:
+                self.app.abort(f"Hatch config field `publish.index.repos.{repo}` must define a `url` key")
             else:
                 repos[repo] = data
 
         # Ensure PyPI correct
         for repo, url in (
-            ('main', 'https://upload.pypi.org/legacy/'),
-            ('test', 'https://test.pypi.org/legacy/'),
+            ("main", "https://upload.pypi.org/legacy/"),
+            ("test", "https://test.pypi.org/legacy/"),
         ):
-            repos.setdefault(repo, {})['url'] = url
+            repos.setdefault(repo, {})["url"] = url
 
         # Populate defaults
         for config in repos.values():
@@ -60,9 +60,9 @@ class IndexPublisher(PublisherInterface):
 
             artifacts = [DEFAULT_BUILD_DIRECTORY]
 
-        repo = options['repo'] if 'repo' in options else self.plugin_config.get('repo', 'main')
+        repo = options["repo"] if "repo" in options else self.plugin_config.get("repo", "main")
         repos = self.get_repos()
-        repo_config: dict[str, str] = repos[repo] if repo in repos else {'url': repo}
+        repo_config: dict[str, str] = repos[repo] if repo in repos else {"url": repo}
         credentials = AuthenticationCredentials(
             app=self.app,
             cache_dir=self.cache_dir,
@@ -72,12 +72,12 @@ class IndexPublisher(PublisherInterface):
         )
 
         index = PackageIndex(
-            repo_config['url'],
+            repo_config["url"],
             user=credentials.username,
             auth=credentials.password,
-            ca_cert=options.get('ca_cert', repo_config.get('ca-cert')),
-            client_cert=options.get('client_cert', repo_config.get('client-cert')),
-            client_key=options.get('client_key', repo_config.get('client-key')),
+            ca_cert=options.get("ca_cert", repo_config.get("ca-cert")),
+            client_cert=options.get("client_cert", repo_config.get("client-cert")),
+            client_key=options.get("client_key", repo_config.get("client-key")),
         )
 
         existing_artifacts: dict[str, set[str]] = {}
@@ -87,27 +87,27 @@ class IndexPublisher(PublisherInterface):
 
         artifacts_found = False
         for artifact in recurse_artifacts(artifacts, self.root):
-            if artifact.name.endswith('.whl'):
+            if artifact.name.endswith(".whl"):
                 data = get_wheel_form_data(artifact)
-            elif artifact.name.endswith('.tar.gz'):
+            elif artifact.name.endswith(".tar.gz"):
                 data = get_sdist_form_data(artifact)
             else:
                 continue
 
             artifacts_found = True
 
-            for field in ('name', 'version'):
+            for field in ("name", "version"):
                 if field not in data:
-                    self.app.abort(f'Missing required field `{field}` in artifact: {artifact}')
+                    self.app.abort(f"Missing required field `{field}` in artifact: {artifact}")
 
             try:
                 displayed_path = str(artifact.relative_to(self.root))
             except ValueError:
                 displayed_path = str(artifact)
 
-            self.app.display_info(f'{displayed_path} ...', end=' ')
+            self.app.display_info(f"{displayed_path} ...", end=" ")
 
-            project_name = normalize_project_name(data['name'])
+            project_name = normalize_project_name(data["name"])
             if project_name not in existing_artifacts:
                 try:
                     response = index.get_simple_api(project_name)
@@ -118,23 +118,23 @@ class IndexPublisher(PublisherInterface):
                     existing_artifacts[project_name] = set(parse_artifacts(response.text))
 
             if artifact.name in existing_artifacts[project_name]:
-                self.app.display_warning('already exists')
+                self.app.display_warning("already exists")
                 continue
 
             try:
                 index.upload_artifact(artifact, data)
             except Exception as e:  # noqa: BLE001
-                self.app.display_error('failed')
-                self.app.abort(f'Error uploading to repository: {index.repo} - {e}'.replace(index.auth, '*****'))
+                self.app.display_error("failed")
+                self.app.abort(f"Error uploading to repository: {index.repo} - {e}".replace(index.auth, "*****"))
             else:
-                self.app.display_success('success')
+                self.app.display_success("success")
 
                 existing_artifacts[project_name].add(artifact.name)
-                project_versions[project_name][data['version']] = None
+                project_versions[project_name][data["version"]] = None
 
-        if not options['initialize_auth']:
+        if not options["initialize_auth"]:
             if not artifacts_found:
-                self.app.abort('No artifacts found')
+                self.app.abort("No artifacts found")
             elif not project_versions:
                 self.app.abort(code=0)
 
@@ -142,7 +142,7 @@ class IndexPublisher(PublisherInterface):
             self.app.display_info()
             self.app.display_mini_header(project_name)
             for version in versions:
-                self.app.display_info(str(index.urls.project.child(project_name, version, '').to_iri()))
+                self.app.display_info(str(index.urls.project.child(project_name, version, "").to_iri()))
 
         credentials.write_updated_data()
 
@@ -160,5 +160,5 @@ def recurse_artifacts(artifacts: list, root) -> Iterable[Path]:
 
 
 def parse_artifacts(artifact_payload):
-    for match in re.finditer(r'<a [^>]+>([^<]+)</a>', artifact_payload):
+    for match in re.finditer(r"<a [^>]+>([^<]+)</a>", artifact_payload):
         yield match.group(1)

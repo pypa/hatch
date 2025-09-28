@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 
 
 class VirtualEnvironment(EnvironmentInterface):
-    PLUGIN_NAME = 'virtual'
+    PLUGIN_NAME = "virtual"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -36,14 +36,14 @@ class VirtualEnvironment(EnvironmentInterface):
             project_id
             if project_is_script
             else self.metadata.name
-            if 'project' in self.metadata.config
-            else f'{project_id}-unmanaged'
+            if "project" in self.metadata.config
+            else f"{project_id}-unmanaged"
         )
-        venv_name = project_name if self.name == 'default' else self.name
+        venv_name = project_name if self.name == "default" else self.name
 
         # Conditions requiring a flat structure for build env
         if (
-            self.isolated_data_directory == self.platform.home / '.virtualenvs'
+            self.isolated_data_directory == self.platform.home / ".virtualenvs"
             or self.root in self.isolated_data_directory.resolve().parents
         ):
             app_virtual_env_path = self.isolated_data_directory / venv_name
@@ -51,7 +51,7 @@ class VirtualEnvironment(EnvironmentInterface):
             app_virtual_env_path = self.isolated_data_directory / project_name / project_id / venv_name
 
         # Explicit path
-        chosen_directory = self.get_env_var_option('path') or self.config.get('path', '')
+        chosen_directory = self.get_env_var_option("path") or self.config.get("path", "")
         if chosen_directory:
             self.storage_path = self.data_directory / project_name / project_id
             self.virtual_env_path = (
@@ -61,7 +61,7 @@ class VirtualEnvironment(EnvironmentInterface):
             self.storage_path = self.virtual_env_path = self.isolated_data_directory / venv_name
         # Conditions requiring a flat structure
         elif (
-            self.data_directory == self.platform.home / '.virtualenvs'
+            self.data_directory == self.platform.home / ".virtualenvs"
             or self.root in self.data_directory.resolve().parents
         ):
             self.storage_path = self.data_directory
@@ -73,7 +73,7 @@ class VirtualEnvironment(EnvironmentInterface):
 
         self.virtual_env = self.virtual_env_cls(self.virtual_env_path, self.platform, self.verbosity)
         self.build_virtual_env = self.virtual_env_cls(
-            app_virtual_env_path.parent / f'{app_virtual_env_path.name}-build', self.platform, self.verbosity
+            app_virtual_env_path.parent / f"{app_virtual_env_path.name}-build", self.platform, self.verbosity
         )
         self.shells = ShellManager(self)
 
@@ -81,15 +81,15 @@ class VirtualEnvironment(EnvironmentInterface):
 
     @cached_property
     def use_uv(self) -> bool:
-        return self.installer == 'uv' or bool(self.explicit_uv_path)
+        return self.installer == "uv" or bool(self.explicit_uv_path)
 
     @cached_property
     def installer(self) -> str:
-        return self.config.get('installer', 'pip')
+        return self.config.get("installer", "pip")
 
     @cached_property
     def explicit_uv_path(self) -> str:
-        return self.get_env_var_option('uv_path') or self.config.get('uv-path', '')
+        return self.get_env_var_option("uv_path") or self.config.get("uv-path", "")
 
     @cached_property
     def virtual_env_cls(self) -> type[VirtualEnv]:
@@ -99,7 +99,7 @@ class VirtualEnvironment(EnvironmentInterface):
         if not (self.use_uv or self.uv_path):
             return nullcontext()
 
-        return EnvVars({'HATCH_UV': self.uv_path})
+        return EnvVars({"HATCH_UV": self.uv_path})
 
     @cached_property
     def uv_path(self) -> str:
@@ -108,7 +108,7 @@ class VirtualEnvironment(EnvironmentInterface):
 
         from hatch.env.internal import is_default_environment
 
-        env_name = 'hatch-uv'
+        env_name = "hatch-uv"
         if not (
             # Prevent recursive loop
             self.name == env_name
@@ -118,18 +118,18 @@ class VirtualEnvironment(EnvironmentInterface):
             uv_env = self.app.project.get_environment(env_name)
             self.app.project.prepare_environment(uv_env)
             with uv_env:
-                return self.platform.modules.shutil.which('uv')
+                return self.platform.modules.shutil.which("uv")
 
         import sysconfig
 
-        scripts_dir = sysconfig.get_path('scripts')
-        old_path = os.environ.get('PATH', os.defpath)
-        new_path = f'{scripts_dir}{os.pathsep}{old_path}'
-        return self.platform.modules.shutil.which('uv', path=new_path)
+        scripts_dir = sysconfig.get_path("scripts")
+        old_path = os.environ.get("PATH", os.defpath)
+        new_path = f"{scripts_dir}{os.pathsep}{old_path}"
+        return self.platform.modules.shutil.which("uv", path=new_path)
 
     @staticmethod
     def get_option_types() -> dict:
-        return {'system-packages': bool, 'path': str, 'python-sources': list, 'installer': str, 'uv-path': str}
+        return {"system-packages": bool, "path": str, "python-sources": list, "installer": str, "uv-path": str}
 
     def activate(self):
         self.virtual_env.activate()
@@ -144,7 +144,7 @@ class VirtualEnvironment(EnvironmentInterface):
         if self.root in self.storage_path.parents:
             # Although it would be nice to support Mercurial, only Git supports multiple ignore files. See:
             # https://github.com/pytest-dev/pytest/issues/3286#issuecomment-421439197
-            vcs_ignore_file = self.storage_path / '.gitignore'
+            vcs_ignore_file = self.storage_path / ".gitignore"
             if not vcs_ignore_file.is_file():
                 vcs_ignore_file.ensure_parent_dir_exists()
                 vcs_ignore_file.write_text(
@@ -155,16 +155,16 @@ class VirtualEnvironment(EnvironmentInterface):
                 )
 
         with self.expose_uv():
-            self.virtual_env.create(self.parent_python, allow_system_packages=self.config.get('system-packages', False))
+            self.virtual_env.create(self.parent_python, allow_system_packages=self.config.get("system-packages", False))
 
     def remove(self):
         self.virtual_env.remove()
         self.build_virtual_env.remove()
 
         # Clean up root directory of all virtual environments belonging to the project
-        if self.storage_path != self.platform.home / '.virtualenvs' and self.storage_path.is_dir():
+        if self.storage_path != self.platform.home / ".virtualenvs" and self.storage_path.is_dir():
             entries = [entry.name for entry in self.storage_path.iterdir()]
-            if not entries or (entries == ['.gitignore'] and self.root in self.storage_path.parents):
+            if not entries or (entries == [".gitignore"] and self.root in self.storage_path.parents):
                 self.storage_path.remove()
 
     def exists(self):
@@ -177,7 +177,7 @@ class VirtualEnvironment(EnvironmentInterface):
     def install_project_dev_mode(self):
         with self.safe_activation():
             self.platform.check_command(
-                self.construct_pip_install_command(['--editable', self.apply_features(str(self.root))])
+                self.construct_pip_install_command(["--editable", self.apply_features(str(self.root))])
             )
 
     def dependencies_in_sync(self):
@@ -204,7 +204,7 @@ class VirtualEnvironment(EnvironmentInterface):
         if not self.use_uv:
             return super().construct_pip_install_command(args)
 
-        command = [self.uv_path, 'pip', 'install']
+        command = [self.uv_path, "pip", "install"]
 
         # Default to -1 verbosity
         add_verbosity_flag(command, self.verbosity, adjustment=-1)
@@ -213,7 +213,7 @@ class VirtualEnvironment(EnvironmentInterface):
         return command
 
     def enter_shell(self, name: str, path: str, args: Iterable[str]):
-        shell_executor = getattr(self.shells, f'enter_{name}', None)
+        shell_executor = getattr(self.shells, f"enter_{name}", None)
         if shell_executor is None:
             # Manually activate in lieu of an activation script
             with self.safe_activation():
@@ -225,7 +225,7 @@ class VirtualEnvironment(EnvironmentInterface):
     def check_compatibility(self):
         super().check_compatibility()
 
-        python_version = self.config.get('python', '')
+        python_version = self.config.get("python", "")
         if (
             os.environ.get(AppEnvVars.PYTHON)
             or self._find_existing_interpreter(python_version) is not None
@@ -234,23 +234,23 @@ class VirtualEnvironment(EnvironmentInterface):
             return
 
         message = (
-            f'cannot locate Python: {python_version}'
+            f"cannot locate Python: {python_version}"
             if python_version
-            else 'no compatible Python distribution available'
+            else "no compatible Python distribution available"
         )
         raise OSError(message)
 
     @cached_property
     def _preferred_python_version(self):
-        return f'{sys.version_info.major}.{sys.version_info.minor}'
+        return f"{sys.version_info.major}.{sys.version_info.minor}"
 
     @cached_property
     def parent_python(self):
-        if python_choice := self.config.get('python', ''):
+        if python_choice := self.config.get("python", ""):
             return self._get_concrete_interpreter_path(python_choice)
 
         if explicit_default := os.environ.get(AppEnvVars.PYTHON):
-            return sys.executable if explicit_default == 'self' else explicit_default
+            return sys.executable if explicit_default == "self" else explicit_default
 
         return self._get_concrete_interpreter_path()
 
@@ -258,7 +258,7 @@ class VirtualEnvironment(EnvironmentInterface):
     def python_manager(self) -> PythonManager:
         from hatch.python.core import PythonManager
 
-        return PythonManager(self.isolated_data_directory / '.pythons')
+        return PythonManager(self.isolated_data_directory / ".pythons")
 
     def get_interpreter_resolver_env(self) -> dict[str, str]:
         env = dict(os.environ)
@@ -267,19 +267,19 @@ class VirtualEnvironment(EnvironmentInterface):
             return env
 
         internal_path = os.pathsep.join(python_dirs)
-        old_path = env.pop('PATH', None)
-        env['PATH'] = internal_path if old_path is None else f'{old_path}{os.pathsep}{internal_path}'
+        old_path = env.pop("PATH", None)
+        env["PATH"] = internal_path if old_path is None else f"{old_path}{os.pathsep}{internal_path}"
 
         return env
 
     def upgrade_possible_internal_python(self, python_path: str) -> None:
-        if 'internal' not in self._python_sources:
+        if "internal" not in self._python_sources:
             return
 
         for dist in self.python_manager.get_installed().values():
             if dist.python_path == Path(python_path):
                 if dist.needs_update():
-                    with self.app.status(f'Updating Python distribution: {dist.name}'):
+                    with self.app.status(f"Updating Python distribution: {dist.name}"):
                         self.python_manager.install(dist.name)
 
                 break
@@ -291,7 +291,7 @@ class VirtualEnvironment(EnvironmentInterface):
             and (self.skip_install or self._python_constraint.contains(interpreter.version_str))
         )
 
-    def _get_concrete_interpreter_path(self, python_version: str = '') -> str | None:
+    def _get_concrete_interpreter_path(self, python_version: str = "") -> str | None:
         known_resolvers = self._python_resolvers()
         resolvers = [known_resolvers[source] for source in self._python_sources]
         if python_version:
@@ -306,7 +306,7 @@ class VirtualEnvironment(EnvironmentInterface):
 
             # Fallback to whatever is compatible
             for resolver in resolvers:
-                if (concrete_path := resolver('')) is not None:
+                if (concrete_path := resolver("")) is not None:
                     return concrete_path
 
         return None
@@ -320,14 +320,14 @@ class VirtualEnvironment(EnvironmentInterface):
 
     def _resolve_internal_interpreter_path(self, python_version: str) -> str | None:
         if (available_distribution := self._get_available_distribution(python_version)) is not None:
-            with self.app.status(f'Installing Python distribution: {available_distribution}'):
+            with self.app.status(f"Installing Python distribution: {available_distribution}"):
                 dist = self.python_manager.install(available_distribution)
 
             return str(dist.python_path)
 
         return None
 
-    def _find_existing_interpreter(self, python_version: str = '') -> str | None:
+    def _find_existing_interpreter(self, python_version: str = "") -> str | None:
         from virtualenv.discovery import builtin as virtualenv_discovery
 
         propose_interpreters = virtualenv_discovery.propose_interpreters
@@ -349,7 +349,7 @@ class VirtualEnvironment(EnvironmentInterface):
         finally:
             virtualenv_discovery.propose_interpreters = propose_interpreters
 
-    def _get_available_distribution(self, python_version: str = '') -> str | None:
+    def _get_available_distribution(self, python_version: str = "") -> str | None:
         from hatch.python.resolve import get_compatible_distributions
 
         compatible_distributions = get_compatible_distributions()
@@ -358,7 +358,7 @@ class VirtualEnvironment(EnvironmentInterface):
 
         if not python_version:
             # Only try providing CPython distributions
-            available_distributions = [d for d in compatible_distributions if not d.startswith('pypy')]
+            available_distributions = [d for d in compatible_distributions if not d.startswith("pypy")]
 
             # Prioritize the version that Hatch is currently using, if available
             with suppress(ValueError):
@@ -374,8 +374,8 @@ class VirtualEnvironment(EnvironmentInterface):
 
         for available_distribution in available_distributions:
             minor_version = (
-                available_distribution.replace('pypy', '', 1)
-                if available_distribution.startswith('pypy')
+                available_distribution.replace("pypy", "", 1)
+                if available_distribution.startswith("pypy")
                 else available_distribution
             )
             if not self._python_constraint.contains(minor_version):
@@ -390,30 +390,30 @@ class VirtualEnvironment(EnvironmentInterface):
         parents = path.parents
 
         # https://pypa.github.io/pipx/how-pipx-works/
-        if (Path.home() / '.local' / 'pipx' / 'venvs') in parents:
+        if (Path.home() / ".local" / "pipx" / "venvs") in parents:
             return False
 
         from platformdirs import user_data_dir
 
         # https://github.com/ofek/pyapp/blob/v0.13.0/src/app.rs#L27
-        if Path(user_data_dir('pyapp', appauthor=False)) in parents:
+        if Path(user_data_dir("pyapp", appauthor=False)) in parents:
             return False
 
         # via Windows store
-        if self.platform.windows and str(path).endswith('WindowsApps\\python.exe'):
+        if self.platform.windows and str(path).endswith("WindowsApps\\python.exe"):
             return False
 
         # via Homebrew
-        return not (self.platform.macos and Path('/usr/local/Cellar') in parents)
+        return not (self.platform.macos and Path("/usr/local/Cellar") in parents)
 
     @cached_property
     def _python_sources(self) -> list[str]:
-        return self.config.get('python-sources') or ['external', 'internal']
+        return self.config.get("python-sources") or ["external", "internal"]
 
     def _python_resolvers(self) -> dict[str, Callable[[str], str | None]]:
         return {
-            'external': self._resolve_external_interpreter_path,
-            'internal': self._resolve_internal_interpreter_path,
+            "external": self._resolve_external_interpreter_path,
+            "internal": self._resolve_internal_interpreter_path,
         }
 
     @cached_property
@@ -423,7 +423,7 @@ class VirtualEnvironment(EnvironmentInterface):
         # Note that we do not support this field being dynamic because if we were to set up the
         # build environment to retrieve the field then we would be stuck because we need to use
         # a satisfactory version to set up the environment
-        return SpecifierSet(self.metadata.config.get('project', {}).get('requires-python', ''))
+        return SpecifierSet(self.metadata.config.get("project", {}).get("requires-python", ""))
 
     @contextmanager
     def safe_activation(self):

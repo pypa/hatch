@@ -12,12 +12,12 @@ def main():
     # https://github.com/indygreg/python-build-standalone/blob/20240415/cpython-unix/build-cpython.sh#L812-L813
     portable_shebang = b'#!/bin/sh\n"exec" "$(dirname $0)/%s" "$0" "$@"\n' % interpreter.name.encode()
 
-    scripts_dir = Path(sysconfig.get_path('scripts'))
+    scripts_dir = Path(sysconfig.get_path("scripts"))
     for script in scripts_dir.iterdir():
         if not script.is_file():
             continue
 
-        with script.open('rb') as f:
+        with script.open("rb") as f:
             data = BytesIO()
             for line in f:
                 # Ignore leading blank lines
@@ -25,10 +25,10 @@ def main():
                     continue
 
                 # Ignore binaries
-                if not line.startswith(b'#'):
+                if not line.startswith(b"#"):
                     break
 
-                if line.startswith(b'#!%s' % interpreter.parent):
+                if line.startswith(b"#!%s" % interpreter.parent):
                     executable = Path(line[2:].rstrip().decode()).resolve()
                     data.write(portable_shebang if executable == interpreter else line)
                 else:
@@ -41,9 +41,9 @@ def main():
         if not contents:
             continue
 
-        with script.open('wb') as f:
+        with script.open("wb") as f:
             f.write(contents)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

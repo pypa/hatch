@@ -9,9 +9,9 @@ if TYPE_CHECKING:
 
 
 @click.command(
-    short_help='Install the latest version', context_settings={'help_option_names': [], 'ignore_unknown_options': True}
+    short_help="Install the latest version", context_settings={"help_option_names": [], "ignore_unknown_options": True}
 )
-@click.argument('args', nargs=-1)
+@click.argument("args", nargs=-1)
 @click.pass_obj
 def update(app: Application, *, args: tuple[str, ...]):  # noqa: ARG001
-    app.abort('Hatch is not installed as a binary')
+    app.abort("Hatch is not installed as a binary")
