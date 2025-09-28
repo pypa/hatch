@@ -7,7 +7,7 @@ import pluggy
 
 class PluginManager:
     def __init__(self) -> None:
-        self.manager = pluggy.PluginManager('hatch')
+        self.manager = pluggy.PluginManager("hatch")
         self.third_party_plugins = ThirdPartyPlugins(self.manager)
         self.initialized = False
 
@@ -21,12 +21,12 @@ class PluginManager:
             self.initialize()
             self.initialized = True
 
-        hook_name = f'hatch_register_{name}'
+        hook_name = f"hatch_register_{name}"
         hook = getattr(self, hook_name, None)
         if hook:
             hook()
 
-        register = ClassRegister(getattr(self.manager.hook, hook_name), 'PLUGIN_NAME', self.third_party_plugins)
+        register = ClassRegister(getattr(self.manager.hook, hook_name), "PLUGIN_NAME", self.third_party_plugins)
         setattr(self, name, register)
         return register
 
@@ -75,13 +75,13 @@ class ClassRegister:
             for registered_class in registered_classes:
                 name = getattr(registered_class, self.identifier, None)
                 if not name:  # no cov
-                    message = f'Class `{registered_class.__name__}` does not have a {name} attribute.'
+                    message = f"Class `{registered_class.__name__}` does not have a {name} attribute."
                     raise ValueError(message)
 
                 if name in classes:  # no cov
                     message = (
-                        f'Class `{registered_class.__name__}` defines its name as `{name}` but '
-                        f'that name is already used by `{classes[name].__name__}`.'
+                        f"Class `{registered_class.__name__}` defines its name as `{name}` but "
+                        f"that name is already used by `{classes[name].__name__}`."
                     )
                     raise ValueError(message)
 
@@ -104,8 +104,8 @@ class ThirdPartyPlugins:
         self.loaded = False
 
     def load(self) -> None:
-        self.manager.load_setuptools_entrypoints('hatch')
+        self.manager.load_setuptools_entrypoints("hatch")
         self.loaded = True
 
 
-PluginManagerBound = TypeVar('PluginManagerBound', bound=PluginManager)
+PluginManagerBound = TypeVar("PluginManagerBound", bound=PluginManager)

@@ -17,7 +17,7 @@ if __name__ == "__main__":
         template_config: dict,
         plugin_config: dict,  # noqa: ARG002
     ):
-        super().__init__(Path(template_config['package_name'], '__main__.py'), self.TEMPLATE.format(**template_config))
+        super().__init__(Path(template_config["package_name"], "__main__.py"), self.TEMPLATE.format(**template_config))
 
 
 class CommandLinePackage(File):
@@ -39,5 +39,5 @@ def {package_name}():
         plugin_config: dict,  # noqa: ARG002
     ):
         super().__init__(
-            Path(template_config['package_name'], 'cli', '__init__.py'), self.TEMPLATE.format(**template_config)
+            Path(template_config["package_name"], "cli", "__init__.py"), self.TEMPLATE.format(**template_config)
         )

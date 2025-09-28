@@ -22,15 +22,15 @@ Success! Please see `hatch config`.
         with EnvVars():
             os.environ.pop(ConfigEnvVars.CONFIG, None)
             with ConfigFile.get_default_location().temp_hide():
-                result = hatch('-v')
+                result = hatch("-v")
                 assert self.INSTALL_MESSAGE in result.output
 
-                result = hatch('-v')
+                result = hatch("-v")
                 assert self.INSTALL_MESSAGE not in result.output
 
 
 def test_no_subcommand_shows_help(hatch):
-    assert hatch().output == hatch('--help').output
+    assert hatch().output == hatch("--help").output
 
 
 def test_no_config_file(hatch, config_file):
@@ -38,4 +38,4 @@ def test_no_config_file(hatch, config_file):
     result = hatch()
 
     assert result.exit_code == 1
-    assert result.output == f'The selected config file `{config_file.path}` does not exist.\n'
+    assert result.output == f"The selected config file `{config_file.path}` does not exist.\n"

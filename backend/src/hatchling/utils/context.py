@@ -29,8 +29,8 @@ class ContextFormatter(ABC):
         if not modifier:
             return os.path.normpath(path)
 
-        modifiers = modifier.split(':')[::-1]
-        while modifiers and modifiers[-1] == 'parent':
+        modifiers = modifier.split(":")[::-1]
+        while modifiers and modifiers[-1] == "parent":
             path = os.path.dirname(path)
             modifiers.pop()
 
@@ -38,33 +38,33 @@ class ContextFormatter(ABC):
             return path
 
         if len(modifiers) > 1:
-            message = f'Expected a single path modifier and instead got: {", ".join(reversed(modifiers))}'
+            message = f"Expected a single path modifier and instead got: {', '.join(reversed(modifiers))}"
             raise ValueError(message)
 
         modifier = modifiers[0]
-        if modifier == 'uri':
+        if modifier == "uri":
             return path_to_uri(path)
 
-        if modifier == 'real':
+        if modifier == "real":
             return os.path.realpath(path)
 
-        message = f'Unknown path modifier: {modifier}'
+        message = f"Unknown path modifier: {modifier}"
         raise ValueError(message)
 
 
 class DefaultContextFormatter(ContextFormatter):
-    CONTEXT_NAME = 'default'
+    CONTEXT_NAME = "default"
 
     def __init__(self, root: str) -> None:
         self.__root = root
 
     def get_formatters(self) -> MutableMapping:
         return {
-            '/': self.__format_directory_separator,
-            ';': self.__format_path_separator,
-            'env': self.__format_env,
-            'home': self.__format_home,
-            'root': self.__format_root,
+            "/": self.__format_directory_separator,
+            ";": self.__format_path_separator,
+            "env": self.__format_env,
+            "home": self.__format_home,
+            "root": self.__format_root,
         }
 
     def __format_directory_separator(self, value: str, data: str) -> str:  # noqa: ARG002, PLR6301
@@ -77,19 +77,19 @@ class DefaultContextFormatter(ContextFormatter):
         return self.format_path(self.__root, data)
 
     def __format_home(self, value: str, data: str) -> str:  # noqa: ARG002
-        return self.format_path(os.path.expanduser('~'), data)
+        return self.format_path(os.path.expanduser("~"), data)
 
     def __format_env(self, value: str, data: str) -> str:  # noqa: ARG002, PLR6301
         if not data:
-            message = 'The `env` context formatting field requires a modifier'
+            message = "The `env` context formatting field requires a modifier"
             raise ValueError(message)
 
-        env_var, separator, default = data.partition(':')
+        env_var, separator, default = data.partition(":")
         if env_var in os.environ:
             return os.environ[env_var]
 
         if not separator:
-            message = f'Nonexistent environment variable must set a default: {env_var}'
+            message = f"Nonexistent environment variable must set a default: {env_var}"
             raise ValueError(message)
 
         return default
@@ -155,11 +155,11 @@ class ContextStringFormatter(string.Formatter):
         try:
             return super().get_value(key, args, kwargs)
         except KeyError:
-            message = f'Unknown context field `{key}`'
+            message = f"Unknown context field `{key}`"
             raise ValueError(message) from None
 
     def format_field(self, value: Any, format_spec: str) -> Any:
-        formatter, _, data = format_spec.partition(':')
+        formatter, _, data = format_spec.partition(":")
         if formatter in self.__formatters:
             return self.__formatters[formatter](value, data)
 
@@ -168,6 +168,6 @@ class ContextStringFormatter(string.Formatter):
     def parse(self, format_string: str) -> Iterable:
         for literal_text, field_name, format_spec, conversion in super().parse(format_string):
             if field_name in self.__formatters:
-                yield literal_text, field_name, f'{field_name}:{format_spec}', conversion
+                yield literal_text, field_name, f"{field_name}:{format_spec}", conversion
             else:
                 yield literal_text, field_name, format_spec, conversion

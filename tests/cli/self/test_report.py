@@ -8,7 +8,7 @@ import pytest
 from hatch._version import __version__
 from hatch.utils.structures import EnvVars
 
-URL = 'https://github.com/pypa/hatch/issues/new?body='
+URL = "https://github.com/pypa/hatch/issues/new?body="
 STATIC_BODY = """\
 ## Current behavior
 <!-- A clear and concise description of the behavior. -->
@@ -34,8 +34,8 @@ def assert_call(open_new_tab, expected_body):
 
 class TestDefault:
     def test_open(self, hatch, mocker, platform):
-        open_new_tab = mocker.patch('webbrowser.open_new_tab')
-        result = hatch(os.environ['PYAPP_COMMAND_NAME'], 'report')
+        open_new_tab = mocker.patch("webbrowser.open_new_tab")
+        result = hatch(os.environ["PYAPP_COMMAND_NAME"], "report")
 
         assert result.exit_code == 0, result.output
         assert not result.output
@@ -51,7 +51,7 @@ class TestDefault:
 - Platform: {platform.display_name}
 - Python version:
     ```
-{indent(sys.version, ' ' * 4)}
+{indent(sys.version, " " * 4)}
     ```
 
 ### Configuration
@@ -65,7 +65,7 @@ shell = ""
         assert_call(open_new_tab, expected_body)
 
     def test_no_open(self, hatch, platform):
-        result = hatch(os.environ['PYAPP_COMMAND_NAME'], 'report', '--no-open')
+        result = hatch(os.environ["PYAPP_COMMAND_NAME"], "report", "--no-open")
 
         assert result.exit_code == 0, result.output
         assert result.output.startswith(URL)
@@ -84,7 +84,7 @@ shell = ""
 - Platform: {platform.display_name}
 - Python version:
     ```
-{indent(sys.version, ' ' * 4)}
+{indent(sys.version, " " * 4)}
     ```
 
 ### Configuration
@@ -98,13 +98,13 @@ shell = ""
 
 
 def test_binary(hatch, mocker, platform, temp_dir):
-    mock_executable = temp_dir / 'exe'
+    mock_executable = temp_dir / "exe"
     mock_executable.touch()
-    mocker.patch('sys.executable', str(mock_executable))
-    mocker.patch('platformdirs.user_data_dir', return_value=str(temp_dir))
-    open_new_tab = mocker.patch('webbrowser.open_new_tab')
+    mocker.patch("sys.executable", str(mock_executable))
+    mocker.patch("platformdirs.user_data_dir", return_value=str(temp_dir))
+    open_new_tab = mocker.patch("webbrowser.open_new_tab")
 
-    result = hatch(os.environ['PYAPP_COMMAND_NAME'], 'report')
+    result = hatch(os.environ["PYAPP_COMMAND_NAME"], "report")
 
     assert result.exit_code == 0, result.output
     assert not result.output
@@ -120,7 +120,7 @@ def test_binary(hatch, mocker, platform, temp_dir):
 - Platform: {platform.display_name}
 - Python version:
     ```
-{indent(sys.version, ' ' * 4)}
+{indent(sys.version, " " * 4)}
     ```
 
 ### Configuration
@@ -135,14 +135,14 @@ shell = ""
 
 
 def test_pipx(hatch, mocker, platform, temp_dir):
-    mock_executable = temp_dir / '.local' / 'pipx' / 'venvs' / 'exe'
+    mock_executable = temp_dir / ".local" / "pipx" / "venvs" / "exe"
     mock_executable.parent.ensure_dir_exists()
     mock_executable.touch()
-    mocker.patch('sys.executable', str(mock_executable))
-    mocker.patch('pathlib.Path.home', return_value=temp_dir)
-    open_new_tab = mocker.patch('webbrowser.open_new_tab')
+    mocker.patch("sys.executable", str(mock_executable))
+    mocker.patch("pathlib.Path.home", return_value=temp_dir)
+    open_new_tab = mocker.patch("webbrowser.open_new_tab")
 
-    result = hatch(os.environ['PYAPP_COMMAND_NAME'], 'report')
+    result = hatch(os.environ["PYAPP_COMMAND_NAME"], "report")
 
     assert result.exit_code == 0, result.output
     assert not result.output
@@ -158,7 +158,7 @@ def test_pipx(hatch, mocker, platform, temp_dir):
 - Platform: {platform.display_name}
 - Python version:
     ```
-{indent(sys.version, ' ' * 4)}
+{indent(sys.version, " " * 4)}
     ```
 
 ### Configuration
@@ -173,14 +173,14 @@ shell = ""
 
 
 def test_system(hatch, mocker, platform, temp_dir):
-    indicator = temp_dir / 'EXTERNALLY-MANAGED'
+    indicator = temp_dir / "EXTERNALLY-MANAGED"
     indicator.touch()
-    mocker.patch('sysconfig.get_path', return_value=str(temp_dir))
-    mocker.patch('sys.prefix', 'foo')
-    mocker.patch('sys.base_prefix', 'foo')
-    open_new_tab = mocker.patch('webbrowser.open_new_tab')
+    mocker.patch("sysconfig.get_path", return_value=str(temp_dir))
+    mocker.patch("sys.prefix", "foo")
+    mocker.patch("sys.base_prefix", "foo")
+    open_new_tab = mocker.patch("webbrowser.open_new_tab")
 
-    result = hatch(os.environ['PYAPP_COMMAND_NAME'], 'report')
+    result = hatch(os.environ["PYAPP_COMMAND_NAME"], "report")
 
     assert result.exit_code == 0, result.output
     assert not result.output
@@ -196,7 +196,7 @@ def test_system(hatch, mocker, platform, temp_dir):
 - Platform: {platform.display_name}
 - Python version:
     ```
-{indent(sys.version, ' ' * 4)}
+{indent(sys.version, " " * 4)}
     ```
 
 ### Configuration
@@ -212,13 +212,13 @@ shell = ""
 
 @pytest.mark.requires_windows
 def test_windows_store(hatch, mocker, platform, temp_dir):
-    mock_executable = temp_dir / 'WindowsApps' / 'python.exe'
+    mock_executable = temp_dir / "WindowsApps" / "python.exe"
     mock_executable.parent.ensure_dir_exists()
     mock_executable.touch()
-    mocker.patch('sys.executable', str(mock_executable))
-    open_new_tab = mocker.patch('webbrowser.open_new_tab')
+    mocker.patch("sys.executable", str(mock_executable))
+    open_new_tab = mocker.patch("webbrowser.open_new_tab")
 
-    result = hatch(os.environ['PYAPP_COMMAND_NAME'], 'report')
+    result = hatch(os.environ["PYAPP_COMMAND_NAME"], "report")
 
     assert result.exit_code == 0, result.output
     assert not result.output
@@ -234,7 +234,7 @@ def test_windows_store(hatch, mocker, platform, temp_dir):
 - Platform: {platform.display_name}
 - Python version:
     ```
-{indent(sys.version, ' ' * 4)}
+{indent(sys.version, " " * 4)}
     ```
 
 ### Configuration
@@ -250,14 +250,14 @@ shell = ""
 
 @pytest.mark.requires_unix
 def test_pyenv(hatch, mocker, platform, temp_dir):
-    mock_executable = temp_dir / 'exe'
+    mock_executable = temp_dir / "exe"
     mock_executable.parent.ensure_dir_exists()
     mock_executable.touch()
-    mocker.patch('sys.executable', str(mock_executable))
-    open_new_tab = mocker.patch('webbrowser.open_new_tab')
+    mocker.patch("sys.executable", str(mock_executable))
+    open_new_tab = mocker.patch("webbrowser.open_new_tab")
 
-    with EnvVars({'PYENV_ROOT': str(temp_dir)}):
-        result = hatch(os.environ['PYAPP_COMMAND_NAME'], 'report')
+    with EnvVars({"PYENV_ROOT": str(temp_dir)}):
+        result = hatch(os.environ["PYAPP_COMMAND_NAME"], "report")
 
     assert result.exit_code == 0, result.output
     assert not result.output
@@ -273,7 +273,7 @@ def test_pyenv(hatch, mocker, platform, temp_dir):
 - Platform: {platform.display_name}
 - Python version:
     ```
-{indent(sys.version, ' ' * 4)}
+{indent(sys.version, " " * 4)}
     ```
 
 ### Configuration

@@ -1,34 +1,34 @@
 import click
 
 
-@click.command(short_help='Remove build artifacts')
-@click.argument('location', required=False)
+@click.command(short_help="Remove build artifacts")
+@click.argument("location", required=False)
 @click.option(
-    '--target',
-    '-t',
-    'targets',
+    "--target",
+    "-t",
+    "targets",
     multiple=True,
     help=(
-        'The target with which to remove artifacts, overriding project defaults. '
-        'This may be selected multiple times e.g. `-t sdist -t wheel`'
+        "The target with which to remove artifacts, overriding project defaults. "
+        "This may be selected multiple times e.g. `-t sdist -t wheel`"
     ),
 )
 @click.option(
-    '--hooks-only',
+    "--hooks-only",
     is_flag=True,
-    help='Whether or not to only remove artifacts from build hooks [env var: `HATCH_BUILD_HOOKS_ONLY`]',
+    help="Whether or not to only remove artifacts from build hooks [env var: `HATCH_BUILD_HOOKS_ONLY`]",
 )
 @click.option(
-    '--no-hooks',
+    "--no-hooks",
     is_flag=True,
-    help='Whether or not to ignore artifacts from build hooks [env var: `HATCH_BUILD_NO_HOOKS`]',
+    help="Whether or not to ignore artifacts from build hooks [env var: `HATCH_BUILD_NO_HOOKS`]",
 )
 @click.option(
-    '--ext',
+    "--ext",
     is_flag=True,
     help=(
-        'Whether or not to only remove artifacts from build hooks for distributing binary Python packages, such as '
-        'compiled extensions. Equivalent to `--hooks-only -t wheel`'
+        "Whether or not to only remove artifacts from build hooks for distributing binary Python packages, such as "
+        "compiled extensions. Equivalent to `--hooks-only -t wheel`"
     ),
 )
 @click.pass_context

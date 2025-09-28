@@ -62,11 +62,11 @@ class Application(Terminal):
             should_display_command = not context.hide_commands and (self.verbose or len(resolved_commands) > 1)
             for i, raw_command in enumerate(resolved_commands, 1):
                 if should_display_command:
-                    self.display(f'{context.source} [{i}] | {raw_command}')
+                    self.display(f"{context.source} [{i}] | {raw_command}")
 
                 command = raw_command
                 continue_on_error = context.force_continue
-                if raw_command.startswith('- '):
+                if raw_command.startswith("- "):
                     continue_on_error = True
                     command = command[2:]
 
@@ -79,7 +79,7 @@ class Application(Terminal):
                         continue
 
                     if context.show_code_on_error:
-                        self.abort(f'Failed with exit code: {process.returncode}', code=process.returncode)
+                        self.abort(f"Failed with exit code: {process.returncode}", code=process.returncode)
                     else:
                         self.abort(code=process.returncode)
 
@@ -109,7 +109,7 @@ class Application(Terminal):
                             incompatible[environment.name] = str(e)
                             continue
 
-                        self.abort(f'Environment `{env_name}` is incompatible: {e}')
+                        self.abort(f"Environment `{env_name}` is incompatible: {e}")
 
                 any_compatible = True
                 if display_header:
@@ -123,12 +123,12 @@ class Application(Terminal):
 
         if incompatible:
             num_incompatible = len(incompatible)
-            padding = '\n' if any_compatible else ''
+            padding = "\n" if any_compatible else ""
             self.display_warning(
-                f'{padding}Skipped {num_incompatible} incompatible environment{"s" if num_incompatible > 1 else ""}:'
+                f"{padding}Skipped {num_incompatible} incompatible environment{'s' if num_incompatible > 1 else ''}:"
             )
             for env_name, reason in incompatible.items():
-                self.display_warning(f'{env_name} -> {reason}')
+                self.display_warning(f"{env_name} -> {reason}")
 
     def execute_context(self, context: ExecutionContext) -> None:
         from hatch.utils.structures import EnvVars
@@ -138,7 +138,7 @@ class Application(Terminal):
 
     def ensure_environment_plugin_dependencies(self) -> None:
         self.ensure_plugin_dependencies(
-            self.project.config.env_requires_complex, wait_message='Syncing environment plugin requirements'
+            self.project.config.env_requires_complex, wait_message="Syncing environment plugin requirements"
         )
 
     def ensure_plugin_dependencies(self, dependencies: list[Requirement], *, wait_message: str) -> None:
@@ -148,23 +148,23 @@ class Application(Terminal):
         from hatch.dep.sync import dependencies_in_sync
         from hatch.env.utils import add_verbosity_flag
 
-        if app_path := os.environ.get('PYAPP'):
+        if app_path := os.environ.get("PYAPP"):
             from hatch.utils.env import PythonInfo
 
-            management_command = os.environ['PYAPP_COMMAND_NAME']
-            executable = self.platform.check_command_output([app_path, management_command, 'python-path']).strip()
+            management_command = os.environ["PYAPP_COMMAND_NAME"]
+            executable = self.platform.check_command_output([app_path, management_command, "python-path"]).strip()
             python_info = PythonInfo(self.platform, executable=executable)
             if dependencies_in_sync(dependencies, sys_path=python_info.sys_path):
                 return
 
-            pip_command = [app_path, management_command, 'pip']
+            pip_command = [app_path, management_command, "pip"]
         else:
             if dependencies_in_sync(dependencies):
                 return
 
-            pip_command = [sys.executable, '-u', '-m', 'pip']
+            pip_command = [sys.executable, "-u", "-m", "pip"]
 
-        pip_command.extend(['install', '--disable-pip-version-check'])
+        pip_command.extend(["install", "--disable-pip-version-check"])
 
         # Default to -1 verbosity
         add_verbosity_flag(pip_command, self.verbosity, adjustment=-1)
@@ -184,14 +184,14 @@ class Application(Terminal):
 
             return self.project.location / path
 
-        return self.data_dir / 'env' / environment_type
+        return self.data_dir / "env" / environment_type
 
     def get_python_manager(self, directory: str | None = None):
         from hatch.python.core import PythonManager
 
         configured_dir = directory or self.config.dirs.python
-        if configured_dir == 'isolated':
-            return PythonManager(self.data_dir / 'pythons')
+        if configured_dir == "isolated":
+            return PythonManager(self.data_dir / "pythons")
 
         return PythonManager(Path(configured_dir).expand())
 
@@ -201,7 +201,7 @@ class Application(Terminal):
 
         return detect_shell(self.platform)
 
-    def abort(self, text='', code=1, **kwargs):
+    def abort(self, text="", code=1, **kwargs):
         if text:
             self.display_error(text, **kwargs)
         self.__exit_func(code)

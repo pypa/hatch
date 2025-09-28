@@ -8,65 +8,65 @@ from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT
 
 class TestConfigPath:
     def test_correct(self, isolation):
-        config = {'path': 'foo/bar.py'}
-        hook = VersionBuildHook(str(isolation), config, None, None, '', '')
+        config = {"path": "foo/bar.py"}
+        hook = VersionBuildHook(str(isolation), config, None, None, "", "")
 
-        assert hook.config_path == hook.config_path == 'foo/bar.py'
+        assert hook.config_path == hook.config_path == "foo/bar.py"
 
     def test_missing(self, isolation):
-        config = {'path': ''}
-        hook = VersionBuildHook(str(isolation), config, None, None, '', '')
+        config = {"path": ""}
+        hook = VersionBuildHook(str(isolation), config, None, None, "", "")
 
-        with pytest.raises(ValueError, match='Option `path` for build hook `version` is required'):
+        with pytest.raises(ValueError, match="Option `path` for build hook `version` is required"):
             _ = hook.config_path
 
     def test_not_string(self, isolation):
-        config = {'path': 9000}
-        hook = VersionBuildHook(str(isolation), config, None, None, '', '')
+        config = {"path": 9000}
+        hook = VersionBuildHook(str(isolation), config, None, None, "", "")
 
-        with pytest.raises(TypeError, match='Option `path` for build hook `version` must be a string'):
+        with pytest.raises(TypeError, match="Option `path` for build hook `version` must be a string"):
             _ = hook.config_path
 
 
 class TestConfigTemplate:
     def test_correct(self, isolation):
-        config = {'template': 'foo'}
-        hook = VersionBuildHook(str(isolation), config, None, None, '', '')
+        config = {"template": "foo"}
+        hook = VersionBuildHook(str(isolation), config, None, None, "", "")
 
-        assert hook.config_template == hook.config_template == 'foo'
+        assert hook.config_template == hook.config_template == "foo"
 
     def test_not_string(self, isolation):
-        config = {'template': 9000}
-        hook = VersionBuildHook(str(isolation), config, None, None, '', '')
+        config = {"template": 9000}
+        hook = VersionBuildHook(str(isolation), config, None, None, "", "")
 
-        with pytest.raises(TypeError, match='Option `template` for build hook `version` must be a string'):
+        with pytest.raises(TypeError, match="Option `template` for build hook `version` must be a string"):
             _ = hook.config_template
 
 
 class TestConfigPattern:
     def test_correct(self, isolation):
-        config = {'pattern': 'foo'}
-        hook = VersionBuildHook(str(isolation), config, None, None, '', '')
+        config = {"pattern": "foo"}
+        hook = VersionBuildHook(str(isolation), config, None, None, "", "")
 
-        assert hook.config_pattern == hook.config_pattern == 'foo'
+        assert hook.config_pattern == hook.config_pattern == "foo"
 
     def test_not_string(self, isolation):
-        config = {'pattern': 9000}
-        hook = VersionBuildHook(str(isolation), config, None, None, '', '')
+        config = {"pattern": 9000}
+        hook = VersionBuildHook(str(isolation), config, None, None, "", "")
 
-        with pytest.raises(TypeError, match='Option `pattern` for build hook `version` must be a string'):
+        with pytest.raises(TypeError, match="Option `pattern` for build hook `version` must be a string"):
             _ = hook.config_pattern
 
 
 class TestTemplate:
     def test_default(self, temp_dir, helpers):
-        config = {'path': 'baz.py'}
+        config = {"path": "baz.py"}
         metadata = ProjectMetadata(
             str(temp_dir),
             PluginManager(),
             {
-                'project': {'name': 'foo', 'dynamic': ['version']},
-                'tool': {'hatch': {'metadata': {'hooks': {'custom': {}}}}},
+                "project": {"name": "foo", "dynamic": ["version"]},
+                "tool": {"hatch": {"metadata": {"hooks": {"custom": {}}}}},
             },
         )
 
@@ -83,11 +83,11 @@ class TestTemplate:
             )
         )
 
-        build_data = {'artifacts': []}
-        hook = VersionBuildHook(str(temp_dir), config, None, metadata, '', '')
+        build_data = {"artifacts": []}
+        hook = VersionBuildHook(str(temp_dir), config, None, metadata, "", "")
         hook.initialize([], build_data)
 
-        expected_file = temp_dir / 'baz.py'
+        expected_file = temp_dir / "baz.py"
         assert expected_file.is_file()
         assert expected_file.read_text() == helpers.dedent(
             """
@@ -97,16 +97,16 @@ class TestTemplate:
             __version__ = VERSION = '1.2.3'
             """
         )
-        assert build_data['artifacts'] == ['/baz.py']
+        assert build_data["artifacts"] == ["/baz.py"]
 
     def test_create_necessary_directories(self, temp_dir, helpers):
-        config = {'path': 'bar/baz.py'}
+        config = {"path": "bar/baz.py"}
         metadata = ProjectMetadata(
             str(temp_dir),
             PluginManager(),
             {
-                'project': {'name': 'foo', 'dynamic': ['version']},
-                'tool': {'hatch': {'metadata': {'hooks': {'custom': {}}}}},
+                "project": {"name": "foo", "dynamic": ["version"]},
+                "tool": {"hatch": {"metadata": {"hooks": {"custom": {}}}}},
             },
         )
 
@@ -123,11 +123,11 @@ class TestTemplate:
             )
         )
 
-        build_data = {'artifacts': []}
-        hook = VersionBuildHook(str(temp_dir), config, None, metadata, '', '')
+        build_data = {"artifacts": []}
+        hook = VersionBuildHook(str(temp_dir), config, None, metadata, "", "")
         hook.initialize([], build_data)
 
-        expected_file = temp_dir / 'bar' / 'baz.py'
+        expected_file = temp_dir / "bar" / "baz.py"
         assert expected_file.is_file()
         assert expected_file.read_text() == helpers.dedent(
             """
@@ -137,16 +137,16 @@ class TestTemplate:
             __version__ = VERSION = '1.2.3'
             """
         )
-        assert build_data['artifacts'] == ['/bar/baz.py']
+        assert build_data["artifacts"] == ["/bar/baz.py"]
 
     def test_custom(self, temp_dir, helpers):
-        config = {'path': 'baz.py', 'template': 'VER = {version!r}\n'}
+        config = {"path": "baz.py", "template": "VER = {version!r}\n"}
         metadata = ProjectMetadata(
             str(temp_dir),
             PluginManager(),
             {
-                'project': {'name': 'foo', 'dynamic': ['version']},
-                'tool': {'hatch': {'metadata': {'hooks': {'custom': {}}}}},
+                "project": {"name": "foo", "dynamic": ["version"]},
+                "tool": {"hatch": {"metadata": {"hooks": {"custom": {}}}}},
             },
         )
 
@@ -163,29 +163,29 @@ class TestTemplate:
             )
         )
 
-        build_data = {'artifacts': []}
-        hook = VersionBuildHook(str(temp_dir), config, None, metadata, '', '')
+        build_data = {"artifacts": []}
+        hook = VersionBuildHook(str(temp_dir), config, None, metadata, "", "")
         hook.initialize([], build_data)
 
-        expected_file = temp_dir / 'baz.py'
+        expected_file = temp_dir / "baz.py"
         assert expected_file.is_file()
         assert expected_file.read_text() == helpers.dedent(
             """
             VER = '1.2.3'
             """
         )
-        assert build_data['artifacts'] == ['/baz.py']
+        assert build_data["artifacts"] == ["/baz.py"]
 
 
 class TestPattern:
     def test_default(self, temp_dir, helpers):
-        config = {'path': 'baz.py', 'pattern': True}
+        config = {"path": "baz.py", "pattern": True}
         metadata = ProjectMetadata(
             str(temp_dir),
             PluginManager(),
             {
-                'project': {'name': 'foo', 'dynamic': ['version']},
-                'tool': {'hatch': {'metadata': {'hooks': {'custom': {}}}}},
+                "project": {"name": "foo", "dynamic": ["version"]},
+                "tool": {"hatch": {"metadata": {"hooks": {"custom": {}}}}},
             },
         )
 
@@ -201,7 +201,7 @@ class TestPattern:
                 """
             )
         )
-        version_file = temp_dir / 'baz.py'
+        version_file = temp_dir / "baz.py"
         version_file.write_text(
             helpers.dedent(
                 """
@@ -210,8 +210,8 @@ class TestPattern:
             )
         )
 
-        build_data = {'artifacts': []}
-        hook = VersionBuildHook(str(temp_dir), config, None, metadata, '', '')
+        build_data = {"artifacts": []}
+        hook = VersionBuildHook(str(temp_dir), config, None, metadata, "", "")
         hook.initialize([], build_data)
 
         assert version_file.read_text() == helpers.dedent(
@@ -219,16 +219,16 @@ class TestPattern:
             __version__ = '1.2.3'
             """
         )
-        assert build_data['artifacts'] == ['/baz.py']
+        assert build_data["artifacts"] == ["/baz.py"]
 
     def test_custom(self, temp_dir, helpers):
-        config = {'path': 'baz.py', 'pattern': 'v = "(?P<version>.+)"'}
+        config = {"path": "baz.py", "pattern": 'v = "(?P<version>.+)"'}
         metadata = ProjectMetadata(
             str(temp_dir),
             PluginManager(),
             {
-                'project': {'name': 'foo', 'dynamic': ['version']},
-                'tool': {'hatch': {'metadata': {'hooks': {'custom': {}}}}},
+                "project": {"name": "foo", "dynamic": ["version"]},
+                "tool": {"hatch": {"metadata": {"hooks": {"custom": {}}}}},
             },
         )
 
@@ -244,7 +244,7 @@ class TestPattern:
                 """
             )
         )
-        version_file = temp_dir / 'baz.py'
+        version_file = temp_dir / "baz.py"
         version_file.write_text(
             helpers.dedent(
                 """
@@ -253,8 +253,8 @@ class TestPattern:
             )
         )
 
-        build_data = {'artifacts': []}
-        hook = VersionBuildHook(str(temp_dir), config, None, metadata, '', '')
+        build_data = {"artifacts": []}
+        hook = VersionBuildHook(str(temp_dir), config, None, metadata, "", "")
         hook.initialize([], build_data)
 
         assert version_file.read_text() == helpers.dedent(
@@ -262,4 +262,4 @@ class TestPattern:
             v = "1.2.3"
             """
         )
-        assert build_data['artifacts'] == ['/baz.py']
+        assert build_data["artifacts"] == ["/baz.py"]

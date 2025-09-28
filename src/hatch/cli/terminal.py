@@ -72,11 +72,11 @@ class BorrowedStatus(TerminalStatus):
         if self.__verbosity > 0 and active:
             if not final_text:
                 final_text = old_message.plain
-                final_text = f'Finished {final_text[:1].lower()}{final_text[1:]}'
+                final_text = f"Finished {final_text[:1].lower()}{final_text[1:]}"
 
             self.__output(Text(final_text, style=self.__success_style))
 
-    def __call__(self, message: str, final_text: str = '') -> BorrowedStatus:
+    def __call__(self, message: str, final_text: str = "") -> BorrowedStatus:
         self.__messages.append((Text(message, style=self.__waiting_style), final_text))
         return self
 
@@ -104,7 +104,7 @@ class BorrowedStatus(TerminalStatus):
         if self.__verbosity > 0 and self.__active():
             if not final_text:
                 final_text = old_message.plain
-                final_text = f'Finished {final_text[:1].lower()}{final_text[1:]}'
+                final_text = f"Finished {final_text[:1].lower()}{final_text[1:]}"
 
             self.__output(Text(final_text, style=self.__success_style))
 
@@ -127,7 +127,7 @@ class BorrowedStatus(TerminalStatus):
     def __output(self, text):
         self.__console.stderr = True
         try:
-            self.__console.print(text, overflow='ignore', no_wrap=True, crop=False)
+            self.__console.print(text, overflow="ignore", no_wrap=True, crop=False)
         finally:
             self.__console.stderr = False
 
@@ -135,7 +135,7 @@ class BorrowedStatus(TerminalStatus):
 class Terminal:
     def __init__(self, *, verbosity: int, enable_color: bool | None, interactive: bool | None):
         # Force consistent output for test assertions
-        self.testing = 'HATCH_SELF_TESTING' in os.environ
+        self.testing = "HATCH_SELF_TESTING" in os.environ
 
         self.verbosity = verbosity
         self.console = Console(
@@ -149,20 +149,20 @@ class Terminal:
         )
 
         # Set defaults so we can pretty print before loading user config
-        self._style_level_success: Style | str = 'bold cyan'
-        self._style_level_error: Style | str = 'bold red'
-        self._style_level_warning: Style | str = 'bold yellow'
-        self._style_level_waiting: Style | str = 'bold magenta'
+        self._style_level_success: Style | str = "bold cyan"
+        self._style_level_error: Style | str = "bold red"
+        self._style_level_warning: Style | str = "bold yellow"
+        self._style_level_waiting: Style | str = "bold magenta"
         # Default is simply bold rather than bold white for shells that have been configured with a white background
-        self._style_level_info: Style | str = 'bold'
-        self._style_level_debug: Style | str = 'bold'
+        self._style_level_info: Style | str = "bold"
+        self._style_level_debug: Style | str = "bold"
 
         # Chosen as the default since it's compatible everywhere and looks nice
-        self._style_spinner = 'simpleDotsScrolling'
+        self._style_spinner = "simpleDotsScrolling"
 
     @cached_property
     def kv_separator(self) -> Text:
-        return self.style_warning('->')
+        return self.style_warning("->")
 
     def style_success(self, text: str) -> Text:
         return Text(text, style=self._style_level_success)
@@ -190,76 +190,76 @@ class Terminal:
         errors = []
 
         for option, style in styles.items():
-            attribute = f'_style_level_{option}'
+            attribute = f"_style_level_{option}"
 
             default_level = getattr(self, attribute, None)
             if default_level:
                 try:
                     parsed_style = Style.parse(style)
                 except StyleSyntaxError as e:  # no cov
-                    errors.append(f'Invalid style definition for `{option}`, defaulting to `{default_level}`: {e}')
+                    errors.append(f"Invalid style definition for `{option}`, defaulting to `{default_level}`: {e}")
                     parsed_style = Style.parse(default_level)
 
                 setattr(self, attribute, parsed_style)
-            elif option == 'spinner':
+            elif option == "spinner":
                 try:
                     Spinner(style)
                 except KeyError as e:
                     errors.append(
-                        f'Invalid style definition for `{option}`, defaulting to `{self._style_spinner}`: {e.args[0]}'
+                        f"Invalid style definition for `{option}`, defaulting to `{self._style_spinner}`: {e.args[0]}"
                     )
                 else:
                     self._style_spinner = style
             else:
-                setattr(self, f'_style_{option}', style)
+                setattr(self, f"_style_{option}", style)
 
         return errors
 
-    def display(self, text='', **kwargs):
-        self.console.print(text, style=self._style_level_info, overflow='ignore', no_wrap=True, crop=False, **kwargs)
+    def display(self, text="", **kwargs):
+        self.console.print(text, style=self._style_level_info, overflow="ignore", no_wrap=True, crop=False, **kwargs)
 
-    def display_critical(self, text='', **kwargs):
+    def display_critical(self, text="", **kwargs):
         self.console.stderr = True
         try:
             self.console.print(
-                text, style=self._style_level_error, overflow='ignore', no_wrap=True, crop=False, **kwargs
+                text, style=self._style_level_error, overflow="ignore", no_wrap=True, crop=False, **kwargs
             )
         finally:
             self.console.stderr = False
 
-    def display_error(self, text='', *, stderr=True, indent=None, link=None, **kwargs):
+    def display_error(self, text="", *, stderr=True, indent=None, link=None, **kwargs):
         if self.verbosity < -2:  # noqa: PLR2004
             return
 
         self._output(text, self._style_level_error, stderr=stderr, indent=indent, link=link, **kwargs)
 
-    def display_warning(self, text='', *, stderr=True, indent=None, link=None, **kwargs):
+    def display_warning(self, text="", *, stderr=True, indent=None, link=None, **kwargs):
         if self.verbosity < -1:
             return
 
         self._output(text, self._style_level_warning, stderr=stderr, indent=indent, link=link, **kwargs)
 
-    def display_info(self, text='', *, stderr=True, indent=None, link=None, **kwargs):
+    def display_info(self, text="", *, stderr=True, indent=None, link=None, **kwargs):
         if self.verbosity < 0:
             return
 
         self._output(text, self._style_level_info, stderr=stderr, indent=indent, link=link, **kwargs)
 
-    def display_success(self, text='', *, stderr=True, indent=None, link=None, **kwargs):
+    def display_success(self, text="", *, stderr=True, indent=None, link=None, **kwargs):
         if self.verbosity < 0:
             return
 
         self._output(text, self._style_level_success, stderr=stderr, indent=indent, link=link, **kwargs)
 
-    def display_waiting(self, text='', *, stderr=True, indent=None, link=None, **kwargs):
+    def display_waiting(self, text="", *, stderr=True, indent=None, link=None, **kwargs):
         if self.verbosity < 0:
             return
 
         self._output(text, self._style_level_waiting, stderr=stderr, indent=indent, link=link, **kwargs)
 
-    def display_debug(self, text='', level=1, *, stderr=True, indent=None, link=None, **kwargs):
+    def display_debug(self, text="", level=1, *, stderr=True, indent=None, link=None, **kwargs):
         if not 1 <= level <= 3:  # noqa: PLR2004
-            error_message = 'Debug output can only have verbosity levels between 1 and 3 (inclusive)'
+            error_message = "Debug output can only have verbosity levels between 1 and 3 (inclusive)"
             raise ValueError(error_message)
 
         if self.verbosity < level:
@@ -271,17 +271,17 @@ class Terminal:
         if self.verbosity < 0:
             return
 
-        self.display_info('[', stderr=stderr, indent=indent, end='')
-        self.display_success(text, stderr=stderr, link=link, end='')
-        self.display_info(']', stderr=stderr)
+        self.display_info("[", stderr=stderr, indent=indent, end="")
+        self.display_success(text, stderr=stderr, link=link, end="")
+        self.display_info("]", stderr=stderr)
 
-    def display_header(self, title=''):
+    def display_header(self, title=""):
         self.console.rule(Text(title, self._style_level_success))
 
     def display_syntax(self, *args, **kwargs):
         from rich.syntax import Syntax
 
-        kwargs.setdefault('background_color', 'default' if self.testing else None)
+        kwargs.setdefault("background_color", "default" if self.testing else None)
         self.output(Syntax(*args, **kwargs))
 
     def display_markdown(self, text, **kwargs):  # no cov
@@ -302,15 +302,15 @@ class Terminal:
         if force_ascii:
             from rich.box import ASCII_DOUBLE_HEAD
 
-            table_options['box'] = ASCII_DOUBLE_HEAD
-            table_options['safe_box'] = True
+            table_options["box"] = ASCII_DOUBLE_HEAD
+            table_options["safe_box"] = True
 
-        table = Table(title=title, show_lines=show_lines, title_style='', **table_options)
+        table = Table(title=title, show_lines=show_lines, title_style="", **table_options)
         columns = dict(columns)
 
         for column_title, indices in list(columns.items()):
             if indices:
-                table.add_column(column_title, style='bold', **column_options.get(column_title, {}))
+                table.add_column(column_title, style="bold", **column_options.get(column_title, {}))
             else:
                 columns.pop(column_title)
 
@@ -318,7 +318,7 @@ class Terminal:
             return
 
         for i in range(num_rows or max(map(max, columns.values())) + 1):
-            row = [indices.get(i, '') for indices in columns.values()]
+            row = [indices.get(i, "") for indices in columns.values()]
             if any(row):
                 table.add_row(*row)
 
@@ -333,14 +333,14 @@ class Terminal:
             spinner_style=self._style_spinner,
             waiting_style=self._style_level_waiting,
             success_style=self._style_level_success,
-            initializer=lambda: setattr(self.platform, 'displaying_status', True),  # type: ignore[attr-defined]
-            finalizer=lambda: setattr(self.platform, 'displaying_status', False),  # type: ignore[attr-defined]
+            initializer=lambda: setattr(self.platform, "displaying_status", True),  # type: ignore[attr-defined]
+            finalizer=lambda: setattr(self.platform, "displaying_status", False),  # type: ignore[attr-defined]
         )
 
     def status_if(self, *args, condition: bool, **kwargs) -> TerminalStatus:
         return self.status(*args, **kwargs) if condition else NullStatus()
 
-    def _output(self, text='', style=None, *, stderr=False, indent=None, link=None, **kwargs):
+    def _output(self, text="", style=None, *, stderr=False, indent=None, link=None, **kwargs):
         if indent:
             text = indent_text(text, indent)
 
@@ -350,9 +350,9 @@ class Terminal:
         self.output(text, stderr=stderr, style=style, **kwargs)
 
     def output(self, *args, stderr=False, **kwargs):
-        kwargs.setdefault('overflow', 'ignore')
-        kwargs.setdefault('no_wrap', True)
-        kwargs.setdefault('crop', False)
+        kwargs.setdefault("overflow", "ignore")
+        kwargs.setdefault("no_wrap", True)
+        kwargs.setdefault("crop", False)
 
         if not stderr:
             self.console.print(*args, **kwargs)
