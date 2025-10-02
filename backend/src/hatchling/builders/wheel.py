@@ -310,23 +310,24 @@ class WheelBuilderConfig(BuilderConfig):
     @property
     def variants_json_constructor(self) -> Callable[..., str]:
         if self.__variants_json_constructor is None:
+
             def constructor(variant_config: VariantConfig) -> str:
                 data = {
                     VARIANTS_JSON_SCHEMA_KEY: VARIANTS_JSON_SCHEMA_URL,
                     VARIANT_INFO_DEFAULT_PRIO_KEY: {},
                     VARIANT_INFO_PROVIDER_DATA_KEY: {},
-                    VARIANTS_JSON_VARIANT_DATA_KEY: {}
+                    VARIANTS_JSON_VARIANT_DATA_KEY: {},
                 }
 
                 # ==================== VARIANT_INFO_DEFAULT_PRIO_KEY ==================== #
 
-                if (ns_prio := variant_config.default_priorities["namespace"]):
+                if ns_prio := variant_config.default_priorities['namespace']:
                     data[VARIANT_INFO_DEFAULT_PRIO_KEY][VARIANT_INFO_NAMESPACE_KEY] = ns_prio
 
-                if (feat_prio := variant_config.default_priorities["feature"]):
+                if feat_prio := variant_config.default_priorities['feature']:
                     data[VARIANT_INFO_DEFAULT_PRIO_KEY][VARIANT_INFO_FEATURE_KEY] = feat_prio
 
-                if (prop_prio := variant_config.default_priorities["property"]):
+                if prop_prio := variant_config.default_priorities['property']:
                     data[VARIANT_INFO_DEFAULT_PRIO_KEY][VARIANT_INFO_PROPERTY_KEY] = prop_prio
 
                 if not data[VARIANT_INFO_DEFAULT_PRIO_KEY]:
@@ -353,12 +354,10 @@ class WheelBuilderConfig(BuilderConfig):
                 # ==================== VARIANTS_JSON_VARIANT_DATA_KEY ==================== #
 
                 variant_data = defaultdict(lambda: defaultdict(set))
-                for vprop_str in (variant_config.properties or []):
+                for vprop_str in variant_config.properties or []:
                     match = VALIDATION_PROPERTY_REGEX.match(vprop_str)
                     if not match:
-                        raise ValueError(
-                            f"Invalid variant property '{vprop_str}' in variant `{variant_config.vlabel}`"
-                        )
+                        raise ValueError(f"Invalid variant property '{vprop_str}' in variant `{variant_config.vlabel}`")
                     namespace = match.group('namespace')
                     feature = match.group('feature')
                     value = match.group('value')
@@ -374,9 +373,8 @@ class WheelBuilderConfig(BuilderConfig):
                         return list(data)
                     return data
 
-                return json.dumps(
-                    preprocess(data), indent=4, sort_keys=True, ensure_ascii=False
-                )
+                return json.dumps(preprocess(data), indent=4, sort_keys=True, ensure_ascii=False)
+
         self.__variants_json_constructor = constructor
         return self.__variants_json_constructor
 
@@ -557,7 +555,6 @@ class WheelBuilder(BuilderInterface):
         variant_props: list[str] | None = None,
         variant_label: str | None = None,
     ):
-
         if metadata is not None:
             metadata.variant_config = VariantConfig.from_dict(
                 data=metadata.variant_config_data,
@@ -610,9 +607,9 @@ class WheelBuilder(BuilderInterface):
             archive.write_metadata('RECORD', records.construct())
 
         if self.metadata.variant_label is not None:
-            wheel_name = f"{self.artifact_project_id}-{build_data['tag']}-{self.metadata.variant_label}.whl"
+            wheel_name = f'{self.artifact_project_id}-{build_data["tag"]}-{self.metadata.variant_label}.whl'
         else:
-            wheel_name = f"{self.artifact_project_id}-{build_data['tag']}.whl"
+            wheel_name = f'{self.artifact_project_id}-{build_data["tag"]}.whl'
         target = os.path.join(directory, wheel_name)
 
         replace_file(archive.path, target)
@@ -702,7 +699,7 @@ class WheelBuilder(BuilderInterface):
             records.write((f'{archive.metadata_directory}/RECORD', '', ''))
             archive.write_metadata('RECORD', records.construct())
 
-        target = os.path.join(directory, f"{self.artifact_project_id}-{build_data['tag']}.whl")
+        target = os.path.join(directory, f'{self.artifact_project_id}-{build_data["tag"]}.whl')
 
         replace_file(archive.path, target)
         normalize_artifact_permissions(target)
@@ -719,7 +716,7 @@ class WheelBuilder(BuilderInterface):
                 for relative_directory in self.config.dev_mode_dirs
             )
 
-            record = archive.write_file(f"_{self.metadata.core.name.replace('-', '_')}.pth", '\n'.join(directories))
+            record = archive.write_file(f'_{self.metadata.core.name.replace("-", "_")}.pth', '\n'.join(directories))
             records.write(record)
 
             for included_file in self.recurse_forced_files(self.get_forced_inclusion_map(build_data)):
@@ -731,7 +728,7 @@ class WheelBuilder(BuilderInterface):
             records.write((f'{archive.metadata_directory}/RECORD', '', ''))
             archive.write_metadata('RECORD', records.construct())
 
-        target = os.path.join(directory, f"{self.artifact_project_id}-{build_data['tag']}.whl")
+        target = os.path.join(directory, f'{self.artifact_project_id}-{build_data["tag"]}.whl')
 
         replace_file(archive.path, target)
         normalize_artifact_permissions(target)

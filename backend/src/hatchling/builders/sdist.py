@@ -230,15 +230,15 @@ class SdistBuilder(BuilderInterface):
 
         authors_data = self.metadata.core.authors_data
         if authors_data['name']:
-            contents += f"    author={', '.join(authors_data['name'])!r},\n"
+            contents += f'    author={", ".join(authors_data["name"])!r},\n'
         if authors_data['email']:
-            contents += f"    author_email={', '.join(authors_data['email'])!r},\n"
+            contents += f'    author_email={", ".join(authors_data["email"])!r},\n'
 
         maintainers_data = self.metadata.core.maintainers_data
         if maintainers_data['name']:
-            contents += f"    maintainer={', '.join(maintainers_data['name'])!r},\n"
+            contents += f'    maintainer={", ".join(maintainers_data["name"])!r},\n'
         if maintainers_data['email']:
-            contents += f"    maintainer_email={', '.join(maintainers_data['email'])!r},\n"
+            contents += f'    maintainer_email={", ".join(maintainers_data["email"])!r},\n'
 
         if self.metadata.core.classifiers:
             contents += '    classifiers=[\n'
@@ -313,9 +313,9 @@ class SdistBuilder(BuilderInterface):
             for package in packages:
                 if package.startswith(f'src{os.sep}'):
                     src_layout = True
-                    contents += f"        {package.replace(os.sep, '.')[4:]!r},\n"
+                    contents += f'        {package.replace(os.sep, ".")[4:]!r},\n'
                 else:
-                    contents += f"        {package.replace(os.sep, '.')!r},\n"
+                    contents += f'        {package.replace(os.sep, ".")!r},\n'
 
             contents += '    ],\n'
 

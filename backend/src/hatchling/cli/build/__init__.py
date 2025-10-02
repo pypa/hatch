@@ -55,7 +55,7 @@ def build_impl(
             builders[target_name] = builder_class
 
     if unknown_targets:
-        app.abort(f"Unknown build targets: {', '.join(sorted(unknown_targets))}")
+        app.abort(f'Unknown build targets: {", ".join(sorted(unknown_targets))}')
 
     # We guarantee that builds occur within the project directory
     root = os.getcwd()

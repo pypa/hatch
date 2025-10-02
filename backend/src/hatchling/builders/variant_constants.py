@@ -7,33 +7,33 @@ from typing import Literal
 from typing import TypedDict
 
 VARIANT_LABEL_LENGTH = 16
-NULL_VARIANT_LABEL = "null"
-CONFIG_FILENAME = "variants.toml"
-VARIANT_DIST_INFO_FILENAME = "variant.json"
+NULL_VARIANT_LABEL = 'null'
+CONFIG_FILENAME = 'variants.toml'
+VARIANT_DIST_INFO_FILENAME = 'variant.json'
 
 # Common variant info keys (used in pyproject.toml and variants.json)
-VARIANT_INFO_DEFAULT_PRIO_KEY: Literal["default-priorities"] = "default-priorities"
-VARIANT_INFO_FEATURE_KEY: Literal["feature"] = "feature"
-VARIANT_INFO_NAMESPACE_KEY: Literal["namespace"] = "namespace"
-VARIANT_INFO_PROPERTY_KEY: Literal["property"] = "property"
-VARIANT_INFO_PROVIDER_DATA_KEY: Literal["providers"] = "providers"
-VARIANT_INFO_PROVIDER_ENABLE_IF_KEY: Literal["enable-if"] = "enable-if"
-VARIANT_INFO_PROVIDER_OPTIONAL_KEY: Literal["optional"] = "optional"
-VARIANT_INFO_PROVIDER_PLUGIN_API_KEY: Literal["plugin-api"] = "plugin-api"
-VARIANT_INFO_PROVIDER_PLUGIN_USE_KEY: Literal["plugin-use"] = "plugin-use"
-VARIANT_INFO_PROVIDER_REQUIRES_KEY: Literal["requires"] = "requires"
+VARIANT_INFO_DEFAULT_PRIO_KEY: Literal['default-priorities'] = 'default-priorities'
+VARIANT_INFO_FEATURE_KEY: Literal['feature'] = 'feature'
+VARIANT_INFO_NAMESPACE_KEY: Literal['namespace'] = 'namespace'
+VARIANT_INFO_PROPERTY_KEY: Literal['property'] = 'property'
+VARIANT_INFO_PROVIDER_DATA_KEY: Literal['providers'] = 'providers'
+VARIANT_INFO_PROVIDER_ENABLE_IF_KEY: Literal['enable-if'] = 'enable-if'
+VARIANT_INFO_PROVIDER_OPTIONAL_KEY: Literal['optional'] = 'optional'
+VARIANT_INFO_PROVIDER_PLUGIN_API_KEY: Literal['plugin-api'] = 'plugin-api'
+VARIANT_INFO_PROVIDER_PLUGIN_USE_KEY: Literal['plugin-use'] = 'plugin-use'
+VARIANT_INFO_PROVIDER_REQUIRES_KEY: Literal['requires'] = 'requires'
 
-PYPROJECT_TOML_TOP_KEY = "variant"
+PYPROJECT_TOML_TOP_KEY = 'variant'
 
-VARIANTS_JSON_SCHEMA_KEY: Literal["$schema"] = "$schema"
-VARIANTS_JSON_SCHEMA_URL = "https://variants-schema.wheelnext.dev/v0.0.2.json"
-VARIANTS_JSON_VARIANT_DATA_KEY: Literal["variants"] = "variants"
+VARIANTS_JSON_SCHEMA_KEY: Literal['$schema'] = '$schema'
+VARIANTS_JSON_SCHEMA_URL = 'https://variants-schema.wheelnext.dev/v0.0.2.json'
+VARIANTS_JSON_VARIANT_DATA_KEY: Literal['variants'] = 'variants'
 
-VALIDATION_VARIANT_LABEL_REGEX = re.compile(rf"[0-9a-z._]{{1,{VARIANT_LABEL_LENGTH}}}")
+VALIDATION_VARIANT_LABEL_REGEX = re.compile(rf'[0-9a-z._]{{1,{VARIANT_LABEL_LENGTH}}}')
 
-VALIDATION_NAMESPACE_REGEX = re.compile(r"[a-z0-9_]+")
-VALIDATION_FEATURE_NAME_REGEX = re.compile(r"[a-z0-9_]+")
-VALIDATION_VALUE_REGEX = re.compile(r"[a-z0-9_.]+")
+VALIDATION_NAMESPACE_REGEX = re.compile(r'[a-z0-9_]+')
+VALIDATION_FEATURE_NAME_REGEX = re.compile(r'[a-z0-9_]+')
+VALIDATION_VALUE_REGEX = re.compile(r'[a-z0-9_.]+')
 
 VALIDATION_FEATURE_REGEX = re.compile(
     rf"""
@@ -55,7 +55,7 @@ VALIDATION_PROPERTY_REGEX = re.compile(
     re.VERBOSE,
 )
 
-VALIDATION_PROVIDER_ENABLE_IF_REGEX = re.compile(r"[\S ]+")
+VALIDATION_PROVIDER_ENABLE_IF_REGEX = re.compile(r'[\S ]+')
 VALIDATION_PROVIDER_PLUGIN_API_REGEX = re.compile(
     r"""
     (?P<module> [\w.]+)
@@ -65,31 +65,29 @@ VALIDATION_PROVIDER_PLUGIN_API_REGEX = re.compile(
     """,
     re.VERBOSE,
 )
-VALIDATION_PROVIDER_REQUIRES_REGEX = re.compile(r"[\S ]+")
+VALIDATION_PROVIDER_REQUIRES_REGEX = re.compile(r'[\S ]+')
 
 
 # VALIDATION_PYTHON_PACKAGE_NAME_REGEX = re.compile(r"[^\s-]+?")
 # Per PEP 508: https://peps.python.org/pep-0508/#names
-VALIDATION_PYTHON_PACKAGE_NAME_REGEX = re.compile(
-    r"[A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9]", re.IGNORECASE
-)
+VALIDATION_PYTHON_PACKAGE_NAME_REGEX = re.compile(r'[A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9]', re.IGNORECASE)
 VALIDATION_WHEEL_NAME_REGEX = re.compile(
-    r"(?P<base_wheel_name>                "  # <base_wheel_name> group (without variant)
-    r"  (?P<namever>                      "  # "namever" group contains <name>-<ver>
-    r"    (?P<name>[^\s-]+?)              "  # <name>
-    r"    - (?P<ver>[^\s-]*?)             "  # "-" <ver>
-    r"  )                                 "  # close "namever" group
-    r"  (?: - (?P<build>\d[^-]*?) )?      "  # optional "-" <build>
-    r"  - (?P<pyver>[^\s-]+?)             "  # "-" <pyver> tag
-    r"  - (?P<abi>[^\s-]+?)               "  # "-" <abi> tag
-    r"  - (?P<plat>[^\s-]+?)              "  # "-" <plat> tag
-    r")                                   "  # end of <base_wheel_name> group
-    r"(?: - (?P<variant_label>            "  # optional <variant_label>
-    rf"     {VALIDATION_VARIANT_LABEL_REGEX.pattern}"
-    r"    )                               "
-    r")?                                  "
-    r"\.whl                               "  # ".whl" suffix
-    r"                                    ",
+    r'(?P<base_wheel_name>                '  # <base_wheel_name> group (without variant)
+    r'  (?P<namever>                      '  # "namever" group contains <name>-<ver>
+    r'    (?P<name>[^\s-]+?)              '  # <name>
+    r'    - (?P<ver>[^\s-]*?)             '  # "-" <ver>
+    r'  )                                 '  # close "namever" group
+    r'  (?: - (?P<build>\d[^-]*?) )?      '  # optional "-" <build>
+    r'  - (?P<pyver>[^\s-]+?)             '  # "-" <pyver> tag
+    r'  - (?P<abi>[^\s-]+?)               '  # "-" <abi> tag
+    r'  - (?P<plat>[^\s-]+?)              '  # "-" <plat> tag
+    r')                                   '  # end of <base_wheel_name> group
+    r'(?: - (?P<variant_label>            '  # optional <variant_label>
+    rf'     {VALIDATION_VARIANT_LABEL_REGEX.pattern}'
+    r'    )                               '
+    r')?                                  '
+    r'\.whl                               '  # ".whl" suffix
+    r'                                    ',
     re.VERBOSE,
 )
 
@@ -111,13 +109,13 @@ class PriorityJsonDict(TypedDict, total=False):
 
 
 ProviderPluginJsonDict = TypedDict(
-    "ProviderPluginJsonDict",
+    'ProviderPluginJsonDict',
     {
-        "plugin-api": str,
-        "requires": list[str],
-        "enable-if": str,
-        "optional": bool,
-        "plugin-use": Literal["all", "build", "none"],
+        'plugin-api': str,
+        'requires': list[str],
+        'enable-if': str,
+        'optional': bool,
+        'plugin-use': Literal['all', 'build', 'none'],
     },
     total=False,
 )
@@ -126,12 +124,12 @@ VariantInfoJsonDict = dict[str, dict[str, list[str]]]
 
 
 VariantsJsonDict = TypedDict(
-    "VariantsJsonDict",
+    'VariantsJsonDict',
     {
-        "$schema": str,
-        "default-priorities": PriorityJsonDict,
-        "providers": dict[str, ProviderPluginJsonDict],
-        "variants": dict[str, VariantInfoJsonDict],
+        '$schema': str,
+        'default-priorities': PriorityJsonDict,
+        'providers': dict[str, ProviderPluginJsonDict],
+        'variants': dict[str, VariantInfoJsonDict],
     },
     total=False,
 )

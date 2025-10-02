@@ -50,7 +50,7 @@ class VariantProviderConfig:
     def from_dict(cls, data: dict):
         """Creates an instance of VariantProviderConfig from a dictionary."""
         # Convert hyphenated keys to underscored keys
-        data = {key.replace("-", "_"): value for key, value in data.items()}
+        data = {key.replace('-', '_'): value for key, value in data.items()}
 
         # Create an instance of VariantProviderConfig
         return cls(**data)
@@ -58,7 +58,7 @@ class VariantProviderConfig:
     def validate(self):
         """Validates the VariantProviderConfig instance."""
         if not self.requires:
-            raise ValueError("Requires list cannot be empty")
+            raise ValueError('Requires list cannot be empty')
 
 
 @dataclass
@@ -69,50 +69,45 @@ class VariantConfig:
     providers: dict[str, VariantProviderConfig]
 
     @classmethod
-    def from_dict(cls, data: dict, vprops: list[str] | None,
-                  variant_label: str | None):
+    def from_dict(cls, data: dict, vprops: list[str] | None, variant_label: str | None):
         """Creates an instance of VariantConfig from a dictionary."""
         data = data.copy()
 
         if vprops is None:
-            data["vlabel"] = None
-            data["properties"] = None
-
+            data['vlabel'] = None
+            data['properties'] = None
 
         elif len(vprops) == 0:
-            data["vlabel"] = "null"
-            data["properties"] = []
+            data['vlabel'] = 'null'
+            data['properties'] = []
 
         else:
             # Normalizing
-            _vprops = [
-                [el.strip() for el in vprop.split("::")]
-                for vprop in vprops
-            ]
+            _vprops = [[el.strip() for el in vprop.split('::')] for vprop in vprops]
             for vprop in _vprops:
                 if len(vprop) != 3:
-                    raise ValueError(f"Invalid variant property: {vprop}")
+                    raise ValueError(f'Invalid variant property: {vprop}')
 
-            data["properties"] = [" :: ".join(vprop) for vprop in sorted(_vprops)]
+            data['properties'] = [' :: '.join(vprop) for vprop in sorted(_vprops)]
 
             if variant_label is None:
                 hash_object = hashlib.sha256()
-                for vprop in data["properties"]:
-                    hash_object.update(f"{vprop}\n".encode())
-                data["vlabel"] = hash_object.hexdigest()[:VARIANT_LABEL_LENGTH]
+                for vprop in data['properties']:
+                    hash_object.update(f'{vprop}\n'.encode())
+                data['vlabel'] = hash_object.hexdigest()[:VARIANT_LABEL_LENGTH]
 
         if variant_label is not None:
-            if data["properties"] is None or len(data["properties"]) == 0:
-                raise ValueError("Variant Properties cannot be empty when a variant label is provided")
-            data["vlabel"] = variant_label
+            if data['properties'] is None or len(data['properties']) == 0:
+                raise ValueError('Variant Properties cannot be empty when a variant label is provided')
+            data['vlabel'] = variant_label
 
         # Convert hyphenated keys to underscored keys
-        data = {key.replace("-", "_"): value for key, value in data.items()}
+        data = {key.replace('-', '_'): value for key, value in data.items()}
 
         # Convert providers to VariantProviderConfig instances
-        data["providers"] = {
+        data['providers'] = {
             provider: VariantProviderConfig.from_dict(provider_data)
-            for provider, provider_data in data["providers"].items()
+            for provider, provider_data in data['providers'].items()
         }
 
         # Create an instance of VariantConfig
@@ -120,11 +115,9 @@ class VariantConfig:
 
     def validate(self):
         """Validates the VariantConfig instance."""
-        for namespace in self.default_priorities["namespace"]:
+        for namespace in self.default_priorities['namespace']:
             if namespace not in self.providers:
-                raise ValueError(
-                    f"Namespace '{namespace}' is not defined in the variant providers"
-                )
+                raise ValueError(f"Namespace '{namespace}' is not defined in the variant providers")
 
         for provider_cfg in self.providers.values():
             provider_cfg.validate()

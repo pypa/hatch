@@ -63,10 +63,10 @@ def build_wheel(
     metadata = ProjectMetadata(root_dir, plugin_manager)
 
     variant_props, variant_label = None, None
-    if "variant-property" in config_settings:
-        variant_props = config_settings["variant-property"]
-    if "variant-label" in config_settings:
-        variant_label = config_settings["variant-label"]
+    if 'variant-property' in config_settings:
+        variant_props = config_settings['variant-property']
+    if 'variant-label' in config_settings:
+        variant_label = config_settings['variant-label']
     builder = WheelBuilder(
         root_dir,
         plugin_manager=plugin_manager,

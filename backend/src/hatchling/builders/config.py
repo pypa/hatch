@@ -141,7 +141,7 @@ class BuilderConfig:
 
         # Matching only at the root requires a forward slash, back slashes do not work. As such,
         # normalize to forward slashes for consistency.
-        all_include_patterns.extend(f"/{relative_path.replace(os.sep, '/')}/" for relative_path in self.packages)
+        all_include_patterns.extend(f'/{relative_path.replace(os.sep, "/")}/' for relative_path in self.packages)
 
         if all_include_patterns:
             return pathspec.GitIgnoreSpec.from_lines(all_include_patterns)
