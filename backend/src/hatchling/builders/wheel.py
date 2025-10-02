@@ -556,13 +556,14 @@ class WheelBuilder(BuilderInterface):
         variant_label: str | None = None,
     ):
         if metadata is not None:
-            metadata.variant_config = VariantConfig.from_dict(
-                data=metadata.variant_config_data,
-                vprops=variant_props,
-                variant_label=variant_label,
-            )
-            metadata.variant_config.validate()
-            metadata.variant_label = metadata.variant_config.vlabel
+            if variant_props is not None and variant_label is not None:
+                metadata.variant_config = VariantConfig.from_dict(
+                    data=metadata.variant_config_data,
+                    vprops=variant_props,
+                    variant_label=variant_label,
+                )
+                metadata.variant_config.validate()
+                metadata.variant_label = metadata.variant_config.vlabel
 
         super().__init__(
             root=root,

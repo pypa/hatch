@@ -107,7 +107,7 @@ class VariantConfig:
         # Convert providers to VariantProviderConfig instances
         data['providers'] = {
             provider: VariantProviderConfig.from_dict(provider_data)
-            for provider, provider_data in data['providers'].items()
+            for provider, provider_data in data.get('providers', {}).items()
         }
 
         # Create an instance of VariantConfig
