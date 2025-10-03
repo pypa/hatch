@@ -28,6 +28,19 @@ from hatch.project.core import Project
 from hatch.utils.ci import running_in_ci
 from hatch.utils.fs import Path
 
+def find_workspace_root(path: Path) -> Path | None:
+    """Find workspace root by traversing up from given path."""
+    current = path
+    while current.parent != current:
+        pyproject = current / "pyproject.toml"
+        if pyproject.exists():
+            from hatch.utils.toml import load_toml_file
+            config = load_toml_file(str(pyproject))
+            if config.get("tool", {}).get("hatch", {}).get("workspace"):
+                return current
+        current = current.parent
+    return None
+
 
 @click.group(
     context_settings={'help_option_names': ['-h', '--help'], 'max_content_width': 120}, invoke_without_command=True
@@ -170,8 +183,20 @@ def hatch(ctx: click.Context, env_name, project, verbose, quiet, color, interact
         app.project.set_app(app)
         return
 
-    app.project = Project(Path.cwd())
-    app.project.set_app(app)
+    # Discover workspace-aware project
+    workspace_root = find_workspace_root(Path.cwd())
+    if workspace_root:
+        # Create project from workspace root with workspace context
+        app.project = Project(workspace_root, locate=False)
+        app.project.set_app(app)
+        # Set current member context if we're in a member directory
+        current_dir = Path.cwd()
+        if current_dir != workspace_root:
+            app.project._current_member_path = current_dir
+    else:
+        # No workspace, use current directory as before
+        app.project = Project(Path.cwd())
+        app.project.set_app(app)
 
     if app.config.mode == 'local':
         return
