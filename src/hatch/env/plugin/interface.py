@@ -308,7 +308,10 @@ class EnvironmentInterface(ABC):
                 )
                 raise ValueError(message)
 
-            all_dependencies_complex.extend([dep if isinstance(dep, Dependency) else Dependency(str(dep)) for dep in optional_dependencies_complex[feature]])
+            all_dependencies_complex.extend([
+                dep if isinstance(dep, Dependency) else Dependency(str(dep))
+                for dep in optional_dependencies_complex[feature]
+            ])
 
         return all_dependencies_complex
 
@@ -388,6 +391,7 @@ class EnvironmentInterface(ABC):
     @cached_property
     def all_dependencies_complex(self) -> list[Dependency]:
         from hatch.dep.core import Dependency
+
         all_dependencies_complex = list(self.local_dependencies_complex)
         all_dependencies_complex.extend(self.dependencies_complex)
         return [dep if isinstance(dep, Dependency) else Dependency(str(dep)) for dep in all_dependencies_complex]
@@ -1252,7 +1256,7 @@ def find_members(root, relative_components):
             component_matchers.append(lambda entry, component=component: component == entry.name)
 
     results = list(_recurse_members(root, 0, component_matchers))
-    yield from sorted(results, key=lambda path: os.path.basename(path))
+    yield from sorted(results, key=os.path.basename)
 
 
 def _recurse_members(root, matcher_index, matchers):
