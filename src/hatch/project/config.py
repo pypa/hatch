@@ -425,20 +425,6 @@ class ProjectConfig:
             for environment_collector in environment_collectors:
                 environment_collector.finalize_environments(final_config)
 
-            # Add workspace environments if this is a workspace member
-            workspace_root = self._find_workspace_root()
-            if workspace_root and workspace_root != self.root:
-                try:
-                    from hatch.project.core import Project
-                    workspace_project = Project(workspace_root, locate=False)
-                    workspace_config = ProjectConfig(workspace_root, workspace_project.metadata.hatch.config,
-                                                     self.plugin_manager)
-                    for env_name, env_config in workspace_config.envs.items():
-                        if env_name not in final_config:
-                            final_config[env_name] = env_config
-                except Exception:
-                    pass
-
             self._matrices = all_matrices
             self._internal_matrices = {}
             self._envs = final_config
@@ -457,23 +443,6 @@ class ProjectConfig:
                         self._internal_envs[env_name] = self._envs.pop(env_name)
 
         return self._envs
-
-    def _find_workspace_root(self) -> Path | None:
-        """Find workspace root by traversing up from current working directory."""
-        from hatch.utils.fs import Path
-        current = Path.cwd()
-        while current.parent != current:
-            pyproject = current / "pyproject.toml"
-            if pyproject.exists():
-                try:
-                    from hatch.utils.toml import load_toml_file
-                    config = load_toml_file(str(pyproject))
-                    if config.get("tool", {}).get("hatch", {}).get("workspace"):
-                        return current
-                except Exception:
-                    pass
-            current = current.parent
-        return None
 
     @property
     def publish(self):
