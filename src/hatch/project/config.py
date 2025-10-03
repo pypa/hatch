@@ -14,6 +14,7 @@ from hatch.project.utils import format_script_commands, parse_script_command
 
 if TYPE_CHECKING:
     from hatch.dep.core import Dependency
+    from hatch.utils.fs import Path
 
 
 class ProjectConfig:
@@ -424,6 +425,20 @@ class ProjectConfig:
             for environment_collector in environment_collectors:
                 environment_collector.finalize_environments(final_config)
 
+            # Add workspace environments if this is a workspace member
+            workspace_root = self._find_workspace_root()
+            if workspace_root and workspace_root != self.root:
+                try:
+                    from hatch.project.core import Project
+                    workspace_project = Project(workspace_root, locate=False)
+                    workspace_config = ProjectConfig(workspace_root, workspace_project.metadata.hatch.config,
+                                                     self.plugin_manager)
+                    for env_name, env_config in workspace_config.envs.items():
+                        if env_name not in final_config:
+                            final_config[env_name] = env_config
+                except Exception:
+                    pass
+
             self._matrices = all_matrices
             self._internal_matrices = {}
             self._envs = final_config
@@ -442,6 +457,23 @@ class ProjectConfig:
                         self._internal_envs[env_name] = self._envs.pop(env_name)
 
         return self._envs
+
+    def _find_workspace_root(self) -> Path | None:
+        """Find workspace root by traversing up from current working directory."""
+        from hatch.utils.fs import Path
+        current = Path.cwd()
+        while current.parent != current:
+            pyproject = current / "pyproject.toml"
+            if pyproject.exists():
+                try:
+                    from hatch.utils.toml import load_toml_file
+                    config = load_toml_file(str(pyproject))
+                    if config.get("tool", {}).get("hatch", {}).get("workspace"):
+                        return current
+                except Exception:
+                    pass
+            current = current.parent
+        return None
 
     @property
     def publish(self):
@@ -500,6 +532,15 @@ class ProjectConfig:
             self._scripts = config
 
         return self._scripts
+
+    @cached_property
+    def workspace(self):
+        config = self.config.get("workspace", {})
+        if not isinstance(config, dict):
+            message = "Field `tool.hatch.workspace` must be a table"
+            raise TypeError(message)
+
+        return WorkspaceConfig(config, self.root)
 
     def finalize_env_overrides(self, option_types):
         # We lazily apply overrides because we need type information potentially defined by
@@ -726,6 +767,28 @@ def finalize_hook_config(hook_config: dict[str, dict[str, Any]]) -> dict[str, di
         )
     }
     return final_hook_config
+
+
+class WorkspaceConfig:
+    def __init__(self, config: dict[str, Any], root: Path):
+        self.__config = config
+        self.__root = root
+
+    @cached_property
+    def members(self) -> list[str]:
+        members = self.__config.get("members", [])
+        if not isinstance(members, list):
+            message = "Field `tool.hatch.workspace.members` must be an array"
+            raise TypeError(message)
+        return members
+
+    @cached_property
+    def exclude(self) -> list[str]:
+        exclude = self.__config.get("exclude", [])
+        if not isinstance(exclude, list):
+            message = "Field `tool.hatch.workspace.exclude` must be an array"
+            raise TypeError(message)
+        return exclude
 
 
 def env_var_enabled(env_var: str, *, default: bool = False) -> bool:
