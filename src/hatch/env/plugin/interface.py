@@ -3,10 +3,11 @@ from __future__ import annotations
 import os
 import sys
 from abc import ABC, abstractmethod
+from collections.abc import Generator
 from contextlib import contextmanager
 from functools import cached_property
 from os.path import isabs
-from typing import TYPE_CHECKING, Any, Generator
+from typing import TYPE_CHECKING, Any
 
 from hatch.config.constants import AppEnvVars
 from hatch.env.utils import add_verbosity_flag, get_env_var_option
@@ -30,7 +31,7 @@ class EnvironmentInterface(ABC):
 
 
     class SpecialEnvironment(EnvironmentInterface):
-        PLUGIN_NAME = 'special'
+        PLUGIN_NAME = "special"
         ...
     ```
 
@@ -271,7 +272,7 @@ class EnvironmentInterface(ABC):
                     try:
                         dependencies_complex.append(Dependency(self.metadata.context.format(entry)))
                     except InvalidDependencyError as e:
-                        message = f'Dependency #{i} of field `tool.hatch.envs.{self.name}.{option}` is invalid: {e}'
+                        message = f"Dependency #{i} of field `tool.hatch.envs.{self.name}.{option}` is invalid: {e}"
                         raise ValueError(message) from None
 
         return dependencies_complex
@@ -303,8 +304,8 @@ class EnvironmentInterface(ABC):
         for feature in self.features:
             if feature not in optional_dependencies_complex:
                 message = (
-                    f'Feature `{feature}` of field `tool.hatch.envs.{self.name}.features` is not '
-                    f'defined in the dynamic field `project.optional-dependencies`'
+                    f"Feature `{feature}` of field `tool.hatch.envs.{self.name}.features` is not "
+                    f"defined in the dynamic field `project.optional-dependencies`"
                 )
                 raise ValueError(message)
 
@@ -332,11 +333,11 @@ class EnvironmentInterface(ABC):
         local_dependencies_complex = []
         if not self.skip_install:
             local_dependencies_complex.append(
-                Dependency(f'{self.metadata.name} @ {self.root.as_uri()}', editable=self.dev_mode)
+                Dependency(f"{self.metadata.name} @ {self.root.as_uri()}", editable=self.dev_mode)
             )
 
         local_dependencies_complex.extend(
-            Dependency(f'{member.project.metadata.name} @ {member.project.location.as_uri()}', editable=self.dev_mode)
+            Dependency(f"{member.project.metadata.name} @ {member.project.location.as_uri()}", editable=self.dev_mode)
             for member in self.workspace.members
         )
 
@@ -365,7 +366,7 @@ class EnvironmentInterface(ABC):
                 else:
                     all_dependencies_complex.append(Dependency(str(req)))
 
-            for target in os.environ.get(BuildEnvVars.REQUESTED_TARGETS, '').split():
+            for target in os.environ.get(BuildEnvVars.REQUESTED_TARGETS, "").split():
                 target_config = self.app.project.config.build.target(target)
                 all_dependencies_complex.extend(map(Dependency, target_config.dependencies))
 
@@ -594,9 +595,9 @@ class EnvironmentInterface(ABC):
 
     @cached_property
     def workspace(self) -> Workspace:
-        config = self.config.get('workspace', {})
+        config = self.config.get("workspace", {})
         if not isinstance(config, dict):
-            message = f'Field `tool.hatch.envs.{self.name}.workspace` must be a table'
+            message = f"Field `tool.hatch.envs.{self.name}.workspace` must be a table"
             raise TypeError(message)
 
         return Workspace(self, config)
@@ -1002,9 +1003,9 @@ class Workspace:
 
     @cached_property
     def parallel(self) -> bool:
-        parallel = self.config.get('parallel', True)
+        parallel = self.config.get("parallel", True)
         if not isinstance(parallel, bool):
-            message = f'Field `tool.hatch.envs.{self.env.name}.workspace.parallel` must be a boolean'
+            message = f"Field `tool.hatch.envs.{self.env.name}.workspace.parallel` must be a boolean"
             raise TypeError(message)
 
         return parallel
@@ -1029,7 +1030,7 @@ class Workspace:
             from concurrent.futures import ThreadPoolExecutor
 
             def get_member_deps(member):
-                with self.env.app.status(f'Checking workspace member: {member.name}'):
+                with self.env.app.status(f"Checking workspace member: {member.name}"):
                     dependencies, features = member.get_dependencies()
                     deps = list(dependencies)
                     for feature in member.features:
@@ -1042,7 +1043,7 @@ class Workspace:
                     all_dependencies.extend(deps)
         else:
             for member in dynamic_members:
-                with self.env.app.status(f'Checking workspace member: {member.name}'):
+                with self.env.app.status(f"Checking workspace member: {member.name}"):
                     dependencies, features = member.get_dependencies()
                     all_dependencies.extend(dependencies)
                     for feature in member.features:
@@ -1056,44 +1057,44 @@ class Workspace:
         from hatch.utils.fs import Path
         from hatchling.metadata.utils import normalize_project_name
 
-        raw_members = self.config.get('members', [])
+        raw_members = self.config.get("members", [])
         if not isinstance(raw_members, list):
-            message = f'Field `tool.hatch.envs.{self.env.name}.workspace.members` must be an array'
+            message = f"Field `tool.hatch.envs.{self.env.name}.workspace.members` must be an array"
             raise TypeError(message)
 
         # First normalize configuration
         member_data: list[dict[str, Any]] = []
         for i, data in enumerate(raw_members, 1):
             if isinstance(data, str):
-                member_data.append({'path': data, 'features': ()})
+                member_data.append({"path": data, "features": ()})
             elif isinstance(data, dict):
-                if 'path' not in data:
+                if "path" not in data:
                     message = (
-                        f'Member #{i} of field `tool.hatch.envs.{self.env.name}.workspace.members` must define '
-                        f'a `path` key'
+                        f"Member #{i} of field `tool.hatch.envs.{self.env.name}.workspace.members` must define "
+                        f"a `path` key"
                     )
                     raise TypeError(message)
 
-                path = data['path']
+                path = data["path"]
                 if not isinstance(path, str):
                     message = (
-                        f'Option `path` of member #{i} of field `tool.hatch.envs.{self.env.name}.workspace.members` '
-                        f'must be a string'
+                        f"Option `path` of member #{i} of field `tool.hatch.envs.{self.env.name}.workspace.members` "
+                        f"must be a string"
                     )
                     raise TypeError(message)
 
                 if not path:
                     message = (
-                        f'Option `path` of member #{i} of field `tool.hatch.envs.{self.env.name}.workspace.members` '
-                        f'cannot be an empty string'
+                        f"Option `path` of member #{i} of field `tool.hatch.envs.{self.env.name}.workspace.members` "
+                        f"cannot be an empty string"
                     )
                     raise ValueError(message)
 
-                features = data.get('features', [])
+                features = data.get("features", [])
                 if not isinstance(features, list):
                     message = (
-                        f'Option `features` of member #{i} of field `tool.hatch.envs.{self.env.name}.workspace.'
-                        f'members` must be an array of strings'
+                        f"Option `features` of member #{i} of field `tool.hatch.envs.{self.env.name}.workspace."
+                        f"members` must be an array of strings"
                     )
                     raise TypeError(message)
 
@@ -1101,33 +1102,33 @@ class Workspace:
                 for j, feature in enumerate(features, 1):
                     if not isinstance(feature, str):
                         message = (
-                            f'Feature #{j} of option `features` of member #{i} of field '
-                            f'`tool.hatch.envs.{self.env.name}.workspace.members` must be a string'
+                            f"Feature #{j} of option `features` of member #{i} of field "
+                            f"`tool.hatch.envs.{self.env.name}.workspace.members` must be a string"
                         )
                         raise TypeError(message)
 
                     if not feature:
                         message = (
-                            f'Feature #{j} of option `features` of member #{i} of field '
-                            f'`tool.hatch.envs.{self.env.name}.workspace.members` cannot be an empty string'
+                            f"Feature #{j} of option `features` of member #{i} of field "
+                            f"`tool.hatch.envs.{self.env.name}.workspace.members` cannot be an empty string"
                         )
                         raise ValueError(message)
 
                     normalized_feature = normalize_project_name(feature)
                     if normalized_feature in all_features:
                         message = (
-                            f'Feature #{j} of option `features` of member #{i} of field '
-                            f'`tool.hatch.envs.{self.env.name}.workspace.members` is a duplicate'
+                            f"Feature #{j} of option `features` of member #{i} of field "
+                            f"`tool.hatch.envs.{self.env.name}.workspace.members` is a duplicate"
                         )
                         raise ValueError(message)
 
                     all_features.add(normalized_feature)
 
-                member_data.append({'path': path, 'features': tuple(sorted(all_features))})
+                member_data.append({"path": path, "features": tuple(sorted(all_features))})
             else:
                 message = (
-                    f'Member #{i} of field `tool.hatch.envs.{self.env.name}.workspace.members` must be '
-                    f'a string or an inline table'
+                    f"Member #{i} of field `tool.hatch.envs.{self.env.name}.workspace.members` must be "
+                    f"a string or an inline table"
                 )
                 raise TypeError(message)
 
@@ -1150,7 +1151,7 @@ class Workspace:
             # AP = /foo/bar/dir/pkg-*
             # SP = /foo/bar
             # RP = dir/pkg-*
-            path_spec = data['path']
+            path_spec = data["path"]
             normalized_path = os.path.normpath(os.path.join(root, path_spec))
             absolute_path = os.path.abspath(normalized_path)
             shared_prefix = os.path.commonprefix([root, absolute_path])
@@ -1159,31 +1160,31 @@ class Workspace:
             # Now we have the necessary information to perform an optimized glob search for members
             members_found = False
             for member_path in find_members(root, relative_path.split(os.sep)):
-                project_file = os.path.join(member_path, 'pyproject.toml')
+                project_file = os.path.join(member_path, "pyproject.toml")
                 if not os.path.isfile(project_file):
                     message = (
-                        f'Member derived from `{path_spec}` of field '
-                        f'`tool.hatch.envs.{self.env.name}.workspace.members` is not a project (no `pyproject.toml` '
-                        f'file): {member_path}'
+                        f"Member derived from `{path_spec}` of field "
+                        f"`tool.hatch.envs.{self.env.name}.workspace.members` is not a project (no `pyproject.toml` "
+                        f"file): {member_path}"
                     )
                     raise OSError(message)
 
                 members_found = True
                 if member_path in member_paths:
                     message = (
-                        f'Member derived from `{path_spec}` of field '
-                        f'`tool.hatch.envs.{self.env.name}.workspace.members` is a duplicate: {member_path}'
+                        f"Member derived from `{path_spec}` of field "
+                        f"`tool.hatch.envs.{self.env.name}.workspace.members` is a duplicate: {member_path}"
                     )
                     raise ValueError(message)
 
                 project = Project(Path(member_path), locate=False)
                 project.set_app(self.env.app)
-                member_paths[member_path] = WorkspaceMember(project, features=data['features'])
+                member_paths[member_path] = WorkspaceMember(project, features=data["features"])
 
             if not members_found:
                 message = (
-                    f'No members could be derived from `{path_spec}` of field '
-                    f'`tool.hatch.envs.{self.env.name}.workspace.members`: {absolute_path}'
+                    f"No members could be derived from `{path_spec}` of field "
+                    f"`tool.hatch.envs.{self.env.name}.workspace.members`: {absolute_path}"
                 )
                 raise OSError(message)
 
@@ -1249,7 +1250,7 @@ def find_members(root, relative_components):
 
     component_matchers = []
     for component in relative_components:
-        if any(special in component for special in '*?['):
+        if any(special in component for special in "*?["):
             pattern = re.compile(fnmatch.translate(component))
             component_matchers.append(lambda entry, pattern=pattern: pattern.search(entry.name))
         else:

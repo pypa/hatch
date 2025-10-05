@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Generator
 from contextlib import contextmanager
 from functools import cached_property
-from typing import TYPE_CHECKING, Generator, cast
+from typing import TYPE_CHECKING, cast
 
 from hatch.project.env import EnvironmentMetadata
 from hatch.utils.fs import Path
@@ -207,7 +208,7 @@ class Project:
         if targets is None:
             targets = ["wheel"]
 
-        env_vars = {BuildEnvVars.REQUESTED_TARGETS: ' '.join(sorted(targets))}
+        env_vars = {BuildEnvVars.REQUESTED_TARGETS: " ".join(sorted(targets))}
         build_backend = self.metadata.build.build_backend
         with self.location.as_cwd(), self.build_env.get_env_vars(), EnvVars(env_vars):
             if not self.build_env.exists():
@@ -219,13 +220,13 @@ class Project:
             self.prepare_environment(self.build_env)
 
             additional_dependencies: list[str] = []
-            with self.app.status('Inspecting build dependencies'):
+            with self.app.status("Inspecting build dependencies"):
                 if build_backend != BUILD_BACKEND:
                     for target in targets:
-                        if target == 'sdist':
-                            additional_dependencies.extend(self.build_frontend.get_requires('sdist'))
-                        elif target == 'wheel':
-                            additional_dependencies.extend(self.build_frontend.get_requires('wheel'))
+                        if target == "sdist":
+                            additional_dependencies.extend(self.build_frontend.get_requires("sdist"))
+                        elif target == "wheel":
+                            additional_dependencies.extend(self.build_frontend.get_requires("wheel"))
                         else:
                             self.app.abort(f"Target `{target}` is not supported by `{build_backend}`")
                 else:
@@ -267,7 +268,7 @@ class Project:
 
     @cached_property
     def has_static_dependencies(self) -> bool:
-        dynamic_fields = {'dependencies', 'optional-dependencies'}
+        dynamic_fields = {"dependencies", "optional-dependencies"}
         return not dynamic_fields.intersection(self.metadata.dynamic)
 
     def expand_environments(self, env_name: str) -> list[str]:

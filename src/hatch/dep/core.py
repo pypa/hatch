@@ -14,7 +14,7 @@ class Dependency(Requirement):
         super().__init__(s)
 
         if editable and self.url is None:
-            message = f'Editable dependency must refer to a local path: {s}'
+            message = f"Editable dependency must refer to a local path: {s}"
             raise InvalidDependencyError(message)
 
         self.__editable = editable
@@ -31,7 +31,7 @@ class Dependency(Requirement):
         import hyperlink
 
         uri = hyperlink.parse(self.url)
-        if uri.scheme != 'file':
+        if uri.scheme != "file":
             return None
 
         return Path.from_uri(self.url)

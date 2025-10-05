@@ -19,7 +19,7 @@ class InstalledDistributions:
         self.__resolver = Distribution.discover(context=DistributionFinder.Context(path=self.__sys_path))
         self.__distributions: dict[str, Distribution] = {}
         self.__search_exhausted = False
-        self.__canonical_regex = re.compile(r'[-_.]+')
+        self.__canonical_regex = re.compile(r"[-_.]+")
 
     def dependencies_in_sync(self, dependencies: list[Dependency]) -> bool:
         return all(self.dependency_in_sync(dependency) for dependency in dependencies)
@@ -40,11 +40,11 @@ class InstalledDistributions:
 
         extras = dependency.extras
         if extras:
-            transitive_dependencies: list[str] = distribution.metadata.get_all('Requires-Dist', [])
+            transitive_dependencies: list[str] = distribution.metadata.get_all("Requires-Dist", [])
             if not transitive_dependencies:
                 return False
 
-            available_extras: list[str] = distribution.metadata.get_all('Provides-Extra', [])
+            available_extras: list[str] = distribution.metadata.get_all("Provides-Extra", [])
 
             for dependency_string in transitive_dependencies:
                 transitive_dependency = Dependency(dependency_string)
@@ -58,7 +58,7 @@ class InstalledDistributions:
                         return False
 
                     extra_environment = dict(environment)
-                    extra_environment['extra'] = extra
+                    extra_environment["extra"] = extra
                     if not self.dependency_in_sync(transitive_dependency, environment=extra_environment):
                         return False
 
@@ -67,7 +67,7 @@ class InstalledDistributions:
 
         # TODO: handle https://discuss.python.org/t/11938
         if dependency.url:
-            direct_url_file = distribution.read_text('direct_url.json')
+            direct_url_file = distribution.read_text("direct_url.json")
             if direct_url_file is None:
                 return False
 
@@ -75,29 +75,29 @@ class InstalledDistributions:
 
             # https://packaging.python.org/specifications/direct-url/
             direct_url_data = json.loads(direct_url_file)
-            url = direct_url_data['url']
-            if 'dir_info' in direct_url_data:
-                dir_info = direct_url_data['dir_info']
-                editable = dir_info.get('editable', False)
+            url = direct_url_data["url"]
+            if "dir_info" in direct_url_data:
+                dir_info = direct_url_data["dir_info"]
+                editable = dir_info.get("editable", False)
                 if editable != dependency.editable:
                     return False
 
                 if Path.from_uri(url) != dependency.path:
                     return False
 
-            if 'vcs_info' in direct_url_data:
-                vcs_info = direct_url_data['vcs_info']
-                vcs = vcs_info['vcs']
-                commit_id = vcs_info['commit_id']
-                requested_revision = vcs_info.get('requested_revision')
+            if "vcs_info" in direct_url_data:
+                vcs_info = direct_url_data["vcs_info"]
+                vcs = vcs_info["vcs"]
+                commit_id = vcs_info["commit_id"]
+                requested_revision = vcs_info.get("requested_revision")
 
                 # Try a few variations, see https://peps.python.org/pep-0440/#direct-references
                 if (
-                    requested_revision and dependency.url == f'{vcs}+{url}@{requested_revision}#{commit_id}'
-                ) or dependency.url == f'{vcs}+{url}@{commit_id}':
+                    requested_revision and dependency.url == f"{vcs}+{url}@{requested_revision}#{commit_id}"
+                ) or dependency.url == f"{vcs}+{url}@{commit_id}":
                     return True
 
-                if dependency.url in {f'{vcs}+{url}', f'{vcs}+{url}@{requested_revision}'}:
+                if dependency.url in {f"{vcs}+{url}", f"{vcs}+{url}@{requested_revision}"}:
                     import subprocess
 
                     if vcs == "git":
@@ -118,7 +118,7 @@ class InstalledDistributions:
         return True
 
     def __getitem__(self, item: str) -> Distribution | None:
-        item = self.__canonical_regex.sub('-', item).lower()
+        item = self.__canonical_regex.sub("-", item).lower()
         possible_distribution = self.__distributions.get(item)
         if possible_distribution is not None:
             return possible_distribution
@@ -127,11 +127,11 @@ class InstalledDistributions:
             return None
 
         for distribution in self.__resolver:
-            name = distribution.metadata['Name']
+            name = distribution.metadata["Name"]
             if name is None:
                 continue
 
-            name = self.__canonical_regex.sub('-', name).lower()
+            name = self.__canonical_regex.sub("-", name).lower()
             self.__distributions[name] = distribution
             if name == item:
                 return distribution

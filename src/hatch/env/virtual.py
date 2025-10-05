@@ -212,7 +212,7 @@ class VirtualEnvironment(EnvironmentInterface):
             if editable_dependencies:
                 editable_args = []
                 for dependency in editable_dependencies:
-                    editable_args.extend(['--editable', dependency])
+                    editable_args.extend(["--editable", dependency])
                 self.platform.check_command(self.construct_pip_install_command(editable_args))
 
     @contextmanager

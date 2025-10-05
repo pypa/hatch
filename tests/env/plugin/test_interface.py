@@ -1161,7 +1161,7 @@ class TestDependencies:
 
     def test_workspace(self, temp_dir, isolated_data_dir, platform, temp_application):
         for i in range(3):
-            project_file = temp_dir / f'foo{i}' / 'pyproject.toml'
+            project_file = temp_dir / f"foo{i}" / "pyproject.toml"
             project_file.parent.mkdir()
             project_file.write_text(
                 f"""\
@@ -1182,19 +1182,19 @@ feature3 = ["pkg-feature-3{i}"]
             )
 
         config = {
-            'project': {'name': 'my_app', 'version': '0.0.1', 'dependencies': ['dep1']},
-            'tool': {
-                'hatch': {
-                    'envs': {
-                        'default': {
-                            'skip-install': False,
-                            'dependencies': ['dep2'],
-                            'extra-dependencies': ['dep3'],
-                            'workspace': {
-                                'members': [
-                                    {'path': 'foo0', 'features': ['feature1']},
-                                    {'path': 'foo1', 'features': ['feature1', 'feature2']},
-                                    {'path': 'foo2', 'features': ['feature1', 'feature2', 'feature3']},
+            "project": {"name": "my_app", "version": "0.0.1", "dependencies": ["dep1"]},
+            "tool": {
+                "hatch": {
+                    "envs": {
+                        "default": {
+                            "skip-install": False,
+                            "dependencies": ["dep2"],
+                            "extra-dependencies": ["dep3"],
+                            "workspace": {
+                                "members": [
+                                    {"path": "foo0", "features": ["feature1"]},
+                                    {"path": "foo1", "features": ["feature1", "feature2"]},
+                                    {"path": "foo2", "features": ["feature1", "feature2", "feature3"]},
                                 ],
                             },
                         },
@@ -1208,8 +1208,8 @@ feature3 = ["pkg-feature-3{i}"]
         environment = MockEnvironment(
             temp_dir,
             project.metadata,
-            'default',
-            project.config.envs['default'],
+            "default",
+            project.config.envs["default"],
             {},
             isolated_data_dir,
             isolated_data_dir,
@@ -1219,18 +1219,18 @@ feature3 = ["pkg-feature-3{i}"]
         )
 
         assert environment.dependencies == [
-            'dep2',
-            'dep3',
-            'pkg-0',
-            'pkg-feature-10',
-            'pkg-1',
-            'pkg-feature-11',
-            'pkg-feature-21',
-            'pkg-2',
-            'pkg-feature-12',
-            'pkg-feature-22',
-            'pkg-feature-32',
-            'dep1',
+            "dep2",
+            "dep3",
+            "pkg-0",
+            "pkg-feature-10",
+            "pkg-1",
+            "pkg-feature-11",
+            "pkg-feature-21",
+            "pkg-2",
+            "pkg-feature-12",
+            "pkg-feature-22",
+            "pkg-feature-32",
+            "dep1",
         ]
 
 
@@ -2152,15 +2152,15 @@ class TestContextFormatting:
 class TestWorkspaceConfig:
     def test_not_table(self, isolation, isolated_data_dir, platform, global_application):
         config = {
-            'project': {'name': 'my_app', 'version': '0.0.1'},
-            'tool': {'hatch': {'envs': {'default': {'workspace': 9000}}}},
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {"hatch": {"envs": {"default": {"workspace": 9000}}}},
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
             isolation,
             project.metadata,
-            'default',
-            project.config.envs['default'],
+            "default",
+            project.config.envs["default"],
             {},
             isolated_data_dir,
             isolated_data_dir,
@@ -2169,20 +2169,20 @@ class TestWorkspaceConfig:
             global_application,
         )
 
-        with pytest.raises(TypeError, match='Field `tool.hatch.envs.default.workspace` must be a table'):
+        with pytest.raises(TypeError, match="Field `tool.hatch.envs.default.workspace` must be a table"):
             _ = environment.workspace
 
     def test_parallel_not_boolean(self, isolation, isolated_data_dir, platform, global_application):
         config = {
-            'project': {'name': 'my_app', 'version': '0.0.1'},
-            'tool': {'hatch': {'envs': {'default': {'workspace': {'parallel': 9000}}}}},
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {"hatch": {"envs": {"default": {"workspace": {"parallel": 9000}}}}},
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
             isolation,
             project.metadata,
-            'default',
-            project.config.envs['default'],
+            "default",
+            project.config.envs["default"],
             {},
             isolated_data_dir,
             isolated_data_dir,
@@ -2191,17 +2191,17 @@ class TestWorkspaceConfig:
             global_application,
         )
 
-        with pytest.raises(TypeError, match='Field `tool.hatch.envs.default.workspace.parallel` must be a boolean'):
+        with pytest.raises(TypeError, match="Field `tool.hatch.envs.default.workspace.parallel` must be a boolean"):
             _ = environment.workspace.parallel
 
     def test_parallel_default(self, isolation, isolated_data_dir, platform, global_application):
-        config = {'project': {'name': 'my_app', 'version': '0.0.1'}}
+        config = {"project": {"name": "my_app", "version": "0.0.1"}}
         project = Project(isolation, config=config)
         environment = MockEnvironment(
             isolation,
             project.metadata,
-            'default',
-            project.config.envs['default'],
+            "default",
+            project.config.envs["default"],
             {},
             isolated_data_dir,
             isolated_data_dir,
@@ -2214,15 +2214,15 @@ class TestWorkspaceConfig:
 
     def test_parallel_override(self, isolation, isolated_data_dir, platform, global_application):
         config = {
-            'project': {'name': 'my_app', 'version': '0.0.1'},
-            'tool': {'hatch': {'envs': {'default': {'workspace': {'parallel': False}}}}},
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {"hatch": {"envs": {"default": {"workspace": {"parallel": False}}}}},
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
             isolation,
             project.metadata,
-            'default',
-            project.config.envs['default'],
+            "default",
+            project.config.envs["default"],
             {},
             isolated_data_dir,
             isolated_data_dir,
@@ -2235,15 +2235,15 @@ class TestWorkspaceConfig:
 
     def test_members_not_table(self, isolation, isolated_data_dir, platform, global_application):
         config = {
-            'project': {'name': 'my_app', 'version': '0.0.1'},
-            'tool': {'hatch': {'envs': {'default': {'workspace': {'members': 9000}}}}},
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {"hatch": {"envs": {"default": {"workspace": {"members": 9000}}}}},
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
             isolation,
             project.metadata,
-            'default',
-            project.config.envs['default'],
+            "default",
+            project.config.envs["default"],
             {},
             isolated_data_dir,
             isolated_data_dir,
@@ -2252,20 +2252,20 @@ class TestWorkspaceConfig:
             global_application,
         )
 
-        with pytest.raises(TypeError, match='Field `tool.hatch.envs.default.workspace.members` must be an array'):
+        with pytest.raises(TypeError, match="Field `tool.hatch.envs.default.workspace.members` must be an array"):
             _ = environment.workspace.members
 
     def test_member_invalid_type(self, isolation, isolated_data_dir, platform, global_application):
         config = {
-            'project': {'name': 'my_app', 'version': '0.0.1'},
-            'tool': {'hatch': {'envs': {'default': {'workspace': {'members': [9000]}}}}},
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {"hatch": {"envs": {"default": {"workspace": {"members": [9000]}}}}},
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
             isolation,
             project.metadata,
-            'default',
-            project.config.envs['default'],
+            "default",
+            project.config.envs["default"],
             {},
             isolated_data_dir,
             isolated_data_dir,
@@ -2276,21 +2276,21 @@ class TestWorkspaceConfig:
 
         with pytest.raises(
             TypeError,
-            match='Member #1 of field `tool.hatch.envs.default.workspace.members` must be a string or an inline table',
+            match="Member #1 of field `tool.hatch.envs.default.workspace.members` must be a string or an inline table",
         ):
             _ = environment.workspace.members
 
     def test_member_no_path(self, isolation, isolated_data_dir, platform, global_application):
         config = {
-            'project': {'name': 'my_app', 'version': '0.0.1'},
-            'tool': {'hatch': {'envs': {'default': {'workspace': {'members': [{}]}}}}},
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {"hatch": {"envs": {"default": {"workspace": {"members": [{}]}}}}},
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
             isolation,
             project.metadata,
-            'default',
-            project.config.envs['default'],
+            "default",
+            project.config.envs["default"],
             {},
             isolated_data_dir,
             isolated_data_dir,
@@ -2301,21 +2301,21 @@ class TestWorkspaceConfig:
 
         with pytest.raises(
             TypeError,
-            match='Member #1 of field `tool.hatch.envs.default.workspace.members` must define a `path` key',
+            match="Member #1 of field `tool.hatch.envs.default.workspace.members` must define a `path` key",
         ):
             _ = environment.workspace.members
 
     def test_member_path_not_string(self, isolation, isolated_data_dir, platform, global_application):
         config = {
-            'project': {'name': 'my_app', 'version': '0.0.1'},
-            'tool': {'hatch': {'envs': {'default': {'workspace': {'members': [{'path': 9000}]}}}}},
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {"hatch": {"envs": {"default": {"workspace": {"members": [{"path": 9000}]}}}}},
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
             isolation,
             project.metadata,
-            'default',
-            project.config.envs['default'],
+            "default",
+            project.config.envs["default"],
             {},
             isolated_data_dir,
             isolated_data_dir,
@@ -2326,21 +2326,21 @@ class TestWorkspaceConfig:
 
         with pytest.raises(
             TypeError,
-            match='Option `path` of member #1 of field `tool.hatch.envs.default.workspace.members` must be a string',
+            match="Option `path` of member #1 of field `tool.hatch.envs.default.workspace.members` must be a string",
         ):
             _ = environment.workspace.members
 
     def test_member_path_empty_string(self, isolation, isolated_data_dir, platform, global_application):
         config = {
-            'project': {'name': 'my_app', 'version': '0.0.1'},
-            'tool': {'hatch': {'envs': {'default': {'workspace': {'members': [{'path': ''}]}}}}},
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {"hatch": {"envs": {"default": {"workspace": {"members": [{"path": ""}]}}}}},
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
             isolation,
             project.metadata,
-            'default',
-            project.config.envs['default'],
+            "default",
+            project.config.envs["default"],
             {},
             isolated_data_dir,
             isolated_data_dir,
@@ -2352,23 +2352,23 @@ class TestWorkspaceConfig:
         with pytest.raises(
             ValueError,
             match=(
-                'Option `path` of member #1 of field `tool.hatch.envs.default.workspace.members` '
-                'cannot be an empty string'
+                "Option `path` of member #1 of field `tool.hatch.envs.default.workspace.members` "
+                "cannot be an empty string"
             ),
         ):
             _ = environment.workspace.members
 
     def test_member_features_not_array(self, isolation, isolated_data_dir, platform, global_application):
         config = {
-            'project': {'name': 'my_app', 'version': '0.0.1'},
-            'tool': {'hatch': {'envs': {'default': {'workspace': {'members': [{'path': 'foo', 'features': 9000}]}}}}},
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {"hatch": {"envs": {"default": {"workspace": {"members": [{"path": "foo", "features": 9000}]}}}}},
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
             isolation,
             project.metadata,
-            'default',
-            project.config.envs['default'],
+            "default",
+            project.config.envs["default"],
             {},
             isolated_data_dir,
             isolated_data_dir,
@@ -2380,23 +2380,23 @@ class TestWorkspaceConfig:
         with pytest.raises(
             TypeError,
             match=(
-                'Option `features` of member #1 of field `tool.hatch.envs.default.workspace.members` '
-                'must be an array of strings'
+                "Option `features` of member #1 of field `tool.hatch.envs.default.workspace.members` "
+                "must be an array of strings"
             ),
         ):
             _ = environment.workspace.members
 
     def test_member_feature_not_string(self, isolation, isolated_data_dir, platform, global_application):
         config = {
-            'project': {'name': 'my_app', 'version': '0.0.1'},
-            'tool': {'hatch': {'envs': {'default': {'workspace': {'members': [{'path': 'foo', 'features': [9000]}]}}}}},
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {"hatch": {"envs": {"default": {"workspace": {"members": [{"path": "foo", "features": [9000]}]}}}}},
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
             isolation,
             project.metadata,
-            'default',
-            project.config.envs['default'],
+            "default",
+            project.config.envs["default"],
             {},
             isolated_data_dir,
             isolated_data_dir,
@@ -2408,23 +2408,23 @@ class TestWorkspaceConfig:
         with pytest.raises(
             TypeError,
             match=(
-                'Feature #1 of option `features` of member #1 of field `tool.hatch.envs.default.workspace.members` '
-                'must be a string'
+                "Feature #1 of option `features` of member #1 of field `tool.hatch.envs.default.workspace.members` "
+                "must be a string"
             ),
         ):
             _ = environment.workspace.members
 
     def test_member_feature_empty_string(self, isolation, isolated_data_dir, platform, global_application):
         config = {
-            'project': {'name': 'my_app', 'version': '0.0.1'},
-            'tool': {'hatch': {'envs': {'default': {'workspace': {'members': [{'path': 'foo', 'features': ['']}]}}}}},
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {"hatch": {"envs": {"default": {"workspace": {"members": [{"path": "foo", "features": [""]}]}}}}},
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
             isolation,
             project.metadata,
-            'default',
-            project.config.envs['default'],
+            "default",
+            project.config.envs["default"],
             {},
             isolated_data_dir,
             isolated_data_dir,
@@ -2436,18 +2436,18 @@ class TestWorkspaceConfig:
         with pytest.raises(
             ValueError,
             match=(
-                'Feature #1 of option `features` of member #1 of field `tool.hatch.envs.default.workspace.members` '
-                'cannot be an empty string'
+                "Feature #1 of option `features` of member #1 of field `tool.hatch.envs.default.workspace.members` "
+                "cannot be an empty string"
             ),
         ):
             _ = environment.workspace.members
 
     def test_member_feature_duplicate(self, isolation, isolated_data_dir, platform, global_application):
         config = {
-            'project': {'name': 'my_app', 'version': '0.0.1'},
-            'tool': {
-                'hatch': {
-                    'envs': {'default': {'workspace': {'members': [{'path': 'foo', 'features': ['foo', 'Foo']}]}}}
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {
+                "hatch": {
+                    "envs": {"default": {"workspace": {"members": [{"path": "foo", "features": ["foo", "Foo"]}]}}}
                 }
             },
         }
@@ -2455,8 +2455,8 @@ class TestWorkspaceConfig:
         environment = MockEnvironment(
             isolation,
             project.metadata,
-            'default',
-            project.config.envs['default'],
+            "default",
+            project.config.envs["default"],
             {},
             isolated_data_dir,
             isolated_data_dir,
@@ -2468,23 +2468,23 @@ class TestWorkspaceConfig:
         with pytest.raises(
             ValueError,
             match=(
-                'Feature #2 of option `features` of member #1 of field `tool.hatch.envs.default.workspace.members` '
-                'is a duplicate'
+                "Feature #2 of option `features` of member #1 of field `tool.hatch.envs.default.workspace.members` "
+                "is a duplicate"
             ),
         ):
             _ = environment.workspace.members
 
     def test_member_does_not_exist(self, isolation, isolated_data_dir, platform, global_application):
         config = {
-            'project': {'name': 'my_app', 'version': '0.0.1'},
-            'tool': {'hatch': {'envs': {'default': {'workspace': {'members': [{'path': 'foo'}]}}}}},
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {"hatch": {"envs": {"default": {"workspace": {"members": [{"path": "foo"}]}}}}},
         }
         project = Project(isolation, config=config)
         environment = MockEnvironment(
             isolation,
             project.metadata,
-            'default',
-            project.config.envs['default'],
+            "default",
+            project.config.envs["default"],
             {},
             isolated_data_dir,
             isolated_data_dir,
@@ -2496,23 +2496,23 @@ class TestWorkspaceConfig:
         with pytest.raises(
             OSError,
             match=re.escape(
-                f'No members could be derived from `foo` of field `tool.hatch.envs.default.workspace.members`: '
-                f'{isolation / "foo"}'
+                f"No members could be derived from `foo` of field `tool.hatch.envs.default.workspace.members`: "
+                f"{isolation / 'foo'}"
             ),
         ):
             _ = environment.workspace.members
 
     def test_member_not_project(self, temp_dir, isolated_data_dir, platform, global_application):
         config = {
-            'project': {'name': 'my_app', 'version': '0.0.1'},
-            'tool': {'hatch': {'envs': {'default': {'workspace': {'members': [{'path': 'foo'}]}}}}},
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {"hatch": {"envs": {"default": {"workspace": {"members": [{"path": "foo"}]}}}}},
         }
         project = Project(temp_dir, config=config)
         environment = MockEnvironment(
             temp_dir,
             project.metadata,
-            'default',
-            project.config.envs['default'],
+            "default",
+            project.config.envs["default"],
             {},
             isolated_data_dir,
             isolated_data_dir,
@@ -2521,29 +2521,29 @@ class TestWorkspaceConfig:
             global_application,
         )
 
-        member_path = temp_dir / 'foo'
+        member_path = temp_dir / "foo"
         member_path.mkdir()
 
         with pytest.raises(
             OSError,
             match=re.escape(
-                f'Member derived from `foo` of field `tool.hatch.envs.default.workspace.members` is not a project '
-                f'(no `pyproject.toml` file): {member_path}'
+                f"Member derived from `foo` of field `tool.hatch.envs.default.workspace.members` is not a project "
+                f"(no `pyproject.toml` file): {member_path}"
             ),
         ):
             _ = environment.workspace.members
 
     def test_member_duplicate(self, temp_dir, isolated_data_dir, platform, global_application):
         config = {
-            'project': {'name': 'my_app', 'version': '0.0.1'},
-            'tool': {'hatch': {'envs': {'default': {'workspace': {'members': [{'path': 'foo'}, {'path': 'f*'}]}}}}},
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {"hatch": {"envs": {"default": {"workspace": {"members": [{"path": "foo"}, {"path": "f*"}]}}}}},
         }
         project = Project(temp_dir, config=config)
         environment = MockEnvironment(
             temp_dir,
             project.metadata,
-            'default',
-            project.config.envs['default'],
+            "default",
+            project.config.envs["default"],
             {},
             isolated_data_dir,
             isolated_data_dir,
@@ -2552,38 +2552,38 @@ class TestWorkspaceConfig:
             global_application,
         )
 
-        member_path = temp_dir / 'foo'
+        member_path = temp_dir / "foo"
         member_path.mkdir()
-        (member_path / 'pyproject.toml').touch()
+        (member_path / "pyproject.toml").touch()
 
         with pytest.raises(
             ValueError,
             match=re.escape(
-                f'Member derived from `f*` of field '
-                f'`tool.hatch.envs.default.workspace.members` is a duplicate: {member_path}'
+                f"Member derived from `f*` of field "
+                f"`tool.hatch.envs.default.workspace.members` is a duplicate: {member_path}"
             ),
         ):
             _ = environment.workspace.members
 
     def test_correct(self, hatch, temp_dir, isolated_data_dir, platform, global_application):
-        member1_path = temp_dir / 'foo'
-        member2_path = temp_dir / 'bar'
-        member3_path = temp_dir / 'baz'
+        member1_path = temp_dir / "foo"
+        member2_path = temp_dir / "bar"
+        member3_path = temp_dir / "baz"
         for member_path in [member1_path, member2_path, member3_path]:
             with temp_dir.as_cwd():
-                result = hatch('new', member_path.name)
+                result = hatch("new", member_path.name)
                 assert result.exit_code == 0, result.output
 
         config = {
-            'project': {'name': 'my_app', 'version': '0.0.1'},
-            'tool': {'hatch': {'envs': {'default': {'workspace': {'members': [{'path': 'foo'}, {'path': 'b*'}]}}}}},
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {"hatch": {"envs": {"default": {"workspace": {"members": [{"path": "foo"}, {"path": "b*"}]}}}}},
         }
         project = Project(temp_dir, config=config)
         environment = MockEnvironment(
             temp_dir,
             project.metadata,
-            'default',
-            project.config.envs['default'],
+            "default",
+            project.config.envs["default"],
             {},
             isolated_data_dir,
             isolated_data_dir,
@@ -2602,7 +2602,7 @@ class TestWorkspaceConfig:
 class TestWorkspaceDependencies:
     def test_basic(self, temp_dir, isolated_data_dir, platform, global_application):
         for i in range(3):
-            project_file = temp_dir / f'foo{i}' / 'pyproject.toml'
+            project_file = temp_dir / f"foo{i}" / "pyproject.toml"
             project_file.parent.mkdir()
             project_file.write_text(
                 f"""\
@@ -2618,15 +2618,15 @@ dependencies = ["pkg-{i}"]
             )
 
         config = {
-            'project': {'name': 'my_app', 'version': '0.0.1'},
-            'tool': {'hatch': {'envs': {'default': {'workspace': {'members': [{'path': 'f*'}]}}}}},
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {"hatch": {"envs": {"default": {"workspace": {"members": [{"path": "f*"}]}}}}},
         }
         project = Project(temp_dir, config=config)
         environment = MockEnvironment(
             temp_dir,
             project.metadata,
-            'default',
-            project.config.envs['default'],
+            "default",
+            project.config.envs["default"],
             {},
             isolated_data_dir,
             isolated_data_dir,
@@ -2635,11 +2635,11 @@ dependencies = ["pkg-{i}"]
             global_application,
         )
 
-        assert environment.workspace.get_dependencies() == ['pkg-0', 'pkg-1', 'pkg-2']
+        assert environment.workspace.get_dependencies() == ["pkg-0", "pkg-1", "pkg-2"]
 
     def test_features(self, temp_dir, isolated_data_dir, platform, global_application):
         for i in range(3):
-            project_file = temp_dir / f'foo{i}' / 'pyproject.toml'
+            project_file = temp_dir / f"foo{i}" / "pyproject.toml"
             project_file.parent.mkdir()
             project_file.write_text(
                 f"""\
@@ -2660,16 +2660,16 @@ feature3 = ["pkg-feature-3{i}"]
             )
 
         config = {
-            'project': {'name': 'my_app', 'version': '0.0.1'},
-            'tool': {
-                'hatch': {
-                    'envs': {
-                        'default': {
-                            'workspace': {
-                                'members': [
-                                    {'path': 'foo0', 'features': ['feature1']},
-                                    {'path': 'foo1', 'features': ['feature1', 'feature2']},
-                                    {'path': 'foo2', 'features': ['feature1', 'feature2', 'feature3']},
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {
+                "hatch": {
+                    "envs": {
+                        "default": {
+                            "workspace": {
+                                "members": [
+                                    {"path": "foo0", "features": ["feature1"]},
+                                    {"path": "foo1", "features": ["feature1", "feature2"]},
+                                    {"path": "foo2", "features": ["feature1", "feature2", "feature3"]},
                                 ],
                             },
                         },
@@ -2681,8 +2681,8 @@ feature3 = ["pkg-feature-3{i}"]
         environment = MockEnvironment(
             temp_dir,
             project.metadata,
-            'default',
-            project.config.envs['default'],
+            "default",
+            project.config.envs["default"],
             {},
             isolated_data_dir,
             isolated_data_dir,
@@ -2692,13 +2692,13 @@ feature3 = ["pkg-feature-3{i}"]
         )
 
         assert environment.workspace.get_dependencies() == [
-            'pkg-0',
-            'pkg-feature-10',
-            'pkg-1',
-            'pkg-feature-11',
-            'pkg-feature-21',
-            'pkg-2',
-            'pkg-feature-12',
-            'pkg-feature-22',
-            'pkg-feature-32',
+            "pkg-0",
+            "pkg-feature-10",
+            "pkg-1",
+            "pkg-feature-11",
+            "pkg-feature-21",
+            "pkg-2",
+            "pkg-feature-12",
+            "pkg-feature-22",
+            "pkg-feature-32",
         ]
