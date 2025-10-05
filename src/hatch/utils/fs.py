@@ -136,6 +136,7 @@ class Path(_PathBase):
         @classmethod
         def from_uri(cls, path: str) -> Path:
             return cls(path.replace('file:///', '', 1))
+
     else:
 
         @classmethod

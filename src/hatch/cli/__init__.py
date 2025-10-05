@@ -28,15 +28,17 @@ from hatch.project.core import Project
 from hatch.utils.ci import running_in_ci
 from hatch.utils.fs import Path
 
+
 def find_workspace_root(path: Path) -> Path | None:
     """Find workspace root by traversing up from given path."""
     current = path
     while current.parent != current:
-        pyproject = current / "pyproject.toml"
+        pyproject = current / 'pyproject.toml'
         if pyproject.exists():
             from hatch.utils.toml import load_toml_file
+
             config = load_toml_file(str(pyproject))
-            if config.get("tool", {}).get("hatch", {}).get("workspace"):
+            if config.get('tool', {}).get('hatch', {}).get('workspace'):
                 return current
         current = current.parent
     return None
@@ -192,7 +194,7 @@ def hatch(ctx: click.Context, env_name, project, verbose, quiet, color, interact
         # Set current member context if we're in a member directory
         current_dir = Path.cwd()
         if current_dir != workspace_root:
-            app.project._current_member_path = current_dir
+            app.project.current_member_path = current_dir
     else:
         # No workspace, use current directory as before
         app.project = Project(Path.cwd())

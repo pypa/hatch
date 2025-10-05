@@ -504,9 +504,9 @@ class ProjectConfig:
 
     @cached_property
     def workspace(self):
-        config = self.config.get("workspace", {})
+        config = self.config.get('workspace', {})
         if not isinstance(config, dict):
-            message = "Field `tool.hatch.workspace` must be a table"
+            message = 'Field `tool.hatch.workspace` must be a table'
             raise TypeError(message)
 
         return WorkspaceConfig(config, self.root)
@@ -745,17 +745,17 @@ class WorkspaceConfig:
 
     @cached_property
     def members(self) -> list[str]:
-        members = self.__config.get("members", [])
+        members = self.__config.get('members', [])
         if not isinstance(members, list):
-            message = "Field `tool.hatch.workspace.members` must be an array"
+            message = 'Field `tool.hatch.workspace.members` must be an array'
             raise TypeError(message)
         return members
 
     @cached_property
     def exclude(self) -> list[str]:
-        exclude = self.__config.get("exclude", [])
+        exclude = self.__config.get('exclude', [])
         if not isinstance(exclude, list):
-            message = "Field `tool.hatch.workspace.exclude` must be an array"
+            message = 'Field `tool.hatch.workspace.exclude` must be an array'
             raise TypeError(message)
         return exclude
 

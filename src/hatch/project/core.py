@@ -39,6 +39,7 @@ class Project:
         self._config = None
 
         self._explicit_path: Path | None = None if locate else path
+        self.current_member_path: Path | None = None
 
     @property
     def plugin_manager(self):
