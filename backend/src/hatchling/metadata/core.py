@@ -73,6 +73,9 @@ class VariantConfig:
         """Creates an instance of VariantConfig from a dictionary."""
         data = data.copy()
 
+        if not 'default-priorities' in data:
+            raise ValueError('Missing `default-priorities` in variant configuration')
+
         if vprops is None:
             data['vlabel'] = None
             data['properties'] = None
