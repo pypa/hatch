@@ -7,7 +7,14 @@ from typing import TYPE_CHECKING
 if sys.version_info >= (3, 10):
     from importlib.metadata import entry_points
 else:
-    from importlib_metadata import entry_points
+    # Python 3.9 - entry_points() returns a dict-like object, not a function with group param
+    from importlib.metadata import entry_points as _entry_points
+
+    def entry_points(*, group: str):
+        """Wrapper for Python 3.9 compatibility."""
+        eps = _entry_points()
+        return eps.get(group, [])
+
 
 if TYPE_CHECKING:
     pass
@@ -144,11 +151,7 @@ class PluginFinder:
         """Load plugins from a direct entrypoint group."""
         plugins: dict[str, type] = {}
 
-        try:
-            eps = entry_points(group=group_name)
-        except TypeError:
-            # Python 3.9 compatibility
-            eps = entry_points().get(group_name, [])
+        eps = entry_points(group=group_name)
 
         for ep in eps:
             try:
@@ -199,11 +202,7 @@ class PluginFinder:
         if not hook_name:
             return plugins
 
-        try:
-            eps = entry_points(group="hatch")
-        except TypeError:
-            # Python 3.9 compatibility
-            eps = entry_points().get("hatch", [])
+        eps = entry_points(group="hatch")
 
         for ep in eps:
             try:
