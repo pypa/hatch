@@ -2,35 +2,32 @@
 
 -----
 
-Hatch utilizes [pluggy](https://github.com/pytest-dev/pluggy) for its plugin functionality.
+Hatch uses Python entrypoints for plugin discovery, making it easy to extend functionality.
 
 ## Overview
 
-All plugins provide registration hooks that return one or more classes that inherit from a particular [type](#types) interface.
+All plugins are classes that inherit from a particular [type](#types) interface and define a `PLUGIN_NAME` attribute.
 
-Each registration hook must be decorated by Hatch's hook marker. For example, if you wanted to create a new kind of environment you could do:
+Plugin registration is done through dedicated entrypoint groups. For example, to create a custom environment:
 
-```python tab="hooks.py"
-from hatchling.plugin import hookimpl
-
-from .plugin import SpecialEnvironment
+```python tab="my_package/environment.py"
+from hatch.env.plugin.interface import EnvironmentInterface
 
 
-@hookimpl
-def hatch_register_environment():
-    return SpecialEnvironment
-```
-
-The hooks can return a single class or a list of classes.
-
-Every class must define an attribute called `PLUGIN_NAME` that users will select when they wish to use the plugin. So in the example above, the class might be defined like:
-
-```python tab="plugin.py"
-...
-class SpecialEnvironment(...):
+class SpecialEnvironment(EnvironmentInterface):
     PLUGIN_NAME = 'special'
+
+    # Your implementation here
     ...
 ```
+
+```toml tab="pyproject.toml"
+[project.entry-points."hatch.environment"]
+special = "my_package.environment:SpecialEnvironment"
+```
+
+!!! note "Legacy hook-based registration"
+    Previous versions of Hatch used pluggy hooks for plugin registration. This approach is **deprecated** but still supported for backward compatibility. See [Legacy Plugin Registration](#legacy-plugin-registration) below for migration guidance.
 
 ## Project configuration
 
@@ -45,14 +42,33 @@ name = "hatch-foo"
 
 ### Discovery
 
-You'll need to define your project as a [Python plugin](../config/metadata.md#plugins) for Hatch:
+Define your plugin using the appropriate entrypoint group for its type:
 
 ```toml tab="pyproject.toml"
-[project.entry-points.hatch]
-foo = "pkg.hooks"
+[project.entry-points."hatch.builder"]
+foo = "hatch_foo.builder:FooBuilder"
+
+[project.entry-points."hatch.environment"]
+foo = "hatch_foo.environment:FooEnvironment"
 ```
 
-The name of the plugin should be the project name (excluding any `hatch-` prefix) and the path should represent the module that contains the registration hooks.
+The entrypoint name can be anything, but using your plugin's `PLUGIN_NAME` is recommended for clarity. The path should point directly to your plugin class using the format `module.path:ClassName`.
+
+#### Entrypoint Groups
+
+Use these entrypoint groups based on your plugin type:
+
+| Plugin Type | Entrypoint Group | Used By |
+|------------|------------------|---------|
+| Builder | `hatch.builder` | Hatchling |
+| Build Hook | `hatch.build_hook` | Hatchling |
+| Metadata Hook | `hatch.metadata_hook` | Hatchling |
+| Version Source | `hatch.version_source` | Hatchling |
+| Version Scheme | `hatch.version_scheme` | Hatchling/Hatch |
+| Environment | `hatch.environment` | Hatch |
+| Environment Collector | `hatch.environment_collector` | Hatch |
+| Publisher | `hatch.publisher` | Hatch |
+| Template | `hatch.template` | Hatch |
 
 ### Classifier
 
@@ -86,3 +102,52 @@ These must be installed in the same environment as Hatch itself.
 - [Environment](environment/reference.md)
 - [Environment collector](environment-collector/reference.md)
 - [Publisher](publisher/reference.md)
+
+## Legacy Plugin Registration
+
+!!! warning "Deprecated"
+    This section describes the old hook-based plugin registration system. It is **deprecated** and will emit warnings when used. Please migrate to direct entrypoint groups as described above.
+
+### Old Method (Deprecated)
+
+Previously, plugins were registered through the `hatch` entrypoint group pointing to a hooks module:
+
+```toml tab="pyproject.toml"
+[project.entry-points.hatch]
+foo = "pkg.hooks"
+```
+
+```python tab="pkg/hooks.py"
+from hatchling.plugin import hookimpl
+
+from .plugin import FooBuilder
+
+
+@hookimpl
+def hatch_register_builder():
+    return FooBuilder
+```
+
+### Migration Guide
+
+To migrate from the old hook-based system to direct entrypoints:
+
+1. **Remove the hooks module** - Delete your `hooks.py` file containing `@hookimpl` decorated functions
+
+2. **Update entrypoints** - Change from the generic `hatch` group to specific groups:
+
+```toml tab="Before"
+[project.entry-points.hatch]
+foo = "pkg.hooks"
+```
+
+```toml tab="After"
+[project.entry-points."hatch.builder"]
+foo = "pkg.plugin:FooBuilder"
+```
+
+3. **Point directly to classes** - Instead of a hooks module, point directly to your plugin class using `module.path:ClassName` format
+
+4. **Update documentation** - If you have plugin documentation, update examples to show the new entrypoint approach
+
+The old system will continue to work with deprecation warnings to give plugin authors time to migrate.
