@@ -26,6 +26,46 @@ HOOK_NAME_MAPPING = {
     "template": "hatch_register_template",
 }
 
+# Built-in plugins for hatchling (used as fallback during development/bootstrap)
+BUILTIN_PLUGINS = {
+    "version_source": {
+        "code": "hatchling.version.source.code:CodeSource",
+        "env": "hatchling.version.source.env:EnvSource",
+        "regex": "hatchling.version.source.regex:RegexSource",
+    },
+    "version_scheme": {
+        "standard": "hatchling.version.scheme.standard:StandardScheme",
+    },
+    "builder": {
+        "app": "hatchling.builders.app:AppBuilder",
+        "binary": "hatchling.builders.binary:BinaryBuilder",
+        "custom": "hatchling.builders.custom:CustomBuilder",
+        "sdist": "hatchling.builders.sdist:SdistBuilder",
+        "wheel": "hatchling.builders.wheel:WheelBuilder",
+    },
+    "build_hook": {
+        "custom": "hatchling.builders.hooks.custom:CustomBuildHook",
+        "version": "hatchling.builders.hooks.version:VersionBuildHook",
+    },
+    "metadata_hook": {
+        "custom": "hatchling.metadata.custom:CustomMetadataHook",
+    },
+    "environment": {
+        "system": "hatch.env.system:SystemEnvironment",
+        "virtual": "hatch.env.virtual:VirtualEnvironment",
+    },
+    "environment_collector": {
+        "custom": "hatch.env.collectors.custom:CustomEnvironmentCollector",
+        "default": "hatch.env.collectors.default:DefaultEnvironmentCollector",
+    },
+    "publisher": {
+        "index": "hatch.publish.index:IndexPublisher",
+    },
+    "template": {
+        "default": "hatch.template.default:DefaultTemplate",
+    },
+}
+
 
 class PluginFinder:
     """
@@ -55,6 +95,22 @@ class PluginFinder:
         new_style_plugins = self._load_from_entrypoint_group(group_name)
         plugins.update(new_style_plugins)
 
+        # If no plugins found via entrypoints, try loading built-in plugins directly
+        # This handles development/bootstrap scenarios where entrypoints aren't installed yet
+        if not plugins and plugin_type in BUILTIN_PLUGINS:
+            builtin_specs = BUILTIN_PLUGINS[plugin_type]
+            for plugin_name, module_path in builtin_specs.items():
+                try:
+                    plugin_class = self._load_class_from_path(module_path)
+                    plugins[plugin_name] = plugin_class
+                except Exception as e:
+                    # Built-in plugins should always be available; if not, something is wrong
+                    warnings.warn(
+                        f"Failed to load built-in plugin '{plugin_name}' from '{module_path}': {e}",
+                        UserWarning,
+                        stacklevel=3,
+                    )
+
         # Fallback path: Load from legacy 'hatch' group
         legacy_plugins = self._load_legacy_plugins(plugin_type)
         if legacy_plugins:
@@ -74,6 +130,20 @@ class PluginFinder:
                     plugins[name] = cls
 
         return plugins
+
+    def _load_class_from_path(self, class_path: str) -> type:
+        """
+        Load a class from a module:class path string.
+
+        Args:
+            class_path: Path in format "module.path:ClassName"
+
+        Returns:
+            The loaded class
+        """
+        module_path, class_name = class_path.split(":")
+        module = __import__(module_path, fromlist=[class_name])
+        return getattr(module, class_name)
 
     def _load_from_entrypoint_group(self, group_name: str) -> dict[str, type]:
         """Load plugins from a direct entrypoint group."""
