@@ -43,7 +43,7 @@ def _load_builtin_plugins_from_pyproject() -> dict[str, dict[str, str]]:
     finder_path = Path(__file__).resolve()
 
     # Try hatchling's pyproject.toml (backend/pyproject.toml)
-    hatchling_pyproject = finder_path.parents[4] / "pyproject.toml"
+    hatchling_pyproject = finder_path.parents[3] / "pyproject.toml"
 
     # Try hatch's pyproject.toml (../../pyproject.toml from hatchling)
     hatch_pyproject = hatchling_pyproject.parent.parent / "pyproject.toml"
