@@ -11,5 +11,3 @@ class PluginManager(_PluginManager):
     The new implementation uses PluginFinder directly via entrypoints,
     removing the need for hook registration methods.
     """
-
-    pass

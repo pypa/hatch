@@ -24,7 +24,8 @@ class PluginManager:
         Example: plugin_manager.builder returns a ClassRegister for builders.
         """
         if name.startswith("_"):
-            raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+            msg = f"'{type(self).__name__}' object has no attribute '{name}'"
+            raise AttributeError(msg)
 
         if name not in self._cached_registers:
             register = ClassRegister(self.finder, name)
@@ -45,7 +46,7 @@ class ClassRegister:
         self.plugin_type = plugin_type
         self._cached_plugins: dict[str, type] | None = None
 
-    def collect(self, *, include_third_party: bool = True) -> dict[str, type]:
+    def collect(self, *, include_third_party: bool = True) -> dict[str, type]:  # noqa: ARG002
         """
         Collect all plugins of this type.
 

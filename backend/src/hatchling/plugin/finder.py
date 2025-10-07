@@ -10,7 +10,7 @@ else:
     from importlib_metadata import entry_points
 
 if TYPE_CHECKING:
-    from typing import Any
+    pass
 
 
 # Mapping from plugin type names to their hook function names (for legacy support)
@@ -100,16 +100,9 @@ class PluginFinder:
         if not plugins and plugin_type in BUILTIN_PLUGINS:
             builtin_specs = BUILTIN_PLUGINS[plugin_type]
             for plugin_name, module_path in builtin_specs.items():
-                try:
-                    plugin_class = self._load_class_from_path(module_path)
-                    plugins[plugin_name] = plugin_class
-                except Exception as e:
-                    # Built-in plugins should always be available; if not, something is wrong
-                    warnings.warn(
-                        f"Failed to load built-in plugin '{plugin_name}' from '{module_path}': {e}",
-                        UserWarning,
-                        stacklevel=3,
-                    )
+                # Built-in plugins should always be available; if not, let the error propagate
+                plugin_class = self._load_class_from_path(module_path)
+                plugins[plugin_name] = plugin_class
 
         # Fallback path: Load from legacy 'hatch' group
         legacy_plugins = self._load_legacy_plugins(plugin_type)
@@ -131,7 +124,8 @@ class PluginFinder:
 
         return plugins
 
-    def _load_class_from_path(self, class_path: str) -> type:
+    @staticmethod
+    def _load_class_from_path(class_path: str) -> type:
         """
         Load a class from a module:class path string.
 
@@ -145,7 +139,8 @@ class PluginFinder:
         module = __import__(module_path, fromlist=[class_name])
         return getattr(module, class_name)
 
-    def _load_from_entrypoint_group(self, group_name: str) -> dict[str, type]:
+    @staticmethod
+    def _load_from_entrypoint_group(group_name: str) -> dict[str, type]:
         """Load plugins from a direct entrypoint group."""
         plugins: dict[str, type] = {}
 
@@ -180,7 +175,7 @@ class PluginFinder:
 
                 plugins[plugin_name] = plugin_class
 
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 warnings.warn(
                     f"Failed to load plugin from entrypoint '{ep.name}' in group '{group_name}': {e}",
                     UserWarning,
@@ -189,7 +184,8 @@ class PluginFinder:
 
         return plugins
 
-    def _load_legacy_plugins(self, plugin_type: str) -> dict[str, type]:
+    @staticmethod
+    def _load_legacy_plugins(plugin_type: str) -> dict[str, type]:
         """
         Load plugins from legacy 'hatch' entrypoint group.
 
@@ -245,7 +241,7 @@ class PluginFinder:
 
                     plugins[plugin_name] = plugin_class
 
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 warnings.warn(
                     f"Failed to load legacy plugin from entrypoint '{ep.name}' in 'hatch' group: {e}",
                     UserWarning,
