@@ -2,29 +2,14 @@ from hatchling.plugin.manager import PluginManager as _PluginManager
 
 
 class PluginManager(_PluginManager):
-    def initialize(self):
-        super().initialize()
+    """
+    Hatch-specific plugin manager.
 
-        from hatch.plugin import specs
+    Inherits from hatchling's PluginManager and adds support for
+    hatch-specific plugin types (environment, publisher, template, etc.).
 
-        self.manager.add_hookspecs(specs)
+    The new implementation uses PluginFinder directly via entrypoints,
+    removing the need for hook registration methods.
+    """
 
-    def hatch_register_environment(self):
-        from hatch.env.plugin import hooks
-
-        self.manager.register(hooks)
-
-    def hatch_register_environment_collector(self):
-        from hatch.env.collectors.plugin import hooks
-
-        self.manager.register(hooks)
-
-    def hatch_register_publisher(self):
-        from hatch.publish.plugin import hooks
-
-        self.manager.register(hooks)
-
-    def hatch_register_template(self):
-        from hatch.template.plugin import hooks
-
-        self.manager.register(hooks)
+    pass
