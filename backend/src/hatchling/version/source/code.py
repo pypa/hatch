@@ -60,6 +60,6 @@ class CodeSource(VersionSourceInterface):
         return {"version": version}
 
     @staticmethod
-    def set_version(version: str, version_data: dict) -> None:  # noqa: ARG004
+    def set_version(version: str, version_data: dict) -> None:
         message = "Cannot rewrite loaded code"
         raise NotImplementedError(message)
