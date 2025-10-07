@@ -324,10 +324,10 @@ class WheelBuilderConfig(BuilderConfig):
                 if ns_prio := variant_config.default_priorities['namespace']:
                     data[VARIANT_INFO_DEFAULT_PRIO_KEY][VARIANT_INFO_NAMESPACE_KEY] = ns_prio
 
-                if feat_prio := variant_config.default_priorities['feature']:
+                if feat_prio := variant_config.default_priorities.get('feature'):
                     data[VARIANT_INFO_DEFAULT_PRIO_KEY][VARIANT_INFO_FEATURE_KEY] = feat_prio
 
-                if prop_prio := variant_config.default_priorities['property']:
+                if prop_prio := variant_config.default_priorities.get('property'):
                     data[VARIANT_INFO_DEFAULT_PRIO_KEY][VARIANT_INFO_PROPERTY_KEY] = prop_prio
 
                 if not data[VARIANT_INFO_DEFAULT_PRIO_KEY]:
