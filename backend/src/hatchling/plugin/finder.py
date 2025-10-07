@@ -26,20 +26,6 @@ if TYPE_CHECKING:
     pass
 
 
-# Mapping from plugin type names to their hook function names (for legacy support)
-HOOK_NAME_MAPPING = {
-    "version_source": "hatch_register_version_source",
-    "version_scheme": "hatch_register_version_scheme",
-    "builder": "hatch_register_builder",
-    "build_hook": "hatch_register_build_hook",
-    "metadata_hook": "hatch_register_metadata_hook",
-    "environment": "hatch_register_environment",
-    "environment_collector": "hatch_register_environment_collector",
-    "publisher": "hatch_register_publisher",
-    "template": "hatch_register_template",
-}
-
-
 def _load_builtin_plugins_from_pyproject() -> dict[str, dict[str, str]]:
     """
     Load built-in plugin definitions from pyproject.toml files.
@@ -218,10 +204,8 @@ class PluginFinder:
         No PluginManager is needed since hooks are just regular functions.
         """
         plugins: dict[str, type] = {}
-        hook_name = HOOK_NAME_MAPPING.get(plugin_type)
-
-        if not hook_name:
-            return plugins
+        # Hook name follows pattern: hatch_register_{plugin_type}
+        hook_name = f"hatch_register_{plugin_type}"
 
         eps = entry_points(group="hatch")
 
