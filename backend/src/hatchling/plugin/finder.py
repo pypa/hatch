@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import sys
 import warnings
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 if sys.version_info >= (3, 10):
@@ -15,6 +16,11 @@ else:
         eps = _entry_points()
         return eps.get(group, [])
 
+
+if sys.version_info >= (3, 11):
+    import tomllib
+else:
+    import tomli as tomllib
 
 if TYPE_CHECKING:
     pass
@@ -33,45 +39,55 @@ HOOK_NAME_MAPPING = {
     "template": "hatch_register_template",
 }
 
-# Built-in plugins for hatchling (used as fallback during development/bootstrap)
-BUILTIN_PLUGINS = {
-    "version_source": {
-        "code": "hatchling.version.source.code:CodeSource",
-        "env": "hatchling.version.source.env:EnvSource",
-        "regex": "hatchling.version.source.regex:RegexSource",
-    },
-    "version_scheme": {
-        "standard": "hatchling.version.scheme.standard:StandardScheme",
-    },
-    "builder": {
-        "app": "hatchling.builders.app:AppBuilder",
-        "binary": "hatchling.builders.binary:BinaryBuilder",
-        "custom": "hatchling.builders.custom:CustomBuilder",
-        "sdist": "hatchling.builders.sdist:SdistBuilder",
-        "wheel": "hatchling.builders.wheel:WheelBuilder",
-    },
-    "build_hook": {
-        "custom": "hatchling.builders.hooks.custom:CustomBuildHook",
-        "version": "hatchling.builders.hooks.version:VersionBuildHook",
-    },
-    "metadata_hook": {
-        "custom": "hatchling.metadata.custom:CustomMetadataHook",
-    },
-    "environment": {
-        "system": "hatch.env.system:SystemEnvironment",
-        "virtual": "hatch.env.virtual:VirtualEnvironment",
-    },
-    "environment_collector": {
-        "custom": "hatch.env.collectors.custom:CustomEnvironmentCollector",
-        "default": "hatch.env.collectors.default:DefaultEnvironmentCollector",
-    },
-    "publisher": {
-        "index": "hatch.publish.index:IndexPublisher",
-    },
-    "template": {
-        "default": "hatch.template.default:DefaultTemplate",
-    },
-}
+
+def _load_builtin_plugins_from_pyproject() -> dict[str, dict[str, str]]:
+    """
+    Load built-in plugin definitions from pyproject.toml files.
+
+    This reads the entrypoint definitions directly from the source pyproject.toml
+    files to avoid duplicating plugin registration data.
+
+    Returns:
+        Dictionary mapping plugin types to their plugin definitions
+    """
+    builtin_plugins: dict[str, dict[str, str]] = {}
+
+    # Find the pyproject.toml files
+    # They should be in the parent directories of this file
+    finder_path = Path(__file__).resolve()
+
+    # Try hatchling's pyproject.toml (backend/pyproject.toml)
+    hatchling_pyproject = finder_path.parents[4] / "pyproject.toml"
+
+    # Try hatch's pyproject.toml (../../pyproject.toml from hatchling)
+    hatch_pyproject = hatchling_pyproject.parent.parent / "pyproject.toml"
+
+    for pyproject_path in [hatchling_pyproject, hatch_pyproject]:
+        if not pyproject_path.exists():
+            continue
+
+        try:
+            with open(pyproject_path, "rb") as f:
+                data = tomllib.load(f)
+
+            # Extract entry-points
+            entrypoints = data.get("project", {}).get("entry-points", {})
+
+            # Look for hatch.* groups
+            for group_name, plugins in entrypoints.items():
+                if group_name.startswith("hatch."):
+                    plugin_type = group_name.removeprefix("hatch.")
+                    if plugin_type not in builtin_plugins:
+                        builtin_plugins[plugin_type] = {}
+                    builtin_plugins[plugin_type].update(plugins)
+
+        except Exception:  # noqa: BLE001, S110
+            # If we can't read the pyproject.toml, continue without it
+            # This shouldn't happen in normal operation, but we don't want to break
+            # if the file structure changes
+            pass
+
+    return builtin_plugins
 
 
 class PluginFinder:
@@ -84,6 +100,7 @@ class PluginFinder:
     def __init__(self) -> None:
         self._legacy_plugins_checked = False
         self._has_legacy_plugins = False
+        self._builtin_plugins: dict[str, dict[str, str]] | None = None
 
     def find_plugins(self, plugin_type: str) -> dict[str, type]:
         """
@@ -104,12 +121,16 @@ class PluginFinder:
 
         # If no plugins found via entrypoints, try loading built-in plugins directly
         # This handles development/bootstrap scenarios where entrypoints aren't installed yet
-        if not plugins and plugin_type in BUILTIN_PLUGINS:
-            builtin_specs = BUILTIN_PLUGINS[plugin_type]
-            for plugin_name, module_path in builtin_specs.items():
-                # Built-in plugins should always be available; if not, let the error propagate
-                plugin_class = self._load_class_from_path(module_path)
-                plugins[plugin_name] = plugin_class
+        if not plugins:
+            if self._builtin_plugins is None:
+                self._builtin_plugins = _load_builtin_plugins_from_pyproject()
+
+            if plugin_type in self._builtin_plugins:
+                builtin_specs = self._builtin_plugins[plugin_type]
+                for plugin_name, module_path in builtin_specs.items():
+                    # Built-in plugins should always be available; if not, let the error propagate
+                    plugin_class = self._load_class_from_path(module_path)
+                    plugins[plugin_name] = plugin_class
 
         # Fallback path: Load from legacy 'hatch' group
         legacy_plugins = self._load_legacy_plugins(plugin_type)
