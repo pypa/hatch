@@ -51,6 +51,7 @@ jobs:
       run: |-
         uv pip install --system build
         uv pip install --system .
+        hatch env create default
 
     # Windows installers don't accept non-integer versions so we ubiquitously
     # perform the following transformation: X.Y.Z.devN -> X.Y.Z.N
