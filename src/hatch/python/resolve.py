@@ -79,15 +79,16 @@ class Distribution(ABC):
         elif self.source.endswith((".tar.zst", ".tar.zstd")):
             import tarfile
 
-            import zstandard
+            if sys.version_info < (3, 14):
+                from backports import zstd
+            else:
+                from compression import zstd
 
-            with open(archive, "rb") as ifh:
-                dctx = zstandard.ZstdDecompressor()
-                with dctx.stream_reader(ifh) as reader, tarfile.open(mode="r|", fileobj=reader) as tf:
-                    if sys.version_info[:2] >= (3, 12):
-                        tf.extractall(directory, filter="data")
-                    else:
-                        tf.extractall(directory)  # noqa: S202
+            with zstd.open(archive) as reader, tarfile.open(mode="r|", fileobj=reader) as tf:
+                if sys.version_info[:2] >= (3, 12):
+                    tf.extractall(directory, filter="data")
+                else:
+                    tf.extractall(directory)  # noqa: S202
         else:
             message = f"Unknown archive type: {archive}"
             raise ValueError(message)
