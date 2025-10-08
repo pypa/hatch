@@ -48,6 +48,7 @@ from hatchling.builders.variant_constants import (
     VARIANTS_JSON_SCHEMA_KEY,
     VARIANTS_JSON_SCHEMA_URL,
     VARIANTS_JSON_VARIANT_DATA_KEY,
+    VARIANT_INFO_PROVIDER_PLUGIN_USE_KEY,
 )
 from hatchling.metadata.core import VariantConfig
 from hatchling.metadata.spec import DEFAULT_METADATA_VERSION, get_core_metadata_constructors
@@ -348,6 +349,9 @@ class WheelBuilderConfig(BuilderConfig):
 
                     if provider_cfg.plugin_api is not None:
                         variant_providers[ns][VARIANT_INFO_PROVIDER_PLUGIN_API_KEY] = provider_cfg.plugin_api
+
+                    if provider_cfg.plugin_use is not None:
+                        variant_providers[ns][VARIANT_INFO_PROVIDER_PLUGIN_USE_KEY] = provider_cfg.plugin_use
 
                 data[VARIANT_INFO_PROVIDER_DATA_KEY] = variant_providers
 
