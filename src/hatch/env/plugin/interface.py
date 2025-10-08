@@ -1241,7 +1241,7 @@ class WorkspaceMember:
     def __init__(self, project: Project, *, features: tuple[str]):
         self.project = project
         self.features = features
-        self._last_modified = None
+        self._last_modified: float
 
     @cached_property
     def name(self) -> str:
