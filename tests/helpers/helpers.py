@@ -31,17 +31,17 @@ def dedent(text):
 
 @lru_cache
 def tarfile_extraction_compat_options():
-    return {'filter': 'data'} if sys.version_info >= (3, 12) else {}
+    return {"filter": "data"} if sys.version_info >= (3, 12) else {}
 
 
 def remove_trailing_spaces(text):
-    return ''.join(f'{line.rstrip()}\n' for line in text.splitlines(True))
+    return "".join(f"{line.rstrip()}\n" for line in text.splitlines(True))
 
 
 def extract_requirements(lines):
     for raw_line in lines:
         line = raw_line.rstrip()
-        if line and not line.startswith('#'):
+        if line and not line.startswith("#"):
             yield line
 
 
@@ -74,8 +74,8 @@ def assert_files(directory, expected_files, *, check_contents=True):
         relative_path = os.path.relpath(root, start)
 
         # First iteration
-        if relative_path == '.':
-            relative_path = ''
+        if relative_path == ".":
+            relative_path = ""
 
         for file_name in files:
             relative_file_path = os.path.join(relative_path, file_name)
@@ -85,10 +85,10 @@ def assert_files(directory, expected_files, *, check_contents=True):
                 file_path = os.path.join(start, relative_file_path)
                 expected_contents = expected_relative_files[relative_file_path]
                 try:
-                    with open(file_path, encoding='utf-8') as f:
+                    with open(file_path, encoding="utf-8") as f:
                         assert f.read() == expected_contents, relative_file_path
                 except UnicodeDecodeError:
-                    with open(file_path, 'rb') as f:
+                    with open(file_path, "rb") as f:
                         assert f.read() == expected_contents, (relative_file_path, expected_contents)
             else:  # no cov
                 pass
@@ -96,10 +96,10 @@ def assert_files(directory, expected_files, *, check_contents=True):
     expected_relative_file_paths = set(expected_relative_files)
 
     missing_files = expected_relative_file_paths - seen_relative_file_paths
-    assert not missing_files, f'Missing files: {", ".join(sorted(missing_files))}'
+    assert not missing_files, f"Missing files: {', '.join(sorted(missing_files))}"
 
     extra_files = seen_relative_file_paths - expected_relative_file_paths
-    assert not extra_files, f'Extra files: {", ".join(sorted(extra_files))}'
+    assert not extra_files, f"Extra files: {', '.join(sorted(extra_files))}"
 
 
 def assert_output_match(output: str, pattern: str, *, exact: bool = True):
@@ -108,35 +108,35 @@ def assert_output_match(output: str, pattern: str, *, exact: bool = True):
 
 
 def get_template_files(template_name, project_name, **kwargs):
-    kwargs['project_name'] = project_name
-    kwargs['project_name_normalized'] = project_name.lower().replace('.', '-')
-    kwargs['package_name'] = kwargs['project_name_normalized'].replace('-', '_')
+    kwargs["project_name"] = project_name
+    kwargs["project_name_normalized"] = project_name.lower().replace(".", "-")
+    kwargs["package_name"] = kwargs["project_name_normalized"].replace("-", "_")
 
     config = RootConfig({})
-    kwargs.setdefault('author', config.template.name)
-    kwargs.setdefault('email', config.template.email)
-    kwargs.setdefault('year', str(datetime.now(timezone.utc).year))
+    kwargs.setdefault("author", config.template.name)
+    kwargs.setdefault("email", config.template.email)
+    kwargs.setdefault("year", str(datetime.now(timezone.utc).year))
 
     return __load_template_module(template_name)(**kwargs)
 
 
 @lru_cache
 def __load_template_module(template_name):
-    template = importlib.import_module(f'..templates.{template_name}', __name__)
+    template = importlib.import_module(f"..templates.{template_name}", __name__)
     return template.get_files
 
 
 def update_project_environment(project, name, config):
-    project_file = project.root / 'pyproject.toml'
+    project_file = project.root / "pyproject.toml"
     raw_config = load_toml_file(str(project_file))
 
-    env_config = raw_config.setdefault('tool', {}).setdefault('hatch', {}).setdefault('envs', {}).setdefault(name, {})
+    env_config = raw_config.setdefault("tool", {}).setdefault("hatch", {}).setdefault("envs", {}).setdefault(name, {})
     env_config.update(config)
 
-    project.config.envs[name] = project.config.envs.get(name, project.config.envs['default']).copy()
+    project.config.envs[name] = project.config.envs.get(name, project.config.envs["default"]).copy()
     project.config.envs[name].update(env_config)
 
-    with open(str(project_file), 'w', encoding='utf-8') as f:
+    with open(str(project_file), "w", encoding="utf-8") as f:
         f.write(tomli_w.dumps(raw_config))
 
 
@@ -148,7 +148,7 @@ def write_distribution(directory: Path, name: str):
     python_path.parent.ensure_dir_exists()
     python_path.touch()
 
-    metadata = {'source': dist.source, 'python_path': dist.python_path}
+    metadata = {"source": dist.source, "python_path": dist.python_path}
     metadata_file = path / InstalledDistribution.metadata_filename()
     metadata_file.write_text(json.dumps(metadata))
 
@@ -160,18 +160,18 @@ def downgrade_distribution_metadata(dist_dir: Path):
     metadata = json.loads(metadata_file.read_text())
     dist = InstalledDistribution(dist_dir, get_distribution(dist_dir.name), metadata)
 
-    source = metadata['source']
-    python_path = metadata['python_path']
+    source = metadata["source"]
+    python_path = metadata["python_path"]
     version = dist.version
     new_version = downgrade_version(version)
     new_source = source.replace(version, new_version)
-    metadata['source'] = new_source
+    metadata["source"] = new_source
 
     # We also modify the Python path because some directory structures are determined
     # by the archive name which is itself determined by the source
-    metadata['python_path'] = python_path.replace(version, new_version)
-    if python_path != metadata['python_path']:
-        new_python_path = dist_dir / metadata['python_path']
+    metadata["python_path"] = python_path.replace(version, new_version)
+    if python_path != metadata["python_path"]:
+        new_python_path = dist_dir / metadata["python_path"]
         new_python_path.parent.ensure_dir_exists()
         (dist_dir / python_path).rename(new_python_path)
 
@@ -180,5 +180,5 @@ def downgrade_distribution_metadata(dist_dir: Path):
 
 
 def downgrade_version(version: str) -> str:
-    major_version = version.split('.')[0]
+    major_version = version.split(".")[0]
     return version.replace(major_version, str(int(major_version) - 1), 1)

@@ -4,7 +4,7 @@ from hatch.utils.fs import Path
 
 def test_pypirc(fs):
     fs.create_file(
-        Path.home() / '.pypirc',
+        Path.home() / ".pypirc",
         contents="""\
             [other]
             username: guido
@@ -18,27 +18,27 @@ def test_pypirc(fs):
     )
 
     credentials = AuthenticationCredentials(
-        app=None, cache_dir=Path('/none'), options={}, repo='', repo_config={'url': ''}
+        app=None, cache_dir=Path("/none"), options={}, repo="", repo_config={"url": ""}
     )
-    assert credentials.username == 'guido'
-    assert credentials.password == 'sprscrt'
+    assert credentials.username == "guido"
+    assert credentials.password == "sprscrt"
 
     credentials = AuthenticationCredentials(
         app=None,
-        cache_dir=Path('/none'),
+        cache_dir=Path("/none"),
         options={},
-        repo='other',
-        repo_config={'url': ''},
+        repo="other",
+        repo_config={"url": ""},
     )
-    assert credentials.username == 'guido'
-    assert credentials.password == 'gat'
+    assert credentials.username == "guido"
+    assert credentials.password == "gat"
 
     credentials = AuthenticationCredentials(
         app=None,
-        cache_dir=Path('/none'),
+        cache_dir=Path("/none"),
         options={},
-        repo='arbritrary',
-        repo_config={'url': 'https://kaashandel.nl/'},
+        repo="arbitrary",
+        repo_config={"url": "https://kaashandel.nl/"},
     )
-    assert credentials.username == 'guido'
-    assert credentials.password == 'gat'
+    assert credentials.username == "guido"
+    assert credentials.password == "gat"

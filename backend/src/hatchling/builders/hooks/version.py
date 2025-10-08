@@ -7,7 +7,7 @@ from hatchling.version.core import VersionFile
 
 
 class VersionBuildHook(BuildHookInterface):
-    PLUGIN_NAME = 'version'
+    PLUGIN_NAME = "version"
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
@@ -19,13 +19,13 @@ class VersionBuildHook(BuildHookInterface):
     @property
     def config_path(self) -> str:
         if self.__config_path is None:
-            path = self.config.get('path', '')
+            path = self.config.get("path", "")
             if not isinstance(path, str):
-                message = f'Option `path` for build hook `{self.PLUGIN_NAME}` must be a string'
+                message = f"Option `path` for build hook `{self.PLUGIN_NAME}` must be a string"
                 raise TypeError(message)
 
             if not path:
-                message = f'Option `path` for build hook `{self.PLUGIN_NAME}` is required'
+                message = f"Option `path` for build hook `{self.PLUGIN_NAME}` is required"
                 raise ValueError(message)
 
             self.__config_path = path
@@ -35,9 +35,9 @@ class VersionBuildHook(BuildHookInterface):
     @property
     def config_template(self) -> str:
         if self.__config_template is None:
-            template = self.config.get('template', '')
+            template = self.config.get("template", "")
             if not isinstance(template, str):
-                message = f'Option `template` for build hook `{self.PLUGIN_NAME}` must be a string'
+                message = f"Option `template` for build hook `{self.PLUGIN_NAME}` must be a string"
                 raise TypeError(message)
 
             self.__config_template = template
@@ -47,9 +47,9 @@ class VersionBuildHook(BuildHookInterface):
     @property
     def config_pattern(self) -> str | bool:
         if self.__config_pattern is None:
-            pattern = self.config.get('pattern', '')
+            pattern = self.config.get("pattern", "")
             if not isinstance(pattern, (str, bool)):
-                message = f'Option `pattern` for build hook `{self.PLUGIN_NAME}` must be a string or a boolean'
+                message = f"Option `pattern` for build hook `{self.PLUGIN_NAME}` must be a string or a boolean"
                 raise TypeError(message)
 
             self.__config_pattern = pattern
@@ -68,4 +68,4 @@ class VersionBuildHook(BuildHookInterface):
         else:
             version_file.write(self.metadata.version, self.config_template)
 
-        build_data['artifacts'].append(f'/{self.config_path}')
+        build_data["artifacts"].append(f"/{self.config_path}")

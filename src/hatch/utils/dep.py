@@ -21,13 +21,13 @@ def get_normalized_dependencies(requirements: list[Requirement]) -> list[str]:
 def hash_dependencies(requirements: list[Requirement]) -> str:
     from hashlib import sha256
 
-    data = ''.join(
+    data = "".join(
         sorted(
             # Internal spacing is ignored by PEP 440
-            normalized_dependency.replace(' ', '')
+            normalized_dependency.replace(" ", "")
             for normalized_dependency in {get_normalized_dependency(req) for req in requirements}
         )
-    ).encode('utf-8')
+    ).encode("utf-8")
 
     return sha256(data).hexdigest()
 

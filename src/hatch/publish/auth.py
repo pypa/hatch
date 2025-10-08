@@ -13,7 +13,7 @@ class AuthenticationCredentials:
         repo_config: dict[str, str],
     ):
         self._app = app
-        self._pwu_path = cache_dir / 'previous_working_users.json'
+        self._pwu_path = cache_dir / "previous_working_users.json"
         self._options = options
         self._repo = repo
         self._repo_config = repo_config
@@ -40,7 +40,7 @@ class AuthenticationCredentials:
         # this method doesn't consider .pypirc as the __password attribute would have
         # been set when it was looked up during username retrieval
 
-        password = self._options.get('auth') or self._repo_config.get('auth')
+        password = self._options.get("auth") or self._repo_config.get("auth")
         if password is not None:
             return password
 
@@ -50,27 +50,27 @@ class AuthenticationCredentials:
         if password is not None:
             return password
 
-        if self._options['no_prompt']:
-            self._app.abort('Missing required option: auth')
+        if self._options["no_prompt"]:
+            self._app.abort("Missing required option: auth")
 
         self.__password_was_read = True
-        return self._app.prompt('Password / Token', hide_input=True)
+        return self._app.prompt("Password / Token", hide_input=True)
 
     def __get_username(self) -> str:
         username = (
-            self._options.get('user')
-            or self._repo_config.get('user')
+            self._options.get("user")
+            or self._repo_config.get("user")
             or self._read_pypirc()
             or self._read_previous_working_user_data()
         )
         if username is not None:
             return username
 
-        if self._options['no_prompt']:
-            self._app.abort('Missing required option: user')
+        if self._options["no_prompt"]:
+            self._app.abort("Missing required option: user")
 
         self.__username_was_read = True
-        return self._app.prompt(f"Username for '{self._repo_config['url']}' [__token__]") or '__token__'
+        return self._app.prompt(f"Username for '{self._repo_config['url']}' [__token__]") or "__token__"
 
     def _read_previous_working_user_data(self) -> str | None:
         if self._pwu_path.is_file():
@@ -85,18 +85,18 @@ class AuthenticationCredentials:
         import configparser
 
         pypirc = configparser.ConfigParser()
-        pypirc.read(Path.home() / '.pypirc')
-        repo = self._repo or 'pypi'
+        pypirc.read(Path.home() / ".pypirc")
+        repo = self._repo or "pypi"
 
         if pypirc.has_section(repo):
-            self.__password = pypirc.get(section=repo, option='password', fallback=None)
-            return pypirc.get(section=repo, option='username', fallback=None)
+            self.__password = pypirc.get(section=repo, option="password", fallback=None)
+            return pypirc.get(section=repo, option="username", fallback=None)
 
-        repo_url = self._repo_config['url']
+        repo_url = self._repo_config["url"]
         for section in pypirc.sections():
-            if pypirc.get(section=section, option='repository', fallback=None) == repo_url:
-                self.__password = pypirc.get(section=section, option='password', fallback=None)
-                return pypirc.get(section=section, option='username', fallback=None)
+            if pypirc.get(section=section, option="repository", fallback=None) == repo_url:
+                self.__password = pypirc.get(section=section, option="password", fallback=None)
+                return pypirc.get(section=section, option="username", fallback=None)
 
         return None
 

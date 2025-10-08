@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling>=1.24.2", "hatch-vcs>=0.3.0"]
+requires = ["hatchling>=1.27", "hatch-vcs>=0.3.0"]
 build-backend = "hatchling.build"
 
 [project]
@@ -7,7 +7,8 @@ name = "hatch"
 description = "Modern, extensible Python project management"
 readme = "README.md"
 license = "MIT"
-requires-python = ">=3.8"
+license-files = ["LICENSE.txt"]
+requires-python = ">=3.9"
 keywords = [
   "build",
   "dependency",
@@ -25,10 +26,8 @@ authors = [
 classifiers = [
   "Development Status :: 5 - Production/Stable",
   "Intended Audience :: Developers",
-  "License :: OSI Approved :: MIT License",
   "Natural Language :: English",
   "Operating System :: OS Independent",
-  "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
