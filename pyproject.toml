@@ -39,7 +39,6 @@ classifiers = [
 ]
 dependencies = [
   "click>=8.0.6",
-  "hatchling>=1.24.2",
   "httpx>=0.22.0",
   "hyperlink>=21.0.0",
   "keyring>=23.5.0",
@@ -53,7 +52,7 @@ dependencies = [
   "tomlkit>=0.11.1",
   "userpath~=1.7",
   "uv>=0.5.23",
-  "virtualenv>=20.26.6",
+  "virtualenv>=20.26.6,<20.35.0",
   "zstandard<1",
 ]
 dynamic = ["version"]
@@ -67,6 +66,9 @@ Source = "https://github.com/pypa/hatch"
 
 [project.scripts]
 hatch = "hatch.cli:main"
+
+[tool.hatch.workspace]
+members = ["hatch/*"]
 
 [tool.hatch.version]
 source = "vcs"
