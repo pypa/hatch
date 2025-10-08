@@ -31,31 +31,34 @@ from hatch.utils.fs import Path
 
 def find_workspace_root(path: Path) -> Path | None:
     """Find workspace root by traversing up from given path."""
+    from hatch.utils.toml import load_toml_file
+
     current = path
     while current.parent != current:
         # Check hatch.toml first
         hatch_toml = current / "hatch.toml"
-        if hatch_toml.exists():
-            try:
-                from hatch.utils.toml import load_toml_file
-                config = load_toml_file(str(hatch_toml))
-                if config.get("workspace"):
-                    return current
-            except Exception:
-                pass
+        if hatch_toml.exists() and _has_workspace_config(load_toml_file, str(hatch_toml), "workspace"):
+            return current
 
         # Then check pyproject.toml
         pyproject = current / "pyproject.toml"
-        if pyproject.exists():
-            try:
-                from hatch.utils.toml import load_toml_file
-                config = load_toml_file(str(pyproject))
-                if config.get("tool", {}).get("hatch", {}).get("workspace"):
-                    return current
-            except Exception:
-                pass
+        if pyproject.exists() and _has_workspace_config(load_toml_file, str(pyproject), "tool.hatch.workspace"):
+            return current
+
         current = current.parent
     return None
+
+
+def _has_workspace_config(load_func, file_path: str, config_path: str) -> bool:
+    """Check if file has workspace configuration, returning False on any error."""
+    try:
+        config = load_func(file_path)
+        if config_path == "workspace":
+            return bool(config.get("workspace"))
+        # "tool.hatch.workspace"
+        return bool(config.get("tool", {}).get("hatch", {}).get("workspace"))
+    except (OSError, ValueError, TypeError, KeyError):
+        return False
 
 
 @click.group(

@@ -7,7 +7,6 @@ from itertools import product
 from os import environ
 from typing import TYPE_CHECKING, Any
 
-from hatch.env.plugin.interface import Workspace
 from hatch.env.utils import ensure_valid_environment
 from hatch.project.constants import DEFAULT_BUILD_DIRECTORY, BuildEnvVars
 from hatch.project.env import apply_overrides
@@ -758,7 +757,7 @@ class WorkspaceConfig:
             message = "Field `tool.hatch.workspace.exclude` must be an array"
             raise TypeError(message)
         return exclude
-    
+
     @cached_property
     def editable(self) -> bool:
         """Whether workspace members should be installed as editable by default."""
@@ -784,7 +783,7 @@ class WorkspaceConfig:
         if not isinstance(resolver, str):
             message = "Field `tool.hatch.workspace.resolver` must be a string"
             raise TypeError(message)
-        if resolver not in ("uv", "pip"):
+        if resolver not in {"uv", "pip"}:
             message = "Field `tool.hatch.workspace.resolver` must be either 'uv' or 'pip'"
             raise ValueError(message)
         return resolver

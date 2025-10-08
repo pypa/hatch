@@ -325,7 +325,7 @@ class EnvironmentInterface(ABC):
         workspace dependencies.
         """
         return [str(dependency) for dependency in self.project_dependencies_complex]
-    
+
     @cached_property
     def workspace_editable_mode(self) -> bool:
         """Determine if workspace members should be installed as editable."""
@@ -340,9 +340,9 @@ class EnvironmentInterface(ABC):
 
         # Check global workspace configuration - FIX: Avoid circular reference
         try:
-            if hasattr(self.app.project.config, 'workspace'):
+            if hasattr(self.app.project.config, "workspace"):
                 workspace_config_obj = self.app.project.config.workspace
-                if workspace_config_obj and hasattr(workspace_config_obj, 'editable'):
+                if workspace_config_obj and hasattr(workspace_config_obj, "editable"):
                     return workspace_config_obj.editable
         except (AttributeError, TypeError):
             # If there's any issue accessing the workspace config, fall back to default
@@ -363,7 +363,9 @@ class EnvironmentInterface(ABC):
         if self.workspace.members:
             workspace_editable = self.workspace_editable_mode
             local_dependencies_complex.extend(
-                Dependency(f"{member.project.metadata.name} @ {member.project.location.as_uri()}", editable=workspace_editable)
+                Dependency(
+                    f"{member.project.metadata.name} @ {member.project.location.as_uri()}", editable=workspace_editable
+                )
                 for member in self.workspace.members
             )
 
@@ -1035,7 +1037,7 @@ class Workspace:
             raise TypeError(message)
 
         return parallel
-    
+
     @cached_property
     def editable(self) -> bool:
         """Whether workspace members should be installed as editable."""
@@ -1251,11 +1253,12 @@ class WorkspaceMember:
 
     def get_dependencies(self) -> tuple[list[str], dict[str, list[str]]]:
         return self.project.get_dependencies()
-    
+
     @property
     def last_modified(self) -> float:
         """Get the last modification time of the member's pyproject.toml."""
         import os
+
         pyproject_path = self.project.location / "pyproject.toml"
         if pyproject_path.exists():
             return os.path.getmtime(pyproject_path)
@@ -1267,14 +1270,14 @@ class WorkspaceMember:
         if self._last_modified is None:
             self._last_modified = current_modified
             return True
-        
+
         if current_modified > self._last_modified:
             self._last_modified = current_modified
             return True
-        
+
         return False
 
-    def get_editable_requirement(self, editable: bool = True) -> str:
+    def get_editable_requirement(self, *, editable: bool = True) -> str:
         """Get the requirement string for this workspace member."""
         uri = self.project.location.as_uri()
         if editable:
