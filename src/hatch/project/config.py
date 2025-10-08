@@ -7,6 +7,7 @@ from itertools import product
 from os import environ
 from typing import TYPE_CHECKING, Any
 
+from hatch.env.plugin.interface import Workspace
 from hatch.env.utils import ensure_valid_environment
 from hatch.project.constants import DEFAULT_BUILD_DIRECTORY, BuildEnvVars
 from hatch.project.env import apply_overrides
@@ -503,12 +504,11 @@ class ProjectConfig:
         return self._scripts
 
     @cached_property
-    def workspace(self):
+    def workspace(self) -> WorkspaceConfig:
         config = self.config.get("workspace", {})
         if not isinstance(config, dict):
             message = "Field `tool.hatch.workspace` must be a table"
             raise TypeError(message)
-
         return WorkspaceConfig(config, self.root)
 
     def finalize_env_overrides(self, option_types):
@@ -758,6 +758,41 @@ class WorkspaceConfig:
             message = "Field `tool.hatch.workspace.exclude` must be an array"
             raise TypeError(message)
         return exclude
+    
+    @cached_property
+    def editable(self) -> bool:
+        """Whether workspace members should be installed as editable by default."""
+        editable = self.__config.get("editable", True)
+        if not isinstance(editable, bool):
+            message = "Field `tool.hatch.workspace.editable` must be a boolean"
+            raise TypeError(message)
+        return editable
+
+    @cached_property
+    def auto_sync(self) -> bool:
+        """Whether to automatically sync workspace member changes."""
+        auto_sync = self.__config.get("auto-sync", True)
+        if not isinstance(auto_sync, bool):
+            message = "Field `tool.hatch.workspace.auto-sync` must be a boolean"
+            raise TypeError(message)
+        return auto_sync
+
+    @cached_property
+    def resolver(self) -> str:
+        """Package resolver to use for workspace dependencies."""
+        resolver = self.__config.get("resolver", "uv")
+        if not isinstance(resolver, str):
+            message = "Field `tool.hatch.workspace.resolver` must be a string"
+            raise TypeError(message)
+        if resolver not in ("uv", "pip"):
+            message = "Field `tool.hatch.workspace.resolver` must be either 'uv' or 'pip'"
+            raise ValueError(message)
+        return resolver
+
+    @property
+    def config(self) -> dict[str, Any]:
+        """Access to raw config for backward compatibility."""
+        return self.__config
 
 
 def env_var_enabled(env_var: str, *, default: bool = False) -> bool:

@@ -33,13 +33,27 @@ def find_workspace_root(path: Path) -> Path | None:
     """Find workspace root by traversing up from given path."""
     current = path
     while current.parent != current:
+        # Check hatch.toml first
+        hatch_toml = current / "hatch.toml"
+        if hatch_toml.exists():
+            try:
+                from hatch.utils.toml import load_toml_file
+                config = load_toml_file(str(hatch_toml))
+                if config.get("workspace"):
+                    return current
+            except Exception:
+                pass
+
+        # Then check pyproject.toml
         pyproject = current / "pyproject.toml"
         if pyproject.exists():
-            from hatch.utils.toml import load_toml_file
-
-            config = load_toml_file(str(pyproject))
-            if config.get("tool", {}).get("hatch", {}).get("workspace"):
-                return current
+            try:
+                from hatch.utils.toml import load_toml_file
+                config = load_toml_file(str(pyproject))
+                if config.get("tool", {}).get("hatch", {}).get("workspace"):
+                    return current
+            except Exception:
+                pass
         current = current.parent
     return None
 

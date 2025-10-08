@@ -325,6 +325,31 @@ class EnvironmentInterface(ABC):
         workspace dependencies.
         """
         return [str(dependency) for dependency in self.project_dependencies_complex]
+    
+    @cached_property
+    def workspace_editable_mode(self) -> bool:
+        """Determine if workspace members should be installed as editable."""
+        # Check workspace-specific configuration first
+        workspace_config = self.config.get("workspace", {})
+        if "editable" in workspace_config:
+            editable = workspace_config["editable"]
+            if not isinstance(editable, bool):
+                message = f"Field `tool.hatch.envs.{self.name}.workspace.editable` must be a boolean"
+                raise TypeError(message)
+            return editable
+
+        # Check global workspace configuration - FIX: Avoid circular reference
+        try:
+            if hasattr(self.app.project.config, 'workspace'):
+                workspace_config_obj = self.app.project.config.workspace
+                if workspace_config_obj and hasattr(workspace_config_obj, 'editable'):
+                    return workspace_config_obj.editable
+        except (AttributeError, TypeError):
+            # If there's any issue accessing the workspace config, fall back to default
+            pass
+
+        # Default to True for workspace members
+        return True
 
     @cached_property
     def local_dependencies_complex(self) -> list[Dependency]:
@@ -335,11 +360,12 @@ class EnvironmentInterface(ABC):
             local_dependencies_complex.append(
                 Dependency(f"{self.metadata.name} @ {self.root.as_uri()}", editable=self.dev_mode)
             )
-
-        local_dependencies_complex.extend(
-            Dependency(f"{member.project.metadata.name} @ {member.project.location.as_uri()}", editable=self.dev_mode)
-            for member in self.workspace.members
-        )
+        if self.workspace.members:
+            workspace_editable = self.workspace_editable_mode
+            local_dependencies_complex.extend(
+                Dependency(f"{member.project.metadata.name} @ {member.project.location.as_uri()}", editable=workspace_editable)
+                for member in self.workspace.members
+            )
 
         return local_dependencies_complex
 
@@ -1009,6 +1035,24 @@ class Workspace:
             raise TypeError(message)
 
         return parallel
+    
+    @cached_property
+    def editable(self) -> bool:
+        """Whether workspace members should be installed as editable."""
+        editable = self.config.get("editable", True)
+        if not isinstance(editable, bool):
+            message = f"Field `tool.hatch.envs.{self.env.name}.workspace.editable` must be a boolean"
+            raise TypeError(message)
+        return editable
+
+    @cached_property
+    def auto_sync(self) -> bool:
+        """Whether to automatically sync workspace member changes."""
+        auto_sync = self.config.get("auto-sync", True)
+        if not isinstance(auto_sync, bool):
+            message = f"Field `tool.hatch.envs.{self.env.name}.workspace.auto-sync` must be a boolean"
+            raise TypeError(message)
+        return auto_sync
 
     def get_dependencies(self) -> list[str]:
         static_members: list[WorkspaceMember] = []
@@ -1195,6 +1239,7 @@ class WorkspaceMember:
     def __init__(self, project: Project, *, features: tuple[str]):
         self.project = project
         self.features = features
+        self._last_modified = None
 
     @cached_property
     def name(self) -> str:
@@ -1206,6 +1251,35 @@ class WorkspaceMember:
 
     def get_dependencies(self) -> tuple[list[str], dict[str, list[str]]]:
         return self.project.get_dependencies()
+    
+    @property
+    def last_modified(self) -> float:
+        """Get the last modification time of the member's pyproject.toml."""
+        import os
+        pyproject_path = self.project.location / "pyproject.toml"
+        if pyproject_path.exists():
+            return os.path.getmtime(pyproject_path)
+        return 0.0
+
+    def has_changed(self) -> bool:
+        """Check if the workspace member has changed since last check."""
+        current_modified = self.last_modified
+        if self._last_modified is None:
+            self._last_modified = current_modified
+            return True
+        
+        if current_modified > self._last_modified:
+            self._last_modified = current_modified
+            return True
+        
+        return False
+
+    def get_editable_requirement(self, editable: bool = True) -> str:
+        """Get the requirement string for this workspace member."""
+        uri = self.project.location.as_uri()
+        if editable:
+            return f"-e {self.name} @ {uri}"
+        return f"{self.name} @ {uri}"
 
 
 def expand_script_commands(env_name, script_name, commands, config, seen, active):
