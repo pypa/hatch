@@ -6,7 +6,7 @@ import sys
 from contextlib import suppress
 from copy import deepcopy
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Generic, cast
+from typing import TYPE_CHECKING, Any, Generic, cast, Literal
 
 from hatchling.builders.variant_constants import VARIANT_LABEL_LENGTH
 from hatchling.metadata.utils import (
@@ -43,6 +43,7 @@ def load_toml(path: str) -> dict[str, Any]:
 class VariantProviderConfig:
     requires: list[str]
     plugin_api: str | None = None
+    plugin_use: Literal['all'] | Literal['build'] | Literal['none'] | None = None
     enable_if: str | None = None
     optional: bool = False
 
