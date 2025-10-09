@@ -596,7 +596,7 @@ class EnvironmentInterface(ABC):
     @cached_property
     def workspace(self) -> Workspace:
         # Start with project-level workspace configuration
-        project_workspace_config = self.app.project.config.workspace
+        project_workspace_config = getattr(self.app.project.config, "workspace", None) if self.app.project else None
 
         # Get environment-level workspace configuration
         env_config = self.config.get("workspace", {})
@@ -608,11 +608,11 @@ class EnvironmentInterface(ABC):
         merged_config = {}
 
         # Inherit project-level members if no environment-level members specified
-        if project_workspace_config.members and "members" not in env_config:
+        if project_workspace_config and project_workspace_config.members and "members" not in env_config:
             merged_config["members"] = project_workspace_config.members
 
         # Inherit project-level exclude if no environment-level exclude specified
-        if project_workspace_config.exclude and "exclude" not in env_config:
+        if project_workspace_config and project_workspace_config.exclude and "exclude" not in env_config:
             merged_config["exclude"] = project_workspace_config.exclude
 
         # Apply environment-level overrides
