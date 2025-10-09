@@ -6,22 +6,15 @@ config-path = "ruff_defaults.toml"
 
 [envs.default]
 installer = "uv"
-post-install-commands = [
-  "uv pip install {verbosity:flag:-1} -e ./backend",
-]
 
 [envs.hatch-test]
 extra-dependencies = [
   "filelock",
   "flit-core",
-  "hatchling",
   "pyfakefs",
   "trustme",
   # Hatchling dynamic dependency
   "editables",
-]
-post-install-commands = [
-  "pip install {verbosity:flag:-1} -e ./backend",
 ]
 extra-args = ["--dist", "worksteal"]
 
@@ -128,9 +121,7 @@ update-ruff = [
 [envs.release]
 detached = true
 installer = "uv"
-dependencies = [
-  "hatchling",
-]
+
 [envs.release.scripts]
 bump = "python scripts/bump.py {args}"
 github = "python scripts/release_github.py {args}"

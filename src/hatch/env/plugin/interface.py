@@ -327,31 +327,6 @@ class EnvironmentInterface(ABC):
         return [str(dependency) for dependency in self.project_dependencies_complex]
 
     @cached_property
-    def workspace_editable_mode(self) -> bool:
-        """Determine if workspace members should be installed as editable."""
-        # Check workspace-specific configuration first
-        workspace_config = self.config.get("workspace", {})
-        if "editable" in workspace_config:
-            editable = workspace_config["editable"]
-            if not isinstance(editable, bool):
-                message = f"Field `tool.hatch.envs.{self.name}.workspace.editable` must be a boolean"
-                raise TypeError(message)
-            return editable
-
-        # Check global workspace configuration - FIX: Avoid circular reference
-        try:
-            if hasattr(self.app.project.config, "workspace"):
-                workspace_config_obj = self.app.project.config.workspace
-                if workspace_config_obj and hasattr(workspace_config_obj, "editable"):
-                    return workspace_config_obj.editable
-        except (AttributeError, TypeError):
-            # If there's any issue accessing the workspace config, fall back to default
-            pass
-
-        # Default to True for workspace members
-        return True
-
-    @cached_property
     def local_dependencies_complex(self) -> list[Dependency]:
         from hatch.dep.core import Dependency
 
@@ -361,11 +336,8 @@ class EnvironmentInterface(ABC):
                 Dependency(f"{self.metadata.name} @ {self.root.as_uri()}", editable=self.dev_mode)
             )
         if self.workspace.members:
-            workspace_editable = self.workspace_editable_mode
             local_dependencies_complex.extend(
-                Dependency(
-                    f"{member.project.metadata.name} @ {member.project.location.as_uri()}", editable=workspace_editable
-                )
+                Dependency(f"{member.project.metadata.name} @ {member.project.location.as_uri()}", editable=True)
                 for member in self.workspace.members
             )
 
@@ -623,12 +595,30 @@ class EnvironmentInterface(ABC):
 
     @cached_property
     def workspace(self) -> Workspace:
-        config = self.config.get("workspace", {})
-        if not isinstance(config, dict):
+        # Start with project-level workspace configuration
+        project_workspace_config = self.app.project.config.workspace
+
+        # Get environment-level workspace configuration
+        env_config = self.config.get("workspace", {})
+        if not isinstance(env_config, dict):
             message = f"Field `tool.hatch.envs.{self.name}.workspace` must be a table"
             raise TypeError(message)
 
-        return Workspace(self, config)
+        # Merge configurations: project-level as base, environment-level as override
+        merged_config = {}
+
+        # Inherit project-level members if no environment-level members specified
+        if project_workspace_config.members and "members" not in env_config:
+            merged_config["members"] = project_workspace_config.members
+
+        # Inherit project-level exclude if no environment-level exclude specified
+        if project_workspace_config.exclude and "exclude" not in env_config:
+            merged_config["exclude"] = project_workspace_config.exclude
+
+        # Apply environment-level overrides
+        merged_config.update(env_config)
+
+        return Workspace(self, merged_config)
 
     def activate(self):
         """
@@ -1038,24 +1028,6 @@ class Workspace:
 
         return parallel
 
-    @cached_property
-    def editable(self) -> bool:
-        """Whether workspace members should be installed as editable."""
-        editable = self.config.get("editable", True)
-        if not isinstance(editable, bool):
-            message = f"Field `tool.hatch.envs.{self.env.name}.workspace.editable` must be a boolean"
-            raise TypeError(message)
-        return editable
-
-    @cached_property
-    def auto_sync(self) -> bool:
-        """Whether to automatically sync workspace member changes."""
-        auto_sync = self.config.get("auto-sync", True)
-        if not isinstance(auto_sync, bool):
-            message = f"Field `tool.hatch.envs.{self.env.name}.workspace.auto-sync` must be a boolean"
-            raise TypeError(message)
-        return auto_sync
-
     def get_dependencies(self) -> list[str]:
         static_members: list[WorkspaceMember] = []
         dynamic_members: list[WorkspaceMember] = []
@@ -1107,6 +1079,9 @@ class Workspace:
         if not isinstance(raw_members, list):
             message = f"Field `tool.hatch.envs.{self.env.name}.workspace.members` must be an array"
             raise TypeError(message)
+
+        if not raw_members:
+            return []
 
         # First normalize configuration
         member_data: list[dict[str, Any]] = []

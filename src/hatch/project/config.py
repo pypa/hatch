@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import re
 from copy import deepcopy
 from functools import cached_property
@@ -11,10 +12,10 @@ from hatch.env.utils import ensure_valid_environment
 from hatch.project.constants import DEFAULT_BUILD_DIRECTORY, BuildEnvVars
 from hatch.project.env import apply_overrides
 from hatch.project.utils import format_script_commands, parse_script_command
+from hatch.utils.fs import Path
 
 if TYPE_CHECKING:
     from hatch.dep.core import Dependency
-    from hatch.utils.fs import Path
 
 
 class ProjectConfig:
@@ -759,34 +760,64 @@ class WorkspaceConfig:
         return exclude
 
     @cached_property
-    def editable(self) -> bool:
-        """Whether workspace members should be installed as editable by default."""
-        editable = self.__config.get("editable", True)
-        if not isinstance(editable, bool):
-            message = "Field `tool.hatch.workspace.editable` must be a boolean"
-            raise TypeError(message)
-        return editable
+    def discovered_member_paths(self) -> list[Path]:
+        """Discover workspace member paths using the existing find_members function."""
+        from hatch.env.plugin.interface import find_members
 
-    @cached_property
-    def auto_sync(self) -> bool:
-        """Whether to automatically sync workspace member changes."""
-        auto_sync = self.__config.get("auto-sync", True)
-        if not isinstance(auto_sync, bool):
-            message = "Field `tool.hatch.workspace.auto-sync` must be a boolean"
-            raise TypeError(message)
-        return auto_sync
+        discovered_paths = []
 
-    @cached_property
-    def resolver(self) -> str:
-        """Package resolver to use for workspace dependencies."""
-        resolver = self.__config.get("resolver", "uv")
-        if not isinstance(resolver, str):
-            message = "Field `tool.hatch.workspace.resolver` must be a string"
-            raise TypeError(message)
-        if resolver not in {"uv", "pip"}:
-            message = "Field `tool.hatch.workspace.resolver` must be either 'uv' or 'pip'"
-            raise ValueError(message)
-        return resolver
+        for member_pattern in self.members:
+            # Convert to absolute path for processing
+            pattern_path = self.__root / member_pattern if not os.path.isabs(member_pattern) else Path(member_pattern)
+
+            # Normalize and get relative components for find_members
+            normalized_path = os.path.normpath(str(pattern_path))
+            absolute_path = os.path.abspath(normalized_path)
+            shared_prefix = os.path.commonprefix([str(self.__root), absolute_path])
+            relative_path = os.path.relpath(absolute_path, shared_prefix)
+
+            # Use existing find_members function
+            for member_path in find_members(str(self.__root), relative_path.split(os.sep)):
+                project_file = os.path.join(member_path, "pyproject.toml")
+                if os.path.isfile(project_file):
+                    discovered_paths.append(Path(member_path))
+
+        return discovered_paths
+
+    def validate_workspace_members(self) -> list[str]:
+        """Validate workspace members and return errors."""
+        errors = []
+
+        for member_pattern in self.members:
+            try:
+                # Test if pattern finds any members
+                if not os.path.isabs(member_pattern):
+                    pattern_path = self.__root / member_pattern
+                else:
+                    pattern_path = Path(member_pattern)
+
+                normalized_path = os.path.normpath(str(pattern_path))
+                absolute_path = os.path.abspath(normalized_path)
+                shared_prefix = os.path.commonprefix([str(self.__root), absolute_path])
+                relative_path = os.path.relpath(absolute_path, shared_prefix)
+
+                from hatch.env.plugin.interface import find_members
+
+                members_found = False
+
+                for member_path in find_members(str(self.__root), relative_path.split(os.sep)):
+                    project_file = os.path.join(member_path, "pyproject.toml")
+                    if os.path.isfile(project_file):
+                        members_found = True
+                        break
+
+                if not members_found:
+                    errors.append(f"No workspace members found for pattern: {member_pattern}")
+
+            except (OSError, ValueError, TypeError) as e:
+                errors.append(f"Error processing workspace member pattern '{member_pattern}': {e}")
+
+        return errors
 
     @property
     def config(self) -> dict[str, Any]:
