@@ -55,9 +55,6 @@ def _load_builtin_plugins_from_pyproject() -> dict[str, dict[str, str]]:
         try:
             with open(pyproject_path, "rb") as f:
                 data = tomllib.load(f)
-        except FileNotFoundError:
-            # File doesn't exist at this path, try the next one
-            continue
         except OSError as e:
             # Permission denied or other I/O errors - warn but continue
             warnings.warn(
