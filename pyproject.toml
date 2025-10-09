@@ -39,7 +39,7 @@ classifiers = [
 ]
 dependencies = [
   "click>=8.0.6",
-    "httpx>=0.22.0",
+  "httpx>=0.22.0",
   "hyperlink>=21.0.0",
   "keyring>=23.5.0",
   "packaging>=24.2",
