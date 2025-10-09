@@ -55,23 +55,26 @@ def _load_builtin_plugins_from_pyproject() -> dict[str, dict[str, str]]:
         try:
             with open(pyproject_path, "rb") as f:
                 data = tomllib.load(f)
+        except FileNotFoundError:
+            # File doesn't exist at this path, try the next one
+            continue
+        except OSError as e:
+            # Permission denied or other I/O errors - warn but continue
+            warnings.warn(
+                f"Could not read pyproject.toml at {pyproject_path}: {e}",
+                UserWarning,
+                stacklevel=2,
+            )
+            continue
 
-            # Extract entry-points
-            entrypoints = data.get("project", {}).get("entry-points", {})
+        # Extract entry-points
+        entrypoints = data.get("project", {}).get("entry-points", {})
 
-            # Look for hatch.* groups
-            for group_name, plugins in entrypoints.items():
-                if group_name.startswith("hatch."):
-                    plugin_type = group_name.removeprefix("hatch.")
-                    if plugin_type not in builtin_plugins:
-                        builtin_plugins[plugin_type] = {}
-                    builtin_plugins[plugin_type].update(plugins)
-
-        except Exception:  # noqa: BLE001, S110
-            # If we can't read the pyproject.toml, continue without it
-            # This shouldn't happen in normal operation, but we don't want to break
-            # if the file structure changes
-            pass
+        # Look for hatch.* groups
+        for group_name, plugins in entrypoints.items():
+            if group_name.startswith("hatch."):
+                plugin_type = group_name.removeprefix("hatch.")
+                builtin_plugins.setdefault(plugin_type, {}).update(plugins)
 
     return builtin_plugins
 
