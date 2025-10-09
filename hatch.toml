@@ -49,10 +49,11 @@ dependencies = [
   "mkdocs-minify-plugin~=0.8.0",
   "mkdocs-git-revision-date-localized-plugin~=1.2.5",
   "mkdocs-git-committers-plugin-2~=2.3.0",
-  "mkdocstrings-python~=1.10.3",
+  "mkdocstrings[python]~=0.26.0",
   "mkdocs-redirects~=1.2.1",
   "mkdocs-glightbox~=0.4.0",
   "mike~=2.1.1",
+  "mkdocs-autorefs>=1.0.0",
   # Extensions
   "mkdocs-click~=0.8.1",
   "pymdown-extensions~=10.8.1",
@@ -60,7 +61,7 @@ dependencies = [
   "pygments~=2.18.0",
   # Validation
   "linkchecker~=10.5.0",
-  "griffe<1.0",
+  "griffe>=1.0.0",
 ]
 pre-install-commands = [
   "python scripts/install_mkdocs_material_insiders.py",
@@ -82,7 +83,7 @@ ci-build = "mike deploy --config-file {env:MKDOCS_CONFIG} --update-aliases {args
 validate = "linkchecker --config .linkcheckerrc site"
 # https://github.com/linkchecker/linkchecker/issues/678
 build-check = [
-  "build --no-directory-urls",
+  "python -W ignore::DeprecationWarning -m mkdocs build --no-directory-urls",
   "validate",
 ]
 
