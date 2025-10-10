@@ -40,6 +40,7 @@ jobs:
       - name: Install ourself
         run: |
           uv pip install --system -e .
+          hatch env create
 
       - name: Validate workspace functionality
         run: |
@@ -54,9 +55,6 @@ jobs:
 
       - name: Check types
         run: hatch run types:check
-
-      - name: Test workspace functionality
-        run: hatch run workspace-test:validate
 
       - name: Run tests
         run: hatch test --python ${{ matrix.python-version }} --cover-quiet --randomize --parallel --retries 5 --retry-delay 3

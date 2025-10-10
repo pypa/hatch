@@ -36,6 +36,7 @@ jobs:
     - name: Install ourself
       run: |
         uv pip install --system -e .
+        hatch env create
 
     - name: Verify workspace setup
       run: |
