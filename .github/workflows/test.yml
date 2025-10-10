@@ -40,15 +40,7 @@ jobs:
       - name: Install ourself
         run: |
           uv pip install --system -e .
-          hatch env create
-
-      - name: Validate workspace functionality
-        run: |
-          # Verify that hatchling is installed as editable from workspace
-          hatch run uv pip list --editable | grep hatchling
-
-          # Test that hatch commands work with workspace member
-          python -c "import hatchling; print('Hatchling imported successfully from workspace')"
+          uv pip install --system ./backend
 
       - name: Run static analysis
         run: hatch fmt --check

@@ -38,14 +38,7 @@ jobs:
     - name: Install ourself
       run: |
         uv pip install --system -e .
-        hatch env create
-
-    - name: Verify workspace setup
-      run: |
-        # Verify that hatchling is installed as editable from workspace
-        hatch run uv pip list --editable | grep hatchling
-        python -c "import hatchling; print('Hatchling available from workspace')"
-        
+        uv pip install --system ./backend
 
     - name: Configure Git for GitHub Actions bot
       run: |
