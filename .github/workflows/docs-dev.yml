@@ -38,7 +38,11 @@ jobs:
     - name: Install ourself
       run: |
         uv pip install --system -e .
-        uv pip install --system -e ./backend
+
+    - name: Verify workspace setup
+      run: |
+        python -c "import hatchling; print('Hatchling available from workspace')"
+        hatch version
 
     - name: Configure Git for GitHub Actions bot
       run: |

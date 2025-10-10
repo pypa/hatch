@@ -36,7 +36,10 @@ jobs:
     - name: Install ourself
       run: |
         uv pip install --system -e .
-        uv pip install --system -e ./backend
+
+    - name: Verify workspace setup
+      run: |
+        python -c "import hatchling; print('Hatchling available from workspace')"
 
     - name: Display full version
       run: hatch version

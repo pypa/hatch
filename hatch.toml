@@ -1,11 +1,19 @@
-[workpace]
-members = ["hatch/*"]
 
 [envs.hatch-static-analysis]
 config-path = "ruff_defaults.toml"
 
 [envs.default]
 installer = "uv"
+
+[envs.workspace-test]
+dependencies = [
+  "pytest",
+]
+[envs.workspace-test.scripts]
+validate = [
+  "python -c 'import hatchling; print(\"Workspace member hatchling available\")'",
+  "python -c 'import hatch; print(\"Main project hatch available\")'",
+]
 
 [envs.hatch-test]
 extra-dependencies = [
