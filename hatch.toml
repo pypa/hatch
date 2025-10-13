@@ -23,7 +23,7 @@ post-install-commands = [
 extra-args = ["--dist", "worksteal"]
 
 [envs.hatch-test.extra-scripts]
-pip = "{env:HATCH_UV} pip {args}"
+pip = "'{env:HATCH_UV}' pip {args}"
 
 [envs.coverage]
 detached = true
@@ -118,7 +118,7 @@ update-hatch = [
 ]
 update-distributions = "python scripts/update_distributions.py"
 update-ruff = [
-  "{env:HATCH_UV} pip install --upgrade ruff",
+  "'{env:HATCH_UV}' pip install --upgrade ruff",
   "python scripts/update_ruff.py",
 ]
 
