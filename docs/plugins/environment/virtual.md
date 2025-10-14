@@ -69,6 +69,7 @@ The following options are recognized for internal Python resolution.
 | `3.11` |
 | `3.12` |
 | `3.13` |
+| `3.14` |
 
 The source of distributions is the [python-build-standalone](https://github.com/indygreg/python-build-standalone) project.
 
