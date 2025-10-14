@@ -38,7 +38,7 @@ jobs:
     - name: Install ourself
       run: |
         uv pip install --system -e .
-        uv pip install --system ./backend
+        hatch env create
 
     - name: Configure Git for GitHub Actions bot
       run: |

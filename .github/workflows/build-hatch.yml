@@ -51,8 +51,7 @@ jobs:
       run: |-
         uv pip install --system build
         uv pip install --system .
-        uv pip install --system ./backend
-        
+        hatch env create
 
     # Windows installers don't accept non-integer versions so we ubiquitously
     # perform the following transformation: X.Y.Z.devN -> X.Y.Z.N
@@ -167,8 +166,7 @@ jobs:
     - name: Install Hatch
       run: |-
         uv pip install --system -e .
-        uv pip install --system ./backend
-        
+        hatch env create
 
     - name: Install Rust toolchain
       uses: dtolnay/rust-toolchain@stable

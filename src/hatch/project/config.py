@@ -157,10 +157,8 @@ class ProjectConfig:
             for collector, collector_config in self.env_collectors.items():
                 collector_class = self.plugin_manager.environment_collector.get(collector)
                 if collector_class is None:
-                    from hatchling.plugin.exceptions import UnknownPluginError
-
                     message = f"Unknown environment collector: {collector}"
-                    raise UnknownPluginError(message)
+                    raise ValueError(message)
 
                 environment_collector = collector_class(self.root, collector_config)
                 environment_collectors.append(environment_collector)
