@@ -9,7 +9,7 @@ from pathlib import Path
 def main():
     interpreter = Path(sys.executable).resolve()
 
-    # https://github.com/indygreg/python-build-standalone/blob/20240415/cpython-unix/build-cpython.sh#L812-L813
+    # https://github.com/astral-sh/python-build-standalone/blob/20240415/cpython-unix/build-cpython.sh#L812-L813
     portable_shebang = b'#!/bin/sh\n"exec" "$(dirname $0)/%s" "$0" "$@"\n' % interpreter.name.encode()
 
     scripts_dir = Path(sysconfig.get_path("scripts"))

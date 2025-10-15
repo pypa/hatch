@@ -77,7 +77,6 @@ def test_default_as_json(hatch, temp_dir, config_file):
         "hatch-test.py3.11",
         "hatch-test.py3.10",
         "hatch-test.py3.9",
-        "hatch-test.py3.8",
         "hatch-uv",
     ]
     assert environments["default"] == {"type": "virtual"}
