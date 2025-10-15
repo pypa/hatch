@@ -8,6 +8,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.15.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.15.0) - 2025-10-15 ## {: #hatch-v1.15.0 }
+
+***Changed:***
+
+- Drop support for Python 3.8
+
+***Added:***
+
+- Support Python 3.14
+- Upgrade default CPython distributions to 20251014
+- Upgrade default PyPy distributions to 7.3.20
+
 ## [1.14.2](https://github.com/pypa/hatch/releases/tag/hatch-v1.14.2) - 2025-09-24 ## {: #hatch-v1.14.2 }
 
 ***Fixed:***
