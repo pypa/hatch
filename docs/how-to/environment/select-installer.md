@@ -45,7 +45,7 @@ tool = ["uv", "pip"]
 [tool.hatch.envs.example.overrides]
 matrix.tool.installer = { value = "{matrix:tool}" }
 matrix.tool.scripts = [
-  { key = "pip", value = "{env:HATCH_UV} pip {args}", if = ["uv"] },
+  { key = "pip", value = '"{env:HATCH_UV}" pip {args}', if = ["uv"] },
 ]
 ```
 
@@ -53,5 +53,5 @@ Another common use case is to expose UV to all [test environments](../../config/
 
 ```toml config-example
 [tool.hatch.envs.hatch-test.extra-scripts]
-pip = "{env:HATCH_UV} pip {args}"
+pip = '"{env:HATCH_UV}" pip {args}'
 ```
