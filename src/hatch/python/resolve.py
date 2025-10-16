@@ -281,8 +281,9 @@ def _get_default_variant_gil() -> str:
 
 def _get_distribution_class(source: str) -> type[Distribution]:
     if source.startswith((
-        'https://github.com/indygreg/python-build-standalone/releases/download/',  # Old source added for retrocompatibility
         'https://github.com/astral-sh/python-build-standalone/releases/download/',
+        # TODO: Remove compatibility for the old source
+        'https://github.com/indygreg/python-build-standalone/releases/download/',
     )):
         return CPythonStandaloneDistribution
 
