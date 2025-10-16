@@ -8,6 +8,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.15.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.15.1) - 2025-10-16 ## {: #hatch-v1.15.1 }
+
+***Fixed:***
+
+- Fix compatibility with cached default CPython distributions that were sourced from GitHub releases of the old owner
+
 ## [1.15.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.15.0) - 2025-10-15 ## {: #hatch-v1.15.0 }
 
 ***Changed:***
