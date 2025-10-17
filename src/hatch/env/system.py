@@ -37,11 +37,12 @@ class SystemEnvironment(EnvironmentInterface):
         if not self.dependencies:
             return True
 
-        from hatch.dep.sync import dependencies_in_sync
+        from hatch.dep.sync import InstalledDistributions
 
-        return dependencies_in_sync(
-            self.dependencies_complex, sys_path=self.python_info.sys_path, environment=self.python_info.environment
+        distributions = InstalledDistributions(
+            sys_path=self.python_info.sys_path, environment=self.python_info.environment
         )
+        return distributions.dependencies_in_sync(self.dependencies_complex)
 
     def sync_dependencies(self):
         self.platform.check_command(self.construct_pip_install_command(self.dependencies))

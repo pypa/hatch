@@ -70,8 +70,7 @@ def show(
         app.display(json.dumps(contextual_config, separators=(",", ":")))
         return
 
-    from packaging.requirements import InvalidRequirement, Requirement
-
+    from hatch.dep.core import Dependency, InvalidDependencyError
     from hatchling.metadata.utils import get_normalized_dependency, normalize_project_name
 
     if internal:
@@ -126,8 +125,8 @@ def show(
             normalized_dependencies = set()
             for dependency in dependencies:
                 try:
-                    req = Requirement(dependency)
-                except InvalidRequirement:
+                    req = Dependency(dependency)
+                except InvalidDependencyError:
                     normalized_dependencies.add(dependency)
                 else:
                     normalized_dependencies.add(get_normalized_dependency(req))

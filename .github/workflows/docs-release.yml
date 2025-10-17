@@ -36,7 +36,7 @@ jobs:
     - name: Install ourself
       run: |
         uv pip install --system -e .
-        uv pip install --system -e ./backend
+        hatch env create     
 
     - name: Display full version
       run: hatch version

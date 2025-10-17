@@ -43,7 +43,6 @@ jobs:
     - name: Install ourself
       run: |
         uv pip install --system .
-        uv pip install --system ./backend
 
     - name: Benchmark
       run: |

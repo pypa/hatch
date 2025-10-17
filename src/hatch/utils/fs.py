@@ -131,6 +131,18 @@ class Path(_PathBase):
                 with suppress(FileNotFoundError):
                     shutil.move(str(temp_path), self)
 
+    if sys.platform == "win32":
+
+        @classmethod
+        def from_uri(cls, path: str) -> Path:
+            return cls(path.replace("file:///", "", 1))
+
+    else:
+
+        @classmethod
+        def from_uri(cls, path: str) -> Path:
+            return cls(path.replace("file://", "", 1))
+
     if sys.version_info[:2] < (3, 10):
 
         def resolve(self, strict: bool = False) -> Path:  # noqa: ARG002, FBT001, FBT002
