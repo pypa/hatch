@@ -6,6 +6,18 @@ All notable changes to Hatch will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.15.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.15.0) - 2025-10-15 ## {: #hatch-v1.15.0 }
+
+***Changed:***
+
+- Drop support for Python 3.8
+
+***Added:***
+
+- Support Python 3.14
+- Upgrade default CPython distributions to 20251014
+- Upgrade default PyPy distributions to 7.3.20
+
 ## Unreleased
 
 ***Changed:***

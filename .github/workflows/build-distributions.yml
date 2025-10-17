@@ -12,7 +12,7 @@ defaults:
     shell: bash
 
 env:
-  DIST_URL: "https://github.com/indygreg/python-build-standalone/releases/download"
+  DIST_URL: "https://github.com/astral-sh/python-build-standalone/releases/download"
   DIST_VERSION: "20240415"
   DIST_PYTHON_VERSION: "3.12.3"
   PYTHONDONTWRITEBYTECODE: "1"
