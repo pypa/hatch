@@ -68,6 +68,20 @@ Source = "https://github.com/pypa/hatch"
 [project.scripts]
 hatch = "hatch.cli:main"
 
+[project.entry-points."hatch.environment"]
+system = "hatch.env.system:SystemEnvironment"
+virtual = "hatch.env.virtual:VirtualEnvironment"
+
+[project.entry-points."hatch.environment_collector"]
+custom = "hatch.env.collectors.custom:CustomEnvironmentCollector"
+default = "hatch.env.collectors.default:DefaultEnvironmentCollector"
+
+[project.entry-points."hatch.publisher"]
+index = "hatch.publish.index:IndexPublisher"
+
+[project.entry-points."hatch.template"]
+default = "hatch.template.default:DefaultTemplate"
+
 [tool.hatch.version]
 source = "vcs"
 
