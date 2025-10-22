@@ -37,12 +37,12 @@ def find_workspace_root(path: Path) -> Path | None:
     while current.parent != current:
         # Check hatch.toml first
         hatch_toml = current / "hatch.toml"
-        if hatch_toml.exists() and _has_workspace_config(load_toml_file, str(hatch_toml), "workspace"):
+        if hatch_toml.is_file() and _has_workspace_config(load_toml_file, str(hatch_toml), "workspace"):
             return current
 
         # Then check pyproject.toml
         pyproject = current / "pyproject.toml"
-        if pyproject.exists() and _has_workspace_config(load_toml_file, str(pyproject), "tool.hatch.workspace"):
+        if pyproject.is_file() and _has_workspace_config(load_toml_file, str(pyproject), "tool.hatch.workspace"):
             return current
 
         current = current.parent

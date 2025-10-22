@@ -3,7 +3,6 @@ from __future__ import annotations
 import os
 import sys
 from abc import ABC, abstractmethod
-from collections.abc import Generator
 from contextlib import contextmanager
 from functools import cached_property
 from os.path import isabs
@@ -145,6 +144,13 @@ class EnvironmentInterface(ABC):
         ```
         """
         return self.__config
+
+    @property
+    def project_config(self) -> dict:
+        """
+            This returns the top level project config when we are in a workspace monorepo type of environment
+        """
+        return getattr(self.app.project.config, "workspace", None) if self.app.project else None
 
     @cached_property
     def project_root(self) -> str:
@@ -393,9 +399,20 @@ class EnvironmentInterface(ABC):
     def all_dependencies_complex(self) -> list[Dependency]:
         from hatch.dep.core import Dependency
 
-        all_dependencies_complex = list(self.local_dependencies_complex)
-        all_dependencies_complex.extend(self.dependencies_complex)
-        return [dep if isinstance(dep, Dependency) else Dependency(str(dep)) for dep in all_dependencies_complex]
+        local_deps = list(self.local_dependencies_complex)
+        other_deps = list(self.dependencies_complex)
+
+        # Create workspace member name set for conflict detection
+        workspace_names = {dep.name.lower() for dep in local_deps}
+
+        # Filter out conflicting dependencies, keeping only workspace versions
+        filtered_deps = [
+            dep if isinstance(dep, Dependency) else Dependency(str(dep))
+            for dep in other_deps
+            if dep.name.lower() not in workspace_names
+        ]
+        # Workspace members first to ensure precedence
+        return local_deps + filtered_deps
 
     @cached_property
     def all_dependencies(self) -> list[str]:
@@ -596,7 +613,7 @@ class EnvironmentInterface(ABC):
     @cached_property
     def workspace(self) -> Workspace:
         # Start with project-level workspace configuration
-        project_workspace_config = getattr(self.app.project.config, "workspace", None) if self.app.project else None
+        project_workspace_config = self.project_config
 
         # Get environment-level workspace configuration
         env_config = self.config.get("workspace", {})

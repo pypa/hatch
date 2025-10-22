@@ -198,14 +198,34 @@ class VirtualEnvironment(EnvironmentInterface):
 
     def sync_dependencies(self):
         with self.safe_activation():
+            # Get workspace member names for conflict resolution
+            workspace_names = {
+                dep.name.lower() for dep in self.local_dependencies_complex
+            }
+
+            # Separate dependencies by type and filter conflicts
             standard_dependencies: list[str] = []
             editable_dependencies: list[str] = []
+
             for dependency in self.missing_dependencies:
+                # Skip if workspace member exists
+                if dependency.name.lower() in workspace_names:
+                    continue
+
                 if not dependency.editable or dependency.path is None:
                     standard_dependencies.append(str(dependency))
                 else:
                     editable_dependencies.append(str(dependency.path))
 
+            # Install workspace members first
+            workspace_deps = [str(dep.path) for dep in self.local_dependencies_complex]
+            if workspace_deps:
+                editable_args = []
+                for dep_path in workspace_deps:
+                    editable_args.extend(["--editable", dep_path])
+                self.platform.check_command(self.construct_pip_install_command(editable_args))
+
+            # Then install other dependencies
             if standard_dependencies:
                 self.platform.check_command(self.construct_pip_install_command(standard_dependencies))
 
