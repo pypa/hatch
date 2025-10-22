@@ -150,7 +150,7 @@ class EnvironmentInterface(ABC):
         """
         This returns the top level project config when we are in a workspace monorepo type of environment
         """
-        return getattr(self.app.project.config, "workspace", None) if self.app.project else None
+        return self.app.project
 
     @cached_property
     def project_root(self) -> str:
@@ -613,7 +613,9 @@ class EnvironmentInterface(ABC):
     @cached_property
     def workspace(self) -> Workspace:
         # Start with project-level workspace configuration
-        project_workspace_config = self.project_config
+        project_workspace_config = None
+        if self.project_config:
+            project_workspace_config = getattr(self.project_config, "workspace_config", None)
 
         # Get environment-level workspace configuration
         env_config = self.config.get("workspace", {})
