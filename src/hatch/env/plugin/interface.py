@@ -148,7 +148,7 @@ class EnvironmentInterface(ABC):
     @property
     def project_config(self) -> dict:
         """
-            This returns the top level project config when we are in a workspace monorepo type of environment
+        This returns the top level project config when we are in a workspace monorepo type of environment
         """
         return getattr(self.app.project.config, "workspace", None) if self.app.project else None
 

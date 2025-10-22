@@ -199,9 +199,7 @@ class VirtualEnvironment(EnvironmentInterface):
     def sync_dependencies(self):
         with self.safe_activation():
             # Get workspace member names for conflict resolution
-            workspace_names = {
-                dep.name.lower() for dep in self.local_dependencies_complex
-            }
+            workspace_names = {dep.name.lower() for dep in self.local_dependencies_complex}
 
             # Separate dependencies by type and filter conflicts
             standard_dependencies: list[str] = []
