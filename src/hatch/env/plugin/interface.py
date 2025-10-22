@@ -612,10 +612,10 @@ class EnvironmentInterface(ABC):
 
     @cached_property
     def workspace(self) -> Workspace:
-        # Start with project-level workspace configuration
+        # Get project-level workspace configuration
         project_workspace_config = None
-        if self.project_config:
-            project_workspace_config = getattr(self.project_config, "workspace_config", None)
+        if hasattr(self.app, 'project') and hasattr(self.app.project, 'config'):
+            project_workspace_config = self.app.project.config.workspace
 
         # Get environment-level workspace configuration
         env_config = self.config.get("workspace", {})
