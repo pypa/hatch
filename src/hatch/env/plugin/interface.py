@@ -614,7 +614,7 @@ class EnvironmentInterface(ABC):
     def workspace(self) -> Workspace:
         # Get project-level workspace configuration
         project_workspace_config = None
-        if hasattr(self.app, 'project') and hasattr(self.app.project, 'config'):
+        if hasattr(self.app, "project") and hasattr(self.app.project, "config"):
             project_workspace_config = self.app.project.config.workspace
 
         # Get environment-level workspace configuration
