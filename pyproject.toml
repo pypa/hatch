@@ -22,6 +22,7 @@ keywords = [
 ]
 authors = [
   { name = "Ofek Lev", email = "oss@ofek.dev" },
+  { name = "Cary Hawkins", email = "hawkinscary23@gmail.com" },
 ]
 classifiers = [
   "Development Status :: 5 - Production/Stable",
@@ -68,8 +69,6 @@ Source = "https://github.com/pypa/hatch"
 [project.scripts]
 hatch = "hatch.cli:main"
 
-[tool.hatch.workspace]
-members = ["backend/"]
 
 [tool.hatch.version]
 source = "vcs"

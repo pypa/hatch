@@ -1,28 +1,23 @@
 class TestWorkspaceConfiguration:
     def test_workspace_members_editable_install(self, temp_dir, hatch):
         """Test that workspace members are installed as editable packages."""
-        # Create workspace root
         workspace_root = temp_dir / "workspace"
         workspace_root.mkdir()
 
-        # Create workspace pyproject.toml
         workspace_config = workspace_root / "pyproject.toml"
         workspace_config.write_text("""
 [project]
 name = "workspace-root"
 version = "0.1.0"
-[tool.hatch.workspace]
-members = ["packages/*"]
 
 [tool.hatch.envs.default]
 type = "virtual"
+workspace.members = ["packages/*"]
 """)
 
-        # Create workspace members
         packages_dir = workspace_root / "packages"
         packages_dir.mkdir()
 
-        # Member 1
         member1_dir = packages_dir / "member1"
         member1_dir.mkdir()
         (member1_dir / "pyproject.toml").write_text("""
@@ -32,7 +27,6 @@ version = "0.1.0"
 dependencies = ["requests"]
 """)
 
-        # Member 2
         member2_dir = packages_dir / "member2"
         member2_dir.mkdir()
         (member2_dir / "pyproject.toml").write_text("""
@@ -43,11 +37,9 @@ dependencies = ["click"]
 """)
 
         with workspace_root.as_cwd():
-            # Test environment creation includes workspace members
             result = hatch("env", "create")
             assert result.exit_code == 0
 
-            # Verify workspace members are discovered
             result = hatch("env", "show", "--json")
             assert result.exit_code == 0
 
@@ -61,15 +53,15 @@ dependencies = ["click"]
 [project]
 name = "workspace-root"
 version = "0.1.0"
-[tool.hatch.workspace]
-members = ["packages/*"]
-exclude = ["packages/excluded*"]
+
+[tool.hatch.envs.default]
+workspace.members = ["packages/*"]
+workspace.exclude = ["packages/excluded*"]
 """)
 
         packages_dir = workspace_root / "packages"
         packages_dir.mkdir()
 
-        # Included member
         included_dir = packages_dir / "included"
         included_dir.mkdir()
         (included_dir / "pyproject.toml").write_text("""
@@ -78,7 +70,6 @@ name = "included"
 version = "0.1.0"
 """)
 
-        # Excluded member
         excluded_dir = packages_dir / "excluded-pkg"
         excluded_dir.mkdir()
         (excluded_dir / "pyproject.toml").write_text("""
@@ -101,17 +92,15 @@ version = "0.1.0"
 [project]
 name = "workspace-root"
 version = "0.1.0"
-[tool.hatch.workspace]
-members = ["packages/*"]
 
 [tool.hatch.envs.default]
+workspace.members = ["packages/*"]
 workspace.parallel = true
 """)
 
         packages_dir = workspace_root / "packages"
         packages_dir.mkdir()
 
-        # Create multiple members
         for i in range(3):
             member_dir = packages_dir / f"member{i}"
             member_dir.mkdir()
@@ -136,6 +125,7 @@ dependencies = ["requests"]
 [project]
 name = "workspace-root"
 version = "0.1.0"
+
 [tool.hatch.envs.default]
 workspace.members = [
     {path = "packages/member1", features = ["dev", "test"]}
@@ -166,14 +156,14 @@ test = ["pytest"]
         workspace_root = temp_dir / "workspace"
         workspace_root.mkdir()
 
-        # Workspace root with shared environment
         workspace_config = workspace_root / "pyproject.toml"
         workspace_config.write_text("""
 [project]
 name = "workspace-root"
 version = "0.1.0"
-[tool.hatch.workspace]
-members = ["packages/*"]
+
+[tool.hatch.envs.default]
+workspace.members = ["packages/*"]
 
 [tool.hatch.envs.shared]
 dependencies = ["pytest", "black"]
@@ -183,23 +173,21 @@ scripts.test = "pytest"
         packages_dir = workspace_root / "packages"
         packages_dir.mkdir()
 
-        # Member without local shared environment
         member_dir = packages_dir / "member1"
         member_dir.mkdir()
         (member_dir / "pyproject.toml").write_text("""
 [project]
 name = "member1"
 version = "0.1.0"
+
 [tool.hatch.envs.default]
 dependencies = ["requests"]
 """)
 
-        # Test from workspace root
         with workspace_root.as_cwd():
             result = hatch("env", "show", "shared")
             assert result.exit_code == 0
 
-        # Test from member directory
         with member_dir.as_cwd():
             result = hatch("env", "show", "shared")
             assert result.exit_code == 0
@@ -214,6 +202,7 @@ dependencies = ["requests"]
 [project]
 name = "workspace-root"
 version = "0.1.0"
+
 [tool.hatch.envs.default]
 dependencies = ["requests"]
 """)
@@ -235,14 +224,14 @@ dependencies = ["requests"]
 [project]
 name = "workspace-root"
 version = "0.1.0"
-[tool.hatch.workspace]
-members = ["packages/*"]
+
+[tool.hatch.envs.default]
+workspace.members = ["packages/*"]
 """)
 
         packages_dir = workspace_root / "packages"
         packages_dir.mkdir()
 
-        # Base library
         base_dir = packages_dir / "base"
         base_dir.mkdir()
         (base_dir / "pyproject.toml").write_text("""
@@ -252,7 +241,6 @@ version = "0.1.0"
 dependencies = ["requests"]
 """)
 
-        # App depending on base
         app_dir = packages_dir / "app"
         app_dir.mkdir()
         (app_dir / "pyproject.toml").write_text("""
@@ -266,7 +254,6 @@ dependencies = ["base", "click"]
             result = hatch("env", "create")
             assert result.exit_code == 0
 
-            # Test that dependencies are resolved
             result = hatch("dep", "show", "table")
             assert result.exit_code == 0
 
@@ -275,53 +262,89 @@ dependencies = ["base", "click"]
         workspace_root = temp_dir / "workspace"
         workspace_root.mkdir()
 
-        # Create workspace root package
         workspace_pkg = workspace_root / "workspace_root"
         workspace_pkg.mkdir()
         (workspace_pkg / "__init__.py").write_text('__version__ = "0.1.0"')
 
         workspace_config = workspace_root / "pyproject.toml"
         workspace_config.write_text("""
-    [project]
-    name = "workspace-root"
-    version = "0.1.0"
+[project]
+name = "workspace-root"
+version = "0.1.0"
 
-    [tool.hatch.workspace]
-    members = ["packages/*"]
+[tool.hatch.envs.default]
+workspace.members = ["packages/*"]
 
-    [build-system]
-    requires = ["hatchling"]
-    build-backend = "hatchling.build"
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
-    [tool.hatch.build.targets.wheel]
-    packages = ["workspace_root"]
-    """)
+[tool.hatch.build.targets.wheel]
+packages = ["workspace_root"]
+""")
 
         packages_dir = workspace_root / "packages"
         packages_dir.mkdir()
 
-        # Create buildable members
         for i in range(2):
             member_dir = packages_dir / f"member{i}"
             member_dir.mkdir()
             (member_dir / "pyproject.toml").write_text(f"""
-    [project]
-    name = "member{i}"
-    version = "0.1.{i}"
+[project]
+name = "member{i}"
+version = "0.1.{i}"
 
-    [build-system]
-    requires = ["hatchling"]
-    build-backend = "hatchling.build"
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
-    [tool.hatch.build.targets.wheel]
-    packages = ["member{i}"]
-    """)
+[tool.hatch.build.targets.wheel]
+packages = ["member{i}"]
+""")
 
-            # Create source files
             src_dir = member_dir / f"member{i}"
             src_dir.mkdir()
             (src_dir / "__init__.py").write_text(f'__version__ = "0.1.{i}"')
 
         with workspace_root.as_cwd():
             result = hatch("build")
+            assert result.exit_code == 0
+
+    def test_environment_specific_workspace_slices(self, temp_dir, hatch):
+        """Test different workspace slices per environment."""
+        workspace_root = temp_dir / "workspace"
+        workspace_root.mkdir()
+
+        workspace_config = workspace_root / "pyproject.toml"
+        workspace_config.write_text("""
+[project]
+name = "workspace-root"
+version = "0.1.0"
+
+[tool.hatch.envs.unit-tests]
+workspace.members = ["packages/core", "packages/utils"]
+scripts.test = "pytest tests/unit"
+
+[tool.hatch.envs.integration-tests]
+workspace.members = ["packages/*"]
+scripts.test = "pytest tests/integration"
+""")
+
+        packages_dir = workspace_root / "packages"
+        packages_dir.mkdir()
+
+        for pkg in ["core", "utils", "extras"]:
+            pkg_dir = packages_dir / pkg
+            pkg_dir.mkdir()
+            (pkg_dir / "pyproject.toml").write_text(f"""
+[project]
+name = "{pkg}"
+version = "0.1.0"
+""")
+
+        with workspace_root.as_cwd():
+            result = hatch("env", "create", "unit-tests")
+            assert result.exit_code == 0
+
+            result = hatch("env", "create", "integration-tests")
             assert result.exit_code == 0

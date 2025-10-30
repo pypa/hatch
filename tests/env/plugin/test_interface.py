@@ -2156,21 +2156,19 @@ class TestWorkspaceConfig:
             "tool": {"hatch": {"envs": {"default": {"workspace": 9000}}}},
         }
         project = Project(isolation, config=config)
-        environment = MockEnvironment(
-            isolation,
-            project.metadata,
-            "default",
-            project.config.envs["default"],
-            {},
-            isolated_data_dir,
-            isolated_data_dir,
-            platform,
-            0,
-            global_application,
-        )
-
-        with pytest.raises(TypeError, match="Field `tool.hatch.envs.default.workspace` must be a table"):
-            _ = environment.workspace
+        with pytest.raises(TypeError, match="Field workspace must be a table"):
+            MockEnvironment(
+                isolation,
+                project.metadata,
+                "default",
+                project.config.envs["default"],  # Exception raised here
+                {},
+                isolated_data_dir,
+                isolated_data_dir,
+                platform,
+                0,
+                global_application,
+            )
 
     def test_parallel_not_boolean(self, isolation, isolated_data_dir, platform, global_application):
         config = {
@@ -2239,21 +2237,19 @@ class TestWorkspaceConfig:
             "tool": {"hatch": {"envs": {"default": {"workspace": {"members": 9000}}}}},
         }
         project = Project(isolation, config=config)
-        environment = MockEnvironment(
-            isolation,
-            project.metadata,
-            "default",
-            project.config.envs["default"],
-            {},
-            isolated_data_dir,
-            isolated_data_dir,
-            platform,
-            0,
-            global_application,
-        )
-
-        with pytest.raises(TypeError, match="Field `tool.hatch.envs.default.workspace.members` must be an array"):
-            _ = environment.workspace.members
+        with pytest.raises(TypeError, match="Field workspace.members must be an array"):
+            MockEnvironment(
+                isolation,
+                project.metadata,
+                "default",
+                project.config.envs["default"],  # Exception raised here
+                {},
+                isolated_data_dir,
+                isolated_data_dir,
+                platform,
+                0,
+                global_application,
+            )
 
     def test_member_invalid_type(self, isolation, isolated_data_dir, platform, global_application):
         config = {
@@ -2261,24 +2257,19 @@ class TestWorkspaceConfig:
             "tool": {"hatch": {"envs": {"default": {"workspace": {"members": [9000]}}}}},
         }
         project = Project(isolation, config=config)
-        environment = MockEnvironment(
-            isolation,
-            project.metadata,
-            "default",
-            project.config.envs["default"],
-            {},
-            isolated_data_dir,
-            isolated_data_dir,
-            platform,
-            0,
-            global_application,
-        )
-
-        with pytest.raises(
-            TypeError,
-            match="Member #1 of field `tool.hatch.envs.default.workspace.members` must be a string or an inline table",
-        ):
-            _ = environment.workspace.members
+        with pytest.raises(TypeError, match="Member #1 must be a string or table"):
+            MockEnvironment(
+                isolation,
+                project.metadata,
+                "default",
+                project.config.envs["default"],  # Exception raised here
+                {},
+                isolated_data_dir,
+                isolated_data_dir,
+                platform,
+                0,
+                global_application,
+            )
 
     def test_member_no_path(self, isolation, isolated_data_dir, platform, global_application):
         config = {
@@ -2286,24 +2277,19 @@ class TestWorkspaceConfig:
             "tool": {"hatch": {"envs": {"default": {"workspace": {"members": [{}]}}}}},
         }
         project = Project(isolation, config=config)
-        environment = MockEnvironment(
-            isolation,
-            project.metadata,
-            "default",
-            project.config.envs["default"],
-            {},
-            isolated_data_dir,
-            isolated_data_dir,
-            platform,
-            0,
-            global_application,
-        )
-
-        with pytest.raises(
-            TypeError,
-            match="Member #1 of field `tool.hatch.envs.default.workspace.members` must define a `path` key",
-        ):
-            _ = environment.workspace.members
+        with pytest.raises(TypeError, match="Member #1 must define a `path` key"):
+            MockEnvironment(
+                isolation,
+                project.metadata,
+                "default",
+                project.config.envs["default"],  # Exception raised here
+                {},
+                isolated_data_dir,
+                isolated_data_dir,
+                platform,
+                0,
+                global_application,
+            )
 
     def test_member_path_not_string(self, isolation, isolated_data_dir, platform, global_application):
         config = {
@@ -2311,24 +2297,19 @@ class TestWorkspaceConfig:
             "tool": {"hatch": {"envs": {"default": {"workspace": {"members": [{"path": 9000}]}}}}},
         }
         project = Project(isolation, config=config)
-        environment = MockEnvironment(
-            isolation,
-            project.metadata,
-            "default",
-            project.config.envs["default"],
-            {},
-            isolated_data_dir,
-            isolated_data_dir,
-            platform,
-            0,
-            global_application,
-        )
-
-        with pytest.raises(
-            TypeError,
-            match="Option `path` of member #1 of field `tool.hatch.envs.default.workspace.members` must be a string",
-        ):
-            _ = environment.workspace.members
+        with pytest.raises(TypeError, match="Member #1 path must be a string"):
+            MockEnvironment(
+                isolation,
+                project.metadata,
+                "default",
+                project.config.envs["default"],  # Exception raised here
+                {},
+                isolated_data_dir,
+                isolated_data_dir,
+                platform,
+                0,
+                global_application,
+            )
 
     def test_member_path_empty_string(self, isolation, isolated_data_dir, platform, global_application):
         config = {

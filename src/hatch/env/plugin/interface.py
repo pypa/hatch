@@ -146,11 +146,33 @@ class EnvironmentInterface(ABC):
         return self.__config
 
     @property
-    def project_config(self) -> dict:
+    def workspace_members(self) -> list[str]:
         """
-        This returns the top level project config when we are in a workspace monorepo type of environment
+        ```
+        toml config-example
+        [tool.hatch.envs.<ENV_NAME>]
+        members = ["Package/*"]
+        ```
         """
-        return self.app.project
+        workspace_config = self.config.get("workspace", {})
+        if not isinstance(workspace_config, dict):
+            return []
+        return workspace_config.get("members", [])
+
+    @property
+    def workspace_exclude(self) -> list[str]:
+        """
+        ```
+        toml config-example
+        [tool.hatch.envs.<ENV_NAME>]
+        members = ["Package/*"]
+        exclude = ["/foo"]
+        ```
+        """
+        workspace_config = self.config.get("workspace", {})
+        if not isinstance(workspace_config, dict):
+            return []
+        return workspace_config.get("exclude", [])
 
     @cached_property
     def project_root(self) -> str:
@@ -612,32 +634,12 @@ class EnvironmentInterface(ABC):
 
     @cached_property
     def workspace(self) -> Workspace:
-        # Get project-level workspace configuration
-        project_workspace_config = None
-        if hasattr(self.app, "project") and hasattr(self.app.project, "config"):
-            project_workspace_config = self.app.project.config.workspace
-
-        # Get environment-level workspace configuration
         env_config = self.config.get("workspace", {})
         if not isinstance(env_config, dict):
             message = f"Field `tool.hatch.envs.{self.name}.workspace` must be a table"
             raise TypeError(message)
 
-        # Merge configurations: project-level as base, environment-level as override
-        merged_config = {}
-
-        # Inherit project-level members if no environment-level members specified
-        if project_workspace_config and project_workspace_config.members and "members" not in env_config:
-            merged_config["members"] = project_workspace_config.members
-
-        # Inherit project-level exclude if no environment-level exclude specified
-        if project_workspace_config and project_workspace_config.exclude and "exclude" not in env_config:
-            merged_config["exclude"] = project_workspace_config.exclude
-
-        # Apply environment-level overrides
-        merged_config.update(env_config)
-
-        return Workspace(self, merged_config)
+        return Workspace(self, env_config)
 
     def activate(self):
         """
@@ -1102,7 +1104,7 @@ class Workspace:
         if not raw_members:
             return []
 
-        # First normalize configuration
+        # Normalize configuration
         member_data: list[dict[str, Any]] = []
         for i, data in enumerate(raw_members, 1):
             if isinstance(data, str):
@@ -1175,31 +1177,27 @@ class Workspace:
         root = str(self.env.root)
         member_paths: dict[str, WorkspaceMember] = {}
         for data in member_data:
-            # Given root R and member spec M, we need to find:
-            #
-            # 1. The absolute path AP of R/M
-            # 2. The shared prefix SP of R and AP
-            # 3. The relative path RP of M from AP
-            #
-            # For example, if:
-            #
-            # R = /foo/bar/baz
-            # M = ../dir/pkg-*
-            #
-            # Then:
-            #
-            # AP = /foo/bar/dir/pkg-*
-            # SP = /foo/bar
-            # RP = dir/pkg-*
             path_spec = data["path"]
-            normalized_path = os.path.normpath(os.path.join(root, path_spec))
-            absolute_path = os.path.abspath(normalized_path)
-            shared_prefix = os.path.commonprefix([root, absolute_path])
-            relative_path = os.path.relpath(absolute_path, shared_prefix)
 
-            # Now we have the necessary information to perform an optimized glob search for members
+            # Convert path spec to components for find_members
+            if os.path.isabs(path_spec):
+                try:
+                    relative_path = os.path.relpath(path_spec, root)
+                except ValueError:
+                    relative_path = path_spec
+            else:
+                relative_path = path_spec
+
+            # Normalize and split path - handle empty components
+            normalized_path = relative_path.replace("\\", "/")
+            path_components = [c for c in normalized_path.split("/") if c and c != "."]
+
+            # Handle empty path components case
+            if not path_components:
+                path_components = ["."]
+
             members_found = False
-            for member_path in find_members(root, relative_path.split(os.sep)):
+            for member_path in find_members(root, path_components):
                 project_file = os.path.join(member_path, "pyproject.toml")
                 if not os.path.isfile(project_file):
                     message = (
@@ -1224,7 +1222,7 @@ class Workspace:
             if not members_found:
                 message = (
                     f"No members could be derived from `{path_spec}` of field "
-                    f"`tool.hatch.envs.{self.env.name}.workspace.members`: {absolute_path}"
+                    f"`tool.hatch.envs.{self.env.name}.workspace.members`: {os.path.join(root, relative_path)}"
                 )
                 raise OSError(message)
 

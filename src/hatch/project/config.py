@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 import re
 from copy import deepcopy
 from functools import cached_property
@@ -12,7 +11,6 @@ from hatch.env.utils import ensure_valid_environment
 from hatch.project.constants import DEFAULT_BUILD_DIRECTORY, BuildEnvVars
 from hatch.project.env import apply_overrides
 from hatch.project.utils import format_script_commands, parse_script_command
-from hatch.utils.fs import Path
 
 if TYPE_CHECKING:
     from hatch.dep.core import Dependency
@@ -501,14 +499,6 @@ class ProjectConfig:
 
         return self._scripts
 
-    @cached_property
-    def workspace(self) -> WorkspaceConfig:
-        config = self.config.get("workspace", {})
-        if not isinstance(config, dict):
-            message = "Field `tool.hatch.workspace` must be a table"
-            raise TypeError(message)
-        return WorkspaceConfig(config, self.root)
-
     def finalize_env_overrides(self, option_types):
         # We lazily apply overrides because we need type information potentially defined by
         # environment plugins for their options
@@ -734,93 +724,6 @@ def finalize_hook_config(hook_config: dict[str, dict[str, Any]]) -> dict[str, di
         )
     }
     return final_hook_config
-
-
-class WorkspaceConfig:
-    def __init__(self, config: dict[str, Any], root: Path):
-        self.__config = config
-        self.__root = root
-
-    @cached_property
-    def members(self) -> list[str]:
-        members = self.__config.get("members", [])
-        if not isinstance(members, list):
-            message = "Field `tool.hatch.workspace.members` must be an array"
-            raise TypeError(message)
-        return members
-
-    @cached_property
-    def exclude(self) -> list[str]:
-        exclude = self.__config.get("exclude", [])
-        if not isinstance(exclude, list):
-            message = "Field `tool.hatch.workspace.exclude` must be an array"
-            raise TypeError(message)
-        return exclude
-
-    @cached_property
-    def discovered_member_paths(self) -> list[Path]:
-        """Discover workspace member paths using the existing find_members function."""
-        from hatch.env.plugin.interface import find_members
-
-        discovered_paths = []
-
-        for member_pattern in self.members:
-            # Convert to absolute path for processing
-            pattern_path = self.__root / member_pattern if not os.path.isabs(member_pattern) else Path(member_pattern)
-
-            # Normalize and get relative components for find_members
-            normalized_path = os.path.normpath(str(pattern_path))
-            absolute_path = os.path.abspath(normalized_path)
-            shared_prefix = os.path.commonprefix([str(self.__root), absolute_path])
-            relative_path = os.path.relpath(absolute_path, shared_prefix)
-
-            # Use existing find_members function
-            for member_path in find_members(str(self.__root), relative_path.split(os.sep)):
-                project_file = os.path.join(member_path, "pyproject.toml")
-                if os.path.isfile(project_file):
-                    discovered_paths.append(Path(member_path))
-
-        return discovered_paths
-
-    def validate_workspace_members(self) -> list[str]:
-        """Validate workspace members and return errors."""
-        errors = []
-
-        for member_pattern in self.members:
-            try:
-                # Test if pattern finds any members
-                if not os.path.isabs(member_pattern):
-                    pattern_path = self.__root / member_pattern
-                else:
-                    pattern_path = Path(member_pattern)
-
-                normalized_path = os.path.normpath(str(pattern_path))
-                absolute_path = os.path.abspath(normalized_path)
-                shared_prefix = os.path.commonprefix([str(self.__root), absolute_path])
-                relative_path = os.path.relpath(absolute_path, shared_prefix)
-
-                from hatch.env.plugin.interface import find_members
-
-                members_found = False
-
-                for member_path in find_members(str(self.__root), relative_path.split(os.sep)):
-                    project_file = os.path.join(member_path, "pyproject.toml")
-                    if os.path.isfile(project_file):
-                        members_found = True
-                        break
-
-                if not members_found:
-                    errors.append(f"No workspace members found for pattern: {member_pattern}")
-
-            except (OSError, ValueError, TypeError) as e:
-                errors.append(f"Error processing workspace member pattern '{member_pattern}': {e}")
-
-        return errors
-
-    @property
-    def config(self) -> dict[str, Any]:
-        """Access to raw config for backward compatibility."""
-        return self.__config
 
 
 def env_var_enabled(env_var: str, *, default: bool = False) -> bool:
