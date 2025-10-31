@@ -11,12 +11,12 @@ dependencies = [
 ]
 
 [envs.hatch-test]
+workspace.members = ["backend/"]
 extra-dependencies = [
   "filelock",
   "flit-core",
   "pyfakefs",
   "trustme",
-  # Hatchling dynamic dependency
   "editables",
 ]
 extra-args = ["--dist", "worksteal"]

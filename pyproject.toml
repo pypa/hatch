@@ -69,7 +69,6 @@ Source = "https://github.com/pypa/hatch"
 [project.scripts]
 hatch = "hatch.cli:main"
 
-
 [tool.hatch.version]
 source = "vcs"
 
