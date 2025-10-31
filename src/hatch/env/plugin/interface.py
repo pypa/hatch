@@ -1092,6 +1092,8 @@ class Workspace:
 
     @cached_property
     def members(self) -> list[WorkspaceMember]:
+        import fnmatch
+
         from hatch.project.core import Project
         from hatch.utils.fs import Path
         from hatchling.metadata.utils import normalize_project_name
@@ -1104,75 +1106,87 @@ class Workspace:
         if not raw_members:
             return []
 
-        # Normalize configuration
+        # Get exclude patterns
+        exclude_patterns = self.config.get("exclude", [])
+        if not isinstance(exclude_patterns, list):
+            message = f"Field `tool.hatch.envs.{self.env.name}.workspace.exclude` must be an array"
+            raise TypeError(message)
+
+        # Normalize configuration with context expansion
         member_data: list[dict[str, Any]] = []
-        for i, data in enumerate(raw_members, 1):
-            if isinstance(data, str):
-                member_data.append({"path": data, "features": ()})
-            elif isinstance(data, dict):
-                if "path" not in data:
-                    message = (
-                        f"Member #{i} of field `tool.hatch.envs.{self.env.name}.workspace.members` must define "
-                        f"a `path` key"
-                    )
-                    raise TypeError(message)
-
-                path = data["path"]
-                if not isinstance(path, str):
-                    message = (
-                        f"Option `path` of member #{i} of field `tool.hatch.envs.{self.env.name}.workspace.members` "
-                        f"must be a string"
-                    )
-                    raise TypeError(message)
-
-                if not path:
-                    message = (
-                        f"Option `path` of member #{i} of field `tool.hatch.envs.{self.env.name}.workspace.members` "
-                        f"cannot be an empty string"
-                    )
-                    raise ValueError(message)
-
-                features = data.get("features", [])
-                if not isinstance(features, list):
-                    message = (
-                        f"Option `features` of member #{i} of field `tool.hatch.envs.{self.env.name}.workspace."
-                        f"members` must be an array of strings"
-                    )
-                    raise TypeError(message)
-
-                all_features: set[str] = set()
-                for j, feature in enumerate(features, 1):
-                    if not isinstance(feature, str):
+        with self.env.apply_context():
+            for i, data in enumerate(raw_members, 1):
+                if isinstance(data, str):
+                    # Apply context expansion to path
+                    expanded_path = self.env.metadata.context.format(data)
+                    member_data.append({"path": expanded_path, "features": ()})
+                elif isinstance(data, dict):
+                    if "path" not in data:
                         message = (
-                            f"Feature #{j} of option `features` of member #{i} of field "
-                            f"`tool.hatch.envs.{self.env.name}.workspace.members` must be a string"
+                            f"Member #{i} of field `tool.hatch.envs.{self.env.name}.workspace.members` must define "
+                            f"a `path` key"
                         )
                         raise TypeError(message)
 
-                    if not feature:
+                    path = data["path"]
+                    if not isinstance(path, str):
                         message = (
-                            f"Feature #{j} of option `features` of member #{i} of field "
-                            f"`tool.hatch.envs.{self.env.name}.workspace.members` cannot be an empty string"
+                            f"Option `path` of member #{i} of field `tool.hatch.envs.{self.env.name}.workspace.members` "
+                            f"must be a string"
+                        )
+                        raise TypeError(message)
+
+                    if not path:
+                        message = (
+                            f"Option `path` of member #{i} of field `tool.hatch.envs.{self.env.name}.workspace.members` "
+                            f"cannot be an empty string"
                         )
                         raise ValueError(message)
 
-                    normalized_feature = normalize_project_name(feature)
-                    if normalized_feature in all_features:
+                    # Apply context expansion to path
+                    expanded_path = self.env.metadata.context.format(path)
+
+                    features = data.get("features", [])
+                    if not isinstance(features, list):
                         message = (
-                            f"Feature #{j} of option `features` of member #{i} of field "
-                            f"`tool.hatch.envs.{self.env.name}.workspace.members` is a duplicate"
+                            f"Option `features` of member #{i} of field `tool.hatch.envs.{self.env.name}.workspace."
+                            f"members` must be an array of strings"
                         )
-                        raise ValueError(message)
+                        raise TypeError(message)
 
-                    all_features.add(normalized_feature)
+                    all_features: set[str] = set()
+                    for j, feature in enumerate(features, 1):
+                        if not isinstance(feature, str):
+                            message = (
+                                f"Feature #{j} of option `features` of member #{i} of field "
+                                f"`tool.hatch.envs.{self.env.name}.workspace.members` must be a string"
+                            )
+                            raise TypeError(message)
 
-                member_data.append({"path": path, "features": tuple(sorted(all_features))})
-            else:
-                message = (
-                    f"Member #{i} of field `tool.hatch.envs.{self.env.name}.workspace.members` must be "
-                    f"a string or an inline table"
-                )
-                raise TypeError(message)
+                        if not feature:
+                            message = (
+                                f"Feature #{j} of option `features` of member #{i} of field "
+                                f"`tool.hatch.envs.{self.env.name}.workspace.members` cannot be an empty string"
+                            )
+                            raise ValueError(message)
+
+                        normalized_feature = normalize_project_name(feature)
+                        if normalized_feature in all_features:
+                            message = (
+                                f"Feature #{j} of option `features` of member #{i} of field "
+                                f"`tool.hatch.envs.{self.env.name}.workspace.members` is a duplicate"
+                            )
+                            raise ValueError(message)
+
+                        all_features.add(normalized_feature)
+
+                    member_data.append({"path": expanded_path, "features": tuple(sorted(all_features))})
+                else:
+                    message = (
+                        f"Member #{i} of field `tool.hatch.envs.{self.env.name}.workspace.members` must be "
+                        f"a string or an inline table"
+                    )
+                    raise TypeError(message)
 
         root = str(self.env.root)
         member_paths: dict[str, WorkspaceMember] = {}
@@ -1198,6 +1212,19 @@ class Workspace:
 
             members_found = False
             for member_path in find_members(root, path_components):
+                # Check if member should be excluded
+                relative_member_path = os.path.relpath(member_path, root)
+                should_exclude = False
+                for exclude_pattern in exclude_patterns:
+                    if fnmatch.fnmatch(relative_member_path, exclude_pattern) or fnmatch.fnmatch(
+                        member_path, exclude_pattern
+                    ):
+                        should_exclude = True
+                        break
+
+                if should_exclude:
+                    continue
+
                 project_file = os.path.join(member_path, "pyproject.toml")
                 if not os.path.isfile(project_file):
                     message = (
