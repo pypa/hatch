@@ -5,11 +5,6 @@ config-path = "ruff_defaults.toml"
 [envs.default]
 installer = "uv"
 
-[envs.workspace-test]
-dependencies = [
-  "pytest",
-  "pytest-xdist"
-]
 
 [envs.hatch-test]
 workspace.members = ["backend/"]
@@ -20,7 +15,7 @@ extra-dependencies = [
   "trustme",
   "editables",
 ]
-extra-args = ["--dist", "worksteal", "-n", "auto"]
+extra-args = ["--dist", "worksteal"]
 
 [envs.hatch-test.extra-scripts]
 pip = "{env:HATCH_UV} pip {args}"
