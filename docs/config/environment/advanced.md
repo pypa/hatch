@@ -129,7 +129,7 @@ hatch run test:cov
 
 ## Dependency Groups
 
-Environments can use [PEP 735](https://peps.python.org/pep-0735/) dependency groups with the `dependency-groups` option:
+Environments can use [PEP 735](https://peps.python.org/pep-0735/) dependency groups using the environment `dependency-groups` array:
 
 ```toml config-example
 [dependency-groups]
@@ -159,7 +159,7 @@ dependency-groups = ["lint"]
 dependency-groups = ["dev"]
 ```
 
-The `dependency-groups` option specifies which PEP 735 dependency groups to include in the environment's dependencies. This is particularly useful for organizing related dependencies and including them in appropriate environments.
+The `dependency-groups` array specifies which dependency groups to include in the environment's dependencies. This is particularly useful for organizing related dependencies and including them in appropriate environments.
 
 ### Combining with Other Dependencies
 
@@ -184,7 +184,6 @@ dependency-groups = ["test"]
 dependencies = [
   "coverage[toml]>=7.0.0",
 ]
-# Project dependencies will be included if not skip-install and in dev-mode
 ```
 
 In this example, the test environment would include:

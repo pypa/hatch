@@ -105,7 +105,9 @@ features = [
 
 ### Dependency Groups
 
-You can include [PEP 735](https://peps.python.org/pep-0735/) dependency groups in your environments using the `dependency-groups` option:
+[Dependency groups](https://packaging.python.org/en/latest/specifications/dependency-groups/#dependency-groups) (standardized in PEP 735) provide a uniform way to organize related development dependencies. See [advanced usage](advanced.md#dependency-groups) for more details on dependency group features like including other groups.
+
+You can include dependency-groups in your hatch environments using the `[dependency-groups]` array:
 
 ```toml config-example
 [dependency-groups]
@@ -119,11 +121,6 @@ dependency-groups = [
   "test",
 ]
 ```
-
-Dependency groups provide a standardized way to organize related dependencies and can be shared across different build systems. See [advanced usage](advanced.md#dependency-groups) for more details on dependency group features like including other groups.
-
-!!! note
-    Unlike features which affect how the project itself is installed, dependency groups are separate dependencies that are installed alongside the project.
 
 ### Dev mode
 
