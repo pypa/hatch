@@ -1283,19 +1283,6 @@ class WorkspaceMember:
             return os.path.getmtime(pyproject_path)
         return 0.0
 
-    def has_changed(self) -> bool:
-        """Check if the workspace member has changed since last check."""
-        current_modified = self.last_modified
-        if self._last_modified is None:
-            self._last_modified = current_modified
-            return True
-
-        if current_modified > self._last_modified:
-            self._last_modified = current_modified
-            return True
-
-        return False
-
     def get_editable_requirement(self, *, editable: bool = True) -> str:
         """Get the requirement string for this workspace member."""
         uri = self.project.location.as_uri()

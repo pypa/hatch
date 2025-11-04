@@ -8,6 +8,7 @@ installer = "uv"
 [envs.workspace-test]
 dependencies = [
   "pytest",
+  "pytest-xdist"
 ]
 
 [envs.hatch-test]
@@ -19,7 +20,7 @@ extra-dependencies = [
   "trustme",
   "editables",
 ]
-extra-args = ["--dist", "worksteal"]
+extra-args = ["--dist", "worksteal", "-n", "auto"]
 
 [envs.hatch-test.extra-scripts]
 pip = "{env:HATCH_UV} pip {args}"
