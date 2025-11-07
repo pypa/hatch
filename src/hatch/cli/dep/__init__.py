@@ -49,8 +49,7 @@ def table(app, project_only, env_only, show_lines, force_ascii):
     """Enumerate dependencies in a tabular format."""
     app.ensure_environment_plugin_dependencies()
 
-    from packaging.requirements import Requirement
-
+    from hatch.dep.core import Dependency
     from hatch.utils.dep import get_complex_dependencies, get_normalized_dependencies, normalize_marker_quoting
 
     environment = app.project.get_environment()
@@ -76,7 +75,7 @@ def table(app, project_only, env_only, show_lines, force_ascii):
         if not all_requirements:
             continue
 
-        normalized_requirements = [Requirement(d) for d in get_normalized_dependencies(all_requirements)]
+        normalized_requirements = [Dependency(d) for d in get_normalized_dependencies(all_requirements)]
 
         columns = {"Name": {}, "URL": {}, "Versions": {}, "Markers": {}, "Features": {}}
         for i, requirement in enumerate(normalized_requirements):
