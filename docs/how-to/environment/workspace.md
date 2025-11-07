@@ -105,7 +105,7 @@ workspace.parallel = true
 
 ## Cross-member dependencies
 
-Workspace members can depend on each other. Hatch automatically handles the installation order:
+Workspace members can depend on each other. When installed, pip or uv will resolve the dependency relationships:
 
 ```toml config-example title="packages/app/pyproject.toml"
 [project]
@@ -122,8 +122,7 @@ workspace.members = [
 ]
 ```
 
-The `core` and `utils` packages will be installed before `app` to satisfy dependencies.
-
+All workspace members are installed as editable packages. Pip or uv handles resolving the dependencies between app, core, and utils during installation.
 ## Monorepo example
 
 Complete configuration for a typical monorepo structure:

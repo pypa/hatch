@@ -1098,59 +1098,54 @@ class Workspace:
         from hatch.utils.fs import Path
         from hatchling.metadata.utils import normalize_project_name
 
-        raw_members = self.config.get("members", [])
+        raw_members = self.config.get('members', [])
         if not isinstance(raw_members, list):
-            message = f"Field `tool.hatch.envs.{self.env.name}.workspace.members` must be an array"
+            message = f'Field `tool.hatch.envs.{self.env.name}.workspace.members` must be an array'
             raise TypeError(message)
-
-        if not raw_members:
-            return []
 
         # Get exclude patterns
-        exclude_patterns = self.config.get("exclude", [])
+        exclude_patterns = self.config.get('exclude', [])
         if not isinstance(exclude_patterns, list):
-            message = f"Field `tool.hatch.envs.{self.env.name}.workspace.exclude` must be an array"
+            message = f'Field `tool.hatch.envs.{self.env.name}.workspace.exclude` must be an array'
             raise TypeError(message)
 
-        # Normalize configuration with context expansion
+        # First normalize configuration with context expansion
         member_data: list[dict[str, Any]] = []
         with self.env.apply_context():
             for i, data in enumerate(raw_members, 1):
                 if isinstance(data, str):
-                    # Apply context expansion to path
                     expanded_path = self.env.metadata.context.format(data)
-                    member_data.append({"path": expanded_path, "features": ()})
+                    member_data.append({'path': expanded_path, 'features': ()})
                 elif isinstance(data, dict):
-                    if "path" not in data:
+                    if 'path' not in data:
                         message = (
-                            f"Member #{i} of field `tool.hatch.envs.{self.env.name}.workspace.members` must define "
-                            f"a `path` key"
+                            f'Member #{i} of field `tool.hatch.envs.{self.env.name}.workspace.members` must define '
+                            f'a `path` key'
                         )
                         raise TypeError(message)
 
-                    path = data["path"]
+                    path = data['path']
                     if not isinstance(path, str):
                         message = (
-                            f"Option `path` of member #{i} of field `tool.hatch.envs.{self.env.name}.workspace.members` "
-                            f"must be a string"
+                            f'Option `path` of member #{i} of field `tool.hatch.envs.{self.env.name}.workspace.members` '
+                            f'must be a string'
                         )
                         raise TypeError(message)
 
                     if not path:
                         message = (
-                            f"Option `path` of member #{i} of field `tool.hatch.envs.{self.env.name}.workspace.members` "
-                            f"cannot be an empty string"
+                            f'Option `path` of member #{i} of field `tool.hatch.envs.{self.env.name}.workspace.members` '
+                            f'cannot be an empty string'
                         )
                         raise ValueError(message)
 
-                    # Apply context expansion to path
                     expanded_path = self.env.metadata.context.format(path)
 
-                    features = data.get("features", [])
+                    features = data.get('features', [])
                     if not isinstance(features, list):
                         message = (
-                            f"Option `features` of member #{i} of field `tool.hatch.envs.{self.env.name}.workspace."
-                            f"members` must be an array of strings"
+                            f'Option `features` of member #{i} of field `tool.hatch.envs.{self.env.name}.workspace.'
+                            f'members` must be an array of strings'
                         )
                         raise TypeError(message)
 
@@ -1158,98 +1153,101 @@ class Workspace:
                     for j, feature in enumerate(features, 1):
                         if not isinstance(feature, str):
                             message = (
-                                f"Feature #{j} of option `features` of member #{i} of field "
-                                f"`tool.hatch.envs.{self.env.name}.workspace.members` must be a string"
+                                f'Feature #{j} of option `features` of member #{i} of field '
+                                f'`tool.hatch.envs.{self.env.name}.workspace.members` must be a string'
                             )
                             raise TypeError(message)
 
                         if not feature:
                             message = (
-                                f"Feature #{j} of option `features` of member #{i} of field "
-                                f"`tool.hatch.envs.{self.env.name}.workspace.members` cannot be an empty string"
+                                f'Feature #{j} of option `features` of member #{i} of field '
+                                f'`tool.hatch.envs.{self.env.name}.workspace.members` cannot be an empty string'
                             )
                             raise ValueError(message)
 
                         normalized_feature = normalize_project_name(feature)
                         if normalized_feature in all_features:
                             message = (
-                                f"Feature #{j} of option `features` of member #{i} of field "
-                                f"`tool.hatch.envs.{self.env.name}.workspace.members` is a duplicate"
+                                f'Feature #{j} of option `features` of member #{i} of field '
+                                f'`tool.hatch.envs.{self.env.name}.workspace.members` is a duplicate'
                             )
                             raise ValueError(message)
 
                         all_features.add(normalized_feature)
 
-                    member_data.append({"path": expanded_path, "features": tuple(sorted(all_features))})
+                    member_data.append({'path': expanded_path, 'features': tuple(sorted(all_features))})
                 else:
                     message = (
-                        f"Member #{i} of field `tool.hatch.envs.{self.env.name}.workspace.members` must be "
-                        f"a string or an inline table"
+                        f'Member #{i} of field `tool.hatch.envs.{self.env.name}.workspace.members` must be '
+                        f'a string or an inline table'
                     )
                     raise TypeError(message)
 
         root = str(self.env.root)
         member_paths: dict[str, WorkspaceMember] = {}
         for data in member_data:
-            path_spec = data["path"]
+            # Given root R and member spec M, we need to find:
+            #
+            # 1. The absolute path AP of R/M
+            # 2. The shared prefix SP of R and AP
+            # 3. The relative path RP of M from AP
+            #
+            # For example, if:
+            #
+            # R = /foo/bar/baz
+            # M = ../dir/pkg-*
+            #
+            # Then:
+            #
+            # AP = /foo/bar/dir/pkg-*
+            # SP = /foo/bar
+            # RP = dir/pkg-*
+            path_spec = data['path']
+            normalized_path = os.path.normpath(os.path.join(root, path_spec))
+            absolute_path = os.path.abspath(normalized_path)
+            shared_prefix = os.path.commonprefix([root, absolute_path])
+            relative_path = os.path.relpath(absolute_path, shared_prefix)
 
-            # Convert path spec to components for find_members
-            if os.path.isabs(path_spec):
-                try:
-                    relative_path = os.path.relpath(path_spec, root)
-                except ValueError:
-                    relative_path = path_spec
-            else:
-                relative_path = path_spec
-
-            # Normalize and split path - handle empty components
-            normalized_path = relative_path.replace("\\", "/")
-            path_components = [c for c in normalized_path.split("/") if c and c != "."]
-
-            # Handle empty path components case
-            if not path_components:
-                path_components = ["."]
-
+            # Now we have the necessary information to perform an optimized glob search for members
             members_found = False
-            for member_path in find_members(root, path_components):
+            for member_path in find_members(root, relative_path.split(os.sep)):
                 # Check if member should be excluded
                 relative_member_path = os.path.relpath(member_path, root)
                 should_exclude = False
                 for exclude_pattern in exclude_patterns:
-                    if fnmatch.fnmatch(relative_member_path, exclude_pattern) or fnmatch.fnmatch(
-                        member_path, exclude_pattern
-                    ):
+                    if fnmatch.fnmatch(relative_member_path, exclude_pattern) or fnmatch.fnmatch(member_path,
+                                                                                                 exclude_pattern):
                         should_exclude = True
                         break
 
                 if should_exclude:
                     continue
 
-                project_file = os.path.join(member_path, "pyproject.toml")
+                project_file = os.path.join(member_path, 'pyproject.toml')
                 if not os.path.isfile(project_file):
                     message = (
-                        f"Member derived from `{path_spec}` of field "
-                        f"`tool.hatch.envs.{self.env.name}.workspace.members` is not a project (no `pyproject.toml` "
-                        f"file): {member_path}"
+                        f'Member derived from `{path_spec}` of field '
+                        f'`tool.hatch.envs.{self.env.name}.workspace.members` is not a project (no `pyproject.toml` '
+                        f'file): {member_path}'
                     )
                     raise OSError(message)
 
                 members_found = True
                 if member_path in member_paths:
                     message = (
-                        f"Member derived from `{path_spec}` of field "
-                        f"`tool.hatch.envs.{self.env.name}.workspace.members` is a duplicate: {member_path}"
+                        f'Member derived from `{path_spec}` of field '
+                        f'`tool.hatch.envs.{self.env.name}.workspace.members` is a duplicate: {member_path}'
                     )
                     raise ValueError(message)
 
                 project = Project(Path(member_path), locate=False)
                 project.set_app(self.env.app)
-                member_paths[member_path] = WorkspaceMember(project, features=data["features"])
+                member_paths[member_path] = WorkspaceMember(project, features=data['features'])
 
             if not members_found:
                 message = (
-                    f"No members could be derived from `{path_spec}` of field "
-                    f"`tool.hatch.envs.{self.env.name}.workspace.members`: {os.path.join(root, relative_path)}"
+                    f'No members could be derived from `{path_spec}` of field '
+                    f'`tool.hatch.envs.{self.env.name}.workspace.members`: {absolute_path}'
                 )
                 raise OSError(message)
 
