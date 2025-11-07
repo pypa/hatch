@@ -145,35 +145,6 @@ class EnvironmentInterface(ABC):
         """
         return self.__config
 
-    @property
-    def workspace_members(self) -> list[str]:
-        """
-        ```
-        toml config-example
-        [tool.hatch.envs.<ENV_NAME>]
-        members = ["Package/*"]
-        ```
-        """
-        workspace_config = self.config.get("workspace", {})
-        if not isinstance(workspace_config, dict):
-            return []
-        return workspace_config.get("members", [])
-
-    @property
-    def workspace_exclude(self) -> list[str]:
-        """
-        ```
-        toml config-example
-        [tool.hatch.envs.<ENV_NAME>]
-        members = ["Package/*"]
-        exclude = ["/foo"]
-        ```
-        """
-        workspace_config = self.config.get("workspace", {})
-        if not isinstance(workspace_config, dict):
-            return []
-        return workspace_config.get("exclude", [])
-
     @cached_property
     def project_root(self) -> str:
         """
