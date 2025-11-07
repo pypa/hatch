@@ -12,7 +12,7 @@ Define workspace members in your environment configuration using the `workspace.
 [tool.hatch.envs.default]
 workspace.members = [
   "packages/core",
-  "packages/utils", 
+  "packages/utils",
   "packages/cli"
 ]
 ```
@@ -60,7 +60,7 @@ Different environments can include different workspace members:
 workspace.members = ["packages/core", "packages/utils"]
 scripts.test = "pytest tests/unit"
 
-[tool.hatch.envs.integration-tests]  
+[tool.hatch.envs.integration-tests]
 workspace.members = ["packages/*"]
 scripts.test = "pytest tests/integration"
 
@@ -107,22 +107,23 @@ workspace.parallel = true
 
 Workspace members can depend on each other. When installed, pip or uv will resolve the dependency relationships:
 
-```toml config-example title="packages/app/pyproject.toml"
+```toml tab="packages/app/pyproject.toml"
 [project]
 name = "app"
 dependencies = ["core", "utils"]
 ```
 
-```toml config-example title="pyproject.toml"
+```toml tab="pyproject.toml"
 [tool.hatch.envs.default]
 workspace.members = [
   "packages/core",
-  "packages/utils", 
+  "packages/utils",
   "packages/app"
 ]
 ```
 
 All workspace members are installed as editable packages. Pip or uv handles resolving the dependencies between app, core, and utils during installation.
+
 ## Monorepo example
 
 Complete configuration for a typical monorepo structure:
@@ -176,7 +177,7 @@ dependencies = ["pytest"]
 workspace.members = [
   "core",
   "plugins/database",
-  "plugins/cache", 
+  "plugins/cache",
   "plugins/auth"
 ]
 dependencies = ["pytest", "pytest-asyncio"]
@@ -217,7 +218,7 @@ scripts.dev = "uvicorn services.api.main:app --reload"
 
 [tool.hatch.envs.worker]
 workspace.members = [
-  "shared", 
+  "shared",
   {path = "services/worker", features = ["dev"]}
 ]
 dependencies = ["celery", "redis"]
@@ -247,7 +248,7 @@ workspace.members = [
 ]
 dependencies = [
   "mkdocs",
-  "mkdocs-material", 
+  "mkdocs-material",
   "mkdocstrings[python]"
 ]
 scripts.serve = "mkdocs serve"
@@ -271,7 +272,7 @@ workspace.members = ["packages/*"]
 workspace.parallel = true
 dependencies = [
   "pytest",
-  "black", 
+  "black",
   "ruff",
   "mypy",
   "pre-commit"
