@@ -141,6 +141,10 @@
          <lastmod>2020-02-02</lastmod>
     </url>
     <url>
+         <loc>https://hatch.pypa.io/dev/how-to/environment/workspace/</loc>
+         <lastmod>2020-02-02</lastmod>
+    </url>
+    <url>
          <loc>https://hatch.pypa.io/dev/how-to/integrate/vscode/</loc>
          <lastmod>2020-02-02</lastmod>
     </url>
