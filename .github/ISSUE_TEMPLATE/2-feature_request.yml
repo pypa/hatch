@@ -7,7 +7,7 @@ body:
     attributes:
       # yamllint disable rule:line-length
       value: "
-        <img src='https://raw.githubusercontent.com/pypa/hatch/master/docs/assets/images/logo.svg' align='left' width='80' height='80'>
+        <img src='https://raw.githubusercontent.com/pypa/hatch/HEAD/docs/assets/images/logo.svg' align='left' width='80' height='80'>
         Thank you for finding the time to propose new feature!
 
         We really appreciate the community efforts to improve Hatch.
