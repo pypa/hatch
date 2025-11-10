@@ -13,7 +13,7 @@ from hatch.project.env import apply_overrides
 from hatch.project.utils import format_script_commands, parse_script_command
 
 if TYPE_CHECKING:
-    from packaging.requirements import Requirement
+    from hatch.dep.core import Dependency
 
 
 class ProjectConfig:
@@ -57,9 +57,9 @@ class ProjectConfig:
         return self._env
 
     @property
-    def env_requires_complex(self) -> list[Requirement]:
+    def env_requires_complex(self) -> list[Dependency]:
         if self._env_requires_complex is None:
-            from packaging.requirements import InvalidRequirement, Requirement
+            from hatch.dep.core import Dependency, InvalidDependencyError
 
             requires = self.env.get("requires", [])
             if not isinstance(requires, list):
@@ -74,8 +74,8 @@ class ProjectConfig:
                     raise TypeError(message)
 
                 try:
-                    requires_complex.append(Requirement(entry))
-                except InvalidRequirement as e:
+                    requires_complex.append(Dependency(entry))
+                except InvalidDependencyError as e:
                     message = f"Requirement #{i} in `tool.hatch.env.requires` is invalid: {e}"
                     raise ValueError(message) from None
 
@@ -155,10 +155,8 @@ class ProjectConfig:
             for collector, collector_config in self.env_collectors.items():
                 collector_class = self.plugin_manager.environment_collector.get(collector)
                 if collector_class is None:
-                    from hatchling.plugin.exceptions import UnknownPluginError
-
                     message = f"Unknown environment collector: {collector}"
-                    raise UnknownPluginError(message)
+                    raise ValueError(message)
 
                 environment_collector = collector_class(self.root, collector_config)
                 environment_collectors.append(environment_collector)

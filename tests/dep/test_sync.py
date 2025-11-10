@@ -1,51 +1,59 @@
+import os
 import sys
 
 import pytest
-from packaging.requirements import Requirement
 
-from hatch.dep.sync import dependencies_in_sync
+from hatch.dep.core import Dependency
+from hatch.dep.sync import InstalledDistributions
 from hatch.venv.core import TempUVVirtualEnv, TempVirtualEnv
 
 
 def test_no_dependencies(platform):
     with TempUVVirtualEnv(sys.executable, platform) as venv:
-        assert dependencies_in_sync([], venv.sys_path)
+        distributions = InstalledDistributions(sys_path=venv.sys_path)
+        assert distributions.dependencies_in_sync([])
 
 
 def test_dependency_not_found(platform):
     with TempUVVirtualEnv(sys.executable, platform) as venv:
-        assert not dependencies_in_sync([Requirement("binary")], venv.sys_path)
+        distributions = InstalledDistributions(sys_path=venv.sys_path)
+        assert not distributions.dependencies_in_sync([Dependency("binary")])
 
 
 @pytest.mark.requires_internet
 def test_dependency_found(platform, uv_on_path):
     with TempUVVirtualEnv(sys.executable, platform) as venv:
         platform.run_command([uv_on_path, "pip", "install", "binary"], check=True, capture_output=True)
-        assert dependencies_in_sync([Requirement("binary")], venv.sys_path)
+        distributions = InstalledDistributions(sys_path=venv.sys_path)
+        assert distributions.dependencies_in_sync([Dependency("binary")])
 
 
 @pytest.mark.requires_internet
 def test_version_unmet(platform, uv_on_path):
     with TempUVVirtualEnv(sys.executable, platform) as venv:
         platform.run_command([uv_on_path, "pip", "install", "binary"], check=True, capture_output=True)
-        assert not dependencies_in_sync([Requirement("binary>9000")], venv.sys_path)
+        distributions = InstalledDistributions(sys_path=venv.sys_path)
+        assert not distributions.dependencies_in_sync([Dependency("binary>9000")])
 
 
 def test_marker_met(platform):
     with TempUVVirtualEnv(sys.executable, platform) as venv:
-        assert dependencies_in_sync([Requirement('binary; python_version < "1"')], venv.sys_path)
+        distributions = InstalledDistributions(sys_path=venv.sys_path)
+        assert distributions.dependencies_in_sync([Dependency('binary; python_version < "1"')])
 
 
 def test_marker_unmet(platform):
     with TempUVVirtualEnv(sys.executable, platform) as venv:
-        assert not dependencies_in_sync([Requirement('binary; python_version > "1"')], venv.sys_path)
+        distributions = InstalledDistributions(sys_path=venv.sys_path)
+        assert not distributions.dependencies_in_sync([Dependency('binary; python_version > "1"')])
 
 
 @pytest.mark.requires_internet
 def test_extra_no_dependencies(platform, uv_on_path):
     with TempUVVirtualEnv(sys.executable, platform) as venv:
         platform.run_command([uv_on_path, "pip", "install", "binary"], check=True, capture_output=True)
-        assert not dependencies_in_sync([Requirement("binary[foo]")], venv.sys_path)
+        distributions = InstalledDistributions(sys_path=venv.sys_path)
+        assert not distributions.dependencies_in_sync([Dependency("binary[foo]")])
 
 
 @pytest.mark.requires_internet
@@ -54,14 +62,16 @@ def test_unknown_extra(platform, uv_on_path):
         platform.run_command(
             [uv_on_path, "pip", "install", "requests[security]==2.25.1"], check=True, capture_output=True
         )
-        assert not dependencies_in_sync([Requirement("requests[foo]")], venv.sys_path)
+        distributions = InstalledDistributions(sys_path=venv.sys_path)
+        assert not distributions.dependencies_in_sync([Dependency("requests[foo]")])
 
 
 @pytest.mark.requires_internet
 def test_extra_unmet(platform, uv_on_path):
     with TempUVVirtualEnv(sys.executable, platform) as venv:
         platform.run_command([uv_on_path, "pip", "install", "requests==2.25.1"], check=True, capture_output=True)
-        assert not dependencies_in_sync([Requirement("requests[security]==2.25.1")], venv.sys_path)
+        distributions = InstalledDistributions(sys_path=venv.sys_path)
+        assert not distributions.dependencies_in_sync([Dependency("requests[security]==2.25.1")])
 
 
 @pytest.mark.requires_internet
@@ -70,7 +80,56 @@ def test_extra_met(platform, uv_on_path):
         platform.run_command(
             [uv_on_path, "pip", "install", "requests[security]==2.25.1"], check=True, capture_output=True
         )
-        assert dependencies_in_sync([Requirement("requests[security]==2.25.1")], venv.sys_path)
+        distributions = InstalledDistributions(sys_path=venv.sys_path)
+        assert distributions.dependencies_in_sync([Dependency("requests[security]==2.25.1")])
+
+
+@pytest.mark.requires_internet
+def test_local_dir(hatch, temp_dir, platform, uv_on_path):
+    project_name = os.urandom(10).hex()
+
+    with temp_dir.as_cwd():
+        result = hatch("new", project_name)
+        assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / project_name
+    dependency_string = f"{project_name}@{project_path.as_uri()}"
+    with TempUVVirtualEnv(sys.executable, platform) as venv:
+        platform.run_command([uv_on_path, "pip", "install", str(project_path)], check=True, capture_output=True)
+        distributions = InstalledDistributions(sys_path=venv.sys_path)
+        assert distributions.dependencies_in_sync([Dependency(dependency_string)])
+
+
+@pytest.mark.requires_internet
+def test_local_dir_editable(hatch, temp_dir, platform, uv_on_path):
+    project_name = os.urandom(10).hex()
+
+    with temp_dir.as_cwd():
+        result = hatch("new", project_name)
+        assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / project_name
+    dependency_string = f"{project_name}@{project_path.as_uri()}"
+    with TempUVVirtualEnv(sys.executable, platform) as venv:
+        platform.run_command([uv_on_path, "pip", "install", "-e", str(project_path)], check=True, capture_output=True)
+        distributions = InstalledDistributions(sys_path=venv.sys_path)
+        assert distributions.dependencies_in_sync([Dependency(dependency_string, editable=True)])
+
+
+@pytest.mark.requires_internet
+def test_local_dir_editable_mismatch(hatch, temp_dir, platform, uv_on_path):
+    project_name = os.urandom(10).hex()
+
+    with temp_dir.as_cwd():
+        result = hatch("new", project_name)
+        assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / project_name
+    dependency_string = f"{project_name}@{project_path.as_uri()}"
+    with TempUVVirtualEnv(sys.executable, platform) as venv:
+        platform.run_command([uv_on_path, "pip", "install", "-e", str(project_path)], check=True, capture_output=True)
+        distributions = InstalledDistributions(sys_path=venv.sys_path)
+        assert not distributions.dependencies_in_sync([Dependency(dependency_string)])
 
 
 @pytest.mark.requires_internet
@@ -80,7 +139,8 @@ def test_dependency_git_pip(platform):
         platform.run_command(
             ["pip", "install", "requests@git+https://github.com/psf/requests"], check=True, capture_output=True
         )
-        assert dependencies_in_sync([Requirement("requests@git+https://github.com/psf/requests")], venv.sys_path)
+        distributions = InstalledDistributions(sys_path=venv.sys_path)
+        assert distributions.dependencies_in_sync([Dependency("requests@git+https://github.com/psf/requests")])
 
 
 @pytest.mark.requires_internet
@@ -92,7 +152,8 @@ def test_dependency_git_uv(platform, uv_on_path):
             check=True,
             capture_output=True,
         )
-        assert dependencies_in_sync([Requirement("requests@git+https://github.com/psf/requests")], venv.sys_path)
+        distributions = InstalledDistributions(sys_path=venv.sys_path)
+        assert distributions.dependencies_in_sync([Dependency("requests@git+https://github.com/psf/requests")])
 
 
 @pytest.mark.requires_internet
@@ -102,7 +163,8 @@ def test_dependency_git_revision_pip(platform):
         platform.run_command(
             ["pip", "install", "requests@git+https://github.com/psf/requests@main"], check=True, capture_output=True
         )
-        assert dependencies_in_sync([Requirement("requests@git+https://github.com/psf/requests@main")], venv.sys_path)
+        distributions = InstalledDistributions(sys_path=venv.sys_path)
+        assert distributions.dependencies_in_sync([Dependency("requests@git+https://github.com/psf/requests@main")])
 
 
 @pytest.mark.requires_internet
@@ -114,7 +176,8 @@ def test_dependency_git_revision_uv(platform, uv_on_path):
             check=True,
             capture_output=True,
         )
-        assert dependencies_in_sync([Requirement("requests@git+https://github.com/psf/requests@main")], venv.sys_path)
+        distributions = InstalledDistributions(sys_path=venv.sys_path)
+        assert distributions.dependencies_in_sync([Dependency("requests@git+https://github.com/psf/requests@main")])
 
 
 @pytest.mark.requires_internet
@@ -131,7 +194,7 @@ def test_dependency_git_commit(platform, uv_on_path):
             check=True,
             capture_output=True,
         )
-        assert dependencies_in_sync(
-            [Requirement("requests@git+https://github.com/psf/requests@7f694b79e114c06fac5ec06019cada5a61e5570f")],
-            venv.sys_path,
-        )
+        distributions = InstalledDistributions(sys_path=venv.sys_path)
+        assert distributions.dependencies_in_sync([
+            Dependency("requests@git+https://github.com/psf/requests@7f694b79e114c06fac5ec06019cada5a61e5570f")
+        ])
