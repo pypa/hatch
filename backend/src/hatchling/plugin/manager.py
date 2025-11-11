@@ -1,111 +1,80 @@
 from __future__ import annotations
 
-from typing import Callable, TypeVar
+from typing import TypeVar
 
-import pluggy
+from hatchling.plugin.finder import PluginFinder
 
 
 class PluginManager:
+    """
+    Plugin registry that uses PluginFinder for entrypoint-based discovery.
+
+    This replaces the old pluggy-based PluginManager while maintaining
+    the same public API for backward compatibility.
+    """
+
     def __init__(self) -> None:
-        self.manager = pluggy.PluginManager("hatch")
-        self.third_party_plugins = ThirdPartyPlugins(self.manager)
-        self.initialized = False
-
-    def initialize(self) -> None:
-        from hatchling.plugin import specs
-
-        self.manager.add_hookspecs(specs)
+        self.finder = PluginFinder()
+        self._cached_registers: dict[str, ClassRegister] = {}
 
     def __getattr__(self, name: str) -> ClassRegister:
-        if not self.initialized:
-            self.initialize()
-            self.initialized = True
+        """
+        Dynamically create ClassRegister for plugin types on first access.
 
-        hook_name = f"hatch_register_{name}"
-        hook = getattr(self, hook_name, None)
-        if hook:
-            hook()
+        Example: plugin_manager.builder returns a ClassRegister for builders.
+        """
+        if name.startswith("_"):
+            msg = f"'{type(self).__name__}' object has no attribute '{name}'"
+            raise AttributeError(msg)
 
-        register = ClassRegister(getattr(self.manager.hook, hook_name), "PLUGIN_NAME", self.third_party_plugins)
-        setattr(self, name, register)
-        return register
+        if name not in self._cached_registers:
+            register = ClassRegister(self.finder, name)
+            self._cached_registers[name] = register
 
-    def hatch_register_version_source(self) -> None:
-        from hatchling.version.source.plugin import hooks
-
-        self.manager.register(hooks)
-
-    def hatch_register_version_scheme(self) -> None:
-        from hatchling.version.scheme.plugin import hooks
-
-        self.manager.register(hooks)
-
-    def hatch_register_builder(self) -> None:
-        from hatchling.builders.plugin import hooks
-
-        self.manager.register(hooks)
-
-    def hatch_register_build_hook(self) -> None:
-        from hatchling.builders.hooks.plugin import hooks
-
-        self.manager.register(hooks)
-
-    def hatch_register_metadata_hook(self) -> None:
-        from hatchling.metadata.plugin import hooks
-
-        self.manager.register(hooks)
+        return self._cached_registers[name]
 
 
 class ClassRegister:
-    def __init__(self, registration_method: Callable, identifier: str, third_party_plugins: ThirdPartyPlugins) -> None:
-        self.registration_method = registration_method
-        self.identifier = identifier
-        self.third_party_plugins = third_party_plugins
+    """
+    Provides access to plugins of a specific type.
 
-    def collect(self, *, include_third_party: bool = True) -> dict:
-        if include_third_party and not self.third_party_plugins.loaded:
-            self.third_party_plugins.load()
+    Maintains the same API as the old ClassRegister for compatibility.
+    """
 
-        classes: dict[str, type] = {}
+    def __init__(self, finder: PluginFinder, plugin_type: str) -> None:
+        self.finder = finder
+        self.plugin_type = plugin_type
+        self._cached_plugins: dict[str, type] | None = None
 
-        for raw_registered_classes in self.registration_method():
-            registered_classes = (
-                raw_registered_classes if isinstance(raw_registered_classes, list) else [raw_registered_classes]
-            )
-            for registered_class in registered_classes:
-                name = getattr(registered_class, self.identifier, None)
-                if not name:  # no cov
-                    message = f"Class `{registered_class.__name__}` does not have a {name} attribute."
-                    raise ValueError(message)
+    def collect(self, *, include_third_party: bool = True) -> dict[str, type]:  # noqa: ARG002
+        """
+        Collect all plugins of this type.
 
-                if name in classes:  # no cov
-                    message = (
-                        f"Class `{registered_class.__name__}` defines its name as `{name}` but "
-                        f"that name is already used by `{classes[name].__name__}`."
-                    )
-                    raise ValueError(message)
+        Args:
+            include_third_party: Currently ignored (always loads all plugins).
+                                 Kept for API compatibility.
 
-                classes[name] = registered_class
+        Returns:
+            Dictionary mapping plugin names to plugin classes.
+        """
+        # For the new system, we always load all plugins at once
+        # The include_third_party parameter is kept for API compatibility
+        if self._cached_plugins is None:
+            self._cached_plugins = self.finder.find_plugins(self.plugin_type)
 
-        return classes
+        return self._cached_plugins.copy()
 
     def get(self, name: str) -> type | None:
-        if not self.third_party_plugins.loaded:
-            classes = self.collect(include_third_party=False)
-            if name in classes:
-                return classes[name]
+        """
+        Get a specific plugin by name.
 
+        Args:
+            name: The plugin name (from PLUGIN_NAME attribute).
+
+        Returns:
+            The plugin class, or None if not found.
+        """
         return self.collect().get(name)
-
-
-class ThirdPartyPlugins:
-    def __init__(self, manager: pluggy.PluginManager) -> None:
-        self.manager = manager
-        self.loaded = False
-
-    def load(self) -> None:
-        self.manager.load_setuptools_entrypoints("hatch")
-        self.loaded = True
 
 
 PluginManagerBound = TypeVar("PluginManagerBound", bound=PluginManager)

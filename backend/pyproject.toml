@@ -51,5 +51,27 @@ Source = "https://github.com/pypa/hatch/tree/master/backend"
 [project.scripts]
 hatchling = "hatchling.cli:hatchling"
 
+[project.entry-points."hatch.version_source"]
+code = "hatchling.version.source.code:CodeSource"
+env = "hatchling.version.source.env:EnvSource"
+regex = "hatchling.version.source.regex:RegexSource"
+
+[project.entry-points."hatch.version_scheme"]
+standard = "hatchling.version.scheme.standard:StandardScheme"
+
+[project.entry-points."hatch.builder"]
+app = "hatchling.builders.app:AppBuilder"
+binary = "hatchling.builders.binary:BinaryBuilder"
+custom = "hatchling.builders.custom:CustomBuilder"
+sdist = "hatchling.builders.sdist:SdistBuilder"
+wheel = "hatchling.builders.wheel:WheelBuilder"
+
+[project.entry-points."hatch.build_hook"]
+custom = "hatchling.builders.hooks.custom:CustomBuildHook"
+version = "hatchling.builders.hooks.version:VersionBuildHook"
+
+[project.entry-points."hatch.metadata_hook"]
+custom = "hatchling.metadata.custom:CustomMetadataHook"
+
 [tool.hatch.version]
 path = "src/hatchling/__about__.py"
