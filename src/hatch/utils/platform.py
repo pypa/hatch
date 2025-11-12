@@ -4,10 +4,10 @@ import os
 import sys
 from functools import cache
 from importlib import import_module
-from typing import TYPE_CHECKING, Any, Callable, cast
+from typing import TYPE_CHECKING, Any, cast
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Callable, Iterable
     from subprocess import CompletedProcess, Popen
     from types import ModuleType
 

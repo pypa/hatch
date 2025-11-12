@@ -143,12 +143,6 @@ class Path(_PathBase):
         def from_uri(cls, path: str) -> Path:
             return cls(path.replace("file://", "", 1))
 
-    if sys.version_info[:2] < (3, 10):
-
-        def resolve(self, strict: bool = False) -> Path:  # noqa: ARG002, FBT001, FBT002
-            # https://bugs.python.org/issue38671
-            return Path(os.path.realpath(self))
-
 
 @contextmanager
 def temp_directory() -> Generator[Path, None, None]:

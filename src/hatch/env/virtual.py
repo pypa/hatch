@@ -5,7 +5,7 @@ import sys
 from contextlib import contextmanager, nullcontext, suppress
 from functools import cached_property
 from os.path import isabs
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING
 
 from hatch.config.constants import AppEnvVars
 from hatch.env.plugin.interface import EnvironmentInterface
@@ -16,7 +16,7 @@ from hatch.utils.structures import EnvVars
 from hatch.venv.core import UVVirtualEnv, VirtualEnv
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Callable, Iterable
 
     from packaging.specifiers import SpecifierSet
     from virtualenv.discovery.py_info import PythonInfo

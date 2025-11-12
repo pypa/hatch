@@ -9,7 +9,7 @@ def get_default_config() -> dict[str, Any]:
         "dependencies": [
             "coverage-enable-subprocess==1.0",
             "coverage[toml]~=7.4",
-            "pytest~=8.1",
+            "pytest~=9.0",
             "pytest-mock~=3.12",
             "pytest-randomly~=3.15",
             "pytest-rerunfailures~=14.0",
@@ -21,5 +21,5 @@ def get_default_config() -> dict[str, Any]:
             "cov-combine": "coverage combine",
             "cov-report": "coverage report",
         },
-        "matrix": [{"python": ["3.13", "3.12", "3.11", "3.10", "3.9", "3.8"]}],
+        "matrix": [{"python": ["3.14", "3.13", "3.12", "3.11", "3.10"]}],
     }

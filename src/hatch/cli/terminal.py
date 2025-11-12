@@ -4,7 +4,7 @@ import os
 from abc import ABC, abstractmethod
 from functools import cached_property
 from textwrap import indent as indent_text
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING
 
 import click
 from rich.console import Console
@@ -12,6 +12,7 @@ from rich.style import Style
 from rich.text import Text
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
     from rich.status import Status
 
 

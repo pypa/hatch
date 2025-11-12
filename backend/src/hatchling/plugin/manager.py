@@ -1,8 +1,11 @@
 from __future__ import annotations
 
-from typing import Callable, TypeVar
+from typing import TYPE_CHECKING, TypeVar
 
 import pluggy
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 class PluginManager:

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from hatchling.metadata.core import ProjectMetadata
@@ -47,7 +47,7 @@ PROJECT_CORE_METADATA_FIELDS = {
 }
 
 
-def get_core_metadata_constructors() -> dict[str, Callable]:
+def get_core_metadata_constructors() -> dict[str, Any]:
     """
     https://packaging.python.org/specifications/core-metadata/
     """

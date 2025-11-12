@@ -8,7 +8,7 @@ description = "Modern, extensible Python project management"
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE.txt"]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 keywords = [
   "build",
   "dependency",
@@ -29,7 +29,6 @@ classifiers = [
   "Intended Audience :: Developers",
   "Natural Language :: English",
   "Operating System :: OS Independent",
-  "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
