@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from hatchling.metadata.core import ProjectMetadata
+    from collections.abc import Callable
 
 DEFAULT_METADATA_VERSION = "2.4"
 LATEST_METADATA_VERSION = "2.4"
@@ -47,7 +48,7 @@ PROJECT_CORE_METADATA_FIELDS = {
 }
 
 
-def get_core_metadata_constructors() -> dict[str, Any]:
+def get_core_metadata_constructors() -> dict[str, Callable]:
     """
     https://packaging.python.org/specifications/core-metadata/
     """

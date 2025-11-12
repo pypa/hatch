@@ -129,7 +129,7 @@ hatch run test:cov
 
 ## Dependency Groups
 
-Environments can use PEP 735[^1] dependency groups using the environment `dependency-groups` array:
+Environments can use dependency groups[^1] using the environment `dependency-groups` array:
 
 ```toml config-example
 [dependency-groups]
