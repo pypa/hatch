@@ -13,6 +13,7 @@ from rich.text import Text
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+
     from rich.status import Status
 
 
