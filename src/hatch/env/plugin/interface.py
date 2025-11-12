@@ -1108,7 +1108,7 @@ class Workspace:
 
         from hatch.project.core import Project
         from hatch.utils.fs import Path
-        from hatch.utils.metadata import normalize
+        from hatch.utils.metadata import normalize_names
 
         raw_members = self.config.get("members", [])
         if not isinstance(raw_members, list):
