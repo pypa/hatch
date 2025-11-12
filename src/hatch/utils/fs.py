@@ -12,10 +12,11 @@ from hatch.utils.structures import EnvVars
 
 if TYPE_CHECKING:
     from collections.abc import Generator
-
+    from pathlib import PurePath
     from _typeshed import FileDescriptorLike
 
-_PathT = TypeVar("_PathT", bound="Path")
+    _PathT = TypeVar("_PathT", bound=PurePath)
+
 # There is special recognition in Mypy for `sys.platform`, not `os.name`
 # https://github.com/python/cpython/blob/09d7319bfe0006d9aa3fc14833b69c24ccafdca6/Lib/pathlib.py#L957
 if sys.platform == "win32":
@@ -68,12 +69,6 @@ class Path(_PathBase):
             import shutil
 
             shutil.rmtree(self, ignore_errors=False)
-
-    @overload
-    def move(self: _PathT, target: _PathT) -> _PathT: ...
-
-    @overload
-    def move(self, target: str | PathLike[str]) -> Path: ...
 
     def move(self, target):
         target_path = Path(target) if not isinstance(target, Path) else target
