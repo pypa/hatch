@@ -5,7 +5,8 @@ import pathlib
 import sys
 from contextlib import contextmanager, suppress
 from functools import cached_property
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, TypeVar, overload
+from os import PathLike
 
 from hatch.utils.structures import EnvVars
 
@@ -14,6 +15,7 @@ if TYPE_CHECKING:
 
     from _typeshed import FileDescriptorLike
 
+_PathT = TypeVar('_PathT', bound='Path')
 # There is special recognition in Mypy for `sys.platform`, not `os.name`
 # https://github.com/python/cpython/blob/09d7319bfe0006d9aa3fc14833b69c24ccafdca6/Lib/pathlib.py#L957
 if sys.platform == "win32":
@@ -67,15 +69,23 @@ class Path(_PathBase):
 
             shutil.rmtree(self, ignore_errors=False)
 
-    def move(self, target: Path) -> None:
+    @overload
+    def move(self: _PathT, target: _PathT) -> _PathT:
+        ...
+
+    @overload
+    def move(self, target: str | PathLike[str]) -> Path:
+        ...
+
+    def move(self, target):
+        target_path = Path(target) if not isinstance(target, Path) else target
         try:
-            self.replace(target)
-        # Happens when on different filesystems like /tmp or caused by layering in containers
+            self.replace(target_path)
         except OSError:
             import shutil
-
-            shutil.copy2(self, target)
+            shutil.copy2(self, target_path)
             self.unlink()
+        return target_path
 
     def wait_for_dir_removed(self, timeout: int = 5) -> None:
         import shutil
