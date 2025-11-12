@@ -113,7 +113,7 @@ class Project:
         """
         https://peps.python.org/pep-0735/
         """
-        from hatch.utils.metadata import normalize
+        from hatch.utils.metadata import normalize_names
 
         dependency_groups = self.raw_config.get("dependency-groups", {})
 
@@ -125,7 +125,7 @@ class Project:
         normalized_groups = {}
 
         for group_name, value in dependency_groups.items():
-            normed_group_name = normalize(group_name)
+            normed_group_name = normalize_names(group_name)
             original_names[normed_group_name].append(group_name)
             normalized_groups[normed_group_name] = value
 
