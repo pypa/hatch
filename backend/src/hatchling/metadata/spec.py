@@ -3,8 +3,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from hatchling.metadata.core import ProjectMetadata
     from collections.abc import Callable
+
+    from hatchling.metadata.core import ProjectMetadata
 
 DEFAULT_METADATA_VERSION = "2.4"
 LATEST_METADATA_VERSION = "2.4"

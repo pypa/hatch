@@ -69,15 +69,13 @@ class Path(_PathBase):
             shutil.rmtree(self, ignore_errors=False)
 
     def move(self, target):
-        target_path = Path(target) if not isinstance(target, Path) else target
         try:
-            self.replace(target_path)
+            self.replace(target)
         except OSError:
             import shutil
 
-            shutil.copy2(self, target_path)
+            shutil.copy2(self, target)
             self.unlink()
-        return target_path
 
     def wait_for_dir_removed(self, timeout: int = 5) -> None:
         import shutil
