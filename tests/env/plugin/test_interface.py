@@ -752,6 +752,158 @@ class TestFeatures:
             _ = environment.features
 
 
+class TestDependencyGroups:
+    def test_default(self, isolation, isolated_data_dir, platform, global_application):
+        config = {"project": {"name": "my_app", "version": "0.0.1"}}
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            global_application,
+        )
+
+        assert environment.dependency_groups == []
+
+    def test_not_array(self, isolation, isolated_data_dir, platform, global_application):
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {"hatch": {"envs": {"default": {"dependency-groups": 9000}}}},
+        }
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            global_application,
+        )
+
+        with pytest.raises(
+            TypeError, match="Field `tool.hatch.envs.default.dependency-groups` must be an array of strings"
+        ):
+            _ = environment.dependency_groups
+
+    def test_correct(self, isolation, isolated_data_dir, platform, temp_application):
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "dependency-groups": {"foo-bar": [], "baz": []},
+            "tool": {"hatch": {"envs": {"default": {"dependency-groups": ["Foo...Bar", "Baz", "baZ"]}}}},
+        }
+        project = Project(isolation, config=config)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        assert environment.dependency_groups == ["baz", "foo-bar"]
+
+    def test_group_not_string(self, isolation, isolated_data_dir, platform, global_application):
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "dependency-groups": {"foo": [], "bar": []},
+            "tool": {"hatch": {"envs": {"default": {"dependency-groups": [9000]}}}},
+        }
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            global_application,
+        )
+
+        with pytest.raises(
+            TypeError, match="Group #1 of field `tool.hatch.envs.default.dependency-groups` must be a string"
+        ):
+            _ = environment.dependency_groups
+
+    def test_group_empty_string(self, isolation, isolated_data_dir, platform, global_application):
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "dependency-groups": {"foo": [], "bar": []},
+            "tool": {"hatch": {"envs": {"default": {"dependency-groups": [""]}}}},
+        }
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            global_application,
+        )
+
+        with pytest.raises(
+            ValueError, match="Group #1 of field `tool.hatch.envs.default.dependency-groups` cannot be an empty string"
+        ):
+            _ = environment.dependency_groups
+
+    def test_group_undefined(self, isolation, isolated_data_dir, platform, temp_application):
+        config = {
+            "project": {
+                "name": "my_app",
+                "version": "0.0.1",
+            },
+            "dependency-groups": {"foo": []},
+            "tool": {"hatch": {"envs": {"default": {"dependency-groups": ["foo", "bar", ""]}}}},
+        }
+        project = Project(isolation, config=config)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        with pytest.raises(
+            ValueError,
+            match=(
+                "Group `bar` of field `tool.hatch.envs.default.dependency-groups` is not "
+                "defined in field `dependency-groups`"
+            ),
+        ):
+            _ = environment.dependency_groups
+
+
 class TestDescription:
     def test_default(self, isolation, isolated_data_dir, platform, global_application):
         config = {"project": {"name": "my_app", "version": "0.0.1"}}
@@ -1109,6 +1261,48 @@ class TestDependencies:
         )
 
         assert environment.dependencies == ["dep2", "dep3", "dep4"]
+
+    def test_full_skip_install_and_dependency_groups(self, isolation, isolated_data_dir, platform, temp_application):
+        config = {
+            "project": {
+                "name": "my_app",
+                "version": "0.0.1",
+                "dependencies": ["dep1"],
+            },
+            "dependency-groups": {
+                "foo": ["dep5"],
+                "bar": ["dep4", {"include-group": "foo"}],
+            },
+            "tool": {
+                "hatch": {
+                    "envs": {
+                        "default": {
+                            "dependencies": ["dep2"],
+                            "extra-dependencies": ["dep3"],
+                            "skip-install": True,
+                            "dependency-groups": ["bar"],
+                        }
+                    }
+                }
+            },
+        }
+        project = Project(isolation, config=config)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        assert environment.dependencies == ["dep2", "dep3", "dep4", "dep5"]
 
     def test_full_no_dev_mode(self, isolation, isolated_data_dir, platform, global_application):
         config = {
