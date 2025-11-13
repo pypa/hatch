@@ -6,9 +6,12 @@ from hatch.utils.fs import Path
 
 def test_pypirc(fs):
     # Get the project root directory (tests/utils/test_auth.py -> ../../src)
-    project_root = PathlibPath(__file__).parent.parent.parent
-    fs.add_real_directory(str(project_root / "src"), read_only=True)
-    fs.add_real_directory(str(project_root / "tests"), read_only=True)
+    # we have to do this because of the change from sys.settrace() to sys.monitoring in 3.14
+    if sys.version_info >= (3, 14):
+        project_root = PathlibPath(__file__).parent.parent.parent
+        fs.add_real_directory(str(project_root / "src"), read_only=True)
+        fs.add_real_directory(str(project_root / "tests"), read_only=True)
+
     fs.create_file(
         Path.home() / ".pypirc",
         contents="""\
