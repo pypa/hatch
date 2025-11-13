@@ -8,7 +8,7 @@ def get_default_config() -> dict[str, Any]:
         "installer": "uv",
         "dependencies": [
             "coverage-enable-subprocess==1.0",
-            "coverage[toml]~=7.4",
+            "coverage[toml]~=7.11",
             "pytest~=9.0",
             "pytest-mock~=3.12",
             "pytest-randomly~=3.15",

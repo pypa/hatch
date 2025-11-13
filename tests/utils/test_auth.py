@@ -1,8 +1,14 @@
+from pathlib import Path as PathlibPath
+
 from hatch.publish.auth import AuthenticationCredentials
 from hatch.utils.fs import Path
 
 
 def test_pypirc(fs):
+    # Get the project root directory (tests/utils/test_auth.py -> ../../src)
+    project_root = PathlibPath(__file__).parent.parent.parent
+    fs.add_real_directory(str(project_root / "src"), read_only=True)
+    fs.add_real_directory(str(project_root / "tests"), read_only=True)
     fs.create_file(
         Path.home() / ".pypirc",
         contents="""\
