@@ -1,32 +1,27 @@
-import sys
-from pathlib import Path as PathlibPath
-
 from hatch.publish.auth import AuthenticationCredentials
 from hatch.utils.fs import Path
 
 
-def test_pypirc(fs):
-    # Get the project root directory (tests/utils/test_auth.py -> ../../src)
-    # we have to do this because of the change from sys.settrace() to sys.monitoring in 3.14
-    if sys.version_info >= (3, 14):
-        project_root = PathlibPath(__file__).parent.parent.parent
-        fs.add_real_directory(str(project_root / "src"), read_only=True)
-        fs.add_real_directory(str(project_root / "tests"), read_only=True)
+def test_pypirc(tmp_path, monkeypatch):
+    # Create a fake home directory
+    fake_home = tmp_path / "home"
+    fake_home.mkdir()
 
-    fs.create_file(
-        Path.home() / ".pypirc",
-        contents="""\
-            [other]
-            username: guido
-            password: gat
-            repository: https://kaashandel.nl/
+    # Create .pypirc in the fake home
+    pypirc = fake_home / ".pypirc"
+    pypirc.write_text("""\
+[other]
+username: guido
+password: gat
+repository: https://kaashandel.nl/
 
-            [pypi]
-            username: guido
-            password: sprscrt
-            """,
-    )
+[pypi]
+username: guido
+password: sprscrt
+""")
 
+    # Mock Path.home() to return our fake home
+    monkeypatch.setattr(Path, "home", lambda: fake_home)
     credentials = AuthenticationCredentials(
         app=None, cache_dir=Path("/none"), options={}, repo="", repo_config={"url": ""}
     )
