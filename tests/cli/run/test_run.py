@@ -2518,7 +2518,7 @@ class TestScriptRunner:
             """
         )
 
-    #TODO: Figure out why this fails on Linux only for 3.14, skipping to check other tests
+    # TODO: Figure out why this fails on Linux only for 3.14, skipping to check other tests
     @pytest.mark.skipif(
         sys.version_info >= (3, 14) and sys.platform.startswith("linux"),
         reason="Python 3.14 may have clean system installations with no packages",
