@@ -2527,8 +2527,7 @@ class TestScriptRunner:
         # Cap the range at the current minor version so that the current Python
         # will be used and distributions don't have to be downloaded
         major, minor = sys.version_info[:2]
-        if minor < 14:
-            minor += 1
+        minor += 1
 
         script.write_text(
             helpers.dedent(
