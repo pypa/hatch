@@ -1,3 +1,4 @@
+import sys
 from pathlib import Path as PathlibPath
 
 from hatch.publish.auth import AuthenticationCredentials
