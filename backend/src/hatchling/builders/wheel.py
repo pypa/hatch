@@ -678,8 +678,8 @@ class WheelBuilder(BuilderInterface):
 
         sbom_map = {os.path.join(self.root, sbom_file): os.path.basename(sbom_file) for sbom_file in sbom_files}
 
-        for sbom_file in self.recurse_explicit_files(sbom_map):
-            record = archive.add_sbom_file(sbom_file)
+        for included_file in self.recurse_explicit_files(sbom_map):
+            record = archive.add_sbom_file(included_file)
             records.write(record)
 
     def write_metadata(
