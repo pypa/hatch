@@ -3,7 +3,6 @@ from __future__ import annotations
 import importlib
 import json
 import os
-import pathlib
 import re
 import sys
 from datetime import datetime, timezone
@@ -53,10 +52,10 @@ def assert_plugin_installation(subprocess_run, dependencies: list[str], *, verbo
     uv_bin = find_uv_bin()
     command = [
         uv_bin,
-        'pip',
-        'install',
-        '--disable-pip-version-check',
-        '--python',
+        "pip",
+        "install",
+        "--disable-pip-version-check",
+        "--python",
         sys.executable,
     ]
     add_verbosity_flag(command, verbosity, adjustment=-1)
