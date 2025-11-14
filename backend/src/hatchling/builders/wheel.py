@@ -151,6 +151,11 @@ class WheelArchive:
         )
         return self.add_file(extra_metadata_file)
 
+    def add_sbom_file(self, sbom_file: IncludedFile) -> tuple[str, str, str]:
+        """Add SBOM file to .dist-info/sboms/ directory."""
+        sbom_file.distribution_path = f"{self.metadata_directory}/sboms/{sbom_file.distribution_path}"
+        return self.add_file(sbom_file)
+
     def write_file(
         self,
         relative_path: str,
@@ -660,6 +665,23 @@ class WheelBuilder(BuilderInterface):
             record = archive.write_shared_script(shared_script, content.getvalue())
             records.write(record)
 
+    def add_sboms(self, archive: WheelArchive, records: RecordFile) -> None:
+        sbom_files = self.metadata.core.sbom_files
+        if not sbom_files:
+            return
+
+        for sbom_file in sbom_files:
+            sbom_path = os.path.join(self.root, sbom_file)
+            if not os.path.exists(sbom_path):
+                message = f"SBOM file not found: {sbom_file}"
+                raise FileNotFoundError(message)
+
+        sbom_map = {os.path.join(self.root, sbom_file): os.path.basename(sbom_file) for sbom_file in sbom_files}
+
+        for sbom_file in self.recurse_explicit_files(sbom_map):
+            record = archive.add_sbom_file(sbom_file)
+            records.write(record)
+
     def write_metadata(
         self,
         archive: WheelArchive,
@@ -681,6 +703,9 @@ class WheelBuilder(BuilderInterface):
 
         # licenses/
         self.add_licenses(archive, records)
+
+        # sboms/
+        self.add_sboms(archive, records)
 
         # extra_metadata/ - write last
         self.add_extra_metadata(archive, records, build_data)
