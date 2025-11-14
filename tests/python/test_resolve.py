@@ -134,7 +134,7 @@ class TestVariantCPU:
             ),
         ],
     )
-    def test_guess_variant(self, tmp_path, monkeypatch, variant, flags):
+    def test_guess_variant(self, tmp_path, mocker, variant, flags):
         cpuinfo = tmp_path / "cpuinfo"
         cpuinfo.write_text(flags)
 
@@ -145,7 +145,7 @@ class TestVariantCPU:
                 return original_open(str(cpuinfo), *args, **kwargs)
             return original_open(path, *args, **kwargs)
 
-        monkeypatch.setattr("builtins.open", mock_open)
+        mocker.patch("builtins.open", side_effect=mock_open)
 
         with EnvVars({"HATCH_PYTHON_VARIANT_CPU": ""}):
             dist = get_distribution("3.12")

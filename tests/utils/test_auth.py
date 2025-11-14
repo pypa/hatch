@@ -2,7 +2,7 @@ from hatch.publish.auth import AuthenticationCredentials
 from hatch.utils.fs import Path
 
 
-def test_pypirc(tmp_path, monkeypatch):
+def test_pypirc(tmp_path, mocker):
     # Create a fake home directory
     fake_home = tmp_path / "home"
     fake_home.mkdir()
@@ -20,8 +20,7 @@ username: guido
 password: sprscrt
 """)
 
-    # Mock Path.home() to return our fake home
-    monkeypatch.setattr(Path, "home", lambda: fake_home)
+    mocker.patch.object(Path, "home", return_value=fake_home)
     credentials = AuthenticationCredentials(
         app=None, cache_dir=Path("/none"), options={}, repo="", repo_config={"url": ""}
     )

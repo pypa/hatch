@@ -485,7 +485,7 @@ class EnvironmentInterface(ABC):
 
     @cached_property
     def features(self):
-        from hatch.utils.metadata import normalize_names
+        from hatch.utils.metadata import normalize_project_name
 
         features = self.config.get("features", [])
         if not isinstance(features, list):
@@ -503,7 +503,7 @@ class EnvironmentInterface(ABC):
                 raise ValueError(message)
 
             normalized_feature = (
-                feature if self.metadata.hatch.metadata.allow_ambiguous_features else normalize_names(feature)
+                feature if self.metadata.hatch.metadata.allow_ambiguous_features else normalize_project_name(feature)
             )
             if (
                 not self.metadata.hatch.metadata.hook_config
@@ -521,7 +521,7 @@ class EnvironmentInterface(ABC):
 
     @cached_property
     def dependency_groups(self):
-        from hatch.utils.metadata import normalize_names
+        from hatch.utils.metadata import normalize_project_name
 
         dependency_groups = self.config.get("dependency-groups", [])
         if not isinstance(dependency_groups, list):
@@ -540,7 +540,7 @@ class EnvironmentInterface(ABC):
                 message = f"Dependency Group #{i} of field `tool.hatch.envs.{self.name}.dependency-groups` cannot be an empty string"
                 raise ValueError(message)
 
-            normalized_dependency_group = normalize_names(dependency_group)
+            normalized_dependency_group = normalize_project_name(dependency_group)
             if (
                 not self.metadata.hatch.metadata.hook_config
                 and normalized_dependency_group not in self.app.project.dependency_groups
@@ -1108,7 +1108,7 @@ class Workspace:
 
         from hatch.project.core import Project
         from hatch.utils.fs import Path
-        from hatch.utils.metadata import normalize_names
+        from hatch.utils.metadata import normalize_project_name
 
         raw_members = self.config.get("members", [])
         if not isinstance(raw_members, list):
@@ -1177,7 +1177,7 @@ class Workspace:
                             )
                             raise ValueError(message)
 
-                        normalized_feature = normalize_names(feature)
+                        normalized_feature = normalize_project_name(feature)
                         if normalized_feature in all_features:
                             message = (
                                 f"Feature #{j} of option `features` of member #{i} of field "
