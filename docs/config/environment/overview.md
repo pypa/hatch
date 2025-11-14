@@ -103,6 +103,25 @@ features = [
 !!! note
     Features/optional dependencies are also known as `extras` in other tools.
 
+### Dependency Groups
+
+[Dependency groups](https://packaging.python.org/en/latest/specifications/dependency-groups/#dependency-groups) (standardized in PEP 735) provide a uniform way to organize related development dependencies. See [advanced usage](advanced.md#dependency-groups) for more details on dependency group features like including other groups.
+
+You can include dependency-groups in your hatch environments using the `[dependency-groups]` array:
+
+```toml config-example
+[dependency-groups]
+test = [
+  "pytest>=7.0.0",
+  "pytest-cov>=4.1.0",
+]
+
+[tool.hatch.envs.test]
+dependency-groups = [
+  "test",
+]
+```
+
 ### Dev mode
 
 By default, environments will always reflect the current state of your project on disk, for example, by installing it in editable mode in a Python environment. Set `dev-mode` to `false` to disable this behavior and have your project installed only upon creation of a new environment. From then on, you need to manage your project installation manually.
