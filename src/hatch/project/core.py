@@ -113,7 +113,7 @@ class Project:
         """
         https://peps.python.org/pep-0735/
         """
-        from hatchling.metadata.utils import normalize_project_name
+        from hatch.utils.metadata import normalize_project_name
 
         dependency_groups = self.raw_config.get("dependency-groups", {})
 

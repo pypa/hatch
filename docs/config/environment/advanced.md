@@ -129,7 +129,7 @@ hatch run test:cov
 
 ## Dependency Groups
 
-Environments can use [PEP 735](https://peps.python.org/pep-0735/) dependency groups using the environment `dependency-groups` array:
+Environments can use dependency groups[^1] using the environment `dependency-groups` array:
 
 ```toml config-example
 [dependency-groups]
@@ -364,3 +364,4 @@ matrix.version.env-vars = [
 [[tool.hatch.envs.test.matrix]]
 version = ["42", "3.14"]
 ```
+[^1]: [PEP 735 – Dependency Groups in pyproject.toml](https://peps.python.org/pep-0735/)
