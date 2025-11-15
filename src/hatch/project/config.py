@@ -349,7 +349,7 @@ class ProjectConfig:
 
                     for result in product(*variables.values()):
                         # Make a value mapping for easy referencing
-                        variable_values = dict(zip(variables, result))
+                        variable_values = dict(zip(variables, result, strict=False))
 
                         # Create the environment's initial configuration
                         new_config = deepcopy(initial_config)

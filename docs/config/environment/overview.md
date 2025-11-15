@@ -105,7 +105,7 @@ features = [
 
 ### Dependency Groups
 
-[Dependency groups](https://packaging.python.org/en/latest/specifications/dependency-groups/#dependency-groups) (standardized in PEP 735) provide a uniform way to organize related development dependencies. See [advanced usage](advanced.md#dependency-groups) for more details on dependency group features like including other groups.
+[Dependency groups](https://packaging.python.org/en/latest/specifications/dependency-groups/#dependency-groups) provide a uniform way to organize related development dependencies. See [advanced usage](advanced.md#dependency-groups) for more details on dependency group features like including other groups.
 
 You can include dependency-groups in your hatch environments using the `[dependency-groups]` array:
 

@@ -8,7 +8,7 @@ from contextlib import closing
 from copy import copy
 from io import BytesIO
 from time import time as get_current_timestamp
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any
 
 from hatchling.builders.config import BuilderConfig
 from hatchling.builders.plugin.interface import BuilderInterface
@@ -24,6 +24,7 @@ from hatchling.metadata.spec import DEFAULT_METADATA_VERSION, get_core_metadata_
 from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT, DEFAULT_CONFIG_FILE
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
     from types import TracebackType
 
 
