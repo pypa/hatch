@@ -391,6 +391,25 @@ class WheelBuilderConfig(BuilderConfig):
         return self.__extra_metadata
 
     @property
+    def sbom_files(self) -> list[str]:
+        """
+        https://peps.python.org/pep-0770/
+        """
+        sbom_files = self.target_config.get("sbom-files", [])
+        if not isinstance(sbom_files, list):
+            message = f"Field `tool.hatch.build.targets.{self.plugin_name}.sbom-files` must be an array"
+            raise TypeError(message)
+
+        for i, sbom_file in enumerate(sbom_files, 1):
+            if not isinstance(sbom_file, str):
+                message = (
+                    f"SBOM file #{i} in field `tool.hatch.build.targets.{self.plugin_name}.sbom-files` must be a string"
+                )
+                raise TypeError(message)
+
+        return sbom_files
+
+    @property
     def strict_naming(self) -> bool:
         if self.__strict_naming is None:
             if "strict-naming" in self.target_config:
@@ -666,7 +685,7 @@ class WheelBuilder(BuilderInterface):
             records.write(record)
 
     def add_sboms(self, archive: WheelArchive, records: RecordFile) -> None:
-        sbom_files = self.metadata.core.sbom_files
+        sbom_files = self.config.sbom_files
         if not sbom_files:
             return
 

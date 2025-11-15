@@ -389,7 +389,6 @@ class CoreMetadata:
         self._optional_dependencies_complex: dict[str, dict[str, Requirement]] | None = None
         self._optional_dependencies: dict[str, list[str]] | None = None
         self._dynamic: list[str] | None = None
-        self._sbom_files: list[str] | None = None
 
         # Indicates that the version has been successfully set dynamically
         self._version_set: bool = False
@@ -1357,23 +1356,6 @@ class CoreMetadata:
             self._dynamic = sorted(dynamic)
 
         return self._dynamic
-
-    @property
-    def sbom_files(self) -> list[str]:
-        """
-        https://peps.python.org/pep-0770/
-        """
-        sbom_files = self.config.get("sbom-files", [])
-        if not isinstance(sbom_files, list):
-            message = "Field `project.sbom-files` must be an array"
-            raise TypeError(message)
-
-        for i, sbom_file in enumerate(sbom_files, 1):
-            if not isinstance(sbom_file, str):
-                message = f"SBOM file #{i} in `project.sbom-files` must be a string"
-                raise TypeError(message)
-
-        return sbom_files
 
     def add_known_classifiers(self, classifiers: list[str]) -> None:
         self._extra_classifiers.update(classifiers)
