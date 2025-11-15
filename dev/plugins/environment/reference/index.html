@@ -543,7 +543,7 @@
 <span class=linenos data-linenos="485 "></span>
 <span class=linenos data-linenos="486 "></span>    <span class=nd>@cached_property</span>
 <span class=linenos data-linenos="487 "></span>    <span class=k>def</span> <span class=nf>features</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
-<span class=linenos data-linenos="488 "></span>        <span class=kn>from</span> <span class=nn>hatchling.metadata.utils</span> <span class=kn>import</span> <span class=n>normalize_project_name</span>
+<span class=linenos data-linenos="488 "></span>        <span class=kn>from</span> <span class=nn>hatch.utils.metadata</span> <span class=kn>import</span> <span class=n>normalize_project_name</span>
 <span class=linenos data-linenos="489 "></span>
 <span class=linenos data-linenos="490 "></span>        <span class=n>features</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>config</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=s2>&quot;features&quot;</span><span class=p>,</span> <span class=p>[])</span>
 <span class=linenos data-linenos="491 "></span>        <span class=k>if</span> <span class=ow>not</span> <span class=nb>isinstance</span><span class=p>(</span><span class=n>features</span><span class=p>,</span> <span class=nb>list</span><span class=p>):</span>
@@ -579,7 +579,7 @@
 <span class=linenos data-linenos="521 "></span>
 <span class=linenos data-linenos="522 "></span>    <span class=nd>@cached_property</span>
 <span class=linenos data-linenos="523 "></span>    <span class=k>def</span> <span class=nf>dependency_groups</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
-<span class=linenos data-linenos="524 "></span>        <span class=kn>from</span> <span class=nn>hatchling.metadata.utils</span> <span class=kn>import</span> <span class=n>normalize_project_name</span>
+<span class=linenos data-linenos="524 "></span>        <span class=kn>from</span> <span class=nn>hatch.utils.metadata</span> <span class=kn>import</span> <span class=n>normalize_project_name</span>
 <span class=linenos data-linenos="525 "></span>
 <span class=linenos data-linenos="526 "></span>        <span class=n>dependency_groups</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>config</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=s2>&quot;dependency-groups&quot;</span><span class=p>,</span> <span class=p>[])</span>
 <span class=linenos data-linenos="527 "></span>        <span class=k>if</span> <span class=ow>not</span> <span class=nb>isinstance</span><span class=p>(</span><span class=n>dependency_groups</span><span class=p>,</span> <span class=nb>list</span><span class=p>):</span>
