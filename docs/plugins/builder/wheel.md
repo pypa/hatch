@@ -14,8 +14,6 @@ The builder plugin name is `wheel`.
 
 ## Options
 
-## Options
-
 | Option | Default | Description |
 | --- | --- | --- |
 | `core-metadata-version` | `"2.4"` | The version of [core metadata](https://packaging.python.org/specifications/core-metadata/) to use |
