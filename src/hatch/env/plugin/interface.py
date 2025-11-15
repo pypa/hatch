@@ -485,7 +485,7 @@ class EnvironmentInterface(ABC):
 
     @cached_property
     def features(self):
-        from hatchling.metadata.utils import normalize_project_name
+        from hatch.utils.metadata import normalize_project_name
 
         features = self.config.get("features", [])
         if not isinstance(features, list):
@@ -521,7 +521,7 @@ class EnvironmentInterface(ABC):
 
     @cached_property
     def dependency_groups(self):
-        from hatchling.metadata.utils import normalize_project_name
+        from hatch.utils.metadata import normalize_project_name
 
         dependency_groups = self.config.get("dependency-groups", [])
         if not isinstance(dependency_groups, list):
@@ -1108,7 +1108,7 @@ class Workspace:
 
         from hatch.project.core import Project
         from hatch.utils.fs import Path
-        from hatchling.metadata.utils import normalize_project_name
+        from hatch.utils.metadata import normalize_project_name
 
         raw_members = self.config.get("members", [])
         if not isinstance(raw_members, list):

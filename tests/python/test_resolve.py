@@ -134,8 +134,18 @@ class TestVariantCPU:
             ),
         ],
     )
-    def test_guess_variant(self, fs, variant, flags):
-        fs.create_file("/proc/cpuinfo", contents=flags)
+    def test_guess_variant(self, tmp_path, mocker, variant, flags):
+        cpuinfo = tmp_path / "cpuinfo"
+        cpuinfo.write_text(flags)
+
+        original_open = open
+
+        def mock_open(path, *args, **kwargs):
+            if str(path) == "/proc/cpuinfo":
+                return original_open(str(cpuinfo), *args, **kwargs)
+            return original_open(path, *args, **kwargs)
+
+        mocker.patch("builtins.open", side_effect=mock_open)
 
         with EnvVars({"HATCH_PYTHON_VARIANT_CPU": ""}):
             dist = get_distribution("3.12")

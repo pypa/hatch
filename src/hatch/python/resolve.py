@@ -280,9 +280,8 @@ def _get_default_variant_gil() -> str:
 
 
 def _get_distribution_class(source: str) -> type[Distribution]:
-    if source.startswith("https://github.com/indygreg/python-build-standalone/releases/download/"):
+    if "/python-build-standalone/releases/download/" in source:
         return CPythonStandaloneDistribution
-
     if source.startswith("https://downloads.python.org/pypy/"):
         return PyPyOfficialDistribution
 
