@@ -3753,3 +3753,172 @@ class TestBuildStandard:
         # we assert that at minimum 644 is set, based on the platform (e.g.)
         # windows it may be higher
         assert file_stat.st_mode & 0o644
+
+
+class TestSBOMFiles:
+    def test_single_sbom_file(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins["default"]["tests"] = False
+        config_file.save()
+
+        with temp_dir.as_cwd():
+            result = hatch("new", "My.App")
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / "my-app"
+        sbom_file = project_path / "my-sbom.spdx.json"
+        sbom_file.write_text('{"spdxVersion": "SPDX-2.3"}')
+
+        config = {
+            "project": {"name": "My.App", "dynamic": ["version"]},
+            "tool": {
+                "hatch": {
+                    "version": {"path": "src/my_app/__about__.py"},
+                    "build": {"targets": {"wheel": {"sbom-files": ["my-sbom.spdx.json"]}}},
+                }
+            },
+        }
+        builder = WheelBuilder(str(project_path), config=config)
+
+        build_path = project_path / "dist"
+        build_path.mkdir()
+
+        with project_path.as_cwd():
+            artifacts = list(builder.build(directory=str(build_path)))
+
+        assert len(artifacts) == 1
+
+        extraction_directory = temp_dir / "_archive"
+        extraction_directory.mkdir()
+
+        with zipfile.ZipFile(str(artifacts[0]), "r") as zip_archive:
+            zip_archive.extractall(str(extraction_directory))
+
+        metadata_directory = f"{builder.project_id}.dist-info"
+        expected_files = helpers.get_template_files(
+            "wheel.standard_default_sbom",
+            "My.App",
+            metadata_directory=metadata_directory,
+            sbom_files=[("my-sbom.spdx.json", '{"spdxVersion": "SPDX-2.3"}')],
+        )
+        helpers.assert_files(extraction_directory, expected_files)
+
+    def test_multiple_sbom_files(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins["default"]["tests"] = False
+        config_file.save()
+
+        with temp_dir.as_cwd():
+            result = hatch("new", "My.App")
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / "my-app"
+        (project_path / "sbom1.spdx.json").write_text('{"spdxVersion": "SPDX-2.3"}')
+        (project_path / "sbom2.cyclonedx.json").write_text('{"bomFormat": "CycloneDX"}')
+
+        config = {
+            "project": {"name": "My.App", "dynamic": ["version"]},
+            "tool": {
+                "hatch": {
+                    "version": {"path": "src/my_app/__about__.py"},
+                    "build": {"targets": {"wheel": {"sbom-files": ["sbom1.spdx.json", "sbom2.cyclonedx.json"]}}},
+                }
+            },
+        }
+        builder = WheelBuilder(str(project_path), config=config)
+
+        build_path = project_path / "dist"
+        build_path.mkdir()
+
+        with project_path.as_cwd():
+            artifacts = list(builder.build(directory=str(build_path)))
+
+        assert len(artifacts) == 1
+
+        extraction_directory = temp_dir / "_archive"
+        extraction_directory.mkdir()
+
+        with zipfile.ZipFile(str(artifacts[0]), "r") as zip_archive:
+            zip_archive.extractall(str(extraction_directory))
+
+        metadata_directory = f"{builder.project_id}.dist-info"
+        expected_files = helpers.get_template_files(
+            "wheel.standard_default_sbom",
+            "My.App",
+            metadata_directory=metadata_directory,
+            sbom_files=[
+                ("sbom1.spdx.json", '{"spdxVersion": "SPDX-2.3"}'),
+                ("sbom2.cyclonedx.json", '{"bomFormat": "CycloneDX"}'),
+            ],
+        )
+        helpers.assert_files(extraction_directory, expected_files)
+
+    def test_nested_sbom_file(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins["default"]["tests"] = False
+        config_file.save()
+
+        with temp_dir.as_cwd():
+            result = hatch("new", "My.App")
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / "my-app"
+        sbom_dir = project_path / "sboms"
+        sbom_dir.mkdir()
+        (sbom_dir / "vendor.spdx.json").write_text('{"spdxVersion": "SPDX-2.3"}')
+
+        config = {
+            "project": {"name": "My.App", "dynamic": ["version"]},
+            "tool": {
+                "hatch": {
+                    "version": {"path": "src/my_app/__about__.py"},
+                    "build": {"targets": {"wheel": {"sbom-files": ["sboms/vendor.spdx.json"]}}},
+                }
+            },
+        }
+        builder = WheelBuilder(str(project_path), config=config)
+
+        build_path = project_path / "dist"
+        build_path.mkdir()
+
+        with project_path.as_cwd():
+            artifacts = list(builder.build(directory=str(build_path)))
+
+        assert len(artifacts) == 1
+
+        extraction_directory = temp_dir / "_archive"
+        extraction_directory.mkdir()
+
+        with zipfile.ZipFile(str(artifacts[0]), "r") as zip_archive:
+            zip_archive.extractall(str(extraction_directory))
+
+        metadata_directory = f"{builder.project_id}.dist-info"
+        expected_files = helpers.get_template_files(
+            "wheel.standard_default_sbom",
+            "My.App",
+            metadata_directory=metadata_directory,
+            sbom_files=[("vendor.spdx.json", '{"spdxVersion": "SPDX-2.3"}')],
+        )
+        helpers.assert_files(extraction_directory, expected_files)
+
+    def test_sbom_files_invalid_type(self, isolation):
+        config = {
+            "project": {"name": "my-app", "version": "0.0.1"},
+            "tool": {"hatch": {"build": {"targets": {"wheel": {"sbom-files": "not-a-list"}}}}},
+        }
+        builder = WheelBuilder(str(isolation), config=config)
+
+        with pytest.raises(TypeError, match="Field `tool.hatch.build.targets.wheel.sbom-files` must be an array"):
+            _ = builder.config.sbom_files
+
+    def test_sbom_file_invalid_item(self, isolation):
+        config = {
+            "project": {"name": "my-app", "version": "0.0.1"},
+            "tool": {"hatch": {"build": {"targets": {"wheel": {"sbom-files": [123]}}}}},
+        }
+        builder = WheelBuilder(str(isolation), config=config)
+
+        with pytest.raises(
+            TypeError, match="SBOM file #1 in field `tool.hatch.build.targets.wheel.sbom-files` must be a string"
+        ):
+            _ = builder.config.sbom_files
