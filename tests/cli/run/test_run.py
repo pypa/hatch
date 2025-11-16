@@ -1044,7 +1044,9 @@ def test_matrix(hatch, helpers, temp_dir, config_file):
     assert len(env_dirs) == 2
 
     python_path1, python_path2 = str(output_file.read_text()).splitlines()
-    for python_path, env_dir, env_name in zip((python_path1, python_path2), env_dirs, ("test.9000", "test.42")):
+    for python_path, env_dir, env_name in zip(
+        (python_path1, python_path2), env_dirs, ("test.9000", "test.42"), strict=False
+    ):
         assert env_dir.name == env_name
         assert str(env_dir) in python_path
 

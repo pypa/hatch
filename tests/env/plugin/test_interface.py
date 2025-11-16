@@ -1,3 +1,5 @@
+import re
+
 import pytest
 
 from hatch.config.constants import AppEnvVars
@@ -750,6 +752,158 @@ class TestFeatures:
             _ = environment.features
 
 
+class TestDependencyGroups:
+    def test_default(self, isolation, isolated_data_dir, platform, global_application):
+        config = {"project": {"name": "my_app", "version": "0.0.1"}}
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            global_application,
+        )
+
+        assert environment.dependency_groups == []
+
+    def test_not_array(self, isolation, isolated_data_dir, platform, global_application):
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {"hatch": {"envs": {"default": {"dependency-groups": 9000}}}},
+        }
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            global_application,
+        )
+
+        with pytest.raises(
+            TypeError, match="Field `tool.hatch.envs.default.dependency-groups` must be an array of strings"
+        ):
+            _ = environment.dependency_groups
+
+    def test_correct(self, isolation, isolated_data_dir, platform, temp_application):
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "dependency-groups": {"foo-bar": [], "baz": []},
+            "tool": {"hatch": {"envs": {"default": {"dependency-groups": ["Foo...Bar", "Baz", "baZ"]}}}},
+        }
+        project = Project(isolation, config=config)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        assert environment.dependency_groups == ["baz", "foo-bar"]
+
+    def test_group_not_string(self, isolation, isolated_data_dir, platform, global_application):
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "dependency-groups": {"foo": [], "bar": []},
+            "tool": {"hatch": {"envs": {"default": {"dependency-groups": [9000]}}}},
+        }
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            global_application,
+        )
+
+        with pytest.raises(
+            TypeError, match="Group #1 of field `tool.hatch.envs.default.dependency-groups` must be a string"
+        ):
+            _ = environment.dependency_groups
+
+    def test_group_empty_string(self, isolation, isolated_data_dir, platform, global_application):
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "dependency-groups": {"foo": [], "bar": []},
+            "tool": {"hatch": {"envs": {"default": {"dependency-groups": [""]}}}},
+        }
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            global_application,
+        )
+
+        with pytest.raises(
+            ValueError, match="Group #1 of field `tool.hatch.envs.default.dependency-groups` cannot be an empty string"
+        ):
+            _ = environment.dependency_groups
+
+    def test_group_undefined(self, isolation, isolated_data_dir, platform, temp_application):
+        config = {
+            "project": {
+                "name": "my_app",
+                "version": "0.0.1",
+            },
+            "dependency-groups": {"foo": []},
+            "tool": {"hatch": {"envs": {"default": {"dependency-groups": ["foo", "bar", ""]}}}},
+        }
+        project = Project(isolation, config=config)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        with pytest.raises(
+            ValueError,
+            match=(
+                "Group `bar` of field `tool.hatch.envs.default.dependency-groups` is not "
+                "defined in field `dependency-groups`"
+            ),
+        ):
+            _ = environment.dependency_groups
+
+
 class TestDescription:
     def test_default(self, isolation, isolated_data_dir, platform, global_application):
         config = {"project": {"name": "my_app", "version": "0.0.1"}}
@@ -1108,7 +1262,49 @@ class TestDependencies:
 
         assert environment.dependencies == ["dep2", "dep3", "dep4"]
 
-    def test_full_dev_mode(self, isolation, isolated_data_dir, platform, global_application):
+    def test_full_skip_install_and_dependency_groups(self, isolation, isolated_data_dir, platform, temp_application):
+        config = {
+            "project": {
+                "name": "my_app",
+                "version": "0.0.1",
+                "dependencies": ["dep1"],
+            },
+            "dependency-groups": {
+                "foo": ["dep5"],
+                "bar": ["dep4", {"include-group": "foo"}],
+            },
+            "tool": {
+                "hatch": {
+                    "envs": {
+                        "default": {
+                            "dependencies": ["dep2"],
+                            "extra-dependencies": ["dep3"],
+                            "skip-install": True,
+                            "dependency-groups": ["bar"],
+                        }
+                    }
+                }
+            },
+        }
+        project = Project(isolation, config=config)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        assert environment.dependencies == ["dep2", "dep3", "dep4", "dep5"]
+
+    def test_full_no_dev_mode(self, isolation, isolated_data_dir, platform, global_application):
         config = {
             "project": {"name": "my_app", "version": "0.0.1", "dependencies": ["dep1"]},
             "tool": {
@@ -1156,6 +1352,80 @@ class TestDependencies:
         )
 
         assert environment.dependencies == ["dep3", "dep2"]
+
+    def test_workspace(self, temp_dir, isolated_data_dir, platform, temp_application):
+        for i in range(3):
+            project_file = temp_dir / f"foo{i}" / "pyproject.toml"
+            project_file.parent.mkdir()
+            project_file.write_text(
+                f"""\
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "foo{i}"
+version = "0.0.1"
+dependencies = ["pkg-{i}"]
+
+[project.optional-dependencies]
+feature1 = ["pkg-feature-1{i}"]
+feature2 = ["pkg-feature-2{i}"]
+feature3 = ["pkg-feature-3{i}"]
+"""
+            )
+
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1", "dependencies": ["dep1"]},
+            "tool": {
+                "hatch": {
+                    "envs": {
+                        "default": {
+                            "skip-install": False,
+                            "dependencies": ["dep2"],
+                            "extra-dependencies": ["dep3"],
+                            "workspace": {
+                                "members": [
+                                    {"path": "foo0", "features": ["feature1"]},
+                                    {"path": "foo1", "features": ["feature1", "feature2"]},
+                                    {"path": "foo2", "features": ["feature1", "feature2", "feature3"]},
+                                ],
+                            },
+                        },
+                    },
+                },
+            },
+        }
+        project = Project(temp_dir, config=config)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            temp_dir,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        assert environment.dependencies == [
+            "dep2",
+            "dep3",
+            "pkg-0",
+            "pkg-feature-10",
+            "pkg-1",
+            "pkg-feature-11",
+            "pkg-feature-21",
+            "pkg-2",
+            "pkg-feature-12",
+            "pkg-feature-22",
+            "pkg-feature-32",
+            "dep1",
+        ]
 
 
 class TestScripts:
@@ -2071,3 +2341,539 @@ class TestContextFormatting:
             )
 
             assert environment.dependencies == ["pkg"]
+
+
+class TestWorkspaceConfig:
+    def test_not_table(self, isolation, isolated_data_dir, platform, global_application):
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {"hatch": {"envs": {"default": {"workspace": 9000}}}},
+        }
+        project = Project(isolation, config=config)
+        with pytest.raises(TypeError, match="Field workspace must be a table"):
+            MockEnvironment(
+                isolation,
+                project.metadata,
+                "default",
+                project.config.envs["default"],  # Exception raised here
+                {},
+                isolated_data_dir,
+                isolated_data_dir,
+                platform,
+                0,
+                global_application,
+            )
+
+    def test_parallel_not_boolean(self, isolation, isolated_data_dir, platform, global_application):
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {"hatch": {"envs": {"default": {"workspace": {"parallel": 9000}}}}},
+        }
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            global_application,
+        )
+
+        with pytest.raises(TypeError, match="Field `tool.hatch.envs.default.workspace.parallel` must be a boolean"):
+            _ = environment.workspace.parallel
+
+    def test_parallel_default(self, isolation, isolated_data_dir, platform, global_application):
+        config = {"project": {"name": "my_app", "version": "0.0.1"}}
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            global_application,
+        )
+
+        assert environment.workspace.parallel is True
+
+    def test_parallel_override(self, isolation, isolated_data_dir, platform, global_application):
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {"hatch": {"envs": {"default": {"workspace": {"parallel": False}}}}},
+        }
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            global_application,
+        )
+
+        assert environment.workspace.parallel is False
+
+    def test_members_not_table(self, isolation, isolated_data_dir, platform, global_application):
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {"hatch": {"envs": {"default": {"workspace": {"members": 9000}}}}},
+        }
+        project = Project(isolation, config=config)
+        with pytest.raises(TypeError, match="Field workspace.members must be an array"):
+            MockEnvironment(
+                isolation,
+                project.metadata,
+                "default",
+                project.config.envs["default"],  # Exception raised here
+                {},
+                isolated_data_dir,
+                isolated_data_dir,
+                platform,
+                0,
+                global_application,
+            )
+
+    def test_member_invalid_type(self, isolation, isolated_data_dir, platform, global_application):
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {"hatch": {"envs": {"default": {"workspace": {"members": [9000]}}}}},
+        }
+        project = Project(isolation, config=config)
+        with pytest.raises(TypeError, match="Member #1 must be a string or table"):
+            MockEnvironment(
+                isolation,
+                project.metadata,
+                "default",
+                project.config.envs["default"],  # Exception raised here
+                {},
+                isolated_data_dir,
+                isolated_data_dir,
+                platform,
+                0,
+                global_application,
+            )
+
+    def test_member_no_path(self, isolation, isolated_data_dir, platform, global_application):
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {"hatch": {"envs": {"default": {"workspace": {"members": [{}]}}}}},
+        }
+        project = Project(isolation, config=config)
+        with pytest.raises(TypeError, match="Member #1 must define a `path` key"):
+            MockEnvironment(
+                isolation,
+                project.metadata,
+                "default",
+                project.config.envs["default"],  # Exception raised here
+                {},
+                isolated_data_dir,
+                isolated_data_dir,
+                platform,
+                0,
+                global_application,
+            )
+
+    def test_member_path_not_string(self, isolation, isolated_data_dir, platform, global_application):
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {"hatch": {"envs": {"default": {"workspace": {"members": [{"path": 9000}]}}}}},
+        }
+        project = Project(isolation, config=config)
+        with pytest.raises(TypeError, match="Member #1 path must be a string"):
+            MockEnvironment(
+                isolation,
+                project.metadata,
+                "default",
+                project.config.envs["default"],  # Exception raised here
+                {},
+                isolated_data_dir,
+                isolated_data_dir,
+                platform,
+                0,
+                global_application,
+            )
+
+    def test_member_path_empty_string(self, isolation, isolated_data_dir, platform, global_application):
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {"hatch": {"envs": {"default": {"workspace": {"members": [{"path": ""}]}}}}},
+        }
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            global_application,
+        )
+
+        with pytest.raises(
+            ValueError,
+            match=(
+                "Option `path` of member #1 of field `tool.hatch.envs.default.workspace.members` "
+                "cannot be an empty string"
+            ),
+        ):
+            _ = environment.workspace.members
+
+    def test_member_features_not_array(self, isolation, isolated_data_dir, platform, global_application):
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {"hatch": {"envs": {"default": {"workspace": {"members": [{"path": "foo", "features": 9000}]}}}}},
+        }
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            global_application,
+        )
+
+        with pytest.raises(
+            TypeError,
+            match=(
+                "Option `features` of member #1 of field `tool.hatch.envs.default.workspace.members` "
+                "must be an array of strings"
+            ),
+        ):
+            _ = environment.workspace.members
+
+    def test_member_feature_not_string(self, isolation, isolated_data_dir, platform, global_application):
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {"hatch": {"envs": {"default": {"workspace": {"members": [{"path": "foo", "features": [9000]}]}}}}},
+        }
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            global_application,
+        )
+
+        with pytest.raises(
+            TypeError,
+            match=(
+                "Feature #1 of option `features` of member #1 of field `tool.hatch.envs.default.workspace.members` "
+                "must be a string"
+            ),
+        ):
+            _ = environment.workspace.members
+
+    def test_member_feature_empty_string(self, isolation, isolated_data_dir, platform, global_application):
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {"hatch": {"envs": {"default": {"workspace": {"members": [{"path": "foo", "features": [""]}]}}}}},
+        }
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            global_application,
+        )
+
+        with pytest.raises(
+            ValueError,
+            match=(
+                "Feature #1 of option `features` of member #1 of field `tool.hatch.envs.default.workspace.members` "
+                "cannot be an empty string"
+            ),
+        ):
+            _ = environment.workspace.members
+
+    def test_member_feature_duplicate(self, isolation, isolated_data_dir, platform, global_application):
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {
+                "hatch": {
+                    "envs": {"default": {"workspace": {"members": [{"path": "foo", "features": ["foo", "Foo"]}]}}}
+                }
+            },
+        }
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            global_application,
+        )
+
+        with pytest.raises(
+            ValueError,
+            match=(
+                "Feature #2 of option `features` of member #1 of field `tool.hatch.envs.default.workspace.members` "
+                "is a duplicate"
+            ),
+        ):
+            _ = environment.workspace.members
+
+    def test_member_does_not_exist(self, isolation, isolated_data_dir, platform, global_application):
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {"hatch": {"envs": {"default": {"workspace": {"members": [{"path": "foo"}]}}}}},
+        }
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            global_application,
+        )
+
+        with pytest.raises(
+            OSError,
+            match=re.escape(
+                f"No members could be derived from `foo` of field `tool.hatch.envs.default.workspace.members`: "
+                f"{isolation / 'foo'}"
+            ),
+        ):
+            _ = environment.workspace.members
+
+    def test_member_not_project(self, temp_dir, isolated_data_dir, platform, global_application):
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {"hatch": {"envs": {"default": {"workspace": {"members": [{"path": "foo"}]}}}}},
+        }
+        project = Project(temp_dir, config=config)
+        environment = MockEnvironment(
+            temp_dir,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            global_application,
+        )
+
+        member_path = temp_dir / "foo"
+        member_path.mkdir()
+
+        with pytest.raises(
+            OSError,
+            match=re.escape(
+                f"Member derived from `foo` of field `tool.hatch.envs.default.workspace.members` is not a project "
+                f"(no `pyproject.toml` file): {member_path}"
+            ),
+        ):
+            _ = environment.workspace.members
+
+    def test_member_duplicate(self, temp_dir, isolated_data_dir, platform, global_application):
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {"hatch": {"envs": {"default": {"workspace": {"members": [{"path": "foo"}, {"path": "f*"}]}}}}},
+        }
+        project = Project(temp_dir, config=config)
+        environment = MockEnvironment(
+            temp_dir,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            global_application,
+        )
+
+        member_path = temp_dir / "foo"
+        member_path.mkdir()
+        (member_path / "pyproject.toml").touch()
+
+        with pytest.raises(
+            ValueError,
+            match=re.escape(
+                f"Member derived from `f*` of field "
+                f"`tool.hatch.envs.default.workspace.members` is a duplicate: {member_path}"
+            ),
+        ):
+            _ = environment.workspace.members
+
+    def test_correct(self, hatch, temp_dir, isolated_data_dir, platform, global_application):
+        member1_path = temp_dir / "foo"
+        member2_path = temp_dir / "bar"
+        member3_path = temp_dir / "baz"
+        for member_path in [member1_path, member2_path, member3_path]:
+            with temp_dir.as_cwd():
+                result = hatch("new", member_path.name)
+                assert result.exit_code == 0, result.output
+
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {"hatch": {"envs": {"default": {"workspace": {"members": [{"path": "foo"}, {"path": "b*"}]}}}}},
+        }
+        project = Project(temp_dir, config=config)
+        environment = MockEnvironment(
+            temp_dir,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            global_application,
+        )
+
+        members = environment.workspace.members
+        assert len(members) == 3
+        assert members[0].project.location == member1_path
+        assert members[1].project.location == member2_path
+        assert members[2].project.location == member3_path
+
+
+class TestWorkspaceDependencies:
+    def test_basic(self, temp_dir, isolated_data_dir, platform, global_application):
+        for i in range(3):
+            project_file = temp_dir / f"foo{i}" / "pyproject.toml"
+            project_file.parent.mkdir()
+            project_file.write_text(
+                f"""\
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "foo{i}"
+version = "0.0.1"
+dependencies = ["pkg-{i}"]
+"""
+            )
+
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {"hatch": {"envs": {"default": {"workspace": {"members": [{"path": "f*"}]}}}}},
+        }
+        project = Project(temp_dir, config=config)
+        environment = MockEnvironment(
+            temp_dir,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            global_application,
+        )
+
+        assert environment.workspace.get_dependencies() == ["pkg-0", "pkg-1", "pkg-2"]
+
+    def test_features(self, temp_dir, isolated_data_dir, platform, global_application):
+        for i in range(3):
+            project_file = temp_dir / f"foo{i}" / "pyproject.toml"
+            project_file.parent.mkdir()
+            project_file.write_text(
+                f"""\
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "foo{i}"
+version = "0.0.1"
+dependencies = ["pkg-{i}"]
+
+[project.optional-dependencies]
+feature1 = ["pkg-feature-1{i}"]
+feature2 = ["pkg-feature-2{i}"]
+feature3 = ["pkg-feature-3{i}"]
+"""
+            )
+
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {
+                "hatch": {
+                    "envs": {
+                        "default": {
+                            "workspace": {
+                                "members": [
+                                    {"path": "foo0", "features": ["feature1"]},
+                                    {"path": "foo1", "features": ["feature1", "feature2"]},
+                                    {"path": "foo2", "features": ["feature1", "feature2", "feature3"]},
+                                ],
+                            },
+                        },
+                    },
+                },
+            },
+        }
+        project = Project(temp_dir, config=config)
+        environment = MockEnvironment(
+            temp_dir,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            global_application,
+        )
+
+        assert environment.workspace.get_dependencies() == [
+            "pkg-0",
+            "pkg-feature-10",
+            "pkg-1",
+            "pkg-feature-11",
+            "pkg-feature-21",
+            "pkg-2",
+            "pkg-feature-12",
+            "pkg-feature-22",
+            "pkg-feature-32",
+        ]

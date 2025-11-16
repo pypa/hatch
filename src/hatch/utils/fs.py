@@ -14,6 +14,7 @@ if TYPE_CHECKING:
 
     from _typeshed import FileDescriptorLike
 
+
 # There is special recognition in Mypy for `sys.platform`, not `os.name`
 # https://github.com/python/cpython/blob/09d7319bfe0006d9aa3fc14833b69c24ccafdca6/Lib/pathlib.py#L957
 if sys.platform == "win32":
@@ -67,10 +68,9 @@ class Path(_PathBase):
 
             shutil.rmtree(self, ignore_errors=False)
 
-    def move(self, target: Path) -> None:
+    def move(self, target):
         try:
             self.replace(target)
-        # Happens when on different filesystems like /tmp or caused by layering in containers
         except OSError:
             import shutil
 
@@ -131,11 +131,17 @@ class Path(_PathBase):
                 with suppress(FileNotFoundError):
                     shutil.move(str(temp_path), self)
 
-    if sys.version_info[:2] < (3, 10):
+    if sys.platform == "win32":
 
-        def resolve(self, strict: bool = False) -> Path:  # noqa: ARG002, FBT001, FBT002
-            # https://bugs.python.org/issue38671
-            return Path(os.path.realpath(self))
+        @classmethod
+        def from_uri(cls, path: str) -> Path:
+            return cls(path.replace("file:///", "", 1))
+
+    else:
+
+        @classmethod
+        def from_uri(cls, path: str) -> Path:
+            return cls(path.replace("file://", "", 1))
 
 
 @contextmanager
