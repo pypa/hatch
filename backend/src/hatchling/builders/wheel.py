@@ -691,7 +691,7 @@ class WheelBuilder(BuilderInterface):
 
         for sbom_file in sbom_files:
             sbom_path = os.path.join(self.root, sbom_file)
-            if not os.path.exists(sbom_path):
+            if not os.path.isfile(sbom_path):
                 message = f"SBOM file not found: {sbom_file}"
                 raise FileNotFoundError(message)
 
