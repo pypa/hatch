@@ -57,6 +57,7 @@ dependencies = [
   "pymdown-extensions~=10.8.1",
   # Necessary for syntax highlighting in code blocks
   "pygments~=2.18.0",
+  "griffe<1.0",
   # Validation
   "linkchecker~=10.5.0",
   "griffe>=1.0.0",
