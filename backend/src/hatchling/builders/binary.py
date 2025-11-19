@@ -2,10 +2,13 @@ from __future__ import annotations
 
 import os
 import sys
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any
 
 from hatchling.builders.config import BuilderConfig
 from hatchling.builders.plugin.interface import BuilderInterface
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 class BinaryBuilderConfig(BuilderConfig):
