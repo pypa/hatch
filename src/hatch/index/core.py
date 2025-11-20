@@ -56,12 +56,12 @@ class PackageIndex:
         from hatch.utils.network import DEFAULT_TIMEOUT
 
         user_agent = (
-            f'Hatch/{__version__} '
-            f'{platform.python_implementation()}/{platform.python_version()} '
-            f'HTTPX/{httpx.__version__}'
+            f"Hatch/{__version__} "
+            f"{platform.python_implementation()}/{platform.python_version()} "
+            f"HTTPX/{httpx.__version__}"
         )
         return httpx.Client(
-            headers={'User-Agent': user_agent},
+            headers={"User-Agent": user_agent},
             transport=httpx.HTTPTransport(retries=3, verify=self.__verify, cert=self.__cert),
             timeout=DEFAULT_TIMEOUT,
         )
