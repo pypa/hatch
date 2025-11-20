@@ -5,7 +5,7 @@ import sys
 from contextlib import contextmanager, nullcontext, suppress
 from functools import cached_property
 from os.path import isabs
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING
 
 from hatch.config.constants import AppEnvVars
 from hatch.env.plugin.interface import EnvironmentInterface
@@ -16,11 +16,13 @@ from hatch.utils.structures import EnvVars
 from hatch.venv.core import UVVirtualEnv, VirtualEnv
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Callable, Iterable
 
     from packaging.specifiers import SpecifierSet
     from virtualenv.discovery.py_info import PythonInfo
 
+    from hatch.dep.core import Dependency
+    from hatch.dep.sync import InstalledDistributions
     from hatch.python.core import PythonManager
 
 
@@ -127,6 +129,16 @@ class VirtualEnvironment(EnvironmentInterface):
         new_path = f"{scripts_dir}{os.pathsep}{old_path}"
         return self.platform.modules.shutil.which("uv", path=new_path)
 
+    @cached_property
+    def distributions(self) -> InstalledDistributions:
+        from hatch.dep.sync import InstalledDistributions
+
+        return InstalledDistributions(sys_path=self.virtual_env.sys_path, environment=self.virtual_env.environment)
+
+    @cached_property
+    def missing_dependencies(self) -> list[Dependency]:
+        return self.distributions.missing_dependencies(self.all_dependencies_complex)
+
     @staticmethod
     def get_option_types() -> dict:
         return {"system-packages": bool, "path": str, "python-sources": list, "installer": str, "uv-path": str}
@@ -181,19 +193,42 @@ class VirtualEnvironment(EnvironmentInterface):
             )
 
     def dependencies_in_sync(self):
-        if not self.dependencies:
-            return True
-
-        from hatch.dep.sync import dependencies_in_sync
-
         with self.safe_activation():
-            return dependencies_in_sync(
-                self.dependencies_complex, sys_path=self.virtual_env.sys_path, environment=self.virtual_env.environment
-            )
+            return not self.missing_dependencies
 
     def sync_dependencies(self):
         with self.safe_activation():
-            self.platform.check_command(self.construct_pip_install_command(self.dependencies))
+            # Install workspace members first as editable (already exists)
+            workspace_deps = [str(dep.path) for dep in self.local_dependencies_complex if dep.path]
+            if workspace_deps:
+                editable_args = []
+                for dep_path in workspace_deps:
+                    editable_args.extend(["--editable", dep_path])
+                self.platform.check_command(self.construct_pip_install_command(editable_args))
+
+            # Separate remaining dependencies by type and filter conflicts
+            standard_dependencies: list[str] = []
+            editable_dependencies: list[str] = []
+
+            for dependency in self.missing_dependencies:
+                # Skip if workspace member (already installed above)
+                if dependency.name.lower() in workspace_deps:
+                    continue
+
+                if not dependency.editable or dependency.path is None:
+                    standard_dependencies.append(str(dependency))
+                else:
+                    editable_dependencies.append(str(dependency.path))
+
+            # Install other dependencies
+            if standard_dependencies:
+                self.platform.check_command(self.construct_pip_install_command(standard_dependencies))
+
+            if editable_dependencies:
+                editable_args = []
+                for dependency in editable_dependencies:
+                    editable_args.extend(["--editable", dependency])
+                self.platform.check_command(self.construct_pip_install_command(editable_args))
 
     @contextmanager
     def command_context(self):

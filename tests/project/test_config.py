@@ -35,7 +35,7 @@ def construct_matrix_data(env_name, config, overrides=None):
         variables.update(matrix)
 
         for result in product(*variables.values()):
-            variable_values = dict(zip(variables, result))
+            variable_values = dict(zip(variables, result, strict=False))
             env_name_parts = []
             for j, (variable, value) in enumerate(variable_values.items()):
                 if j == 0 and python_selected:

@@ -8,7 +8,7 @@ description = "Modern, extensible Python project management"
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE.txt"]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 keywords = [
   "build",
   "dependency",
@@ -22,24 +22,25 @@ keywords = [
 ]
 authors = [
   { name = "Ofek Lev", email = "oss@ofek.dev" },
+  { name = "Cary Hawkins", email = "hawkinscary23@gmail.com" },
 ]
 classifiers = [
   "Development Status :: 5 - Production/Stable",
   "Intended Audience :: Developers",
   "Natural Language :: English",
   "Operating System :: OS Independent",
-  "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
   "Topic :: Software Development :: Build Tools",
 ]
 dependencies = [
   "click>=8.0.6",
-  "hatchling>=1.24.2",
+  "hatchling>=1.27.0",
   "httpx>=0.22.0",
   "hyperlink>=21.0.0",
   "keyring>=23.5.0",

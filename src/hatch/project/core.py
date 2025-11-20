@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import re
+from collections import defaultdict
+from collections.abc import Generator
 from contextlib import contextmanager
 from functools import cached_property
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from hatch.project.env import EnvironmentMetadata
 from hatch.utils.fs import Path
@@ -19,7 +21,7 @@ if TYPE_CHECKING:
 
 
 class Project:
-    def __init__(self, path: Path, *, name: str | None = None, config=None):
+    def __init__(self, path: Path, *, name: str | None = None, config=None, locate: bool = True):
         self._path = path
 
         # From app config
@@ -38,7 +40,8 @@ class Project:
         self._metadata = None
         self._config = None
 
-        self._explicit_path: Path | None = None
+        self._explicit_path: Path | None = None if locate else path
+        self.current_member_path: Path | None = None
 
     @property
     def plugin_manager(self):
@@ -104,6 +107,37 @@ class Project:
     @cached_property
     def env_metadata(self) -> EnvironmentMetadata:
         return EnvironmentMetadata(self.app.data_dir / "env" / ".metadata", self.location)
+
+    @cached_property
+    def dependency_groups(self) -> dict[str, Any]:
+        """
+        https://peps.python.org/pep-0735/
+        """
+        from hatch.utils.metadata import normalize_project_name
+
+        dependency_groups = self.raw_config.get("dependency-groups", {})
+
+        if not isinstance(dependency_groups, dict):
+            message = "Field `dependency-groups` must be a table"
+            raise TypeError(message)
+
+        original_names = defaultdict(list)
+        normalized_groups = {}
+
+        for group_name, value in dependency_groups.items():
+            normed_group_name = normalize_project_name(group_name)
+            original_names[normed_group_name].append(group_name)
+            normalized_groups[normed_group_name] = value
+
+        errors = []
+        for normed_name, names in original_names.items():
+            if len(names) > 1:
+                errors.append(f"{normed_name} ({', '.join(names)})")
+        if errors:
+            msg = f"Field `dependency-groups` contains duplicate names: {', '.join(errors)}"
+            raise ValueError(msg)
+
+        return normalized_groups
 
     def get_environment(self, env_name: str | None = None) -> EnvironmentInterface:
         if env_name is None:
@@ -200,13 +234,15 @@ class Project:
             self.env_metadata.update_dependency_hash(environment, new_dep_hash)
 
     def prepare_build_environment(self, *, targets: list[str] | None = None) -> None:
-        from hatch.project.constants import BUILD_BACKEND
+        from hatch.project.constants import BUILD_BACKEND, BuildEnvVars
+        from hatch.utils.structures import EnvVars
 
         if targets is None:
             targets = ["wheel"]
 
+        env_vars = {BuildEnvVars.REQUESTED_TARGETS: " ".join(sorted(targets))}
         build_backend = self.metadata.build.build_backend
-        with self.location.as_cwd(), self.build_env.get_env_vars():
+        with self.location.as_cwd(), self.build_env.get_env_vars(), EnvVars(env_vars):
             if not self.build_env.exists():
                 try:
                     self.build_env.check_compatibility()
@@ -215,24 +251,28 @@ class Project:
 
             self.prepare_environment(self.build_env)
 
-            extra_dependencies: list[str] = []
+            additional_dependencies: list[str] = []
             with self.app.status("Inspecting build dependencies"):
                 if build_backend != BUILD_BACKEND:
                     for target in targets:
                         if target == "sdist":
-                            extra_dependencies.extend(self.build_frontend.get_requires("sdist"))
+                            additional_dependencies.extend(self.build_frontend.get_requires("sdist"))
                         elif target == "wheel":
-                            extra_dependencies.extend(self.build_frontend.get_requires("wheel"))
+                            additional_dependencies.extend(self.build_frontend.get_requires("wheel"))
                         else:
                             self.app.abort(f"Target `{target}` is not supported by `{build_backend}`")
                 else:
                     required_build_deps = self.build_frontend.hatch.get_required_build_deps(targets)
                     if required_build_deps:
                         with self.metadata.context.apply_context(self.build_env.context):
-                            extra_dependencies.extend(self.metadata.context.format(dep) for dep in required_build_deps)
+                            additional_dependencies.extend(
+                                self.metadata.context.format(dep) for dep in required_build_deps
+                            )
 
-            if extra_dependencies:
-                self.build_env.dependencies.extend(extra_dependencies)
+            if additional_dependencies:
+                from hatch.dep.core import Dependency
+
+                self.build_env.additional_dependencies.extend(map(Dependency, additional_dependencies))
                 with self.build_env.app_status_dependency_synchronization():
                     self.build_env.sync_dependencies()
 
@@ -257,6 +297,11 @@ class Project:
         dynamic_features: dict[str, list[str]] = project_metadata.get("optional-dependencies", {})
 
         return dynamic_dependencies, dynamic_features
+
+    @cached_property
+    def has_static_dependencies(self) -> bool:
+        dynamic_fields = {"dependencies", "optional-dependencies"}
+        return not dynamic_fields.intersection(self.metadata.dynamic)
 
     def expand_environments(self, env_name: str) -> list[str]:
         if env_name in self.config.internal_matrices:
