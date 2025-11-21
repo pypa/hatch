@@ -55,32 +55,29 @@ class Distribution(ABC):
         return self.source.rsplit("/", 1)[-1]
 
     def unpack(self, archive: Path, directory: Path) -> None:
-        # zip
         if self.source.endswith(".zip"):
             import zipfile
 
             with zipfile.ZipFile(archive, "r") as zf:
                 zf.extractall(directory)
-            return
+        elif self.source.endswith((".tar.gz", ".tgz")):
+            self.__unpack_tarfile(archive, directory, "r:gz")
+        elif self.source.endswith((".tar.bz2", ".bz2")):
+            self.__unpack_tarfile(archive, directory, "r:bz2")
+        elif self.source.endswith((".tar.zst", ".tar.zstd")):
+            self.__unpack_tarfile(archive, directory, "r:zst")
+        else:
+            message = f"Unknown archive type: {archive}"
+            raise ValueError(message)
 
-        # tar
+    @staticmethod
+    def __unpack_tarfile(archive: Path, directory: Path, mode: Literal["r:gz", "r:bz2", "r:zst"]) -> None:
         if sys.version_info >= (3, 14):
             import tarfile
         else:
             # for zstd support (introduced in Python 3.14)
             # and filter kwarg (introduced in Python 3.12)
             from backports.zstd import tarfile
-
-        mode: Literal["r:gz", "r:bz2", "r:zst"]
-        if self.source.endswith((".tar.gz", ".tgz")):
-            mode = "r:gz"
-        elif self.source.endswith((".tar.bz2", ".bz2")):
-            mode = "r:bz2"
-        elif self.source.endswith((".tar.zst", ".tar.zstd")):
-            mode = "r:zst"
-        else:
-            message = f"Unknown archive type: {archive}"
-            raise ValueError(message)
 
         with tarfile.open(archive, mode) as tf:
             tf.extractall(directory, filter="data")
