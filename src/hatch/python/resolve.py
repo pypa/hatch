@@ -5,7 +5,7 @@ import platform
 import sys
 from abc import ABC, abstractmethod
 from functools import cached_property
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 from hatch.config.constants import PythonEnvVars
 from hatch.errors import PythonDistributionResolutionError, PythonDistributionUnknownError
@@ -61,36 +61,26 @@ class Distribution(ABC):
             with zipfile.ZipFile(archive, "r") as zf:
                 zf.extractall(directory)
         elif self.source.endswith((".tar.gz", ".tgz")):
-            import tarfile
-
-            with tarfile.open(archive, "r:gz") as tf:
-                if sys.version_info[:2] >= (3, 12):
-                    tf.extractall(directory, filter="data")
-                else:
-                    tf.extractall(directory)  # noqa: S202
+            self.__unpack_tarfile(archive, directory, "r:gz")
         elif self.source.endswith((".tar.bz2", ".bz2")):
-            import tarfile
-
-            with tarfile.open(archive, "r:bz2") as tf:
-                if sys.version_info[:2] >= (3, 12):
-                    tf.extractall(directory, filter="data")
-                else:
-                    tf.extractall(directory)  # noqa: S202
+            self.__unpack_tarfile(archive, directory, "r:bz2")
         elif self.source.endswith((".tar.zst", ".tar.zstd")):
-            import tarfile
-
-            import zstandard
-
-            with open(archive, "rb") as ifh:
-                dctx = zstandard.ZstdDecompressor()
-                with dctx.stream_reader(ifh) as reader, tarfile.open(mode="r|", fileobj=reader) as tf:
-                    if sys.version_info[:2] >= (3, 12):
-                        tf.extractall(directory, filter="data")
-                    else:
-                        tf.extractall(directory)  # noqa: S202
+            self.__unpack_tarfile(archive, directory, "r:zst")
         else:
             message = f"Unknown archive type: {archive}"
             raise ValueError(message)
+
+    @staticmethod
+    def __unpack_tarfile(archive: Path, directory: Path, mode: Literal["r:gz", "r:bz2", "r:zst"]) -> None:
+        if sys.version_info >= (3, 14):
+            import tarfile
+        else:
+            # for zstd support (introduced in Python 3.14)
+            # and filter kwarg (introduced in Python 3.12)
+            from backports.zstd import tarfile
+
+        with tarfile.open(archive, mode) as tf:
+            tf.extractall(directory, filter="data")
 
     @property
     @abstractmethod
