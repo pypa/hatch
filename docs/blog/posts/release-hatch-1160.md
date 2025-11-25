@@ -33,7 +33,7 @@ workspace.members = [
 ]
 ```
 
-For more information on usage see [Workspace Docs](../../how-to/environment/workspace.md)
+For more information on usage see the [workspace docs](../../how-to/environment/workspace.md).
 
 ## Dependency Groups
 
