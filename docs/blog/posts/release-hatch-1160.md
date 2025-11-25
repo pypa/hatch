@@ -65,6 +65,7 @@ In my spare time I enjoy hanging out with my dog Jacques, hiking and rock climbi
 ### Future
 
 Upcoming features:
+
 - Typing default command like `hatch fmt` for linting.
 - Documentation improvements including contributor guidelines. 
 - performance improvements for both the CLI and the Hatchling build system
