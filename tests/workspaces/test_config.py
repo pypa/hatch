@@ -698,3 +698,129 @@ docs = ["sphinx", "sphinx-rtd-theme"]
             monkeypatch.setenv("FEATURE_PACKAGE", "utils")
             result = hatch("env", "create", "feature")
             assert result.exit_code == 0
+
+            result = hatch("env", "create", "release")
+            assert result.exit_code == 0
+
+    def test_workspace_overrides_matrix_conditional_members(self, temp_dir, hatch):
+        """Test workspace members added conditionally via matrix overrides."""
+        workspace_root = temp_dir / "workspace"
+        workspace_root.mkdir()
+
+        workspace_config = workspace_root / "pyproject.toml"
+        workspace_config.write_text("""
+    [project]
+    name = "workspace-root"
+    version = "0.1.0"
+
+    [[tool.hatch.envs.test.matrix]]
+    python = ["3.9", "3.11"]
+
+    [tool.hatch.envs.test]
+    workspace.members = ["packages/core"]
+
+    [tool.hatch.envs.test.overrides]
+    matrix.python.workspace.members = [
+        { value = "packages/py311-only", if = ["3.11"] }
+    ]
+    """)
+
+        packages_dir = workspace_root / "packages"
+        packages_dir.mkdir()
+
+        # Core package (always included)
+        core_dir = packages_dir / "core"
+        core_dir.mkdir()
+        (core_dir / "pyproject.toml").write_text("""
+    [project]
+    name = "core"
+    version = "0.1.0"
+    """)
+
+        # Python 3.11+ only package
+        py311_dir = packages_dir / "py311-only"
+        py311_dir.mkdir()
+        (py311_dir / "pyproject.toml").write_text("""
+    [project]
+    name = "py311-only"
+    version = "0.1.0"
+    """)
+
+        with workspace_root.as_cwd():
+            # Both environments should be created
+            result = hatch("env", "create", "test")
+            assert result.exit_code == 0
+
+    def test_workspace_overrides_platform_conditional_members(self, temp_dir, hatch, platform):
+        """Test workspace members added conditionally via platform overrides."""
+        workspace_root = temp_dir / "workspace"
+        workspace_root.mkdir()
+
+        workspace_config = workspace_root / "pyproject.toml"
+        workspace_config.write_text("""
+    [project]
+    name = "workspace-root"
+    version = "0.1.0"
+
+    [tool.hatch.envs.default]
+    workspace.members = ["packages/core"]
+
+    [tool.hatch.envs.default.overrides]
+    platform.linux.workspace.members = ["packages/linux-specific"]
+    platform.windows.workspace.members = ["packages/windows-specific"]
+    """)
+
+        packages_dir = workspace_root / "packages"
+        packages_dir.mkdir()
+
+        for pkg in ["core", "linux-specific", "windows-specific"]:
+            pkg_dir = packages_dir / pkg
+            pkg_dir.mkdir()
+            (pkg_dir / "pyproject.toml").write_text(f"""
+    [project]
+    name = "{pkg}"
+    version = "0.1.0"
+    """)
+
+        with workspace_root.as_cwd():
+            result = hatch("env", "create")
+            assert result.exit_code == 0
+
+    def test_workspace_overrides_combined_conditions(self, temp_dir, hatch):
+        """Test workspace members with combined matrix and platform conditions."""
+        workspace_root = temp_dir / "workspace"
+        workspace_root.mkdir()
+
+        workspace_config = workspace_root / "pyproject.toml"
+        workspace_config.write_text("""
+    [project]
+    name = "workspace-root"
+    version = "0.1.0"
+
+    [[tool.hatch.envs.test.matrix]]
+    python = ["3.9", "3.11"]
+
+    [tool.hatch.envs.test]
+    workspace.members = ["packages/core"]
+
+    [tool.hatch.envs.test.overrides]
+    matrix.python.workspace.members = [
+        { value = "packages/linux-py311", if = ["3.11"], platform = ["linux"] }
+    ]
+    """)
+
+        packages_dir = workspace_root / "packages"
+        packages_dir.mkdir()
+
+        for pkg in ["core", "linux-py311"]:
+            pkg_dir = packages_dir / pkg
+            pkg_dir.mkdir()
+            (pkg_dir / "pyproject.toml").write_text(f"""
+    [project]
+    name = "{pkg}"
+    version = "0.1.0"
+    """)
+
+        with workspace_root.as_cwd():
+            result = hatch("env", "create", "test")
+            assert result.exit_code == 0

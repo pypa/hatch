@@ -27,6 +27,7 @@ RESERVED_OPTIONS = {
     "scripts": dict,
     "skip-install": bool,
     "type": str,
+    "workspace": dict,
 }
 
 
@@ -43,7 +44,11 @@ def apply_overrides(env_name, source, condition, condition_value, options, new_c
             continue
 
         override_type = option_types.get(option)
-        if override_type in TYPE_OVERRIDES:
+        if option == "workspace":
+            _apply_override_to_workspace(
+                env_name, option, data, source, condition, condition_value, new_config, overwrite
+            )
+        elif override_type in TYPE_OVERRIDES:
             TYPE_OVERRIDES[override_type](
                 env_name, option, data, source, condition, condition_value, new_config, overwrite
             )
@@ -298,6 +303,38 @@ def _apply_override_to_boolean(
             f"must be a boolean, inline table, or an array"
         )
         raise TypeError(message)
+
+
+def _apply_override_to_workspace(env_name, option, data, source, condition, condition_value, new_config, overwrite):
+    """Handle workspace dict with nested members/exclude/parallel."""
+    if not isinstance(data, dict):
+        message = f"Field `tool.hatch.envs.{env_name}.overrides.{source}.{condition}.{option}` must be a table"
+        raise TypeError(message)
+
+    # Get or create workspace dict
+    if overwrite:
+        workspace = {}
+    else:
+        workspace = new_config.setdefault(option, {})
+
+    for key, value in data.items():
+        if key in ("members", "exclude"):
+            # Delegate to array handler - pass workspace dict
+            _apply_override_to_array(
+                env_name, key, value, source, condition, condition_value, workspace, overwrite
+            )
+        elif key == "parallel":
+            # Delegate to boolean handler - pass workspace dict
+            _apply_override_to_boolean(
+                env_name, key, value, source, condition, condition_value, workspace, overwrite
+            )
+        else:
+            message = f"Unknown workspace option: {key}"
+            raise ValueError(message)
+
+    # Update new_config with the workspace dict
+    if overwrite or workspace:
+        new_config[option] = workspace
 
 
 def _resolve_condition(env_name, option, source, condition, condition_value, condition_config, condition_index=None):
