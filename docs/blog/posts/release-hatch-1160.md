@@ -37,9 +37,7 @@ For more information on usage see the [workspace docs](../../how-to/environment/
 
 ## Dependency Groups
 
-Support for [PEP-735](https://peps.python.org/pep-0735/) has been added to allow the ability to define various dependency groups. 
-
-For more information on usage see [Environment Overview](../../config/environment/overview.md#dependency-groups)
+Environments now support [dependency groups](../../config/environment/overview.md#dependency-groups) as defined by [PEP-735](https://peps.python.org/pep-0735/). You can think of them as [features](../../config/environment/overview.md#features) but for non-runtime dependencies, never being included in user-facing package metadata.
 
 ## Software Bill of Materials(sbom) Support
 
