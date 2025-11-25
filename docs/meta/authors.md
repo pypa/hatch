@@ -5,6 +5,7 @@
 ## Maintainers
 
 - Ofek Lev [:material-web:](https://ofek.dev) [:material-github:](https://github.com/ofek) [:material-twitter:](https://twitter.com/Ofekmeister)
+- Cary Hawkins [:material-github:](https://github.com/cjames23)[:material-web:](https://cjameshawkins.com)
 
 ## Contributors
 
@@ -17,4 +18,3 @@
 - Olga Matoula [:material-github:](https://github.com/olgarithms) [:material-twitter:](https://twitter.com/olgarithms_)
 - Philip Blair [:material-email:](mailto:philip@pblair.org)
 - Robert Rosca [:material-github:](https://github.com/robertrosca)
-- Cary Hawkins [:material-github](https://github.com/cjames23)
