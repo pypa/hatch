@@ -16,7 +16,7 @@ Hatch [v1.16.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.16.0) brings
 
 ## Workspaces
 
-Workspace support is designed to allow supporting monorepos with development by installing all sub repos as editable installs within environments and modeled after [Cargo workspaces](https://doc.rust-lang.org/book/ch14-03-cargo-workspaces.html)
+Workspaces allow repositories with several related packages (e.g. monorepos) to be installed and tested in lockstep. Our design is inspired by [Cargo workspaces](https://doc.rust-lang.org/book/ch14-03-cargo-workspaces.html).
 
 Workspaces have members that can be included using full paths or partial paths with globs, and can exclude sub paths. 
 One design choice that users will find different from a tool like `uv` is that workspaces are configured per environment following in our philosophy that 
