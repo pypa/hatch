@@ -2574,15 +2574,14 @@ class TestEnvs:
     @pytest.mark.parametrize("option", WORKSPACE_OPTIONS)
     def test_overrides_matrix_workspace_invalid_type(self, isolation, option):
         with pytest.raises(
-                TypeError,
-                match=f"Field `tool.hatch.envs.foo.overrides.matrix.version.{option}` must be a table",
+            TypeError,
+            match=f"Field `tool.hatch.envs.foo.overrides.matrix.version.{option}` must be a table",
         ):
             _ = ProjectConfig(
                 isolation,
                 {
                     "envs": {
-                        "foo": {"matrix": [{"version": ["9000"]}],
-                                "overrides": {"matrix": {"version": {option: 9000}}}}
+                        "foo": {"matrix": [{"version": ["9000"]}], "overrides": {"matrix": {"version": {option: 9000}}}}
                     }
                 },
                 PluginManager(),

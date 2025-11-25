@@ -751,7 +751,7 @@ docs = ["sphinx", "sphinx-rtd-theme"]
             result = hatch("env", "create", "test")
             assert result.exit_code == 0
 
-    def test_workspace_overrides_platform_conditional_members(self, temp_dir, hatch, platform):
+    def test_workspace_overrides_platform_conditional_members(self, temp_dir, hatch):
         """Test workspace members added conditionally via platform overrides."""
         workspace_root = temp_dir / "workspace"
         workspace_root.mkdir()

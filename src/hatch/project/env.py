@@ -312,22 +312,15 @@ def _apply_override_to_workspace(env_name, option, data, source, condition, cond
         raise TypeError(message)
 
     # Get or create workspace dict
-    if overwrite:
-        workspace = {}
-    else:
-        workspace = new_config.setdefault(option, {})
+    workspace = {} if overwrite else new_config.setdefault(option, {})
 
     for key, value in data.items():
-        if key in ("members", "exclude"):
+        if key in {"members", "exclude"}:
             # Delegate to array handler - pass workspace dict
-            _apply_override_to_array(
-                env_name, key, value, source, condition, condition_value, workspace, overwrite
-            )
+            _apply_override_to_array(env_name, key, value, source, condition, condition_value, workspace, overwrite)
         elif key == "parallel":
             # Delegate to boolean handler - pass workspace dict
-            _apply_override_to_boolean(
-                env_name, key, value, source, condition, condition_value, workspace, overwrite
-            )
+            _apply_override_to_boolean(env_name, key, value, source, condition, condition_value, workspace, overwrite)
         else:
             message = f"Unknown workspace option: {key}"
             raise ValueError(message)
