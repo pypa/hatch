@@ -22,7 +22,7 @@ Workspace members are defined by filters of relative or absolute paths, with sup
 
 One design choice that users will find different from a tool like uv is that workspaces are configured per environment. Adhering to Hatch's environment-first [philosophy](../../why.md/#environment-management) allows full compatibility with the environment feature set, such as matrices of workspaces with different configuration.
 
-### Basic Workspace Support Example 
+### Example
 
 ```toml config-example
 [tool.hatch.envs.default]
