@@ -39,7 +39,7 @@ For more information on usage see the [workspace docs](../../how-to/environment/
 
 Environments now support [dependency groups](../../config/environment/overview.md#dependency-groups) as defined by [PEP-735](https://peps.python.org/pep-0735/). You can think of them as [features](../../config/environment/overview.md#features) but for non-runtime dependencies, never being included in user-facing package metadata.
 
-## Software Bill of Materials(sbom) Support
+## Software Bill of Materials (SBOM)
 
 Support for [PEP-770](https://peps.python.org/pep-0770/) has been added. This enables adding sbom files to wheels with hatchling.
 This support does not add sbom generation, only the ability to have already created sbom files added to a wheel during wheel builds.
