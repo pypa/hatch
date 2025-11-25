@@ -10,7 +10,7 @@ categories:
 
 # Hatch v1.16.0
 
-Hatch [v1.16.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.16.0) brings workspace support, dependency-groups, and sbom support.
+Hatch [v1.16.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.16.0) brings support for workspaces, dependency groups, and SBOMs.
 
 <!-- more -->
 
