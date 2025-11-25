@@ -14,7 +14,7 @@ Hatch [v1.16.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.16.0) brings
 
 <!-- more -->
 
-## Workspace Support 
+## Workspaces
 
 Workspace support is designed to allow supporting monorepos with development by installing all sub repos as editable installs within environments and modeled after [Cargo workspaces](https://doc.rust-lang.org/book/ch14-03-cargo-workspaces.html)
 
