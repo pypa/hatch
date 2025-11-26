@@ -11,8 +11,9 @@ from hatch.utils.structures import EnvVars
 
 ARRAY_OPTIONS = [o for o, t in RESERVED_OPTIONS.items() if t is list]
 BOOLEAN_OPTIONS = [o for o, t in RESERVED_OPTIONS.items() if t is bool]
-MAPPING_OPTIONS = [o for o, t in RESERVED_OPTIONS.items() if t is dict]
+MAPPING_OPTIONS = [o for o, t in RESERVED_OPTIONS.items() if t is dict and o != "workspace"]
 STRING_OPTIONS = [o for o, t in RESERVED_OPTIONS.items() if t is str and o != "matrix-name-format"]
+WORKSPACE_OPTIONS = ["workspace"]  # Workspace has nested structure, tested separately
 
 
 def construct_matrix_data(env_name, config, overrides=None):
@@ -2569,6 +2570,99 @@ class TestEnvs:
         with temp_dir.as_cwd():
             assert project_config.envs == expected_envs
             assert project_config.matrices["foo"] == construct_matrix_data("foo", env_config)
+
+    @pytest.mark.parametrize("option", WORKSPACE_OPTIONS)
+    def test_overrides_matrix_workspace_invalid_type(self, isolation, option):
+        with pytest.raises(
+            TypeError,
+            match=f"Field `tool.hatch.envs.foo.overrides.matrix.version.{option}` must be a table",
+        ):
+            _ = ProjectConfig(
+                isolation,
+                {
+                    "envs": {
+                        "foo": {"matrix": [{"version": ["9000"]}], "overrides": {"matrix": {"version": {option: 9000}}}}
+                    }
+                },
+                PluginManager(),
+            ).envs
+
+    @pytest.mark.parametrize("option", WORKSPACE_OPTIONS)
+    def test_overrides_matrix_workspace_members_append(self, isolation, option):
+        env_config = {
+            "foo": {
+                option: {"members": ["packages/core"]},
+                "matrix": [{"version": ["9000"]}, {"feature": ["bar"]}],
+                "overrides": {"matrix": {"version": {option: {"members": ["packages/extra"]}}}},
+            }
+        }
+        project_config = ProjectConfig(isolation, {"envs": env_config}, PluginManager())
+
+        expected_envs = {
+            "default": {"type": "virtual"},
+            "foo.9000": {"type": "virtual", option: {"members": ["packages/core", "packages/extra"]}},
+            "foo.bar": {"type": "virtual", option: {"members": ["packages/core"]}},
+        }
+
+        assert project_config.envs == expected_envs
+
+    @pytest.mark.parametrize("option", WORKSPACE_OPTIONS)
+    def test_overrides_matrix_workspace_members_conditional(self, isolation, option):
+        env_config = {
+            "foo": {
+                option: {"members": ["packages/core"]},
+                "matrix": [{"version": ["9000", "42"]}],
+                "overrides": {
+                    "matrix": {"version": {option: {"members": [{"value": "packages/special", "if": ["42"]}]}}}
+                },
+            }
+        }
+        project_config = ProjectConfig(isolation, {"envs": env_config}, PluginManager())
+
+        expected_envs = {
+            "default": {"type": "virtual"},
+            "foo.9000": {"type": "virtual", option: {"members": ["packages/core"]}},
+            "foo.42": {"type": "virtual", option: {"members": ["packages/core", "packages/special"]}},
+        }
+
+        assert project_config.envs == expected_envs
+
+    @pytest.mark.parametrize("option", WORKSPACE_OPTIONS)
+    def test_overrides_matrix_workspace_parallel(self, isolation, option):
+        env_config = {
+            "foo": {
+                option: {"members": ["packages/*"], "parallel": True},
+                "matrix": [{"version": ["9000", "42"]}],
+                "overrides": {"matrix": {"version": {option: {"parallel": {"value": False, "if": ["42"]}}}}},
+            }
+        }
+        project_config = ProjectConfig(isolation, {"envs": env_config}, PluginManager())
+
+        expected_envs = {
+            "default": {"type": "virtual"},
+            "foo.9000": {"type": "virtual", option: {"members": ["packages/*"], "parallel": True}},
+            "foo.42": {"type": "virtual", option: {"members": ["packages/*"], "parallel": False}},
+        }
+
+        assert project_config.envs == expected_envs
+
+    @pytest.mark.parametrize("option", WORKSPACE_OPTIONS)
+    def test_overrides_matrix_workspace_overwrite(self, isolation, option):
+        env_config = {
+            "foo": {
+                option: {"members": ["packages/core"], "parallel": True},
+                "matrix": [{"version": ["9000"]}],
+                "overrides": {"matrix": {"version": {f"set-{option}": {"members": ["packages/new"]}}}},
+            }
+        }
+        project_config = ProjectConfig(isolation, {"envs": env_config}, PluginManager())
+
+        expected_envs = {
+            "default": {"type": "virtual"},
+            "foo.9000": {"type": "virtual", option: {"members": ["packages/new"]}},
+        }
+
+        assert project_config.envs == expected_envs
 
 
 class TestPublish:
