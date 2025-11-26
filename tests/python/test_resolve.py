@@ -31,8 +31,16 @@ class TestErrors:
 
 class TestDistributionVersions:
     def test_cpython_standalone(self):
-        url = "https://github.com/indygreg/python-build-standalone/releases/download/20230507/cpython-3.11.3%2B20230507-aarch64-unknown-linux-gnu-install_only.tar.gz"
-        dist = get_distribution("3.11", url)
+        url = 'https://github.com/astral-sh/python-build-standalone/releases/download/20230507/cpython-3.11.3%2B20230507-aarch64-unknown-linux-gnu-install_only.tar.gz'
+        dist = get_distribution('3.11', url)
+        version = dist.version
+
+        assert version.epoch == 0
+        assert version.base_version == '3.11.3'
+
+    def test_cpython_standalone_from_legacy_link(self) -> None:
+        url = 'https://github.com/indygreg/python-build-standalone/releases/download/20230507/cpython-3.11.3%2B20230507-aarch64-unknown-linux-gnu-install_only.tar.gz'
+        dist = get_distribution('3.11', url)
         version = dist.version
 
         assert version.epoch == 0

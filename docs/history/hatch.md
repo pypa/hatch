@@ -8,24 +8,43 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
-***Changed:***
-
-- Drop support for Python 3.8
-- Environment type plugins are now no longer expected to support a pseudo-build environment as any environment now may be used for building. The following methods have been removed: `build_environment`, `build_environment_exists`, `run_builder`, `construct_build_command`
-
-***Added:***
-
-- Upgrade Ruff to 0.13.2
-- The `version` and `project metadata` commands now support projects that do not use Hatchling as the build backend
-- The `version` command accepts a `--force` option, allowing for downgrades when an explicit version number is given.
-- Build environments can now be configured, the default build environment is `hatch-build`
-- The environment interface now has the following methods and properties in order to better support builds on remote machines: `project_root`, `sep`, `pathsep`, `fs_context`
-- Bump the minimum supported version of `packaging` to 24.2
+## [1.15.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.15.1) - 2025-10-16 ## {: #hatch-v1.15.1 }
 
 ***Fixed:***
 
-- Fix issue where terminal output would be out of sync during build.
-- Fix for Click Sentinel value when using `run` command
+- Fix compatibility with cached default CPython distributions that were sourced from GitHub releases of the old owner
+
+## [1.15.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.15.0) - 2025-10-15 ## {: #hatch-v1.15.0 }
+
+***Changed:***
+
+- Drop support for Python 3.8
+
+***Added:***
+
+- Support Python 3.14
+- Upgrade default CPython distributions to 20251014
+- Upgrade default PyPy distributions to 7.3.20
+
+## [1.14.2](https://github.com/pypa/hatch/releases/tag/hatch-v1.14.2) - 2025-09-24 ## {: #hatch-v1.14.2 }
+
+***Fixed:***
+
+- Fix compatibility with recent versions of Click
+
+## [1.14.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.14.1) - 2025-04-07 ## {: #hatch-v1.14.1 }
+
+***Fixed:***
+
+- Remove uses of the deprecated `--no-python-version-warning` flag when using pip
+
+## [1.14.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.14.0) - 2024-12-16 ## {: #hatch-v1.14.0 }
+
+***Added:***
+
+- Upgrade default CPython distributions to 20241206
+- Bump the minimum supported version of Hatchling to 1.26.3
+- Update `virtualenv` dependency
 
 ## [1.13.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.13.0) - 2024-10-13 ## {: #hatch-v1.13.0 }
 
