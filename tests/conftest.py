@@ -443,11 +443,11 @@ def mock_plugin_installation(mocker):
                 return mocked_subprocess_run
 
             uv_bin = find_uv_bin()
-            if command[:3] == [uv_bin, 'pip', 'install']:
+            if command[:3] == [uv_bin, "pip", "install"]:
                 mocked_subprocess_run(command, **kwargs)
                 return mocked_subprocess_run
 
-            if command[:3] == [sys.executable, 'self', 'python-path']:
+            if command[:3] == [sys.executable, "self", "python-path"]:
                 return mocker.MagicMock(returncode=0, stdout=sys.executable.encode())
 
         return subprocess_run(command, **kwargs)  # no cov
