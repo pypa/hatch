@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 from functools import cached_property
 from typing import TYPE_CHECKING
 
@@ -57,7 +58,7 @@ class PackageIndex:
 
         user_agent = (
             f"Hatch/{__version__} "
-            f"{platform.python_implementation()}/{platform.python_version()} "
+            f"{sys.implementation.name}/{sys.implementation.version} "
             f"HTTPX/{httpx.__version__}"
         )
         return httpx.Client(
