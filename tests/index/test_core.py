@@ -1,4 +1,5 @@
 import platform
+import sys
 
 import httpx
 import pytest
@@ -81,7 +82,7 @@ class TestUserAgent:
 
         expected = (
             f"Hatch/{__version__} "
-            f"{platform.python_implementation()}/{platform.python_version()} "
+            f"{sys.implementation.name}/{platform.python_version()} "
             f"HTTPX/{httpx.__version__}"
         )
         assert user_agent == expected
