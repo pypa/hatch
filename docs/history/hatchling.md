@@ -10,6 +10,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ***Changed:***
 
+- Drop support for 3.9
+
+***Added:***
+
+- SBOM files are now supported to be included in wheels. 
+
+***Changed:***
+
 - Drop support for Python 3.8
 
 ***Changed:***

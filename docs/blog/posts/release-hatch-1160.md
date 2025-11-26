@@ -1,5 +1,5 @@
 ---
-date: 2025-11-24
+date: 2025-11-26
 authors: [cjames23]
 description: >-
   Hatch v1.16.0 brings workspace support, dependency-groups, and sbom support.

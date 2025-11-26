@@ -8,6 +8,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Changed:***
+
+- Drop support for Python 3.9
+
+***Added:***
+
+- Workspace support has been added. 
+- Support for dependency groups. 
+
+
 ## [1.15.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.15.1) - 2025-10-16 ## {: #hatch-v1.15.1 }
 
 ***Fixed:***
