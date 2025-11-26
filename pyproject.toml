@@ -55,7 +55,7 @@ dependencies = [
   "userpath~=1.7",
   "uv>=0.5.23",
   "virtualenv>=20.26.6",
-  "zstandard<1",
+  "backports.zstd>=1.0.0 ; python_version<'3.14'",
 ]
 dynamic = ["version"]
 
