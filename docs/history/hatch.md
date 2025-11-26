@@ -13,11 +13,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ***Changed:***
 
 - Drop support for 3.9 
+- Environment type plugins are now no longer expected to support a pseudo-build environment as any environment now may be used for building. The following methods have been removed: `build_environment`, `build_environment_exists`, `run_builder`, `construct_build_command`
 
 ***Added:***
 
 - Support for workspaces inspired by Cargo Workspaces
 - Dependency group support. 
+- Upgrade Ruff to 0.13.2
+- The `version` and `project metadata` commands now support projects that do not use Hatchling as the build backend
+- The `version` command accepts a `--force` option, allowing for downgrades when an explicit version number is given.
+- Build environments can now be configured, the default build environment is `hatch-build`
+- The environment interface now has the following methods and properties in order to better support builds on remote machines: `project_root`, `sep`, `pathsep`, `fs_context`
+- Bump the minimum supported version of `packaging` to 24.2
+
+***Fixed:***
+
+- User-Agent headers now include Hatch version, Python version, and httpx version.
+- Fix issue where terminal output would be out of sync during build.
+- Fix for Click Sentinel value when using `run` command
 
 ## [1.15.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.15.1) - 2025-10-16 ## {: #hatch-v1.15.1 }
 
