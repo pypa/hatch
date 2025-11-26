@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.16.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.16.0) - 2025-11-26 ## {: #hatch-v1.16.0 }
+
 ***Changed:***
 
 - Drop support for 3.9 
