@@ -50,7 +50,6 @@ class PackageIndex:
 
     @cached_property
     def client(self) -> httpx.Client:
-
         import httpx
 
         from hatch.utils.network import DEFAULT_TIMEOUT
