@@ -56,9 +56,7 @@ class PackageIndex:
         from hatch.utils.network import DEFAULT_TIMEOUT
 
         user_agent = (
-            f"Hatch/{__version__} "
-            f"{sys.implementation.name}/{sys.implementation.version} "
-            f"HTTPX/{httpx.__version__}"
+            f"Hatch/{__version__} {sys.implementation.name}/{sys.implementation.version} HTTPX/{httpx.__version__}"
         )
         return httpx.Client(
             headers={"User-Agent": user_agent},
