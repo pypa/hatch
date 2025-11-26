@@ -81,8 +81,6 @@ class TestUserAgent:
         user_agent = client.headers["User-Agent"]
 
         expected = (
-            f"Hatch/{__version__} "
-            f"{sys.implementation.name}/{platform.python_version()} "
-            f"HTTPX/{httpx.__version__}"
+            f"Hatch/{__version__} {sys.implementation.name}/{platform.python_version()} HTTPX/{httpx.__version__}"
         )
         assert user_agent == expected
