@@ -438,6 +438,9 @@ def mock_plugin_installation(mocker):
 
     def _mock(command, **kwargs):
         if isinstance(command, list):
+            if any(arg.startswith("hatchling") for arg in command):
+                return subprocess_run(command, **kwargs)
+
             if command[:5] == [sys.executable, "-u", "-m", "pip", "install"]:
                 mocked_subprocess_run(command, **kwargs)
                 return mocked_subprocess_run
