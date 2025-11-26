@@ -118,6 +118,9 @@ update-ruff = [
 ]
 
 [envs.release]
+dependencies = [
+    "hatchling"
+]
 detached = true
 installer = "uv"
 
