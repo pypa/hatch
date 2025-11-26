@@ -20,11 +20,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ***Changed:***
 
-- Drop support for Python 3.8
+- Drop support for Python 3.9
 
-***Changed:***
-
-- Drop support for Python 3.8
 
 ## [1.27.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.27.0) - 2024-11-26 ## {: #hatchling-v1.27.0 }
 
