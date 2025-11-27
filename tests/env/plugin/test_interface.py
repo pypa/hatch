@@ -1196,6 +1196,65 @@ class TestDependencies:
         normalized_path = str(isolation).replace("\\", "/")
         assert environment.dependencies == ["dep2", f"proj@ file:{uri_slash_prefix}{normalized_path}", "dep1"]
 
+    def test_project_dependencies_context_formatting(
+        self, temp_dir, isolated_data_dir, platform, temp_application, uri_slash_prefix
+    ):
+        """
+        Regression test for context formatting in project dependencies.
+        Ensures that dependencies in [project] section with context variables
+        like {root:parent:uri} are properly formatted before creating Dependency objects.
+        """
+        # Create a sibling project
+        sibling_project = temp_dir.parent / "sibling-project"
+        sibling_project.mkdir(exist_ok=True)
+        (sibling_project / "pyproject.toml").write_text(
+            """\
+    [build-system]
+    requires = ["hatchling"]
+    build-backend = "hatchling.build"
+
+    [project]
+    name = "sibling-project"
+    version = "0.0.1"
+    """
+        )
+
+        config = {
+            "project": {
+                "name": "my_app",
+                "version": "0.0.1",
+                "dependencies": ["sibling-project @ {root:parent:uri}/sibling-project"],
+            },
+            "tool": {"hatch": {"envs": {"default": {"skip-install": False}}}},
+        }
+        project = Project(temp_dir, config=config)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            temp_dir,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        normalized_parent_path = str(temp_dir.parent).replace("\\", "/")
+        expected_dep = f"sibling-project@ file:{uri_slash_prefix}{normalized_parent_path}/sibling-project"
+
+        # Verify the dependency was formatted correctly
+        assert expected_dep in environment.dependencies
+
+        # Verify we can access the path property without errors
+        for dep in environment.project_dependencies_complex:
+            if dep.name == "sibling-project":
+                assert dep.path is not None
+                assert "sibling-project" in str(dep.path)
+
     def test_full_skip_install(self, isolation, isolated_data_dir, platform, global_application):
         config = {
             "project": {"name": "my_app", "version": "0.0.1", "dependencies": ["dep1"]},

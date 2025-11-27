@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from functools import cached_property
+from urllib.parse import unquote
 
 from packaging.requirements import InvalidRequirement, Requirement
 
@@ -33,5 +34,5 @@ class Dependency(Requirement):
         uri = hyperlink.parse(self.url)
         if uri.scheme != "file":
             return None
-
-        return Path.from_uri(self.url)
+        decoded_url = unquote(self.url)
+        return Path.from_uri(decoded_url)
