@@ -8,6 +8,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.16.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.16.1) - 2025-11-27 ## {: #hatch-v1.16.1 }
+
+***Fixed:***
+
+- Handle special characters correctly in path for editable installs.
+- Fix multiple calls to install on `sync_dependencies` to become a single call.
+- Fix context variable formatting in project dependencies to prevent crashes when using variables like `{root:parent:uri}` in the `[project]` section.
+- Fix environment overrides for `dependency-groups` field to properly support matrix and conditional configurations.
+
 ## [1.16.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.16.0) - 2025-11-26 ## {: #hatch-v1.16.0 }
 
 ***Changed:***

@@ -367,3 +367,33 @@ def test_set_static(hatch, helpers, temp_dir):
         Cannot set version when it is statically defined by the `project.version` field
         """
     )
+
+
+@pytest.mark.usefixtures("mock_backend_process")
+def test_verbose_output_to_stderr(hatch, temp_dir):
+    """Test that verbose output (command display and status messages) goes to stderr, not stdout."""
+    project_name = "My.App"
+
+    with temp_dir.as_cwd():
+        hatch("new", project_name)
+
+    path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
+    data_path.mkdir()
+
+    # Run with verbose flag (-v) and separate stderr from stdout
+    with path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch("-v", "version")
+
+    assert result.exit_code == 0, result.output
+
+    # The actual version should be in stdout
+    assert result.stdout == "0.0.1\n"
+
+    # Verbose output should be in stderr
+    assert "Inspecting build dependencies" in result.stderr
+    assert "cmd [1] | python -u -m hatchling version" in result.stderr
+
+    # These should NOT be in stdout
+    assert "Inspecting build dependencies" not in result.stdout
+    assert "cmd [1]" not in result.stdout

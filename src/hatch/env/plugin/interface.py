@@ -294,8 +294,17 @@ class EnvironmentInterface(ABC):
 
         all_dependencies_complex = list(map(Dependency, workspace_dependencies))
         dependencies, optional_dependencies = self.app.project.get_dependencies()
-        dependencies_complex = get_complex_dependencies(dependencies)
-        optional_dependencies_complex = get_complex_features(optional_dependencies)
+
+        # Format dependencies with context before creating Dependency objects
+        with self.apply_context():
+            formatted_dependencies = [self.metadata.context.format(dep) for dep in dependencies]
+            formatted_optional_dependencies = {
+                feature: [self.metadata.context.format(dep) for dep in deps]
+                for feature, deps in optional_dependencies.items()
+            }
+
+        dependencies_complex = get_complex_dependencies(formatted_dependencies)
+        optional_dependencies_complex = get_complex_features(formatted_optional_dependencies)
 
         if not self.skip_install:
             all_dependencies_complex.extend(dependencies_complex.values())
