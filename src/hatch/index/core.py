@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 from functools import cached_property
 from typing import TYPE_CHECKING
 
@@ -49,15 +50,13 @@ class PackageIndex:
 
     @cached_property
     def client(self) -> httpx.Client:
-        import platform
-
         import httpx
 
         from hatch.utils.network import DEFAULT_TIMEOUT
 
         user_agent = (
             f"Hatch/{__version__} "
-            f"{platform.python_implementation()}/{platform.python_version()} "
+            f"{sys.implementation.name}/{'.'.join(map(str, sys.version_info[:3]))} "
             f"HTTPX/{httpx.__version__}"
         )
         return httpx.Client(

@@ -8,13 +8,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
-***Changed:***
-
-- Drop support for Python 3.8
+## [1.28.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.28.0) - 2025-11-26 ## {: #hatchling-v1.28.0 }
 
 ***Changed:***
 
-- Drop support for Python 3.8
+- Drop support for Python 3.9
+
+***Added:***
+
+- Add `sbom-files` option and `sbom_files` build data to the `wheel` build target for including Software Bill of Materials files.
 
 ## [1.27.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.27.0) - 2024-11-26 ## {: #hatchling-v1.27.0 }
 
