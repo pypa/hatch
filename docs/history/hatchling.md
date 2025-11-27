@@ -16,7 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ***Added:***
 
-- SBOM files can now be configured to write into wheels. 
+- Add `sbom-files` option and `sbom_files` build data to the `wheel` build target for including Software Bill of Materials files.
 
 ## [1.27.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.27.0) - 2024-11-26 ## {: #hatchling-v1.27.0 }
 

@@ -18,17 +18,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ***Added:***
 
 - Support for workspaces inspired by Cargo Workspaces
-- Dependency group support. 
-- Upgrade Ruff to 0.13.2
+- Dependency group support.
 - The `version` and `project metadata` commands now support projects that do not use Hatchling as the build backend
 - The `version` command accepts a `--force` option, allowing for downgrades when an explicit version number is given.
 - Build environments can now be configured, the default build environment is `hatch-build`
 - The environment interface now has the following methods and properties in order to better support builds on remote machines: `project_root`, `sep`, `pathsep`, `fs_context`
 - Bump the minimum supported version of `packaging` to 24.2
+- Upgrade Ruff to 0.13.2
 
 ***Fixed:***
 
-- User-Agent headers now include Hatch version, Python version, and httpx version.
+- All HTTP requests now set an identifiable `User-Agent` header.
 - Fix issue where terminal output would be out of sync during build.
 - Fix for Click Sentinel value when using `run` command
 
