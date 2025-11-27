@@ -26,6 +26,7 @@ class Dependency(Requirement):
     @cached_property
     def path(self) -> Path | None:
         from urllib.parse import unquote
+
         if self.url is None:
             return None
 
