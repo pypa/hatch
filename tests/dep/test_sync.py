@@ -198,3 +198,31 @@ def test_dependency_git_commit(platform, uv_on_path):
         assert distributions.dependencies_in_sync([
             Dependency("requests@git+https://github.com/psf/requests@7f694b79e114c06fac5ec06019cada5a61e5570f")
         ])
+
+
+def test_dependency_path_with_unresolved_context_variable():
+    """
+    Regression test: Dependency.path should raise ValueError for unresolved context variables.
+    Context variables must be resolved before creating Dependency objects.
+    """
+    unformatted_dep_string = "my-package @ {root:parent:uri}/my-package"
+    dep = Dependency(unformatted_dep_string)
+
+    with pytest.raises(ValueError, match="invalid scheme"):
+        _ = dep.path
+
+
+def test_dependency_path_with_special_characters():
+    """
+    Regression test: Dependency.path should handle URL-encoded special characters.
+    Paths with special characters like '+' get URL-encoded to '%2B' in URIs,
+    and should be decoded back when accessing the path property.
+    """
+    # Create a dependency with a path containing URL-encoded special character
+    # Simulating what happens when a path with '+' is converted via .as_uri()
+    dep_string = "my-package @ file:///tmp/my%2Bproject"
+    dep = Dependency(dep_string)
+
+    # The path property should decode %2B back to +
+    assert dep.path is not None
+    assert "my+project" in str(dep.path)
