@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.16.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.16.1) - 2025-11-27 ## {: #hatch-v1.16.1 }
+
 ***Fixed:***
 
 - Handle special characters correctly in path for editable installs.
