@@ -290,7 +290,7 @@ class EnvironmentInterface(ABC):
             return []
 
         from hatch.dep.core import Dependency
-        from hatch.utils.dep import get_complex_dependency_group
+        from hatch.utils.dep import get_complex_dependencies, get_complex_dependency_group, get_complex_features
 
         all_dependencies_complex = list(map(Dependency, workspace_dependencies))
         dependencies, optional_dependencies = self.app.project.get_dependencies()
@@ -303,10 +303,8 @@ class EnvironmentInterface(ABC):
                 for feature, deps in optional_dependencies.items()
             }
 
-        dependencies_complex = {dep: Dependency(dep) for dep in formatted_dependencies}
-        optional_dependencies_complex = {
-            feature: {dep: Dependency(dep) for dep in deps} for feature, deps in formatted_optional_dependencies.items()
-        }
+        dependencies_complex = get_complex_dependencies(formatted_dependencies)
+        optional_dependencies_complex = get_complex_features(formatted_optional_dependencies)
 
         if not self.skip_install:
             all_dependencies_complex.extend(dependencies_complex.values())
@@ -319,7 +317,10 @@ class EnvironmentInterface(ABC):
                 )
                 raise ValueError(message)
 
-            all_dependencies_complex.extend(optional_dependencies_complex[feature].values())
+            all_dependencies_complex.extend([
+                dep if isinstance(dep, Dependency) else Dependency(str(dep))
+                for dep in optional_dependencies_complex[feature]
+            ])
 
         for dependency_group in self.dependency_groups:
             all_dependencies_complex.extend(
