@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from functools import cached_property
-from urllib.parse import unquote
 
 from packaging.requirements import InvalidRequirement, Requirement
 
@@ -26,6 +25,7 @@ class Dependency(Requirement):
 
     @cached_property
     def path(self) -> Path | None:
+        from urllib.parse import unquote
         if self.url is None:
             return None
 
