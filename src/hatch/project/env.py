@@ -13,6 +13,7 @@ if TYPE_CHECKING:
 RESERVED_OPTIONS = {
     "builder": bool,
     "dependencies": list,
+    "dependency-groups": list,
     "extra-dependencies": list,
     "dev-mode": bool,
     "env-exclude": list,

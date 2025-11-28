@@ -63,7 +63,7 @@ class Application(Terminal):
             should_display_command = not context.hide_commands and (self.verbose or len(resolved_commands) > 1)
             for i, raw_command in enumerate(resolved_commands, 1):
                 if should_display_command:
-                    self.display(f"{context.source} [{i}] | {raw_command}")
+                    self.display_info(f"{context.source} [{i}] | {raw_command}")
 
                 command = raw_command
                 continue_on_error = context.force_continue
