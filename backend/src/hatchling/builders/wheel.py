@@ -88,7 +88,9 @@ class WheelArchive:
     def get_reproducible_time_tuple() -> TIME_TUPLE:
         from datetime import datetime, timezone
 
-        d = datetime.fromtimestamp(get_reproducible_timestamp(), timezone.utc)
+        # `zipfile.ZipInfo` does not support timestamps before 1980
+        min_ts = 315532800  # 1980-01-01T00:00:00Z
+        d = datetime.fromtimestamp(max(get_reproducible_timestamp(), min_ts), timezone.utc)
         return d.year, d.month, d.day, d.hour, d.minute, d.second
 
     def add_file(self, included_file: IncludedFile) -> tuple[str, str, str]:
