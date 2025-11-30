@@ -144,8 +144,8 @@ lint = [
 ]
 # Groups can include other groups
 dev = [
-  {"include-group": "test"},
-  {"include-group": "lint"},
+  {include-group = "test"},
+  {include-group = "lint"},
   "pre-commit",
 ]
 
