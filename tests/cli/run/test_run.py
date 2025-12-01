@@ -1229,13 +1229,17 @@ def test_incompatible_missing_python(hatch, helpers, temp_dir, config_file):
             "run", "test:python", "-c", "import os,sys;open('test.txt', 'a').write(sys.executable+os.linesep[-1])"
         )
     padding = "─"
-    if len(known_version) < 3:
-        padding += "─"
+    if FREE_THREADED_BUILD:
+        pre_padding = ""
+    else:
+        pre_padding = "─"
+        if len(known_version) < 3:
+            padding += "─"
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
         f"""
-        ────────────────────────────────── test.py{known_version} ─────────────────────────────────{padding}
+        ─────────────────────────────────{pre_padding} test.py{known_version} ─────────────────────────────────{padding}
         Creating environment: test.py{known_version}
         Checking dependencies
 
