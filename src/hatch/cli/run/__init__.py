@@ -90,20 +90,40 @@ def run(ctx: click.Context, args: tuple[str, ...]):
             if "python" not in config and (requires_python := metadata.get("requires-python")) is not None:
                 import re
                 import sys
+                import sysconfig
 
                 from packaging.specifiers import SpecifierSet
 
                 from hatch.python.distributions import DISTRIBUTIONS
 
                 current_version = ".".join(map(str, sys.version_info[:2]))
+                py_gil_disabled = bool(sysconfig.get_config_var("Py_GIL_DISABLED"))
+
+                app.display_debug(f"[DEBUG] sys.version_info: {sys.version_info}")
+                app.display_debug(f"[DEBUG] Py_GIL_DISABLED: {sysconfig.get_config_var('Py_GIL_DISABLED')} -> {py_gil_disabled}")
+
+                if py_gil_disabled:
+                    current_version += "t"
+
+                app.display_debug(f"[DEBUG] current_version: {current_version}")
+
+                # Strip "t" suffix for distribution lookup since DISTRIBUTIONS keys don't include it
+                current_version_base = current_version.rstrip("t")
+                app.display_debug(f"[DEBUG] current_version_base: {current_version_base}")
+
                 distributions = [name for name in DISTRIBUTIONS if re.match(r"^\d+\.\d+$", name)]
-                distributions.sort(key=lambda name: name != current_version)
+                distributions.sort(key=lambda name: name != current_version_base)
+
+                app.display_debug(f"[DEBUG] distributions (sorted): {distributions[:5]}")
+                app.display_debug(f"[DEBUG] requires_python constraint: {requires_python}")
 
                 python_constraint = SpecifierSet(requires_python)
                 for distribution in distributions:
                     # Try an artificially high patch version to account for
                     # common cases like `>=3.11.4` or `>=3.10,<3.11`
+                    app.display_debug(f"[DEBUG] Testing distribution: {distribution}.100 against {requires_python}")
                     if python_constraint.contains(f"{distribution}.100"):
+                        app.display_debug(f"[DEBUG] Selected distribution: {distribution}")
                         config["python"] = distribution
                         break
                 else:
