@@ -1,5 +1,6 @@
 import os
 import sys
+import sysconfig
 
 import pytest
 
@@ -2575,6 +2576,9 @@ class TestScriptRunner:
         # Use the current minor version so that the current Python
         # will be used and distributions don't have to be downloaded
         major, minor = sys.version_info[:2]
+        python_version = f"{major}.{minor}"
+        if bool(sysconfig.get_config_var("Py_GIL_DISABLED")):
+            python_version += "t"
 
         script.write_text(
             helpers.dedent(
@@ -2583,7 +2587,7 @@ class TestScriptRunner:
                 # requires-python = ">9000"
                 #
                 # [tool.hatch]
-                # python = "{major}.{minor}"
+                # python = "{python_version}"
                 # ///
                 import pathlib
                 import sys
