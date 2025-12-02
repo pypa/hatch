@@ -407,18 +407,20 @@ class EnvironmentInterface(ABC):
         from hatch.dep.core import Dependency
 
         local_deps = list(self.local_dependencies_complex)
-        other_deps = list(self.dependencies_complex)
-
-        # Create workspace member name set for conflict detection
         workspace_names = {dep.name.lower() for dep in local_deps}
+        _, optional_dependencies = self.app.project.get_dependencies()
 
-        # Filter out conflicting dependencies, keeping only workspace versions
-        filtered_deps = [
-            dep if isinstance(dep, Dependency) else Dependency(str(dep))
-            for dep in other_deps
-            if dep.name.lower() not in workspace_names
-        ]
-        # Workspace members first to ensure precedence
+        filtered_deps = []
+        for dep in self.dependencies_complex:
+            dep_obj = dep if isinstance(dep, Dependency) else Dependency(str(dep))
+
+            if dep_obj.name.lower() in workspace_names and dep_obj.extras:
+                for extra in dep_obj.extras:
+                    if extra in optional_dependencies:
+                        filtered_deps.extend(Dependency(d) for d in optional_dependencies[extra])
+            elif dep_obj.name.lower() not in workspace_names:
+                filtered_deps.append(dep_obj)
+
         return local_deps + filtered_deps
 
     @cached_property

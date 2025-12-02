@@ -1486,6 +1486,61 @@ feature3 = ["pkg-feature-3{i}"]
             "dep1",
         ]
 
+    def test_self_referencing_dependency_with_extras(self, temp_dir, isolated_data_dir, platform, global_application):
+        """Test that self-referencing dependencies with extras include the extra's dependencies."""
+        project_dir = temp_dir / "my-app"
+        project_dir.mkdir()
+
+        (project_dir / "my_app").mkdir()
+        (project_dir / "my_app" / "__init__.py").write_text("")
+        (project_dir / "my_app" / "__about__.py").write_text('__version__ = "0.0.1"')
+
+        config = {
+            "project": {
+                "name": "my-app",
+                "version": "0.0.1",
+                "dependencies": [],
+                "optional-dependencies": {
+                    "test": ["pytest>=7.0"],
+                },
+            },
+            "tool": {
+                "hatch": {
+                    "envs": {
+                        "dev": {
+                            "skip-install": False,
+                            "dependencies": ["my-app[test]"],
+                        }
+                    }
+                }
+            },
+        }
+
+        project = Project(project_dir, config=config)
+        global_application.project = project
+
+        environment = MockEnvironment(
+            project_dir,
+            project.metadata,
+            "dev",
+            project.config.envs["dev"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            global_application,
+        )
+
+        # Get all dependencies as strings (what would be passed to pip)
+        all_deps_str = [str(d) for d in environment.all_dependencies_complex]
+
+        # Should have the local installation
+        assert any("my-app" in dep and "file://" in dep for dep in all_deps_str)
+
+        # Should have my-app[test] which will cause pip to install pytest
+        assert any("pytest" in dep.lower() for dep in all_deps_str)
+
 
 class TestScripts:
     @pytest.mark.parametrize("field", ["scripts", "extra-scripts"])
