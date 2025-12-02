@@ -1,5 +1,10 @@
+import platform
+import sys
+
+import httpx
 import pytest
 
+from hatch._version import __version__
 from hatch.index.core import PackageIndex
 
 
@@ -66,3 +71,16 @@ class TestTLS:
         _ = index.client
 
         mock.assert_called_once_with(verify=True, cert=("foo", "bar"), trust_env=True)
+
+
+class TestUserAgent:
+    def test_user_agent_header_format(self):
+        index = PackageIndex("https://foo.internal/a/b/")
+        client = index.client
+
+        user_agent = client.headers["User-Agent"]
+
+        expected = (
+            f"Hatch/{__version__} {sys.implementation.name}/{platform.python_version()} HTTPX/{httpx.__version__}"
+        )
+        assert user_agent == expected

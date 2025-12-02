@@ -25,6 +25,8 @@ class Dependency(Requirement):
 
     @cached_property
     def path(self) -> Path | None:
+        from urllib.parse import unquote
+
         if self.url is None:
             return None
 
@@ -33,5 +35,5 @@ class Dependency(Requirement):
         uri = hyperlink.parse(self.url)
         if uri.scheme != "file":
             return None
-
-        return Path.from_uri(self.url)
+        decoded_url = unquote(self.url)
+        return Path.from_uri(decoded_url)

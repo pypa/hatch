@@ -684,8 +684,9 @@ class WheelBuilder(BuilderInterface):
             record = archive.write_shared_script(shared_script, content.getvalue())
             records.write(record)
 
-    def add_sboms(self, archive: WheelArchive, records: RecordFile) -> None:
+    def add_sboms(self, archive: WheelArchive, records: RecordFile, build_data: dict[str, Any]) -> None:
         sbom_files = self.config.sbom_files
+        sbom_files.extend(build_data["sbom_files"])
         if not sbom_files:
             return
 
@@ -724,7 +725,7 @@ class WheelBuilder(BuilderInterface):
         self.add_licenses(archive, records)
 
         # sboms/
-        self.add_sboms(archive, records)
+        self.add_sboms(archive, records, build_data)
 
         # extra_metadata/ - write last
         self.add_extra_metadata(archive, records, build_data)
@@ -849,6 +850,7 @@ Root-Is-Purelib: {"true" if build_data["pure_python"] else "false"}
             "extra_metadata": {},
             "shared_data": {},
             "shared_scripts": {},
+            "sbom_files": [],
         }
 
     def get_forced_inclusion_map(self, build_data: dict[str, Any]) -> dict[str, str]:

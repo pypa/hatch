@@ -201,37 +201,39 @@ class VirtualEnvironment(EnvironmentInterface):
 
     def sync_dependencies(self):
         with self.safe_activation():
-            # Install workspace members first as editable (already exists)
-            workspace_deps = [str(dep.path) for dep in self.local_dependencies_complex if dep.path]
-            if workspace_deps:
-                editable_args = []
-                for dep_path in workspace_deps:
-                    editable_args.extend(["--editable", dep_path])
-                self.platform.check_command(self.construct_pip_install_command(editable_args))
+            # If we do not have missing dependencies we should not sync
+            if not self.missing_dependencies:
+                return
 
-            # Separate remaining dependencies by type and filter conflicts
-            standard_dependencies: list[str] = []
-            editable_dependencies: list[str] = []
+            all_install_args = []
+
+            workspace_deps = [str(dep.path) for dep in self.local_dependencies_complex if dep.path]
+            workspace_names = {dep.name.lower() for dep in self.local_dependencies_complex if dep.path}
+
+            for dep_path in workspace_deps:
+                all_install_args.extend(["--editable", dep_path])
+
+            standard_dependencies = []
+
+            user_editable_dependencies = []
 
             for dependency in self.missing_dependencies:
-                # Skip if workspace member (already installed above)
-                if dependency.name.lower() in workspace_deps:
+                # Skip if already handled as workspace dependency
+                if dependency.name.lower() in workspace_names:
                     continue
 
-                if not dependency.editable or dependency.path is None:
-                    standard_dependencies.append(str(dependency))
+                if dependency.editable and dependency.path is not None:
+                    user_editable_dependencies.append(str(dependency.path))
                 else:
-                    editable_dependencies.append(str(dependency.path))
+                    standard_dependencies.append(str(dependency))
 
-            # Install other dependencies
-            if standard_dependencies:
-                self.platform.check_command(self.construct_pip_install_command(standard_dependencies))
+            all_install_args.extend(standard_dependencies)
 
-            if editable_dependencies:
-                editable_args = []
-                for dependency in editable_dependencies:
-                    editable_args.extend(["--editable", dependency])
-                self.platform.check_command(self.construct_pip_install_command(editable_args))
+            for dep_path in user_editable_dependencies:
+                all_install_args.extend(["--editable", dep_path])
+
+            if all_install_args:
+                self.platform.check_command(self.construct_pip_install_command(all_install_args))
 
     @contextmanager
     def command_context(self):
