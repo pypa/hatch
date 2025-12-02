@@ -410,7 +410,7 @@ class EnvironmentInterface(ABC):
         workspace_names = {dep.name.lower() for dep in local_deps}
         _, optional_dependencies = self.app.project.get_dependencies()
 
-        filtered_deps = []
+        filtered_deps: list[Dependency] = []
         for dep in self.dependencies_complex:
             dep_obj = dep if isinstance(dep, Dependency) else Dependency(str(dep))
 
