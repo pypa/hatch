@@ -26,7 +26,7 @@ The builder plugin name is `wheel`.
 | `sbom-files` | | A list of paths to [Software Bill of Materials](https://peps.python.org/pep-0770/) files that will be included in the `.dist-info/sboms/` directory of the wheel |
 
 !!! note
-    Some build frontends (notably [uv](https://docs.astral.sh/uv/reference/cli/#uv-build) and [build](https://build.pypa.io/en/stable/#python--m-build)), will build a wheel from a source distribution. This is the recommended approach, but it means you need to ensure the SBOM files passed to `sbom-files` are also [included in the source distribution](https://hatch.pypa.io/latest/config/build/#file-selection).
+    Many build frontends will build the wheel from a source distribution. This is the recommended approach, but it means you need to ensure the SBOM files passed to `sbom-files` are also [included in the source distribution](https://hatch.pypa.io/latest/config/build/#file-selection).
 
 ## Versions
 
