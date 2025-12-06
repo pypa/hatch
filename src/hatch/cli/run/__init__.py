@@ -90,21 +90,30 @@ def run(ctx: click.Context, args: tuple[str, ...]):
             if "python" not in config and (requires_python := metadata.get("requires-python")) is not None:
                 import re
                 import sys
+                import sysconfig
 
                 from packaging.specifiers import SpecifierSet
 
                 from hatch.python.distributions import DISTRIBUTIONS
 
                 current_version = ".".join(map(str, sys.version_info[:2]))
+                if bool(sysconfig.get_config_var("Py_GIL_DISABLED")):
+                    current_version += "t"
+
+                # Strip "t" suffix for distribution lookup since DISTRIBUTIONS keys don't include it
+                current_version_base = current_version.rstrip("t")
                 distributions = [name for name in DISTRIBUTIONS if re.match(r"^\d+\.\d+$", name)]
-                distributions.sort(key=lambda name: name != current_version)
+                distributions.sort(key=lambda name: name != current_version_base)
 
                 python_constraint = SpecifierSet(requires_python)
                 for distribution in distributions:
                     # Try an artificially high patch version to account for
                     # common cases like `>=3.11.4` or `>=3.10,<3.11`
                     if python_constraint.contains(f"{distribution}.100"):
-                        config["python"] = distribution
+                        # Only set config["python"] if it doesn't match the current Python's base version
+                        # This allows free-threaded builds (e.g. 3.14t) to match their base version (3.14)
+                        if distribution != current_version_base:
+                            config["python"] = distribution
                         break
                 else:
                     app.abort(f"Unable to satisfy Python version constraint: {requires_python}")

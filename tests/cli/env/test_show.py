@@ -72,6 +72,7 @@ def test_default_as_json(hatch, temp_dir, config_file):
         "hatch-build",
         "hatch-static-analysis",
         "hatch-test.py3.14",
+        "hatch-test.py3.14t",
         "hatch-test.py3.13",
         "hatch-test.py3.12",
         "hatch-test.py3.11",
