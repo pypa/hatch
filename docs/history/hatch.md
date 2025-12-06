@@ -8,6 +8,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.16.2](https://github.com/pypa/hatch/releases/tag/hatch-v1.16.2) - 2025-12-06 ## {: #hatch-v1.16.2 }
+
+***Fixed:***
+
+- Properly send informational output to `stderr` instead of `stdout`
+- Implement documented support for `sbom-files` as build data for the `wheel` build target
+- Fix regression where environments no longer acknowledged the `project.optional-dependencies` field
+
 ## [1.16.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.16.1) - 2025-11-27 ## {: #hatch-v1.16.1 }
 
 ***Fixed:***
@@ -21,7 +29,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ***Changed:***
 
-- Drop support for 3.9 
+- Drop support for 3.9
 - Environment type plugins are now no longer expected to support a pseudo-build environment as any environment now may be used for building. The following methods have been removed: `build_environment`, `build_environment_exists`, `run_builder`, `construct_build_command`
 
 ***Added:***
