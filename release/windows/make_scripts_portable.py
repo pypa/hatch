@@ -11,7 +11,7 @@ from tempfile import TemporaryDirectory
 from urllib.request import urlopen
 from zipfile import ZIP_DEFLATED, ZipFile, ZipInfo
 
-LAUNCHERS_URL = "https://raw.githubusercontent.com/astral-sh/uv/main/crates/uv-trampoline/trampolines"
+LAUNCHERS_URL = "https://raw.githubusercontent.com/astral-sh/uv/main/crates/uv-trampoline-builder/trampolines"
 SCRIPT_TEMPLATE = """\
 #!{executable}
 import re
