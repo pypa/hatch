@@ -1,5 +1,6 @@
 import os
 import sys
+import sysconfig
 
 import pytest
 
@@ -10,6 +11,8 @@ from hatch.python.resolve import get_compatible_distributions
 from hatch.utils.fs import Path
 from hatch.utils.structures import EnvVars
 from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT, DEFAULT_CONFIG_FILE
+
+FREE_THREADED_BUILD = bool(sysconfig.get_config_var("Py_GIL_DISABLED"))
 
 
 @pytest.fixture(scope="module")
@@ -1214,6 +1217,9 @@ def test_incompatible_missing_python(hatch, helpers, temp_dir, config_file):
     data_path.mkdir()
 
     known_version = "".join(map(str, sys.version_info[:2]))
+    if FREE_THREADED_BUILD:
+        known_version += "t"
+
     project = Project(project_path)
     helpers.update_project_environment(project, "default", {"skip-install": True, **project.config.envs["default"]})
     helpers.update_project_environment(project, "test", {"matrix": [{"python": [known_version, "9000"]}]})
@@ -1222,15 +1228,18 @@ def test_incompatible_missing_python(hatch, helpers, temp_dir, config_file):
         result = hatch(
             "run", "test:python", "-c", "import os,sys;open('test.txt', 'a').write(sys.executable+os.linesep[-1])"
         )
-
     padding = "─"
-    if len(known_version) < 3:
-        padding += "─"
+    if FREE_THREADED_BUILD:
+        pre_padding = ""
+    else:
+        pre_padding = "─"
+        if len(known_version) < 3:
+            padding += "─"
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
         f"""
-        ────────────────────────────────── test.py{known_version} ─────────────────────────────────{padding}
+        ─────────────────────────────────{pre_padding} test.py{known_version} ─────────────────────────────────{padding}
         Creating environment: test.py{known_version}
         Checking dependencies
 
@@ -2575,6 +2584,9 @@ class TestScriptRunner:
         # Use the current minor version so that the current Python
         # will be used and distributions don't have to be downloaded
         major, minor = sys.version_info[:2]
+        python_version = f"{major}.{minor}"
+        if FREE_THREADED_BUILD:
+            python_version += "t"
 
         script.write_text(
             helpers.dedent(
@@ -2583,7 +2595,7 @@ class TestScriptRunner:
                 # requires-python = ">9000"
                 #
                 # [tool.hatch]
-                # python = "{major}.{minor}"
+                # python = "{python_version}"
                 # ///
                 import pathlib
                 import sys
