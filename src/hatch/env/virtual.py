@@ -204,11 +204,14 @@ class VirtualEnvironment(EnvironmentInterface):
 
             all_install_args = []
 
-            workspace_deps = [str(dep.path) for dep in self.local_dependencies_complex if dep.path]
+            workspace_deps = [dep for dep in self.local_dependencies_complex if dep.path]
             workspace_names = {dep.name.lower() for dep in self.local_dependencies_complex if dep.path}
 
-            for dep_path in workspace_deps:
-                all_install_args.extend(["--editable", dep_path])
+            for dep in workspace_deps:
+                if dep.editable:
+                    all_install_args.extend(["--editable", dep.path])
+                else:
+                    all_install_args.append(dep.path)
 
             standard_dependencies = []
 
