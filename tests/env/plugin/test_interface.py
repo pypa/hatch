@@ -3388,7 +3388,6 @@ dev-mode = false
         assert len(local_deps) == 1
         assert local_deps[0].editable is False
 
-
     def test_workspace_members_always_editable(self, temp_dir, isolated_data_dir, platform, temp_application):
         """Verify workspace members are always editable regardless of dev-mode."""
         pyproject = temp_dir / "pyproject.toml"
