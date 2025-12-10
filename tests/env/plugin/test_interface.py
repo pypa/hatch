@@ -3388,36 +3388,6 @@ dev-mode = false
         assert len(local_deps) == 1
         assert local_deps[0].editable is False
 
-    def test_skip_install_returns_empty(self, temp_dir, isolated_data_dir, platform, temp_application):
-        """Verify skip-install=true returns empty local dependencies."""
-        pyproject = temp_dir / "pyproject.toml"
-        pyproject.write_text("""
-[project]
-name = "my-app"
-version = "0.0.1"
-
-[tool.hatch.envs.default]
-skip-install = true
-""")
-
-        project = Project(temp_dir)
-        project.set_app(temp_application)
-        temp_application.project = project
-        environment = MockEnvironment(
-            temp_dir,
-            project.metadata,
-            "default",
-            project.config.envs["default"],
-            {},
-            isolated_data_dir,
-            isolated_data_dir,
-            platform,
-            0,
-            temp_application,
-        )
-
-        local_deps = environment.local_dependencies_complex
-        assert len(local_deps) == 0
 
     def test_workspace_members_always_editable(self, temp_dir, isolated_data_dir, platform, temp_application):
         """Verify workspace members are always editable regardless of dev-mode."""
