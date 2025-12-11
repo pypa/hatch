@@ -1541,10 +1541,10 @@ feature3 = ["pkg-feature-3{i}"]
         # Should have my-app[test] which will cause pip to install pytest
         assert any("pytest" in dep.lower() for dep in all_deps_str)
 
-    def test_dev_mode_true_returns_editable(self, isolation, isolated_data_dir, platform, global_application):
+    def test_dev_mode_true_returns_editable(self, temp_dir, isolated_data_dir, platform, temp_application):
         """Verify dev-mode=true creates editable local dependency."""
         # Create a pyproject.toml file so skip_install defaults to False
-        pyproject = isolation / "pyproject.toml"
+        pyproject = temp_dir / "pyproject.toml"
         pyproject.write_text("""
     [project]
     name = "my-app"
@@ -1554,9 +1554,9 @@ feature3 = ["pkg-feature-3{i}"]
     dev-mode = true
     """)
 
-        project = Project(isolation)
+        project = Project(temp_dir)
         environment = MockEnvironment(
-            isolation,
+            temp_dir,
             project.metadata,
             "default",
             project.config.envs["default"],
@@ -1565,7 +1565,7 @@ feature3 = ["pkg-feature-3{i}"]
             isolated_data_dir,
             platform,
             0,
-            global_application,
+            temp_application,
         )
 
         local_deps = environment.local_dependencies_complex
@@ -1573,10 +1573,10 @@ feature3 = ["pkg-feature-3{i}"]
         assert len(local_deps) == 1
         assert local_deps[0].editable is True
 
-    def test_dev_mode_false_returns_non_editable(self, isolation, isolated_data_dir, platform, global_application):
+    def test_dev_mode_false_returns_non_editable(self, temp_dir, isolated_data_dir, platform, temp_application):
         """Verify dev-mode=false creates non-editable local dependency."""
         # Create a pyproject.toml file so skip_install defaults to False
-        pyproject = isolation / "pyproject.toml"
+        pyproject = temp_dir / "pyproject.toml"
         pyproject.write_text("""
     [project]
     name = "my-app"
@@ -1586,9 +1586,9 @@ feature3 = ["pkg-feature-3{i}"]
     dev-mode = false
     """)
 
-        project = Project(isolation)
+        project = Project(temp_dir)
         environment = MockEnvironment(
-            isolation,
+            temp_dir,
             project.metadata,
             "default",
             project.config.envs["default"],
@@ -1597,7 +1597,7 @@ feature3 = ["pkg-feature-3{i}"]
             isolated_data_dir,
             platform,
             0,
-            global_application,
+            temp_application,
         )
 
         local_deps = environment.local_dependencies_complex
@@ -1605,9 +1605,9 @@ feature3 = ["pkg-feature-3{i}"]
         assert len(local_deps) == 1
         assert local_deps[0].editable is False
 
-    def test_skip_install_returns_empty(self, isolation, isolated_data_dir, platform, global_application):
+    def test_skip_install_returns_empty(self, temp_dir, isolated_data_dir, platform, temp_application):
         """Verify skip-install=true returns empty local dependencies."""
-        pyproject = isolation / "pyproject.toml"
+        pyproject = temp_dir / "pyproject.toml"
         pyproject.write_text("""
     [project]
     name = "my-app"
@@ -1617,9 +1617,9 @@ feature3 = ["pkg-feature-3{i}"]
     skip-install = true
     """)
 
-        project = Project(isolation)
+        project = Project(temp_dir)
         environment = MockEnvironment(
-            isolation,
+            temp_dir,
             project.metadata,
             "default",
             project.config.envs["default"],
@@ -1628,16 +1628,16 @@ feature3 = ["pkg-feature-3{i}"]
             isolated_data_dir,
             platform,
             0,
-            global_application,
+            temp_application,
         )
 
         local_deps = environment.local_dependencies_complex
 
         assert len(local_deps) == 0
 
-    def test_workspace_members_always_editable(self, isolation, isolated_data_dir, platform, global_application):
+    def test_workspace_members_always_editable(self, temp_dir, isolated_data_dir, platform, temp_application):
         """Verify workspace members are always editable regardless of dev-mode."""
-        pyproject = isolation / "pyproject.toml"
+        pyproject = temp_dir / "pyproject.toml"
         pyproject.write_text("""
     [project]
     name = "my-app"
@@ -1647,9 +1647,9 @@ feature3 = ["pkg-feature-3{i}"]
     dev-mode = false
     """)
 
-        project = Project(isolation)
+        project = Project(temp_dir)
         environment = MockEnvironment(
-            isolation,
+            temp_dir,
             project.metadata,
             "default",
             project.config.envs["default"],
@@ -1658,7 +1658,7 @@ feature3 = ["pkg-feature-3{i}"]
             isolated_data_dir,
             platform,
             0,
-            global_application,
+            temp_application,
         )
 
         local_deps = environment.local_dependencies_complex
