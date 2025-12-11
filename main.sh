@@ -18,9 +18,9 @@ install_hatch() {
 
   echo -e "${PURPLE}Downloading Hatch ${VERSION}${RESET}\n"
   if [[ "${VERSION}" == "latest" ]]; then
-    curl -sSLo "${archive}" "https://github.com/pypa/hatch/releases/latest/download/$1"
+    curl -sSfLo "${archive}" "https://github.com/pypa/hatch/releases/latest/download/$1"
   else
-    curl -sSLo "${archive}" "https://github.com/pypa/hatch/releases/download/hatch-v${VERSION}/$1"
+    curl -sSfLo "${archive}" "https://github.com/pypa/hatch/releases/download/hatch-v${VERSION}/$1"
   fi
 
   if [[ "${archive}" =~ \.zip$ ]]; then
