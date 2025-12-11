@@ -1541,6 +1541,195 @@ feature3 = ["pkg-feature-3{i}"]
         # Should have my-app[test] which will cause pip to install pytest
         assert any("pytest" in dep.lower() for dep in all_deps_str)
 
+    def test_dev_mode_true_returns_editable(self, temp_dir, isolated_data_dir, platform, temp_application):
+        """Verify dev-mode=true creates editable local dependency."""
+        # Create a pyproject.toml file so skip_install defaults to False
+        pyproject = temp_dir / "pyproject.toml"
+        pyproject.write_text("""
+    [project]
+    name = "my-app"
+    version = "0.0.1"
+
+    [tool.hatch.envs.default]
+    dev-mode = true
+    """)
+
+        project = Project(temp_dir)
+        environment = MockEnvironment(
+            temp_dir,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        local_deps = environment.local_dependencies_complex
+
+        assert len(local_deps) == 1
+        assert local_deps[0].editable is True
+
+    def test_dev_mode_false_returns_non_editable(self, temp_dir, isolated_data_dir, platform, temp_application):
+        """Verify dev-mode=false creates non-editable local dependency."""
+        # Create a pyproject.toml file so skip_install defaults to False
+        pyproject = temp_dir / "pyproject.toml"
+        pyproject.write_text("""
+    [project]
+    name = "my-app"
+    version = "0.0.1"
+
+    [tool.hatch.envs.default]
+    dev-mode = false
+    """)
+
+        project = Project(temp_dir)
+        environment = MockEnvironment(
+            temp_dir,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        local_deps = environment.local_dependencies_complex
+
+        assert len(local_deps) == 1
+        assert local_deps[0].editable is False
+
+    def test_skip_install_returns_empty(self, temp_dir, isolated_data_dir, platform, temp_application):
+        """Verify skip-install=true returns empty local dependencies."""
+        pyproject = temp_dir / "pyproject.toml"
+        pyproject.write_text("""
+    [project]
+    name = "my-app"
+    version = "0.0.1"
+
+    [tool.hatch.envs.default]
+    skip-install = true
+    """)
+
+        project = Project(temp_dir)
+        environment = MockEnvironment(
+            temp_dir,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        local_deps = environment.local_dependencies_complex
+
+        assert len(local_deps) == 0
+
+    def test_workspace_members_always_editable(self, temp_dir, isolated_data_dir, platform, temp_application):
+        """Verify workspace members are always editable regardless of dev-mode."""
+        pyproject = temp_dir / "pyproject.toml"
+        pyproject.write_text("""
+    [project]
+    name = "my-app"
+    version = "0.0.1"
+
+    [tool.hatch.envs.default]
+    dev-mode = false
+    """)
+
+        project = Project(temp_dir)
+        environment = MockEnvironment(
+            temp_dir,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        local_deps = environment.local_dependencies_complex
+
+        # Project itself should respect dev-mode=false
+        assert len(local_deps) == 1
+        assert local_deps[0].editable is False
+
+    def test_dependency_group_resolution(self, temp_dir, isolated_data_dir, platform, temp_application):
+        """Test dependency group resolution."""
+        pyproject = temp_dir / "pyproject.toml"
+        pyproject.write_text("""
+    [project]
+    name = "my-app"
+    version = "0.0.1"
+
+    [dependency-groups]
+    test = ["pytest"]
+
+    [tool.hatch.envs.default]
+    dependency-groups = ["test"]
+    """)
+
+        project = Project(temp_dir)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            temp_dir,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        deps = environment.project_dependencies_complex
+        assert any("pytest" in str(d) for d in deps)
+
+    def test_additional_dependencies_as_strings(self, temp_dir, isolated_data_dir, platform, temp_application):
+        """Test additional_dependencies with string values."""
+        pyproject = temp_dir / "pyproject.toml"
+        pyproject.write_text("""
+    [project]
+    name = "my-app"
+    version = "0.0.1"
+    """)
+
+        project = Project(temp_dir)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            temp_dir,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        environment.additional_dependencies = ["extra-dep"]
+        deps = environment.dependencies_complex
+        assert any("extra-dep" in str(d) for d in deps)
+
 
 class TestScripts:
     @pytest.mark.parametrize("field", ["scripts", "extra-scripts"])
@@ -2275,6 +2464,37 @@ class TestContextFormatting:
 
         assert list(environment.expand_command("foo")) == [command]
 
+    def test_verbosity_flag_adjustment_invalid(self, temp_dir, isolated_data_dir, platform, temp_application):
+        """Test verbosity flag with invalid adjustment."""
+        pyproject = temp_dir / "pyproject.toml"
+        pyproject.write_text("""
+    [project]
+    name = "my-app"
+    version = "0.0.1"
+
+    [tool.hatch.envs.default]
+    scripts.test = "pytest {verbosity:flag:invalid}"
+    """)
+
+        project = Project(temp_dir)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            temp_dir,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        with pytest.raises(TypeError, match="Verbosity flag adjustment must be an integer"):
+            list(environment.expand_command("test"))
+
     def test_args_undefined(self, isolation, isolated_data_dir, platform, global_application):
         config = {
             "project": {"name": "my_app", "version": "0.0.1"},
@@ -2991,3 +3211,369 @@ feature3 = ["pkg-feature-3{i}"]
             "pkg-feature-22",
             "pkg-feature-32",
         ]
+
+
+class TestDependencyHash:
+    def test_hash_includes_local_dependencies(self, temp_dir, isolated_data_dir, platform, temp_application):
+        """Verify dependency hash includes local dependencies."""
+        pyproject = temp_dir / "pyproject.toml"
+        pyproject.write_text("""
+[project]
+name = "my-app"
+version = "0.0.1"
+""")
+
+        config = {"project": {"name": "my_app", "version": "0.0.1"}}
+        project = Project(temp_dir, config=config)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            temp_dir,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        hash_value = environment.dependency_hash()
+        assert hash_value
+        assert len(hash_value) > 0
+
+    def test_hash_stable_when_dependencies_unchanged(self, temp_dir, isolated_data_dir, platform, temp_application):
+        """Verify dependency hash is stable when dependencies don't change."""
+        pyproject = temp_dir / "pyproject.toml"
+        pyproject.write_text("""
+[project]
+name = "my-app"
+version = "0.0.1"
+""")
+
+        config = {"project": {"name": "my_app", "version": "0.0.1"}}
+        project = Project(temp_dir, config=config)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            temp_dir,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        hash1 = environment.dependency_hash()
+        hash2 = environment.dependency_hash()
+
+        assert hash1 == hash2
+
+    def test_hash_changes_with_extra_dependencies(self, temp_dir, isolated_data_dir, platform, temp_application):
+        """Verify dependency hash changes when extra-dependencies are added."""
+        pyproject = temp_dir / "pyproject.toml"
+        pyproject.write_text("""
+[project]
+name = "my-app"
+version = "0.0.1"
+""")
+
+        config_no_deps = {"project": {"name": "my_app", "version": "0.0.1"}}
+        project_no_deps = Project(temp_dir, config=config_no_deps)
+        project_no_deps.set_app(temp_application)
+        temp_application.project = project_no_deps
+        env_no_deps = MockEnvironment(
+            temp_dir,
+            project_no_deps.metadata,
+            "default",
+            project_no_deps.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+        hash_no_deps = env_no_deps.dependency_hash()
+
+        config_with_deps = {
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {"hatch": {"envs": {"default": {"extra-dependencies": ["pytest"]}}}},
+        }
+        project_with_deps = Project(temp_dir, config=config_with_deps)
+        project_with_deps.set_app(temp_application)
+        temp_application.project = project_with_deps
+        env_with_deps = MockEnvironment(
+            temp_dir,
+            project_with_deps.metadata,
+            "default",
+            project_with_deps.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+        hash_with_deps = env_with_deps.dependency_hash()
+
+        assert hash_no_deps != hash_with_deps
+
+
+class TestLocalDependenciesComplex:
+    def test_dev_mode_true_returns_editable(self, temp_dir, isolated_data_dir, platform, temp_application):
+        """Verify dev-mode=true creates editable local dependency."""
+        pyproject = temp_dir / "pyproject.toml"
+        pyproject.write_text("""
+[project]
+name = "my-app"
+version = "0.0.1"
+""")
+
+        project = Project(temp_dir)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            temp_dir,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        local_deps = environment.local_dependencies_complex
+        assert len(local_deps) == 1
+        assert local_deps[0].editable is True
+
+    def test_dev_mode_false_returns_non_editable(self, temp_dir, isolated_data_dir, platform, temp_application):
+        """Verify dev-mode=false creates non-editable local dependency."""
+        pyproject = temp_dir / "pyproject.toml"
+        pyproject.write_text("""
+[project]
+name = "my-app"
+version = "0.0.1"
+
+[tool.hatch.envs.default]
+dev-mode = false
+""")
+
+        project = Project(temp_dir)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            temp_dir,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        local_deps = environment.local_dependencies_complex
+        assert len(local_deps) == 1
+        assert local_deps[0].editable is False
+
+    def test_workspace_members_always_editable(self, temp_dir, isolated_data_dir, platform, temp_application):
+        """Verify workspace members are always editable regardless of dev-mode."""
+        pyproject = temp_dir / "pyproject.toml"
+        pyproject.write_text("""
+[project]
+name = "my-app"
+version = "0.0.1"
+
+[tool.hatch.envs.default]
+dev-mode = false
+workspace.members = ["member"]
+""")
+
+        member_dir = temp_dir / "member"
+        member_dir.mkdir()
+        (member_dir / "pyproject.toml").write_text("""
+[project]
+name = "member"
+version = "0.0.1"
+""")
+
+        project = Project(temp_dir)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            temp_dir,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        local_deps = environment.local_dependencies_complex
+        assert len(local_deps) == 2
+        project_dep = next(d for d in local_deps if d.name == "my-app")
+        member_dep = next(d for d in local_deps if d.name == "member")
+        assert project_dep.editable is False
+        assert member_dep.editable is True
+
+
+class TestDynamicDependencies:
+    def test_dynamic_dependencies_resolved(self, temp_dir, isolated_data_dir, platform, temp_application):
+        """Verify dynamic dependencies are resolved correctly."""
+        pyproject = temp_dir / "pyproject.toml"
+        pyproject.write_text("""
+[project]
+name = "my-app"
+version = "0.0.1"
+dynamic = ["dependencies"]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+""")
+
+        project = Project(temp_dir)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            temp_dir,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        assert "dependencies" in environment.metadata.dynamic
+
+
+class TestBuildSystemIntegration:
+    def test_builder_includes_build_requirements(self, temp_dir, isolated_data_dir, platform, temp_application):
+        """Verify builder environment includes build system requirements."""
+        pyproject = temp_dir / "pyproject.toml"
+        pyproject.write_text("""
+[build-system]
+requires = ["hatchling", "build-dep"]
+
+[project]
+name = "my-app"
+version = "0.0.1"
+
+[tool.hatch.envs.build]
+builder = true
+""")
+
+        project = Project(temp_dir)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            temp_dir,
+            project.metadata,
+            "build",
+            project.config.envs["build"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        deps = environment.dependencies
+        assert any("hatchling" in d for d in deps)
+        assert any("build-dep" in d for d in deps)
+
+
+class TestEnvironmentLifecycle:
+    def test_app_status_contexts(self, temp_dir, isolated_data_dir, platform, temp_application):
+        """Verify environment lifecycle status contexts work correctly."""
+        pyproject = temp_dir / "pyproject.toml"
+        pyproject.write_text("""
+[project]
+name = "my-app"
+version = "0.0.1"
+""")
+
+        project = Project(temp_dir)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            temp_dir,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        with environment.app_status_creation():
+            pass
+        with environment.app_status_pre_installation():
+            pass
+        with environment.app_status_post_installation():
+            pass
+        with environment.app_status_project_installation():
+            pass
+        with environment.app_status_dependency_state_check():
+            pass
+        with environment.app_status_dependency_installation_check():
+            pass
+        with environment.app_status_dependency_synchronization():
+            pass
+
+
+class TestFileSystemContext:
+    def test_join_creates_new_context(self, temp_dir, isolated_data_dir, platform, temp_application):
+        """Test FileSystemContext.join creates proper paths."""
+        from hatch.env.plugin.interface import FileSystemContext
+
+        pyproject = temp_dir / "pyproject.toml"
+        pyproject.write_text("""
+[project]
+name = "my-app"
+version = "0.0.1"
+""")
+
+        project = Project(temp_dir)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            temp_dir,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        ctx = FileSystemContext(environment, local_path=temp_dir, env_path="/env")
+        new_ctx = ctx.join("subdir")
+        assert "subdir" in str(new_ctx.local_path)
+        assert "subdir" in new_ctx.env_path
