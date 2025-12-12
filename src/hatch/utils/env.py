@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 
 
 class PythonInfo:
-    def __init__(self, platform: Platform, executable: str = 'python') -> None:
+    def __init__(self, platform: Platform, executable: str = "python") -> None:
         self.platform = platform
         self.executable = executable
 
@@ -20,24 +20,24 @@ class PythonInfo:
     def dep_check_data(self) -> dict[str, Any]:
         if self.__dep_check_data is None:
             process = self.platform.check_command(
-                [self.executable, '-W', 'ignore', '-'], capture_output=True, input=DEP_CHECK_DATA_SCRIPT
+                [self.executable, "-W", "ignore", "-"], capture_output=True, input=DEP_CHECK_DATA_SCRIPT
             )
 
-            self.__dep_check_data = literal_eval(process.stdout.strip().decode('utf-8'))
+            self.__dep_check_data = literal_eval(process.stdout.strip().decode("utf-8"))
 
         return self.__dep_check_data
 
     @property
     def environment(self) -> dict[str, str]:
         if self.__environment is None:
-            self.__environment = self.dep_check_data['environment']
+            self.__environment = self.dep_check_data["environment"]
 
         return self.__environment
 
     @property
     def sys_path(self) -> list[str]:
         if self.__sys_path is None:
-            self.__sys_path = self.dep_check_data['sys_path']
+            self.__sys_path = self.dep_check_data["sys_path"]
 
         return self.__sys_path
 

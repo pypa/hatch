@@ -7,7 +7,7 @@ from hatch.cli.python.show import show
 from hatch.cli.python.update import update
 
 
-@click.group(short_help='Manage Python installations')
+@click.group(short_help="Manage Python installations")
 def python():
     pass
 

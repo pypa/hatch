@@ -1,15 +1,19 @@
 from __future__ import annotations
 
 import re
+from collections import defaultdict
+from collections.abc import Generator
 from contextlib import contextmanager
 from functools import cached_property
-from typing import TYPE_CHECKING, Generator, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from hatch.project.env import EnvironmentMetadata
 from hatch.utils.fs import Path
 from hatch.utils.runner import ExecutionContext
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
+
     from hatch.cli.application import Application
     from hatch.config.model import RootConfig
     from hatch.env.plugin.interface import EnvironmentInterface
@@ -17,7 +21,7 @@ if TYPE_CHECKING:
 
 
 class Project:
-    def __init__(self, path: Path, *, name: str | None = None, config=None):
+    def __init__(self, path: Path, *, name: str | None = None, config=None, locate: bool = True):
         self._path = path
 
         # From app config
@@ -36,7 +40,8 @@ class Project:
         self._metadata = None
         self._config = None
 
-        self._explicit_path: Path | None = None
+        self._explicit_path: Path | None = None if locate else path
+        self.current_member_path: Path | None = None
 
     @property
     def plugin_manager(self):
@@ -77,7 +82,7 @@ class Project:
     @cached_property
     def app(self) -> Application:
         if self.__app is None:  # no cov
-            message = 'The application has not been set'
+            message = "The application has not been set"
             raise RuntimeError(message)
 
         from hatch.cli.application import Application
@@ -87,9 +92,9 @@ class Project:
     @cached_property
     def build_env(self) -> EnvironmentInterface:
         # Prevent the default environment from being used as a builder environment
-        environment = self.get_environment('hatch-build' if self.app.env == 'default' else self.app.env)
+        environment = self.get_environment("hatch-build" if self.app.env == "default" else self.app.env)
         if not environment.builder:
-            self.app.abort(f'Environment `{environment.name}` is not a builder environment')
+            self.app.abort(f"Environment `{environment.name}` is not a builder environment")
 
         return environment
 
@@ -101,7 +106,38 @@ class Project:
 
     @cached_property
     def env_metadata(self) -> EnvironmentMetadata:
-        return EnvironmentMetadata(self.app.data_dir / 'env' / '.metadata', self.location)
+        return EnvironmentMetadata(self.app.data_dir / "env" / ".metadata", self.location)
+
+    @cached_property
+    def dependency_groups(self) -> dict[str, Any]:
+        """
+        https://peps.python.org/pep-0735/
+        """
+        from hatch.utils.metadata import normalize_project_name
+
+        dependency_groups = self.raw_config.get("dependency-groups", {})
+
+        if not isinstance(dependency_groups, dict):
+            message = "Field `dependency-groups` must be a table"
+            raise TypeError(message)
+
+        original_names = defaultdict(list)
+        normalized_groups = {}
+
+        for group_name, value in dependency_groups.items():
+            normed_group_name = normalize_project_name(group_name)
+            original_names[normed_group_name].append(group_name)
+            normalized_groups[normed_group_name] = value
+
+        errors = []
+        for normed_name, names in original_names.items():
+            if len(names) > 1:
+                errors.append(f"{normed_name} ({', '.join(names)})")
+        if errors:
+            msg = f"Field `dependency-groups` contains duplicate names: {', '.join(errors)}"
+            raise ValueError(msg)
+
+        return normalized_groups
 
     def get_environment(self, env_name: str | None = None) -> EnvironmentInterface:
         if env_name is None:
@@ -112,22 +148,22 @@ class Project:
         elif env_name in self.config.envs:
             config = self.config.envs[env_name]
         else:
-            self.app.abort(f'Unknown environment: {env_name}')
+            self.app.abort(f"Unknown environment: {env_name}")
 
-        environment_type = config['type']
+        environment_type = config["type"]
         environment_class = self.plugin_manager.environment.get(environment_type)
         if environment_class is None:
-            self.app.abort(f'Environment `{env_name}` has unknown type: {environment_type}')
+            self.app.abort(f"Environment `{env_name}` has unknown type: {environment_type}")
 
         from hatch.env.internal import is_isolated_environment
 
         if self.location.is_file():
-            data_directory = isolated_data_directory = self.app.data_dir / 'env' / environment_type / '.scripts'
+            data_directory = isolated_data_directory = self.app.data_dir / "env" / environment_type / ".scripts"
         elif is_isolated_environment(env_name, config):
-            data_directory = isolated_data_directory = self.app.data_dir / 'env' / '.internal' / env_name
+            data_directory = isolated_data_directory = self.app.data_dir / "env" / ".internal" / env_name
         else:
             data_directory = self.app.get_env_directory(environment_type)
-            isolated_data_directory = self.app.data_dir / 'env' / environment_type
+            isolated_data_directory = self.app.data_dir / "env" / environment_type
 
         self.config.finalize_env_overrides(environment_class.get_option_types())
 
@@ -160,7 +196,7 @@ class Project:
                             ExecutionContext(
                                 environment,
                                 shell_commands=environment.pre_install_commands,
-                                source='pre-install',
+                                source="pre-install",
                                 show_code_on_error=True,
                             )
                         )
@@ -177,7 +213,7 @@ class Project:
                             ExecutionContext(
                                 environment,
                                 shell_commands=environment.post_install_commands,
-                                source='post-install',
+                                source="post-install",
                                 show_code_on_error=True,
                             )
                         )
@@ -198,47 +234,53 @@ class Project:
             self.env_metadata.update_dependency_hash(environment, new_dep_hash)
 
     def prepare_build_environment(self, *, targets: list[str] | None = None) -> None:
-        from hatch.project.constants import BUILD_BACKEND
+        from hatch.project.constants import BUILD_BACKEND, BuildEnvVars
+        from hatch.utils.structures import EnvVars
 
         if targets is None:
-            targets = ['wheel']
+            targets = ["wheel"]
 
+        env_vars = {BuildEnvVars.REQUESTED_TARGETS: " ".join(sorted(targets))}
         build_backend = self.metadata.build.build_backend
-        with self.location.as_cwd(), self.build_env.get_env_vars():
+        with self.location.as_cwd(), self.build_env.get_env_vars(), EnvVars(env_vars):
             if not self.build_env.exists():
                 try:
                     self.build_env.check_compatibility()
                 except Exception as e:  # noqa: BLE001
-                    self.app.abort(f'Environment `{self.build_env.name}` is incompatible: {e}')
+                    self.app.abort(f"Environment `{self.build_env.name}` is incompatible: {e}")
 
             self.prepare_environment(self.build_env)
 
-            extra_dependencies: list[str] = []
-            with self.app.status('Inspecting build dependencies'):
+            additional_dependencies: list[str] = []
+            with self.app.status("Inspecting build dependencies"):
                 if build_backend != BUILD_BACKEND:
                     for target in targets:
-                        if target == 'sdist':
-                            extra_dependencies.extend(self.build_frontend.get_requires('sdist'))
-                        elif target == 'wheel':
-                            extra_dependencies.extend(self.build_frontend.get_requires('wheel'))
+                        if target == "sdist":
+                            additional_dependencies.extend(self.build_frontend.get_requires("sdist"))
+                        elif target == "wheel":
+                            additional_dependencies.extend(self.build_frontend.get_requires("wheel"))
                         else:
-                            self.app.abort(f'Target `{target}` is not supported by `{build_backend}`')
+                            self.app.abort(f"Target `{target}` is not supported by `{build_backend}`")
                 else:
                     required_build_deps = self.build_frontend.hatch.get_required_build_deps(targets)
                     if required_build_deps:
                         with self.metadata.context.apply_context(self.build_env.context):
-                            extra_dependencies.extend(self.metadata.context.format(dep) for dep in required_build_deps)
+                            additional_dependencies.extend(
+                                self.metadata.context.format(dep) for dep in required_build_deps
+                            )
 
-            if extra_dependencies:
-                self.build_env.dependencies.extend(extra_dependencies)
+            if additional_dependencies:
+                from hatch.dep.core import Dependency
+
+                self.build_env.additional_dependencies.extend(map(Dependency, additional_dependencies))
                 with self.build_env.app_status_dependency_synchronization():
                     self.build_env.sync_dependencies()
 
     def get_dependencies(self) -> tuple[list[str], dict[str, list[str]]]:
-        dynamic_fields = {'dependencies', 'optional-dependencies'}
+        dynamic_fields = {"dependencies", "optional-dependencies"}
         if not dynamic_fields.intersection(self.metadata.dynamic):
-            dependencies: list[str] = self.metadata.core_raw_metadata.get('dependencies', [])
-            features: dict[str, list[str]] = self.metadata.core_raw_metadata.get('optional-dependencies', {})
+            dependencies: list[str] = self.metadata.core_raw_metadata.get("dependencies", [])
+            features: dict[str, list[str]] = self.metadata.core_raw_metadata.get("optional-dependencies", {})
             return dependencies, features
 
         from hatch.project.constants import BUILD_BACKEND
@@ -251,17 +293,22 @@ class Project:
             else:
                 project_metadata = self.build_frontend.hatch.get_core_metadata()
 
-        dynamic_dependencies: list[str] = project_metadata.get('dependencies', [])
-        dynamic_features: dict[str, list[str]] = project_metadata.get('optional-dependencies', {})
+        dynamic_dependencies: list[str] = project_metadata.get("dependencies", [])
+        dynamic_features: dict[str, list[str]] = project_metadata.get("optional-dependencies", {})
 
         return dynamic_dependencies, dynamic_features
 
+    @cached_property
+    def has_static_dependencies(self) -> bool:
+        dynamic_fields = {"dependencies", "optional-dependencies"}
+        return not dynamic_fields.intersection(self.metadata.dynamic)
+
     def expand_environments(self, env_name: str) -> list[str]:
         if env_name in self.config.internal_matrices:
-            return list(self.config.internal_matrices[env_name]['envs'])
+            return list(self.config.internal_matrices[env_name]["envs"])
 
         if env_name in self.config.matrices:
-            return list(self.config.matrices[env_name]['envs'])
+            return list(self.config.matrices[env_name]["envs"])
 
         if env_name in self.config.internal_envs:
             return [env_name]
@@ -296,12 +343,12 @@ class Project:
         path = self._path
 
         while True:
-            possible_file = path.joinpath('pyproject.toml')
+            possible_file = path.joinpath("pyproject.toml")
             if possible_file.is_file():
                 self._project_file_path = possible_file
                 return path
 
-            if path.joinpath('setup.py').is_file():
+            if path.joinpath("setup.py").is_file():
                 return path
 
             new_path = path.parent
@@ -323,10 +370,10 @@ class Project:
     @staticmethod
     def canonicalize_name(name: str, *, strict=True) -> str:
         if strict:
-            return re.sub(r'[-_.]+', '-', name).lower()
+            return re.sub(r"[-_.]+", "-", name).lower()
 
         # Used for creating new projects
-        return re.sub(r'[-_. ]+', '-', name).lower()
+        return re.sub(r"[-_. ]+", "-", name).lower()
 
     @property
     def metadata(self):
@@ -342,14 +389,14 @@ class Project:
         if self._raw_config is None:
             if self.root is None or self._project_file_path is None:
                 # Assume no pyproject.toml e.g. environment management only
-                self._raw_config = {'project': {'name': self.location.name}}
+                self._raw_config = {"project": {"name": self.location.name}}
             else:
                 from hatch.utils.toml import load_toml_file
 
                 raw_config = load_toml_file(str(self._project_file_path))
                 # Assume environment management only
-                if 'project' not in raw_config:
-                    raw_config['project'] = {'name': self.location.name}
+                if "project" not in raw_config:
+                    raw_config["project"] = {"name": self.location.name}
 
                 self._raw_config = raw_config
 
@@ -358,50 +405,50 @@ class Project:
     def save_config(self, config):
         import tomlkit
 
-        with open(str(self._project_file_path), 'w', encoding='utf-8') as f:
+        with open(str(self._project_file_path), "w", encoding="utf-8") as f:
             f.write(tomlkit.dumps(config))
 
     @staticmethod
     def initialize(project_file_path, template_config):
         import tomlkit
 
-        with open(str(project_file_path), encoding='utf-8') as f:
+        with open(str(project_file_path), encoding="utf-8") as f:
             raw_config = tomlkit.parse(f.read())
 
-        build_system_config = raw_config.setdefault('build-system', {})
+        build_system_config = raw_config.setdefault("build-system", {})
 
         build_system_config.clear()
-        build_system_config['requires'] = ['hatchling']
-        build_system_config['build-backend'] = 'hatchling.build'
+        build_system_config["requires"] = ["hatchling"]
+        build_system_config["build-backend"] = "hatchling.build"
 
-        project_config = raw_config.get('project')
+        project_config = raw_config.get("project")
         if project_config is None:
-            raw_config['project'] = project_config = {}
+            raw_config["project"] = project_config = {}
 
-        project_name = project_config.get('name')
+        project_name = project_config.get("name")
         if not project_name:
-            project_config['name'] = template_config['project_name_normalized']
+            project_config["name"] = template_config["project_name_normalized"]
 
-        project_description = project_config.get('description')
+        project_description = project_config.get("description")
         if not project_description:
-            project_config['description'] = template_config['description']
+            project_config["description"] = template_config["description"]
 
-        project_config['dynamic'] = ['version']
+        project_config["dynamic"] = ["version"]
 
-        tool_config = raw_config.get('tool')
+        tool_config = raw_config.get("tool")
         if tool_config is None:
-            raw_config['tool'] = tool_config = {}
+            raw_config["tool"] = tool_config = {}
 
-        hatch_config = tool_config.get('hatch')
+        hatch_config = tool_config.get("hatch")
         if hatch_config is None:
-            tool_config['hatch'] = hatch_config = {}
+            tool_config["hatch"] = hatch_config = {}
 
-        version_config = hatch_config.get('version')
+        version_config = hatch_config.get("version")
         if version_config is None:
-            hatch_config['version'] = version_config = {}
+            hatch_config["version"] = version_config = {}
 
         version_config.clear()
-        version_config['path'] = f'{template_config["package_name"]}/__init__.py'
+        version_config["path"] = f"{template_config['package_name']}/__init__.py"
 
-        with open(str(project_file_path), 'w', encoding='utf-8') as f:
+        with open(str(project_file_path), "w", encoding="utf-8") as f:
             f.write(tomlkit.dumps(raw_config))
