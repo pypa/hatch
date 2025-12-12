@@ -1076,7 +1076,9 @@ def test_install_project_no_dev_mode(hatch, helpers, temp_dir, platform, uv_on_p
     data_path.mkdir()
 
     project = Project(project_path)
-    helpers.update_project_environment(project, "default", {"dev-mode": False, **project.config.envs["default"]})
+    helpers.update_project_environment(
+        project, "default", {"dev-mode": False, "extra-dependencies": ["binary"], **project.config.envs["default"]}
+    )
     helpers.update_project_environment(project, "test", {})
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
@@ -1088,6 +1090,7 @@ def test_install_project_no_dev_mode(hatch, helpers, temp_dir, platform, uv_on_p
         Creating environment: test
         Installing project
         Checking dependencies
+        Syncing dependencies
         """
     )
 
@@ -1116,8 +1119,8 @@ def test_install_project_no_dev_mode(hatch, helpers, temp_dir, platform, uv_on_p
         )
         requirements = extract_installed_requirements(output.splitlines())
 
-        assert len(requirements) == 1
-        assert requirements[0].lower() == f"my-app @ {project_path.as_uri().lower()}"
+        assert len(requirements) == 2
+        assert f"my-app @ {project_path.as_uri().lower()}" in [req.lower() for req in requirements]
 
 
 @pytest.mark.requires_internet
@@ -2032,3 +2035,81 @@ def test_workspace(hatch, helpers, temp_dir, platform, uv_on_path, extract_insta
         assert requirements[1].lower() == f"-e {project_path.as_uri().lower()}/baz"
         assert requirements[2].lower() == f"-e {project_path.as_uri().lower()}/foo"
         assert requirements[3].lower() == f"-e {project_path.as_uri().lower()}"
+
+
+@pytest.mark.requires_internet
+def test_workspace_members_always_editable_with_dev_mode_false(
+    hatch, helpers, temp_dir, platform, uv_on_path, extract_installed_requirements
+):
+    """Verify workspace members are always installed as editable even when dev-mode=false."""
+    project_name = "My.App"
+
+    with temp_dir.as_cwd():
+        result = hatch("new", project_name)
+        assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
+    data_path.mkdir()
+
+    # Create workspace members
+    members = ["member-a", "member-b"]
+    for member in members:
+        with project_path.as_cwd():
+            result = hatch("new", member)
+            assert result.exit_code == 0, result.output
+
+    project = Project(project_path)
+    helpers.update_project_environment(
+        project,
+        "default",
+        {
+            "dev-mode": False,
+            "workspace": {"members": members},
+            **project.config.envs["default"],
+        },
+    )
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch("env", "create", "default")
+
+    assert result.exit_code == 0, result.output
+
+    env_data_path = data_path / "env" / "virtual"
+    project_data_path = env_data_path / project_path.name
+    storage_dirs = list(project_data_path.iterdir())
+    storage_path = storage_dirs[0]
+    env_dirs = list(storage_path.iterdir())
+    env_path = env_dirs[0]
+
+    with UVVirtualEnv(env_path, platform):
+        output = platform.run_command([uv_on_path, "pip", "freeze"], check=True, capture_output=True).stdout.decode(
+            "utf-8"
+        )
+        requirements = extract_installed_requirements(output.splitlines())
+
+        # Find project and member requirements - be more precise
+        my_app_reqs = [
+            r
+            for r in requirements
+            if (r.lower().startswith("-e file:") and r.lower().endswith("/my-app"))
+            or (r.lower().startswith("my-app @") and "/member-" not in r.lower())
+        ]
+        member_a_reqs = [r for r in requirements if "member-a" in r.lower() and "/member-a" in r.lower()]
+        member_b_reqs = [r for r in requirements if "member-b" in r.lower() and "/member-b" in r.lower()]
+
+        assert len(my_app_reqs) == 1, f"Expected 1 my-app requirement, got {len(my_app_reqs)}: {my_app_reqs}"
+        assert len(member_a_reqs) == 1, f"Expected 1 member-a requirement, got {len(member_a_reqs)}: {member_a_reqs}"
+        assert len(member_b_reqs) == 1, f"Expected 1 member-b requirement, got {len(member_b_reqs)}: {member_b_reqs}"
+
+        my_app_req = my_app_reqs[0]
+        member_a_req = member_a_reqs[0]
+        member_b_req = member_b_reqs[0]
+
+        # Project should NOT be editable (dev-mode=false)
+        assert not my_app_req.lower().startswith("-e"), f"Project should not be editable: {my_app_req}"
+        assert my_app_req.lower().startswith("my-app @"), f"Project should be non-editable install: {my_app_req}"
+
+        # Workspace members MUST be editable (always)
+        assert member_a_req.lower().startswith("-e"), f"Member A should be editable: {member_a_req}"
+        assert member_b_req.lower().startswith("-e"), f"Member B should be editable: {member_b_req}"
