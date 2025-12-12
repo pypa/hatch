@@ -46,7 +46,8 @@ class AuthenticationCredentials:
 
         import keyring
 
-        password = keyring.get_password(self._repo, self.username)
+        keyring_service = self._repo_config["url"]
+        password = keyring.get_password(keyring_service, self.username)
         if password is not None:
             return password
 
