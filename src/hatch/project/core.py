@@ -239,7 +239,7 @@ class Project:
 
             self.env_metadata.update_dependency_hash(environment, new_dep_hash)
 
-    def prepare_build_environment(self, *, targets: list[str] | None = None) -> None:
+    def prepare_build_environment(self, *, targets: list[str] | None = None, keep_env: bool = False) -> None:
         from hatch.project.constants import BUILD_BACKEND, BuildEnvVars
         from hatch.utils.structures import EnvVars
 
@@ -255,7 +255,7 @@ class Project:
                 except Exception as e:  # noqa: BLE001
                     self.app.abort(f"Environment `{self.build_env.name}` is incompatible: {e}")
 
-            self.prepare_environment(self.build_env)
+            self.prepare_environment(self.build_env, keep_env=keep_env)
 
             additional_dependencies: list[str] = []
             with self.app.status("Inspecting build dependencies"):
