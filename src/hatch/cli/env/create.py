@@ -10,8 +10,11 @@ if TYPE_CHECKING:
 
 @click.command(short_help="Create environments")
 @click.argument("env_name", default="default")
+@click.option(
+    "--keep-env", is_flag=True, help="Keep broken environments for debugging instead of removing them on error"
+)
 @click.pass_obj
-def create(app: Application, env_name: str):
+def create(app: Application, env_name: str, *, keep_env: bool):
     """Create environments."""
     app.ensure_environment_plugin_dependencies()
 
@@ -35,7 +38,7 @@ def create(app: Application, env_name: str):
 
             app.abort(f"Environment `{env}` is incompatible: {e}")
 
-        app.project.prepare_environment(environment)
+        app.project.prepare_environment(environment, keep_env)
 
     if incompatible:
         num_incompatible = len(incompatible)
