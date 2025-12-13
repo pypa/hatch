@@ -41,7 +41,6 @@ def run(
     filter_json: str | None,
     force_continue: bool,
     ignore_compat: bool,
-    keep_env: bool,
 ):
     """
     Run commands within project environments.
@@ -133,7 +132,10 @@ def run(
         app.abort(f"Variable selection is unsupported for non-matrix environments: {', '.join(ordered_env_names)}")
 
     for context in app.runner_context(
-        environments, ignore_compat=ignore_compat or matrix_selected, display_header=matrix_selected, keep_env=app.keep_env
+        environments,
+        ignore_compat=ignore_compat or matrix_selected,
+        display_header=matrix_selected,
+        keep_env=app.keep_env,
     ):
         if context.env.name == "system":
             context.env.exists = lambda: True  # type: ignore[method-assign]

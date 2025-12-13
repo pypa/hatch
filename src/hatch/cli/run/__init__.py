@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     "--keep-env", is_flag=True, help="Keep broken environments for debugging instead of removing them on error"
 )
 @click.pass_context
-def run(ctx: click.Context, args: tuple[str, ...], *, keep_env: bool):
+def run(ctx: click.Context, args: tuple[str, ...]):
     """
     Run commands within project environments.
     This is a convenience wrapper around the [`env run`](#hatch-env-run) command.
@@ -162,5 +162,4 @@ def run(ctx: click.Context, args: tuple[str, ...], *, keep_env: bool):
         env_names=[env_name],
         included_variable_specs=included_variables,
         excluded_variable_specs=excluded_variables,
-        keep_env=keep_env
     )
