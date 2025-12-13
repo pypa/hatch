@@ -30,9 +30,6 @@ def filter_environments(environments, filter_data):
     "--force-continue", is_flag=True, help="Run every command and if there were any errors exit with the first code"
 )
 @click.option("--ignore-compat", is_flag=True, help="Ignore incompatibility when selecting specific environments")
-@click.option(
-    "--keep-env", is_flag=True, help="Keep broken environments for debugging instead of removing them on error"
-)
 @click.pass_obj
 def run(
     app: Application,
@@ -136,7 +133,7 @@ def run(
         app.abort(f"Variable selection is unsupported for non-matrix environments: {', '.join(ordered_env_names)}")
 
     for context in app.runner_context(
-        environments, ignore_compat=ignore_compat or matrix_selected, display_header=matrix_selected, keep_env=keep_env
+        environments, ignore_compat=ignore_compat or matrix_selected, display_header=matrix_selected, keep_env=app.keep_env
     ):
         if context.env.name == "system":
             context.env.exists = lambda: True  # type: ignore[method-assign]
