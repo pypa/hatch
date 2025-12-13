@@ -13,9 +13,6 @@ if TYPE_CHECKING:
     context_settings={"help_option_names": [], "ignore_unknown_options": True},
 )
 @click.argument("args", metavar="[ENV:]ARGS...", required=True, nargs=-1)
-@click.option(
-    "--keep-env", is_flag=True, help="Keep broken environments for debugging instead of removing them on error"
-)
 @click.pass_context
 def run(ctx: click.Context, args: tuple[str, ...]):
     """
