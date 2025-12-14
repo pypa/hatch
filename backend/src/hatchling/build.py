@@ -4,14 +4,14 @@ import os
 from typing import Any
 
 __all__ = [
-    'build_editable',
-    'build_sdist',
-    'build_wheel',
-    'get_requires_for_build_editable',
-    'get_requires_for_build_sdist',
-    'get_requires_for_build_wheel',
+    "build_editable",
+    "build_sdist",
+    "build_wheel",
+    "get_requires_for_build_editable",
+    "get_requires_for_build_sdist",
+    "get_requires_for_build_wheel",
 ]
-__all__ += ['__all__']
+__all__ += ["__all__"]
 
 
 def get_requires_for_build_sdist(config_settings: dict[str, Any] | None = None) -> list[str]:  # noqa: ARG001
@@ -31,7 +31,7 @@ def build_sdist(sdist_directory: str, config_settings: dict[str, Any] | None = N
     from hatchling.builders.sdist import SdistBuilder
 
     builder = SdistBuilder(os.getcwd())
-    return os.path.basename(next(builder.build(directory=sdist_directory, versions=['standard'])))
+    return os.path.basename(next(builder.build(directory=sdist_directory, versions=["standard"])))
 
 
 def get_requires_for_build_wheel(config_settings: dict[str, Any] | None = None) -> list[str]:  # noqa: ARG001
@@ -55,7 +55,7 @@ def build_wheel(
     from hatchling.builders.wheel import WheelBuilder
 
     builder = WheelBuilder(os.getcwd())
-    return os.path.basename(next(builder.build(directory=wheel_directory, versions=['standard'])))
+    return os.path.basename(next(builder.build(directory=wheel_directory, versions=["standard"])))
 
 
 def get_requires_for_build_editable(config_settings: dict[str, Any] | None = None) -> list[str]:  # noqa: ARG001
@@ -80,7 +80,7 @@ def build_editable(
     from hatchling.builders.wheel import WheelBuilder
 
     builder = WheelBuilder(os.getcwd())
-    return os.path.basename(next(builder.build(directory=wheel_directory, versions=['editable'])))
+    return os.path.basename(next(builder.build(directory=wheel_directory, versions=["editable"])))
 
 
 # Any builder that has build-time hooks like Hatchling and setuptools cannot technically keep PEP 517's identical
@@ -95,8 +95,8 @@ def build_editable(
 # There are legitimate use cases in which this is required, so we only define these when no pip build is detected.
 # See: https://github.com/pypa/pip/blob/22.2.2/src/pip/_internal/operations/build/build_tracker.py#L41-L51
 # Example use case: https://github.com/pypa/hatch/issues/532
-if 'PIP_BUILD_TRACKER' not in os.environ:
-    __all__ += ['prepare_metadata_for_build_editable', 'prepare_metadata_for_build_wheel']
+if "PIP_BUILD_TRACKER" not in os.environ:
+    __all__ += ["prepare_metadata_for_build_editable", "prepare_metadata_for_build_wheel"]
 
     def prepare_metadata_for_build_wheel(
         metadata_directory: str,
@@ -109,11 +109,11 @@ if 'PIP_BUILD_TRACKER' not in os.environ:
 
         builder = WheelBuilder(os.getcwd())
 
-        directory = os.path.join(metadata_directory, f'{builder.artifact_project_id}.dist-info')
+        directory = os.path.join(metadata_directory, f"{builder.artifact_project_id}.dist-info")
         if not os.path.isdir(directory):
             os.mkdir(directory)
 
-        with open(os.path.join(directory, 'METADATA'), 'w', encoding='utf-8') as f:
+        with open(os.path.join(directory, "METADATA"), "w", encoding="utf-8") as f:
             f.write(builder.config.core_metadata_constructor(builder.metadata))
 
         return os.path.basename(directory)
@@ -130,7 +130,7 @@ if 'PIP_BUILD_TRACKER' not in os.environ:
 
         builder = WheelBuilder(os.getcwd())
 
-        directory = os.path.join(metadata_directory, f'{builder.artifact_project_id}.dist-info')
+        directory = os.path.join(metadata_directory, f"{builder.artifact_project_id}.dist-info")
         if not os.path.isdir(directory):
             os.mkdir(directory)
 
@@ -138,7 +138,7 @@ if 'PIP_BUILD_TRACKER' not in os.environ:
         if not builder.config.dev_mode_dirs and builder.config.dev_mode_exact:
             extra_dependencies.append(EDITABLES_REQUIREMENT)
 
-        with open(os.path.join(directory, 'METADATA'), 'w', encoding='utf-8') as f:
+        with open(os.path.join(directory, "METADATA"), "w", encoding="utf-8") as f:
             f.write(builder.config.core_metadata_constructor(builder.metadata, extra_dependencies=extra_dependencies))
 
         return os.path.basename(directory)

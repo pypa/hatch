@@ -20,16 +20,16 @@ def filter_environments(environments, filter_data):
     return selected_environments
 
 
-@click.command(short_help='Run commands within project environments')
-@click.argument('args', required=True, nargs=-1)
-@click.option('--env', '-e', 'env_names', multiple=True, help='The environments to target')
-@click.option('--include', '-i', 'included_variable_specs', multiple=True, help='The matrix variables to include')
-@click.option('--exclude', '-x', 'excluded_variable_specs', multiple=True, help='The matrix variables to exclude')
-@click.option('--filter', '-f', 'filter_json', default=None, help='The JSON data used to select environments')
+@click.command(short_help="Run commands within project environments")
+@click.argument("args", required=True, nargs=-1)
+@click.option("--env", "-e", "env_names", multiple=True, help="The environments to target")
+@click.option("--include", "-i", "included_variable_specs", multiple=True, help="The matrix variables to include")
+@click.option("--exclude", "-x", "excluded_variable_specs", multiple=True, help="The matrix variables to exclude")
+@click.option("--filter", "-f", "filter_json", default=None, help="The JSON data used to select environments")
 @click.option(
-    '--force-continue', is_flag=True, help='Run every command and if there were any errors exit with the first code'
+    "--force-continue", is_flag=True, help="Run every command and if there were any errors exit with the first code"
 )
-@click.option('--ignore-compat', is_flag=True, help='Ignore incompatibility when selecting specific environments')
+@click.option("--ignore-compat", is_flag=True, help="Ignore incompatibility when selecting specific environments")
 @click.pass_obj
 def run(
     app: Application,
@@ -79,12 +79,12 @@ def run(
     try:
         included_variables = parse_matrix_variables(included_variable_specs)
     except ValueError as e:
-        app.abort(f'Duplicate included variable: {e}')
+        app.abort(f"Duplicate included variable: {e}")
 
     try:
         excluded_variables = parse_matrix_variables(excluded_variable_specs)
     except ValueError as e:
-        app.abort(f'Duplicate excluded variable: {e}')
+        app.abort(f"Duplicate excluded variable: {e}")
 
     app.ensure_environment_plugin_dependencies()
 
@@ -92,12 +92,12 @@ def run(
 
     if not env_names:
         env_names = (app.env,)
-    elif 'system' in env_names:
-        project.config.config['envs'] = {
-            'system': {
-                'type': 'system',
-                'skip-install': True,
-                'scripts': project.config.scripts,
+    elif "system" in env_names:
+        project.config.config["envs"] = {
+            "system": {
+                "type": "system",
+                "skip-install": True,
+                "scripts": project.config.scripts,
             }
         }
 
@@ -109,9 +109,9 @@ def run(
     for env_name in ordered_env_names:
         if env_name in project.config.matrices:
             matrix_selected = True
-            env_data = project.config.matrices[env_name]['envs']
+            env_data = project.config.matrices[env_name]["envs"]
             if not env_data:
-                app.abort(f'No variables defined for matrix: {env_name}')
+                app.abort(f"No variables defined for matrix: {env_name}")
 
             environments.extend(select_environments(env_data, included_variables, excluded_variables))
         else:
@@ -122,21 +122,21 @@ def run(
 
         filter_data = json.loads(filter_json)
         if not isinstance(filter_data, dict):
-            app.abort('The --filter/-f option must be a JSON mapping')
+            app.abort("The --filter/-f option must be a JSON mapping")
 
         environments[:] = filter_environments(project.config.envs, filter_data)
 
     if not environments:
-        app.abort('No environments were selected')
+        app.abort("No environments were selected")
     elif not matrix_selected and (included_variables or excluded_variables):
-        app.abort(f'Variable selection is unsupported for non-matrix environments: {", ".join(ordered_env_names)}')
+        app.abort(f"Variable selection is unsupported for non-matrix environments: {', '.join(ordered_env_names)}")
 
     for context in app.runner_context(
         environments,
         ignore_compat=ignore_compat or matrix_selected,
         display_header=matrix_selected,
     ):
-        if context.env.name == 'system':
+        if context.env.name == "system":
             context.env.exists = lambda: True  # type: ignore[method-assign]
 
         context.force_continue = force_continue

@@ -5,16 +5,19 @@ import pathlib
 import sys
 from contextlib import contextmanager, suppress
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Generator
+from typing import TYPE_CHECKING, Any
 
 from hatch.utils.structures import EnvVars
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
+
     from _typeshed import FileDescriptorLike
+
 
 # There is special recognition in Mypy for `sys.platform`, not `os.name`
 # https://github.com/python/cpython/blob/09d7319bfe0006d9aa3fc14833b69c24ccafdca6/Lib/pathlib.py#L957
-if sys.platform == 'win32':
+if sys.platform == "win32":
     _PathBase = pathlib.WindowsPath
 else:
     _PathBase = pathlib.PosixPath
@@ -22,10 +25,10 @@ else:
 disk_sync = os.fsync
 # https://mjtsai.com/blog/2022/02/17/apple-ssd-benchmarks-and-f_fullsync/
 # https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/fsync.2.html
-if sys.platform == 'darwin':
+if sys.platform == "darwin":
     import fcntl
 
-    if hasattr(fcntl, 'F_FULLFSYNC'):
+    if hasattr(fcntl, "F_FULLFSYNC"):
 
         def disk_sync(fd: FileDescriptorLike) -> None:
             fcntl.fcntl(fd, fcntl.F_FULLFSYNC)
@@ -38,11 +41,11 @@ class Path(_PathBase):
         from hashlib import sha256
 
         path = str(self)
-        if sys.platform == 'win32' or sys.platform == 'darwin':
+        if sys.platform == "win32" or sys.platform == "darwin":
             path = path.casefold()
 
-        digest = sha256(path.encode('utf-8')).digest()
-        return urlsafe_b64encode(digest).decode('utf-8')
+        digest = sha256(path.encode("utf-8")).digest()
+        return urlsafe_b64encode(digest).decode("utf-8")
 
     @cached_property
     def id(self) -> str:
@@ -65,10 +68,9 @@ class Path(_PathBase):
 
             shutil.rmtree(self, ignore_errors=False)
 
-    def move(self, target: Path) -> None:
+    def move(self, target):
         try:
             self.replace(target)
-        # Happens when on different filesystems like /tmp or caused by layering in containers
         except OSError:
             import shutil
 
@@ -129,11 +131,17 @@ class Path(_PathBase):
                 with suppress(FileNotFoundError):
                     shutil.move(str(temp_path), self)
 
-    if sys.version_info[:2] < (3, 10):
+    if sys.platform == "win32":
 
-        def resolve(self, strict: bool = False) -> Path:  # noqa: ARG002, FBT001, FBT002
-            # https://bugs.python.org/issue38671
-            return Path(os.path.realpath(self))
+        @classmethod
+        def from_uri(cls, path: str) -> Path:
+            return cls(path.replace("file:///", "", 1))
+
+    else:
+
+        @classmethod
+        def from_uri(cls, path: str) -> Path:
+            return cls(path.replace("file://", "", 1))
 
 
 @contextmanager
