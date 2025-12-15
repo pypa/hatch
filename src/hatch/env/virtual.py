@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import sys
+import sysconfig
 from contextlib import contextmanager, nullcontext, suppress
 from functools import cached_property
 from os.path import isabs
@@ -14,6 +15,8 @@ from hatch.utils.fs import Path
 from hatch.utils.shells import ShellManager
 from hatch.utils.structures import EnvVars
 from hatch.venv.core import UVVirtualEnv, VirtualEnv
+
+FREETHREADED_BUILD = bool(sysconfig.get_config_var("Py_GIL_DISABLED"))
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
@@ -204,11 +207,14 @@ class VirtualEnvironment(EnvironmentInterface):
 
             all_install_args = []
 
-            workspace_deps = [str(dep.path) for dep in self.local_dependencies_complex if dep.path]
+            workspace_deps = [dep for dep in self.local_dependencies_complex if dep.path]
             workspace_names = {dep.name.lower() for dep in self.local_dependencies_complex if dep.path}
 
-            for dep_path in workspace_deps:
-                all_install_args.extend(["--editable", dep_path])
+            for dep in workspace_deps:
+                if dep.editable:
+                    all_install_args.extend(["--editable", dep.path])
+                else:
+                    all_install_args.append(dep.path)
 
             standard_dependencies = []
 
@@ -279,7 +285,12 @@ class VirtualEnvironment(EnvironmentInterface):
 
     @cached_property
     def _preferred_python_version(self):
-        return f"{sys.version_info.major}.{sys.version_info.minor}"
+        version = f"{sys.version_info.major}.{sys.version_info.minor}"
+
+        if FREETHREADED_BUILD:
+            version += "t"
+
+        return version
 
     @cached_property
     def parent_python(self):
