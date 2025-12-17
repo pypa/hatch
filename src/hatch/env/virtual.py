@@ -121,7 +121,7 @@ class VirtualEnvironment(EnvironmentInterface):
             or is_default_environment(env_name, self.app.project.config.internal_envs[env_name])
         ):
             uv_env = self.app.project.get_environment(env_name)
-            self.app.project.prepare_environment(uv_env)
+            self.app.project.prepare_environment(uv_env, keep_env=self.app.keep_env)
             with uv_env:
                 return self.platform.modules.shutil.which("uv")
 
