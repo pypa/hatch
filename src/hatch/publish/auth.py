@@ -112,4 +112,5 @@ class AuthenticationCredentials:
         if self.__password_was_read:
             import keyring
 
-            keyring.set_password(self._repo, self.__username, self.__password)
+            keyring_service = self._repo_config["url"]
+            keyring.set_password(keyring_service, self.__username, self.__password)
