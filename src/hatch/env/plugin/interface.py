@@ -369,6 +369,14 @@ class EnvironmentInterface(ABC):
             else:
                 all_dependencies_complex.append(Dependency(str(dep)))
 
+        if self.dependency_groups and not self.skip_install:
+            from hatch.utils.dep import get_complex_dependency_group
+
+            for dependency_group in self.dependency_groups:
+                all_dependencies_complex.extend(
+                    get_complex_dependency_group(self.app.project.dependency_groups, dependency_group)
+                )
+
         if self.builder:
             from hatch.project.constants import BuildEnvVars
 
