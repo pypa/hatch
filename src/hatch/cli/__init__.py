@@ -90,11 +90,6 @@ from hatch.utils.fs import Path
     envvar=ConfigEnvVars.CONFIG,
     help="The path to a custom config file to use [env var: `HATCH_CONFIG`]",
 )
-@click.option(
-    "--keep-env",
-    is_flag=True,
-    help="Keep broken environments for debugging instead of removing them on error",
-)
 @click.version_option(version=__version__, prog_name="Hatch")
 @click.pass_context
 def hatch(
@@ -108,7 +103,6 @@ def hatch(
     data_dir,
     cache_dir,
     config_file,
-    keep_env,
 ):
     """
     \b
@@ -129,7 +123,7 @@ def hatch(
         interactive = False
 
     app = Application(ctx.exit, verbosity=verbose - quiet, enable_color=color, interactive=interactive)
-    app.keep_env = keep_env
+    app.keep_env = os.environ.get(AppEnvVars.KEEP_ENV)
     app.env_active = os.environ.get(AppEnvVars.ENV_ACTIVE)
     if (
         app.env_active

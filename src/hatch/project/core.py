@@ -180,11 +180,24 @@ class Project:
             self.app,
         )
 
+    @staticmethod
+    @contextmanager
+    def managed_environment(
+        environment: EnvironmentInterface, *, keep_env: bool = False
+    ) -> Generator[EnvironmentInterface, None, None]:
+        """Context manager that removes environment on error unless keep_env is True."""
+        try:
+            yield environment
+        except Exception:
+            if not keep_env and environment.exists():
+                environment.remove()
+            raise
+
     # Ensure that this method is clearly written since it is
     # used for documenting the life cycle of environments.
     def prepare_environment(self, environment: EnvironmentInterface, *, keep_env: bool):
         if not environment.exists():
-            try:
+            with self.managed_environment(environment, keep_env=keep_env):
                 self.env_metadata.reset(environment)
 
                 with environment.app_status_creation():
@@ -218,11 +231,6 @@ class Project:
                                     show_code_on_error=True,
                                 )
                             )
-            # Any exception during environment creation means we want to remove the partial environment
-            except Exception:
-                if not keep_env:
-                    environment.remove()
-                raise
 
         with environment.app_status_dependency_state_check():
             new_dep_hash = environment.dependency_hash()
