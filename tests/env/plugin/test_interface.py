@@ -1667,10 +1667,14 @@ feature3 = ["pkg-feature-3{i}"]
         assert len(local_deps) == 1
         assert local_deps[0].editable is False
 
-    def test_dependency_group_resolution(self, temp_dir, isolated_data_dir, platform, temp_application):
+    @pytest.mark.parametrize("builder", ["builder = false", "builder = true"])
+    @pytest.mark.parametrize("dev_mode", ["dev-mode = false", "dev-mode = true"])
+    def test_dependency_group_resolution(
+        self, temp_dir, isolated_data_dir, platform, temp_application, builder, dev_mode
+    ):
         """Test dependency group resolution."""
         pyproject = temp_dir / "pyproject.toml"
-        pyproject.write_text("""
+        pyproject.write_text(f"""
     [project]
     name = "my-app"
     version = "0.0.1"
@@ -1679,6 +1683,8 @@ feature3 = ["pkg-feature-3{i}"]
     test = ["pytest"]
 
     [tool.hatch.envs.default]
+    {builder}
+    {dev_mode}
     dependency-groups = ["test"]
     """)
 
@@ -1698,8 +1704,8 @@ feature3 = ["pkg-feature-3{i}"]
             temp_application,
         )
 
-        deps = environment.project_dependencies_complex
-        assert any("pytest" in str(d) for d in deps)
+        assert any("pytest" in str(d) for d in environment.project_dependencies_complex)
+        assert any("pytest" in str(d) for d in environment.dependencies_complex)
 
     def test_additional_dependencies_as_strings(self, temp_dir, isolated_data_dir, platform, temp_application):
         """Test additional_dependencies with string values."""
