@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import os
 from typing import TYPE_CHECKING
 
 import click
+
+from hatch.config.constants import AppEnvVars
 
 if TYPE_CHECKING:
     from hatch.cli.application import Application
@@ -35,7 +38,7 @@ def create(app: Application, env_name: str):
 
             app.abort(f"Environment `{env}` is incompatible: {e}")
 
-        app.project.prepare_environment(environment, keep_env=app.keep_env)
+        app.project.prepare_environment(environment, keep_env=bool(os.environ.get(AppEnvVars.KEEP_ENV)))
 
     if incompatible:
         num_incompatible = len(incompatible)

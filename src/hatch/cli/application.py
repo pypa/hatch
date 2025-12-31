@@ -35,7 +35,6 @@ class Application(Terminal):
         self.project = cast(Project, None)
         self.env = cast(str, None)
         self.env_active = cast(str, None)
-        self.keep_env = False
 
     @property
     def plugins(self):
@@ -97,7 +96,6 @@ class Application(Terminal):
         if self.verbose or len(environments) > 1:
             display_header = True
 
-        self.keep_env = keep_env
         any_compatible = False
         incompatible = {}
         with self.project.ensure_cwd():
@@ -120,7 +118,7 @@ class Application(Terminal):
                 context = ExecutionContext(environment)
                 yield context
 
-                self.prepare_environment(environment, keep_env=self.keep_env)
+                self.prepare_environment(environment, keep_env=keep_env)
                 self.execute_context(context)
 
         if incompatible:

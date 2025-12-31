@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import os
 from typing import TYPE_CHECKING
 
 import click
+
+from hatch.config.constants import AppEnvVars
 
 if TYPE_CHECKING:
     from hatch.cli.application import Application
@@ -135,7 +138,7 @@ def run(
         environments,
         ignore_compat=ignore_compat or matrix_selected,
         display_header=matrix_selected,
-        keep_env=app.keep_env,
+        keep_env=bool(os.environ.get(AppEnvVars.KEEP_ENV)),
     ):
         if context.env.name == "system":
             context.env.exists = lambda: True  # type: ignore[method-assign]

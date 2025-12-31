@@ -123,7 +123,6 @@ def hatch(
         interactive = False
 
     app = Application(ctx.exit, verbosity=verbose - quiet, enable_color=color, interactive=interactive)
-    app.keep_env = os.environ.get(AppEnvVars.KEEP_ENV)
     app.env_active = os.environ.get(AppEnvVars.ENV_ACTIVE)
     if (
         app.env_active
