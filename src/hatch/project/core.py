@@ -180,43 +180,57 @@ class Project:
             self.app,
         )
 
+    @staticmethod
+    @contextmanager
+    def managed_environment(
+        environment: EnvironmentInterface, *, keep_env: bool = False
+    ) -> Generator[EnvironmentInterface, None, None]:
+        """Context manager that removes environment on error unless keep_env is True."""
+        try:
+            yield environment
+        except Exception:
+            if not keep_env and environment.exists():
+                environment.remove()
+            raise
+
     # Ensure that this method is clearly written since it is
     # used for documenting the life cycle of environments.
-    def prepare_environment(self, environment: EnvironmentInterface):
+    def prepare_environment(self, environment: EnvironmentInterface, *, keep_env: bool):
         if not environment.exists():
-            self.env_metadata.reset(environment)
+            with self.managed_environment(environment, keep_env=keep_env):
+                self.env_metadata.reset(environment)
 
-            with environment.app_status_creation():
-                environment.create()
+                with environment.app_status_creation():
+                    environment.create()
 
-            if not environment.skip_install:
-                if environment.pre_install_commands:
-                    with environment.app_status_pre_installation():
-                        self.app.run_shell_commands(
-                            ExecutionContext(
-                                environment,
-                                shell_commands=environment.pre_install_commands,
-                                source="pre-install",
-                                show_code_on_error=True,
+                if not environment.skip_install:
+                    if environment.pre_install_commands:
+                        with environment.app_status_pre_installation():
+                            self.app.run_shell_commands(
+                                ExecutionContext(
+                                    environment,
+                                    shell_commands=environment.pre_install_commands,
+                                    source="pre-install",
+                                    show_code_on_error=True,
+                                )
                             )
-                        )
 
-                with environment.app_status_project_installation():
-                    if environment.dev_mode:
-                        environment.install_project_dev_mode()
-                    else:
-                        environment.install_project()
+                    with environment.app_status_project_installation():
+                        if environment.dev_mode:
+                            environment.install_project_dev_mode()
+                        else:
+                            environment.install_project()
 
-                if environment.post_install_commands:
-                    with environment.app_status_post_installation():
-                        self.app.run_shell_commands(
-                            ExecutionContext(
-                                environment,
-                                shell_commands=environment.post_install_commands,
-                                source="post-install",
-                                show_code_on_error=True,
+                    if environment.post_install_commands:
+                        with environment.app_status_post_installation():
+                            self.app.run_shell_commands(
+                                ExecutionContext(
+                                    environment,
+                                    shell_commands=environment.post_install_commands,
+                                    source="post-install",
+                                    show_code_on_error=True,
+                                )
                             )
-                        )
 
         with environment.app_status_dependency_state_check():
             new_dep_hash = environment.dependency_hash()
@@ -233,7 +247,7 @@ class Project:
 
             self.env_metadata.update_dependency_hash(environment, new_dep_hash)
 
-    def prepare_build_environment(self, *, targets: list[str] | None = None) -> None:
+    def prepare_build_environment(self, *, targets: list[str] | None = None, keep_env: bool = False) -> None:
         from hatch.project.constants import BUILD_BACKEND, BuildEnvVars
         from hatch.utils.structures import EnvVars
 
@@ -249,7 +263,7 @@ class Project:
                 except Exception as e:  # noqa: BLE001
                     self.app.abort(f"Environment `{self.build_env.name}` is incompatible: {e}")
 
-            self.prepare_environment(self.build_env)
+            self.prepare_environment(self.build_env, keep_env=keep_env)
 
             additional_dependencies: list[str] = []
             with self.app.status("Inspecting build dependencies"):
