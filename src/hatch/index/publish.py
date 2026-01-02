@@ -1,19 +1,19 @@
 from hatch.index.errors import ArtifactMetadataError
 
 MULTIPLE_USE_METADATA_FIELDS = {
-    'classifier',
-    'dynamic',
-    'license_file',
-    'obsoletes_dist',
-    'platform',
-    'project_url',
-    'provides_dist',
-    'provides_extra',
-    'requires_dist',
-    'requires_external',
-    'supported_platform',
+    "classifier",
+    "dynamic",
+    "license_file",
+    "obsoletes_dist",
+    "platform",
+    "project_url",
+    "provides_dist",
+    "provides_extra",
+    "requires_dist",
+    "requires_external",
+    "supported_platform",
 }
-RENAMED_METADATA_FIELDS = {'classifier': 'classifiers', 'project_url': 'project_urls'}
+RENAMED_METADATA_FIELDS = {"classifier": "classifiers", "project_url": "project_urls"}
 
 
 def get_wheel_form_data(artifact):
@@ -21,32 +21,32 @@ def get_wheel_form_data(artifact):
 
     from packaging.tags import parse_tag
 
-    with zipfile.ZipFile(str(artifact), 'r') as zip_archive:
+    with zipfile.ZipFile(str(artifact), "r") as zip_archive:
         for path in zip_archive.namelist():
-            root = path.split('/', 1)[0]
-            if root.endswith('.dist-info'):
+            root = path.split("/", 1)[0]
+            if root.endswith(".dist-info"):
                 dist_info_dir = root
                 break
         else:  # no cov
-            message = f'Could not find the `.dist-info` directory in wheel: {artifact}'
+            message = f"Could not find the `.dist-info` directory in wheel: {artifact}"
             raise ArtifactMetadataError(message)
 
         try:
-            with zip_archive.open(f'{dist_info_dir}/METADATA') as zip_file:
-                metadata_file_contents = zip_file.read().decode('utf-8')
+            with zip_archive.open(f"{dist_info_dir}/METADATA") as zip_file:
+                metadata_file_contents = zip_file.read().decode("utf-8")
         except KeyError:  # no cov
-            message = f'Could not find a `METADATA` file in the `{dist_info_dir}` directory'
+            message = f"Could not find a `METADATA` file in the `{dist_info_dir}` directory"
             raise ArtifactMetadataError(message) from None
         else:
             data = parse_headers(metadata_file_contents)
 
-    data['filetype'] = 'bdist_wheel'
+    data["filetype"] = "bdist_wheel"
 
     # Examples:
     # cryptography-3.4.7-pp37-pypy37_pp73-manylinux2014_x86_64.whl -> pp37
     # hatchling-1rc1-py2.py3-none-any.whl -> py2.py3
-    tag_component = '-'.join(artifact.stem.split('-')[-3:])
-    data['pyversion'] = '.'.join(sorted({tag.interpreter for tag in parse_tag(tag_component)}))
+    tag_component = "-".join(artifact.stem.split("-")[-3:])
+    data["pyversion"] = ".".join(sorted({tag.interpreter for tag in parse_tag(tag_component)}))
 
     return data
 
@@ -54,29 +54,29 @@ def get_wheel_form_data(artifact):
 def get_sdist_form_data(artifact):
     import tarfile
 
-    with tarfile.open(str(artifact), 'r:gz') as tar_archive:
+    with tarfile.open(str(artifact), "r:gz") as tar_archive:
         pkg_info_dir_parts = []
         for tar_info in tar_archive:
             if tar_info.isfile():
-                pkg_info_dir_parts.append(tar_info.name.split('/', 1)[0])
+                pkg_info_dir_parts.append(tar_info.name.split("/", 1)[0])
                 break
         else:  # no cov
-            message = f'Could not find any files in sdist: {artifact}'
+            message = f"Could not find any files in sdist: {artifact}"
             raise ArtifactMetadataError(message)
 
-        pkg_info_dir_parts.append('PKG-INFO')
-        pkg_info_path = '/'.join(pkg_info_dir_parts)
+        pkg_info_dir_parts.append("PKG-INFO")
+        pkg_info_path = "/".join(pkg_info_dir_parts)
         try:
             with tar_archive.extractfile(pkg_info_path) as tar_file:
-                metadata_file_contents = tar_file.read().decode('utf-8')
+                metadata_file_contents = tar_file.read().decode("utf-8")
         except KeyError:  # no cov
-            message = f'Could not find file: {pkg_info_path}'
+            message = f"Could not find file: {pkg_info_path}"
             raise ArtifactMetadataError(message) from None
         else:
             data = parse_headers(metadata_file_contents)
 
-    data['filetype'] = 'sdist'
-    data['pyversion'] = 'source'
+    data["filetype"] = "sdist"
+    data["pyversion"] = "source"
 
     return data
 
@@ -86,10 +86,10 @@ def parse_headers(metadata_file_contents):
 
     message = email.message_from_string(metadata_file_contents)
 
-    headers = {'description': message.get_payload()}
+    headers = {"description": message.get_payload()}
 
     for header, value in message.items():
-        normalized_header = header.lower().replace('-', '_')
+        normalized_header = header.lower().replace("-", "_")
         header_name = RENAMED_METADATA_FIELDS.get(normalized_header, normalized_header)
 
         if normalized_header in MULTIPLE_USE_METADATA_FIELDS:

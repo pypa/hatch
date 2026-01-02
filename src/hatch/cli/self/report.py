@@ -17,54 +17,54 @@ def get_install_source(platform_name: str) -> str:
 
     from hatch.utils.fs import Path
 
-    default_source = 'pip'
+    default_source = "pip"
 
     python_path = Path(sys.executable).resolve()
     parent_paths = python_path.parents
 
     # https://github.com/ofek/pyapp/blob/v0.13.0/src/app.rs#L27
-    if Path(user_data_dir('pyapp', appauthor=False)) in parent_paths:
-        return 'binary'
+    if Path(user_data_dir("pyapp", appauthor=False)) in parent_paths:
+        return "binary"
 
     # https://pypa.github.io/pipx/how-pipx-works/
-    if (Path.home() / '.local' / 'pipx' / 'venvs') in parent_paths:
-        return 'pipx'
+    if (Path.home() / ".local" / "pipx" / "venvs") in parent_paths:
+        return "pipx"
 
     # https://packaging.python.org/en/latest/specifications/externally-managed-environments/#marking-an-interpreter-as-using-an-external-package-manager
     try:
-        stdlib_path_config = sysconfig.get_path('stdlib')
+        stdlib_path_config = sysconfig.get_path("stdlib")
     # https://docs.python.org/3/library/sysconfig.html#sysconfig.get_path
     except KeyError:
-        stdlib_path_config = ''
+        stdlib_path_config = ""
 
     if (
         # This does not work on NixOS, see: https://github.com/NixOS/nixpkgs/issues/201037
         sys.prefix == sys.base_prefix
         and stdlib_path_config
         and (stdlib_path := Path(stdlib_path_config)).is_dir()
-        and any(p.name == 'EXTERNALLY-MANAGED' and p.is_file() for p in stdlib_path.iterdir())
+        and any(p.name == "EXTERNALLY-MANAGED" and p.is_file() for p in stdlib_path.iterdir())
     ):
-        return 'system'
+        return "system"
 
-    if platform_name == 'windows':
-        if sys.executable.endswith('WindowsApps\\python.exe'):
-            return 'Windows Store'
+    if platform_name == "windows":
+        if sys.executable.endswith("WindowsApps\\python.exe"):
+            return "Windows Store"
 
         # Break early because nothing after is applicable
         return default_source
 
-    if platform_name == 'macos' and Path('/usr/local/Cellar') in parent_paths:  # no cov
-        return 'Homebrew'
+    if platform_name == "macos" and Path("/usr/local/Cellar") in parent_paths:  # no cov
+        return "Homebrew"
 
     # https://github.com/pyenv/pyenv/tree/v2.3.35#set-up-your-shell-environment-for-pyenv
-    if Path(os.environ.get('PYENV_ROOT', '~/.pyenv')).expand() in parent_paths:
-        return 'Pyenv'
+    if Path(os.environ.get("PYENV_ROOT", "~/.pyenv")).expand() in parent_paths:
+        return "Pyenv"
 
     return default_source
 
 
-@click.command(short_help='Generate a pre-populated GitHub issue')
-@click.option('--no-open', '-n', is_flag=True, help='Show the URL instead of opening it')
+@click.command(short_help="Generate a pre-populated GitHub issue")
+@click.option("--no-open", "-n", is_flag=True, help="Show the URL instead of opening it")
 @click.pass_obj
 def report(app: Application, *, no_open: bool) -> None:
     """Generate a pre-populated GitHub issue."""
@@ -81,17 +81,17 @@ def report(app: Application, *, no_open: bool) -> None:
     # Retain the config that would be most useful
     full_config = load_toml_data(app.config_file.read_scrubbed())
     relevant_config = {}
-    for setting in ('mode', 'shell'):
+    for setting in ("mode", "shell"):
         if setting in full_config:
             relevant_config[setting] = full_config[setting]
 
-    if env_dirs := relevant_config.get('dirs', {}).get('envs'):
-        relevant_config['dirs'] = {'envs': env_dirs}
+    if env_dirs := relevant_config.get("dirs", {}).get("envs"):
+        relevant_config["dirs"] = {"envs": env_dirs}
 
     # Try to determine how Hatch was installed
     source = get_install_source(app.platform.name)
 
-    element_padding = ' ' * 4
+    element_padding = " " * 4
     body = f"""\
 ## Current behavior
 <!-- A clear and concise description of the behavior. -->
@@ -121,7 +121,7 @@ def report(app: Application, *, no_open: bool) -> None:
 ```
 """
 
-    url = f'https://github.com/pypa/hatch/issues/new?body={quote_plus(body)}'
+    url = f"https://github.com/pypa/hatch/issues/new?body={quote_plus(body)}"
     if no_open:
         app.display(url)
     else:
