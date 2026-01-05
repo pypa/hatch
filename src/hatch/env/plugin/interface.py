@@ -1235,9 +1235,9 @@ class Workspace:
 
             # Now we have the necessary information to perform an optimized glob search for members
             members_found = False
-            for member_path in find_members(root, relative_path.split(os.sep)):
+            for member_path in find_members(shared_prefix, relative_path.split(os.sep)):
                 # Check if member should be excluded
-                relative_member_path = os.path.relpath(member_path, root)
+                relative_member_path = os.path.relpath(member_path, shared_prefix)
                 should_exclude = False
                 for exclude_pattern in exclude_patterns:
                     if fnmatch.fnmatch(relative_member_path, exclude_pattern) or fnmatch.fnmatch(
