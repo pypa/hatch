@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
-***Added***
+***Added:***
 
 - Env var for keep-env when an exception occurs during environment creation to enable debugging.
 
