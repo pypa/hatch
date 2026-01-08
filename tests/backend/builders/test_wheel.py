@@ -3484,7 +3484,8 @@ class TestBuildStandard:
         )
         helpers.assert_files(extraction_directory, expected_files)
 
-    def test_editable_sources_rewrite_error(self, hatch, temp_dir):
+    @fixed_pathlib_resolution
+    def test_editable_sources_rewrite(self, hatch, helpers, temp_dir):
         project_name = "My.App"
 
         with temp_dir.as_cwd():
@@ -3516,18 +3517,38 @@ class TestBuildStandard:
         build_path = project_path / "dist"
         build_path.mkdir()
 
-        with (
-            project_path.as_cwd(),
-            pytest.raises(
-                ValueError,
-                match=(
-                    "Dev mode installations are unsupported when any path rewrite in the `sources` option "
-                    "changes a prefix rather than removes it, see: "
-                    "https://github.com/pfmoore/editables/issues/20"
-                ),
-            ),
-        ):
-            list(builder.build(directory=str(build_path)))
+        with project_path.as_cwd():
+            artifacts = list(builder.build(directory=str(build_path)))
+
+        assert len(artifacts) == 1
+        expected_artifact = artifacts[0]
+
+        build_artifacts = list(build_path.iterdir())
+        assert len(build_artifacts) == 1
+        assert expected_artifact == str(build_artifacts[0])
+        assert expected_artifact == str(build_path / f"{builder.project_id}-{get_python_versions_tag()}-none-any.whl")
+
+        extraction_directory = temp_dir / "_archive"
+        extraction_directory.mkdir()
+
+        with zipfile.ZipFile(str(expected_artifact), "r") as zip_archive:
+            zip_archive.extractall(str(extraction_directory))
+
+        metadata_directory = f"{builder.project_id}.dist-info"
+        expected_files = helpers.get_template_files(
+            "wheel.standard_editable_sources_rewrite",
+            project_name,
+            metadata_directory=metadata_directory,
+            namespace=["namespace", "plugins"],
+            source_path=f"{temp_dir}/my-app/src/my_app",
+        )
+        helpers.assert_files(extraction_directory, expected_files)
+
+        # Inspect the archive rather than the extracted files because on Windows they lose their metadata
+        # https://stackoverflow.com/q/9813243
+        with zipfile.ZipFile(str(expected_artifact), "r") as zip_archive:
+            zip_info = zip_archive.getinfo(f"{metadata_directory}/WHEEL")
+            assert zip_info.date_time == (2020, 2, 2, 0, 0, 0)
 
     @pytest.mark.skipif(
         sys.platform != "darwin" or sys.version_info < (3, 8),
