@@ -395,7 +395,7 @@ class EnvironmentInterface(ABC):
 
         # Ensure these are checked last to speed up initial environment creation since
         # they will already be installed along with the project
-        if self.dev_mode:
+        if self.dev_mode or self.features or self.dependency_groups:
             all_dependencies_complex.extend(self.project_dependencies_complex)
 
         return all_dependencies_complex
