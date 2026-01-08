@@ -9,6 +9,7 @@ class AppEnvVars:
     # https://no-color.org
     NO_COLOR = "NO_COLOR"
     FORCE_COLOR = "FORCE_COLOR"
+    KEEP_ENV = "HATCH_KEEP_ENV"
 
 
 class ConfigEnvVars:
