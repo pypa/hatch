@@ -153,6 +153,7 @@ UNSELECTED_RULES: tuple[str, ...] = (
     "AIR002",
     "AIR301",
     "AIR302",
+    "AIR303",
     "AIR311",
     "AIR312",
     "ANN001",
