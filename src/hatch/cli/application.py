@@ -47,8 +47,8 @@ class Application(Terminal):
     def get_environment(self, env_name: str | None = None) -> EnvironmentInterface:
         return self.project.get_environment(env_name)
 
-    def prepare_environment(self, environment: EnvironmentInterface):
-        self.project.prepare_environment(environment)
+    def prepare_environment(self, environment: EnvironmentInterface, *, keep_env: bool = False):
+        self.project.prepare_environment(environment, keep_env=keep_env)
 
     def run_shell_commands(self, context: ExecutionContext) -> None:
         with context.env.command_context():
@@ -91,6 +91,7 @@ class Application(Terminal):
         *,
         ignore_compat: bool = False,
         display_header: bool = False,
+        keep_env: bool = False,
     ) -> Generator[ExecutionContext, None, None]:
         if self.verbose or len(environments) > 1:
             display_header = True
@@ -117,7 +118,7 @@ class Application(Terminal):
                 context = ExecutionContext(environment)
                 yield context
 
-                self.prepare_environment(environment)
+                self.prepare_environment(environment, keep_env=keep_env)
                 self.execute_context(context)
 
         if incompatible:
