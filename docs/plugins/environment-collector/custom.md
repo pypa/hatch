@@ -21,11 +21,10 @@ The environment collector plugin name is `custom`.
 ## Example
 
 ```python tab="hatch_plugins.py"
-    from hatch.env.collectors.plugin.interface import EnvironmentCollectorInterface
+from hatch.env.collectors.plugin.interface import EnvironmentCollectorInterface
 
 
-    class CustomEnvironmentCollector(EnvironmentCollectorInterface):
-        ...
+class CustomEnvironmentCollector(EnvironmentCollectorInterface): ...
 ```
 
 If multiple subclasses are found, you must define a function named `get_environment_collector` that returns the desired environment collector.

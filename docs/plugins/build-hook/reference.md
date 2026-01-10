@@ -43,13 +43,13 @@ The following fields are always present and recognized by the build system itsel
 In some cases it may be necessary to use `force_include` rather than `artifacts`. For example, say that you want to install a `lib.so` directly at the root of `site-packages` and a project defines a [package](../../config/build.md#packages) `src/foo`. If you create `src/lib.so`, there will never be a match because the directory traversal starts at `src/foo` rather than `src`. In that case you must do either:
 
 ```python
-build_data['force_include']['src/lib.so'] = 'src/lib.so'
+build_data["force_include"]["src/lib.so"] = "src/lib.so"
 ```
 
 or
 
 ```python
-build_data['force_include']['/absolute/path/to/src/lib.so'] = 'src/lib.so'
+build_data["force_include"]["/absolute/path/to/src/lib.so"] = "src/lib.so"
 ```
 
 ::: hatchling.builders.hooks.plugin.interface.BuildHookInterface

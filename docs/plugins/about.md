@@ -27,8 +27,10 @@ Every class must define an attribute called `PLUGIN_NAME` that users will select
 
 ```python tab="plugin.py"
 ...
+
+
 class SpecialEnvironment(...):
-    PLUGIN_NAME = 'special'
+    PLUGIN_NAME = "special"
     ...
 ```
 
