@@ -71,6 +71,12 @@ def test(
         The inclusion option is treated as an intersection while the exclusion option is treated as a
         union i.e. an environment must match all of the included variables to be selected while matching
         any of the excluded variables will prevent selection.
+    \b
+    !!! tip
+        The `hatch-test` matrix [uses UV](../../how-to/environment/select-installer) as its installer by
+        default.  If you wish to control dependency resolution for your tests (to use a custom or extra
+        PyPI index for instance), you must [set its specific environment
+        variables](../../how-to/environment/dependency-resolution#UV)
     """
     app: Application = ctx.obj
 
