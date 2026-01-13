@@ -369,6 +369,14 @@ class EnvironmentInterface(ABC):
             else:
                 all_dependencies_complex.append(Dependency(str(dep)))
 
+        if self.dependency_groups and not self.skip_install:
+            from hatch.utils.dep import get_complex_dependency_group
+
+            for dependency_group in self.dependency_groups:
+                all_dependencies_complex.extend(
+                    get_complex_dependency_group(self.app.project.dependency_groups, dependency_group)
+                )
+
         if self.builder:
             from hatch.project.constants import BuildEnvVars
 
@@ -387,7 +395,7 @@ class EnvironmentInterface(ABC):
 
         # Ensure these are checked last to speed up initial environment creation since
         # they will already be installed along with the project
-        if self.dev_mode:
+        if self.dev_mode or self.features or self.dependency_groups:
             all_dependencies_complex.extend(self.project_dependencies_complex)
 
         return all_dependencies_complex
@@ -1235,9 +1243,9 @@ class Workspace:
 
             # Now we have the necessary information to perform an optimized glob search for members
             members_found = False
-            for member_path in find_members(root, relative_path.split(os.sep)):
+            for member_path in find_members(shared_prefix, relative_path.split(os.sep)):
                 # Check if member should be excluded
-                relative_member_path = os.path.relpath(member_path, root)
+                relative_member_path = os.path.relpath(member_path, shared_prefix)
                 should_exclude = False
                 for exclude_pattern in exclude_patterns:
                     if fnmatch.fnmatch(relative_member_path, exclude_pattern) or fnmatch.fnmatch(

@@ -8,6 +8,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Added:***
+
+- Env var for keep-env when an exception occurs during environment creation to enable debugging.
+
+***Fixed:***
+
+- Fix issue with self-referential dependencies not being recognized. 
+- Fix incomplete environments created when an exception occurs during creation.
+
 ## [1.16.2](https://github.com/pypa/hatch/releases/tag/hatch-v1.16.2) - 2025-12-06 ## {: #hatch-v1.16.2 }
 
 ***Fixed:***
