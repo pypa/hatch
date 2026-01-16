@@ -216,7 +216,7 @@ Provides-Extra: feature2
 Requires-Dist: bar==5; extra == 'feature2'
 Requires-Dist: foo==1; (python_version < '3') and extra == 'feature2'
 Provides-Extra: feature3
-Requires-Dist: baz@ file:///path/to/project ; extra == 'feature3'
+Requires-Dist: baz @ file:///path/to/project ; extra == 'feature3'
 """
         assert project_metadata_from_core_metadata(core_metadata) == {
             "name": "My.App",
@@ -225,7 +225,7 @@ Requires-Dist: baz@ file:///path/to/project ; extra == 'feature3'
             "optional-dependencies": {
                 "feature1": ['bar==5; python_version < "3"', "foo==1"],
                 "feature2": ["bar==5", 'foo==1; python_version < "3"'],
-                "feature3": ["baz@ file:///path/to/project"],
+                "feature3": ["baz @ file:///path/to/project"],
             },
         }
 
@@ -990,7 +990,7 @@ class TestCoreMetadataV21:
             Requires-Dist: bar==5; extra == 'feature2'
             Requires-Dist: foo==1; (python_version < '3') and extra == 'feature2'
             Provides-Extra: feature3
-            Requires-Dist: baz@ file:///path/to/project ; extra == 'feature3'
+            Requires-Dist: baz @ file:///path/to/project ; extra == 'feature3'
             Description-Content-Type: text/markdown
 
             test content
@@ -1459,7 +1459,7 @@ class TestCoreMetadataV22:
             Requires-Dist: bar==5; extra == 'feature2'
             Requires-Dist: foo==1; (python_version < '3') and extra == 'feature2'
             Provides-Extra: feature3
-            Requires-Dist: baz@ file:///path/to/project ; extra == 'feature3'
+            Requires-Dist: baz @ file:///path/to/project ; extra == 'feature3'
             Description-Content-Type: text/markdown
 
             test content
@@ -1898,7 +1898,7 @@ class TestCoreMetadataV23:
             Requires-Dist: bar==5; extra == 'feature2'
             Requires-Dist: foo==1; (python_version < '3') and extra == 'feature2'
             Provides-Extra: feature3
-            Requires-Dist: baz@ file:///path/to/project ; extra == 'feature3'
+            Requires-Dist: baz @ file:///path/to/project ; extra == 'feature3'
             Description-Content-Type: text/markdown
 
             test content
@@ -2364,7 +2364,7 @@ class TestCoreMetadataV24:
             Requires-Dist: bar==5; extra == 'feature2'
             Requires-Dist: foo==1; (python_version < '3') and extra == 'feature2'
             Provides-Extra: feature3
-            Requires-Dist: baz@ file:///path/to/project ; extra == 'feature3'
+            Requires-Dist: baz @ file:///path/to/project ; extra == 'feature3'
             Description-Content-Type: text/markdown
 
             test content
