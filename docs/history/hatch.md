@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.16.3](https://github.com/pypa/hatch/releases/tag/hatch-v1.16.3) - 2026-01-17 ## {: #hatch-v1.16.3 }
+
 ***Added:***
 
 - Env var for keep-env when an exception occurs during environment creation to enable debugging.
