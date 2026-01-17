@@ -118,6 +118,7 @@ update-ruff = [
 ]
 
 [envs.release]
+workspace.members = ["backend/"]
 detached = true
 installer = "uv"
 
