@@ -45,7 +45,7 @@ def shell(app: Application, env_name: str | None, name: str, path: str):  # no c
 
     with app.project.ensure_cwd():
         environment = app.project.get_environment(chosen_env)
-        app.project.prepare_environment(environment,  keep_env=bool(os.environ.get(AppEnvVars.KEEP_ENV)))
+        app.project.prepare_environment(environment, keep_env=bool(os.environ.get(AppEnvVars.KEEP_ENV)))
 
         first_run_indicator = app.cache_dir / "shell" / "first_run"
         if not first_run_indicator.is_file():
