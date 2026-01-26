@@ -1194,7 +1194,7 @@ class TestDependencies:
         )
 
         normalized_path = str(isolation).replace("\\", "/")
-        assert environment.dependencies == ["dep2", f"proj@ file:{uri_slash_prefix}{normalized_path}", "dep1"]
+        assert environment.dependencies == ["dep2", f"proj @ file:{uri_slash_prefix}{normalized_path}", "dep1"]
 
     def test_project_dependencies_context_formatting(
         self, temp_dir, isolated_data_dir, platform, temp_application, uri_slash_prefix
@@ -1244,7 +1244,7 @@ class TestDependencies:
         )
 
         normalized_parent_path = str(temp_dir.parent).replace("\\", "/")
-        expected_dep = f"sibling-project@ file:{uri_slash_prefix}{normalized_parent_path}/sibling-project"
+        expected_dep = f"sibling-project @ file:{uri_slash_prefix}{normalized_parent_path}/sibling-project"
 
         # Verify the dependency was formatted correctly
         assert expected_dep in environment.dependencies
