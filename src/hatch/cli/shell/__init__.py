@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import os
 from typing import TYPE_CHECKING
 
 import click
+
+from hatch.config.constants import AppEnvVars
 
 if TYPE_CHECKING:
     from hatch.cli.application import Application
@@ -42,7 +45,7 @@ def shell(app: Application, env_name: str | None, name: str, path: str):  # no c
 
     with app.project.ensure_cwd():
         environment = app.project.get_environment(chosen_env)
-        app.project.prepare_environment(environment)
+        app.project.prepare_environment(environment, keep_env=bool(os.environ.get(AppEnvVars.KEEP_ENV)))
 
         first_run_indicator = app.cache_dir / "shell" / "first_run"
         if not first_run_indicator.is_file():
