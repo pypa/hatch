@@ -455,10 +455,10 @@ def test_context_formatting(hatch, helpers, temp_dir, config_file):
         +---------+---------+------------+-------------------------+
         | Name    | Type    | Envs       | Dependencies            |
         +=========+=========+============+=========================+
-        | default | virtual | py39-9000  | foo@ {root:uri}/../foo |
-        |         |         | py39-3.14  |                        |
-        |         |         | py310-9000 |                        |
-        |         |         | py310-3.14 |                        |
+        | default | virtual | py39-9000  | foo@ {root:uri}/../foo  |
+        |         |         | py39-3.14  |                         |
+        |         |         | py310-9000 |                         |
+        |         |         | py310-3.14 |                         |
         +---------+---------+------------+-------------------------+
         """
     )
