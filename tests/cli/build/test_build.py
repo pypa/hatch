@@ -1129,8 +1129,6 @@ def test_no_hooks(hatch, temp_dir, helpers):
     )
 
 
-
-
 def test_no_hooks_env_var(hatch, temp_dir, helpers):
     project_name = "My.App"
 

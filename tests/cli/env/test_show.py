@@ -464,7 +464,6 @@ def test_context_formatting(hatch, helpers, temp_dir, config_file):
     )
 
 
-
 def test_plugin_dependencies_unmet(hatch, helpers, temp_dir, config_file, mock_plugin_installation):
     config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
