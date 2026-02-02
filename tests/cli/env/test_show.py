@@ -425,7 +425,7 @@ def test_context_formatting(hatch, helpers, temp_dir, config_file):
         "default",
         {
             "matrix": [{"version": ["9000", "3.14"], "py": ["39", "310"]}],
-            "dependencies": ["foo @ {root:uri}/../foo"],
+            "dependencies": ["foo@ {root:uri}/../foo"],
         },
     )
 
