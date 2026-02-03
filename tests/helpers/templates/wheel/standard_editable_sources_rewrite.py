@@ -3,30 +3,31 @@ from hatch.utils.fs import Path
 from hatchling.__about__ import __version__
 from hatchling.metadata.spec import DEFAULT_METADATA_VERSION
 
-from ..new.feature_no_src_layout import get_files as get_template_files
+from ..new.default import get_files as get_template_files
 from .utils import update_record_file_contents
 
 
 def get_files(**kwargs):
     metadata_directory = kwargs.get("metadata_directory", "")
-    package_root = kwargs.get("package_root", "")
+    namespace_package = kwargs["namespace"]
 
-    files = [
-        File(Path(metadata_directory, "licenses", f.path), f.contents)
-        for f in get_template_files(**kwargs)
-        if str(f.path) == "LICENSE.txt"
-    ]
+    files = []
+    for f in get_template_files(**kwargs):
+        if str(f.path) == "LICENSE.txt":
+            files.append(File(Path(metadata_directory, "licenses", f.path), f.contents))
+
+        if f.path.parts[0] != kwargs["package_name"]:
+            continue
+
+        f.path = Path(namespace_package, f.path)
+        files.append(f)
 
     pth_file_name = f"_{kwargs['package_name']}.pth"
-    loader_file_name = f"_editable_impl_{kwargs['package_name']}.py"
     files.extend((
-        File(Path(pth_file_name), f"import _editable_impl_{kwargs['package_name']}"),
+        File(Path(pth_file_name), ""),
         File(
-            Path(loader_file_name),
-            f"""\
-from editables.redirector import RedirectingFinder as F
-F.install()
-F.map_module({kwargs["package_name"]!r}, {package_root!r})""",
+            Path("/".join([*namespace_package, kwargs["package_name"], "__init__.py"])),
+            f"__path__ = ['{kwargs['source_path']}']",
         ),
         File(
             Path(metadata_directory, "WHEEL"),
@@ -45,14 +46,12 @@ Metadata-Version: {DEFAULT_METADATA_VERSION}
 Name: {kwargs["project_name"]}
 Version: 0.0.1
 License-File: LICENSE.txt
-Requires-Dist: binary
-Requires-Dist: editables~=0.4
 """,
         ),
     ))
 
     record_file = File(Path(metadata_directory, "RECORD"), "")
-    update_record_file_contents(record_file, files, generated_files={pth_file_name, loader_file_name})
+    update_record_file_contents(record_file, files, generated_files={pth_file_name})
     files.append(record_file)
 
     return files

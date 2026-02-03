@@ -533,6 +533,7 @@ class WheelBuilder(BuilderInterface):
             RecordFile() as records,
         ):
             exposed_packages = {}
+            exposed_subpackages = {}
             for included_file in self.recurse_selected_project_files():
                 if not included_file.path.endswith(".py"):
                     continue
@@ -543,7 +544,10 @@ class WheelBuilder(BuilderInterface):
 
                 # Root file
                 if len(path_parts) == 1:  # no cov
-                    exposed_packages[os.path.splitext(relative_path)[0]] = os.path.join(self.root, relative_path)
+                    if distribution_path in relative_path:
+                        exposed_packages[os.path.splitext(relative_path)[0]] = os.path.join(self.root, relative_path)
+                    else:
+                        exposed_subpackages[distribution_path] = os.path.join(self.root, relative_path)
                     continue
 
                 # Root package
@@ -552,27 +556,39 @@ class WheelBuilder(BuilderInterface):
                     exposed_packages[root_module] = os.path.join(self.root, root_module)
                 else:
                     distribution_module = distribution_path.split(os.sep)[0]
-                    try:
+                    if distribution_path in relative_path:
                         exposed_packages[distribution_module] = os.path.join(
                             self.root,
                             f"{relative_path[: relative_path.index(distribution_path)]}{distribution_module}",
                         )
-                    except ValueError:
-                        message = (
-                            "Dev mode installations are unsupported when any path rewrite in the `sources` option "
-                            "changes a prefix rather than removes it, see: "
-                            "https://github.com/pfmoore/editables/issues/20"
-                        )
-                        raise ValueError(message) from None
+                    else:
+                        exposed_subpackages[distribution_path] = os.path.join(self.root, relative_path)
 
             editable_project = EditableProject(self.metadata.core.name, self.root)
 
             if self.config.dev_mode_exact:
                 for module, relative_path in exposed_packages.items():
                     editable_project.map(module, relative_path)
+                # TODO: Fail if distribution path is not top level. otherwise map does not work and no message from editables.
+                for distribution_path, relative_path in exposed_subpackages.items():
+                    editable_project.map(
+                        distribution_path[:-12]
+                        if distribution_path.endswith("/__init__.py")
+                        else distribution_path[:-3],
+                        relative_path,
+                    )
             else:
                 for relative_path in exposed_packages.values():
                     editable_project.add_to_path(os.path.dirname(relative_path))
+                exposed_subpackages_dirnames = {}
+                for distribution_path, relative_path in exposed_subpackages.items():
+                    exposed_subpackages_dirnames[os.path.dirname(distribution_path)] = os.path.dirname(relative_path)
+                for module, relative_path in exposed_subpackages_dirnames.items():
+                    # Do not add packages if parent already is included
+                    if os.path.dirname(module) not in exposed_subpackages_dirnames or exposed_subpackages_dirnames[
+                        os.path.dirname(module)
+                    ] != os.path.dirname(relative_path):
+                        editable_project.add_to_subpackage(module, relative_path)
 
             for raw_filename, content in sorted(editable_project.files()):
                 filename = raw_filename
