@@ -36,7 +36,7 @@ def test_default(hatch, helpers, temp_dir, config_file):
     assert result.exit_code == 0, result.output
     assert helpers.remove_trailing_spaces(result.output) == helpers.dedent(
         """
-             Standalone
+        Standalone
         +---------+---------+
         | Name    | Type    |
         +=========+=========+
@@ -107,7 +107,7 @@ def test_single_only(hatch, helpers, temp_dir, config_file):
     assert result.exit_code == 0, result.output
     assert helpers.remove_trailing_spaces(result.output) == helpers.dedent(
         """
-             Standalone
+        Standalone
         +---------+---------+
         | Name    | Type    |
         +=========+=========+
@@ -145,13 +145,13 @@ def test_single_and_matrix(hatch, helpers, temp_dir, config_file):
     assert result.exit_code == 0, result.output
     assert helpers.remove_trailing_spaces(result.output) == helpers.dedent(
         """
-             Standalone
+        Standalone
         +---------+---------+
         | Name    | Type    |
         +=========+=========+
         | default | virtual |
         +---------+---------+
-                     Matrices
+        Matrices
         +------+---------+----------------+
         | Name | Type    | Envs           |
         +======+=========+================+
@@ -190,7 +190,7 @@ def test_default_matrix_only(hatch, helpers, temp_dir, config_file):
     assert result.exit_code == 0, result.output
     assert helpers.remove_trailing_spaces(result.output) == helpers.dedent(
         """
-                     Matrices
+        Matrices
         +---------+---------+------------+
         | Name    | Type    | Envs       |
         +=========+=========+============+
@@ -231,13 +231,13 @@ def test_all_matrix_types_with_single(hatch, helpers, temp_dir, config_file):
     assert result.exit_code == 0, result.output
     assert helpers.remove_trailing_spaces(result.output) == helpers.dedent(
         """
-            Standalone
+        Standalone
         +------+---------+
         | Name | Type    |
         +======+=========+
         | bar  | virtual |
         +------+---------+
-                       Matrices
+        Matrices
         +---------+---------+----------------+
         | Name    | Type    | Envs           |
         +=========+=========+================+
@@ -280,7 +280,7 @@ def test_specific(hatch, helpers, temp_dir, config_file):
     assert result.exit_code == 0, result.output
     assert helpers.remove_trailing_spaces(result.output) == helpers.dedent(
         """
-            Standalone
+        Standalone
         +------+---------+
         | Name | Type    |
         +======+=========+
@@ -377,7 +377,7 @@ occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim 
     assert result.exit_code == 0, result.output
     assert helpers.remove_trailing_spaces(result.output) == helpers.dedent(
         """
-                                                                                                       Standalone
+        Standalone
         +------+---------+----------+-----------------------------+-----------------------+---------+----------------------------------------------------------------------------------------------------------+
         | Name | Type    | Features | Dependencies                | Environment variables | Scripts | Description                                                                                              |
         +======+=========+==========+=============================+=======================+=========+==========================================================================================================+
@@ -387,7 +387,7 @@ occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim 
         |      |         |          |                             |                       |         | fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia         |
         |      |         |          |                             |                       |         | deserunt mollit anim id est laborum.                                                                     |
         +------+---------+----------+-----------------------------+-----------------------+---------+----------------------------------------------------------------------------------------------------------+
-                                                                                                        Matrices
+        Matrices
         +---------+---------+------------+----------+-----------------------------+-----------------------+---------+------------------------------------------------------------------------------------------+
         | Name    | Type    | Envs       | Features | Dependencies                | Environment variables | Scripts | Description                                                                              |
         +=========+=========+============+==========+=============================+=======================+=========+==========================================================================================+
@@ -425,7 +425,7 @@ def test_context_formatting(hatch, helpers, temp_dir, config_file):
         "default",
         {
             "matrix": [{"version": ["9000", "3.14"], "py": ["39", "310"]}],
-            "dependencies": ["foo @ {root:uri}/../foo"],
+            "dependencies": ["foo@ {root:uri}/../foo"],
         },
     )
 
@@ -445,13 +445,13 @@ def test_context_formatting(hatch, helpers, temp_dir, config_file):
     assert result.exit_code == 0, result.output
     assert helpers.remove_trailing_spaces(result.output) == helpers.dedent(
         """
-                               Standalone
+        Standalone
         +------+---------+--------------+-----------------------+
         | Name | Type    | Dependencies | Environment variables |
         +======+=========+==============+=======================+
         | foo  | virtual | pydantic     | BAR=FOO_BAR           |
         +------+---------+--------------+-----------------------+
-                                  Matrices
+        Matrices
         +---------+---------+------------+-------------------------+
         | Name    | Type    | Envs       | Dependencies            |
         +=========+=========+============+=========================+
@@ -496,7 +496,7 @@ def test_plugin_dependencies_unmet(hatch, helpers, temp_dir, config_file, mock_p
     assert helpers.remove_trailing_spaces(result.output) == helpers.dedent(
         """
         Syncing environment plugin requirements
-             Standalone
+        Standalone
         +---------+---------+
         | Name    | Type    |
         +=========+=========+
