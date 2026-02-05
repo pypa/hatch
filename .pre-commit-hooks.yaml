@@ -1,0 +1,28 @@
+- id: hatch
+  name: hatch
+  description: "Hatch: Hatch is a modern, extensible Python project manager."
+  entry: hatch
+  language: python
+  minimum_pre_commit_version: 2.9.2
+  require_serial: true
+- id: hatch-requirements-project-only
+  name: hatch-requirements-project-only
+  description: "Hatch: Write project only requirements to requirements.txt"
+  entry: "sh -c 'hatch dep show requirements --project-only > requirements.txt'"
+  language: python
+  minimum_pre_commit_version: 2.9.2
+  require_serial: true
+- id: hatch-requirements-env-only
+  name: hatch-requirements-env-only
+  description: "Hatch: Write env only requirements to requirements.txt"
+  entry: "sh -c 'hatch dep show requirements --env-only > requirements.txt'"
+  language: python
+  minimum_pre_commit_version: 2.9.2
+  require_serial: true
+- id: hatch-requirements-all
+  name: hatch-requirements-all
+  description: "Hatch: Write all requirements to requirements.txt"
+  entry: "sh -c 'hatch dep show requirements --all > requirements.txt'"
+  language: python
+  minimum_pre_commit_version: 2.9.2
+  require_serial: true
