@@ -22,7 +22,7 @@ def generate_lockfile(
     if not deps:
         return
 
-    with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False, encoding="utf-8") as f:
         f.write("\n".join(deps))
         f.write("\n")
         deps_file = Path(f.name)

@@ -1,5 +1,7 @@
 import os
 
+import pytest
+
 from hatch.config.constants import ConfigEnvVars
 from hatch.project.core import Project
 
@@ -55,7 +57,8 @@ def test_no_dependencies(hatch, helpers, temp_dir, config_file):
     )
 
 
-def test_default_env(hatch, helpers, temp_dir, config_file, env_run):
+@pytest.mark.usefixtures("env_run")
+def test_default_env(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
@@ -85,7 +88,8 @@ def test_default_env(hatch, helpers, temp_dir, config_file, env_run):
     assert f"Wrote lockfile: {project_path / 'pylock.toml'}" in result.output
 
 
-def test_named_env(hatch, helpers, temp_dir, config_file, env_run):
+@pytest.mark.usefixtures("env_run")
+def test_named_env(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
@@ -112,7 +116,8 @@ def test_named_env(hatch, helpers, temp_dir, config_file, env_run):
     assert f"Wrote lockfile: {project_path / 'pylock.test.toml'}" in result.output
 
 
-def test_check_missing(hatch, helpers, temp_dir, config_file, env_run):
+@pytest.mark.usefixtures("env_run")
+def test_check_missing(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
@@ -141,7 +146,8 @@ def test_check_missing(hatch, helpers, temp_dir, config_file, env_run):
     assert "Lockfile does not exist" in result.output
 
 
-def test_check_exists(hatch, helpers, temp_dir, config_file, env_run):
+@pytest.mark.usefixtures("env_run")
+def test_check_exists(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
@@ -173,7 +179,8 @@ def test_check_exists(hatch, helpers, temp_dir, config_file, env_run):
     assert "Lockfile exists" in result.output
 
 
-def test_custom_lock_filename(hatch, helpers, temp_dir, config_file, env_run):
+@pytest.mark.usefixtures("env_run")
+def test_custom_lock_filename(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
@@ -207,7 +214,8 @@ def test_custom_lock_filename(hatch, helpers, temp_dir, config_file, env_run):
     assert f"Wrote lockfile: {project_path / 'locks' / 'default.toml'}" in result.output
 
 
-def test_output_option(hatch, helpers, temp_dir, config_file, env_run):
+@pytest.mark.usefixtures("env_run")
+def test_output_option(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
@@ -238,7 +246,8 @@ def test_output_option(hatch, helpers, temp_dir, config_file, env_run):
     assert f"Wrote lockfile: {custom_output}" in result.output
 
 
-def test_matrix(hatch, helpers, temp_dir, config_file, env_run):
+@pytest.mark.usefixtures("env_run")
+def test_matrix(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
@@ -272,7 +281,8 @@ def test_matrix(hatch, helpers, temp_dir, config_file, env_run):
     assert "Locking environment: test.42" in result.output
 
 
-def test_matrix_incompatible(hatch, helpers, temp_dir, config_file, env_run):
+@pytest.mark.usefixtures("env_run")
+def test_matrix_incompatible(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
