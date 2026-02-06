@@ -1194,7 +1194,7 @@ class TestDependencies:
         )
 
         normalized_path = str(isolation).replace("\\", "/")
-        assert environment.dependencies == ["dep2", f"proj@ file:{uri_slash_prefix}{normalized_path}", "dep1"]
+        assert environment.dependencies == ["dep2", f"proj @ file:{uri_slash_prefix}{normalized_path}", "dep1"]
 
     def test_project_dependencies_context_formatting(
         self, temp_dir, isolated_data_dir, platform, temp_application, uri_slash_prefix
@@ -1244,7 +1244,7 @@ class TestDependencies:
         )
 
         normalized_parent_path = str(temp_dir.parent).replace("\\", "/")
-        expected_dep = f"sibling-project@ file:{uri_slash_prefix}{normalized_parent_path}/sibling-project"
+        expected_dep = f"sibling-project @ file:{uri_slash_prefix}{normalized_parent_path}/sibling-project"
 
         # Verify the dependency was formatted correctly
         assert expected_dep in environment.dependencies
@@ -1700,6 +1700,120 @@ feature3 = ["pkg-feature-3{i}"]
 
         deps = environment.project_dependencies_complex
         assert any("pytest" in str(d) for d in deps)
+
+    def test_dependency_group_resolution_builder_false_dev_mode_false(
+        self, temp_dir, isolated_data_dir, platform, temp_application
+    ):
+        """Test dependency group resolution in non-builder non-dev-mode environments."""
+        pyproject = temp_dir / "pyproject.toml"
+        pyproject.write_text("""
+    [project]
+    name = "my-app"
+    version = "0.0.1"
+
+    [dependency-groups]
+    test = ["pytest"]
+
+    [tool.hatch.envs.default]
+    builder = false
+    dev-mode = false
+    dependency-groups = ["test"]
+    """)
+
+        project = Project(temp_dir)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            temp_dir,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        assert any("pytest" in str(d) for d in environment.project_dependencies_complex)
+        assert any("pytest" in str(d) for d in environment.dependencies_complex)
+
+    def test_dependency_group_resolution_builder_true_dev_mode_false(
+        self, temp_dir, isolated_data_dir, platform, temp_application
+    ):
+        """Test dependency group resolution in builder non-dev-mode environments."""
+        pyproject = temp_dir / "pyproject.toml"
+        pyproject.write_text("""
+    [project]
+    name = "my-app"
+    version = "0.0.1"
+
+    [dependency-groups]
+    test = ["pytest"]
+
+    [tool.hatch.envs.default]
+    builder = true
+    dev-mode = false
+    dependency-groups = ["test"]
+    """)
+
+        project = Project(temp_dir)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            temp_dir,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        assert any("pytest" in str(d) for d in environment.project_dependencies_complex)
+        assert any("pytest" in str(d) for d in environment.dependencies_complex)
+
+    def test_dependency_group_resolution_builder_true_dev_mode_true(
+        self, temp_dir, isolated_data_dir, platform, temp_application
+    ):
+        """Test dependency group resolution in builder dev-mode environments."""
+        pyproject = temp_dir / "pyproject.toml"
+        pyproject.write_text("""
+    [project]
+    name = "my-app"
+    version = "0.0.1"
+
+    [dependency-groups]
+    test = ["pytest"]
+
+    [tool.hatch.envs.default]
+    builder = true
+    dev-mode = true
+    dependency-groups = ["test"]
+    """)
+
+        project = Project(temp_dir)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            temp_dir,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        assert any("pytest" in str(d) for d in environment.project_dependencies_complex)
+        assert any("pytest" in str(d) for d in environment.dependencies_complex)
 
     def test_additional_dependencies_as_strings(self, temp_dir, isolated_data_dir, platform, temp_application):
         """Test additional_dependencies with string values."""

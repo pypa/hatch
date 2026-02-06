@@ -786,7 +786,14 @@ class TestBuildStandard:
             zip_info = zip_archive.getinfo(f"{metadata_directory}/WHEEL")
             assert zip_info.date_time == (2020, 2, 2, 0, 0, 0)
 
-    def test_default_reproducible_timestamp(self, hatch, helpers, temp_dir, config_file):
+    @pytest.mark.parametrize(
+        ("epoch", "expected_date_time"),
+        [
+            ("0", (1980, 1, 1, 0, 0, 0)),
+            ("1580601700", (2020, 2, 2, 0, 1, 40)),
+        ],
+    )
+    def test_default_reproducible_timestamp(self, hatch, helpers, temp_dir, config_file, epoch, expected_date_time):
         config_file.model.template.plugins["default"]["src-layout"] = False
         config_file.save()
 
@@ -812,7 +819,7 @@ class TestBuildStandard:
         build_path = project_path / "dist"
         build_path.mkdir()
 
-        with project_path.as_cwd(env_vars={"SOURCE_DATE_EPOCH": "1580601700"}):
+        with project_path.as_cwd(env_vars={"SOURCE_DATE_EPOCH": epoch}):
             artifacts = list(builder.build(directory=str(build_path)))
 
         assert len(artifacts) == 1
@@ -837,7 +844,7 @@ class TestBuildStandard:
 
         with zipfile.ZipFile(str(expected_artifact), "r") as zip_archive:
             zip_info = zip_archive.getinfo(f"{metadata_directory}/WHEEL")
-            assert zip_info.date_time == (2020, 2, 2, 0, 1, 40)
+            assert zip_info.date_time == expected_date_time
 
     def test_default_no_reproducible(self, hatch, helpers, temp_dir, config_file):
         config_file.model.template.plugins["default"]["src-layout"] = False

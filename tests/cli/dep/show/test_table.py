@@ -69,7 +69,7 @@ def test_project_only(hatch, helpers, temp_dir, config_file):
     assert result.exit_code == 0, result.output
     assert helpers.remove_trailing_spaces(result.output) == helpers.dedent(
         """
-            Project
+        Project
         +-------------+
         | Name        |
         +=============+
@@ -103,7 +103,7 @@ def test_environment_only(hatch, helpers, temp_dir, config_file):
     assert result.exit_code == 0, result.output
     assert helpers.remove_trailing_spaces(result.output) == helpers.dedent(
         """
-         Env: default
+        Env: default
         +-------------+
         | Name        |
         +=============+
@@ -140,13 +140,13 @@ def test_default_both(hatch, helpers, temp_dir, config_file):
     assert result.exit_code == 0, result.output
     assert helpers.remove_trailing_spaces(result.output) == helpers.dedent(
         """
-            Project
+        Project
         +-------------+
         | Name        |
         +=============+
         | foo-bar-baz |
         +-------------+
-         Env: default
+        Env: default
         +-------------+
         | Name        |
         +=============+
@@ -196,7 +196,7 @@ def test_optional_columns(hatch, helpers, temp_dir, config_file):
     assert result.exit_code == 0, result.output
     assert helpers.remove_trailing_spaces(result.output) == helpers.dedent(
         """
-                                      Project
+        Project
         +-----------------+----------+------------------------+------------+
         | Name            | Versions | Markers                | Features   |
         +=================+==========+========================+============+
@@ -204,7 +204,7 @@ def test_optional_columns(hatch, helpers, temp_dir, config_file):
         | foo             |          | python_version < '3.8' |            |
         | python-dateutil |          |                        |            |
         +-----------------+----------+------------------------+------------+
-                                                    Env: default
+        Env: default
         +---------+----------------------------------------+----------+------------------------+------------+
         | Name    | URL                                    | Versions | Markers                | Features   |
         +=========+========================================+==========+========================+============+
@@ -252,7 +252,7 @@ def test_plugin_dependencies_unmet(hatch, helpers, temp_dir, config_file, mock_p
     assert helpers.remove_trailing_spaces(result.output) == helpers.dedent(
         """
         Syncing environment plugin requirements
-            Project
+        Project
         +-------------+
         | Name        |
         +=============+

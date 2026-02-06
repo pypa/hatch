@@ -92,7 +92,18 @@ from hatch.utils.fs import Path
 )
 @click.version_option(version=__version__, prog_name="Hatch")
 @click.pass_context
-def hatch(ctx: click.Context, env_name, project, verbose, quiet, color, interactive, data_dir, cache_dir, config_file):
+def hatch(
+    ctx: click.Context,
+    env_name,
+    project,
+    verbose,
+    quiet,
+    color,
+    interactive,
+    data_dir,
+    cache_dir,
+    config_file,
+):
     """
     \b
      _   _       _       _
@@ -112,7 +123,6 @@ def hatch(ctx: click.Context, env_name, project, verbose, quiet, color, interact
         interactive = False
 
     app = Application(ctx.exit, verbosity=verbose - quiet, enable_color=color, interactive=interactive)
-
     app.env_active = os.environ.get(AppEnvVars.ENV_ACTIVE)
     if (
         app.env_active

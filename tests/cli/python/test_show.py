@@ -16,7 +16,7 @@ def render_table(title, rows):
         table.add_row(*row)
 
     with console.capture() as capture:
-        console.print(table)
+        console.print(table, overflow="ignore", no_wrap=True, crop=False)
 
     return capture.get()
 
