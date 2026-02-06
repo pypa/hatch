@@ -17,4 +17,4 @@ def get_default_config() -> dict[str, Any]:
     }
 
 
-RUFF_DEFAULT_VERSION: str = "0.13.2"
+RUFF_DEFAULT_VERSION: str = "0.15.0"
