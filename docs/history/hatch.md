@@ -16,10 +16,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ***Fixed:***
 
-- Fix issue with self-referential dependencies not being recognized. 
+- Fix issue with self-referential dependencies not being recognized.
 - Fix incomplete environments created when an exception occurs during creation.
-- Fix dependency-groups not working with when environment is not marked as builder. 
-- Change Keyring to take expect repository URL instead of repository name. 
+- Fix dependency-groups not working with when environment is not marked as builder.
+- Change Keyring to take expect repository URL instead of repository name.
 
 ## [1.16.2](https://github.com/pypa/hatch/releases/tag/hatch-v1.16.2) - 2025-12-06 ## {: #hatch-v1.16.2 }
 
