@@ -36,4 +36,4 @@ There's a How-To on [authentication](how-to/publish/auth.md)
 and on options to select the target [repository](how-to/publish/repo.md).
 
 The `publish` command is implemented as a built-in plugin, if you're
-planning your own plugin, read about the [publisher plugin API](plugins/publisher/reference.md). 
+planning your own plugin, read about the [publisher plugin API](plugins/publisher/reference.md).
