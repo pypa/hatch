@@ -4,7 +4,7 @@
 
 ## Verbosity
 
-The amount of displayed output is controlled solely by the `-v`/`--verbose` (environment variable `HATCH_VERBOSE`) and  `-q`/`--quiet` (environment variable `HATCH_QUIET`) [root options](reference.md#hatch).
+The amount of displayed output is controlled solely by the `-v`/`--verbose` (environment variable `HATCH_VERBOSE`) and `-q`/`--quiet` (environment variable `HATCH_QUIET`) [root options](reference.md#hatch).
 
 The levels are documented [here](../config/hatch.md#terminal).
 
