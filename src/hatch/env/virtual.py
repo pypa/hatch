@@ -144,14 +144,7 @@ class VirtualEnvironment(EnvironmentInterface):
 
     @staticmethod
     def get_option_types() -> dict:
-        return {
-            "system-packages": bool,
-            "path": str,
-            "python-sources": list,
-            "installer": str,
-            "uv-path": str,
-            "lock-filename": str,
-        }
+        return {"system-packages": bool, "path": str, "python-sources": list, "installer": str, "uv-path": str}
 
     def activate(self):
         self.virtual_env.activate()

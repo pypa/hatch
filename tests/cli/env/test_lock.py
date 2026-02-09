@@ -1,9 +1,11 @@
 import os
 
 import pytest
+import tomli_w
 
 from hatch.config.constants import ConfigEnvVars
 from hatch.project.core import Project
+from hatch.utils.toml import load_toml_file
 
 
 def test_undefined(hatch, helpers, temp_dir, config_file):
@@ -30,6 +32,30 @@ def test_undefined(hatch, helpers, temp_dir, config_file):
     )
 
 
+def test_no_locked_envs(hatch, helpers, temp_dir, config_file):
+    config_file.model.template.plugins["default"]["tests"] = False
+    config_file.save()
+
+    project_name = "My.App"
+
+    with temp_dir.as_cwd():
+        result = hatch("new", project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / "my-app"
+
+    with project_path.as_cwd():
+        result = hatch("env", "lock")
+
+    assert result.exit_code == 1
+    assert result.output == helpers.dedent(
+        """
+        No environments are configured with `locked = true`
+        """
+    )
+
+
 def test_no_dependencies(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
@@ -47,7 +73,7 @@ def test_no_dependencies(hatch, helpers, temp_dir, config_file):
     helpers.update_project_environment(project, "default", {"skip-install": True, **project.config.envs["default"]})
 
     with project_path.as_cwd():
-        result = hatch("env", "lock")
+        result = hatch("env", "lock", "default")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -58,7 +84,7 @@ def test_no_dependencies(hatch, helpers, temp_dir, config_file):
 
 
 @pytest.mark.usefixtures("env_run")
-def test_default_env(hatch, helpers, temp_dir, config_file):
+def test_explicit_env(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
@@ -81,11 +107,124 @@ def test_default_env(hatch, helpers, temp_dir, config_file):
     )
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch("env", "lock", "default")
+
+    assert result.exit_code == 0, result.output
+    assert "Locking environment: default" in result.output
+    assert f"Wrote lockfile: {project_path / 'pylock.toml'}" in result.output
+
+
+@pytest.mark.usefixtures("env_run")
+def test_locked_env_no_arg(hatch, helpers, temp_dir, config_file):
+    config_file.model.template.plugins["default"]["tests"] = False
+    config_file.save()
+
+    project_name = "My.App"
+
+    with temp_dir.as_cwd():
+        result = hatch("new", project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
+    data_path.mkdir()
+
+    project = Project(project_path)
+    helpers.update_project_environment(
+        project,
+        "default",
+        {"skip-install": True, "dependencies": ["requests"], "locked": True, **project.config.envs["default"]},
+    )
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
         result = hatch("env", "lock")
 
     assert result.exit_code == 0, result.output
     assert "Locking environment: default" in result.output
     assert f"Wrote lockfile: {project_path / 'pylock.toml'}" in result.output
+
+
+@pytest.mark.usefixtures("env_run")
+def test_global_lock_envs(hatch, helpers, temp_dir, config_file):
+    config_file.model.template.plugins["default"]["tests"] = False
+    config_file.save()
+
+    project_name = "My.App"
+
+    with temp_dir.as_cwd():
+        result = hatch("new", project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
+    data_path.mkdir()
+
+    project = Project(project_path)
+    helpers.update_project_environment(
+        project,
+        "default",
+        {"skip-install": True, "dependencies": ["requests"], **project.config.envs["default"]},
+    )
+    helpers.update_project_environment(project, "test", {"dependencies": ["pytest"]})
+
+    # Set global lock-envs = true in [tool.hatch]
+    project_file = project_path / "pyproject.toml"
+    raw_config = load_toml_file(str(project_file))
+    raw_config.setdefault("tool", {}).setdefault("hatch", {})["lock-envs"] = True
+
+    with open(str(project_file), "w", encoding="utf-8") as f:
+        f.write(tomli_w.dumps(raw_config))
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch("env", "lock")
+
+    assert result.exit_code == 0, result.output
+    assert "Locking environment: default" in result.output
+    assert "Locking environment: test" in result.output
+
+
+@pytest.mark.usefixtures("env_run")
+def test_per_env_override_global(hatch, helpers, temp_dir, config_file):
+    config_file.model.template.plugins["default"]["tests"] = False
+    config_file.save()
+
+    project_name = "My.App"
+
+    with temp_dir.as_cwd():
+        result = hatch("new", project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
+    data_path.mkdir()
+
+    project = Project(project_path)
+    helpers.update_project_environment(
+        project,
+        "default",
+        {"skip-install": True, "dependencies": ["requests"], **project.config.envs["default"]},
+    )
+    # test env explicitly opts out of locking
+    helpers.update_project_environment(project, "test", {"dependencies": ["pytest"], "locked": False})
+
+    # Set global lock-envs = true
+    project_file = project_path / "pyproject.toml"
+    raw_config = load_toml_file(str(project_file))
+    raw_config.setdefault("tool", {}).setdefault("hatch", {})["lock-envs"] = True
+
+    with open(str(project_file), "w", encoding="utf-8") as f:
+        f.write(tomli_w.dumps(raw_config))
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch("env", "lock")
+
+    assert result.exit_code == 0, result.output
+    # default should be locked (global), test should NOT be locked (per-env override)
+    assert "Locking environment: default" in result.output
+    assert "Locking environment: test" not in result.output
 
 
 @pytest.mark.usefixtures("env_run")
@@ -140,7 +279,7 @@ def test_check_missing(hatch, helpers, temp_dir, config_file):
     )
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch("env", "lock", "--check")
+        result = hatch("env", "lock", "default", "--check")
 
     assert result.exit_code == 1
     assert "Lockfile does not exist" in result.output
@@ -173,10 +312,42 @@ def test_check_exists(hatch, helpers, temp_dir, config_file):
     (project_path / "pylock.toml").write_text("")
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch("env", "lock", "--check")
+        result = hatch("env", "lock", "default", "--check")
 
     assert result.exit_code == 0, result.output
     assert "Lockfile exists" in result.output
+
+
+@pytest.mark.usefixtures("env_run")
+def test_export(hatch, helpers, temp_dir, config_file):
+    config_file.model.template.plugins["default"]["tests"] = False
+    config_file.save()
+
+    project_name = "My.App"
+
+    with temp_dir.as_cwd():
+        result = hatch("new", project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
+    data_path.mkdir()
+
+    project = Project(project_path)
+    helpers.update_project_environment(
+        project,
+        "default",
+        {"skip-install": True, "dependencies": ["requests"], **project.config.envs["default"]},
+    )
+
+    custom_output = str(temp_dir / "custom-lock.toml")
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch("env", "lock", "default", "--export", custom_output)
+
+    assert result.exit_code == 0, result.output
+    assert f"Wrote lockfile: {custom_output}" in result.output
 
 
 @pytest.mark.usefixtures("env_run")
@@ -208,14 +379,14 @@ def test_custom_lock_filename(hatch, helpers, temp_dir, config_file):
     )
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch("env", "lock")
+        result = hatch("env", "lock", "default")
 
     assert result.exit_code == 0, result.output
     assert f"Wrote lockfile: {project_path / 'locks' / 'default.toml'}" in result.output
 
 
 @pytest.mark.usefixtures("env_run")
-def test_output_option(hatch, helpers, temp_dir, config_file):
+def test_all_flag(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
@@ -236,14 +407,14 @@ def test_output_option(hatch, helpers, temp_dir, config_file):
         "default",
         {"skip-install": True, "dependencies": ["requests"], **project.config.envs["default"]},
     )
-
-    custom_output = str(temp_dir / "custom-lock.toml")
+    helpers.update_project_environment(project, "test", {"dependencies": ["pytest"]})
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch("env", "lock", "-o", custom_output)
+        result = hatch("env", "lock", "--all")
 
     assert result.exit_code == 0, result.output
-    assert f"Wrote lockfile: {custom_output}" in result.output
+    assert "Locking environment: default" in result.output
+    assert "Locking environment: test" in result.output
 
 
 @pytest.mark.usefixtures("env_run")
@@ -347,7 +518,7 @@ def test_plugin_dependencies_unmet(hatch, helpers, temp_dir, config_file, mock_p
     )
 
     with project_path.as_cwd():
-        result = hatch("env", "lock")
+        result = hatch("env", "lock", "default")
 
     assert result.exit_code == 0, result.output
     assert "Syncing environment plugin requirements" in result.output

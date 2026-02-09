@@ -44,6 +44,15 @@ class ProjectConfig:
 
         return BuildConfig(config)
 
+    @cached_property
+    def lock_envs(self) -> bool:
+        lock_envs = self.config.get("lock-envs", False)
+        if not isinstance(lock_envs, bool):
+            message = "Field `tool.hatch.lock-envs` must be a boolean"
+            raise TypeError(message)
+
+        return lock_envs
+
     @property
     def env(self):
         if self._env is None:

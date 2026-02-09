@@ -92,10 +92,7 @@ def _lock_with_uv(
         environment.platform.check_command(command)
 
 
-def resolve_output_path(environment: EnvironmentInterface, custom_output: str | None = None) -> Path:
-    if custom_output:
-        return Path(custom_output)
-
+def resolve_lockfile_path(environment: EnvironmentInterface) -> Path:
     lock_filename = environment.config.get("lock-filename")
     if lock_filename:
         return environment.root / lock_filename
@@ -103,4 +100,6 @@ def resolve_output_path(environment: EnvironmentInterface, custom_output: str | 
     if environment.name == "default":
         return environment.root / "pylock.toml"
 
-    return environment.root / f"pylock.{environment.name}.toml"
+    # PEP 751 only allows one dot in the filename: pylock.<name>.toml
+    safe_name = environment.name.replace(".", "-")
+    return environment.root / f"pylock.{safe_name}.toml"

@@ -8,6 +8,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Added:***
+
+- Add `hatch env lock` command to generate [PEP 751](https://peps.python.org/pep-0751/) lockfiles (`pylock.toml`) for environments
+- Add `locked` per-environment setting and `lock-envs` global setting for automatic lockfile generation
+
 ## [1.16.3](https://github.com/pypa/hatch/releases/tag/hatch-v1.16.3) - 2026-01-20 ## {: #hatch-v1.16.3 }
 
 ***Added:***
