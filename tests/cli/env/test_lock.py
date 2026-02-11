@@ -414,7 +414,8 @@ def test_export_all(hatch, helpers, temp_dir, config_file):
     assert "Locking environment: test" in result.output
 
 
-def test_export_and_export_all_mutually_exclusive(hatch, helpers, temp_dir, config_file):
+@pytest.mark.usefixtures("helpers")
+def test_export_and_export_all_mutually_exclusive(hatch, temp_dir, config_file):
     config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
