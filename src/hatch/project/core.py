@@ -247,6 +247,14 @@ class Project:
 
             self.env_metadata.update_dependency_hash(environment, new_dep_hash)
 
+        if environment.locked and environment.dependencies:
+            from hatch.env.lock import generate_lockfile, resolve_lockfile_path
+
+            lockfile_path = resolve_lockfile_path(environment)
+            if not lockfile_path.is_file() or new_dep_hash != current_dep_hash:
+                with self.app.status(f"Locking environment: {environment.name}"):
+                    generate_lockfile(environment, lockfile_path)
+
     def prepare_build_environment(self, *, targets: list[str] | None = None, keep_env: bool = False) -> None:
         from hatch.project.constants import BUILD_BACKEND, BuildEnvVars
         from hatch.utils.structures import EnvVars

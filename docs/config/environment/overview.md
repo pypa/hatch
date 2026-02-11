@@ -290,6 +290,55 @@ The following platforms are supported:
 
 If unspecified, the environment is assumed to be compatible with all platforms.
 
+## Locking
+
+Hatch can generate [PEP 751](https://peps.python.org/pep-0751/) lockfiles (`pylock.toml`) for environments. Lockfiles capture the exact versions of all resolved dependencies, ensuring reproducible installations.
+
+### Locked
+
+Set `locked` to `true` to enable automatic lockfile generation for an environment. When enabled, a lockfile will be generated whenever the environment is created or its dependencies change.
+
+```toml config-example
+[tool.hatch.envs.test]
+locked = true
+dependencies = [
+  "pytest",
+  "pytest-cov",
+]
+```
+
+The default value is `false` unless overridden by the global [`lock-envs`](#lock-envs) setting.
+
+### Lock filename ### {: #lock-filename }
+
+By default, lockfiles are named following the [PEP 751](https://peps.python.org/pep-0751/) convention: `pylock.toml` for the `default` environment and `pylock.<ENV_NAME>.toml` for all others. You can override this with the `lock-filename` option:
+
+```toml config-example
+[tool.hatch.envs.test]
+lock-filename = "locks/test-requirements.lock"
+```
+
+### Global lock-envs ### {: #lock-envs }
+
+You can enable locking for all environments at once by setting `lock-envs` to `true` at the top level of your Hatch configuration:
+
+```toml config-example
+[tool.hatch]
+lock-envs = true
+```
+
+This acts as the default value for each environment's [`locked`](#locked) option. Individual environments can still opt out by explicitly setting `locked = false`:
+
+```toml config-example
+[tool.hatch]
+lock-envs = true
+
+[tool.hatch.envs.docs]
+locked = false
+```
+
+See the [lockfile how-to guide](../../how-to/environment/lockfiles.md) for practical usage examples.
+
 ## Description
 
 The `description` option is purely informational and is displayed in the output of the [`env show`](../../cli/reference.md#hatch-env-show) command:

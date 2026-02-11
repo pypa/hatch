@@ -20,6 +20,8 @@ RESERVED_OPTIONS = {
     "env-include": list,
     "env-vars": dict,
     "features": list,
+    "lock-filename": str,
+    "locked": bool,
     "matrix-name-format": str,
     "platforms": list,
     "post-install-commands": list,

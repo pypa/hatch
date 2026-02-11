@@ -130,6 +130,7 @@ nav:
     - Environments:
       - Select installer: how-to/environment/select-installer.md
       - Dependency resolution: how-to/environment/dependency-resolution.md
+      - Lockfiles: how-to/environment/lockfiles.md
       - Workspace: how-to/environment/workspace.md
     - Static analysis:
       - Customize behavior: how-to/static-analysis/behavior.md
