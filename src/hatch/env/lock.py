@@ -17,8 +17,9 @@ def generate_lockfile(
     *,
     upgrade: bool = False,
     upgrade_packages: tuple[str, ...] = (),
+    deps_override: list[str] | None = None,
 ) -> None:
-    deps = environment.dependencies
+    deps = deps_override if deps_override is not None else environment.dependencies
     if not deps:
         return
 

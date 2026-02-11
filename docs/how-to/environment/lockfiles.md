@@ -4,31 +4,9 @@
 
 Hatch can generate [PEP 751](https://peps.python.org/pep-0751/) lockfiles (`pylock.toml`) for your environments. Lockfiles capture the exact resolved versions and hashes of all dependencies, ensuring reproducible installations across machines and CI.
 
-## Locking a specific environment
+## Configuring locked environments
 
-Use the [`env lock`](../../cli/reference.md#hatch-env-lock) command with an environment name to generate a lockfile:
-
-```console
-$ hatch env lock test
-Locking environment: test
-Wrote lockfile: /path/to/project/pylock.test.toml
-```
-
-The `default` environment produces `pylock.toml`, while all other environments produce `pylock.<ENV_NAME>.toml`, following the [PEP 751](https://peps.python.org/pep-0751/) naming convention.
-
-## Locking all environments
-
-To lock every environment at once, use the `--all` flag:
-
-```console
-$ hatch env lock --all
-```
-
-Environments that are incompatible with the current platform (e.g. a matrix variant requiring a Python version that is not installed) will be skipped with a warning.
-
-## Automatic locking
-
-You can configure environments to generate lockfiles automatically whenever they are created or their dependencies change. Set [`locked`](../../config/environment/overview.md#locked) to `true` on individual environments:
+To use lockfiles, first configure which environments should be locked by setting [`locked = true`](../../config/environment/overview.md#locked):
 
 ```toml config-example
 [tool.hatch.envs.test]
@@ -38,14 +16,14 @@ dependencies = [
 ]
 ```
 
-Or enable it for all environments at once with the global [`lock-envs`](../../config/environment/overview.md#lock-envs) setting:
+Or enable it globally for all environments with the [`lock-envs`](../../config/environment/overview.md#lock-envs) setting:
 
 ```toml config-example
 [tool.hatch]
 lock-envs = true
 ```
 
-Individual environments can opt out of the global setting:
+Individual environments can opt out:
 
 ```toml config-example
 [tool.hatch]
@@ -55,7 +33,37 @@ lock-envs = true
 locked = false
 ```
 
-When no explicit environment name is passed, `hatch env lock` will lock all environments that have `locked = true` (either directly or via the global setting).
+## Generating lockfiles
+
+Use the [`env lock`](../../cli/reference.md#hatch-env-lock) command to generate lockfiles. When called without arguments, it locks all environments configured with `locked = true`:
+
+```console
+$ hatch env lock
+Locking environment: default
+Wrote lockfile: /path/to/project/pylock.toml
+Locking environment: test
+Wrote lockfile: /path/to/project/pylock.test.toml
+```
+
+You can also lock a specific environment by name:
+
+```console
+$ hatch env lock test
+Locking environment: test
+Wrote lockfile: /path/to/project/pylock.test.toml
+```
+
+!!! note
+    When locking a specific environment by name, it must have `locked = true` configured. To generate a lockfile for an environment that is not configured as locked, use the `--export` flag.
+
+The `default` environment produces `pylock.toml`, while all other environments produce `pylock.<ENV_NAME>.toml`, following the [PEP 751](https://peps.python.org/pep-0751/) naming convention.
+
+## Automatic locking
+
+Environments with `locked = true` will have their lockfiles generated automatically during `hatch env create` or `hatch run` whenever:
+
+- The lockfile does not exist yet
+- The environment's dependencies have changed
 
 ## Updating locked dependencies
 
@@ -82,13 +90,22 @@ Lockfile exists: /path/to/project/pylock.test.toml
 
 This is useful in CI to ensure lockfiles have been committed.
 
-## Exporting to a custom path
+## Exporting lockfiles
 
-By default, lockfiles are written to the project root. Use `--export` to write to a different location:
+To generate a lockfile for an environment that is not configured with `locked = true`, or to write to a custom location, use `--export`:
 
 ```console
-$ hatch env lock test --export locks/test.lock
+$ hatch env lock default --export locks/default.lock
 ```
+
+To export lockfiles for all environments into a directory, use `--export-all`:
+
+```console
+$ hatch env lock --export-all locks/
+```
+
+!!! note
+    `--export` and `--export-all` are mutually exclusive.
 
 ## Custom lock filenames
 
@@ -98,6 +115,8 @@ You can override the default filename for any environment with the [`lock-filena
 [tool.hatch.envs.test]
 lock-filename = "requirements-test.lock"
 ```
+
+When multiple matrix environments share the same `lock-filename`, Hatch will merge their dependencies and generate the lockfile once.
 
 ## Installer integration
 
