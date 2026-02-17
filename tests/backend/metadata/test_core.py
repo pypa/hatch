@@ -1402,6 +1402,72 @@ class TestOptionalDependencies:
         )
 
 
+class TestImportNames:
+    def test_dynamic(self, isolation):
+        metadata = ProjectMetadata(
+            str(isolation), None, {"project": {"import-names": 9000, "dynamic": ["import-names"]}}
+        )
+
+        with pytest.raises(
+            ValueError,
+            match="Metadata field `import-names` cannot be both statically defined and listed in field `project.dynamic`",
+        ):
+            _ = metadata.core.import_names
+
+    def test_not_array(self, isolation):
+        metadata = ProjectMetadata(str(isolation), None, {"project": {"import-names": 10}})
+
+        with pytest.raises(TypeError, match="Field `project.import-names` must be an array"):
+            _ = metadata.core.import_names
+
+    @pytest.mark.parametrize("entry", [5, "1_foo", "foo.1_bar"])
+    def test_entry_not_valid_import_name(self, isolation, entry):
+        metadata = ProjectMetadata(str(isolation), None, {"project": {"import-names": [entry]}})
+
+        with pytest.raises(
+            TypeError, match="Import name #1 of field `project.import-names` must be a valid import name"
+        ):
+            _ = metadata.core.import_names
+
+    def test_correct(self, isolation):
+        metadata = ProjectMetadata(str(isolation), None, {"project": {"import-names": ["foo", "_foo"]}})
+
+        assert metadata.core.import_names == ["_foo", "foo"]
+
+
+class TestImportNamespaces:
+    def test_dynamic(self, isolation):
+        metadata = ProjectMetadata(
+            str(isolation), None, {"project": {"import-namespaces": 9000, "dynamic": ["import-namespaces"]}}
+        )
+
+        with pytest.raises(
+            ValueError,
+            match="Metadata field `import-namespaces` cannot be both statically defined and listed in field `project.dynamic`",
+        ):
+            _ = metadata.core.import_namespaces
+
+    def test_not_array(self, isolation):
+        metadata = ProjectMetadata(str(isolation), None, {"project": {"import-namespaces": 10}})
+
+        with pytest.raises(TypeError, match="Field `project.import-namespaces` must be an array"):
+            _ = metadata.core.import_namespaces
+
+    @pytest.mark.parametrize("entry", [5, "1_foo", "foo.1_bar"])
+    def test_entry_not_valid_import_name(self, isolation, entry):
+        metadata = ProjectMetadata(str(isolation), None, {"project": {"import-namespaces": [entry]}})
+
+        with pytest.raises(
+            TypeError, match="Import namespace #1 of field `project.import-namespaces` must be a valid import name"
+        ):
+            _ = metadata.core.import_namespaces
+
+    def test_correct(self, isolation):
+        metadata = ProjectMetadata(str(isolation), None, {"project": {"import-namespaces": ["foo", "foo.bar"]}})
+
+        assert metadata.core.import_namespaces == ["foo", "foo.bar"]
+
+
 class TestHook:
     def test_unknown(self, isolation):
         metadata = ProjectMetadata(

@@ -7,8 +7,8 @@ if TYPE_CHECKING:
 
     from hatchling.metadata.core import ProjectMetadata
 
-DEFAULT_METADATA_VERSION = "2.4"
-LATEST_METADATA_VERSION = "2.4"
+DEFAULT_METADATA_VERSION = "2.5"
+LATEST_METADATA_VERSION = "2.5"
 CORE_METADATA_PROJECT_FIELDS = {
     "Author": ("authors",),
     "Author-email": ("authors",),
@@ -29,6 +29,8 @@ CORE_METADATA_PROJECT_FIELDS = {
     "Summary": ("description",),
     "Project-URL": ("urls",),
     "Version": ("version",),
+    "Import-Name": ("import-names",),
+    "Import-Namespace": ("import-namespaces",),
 }
 PROJECT_CORE_METADATA_FIELDS = {
     "authors": ("Author", "Author-email"),
@@ -46,6 +48,8 @@ PROJECT_CORE_METADATA_FIELDS = {
     "description": ("Summary",),
     "urls": ("Project-URL",),
     "version": ("Version",),
+    "import-names": ("Import-Name",),
+    "import-namespaces": ("Import-Namespace",),
 }
 
 
@@ -59,6 +63,7 @@ def get_core_metadata_constructors() -> dict[str, Callable]:
         "2.2": construct_metadata_file_2_2,
         "2.3": construct_metadata_file_2_3,
         "2.4": construct_metadata_file_2_4,
+        "2.5": construct_metadata_file_2_5,
     }
 
 
@@ -195,6 +200,12 @@ def project_metadata_from_core_metadata(core_metadata: str) -> dict[str, Any]:
 
     if optional_dependencies:
         metadata["optional-dependencies"] = optional_dependencies
+
+    if (import_names := message.get_all("Import-Name")) is not None:
+        metadata["import-names"] = import_names
+
+    if (import_namespaces := message.get_all("Import-Namespace")) is not None:
+        metadata["import-namespaces"] = import_namespaces
 
     return metadata
 
@@ -516,6 +527,107 @@ def construct_metadata_file_2_4(metadata: ProjectMetadata, extra_dependencies: t
     metadata_file = "Metadata-Version: 2.4\n"
     metadata_file += f"Name: {metadata.core.raw_name}\n"
     metadata_file += f"Version: {metadata.version}\n"
+
+    if metadata.core.dynamic:
+        # Ordered set
+        for field in {
+            core_metadata_field: None
+            for project_field in metadata.core.dynamic
+            for core_metadata_field in PROJECT_CORE_METADATA_FIELDS.get(project_field, ())
+        }:
+            metadata_file += f"Dynamic: {field}\n"
+
+    if metadata.core.description:
+        metadata_file += f"Summary: {metadata.core.description}\n"
+
+    if metadata.core.urls:
+        for label, url in metadata.core.urls.items():
+            metadata_file += f"Project-URL: {label}, {url}\n"
+
+    authors_data = metadata.core.authors_data
+    if authors_data["name"]:
+        metadata_file += f"Author: {', '.join(authors_data['name'])}\n"
+    if authors_data["email"]:
+        metadata_file += f"Author-email: {', '.join(authors_data['email'])}\n"
+
+    maintainers_data = metadata.core.maintainers_data
+    if maintainers_data["name"]:
+        metadata_file += f"Maintainer: {', '.join(maintainers_data['name'])}\n"
+    if maintainers_data["email"]:
+        metadata_file += f"Maintainer-email: {', '.join(maintainers_data['email'])}\n"
+
+    if metadata.core.license:
+        license_start = "License: "
+        indent = " " * (len(license_start) - 1)
+        metadata_file += license_start
+
+        for i, line in enumerate(metadata.core.license.splitlines()):
+            if i == 0:
+                metadata_file += f"{line}\n"
+            else:
+                metadata_file += f"{indent}{line}\n"
+
+    if metadata.core.license_expression:
+        metadata_file += f"License-Expression: {metadata.core.license_expression}\n"
+
+    if metadata.core.license_files:
+        for license_file in metadata.core.license_files:
+            metadata_file += f"License-File: {license_file}\n"
+
+    if metadata.core.keywords:
+        metadata_file += f"Keywords: {','.join(metadata.core.keywords)}\n"
+
+    if metadata.core.classifiers:
+        for classifier in metadata.core.classifiers:
+            metadata_file += f"Classifier: {classifier}\n"
+
+    if metadata.core.requires_python:
+        metadata_file += f"Requires-Python: {metadata.core.requires_python}\n"
+
+    if metadata.core.dependencies:
+        for dependency in metadata.core.dependencies:
+            metadata_file += f"Requires-Dist: {dependency}\n"
+
+    if extra_dependencies:
+        for dependency in extra_dependencies:
+            metadata_file += f"Requires-Dist: {dependency}\n"
+
+    if metadata.core.optional_dependencies:
+        for option, dependencies in metadata.core.optional_dependencies.items():
+            metadata_file += f"Provides-Extra: {option}\n"
+            for dependency in dependencies:
+                if ";" in dependency:
+                    dep_name, dep_env_marker = dependency.split(";", maxsplit=1)
+                    metadata_file += f"Requires-Dist: {dep_name}; ({dep_env_marker.strip()}) and extra == {option!r}\n"
+                elif "@ " in dependency:
+                    metadata_file += f"Requires-Dist: {dependency} ; extra == {option!r}\n"
+                else:
+                    metadata_file += f"Requires-Dist: {dependency}; extra == {option!r}\n"
+
+    if metadata.core.readme:
+        metadata_file += f"Description-Content-Type: {metadata.core.readme_content_type}\n"
+        metadata_file += f"\n{metadata.core.readme}"
+
+    return metadata_file
+
+
+def construct_metadata_file_2_5(metadata: ProjectMetadata, extra_dependencies: tuple[str] | None = None) -> str:
+    """
+    https://peps.python.org/pep-0794/
+    """
+    metadata_file = "Metadata-Version: 2.5\n"
+    metadata_file += f"Name: {metadata.core.raw_name}\n"
+    metadata_file += f"Version: {metadata.version}\n"
+
+    if metadata.core.import_names:
+        for import_name in metadata.core.import_names:
+            _name = f"{import_name}; private" if import_name.startswith("_") else import_name
+            metadata_file += f"Import-Name: {_name}\n"
+
+    if metadata.core.import_namespaces:
+        for import_namespace in metadata.core.import_namespaces:
+            _name = f"{import_namespace}; private" if import_namespace.startswith("_") else import_namespace
+            metadata_file += f"Import-Namespace: {_name}\n"
 
     if metadata.core.dynamic:
         # Ordered set
