@@ -16,6 +16,7 @@ def main():
         "title": f"{args.project.capitalize()} v{version}",
         "tag": f"{args.project}-v{version}",
         "body": notes,
+        "prerelease": "1",
     })
 
     url = f"https://github.com/pypa/hatch/releases/new?{params}"
