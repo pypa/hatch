@@ -8,6 +8,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Fixed:***
+
+- Fixes hatch shell type error for keep_env. 
+- SBOM documentation for including SBOM files in `sdist`
+
 ## [1.16.3](https://github.com/pypa/hatch/releases/tag/hatch-v1.16.3) - 2026-01-20 ## {: #hatch-v1.16.3 }
 
 ***Added:***

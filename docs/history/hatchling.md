@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Fixed:***
+
+- Source Date Epoch no longer fails when set to date before 1980. 
+
 ## [1.28.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.28.0) - 2025-11-26 ## {: #hatchling-v1.28.0 }
 
 ***Changed:***
