@@ -1340,21 +1340,21 @@ class CoreMetadata:
         return self._optional_dependencies
 
     @property
-    def import_names(self) -> list[str]:
+    def import_names(self) -> list[str] | None:
         """
         https://peps.python.org/pep-0794/
         """
         if self._import_names is None:
-            if "import-names" in self.config:
-                import_names = self.config["import-names"]
-                if "import-names" in self.dynamic:
-                    message = (
-                        "Metadata field `import-names` cannot be both statically defined and "
-                        "listed in field `project.dynamic`"
-                    )
-                    raise ValueError(message)
-            else:
-                import_names = []
+            if "import-names" not in self.config:
+                return None
+
+            import_names = self.config["import-names"]
+            if "import-names" in self.dynamic:
+                message = (
+                    "Metadata field `import-names` cannot be both statically defined and "
+                    "listed in field `project.dynamic`"
+                )
+                raise ValueError(message)
 
             if not isinstance(import_names, list):
                 message = "Field `project.import-names` must be an array"

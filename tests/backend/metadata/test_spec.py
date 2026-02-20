@@ -2423,6 +2423,30 @@ class TestCoreMetadataV25:
             """
         )
 
+    def test_explicit_no_import_names(self, constructor, isolation, helpers):
+        metadata = ProjectMetadata(
+            str(isolation),
+            None,
+            {
+                "project": {
+                    "name": "my-package",
+                    "version": "0.1.0",
+                    "import-names": [],
+                    "description": "My package without any import names",
+                },
+            },
+        )
+
+        assert constructor(metadata) == helpers.dedent(
+            """
+            Metadata-Version: 2.5
+            Name: my-package
+            Version: 0.1.0
+            Import-Name
+            Summary: My package without any import names
+            """
+        )
+
     def test_import_namespaces(self, constructor, isolation, helpers):
         metadata = ProjectMetadata(
             str(isolation),

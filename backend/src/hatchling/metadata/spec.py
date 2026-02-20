@@ -619,7 +619,15 @@ def construct_metadata_file_2_5(metadata: ProjectMetadata, extra_dependencies: t
     metadata_file += f"Name: {metadata.core.raw_name}\n"
     metadata_file += f"Version: {metadata.version}\n"
 
-    if metadata.core.import_names:
+    if metadata.core.import_names is not None:
+        if not metadata.core.import_names and not metadata.core.import_namespaces:
+            # Projects MAY set `import-names` an empty array and not set `import-namespaces`
+            # at all in a `pyproject.toml` file (e.g. `import-names = []`). To match this,
+            # projects MAY have an empty `Import-Name` field in their metadata. This represents
+            # a project with NO import names, public or private (i.e. there are no Python modules
+            # of any kind in the distribution file).
+            metadata_file += "Import-Name\n"
+
         for import_name in metadata.core.import_names:
             _name = f"{import_name}; private" if import_name.startswith("_") else import_name
             metadata_file += f"Import-Name: {_name}\n"
