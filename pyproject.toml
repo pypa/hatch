@@ -40,6 +40,7 @@ classifiers = [
 ]
 dependencies = [
   "click>=8.0.6",
+  "distro>=1.0.0; sys_platform == 'linux'",
   "hatchling>=1.27.0",
   "httpx>=0.22.0",
   "hyperlink>=21.0.0",

@@ -1,11 +1,12 @@
+import json
 import platform
-import sys
 
 import httpx
 import pytest
 
 from hatch._version import __version__
 from hatch.index.core import PackageIndex
+from hatch.utils.linehaul import get_linehaul_component
 
 
 class TestRepo:
@@ -80,7 +81,50 @@ class TestUserAgent:
 
         user_agent = client.headers["User-Agent"]
 
-        expected = (
-            f"Hatch/{__version__} {sys.implementation.name}/{platform.python_version()} HTTPX/{httpx.__version__}"
-        )
-        assert user_agent == expected
+        assert user_agent.startswith(f"Hatch/{__version__} ")
+        assert user_agent.endswith(f" HTTPX/{httpx.__version__}")
+
+    def _extract_json_from_user_agent(self, user_agent: str) -> dict:
+        json_start = user_agent.index("{")
+        json_end = user_agent.rindex("}") + 1
+        return json.loads(user_agent[json_start:json_end])
+
+    def test_user_agent_contains_linehaul_json(self):
+        index = PackageIndex("https://foo.internal/a/b/")
+        client = index.client
+
+        user_agent = client.headers["User-Agent"]
+        data = self._extract_json_from_user_agent(user_agent)
+
+        assert data["installer"]["name"] == "hatch"
+        assert data["installer"]["version"] == __version__
+        assert data["python"] == platform.python_version()
+        assert data["implementation"]["name"] == platform.python_implementation()
+        assert data["system"]["name"] == platform.system()
+        assert data["cpu"] == platform.machine()
+
+    def test_user_agent_linehaul_ci_detection(self, monkeypatch):
+        get_linehaul_component.cache_clear()
+        monkeypatch.setenv("CI", "true")
+
+        index = PackageIndex("https://foo.internal/a/b/")
+        client = index.client
+
+        user_agent = client.headers["User-Agent"]
+        data = self._extract_json_from_user_agent(user_agent)
+
+        assert data["ci"] is True
+
+    def test_user_agent_linehaul_macos_distro(self, mocker):
+        get_linehaul_component.cache_clear()
+        mocker.patch("hatch.utils.linehaul.sys.platform", "darwin")
+        mocker.patch("hatch.utils.linehaul.platform.mac_ver", return_value=("14.0", "", "arm64"))
+
+        index = PackageIndex("https://foo.internal/a/b/")
+        client = index.client
+
+        user_agent = client.headers["User-Agent"]
+        data = self._extract_json_from_user_agent(user_agent)
+
+        assert data["distro"]["name"] == "macOS"
+        assert data["distro"]["version"] == "14.0"
