@@ -46,7 +46,8 @@ jobs:
 
     - name: Benchmark
       run: |
-        hyperfine -m 100 --warmup 10 -i pipenv
-        hyperfine -m 100 --warmup 10 poetry
-        hyperfine -m 100 --warmup 10 -i flit
-        hyperfine -m 100 --warmup 10 hatch
+        hyperfine -m 100 --warmup 10 --shell=none -i pipenv
+        hyperfine -m 100 --warmup 10 --shell=none poetry
+        hyperfine -m 100 --warmup 10 --shell=none -i flit
+        hyperfine -m 100 --warmup 10 --shell=none -i uv
+        hyperfine -m 100 --warmup 10 --shell=none hatch
