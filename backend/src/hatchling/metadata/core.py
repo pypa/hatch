@@ -1368,9 +1368,7 @@ class CoreMetadata:
             self._import_names = sorted(import_names)
 
             if set(self._import_names) & set(self.import_namespaces):
-                message = (
-                    "Fields `project.import-names` and `project.import-namespaces` cannot contain the same name"
-                )
+                message = "Fields `project.import-names` and `project.import-namespaces` cannot contain the same name"
                 raise ValueError(message)
 
         return self._import_names
@@ -1405,9 +1403,7 @@ class CoreMetadata:
 
             import_names = self.import_names
             if import_names is not None and set(import_names) & set(self._import_namespaces):
-                message = (
-                    "Fields `project.import-names` and `project.import-namespaces` cannot contain the same name"
-                )
+                message = "Fields `project.import-names` and `project.import-namespaces` cannot contain the same name"
                 raise ValueError(message)
 
         return self._import_namespaces
