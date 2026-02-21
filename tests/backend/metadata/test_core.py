@@ -1467,6 +1467,30 @@ class TestImportNamespaces:
 
         assert metadata.core.import_namespaces == ["foo", "foo.bar"]
 
+    def test_import_names_and_import_namespaces_conflict(self, isolation):
+        metadata = ProjectMetadata(
+            str(isolation),
+            None,
+            {"project": {"import-names": ["pytest", "foo"], "import-namespaces": ["bar", "pytest"]}},
+        )
+
+        with pytest.raises(
+            ValueError,
+            match="Fields `project.import-names` and `project.import-namespaces` cannot contain the same name",
+        ):
+            _ = metadata.core.import_names
+
+        metadata2 = ProjectMetadata(
+            str(isolation),
+            None,
+            {"project": {"import-names": ["pytest", "foo"], "import-namespaces": ["bar", "pytest"]}},
+        )
+        with pytest.raises(
+            ValueError,
+            match="Fields `project.import-names` and `project.import-namespaces` cannot contain the same name",
+        ):
+            _ = metadata2.core.import_namespaces
+
 
 class TestHook:
     def test_unknown(self, isolation):
