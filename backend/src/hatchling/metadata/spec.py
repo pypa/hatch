@@ -208,8 +208,8 @@ def project_metadata_from_core_metadata(core_metadata: str) -> dict[str, Any]:
         metadata["import-namespaces"] = import_namespaces
 
     if set(metadata.get("import-names", [])) & set(metadata.get("import-namespaces", [])):
-        message = "Import-Name and Import-Namespace fields cannot contain the same name"
-        raise ValueError(message)
+        error_message = "Import-Name and Import-Namespace fields cannot contain the same name"
+        raise ValueError(error_message)
 
     return metadata
 
