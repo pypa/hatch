@@ -229,6 +229,32 @@ Requires-Dist: baz @ file:///path/to/project ; extra == 'feature3'
             },
         }
 
+    def test_import_names_and_import_namespaces(self):
+        core_metadata = f"""\
+Metadata-Version: {LATEST_METADATA_VERSION}
+Name: My.App
+Version: 0.1.0
+Import-Name: _pytest
+Import-Name: py
+Import-Name: pytest
+"""
+        assert project_metadata_from_core_metadata(core_metadata) == {
+            "name": "My.App",
+            "version": "0.1.0",
+            "import-names": ["_pytest", "py", "pytest"],
+        }
+
+    def test_import_names_and_import_namespaces_conflict(self):
+        core_metadata = f"""\
+Metadata-Version: {LATEST_METADATA_VERSION}
+Name: My.App
+Version: 0.1.0
+Import-Name: pytest
+Import-Namespace: pytest
+"""
+        with pytest.raises(ValueError, match="^Import-Name and Import-Namespace fields cannot contain the same name$"):
+            project_metadata_from_core_metadata(core_metadata)
+
 
 @pytest.mark.parametrize("constructor", [get_core_metadata_constructors()["1.2"]])
 class TestCoreMetadataV12:
