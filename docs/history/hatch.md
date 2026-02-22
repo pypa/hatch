@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Fixes hatch shell type error for keep_env. 
 - SBOM documentation for including SBOM files in `sdist`
+- Fixes workspace member detection to properly handle shared path prefixes.
 
 ## [1.16.3](https://github.com/pypa/hatch/releases/tag/hatch-v1.16.3) - 2026-01-20 ## {: #hatch-v1.16.3 }
 

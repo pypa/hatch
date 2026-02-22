@@ -1238,7 +1238,7 @@ class Workspace:
             path_spec = data["path"]
             normalized_path = os.path.normpath(os.path.join(root, path_spec))
             absolute_path = os.path.abspath(normalized_path)
-            shared_prefix = os.path.commonprefix([root, absolute_path])
+            shared_prefix = os.path.commonpath([root, absolute_path])
             relative_path = os.path.relpath(absolute_path, shared_prefix)
 
             # Now we have the necessary information to perform an optimized glob search for members
