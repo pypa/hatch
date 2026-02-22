@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Added:***
+
+- Support PEP 794 (core metadata `Import-Name` and `Import-Namespace` fields and version 2.5)
+
 ## [1.29.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.29.0) - 2026-02-21 ## {: #hatchling-v1.29.0 }
 
 ***Fixed:***
