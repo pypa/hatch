@@ -1497,6 +1497,34 @@ class TestHook:
         ):
             _ = metadata.core
 
+    def test_custom_no_dynamic(self, temp_dir, helpers):
+        metadata = ProjectMetadata(
+            str(temp_dir),
+            PluginManager(),
+            {
+                "project": {"name": "foo", "version": "1.0.0", "dependencies": ["bar==1.0"]},
+                "tool": {"hatch": {"metadata": {"hooks": {"custom": {}}}}},
+            },
+        )
+
+        file_path = temp_dir / DEFAULT_BUILD_SCRIPT
+        file_path.write_text(
+            helpers.dedent(
+                """
+                from hatchling.metadata.plugin.interface import MetadataHookInterface
+
+                class CustomHook(MetadataHookInterface):
+                    def update(self, metadata):
+                        metadata['dependencies'] = ['bar==2.0']
+                """
+            )
+        )
+
+        assert "custom" in metadata.hatch.metadata.hooks
+        assert metadata.core.name == "foo"
+        assert metadata.core.version == "1.0.0"
+        assert metadata.core.dependencies == ["bar==2.0"]
+
 
 class TestHatchPersonalProjectConfigFile:
     def test_correct(self, temp_dir, helpers):
