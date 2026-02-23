@@ -17,8 +17,8 @@ def main():
 
     # Create and push tag first
     try:
-        subprocess.run(["git", "tag", tag], check=True)
-        subprocess.run(["git", "push", "origin", tag], check=True)
+        subprocess.run(["git", "tag", tag], check=True)  # noqa: S607
+        subprocess.run(["git", "push", "origin", tag], check=True)  # noqa: S607
         print(f"Created and pushed tag: {tag}")
     except subprocess.CalledProcessError as e:
         print(f"Error creating tag: {e}")
@@ -34,7 +34,6 @@ def main():
 
     url = f"https://github.com/pypa/hatch/releases/new?{params}"
     webbrowser.open_new_tab(url)
-
 
 
 if __name__ == "__main__":
