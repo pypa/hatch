@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.16.4](https://github.com/pypa/hatch/releases/tag/hatch-v1.16.4) - 2026-02-23 ## {: #hatch-v1.16.4 }
+
 ***Fixed:***
 
 - Fixes hatch shell type error for keep_env. 
