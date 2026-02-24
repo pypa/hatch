@@ -1,0 +1,14 @@
+---
+name: Hatch Bug report
+description: Problems and issues with code in Hatch
+body:
+- type: markdown
+  attributes:
+    # yamllint disable rule:line-length
+    value: "
+      <img src='https://raw.githubusercontent.com/pypa/hatch/HEAD/docs/assets/images/logo.svg' align='left' width='80' height='80'>
+      Thank you for finding the time to report the problem, we ask that you use 
+      the command `hatch self report` to report bugs instead of using this form.
+      
+      <br clear='left'/>"
+    # yamllint enable rule:line-length

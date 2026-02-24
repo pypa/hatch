@@ -6,6 +6,9 @@
 
 Unless an environment is [chosen explicitly](#selection), Hatch will use the `default` environment.
 
+!!! tip
+    For a more comprehensive walk-through, see the [Basic usage](tutorials/environment/basic-usage.md) tutorial.
+
 ## Creation
 
 You can create environments by using the [`env create`](cli/reference.md#hatch-env-create) command. Let's enter the directory of the project we created in the [setup phase](intro.md#new-project):
@@ -55,21 +58,8 @@ The [`run`](cli/reference.md#hatch-run) command allows you to execute commands i
 hatch run python -c "import sys;print(sys.executable)"
 ```
 
-## Scripts
-
-You can also run any [scripts](config/environment/overview.md#scripts) that have been defined.
-
-You'll notice that in the `pyproject.toml` file there are already scripts defined in the `default` environment. Try running the `test` command, which invokes [pytest](https://github.com/pytest-dev/pytest) with some default arguments:
-
-```
-hatch run test
-```
-
-All additional arguments are passed through to that script, so for example if you wanted to see the version of `pytest` and which plugins are installed you could do:
-
-```
-hatch run test -VV
-```
+!!! tip
+    Be sure to check out how to define [scripts](config/environment/overview.md#scripts) for your project.
 
 ## Dependencies
 
@@ -141,13 +131,13 @@ dependencies = [
 ]
 
 [[tool.hatch.envs.test.matrix]]
-python = ["2.7", "3.8"]
+python = ["3.10", "3.11"]
 version = ["42", "3.14"]
 
 [[tool.hatch.envs.test.matrix]]
-python = ["3.8", "3.9"]
+python = ["3.11", "3.12"]
 version = ["9000"]
-features = ["foo", "bar"]
+feature = ["foo", "bar"]
 ```
 
 Using the [`env show`](cli/reference.md#hatch-env-show) command would then display:
@@ -160,19 +150,19 @@ $ hatch env show --ascii
 +=========+=========+
 | default | virtual |
 +---------+---------+
-                       Matrices
-+------+---------+---------------------+--------------+
-| Name | Type    | Envs                | Dependencies |
-+======+=========+=====================+==============+
-| test | virtual | test.py2.7-42       | pytest       |
-|      |         | test.py2.7-3.14     |              |
-|      |         | test.py3.8-42       |              |
-|      |         | test.py3.8-3.14     |              |
-|      |         | test.py3.8-9000-foo |              |
-|      |         | test.py3.8-9000-bar |              |
-|      |         | test.py3.9-9000-foo |              |
-|      |         | test.py3.9-9000-bar |              |
-+------+---------+---------------------+--------------+
+                        Matrices
++------+---------+----------------------+--------------+
+| Name | Type    | Envs                 | Dependencies |
++======+=========+======================+==============+
+| test | virtual | test.py3.10-42       | pytest       |
+|      |         | test.py3.10-3.14     |              |
+|      |         | test.py3.11-42       |              |
+|      |         | test.py3.11-3.14     |              |
+|      |         | test.py3.11-9000-foo |              |
+|      |         | test.py3.11-9000-bar |              |
+|      |         | test.py3.12-9000-foo |              |
+|      |         | test.py3.12-9000-bar |              |
++------+---------+----------------------+--------------+
 ```
 
 ## Removal

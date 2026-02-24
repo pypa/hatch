@@ -9,31 +9,31 @@ from hatch.plugin.utils import load_plugin_from_script
 
 
 class CustomEnvironmentCollector:
-    PLUGIN_NAME = 'custom'
+    PLUGIN_NAME = "custom"
 
-    def __new__(  # type: ignore
+    def __new__(  # type: ignore[misc]
         cls,
         root: str,
         config: dict[str, Any],
         *args: Any,
         **kwargs: Any,
     ) -> EnvironmentCollectorInterface:
-        custom_script = config.get('path', DEFAULT_CUSTOM_SCRIPT)
+        custom_script = config.get("path", DEFAULT_CUSTOM_SCRIPT)
         if not isinstance(custom_script, str):
-            message = f'Option `path` for environment collector `{cls.PLUGIN_NAME}` must be a string'
+            message = f"Option `path` for environment collector `{cls.PLUGIN_NAME}` must be a string"
             raise TypeError(message)
 
         if not custom_script:
-            message = f'Option `path` for environment collector `{cls.PLUGIN_NAME}` must not be empty if defined'
+            message = f"Option `path` for environment collector `{cls.PLUGIN_NAME}` must not be empty if defined"
             raise ValueError(message)
 
         path = os.path.normpath(os.path.join(root, custom_script))
         if not os.path.isfile(path):
-            message = f'Plugin script does not exist: {custom_script}'
+            message = f"Plugin script does not exist: {custom_script}"
             raise OSError(message)
 
         hook_class = load_plugin_from_script(
-            path, custom_script, EnvironmentCollectorInterface, 'environment_collector'
+            path, custom_script, EnvironmentCollectorInterface, "environment_collector"
         )
         hook = hook_class(root, config, *args, **kwargs)
 

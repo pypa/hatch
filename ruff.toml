@@ -5,7 +5,6 @@ exclude = [".git", ".mypy_cache", ".ruff_cache", ".venv", "dist"]
 
 [format]
 preview = true
-quote-style = "single"
 
 [lint]
 preview = true
@@ -18,7 +17,7 @@ ignore = [
 "backend/src/hatchling/bridge/app.py" = ["T201"]
 "backend/tests/downstream/integrate.py" = ["INP001", "T201"]
 "docs/.hooks/*" = ["INP001", "T201"]
-"release/macos/build_pkg.py" = ["INP001"]
+"release/**/*" = ["INP001"]
 
 [lint.isort]
 known-first-party = ["hatch", "hatchling"]

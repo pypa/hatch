@@ -234,7 +234,7 @@ The `<PATH>` can refer to a source archive, a wheel, or a directory containing a
 
     ```
     <NAME> @ {root:uri}/pkg_inside_project
-    <NAME> @ {root:uri}/../pkg_alongside_project
+    <NAME> @ {root:parent:uri}/pkg_alongside_project
     ```
 
 ### Remote

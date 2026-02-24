@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
-from hatchling.metadata.utils import get_normalized_dependency
+from hatchling.metadata.utils import get_normalized_dependency, normalize_project_name
 
 if TYPE_CHECKING:
     from packaging.requirements import Requirement
 
-    from hatch.env.plugin.interface import EnvironmentInterface
+    from hatch.dep.core import Dependency
 
 
 def normalize_marker_quoting(text: str) -> str:
@@ -20,55 +20,73 @@ def get_normalized_dependencies(requirements: list[Requirement]) -> list[str]:
     return sorted(normalized_dependencies)
 
 
-def hash_dependencies(requirements: list[Requirement]) -> str:
+def hash_dependencies(requirements: list[Dependency]) -> str:
     from hashlib import sha256
 
-    data = ''.join(
+    data = "".join(
         sorted(
             # Internal spacing is ignored by PEP 440
-            normalized_dependency.replace(' ', '')
+            normalized_dependency.replace(" ", "")
             for normalized_dependency in {get_normalized_dependency(req) for req in requirements}
         )
-    ).encode('utf-8')
+    ).encode("utf-8")
 
     return sha256(data).hexdigest()
 
 
-def get_project_dependencies_complex(
-    environment: EnvironmentInterface,
-) -> tuple[dict[str, Requirement], dict[str, dict[str, Requirement]]]:
-    from hatchling.dep.core import dependencies_in_sync
+def get_complex_dependencies(dependencies: list[str]) -> dict[str, Dependency]:
+    from hatch.dep.core import Dependency
 
     dependencies_complex = {}
+    for dependency in dependencies:
+        dependencies_complex[dependency] = Dependency(dependency)
+
+    return dependencies_complex
+
+
+def get_complex_features(features: dict[str, list[str]]) -> dict[str, dict[str, Dependency]]:
+    from hatch.dep.core import Dependency
+
     optional_dependencies_complex = {}
+    for feature, optional_dependencies in features.items():
+        optional_dependencies_complex[feature] = {
+            optional_dependency: Dependency(optional_dependency) for optional_dependency in optional_dependencies
+        }
 
-    if not environment.metadata.hatch.metadata.hook_config or dependencies_in_sync(
-        environment.metadata.build.requires_complex
-    ):
-        dependencies_complex.update(environment.metadata.core.dependencies_complex)
-        optional_dependencies_complex.update(environment.metadata.core.optional_dependencies_complex)
-    else:
-        try:
-            environment.check_compatibility()
-        except Exception as e:  # noqa: BLE001
-            environment.app.abort(f'Environment `{environment.name}` is incompatible: {e}')
+    return optional_dependencies_complex
 
-        import json
 
-        from packaging.requirements import Requirement
+def get_complex_dependency_group(
+    dependency_groups: dict[str, Any], group: str, past_groups: tuple[str, ...] = ()
+) -> list[Dependency]:
+    from hatch.dep.core import Dependency
 
-        with environment.root.as_cwd(), environment.build_environment(environment.metadata.build.requires):
-            command = ['python', '-u', '-W', 'ignore', '-m', 'hatchling', 'metadata', '--compact']
-            output = environment.platform.check_command_output(command)
-            project_metadata = json.loads(output)
+    if group in past_groups:
+        msg = f"Cyclic dependency group include: {group} -> {past_groups}"
+        raise ValueError(msg)
 
-            for dependency in project_metadata.get('dependencies', []):
-                dependencies_complex[dependency] = Requirement(dependency)
+    if group not in dependency_groups:
+        msg = f"Dependency group '{group}' not found"
+        raise LookupError(msg)
 
-            for feature, optional_dependencies in project_metadata.get('optional-dependencies', {}).items():
-                optional_dependencies_complex[feature] = {
-                    optional_dependency: Requirement(optional_dependency)
-                    for optional_dependency in optional_dependencies
-                }
+    raw_group = dependency_groups[group]
+    if not isinstance(raw_group, list):
+        msg = f"Dependency group '{group}' is not a list"
+        raise TypeError(msg)
 
-    return dependencies_complex, optional_dependencies_complex
+    realized_group = []
+    for item in raw_group:
+        if isinstance(item, str):
+            realized_group.append(Dependency(item))
+        elif isinstance(item, dict):
+            if tuple(item.keys()) != ("include-group",):
+                msg = f"Invalid dependency group item: {item}"
+                raise ValueError(msg)
+
+            include_group = normalize_project_name(next(iter(item.values())))
+            realized_group.extend(get_complex_dependency_group(dependency_groups, include_group, (*past_groups, group)))
+        else:
+            msg = f"Invalid dependency group item: {item}"
+            raise TypeError(msg)
+
+    return realized_group

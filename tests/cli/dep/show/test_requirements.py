@@ -1,71 +1,59 @@
 import os
 
+from hatch.config.constants import ConfigEnvVars
 from hatch.project.core import Project
-from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT, DEFAULT_CONFIG_FILE
+from hatchling.utils.constants import DEFAULT_CONFIG_FILE
 
 
-def test_incompatible_environment(hatch, temp_dir, helpers):
-    project_name = 'My.App'
+def test_incompatible_environment(hatch, temp_dir, helpers, build_env_config):
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
         assert result.exit_code == 0, result.output
 
-    path = temp_dir / 'my-app'
+    path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
+    data_path.mkdir()
 
     project = Project(path)
     config = dict(project.raw_config)
-    config['build-system']['requires'].append('foo')
-    config['tool']['hatch']['metadata'] = {'hooks': {'custom': {}}}
+    config["build-system"]["requires"].append("foo")
+    config["project"]["dynamic"].append("dependencies")
     project.save_config(config)
-    helpers.update_project_environment(
-        project, 'default', {'skip-install': True, 'python': '9000', **project.config.envs['default']}
-    )
+    helpers.update_project_environment(project, "hatch-build", {"python": "9000", **build_env_config})
 
-    build_script = path / DEFAULT_BUILD_SCRIPT
-    build_script.write_text(
-        helpers.dedent(
-            """
-            from hatchling.metadata.plugin.interface import MetadataHookInterface
-
-            class CustomMetadataHook(MetadataHookInterface):
-                def update(self, metadata):
-                    pass
-            """
-        )
-    )
-
-    with path.as_cwd():
-        result = hatch('dep', 'show', 'requirements')
+    with path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch("dep", "show", "requirements")
 
     assert result.exit_code == 1, result.output
     assert result.output == helpers.dedent(
         """
-        Environment `default` is incompatible: cannot locate Python: 9000
+        Environment `hatch-build` is incompatible: cannot locate Python: 9000
         """
     )
 
 
 def test_project_only(hatch, helpers, temp_dir, config_file):
-    config_file.model.template.plugins['default']['tests'] = False
+    config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
+    project_path = temp_dir / "my-app"
 
     project = Project(project_path)
     config = dict(project.raw_config)
-    config['project']['dependencies'] = ['foo-bar-baz']
+    config["project"]["dependencies"] = ["foo-bar-baz"]
     project.save_config(config)
 
     with project_path.as_cwd():
-        result = hatch('dep', 'show', 'requirements', '-p')
+        result = hatch("dep", "show", "requirements", "-p")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -76,23 +64,23 @@ def test_project_only(hatch, helpers, temp_dir, config_file):
 
 
 def test_environment_only(hatch, helpers, temp_dir, config_file):
-    config_file.model.template.plugins['default']['tests'] = False
+    config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
+    project_path = temp_dir / "my-app"
 
     project = Project(project_path)
-    helpers.update_project_environment(project, 'default', {'dependencies': ['foo-bar-baz']})
+    helpers.update_project_environment(project, "default", {"dependencies": ["foo-bar-baz"]})
 
     with project_path.as_cwd():
-        result = hatch('dep', 'show', 'requirements', '-e')
+        result = hatch("dep", "show", "requirements", "-e")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -103,31 +91,31 @@ def test_environment_only(hatch, helpers, temp_dir, config_file):
 
 
 def test_default_both(hatch, helpers, temp_dir, config_file):
-    config_file.model.template.plugins['default']['tests'] = False
+    config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
+    project_path = temp_dir / "my-app"
 
     project = Project(project_path)
     config = dict(project.raw_config)
-    config['project']['dependencies'] = ['foo-bar-baz']
-    config['project']['optional-dependencies'] = {
-        'feature1': ['bar-baz-foo'],
-        'feature2': ['bar-foo-baz'],
-        'feature3': ['foo-baz-bar'],
+    config["project"]["dependencies"] = ["foo-bar-baz"]
+    config["project"]["optional-dependencies"] = {
+        "feature1": ["bar-baz-foo"],
+        "feature2": ["bar-foo-baz"],
+        "feature3": ["foo-baz-bar"],
     }
     project.save_config(config)
-    helpers.update_project_environment(project, 'default', {'dependencies': ['baz-bar-foo']})
+    helpers.update_project_environment(project, "default", {"dependencies": ["baz-bar-foo"]})
 
     with project_path.as_cwd():
-        result = hatch('dep', 'show', 'requirements')
+        result = hatch("dep", "show", "requirements")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -139,20 +127,20 @@ def test_default_both(hatch, helpers, temp_dir, config_file):
 
 
 def test_unknown_feature(hatch, helpers, temp_dir, config_file):
-    config_file.model.template.plugins['default']['tests'] = False
+    config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
+    project_path = temp_dir / "my-app"
 
     with project_path.as_cwd():
-        result = hatch('dep', 'show', 'requirements', '-f', 'foo')
+        result = hatch("dep", "show", "requirements", "-f", "foo")
 
     assert result.exit_code == 1, result.output
     assert result.output == helpers.dedent(
@@ -163,32 +151,32 @@ def test_unknown_feature(hatch, helpers, temp_dir, config_file):
 
 
 def test_features_only(hatch, helpers, temp_dir, config_file):
-    config_file.model.template.plugins['default']['tests'] = False
+    config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
+    project_path = temp_dir / "my-app"
 
     project = Project(project_path)
     config = dict(project.raw_config)
-    config['project']['dependencies'] = ['foo-bar-baz']
-    config['project']['optional-dependencies'] = {
-        'feature1': ['bar-baz-foo'],
-        'feature2': ['bar-foo-baz'],
-        'feature3': ['foo-baz-bar'],
-        'feature4': ['baz-foo-bar'],
+    config["project"]["dependencies"] = ["foo-bar-baz"]
+    config["project"]["optional-dependencies"] = {
+        "feature1": ["bar-baz-foo"],
+        "feature2": ["bar-foo-baz"],
+        "feature3": ["foo-baz-bar"],
+        "feature4": ["baz-foo-bar"],
     }
     project.save_config(config)
-    helpers.update_project_environment(project, 'default', {'dependencies': ['baz-bar-foo']})
+    helpers.update_project_environment(project, "default", {"dependencies": ["baz-bar-foo"]})
 
     with project_path.as_cwd():
-        result = hatch('dep', 'show', 'requirements', '-f', 'feature2', '-f', 'feature1')
+        result = hatch("dep", "show", "requirements", "-f", "feature2", "-f", "feature1")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -200,32 +188,32 @@ def test_features_only(hatch, helpers, temp_dir, config_file):
 
 
 def test_include_features(hatch, helpers, temp_dir, config_file):
-    config_file.model.template.plugins['default']['tests'] = False
+    config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
+    project_path = temp_dir / "my-app"
 
     project = Project(project_path)
     config = dict(project.raw_config)
-    config['project']['dependencies'] = ['foo-bar-baz']
-    config['project']['optional-dependencies'] = {
-        'feature1': ['bar-baz-foo'],
-        'feature2': ['bar-foo-baz'],
-        'feature3': ['foo-baz-bar'],
-        'feature4': ['baz-foo-bar'],
+    config["project"]["dependencies"] = ["foo-bar-baz"]
+    config["project"]["optional-dependencies"] = {
+        "feature1": ["bar-baz-foo"],
+        "feature2": ["bar-foo-baz"],
+        "feature3": ["foo-baz-bar"],
+        "feature4": ["baz-foo-bar"],
     }
     project.save_config(config)
-    helpers.update_project_environment(project, 'default', {'dependencies': ['baz-bar-foo']})
+    helpers.update_project_environment(project, "default", {"dependencies": ["baz-bar-foo"]})
 
     with project_path.as_cwd():
-        result = hatch('dep', 'show', 'requirements', '--all')
+        result = hatch("dep", "show", "requirements", "--all")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -241,17 +229,17 @@ def test_include_features(hatch, helpers, temp_dir, config_file):
 
 
 def test_plugin_dependencies_unmet(hatch, helpers, temp_dir, config_file, mock_plugin_installation):
-    config_file.model.template.plugins['default']['tests'] = False
+    config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
+    project_path = temp_dir / "my-app"
 
     dependency = os.urandom(16).hex()
     (project_path / DEFAULT_CONFIG_FILE).write_text(
@@ -265,11 +253,11 @@ def test_plugin_dependencies_unmet(hatch, helpers, temp_dir, config_file, mock_p
 
     project = Project(project_path)
     config = dict(project.raw_config)
-    config['project']['dependencies'] = ['foo-bar-baz']
+    config["project"]["dependencies"] = ["foo-bar-baz"]
     project.save_config(config)
 
     with project_path.as_cwd():
-        result = hatch('dep', 'show', 'requirements', '-p')
+        result = hatch("dep", "show", "requirements", "-p")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(

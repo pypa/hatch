@@ -4,14 +4,6 @@
 
 See the documentation for [publishing](../../publish.md).
 
-## Configuration
-
-The publisher plugin name is `index`.
-
-```toml tab="config.toml"
-[publish.index]
-```
-
 ## Options
 
 | Flag | Config name | Description |
@@ -24,9 +16,19 @@ The publisher plugin name is `index`.
 | `--client-key` | `client-key` | The path to the client certificate's private key |
 | | `repos` | A table of named [repositories](#repositories) to their respective options |
 
-## Repositories
+## Configuration
 
-All top-level options can be overridden per repository using the `repos` table with a required `url` attribute for each repository. The following shows the default configuration:
+The publisher plugin name is `index`.
+
+```toml tab="config.toml"
+[publish.index]
+```
+
+### Repositories
+
+All top-level options can be overridden per repository using the `repos` table
+with a required `url` attribute for each repository. The following shows the
+default configuration:
 
 ```toml tab="config.toml"
 [publish.index.repos.main]
@@ -37,3 +39,20 @@ url = "https://test.pypi.org/legacy/"
 ```
 
 The `repo` and `repos` options have no effect.
+
+### Confirmation prompt
+
+You can require a confirmation prompt or use of the `-y`/`--yes` flag by
+setting publishers' `disable` option to `true` in either Hatch's
+[config file](../../config/hatch.md) or project-specific configuration (which takes
+precedence):
+
+```toml tab="config.toml"
+[publish.index]
+disable = true
+```
+
+```toml config-example
+[tool.hatch.publish.index]
+disable = true
+```

@@ -8,16 +8,209 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.16.3](https://github.com/pypa/hatch/releases/tag/hatch-v1.16.3) - 2026-01-20 ## {: #hatch-v1.16.3 }
+
 ***Added:***
 
-- The reserved environment used for static analysis is now completely configurable
-- Add the following methods to the `environment` interface for complete control over output during life cycle management: `app_status_creation`, `app_status_pre_installation`, `app_status_post_installation`, `app_status_project_installation`, `app_status_dependency_state_check`, `app_status_dependency_installation_check`, `app_status_dependency_synchronization`
-- Upgrade Ruff to 0.1.9
-- Upgrade PyApp to 0.13.0 for binary builds
+- Env var for keep-env when an exception occurs during environment creation to enable debugging.
 
 ***Fixed:***
 
+- Fix issue with self-referential dependencies not being recognized. 
+- Fix incomplete environments created when an exception occurs during creation.
+- Fix dependency-groups not working with when environment is not marked as builder. 
+- Change Keyring to take expect repository URL instead of repository name. 
+
+## [1.16.2](https://github.com/pypa/hatch/releases/tag/hatch-v1.16.2) - 2025-12-06 ## {: #hatch-v1.16.2 }
+
+***Fixed:***
+
+- Properly send informational output to `stderr` instead of `stdout`
+- Implement documented support for `sbom-files` as build data for the `wheel` build target
+- Fix regression where environments no longer acknowledged the `project.optional-dependencies` field
+
+## [1.16.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.16.1) - 2025-11-27 ## {: #hatch-v1.16.1 }
+
+***Fixed:***
+
+- Handle special characters correctly in path for editable installs.
+- Fix multiple calls to install on `sync_dependencies` to become a single call.
+- Fix context variable formatting in project dependencies to prevent crashes when using variables like `{root:parent:uri}` in the `[project]` section.
+- Fix environment overrides for `dependency-groups` field to properly support matrix and conditional configurations.
+
+## [1.16.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.16.0) - 2025-11-26 ## {: #hatch-v1.16.0 }
+
+***Changed:***
+
+- Drop support for 3.9
+- Environment type plugins are now no longer expected to support a pseudo-build environment as any environment now may be used for building. The following methods have been removed: `build_environment`, `build_environment_exists`, `run_builder`, `construct_build_command`
+
+***Added:***
+
+- Support for workspaces inspired by Cargo Workspaces
+- Dependency group support.
+- The `version` and `project metadata` commands now support projects that do not use Hatchling as the build backend
+- The `version` command accepts a `--force` option, allowing for downgrades when an explicit version number is given.
+- Build environments can now be configured, the default build environment is `hatch-build`
+- The environment interface now has the following methods and properties in order to better support builds on remote machines: `project_root`, `sep`, `pathsep`, `fs_context`
+- Bump the minimum supported version of `packaging` to 24.2
+- Upgrade Ruff to 0.13.2
+
+***Fixed:***
+
+- All HTTP requests now set an identifiable `User-Agent` header.
+- Fix issue where terminal output would be out of sync during build.
+- Fix for Click Sentinel value when using `run` command
+
+## [1.15.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.15.1) - 2025-10-16 ## {: #hatch-v1.15.1 }
+
+***Fixed:***
+
+- Fix compatibility with cached default CPython distributions that were sourced from GitHub releases of the old owner
+
+## [1.15.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.15.0) - 2025-10-15 ## {: #hatch-v1.15.0 }
+
+***Changed:***
+
+- Drop support for Python 3.8
+
+***Added:***
+
+- Support Python 3.14
+- Upgrade default CPython distributions to 20251014
+- Upgrade default PyPy distributions to 7.3.20
+
+## [1.14.2](https://github.com/pypa/hatch/releases/tag/hatch-v1.14.2) - 2025-09-24 ## {: #hatch-v1.14.2 }
+
+***Fixed:***
+
+- Fix compatibility with recent versions of Click
+
+## [1.14.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.14.1) - 2025-04-07 ## {: #hatch-v1.14.1 }
+
+***Fixed:***
+
+- Remove uses of the deprecated `--no-python-version-warning` flag when using pip
+
+## [1.14.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.14.0) - 2024-12-16 ## {: #hatch-v1.14.0 }
+
+***Added:***
+
+- Upgrade default CPython distributions to 20241206
+- Bump the minimum supported version of Hatchling to 1.26.3
+- Update `virtualenv` dependency
+
+## [1.13.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.13.0) - 2024-10-13 ## {: #hatch-v1.13.0 }
+
+***Added:***
+
+- Support managing Python 3.13 distributions
+
+## [1.12.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.12.0) - 2024-05-28 ## {: #hatch-v1.12.0 }
+
+***Changed:***
+
+- The `run`/`env run` and `test` commands now treat inclusion variable options as an intersection rather than a union to allow for specific targeting of environments
+
+***Added:***
+
+- Add ability to control the source of Python distributions
+- Upgrade Ruff to 0.4.5
+- Upgrade PyApp to 0.22.0 for binary builds
+
+***Fixed:***
+
+- The `fmt` command no longer hides the commands that are being executed
+- Add default timeout for network requests, useful when installing Python distributions
+- Fix syntax highlighting contrast for the `config show` command
+
+## [1.11.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.11.1) - 2024-05-23 ## {: #hatch-v1.11.1 }
+
+***Added:***
+
+- Add official GitHub Action for installing Hatch
+
+***Fixed:***
+
+- Fix `terminal.styles.spinner` configuration
+- Fix entry points in the pre-built distributions that binaries use
+
+## [1.11.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.11.0) - 2024-05-14 ## {: #hatch-v1.11.0 }
+
+***Added:***
+
+- Upgrade PyApp to 0.21.1 for binary builds
+
+***Fixed:***
+
+- On Linux, install the highest compatible Python distribution variant based on CPU architecture rather than assuming recent hardware
+
+## [1.10.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.10.0) - 2024-05-02 ## {: #hatch-v1.10.0 }
+
+***Changed:***
+
+- The `run`/`env run`, `fmt` and `shell` commands now only change the current working directory to the project root if not already inside the project
+- The `shell` command now accepts a single argument to specify the environment to enter which overrides the standard choice mechanisms. The arguments determining shell options have been converted to flags.
+
+***Added:***
+
+- Add `test` command
+- The `run` command can now execute scripts that define inline metadata for dependencies and Python version constraints
+- The `virtual` environment type now supports the ability to use UV in place of pip & virtualenv
+- Add `self report` command for submitting pre-populated bug reports to GitHub
+- The reserved environment used for static analysis is now completely configurable
+- Add the following methods to the `environment` interface for complete control over output during life cycle management: `app_status_creation`, `app_status_pre_installation`, `app_status_post_installation`, `app_status_project_installation`, `app_status_dependency_state_check`, `app_status_dependency_installation_check`, `app_status_dependency_synchronization`
+- Add binaries for 32-bit versions of Windows
+- Read configuration from any `~/.pypirc` file for the `index` publisher
+- Use the Git user as the default username for new project URL metadata
+- Add `HATCH_DEBUG` environment variable that when enabled will show local variables in the case of unhandled tracebacks
+- The `env show` command now outputs data about all internal environments when using the `--json` flag
+- Upgrade default CPython distributions to 20240415
+- Upgrade default PyPy distributions to 7.3.15
+- Upgrade Ruff to 0.4.2
+- Upgrade PyApp to 0.19.0 for binary builds
+- Bump the minimum supported version of Hatchling to 1.24.2
+- Bump the minimum supported version of virtualenv to 20.26.1
+
+***Fixed:***
+
+- Maintain consistent data paths for case insensitive file systems
 - When projects derive dependencies from metadata hooks, there is now by default a status indicator for when the hooks are executed for better responsiveness
+- Properly support projects with a `pyproject.toml` file but no `project` table e.g. applications
+- Fix the `fmt` command when automatically installing plugin dependencies
+- Fix dependency inheritance for the template of the `types` environment for new projects
+- Fix warnings related to tar file extraction on Python 3.12+ when unpacking Python distributions for installation
+- De-select Ruff rule `E501` for the `fmt` command by default since it conflicts with the formatter
+- Fix colored output from build targets on the first run (build environment creation status indicator issue)
+- Set the `packaging` dependency version as `>=23.2` to avoid its URL validation which can conflict with context formatting
+- Fix the exit code when there happens to be an unhandled exception
+- No longer capture both stdout and stderr streams when parsing metadata payloads from build environments
+- Fix the `README.md` file template for new projects to avoid Markdown linting issues
+
+## [1.9.7](https://github.com/pypa/hatch/releases/tag/hatch-v1.9.7) - 2024-04-24 ## {: #hatch-v1.9.7 }
+
+***Fixed:***
+
+- Limit the maximum version of virtualenv due to a backward incompatible change
+- Upgrade PyApp to 0.12.0 for binary builds
+
+## [1.9.4](https://github.com/pypa/hatch/releases/tag/hatch-v1.9.4) - 2024-03-12 ## {: #hatch-v1.9.4 }
+
+***Fixed:***
+
+- Limit the maximum version of Hatchling in anticipation of backward incompatible changes
+
+## [1.9.3](https://github.com/pypa/hatch/releases/tag/hatch-v1.9.3) - 2024-01-25 ## {: #hatch-v1.9.3 }
+
+***Fixed:***
+
+- Fix loading of local plugins to account for newly released versions of a dependency
+
+## [1.9.2](https://github.com/pypa/hatch/releases/tag/hatch-v1.9.2) - 2024-01-21 ## {: #hatch-v1.9.2 }
+
+***Fixed:***
+
+- Fix the default token variable name for publishing to PyPI
 
 ## [1.9.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.9.1) - 2023-12-25 ## {: #hatch-v1.9.1 }
 
@@ -78,7 +271,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - The state of installed dependencies for environments is saved as metadata so if dependency definitions have not changed then no checking is performed, which can be computationally expensive
 - The `build` command now supports backends other than Hatchling
 - Allow the use of `features` for environments when `skip-install` is enabled
-- The default is now `__TOKEN__` when prompting for a username for the `publish` command
+- The default is now `__token__` when prompting for a username for the `publish` command
 - Add a new `run_builder` method to the `environment` interface
 - Bump the minimum supported version of Hatchling to 1.19.0
 - Bump the minimum supported version of `click` to 8.0.6

@@ -33,7 +33,6 @@ Here we compare to both `tox` and `nox`. At a high level, there are a few common
     In Hatch, [environments](environment.md) are treated as isolated areas where you can execute arbitrary commands at runtime. For example, you can define a single test environment with named [scripts](config/environment/overview.md#scripts) that runs unit vs non-unit tests, each command being potentially very long but named however you wish so you get to control the interface. Since environments are treated as places where work is performed, you can also [spawn a shell](environment.md#entering-environments) into any which will execute a subprocess that automatically drops into your [shell of choice](config/hatch.md#shell). Your shell will be configured appropriately like `python` on PATH being updated and the prompt being changed to reflect the chosen environment.
 
 - **Configuration:**
-    - `tox` only supports INI configuration and if one desires putting that in the standard `pyproject.toml` file then [it must be](https://tox.wiki/en/4.11.4/config.html#pyproject-toml) a multi-line string containing the INI config which would preclude syntax highlighting. Hatch allows for TOML-based config just like most other tools in the Python ecosystem.
     - `nox` config is defined in Python which often leads to increased verbosity and makes it challenging to onboard folks compared to a standardized format with known behaviors.
 - **Extensibility:**
     - `tox` allows for [extending](https://tox.wiki/en/4.11.4/plugins_api.html) most aspects of its functionality however the API is so low-level and attached to internals that creating plugins may be challenging. For example, [here](https://github.com/DataDog/integrations-core/blob/4f4cf10613797e97e7155c75859532a0732d1dff/datadog_checks_dev/datadog_checks/dev/plugin/tox.py) is a `tox` plugin that was [migrated](https://github.com/DataDog/integrations-core/blob/4eb2a1d530bcf810542cf9e45b48fadc7057301c/datadog_checks_dev/datadog_checks/dev/plugin/hatch/environment_collector.py#L100-L148) to an equivalent Hatch [environment collector plugin](plugins/environment-collector/reference.md).
@@ -45,7 +44,7 @@ If you are using `nox` and you wish to migrate, and for some reason you [notify]
 
 ## Python management
 
-Here we compare [Python management](cli/reference.md#hatch-python) to that of [pyenv](https://github.com/pyenv/pyenv).
+Here we compare [Python management](tutorials/python/manage.md) to that of [pyenv](https://github.com/pyenv/pyenv).
 
 - ***Cross-platform:*** Hatch allows for the same experience no matter the system whereas `pyenv` does not support Windows so you must use an [entirely different project](https://github.com/pyenv-win/pyenv-win) that tries to emulate the functionality.
 - ***No build dependencies:*** Hatch guarantees that every [available distribution](cli/reference.md#hatch-python-show) is prebuilt whereas the alternative requires one to maintain a precise [build environment](https://github.com/pyenv/pyenv/wiki#suggested-build-environment) which differs by platform and potentially Python version. Another benefit to this is extremely fast installations since the distributions are simply downloaded and unpacked.

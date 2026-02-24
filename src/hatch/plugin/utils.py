@@ -9,13 +9,13 @@ if TYPE_CHECKING:
 def load_plugin_from_script(
     path: str, script_name: str, plugin_class: type[EnvironmentCollectorInterface], plugin_id: str
 ) -> type[EnvironmentCollectorInterface]:
-    import importlib
+    from importlib.util import module_from_spec, spec_from_file_location
 
-    spec = importlib.util.spec_from_file_location(script_name, path)  # type: ignore
-    module = importlib.util.module_from_spec(spec)  # type: ignore
-    spec.loader.exec_module(module)
+    spec = spec_from_file_location(script_name, path)
+    module = module_from_spec(spec)  # type: ignore[arg-type]
+    spec.loader.exec_module(module)  # type: ignore[union-attr]
 
-    plugin_finder = f'get_{plugin_id}'
+    plugin_finder = f"get_{plugin_id}"
     names = dir(module)
     if plugin_finder in names:
         return getattr(module, plugin_finder)()
@@ -33,13 +33,13 @@ def load_plugin_from_script(
             continue
 
     if not subclasses:
-        message = f'Unable to find a subclass of `{plugin_class.__name__}` in `{script_name}`: {path}'
+        message = f"Unable to find a subclass of `{plugin_class.__name__}` in `{script_name}`: {path}"
         raise ValueError(message)
 
     if len(subclasses) > 1:
         message = (
-            f'Multiple subclasses of `{plugin_class.__name__}` found in `{script_name}`, '
-            f'select one by defining a function named `{plugin_finder}`: {path}'
+            f"Multiple subclasses of `{plugin_class.__name__}` found in `{script_name}`, "
+            f"select one by defining a function named `{plugin_finder}`: {path}"
         )
         raise ValueError(message)
 

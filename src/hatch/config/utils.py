@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 def save_toml_document(document: TOMLDocument, path: Path):
     path.ensure_parent_dir_exists()
-    path.write_atomic(tomlkit.dumps(document), 'w', encoding='utf-8')
+    path.write_atomic(tomlkit.dumps(document), "w", encoding="utf-8")
 
 
 def create_toml_document(config: dict) -> InlineTable:

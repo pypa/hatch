@@ -16,16 +16,16 @@ Finally, if you see a need, feel free to write a [plugin](plugins/about.md) for 
 
 For any projects using Hatch, you may add its official badge somewhere prominent like the README.
 
-[![Hatch project](https://img.shields.io/badge/%F0%9F%A5%9A-Hatch-4051b5.svg){ loading=lazy .off-glb }](https://github.com/pypa/hatch)
+[![Hatch project](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/pypa/hatch/master/docs/assets/badge/v0.json){ loading=lazy .off-glb }](https://github.com/pypa/hatch)
 
 === "Markdown"
     ```md
-    [![Hatch project](https://img.shields.io/badge/%F0%9F%A5%9A-Hatch-4051b5.svg)](https://github.com/pypa/hatch)
+    [![Hatch project](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/pypa/hatch/master/docs/assets/badge/v0.json)](https://github.com/pypa/hatch)
     ```
 
 === "reStructuredText"
     ```rst
-    .. image:: https://img.shields.io/badge/%F0%9F%A5%9A-Hatch-4051b5.svg
+    .. image:: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/pypa/hatch/master/docs/assets/badge/v0.json
        :alt: Hatch project
        :target: https://github.com/pypa/hatch
     ```

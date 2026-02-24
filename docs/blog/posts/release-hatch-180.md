@@ -51,9 +51,9 @@ Additionally, when a requested version cannot be found on PATH it will [automati
 
 There is a new [`fmt`](../../cli/reference.md#hatch-fmt) command, backed entirely by [Ruff](https://github.com/astral-sh/ruff), that checks and fixes your code for formatting and linting issues.
 
-Starting with this release, Hatch maintains [default settings](../../config/static-analysis.md#default-settings) that are guaranteed to be up-to-date and represent best practices for programming in modern Python. The idea is to provide defaults that are so broadly applicable that the majority of users will maintain little if any of their own [overrides](../../config/static-analysis.md#extending-config).
+Starting with this release, Hatch maintains [default settings](../../config/internal/static-analysis.md#default-settings) that are guaranteed to be up-to-date and represent best practices for programming in modern Python. The idea is to provide defaults that are so broadly applicable that the majority of users will maintain little if any of their own [overrides](../../config/internal/static-analysis.md#extending-config).
 
-The default behavior is internal management of settings to provide an OOTB experience that works. It is recommended however that you [persist](../../config/static-analysis.md#persistent-config) the default config file in version control so that other tools like IDEs can utilize your full configuration.
+The default behavior is internal management of settings to provide an OOTB experience that works. It is recommended however that you [persist](../../config/internal/static-analysis.md#persistent-config) the default config file in version control so that other tools like IDEs can utilize your full configuration.
 
 Since Ruff is now provided as a built-in feature, new project templates no longer have such configuration and are much less verbose.
 
@@ -61,7 +61,7 @@ Since Ruff is now provided as a built-in feature, new project templates no longe
 
 [Building](../../cli/reference.md#hatch-build) projects that do not use Hatchling as a backend is now supported and such builds are managed with the standard [build](https://github.com/pypa/build) tool.
 
-The bridge between Hatch and the Hatchling CLI has been removed. Previously, the builder would send serialized messages to Hatch that would contain the desired content and style for each line of output. This was done in an effort to allow builder and build hook plugins to output pretty messages without actually requiring a dependency like [Rich](https://github.com/Textualize/rich). A problem that arises with this is that builders that invoke subprocesses will not display ANSI codes as one might expect and will lose out on the interactive experience of such invocations, like the built-in [app builder plugin](../../plugins/builder/app.md) calling `cargo build`. So now everything is simpler at the expense of no colored output without manual logic, or adding a dependency if you're a third-party plugin.
+The bridge between Hatch and the Hatchling CLI has been removed. Previously, the builder would send serialized messages to Hatch that would contain the desired content and style for each line of output. This was done in an effort to allow builder and build hook plugins to output pretty messages without actually requiring a dependency like [Rich](https://github.com/Textualize/rich). A problem that arises with this is that builders that invoke subprocesses will not display ANSI codes as one might expect and will lose out on the interactive experience of such invocations, like the built-in [binary builder plugin](../../plugins/builder/binary.md) calling `cargo build`. So now everything is simpler at the expense of no colored output without manual logic, or adding a dependency if you're a third-party plugin.
 
 ## Faster environment usage
 
@@ -80,9 +80,9 @@ Hatchling is all about providing the best possible defaults, even at the expense
 - Both the [`force-include`](../../config/build.md#forced-inclusion) option and the [`force_include_editable`](../../plugins/builder/wheel.md#build-data) wheel build data setting now raise errors if source paths do not exist.
 - The `wheel` build target now raises an error when no file inclusion options have been defined and none of its [heuristics](../../plugins/builder/wheel.md#default-file-selection) to determine what to ship are satisfied.
 
-### App build target
+### Binary build target
 
-A new [`app`](../../plugins/builder/app.md) build target is now stable that allows for the building of standalone binaries for projects. This is what Hatch itself uses for its binaries.
+A new [`binary`](../../plugins/builder/binary.md) build target is now stable that allows for the building of standalone binaries for projects. This is what Hatch itself uses for its binaries.
 
 ## Meta
 

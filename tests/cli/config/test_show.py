@@ -1,12 +1,12 @@
 def test_default_scrubbed(hatch, config_file, helpers, default_cache_dir, default_data_dir):
-    config_file.model.project = 'foo'
-    config_file.model.publish['index']['auth'] = 'bar'
+    config_file.model.project = "foo"
+    config_file.model.publish["index"]["auth"] = "bar"
     config_file.save()
 
-    result = hatch('config', 'show')
+    result = hatch("config", "show")
 
-    default_cache_directory = str(default_cache_dir).replace('\\', '\\\\')
-    default_data_directory = str(default_data_dir).replace('\\', '\\\\')
+    default_cache_directory = str(default_cache_dir).replace("\\", "\\\\")
+    default_data_directory = str(default_data_dir).replace("\\", "\\\\")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -53,14 +53,14 @@ def test_default_scrubbed(hatch, config_file, helpers, default_cache_dir, defaul
 
 
 def test_reveal(hatch, config_file, helpers, default_cache_dir, default_data_dir):
-    config_file.model.project = 'foo'
-    config_file.model.publish['index']['auth'] = 'bar'
+    config_file.model.project = "foo"
+    config_file.model.publish["index"]["auth"] = "bar"
     config_file.save()
 
-    result = hatch('config', 'show', '-a')
+    result = hatch("config", "show", "-a")
 
-    default_cache_directory = str(default_cache_dir).replace('\\', '\\\\')
-    default_data_directory = str(default_data_dir).replace('\\', '\\\\')
+    default_cache_directory = str(default_cache_dir).replace("\\", "\\\\")
+    default_data_directory = str(default_data_dir).replace("\\", "\\\\")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(

@@ -7,10 +7,10 @@ from hatchling.cli.version import version_command
 
 
 def hatchling() -> int:
-    parser = argparse.ArgumentParser(prog='hatchling', allow_abbrev=False)
+    parser = argparse.ArgumentParser(prog="hatchling", allow_abbrev=False)
     subparsers = parser.add_subparsers()
 
-    defaults = {'metavar': ''}
+    defaults = {"metavar": ""}
 
     build_command(subparsers, defaults)
     dep_command(subparsers, defaults)
@@ -19,7 +19,7 @@ def hatchling() -> int:
 
     kwargs = vars(parser.parse_args())
     try:
-        command = kwargs.pop('func')
+        command = kwargs.pop("func")
     except KeyError:
         parser.print_help()
     else:

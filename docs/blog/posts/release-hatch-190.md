@@ -17,7 +17,7 @@ Hatch [v1.9.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.9.0) brings i
 
 The default version of Ruff has been increased to [v0.1.8](https://astral.sh/blog/ruff-v0.1.8). This release brings formatting capabilities to docstrings and Hatch enables this by default with line length set to 80. This length was chosen as the default because it plays nicely with the rendering of the most popular themes for Python documentation, such as [Material for MkDocs](https://github.com/squidfunk/mkdocs-material) and [Furo](https://github.com/pradyunsg/furo).
 
-Additionally, it is now possible for projects to [pin](../../config/static-analysis.md#dependencies) to specific versions of Ruff for upgrading at a later time:
+Additionally, it is now possible for projects to [pin](../../config/internal/static-analysis.md#dependencies) to specific versions of Ruff for upgrading at a later time:
 
 ```toml config-example
 [tool.hatch.envs.hatch-static-analysis]

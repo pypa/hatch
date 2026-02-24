@@ -3,9 +3,10 @@ from __future__ import annotations
 import os
 import shutil
 from base64 import urlsafe_b64encode
-from typing import TYPE_CHECKING, Iterable
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
     from zipfile import ZipInfo
 
 
@@ -39,8 +40,8 @@ def get_relative_path(path: str, start: str) -> str:
     relative_path = os.path.relpath(path, start)
 
     # First iteration of `os.walk`
-    if relative_path == '.':
-        return ''
+    if relative_path == ".":
+        return ""
 
     return relative_path
 
@@ -72,15 +73,15 @@ def normalize_inclusion_map(inclusion_map: dict[str, str], root: str) -> dict[st
 
 
 def normalize_archive_path(path: str) -> str:
-    if os.sep != '/':
-        return path.replace(os.sep, '/')
+    if os.sep != "/":
+        return path.replace(os.sep, "/")
 
     return path
 
 
 def format_file_hash(digest: bytes) -> str:
     # https://peps.python.org/pep-0427/#signed-wheel-files
-    return urlsafe_b64encode(digest).decode('ascii').rstrip('=')
+    return urlsafe_b64encode(digest).decode("ascii").rstrip("=")
 
 
 def get_reproducible_timestamp() -> int:
@@ -90,7 +91,7 @@ def get_reproducible_timestamp() -> int:
 
     The default value will always be: `1580601600`
     """
-    return int(os.environ.get('SOURCE_DATE_EPOCH', '1580601600'))
+    return int(os.environ.get("SOURCE_DATE_EPOCH", "1580601600"))
 
 
 def normalize_file_permissions(st_mode: int) -> int:
@@ -110,8 +111,18 @@ def normalize_file_permissions(st_mode: int) -> int:
     return new_mode
 
 
+def normalize_artifact_permissions(path: str) -> None:
+    """
+    Normalize the permission bits for artifacts
+    """
+    file_stat = os.stat(path)
+    new_mode = normalize_file_permissions(file_stat.st_mode)
+    os.chmod(path, new_mode)
+
+
 def set_zip_info_mode(zip_info: ZipInfo, mode: int = 0o644) -> None:
     """
+    https://github.com/python/cpython/blob/v3.12.3/Lib/zipfile/__init__.py#L574
     https://github.com/takluyver/flit/commit/3889583719888aef9f28baaa010e698cb7884904
     """
-    zip_info.external_attr = mode << 16
+    zip_info.external_attr = (mode & 0xFFFF) << 16

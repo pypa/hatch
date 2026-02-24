@@ -4,16 +4,20 @@ import os
 import pathlib
 import sys
 from contextlib import contextmanager, suppress
-from typing import TYPE_CHECKING, Any, Generator
+from functools import cached_property
+from typing import TYPE_CHECKING, Any
 
 from hatch.utils.structures import EnvVars
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
+
     from _typeshed import FileDescriptorLike
+
 
 # There is special recognition in Mypy for `sys.platform`, not `os.name`
 # https://github.com/python/cpython/blob/09d7319bfe0006d9aa3fc14833b69c24ccafdca6/Lib/pathlib.py#L957
-if sys.platform == 'win32':
+if sys.platform == "win32":
     _PathBase = pathlib.WindowsPath
 else:
     _PathBase = pathlib.PosixPath
@@ -21,16 +25,32 @@ else:
 disk_sync = os.fsync
 # https://mjtsai.com/blog/2022/02/17/apple-ssd-benchmarks-and-f_fullsync/
 # https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/fsync.2.html
-if sys.platform == 'darwin':
+if sys.platform == "darwin":
     import fcntl
 
-    if hasattr(fcntl, 'F_FULLFSYNC'):
+    if hasattr(fcntl, "F_FULLFSYNC"):
 
         def disk_sync(fd: FileDescriptorLike) -> None:
             fcntl.fcntl(fd, fcntl.F_FULLFSYNC)
 
 
 class Path(_PathBase):
+    @cached_property
+    def long_id(self) -> str:
+        from base64 import urlsafe_b64encode
+        from hashlib import sha256
+
+        path = str(self)
+        if sys.platform == "win32" or sys.platform == "darwin":
+            path = path.casefold()
+
+        digest = sha256(path.encode("utf-8")).digest()
+        return urlsafe_b64encode(digest).decode("utf-8")
+
+    @cached_property
+    def id(self) -> str:
+        return self.long_id[:8]
+
     def ensure_dir_exists(self) -> None:
         self.mkdir(parents=True, exist_ok=True)
 
@@ -47,6 +67,15 @@ class Path(_PathBase):
             import shutil
 
             shutil.rmtree(self, ignore_errors=False)
+
+    def move(self, target):
+        try:
+            self.replace(target)
+        except OSError:
+            import shutil
+
+            shutil.copy2(self, target)
+            self.unlink()
 
     def wait_for_dir_removed(self, timeout: int = 5) -> None:
         import shutil
@@ -102,11 +131,17 @@ class Path(_PathBase):
                 with suppress(FileNotFoundError):
                     shutil.move(str(temp_path), self)
 
-    if sys.version_info[:2] < (3, 10):
+    if sys.platform == "win32":
 
-        def resolve(self, strict: bool = False) -> Path:  # noqa: ARG002, FBT001, FBT002
-            # https://bugs.python.org/issue38671
-            return Path(os.path.realpath(self))
+        @classmethod
+        def from_uri(cls, path: str) -> Path:
+            return cls(path.replace("file:///", "", 1))
+
+    else:
+
+        @classmethod
+        def from_uri(cls, path: str) -> Path:
+            return cls(path.replace("file://", "", 1))
 
 
 @contextmanager

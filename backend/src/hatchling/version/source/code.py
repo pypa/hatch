@@ -6,59 +6,59 @@ from hatchling.version.source.plugin.interface import VersionSourceInterface
 
 
 class CodeSource(VersionSourceInterface):
-    PLUGIN_NAME = 'code'
+    PLUGIN_NAME = "code"
 
     def get_version_data(self) -> dict:
-        import importlib
         import sys
+        from importlib.util import module_from_spec, spec_from_file_location
 
-        relative_path = self.config.get('path')
+        relative_path = self.config.get("path")
         if not relative_path:
-            message = 'option `path` must be specified'
+            message = "option `path` must be specified"
             raise ValueError(message)
 
         if not isinstance(relative_path, str):
-            message = 'option `path` must be a string'
+            message = "option `path` must be a string"
             raise TypeError(message)
 
         path = os.path.normpath(os.path.join(self.root, relative_path))
         if not os.path.isfile(path):
-            message = f'file does not exist: {relative_path}'
+            message = f"file does not exist: {relative_path}"
             raise OSError(message)
 
-        expression = self.config.get('expression') or '__version__'
+        expression = self.config.get("expression") or "__version__"
         if not isinstance(expression, str):
-            message = 'option `expression` must be a string'
+            message = "option `expression` must be a string"
             raise TypeError(message)
 
-        search_paths = self.config.get('search-paths', [])
+        search_paths = self.config.get("search-paths", [])
         if not isinstance(search_paths, list):
-            message = 'option `search-paths` must be an array'
+            message = "option `search-paths` must be an array"
             raise TypeError(message)
 
         absolute_search_paths = []
         for i, search_path in enumerate(search_paths, 1):
             if not isinstance(search_path, str):
-                message = f'entry #{i} of option `search-paths` must be a string'
+                message = f"entry #{i} of option `search-paths` must be a string"
                 raise TypeError(message)
 
             absolute_search_paths.append(os.path.normpath(os.path.join(self.root, search_path)))
 
-        spec = importlib.util.spec_from_file_location(os.path.splitext(path)[0], path)  # type: ignore
-        module = importlib.util.module_from_spec(spec)  # type: ignore
+        spec = spec_from_file_location(os.path.splitext(path)[0], path)
+        module = module_from_spec(spec)  # type: ignore[arg-type]
 
         old_search_paths = list(sys.path)
         try:
             sys.path[:] = [*absolute_search_paths, *old_search_paths]
-            spec.loader.exec_module(module)
+            spec.loader.exec_module(module)  # type: ignore[union-attr]
         finally:
             sys.path[:] = old_search_paths
 
         # Execute the expression to determine the version
-        version = eval(expression, vars(module))  # noqa: PGH001, S307
+        version = eval(expression, vars(module))  # noqa: S307
 
-        return {'version': version}
+        return {"version": version}
 
-    def set_version(self, version: str, version_data: dict) -> None:  # noqa: ARG002, PLR6301
-        message = 'Cannot rewrite loaded code'
+    def set_version(self, version: str, version_data: dict) -> None:
+        message = "Cannot rewrite loaded code"
         raise NotImplementedError(message)

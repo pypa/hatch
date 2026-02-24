@@ -25,11 +25,11 @@ dependencies = [
 ]
 
 [[tool.hatch.envs.test.matrix]]
-python = ["2.7", "3.8"]
+python = ["3.10", "3.11"]
 version = ["42", "3.14"]
 
 [[tool.hatch.envs.test.matrix]]
-python = ["3.8", "3.9"]
+python = ["3.11", "3.12"]
 version = ["9000"]
 feature = ["foo", "bar"]
 ```
@@ -117,7 +117,7 @@ dependencies = [
 cov = 'pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=pkg --cov=tests'
 
 [[tool.hatch.envs.test.matrix]]
-python = ["2.7", "3.8"]
+python = ["3.11", "3.12"]
 version = ["42", "3.14"]
 ```
 
@@ -126,6 +126,70 @@ you could then run your tests consecutively in all 4 environments with:
 ```
 hatch run test:cov
 ```
+
+## Dependency Groups
+
+Environments can use dependency groups[^1] using the environment `dependency-groups` array:
+
+```toml config-example
+[dependency-groups]
+test = [
+  "pytest>=7.0.0",
+  "pytest-cov>=4.1.0",
+]
+lint = [
+  "black",
+  "ruff",
+  "mypy",
+]
+# Groups can include other groups
+dev = [
+  {include-group = "test"},
+  {include-group = "lint"},
+  "pre-commit",
+]
+
+[tool.hatch.envs.test]
+dependency-groups = ["test"]
+
+[tool.hatch.envs.lint]
+dependency-groups = ["lint"]
+
+[tool.hatch.envs.dev]
+dependency-groups = ["dev"]
+```
+
+The `dependency-groups` array specifies which dependency groups to include in the environment's dependencies. This is particularly useful for organizing related dependencies and including them in appropriate environments.
+
+### Combining with Other Dependencies
+
+Dependency groups can be combined with other dependency mechanisms:
+
+```toml config-example
+[project]
+name = "my-app"
+version = "0.1.0"
+dependencies = [
+  "requests>=2.28.0",
+]
+
+[dependency-groups]
+test = ["pytest>=7.0.0"]
+docs = ["sphinx>=7.0.0"]
+
+[tool.hatch.envs.test]
+# Include the test dependency group
+dependency-groups = ["test"]
+# Add environment-specific dependencies
+dependencies = [
+  "coverage[toml]>=7.0.0",
+]
+```
+
+In this example, the test environment would include:
+1. Project dependencies (`requests>=2.28.0`)
+2. The test dependency group (`pytest>=7.0.0`)
+3. Environment-specific dependencies (`coverage[toml]>=7.0.0`)
 
 ## Option overrides
 
@@ -177,7 +241,7 @@ matrix.auth.features = [
 ]
 
 [[tool.hatch.envs.test.matrix]]
-python = ["2.7", "3.8"]
+python = ["3.11", "3.12"]
 version = ["legacy", "latest"]
 auth = ["oauth2", "kerberos", "noauth"]
 ```
@@ -300,3 +364,4 @@ matrix.version.env-vars = [
 [[tool.hatch.envs.test.matrix]]
 version = ["42", "3.14"]
 ```
+[^1]: [PEP 735 – Dependency Groups in pyproject.toml](https://peps.python.org/pep-0735/)

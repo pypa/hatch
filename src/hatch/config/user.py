@@ -30,19 +30,19 @@ class ConfigFile:
             content = tomli_w.dumps(self.model.raw_data)
 
         self.path.ensure_parent_dir_exists()
-        self.path.write_atomic(content, 'w', encoding='utf-8')
+        self.path.write_atomic(content, "w", encoding="utf-8")
 
     def load(self):
         self.model = RootConfig(load_toml_data(self.read()))
 
     def read(self) -> str:
-        return self.path.read_text('utf-8')
+        return self.path.read_text("utf-8")
 
     def read_scrubbed(self) -> str:
         import tomli_w
 
         config = RootConfig(load_toml_data(self.read()))
-        config.raw_data.pop('publish', None)
+        config.raw_data.pop("publish", None)
         return tomli_w.dumps(config.raw_data)
 
     def restore(self):
@@ -64,4 +64,4 @@ class ConfigFile:
     def get_default_location(cls) -> Path:
         from platformdirs import user_config_dir
 
-        return Path(user_config_dir('hatch', appauthor=False)) / 'config.toml'
+        return Path(user_config_dir("hatch", appauthor=False)) / "config.toml"

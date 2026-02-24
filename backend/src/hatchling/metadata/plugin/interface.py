@@ -12,7 +12,7 @@ class MetadataHookInterface(ABC):  # no cov
 
 
     class SpecialMetadataHook(MetadataHookInterface):
-        PLUGIN_NAME = 'special'
+        PLUGIN_NAME = "special"
         ...
     ```
 
@@ -28,7 +28,7 @@ class MetadataHookInterface(ABC):  # no cov
     ```
     """
 
-    PLUGIN_NAME = ''
+    PLUGIN_NAME = ""
     """The name used for selection."""
 
     def __init__(self, root: str, config: dict) -> None:
