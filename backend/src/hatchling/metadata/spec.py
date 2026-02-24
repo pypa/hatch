@@ -509,7 +509,7 @@ def construct_metadata_file_2_3(metadata: ProjectMetadata[Any], extra_dependenci
     return metadata_file
 
 
-def construct_metadata_file_2_4(metadata: ProjectMetadata, extra_dependencies: tuple[str] | None = None) -> str:
+def construct_metadata_file_2_4(metadata: ProjectMetadata[Any], extra_dependencies: tuple[str] | None = None) -> str:
     """
     https://peps.python.org/pep-0639/
     """
