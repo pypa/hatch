@@ -382,7 +382,7 @@ class VirtualEnvironment(EnvironmentInterface):
         try:
             propose_interpreters = virtualenv_discovery.propose_interpreters
         except AttributeError:
-            from python_discovery._discovery import propose_interpreters
+            from python_discovery._discovery import propose_interpreters  # noqa: PLC2701
 
         def _patched_propose_interpreters(*args, **kwargs):
             for interpreter, impl_must_match in propose_interpreters(*args, **kwargs):
