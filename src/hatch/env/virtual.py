@@ -334,7 +334,7 @@ class VirtualEnvironment(EnvironmentInterface):
 
     def _interpreter_is_compatible(self, interpreter: PythonInfo) -> bool:
         return (
-            interpreter.executable
+            interpreter.executable is not None
             and self._is_stable_path(interpreter.executable)
             and (self.skip_install or self._python_constraint.contains(interpreter.version_str))
         )
