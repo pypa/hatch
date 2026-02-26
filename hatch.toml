@@ -13,6 +13,7 @@ extra-dependencies = [
   "flit-core",
   "trustme",
   "editables",
+  "virtualenv>=21",
 ]
 extra-args = ["--dist", "worksteal"]
 
