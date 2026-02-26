@@ -378,7 +378,11 @@ class VirtualEnvironment(EnvironmentInterface):
     def _find_existing_interpreter(self, python_version: str = "") -> str | None:
         from virtualenv.discovery import builtin as virtualenv_discovery
 
-        propose_interpreters = virtualenv_discovery.propose_interpreters
+        # propose_interpreters was moved in virtualenv 21.0.0
+        try:
+            propose_interpreters = virtualenv_discovery.propose_interpreters
+        except AttributeError:
+            from python_discovery._discovery import propose_interpreters
 
         def _patched_propose_interpreters(*args, **kwargs):
             for interpreter, impl_must_match in propose_interpreters(*args, **kwargs):
