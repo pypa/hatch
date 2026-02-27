@@ -1,7 +1,6 @@
 import os
 import secrets
 import tarfile
-import time
 import zipfile
 from collections import defaultdict
 
@@ -353,7 +352,7 @@ def test_prompt(hatch, devpi, temp_dir_cache, helpers, published_project_name, c
     assert result.output == helpers.dedent(
         f"""
         Username for '{devpi.repo}' [__token__]: {devpi.user}
-        Password / Token: 
+        Password / Token:
         {artifacts[0].relative_to(path)} ... success
 
         [{published_project_name}]
@@ -396,7 +395,7 @@ def test_initialize_auth(hatch, devpi, temp_dir_cache, helpers, published_projec
     assert result.output == helpers.dedent(
         f"""
         Username for '{devpi.repo}' [__token__]: {devpi.user}
-        Password / Token: 
+        Password / Token:
         """
     )
 
