@@ -8,6 +8,7 @@ devpi-init --no-root-pypi
 
 echo "==:> Starting server"
 devpi-server --host 0.0.0.0 --port 3141 &
+SERVER_PID=$!
 
 echo "==:> Waiting on server"
 sleep 5
@@ -21,4 +22,4 @@ devpi use $DEVPI_USERNAME/$DEVPI_INDEX_NAME
 devpi logoff
 
 echo "==:> Serving index $DEVPI_USERNAME/$DEVPI_INDEX_NAME"
-sleep infinity
+wait $SERVER_PID

@@ -36,16 +36,6 @@ def published_project_name():
     return f"c4880cdbe05de9a28415fbad{secrets.choice(range(100))}"
 
 
-def retry_publish(func_call, max_retries=3):
-    for attempt in range(max_retries):
-        result = func_call()
-        if result.exit_code == 0 or "502 Bad Gateway" not in result.output:
-            return result
-        if attempt < max_retries - 1:
-            time.sleep(5)
-    return result
-
-
 def remove_metadata_field(field: str, metadata_file_contents: str):
     lines = metadata_file_contents.splitlines(True)
 
@@ -219,10 +209,8 @@ def test_flags(hatch, devpi, temp_dir_cache, helpers, published_project_name):
         build_directory = path / "dist"
         artifacts = list(build_directory.iterdir())
 
-        result = retry_publish(
-            lambda: hatch(
-                "publish", "--repo", devpi.repo, "--user", devpi.user, "--auth", devpi.auth, "--ca-cert", devpi.ca_cert
-            )
+        result = hatch(
+            "publish", "--repo", devpi.repo, "--user", devpi.user, "--auth", devpi.auth, "--ca-cert", devpi.ca_cert
         )
 
     assert result.exit_code == 0, result.output
@@ -264,7 +252,7 @@ def test_plugin_config(hatch, devpi, temp_dir_cache, helpers, published_project_
         build_directory = path / "dist"
         artifacts = list(build_directory.iterdir())
 
-        result = retry_publish(lambda: hatch("publish"))
+        result = hatch("publish")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -307,7 +295,7 @@ def test_plugin_config_repo_override(hatch, devpi, temp_dir_cache, helpers, publ
         build_directory = path / "dist"
         artifacts = list(build_directory.iterdir())
 
-        result = retry_publish(lambda: hatch("publish"))
+        result = hatch("publish")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -344,7 +332,7 @@ def test_prompt(hatch, devpi, temp_dir_cache, helpers, published_project_name, c
         build_directory = path / "dist"
         artifacts = list(build_directory.iterdir())
 
-        result = retry_publish(lambda: hatch("publish", input=f"{devpi.user}\nfoo"))
+        result = hatch("publish", input=f"{devpi.user}\nfoo")
 
     assert result.exit_code == 1, result.output
     assert "401" in result.output
@@ -359,13 +347,13 @@ def test_prompt(hatch, devpi, temp_dir_cache, helpers, published_project_name, c
 
     # Trigger save
     with path.as_cwd():
-        result = retry_publish(lambda: hatch("publish", str(artifacts[0]), input=f"{devpi.user}\n{devpi.auth}"))
+        result = hatch("publish", str(artifacts[0]), input=f"{devpi.user}\n{devpi.auth}")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
         f"""
         Username for '{devpi.repo}' [__token__]: {devpi.user}
-        Password / Token:{" "}
+        Password / Token: 
         {artifacts[0].relative_to(path)} ... success
 
         [{published_project_name}]
@@ -375,7 +363,7 @@ def test_prompt(hatch, devpi, temp_dir_cache, helpers, published_project_name, c
 
     # Use saved results
     with path.as_cwd():
-        result = retry_publish(lambda: hatch("publish", str(artifacts[1])))
+        result = hatch("publish", str(artifacts[1]))
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -402,13 +390,13 @@ def test_initialize_auth(hatch, devpi, temp_dir_cache, helpers, published_projec
 
     # Trigger save
     with path.as_cwd():
-        result = retry_publish(lambda: hatch("publish", "--initialize-auth", input=f"{devpi.user}\n{devpi.auth}"))
+        result = hatch("publish", "--initialize-auth", input=f"{devpi.user}\n{devpi.auth}")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
         f"""
         Username for '{devpi.repo}' [__token__]: {devpi.user}
-        Password / Token:{" "}
+        Password / Token: 
         """
     )
 
@@ -425,7 +413,7 @@ def test_initialize_auth(hatch, devpi, temp_dir_cache, helpers, published_projec
 
     # Use saved results
     with path.as_cwd():
-        result = retry_publish(lambda: hatch("publish", str(artifacts[0])))
+        result = hatch("publish", str(artifacts[0]))
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -467,9 +455,7 @@ def test_external_artifact_path(hatch, devpi, temp_dir_cache, helpers, published
         internal_build_directory = path / "dist"
         internal_artifacts = list(internal_build_directory.iterdir())
 
-        result = retry_publish(
-            lambda: hatch("publish", "--user", devpi.user, "--auth", devpi.auth, "dist", str(external_build_directory))
-        )
+        result = hatch("publish", "--user", devpi.user, "--auth", devpi.auth, "dist", str(external_build_directory))
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -506,7 +492,7 @@ def test_already_exists(hatch, devpi, temp_dir_cache, helpers, published_project
         build_directory = path / "dist"
         artifacts = list(build_directory.iterdir())
 
-        result = retry_publish(lambda: hatch("publish", "--user", devpi.user, "--auth", devpi.auth))
+        result = hatch("publish", "--user", devpi.user, "--auth", devpi.auth)
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -520,7 +506,7 @@ def test_already_exists(hatch, devpi, temp_dir_cache, helpers, published_project
     )
 
     with path.as_cwd():
-        result = retry_publish(lambda: hatch("publish", "--user", devpi.user, "--auth", devpi.auth))
+        result = hatch("publish", "--user", devpi.user, "--auth", devpi.auth)
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -543,7 +529,7 @@ def test_no_artifacts(hatch, temp_dir_cache, helpers, published_project_name):
         directory.mkdir()
         (directory / "test.txt").touch()
 
-        result = retry_publish(lambda: hatch("publish", "dir1", "dir2", "--user", "foo", "--auth", "bar"))
+        result = hatch("publish", "dir1", "dir2", "--user", "foo", "--auth", "bar")
 
     assert result.exit_code == 1, result.output
     assert result.output == helpers.dedent(
@@ -581,7 +567,7 @@ def test_enable_with_flag(hatch, devpi, temp_dir_cache, helpers, published_proje
         build_directory = path / "dist"
         artifacts = list(build_directory.iterdir())
 
-        result = retry_publish(lambda: hatch("publish", "-y"))
+        result = hatch("publish", "-y")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -623,7 +609,7 @@ def test_enable_with_prompt(hatch, devpi, temp_dir_cache, helpers, published_pro
         build_directory = path / "dist"
         artifacts = list(build_directory.iterdir())
 
-        result = retry_publish(lambda: hatch("publish", input="y\n"))
+        result = hatch("publish", input="y\n")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -671,7 +657,7 @@ class TestWheel:
             metadata_file.write(remove_metadata_field(field, metadata_file_contents).encode("utf-8"))
 
         with path.as_cwd():
-            result = retry_publish(lambda: hatch("publish", "--user", "foo", "--auth", "bar"))
+            result = hatch("publish", "--user", "foo", "--auth", "bar")
 
         assert result.exit_code == 1, result.output
         assert result.output == helpers.dedent(
@@ -714,7 +700,7 @@ class TestSourceDistribution:
             tar_archive.add(extraction_directory, arcname="")
 
         with path.as_cwd():
-            result = retry_publish(lambda: hatch("publish", "--user", "foo", "--auth", "bar"))
+            result = hatch("publish", "--user", "foo", "--auth", "bar")
 
         assert result.exit_code == 1, result.output
         assert result.output == helpers.dedent(
