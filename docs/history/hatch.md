@@ -8,11 +8,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.16.5](https://github.com/pypa/hatch/releases/tag/hatch-v1.16.5) - 2026-02-26 ## {: #hatch-v1.16.5 }
+
+***Fixed:***
+
+- Handle a breaking change in `virtualenv` by only supporting the latest version and adding `python-discovery` as a dependency.
+
 ## [1.16.4](https://github.com/pypa/hatch/releases/tag/hatch-v1.16.4) - 2026-02-23 ## {: #hatch-v1.16.4 }
 
 ***Fixed:***
 
-- Fixes hatch shell type error for keep_env. 
+- Fixes hatch shell type error for keep_env.
 - SBOM documentation for including SBOM files in `sdist`
 - Fixes workspace member detection to properly handle shared path prefixes.
 
@@ -24,10 +30,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ***Fixed:***
 
-- Fix issue with self-referential dependencies not being recognized. 
+- Fix issue with self-referential dependencies not being recognized.
 - Fix incomplete environments created when an exception occurs during creation.
-- Fix dependency-groups not working with when environment is not marked as builder. 
-- Change Keyring to take expect repository URL instead of repository name. 
+- Fix dependency-groups not working with when environment is not marked as builder.
+- Change Keyring to take expect repository URL instead of repository name.
 
 ## [1.16.2](https://github.com/pypa/hatch/releases/tag/hatch-v1.16.2) - 2025-12-06 ## {: #hatch-v1.16.2 }
 
