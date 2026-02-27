@@ -312,7 +312,7 @@ def devpi(tmp_path_factory, worker_id):
             for _ in range(60):
                 output = subprocess.check_output(["docker", "logs", "hatch-devpi"]).decode("utf-8")
                 if f"Serving index {dp.user}/{dp.index_name}" in output:
-                    time.sleep(5)
+                    time.sleep(30)
                     break
 
                 time.sleep(1)
