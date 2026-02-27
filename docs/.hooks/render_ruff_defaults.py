@@ -136,7 +136,8 @@ def get_per_file_ignored_rules():
 class RuffDefaultsPreprocessor(Preprocessor):
     def run(self, lines):  # noqa: PLR6301
         return (
-            "\n".join(lines)
+            "\n"
+            .join(lines)
             .replace(MARKER_VERSION, get_ruff_version())
             .replace(MARKER_STABLE_RULES_COUNT, get_stable_rules_count())
             .replace(MARKER_PREVIEW_RULES_COUNT, get_preview_rules_count())
@@ -153,6 +154,7 @@ UNSELECTED_RULES: tuple[str, ...] = (
     "AIR002",
     "AIR301",
     "AIR302",
+    "AIR303",
     "AIR311",
     "AIR312",
     "ANN001",
