@@ -307,17 +307,17 @@ def devpi(tmp_path_factory, worker_id):
             else:  # no cov
                 pass
 
-
             for _ in range(30):
                 import httpx
+
                 try:
                     response = httpx.get(f"{dp.repo}+simple/", verify=dp.ca_cert, timeout=10)
                     if response.status_code == 200:
                         break
-                except Exception:
+                except (httpx.ConnectError, httpx.TimeoutException, httpx.HTTPStatusError):
                     pass
-                time.sleep(2)
 
+            time.sleep(2)
 
         (devpi_started_sessions / worker_id).touch()
 
