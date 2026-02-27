@@ -311,13 +311,15 @@ def devpi(tmp_path_factory, worker_id):
                 import httpx
 
                 try:
-                    response = httpx.get(f"{dp.repo}+simple/", verify=dp.ca_cert, timeout=10)
-                    if response.status_code == 200:
+                    response = httpx.post(
+                        f"{dp.repo}", files={"content": ("test", b"test")}, verify=dp.ca_cert, timeout=10
+                    )
+                    # Accept any response (even auth errors) as long as server responds
+                    if response.status_code != 502:
                         break
-                except (httpx.ConnectError, httpx.TimeoutException, httpx.HTTPStatusError):
+                except (httpx.ConnectError, httpx.TimeoutException):
                     pass
-
-                time.sleep(5)
+                time.sleep(2)
 
         (devpi_started_sessions / worker_id).touch()
 
