@@ -304,7 +304,9 @@ def devpi(tmp_path_factory, worker_id):
         if not any(devpi_started_sessions.iterdir()):
             with EnvVars(env_vars):
                 subprocess.run(
-                    ["docker", "compose", "-f", compose_file, "up", "--build", "-d", "--wait"], check=False, capture_output=True
+                    ["docker", "compose", "-f", compose_file, "up", "--build", "-d", "--wait"],
+                    check=False,
+                    capture_output=True,
                 )
 
             for _ in range(60):
