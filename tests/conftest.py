@@ -239,6 +239,8 @@ def build_env_config():
 @pytest.fixture(scope="session")
 def devpi(tmp_path_factory, worker_id):
     import platform
+    import hashlib
+
 
     if not shutil.which("docker") or (
         running_in_ci() and (not PLATFORM.linux or platform.python_implementation() == "PyPy")
@@ -247,6 +249,9 @@ def devpi(tmp_path_factory, worker_id):
 
     # This fixture is affected by https://github.com/pytest-dev/pytest-xdist/issues/271
     root_tmp_dir = Path(tmp_path_factory.getbasetemp().parent)
+
+    container_suffix = hashlib.md5(str(root_tmp_dir).encode()).hexdigest()[:8]
+
 
     devpi_data_file = root_tmp_dir / "devpi_data.json"
     lock_file = f"{devpi_data_file}.lock"
@@ -289,7 +294,7 @@ def devpi(tmp_path_factory, worker_id):
             devpi_data_file.write_atomic(json.dumps(data), "w", encoding="utf-8")
 
     dp = Devpi("https://localhost:8443/hatch/testing/", "testing", "hatch", data["password"], data["ca_cert"])
-    env_vars = {"DEVPI_INDEX_NAME": dp.index_name, "DEVPI_USERNAME": dp.user, "DEVPI_PASSWORD": dp.auth}
+    env_vars = {"DEVPI_INDEX_NAME": dp.index_name, "DEVPI_USERNAME": dp.user, "DEVPI_PASSWORD": dp.auth, "COMPOSE_PROJECT_NAME": f"hatch-{container_suffix}"}
 
     compose_file = str(devpi_docker_data / "docker-compose.yaml")
     with FileLock(lock_file):
