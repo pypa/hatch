@@ -307,8 +307,9 @@ def devpi(tmp_path_factory, worker_id):
             else:  # no cov
                 pass
 
+            import httpx
             for _ in range(60):
-                import httpx
+
                 try:
                     response = httpx.get(
                         dp.repo,
