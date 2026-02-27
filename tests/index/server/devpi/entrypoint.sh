@@ -22,4 +22,4 @@ devpi use $DEVPI_USERNAME/$DEVPI_INDEX_NAME
 devpi logoff
 
 echo "==:> Serving index $DEVPI_USERNAME/$DEVPI_INDEX_NAME"
-wait $SERVER_PID
+wait infinity
