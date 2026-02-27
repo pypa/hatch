@@ -49,16 +49,16 @@ For more information on usage, see [Wheel Options](../../plugins/builder/wheel.m
 
 ### Changes with maintainership
 
-Some may have noticed already during PR interactions, but I wanted to take some time to introduce myself as the new co-maintainer of hatch along with Ofek. I was browsing through the PyPA Discord, about to ask a question about workspace support for hatch, as I had created one version of it for the needs of my organization. That led to some discussions with Ofek and me taking on the contributions of finishing workspace support from where development had stopped. It made sense for me to join the efforts of maintainership with hatch and take some stress off of Ofek. I am excited to be here and to see what amazing things we can make hatch do in the future. 
+Some may have noticed already during PR interactions, but I wanted to take some time to introduce myself as the new co-maintainer of hatch along with Ofek. I was browsing through the PyPA Discord, about to ask a question about workspace support for hatch, as I had created one version of it for the needs of my organization. That led to some discussions with Ofek and me taking on the contributions of finishing workspace support from where development had stopped. It made sense for me to join the efforts of maintainership with hatch and take some stress off of Ofek. I am excited to be here and to see what amazing things we can make hatch do in the future.
 
-A little about me as a developer and person. I have been writing Python code for 12 years now, and work at AWS as a Python Ecologist. My role is to provide tools to builders to be able to be more productive. In the past, I have made contributions to Airflow and a Poetry plugin for proxy setups. In my spare time, I enjoy hanging out with my dog Jacques, hiking, and rock climbing. And of course, I also enjoy giving back to the community in Python. 
+A little about me as a developer and person. I have been writing Python code for 12 years now, and work at AWS as a Python Ecologist. My role is to provide tools to builders to be able to be more productive. In the past, I have made contributions to Airflow and a Poetry plugin for proxy setups. In my spare time, I enjoy hanging out with my dog Jacques, hiking, and rock climbing. And of course, I also enjoy giving back to the community in Python.
 
 ### Future
 
 Upcoming features:
 
 - Typing default command like `hatch fmt` for linting.
-- Documentation improvements including contributor guidelines. 
+- Documentation improvements including contributor guidelines.
 - Performance improvements for both the CLI and the Hatchling build system.
 
 ### Support
