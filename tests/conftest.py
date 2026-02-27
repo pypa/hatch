@@ -307,19 +307,18 @@ def devpi(tmp_path_factory, worker_id):
             else:  # no cov
                 pass
 
-            for _ in range(30):
-                import httpx
-
-                try:
-                    response = httpx.post(
-                        f"{dp.repo}", files={"content": ("test", b"test")}, verify=dp.ca_cert, timeout=10
-                    )
-                    # Accept any response (even auth errors) as long as server responds
-                    if response.status_code != 502:
-                        break
-                except (httpx.ConnectError, httpx.TimeoutException):
-                    pass
-                time.sleep(2)
+            for _ in range(10):
+                result = subprocess.run(
+                    ["docker", "inspect", "--format", "{{.State.Status}}", "hatch-devpi"],
+                    capture_output=True, text=True
+                )
+                if result.stdout.strip() != "running":
+                    # Restart devpi if it died
+                    subprocess.run(["docker", "restart", "hatch-devpi"], capture_output=True)
+                    time.sleep(5)
+                else:
+                    break
+                time.sleep(1)
 
         (devpi_started_sessions / worker_id).touch()
 
