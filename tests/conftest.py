@@ -308,8 +308,8 @@ def devpi(tmp_path_factory, worker_id):
                 pass
 
             import httpx
-            for _ in range(60):
 
+            for _ in range(60):
                 try:
                     response = httpx.get(
                         dp.repo,
