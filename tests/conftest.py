@@ -301,6 +301,7 @@ def devpi(tmp_path_factory, worker_id):
                     capture_output=True,
                 )
                 if result.returncode != 0:
+                    # Debugging info for if devpi fails to start
                     logs = subprocess.run(["docker", "logs", "hatch-devpi"], check=False, capture_output=True)
                     pytest.fail(
                         f"Failed to start devpi container, see logs:\n{logs.stdout.decode()}\n{logs.stderr.decode()}"
