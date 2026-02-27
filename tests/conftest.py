@@ -317,7 +317,7 @@ def devpi(tmp_path_factory, worker_id):
                     )
                     if response.status_code < 500:
                         break
-                except Exception:
+                except (httpx.ConnectError, httpx.TimeoutException):
                     pass
                 time.sleep(1)
 
