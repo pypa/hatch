@@ -295,7 +295,16 @@ def devpi(tmp_path_factory, worker_id):
     with FileLock(lock_file):
         if not any(devpi_started_sessions.iterdir()):
             with EnvVars(env_vars):
-                subprocess.check_call(["docker", "compose", "-f", compose_file, "up", "--build", "-d", "--wait"])
+                result = subprocess.run(
+                    ["docker", "compose", "-f", compose_file, "up", "--build", "-d", "--wait"],
+                    capture_output=True,
+                )
+                if result.returncode != 0:
+                    logs = subprocess.run(
+                        ["docker", "logs", "hatch-devpi"], capture_output=True
+                    )
+                    print(f"devpi container logs:\n{logs.stdout.decode()}\n{logs.stderr.decode()}")
+                    raise RuntimeError(f"Failed to start devpi: {result.stderr.decode()}")
 
             for _ in range(120):
                 output = subprocess.check_output(["docker", "logs", "hatch-devpi"]).decode("utf-8")
@@ -305,7 +314,9 @@ def devpi(tmp_path_factory, worker_id):
 
                 time.sleep(1)
             else:  # no cov
-                pass
+                # Add logging here too for timeout case
+                logs = subprocess.run(["docker", "logs", "hatch-devpi"], capture_output=True)
+                print(f"devpi container logs (timeout):\n{logs.stdout.decode()}\n{logs.stderr.decode()}")
 
         (devpi_started_sessions / worker_id).touch()
 
