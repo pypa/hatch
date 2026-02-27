@@ -295,9 +295,9 @@ def devpi(tmp_path_factory, worker_id):
     with FileLock(lock_file):
         if not any(devpi_started_sessions.iterdir()):
             with EnvVars(env_vars):
-                subprocess.check_call(["docker", "compose", "-f", compose_file, "up", "--build", "-d"])
+                subprocess.check_call(["docker", "compose", "-f", compose_file, "up", "--build", "-d", "--wait"])
 
-            for _ in range(60):
+            for _ in range(120):
                 output = subprocess.check_output(["docker", "logs", "hatch-devpi"]).decode("utf-8")
                 if f"Serving index {dp.user}/{dp.index_name}" in output:
                     time.sleep(5)
