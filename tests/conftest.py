@@ -310,11 +310,13 @@ def devpi(tmp_path_factory, worker_id):
             for _ in range(10):
                 result = subprocess.run(
                     ["docker", "inspect", "--format", "{{.State.Status}}", "hatch-devpi"],
-                    capture_output=True, text=True
+                    check=False,
+                    capture_output=True,
+                    text=True,
                 )
                 if result.stdout.strip() != "running":
                     # Restart devpi if it died
-                    subprocess.run(["docker", "restart", "hatch-devpi"], capture_output=True)
+                    subprocess.run(["docker", "restart", "hatch-devpi"], check=False, capture_output=True)
                     time.sleep(5)
                 else:
                     break
