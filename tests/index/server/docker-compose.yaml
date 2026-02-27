@@ -10,7 +10,7 @@ services:
     - DEVPI_USERNAME
     - DEVPI_PASSWORD
     healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3141"]
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:3141')" ]
       interval: 2s
       timeout: 5s
       retries: 30
