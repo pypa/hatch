@@ -297,14 +297,14 @@ def devpi(tmp_path_factory, worker_id):
             with EnvVars(env_vars):
                 result = subprocess.run(
                     ["docker", "compose", "-f", compose_file, "up", "--build", "-d", "--wait"],
+                    check=False,
                     capture_output=True,
                 )
                 if result.returncode != 0:
-                    logs = subprocess.run(
-                        ["docker", "logs", "hatch-devpi"], capture_output=True
+                    logs = subprocess.run(["docker", "logs", "hatch-devpi"], check=False, capture_output=True)
+                    pytest.fail(
+                        f"Failed to start devpi container, see logs:\n{logs.stdout.decode()}\n{logs.stderr.decode()}"
                     )
-                    print(f"devpi container logs:\n{logs.stdout.decode()}\n{logs.stderr.decode()}")
-                    raise RuntimeError(f"Failed to start devpi: {result.stderr.decode()}")
 
             for _ in range(120):
                 output = subprocess.check_output(["docker", "logs", "hatch-devpi"]).decode("utf-8")
@@ -315,8 +315,12 @@ def devpi(tmp_path_factory, worker_id):
                 time.sleep(1)
             else:  # no cov
                 # Add logging here too for timeout case
-                logs = subprocess.run(["docker", "logs", "hatch-devpi"], capture_output=True)
-                print(f"devpi container logs (timeout):\n{logs.stdout.decode()}\n{logs.stderr.decode()}")
+                import warnings
+
+                logs = subprocess.run(["docker", "logs", "hatch-devpi"], check=False, capture_output=True)
+                warnings.warn(
+                    f"devpi container logs (timeout):\n{logs.stdout.decode()}\n{logs.stderr.decode()}", stacklevel=1
+                )
 
         (devpi_started_sessions / worker_id).touch()
 
