@@ -309,22 +309,22 @@ def devpi(tmp_path_factory, worker_id):
             else:  # no cov
                 pass
 
-            import httpx
-
-            for _ in range(60):
-                try:
-                    response = httpx.get(
-                        dp.repo,
-                        verify=data["ca_cert"],
-                        timeout=5,
-                    )
-                    if response.status_code < 500:
-                        break
-                except (httpx.ConnectError, httpx.TimeoutException):
-                    pass
-                time.sleep(1)
-
         (devpi_started_sessions / worker_id).touch()
+
+    import httpx
+
+    for _ in range(60):
+        try:
+            response = httpx.get(
+                dp.repo,
+                verify=data["ca_cert"],
+                timeout=5,
+            )
+            if response.status_code < 500:
+                break
+        except (httpx.ConnectError, httpx.TimeoutException):
+            pass
+        time.sleep(1)
 
     try:
         yield dp
