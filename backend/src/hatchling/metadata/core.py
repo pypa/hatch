@@ -191,21 +191,20 @@ class ProjectMetadata(Generic[PluginManagerBound]):
                     self._version = self._get_version(metadata)
                     self.core_raw_metadata["version"] = self.version
 
-                if metadata.dynamic:
-                    for metadata_hook in metadata_hooks.values():
-                        metadata_hook.update(self.core_raw_metadata)
-                        metadata.add_known_classifiers(metadata_hook.get_known_classifiers())
+                for metadata_hook in metadata_hooks.values():
+                    metadata_hook.update(self.core_raw_metadata)
+                    metadata.add_known_classifiers(metadata_hook.get_known_classifiers())
 
-                    new_fields = set(self.core_raw_metadata) - static_fields
-                    for new_field in new_fields:
-                        if new_field in metadata.dynamic:
-                            metadata.dynamic.remove(new_field)
-                        else:
-                            message = (
-                                f"The field `{new_field}` was set dynamically and therefore must be "
-                                f"listed in `project.dynamic`"
-                            )
-                            raise ValueError(message)
+                new_fields = set(self.core_raw_metadata) - static_fields
+                for new_field in new_fields:
+                    if new_field in metadata.dynamic:
+                        metadata.dynamic.remove(new_field)
+                    else:
+                        message = (
+                            f"The field `{new_field}` was set dynamically and therefore must be "
+                            f"listed in `project.dynamic`"
+                        )
+                        raise ValueError(message)
 
             self._core = metadata
 
