@@ -44,7 +44,7 @@ def get_normalized_dependency(requirement: Requirement) -> str:
     return format_dependency(requirement)
 
 
-def resolve_metadata_fields(metadata: ProjectMetadata) -> dict[str, Any]:
+def resolve_metadata_fields(metadata: ProjectMetadata[Any]) -> dict[str, Any]:
     # https://packaging.python.org/en/latest/specifications/declaring-project-metadata/
     return {
         "name": metadata.core.name,

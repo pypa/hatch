@@ -32,11 +32,20 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
     Example usage:
 
     ```python tab="plugin.py"
+    from hatchling.builders.config import BuilderConfig
     from hatchling.builders.plugin.interface import BuilderInterface
+    from hatchling.plugin.manager import PluginManager
 
 
-    class SpecialBuilder(BuilderInterface):
+    class SpecialBuilderConfig(BuilderConfig[PluginManager]): ...
+
+
+    class SpecialBuilder(BuilderInterface[SpecialBuilderConfig, PluginManager]):
         PLUGIN_NAME = "special"
+
+        def get_config_class(self) -> type[SpecialBuilderConfig]:
+            return SpecialBuilderConfig
+
         ...
     ```
 
@@ -47,7 +56,7 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
 
 
     @hookimpl
-    def hatch_register_builder():
+    def hatch_register_builder() -> type[SpecialBuilder]:
         return SpecialBuilder
     ```
     """
@@ -60,7 +69,7 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
         root: str,
         plugin_manager: PluginManagerBound | None = None,
         config: dict[str, Any] | None = None,
-        metadata: ProjectMetadata | None = None,
+        metadata: ProjectMetadata[PluginManagerBound] | None = None,
         app: Application | None = None,
     ) -> None:
         self.__root = root
@@ -283,12 +292,12 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
         if self.__plugin_manager is None:
             from hatchling.plugin.manager import PluginManager
 
-            self.__plugin_manager = PluginManager()
+            self.__plugin_manager = cast(PluginManagerBound, PluginManager())
 
         return self.__plugin_manager
 
     @property
-    def metadata(self) -> ProjectMetadata:
+    def metadata(self) -> ProjectMetadata[PluginManagerBound]:
         if self.__metadata is None:
             from hatchling.metadata.core import ProjectMetadata
 
@@ -400,7 +409,7 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
         Each callable must have the following signature:
 
         ```python
-        def ...(build_dir: str, build_data: dict) -> str:
+        def ...(build_dir: str, **build_data: dict) -> str:
         ```
 
         The return value must be the absolute path to the built artifact.
@@ -429,11 +438,11 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
         """
 
     @classmethod
-    def get_config_class(cls) -> type[BuilderConfig]:
+    def get_config_class(cls) -> type[BuilderConfigBound]:
         """
         Must return a subclass of [BuilderConfig](../utilities.md#hatchling.builders.config.BuilderConfig).
         """
-        return BuilderConfig
+        return cast(type[BuilderConfigBound], BuilderConfig)
 
     @staticmethod
     def normalize_file_name_component(file_name: str) -> str:
