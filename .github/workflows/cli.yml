@@ -30,7 +30,7 @@ jobs:
         python-version: ${{ env.STABLE_PYTHON_VERSION }}
 
     - name: Install UV
-      uses: astral-sh/setup-uv@v3
+      uses: astral-sh/setup-uv@v5
 
     - name: Install hyperfine
       uses: taiki-e/install-action@v2
