@@ -5,8 +5,6 @@ import sys
 from functools import cached_property
 from typing import TYPE_CHECKING, cast
 
-from uv import find_uv_bin
-
 from hatch.cli.terminal import Terminal
 from hatch.config.user import ConfigFile, RootConfig
 from hatch.project.core import Project
@@ -146,6 +144,8 @@ class Application(Terminal):
     def ensure_plugin_dependencies(self, dependencies: list[Dependency], *, wait_message: str) -> None:
         if not dependencies:
             return
+
+        from uv import find_uv_bin
 
         from hatch.dep.sync import InstalledDistributions
         from hatch.env.utils import add_verbosity_flag

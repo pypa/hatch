@@ -14,7 +14,6 @@ import pytest
 from click.testing import CliRunner as __CliRunner
 from filelock import FileLock
 from platformdirs import user_cache_dir, user_data_dir
-from uv import find_uv_bin
 
 from hatch.config.constants import AppEnvVars, ConfigEnvVars, PublishEnvVars
 from hatch.config.user import ConfigFile
@@ -449,6 +448,8 @@ def mock_backend_process_output(request, mocker):
 
 @pytest.fixture
 def mock_plugin_installation(mocker):
+    from uv import find_uv_bin
+
     subprocess_run = subprocess.run
     mocked_subprocess_run = mocker.MagicMock(returncode=0)
 
