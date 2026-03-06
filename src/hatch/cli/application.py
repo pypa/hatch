@@ -145,6 +145,8 @@ class Application(Terminal):
         if not dependencies:
             return
 
+        from uv import find_uv_bin
+
         from hatch.dep.sync import InstalledDistributions
         from hatch.env.utils import add_verbosity_flag
 
@@ -164,9 +166,10 @@ class Application(Terminal):
             if distributions.dependencies_in_sync(dependencies):
                 return
 
-            pip_command = [sys.executable, "-u", "-m", "pip"]
+            uv_bin = find_uv_bin()
+            pip_command = [uv_bin, "pip"]
 
-        pip_command.extend(["install", "--disable-pip-version-check"])
+        pip_command.extend(["install", "--disable-pip-version-check", "--python", sys.executable])
 
         # Default to -1 verbosity
         add_verbosity_flag(pip_command, self.verbosity, adjustment=-1)

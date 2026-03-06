@@ -48,13 +48,16 @@ def get_current_timestamp():
 
 
 def assert_plugin_installation(subprocess_run, dependencies: list[str], *, verbosity=0, count=1):
+    from uv import find_uv_bin
+
+    uv_bin = find_uv_bin()
     command = [
-        sys.executable,
-        "-u",
-        "-m",
+        uv_bin,
         "pip",
         "install",
         "--disable-pip-version-check",
+        "--python",
+        sys.executable,
     ]
     add_verbosity_flag(command, verbosity, adjustment=-1)
     command.extend(dependencies)

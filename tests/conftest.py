@@ -448,12 +448,22 @@ def mock_backend_process_output(request, mocker):
 
 @pytest.fixture
 def mock_plugin_installation(mocker):
+    from uv import find_uv_bin
+
     subprocess_run = subprocess.run
     mocked_subprocess_run = mocker.MagicMock(returncode=0)
 
     def _mock(command, **kwargs):
         if isinstance(command, list):
+            if any(arg.startswith("hatchling") for arg in command):
+                return subprocess_run(command, **kwargs)
+
             if command[:5] == [sys.executable, "-u", "-m", "pip", "install"]:
+                mocked_subprocess_run(command, **kwargs)
+                return mocked_subprocess_run
+
+            uv_bin = find_uv_bin()
+            if command[:3] == [uv_bin, "pip", "install"]:
                 mocked_subprocess_run(command, **kwargs)
                 return mocked_subprocess_run
 
