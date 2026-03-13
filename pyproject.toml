@@ -134,3 +134,8 @@ exclude_lines = [
   "if __name__ == .__main__.:",
   "if TYPE_CHECKING:",
 ]
+
+[tool.pytest]
+markers = [
+  "packaging_regression: Test version parsing regression introduced with `packaging==26.0`"
+]

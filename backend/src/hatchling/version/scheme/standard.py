@@ -93,6 +93,16 @@ def reset_version_parts(version: Version, **kwargs: Any) -> Version:
         return version.__replace__(**parts)
 
     # Reference: https://github.com/pypa/packaging/blob/20.9/packaging/version.py#L301-L310
+    def _transform(key: str, value: object) -> tuple[str, object]:
+        proper_value = value
+        # `post` is already proper format
+        if key in {"dev", "post"} and value is not None:
+            proper_value = parse_letter_version(key, value)
+        if key == "local":
+            proper_value = parse_local_version(value)
+        return key, proper_value
+
+    parts = dict(_transform(k, v) for k, v in parts.items())
     internal_version = version._version  # noqa: SLF001
     version._version = type(internal_version)(**parts)  # noqa: SLF001
     return version
@@ -105,7 +115,13 @@ def update_release(original_version: Version, new_release_parts: list[int]) -> t
     return tuple(new_release_parts)
 
 
-def parse_letter_version(*args: Any, **kwargs: Any) -> tuple[Literal["a", "b", "rc"], int]:
+def parse_letter_version(*args: Any, **kwargs: Any) -> tuple[str, int]:
     from packaging.version import _parse_letter_version  # noqa: PLC2701
 
-    return cast(tuple[Literal["a", "b", "rc"], int], _parse_letter_version(*args, **kwargs))
+    return cast(tuple[str, int], _parse_letter_version(*args, **kwargs))
+
+
+def parse_local_version(*args: Any, **kwargs: Any) -> tuple[int | str, ...] | None:
+    from packaging.version import _parse_local_version  # noqa: PLC2701
+
+    return _parse_local_version(*args, **kwargs)
