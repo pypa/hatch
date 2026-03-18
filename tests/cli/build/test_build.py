@@ -1354,6 +1354,61 @@ def test_build_dependencies(hatch, temp_dir, helpers):
     )
 
 
+@pytest.mark.allow_backend_process
+@pytest.mark.requires_internet
+def test_require_runtime_dependencies(hatch, temp_dir, helpers):
+    """Test that require-runtime-dependencies installs runtime deps in the build env.
+
+    Regression test for https://github.com/pypa/hatch/issues/2110 where
+    prepare_build_environment's @cached_property on a few fields prevented 
+    runtime deps from being installed.
+    """
+    project_name = "My.App"
+
+    with temp_dir.as_cwd():
+        result = hatch("new", project_name)
+        assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
+    data_path.mkdir()
+
+    # Custom build hook that imports a runtime dependency
+    build_script = project_path / DEFAULT_BUILD_SCRIPT
+    build_script.write_text(
+        helpers.dedent(
+            """
+            from typing import Any
+            from hatchling.builders.hooks.plugin.interface import BuildHookInterface
+
+            class CustomBuildHook(BuildHookInterface):
+                PLUGIN_NAME = "custom"
+
+                def initialize(self, version: str, build_data: dict[str, Any]) -> None:
+                    import binary
+            """
+        )
+    )
+
+    project = Project(project_path)
+    config = dict(project.raw_config)
+    config["project"]["dependencies"] = ["binary"]
+    config["tool"]["hatch"]["build"] = {
+        "hooks": {
+            "custom": {
+                "path": DEFAULT_BUILD_SCRIPT,
+                "require-runtime-dependencies": True,
+            }
+        },
+    }
+    project.save_config(config)
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch("build", "-t", "wheel")
+
+    assert result.exit_code == 0, result.output
+
+
 def test_plugin_dependencies_unmet(hatch, temp_dir, helpers, mock_plugin_installation):
     project_name = "My.App"
 

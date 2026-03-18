@@ -356,7 +356,7 @@ class EnvironmentInterface(ABC):
 
         return local_dependencies_complex
 
-    @cached_property
+    @property
     def dependencies_complex(self) -> list[Dependency]:
         from hatch.dep.core import Dependency
 
@@ -410,7 +410,7 @@ class EnvironmentInterface(ABC):
         """
         return [str(dependency) for dependency in self.dependencies_complex]
 
-    @cached_property
+    @property
     def all_dependencies_complex(self) -> list[Dependency]:
         from hatch.dep.core import Dependency
 
