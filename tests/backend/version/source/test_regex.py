@@ -72,6 +72,19 @@ def test_match_custom_pattern(temp_dir):
         assert source.get_version_data()["version"] == "0.0.1"
 
 
+def test_match_type_annotated_version(temp_dir):
+    """Test that __version__: str = "1.0.0" is matched by default pattern."""
+    source = RegexSource(str(temp_dir), {"path": "a/b"})
+
+    file_path = temp_dir / "a" / "b"
+    file_path.ensure_parent_dir_exists()
+    file_path.write_text('__version__: str = "1.0.0"')
+
+    with temp_dir.as_cwd():
+        assert source.get_version_data()["version"] == "1.0.0"
+
+
+
 @pytest.mark.parametrize(("variable", "quote", "prefix"), DEFAULT_PATTERN_PRODUCTS)
 def test_match_default_pattern(temp_dir, helpers, variable, quote, prefix):
     source = RegexSource(str(temp_dir), {"path": "a/b"})
