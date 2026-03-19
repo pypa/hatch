@@ -293,8 +293,15 @@ class Project:
     def get_dependencies(self) -> tuple[list[str], dict[str, list[str]]]:
         dynamic_fields = {"dependencies", "optional-dependencies"}
         if not dynamic_fields.intersection(self.metadata.dynamic):
+            from hatch.utils.metadata import normalize_project_name
+
             dependencies: list[str] = self.metadata.core_raw_metadata.get("dependencies", [])
-            features: dict[str, list[str]] = self.metadata.core_raw_metadata.get("optional-dependencies", {})
+            raw_features: dict[str, list[str]] = self.metadata.core_raw_metadata.get("optional-dependencies", {})
+            # Normalize feature keys (PEP 685: underscores -> hyphens) for consistent lookup
+            features = {
+                normalize_project_name(name) if not self.metadata.hatch.metadata.allow_ambiguous_features else name: deps
+                for name, deps in raw_features.items()
+            }
             return dependencies, features
 
         from hatch.project.constants import BUILD_BACKEND
