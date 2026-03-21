@@ -17,7 +17,7 @@ def get_files(**kwargs):
         File(
             Path(kwargs["package_name"], "__init__.py"),
             f"""\
-# SPDX-FileCopyrightText: {kwargs["year"]}-present {kwargs["author"]} <{kwargs["email"]}>
+# SPDX-FileCopyrightText: {kwargs["year"]}-present {kwargs["copyright-holder"]}
 #
 # SPDX-License-Identifier: MIT
 """,
@@ -25,7 +25,7 @@ def get_files(**kwargs):
         File(
             Path(kwargs["package_name"], "__about__.py"),
             f"""\
-# SPDX-FileCopyrightText: {kwargs["year"]}-present {kwargs["author"]} <{kwargs["email"]}>
+# SPDX-FileCopyrightText: {kwargs["year"]}-present {kwargs["copyright-holder"]}
 #
 # SPDX-License-Identifier: MIT
 __version__ = "0.0.1"
@@ -34,7 +34,7 @@ __version__ = "0.0.1"
         File(
             Path("tests", "__init__.py"),
             f"""\
-# SPDX-FileCopyrightText: {kwargs["year"]}-present {kwargs["author"]} <{kwargs["email"]}>
+# SPDX-FileCopyrightText: {kwargs["year"]}-present {kwargs["copyright-holder"]}
 #
 # SPDX-License-Identifier: MIT
 """,
@@ -97,9 +97,9 @@ classifiers = [
 dependencies = []
 
 [project.urls]
-Documentation = "https://github.com/{kwargs["author"]}/{kwargs["project_name_normalized"]}#readme"
-Issues = "https://github.com/{kwargs["author"]}/{kwargs["project_name_normalized"]}/issues"
-Source = "https://github.com/{kwargs["author"]}/{kwargs["project_name_normalized"]}"
+Documentation = "https://github.com/{kwargs["github-org"]}/{kwargs["project_name_normalized"]}#readme"
+Issues = "https://github.com/{kwargs["github-org"]}/{kwargs["project_name_normalized"]}/issues"
+Source = "https://github.com/{kwargs["github-org"]}/{kwargs["project_name_normalized"]}"
 
 [tool.hatch.version]
 path = "{kwargs["package_name"]}/__about__.py"
