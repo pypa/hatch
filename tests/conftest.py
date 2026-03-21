@@ -109,6 +109,26 @@ def isolation(uv_on_path) -> Generator[Path, None, None]:
             yield d
 
 
+@pytest.fixture(scope="session", autouse=True)
+def bypass_gh():
+    with temp_directory() as d:
+        gh_file = d / "gh"
+        gh_file.write_text("#!/bin/sh\nexit 1")
+        gh_file.chmod(0o755)
+        path = os.environ["PATH"]
+        os.environ["PATH"] = f"{d.absolute()}:{path}"
+        yield gh_file
+        os.environ["PATH"] = path
+
+
+@pytest.fixture
+def use_gh(bypass_gh):
+    orig_content = bypass_gh.read_text()
+    bypass_gh.write_text("#!/bin/sh\necho gh-foobarbaz\nexit 0")
+    yield bypass_gh
+    bypass_gh.write_text(orig_content)
+
+
 @pytest.fixture(scope="session")
 def isolated_data_dir() -> Path:
     return Path(os.environ[ConfigEnvVars.DATA])
