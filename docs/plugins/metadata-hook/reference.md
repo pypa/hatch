@@ -10,6 +10,7 @@ Metadata hooks allow for the modification of [project metadata](../../config/met
 - [hatch-fancy-pypi-readme](https://github.com/hynek/hatch-fancy-pypi-readme) - dynamically construct the README
 - [hatch-nodejs-version](https://github.com/agoose77/hatch-nodejs-version) - uses fields from NodeJS `package.json` files
 - [hatch-odoo](https://github.com/acsone/hatch-odoo) - determine dependencies based on manifests of Odoo add-ons
+- [hatch-pinned-extra](https://github.com/edgarrmondragon/hatch-pinned-extra) - adds a packaging extra to the wheel metadata with pinned dependencies from `uv.lock`
 - [hatch-requirements-txt](https://github.com/repo-helper/hatch-requirements-txt) - read project dependencies from `requirements.txt` files
 - [UniDep](https://github.com/basnijholt/unidep) - for unified `pip` and `conda` dependency management using a single `requirements.yaml` file for both 
 
