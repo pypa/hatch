@@ -11,6 +11,36 @@ if TYPE_CHECKING:
     from hatch.env.virtual import VirtualEnvironment
 
 
+def environment_has_lock_inputs(environment: EnvironmentInterface) -> bool:
+    """Whether the environment has anything to pass to the lock resolver."""
+    if environment.environment_dependencies or environment.additional_dependencies:
+        return True
+    if environment.features or environment.dependency_groups:
+        return (environment.root / "pyproject.toml").is_file()
+    if not environment.skip_install and (environment.root / "pyproject.toml").is_file():
+        return True
+    return bool(environment.dependencies)
+
+
+def _lock_environment_only_strings(environment: EnvironmentInterface) -> list[str]:
+    lines = list(environment.environment_dependencies)
+    for dep in environment.additional_dependencies:
+        lines.append(str(dep))
+    return lines
+
+
+def _uv_should_use_layered_lock(
+    environment: EnvironmentInterface,
+    lock_extras: tuple[str, ...],
+    lock_groups: tuple[str, ...],
+) -> bool:
+    if not (environment.root / "pyproject.toml").is_file():
+        return False
+    if lock_extras or lock_groups:
+        return True
+    return not environment.skip_install
+
+
 def generate_lockfile(
     environment: EnvironmentInterface,
     output_path: Path,
@@ -18,25 +48,57 @@ def generate_lockfile(
     upgrade: bool = False,
     upgrade_packages: tuple[str, ...] = (),
     deps_override: list[str] | None = None,
+    lock_extras: tuple[str, ...] | None = None,
+    lock_groups: tuple[str, ...] | None = None,
 ) -> None:
-    deps = deps_override if deps_override is not None else environment.dependencies
-    if not deps:
+    from hatch.env.virtual import VirtualEnvironment
+
+    extras = lock_extras if lock_extras is not None else tuple(environment.features)
+    groups = lock_groups if lock_groups is not None else tuple(environment.dependency_groups)
+
+    uv = isinstance(environment, VirtualEnvironment) and environment.use_uv
+    layered = uv and _uv_should_use_layered_lock(environment, extras, groups)
+
+    if layered:
+        direct_deps = deps_override if deps_override is not None else _lock_environment_only_strings(environment)
+    else:
+        direct_deps = deps_override if deps_override is not None else environment.dependencies
+        extras = ()
+        groups = ()
+
+    pyproject = environment.root / "pyproject.toml"
+    if layered and not direct_deps and not pyproject.is_file():
         return
 
-    with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False, encoding="utf-8") as f:
-        f.write("\n".join(deps))
-        f.write("\n")
-        deps_file = Path(f.name)
+    if not direct_deps and not (layered and pyproject.is_file()):
+        return
+
+    deps_file: Path | None = None
+    if direct_deps:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False, encoding="utf-8") as f:
+            f.write("\n".join(direct_deps))
+            f.write("\n")
+            deps_file = Path(f.name)
 
     try:
-        from hatch.env.virtual import VirtualEnvironment
-
         if isinstance(environment, VirtualEnvironment) and environment.use_uv:
-            _lock_with_uv(environment, deps_file, output_path, upgrade=upgrade, upgrade_packages=upgrade_packages)
+            _lock_with_uv(
+                environment,
+                output_path,
+                upgrade=upgrade,
+                upgrade_packages=upgrade_packages,
+                layered=layered,
+                lock_extras=extras,
+                lock_groups=groups,
+                requirements_file=deps_file,
+            )
         else:
+            if deps_file is None:
+                return
             _lock_with_pip(environment, deps_file, output_path, upgrade=upgrade, upgrade_packages=upgrade_packages)
     finally:
-        deps_file.unlink()
+        if deps_file is not None:
+            deps_file.unlink()
 
 
 def _lock_with_pip(
@@ -62,21 +124,35 @@ def _lock_with_pip(
 
 def _lock_with_uv(
     environment: VirtualEnvironment,
-    deps_file: Path,
     output_path: Path,
     *,
     upgrade: bool = False,
     upgrade_packages: tuple[str, ...] = (),
+    layered: bool,
+    lock_extras: tuple[str, ...],
+    lock_groups: tuple[str, ...],
+    requirements_file: Path | None,
 ) -> None:
-    command = [
-        environment.uv_path,
-        "pip",
-        "compile",
-        str(deps_file),
-        "--generate-hashes",
-        "--output-file",
-        str(output_path),
-    ]
+    pyproject = environment.root / "pyproject.toml"
+    command = [environment.uv_path, "pip", "compile"]
+
+    if requirements_file is not None:
+        command.append(str(requirements_file))
+    if layered:
+        command.append(str(pyproject))
+
+    command.extend(
+        [
+            "--generate-hashes",
+            "--output-file",
+            str(output_path),
+        ]
+    )
+
+    for extra in lock_extras:
+        command.extend(["--extra", extra])
+    for group in lock_groups:
+        command.extend(["--group", group])
 
     add_verbosity_flag(command, environment.verbosity, adjustment=-1)
 

@@ -39,7 +39,8 @@ def lock(
     """
     app.ensure_environment_plugin_dependencies()
 
-    from hatch.env.lock import generate_lockfile, resolve_lockfile_path
+    from hatch.env.lock import environment_has_lock_inputs, generate_lockfile, resolve_lockfile_path
+    from hatch.env.virtual import VirtualEnvironment
     from hatch.utils.fs import Path
 
     if export_path and export_all_path:
@@ -105,7 +106,7 @@ def lock(
             app.display(f"Lockfile exists: {output_path}")
             continue
 
-        if not environment.dependencies:
+        if not environment_has_lock_inputs(environment):
             app.display_warning(f"Environment `{env}` has no dependencies to lock")
             continue
 
@@ -117,17 +118,34 @@ def lock(
         if len(envs) == 1:
             environment = app.project.get_environment(envs[0])
             merged_deps = None
+            merged_extras: tuple[str, ...] | None = None
+            merged_groups: tuple[str, ...] | None = None
             display_name = envs[0]
         else:
-            seen: set[str] = set()
-            merged: list[str] = []
+            seen_full: set[str] = set()
+            merged_full: list[str] = []
+            seen_env_only: set[str] = set()
+            merged_env_only: list[str] = []
             python_versions: set[str] = set()
+            extras_union: set[str] = set()
+            groups_union: set[str] = set()
             for env in envs:
                 env_obj = app.project.get_environment(env)
                 for dep in env_obj.dependencies:
-                    if dep not in seen:
-                        seen.add(dep)
-                        merged.append(dep)
+                    if dep not in seen_full:
+                        seen_full.add(dep)
+                        merged_full.append(dep)
+                for dep in env_obj.environment_dependencies:
+                    if dep not in seen_env_only:
+                        seen_env_only.add(dep)
+                        merged_env_only.append(dep)
+                for dep in env_obj.additional_dependencies:
+                    dep_s = str(dep)
+                    if dep_s not in seen_env_only:
+                        seen_env_only.add(dep_s)
+                        merged_env_only.append(dep_s)
+                extras_union.update(env_obj.features)
+                groups_union.update(env_obj.dependency_groups)
                 python_version = env_obj.config.get("python", "")
                 python_versions.add(python_version)
 
@@ -139,9 +157,26 @@ def lock(
                     f"Use distinct `lock-filename` values for each Python version."
                 )
 
-            merged_deps = merged
             environment = app.project.get_environment(envs[0])
             display_name = ", ".join(envs)
+            use_layered_merge = (
+                isinstance(environment, VirtualEnvironment)
+                and environment.use_uv
+                and (environment.root / "pyproject.toml").is_file()
+                and (
+                    extras_union
+                    or groups_union
+                    or any(not app.project.get_environment(e).skip_install for e in envs)
+                )
+            )
+            if use_layered_merge:
+                merged_deps = merged_env_only
+                merged_extras = tuple(sorted(extras_union))
+                merged_groups = tuple(sorted(groups_union))
+            else:
+                merged_deps = merged_full
+                merged_extras = ()
+                merged_groups = ()
 
         with app.status(f"Locking environment: {display_name}"):
             generate_lockfile(
@@ -150,6 +185,8 @@ def lock(
                 upgrade=upgrade,
                 upgrade_packages=upgrade_package,
                 deps_override=merged_deps,
+                lock_extras=merged_extras,
+                lock_groups=merged_groups,
             )
 
         app.display(f"Wrote lockfile: {output_path}")
