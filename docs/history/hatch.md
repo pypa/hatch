@@ -8,10 +8,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
-***Added:***
+## [1.16.5](https://github.com/pypa/hatch/releases/tag/hatch-v1.16.5) - 2026-02-26 ## {: #hatch-v1.16.5 }
 
-- Add `hatch env lock` command to generate [PEP 751](https://peps.python.org/pep-0751/) lockfiles (`pylock.toml`) for environments
-- Add `locked` per-environment setting and `lock-envs` global setting for automatic lockfile generation
+***Fixed:***
+
+- Handle a breaking change in `virtualenv` by only supporting the latest version and adding `python-discovery` as a dependency.
+
+## [1.16.4](https://github.com/pypa/hatch/releases/tag/hatch-v1.16.4) - 2026-02-23 ## {: #hatch-v1.16.4 }
+
+***Fixed:***
+
+- Fixes hatch shell type error for keep_env.
+- SBOM documentation for including SBOM files in `sdist`
+- Fixes workspace member detection to properly handle shared path prefixes.
 
 ## [1.16.3](https://github.com/pypa/hatch/releases/tag/hatch-v1.16.3) - 2026-01-20 ## {: #hatch-v1.16.3 }
 
@@ -21,10 +30,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ***Fixed:***
 
-- Fix issue with self-referential dependencies not being recognized. 
+- Fix issue with self-referential dependencies not being recognized.
 - Fix incomplete environments created when an exception occurs during creation.
-- Fix dependency-groups not working with when environment is not marked as builder. 
-- Change Keyring to take expect repository URL instead of repository name. 
+- Fix dependency-groups not working with when environment is not marked as builder.
+- Change Keyring to take expect repository URL instead of repository name.
 
 ## [1.16.2](https://github.com/pypa/hatch/releases/tag/hatch-v1.16.2) - 2025-12-06 ## {: #hatch-v1.16.2 }
 

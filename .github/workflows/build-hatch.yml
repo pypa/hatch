@@ -582,7 +582,7 @@ jobs:
         path: installers
         merge-multiple: true
 
-    - name: Add assets to current release
+    - name: Add assets to draft release
       uses: softprops/action-gh-release@v2
       with:
         files: |-
