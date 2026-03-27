@@ -3,13 +3,13 @@ from __future__ import annotations
 import os
 
 
-def locate_file(root: str, file_name: str, *, boundary: str | None = None) -> str | None:
+def locate_file(root: str, file_name: str, *, boundaries: list[str] | None = None) -> str | None:
     while True:
         file_path = os.path.join(root, file_name)
         if os.path.isfile(file_path):
             return file_path
 
-        if boundary is not None and os.path.exists(os.path.join(root, boundary)):
+        if boundaries is not None and any(os.path.exists(os.path.join(root, boundary)) for boundary in boundaries):
             return None
 
         new_root = os.path.dirname(root)
