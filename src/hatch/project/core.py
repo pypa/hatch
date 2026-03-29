@@ -272,8 +272,6 @@ class Project:
                 except Exception as e:  # noqa: BLE001
                     self.app.abort(f"Environment `{self.build_env.name}` is incompatible: {e}")
 
-            self.prepare_environment(self.build_env, keep_env=keep_env)
-
             additional_dependencies: list[str] = []
             with self.app.status("Inspecting build dependencies"):
                 if build_backend != BUILD_BACKEND:
@@ -298,6 +296,8 @@ class Project:
                 self.build_env.additional_dependencies.extend(map(Dependency, additional_dependencies))
                 with self.build_env.app_status_dependency_synchronization():
                     self.build_env.sync_dependencies()
+
+            self.prepare_environment(self.build_env, keep_env=keep_env)
 
     def get_dependencies(self) -> tuple[list[str], dict[str, list[str]]]:
         dynamic_fields = {"dependencies", "optional-dependencies"}
