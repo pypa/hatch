@@ -140,13 +140,11 @@ def _lock_with_uv(
     if layered:
         command.append(str(pyproject))
 
-    command.extend(
-        [
-            "--generate-hashes",
-            "--output-file",
-            str(output_path),
-        ]
-    )
+    command.extend([
+        "--generate-hashes",
+        "--output-file",
+        str(output_path),
+    ])
 
     for extra in lock_extras:
         command.extend(["--extra", extra])

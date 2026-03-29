@@ -163,11 +163,7 @@ def lock(
                 isinstance(environment, VirtualEnvironment)
                 and environment.use_uv
                 and (environment.root / "pyproject.toml").is_file()
-                and (
-                    extras_union
-                    or groups_union
-                    or any(not app.project.get_environment(e).skip_install for e in envs)
-                )
+                and (extras_union or groups_union or any(not app.project.get_environment(e).skip_install for e in envs))
             )
             if use_layered_merge:
                 merged_deps = merged_env_only
