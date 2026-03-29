@@ -24,8 +24,7 @@ def environment_has_lock_inputs(environment: EnvironmentInterface) -> bool:
 
 def _lock_environment_only_strings(environment: EnvironmentInterface) -> list[str]:
     lines = list(environment.environment_dependencies)
-    for dep in environment.additional_dependencies:
-        lines.append(str(dep))
+    lines.extend(map(str, environment.additional_dependencies))
     return lines
 
 
