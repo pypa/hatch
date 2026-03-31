@@ -1,3 +1,3 @@
 import pluggy
 
-hookimpl = pluggy.HookimplMarker('hatch')
+hookimpl = pluggy.HookimplMarker("hatch")

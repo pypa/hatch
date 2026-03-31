@@ -77,13 +77,13 @@ PER_FILE_IGNORED_RULES: dict[str, list[str]] = {
 
 
 def get_lines_until(file_path: Path, marker: str) -> list[str]:
-    lines = file_path.read_text(encoding='utf-8').splitlines()
+    lines = file_path.read_text(encoding="utf-8").splitlines()
     for i, line in enumerate(lines):
         if line.startswith(marker):
             block_start = i
             break
     else:
-        message = f'Could not find {marker}: {file_path.relative_to(ROOT)}'
+        message = f"Could not find {marker}: {file_path.relative_to(ROOT)}"
         raise ValueError(message)
 
     del lines[block_start:]
@@ -92,81 +92,81 @@ def get_lines_until(file_path: Path, marker: str) -> list[str]:
 
 def main():
     process = subprocess.run(  # noqa: PLW1510
-        [sys.executable, '-m', 'ruff', 'rule', '--all', '--output-format', 'json'],
+        [sys.executable, "-m", "ruff", "rule", "--all", "--output-format", "json"],
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
-        encoding='utf-8',
+        encoding="utf-8",
         cwd=str(ROOT),
     )
     if process.returncode:
         raise OSError(process.stdout)
 
-    data_file = ROOT / 'src' / 'hatch' / 'cli' / 'fmt' / 'core.py'
-    lines = get_lines_until(data_file, 'STABLE_RULES')
+    data_file = ROOT / "src" / "hatch" / "cli" / "fmt" / "core.py"
+    lines = get_lines_until(data_file, "STABLE_RULES")
 
-    ignored_pattern = re.compile(f'^({"|".join(UNSELECTED_RULE_PATTERNS)})$')
+    ignored_pattern = re.compile(f"^({'|'.join(UNSELECTED_RULE_PATTERNS)})$")
     # https://github.com/astral-sh/ruff/issues/9891#issuecomment-1951403651
-    removed_pattern = re.compile(r'^\s*#+\s+(removed|removal)', flags=re.IGNORECASE | re.MULTILINE)
+    removed_pattern = re.compile(r"^\s*#+\s+(removed|removal)", flags=re.IGNORECASE | re.MULTILINE)
 
     stable_rules: set[str] = set()
     preview_rules: set[str] = set()
     unselected_rules: set[str] = set()
     for rule in json.loads(process.stdout):
-        code = rule['code']
-        if ignored_pattern.match(code) or removed_pattern.search(rule['explanation']):
+        code = rule["code"]
+        if ignored_pattern.match(code) or removed_pattern.search(rule["explanation"]):
             unselected_rules.add(code)
             continue
 
-        if rule['preview']:
+        if rule["preview"]:
             preview_rules.add(code)
         else:
             stable_rules.add(code)
 
-    lines.append('STABLE_RULES: tuple[str, ...] = (')
-    lines.extend(f'    {rule!r},' for rule in sorted(stable_rules))
-    lines.append(')')
+    lines.append("STABLE_RULES: tuple[str, ...] = (")
+    lines.extend(f"    {rule!r}," for rule in sorted(stable_rules))
+    lines.append(")")
 
-    lines.append('PREVIEW_RULES: tuple[str, ...] = (')
-    lines.extend(f'    {rule!r},' for rule in sorted(preview_rules))
-    lines.append(')')
+    lines.append("PREVIEW_RULES: tuple[str, ...] = (")
+    lines.extend(f"    {rule!r}," for rule in sorted(preview_rules))
+    lines.append(")")
 
-    lines.append('PER_FILE_IGNORED_RULES: dict[str, list[str]] = {')
+    lines.append("PER_FILE_IGNORED_RULES: dict[str, list[str]] = {")
     for ignored_glob, ignored_rules in sorted(PER_FILE_IGNORED_RULES.items()):
-        lines.append(f'    {ignored_glob!r}: [')
-        lines.extend(f'        {rule!r},' for rule in sorted(ignored_rules))
-        lines.append('    ],')
-    lines.append('}')
+        lines.append(f"    {ignored_glob!r}: [")
+        lines.extend(f"        {rule!r}," for rule in sorted(ignored_rules))
+        lines.append("    ],")
+    lines.append("}")
 
-    lines.append('')
-    data_file.write_text('\n'.join(lines), encoding='utf-8')
+    lines.append("")
+    data_file.write_text("\n".join(lines), encoding="utf-8")
 
-    version_file = ROOT / 'src' / 'hatch' / 'env' / 'internal' / 'static_analysis.py'
-    latest_version = version('ruff')
+    version_file = ROOT / "src" / "hatch" / "env" / "internal" / "static_analysis.py"
+    latest_version = version("ruff")
     version_file.write_text(
         re.sub(
-            r'^(RUFF_DEFAULT_VERSION.+=.+\').+?(\')$',
-            rf'\g<1>{latest_version}\g<2>',
-            version_file.read_text(encoding='utf-8'),
+            r"^(RUFF_DEFAULT_VERSION.+=.+\').+?(\')$",
+            rf"\g<1>{latest_version}\g<2>",
+            version_file.read_text(encoding="utf-8"),
             count=1,
             flags=re.MULTILINE,
         ),
-        encoding='utf-8',
+        encoding="utf-8",
     )
 
-    data_file = ROOT / 'docs' / '.hooks' / 'render_ruff_defaults.py'
-    lines = get_lines_until(data_file, 'UNSELECTED_RULES')
+    data_file = ROOT / "docs" / ".hooks" / "render_ruff_defaults.py"
+    lines = get_lines_until(data_file, "UNSELECTED_RULES")
 
-    lines.append('UNSELECTED_RULES: tuple[str, ...] = (')
-    lines.extend(f'    {rule!r},' for rule in sorted(unselected_rules))
-    lines.append(')')
+    lines.append("UNSELECTED_RULES: tuple[str, ...] = (")
+    lines.extend(f"    {rule!r}," for rule in sorted(unselected_rules))
+    lines.append(")")
 
-    lines.append('')
-    data_file.write_text('\n'.join(lines), encoding='utf-8')
+    lines.append("")
+    data_file.write_text("\n".join(lines), encoding="utf-8")
 
-    print(f'Stable rules: {len(stable_rules)}')
-    print(f'Preview rules: {len(preview_rules)}')
-    print(f'Unselected rules: {len(unselected_rules)}')
+    print(f"Stable rules: {len(stable_rules)}")
+    print(f"Preview rules: {len(preview_rules)}")
+    print(f"Unselected rules: {len(unselected_rules)}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -5,7 +5,7 @@ from hatch.project.utils import parse_inline_script_metadata
 
 class TestParseInlineScriptMetadata:
     def test_no_metadata(self):
-        assert parse_inline_script_metadata('') is None
+        assert parse_inline_script_metadata("") is None
 
     def test_too_many_blocks(self, helpers):
         script = helpers.dedent(
@@ -19,7 +19,7 @@ class TestParseInlineScriptMetadata:
             # ///
             """
         )
-        with pytest.raises(ValueError, match='^Multiple inline metadata blocks found for type: script$'):
+        with pytest.raises(ValueError, match="^Multiple inline metadata blocks found for type: script$"):
             parse_inline_script_metadata(script)
 
     def test_correct(self, helpers):
@@ -37,7 +37,7 @@ class TestParseInlineScriptMetadata:
             """
         )
         assert parse_inline_script_metadata(script) == {
-            'embedded-csharp': helpers.dedent(
+            "embedded-csharp": helpers.dedent(
                 """
                 /// <summary>
                 /// text

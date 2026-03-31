@@ -2,18 +2,18 @@ from hatchling.build import build_editable, build_sdist, build_wheel
 
 
 def test_sdist(hatch, helpers, temp_dir, config_file):
-    config_file.model.template.plugins['default']['src-layout'] = False
+    config_file.model.template.plugins["default"]["src-layout"] = False
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    project_config = project_path / 'pyproject.toml'
+    project_path = temp_dir / "my-app"
+    project_config = project_path / "pyproject.toml"
     project_config.write_text(
         helpers.dedent(
             """
@@ -30,7 +30,7 @@ def test_sdist(hatch, helpers, temp_dir, config_file):
         )
     )
 
-    build_path = project_path / 'dist'
+    build_path = project_path / "dist"
     build_path.mkdir()
 
     with project_path.as_cwd():
@@ -39,22 +39,22 @@ def test_sdist(hatch, helpers, temp_dir, config_file):
     build_artifacts = list(build_path.iterdir())
     assert len(build_artifacts) == 1
     assert expected_artifact == str(build_artifacts[0].name)
-    assert expected_artifact.endswith('.tar.gz')
+    assert expected_artifact.endswith(".tar.gz")
 
 
 def test_wheel(hatch, helpers, temp_dir, config_file):
-    config_file.model.template.plugins['default']['src-layout'] = False
+    config_file.model.template.plugins["default"]["src-layout"] = False
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    project_config = project_path / 'pyproject.toml'
+    project_path = temp_dir / "my-app"
+    project_config = project_path / "pyproject.toml"
     project_config.write_text(
         helpers.dedent(
             """
@@ -71,7 +71,7 @@ def test_wheel(hatch, helpers, temp_dir, config_file):
         )
     )
 
-    build_path = project_path / 'dist'
+    build_path = project_path / "dist"
     build_path.mkdir()
 
     with project_path.as_cwd():
@@ -80,22 +80,22 @@ def test_wheel(hatch, helpers, temp_dir, config_file):
     build_artifacts = list(build_path.iterdir())
     assert len(build_artifacts) == 1
     assert expected_artifact == str(build_artifacts[0].name)
-    assert expected_artifact.endswith('.whl')
+    assert expected_artifact.endswith(".whl")
 
 
 def test_editable(hatch, helpers, temp_dir, config_file):
-    config_file.model.template.plugins['default']['src-layout'] = False
+    config_file.model.template.plugins["default"]["src-layout"] = False
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    project_config = project_path / 'pyproject.toml'
+    project_path = temp_dir / "my-app"
+    project_config = project_path / "pyproject.toml"
     project_config.write_text(
         helpers.dedent(
             """
@@ -112,7 +112,7 @@ def test_editable(hatch, helpers, temp_dir, config_file):
         )
     )
 
-    build_path = project_path / 'dist'
+    build_path = project_path / "dist"
     build_path.mkdir()
 
     with project_path.as_cwd():
@@ -121,4 +121,4 @@ def test_editable(hatch, helpers, temp_dir, config_file):
     build_artifacts = list(build_path.iterdir())
     assert len(build_artifacts) == 1
     assert expected_artifact == str(build_artifacts[0].name)
-    assert expected_artifact.endswith('.whl')
+    assert expected_artifact.endswith(".whl")

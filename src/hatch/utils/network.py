@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import time
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, Generator
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
+
     import httpx
 
     from hatch.utils.fs import Path
@@ -41,8 +43,8 @@ def streaming_response(*args: Any, **kwargs: Any) -> Generator[httpx.Response, N
 
 
 def download_file(path: Path, *args: Any, **kwargs: Any) -> None:
-    kwargs.setdefault('timeout', DEFAULT_TIMEOUT)
+    kwargs.setdefault("timeout", DEFAULT_TIMEOUT)
 
-    with path.open(mode='wb', buffering=0) as f, streaming_response('GET', *args, **kwargs) as response:
+    with path.open(mode="wb", buffering=0) as f, streaming_response("GET", *args, **kwargs) as response:
         for chunk in response.iter_bytes(16384):
             f.write(chunk)

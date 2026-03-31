@@ -13,10 +13,10 @@ class DistributionCache:
         self._resolver = Distribution.discover(context=DistributionFinder.Context(path=sys_path))
         self._distributions: dict[str, Distribution] = {}
         self._search_exhausted = False
-        self._canonical_regex = re.compile(r'[-_.]+')
+        self._canonical_regex = re.compile(r"[-_.]+")
 
     def __getitem__(self, item: str) -> Distribution | None:
-        item = self._canonical_regex.sub('-', item).lower()
+        item = self._canonical_regex.sub("-", item).lower()
         possible_distribution = self._distributions.get(item)
         if possible_distribution is not None:
             return possible_distribution
@@ -27,11 +27,11 @@ class DistributionCache:
             return None
 
         for distribution in self._resolver:
-            name = distribution.metadata['Name']
+            name = distribution.metadata["Name"]
             if name is None:
                 continue
 
-            name = self._canonical_regex.sub('-', name).lower()
+            name = self._canonical_regex.sub("-", name).lower()
             self._distributions[name] = distribution
             if name == item:
                 return distribution
@@ -53,11 +53,11 @@ def dependency_in_sync(
 
     extras = requirement.extras
     if extras:
-        transitive_requirements: list[str] = distribution.metadata.get_all('Requires-Dist', [])
+        transitive_requirements: list[str] = distribution.metadata.get_all("Requires-Dist", [])
         if not transitive_requirements:
             return False
 
-        available_extras: list[str] = distribution.metadata.get_all('Provides-Extra', [])
+        available_extras: list[str] = distribution.metadata.get_all("Provides-Extra", [])
 
         for requirement_string in transitive_requirements:
             transitive_requirement = Requirement(requirement_string)
@@ -71,7 +71,7 @@ def dependency_in_sync(
                     return False
 
                 extra_environment = dict(environment)
-                extra_environment['extra'] = extra
+                extra_environment["extra"] = extra
                 if not dependency_in_sync(transitive_requirement, extra_environment, installed_distributions):
                     return False
 
@@ -80,30 +80,30 @@ def dependency_in_sync(
 
     # TODO: handle https://discuss.python.org/t/11938
     if requirement.url:
-        direct_url_file = distribution.read_text('direct_url.json')
+        direct_url_file = distribution.read_text("direct_url.json")
         if direct_url_file is not None:
             import json
 
             # https://packaging.python.org/specifications/direct-url/
             direct_url_data = json.loads(direct_url_file)
-            if 'vcs_info' in direct_url_data:
-                url = direct_url_data['url']
-                vcs_info = direct_url_data['vcs_info']
-                vcs = vcs_info['vcs']
-                commit_id = vcs_info['commit_id']
-                requested_revision = vcs_info.get('requested_revision')
+            if "vcs_info" in direct_url_data:
+                url = direct_url_data["url"]
+                vcs_info = direct_url_data["vcs_info"]
+                vcs = vcs_info["vcs"]
+                commit_id = vcs_info["commit_id"]
+                requested_revision = vcs_info.get("requested_revision")
 
                 # Try a few variations, see https://peps.python.org/pep-0440/#direct-references
                 if (
-                    requested_revision and requirement.url == f'{vcs}+{url}@{requested_revision}#{commit_id}'
-                ) or requirement.url == f'{vcs}+{url}@{commit_id}':
+                    requested_revision and requirement.url == f"{vcs}+{url}@{requested_revision}#{commit_id}"
+                ) or requirement.url == f"{vcs}+{url}@{commit_id}":
                     return True
 
-                if requirement.url in {f'{vcs}+{url}', f'{vcs}+{url}@{requested_revision}'}:
+                if requirement.url in {f"{vcs}+{url}", f"{vcs}+{url}@{requested_revision}"}:
                     import subprocess
 
-                    if vcs == 'git':
-                        vcs_cmd = [vcs, 'ls-remote', url]
+                    if vcs == "git":
+                        vcs_cmd = [vcs, "ls-remote", url]
                         if requested_revision:
                             vcs_cmd.append(requested_revision)
                     # TODO: add elifs for hg, svn, and bzr https://github.com/pypa/hatch/issues/760

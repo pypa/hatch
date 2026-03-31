@@ -16,7 +16,7 @@ class ExecutionContext:
         force_continue: bool = False,
         show_code_on_error: bool = False,
         hide_commands: bool = False,
-        source: str = 'cmd',
+        source: str = "cmd",
     ) -> None:
         self.env = environment
         self.shell_commands: list[str] = shell_commands or []
@@ -33,14 +33,14 @@ class ExecutionContext:
 def parse_matrix_variables(specs: tuple[str, ...]) -> dict[str, set[str]]:
     variables: dict[str, set[str]] = {}
     for spec in specs:
-        variable, _, values = spec.partition('=')
-        if variable == 'py':
-            variable = 'python'
+        variable, _, values = spec.partition("=")
+        if variable == "py":
+            variable = "python"
 
         if variable in variables:
             raise ValueError(variable)
 
-        variables[variable] = set(values.split(',')) if values else set()
+        variables[variable] = set(values.split(",")) if values else set()
 
     return variables
 

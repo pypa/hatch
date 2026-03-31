@@ -6,20 +6,20 @@ from ..new.feature_no_src_layout import get_files as get_template_files
 
 
 def get_files(**kwargs):
-    relative_root = kwargs.get('relative_root', '')
+    relative_root = kwargs.get("relative_root", "")
 
     files = []
     for f in get_template_files(**kwargs):
         part = f.path.parts[0]
-        if part in {'my_app', 'pyproject.toml', 'README.md', 'LICENSE.txt'}:
+        if part in {"my_app", "pyproject.toml", "README.md", "LICENSE.txt"}:
             files.append(File(Path(relative_root, f.path), f.contents))
 
     files.append(
         File(
-            Path(relative_root, 'PKG-INFO'),
+            Path(relative_root, "PKG-INFO"),
             f"""\
 Metadata-Version: {DEFAULT_METADATA_VERSION}
-Name: {kwargs['project_name']}
+Name: {kwargs["project_name"]}
 Version: 0.0.1
 License-File: LICENSE.txt
 Description-Content-Type: text/markdown

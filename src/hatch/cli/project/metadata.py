@@ -8,8 +8,8 @@ if TYPE_CHECKING:
     from hatch.cli.application import Application
 
 
-@click.command(short_help='Display project metadata')
-@click.argument('field', required=False)
+@click.command(short_help="Display project metadata")
+@click.argument("field", required=False)
 @click.pass_obj
 def metadata(app: Application, field: str | None):
     """
@@ -39,12 +39,12 @@ def metadata(app: Application, field: str | None):
 
     if field:
         if field not in project_metadata:
-            app.abort(f'Unknown metadata field: {field}')
-        elif field == 'readme':
-            if project_metadata[field]['content-type'] == 'text/markdown':  # no cov
-                app.display_markdown(project_metadata[field]['text'])
+            app.abort(f"Unknown metadata field: {field}")
+        elif field == "readme":
+            if project_metadata[field]["content-type"] == "text/markdown":  # no cov
+                app.display_markdown(project_metadata[field]["text"])
             else:
-                app.display(project_metadata[field]['text'])
+                app.display(project_metadata[field]["text"])
         elif isinstance(project_metadata[field], str):
             app.display(project_metadata[field])
         else:

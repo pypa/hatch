@@ -32,6 +32,7 @@ The following is not intended to be a complete enumeration. Be sure to view the 
 | [LinkChecker](https://github.com/linkchecker/linkchecker/blob/de40321b57a2271e90e696b5320c0409faaa895d/pyproject.toml#L29-L34)
 | [Litestar](https://github.com/litestar-org/litestar/blob/f9e3f727e8ae71e4b58a518240fb6c66e83c10de/pyproject.toml#L181-L183)
 | [Material for MkDocs](https://github.com/squidfunk/mkdocs-material/blob/7ca1c1d623b4750d4aaa0cfd673b0ed2c6050c2b/pyproject.toml#L21-L23)
+| [Meltano](https://github.com/meltano/meltano/blob/af5a4873f0cd807cfdfe42dbde238d7e30c81b7d/pyproject.toml#L345-L347)
 | [MicroPython](https://github.com/micropython/micropython/blob/30a9ccf4caa72c62cb8656a1572518fef34b08a4/tools/mpremote/pyproject.toml#L1-L7)
 | [MkDocs](https://github.com/mkdocs/mkdocs/blob/65c24c21f0057ec4717d20d14d5fb7af22fe8caf/pyproject.toml#L1-L3)
 | [openSUSE](https://github.com/openSUSE/py2pack/blob/25be8cdb53ee6966213474e3399fe451f33993f6/pyproject.toml#L1-L3)
