@@ -4,10 +4,10 @@ from hatch.env.utils import ensure_valid_environment
 
 
 class DefaultEnvironmentCollector(EnvironmentCollectorInterface):
-    PLUGIN_NAME = 'default'
+    PLUGIN_NAME = "default"
 
     def get_initial_config(self):  # noqa: PLR6301
         default_config = {}
         ensure_valid_environment(default_config)
 
-        return {'default': default_config, **get_internal_env_config()}
+        return {"default": default_config, **get_internal_env_config()}

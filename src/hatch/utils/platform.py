@@ -2,18 +2,19 @@ from __future__ import annotations
 
 import os
 import sys
-from functools import lru_cache
+from functools import cache
 from importlib import import_module
-from typing import TYPE_CHECKING, Any, Callable, Iterable, cast
+from typing import TYPE_CHECKING, Any, cast
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable
     from subprocess import CompletedProcess, Popen
     from types import ModuleType
 
     from hatch.utils.fs import Path
 
 
-@lru_cache(maxsize=None)
+@cache
 def get_platform_name() -> str:
     import platform
 
@@ -22,7 +23,7 @@ def get_platform_name() -> str:
 
 def normalize_platform_name(platform_name: str) -> str:
     platform_name = platform_name.lower()
-    return 'macos' if platform_name == 'darwin' else platform_name
+    return "macos" if platform_name == "darwin" else platform_name
 
 
 class Platform:
@@ -80,7 +81,7 @@ class Platform:
     ) -> CompletedProcess:
         with self.capture_process(command, shell=shell, **kwargs) as process:
             for line in self.stream_process_output(process):
-                self.__display_func(line, end='')
+                self.__display_func(line, end="")
 
             stdout, stderr = process.communicate()
 
@@ -93,7 +94,7 @@ class Platform:
         with the command first being
         [properly formatted](utilities.md#hatch.utils.platform.Platform.format_for_subprocess).
         """
-        if self.displaying_status and not kwargs.get('capture_output'):
+        if self.displaying_status and not kwargs.get("capture_output"):
             return self._run_command_integrated(command, shell=shell, **kwargs)
 
         self.populate_default_popen_kwargs(kwargs, shell=shell)
@@ -116,17 +117,17 @@ class Platform:
         [capture_process](utilities.md#hatch.utils.platform.Platform.capture_process),
         but non-zero exit codes will gracefully end program execution.
         """
-        kwargs.setdefault('stdout', self.modules.subprocess.PIPE)
-        kwargs.setdefault('stderr', self.modules.subprocess.STDOUT)
+        kwargs.setdefault("stdout", self.modules.subprocess.PIPE)
+        kwargs.setdefault("stderr", self.modules.subprocess.STDOUT)
         self.populate_default_popen_kwargs(kwargs, shell=shell)
 
         process = self.modules.subprocess.run(self.format_for_subprocess(command, shell=shell), shell=shell, **kwargs)
         if process.returncode:
             # Callers might not want to merge both streams so try stderr first
-            self.__display_func((process.stderr or process.stdout).decode('utf-8'))
+            self.__display_func((process.stderr or process.stdout).decode("utf-8"))
             self.exit_with_code(process.returncode)
 
-        return process.stdout.decode('utf-8')
+        return process.stdout.decode("utf-8")
 
     def capture_process(self, command: str | list[str], *, shell: bool = False, **kwargs: Any) -> Popen:
         """
@@ -148,36 +149,36 @@ class Platform:
         # https://support.apple.com/en-us/HT204899
         # https://en.wikipedia.org/wiki/System_Integrity_Protection
         if (
-            'executable' not in kwargs
+            "executable" not in kwargs
             and self.macos
             and shell
-            and any(env_var.startswith(('DYLD_', 'LD_')) for env_var in os.environ)
+            and any(env_var.startswith(("DYLD_", "LD_")) for env_var in os.environ)
         ):
-            default_paths = os.environ.get('PATH', os.defpath).split(os.pathsep)
+            default_paths = os.environ.get("PATH", os.defpath).split(os.pathsep)
             unprotected_paths = []
             for path in default_paths:
                 normalized_path = os.path.normpath(path)
                 if not normalized_path.startswith((
-                    '/System',
-                    '/usr',
-                    '/bin',
-                    '/sbin',
-                    '/var',
-                )) or normalized_path.startswith('/usr/local'):
+                    "/System",
+                    "/usr",
+                    "/bin",
+                    "/sbin",
+                    "/var",
+                )) or normalized_path.startswith("/usr/local"):
                     unprotected_paths.append(path)
 
             search_path = os.pathsep.join(unprotected_paths)
-            for exe_name in ('sh', 'bash', 'zsh', 'fish'):
+            for exe_name in ("sh", "bash", "zsh", "fish"):
                 executable = self.modules.shutil.which(exe_name, path=search_path)
                 if executable:
-                    kwargs['executable'] = executable
+                    kwargs["executable"] = executable
                     break
 
     @staticmethod
     def stream_process_output(process: Popen) -> Iterable[str]:
         # To avoid blocking never use a pipe's file descriptor iterator. See https://bugs.python.org/issue3907
-        for line in iter(process.stdout.readline, b''):  # type: ignore[union-attr]
-            yield line.decode('utf-8')
+        for line in iter(process.stdout.readline, b""):  # type: ignore[union-attr]
+            yield line.decode("utf-8")
 
     @property
     def default_shell(self) -> str:
@@ -190,9 +191,9 @@ class Platform:
         """
         if self.__default_shell is None:
             if self.windows:
-                self.__default_shell = cast(str, os.environ.get('SHELL', os.environ.get('COMSPEC', 'cmd')))
+                self.__default_shell = cast(str, os.environ.get("SHELL", os.environ.get("COMSPEC", "cmd")))
             else:
-                self.__default_shell = cast(str, os.environ.get('SHELL', 'bash'))
+                self.__default_shell = cast(str, os.environ.get("SHELL", "bash"))
         return self.__default_shell
 
     @property
@@ -209,9 +210,9 @@ class Platform:
     def format_file_uri(self) -> Callable[[str], str]:
         if self.__format_file_uri is None:
             if self.windows:
-                self.__format_file_uri = lambda p: f'file:///{p}'.replace('\\', '/')
+                self.__format_file_uri = lambda p: f"file:///{p}".replace("\\", "/")
             else:
-                self.__format_file_uri = lambda p: f'file://{p}'
+                self.__format_file_uri = lambda p: f"file://{p}"
 
         return self.__format_file_uri
 
@@ -220,14 +221,14 @@ class Platform:
         """
         Indicates whether Hatch is running on Windows.
         """
-        return self.name == 'windows'
+        return self.name == "windows"
 
     @property
     def macos(self) -> bool:
         """
         Indicates whether Hatch is running on macOS.
         """
-        return self.name == 'macos'
+        return self.name == "macos"
 
     @property
     def linux(self) -> bool:
@@ -271,7 +272,7 @@ class Platform:
         - `macOS`
         """
         if self.__display_name is None:
-            self.__display_name = 'macOS' if self.macos else self.name.capitalize()
+            self.__display_name = "macOS" if self.macos else self.name.capitalize()
 
         return self.__display_name
 
@@ -283,7 +284,7 @@ class Platform:
         if self.__home is None:
             from hatch.utils.fs import Path
 
-            self.__home = Path(os.path.expanduser('~'))
+            self.__home = Path(os.path.expanduser("~"))
 
         return self.__home
 

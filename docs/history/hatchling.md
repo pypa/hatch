@@ -8,6 +8,67 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.29.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.29.0) - 2026-02-21 ## {: #hatchling-v1.29.0 }
+
+***Fixed:***
+
+- Source Date Epoch no longer fails when set to date before 1980. 
+
+## [1.28.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.28.0) - 2025-11-26 ## {: #hatchling-v1.28.0 }
+
+***Changed:***
+
+- Drop support for Python 3.9
+
+***Added:***
+
+- Add `sbom-files` option and `sbom_files` build data to the `wheel` build target for including Software Bill of Materials files.
+
+## [1.27.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.27.0) - 2024-11-26 ## {: #hatchling-v1.27.0 }
+
+***Added:***
+
+- Update the default version of core metadata to 2.4
+
+## [1.26.3](https://github.com/pypa/hatch/releases/tag/hatchling-v1.26.3) - 2024-11-12 ## {: #hatchling-v1.26.3 }
+
+***Fixed:***
+
+- Support an old import path that is still used by some consumers like Hatch
+
+## [1.26.2](https://github.com/pypa/hatch/releases/tag/hatchling-v1.26.2) - 2024-11-12 ## {: #hatchling-v1.26.2 }
+
+***Fixed:***
+
+- Back-populate string `license` fields (`License-Expression`) for core metadata versions prior to 2.4
+- Remove the `License-Expression` and `License-Files` core metadata from version 2.2 that was missed in the previous minor release
+
+## [1.26.1](https://github.com/pypa/hatch/releases/tag/hatchling-v1.26.1) - 2024-11-10 ## {: #hatchling-v1.26.1 }
+
+***Fixed:***
+
+- Add backward compatibility for the old `license-files` metadata field
+- Support an old import path that is still used by some consumers like Hatch
+
+## [1.26.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.26.0) - 2024-11-10 ## {: #hatchling-v1.26.0 }
+
+***Changed:***
+
+- The `license-files` metadata field has been updated to the latest spec and is now just an array of glob patterns
+
+***Added:***
+
+- Support version 2.4 of core metadata for the `wheel` and `sdist` targets
+- Add `HATCH_METADATA_CLASSIFIERS_NO_VERIFY` environment variable to disable trove classifier verification
+- Add `.pixi` to the list of directories that cannot be traversed
+- Bump the minimum supported version of `packaging` to 24.2
+
+***Fixed:***
+
+- No longer write package metadata for license expressions and files for versions of core metadata prior to 2.4
+- Properly enable Zip64 support for the `wheel` target
+- Properly ignore parent `.gitingore` files when the project root matches one of the patterns
+
 ## [1.25.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.25.0) - 2024-06-22 ## {: #hatchling-v1.25.0 }
 
 ***Changed:***

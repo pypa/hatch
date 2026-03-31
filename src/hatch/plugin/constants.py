@@ -1,1 +1,1 @@
-DEFAULT_CUSTOM_SCRIPT = 'hatch_plugins.py'
+DEFAULT_CUSTOM_SCRIPT = "hatch_plugins.py"

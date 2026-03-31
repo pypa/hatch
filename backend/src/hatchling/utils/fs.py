@@ -20,7 +20,7 @@ def locate_file(root: str, file_name: str, *, boundary: str | None = None) -> st
 
 
 def path_to_uri(path: str) -> str:
-    if os.sep == '/':
-        return f'file://{os.path.abspath(path).replace(" ", "%20")}'
+    if os.sep == "/":
+        return f"file://{os.path.abspath(path).replace(' ', '%20')}"
 
-    return f'file:///{os.path.abspath(path).replace(" ", "%20").replace(os.sep, "/")}'
+    return f"file:///{os.path.abspath(path).replace(' ', '%20').replace(os.sep, '/')}"

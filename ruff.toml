@@ -5,7 +5,6 @@ exclude = [".git", ".mypy_cache", ".ruff_cache", ".venv", "dist"]
 
 [format]
 preview = true
-quote-style = "single"
 
 [lint]
 preview = true

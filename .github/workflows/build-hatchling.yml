@@ -22,7 +22,7 @@ jobs:
         python-version: ${{ env.PYTHON_VERSION }}
 
     - name: Install UV
-      run: curl -LsSf https://github.com/astral-sh/uv/releases/latest/download/uv-installer.sh | sh
+      uses: astral-sh/setup-uv@v3
 
     - name: Install build dependencies
       run: uv pip install --system --upgrade build
@@ -43,6 +43,7 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
+      contents: write
       id-token: write
 
     steps:
@@ -52,6 +53,11 @@ jobs:
         path: dist
 
     - name: Push build artifacts to PyPI
-      uses: pypa/gh-action-pypi-publish@v1.9.0
+      uses: pypa/gh-action-pypi-publish@v1.12.3
       with:
         skip-existing: true
+
+    - name: Add assets to draft release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: dist/*

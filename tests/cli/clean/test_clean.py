@@ -5,20 +5,20 @@ import pytest
 from hatch.project.core import Project
 from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT, DEFAULT_CONFIG_FILE
 
-pytestmark = [pytest.mark.usefixtures('mock_backend_process')]
+pytestmark = [pytest.mark.usefixtures("mock_backend_process")]
 
 
 def test(hatch, temp_dir, helpers, config_file, mock_plugin_installation):
-    config_file.model.template.plugins['default']['src-layout'] = False
+    config_file.model.template.plugins["default"]["src-layout"] = False
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
         assert result.exit_code == 0, result.output
 
-    path = temp_dir / 'my-app'
+    path = temp_dir / "my-app"
 
     build_script = path / DEFAULT_BUILD_SCRIPT
     build_script.write_text(
@@ -41,16 +41,16 @@ def test(hatch, temp_dir, helpers, config_file, mock_plugin_installation):
 
     project = Project(path)
     config = dict(project.raw_config)
-    config['tool']['hatch']['build'] = {'hooks': {'custom': {'path': build_script.name}}}
+    config["tool"]["hatch"]["build"] = {"hooks": {"custom": {"path": build_script.name}}}
     project.save_config(config)
 
     with path.as_cwd():
-        result = hatch('build')
+        result = hatch("build")
         assert result.exit_code == 0, result.output
 
-    build_directory = path / 'dist'
+    build_directory = path / "dist"
     assert build_directory.is_dir()
-    build_artifact = path / 'my_app' / 'lib.so'
+    build_artifact = path / "my_app" / "lib.so"
     assert build_artifact.is_file()
 
     artifacts = list(build_directory.iterdir())
@@ -67,10 +67,10 @@ def test(hatch, temp_dir, helpers, config_file, mock_plugin_installation):
     )
 
     with path.as_cwd():
-        result = hatch('version', 'minor')
+        result = hatch("version", "minor")
         assert result.exit_code == 0, result.output
 
-        result = hatch('clean')
+        result = hatch("clean")
         assert result.exit_code == 0, result.output
 
     artifacts = list(build_directory.iterdir())

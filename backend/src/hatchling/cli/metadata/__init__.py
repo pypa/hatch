@@ -27,9 +27,9 @@ def metadata_impl(
     metadata = resolve_metadata_fields(project_metadata)
     if field:  # no cov
         if field not in metadata:
-            app.abort(f'Unknown metadata field: {field}')
-        elif field == 'readme':
-            app.display(metadata[field]['text'])
+            app.abort(f"Unknown metadata field: {field}")
+        elif field == "readme":
+            app.display(metadata[field]["text"])
         elif isinstance(metadata[field], str):
             app.display(metadata[field])
         else:
@@ -42,7 +42,7 @@ def metadata_impl(
             metadata.pop(key)
 
     if compact:
-        app.display(json.dumps(metadata, separators=(',', ':')))
+        app.display(json.dumps(metadata, separators=(",", ":")))
     else:  # no cov
         app.display(json.dumps(metadata, indent=4))
 
@@ -51,8 +51,8 @@ def metadata_command(
     subparsers: argparse._SubParsersAction,
     defaults: Any,  # noqa: ARG001
 ) -> None:
-    parser = subparsers.add_parser('metadata')
-    parser.add_argument('field', nargs='?')
-    parser.add_argument('-c', '--compact', action='store_true')
-    parser.add_argument('--app', dest='called_by_app', action='store_true', help=argparse.SUPPRESS)
+    parser = subparsers.add_parser("metadata")
+    parser.add_argument("field", nargs="?")
+    parser.add_argument("-c", "--compact", action="store_true")
+    parser.add_argument("--app", dest="called_by_app", action="store_true", help=argparse.SUPPRESS)
     parser.set_defaults(func=metadata_impl)

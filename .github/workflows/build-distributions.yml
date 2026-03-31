@@ -32,7 +32,7 @@ jobs:
         python-version: ${{ env.DIST_PYTHON_VERSION }}
 
     - name: Install UV
-      run: curl -LsSf https://github.com/astral-sh/uv/releases/latest/download/uv-installer.sh | sh
+      uses: astral-sh/setup-uv@v3
 
     - name: Install Hatch
       if: inputs.version
@@ -137,11 +137,11 @@ jobs:
       matrix:
         job:
         - target: x86_64-pc-windows-msvc
-          os: windows-2019
+          os: windows-2022
         - target: aarch64-apple-darwin
           os: macos-14
         - target: x86_64-apple-darwin
-          os: macos-12
+          os: macos-14
 
     steps:
     - name: Checkout code

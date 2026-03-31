@@ -51,6 +51,7 @@ All environment types should [offer support](#hatch.env.plugin.interface.Environ
       - dependencies_in_sync
       - sync_dependencies
       - dependency_hash
+      - project_dependencies
       - project_root
       - sep
       - pathsep
