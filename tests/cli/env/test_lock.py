@@ -363,14 +363,45 @@ def test_check_exists(hatch, helpers, temp_dir, config_file):
         {"skip-install": True, "dependencies": ["requests"], "locked": True, **project.config.envs["default"]},
     )
 
-    # Create a lockfile to check against
-    (project_path / "pylock.toml").write_text("")
-
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        gen = hatch("env", "lock", "default")
+        assert gen.exit_code == 0, gen.output
         result = hatch("env", "lock", "default", "--check")
 
     assert result.exit_code == 0, result.output
-    assert "Lockfile exists" in result.output
+    assert "Lockfile is up to date" in result.output
+
+
+@pytest.mark.usefixtures("env_run")
+def test_check_lockfile_stale(hatch, helpers, temp_dir, config_file):
+    config_file.model.template.plugins["default"]["tests"] = False
+    config_file.save()
+
+    project_name = "My.App"
+
+    with temp_dir.as_cwd():
+        result = hatch("new", project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
+    data_path.mkdir()
+
+    project = Project(project_path)
+    helpers.update_project_environment(
+        project,
+        "default",
+        {"skip-install": True, "dependencies": ["requests"], "locked": True, **project.config.envs["default"]},
+    )
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        assert hatch("env", "lock", "default").exit_code == 0
+        (project_path / "pylock.toml").write_text("not-the-resolved-lock\n", encoding="utf-8")
+        result = hatch("env", "lock", "default", "--check")
+
+    assert result.exit_code == 1
+    assert "not up to date" in result.output
 
 
 @pytest.mark.usefixtures("env_run")

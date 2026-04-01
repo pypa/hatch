@@ -144,7 +144,14 @@ class VirtualEnvironment(EnvironmentInterface):
 
     @staticmethod
     def get_option_types() -> dict:
-        return {"system-packages": bool, "path": str, "python-sources": list, "installer": str, "uv-path": str}
+        return {
+            "system-packages": bool,
+            "path": str,
+            "python-sources": list,
+            "installer": str,
+            "uv-path": str,
+            "locker": str,
+        }
 
     def activate(self):
         self.virtual_env.activate()
@@ -215,16 +222,22 @@ class VirtualEnvironment(EnvironmentInterface):
             if self.distributions.missing_dependencies(workspace_deps):
                 return False
 
-            if self.locked and self.use_uv:
-                from hatch.env.lock import resolve_lockfile_path
+            if self.locked:
+                from hatch.env.lock import (
+                    LockerNotFoundError,
+                    LockerUnsupportedError,
+                    get_locker_plugin_class,
+                    resolve_lockfile_path,
+                )
 
                 lockfile_path = resolve_lockfile_path(self)
                 if lockfile_path.is_file():
-                    completed = self.platform.run_command(
-                        self._uv_pip_sync_command(lockfile_path, dry_run=True),
-                        capture_output=True,
-                    )
-                    return completed.returncode == 0
+                    try:
+                        locker_cls = get_locker_plugin_class(self.app.project, self)
+                    except (LockerNotFoundError, LockerUnsupportedError):
+                        return False
+                    if not locker_cls.install_matches_lock(self, lockfile_path):
+                        return False
 
             return not self.missing_dependencies
 
@@ -233,8 +246,8 @@ class VirtualEnvironment(EnvironmentInterface):
             workspace_deps = [dep for dep in self.local_dependencies_complex if dep.path]
             workspace_names = {dep.name.lower() for dep in self.local_dependencies_complex if dep.path}
 
-            if self.locked and self.use_uv:
-                from hatch.env.lock import resolve_lockfile_path
+            if self.locked:
+                from hatch.env.lock import apply_lock_with_locker, resolve_lockfile_path
 
                 lockfile_path = resolve_lockfile_path(self)
                 if lockfile_path.is_file():
@@ -247,7 +260,7 @@ class VirtualEnvironment(EnvironmentInterface):
 
                     if all_install_args:
                         self.platform.check_command(self.construct_pip_install_command(all_install_args))
-                    self.platform.check_command(self._uv_pip_sync_command(lockfile_path))
+                    apply_lock_with_locker(self, lockfile_path)
                     return
 
             # If we do not have missing dependencies we should not sync

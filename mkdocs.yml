@@ -102,6 +102,8 @@ nav:
     - Environment:
       - Reference: plugins/environment/reference.md
       - Virtual: plugins/environment/virtual.md
+    - Dependency locker:
+      - Reference: plugins/locker.md
     - Environment collector:
       - Reference: plugins/environment-collector/reference.md
       - Custom: plugins/environment-collector/custom.md

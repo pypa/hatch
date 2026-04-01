@@ -343,7 +343,31 @@ def devpi(tmp_path_factory, worker_id):
 
 @pytest.fixture
 def env_run(mocker) -> Generator[MagicMock, None, None]:
-    run = mocker.patch("subprocess.run", return_value=subprocess.CompletedProcess([], 0, stdout=b""))
+    """
+    Stub subprocess-backed lock tooling so CLI tests do not run real resolvers.
+
+    ``pip lock`` / ``uv pip compile`` normally write the output path; a naive mock
+    would return success without creating the file, which breaks ``--check`` /
+    ``in_sync`` tests.
+    """
+
+    STUB_PYLOCK = "lock-version = 1\n"
+
+    def fake_subprocess_run(cmd, *args, **kwargs):
+        cmd_list = cmd if isinstance(cmd, (list, tuple)) else cmd.split()
+        parts = [str(x) for x in cmd_list]
+        out_path: str | None = None
+        if "--output-file" in parts:
+            out_path = parts[parts.index("--output-file") + 1]
+        elif "lock" in parts and "-o" in parts:
+            out_path = parts[parts.index("-o") + 1]
+        if out_path is not None:
+            path = Path(out_path)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(STUB_PYLOCK, encoding="utf-8")
+        return subprocess.CompletedProcess(cmd, 0, stdout=b"")
+
+    run = mocker.patch("subprocess.run", side_effect=fake_subprocess_run)
     mocker.patch("hatch.env.virtual.VirtualEnvironment.exists", return_value=True)
     mocker.patch("hatch.env.virtual.VirtualEnvironment.dependency_hash", return_value="")
     mocker.patch("hatch.env.virtual.VirtualEnvironment.command_context")

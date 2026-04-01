@@ -97,7 +97,7 @@ Syncing dependencies
 
 ## Locking
 
-Hatch can generate [PEP 751](https://peps.python.org/pep-0751/) lockfiles (`pylock.toml`) for environments. Configure environments with [`locked = true`](config/environment/overview.md#locked) and then use the [`env lock`](cli/reference.md#hatch-env-lock) command:
+Hatch can generate [PEP 751](https://peps.python.org/pep-0751/) lockfiles (`pylock.toml`) for environments. Configure environments with [`locked = true`](config/environment/overview.md#locked) and then use the [`env lock`](cli/reference.md#hatch-env-lock) command, or [`dep lock`](cli/reference.md#hatch-dep-lock) / [`lock`](cli/reference.md#hatch-lock) for the active environment:
 
 ```console
 $ hatch env lock

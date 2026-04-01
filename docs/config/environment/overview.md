@@ -309,6 +309,24 @@ dependencies = [
 
 The default value is `false` unless overridden by the global [`lock-envs`](#lock-envs) setting.
 
+### Locker plugin ### {: #locker }
+
+Select which [dependency locker](../../plugins/locker.md) runs **generate**, **in_sync**, and **apply_lock** (defaults follow the environment installer: `uv` with UV, otherwise `pip`).
+
+Global default:
+
+```toml config-example
+[tool.hatch]
+locker = "uv"
+```
+
+Per environment (overrides `tool.hatch.locker`):
+
+```toml config-example
+[tool.hatch.envs.docs]
+locker = "pip"
+```
+
 ### Lock filename ### {: #lock-filename }
 
 By default, lockfiles are named following the [PEP 751](https://peps.python.org/pep-0751/) convention: `pylock.toml` for the `default` environment and `pylock.<ENV_NAME>.toml` for all others. You can override this with the `lock-filename` option:

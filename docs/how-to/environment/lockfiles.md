@@ -35,6 +35,8 @@ locked = false
 
 ## Generating lockfiles
 
+### `hatch env lock` (all or named environments)
+
 Use the [`env lock`](../../cli/reference.md#hatch-env-lock) command to generate lockfiles. When called without arguments, it locks all environments configured with `locked = true`:
 
 ```console
@@ -57,6 +59,19 @@ Wrote lockfile: /path/to/project/pylock.test.toml
     When locking a specific environment by name, it must have `locked = true` configured. To generate a lockfile for an environment that is not configured as locked, use the `--export` flag.
 
 The `default` environment produces `pylock.toml`, while all other environments produce `pylock.<ENV_NAME>.toml`, following the [PEP 751](https://peps.python.org/pep-0751/) naming convention.
+
+### `hatch dep lock` and `hatch lock` (active environment)
+
+For the environment selected with `-e` / `HATCH_ENV` (see the [CLI](../../cli/about.md)), you can run:
+
+- [`dep lock`](../../cli/reference.md#hatch-dep-lock) — same resolver options as `env lock` where applicable (`--upgrade`, `--upgrade-package`, `--export`, `--export-all`, `--check`).
+- [`lock`](../../cli/reference.md#hatch-lock) — shorthand for `hatch dep lock`.
+
+Matrix parents and other names still expand the same way as elsewhere; `--export-all` locks every configured environment into a directory, matching `hatch env lock --export-all`.
+
+## Syncing from a lockfile
+
+[`dep sync`](../../cli/reference.md#hatch-dep-sync) runs the selected locker’s **`apply_lock`** step for the active environment (for example `uv pip sync` when using the UV locker). The environment must be [`locked`](../../config/environment/overview.md#locked) and the lockfile must already exist—run `hatch dep lock` or `hatch env lock` first.
 
 ## Automatic locking
 
@@ -81,14 +96,14 @@ $ hatch env lock test --upgrade-package requests --upgrade-package urllib3
 
 ## Checking if a lockfile is up-to-date
 
-Use the `--check` flag to verify that a lockfile exists without regenerating it:
+Use `--check` on `hatch env lock`, `hatch dep lock`, or `hatch lock` to verify the lockfile is **in sync** with the current dependency inputs (re-resolve and compare). If there is nothing to lock for that environment, Hatch only checks that the file exists.
 
 ```console
 $ hatch env lock test --check
-Lockfile exists: /path/to/project/pylock.test.toml
+Lockfile is up to date: /path/to/project/pylock.test.toml
 ```
 
-This is useful in CI to ensure lockfiles have been committed.
+This is useful in CI to ensure lockfiles have been committed and match `pyproject.toml` / env dependencies.
 
 ## Exporting lockfiles
 
@@ -118,11 +133,15 @@ lock-filename = "requirements-test.lock"
 
 When multiple matrix environments share the same `lock-filename`, Hatch will merge their dependencies and generate the lockfile once.
 
-## Installer integration
+## Installer integration and locker selection
 
-Lockfile generation delegates to whichever installer your environment is configured to use:
+By default, Hatch picks a built-in **locker** from the environment installer:
 
-- **pip** (default): Uses `pip lock` (requires pip 25.1+) to produce a `pylock.toml` file directly.
-- **UV**: Uses `uv pip compile` to resolve dependencies with hashes.
+- **pip** (default): `pip lock` (requires pip 25.1+) for generation.
+- **UV**: `uv pip compile` (with hashes) and `uv pip sync` when applying a lock.
 
-See [How to select the installer](select-installer.md) for details on configuring UV.
+Override with [`tool.hatch.locker`](../../config/environment/overview.md#locker) or [`tool.hatch.envs.<name>.locker`](../../config/environment/overview.md#locker). See [Dependency locker plugins](../../plugins/locker.md) to implement `hatch_register_locker`.
+
+For remote or non-local environment storage, custom lockers can use **[`fs_context`](../../plugins/environment/reference.md#hatch.env.plugin.interface.EnvironmentInterface.fs_context)** and [`FileSystemContext`](../../plugins/utilities.md#hatch.env.plugin.interface.FileSystemContext) to stage lockfiles before or after running the resolver under [`command_context`](../../plugins/environment/reference.md#hatch.env.plugin.interface.EnvironmentInterface.command_context), matching the direction in [discussion #355](https://github.com/pypa/hatch/discussions/355).
+
+See [Dependency locker plugins](../../plugins/locker.md) for the full interface and mapping from that discussion.
