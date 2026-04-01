@@ -17,6 +17,7 @@ class DefaultTemplate(TemplateInterface):
     def initialize_config(self, config):
         # Default values
         config["readme_file_path"] = "README.md"
+        config["gitignore_file_path"] = ".gitignore"
         config["package_metadata_file_path"] = f"src/{config['package_name']}/__about__.py"
 
         license_data = {}
