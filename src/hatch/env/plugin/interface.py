@@ -1062,8 +1062,8 @@ class FileSystemContext:
 
     def sync_local(self):
         """
-        Synchronizes the [local path](utilities.md#hatch.env.plugin.interface.FileSystemContext.local_path) as the
-        source with the [environment path](utilities.md#hatch.env.plugin.interface.FileSystemContext.env_path) as
+        Synchronizes the [local path](utilities.md#hatch.env.plugin.interface.FileSystemContext.local_path)
+        with the [environment path](utilities.md#hatch.env.plugin.interface.FileSystemContext.env_path) as
         the source.
         """
 
