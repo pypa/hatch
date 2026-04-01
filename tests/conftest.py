@@ -351,12 +351,12 @@ def env_run(mocker) -> Generator[MagicMock, None, None]:
     ``in_sync`` tests.
     """
 
-    STUB_PYLOCK = "lock-version = 1\n"
+    stub_pylock = "lock-version = 1\n"
 
-    def fake_subprocess_run(cmd, *args, **kwargs):
+    def fake_subprocess_run(cmd, *_args, **_kwargs) -> subprocess.CompletedProcess:
         cmd_list = cmd if isinstance(cmd, (list, tuple)) else cmd.split()
         parts = [str(x) for x in cmd_list]
-        out_path: str | None = None
+        out_path = None
         if "--output-file" in parts:
             out_path = parts[parts.index("--output-file") + 1]
         elif "lock" in parts and "-o" in parts:
@@ -364,7 +364,7 @@ def env_run(mocker) -> Generator[MagicMock, None, None]:
         if out_path is not None:
             path = Path(out_path)
             path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_text(STUB_PYLOCK, encoding="utf-8")
+            path.write_text(stub_pylock, encoding="utf-8")
         return subprocess.CompletedProcess(cmd, 0, stdout=b"")
 
     run = mocker.patch("subprocess.run", side_effect=fake_subprocess_run)

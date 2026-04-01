@@ -202,7 +202,7 @@ class VirtualEnvironment(EnvironmentInterface):
                 self.construct_pip_install_command(["--editable", self.apply_features(str(self.root))])
             )
 
-    def _uv_pip_sync_command(self, lockfile_path: Path, *, dry_run: bool = False) -> list[str]:
+    def uv_pip_sync_command(self, lockfile_path: Path, *, dry_run: bool = False) -> list[str]:
         command = [self.uv_path, "pip", "sync", str(lockfile_path)]
         for extra in self.features:
             command.extend(["--extra", extra])

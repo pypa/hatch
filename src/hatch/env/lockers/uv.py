@@ -3,8 +3,8 @@ from __future__ import annotations
 import tempfile
 from typing import TYPE_CHECKING
 
-from hatch.env.utils import add_verbosity_flag
 from hatch.env.lockers.interface import LockerInterface
+from hatch.env.utils import add_verbosity_flag
 from hatch.utils.fs import Path
 
 if TYPE_CHECKING:
@@ -155,7 +155,7 @@ class UvLocker(LockerInterface):
             raise TypeError(message)
 
         with environment.command_context():
-            environment.platform.check_command(environment._uv_pip_sync_command(lock_path))
+            environment.platform.check_command(environment.uv_pip_sync_command(lock_path))
 
     @classmethod
     def install_matches_lock(cls, environment: EnvironmentInterface, lock_path: Path) -> bool:
@@ -165,7 +165,7 @@ class UvLocker(LockerInterface):
             return True
 
         completed = environment.platform.run_command(
-            environment._uv_pip_sync_command(lock_path, dry_run=True),
+            environment.uv_pip_sync_command(lock_path, dry_run=True),
             capture_output=True,
         )
         return completed.returncode == 0

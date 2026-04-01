@@ -3,10 +3,9 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
-from hatch.utils.fs import Path
-
 if TYPE_CHECKING:
     from hatch.env.plugin.interface import EnvironmentInterface
+    from hatch.utils.fs import Path
 
 
 class LockerInterface(ABC):
@@ -69,7 +68,7 @@ class LockerInterface(ABC):
         """Install packages so the environment matches the lockfile at ``lock_path``."""
 
     @classmethod
-    def install_matches_lock(cls, environment: EnvironmentInterface, lock_path: Path) -> bool:
+    def install_matches_lock(cls, _environment: EnvironmentInterface, _lock_path: Path) -> bool:
         """
         Whether the environment already matches what :meth:`apply_lock` would install.
 

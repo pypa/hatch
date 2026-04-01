@@ -12,8 +12,8 @@ from hatch.cli.clean import clean
 from hatch.cli.config import config
 from hatch.cli.dep import dep
 from hatch.cli.env import env
-from hatch.cli.lock_cmd import lock_command
 from hatch.cli.fmt import fmt
+from hatch.cli.lock_cmd import lock_command
 from hatch.cli.new import new
 from hatch.cli.project import project
 from hatch.cli.publish import publish

@@ -13,6 +13,7 @@ def dep():
 @click.pass_obj
 def dep_lock(
     app,
+    *,
     upgrade: bool,
     upgrade_package: tuple[str, ...],
     export_path: str | None,

@@ -13,7 +13,9 @@ def dependency_lock_click_options(fn):
     decorators = [
         click.option("--upgrade", "-U", is_flag=True, help="Upgrade all packages"),
         click.option("--upgrade-package", "-P", multiple=True, help="Upgrade specific package(s)"),
-        click.option("--export", "export_path", type=click.Path(), default=None, help="Export lockfile to a custom path"),
+        click.option(
+            "--export", "export_path", type=click.Path(), default=None, help="Export lockfile to a custom path"
+        ),
         click.option(
             "--export-all",
             "export_all_path",

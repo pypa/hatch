@@ -76,7 +76,7 @@ def test_dep_sync_succeeds_skipping_real_activation(hatch, helpers, temp_dir, co
     config_file.save()
 
     @contextmanager
-    def skip_activation(self):
+    def skip_activation(_self):
         yield
 
     mocker.patch.object(VirtualEnvironment, "safe_activation", skip_activation)
@@ -110,7 +110,7 @@ def test_dep_sync_succeeds_skipping_real_activation(hatch, helpers, temp_dir, co
     assert "Synced environment" in result.output
 
 
-def test_dep_sync_aborts_when_not_locked(hatch, helpers, temp_dir, config_file):
+def test_dep_sync_aborts_when_not_locked(hatch, temp_dir, config_file):
     config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 

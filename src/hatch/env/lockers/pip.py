@@ -3,8 +3,8 @@ from __future__ import annotations
 import tempfile
 from typing import TYPE_CHECKING
 
-from hatch.env.utils import add_verbosity_flag
 from hatch.env.lockers.interface import LockerInterface
+from hatch.env.utils import add_verbosity_flag
 from hatch.utils.fs import Path
 
 if TYPE_CHECKING:
@@ -15,7 +15,7 @@ class PipLocker(LockerInterface):
     PLUGIN_NAME = "pip"
 
     @classmethod
-    def supports(cls, environment: EnvironmentInterface) -> bool:
+    def supports(cls, _environment: EnvironmentInterface) -> bool:
         return True
 
     @classmethod

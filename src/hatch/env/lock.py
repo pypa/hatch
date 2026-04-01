@@ -8,16 +8,16 @@ Lockers are registered with ``hatch_register_locker``; built-ins ``uv`` and ``pi
 
 from __future__ import annotations
 
-from collections.abc import Callable
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from hatch.utils.fs import Path
-
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from hatch.env.lockers.interface import LockerInterface
     from hatch.env.plugin.interface import EnvironmentInterface
     from hatch.project.core import Project
+    from hatch.utils.fs import Path
 
 
 class LockerNotFoundError(Exception):
@@ -118,8 +118,6 @@ def prepare_lock_generation_state(
 
 
 def get_locker_plugin_class(project: Project, environment: EnvironmentInterface) -> type[LockerInterface]:
-    from hatch.env.lockers.interface import LockerInterface
-
     name: str | None = environment.config.get("locker")
     if name is None:
         name = project.config.locker
