@@ -8,6 +8,12 @@ def get_files(**kwargs):
         File(Path("src", kwargs["package_name"], "__about__.py"), '__version__ = "0.0.1"\n'),
         File(Path("tests", "__init__.py")),
         File(
+            Path(".gitignore"),
+            """__pycache__/
+dist/
+""",
+        ),
+        File(
             Path("README.md"),
             f"""\
 # {kwargs["project_name"]}
