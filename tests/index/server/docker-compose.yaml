@@ -9,6 +9,12 @@ services:
     - DEVPI_INDEX_NAME
     - DEVPI_USERNAME
     - DEVPI_PASSWORD
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:3141')" ]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+      start_period: 10s
 
   nginx:
     container_name: hatch-nginx
@@ -19,4 +25,5 @@ services:
     volumes:
     - ./nginx:/etc/nginx
     depends_on:
-    - devpi
+      devpi:
+        condition: service_healthy
