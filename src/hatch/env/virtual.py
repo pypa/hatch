@@ -138,7 +138,7 @@ class VirtualEnvironment(EnvironmentInterface):
 
         return InstalledDistributions(sys_path=self.virtual_env.sys_path, environment=self.virtual_env.environment)
 
-    @cached_property
+    @property
     def missing_dependencies(self) -> list[Dependency]:
         return self.distributions.missing_dependencies(self.all_dependencies_complex)
 
