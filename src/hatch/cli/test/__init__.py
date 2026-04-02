@@ -17,6 +17,16 @@ if TYPE_CHECKING:
 @click.option("--retry-delay", type=float, help="Seconds to wait between retries")
 @click.option("--cover", "-c", is_flag=True, help="Measure code coverage")
 @click.option("--cover-quiet", is_flag=True, help="Disable coverage reporting after tests, implicitly enabling --cover")
+@click.option(
+    "--cover-xml",
+    is_flag=True,
+    help="Generate XML coverage report after tests, implicitly enabling --cover",
+)
+@click.option(
+    "--cover-xml-output",
+    type=click.Path(),
+    help="Path for the XML coverage report file",
+)
 @click.option("--all", "-a", "test_all", is_flag=True, help="Test all environments in the matrix")
 @click.option("--python", "-py", help="The Python versions to test, equivalent to: -i py=...")
 @click.option("--include", "-i", "included_variable_specs", multiple=True, help="The matrix variables to include")
@@ -33,6 +43,8 @@ def test(
     retry_delay: float | None,
     cover: bool,
     cover_quiet: bool,
+    cover_xml: bool,
+    cover_xml_output: str | None,
     test_all: bool,
     python: str | None,
     included_variable_specs: tuple[str, ...],
@@ -89,6 +101,9 @@ def test(
         return
 
     if cover_quiet:
+        cover = True
+
+    if cover_xml:
         cover = True
 
     import sys
@@ -202,3 +217,9 @@ def test(
         if not cover_quiet:
             for context in app.runner_context([selected_envs[0]]):
                 context.add_shell_command("cov-report")
+
+        if cover_xml:
+            xml_command = f"coverage xml -o {cover_xml_output}" if cover_xml_output else "coverage xml"
+
+            for context in app.runner_context([selected_envs[0]]):
+                context.add_shell_command(xml_command)
