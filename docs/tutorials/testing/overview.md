@@ -170,6 +170,22 @@ hatch test --cover-quiet
     .coverage*
     ```
 
+### Generate XML coverage report
+
+You can generate an XML coverage report suitable for CI systems like GitLab or Codecov using the `--cover-xml` flag, which implicitly enables `--cover`:
+
+```
+hatch test --cover-xml
+```
+
+This will create a `coverage.xml` file in the current directory. You can specify a custom output path with `--cover-xml-output`:
+
+```
+hatch test --cover-xml --cover-xml-output custom-coverage.xml
+```
+
+The XML report is generated after the text report unless `--cover-quiet` is also used.
+
 ## Retry failed tests
 
 You can [retry](https://github.com/pytest-dev/pytest-rerunfailures) failed tests with the `--retries` option:
