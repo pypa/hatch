@@ -19,7 +19,7 @@ def hatch_register_locker():
     return MyLocker
 ```
 
-Expose the module on the `hatch` entry point (see [Plugins — Discovery](about.md#discovery)) and list the distribution under [`tool.hatch.env.requires`](../config/hatch.md#environment) when the plugin is not installed globally.
+Expose the module on the `hatch` entry point (see [Plugins — Discovery](about.md#discovery)) and list the distribution under [`tool.hatch.env.requires`](environment/reference.md#installation) when the plugin is not installed globally.
 
 ## Interface
 
