@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 class LockerInterface(ABC):
     """
-    Pluggable dependency locker (see https://github.com/pypa/hatch/discussions/355).
+    Pluggable dependency locker.
 
     Implementations are registered via the ``hatch_register_locker`` hook.
     """
@@ -58,8 +58,7 @@ class LockerInterface(ABC):
         lock_groups: tuple[str, ...] = (),
     ) -> bool:
         """
-        Return whether ``output_path`` matches what :meth:`generate` would write now
-        (Ofek's ``in_sync`` from discussion #355).
+        Return whether ``output_path`` matches what :meth:`generate` would write now.
         """
 
     @classmethod

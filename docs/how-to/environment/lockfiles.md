@@ -142,6 +142,6 @@ By default, Hatch picks a built-in **locker** from the environment installer:
 
 Override with [`tool.hatch.locker`](../../config/environment/overview.md#locker) or [`tool.hatch.envs.<name>.locker`](../../config/environment/overview.md#locker). See [Dependency locker plugins](../../plugins/locker.md) to implement `hatch_register_locker`.
 
-For remote or non-local environment storage, custom lockers can use **[`fs_context`](../../plugins/environment/reference.md#hatch.env.plugin.interface.EnvironmentInterface.fs_context)** and [`FileSystemContext`](../../plugins/utilities.md#hatch.env.plugin.interface.FileSystemContext) to stage lockfiles before or after running the resolver under [`command_context`](../../plugins/environment/reference.md#hatch.env.plugin.interface.EnvironmentInterface.command_context), matching the direction in [discussion #355](https://github.com/pypa/hatch/discussions/355).
+For remote or non-local environment storage, custom lockers can use **[`fs_context`](../../plugins/environment/reference.md#hatch.env.plugin.interface.EnvironmentInterface.fs_context)** and [`FileSystemContext`](../../plugins/utilities.md#hatch.env.plugin.interface.FileSystemContext) to stage lockfiles before or after running the resolver under [`command_context`](../../plugins/environment/reference.md#hatch.env.plugin.interface.EnvironmentInterface.command_context).
 
-See [Dependency locker plugins](../../plugins/locker.md) for the full interface and mapping from that discussion.
+See [Dependency locker plugins](../../plugins/locker.md) for the full interface.

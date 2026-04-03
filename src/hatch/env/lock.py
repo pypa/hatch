@@ -2,8 +2,7 @@
 Resolve and write environment lockfiles (PEP 751 ``pylock.toml``) via pluggable **lockers**.
 
 Lockers are registered with ``hatch_register_locker``; built-ins ``uv`` and ``pip`` delegate to
-``uv pip compile`` / ``pip lock``. See https://github.com/pypa/hatch/discussions/355 and
-``docs/how-to/environment/lockfiles.md``.
+``uv pip compile`` / ``pip lock``. See ``docs/how-to/environment/lockfiles.md``.
 """
 
 from __future__ import annotations
