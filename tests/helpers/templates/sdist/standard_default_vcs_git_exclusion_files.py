@@ -9,16 +9,16 @@ def get_files(**kwargs):
     relative_root = kwargs.get("relative_root", "")
 
     files = [File(Path(relative_root, f.path), f.contents) for f in get_template_files(**kwargs)]
+
+    gitignore_files = [file for file in files if file.path == Path(relative_root, ".gitignore")]
+    assert len(gitignore_files) == 1, "Expected exactly one .gitignore file"
+    gitignore_file = gitignore_files[0]
+    files.remove(gitignore_file)
+    gitignore_file.contents += "*.h\n"
+
     files.extend((
+        gitignore_file,
         File(Path(relative_root, kwargs["package_name"], "lib.so"), ""),
-        File(
-            Path(relative_root, ".gitignore"),
-            """\
-*.pyc
-*.so
-*.h
-""",
-        ),
         File(
             Path(relative_root, "PKG-INFO"),
             f"""\

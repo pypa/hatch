@@ -1323,8 +1323,6 @@ class TestBuildStandard:
         stat = os.stat(str(extraction_directory / builder.project_id / "PKG-INFO"))
         assert stat.st_mtime == get_reproducible_timestamp()
 
-    # TODO: update test
-    @pytest.mark.skip(reason="Issues with the new feature, and it's not clear how the test needs to be updated")
     def test_default_vcs_git_exclusion_files(self, hatch, helpers, temp_dir, config_file):
         config_file.model.template.plugins["default"]["src-layout"] = False
         config_file.save()
@@ -1338,8 +1336,12 @@ class TestBuildStandard:
 
         project_path = temp_dir / "my-app"
 
-        vcs_ignore_file = temp_dir / ".gitignore"
-        vcs_ignore_file.write_text("*.pyc\n*.so\n*.h\n")
+        outside_vcs_ignore_file = temp_dir / ".gitignore"
+        outside_vcs_ignore_file.write_text("*.so\n")
+
+        inside_vcs_ignore_file = project_path / ".gitignore"
+        with inside_vcs_ignore_file.open("a") as f:
+            f.write("*.h\n")
 
         (project_path / "my_app" / "lib.so").touch()
         (project_path / "my_app" / "lib.h").touch()
