@@ -40,6 +40,11 @@ url = "https://test.pypi.org/legacy/"
 
 The `repo` and `repos` options have no effect.
 
+### Proxy support
+
+The publisher honors standard proxy environment variables, including
+`HTTP_PROXY`, `HTTPS_PROXY`, `ALL_PROXY`, and `NO_PROXY`.
+
 ### Confirmation prompt
 
 You can require a confirmation prompt or use of the `-y`/`--yes` flag by
