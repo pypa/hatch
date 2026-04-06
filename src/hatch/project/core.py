@@ -294,10 +294,12 @@ class Project:
                 from hatch.dep.core import Dependency
 
                 self.build_env.additional_dependencies.extend(map(Dependency, additional_dependencies))
-                with self.build_env.app_status_dependency_synchronization():
-                    self.build_env.sync_dependencies()
 
             self.prepare_environment(self.build_env, keep_env=keep_env)
+
+            if additional_dependencies:
+                with self.build_env.app_status_dependency_synchronization():
+                    self.build_env.sync_dependencies()
 
     def get_dependencies(self) -> tuple[list[str], dict[str, list[str]]]:
         dynamic_fields = {"dependencies", "optional-dependencies"}
