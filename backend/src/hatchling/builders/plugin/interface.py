@@ -62,12 +62,14 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
         config: dict[str, Any] | None = None,
         metadata: ProjectMetadata | None = None,
         app: Application | None = None,
+        config_settings: dict[str, Any] | None = None,
     ) -> None:
         self.__root = root
         self.__plugin_manager = cast(PluginManagerBound, plugin_manager)
         self.__raw_config = config
         self.__metadata = metadata
         self.__app = app
+        self.__config_settings = config_settings
         self.__config = cast(BuilderConfigBound, None)
         self.__project_config: dict[str, Any] | None = None
         self.__hatch_config: dict[str, Any] | None = None
@@ -307,6 +309,13 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
             self.__app = cast(Application, Application().get_safe_application())
 
         return self.__app
+
+    @property
+    def config_settings(self) -> dict[str, Any] | None:
+        """
+        Configuration settings from the build frontend, if supported.
+        """
+        return self.__config_settings
 
     @property
     def raw_config(self) -> dict[str, Any]:
