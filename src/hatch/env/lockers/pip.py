@@ -104,7 +104,7 @@ class PipLocker(LockerInterface):
 
         message = (
             "Applying lockfiles with the pip locker is not yet supported. "
-            "Use `installer = \"uv\"` (or `locker = \"uv\"`) for locked sync."
+            'Use `installer = "uv"` (or `locker = "uv"`) for locked sync.'
         )
         raise LockerUnsupportedError(cls.PLUGIN_NAME, detail=message)
 
