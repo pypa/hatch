@@ -57,6 +57,8 @@ def dep_sync(app):
     except LockerNotFoundError as e:
         app.abort(str(e))
     except LockerUnsupportedError as e:
+        if e.detail:
+            app.abort(f"Cannot sync environment `{environment.name}` from lockfile: {e.detail}")
         app.abort(str(e))
 
     app.display_success(f"Synced environment `{environment.name}` from `{lock_path.name}`")

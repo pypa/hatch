@@ -99,5 +99,16 @@ class PipLocker(LockerInterface):
         return existing == fresh
 
     @classmethod
-    def apply_lock(cls, environment: EnvironmentInterface, lock_path: Path) -> None:
-        """Pip-generated pylock install is not wired; locked installs use the UV locker when using ``uv``."""
+    def apply_lock(cls, _environment: EnvironmentInterface, _lock_path: Path) -> None:
+        from hatch.env.lock import LockerUnsupportedError
+
+        message = (
+            "Applying lockfiles with the pip locker is not yet supported. "
+            "Use `installer = \"uv\"` (or `locker = \"uv\"`) for locked sync."
+        )
+        raise LockerUnsupportedError(cls.PLUGIN_NAME, detail=message)
+
+    @classmethod
+    def install_matches_lock(cls, _environment: EnvironmentInterface, _lock_path: Path) -> bool:
+        # We cannot verify lock conformance for pip because apply_lock is unsupported.
+        return False

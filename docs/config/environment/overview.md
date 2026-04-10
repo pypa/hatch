@@ -313,6 +313,9 @@ The default value is `false` unless overridden by the global [`lock-envs`](#lock
 
 Select which [dependency locker](../../plugins/locker.md) runs **generate**, **in_sync**, and **apply_lock** (defaults follow the environment installer: `uv` with UV, otherwise `pip`).
 
+!!! note
+    Locker capabilities can differ. The built-in `pip` locker does not currently implement `apply_lock`, so lockfile application with [`dep sync`](../../cli/reference.md#hatch-dep-sync) requires the `uv` locker.
+
 Global default:
 
 ```toml config-example
