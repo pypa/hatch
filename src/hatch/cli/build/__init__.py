@@ -73,57 +73,99 @@ def build(app: Application, location, targets, hooks_only, no_hooks, ext, clean,
     elif app.quiet:
         env_vars[AppEnvVars.QUIET] = str(abs(app.verbosity))
 
-    with EnvVars(env_vars):
-        app.project.prepare_build_environment(targets=[target.split(":")[0] for target in targets])
-
     build_backend = app.project.metadata.build.build_backend
-    with app.project.location.as_cwd(), app.project.build_env.get_env_vars():
-        for target in targets:
-            target_name, _, _ = target.partition(":")
-            if not clean_only:
-                app.display_header(target_name)
+    target_names = [target.split(":")[0] for target in targets]
+    use_local_hatchling = (
+        build_backend == BUILD_BACKEND
+        and app.project.network_isolation_likely
+        and app.project.can_execute_hatchling_locally(targets=target_names)
+    )
 
-            if build_backend != BUILD_BACKEND:
-                if target_name == "sdist":
-                    directory = build_dir or app.project.location / DEFAULT_BUILD_DIRECTORY
-                    directory.ensure_dir_exists()
-                    artifact_path = app.project.build_frontend.build_sdist(directory)
-                elif target_name == "wheel":
-                    directory = build_dir or app.project.location / DEFAULT_BUILD_DIRECTORY
-                    directory.ensure_dir_exists()
-                    artifact_path = app.project.build_frontend.build_wheel(directory)
-                else:
-                    app.abort(f"Target `{target_name}` is not supported by `{build_backend}`")
+    if not use_local_hatchling:
+        with EnvVars(env_vars):
+            app.project.prepare_build_environment(targets=target_names)
 
-                app.display_info(
-                    str(artifact_path.relative_to(app.project.location))
-                    if app.project.location in artifact_path.parents
-                    else str(artifact_path)
-                )
-            else:
-                command = ["python", "-u", "-m", "hatchling", "build", "--target", target]
+    with app.project.location.as_cwd():
+        if use_local_hatchling:
+            with EnvVars(env_vars), app.status("Inspecting build dependencies"):
+                for target in targets:
+                    target_name, _, _ = target.partition(":")
+                    if not clean_only:
+                        app.display_header(target_name)
 
-                # We deliberately pass the location unchanged so that absolute paths may be non-local
-                # and reflect wherever builds actually take place
-                if location:
-                    command.extend(("--directory", location))
+                    command = ["python", "-u", "-m", "hatchling", "build", "--target", target]
 
-                if hooks_only or env_var_enabled(BuildEnvVars.HOOKS_ONLY):
-                    command.append("--hooks-only")
+                    # We deliberately pass the location unchanged so that absolute paths may be non-local
+                    # and reflect wherever builds actually take place
+                    if location:
+                        command.extend(("--directory", location))
 
-                if no_hooks or env_var_enabled(BuildEnvVars.NO_HOOKS):
-                    command.append("--no-hooks")
+                    if hooks_only or env_var_enabled(BuildEnvVars.HOOKS_ONLY):
+                        command.append("--hooks-only")
 
-                if clean or env_var_enabled(BuildEnvVars.CLEAN):
-                    command.append("--clean")
+                    if no_hooks or env_var_enabled(BuildEnvVars.NO_HOOKS):
+                        command.append("--no-hooks")
 
-                if clean_hooks_after or env_var_enabled(BuildEnvVars.CLEAN_HOOKS_AFTER):
-                    command.append("--clean-hooks-after")
+                    if clean or env_var_enabled(BuildEnvVars.CLEAN):
+                        command.append("--clean")
 
-                if clean_only:
-                    command.append("--clean-only")
+                    if clean_hooks_after or env_var_enabled(BuildEnvVars.CLEAN_HOOKS_AFTER):
+                        command.append("--clean-hooks-after")
 
-                context = ExecutionContext(app.project.build_env)
-                context.add_shell_command(command)
-                context.env_vars.update(env_vars)
-                app.execute_context(context)
+                    if clean_only:
+                        command.append("--clean-only")
+
+                    if app.verbose:
+                        app.display_info(f"cmd [1] | {' '.join(command)}")
+                    app.platform.check_command(command)
+        else:
+            with app.project.build_env.get_env_vars():
+                for target in targets:
+                    target_name, _, _ = target.partition(":")
+                    if not clean_only:
+                        app.display_header(target_name)
+
+                    if build_backend != BUILD_BACKEND:
+                        if target_name == "sdist":
+                            directory = build_dir or app.project.location / DEFAULT_BUILD_DIRECTORY
+                            directory.ensure_dir_exists()
+                            artifact_path = app.project.build_frontend.build_sdist(directory)
+                        elif target_name == "wheel":
+                            directory = build_dir or app.project.location / DEFAULT_BUILD_DIRECTORY
+                            directory.ensure_dir_exists()
+                            artifact_path = app.project.build_frontend.build_wheel(directory)
+                        else:
+                            app.abort(f"Target `{target_name}` is not supported by `{build_backend}`")
+
+                        app.display_info(
+                            str(artifact_path.relative_to(app.project.location))
+                            if app.project.location in artifact_path.parents
+                            else str(artifact_path)
+                        )
+                    else:
+                        command = ["python", "-u", "-m", "hatchling", "build", "--target", target]
+
+                        # We deliberately pass the location unchanged so that absolute paths may be non-local
+                        # and reflect wherever builds actually take place
+                        if location:
+                            command.extend(("--directory", location))
+
+                        if hooks_only or env_var_enabled(BuildEnvVars.HOOKS_ONLY):
+                            command.append("--hooks-only")
+
+                        if no_hooks or env_var_enabled(BuildEnvVars.NO_HOOKS):
+                            command.append("--no-hooks")
+
+                        if clean or env_var_enabled(BuildEnvVars.CLEAN):
+                            command.append("--clean")
+
+                        if clean_hooks_after or env_var_enabled(BuildEnvVars.CLEAN_HOOKS_AFTER):
+                            command.append("--clean-hooks-after")
+
+                        if clean_only:
+                            command.append("--clean-only")
+
+                        context = ExecutionContext(app.project.build_env)
+                        context.add_shell_command(command)
+                        context.env_vars.update(env_vars)
+                        app.execute_context(context)

@@ -34,6 +34,7 @@ def version(app: Application, *, desired_version: str | None, force: bool):
 
     from hatch.config.constants import VersionEnvVars
     from hatch.project.constants import BUILD_BACKEND
+    from hatch.utils.structures import EnvVars
 
     with app.project.location.as_cwd():
         if app.project.metadata.build.build_backend != BUILD_BACKEND:
@@ -48,17 +49,24 @@ def version(app: Application, *, desired_version: str | None, force: bool):
 
             app.display(project_metadata["version"])
         else:
-            from hatch.utils.runner import ExecutionContext
-
             app.ensure_environment_plugin_dependencies()
-            app.project.prepare_build_environment()
-
-            context = ExecutionContext(app.project.build_env)
             command = ["python", "-u", "-m", "hatchling", "version"]
+            command_env_vars: dict[str, str] = {}
             if desired_version:
                 command.append(desired_version)
                 if force:
-                    context.env_vars[VersionEnvVars.VALIDATE_BUMP] = "false"
+                    command_env_vars[VersionEnvVars.VALIDATE_BUMP] = "false"
 
-            context.add_shell_command(command)
-            app.execute_context(context)
+            if app.project.network_isolation_likely and app.project.can_execute_hatchling_locally(targets=["wheel"]):
+                with EnvVars(command_env_vars), app.status("Inspecting build dependencies"):
+                    if app.verbose:
+                        app.display_info(f"cmd [1] | {' '.join(command)}")
+                    app.platform.check_command(command)
+            else:
+                from hatch.utils.runner import ExecutionContext
+
+                app.project.prepare_build_environment()
+                context = ExecutionContext(app.project.build_env)
+                context.env_vars.update(command_env_vars)
+                context.add_shell_command(command)
+                app.execute_context(context)

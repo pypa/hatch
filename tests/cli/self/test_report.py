@@ -1,3 +1,4 @@
+import importlib
 import os
 import sys
 from textwrap import indent
@@ -35,6 +36,8 @@ def assert_call(open_new_tab, expected_body):
 class TestDefault:
     def test_open(self, hatch, mocker, platform):
         open_new_tab = mocker.patch("webbrowser.open_new_tab")
+        report_module = importlib.import_module("hatch.cli.self.report")
+        mocker.patch.object(report_module, "get_install_source", return_value="pip")
         result = hatch(os.environ["PYAPP_COMMAND_NAME"], "report")
 
         assert result.exit_code == 0, result.output
@@ -64,7 +67,9 @@ shell = ""
 
         assert_call(open_new_tab, expected_body)
 
-    def test_no_open(self, hatch, platform):
+    def test_no_open(self, hatch, mocker, platform):
+        report_module = importlib.import_module("hatch.cli.self.report")
+        mocker.patch.object(report_module, "get_install_source", return_value="pip")
         result = hatch(os.environ["PYAPP_COMMAND_NAME"], "report", "--no-open")
 
         assert result.exit_code == 0, result.output

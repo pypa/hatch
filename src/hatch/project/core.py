@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import re
 from collections import defaultdict
 from collections.abc import Generator
@@ -289,6 +290,71 @@ class Project:
                 self.build_env.additional_dependencies.extend(map(Dependency, additional_dependencies))
                 with self.build_env.app_status_dependency_synchronization():
                     self.build_env.sync_dependencies()
+
+    def can_execute_hatchling_locally(self, *, targets: list[str] | None = None) -> bool:
+        """
+        Return whether Hatchling commands can safely execute without bootstrapping ``hatch-build``.
+
+        This is intentionally conservative: if any dependency/hook requirement is uncertain,
+        callers should continue using :meth:`prepare_build_environment`.
+        """
+        from hatch.project.constants import BUILD_BACKEND
+
+        if self.metadata.build.build_backend != BUILD_BACKEND:
+            return False
+
+        if targets is None:
+            targets = ["wheel"]
+
+        # Any non-static hook dependency means we must inspect via build environment.
+        hooks: set[str] = set()
+        for target in targets:
+            target_config = self.config.build.target(target)
+            hooks.update(target_config.hook_config)
+        hooks.difference_update(("version", "vcs"))
+        if hooks:
+            return False
+
+        build_system = self.raw_config.get("build-system", {})
+        build_requires = build_system.get("requires", [])
+        if not isinstance(build_requires, list) or any(not isinstance(dep, str) for dep in build_requires):
+            return False
+
+        static_target_dependencies: list[str] = []
+        for target in targets:
+            target_config = self.config.build.target(target)
+            static_target_dependencies.extend(target_config.dependencies)
+
+        from hatch.dep.core import Dependency, InvalidDependencyError
+        from hatch.dep.sync import InstalledDistributions
+
+        all_requirements: list[Dependency] = []
+        for requirement in [*build_requires, *static_target_dependencies]:
+            try:
+                all_requirements.append(Dependency(requirement))
+            except InvalidDependencyError:
+                return False
+
+        if not all_requirements:
+            return True
+
+        return InstalledDistributions().dependencies_in_sync(all_requirements)
+
+    @cached_property
+    def network_isolation_likely(self) -> bool:
+        if os.environ.get("UV_OFFLINE", "").lower() in {"1", "true"}:
+            return True
+        if os.environ.get("PIP_NO_INDEX", "").lower() in {"1", "true"}:
+            return True
+
+        import socket
+
+        try:
+            host = socket.gethostbyname("pypi.org")
+            with socket.create_connection((host, 443), timeout=1):
+                return False
+        except Exception:  # noqa: BLE001
+            return True
 
     def get_dependencies(self) -> tuple[list[str], dict[str, list[str]]]:
         dynamic_fields = {"dependencies", "optional-dependencies"}

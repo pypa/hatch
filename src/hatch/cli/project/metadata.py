@@ -29,13 +29,26 @@ def metadata(app: Application, field: str | None):
 
     from hatch.project.constants import BUILD_BACKEND
 
-    app.project.prepare_build_environment()
     build_backend = app.project.metadata.build.build_backend
-    with app.project.location.as_cwd(), app.project.build_env.get_env_vars():
-        if build_backend != BUILD_BACKEND:
-            project_metadata = app.project.build_frontend.get_core_metadata()
+    with app.project.location.as_cwd():
+        if (
+            build_backend == BUILD_BACKEND
+            and app.project.network_isolation_likely
+            and app.project.can_execute_hatchling_locally(targets=["wheel"])
+        ):
+            command = ["python", "-u", "-m", "hatchling", "metadata", "--compact"]
+            with app.status("Inspecting build dependencies"):
+                if app.verbose:
+                    app.display_info(f"cmd [1] | {' '.join(command)}")
+                output = app.platform.check_command_output(command)
+            project_metadata = json.loads(output)
         else:
-            project_metadata = app.project.build_frontend.hatch.get_core_metadata()
+            app.project.prepare_build_environment()
+            with app.project.build_env.get_env_vars():
+                if build_backend != BUILD_BACKEND:
+                    project_metadata = app.project.build_frontend.get_core_metadata()
+                else:
+                    project_metadata = app.project.build_frontend.hatch.get_core_metadata()
 
     if field:
         if field not in project_metadata:
