@@ -294,7 +294,7 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
         if self.__metadata is None:
             from hatchling.metadata.core import ProjectMetadata
 
-            self.__metadata = ProjectMetadata(self.root, self.plugin_manager, self.__raw_config)
+            self.__metadata = ProjectMetadata(self.root, self.plugin_manager, self.__raw_config, self.config_settings)
 
         return self.__metadata
 
@@ -397,7 +397,14 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
                 raise UnknownPluginError(message)
 
             configured_build_hooks[hook_name] = build_hook(
-                self.root, config, self.config, self.metadata, directory, self.PLUGIN_NAME, self.app
+                self.root,
+                config,
+                self.config,
+                self.metadata,
+                directory,
+                self.PLUGIN_NAME,
+                self.config_settings,
+                self.app,
             )
 
         return configured_build_hooks
