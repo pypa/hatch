@@ -74,8 +74,8 @@ def test(
 
     The test environment comes with default dependencies (pytest, coverage, etc.). Use the
     `-s`/`--show` option to see the full resolved configuration for each environment.
-    To customize dependencies or other settings, see the
-    [testing configuration](https://hatch.pypa.io/latest/config/internal/testing/).
+    To customize dependencies or other settings, see the testing configuration docs:
+    https://hatch.pypa.io/latest/config/internal/testing/
     """
     app: Application = ctx.obj
 
