@@ -31,7 +31,7 @@ class IndexURLs:
 
 
 class PackageIndex:
-    def __init__(self, repo: str, *, user="", auth="", ca_cert=None, client_cert=None, client_key=None):
+    def __init__(self, repo: str, *, user="", auth="", ca_cert=None, client_cert=None, client_key=None, timeout=None):
         self.urls = IndexURLs(repo)
         self.repo = str(self.urls.repo)
         self.user = user
@@ -47,6 +47,8 @@ class PackageIndex:
         if ca_cert:
             self.__verify = ca_cert
 
+        self.__timeout = timeout
+
     @cached_property
     def client(self) -> httpx2.Client:
         import httpx2
@@ -58,7 +60,7 @@ class PackageIndex:
         return httpx2.Client(
             headers={"User-Agent": user_agent},
             transport=httpx2.HTTPTransport(retries=3, verify=self.__verify, cert=self.__cert),
-            timeout=DEFAULT_TIMEOUT,
+            timeout=DEFAULT_TIMEOUT if self.__timeout is None else self.__timeout,
         )
 
     def upload_artifact(self, artifact: Path, data: dict):

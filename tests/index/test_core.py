@@ -74,6 +74,22 @@ class TestTLS:
         mock.assert_called_once_with(verify=True, cert=("foo", "bar"), trust_env=True)
 
 
+class TestTimeout:
+    def test_default(self):
+        from hatch.utils.network import DEFAULT_TIMEOUT
+
+        index = PackageIndex("https://foo.internal/a/b/")
+        client = index.client
+
+        assert client.timeout == httpx.Timeout(DEFAULT_TIMEOUT)
+
+    def test_explicit(self):
+        index = PackageIndex("https://foo.internal/a/b/", timeout=42)
+        client = index.client
+
+        assert client.timeout == httpx.Timeout(42)
+
+
 class TestUserAgent:
     def test_user_agent_header_format(self):
         index = PackageIndex("https://foo.internal/a/b/")

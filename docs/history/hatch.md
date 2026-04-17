@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Added:***
+
+- Allow configuring the HTTP timeout for the index publisher via the `timeout` config option, the `HATCH_INDEX_TIMEOUT` environment variable, or the `--timeout` CLI flag
+
 ## [1.17.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.17.0) - 2026-05-31 ## {: #hatch-v1.17.0 }
 
 ***Changed:***

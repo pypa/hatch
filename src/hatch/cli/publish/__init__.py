@@ -35,6 +35,12 @@ from hatch.config.constants import PublishEnvVars
     envvar=PublishEnvVars.CLIENT_KEY,
     help="The path to the client certificate's private key [env var: `HATCH_INDEX_CLIENT_KEY`]",
 )
+@click.option(
+    "--timeout",
+    envvar=PublishEnvVars.TIMEOUT,
+    type=int,
+    help="The HTTP timeout in seconds for index requests [env var: `HATCH_INDEX_TIMEOUT`]",
+)
 @click.option("--no-prompt", "-n", is_flag=True, help="Disable prompts, such as for missing required fields")
 @click.option(
     "--initialize-auth", is_flag=True, help="Save first-time authentication information even if nothing was published"
@@ -69,6 +75,7 @@ def publish(
     ca_cert,
     client_cert,
     client_key,
+    timeout,
     no_prompt,
     initialize_auth,
     publisher_name,
@@ -93,6 +100,8 @@ def publish(
             option_map["client_cert"] = client_cert
         if client_key:
             option_map["client_key"] = client_key
+        if timeout is not None:
+            option_map["timeout"] = timeout
     else:  # no cov
         for option in options:
             key, _, value = option.partition("=")
