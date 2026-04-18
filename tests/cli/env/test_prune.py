@@ -89,6 +89,44 @@ def test_all(hatch, helpers, temp_dir_data, config_file):
     )
 
     assert not storage_path.is_dir()
+    # The parent project_name directory should also be cleaned up (#737)
+    assert not project_data_path.is_dir()
+
+
+def test_prune_removes_project_name_dir(hatch, helpers, temp_dir_data, config_file):
+    """hatch env prune should remove the project_name directory in the data dir, not just
+    the project_id subdirectory.  Regression test for https://github.com/pypa/hatch/issues/737."""
+    config_file.model.template.plugins["default"]["tests"] = False
+    config_file.save()
+
+    project_name = "My.App"
+
+    with temp_dir_data.as_cwd():
+        result = hatch("new", project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir_data / "my-app"
+
+    project = Project(project_path)
+    helpers.update_project_environment(project, "default", {"skip-install": True, **project.config.envs["default"]})
+
+    with project_path.as_cwd():
+        result = hatch("env", "create", "default")
+
+    assert result.exit_code == 0, result.output
+
+    env_data_path = temp_dir_data / "data" / "env" / "virtual"
+    project_data_path = env_data_path / project_path.name
+    assert project_data_path.is_dir()
+
+    with project_path.as_cwd():
+        result = hatch("env", "prune")
+
+    assert result.exit_code == 0, result.output
+
+    # The entire project_name directory (and its parent-level entry) must be gone
+    assert not project_data_path.is_dir()
 
 
 def test_incompatible_ok(hatch, helpers, temp_dir_data, config_file):
