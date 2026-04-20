@@ -28,3 +28,28 @@ The `HATCH_PYTHON_CUSTOM_PATH_<NAME>` variable is the path to the Python interpr
 ### Version
 
 The `HATCH_PYTHON_CUSTOM_VERSION_<NAME>` variable is the version of the distribution. This value is used to determine whether updates are required and is displayed in the output of the [`python show`](../../cli/reference.md#hatch-python-show) command.
+
+## Mirrors
+
+When a full custom distribution is not needed, the upstream download hosts used by Hatch can be redirected at a URL-prefix level by setting a mirror environment variable. Mirrors do not replace individual distributions — they are applied to *every* distribution sourced from the matching upstream, which is useful in network-restricted environments or when the upstream host is unreachable.
+
+Mirror variables are ignored for any distribution that has a matching `HATCH_PYTHON_CUSTOM_SOURCE_<NAME>` override, so per-distribution custom sources always take precedence.
+
+| Variable | Upstream replaced |
+| --- | --- |
+| `HATCH_PYTHON_MIRROR` | `https://github.com/astral-sh/python-build-standalone/releases/download/` (CPython standalone builds) |
+| `HATCH_PYPY_MIRROR` | `https://downloads.python.org/pypy/` (PyPy official builds) |
+
+The path portion of each URL — everything after the upstream prefix — is preserved verbatim, so the mirror must mirror the upstream's directory layout. A trailing slash on the mirror URL is optional.
+
+For example, setting `HATCH_PYTHON_MIRROR=https://pypi.example.com/python-build-standalone` rewrites
+
+```
+https://github.com/astral-sh/python-build-standalone/releases/download/20251014/cpython-3.14.0%2B20251014-x86_64-unknown-linux-gnu-install_only_stripped.tar.gz
+```
+
+to
+
+```
+https://pypi.example.com/python-build-standalone/20251014/cpython-3.14.0%2B20251014-x86_64-unknown-linux-gnu-install_only_stripped.tar.gz
+```

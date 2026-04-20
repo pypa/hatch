@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Added:***
+
+- Add `HATCH_PYTHON_MIRROR` and `HATCH_PYPY_MIRROR` environment variables that rewrite the upstream download hosts for CPython standalone and PyPy distributions, allowing use of internal mirrors in network-restricted environments.
+
 ## [1.16.5](https://github.com/pypa/hatch/releases/tag/hatch-v1.16.5) - 2026-02-26 ## {: #hatch-v1.16.5 }
 
 ***Fixed:***

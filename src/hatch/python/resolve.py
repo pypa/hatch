@@ -20,6 +20,10 @@ if TYPE_CHECKING:
 # Use an artificially high epoch to ensure that custom distributions are always considered newer
 CUSTOM_DISTRIBUTION_VERSION_EPOCH = 100
 
+# Upstream URL prefixes that the mirror environment variables rewrite against.
+CPYTHON_STANDALONE_UPSTREAM = "https://github.com/astral-sh/python-build-standalone/releases/download/"
+PYPY_OFFICIAL_UPSTREAM = "https://downloads.python.org/pypy/"
+
 
 def custom_env_var(prefix: str, name: str) -> str:
     return f"{prefix}{name.upper().replace('.', '_')}"
@@ -37,6 +41,18 @@ def get_custom_path(name: str) -> str | None:
     return os.environ.get(custom_env_var(PythonEnvVars.CUSTOM_PATH_PREFIX, name))
 
 
+def _apply_mirror(source: str) -> str:
+    if source.startswith(CPYTHON_STANDALONE_UPSTREAM):
+        mirror = os.environ.get(PythonEnvVars.MIRROR_CPYTHON_STANDALONE)
+        if mirror:
+            return f"{mirror.rstrip('/')}/{source[len(CPYTHON_STANDALONE_UPSTREAM):]}"
+    elif source.startswith(PYPY_OFFICIAL_UPSTREAM):
+        mirror = os.environ.get(PythonEnvVars.MIRROR_PYPY)
+        if mirror:
+            return f"{mirror.rstrip('/')}/{source[len(PYPY_OFFICIAL_UPSTREAM):]}"
+    return source
+
+
 class Distribution(ABC):
     def __init__(self, name: str, source: str) -> None:
         self.__name = name
@@ -48,7 +64,9 @@ class Distribution(ABC):
 
     @cached_property
     def source(self) -> str:
-        return self.__source if (custom_source := get_custom_source(self.name)) is None else custom_source
+        if (custom_source := get_custom_source(self.name)) is not None:
+            return custom_source
+        return _apply_mirror(self.__source)
 
     @cached_property
     def archive_name(self) -> str:
