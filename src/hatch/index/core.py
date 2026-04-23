@@ -51,6 +51,7 @@ class PackageIndex:
     @cached_property
     def client(self) -> httpx.Client:
         import httpx
+        from httpx._utils import get_environment_proxies  # noqa: PLC2701
 
         from hatch.utils.network import DEFAULT_TIMEOUT
 
@@ -59,9 +60,20 @@ class PackageIndex:
             f"{sys.implementation.name}/{'.'.join(map(str, sys.version_info[:3]))} "
             f"HTTPX/{httpx.__version__}"
         )
+        proxy_map = get_environment_proxies()
+        mounts: dict[str, httpx.HTTPTransport | None] = {}
+        for pattern, proxy in proxy_map.items():
+            if proxy is None:
+                mounts[pattern] = None
+            else:
+                mounts[pattern] = httpx.HTTPTransport(
+                    retries=3, verify=self.__verify, cert=self.__cert, trust_env=True, proxy=proxy
+                )
+
         return httpx.Client(
             headers={"User-Agent": user_agent},
-            transport=httpx.HTTPTransport(retries=3, verify=self.__verify, cert=self.__cert),
+            transport=httpx.HTTPTransport(retries=3, verify=self.__verify, cert=self.__cert, trust_env=True),
+            mounts=mounts,
             timeout=DEFAULT_TIMEOUT,
         )
 
