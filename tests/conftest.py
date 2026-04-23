@@ -402,6 +402,11 @@ def mock_backend_process(request, mocker):
         yield False
         return
 
+    # Prevent the build environment from being created or synced over the network
+    mocker.patch("hatch.env.virtual.VirtualEnvironment.exists", return_value=True)
+    mocker.patch("hatch.env.virtual.VirtualEnvironment.dependency_hash", return_value="")
+    mocker.patch("hatch.env.virtual.VirtualEnvironment.dependencies_in_sync", return_value=True)
+
     def mock_process_api(api):
         def mock_process(command: list[str] | str, **kwargs):
             if not is_hatchling_command(command):  # no cov
@@ -440,6 +445,11 @@ def mock_backend_process_output(request, mocker):
     if "allow_backend_process" in request.keywords:
         yield False
         return
+
+    # Prevent the build environment from being created or synced over the network
+    mocker.patch("hatch.env.virtual.VirtualEnvironment.exists", return_value=True)
+    mocker.patch("hatch.env.virtual.VirtualEnvironment.dependency_hash", return_value="")
+    mocker.patch("hatch.env.virtual.VirtualEnvironment.dependencies_in_sync", return_value=True)
 
     output_queue = []
 
