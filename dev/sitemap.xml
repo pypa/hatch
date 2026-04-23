@@ -141,6 +141,10 @@
          <lastmod>2020-02-02</lastmod>
     </url>
     <url>
+         <loc>https://hatch.pypa.io/dev/how-to/environment/lockfiles/</loc>
+         <lastmod>2020-02-02</lastmod>
+    </url>
+    <url>
          <loc>https://hatch.pypa.io/dev/how-to/environment/select-installer/</loc>
          <lastmod>2020-02-02</lastmod>
     </url>
@@ -190,6 +194,10 @@
     </url>
     <url>
          <loc>https://hatch.pypa.io/dev/plugins/about/</loc>
+         <lastmod>2020-02-02</lastmod>
+    </url>
+    <url>
+         <loc>https://hatch.pypa.io/dev/plugins/locker/</loc>
          <lastmod>2020-02-02</lastmod>
     </url>
     <url>
