@@ -70,7 +70,7 @@ def test_top_level_lock_matches_dep_lock(hatch, helpers, temp_dir, config_file):
 
 
 @pytest.mark.usefixtures("mock_locker")
-def test_dep_sync_succeeds_skipping_real_activation(hatch, helpers, temp_dir, config_file, mocker):
+def test_dep_sync_succeeds_skipping_real_activation(hatch, helpers, temp_dir, config_file, mocker, uv_on_path):
     """``dep sync`` runs the locked path without a real venv layout (avoids hanging on activation)."""
     if not uv_on_path:
         pytest.skip("uv is not available")
@@ -114,13 +114,23 @@ def test_dep_sync_succeeds_skipping_real_activation(hatch, helpers, temp_dir, co
     assert "Synced environment" in result.output
 
 
-@pytest.mark.usefixtures("env_run")
 def test_dep_sync_aborts_when_pip_locker_cannot_apply(hatch, helpers, temp_dir, config_file, mocker):
     @contextmanager
     def skip_activation(_self):
         yield
 
     mocker.patch.object(VirtualEnvironment, "safe_activation", skip_activation)
+
+    stub_pylock = "lock-version = 1\n"
+
+    def fake_generate(_environment, output_path, **_kwargs):
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_text(stub_pylock, encoding="utf-8")
+
+    mocker.patch("hatch.env.lock.generate_lockfile", side_effect=fake_generate)
+    mocker.patch("hatch.env.virtual.VirtualEnvironment.exists", return_value=True)
+    mocker.patch("hatch.env.virtual.VirtualEnvironment.dependency_hash", return_value="")
+    mocker.patch("hatch.env.virtual.VirtualEnvironment.command_context")
 
     config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
