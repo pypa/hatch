@@ -144,7 +144,14 @@ class VirtualEnvironment(EnvironmentInterface):
 
     @staticmethod
     def get_option_types() -> dict:
-        return {"system-packages": bool, "path": str, "python-sources": list, "installer": str, "uv-path": str}
+        return {
+            "system-packages": bool,
+            "path": str,
+            "python-sources": list,
+            "installer": str,
+            "uv-path": str,
+            "locker": str,
+        }
 
     def activate(self):
         self.virtual_env.activate()
@@ -195,20 +202,72 @@ class VirtualEnvironment(EnvironmentInterface):
                 self.construct_pip_install_command(["--editable", self.apply_features(str(self.root))])
             )
 
+    def uv_pip_sync_command(self, lockfile_path: Path, *, dry_run: bool = False) -> list[str]:
+        command = [self.uv_path, "pip", "sync", str(lockfile_path)]
+        for extra in self.features:
+            command.extend(["--extra", extra])
+        for group in self.dependency_groups:
+            command.extend(["--group", group])
+        add_verbosity_flag(command, self.verbosity, adjustment=-1)
+        if dry_run:
+            command.append("--dry-run")
+        python_version = self.config.get("python", "")
+        if python_version:
+            command.extend(["--python-version", python_version])
+        return command
+
     def dependencies_in_sync(self):
         with self.safe_activation():
+            workspace_deps = [dep for dep in self.local_dependencies_complex if dep.path]
+            if self.distributions.missing_dependencies(workspace_deps):
+                return False
+
+            if self.locked:
+                from hatch.env.lock import (
+                    LockerNotFoundError,
+                    LockerUnsupportedError,
+                    get_locker_plugin_class,
+                    resolve_lockfile_path,
+                )
+
+                lockfile_path = resolve_lockfile_path(self)
+                if lockfile_path.is_file():
+                    try:
+                        locker_cls = get_locker_plugin_class(self.app.project, self)
+                    except (LockerNotFoundError, LockerUnsupportedError):
+                        return False
+                    if not locker_cls.install_matches_lock(self, lockfile_path):
+                        return False
+
             return not self.missing_dependencies
 
     def sync_dependencies(self):
         with self.safe_activation():
+            workspace_deps = [dep for dep in self.local_dependencies_complex if dep.path]
+            workspace_names = {dep.name.lower() for dep in self.local_dependencies_complex if dep.path}
+
+            if self.locked:
+                from hatch.env.lock import apply_lock_with_locker, resolve_lockfile_path
+
+                lockfile_path = resolve_lockfile_path(self)
+                if lockfile_path.is_file():
+                    all_install_args = []
+                    for dep in workspace_deps:
+                        if dep.editable:
+                            all_install_args.extend(["--editable", dep.path])
+                        else:
+                            all_install_args.append(dep.path)
+
+                    if all_install_args:
+                        self.platform.check_command(self.construct_pip_install_command(all_install_args))
+                    apply_lock_with_locker(self, lockfile_path)
+                    return
+
             # If we do not have missing dependencies we should not sync
             if not self.missing_dependencies:
                 return
 
             all_install_args = []
-
-            workspace_deps = [dep for dep in self.local_dependencies_complex if dep.path]
-            workspace_names = {dep.name.lower() for dep in self.local_dependencies_complex if dep.path}
 
             for dep in workspace_deps:
                 if dep.editable:
