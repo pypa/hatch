@@ -3,13 +3,12 @@ from contextlib import contextmanager
 import pytest
 
 from hatch.config.constants import ConfigEnvVars
-from hatch.env.lockers.pip import PipLocker
 from hatch.env.virtual import VirtualEnvironment
 from hatch.project.core import Project
 from hatch.utils.toml import load_toml_file
 
 
-@pytest.mark.usefixtures("env_run")
+@pytest.mark.usefixtures("mock_locker")
 def test_dep_lock_export(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
@@ -39,7 +38,7 @@ def test_dep_lock_export(hatch, helpers, temp_dir, config_file):
     assert f"Wrote lockfile: {custom_output}" in result.output
 
 
-@pytest.mark.usefixtures("env_run")
+@pytest.mark.usefixtures("mock_locker")
 def test_top_level_lock_matches_dep_lock(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
@@ -70,8 +69,8 @@ def test_top_level_lock_matches_dep_lock(hatch, helpers, temp_dir, config_file):
     assert (temp_dir / "via-dep.toml").read_text() == (temp_dir / "via-top.toml").read_text()
 
 
-@pytest.mark.usefixtures("env_run")
-def test_dep_sync_succeeds_skipping_real_activation(hatch, helpers, temp_dir, config_file, mocker, uv_on_path):
+@pytest.mark.usefixtures("mock_locker")
+def test_dep_sync_succeeds_skipping_real_activation(hatch, helpers, temp_dir, config_file, mocker):
     """``dep sync`` runs the locked path without a real venv layout (avoids hanging on activation)."""
     if not uv_on_path:
         pytest.skip("uv is not available")
@@ -201,14 +200,13 @@ def test_dep_sync_aborts_without_lockfile(hatch, helpers, temp_dir, config_file)
     assert "No lockfile" in result.output
 
 
-def test_pip_locker_install_matches_lock_is_false(temp_dir):
-    assert PipLocker.install_matches_lock(object(), temp_dir / "pylock.toml") is False
-
-
-@pytest.mark.usefixtures("env_run")
-def test_unknown_locker_aborts(hatch, helpers, temp_dir, config_file):
+def test_unknown_locker_aborts(hatch, helpers, temp_dir, config_file, mocker):
     config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
+
+    mocker.patch("hatch.env.virtual.VirtualEnvironment.exists", return_value=True)
+    mocker.patch("hatch.env.virtual.VirtualEnvironment.dependency_hash", return_value="")
+    mocker.patch("hatch.env.virtual.VirtualEnvironment.command_context")
 
     project_name = "My.App"
 

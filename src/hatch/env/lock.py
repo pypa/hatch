@@ -199,7 +199,7 @@ def lockfile_in_sync(
     )
 
 
-verify_lockfile = lockfile_in_sync  # design-doc name for :func:`lockfile_in_sync`
+verify_lockfile = lockfile_in_sync
 
 
 def apply_lock_with_locker(environment: EnvironmentInterface, lock_path: Path) -> None:

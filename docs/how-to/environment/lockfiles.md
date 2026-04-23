@@ -73,9 +73,6 @@ Matrix parents and other names still expand the same way as elsewhere; `--export
 
 [`dep sync`](../../cli/reference.md#hatch-dep-sync) runs the selected locker’s **`apply_lock`** step for the active environment (for example `uv pip sync` when using the UV locker). The environment must be [`locked`](../../config/environment/overview.md#locked) and the lockfile must already exist—run `hatch dep lock` or `hatch env lock` first.
 
-!!! note
-    The built-in `pip` locker currently supports lockfile **generation** and **in-sync checks**, but not lockfile **application**. If you want `dep sync` to apply a lockfile to an environment, use the `uv` locker (`installer = "uv"` or `locker = "uv"`).
-
 ## Automatic locking
 
 Environments with `locked = true` will have their lockfiles generated automatically during `hatch env create` or `hatch run` whenever:
@@ -140,11 +137,9 @@ When multiple matrix environments share the same `lock-filename`, Hatch will mer
 
 By default, Hatch picks a built-in **locker** from the environment installer:
 
-- **pip** (default): `pip lock` (requires pip 25.1+) for generation and in-sync checks; lockfile application is not supported.
+- **pip** (default): `pip lock` (requires pip 25.1+) for generation.
 - **UV**: `uv pip compile` (with hashes) and `uv pip sync` when applying a lock.
 
 Override with [`tool.hatch.locker`](../../config/environment/overview.md#locker) or [`tool.hatch.envs.<name>.locker`](../../config/environment/overview.md#locker). See [Dependency locker plugins](../../plugins/locker.md) to implement `hatch_register_locker`.
 
-For remote or non-local environment storage, custom lockers can use **[`fs_context`](../../plugins/environment/reference.md#hatch.env.plugin.interface.EnvironmentInterface.fs_context)** and [`FileSystemContext`](../../plugins/utilities.md#hatch.env.plugin.interface.FileSystemContext) to stage lockfiles before or after running the resolver under [`command_context`](../../plugins/environment/reference.md#hatch.env.plugin.interface.EnvironmentInterface.command_context).
-
-See [Dependency locker plugins](../../plugins/locker.md) for the full interface.
+See [Dependency locker plugins](../../plugins/locker.md) for the full plugin interface.

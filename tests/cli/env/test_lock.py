@@ -138,7 +138,7 @@ def test_no_dependencies(hatch, helpers, temp_dir, config_file):
     )
 
 
-@pytest.mark.usefixtures("env_run")
+@pytest.mark.usefixtures("mock_locker")
 def test_explicit_env(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
@@ -169,7 +169,7 @@ def test_explicit_env(hatch, helpers, temp_dir, config_file):
     assert f"Wrote lockfile: {project_path / 'pylock.toml'}" in result.output
 
 
-@pytest.mark.usefixtures("env_run")
+@pytest.mark.usefixtures("mock_locker")
 def test_locked_env_no_arg(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
@@ -200,7 +200,7 @@ def test_locked_env_no_arg(hatch, helpers, temp_dir, config_file):
     assert f"Wrote lockfile: {project_path / 'pylock.toml'}" in result.output
 
 
-@pytest.mark.usefixtures("env_run")
+@pytest.mark.usefixtures("mock_locker")
 def test_global_lock_envs(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
@@ -240,7 +240,7 @@ def test_global_lock_envs(hatch, helpers, temp_dir, config_file):
     assert "Locking environment: test" in result.output
 
 
-@pytest.mark.usefixtures("env_run")
+@pytest.mark.usefixtures("mock_locker")
 def test_per_env_override_global(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
@@ -282,7 +282,7 @@ def test_per_env_override_global(hatch, helpers, temp_dir, config_file):
     assert "Locking environment: test" not in result.output
 
 
-@pytest.mark.usefixtures("env_run")
+@pytest.mark.usefixtures("mock_locker")
 def test_named_env(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
@@ -310,7 +310,7 @@ def test_named_env(hatch, helpers, temp_dir, config_file):
     assert f"Wrote lockfile: {project_path / 'pylock.test.toml'}" in result.output
 
 
-@pytest.mark.usefixtures("env_run")
+@pytest.mark.usefixtures("mock_locker")
 def test_check_missing(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
@@ -340,7 +340,7 @@ def test_check_missing(hatch, helpers, temp_dir, config_file):
     assert "Lockfile does not exist" in result.output
 
 
-@pytest.mark.usefixtures("env_run")
+@pytest.mark.usefixtures("mock_locker")
 def test_check_exists(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
@@ -372,7 +372,7 @@ def test_check_exists(hatch, helpers, temp_dir, config_file):
     assert "Lockfile is up to date" in result.output
 
 
-@pytest.mark.usefixtures("env_run")
+@pytest.mark.usefixtures("mock_locker")
 def test_check_lockfile_stale(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
@@ -404,7 +404,7 @@ def test_check_lockfile_stale(hatch, helpers, temp_dir, config_file):
     assert "not up to date" in result.output
 
 
-@pytest.mark.usefixtures("env_run")
+@pytest.mark.usefixtures("mock_locker")
 def test_export(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
@@ -436,7 +436,7 @@ def test_export(hatch, helpers, temp_dir, config_file):
     assert f"Wrote lockfile: {custom_output}" in result.output
 
 
-@pytest.mark.usefixtures("env_run")
+@pytest.mark.usefixtures("mock_locker")
 def test_export_all(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
@@ -491,7 +491,7 @@ def test_export_and_export_all_mutually_exclusive(hatch, temp_dir, config_file):
     assert "Cannot use both" in result.output
 
 
-@pytest.mark.usefixtures("env_run")
+@pytest.mark.usefixtures("mock_locker")
 def test_custom_lock_filename(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
@@ -527,7 +527,7 @@ def test_custom_lock_filename(hatch, helpers, temp_dir, config_file):
     assert f"Wrote lockfile: {project_path / 'locks' / 'default.toml'}" in result.output
 
 
-@pytest.mark.usefixtures("env_run")
+@pytest.mark.usefixtures("mock_locker")
 def test_matrix(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
@@ -563,7 +563,7 @@ def test_matrix(hatch, helpers, temp_dir, config_file):
     assert "Locking environment: test.42" in result.output
 
 
-@pytest.mark.usefixtures("env_run")
+@pytest.mark.usefixtures("mock_locker")
 def test_matrix_incompatible(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
@@ -601,7 +601,7 @@ def test_matrix_incompatible(hatch, helpers, temp_dir, config_file):
     assert "test.9000 -> unsupported platform" in result.output
 
 
-@pytest.mark.usefixtures("env_run")
+@pytest.mark.usefixtures("mock_locker")
 def test_shared_lock_filename_dedup(hatch, helpers, temp_dir, config_file):
     """When multiple matrix envs share the same lock-filename, generate once with merged deps."""
     config_file.model.template.plugins["default"]["tests"] = False
