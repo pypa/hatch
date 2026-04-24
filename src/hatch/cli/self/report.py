@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import click
 
@@ -80,12 +80,13 @@ def report(app: Application, *, no_open: bool) -> None:
 
     # Retain the config that would be most useful
     full_config = load_toml_data(app.config_file.read_scrubbed())
-    relevant_config = {}
+    relevant_config: dict[str, Any] = {}
     for setting in ("mode", "shell"):
         if setting in full_config:
             relevant_config[setting] = full_config[setting]
 
-    if env_dirs := relevant_config.get("dirs", {}).get("envs"):
+    full_dirs = full_config.get("dirs")
+    if isinstance(full_dirs, dict) and (env_dirs := full_dirs.get("envs")):
         relevant_config["dirs"] = {"envs": env_dirs}
 
     # Try to determine how Hatch was installed

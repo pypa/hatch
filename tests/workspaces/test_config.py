@@ -1,3 +1,7 @@
+import pytest
+
+
+@pytest.mark.requires_internet
 class TestWorkspaceConfiguration:
     def test_workspace_members_editable_install(self, temp_dir, hatch):
         """Test that workspace members are installed as editable packages."""
