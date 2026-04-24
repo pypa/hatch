@@ -236,6 +236,15 @@ class Project:
             new_dep_hash = environment.dependency_hash()
 
         current_dep_hash = self.env_metadata.dependency_hash(environment)
+
+        from hatch.env.lock import environment_has_lock_inputs, generate_lockfile, resolve_lockfile_path
+
+        if environment.locked and environment_has_lock_inputs(environment):
+            lockfile_path = resolve_lockfile_path(environment)
+            if not lockfile_path.is_file() or new_dep_hash != current_dep_hash:
+                with self.app.status(f"Locking environment: {environment.name}"):
+                    generate_lockfile(environment, lockfile_path)
+
         if new_dep_hash != current_dep_hash:
             with environment.app_status_dependency_installation_check():
                 dependencies_in_sync = environment.dependencies_in_sync()

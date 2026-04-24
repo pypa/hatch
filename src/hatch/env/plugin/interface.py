@@ -460,6 +460,22 @@ class EnvironmentInterface(ABC):
         return [platform.lower() for platform in platforms]
 
     @cached_property
+    def locked(self) -> bool:
+        """
+        ```toml config-example
+        [tool.hatch.envs.<ENV_NAME>]
+        locked = ...
+        ```
+        """
+        global_default = self.app.project.config.lock_envs
+        locked = self.config.get("locked", global_default)
+        if not isinstance(locked, bool):
+            message = f"Field `tool.hatch.envs.{self.name}.locked` must be a boolean"
+            raise TypeError(message)
+
+        return locked
+
+    @cached_property
     def skip_install(self) -> bool:
         """
         ```toml config-example
