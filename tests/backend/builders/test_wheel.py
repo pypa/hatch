@@ -3224,6 +3224,7 @@ class TestBuildStandard:
             project_name,
             metadata_directory=metadata_directory,
             package_paths=[str(project_path)],
+            pth_file_name=f"_{builder.metadata.core.name.replace('-', '_')}.pth",
         )
         helpers.assert_files(extraction_directory, expected_files)
 
