@@ -63,10 +63,10 @@ def test_other_backend_show(hatch, temp_dir, helpers):
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
         """
+        Inspecting build dependencies
         Creating environment: hatch-build
         Checking dependencies
         Syncing dependencies
-        Inspecting build dependencies
         9000.42
         """
     )
@@ -147,10 +147,10 @@ def test_show_dynamic(hatch, helpers, temp_dir):
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
         """
+        Inspecting build dependencies
         Creating environment: hatch-build
         Checking dependencies
         Syncing dependencies
-        Inspecting build dependencies
         0.0.1
         """
     )
@@ -185,10 +185,10 @@ def test_plugin_dependencies_unmet(hatch, helpers, temp_dir, mock_plugin_install
     assert result.output == helpers.dedent(
         """
         Syncing environment plugin requirements
+        Inspecting build dependencies
         Creating environment: hatch-build
         Checking dependencies
         Syncing dependencies
-        Inspecting build dependencies
         0.0.1
         """
     )
@@ -218,10 +218,10 @@ def test_no_compatibility_check_if_exists(hatch, helpers, temp_dir, mocker):
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
         """
+        Inspecting build dependencies
         Creating environment: hatch-build
         Checking dependencies
         Syncing dependencies
-        Inspecting build dependencies
         0.0.1
         """
     )
@@ -257,10 +257,10 @@ def test_set_dynamic(hatch, helpers, temp_dir):
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
         """
+        Inspecting build dependencies
         Creating environment: hatch-build
         Checking dependencies
         Syncing dependencies
-        Inspecting build dependencies
         Old: 0.0.1
         New: 0.1.0rc0
         """

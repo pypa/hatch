@@ -1545,10 +1545,10 @@ def test_sync_dynamic_dependencies(hatch, helpers, temp_dir, platform, uv_on_pat
         Installing project in development mode
         Running post-installation commands
         Polling dependency state
+        Inspecting build dependencies
         Creating environment: hatch-build
         Checking dependencies
         Syncing dependencies
-        Inspecting build dependencies
         Checking dependencies
         Syncing dependencies
         """

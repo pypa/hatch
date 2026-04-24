@@ -53,10 +53,10 @@ class TestOtherBackend:
         assert result.exit_code == 0, result.output
         assert result.output == helpers.dedent(
             f"""
+            Inspecting build dependencies
             Creating environment: hatch-build
             Checking dependencies
             Syncing dependencies
-            Inspecting build dependencies
             ──────────────────────────────────── sdist ─────────────────────────────────────
             {sdist_path.relative_to(path)}
             ──────────────────────────────────── wheel ─────────────────────────────────────
@@ -145,10 +145,10 @@ print("Hello World!")
         assert result.exit_code == 0, result.output
         assert result.output == helpers.dedent(
             f"""
+            Inspecting build dependencies
             Creating environment: hatch-build
             Checking dependencies
             Syncing dependencies
-            Inspecting build dependencies
             ──────────────────────────────────── sdist ─────────────────────────────────────
             {sdist_path.relative_to(path)}
             ──────────────────────────────────── wheel ─────────────────────────────────────
@@ -207,10 +207,10 @@ def test_no_compatibility_check_if_exists(hatch, temp_dir, helpers, mocker):
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
         """
+        Inspecting build dependencies
         Creating environment: hatch-build
         Checking dependencies
         Syncing dependencies
-        Inspecting build dependencies
         ──────────────────────────────────── sdist ─────────────────────────────────────
         ──────────────────────────────────── wheel ─────────────────────────────────────
         """
@@ -251,10 +251,10 @@ def test_unknown_targets(hatch, temp_dir, helpers):
     assert result.exit_code == 1, result.output
     assert result.output == helpers.dedent(
         """
+        Inspecting build dependencies
         Creating environment: hatch-build
         Checking dependencies
         Syncing dependencies
-        Inspecting build dependencies
         ───────────────────────────────────── foo ──────────────────────────────────────
         Unknown build targets: foo
         """
@@ -277,10 +277,10 @@ def test_mutually_exclusive_hook_options(hatch, temp_dir, helpers):
     assert result.exit_code == 1, result.output
     assert result.output == helpers.dedent(
         """
+        Inspecting build dependencies
         Creating environment: hatch-build
         Checking dependencies
         Syncing dependencies
-        Inspecting build dependencies
         ──────────────────────────────────── sdist ─────────────────────────────────────
         Cannot use both --hooks-only and --no-hooks together
         """
@@ -312,10 +312,10 @@ def test_default(hatch, temp_dir, helpers):
 
     assert result.output == helpers.dedent(
         f"""
+        Inspecting build dependencies
         Creating environment: hatch-build
         Checking dependencies
         Syncing dependencies
-        Inspecting build dependencies
         ──────────────────────────────────── sdist ─────────────────────────────────────
         {sdist_path.relative_to(path)}
         ──────────────────────────────────── wheel ─────────────────────────────────────
@@ -348,10 +348,10 @@ def test_explicit_targets(hatch, temp_dir, helpers):
 
     assert result.output == helpers.dedent(
         f"""
+        Inspecting build dependencies
         Creating environment: hatch-build
         Checking dependencies
         Syncing dependencies
-        Inspecting build dependencies
         ──────────────────────────────────── wheel ─────────────────────────────────────
         {wheel_path.relative_to(path)}
         """
@@ -383,10 +383,10 @@ def test_explicit_directory(hatch, temp_dir, helpers):
 
     assert result.output == helpers.dedent(
         f"""
+        Inspecting build dependencies
         Creating environment: hatch-build
         Checking dependencies
         Syncing dependencies
-        Inspecting build dependencies
         ──────────────────────────────────── sdist ─────────────────────────────────────
         {sdist_path}
         ──────────────────────────────────── wheel ─────────────────────────────────────
@@ -420,10 +420,10 @@ def test_explicit_directory_env_var(hatch, temp_dir, helpers):
 
     assert result.output == helpers.dedent(
         f"""
+        Inspecting build dependencies
         Creating environment: hatch-build
         Checking dependencies
         Syncing dependencies
-        Inspecting build dependencies
         ──────────────────────────────────── sdist ─────────────────────────────────────
         {sdist_path}
         ──────────────────────────────────── wheel ─────────────────────────────────────
@@ -762,10 +762,10 @@ def test_clean_hooks_after(hatch, temp_dir, helpers, config_file):
 
     assert result.output == helpers.dedent(
         f"""
+        Inspecting build dependencies
         Creating environment: hatch-build
         Checking dependencies
         Syncing dependencies
-        Inspecting build dependencies
         ──────────────────────────────────── sdist ─────────────────────────────────────
         {sdist_path.relative_to(path)}
         ──────────────────────────────────── wheel ─────────────────────────────────────
@@ -828,10 +828,10 @@ def test_clean_hooks_after_env_var(hatch, temp_dir, helpers, config_file):
 
     assert result.output == helpers.dedent(
         f"""
+        Inspecting build dependencies
         Creating environment: hatch-build
         Checking dependencies
         Syncing dependencies
-        Inspecting build dependencies
         ──────────────────────────────────── sdist ─────────────────────────────────────
         {sdist_path.relative_to(path)}
         ──────────────────────────────────── wheel ─────────────────────────────────────
@@ -955,10 +955,10 @@ def test_hooks_only(hatch, temp_dir, helpers, config_file):
     helpers.assert_output_match(
         result.output,
         r"""
+        Inspecting build dependencies
         Creating environment: hatch-build
         Checking dependencies
         Syncing dependencies
-        Inspecting build dependencies
         cmd \[1\] \| python -u .+
         ──────────────────────────────────── wheel ─────────────────────────────────────
         cmd \[1\] \| python -u -m hatchling build --target wheel --hooks-only
@@ -1016,10 +1016,10 @@ def test_hooks_only_env_var(hatch, temp_dir, helpers, config_file):
     helpers.assert_output_match(
         result.output,
         r"""
+        Inspecting build dependencies
         Creating environment: hatch-build
         Checking dependencies
         Syncing dependencies
-        Inspecting build dependencies
         cmd \[1\] \| python -u .+
         ──────────────────────────────────── wheel ─────────────────────────────────────
         cmd \[1\] \| python -u -m hatchling build --target wheel --hooks-only
@@ -1077,10 +1077,10 @@ def test_extensions_only(hatch, temp_dir, helpers, config_file):
     helpers.assert_output_match(
         result.output,
         r"""
+        Inspecting build dependencies
         Creating environment: hatch-build
         Checking dependencies
         Syncing dependencies
-        Inspecting build dependencies
         cmd \[1\] \| python -u .+
         ──────────────────────────────────── wheel ─────────────────────────────────────
         cmd \[1\] \| python -u -m hatchling build --target wheel --hooks-only
@@ -1136,10 +1136,10 @@ def test_no_hooks(hatch, temp_dir, helpers):
 
     assert result.output == helpers.dedent(
         f"""
+        Inspecting build dependencies
         Creating environment: hatch-build
         Checking dependencies
         Syncing dependencies
-        Inspecting build dependencies
         ──────────────────────────────────── wheel ─────────────────────────────────────
         {wheel_path.relative_to(path)}
         """
@@ -1192,10 +1192,10 @@ def test_no_hooks_env_var(hatch, temp_dir, helpers):
 
     assert result.output == helpers.dedent(
         f"""
+        Inspecting build dependencies
         Creating environment: hatch-build
         Checking dependencies
         Syncing dependencies
-        Inspecting build dependencies
         ──────────────────────────────────── wheel ─────────────────────────────────────
         {wheel_path.relative_to(path)}
         """
@@ -1227,10 +1227,10 @@ def test_debug_verbosity(hatch, temp_dir, helpers):
     helpers.assert_output_match(
         result.output,
         rf"""
+        Inspecting build dependencies
         Creating environment: hatch-build
         Checking dependencies
         Syncing dependencies
-        Inspecting build dependencies
         ──────────────────────────────────── wheel ─────────────────────────────────────
         cmd \[1\] \| python -u -m hatchling build --target wheel:standard
         Building `wheel` version `standard`
@@ -1283,10 +1283,10 @@ def test_shipped(hatch, temp_dir, helpers):
 
     assert result.output == helpers.dedent(
         """
+        Inspecting build dependencies
         Creating environment: hatch-build
         Checking dependencies
         Syncing dependencies
-        Inspecting build dependencies
         ──────────────────────────────────── sdist ─────────────────────────────────────
         ──────────────────────────────────── wheel ─────────────────────────────────────
         """
@@ -1363,10 +1363,10 @@ def test_build_dependencies(hatch, temp_dir, helpers):
 
     assert result.output == helpers.dedent(
         """
+        Inspecting build dependencies
         Creating environment: hatch-build
         Checking dependencies
         Syncing dependencies
-        Inspecting build dependencies
         Syncing dependencies
         ──────────────────────────────────── custom ────────────────────────────────────
         """
@@ -1409,10 +1409,10 @@ def test_plugin_dependencies_unmet(hatch, temp_dir, helpers, mock_plugin_install
     assert result.output == helpers.dedent(
         f"""
         Syncing environment plugin requirements
+        Inspecting build dependencies
         Creating environment: hatch-build
         Checking dependencies
         Syncing dependencies
-        Inspecting build dependencies
         ──────────────────────────────────── sdist ─────────────────────────────────────
         {sdist_path.relative_to(path)}
         ──────────────────────────────────── wheel ─────────────────────────────────────

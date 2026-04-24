@@ -43,10 +43,10 @@ def test_other_backend(hatch, temp_dir, helpers):
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
         f"""
+        Inspecting build dependencies
         Creating environment: hatch-build
         Checking dependencies
         Syncing dependencies
-        Inspecting build dependencies
         {{
             "name": "my-app",
             "version": "0.0.1",
@@ -110,10 +110,10 @@ def test_default_all(hatch, temp_dir, helpers):
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
         f"""
+        Inspecting build dependencies
         Creating environment: hatch-build
         Checking dependencies
         Syncing dependencies
-        Inspecting build dependencies
         {{
             "name": "my-app",
             "version": "0.0.1",
@@ -175,10 +175,10 @@ def test_field_readme(hatch, temp_dir):
     assert result.exit_code == 0, result.output
     assert result.output == (
         f"""\
+Inspecting build dependencies
 Creating environment: hatch-build
 Checking dependencies
 Syncing dependencies
-Inspecting build dependencies
 {(path / "README.txt").read_text()}
 """
     )
@@ -202,10 +202,10 @@ def test_field_string(hatch, temp_dir, helpers):
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
         """
+        Inspecting build dependencies
         Creating environment: hatch-build
         Checking dependencies
         Syncing dependencies
-        Inspecting build dependencies
         MIT
         """
     )
@@ -229,10 +229,10 @@ def test_field_complex(hatch, temp_dir, helpers):
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
         """
+        Inspecting build dependencies
         Creating environment: hatch-build
         Checking dependencies
         Syncing dependencies
-        Inspecting build dependencies
         {
             "Documentation": "https://github.com/Foo Bar/my-app#readme",
             "Issues": "https://github.com/Foo Bar/my-app/issues",
@@ -304,10 +304,10 @@ def test_plugin_dependencies_unmet(hatch, temp_dir, helpers, mock_plugin_install
     assert result.output == helpers.dedent(
         f"""
         Syncing environment plugin requirements
+        Inspecting build dependencies
         Creating environment: hatch-build
         Checking dependencies
         Syncing dependencies
-        Inspecting build dependencies
         {{
             "name": "my-app",
             "version": "0.0.1",
@@ -371,10 +371,10 @@ def test_build_dependencies_unmet(hatch, temp_dir, helpers):
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
         """
+        Inspecting build dependencies
         Creating environment: hatch-build
         Checking dependencies
         Syncing dependencies
-        Inspecting build dependencies
         Syncing dependencies
         MIT
         """
@@ -405,10 +405,10 @@ def test_no_compatibility_check_if_exists(hatch, temp_dir, helpers, mocker):
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
         """
+        Inspecting build dependencies
         Creating environment: hatch-build
         Checking dependencies
         Syncing dependencies
-        Inspecting build dependencies
         MIT
         """
     )
