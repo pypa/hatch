@@ -8,6 +8,7 @@ from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT, DEFAULT_CONFIG_FILE
 pytestmark = [pytest.mark.usefixtures("mock_backend_process")]
 
 
+@pytest.mark.requires_internet
 def test(hatch, temp_dir, helpers, config_file, mock_plugin_installation):
     config_file.model.template.plugins["default"]["src-layout"] = False
     config_file.save()
