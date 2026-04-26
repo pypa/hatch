@@ -102,6 +102,8 @@ nav:
     - Environment:
       - Reference: plugins/environment/reference.md
       - Virtual: plugins/environment/virtual.md
+    - Dependency locker:
+      - Reference: plugins/locker.md
     - Environment collector:
       - Reference: plugins/environment-collector/reference.md
       - Custom: plugins/environment-collector/custom.md
@@ -130,6 +132,7 @@ nav:
     - Environments:
       - Select installer: how-to/environment/select-installer.md
       - Dependency resolution: how-to/environment/dependency-resolution.md
+      - Lockfiles: how-to/environment/lockfiles.md
       - Workspace: how-to/environment/workspace.md
     - Static analysis:
       - Customize behavior: how-to/static-analysis/behavior.md
