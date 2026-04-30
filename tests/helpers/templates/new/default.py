@@ -15,6 +15,12 @@ def get_files(**kwargs):
             ),
         ),
         File(
+            Path(".gitignore"),
+            """__pycache__/
+dist/
+""",
+        ),
+        File(
             Path("src", kwargs["package_name"], "__init__.py"),
             f"""\
 # SPDX-FileCopyrightText: {kwargs["year"]}-present {kwargs["author"]} <{kwargs["email"]}>
