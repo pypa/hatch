@@ -6,6 +6,7 @@ Environment collectors allow for dynamically modifying environments or adding en
 
 ## Known third-party
 
+- [hatch-global-env-vars](https://github.com/valentinoli/hatch-global-env-vars) - set global environment variables with support for conditional logic, variable copying, and recursive resolution
 - [hatch-mkdocs](https://github.com/mkdocs/hatch-mkdocs) - integrate [MkDocs](https://github.com/mkdocs/mkdocs) and infer dependencies into an env
 
 ## Installation
