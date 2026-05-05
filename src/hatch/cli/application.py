@@ -80,6 +80,9 @@ class Application(Terminal):
                     signal.signal(signal.SIGINT, signal.SIG_IGN)
                     process = context.env.run_shell_command(command)
                 finally:
+                    # Restore the original handler in finally so the parent stays
+                    # responsive to Ctrl-C even if the child raises or is cancelled.
+                    # Don't hoist this out of the finally block.
                     signal.signal(signal.SIGINT, original_sigint)
                 sys.stdout.flush()
                 sys.stderr.flush()
