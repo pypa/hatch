@@ -19,6 +19,17 @@ MAXIMUM_SLEEP = 20
 DEFAULT_TIMEOUT = 10
 
 
+def get_default_timeout() -> float:
+    import os
+
+    from hatch.config.constants import NetworkEnvVars
+
+    if timeout := os.environ.get(NetworkEnvVars.TIMEOUT):
+        return float(timeout)
+
+    return DEFAULT_TIMEOUT
+
+
 @contextmanager
 def streaming_response(*args: Any, **kwargs: Any) -> Generator[httpx.Response, None, None]:
     from secrets import choice
@@ -43,7 +54,7 @@ def streaming_response(*args: Any, **kwargs: Any) -> Generator[httpx.Response, N
 
 
 def download_file(path: Path, *args: Any, **kwargs: Any) -> None:
-    kwargs.setdefault("timeout", DEFAULT_TIMEOUT)
+    kwargs.setdefault("timeout", get_default_timeout())
 
     with path.open(mode="wb", buffering=0) as f, streaming_response("GET", *args, **kwargs) as response:
         for chunk in response.iter_bytes(16384):
