@@ -3,6 +3,7 @@ import re
 import pytest
 
 from hatch.config.constants import AppEnvVars
+from hatch.dep.core import Dependency
 from hatch.env.plugin.interface import EnvironmentInterface
 from hatch.project.core import Project
 from hatch.utils.structures import EnvVars
@@ -1843,6 +1844,46 @@ feature3 = ["pkg-feature-3{i}"]
         environment.additional_dependencies = ["extra-dep"]
         deps = environment.dependencies_complex
         assert any("extra-dep" in str(d) for d in deps)
+
+    def test_add_additional_dependencies_invalidates_caches(
+        self, temp_dir, isolated_data_dir, platform, temp_application
+    ):
+        """Extending additional_dependencies must invalidate the cached dependency views.
+
+        Otherwise the build env fails to install dynamic build-hook dependencies (e.g. those
+        pulled in by require-runtime-dependencies). Regression test for #2110.
+        """
+        pyproject = temp_dir / "pyproject.toml"
+        pyproject.write_text("""
+    [project]
+    name = "my-app"
+    version = "0.0.1"
+    """)
+
+        project = Project(temp_dir)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            temp_dir,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        # Prime the caches with the empty additional_dependencies snapshot.
+        assert not any("extra-dep" in str(d) for d in environment.dependencies_complex)
+        assert not any("extra-dep" in str(d) for d in environment.all_dependencies_complex)
+
+        environment.add_additional_dependencies([Dependency("extra-dep")])
+
+        assert any("extra-dep" in str(d) for d in environment.dependencies_complex)
+        assert any("extra-dep" in str(d) for d in environment.all_dependencies_complex)
 
 
 class TestScripts:

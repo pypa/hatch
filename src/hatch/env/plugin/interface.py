@@ -356,6 +356,24 @@ class EnvironmentInterface(ABC):
 
         return local_dependencies_complex
 
+    def add_additional_dependencies(self, dependencies: Iterable[Dependency]) -> None:
+        """
+        Extend `additional_dependencies` and invalidate cached properties that depend on it.
+
+        Use this instead of mutating `additional_dependencies` directly when adding
+        dependencies after the environment may have already computed
+        `dependencies_complex` / `missing_dependencies` (e.g. after `prepare_environment`).
+        """
+        self.additional_dependencies.extend(dependencies)
+        for attr in (
+            "dependencies_complex",
+            "dependencies",
+            "all_dependencies_complex",
+            "all_dependencies",
+            "missing_dependencies",
+        ):
+            self.__dict__.pop(attr, None)
+
     @cached_property
     def dependencies_complex(self) -> list[Dependency]:
         from hatch.dep.core import Dependency
