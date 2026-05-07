@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 import hyperlink
 
 from hatch._version import __version__
+from hatch.utils.network import DEFAULT_TIMEOUT
 
 if TYPE_CHECKING:
     import httpx
@@ -47,20 +48,19 @@ class PackageIndex:
         if ca_cert:
             self.__verify = ca_cert
 
-        self.__timeout = timeout
+        self.__timeout = DEFAULT_TIMEOUT if timeout is None else timeout
 
     @cached_property
     def client(self) -> httpx.Client:
         import httpx
 
         from hatch.utils.linehaul import get_linehaul_component
-        from hatch.utils.network import DEFAULT_TIMEOUT
 
         user_agent = f"Hatch/{__version__} {get_linehaul_component()} HTTPX/{httpx.__version__}"
         return httpx.Client(
             headers={"User-Agent": user_agent},
             transport=httpx.HTTPTransport(retries=3, verify=self.__verify, cert=self.__cert),
-            timeout=DEFAULT_TIMEOUT if self.__timeout is None else self.__timeout,
+            timeout=self.__timeout,
         )
 
     def upload_artifact(self, artifact: Path, data: dict):
