@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Fixed:***
+
+- Replace broken "Switching to Hatch" link in community highlights with a Wayback Machine archive URL (the original blog at `andrich.me` returns 404).
+
 ## [1.16.5](https://github.com/pypa/hatch/releases/tag/hatch-v1.16.5) - 2026-02-26 ## {: #hatch-v1.16.5 }
 
 ***Fixed:***
