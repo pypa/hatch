@@ -153,6 +153,9 @@ def generate_lockfile(
     if state is None:
         return
 
+    if not environment.exists():
+        environment.create()
+
     locker_cls = get_locker_plugin_class(environment.app.project, environment)
     locker_cls.generate(
         environment,
