@@ -756,6 +756,20 @@ class BuilderConfig:
         if local_gitignore is not None:
             exclusion_files["git"].append(local_gitignore)
 
+        # Git also honors patterns from .git/info/exclude (a per-clone, untracked
+        # equivalent of .gitignore — see https://git-scm.com/docs/gitignore). Without
+        # this, users adding patterns to .git/info/exclude (e.g. as a workaround for
+        # tooling that overwrites .gitignore — see issue #2204) silently see those
+        # patterns ignored by the sdist/wheel builder. The .git path may be a
+        # directory (regular clone) or a file (worktree / submodule pointing to
+        # ../.git/worktrees/<name>); we only honor the regular-clone case here, since
+        # worktree-private excludes live in a different file under the main repo.
+        local_git = os.path.join(self.root, ".git")
+        if os.path.isdir(local_git):
+            git_info_exclude = os.path.join(local_git, "info", "exclude")
+            if os.path.isfile(git_info_exclude):
+                exclusion_files["git"].append(git_info_exclude)
+
         local_hgignore = locate_file(self.root, ".hgignore", boundary=".hg")
         if local_hgignore is not None:
             exclusion_files["hg"].append(local_hgignore)

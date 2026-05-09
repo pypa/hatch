@@ -1874,6 +1874,52 @@ class TestPatternExclude:
             assert not builder.config.exclude_spec.match_file(f"bar{separator}file.py")
 
     @pytest.mark.parametrize("separator", ["/", "\\"])
+    def test_vcs_git_info_exclude(self, temp_dir, separator, platform):
+        # Regression test for https://github.com/pypa/hatch/issues/2204:
+        # patterns added to `.git/info/exclude` (per-clone, not tracked) should be
+        # honored alongside `.gitignore`, matching Git's own behavior.
+        if separator == "\\" and not platform.windows:
+            pytest.skip("Not running on Windows")
+
+        with temp_dir.as_cwd():
+            config = {"tool": {"hatch": {"build": {"exclude": ["foo"]}}}}
+            builder = MockBuilder(str(temp_dir), config=config)
+
+            git_dir = temp_dir / ".git"
+            git_dir.mkdir()
+            git_info_dir = git_dir / "info"
+            git_info_dir.mkdir()
+            (git_info_dir / "exclude").write_text("/bar\n*.pyc\n")
+
+            assert builder.config.exclude_spec.match_file(f"foo{separator}file.py")
+            assert builder.config.exclude_spec.match_file(f"bar{separator}file.py")
+            assert builder.config.exclude_spec.match_file(f"baz{separator}bar{separator}file.pyc")
+            assert not builder.config.exclude_spec.match_file(f"baz{separator}bar{separator}file.py")
+
+    @pytest.mark.parametrize("separator", ["/", "\\"])
+    def test_vcs_git_info_exclude_combined_with_gitignore(self, temp_dir, separator, platform):
+        # Regression test for https://github.com/pypa/hatch/issues/2204: patterns from
+        # .gitignore and .git/info/exclude should both apply (additive, not exclusive).
+        if separator == "\\" and not platform.windows:
+            pytest.skip("Not running on Windows")
+
+        with temp_dir.as_cwd():
+            config = {"tool": {"hatch": {"build": {}}}}
+            builder = MockBuilder(str(temp_dir), config=config)
+
+            (temp_dir / ".gitignore").write_text("*.pyc\n")
+            git_info_dir = temp_dir / ".git" / "info"
+            git_info_dir.mkdir(parents=True)
+            (git_info_dir / "exclude").write_text("*.so\n")
+
+            # .gitignore pattern still excluded
+            assert builder.config.exclude_spec.match_file(f"foo{separator}file.pyc")
+            # .git/info/exclude pattern also excluded
+            assert builder.config.exclude_spec.match_file(f"foo{separator}file.so")
+            # unmatched files still allowed
+            assert not builder.config.exclude_spec.match_file(f"foo{separator}file.py")
+
+    @pytest.mark.parametrize("separator", ["/", "\\"])
     def test_vcs_git_exclude_whitelisted_file(self, temp_dir, separator, platform):
         if separator == "\\" and not platform.windows:
             pytest.skip("Not running on Windows")

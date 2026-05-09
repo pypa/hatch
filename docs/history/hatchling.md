@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ***Added:***
 
 - Support PEP 794 (core metadata `Import-Name` and `Import-Namespace` fields and version 2.5)
+- Honor patterns in `.git/info/exclude` for the wheel and sdist builders, matching Git's own behavior. Useful when tooling overwrites a project's `.gitignore` or for per-clone exclusions that aren't tracked in version control.
 
 ## [1.29.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.29.0) - 2026-02-21 ## {: #hatchling-v1.29.0 }
 
