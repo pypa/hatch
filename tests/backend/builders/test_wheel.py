@@ -241,6 +241,67 @@ class TestDefaultFileSelection:
             assert builder.config.default_packages() == []
             assert builder.config.default_only_include() == []
 
+    def test_shared_scripts_option_considered_selection(self, temp_dir):
+        # Regression test for https://github.com/pypa/hatch/issues/1973: configuring only
+        # `shared-scripts` (no `include`/`packages`) should be a sufficient selection
+        # signal — there's nothing in-tree to ship but the wheel will contain the scripts.
+        scripts_dir = temp_dir / "bin"
+        scripts_dir.ensure_dir_exists()
+        config = {
+            "project": {"name": "my-app", "version": "0.0.1"},
+            "tool": {
+                "hatch": {
+                    "build": {"targets": {"wheel": {"shared-scripts": {str(scripts_dir): "/myapp/"}}}}
+                }
+            },
+        }
+        builder = WheelBuilder(str(temp_dir), config=config)
+
+        assert builder.config.default_include() == []
+        assert builder.config.default_exclude() == []
+        assert builder.config.default_packages() == []
+        assert builder.config.default_only_include() == []
+
+    def test_shared_data_option_considered_selection(self, temp_dir):
+        # Same rationale as shared-scripts (issue #1973): shared-data alone should be a
+        # valid configuration without needing `bypass-selection = true`.
+        data_dir = temp_dir / "data"
+        data_dir.ensure_dir_exists()
+        config = {
+            "project": {"name": "my-app", "version": "0.0.1"},
+            "tool": {
+                "hatch": {
+                    "build": {"targets": {"wheel": {"shared-data": {str(data_dir): "/myapp/"}}}}
+                }
+            },
+        }
+        builder = WheelBuilder(str(temp_dir), config=config)
+
+        assert builder.config.default_include() == []
+        assert builder.config.default_exclude() == []
+        assert builder.config.default_packages() == []
+        assert builder.config.default_only_include() == []
+
+    def test_extra_metadata_option_considered_selection(self, temp_dir):
+        # Same rationale as shared-scripts (issue #1973): extra-metadata alone should be
+        # a valid configuration without needing `bypass-selection = true`.
+        meta_dir = temp_dir / "meta"
+        meta_dir.ensure_dir_exists()
+        config = {
+            "project": {"name": "my-app", "version": "0.0.1"},
+            "tool": {
+                "hatch": {
+                    "build": {"targets": {"wheel": {"extra-metadata": {str(meta_dir): "/myapp/"}}}}
+                }
+            },
+        }
+        builder = WheelBuilder(str(temp_dir), config=config)
+
+        assert builder.config.default_include() == []
+        assert builder.config.default_exclude() == []
+        assert builder.config.default_packages() == []
+        assert builder.config.default_only_include() == []
+
     def test_unnormalized_name_with_unnormalized_directory(self, temp_dir):
         config = {"project": {"name": "MyApp", "version": "0.0.1"}}
         builder = WheelBuilder(str(temp_dir), config=config)

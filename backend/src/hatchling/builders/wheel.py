@@ -238,7 +238,19 @@ class WheelBuilderConfig(BuilderConfig):
                 return FileSelectionOptions([], exclude, [namespace], [])
             project_names.add(project_name)
 
-        if self.bypass_selection or self.build_artifact_spec is not None or self.get_force_include():
+        # Treat any out-of-tree contribution to the wheel — force-include map, build artifacts,
+        # shared-data, shared-scripts, extra-metadata — as an explicit signal that the user
+        # intentionally omitted in-tree file selection. Without this, supplying only
+        # `shared-scripts` (and friends) raises a confusing "no files to ship" error even
+        # though the wheel will not actually be empty. See issue #1973.
+        if (
+            self.bypass_selection
+            or self.build_artifact_spec is not None
+            or self.get_force_include()
+            or self.shared_data
+            or self.shared_scripts
+            or self.extra_metadata
+        ):
             self.set_exclude_all()
             return FileSelectionOptions([], exclude, [], [])
 
