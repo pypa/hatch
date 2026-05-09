@@ -87,7 +87,7 @@ requires-python = ">=3.8"
 license = "{license_expression}"{license_files}
 keywords = []
 authors = [
-  {{ name = "{name}", email = "{email}" }},
+  {authors_entry},
 ]
 classifiers = [
   "Development Status :: 4 - Beta",
@@ -111,6 +111,17 @@ path = "{package_metadata_file_path}"{tests_section}
     def __init__(self, template_config: dict, plugin_config: dict):
         template_config = dict(template_config)
         template_config["name"] = repr(template_config["name"])[1:-1]
+
+        # PEP 621 allows an `authors` entry to omit either `name` or `email`. When the
+        # user explicitly sets an empty string for the email — e.g. via a blank
+        # `[template] email = ""` in their hatch config — emit `{ name = "..." }`
+        # alone instead of `{ name = "...", email = "" }`, which would otherwise
+        # leak `Author <>` artifacts into rendered metadata. See issue #1991.
+        if template_config.get("email"):
+            authors_entry = f'{{ name = "{template_config["name"]}", email = "{template_config["email"]}" }}'
+        else:
+            authors_entry = f'{{ name = "{template_config["name"]}" }}'
+        template_config["authors_entry"] = authors_entry
 
         project_url_data = ""
         project_urls = (

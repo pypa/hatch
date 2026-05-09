@@ -104,6 +104,34 @@ def test_default_explicit_path(hatch, helpers, temp_dir):
     )
 
 
+def test_default_blank_email(hatch, config_file, temp_dir):
+    """Regression test for https://github.com/pypa/hatch/issues/1991 — when the user
+    explicitly sets an empty email in the template config, neither pyproject.toml's
+    `authors` entry nor the SPDX license headers should leave a `<>` placeholder."""
+    project_name = "My.App"
+    config_file.model.template.email = ""
+    config_file.save()
+
+    with temp_dir.as_cwd():
+        result = hatch("new", project_name)
+
+    assert result.exit_code == 0, result.output
+
+    path = temp_dir / "my-app"
+    pyproject_text = (path / "pyproject.toml").read_text(encoding="utf-8")
+    license_text = (path / "LICENSE.txt").read_text(encoding="utf-8")
+    init_text = (path / "src" / "my_app" / "__init__.py").read_text(encoding="utf-8")
+
+    # pyproject authors entry has no email field at all, not `email = ""`
+    assert 'email = ""' not in pyproject_text
+    assert 'email = "' not in pyproject_text  # the field is omitted entirely
+    assert "authors = [\n  { name = " in pyproject_text
+
+    # SPDX header in __init__.py / __about__.py / tests/__init__.py: no trailing `<>`
+    assert "<>" not in init_text
+    assert "<>" not in license_text
+
+
 def test_default_empty_plugins_table(hatch, helpers, config_file, temp_dir):
     project_name = "My.App"
     config_file.model.template.plugins = {}

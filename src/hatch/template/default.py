@@ -53,11 +53,17 @@ class DefaultTemplate(TemplateInterface):
 
         config["license_data"] = license_data
         config["license_expression"] = " OR ".join(license_data)
+        # When the user explicitly opts out of an email in their hatch template
+        # config (issue #1991), drop the `<>` placeholder from REUSE
+        # SPDX-FileCopyrightText so the rendered header isn't `Author <>`.
+        copyright_holder = (
+            f'{config["name"]} <{config["email"]}>' if config.get("email") else config["name"]
+        )
         config["license_header"] = (
             ""
             if not config["licenses"]["headers"]
             else f"""\
-# SPDX-FileCopyrightText: {self.creation_time.year}-present {config["name"]} <{config["email"]}>
+# SPDX-FileCopyrightText: {self.creation_time.year}-present {copyright_holder}
 #
 # SPDX-License-Identifier: {config["license_expression"]}
 """
@@ -119,11 +125,15 @@ class DefaultTemplate(TemplateInterface):
 
 
 def get_license_text(config, license_id, license_text, creation_time):
+    # Drop the `<>` placeholder when the user opted out of an email (issue #1991);
+    # SPDX upstream license texts use `<copyright holders>` / `<owner>` as a single
+    # token, so substituting just the name is well-formed.
+    holder = f"{config['name']} <{config['email']}>" if config.get("email") else config["name"]
     if license_id == "MIT":
         license_text = license_text.replace("<year>", f"{creation_time.year}-present", 1)
-        license_text = license_text.replace("<copyright holders>", f"{config['name']} <{config['email']}>", 1)
+        license_text = license_text.replace("<copyright holders>", holder, 1)
     elif license_id == "BSD-3-Clause":
         license_text = license_text.replace("<year>", f"{creation_time.year}-present", 1)
-        license_text = license_text.replace("<owner>", f"{config['name']} <{config['email']}>", 1)
+        license_text = license_text.replace("<owner>", holder, 1)
 
     return f"{license_text.rstrip()}\n"
