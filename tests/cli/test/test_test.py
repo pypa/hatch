@@ -16,6 +16,25 @@ def _terminal_width():
         yield
 
 
+class TestHelpText:
+    """Regression tests for https://github.com/pypa/hatch/issues/2202 — `hatch test -h`
+    should point users at the testing configuration reference and warn that
+    `extra-dependencies` is additive to the built-in defaults."""
+
+    def test_help_links_to_testing_config_docs(self, hatch):
+        result = hatch("test", "-h")
+        assert result.exit_code == 0, result.output
+        assert "https://hatch.pypa.io/latest/config/internal/testing/" in result.output
+
+    def test_help_mentions_extra_dependencies_is_additive(self, hatch):
+        result = hatch("test", "-h")
+        assert result.exit_code == 0, result.output
+        # The exact phrasing isn't load-bearing; the user-visible signal is that the
+        # help text acknowledges defaults exist and that extra-dependencies adds to them.
+        assert "extra-dependencies" in result.output
+        assert "additive" in result.output
+
+
 class TestDefaults:
     def test_basic(self, hatch, temp_dir, config_file, env_run, mocker):
         config_file.model.template.plugins["default"]["tests"] = False

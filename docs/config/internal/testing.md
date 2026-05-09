@@ -86,6 +86,9 @@ The following is the default configuration:
 <HATCH_TEST_ENV_DEPENDENCIES>
 ```
 
+!!! note
+    `extra-dependencies` is **additive** to the defaults shown above — it does not replace them. If you specify a package that is already in the defaults with an incompatible version, dependency resolution will fail. To take full control of the dependency set (for example, to pin `pytest-rerunfailures` to a different major version), override `dependencies` instead of `extra-dependencies`. You can inspect the resolved dependency set for a given environment with `hatch test --show`.
+
 ### Matrix
 
 You can override the default series of [matrices](../environment/advanced.md#matrix):

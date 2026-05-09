@@ -83,6 +83,12 @@ def test(
         The inclusion option is treated as an intersection while the exclusion option is treated as a
         union i.e. an environment must match all of the included variables to be selected while matching
         any of the excluded variables will prevent selection.
+
+    The `hatch-test` environment ships with a default set of dependencies (pytest,
+    coverage, pytest-rerunfailures, ...) and `extra-dependencies` is additive to those.
+    To customize testing — including the dependency list, default arguments, scripts,
+    or matrix — see the testing configuration reference:
+    https://hatch.pypa.io/latest/config/internal/testing/
     """
     app: Application = ctx.obj
 
