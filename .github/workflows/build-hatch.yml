@@ -45,7 +45,7 @@ jobs:
         python-version: ${{ env.PYTHON_VERSION }}
 
     - name: Install UV
-      uses: astral-sh/setup-uv@v3
+      uses: astral-sh/setup-uv@v5
 
     - name: Install tools
       run: |-
@@ -161,7 +161,7 @@ jobs:
         python-version: ${{ env.PYTHON_VERSION }}
 
     - name: Install UV
-      uses: astral-sh/setup-uv@v3
+      uses: astral-sh/setup-uv@v5
 
     - name: Install Hatch
       run: |-
@@ -287,7 +287,7 @@ jobs:
         python-version: ${{ env.PYTHON_VERSION }}
 
     - name: Install UV
-      uses: astral-sh/setup-uv@v3
+      uses: astral-sh/setup-uv@v5
 
     - name: Install PyOxidizer ${{ env.PYOXIDIZER_VERSION }}
       run: uv pip install --system pyoxidizer==${{ env.PYOXIDIZER_VERSION }}
@@ -373,7 +373,7 @@ jobs:
         python-version: ${{ env.PYTHON_VERSION }}
 
     - name: Install UV
-      uses: astral-sh/setup-uv@v3
+      uses: astral-sh/setup-uv@v5
 
     - name: Install PyOxidizer ${{ env.PYOXIDIZER_VERSION }}
       run: uv pip install --system pyoxidizer==${{ env.PYOXIDIZER_VERSION }}
