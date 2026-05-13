@@ -1336,9 +1336,8 @@ class TestBuildStandard:
 
         project_path = temp_dir / "my-app"
 
-        vcs_ignore_file = temp_dir / ".gitignore"
-        vcs_ignore_file.write_text("*.pyc\n*.so\n*.h\n")
-
+        (project_path / ".gitignore").write_text("*.pyc\n*.so\n*.h\n")
+        (project_path / ".git").write_text("gitdir: ../.git/worktrees/my-app\n")
         (project_path / "my_app" / "lib.so").touch()
         (project_path / "my_app" / "lib.h").touch()
 
