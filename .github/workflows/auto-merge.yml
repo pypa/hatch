@@ -5,10 +5,6 @@ permissions:
   contents: write
   pull-requests: write
 
-permissions:
-  contents: write
-  pull-requests: write
-
 jobs:
   dependabot:
     runs-on: ubuntu-latest
