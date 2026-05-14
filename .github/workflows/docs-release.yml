@@ -14,6 +14,8 @@ env:
 
 jobs:
   build:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
 
     steps:
@@ -68,6 +70,8 @@ jobs:
         path: site.zip
 
   publish:
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     needs:
     - build
