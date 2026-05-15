@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from typing import TYPE_CHECKING
 
 import click
@@ -80,6 +81,7 @@ def run_lock_workflow(
     skip_incompatible_envs: bool,
 ) -> None:
     """Shared implementation for ``hatch env lock`` and ``hatch dep lock``."""
+    from hatch.config.constants import AppEnvVars
     from hatch.env.lock import (
         LockerNotFoundError,
         LockerUnsupportedError,
@@ -139,6 +141,7 @@ def run_lock_workflow(
         try:
             if check:
                 with app.status(f"Checking lockfile for: {display_name}"):
+                    app.project.prepare_environment(environment, keep_env=bool(os.environ.get(AppEnvVars.KEEP_ENV)))
                     if not lockfile_in_sync(
                         environment,
                         output_path,
@@ -153,6 +156,7 @@ def run_lock_workflow(
                 continue
 
             with app.status(f"Locking environment: {display_name}"):
+                app.project.prepare_environment(environment, keep_env=bool(os.environ.get(AppEnvVars.KEEP_ENV)))
                 generate_lockfile(
                     environment,
                     output_path,
