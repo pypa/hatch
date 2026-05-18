@@ -96,9 +96,9 @@ jobs:
     - name: Install Hatch
       run: >-
         docker exec builder
-        /home/python/bin/python -m pip install $INPUTS_VERSION_OR_DOT
+        /home/python/bin/python -m pip install $INPUTS_VERSION_OR_DIR
       env:
-        INPUTS_VERSION_OR_DOT: ${{ inputs.version && format('hatch=={0}', inputs.version) || '.' }}
+        INPUTS_VERSION_OR_DIR: ${{ inputs.version && format('hatch=={0}', inputs.version) || '/home/hatch' }}
 
     - name: Make scripts portable
       run: >-
