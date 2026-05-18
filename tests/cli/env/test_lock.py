@@ -1058,3 +1058,79 @@ def test_lock_export_paths_use_same_names_as_export_all(hatch, helpers, temp_dir
     assert exp_sidecar.is_file()
     assert "httpx" in exp_default.read_text(encoding="utf-8").lower()
     assert "click" in exp_sidecar.read_text(encoding="utf-8").lower()
+
+
+@pytest.mark.requires_internet
+def test_lock_creates_env_if_not_exists(hatch, helpers, temp_dir, config_file, uv_on_path):
+    """Locking an environment that hasn't been created yet should auto-create it (GH-2250)."""
+    _require_uv(uv_on_path)
+
+    config_file.model.template.plugins["default"]["tests"] = False
+    config_file.save()
+
+    project_name = "My.App"
+    with temp_dir.as_cwd():
+        assert hatch("new", project_name).exit_code == 0
+
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
+    data_path.mkdir()
+
+    project = Project(project_path)
+    helpers.update_project_environment(project, "default", {"skip-install": True, **project.config.envs["default"]})
+    helpers.update_project_environment(
+        project,
+        "some-env",
+        {
+            "installer": "uv",
+            "skip-install": True,
+            "locked": True,
+            "dependencies": ["click>=8.0"],
+        },
+    )
+
+    lock_path = project_path / "pylock.some-env.toml"
+
+    # Do NOT create the environment first — this is the regression test for GH-2250
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch("env", "lock", "some-env")
+
+    assert result.exit_code == 0, result.output
+    assert lock_path.is_file()
+    lock_body = lock_path.read_text(encoding="utf-8")
+    assert "click" in lock_body.lower()
+
+
+@pytest.mark.requires_internet
+def test_lock_creates_env_if_not_exists_export(hatch, helpers, temp_dir, config_file, uv_on_path):
+    """Locking with --export should also auto-create the environment (GH-2250)."""
+    _require_uv(uv_on_path)
+
+    config_file.model.template.plugins["default"]["tests"] = False
+    config_file.save()
+
+    project_name = "My.App"
+    with temp_dir.as_cwd():
+        assert hatch("new", project_name).exit_code == 0
+
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
+    data_path.mkdir()
+
+    project = Project(project_path)
+    helpers.update_project_environment(
+        project,
+        "default",
+        {"skip-install": True, "dependencies": ["urllib3"], **project.config.envs["default"]},
+    )
+
+    export_path = str(temp_dir / "pylock.exported.toml")
+
+    # Do NOT create the environment first
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch("dep", "lock", "--export", export_path)
+
+    assert result.exit_code == 0, result.output
+    assert (temp_dir / "pylock.exported.toml").is_file()
+    lock_body = (temp_dir / "pylock.exported.toml").read_text(encoding="utf-8")
+    assert "urllib3" in lock_body.lower()
