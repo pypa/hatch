@@ -16,8 +16,6 @@ class TestRepo:
         assert index.repo == "https://foo.internal/a/b/"
 
 
-
-
 class TestURLs:
     @pytest.mark.parametrize(
         ("repo_url", "expected_url"),
@@ -131,11 +129,14 @@ class TestUserAgent:
         assert data["distro"]["name"] == "macOS"
         assert data["distro"]["version"] == "14.0"
 
+
 class TestTimeout:
     def test_timeout_default(self):
         from hatch.utils.network import DEFAULT_TIMEOUT
+
         default_timeout = PackageIndex("https://foo.internal/a/b/")
         assert default_timeout.timeout == DEFAULT_TIMEOUT
+
     def test_timeout_custom(self):
         default_timeout = PackageIndex("https://foo.internal/a/b/", timeout=5)
         assert default_timeout.timeout == 5

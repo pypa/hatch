@@ -7,6 +7,7 @@ from collections import defaultdict
 import pytest
 
 from hatch.config.constants import PublishEnvVars
+
 pytestmark = [
     pytest.mark.requires_docker,
     pytest.mark.requires_internet,
@@ -31,7 +32,6 @@ def keyring_store(mocker):
 
 @pytest.fixture
 def published_project_name():
-    import secrets
     return f"c4880cdbe05de9a28415fbad{secrets.choice(range(100))}"
 
 
@@ -223,6 +223,7 @@ def test_flags(hatch, devpi, temp_dir_cache, helpers, published_project_name):
         """
     )
 
+
 def test_flags_timeout(hatch, devpi, temp_dir_cache, helpers, published_project_name):
     with temp_dir_cache.as_cwd():
         result = hatch("new", published_project_name)
@@ -242,7 +243,17 @@ def test_flags_timeout(hatch, devpi, temp_dir_cache, helpers, published_project_
         artifacts = list(build_directory.iterdir())
 
         result = hatch(
-            "publish", "--repo", devpi.repo, "--user", devpi.user, "--auth", devpi.auth, "--ca-cert", devpi.ca_cert, "--timeout", 100
+            "publish",
+            "--repo",
+            devpi.repo,
+            "--user",
+            devpi.user,
+            "--auth",
+            devpi.auth,
+            "--ca-cert",
+            devpi.ca_cert,
+            "--timeout",
+            100,
         )
 
     assert result.exit_code == 0, result.output
@@ -255,6 +266,7 @@ def test_flags_timeout(hatch, devpi, temp_dir_cache, helpers, published_project_
         {devpi.repo}{published_project_name}/{current_version}/
         """
     )
+
 
 def test_plugin_config(hatch, devpi, temp_dir_cache, helpers, published_project_name, config_file):
     config_file.model.publish["index"]["user"] = devpi.user
@@ -739,6 +751,8 @@ class TestSourceDistribution:
             Missing required field `{field}` in artifact: {artifact_path}
             """
         )
+
+
 # class TestTimeout:
 #     def test_flags_with_timeout(hatch, devpi, temp_dir_cache, helpers, published_project_name):
 #         with temp_dir_cache.as_cwd():
