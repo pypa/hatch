@@ -42,7 +42,7 @@ check = "mypy --install-types --non-interactive {args:backend/src/hatchling src/
 [envs.docs]
 dependencies = [
   "mkdocs~=1.6.0",
-  "mkdocs-material~=9.5.24",
+  "mkdocs-material~=9.7.0",
   # Plugins
   "mkdocs-minify-plugin~=0.8.0",
   "mkdocs-git-revision-date-localized-plugin~=1.2.5",
@@ -60,15 +60,9 @@ dependencies = [
   # Validation
   "linkchecker~=10.5.0",
   "griffe>=1.0.0",
-]
-pre-install-commands = [
-  "python scripts/install_mkdocs_material_insiders.py",
-]
-[envs.docs.overrides]
-env.GH_TOKEN_MKDOCS_MATERIAL_INSIDERS.env-vars = [
-  { key = "MKDOCS_CONFIG", value = "mkdocs.insiders.yml" },
-  { key = "MKDOCS_CONFIG", value = "mkdocs.yml", if = [""] },
-  { key = "MKDOCS_IMAGE_PROCESSING", value = "true" },
+  # Image processing for social cards
+  "cairosvg~=2.7.0",
+  "pillow~=10.3.0",
 ]
 [envs.docs.env-vars]
 SOURCE_DATE_EPOCH = "1580601600"
