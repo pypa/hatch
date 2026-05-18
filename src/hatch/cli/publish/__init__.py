@@ -93,6 +93,8 @@ def publish(
             option_map["client_cert"] = client_cert
         if client_key:
             option_map["client_key"] = client_key
+        if timeout:
+            option_map["timeout"] = timeout
     else:  # no cov
         for option in options:
             key, _, value = option.partition("=")

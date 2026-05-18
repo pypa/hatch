@@ -78,6 +78,7 @@ class IndexPublisher(PublisherInterface):
             ca_cert=options.get("ca_cert", repo_config.get("ca-cert")),
             client_cert=options.get("client_cert", repo_config.get("client-cert")),
             client_key=options.get("client_key", repo_config.get("client-key")),
+            timeout=options.get("timeout", repo_config.get("timeout")),
         )
 
         existing_artifacts: dict[str, set[str]] = {}

@@ -7,7 +7,6 @@ from collections import defaultdict
 import pytest
 
 from hatch.config.constants import PublishEnvVars
-
 pytestmark = [
     pytest.mark.requires_docker,
     pytest.mark.requires_internet,
@@ -32,6 +31,7 @@ def keyring_store(mocker):
 
 @pytest.fixture
 def published_project_name():
+    import secrets
     return f"c4880cdbe05de9a28415fbad{secrets.choice(range(100))}"
 
 
@@ -705,5 +705,38 @@ class TestSourceDistribution:
         assert result.output == helpers.dedent(
             f"""
             Missing required field `{field}` in artifact: {artifact_path}
+            """
+        )
+class TestTimeout:
+    def test_flags_with_timeout(hatch, devpi, temp_dir_cache, helpers, published_project_name):
+        with temp_dir_cache.as_cwd():
+            result = hatch("new", published_project_name)
+            assert result.exit_code == 0, result.output
+
+        path = temp_dir_cache / published_project_name
+
+        with path.as_cwd():
+            current_version = timestamp_to_version(helpers.get_current_timestamp())
+            result = hatch("version", current_version)
+            assert result.exit_code == 0, result.output
+
+            result = hatch("build")
+            assert result.exit_code == 0, result.output
+
+            build_directory = path / "dist"
+            artifacts = list(build_directory.iterdir())
+
+            result = hatch(
+                "publish", "--repo", devpi.repo, "--user", devpi.user, "--auth", devpi.auth, "--ca-cert", devpi.ca_cert
+            )
+
+        assert result.exit_code == 0, result.output
+        assert result.output == helpers.dedent(
+            f"""
+            {artifacts[0].relative_to(path)} ... success
+            {artifacts[1].relative_to(path)} ... success
+
+            [{published_project_name}]
+            {devpi.repo}{published_project_name}/{current_version}/
             """
         )
