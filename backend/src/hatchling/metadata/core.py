@@ -236,20 +236,22 @@ class ProjectMetadata(Generic[PluginManagerBound]):
                 hatch_config.update(config)
 
             self._hatch = HatchMetadata(self.root, hatch_config, self.plugin_manager)
-       
+
         required_version = self._hatch.hatch_required_version
         if required_version is not None:
-            from packaging.version import parse, InvalidVersion
+            from packaging.version import InvalidVersion, parse
+
             from hatchling.__about__ import __version__
+
             try:
                 hatch_req_version = parse(required_version)
                 hatch_version = parse(__version__)
             except InvalidVersion:
-                message = f"hatch.required_version is not a valid version. Check pyproject.toml"
-                raise Exception(message)
+                message = "hatch.required_version is not a valid version. Check pyproject.toml"
+                raise TypeError(message) from None
             if hatch_version < hatch_req_version:
                 message = f"This project requires {hatch_req_version}. You currently have {hatch_version}. Please consider updating."
-                raise TypeError(message)
+                raise ValueError(message)
 
         return self._hatch
 
@@ -1522,8 +1524,8 @@ class HatchMetadata(Generic[PluginManagerBound]):
 
         return self._version
 
-    @property  
-    def hatch_required_version(self) -> str|None:
+    @property
+    def hatch_required_version(self) -> str | None:
         return self.config.get("required_version")
 
 
