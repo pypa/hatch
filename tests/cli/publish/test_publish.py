@@ -223,6 +223,38 @@ def test_flags(hatch, devpi, temp_dir_cache, helpers, published_project_name):
         """
     )
 
+def test_flags_timeout(hatch, devpi, temp_dir_cache, helpers, published_project_name):
+    with temp_dir_cache.as_cwd():
+        result = hatch("new", published_project_name)
+        assert result.exit_code == 0, result.output
+
+    path = temp_dir_cache / published_project_name
+
+    with path.as_cwd():
+        current_version = timestamp_to_version(helpers.get_current_timestamp())
+        result = hatch("version", current_version)
+        assert result.exit_code == 0, result.output
+
+        result = hatch("build")
+        assert result.exit_code == 0, result.output
+
+        build_directory = path / "dist"
+        artifacts = list(build_directory.iterdir())
+
+        result = hatch(
+            "publish", "--repo", devpi.repo, "--user", devpi.user, "--auth", devpi.auth, "--ca-cert", devpi.ca_cert, "--timeout", 100
+        )
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        f"""
+        {artifacts[0].relative_to(path)} ... success
+        {artifacts[1].relative_to(path)} ... success
+
+        [{published_project_name}]
+        {devpi.repo}{published_project_name}/{current_version}/
+        """
+    )
 
 def test_plugin_config(hatch, devpi, temp_dir_cache, helpers, published_project_name, config_file):
     config_file.model.publish["index"]["user"] = devpi.user
@@ -707,36 +739,36 @@ class TestSourceDistribution:
             Missing required field `{field}` in artifact: {artifact_path}
             """
         )
-class TestTimeout:
-    def test_flags_with_timeout(hatch, devpi, temp_dir_cache, helpers, published_project_name):
-        with temp_dir_cache.as_cwd():
-            result = hatch("new", published_project_name)
-            assert result.exit_code == 0, result.output
+# class TestTimeout:
+#     def test_flags_with_timeout(hatch, devpi, temp_dir_cache, helpers, published_project_name):
+#         with temp_dir_cache.as_cwd():
+#             result = hatch("new", published_project_name)
+#             assert result.exit_code == 0, result.output
 
-        path = temp_dir_cache / published_project_name
+#         path = temp_dir_cache / published_project_name
 
-        with path.as_cwd():
-            current_version = timestamp_to_version(helpers.get_current_timestamp())
-            result = hatch("version", current_version)
-            assert result.exit_code == 0, result.output
+#         with path.as_cwd():
+#             current_version = timestamp_to_version(helpers.get_current_timestamp())
+#             result = hatch("version", current_version)
+#             assert result.exit_code == 0, result.output
 
-            result = hatch("build")
-            assert result.exit_code == 0, result.output
+#             result = hatch("build")
+#             assert result.exit_code == 0, result.output
 
-            build_directory = path / "dist"
-            artifacts = list(build_directory.iterdir())
+#             build_directory = path / "dist"
+#             artifacts = list(build_directory.iterdir())
 
-            result = hatch(
-                "publish", "--repo", devpi.repo, "--user", devpi.user, "--auth", devpi.auth, "--ca-cert", devpi.ca_cert
-            )
+#             result = hatch(
+#                 "publish", "--repo", devpi.repo, "--user", devpi.user, "--auth", devpi.auth, "--ca-cert", devpi.ca_cert, "--timeout", 5
+#             )
 
-        assert result.exit_code == 0, result.output
-        assert result.output == helpers.dedent(
-            f"""
-            {artifacts[0].relative_to(path)} ... success
-            {artifacts[1].relative_to(path)} ... success
+#         assert result.exit_code == 0, result.output
+#         assert result.output == helpers.dedent(
+#             f"""
+#             {artifacts[0].relative_to(path)} ... success
+#             {artifacts[1].relative_to(path)} ... success
 
-            [{published_project_name}]
-            {devpi.repo}{published_project_name}/{current_version}/
-            """
-        )
+#             [{published_project_name}]
+#             {devpi.repo}{published_project_name}/{current_version}/
+#             """
+#         )

@@ -1,6 +1,7 @@
 import click
 
 from hatch.config.constants import PublishEnvVars
+from hatch.utils.network import DEFAULT_TIMEOUT
 
 
 @click.command(short_help="Publish build artifacts")
@@ -59,6 +60,8 @@ from hatch.config.constants import PublishEnvVars
     ),
 )
 @click.option("--yes", "-y", is_flag=True, help="Confirm without prompting when the plugin is disabled")
+@click.option("--timeout", "--t", default=DEFAULT_TIMEOUT, help="Desired timeout time")
+
 @click.pass_obj
 def publish(
     app,
@@ -74,6 +77,7 @@ def publish(
     publisher_name,
     options,
     yes,
+    timeout
 ):
     """Publish build artifacts."""
     option_map = {"no_prompt": no_prompt, "initialize_auth": initialize_auth}
