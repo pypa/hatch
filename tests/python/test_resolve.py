@@ -156,6 +156,46 @@ class TestVariantCPU:
                 assert variant in dist.source
 
 
+class TestMirrors:
+    def test_cpython_standalone_mirror_applied(self):
+        with EnvVars({PythonEnvVars.MIRROR_CPYTHON_STANDALONE: "https://mirror.example.com/pbs"}):
+            dist = get_distribution("3.12")
+
+            assert dist.source.startswith("https://mirror.example.com/pbs/")
+            assert "github.com/astral-sh/python-build-standalone" not in dist.source
+            # The archive path after the mirror prefix should be preserved.
+            assert dist.archive_name.startswith("cpython-3.12")
+
+    def test_cpython_standalone_mirror_trailing_slash_normalised(self):
+        with EnvVars({PythonEnvVars.MIRROR_CPYTHON_STANDALONE: "https://mirror.example.com/pbs/"}):
+            dist = get_distribution("3.12")
+
+            assert "//" not in dist.source.removeprefix("https://")
+
+    def test_cpython_standalone_mirror_unset_keeps_upstream(self):
+        with EnvVars({PythonEnvVars.MIRROR_CPYTHON_STANDALONE: ""}):
+            dist = get_distribution("3.12")
+
+            assert dist.source.startswith("https://github.com/astral-sh/python-build-standalone/releases/download/")
+
+    def test_pypy_mirror_applied(self):
+        with EnvVars({PythonEnvVars.MIRROR_PYPY: "https://mirror.example.com/pypy"}):
+            dist = get_distribution("pypy3.10")
+
+            assert dist.source.startswith("https://mirror.example.com/pypy/")
+            assert "downloads.python.org/pypy" not in dist.source
+            assert dist.archive_name.startswith("pypy3.10")
+
+    def test_custom_source_overrides_mirror(self):
+        name = "3.12"
+        override = "https://example.com/my-python.tar.gz"
+        with EnvVars({
+            PythonEnvVars.MIRROR_CPYTHON_STANDALONE: "https://mirror.example.com/pbs",
+            custom_env_var(PythonEnvVars.CUSTOM_SOURCE_PREFIX, name): override,
+        }):
+            assert get_distribution(name).source == override
+
+
 class TestVariantGIL:
     def test_compatible(self):
         with EnvVars({"HATCH_PYTHON_VARIANT_GIL": "freethreaded"}):
