@@ -1426,7 +1426,7 @@ def test_plugin_dependencies_unmet(hatch, temp_dir, helpers, mock_plugin_install
 class TestBuildAllFlag:
     """Tests for the --all / -a flag on the build command."""
 
-    def test_all_flag_accepted(self, hatch, temp_dir, helpers):
+    def test_all_flag_accepted(self, hatch, temp_dir):
         """Verify --all flag is accepted and does not error with 'unknown option'."""
         project_name = "My.App"
 
@@ -1447,7 +1447,7 @@ class TestBuildAllFlag:
         artifacts = list(build_directory.iterdir())
         assert len(artifacts) == 2
 
-    def test_short_flag_accepted(self, hatch, temp_dir, helpers):
+    def test_short_flag_accepted(self, hatch, temp_dir):
         """Verify -a short form is accepted and does not error with 'unknown option'."""
         project_name = "My.App"
 
@@ -1504,7 +1504,7 @@ class TestBuildAllFlag:
             """
         )
 
-    def test_mutually_exclusive_hook_options_with_all(self, hatch, temp_dir, helpers):
+    def test_mutually_exclusive_hook_options_with_all(self, hatch, temp_dir):
         """Verify --hooks-only + --no-hooks conflict is detected early with --all."""
         project_name = "My.App"
 
@@ -2110,6 +2110,5 @@ class TestBuildAllWorkspace:
         src_a.mkdir()
         (src_a / "__init__.py").write_text('__version__ = "0.1.0"')
 
-        with workspace_root.as_cwd():
-            with pytest.raises(ValueError, match="duplicate"):
-                hatch("build", "--all")
+        with workspace_root.as_cwd(), pytest.raises(ValueError, match="duplicate"):
+            hatch("build", "--all")

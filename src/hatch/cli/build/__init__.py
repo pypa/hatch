@@ -269,9 +269,7 @@ def _build_all_members(
 
                     if build_backend != BUILD_BACKEND:
                         build_dir = (
-                            Path(location).resolve()
-                            if location
-                            else member.project.location / DEFAULT_BUILD_DIRECTORY
+                            Path(location).resolve() if location else member.project.location / DEFAULT_BUILD_DIRECTORY
                         )
                         build_dir.ensure_dir_exists()
                         if target_name == "sdist":
@@ -314,4 +312,4 @@ def _build_all_members(
                         context.env_vars.update(env_vars)
                         app.execute_context(context)
         except SystemExit as e:
-            app.abort(f"Build failed for workspace member `{member.name}`", code=e.code if e.code else 1)
+            app.abort(f"Build failed for workspace member `{member.name}`", code=e.code or 1)
