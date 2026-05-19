@@ -13,6 +13,7 @@ from hatch.cli.config import config
 from hatch.cli.dep import dep
 from hatch.cli.env import env
 from hatch.cli.fmt import fmt
+from hatch.cli.lock_cmd import lock_command
 from hatch.cli.new import new
 from hatch.cli.project import project
 from hatch.cli.publish import publish
@@ -222,6 +223,7 @@ hatch.add_command(config)
 hatch.add_command(dep)
 hatch.add_command(env)
 hatch.add_command(fmt)
+hatch.add_command(lock_command)
 hatch.add_command(new)
 hatch.add_command(project)
 hatch.add_command(publish)
