@@ -23,6 +23,8 @@ EXCLUDED_DIRECTORIES = frozenset((
     ".mypy_cache",
     # pixi
     ".pixi",
+    # jujutsu VCS
+    ".jj",
 ))
 EXCLUDED_FILES = frozenset((
     # https://en.wikipedia.org/wiki/.DS_Store
