@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import sys
 from functools import cached_property
 from typing import TYPE_CHECKING
 
@@ -52,13 +51,10 @@ class PackageIndex:
     def client(self) -> httpx.Client:
         import httpx
 
+        from hatch.utils.linehaul import get_linehaul_component
         from hatch.utils.network import DEFAULT_TIMEOUT
 
-        user_agent = (
-            f"Hatch/{__version__} "
-            f"{sys.implementation.name}/{'.'.join(map(str, sys.version_info[:3]))} "
-            f"HTTPX/{httpx.__version__}"
-        )
+        user_agent = f"Hatch/{__version__} {get_linehaul_component()} HTTPX/{httpx.__version__}"
         return httpx.Client(
             headers={"User-Agent": user_agent},
             transport=httpx.HTTPTransport(retries=3, verify=self.__verify, cert=self.__cert),

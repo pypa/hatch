@@ -85,7 +85,8 @@ def report(app: Application, *, no_open: bool) -> None:
         if setting in full_config:
             relevant_config[setting] = full_config[setting]
 
-    if env_dirs := relevant_config.get("dirs", {}).get("envs"):
+    full_dirs = full_config.get("dirs")
+    if isinstance(full_dirs, dict) and (env_dirs := full_dirs.get("envs")):
         relevant_config["dirs"] = {"envs": env_dirs}
 
     # Try to determine how Hatch was installed

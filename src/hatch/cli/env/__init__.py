@@ -2,6 +2,7 @@ import click
 
 from hatch.cli.env.create import create
 from hatch.cli.env.find import find
+from hatch.cli.env.lock import lock
 from hatch.cli.env.prune import prune
 from hatch.cli.env.remove import remove
 from hatch.cli.env.run import run
@@ -15,6 +16,7 @@ def env():
 
 env.add_command(create)
 env.add_command(find)
+env.add_command(lock)
 env.add_command(prune)
 env.add_command(remove)
 env.add_command(run)
