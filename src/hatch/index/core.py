@@ -55,7 +55,7 @@ class PackageIndex:
         import httpx
 
         from hatch.utils.linehaul import get_linehaul_component
-        
+
         user_agent = f"Hatch/{__version__} {get_linehaul_component()} HTTPX/{httpx.__version__}"
         return httpx.Client(
             headers={"User-Agent": user_agent},
