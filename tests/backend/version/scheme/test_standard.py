@@ -83,12 +83,14 @@ class TestPre:
 
 class TestPost:
     @pytest.mark.parametrize("key", ["post", "rev", "r"])
+    @pytest.mark.packaging_regression
     def test_begin(self, isolation, key):
         scheme = StandardScheme(str(isolation), {})
 
         assert scheme.update(key, "9000.0.0-rc.3.dev5", {}) == "9000.0.0rc3.post0"
 
     @pytest.mark.parametrize("key", ["post", "rev", "r"])
+    @pytest.mark.packaging_regression
     def test_continue(self, isolation, key):
         scheme = StandardScheme(str(isolation), {})
 
@@ -96,11 +98,13 @@ class TestPost:
 
 
 class TestDev:
+    @pytest.mark.packaging_regression
     def test_begin(self, isolation):
         scheme = StandardScheme(str(isolation), {})
 
         assert scheme.update("dev", "9000.0.0-rc.3-7", {}) == "9000.0.0rc3.post7.dev0"
 
+    @pytest.mark.packaging_regression
     def test_continue(self, isolation):
         scheme = StandardScheme(str(isolation), {})
 
@@ -118,7 +122,7 @@ class TestMultiple:
         ("operations", "expected"),
         [
             ("fix,rc", "0.0.2rc0"),
-            ("minor,dev", "0.1.0.dev0"),
+            pytest.param("minor,dev", "0.1.0.dev0", marks=pytest.mark.packaging_regression),
             ("minor,preview", "0.1.0rc0"),
             ("major,beta", "1.0.0b0"),
             ("major,major,major", "3.0.0"),
@@ -136,7 +140,7 @@ class TestWithEpoch:
         [
             ("patch,dev,release", "1!0.0.2"),
             ("fix,rc", "1!0.0.2rc0"),
-            ("minor,dev", "1!0.1.0.dev0"),
+            pytest.param("minor,dev", "1!0.1.0.dev0", marks=pytest.mark.packaging_regression),
             ("minor,preview", "1!0.1.0rc0"),
             ("major,beta", "1!1.0.0b0"),
             ("major,major,major", "1!3.0.0"),

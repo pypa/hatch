@@ -1,10 +1,8 @@
-
 [envs.hatch-static-analysis]
 config-path = "ruff_defaults.toml"
 
 [envs.default]
 installer = "uv"
-
 
 [envs.hatch-test]
 workspace.members = ["backend/"]
@@ -19,12 +17,24 @@ extra-args = ["--dist", "worksteal"]
 [envs.hatch-test.extra-scripts]
 pip = "{env:HATCH_UV} pip {args}"
 
+[[envs.hatch-test.matrix]]
+python = ["3.14", "3.14t", "3.13", "3.12", "3.11", "3.10"]
+
+[[envs.hatch-test.matrix]]
+packaging-regression = ["true"]
+
+[envs.hatch-test.overrides.matrix.packaging-regression]
+matrix-name-format = "{variable}"
+dependencies = ["packaging<26.0"]
+set-default-args = { value = ["-m", "packaging_regression"] }
+
 [envs.coverage]
 detached = true
 dependencies = [
   "coverage[toml]>=6.2",
   "lxml",
 ]
+
 [envs.coverage.scripts]
 combine = "coverage combine {args}"
 report-xml = "coverage xml"
@@ -36,6 +46,7 @@ write-summary-report = "python scripts/write_coverage_summary_report.py"
 extra-dependencies = [
   "mypy>=1.0.0",
 ]
+
 [envs.types.scripts]
 check = "mypy --install-types --non-interactive {args:backend/src/hatchling src/hatch tests}"
 
@@ -64,16 +75,19 @@ dependencies = [
 pre-install-commands = [
   "python scripts/install_mkdocs_material_insiders.py",
 ]
+
 [envs.docs.overrides]
 env.GH_TOKEN_MKDOCS_MATERIAL_INSIDERS.env-vars = [
   { key = "MKDOCS_CONFIG", value = "mkdocs.insiders.yml" },
   { key = "MKDOCS_CONFIG", value = "mkdocs.yml", if = [""] },
   { key = "MKDOCS_IMAGE_PROCESSING", value = "true" },
 ]
+
 [envs.docs.env-vars]
 SOURCE_DATE_EPOCH = "1580601600"
 PYTHONUNBUFFERED = "1"
 MKDOCS_CONFIG = "mkdocs.yml"
+
 [envs.docs.scripts]
 build = "mkdocs build --config-file {env:MKDOCS_CONFIG} --clean --strict {args}"
 serve = "mkdocs serve --config-file {env:MKDOCS_CONFIG} --dev-addr localhost:8000 {args}"
@@ -92,8 +106,10 @@ dependencies = [
   "build~=0.7.0",
   "httpx",
 ]
+
 [envs.backend.env-vars]
 HATCH_BUILD_CLEAN = "true"
+
 [envs.backend.scripts]
 build = "python -m build backend"
 publish = "hatch publish backend/dist"
@@ -106,6 +122,7 @@ dependencies = [
   "httpx",
   "ruff",
 ]
+
 [envs.upkeep.scripts]
 update-hatch = [
   "update-distributions",
