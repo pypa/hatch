@@ -95,22 +95,23 @@ class TypeCheckEnvironment:
         includes: list[str] = []
         root = str(self.env.root)
 
-        # Standard src layout
+        # Standard src layout for the main project
         src_dir = os.path.join(root, "src")
         if os.path.isdir(src_dir):
-            # Find the actual package directories under src/
             for entry in os.listdir(src_dir):
                 entry_path = os.path.join(src_dir, entry)
                 if os.path.isdir(entry_path) and os.path.isfile(os.path.join(entry_path, "__init__.py")):
                     includes.append(f"src/{entry}")
 
-        # Backend src layout (monorepo pattern)
-        backend_src = os.path.join(root, "backend", "src")
-        if os.path.isdir(backend_src):
-            for entry in os.listdir(backend_src):
-                entry_path = os.path.join(backend_src, entry)
-                if os.path.isdir(entry_path) and os.path.isfile(os.path.join(entry_path, "__init__.py")):
-                    includes.append(f"backend/src/{entry}")
+        # Workspace members (monorepo support)
+        for member_path in self._get_workspace_member_paths():
+            relative = os.path.relpath(member_path, root)
+            member_src = os.path.join(member_path, "src")
+            if os.path.isdir(member_src):
+                for entry in os.listdir(member_src):
+                    entry_path = os.path.join(member_src, entry)
+                    if os.path.isdir(entry_path) and os.path.isfile(os.path.join(entry_path, "__init__.py")):
+                        includes.append(f"{relative}/src/{entry}")
 
         # Tests directory
         tests_dir = os.path.join(root, "tests")
@@ -128,9 +129,12 @@ class TypeCheckEnvironment:
         if os.path.isdir(os.path.join(root, "src")):
             paths.append("src")
 
-        # backend/src/ for monorepo patterns
-        if os.path.isdir(os.path.join(root, "backend", "src")):
-            paths.append("backend/src")
+        # Workspace members
+        for member_path in self._get_workspace_member_paths():
+            relative = os.path.relpath(member_path, root)
+            member_src = os.path.join(member_path, "src")
+            if os.path.isdir(member_src):
+                paths.append(f"{relative}/src")
 
         # tests/ as a package root (for relative imports within tests)
         tests_dir = os.path.join(root, "tests")
@@ -138,6 +142,15 @@ class TypeCheckEnvironment:
             paths.append("tests")
 
         return paths
+
+    def _get_workspace_member_paths(self) -> list[str]:
+        """Get filesystem paths of workspace members from the environment config."""
+        try:
+            members = self.env.workspace.members
+        except Exception:  # noqa: BLE001
+            return []
+
+        return [str(member.project.location) for member in members]
 
     def _detect_platform_conditional_deps(self) -> list[str]:
         """Detect dependencies with platform markers that won't be installed locally."""

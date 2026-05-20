@@ -33,6 +33,7 @@ generate-summary = "python scripts/generate_coverage_summary.py"
 write-summary-report = "python scripts/write_coverage_summary_report.py"
 
 [envs.hatch-type-check]
+workspace.members = ["backend/"]
 extra-dependencies = [
   "editables",
   "setuptools",
