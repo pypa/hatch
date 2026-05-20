@@ -65,8 +65,7 @@ class TypeCheckEnvironment:
             paths_str = ", ".join(f'"{p}"' for p in abs_paths)
             lines.append(f"search-path = [{paths_str}]")
 
-        lines.append('preset = "legacy"')
-        lines.append("disable-search-path-heuristics = true")
+        lines.extend(('preset = "legacy"', "disable-search-path-heuristics = true"))
 
         if ignore_imports:
             imports_str = ", ".join(f'"{m}"' for m in ignore_imports)
@@ -178,11 +177,11 @@ class TypeCheckEnvironment:
                 current_platform = sys.platform
 
                 # Check if the marker excludes the current platform
-                if f'sys_platform == "linux"' in dep_lower and current_platform != "linux":
-                    ignore.append(self._dep_to_import_name(dep))
-                elif f'sys_platform == "win32"' in dep_lower and current_platform != "win32":
-                    ignore.append(self._dep_to_import_name(dep))
-                elif f'sys_platform == "darwin"' in dep_lower and current_platform != "darwin":
+                if (
+                    ('sys_platform == "linux"' in dep_lower and current_platform != "linux")
+                    or ('sys_platform == "win32"' in dep_lower and current_platform != "win32")
+                    or ('sys_platform == "darwin"' in dep_lower and current_platform != "darwin")
+                ):
                     ignore.append(self._dep_to_import_name(dep))
 
         return ignore
