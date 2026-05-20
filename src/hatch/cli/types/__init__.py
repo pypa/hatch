@@ -12,7 +12,6 @@ if TYPE_CHECKING:
 @click.argument("args", nargs=-1)
 @click.option("--summarize", "-s", is_flag=True, help="Include error summary statistics")
 @click.option("--cover", is_flag=True, help="Generate a type coverage report")
-@click.option("--sync", is_flag=True, help="Sync the default config file with the current version of Hatch")
 @click.pass_obj
 def types(
     app: Application,
@@ -20,7 +19,6 @@ def types(
     args: tuple[str, ...],
     summarize: bool,
     cover: bool,
-    sync: bool,
 ):
     """Type check source code."""
     from hatch.cli.types.core import TypeCheckEnvironment
@@ -29,9 +27,6 @@ def types(
 
     for context in app.runner_context(["hatch-type-check"]):
         tc_env = TypeCheckEnvironment(context.env)
-
-        if sync and not tc_env.config_path:
-            app.abort("The --sync flag can only be used when the `tool.hatch.envs.hatch-type-check.config-path` option is defined")
 
         if cover:
             script = "coverage"
@@ -50,5 +45,5 @@ def types(
 
         context.env_vars["HATCH_TYPES_ARGS"] = internal_args
 
-        if not tc_env.config_path or sync:
+        if not tc_env.config_path:
             tc_env.write_config_file()
