@@ -23,6 +23,7 @@ from hatch.cli.self import self_command
 from hatch.cli.shell import shell
 from hatch.cli.status import status
 from hatch.cli.test import test
+from hatch.cli.types import types
 from hatch.cli.version import version
 from hatch.config.constants import AppEnvVars, ConfigEnvVars
 from hatch.project.core import Project
@@ -233,6 +234,7 @@ hatch.add_command(self_command)
 hatch.add_command(shell)
 hatch.add_command(status)
 hatch.add_command(test)
+hatch.add_command(types)
 hatch.add_command(version)
 
 

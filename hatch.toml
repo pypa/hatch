@@ -32,12 +32,11 @@ report-uncovered-html = "coverage html --skip-covered --skip-empty"
 generate-summary = "python scripts/generate_coverage_summary.py"
 write-summary-report = "python scripts/write_coverage_summary_report.py"
 
-[envs.types]
+[envs.hatch-type-check]
 extra-dependencies = [
-  "mypy>=1.0.0",
+  "editables",
+  "setuptools",
 ]
-[envs.types.scripts]
-check = "mypy --install-types --non-interactive {args:backend/src/hatchling src/hatch tests}"
 
 [envs.docs]
 dependencies = [
