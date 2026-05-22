@@ -10,17 +10,12 @@ The usual process to make a contribution is to:
 6. Commit, and send a Pull Request.
 
 ## AI Contributions 
-We recognize that AI is now a tool in many people's toolbelt. 
-As such contributions may use AI as long as the following guidelines are followed. 
+* All AI usage in any form must be disclosed. You must state the tool you used (e.g. Claude Code, Cursor, Amp) along with the extent that the work was AI-assisted.
 
-1. You are responsible for the code that is generated. You should review the code before creating a PR. 
-2. Keep PRs limited in scope, PRs are still reviewed by a human. 
-3. Code should follow the conventions that are already in use in hatch's code base.
-4. PR descriptions should be human written, this helps communication between contributor and maintainers.
+* The human-in-the-loop must fully understand all code. If you can't explain what your changes do and how they interact with the greater system without the aid of AI tools, do not contribute to this project.
 
-### Autonomous Code Submissions 
-We do not permit autonomous code submissions where an agent writes code and creates the PR. 
-We require that there is a human in the loop. 
+* Issues and discussions can use AI assistance but must have a full human-in-the-loop. This means that any content generated with AI must have been reviewed and edited by a human before submission. AI is very good at being overly verbose and including noise that distracts from the main point. Humans must do their research and trim this down.
+
 
 ## Clone the repository
 
