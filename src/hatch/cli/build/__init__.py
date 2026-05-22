@@ -165,12 +165,11 @@ def _build_all_members(
 
     from hatch.config.constants import AppEnvVars
     from hatch.project.config import env_var_enabled
-    from hatch.project.constants import BUILD_BACKEND, DEFAULT_BUILD_DIRECTORY, BuildEnvVars
+    from hatch.project.constants import DEFAULT_BUILD_DIRECTORY, BuildEnvVars
     from hatch.utils.fs import Path
     from hatch.utils.runner import ExecutionContext
     from hatch.utils.structures import EnvVars
 
-    # Early conflict check before any workspace resolution
     if hooks_only and no_hooks:
         app.abort("Cannot use both --hooks-only and --no-hooks options together")
 
@@ -180,12 +179,10 @@ def _build_all_members(
     elif not targets:
         targets = ("sdist", "wheel")
 
-    # Resolve workspace members from the hatch-build environment
     workspace = app.project.build_env.workspace
     members = workspace.members
 
     if not members:
-        # Fall back to single-project build behavior
         build_dir = Path(location).resolve() if location else None
 
         env_vars = {}
@@ -196,6 +193,8 @@ def _build_all_members(
 
         with EnvVars(env_vars):
             app.project.prepare_build_environment(targets=[target.split(":")[0] for target in targets])
+
+        from hatch.project.constants import BUILD_BACKEND
 
         build_backend = app.project.metadata.build.build_backend
         with app.project.location.as_cwd(), app.project.build_env.get_env_vars():
@@ -248,49 +247,42 @@ def _build_all_members(
                     app.execute_context(context)
         return
 
-    # Build each workspace member sequentially
+    shared_build_dir = Path(location).resolve() if location else app.project.location / DEFAULT_BUILD_DIRECTORY
+
+    root_is_buildable = _root_project_is_buildable(app.project)
+
     env_vars = {}
     if app.verbose:
         env_vars[AppEnvVars.VERBOSE] = str(app.verbosity)
     elif app.quiet:
         env_vars[AppEnvVars.QUIET] = str(abs(app.verbosity))
 
-    for member in members:
-        app.display_header(member.name)
+    with EnvVars(env_vars):
+        if root_is_buildable:
+            app.project.prepare_build_environment(targets=[target.split(":")[0] for target in targets])
+        else:
+            app.project.prepare_environment(app.project.build_env, keep_env=False)
 
-        try:
-            with EnvVars(env_vars):
-                member.project.prepare_build_environment(targets=[target.split(":")[0] for target in targets])
+    build_env = app.project.build_env
 
-            build_backend = member.project.metadata.build.build_backend
-            with member.project.location.as_cwd(), member.project.build_env.get_env_vars():
-                for target in targets:
-                    target_name, _, _ = target.partition(":")
+    projects_to_build: list[tuple[str, Path]] = []
 
-                    if build_backend != BUILD_BACKEND:
-                        build_dir = (
-                            Path(location).resolve() if location else member.project.location / DEFAULT_BUILD_DIRECTORY
-                        )
-                        build_dir.ensure_dir_exists()
-                        if target_name == "sdist":
-                            artifact_path = member.project.build_frontend.build_sdist(build_dir)
-                        elif target_name == "wheel":
-                            artifact_path = member.project.build_frontend.build_wheel(build_dir)
-                        else:
-                            app.abort(f"Target `{target_name}` is not supported by `{build_backend}`")
+    if root_is_buildable:
+        projects_to_build.append((app.project.metadata.name, app.project.location))
 
-                        app.display_info(
-                            str(artifact_path.relative_to(member.project.location))
-                            if member.project.location in artifact_path.parents
-                            else str(artifact_path)
-                        )
-                    else:
+    projects_to_build.extend((member.name, member.project.location) for member in members)
+
+    with build_env.get_env_vars():
+        for label, project_location in projects_to_build:
+            app.display_header(label)
+
+            try:
+                with project_location.as_cwd():
+                    for target in targets:
+                        target_name, _, _ = target.partition(":")
+
                         command = ["python", "-u", "-m", "hatchling", "build", "--target", target]
-
-                        # We deliberately pass the location unchanged so that absolute paths may be non-local
-                        # and reflect wherever builds actually take place
-                        if location:
-                            command.extend(("--directory", location))
+                        command.extend(("--directory", str(shared_build_dir)))
 
                         if hooks_only or env_var_enabled(BuildEnvVars.HOOKS_ONLY):
                             command.append("--hooks-only")
@@ -307,9 +299,22 @@ def _build_all_members(
                         if clean_only:
                             command.append("--clean-only")
 
-                        context = ExecutionContext(member.project.build_env)
+                        context = ExecutionContext(build_env)
                         context.add_shell_command(command)
                         context.env_vars.update(env_vars)
                         app.execute_context(context)
-        except SystemExit as e:
-            app.abort(f"Build failed for workspace member `{member.name}`", code=e.code or 1)
+            except SystemExit as e:
+                app.abort(f"Build failed for workspace member `{label}`", code=e.code or 1)
+
+
+def _root_project_is_buildable(project) -> bool:
+    import os
+
+    from hatch.utils.toml import load_toml_file
+
+    pyproject_path = os.path.join(str(project.location), "pyproject.toml")
+    if not os.path.isfile(pyproject_path):
+        return False
+
+    raw_config = load_toml_file(pyproject_path)
+    return "project" in raw_config and "build-system" in raw_config

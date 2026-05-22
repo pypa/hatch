@@ -1609,22 +1609,18 @@ class TestBuildAllWorkspace:
 
         assert result.exit_code == 0, result.output
 
-        # Each member should have its own dist directory
-        dist_a = member_a_dir / "dist"
-        assert dist_a.is_dir()
-        artifacts_a = list(dist_a.iterdir())
-        assert len(artifacts_a) == 2
-        assert any(a.name.endswith(".whl") and "member_a" in a.name for a in artifacts_a)
-        assert any(a.name.endswith(".tar.gz") and "member_a" in a.name for a in artifacts_a)
+        dist_dir = workspace_root / "dist"
+        assert dist_dir.is_dir()
+        artifacts = list(dist_dir.iterdir())
+        assert len(artifacts) == 6
+        assert any(a.name.endswith(".whl") and "workspace_root" in a.name for a in artifacts)
+        assert any(a.name.endswith(".tar.gz") and "workspace_root" in a.name for a in artifacts)
+        assert any(a.name.endswith(".whl") and "member_a" in a.name for a in artifacts)
+        assert any(a.name.endswith(".tar.gz") and "member_a" in a.name for a in artifacts)
+        assert any(a.name.endswith(".whl") and "member_b" in a.name for a in artifacts)
+        assert any(a.name.endswith(".tar.gz") and "member_b" in a.name for a in artifacts)
 
-        dist_b = member_b_dir / "dist"
-        assert dist_b.is_dir()
-        artifacts_b = list(dist_b.iterdir())
-        assert len(artifacts_b) == 2
-        assert any(a.name.endswith(".whl") and "member_b" in a.name for a in artifacts_b)
-        assert any(a.name.endswith(".tar.gz") and "member_b" in a.name for a in artifacts_b)
-
-        # Output should contain headers for each member
+        assert "workspace-root" in result.output
         assert "member-a" in result.output
         assert "member-b" in result.output
 
@@ -1713,10 +1709,11 @@ class TestBuildAllWorkspace:
 
         assert result.exit_code == 0, result.output
 
-        # All artifacts should be in the shared directory
         assert shared_dist.is_dir()
         artifacts = list(shared_dist.iterdir())
-        assert len(artifacts) == 4
+        assert len(artifacts) == 6
+        assert any(a.name.endswith(".whl") and "workspace_root" in a.name for a in artifacts)
+        assert any(a.name.endswith(".tar.gz") and "workspace_root" in a.name for a in artifacts)
         assert any(a.name.endswith(".whl") and "member_a" in a.name for a in artifacts)
         assert any(a.name.endswith(".tar.gz") and "member_a" in a.name for a in artifacts)
         assert any(a.name.endswith(".whl") and "member_b" in a.name for a in artifacts)
@@ -1820,11 +1817,8 @@ class TestBuildAllWorkspace:
 
         assert result.exit_code == 1, result.output
 
-        # member-a should have built successfully (artifacts preserved)
-        dist_a = member_a_dir / "dist"
-        assert dist_a.is_dir()
-        artifacts_a = list(dist_a.iterdir())
-        assert len(artifacts_a) == 2
+        dist_dir = workspace_root / "dist"
+        assert not dist_dir.is_dir()
 
     def test_target_wheel_only(self, hatch, temp_dir, helpers):
         """Test --all with --target wheel only."""
@@ -1886,19 +1880,17 @@ class TestBuildAllWorkspace:
 
         assert result.exit_code == 0, result.output
 
-        # Only wheel should be built, no sdist
-        dist_a = member_a_dir / "dist"
-        assert dist_a.is_dir()
-        artifacts_a = list(dist_a.iterdir())
-        assert len(artifacts_a) == 1
-        assert artifacts_a[0].name.endswith(".whl")
+        dist_dir = workspace_root / "dist"
+        assert dist_dir.is_dir()
+        artifacts = list(dist_dir.iterdir())
+        assert len(artifacts) == 2
+        assert all(a.name.endswith(".whl") for a in artifacts)
 
     def test_non_buildable_root(self, hatch, temp_dir, helpers):
         """Test --all from a workspace root that has no [project] section."""
         workspace_root = temp_dir / "workspace"
         workspace_root.mkdir()
 
-        # Root has NO [project] section - only workspace config
         (workspace_root / "pyproject.toml").write_text(
             helpers.dedent(
                 """
@@ -1939,13 +1931,12 @@ class TestBuildAllWorkspace:
 
         assert result.exit_code == 0, result.output
 
-        # Member should have been built
-        dist_a = member_a_dir / "dist"
-        assert dist_a.is_dir()
-        artifacts_a = list(dist_a.iterdir())
-        assert len(artifacts_a) == 2
-        assert any(a.name.endswith(".whl") and "member_a" in a.name for a in artifacts_a)
-        assert any(a.name.endswith(".tar.gz") and "member_a" in a.name for a in artifacts_a)
+        dist_dir = workspace_root / "dist"
+        assert dist_dir.is_dir()
+        artifacts = list(dist_dir.iterdir())
+        assert len(artifacts) == 2
+        assert any(a.name.endswith(".whl") and "member_a" in a.name for a in artifacts)
+        assert any(a.name.endswith(".tar.gz") and "member_a" in a.name for a in artifacts)
 
     def test_relative_paths_in_member(self, hatch, temp_dir, helpers):
         """Test --all where a member's pyproject.toml uses relative paths."""
@@ -2011,11 +2002,12 @@ class TestBuildAllWorkspace:
 
         assert result.exit_code == 0, result.output
 
-        # Member should have been built successfully with relative path resolved
-        dist_a = member_a_dir / "dist"
-        assert dist_a.is_dir()
-        artifacts_a = list(dist_a.iterdir())
-        assert len(artifacts_a) == 2
+        dist_dir = workspace_root / "dist"
+        assert dist_dir.is_dir()
+        artifacts = list(dist_dir.iterdir())
+        assert len(artifacts) == 4
+        assert any(a.name.endswith(".whl") and "member_a" in a.name for a in artifacts)
+        assert any(a.name.endswith(".tar.gz") and "member_a" in a.name for a in artifacts)
 
     def test_fallback_no_workspace_members(self, hatch, temp_dir, helpers):
         """Test fallback behavior: --all with no workspace members configured."""
@@ -2112,3 +2104,270 @@ class TestBuildAllWorkspace:
 
         with workspace_root.as_cwd(), pytest.raises(ValueError, match="duplicate"):
             hatch("build", "--all")
+
+
+@pytest.mark.requires_internet
+class TestBuildAllMonorepoNoBuildableRoot:
+    """Integration tests for --all with a monorepo that has no top-level [project] table."""
+
+    def test_multi_member_monorepo(self, hatch, temp_dir, helpers):
+        """Test building multiple workspace members from a non-buildable root."""
+        workspace_root = temp_dir / "workspace"
+        workspace_root.mkdir()
+
+        (workspace_root / "pyproject.toml").write_text(
+            helpers.dedent(
+                """
+                [tool.hatch.envs.hatch-build]
+                workspace.members = ["packages/*"]
+                """
+            )
+        )
+
+        packages_dir = workspace_root / "packages"
+        packages_dir.mkdir()
+
+        member_a_dir = packages_dir / "member-a"
+        member_a_dir.mkdir()
+        (member_a_dir / "pyproject.toml").write_text(
+            helpers.dedent(
+                """
+                [project]
+                name = "member-a"
+                version = "1.0.0"
+
+                [build-system]
+                requires = ["hatchling"]
+                build-backend = "hatchling.build"
+
+                [tool.hatch.build.targets.wheel]
+                packages = ["member_a"]
+                """
+            )
+        )
+        src_a = member_a_dir / "member_a"
+        src_a.mkdir()
+        (src_a / "__init__.py").write_text('__version__ = "1.0.0"')
+
+        member_b_dir = packages_dir / "member-b"
+        member_b_dir.mkdir()
+        (member_b_dir / "pyproject.toml").write_text(
+            helpers.dedent(
+                """
+                [project]
+                name = "member-b"
+                version = "2.0.0"
+                dependencies = ["member-a"]
+
+                [build-system]
+                requires = ["hatchling"]
+                build-backend = "hatchling.build"
+
+                [tool.hatch.build.targets.wheel]
+                packages = ["member_b"]
+                """
+            )
+        )
+        src_b = member_b_dir / "member_b"
+        src_b.mkdir()
+        (src_b / "__init__.py").write_text('__version__ = "2.0.0"')
+
+        with workspace_root.as_cwd():
+            result = hatch("build", "--all")
+
+        assert result.exit_code == 0, result.output
+
+        dist_dir = workspace_root / "dist"
+        assert dist_dir.is_dir()
+        artifacts = list(dist_dir.iterdir())
+        assert len(artifacts) == 4
+        assert any(a.name.endswith(".whl") and "member_a" in a.name for a in artifacts)
+        assert any(a.name.endswith(".tar.gz") and "member_a" in a.name for a in artifacts)
+        assert any(a.name.endswith(".whl") and "member_b" in a.name for a in artifacts)
+        assert any(a.name.endswith(".tar.gz") and "member_b" in a.name for a in artifacts)
+
+        assert "member-a" in result.output
+        assert "member-b" in result.output
+
+    def test_shared_location_argument(self, hatch, temp_dir, helpers):
+        """Test --all with explicit output directory from a non-buildable root."""
+        workspace_root = temp_dir / "workspace"
+        workspace_root.mkdir()
+
+        (workspace_root / "pyproject.toml").write_text(
+            helpers.dedent(
+                """
+                [tool.hatch.envs.hatch-build]
+                workspace.members = ["packages/*"]
+                """
+            )
+        )
+
+        packages_dir = workspace_root / "packages"
+        packages_dir.mkdir()
+
+        member_dir = packages_dir / "my-lib"
+        member_dir.mkdir()
+        (member_dir / "pyproject.toml").write_text(
+            helpers.dedent(
+                """
+                [project]
+                name = "my-lib"
+                version = "0.5.0"
+
+                [build-system]
+                requires = ["hatchling"]
+                build-backend = "hatchling.build"
+
+                [tool.hatch.build.targets.wheel]
+                packages = ["my_lib"]
+                """
+            )
+        )
+        src = member_dir / "my_lib"
+        src.mkdir()
+        (src / "__init__.py").write_text('__version__ = "0.5.0"')
+
+        output_dir = temp_dir / "output"
+
+        with workspace_root.as_cwd():
+            result = hatch("build", "--all", str(output_dir))
+
+        assert result.exit_code == 0, result.output
+
+        assert output_dir.is_dir()
+        artifacts = list(output_dir.iterdir())
+        assert len(artifacts) == 2
+        assert any(a.name.endswith(".whl") and "my_lib" in a.name for a in artifacts)
+        assert any(a.name.endswith(".tar.gz") and "my_lib" in a.name for a in artifacts)
+
+    def test_wheel_only(self, hatch, temp_dir, helpers):
+        """Test --all -t wheel from a non-buildable root."""
+        workspace_root = temp_dir / "workspace"
+        workspace_root.mkdir()
+
+        (workspace_root / "pyproject.toml").write_text(
+            helpers.dedent(
+                """
+                [tool.hatch.envs.hatch-build]
+                workspace.members = ["packages/*"]
+                """
+            )
+        )
+
+        packages_dir = workspace_root / "packages"
+        packages_dir.mkdir()
+
+        for name in ("alpha", "beta"):
+            member_dir = packages_dir / name
+            member_dir.mkdir()
+            (member_dir / "pyproject.toml").write_text(
+                helpers.dedent(
+                    f"""
+                    [project]
+                    name = "{name}"
+                    version = "0.1.0"
+
+                    [build-system]
+                    requires = ["hatchling"]
+                    build-backend = "hatchling.build"
+
+                    [tool.hatch.build.targets.wheel]
+                    packages = ["{name}"]
+                    """
+                )
+            )
+            src = member_dir / name
+            src.mkdir()
+            (src / "__init__.py").write_text('__version__ = "0.1.0"')
+
+        with workspace_root.as_cwd():
+            result = hatch("build", "--all", "-t", "wheel")
+
+        assert result.exit_code == 0, result.output
+
+        dist_dir = workspace_root / "dist"
+        assert dist_dir.is_dir()
+        artifacts = list(dist_dir.iterdir())
+        assert len(artifacts) == 2
+        assert all(a.name.endswith(".whl") for a in artifacts)
+        assert any("alpha" in a.name for a in artifacts)
+        assert any("beta" in a.name for a in artifacts)
+
+    def test_sdist_excludes_unrelated_workspace_files(self, hatch, temp_dir, helpers):
+        """Test that member sdists only contain their own files, not workspace-level directories."""
+        import tarfile
+
+        workspace_root = temp_dir / "workspace"
+        workspace_root.mkdir()
+
+        (workspace_root / "pyproject.toml").write_text(
+            helpers.dedent(
+                """
+                [tool.hatch.envs.hatch-build]
+                workspace.members = ["packages/*"]
+                """
+            )
+        )
+
+        # Create workspace-level directories that should NOT appear in member sdists
+        docs_dir = workspace_root / "docs"
+        docs_dir.mkdir()
+        (docs_dir / "index.md").write_text("# Documentation")
+        (docs_dir / "guide.md").write_text("# Guide")
+
+        scripts_dir = workspace_root / "scripts"
+        scripts_dir.mkdir()
+        (scripts_dir / "deploy.sh").write_text("#!/bin/bash\necho deploy")
+
+        (workspace_root / "README.md").write_text("# Workspace Root README")
+
+        packages_dir = workspace_root / "packages"
+        packages_dir.mkdir()
+
+        member_dir = packages_dir / "my-lib"
+        member_dir.mkdir()
+        (member_dir / "pyproject.toml").write_text(
+            helpers.dedent(
+                """
+                [project]
+                name = "my-lib"
+                version = "0.1.0"
+
+                [build-system]
+                requires = ["hatchling"]
+                build-backend = "hatchling.build"
+
+                [tool.hatch.build.targets.wheel]
+                packages = ["my_lib"]
+                """
+            )
+        )
+        (member_dir / "README.md").write_text("# my-lib")
+        src = member_dir / "my_lib"
+        src.mkdir()
+        (src / "__init__.py").write_text('__version__ = "0.1.0"')
+        (src / "core.py").write_text("def hello(): return 'hello'")
+
+        with workspace_root.as_cwd():
+            result = hatch("build", "--all")
+
+        assert result.exit_code == 0, result.output
+
+        dist_dir = workspace_root / "dist"
+        assert dist_dir.is_dir()
+
+        sdist_path = next(a for a in dist_dir.iterdir() if a.name.endswith(".tar.gz"))
+
+        with tarfile.open(str(sdist_path), "r:gz") as tar:
+            names = tar.getnames()
+
+        assert any("my_lib/__init__.py" in n for n in names)
+        assert any("my_lib/core.py" in n for n in names)
+        assert any("pyproject.toml" in n for n in names)
+
+        assert not any("docs/" in n for n in names)
+        assert not any("docs/index.md" in n for n in names)
+        assert not any("scripts/" in n for n in names)
+        assert not any("deploy.sh" in n for n in names)
+        assert not any("packages/" in n for n in names)
