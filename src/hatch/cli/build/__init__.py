@@ -73,8 +73,7 @@ def build(
     app.ensure_environment_plugin_dependencies()
 
     from hatch.config.constants import AppEnvVars
-    from hatch.project.config import env_var_enabled
-    from hatch.project.constants import BUILD_BACKEND, DEFAULT_BUILD_DIRECTORY, BuildEnvVars
+    from hatch.project.constants import BUILD_BACKEND, DEFAULT_BUILD_DIRECTORY
     from hatch.utils.fs import Path
     from hatch.utils.runner import ExecutionContext
     from hatch.utils.structures import EnvVars
@@ -120,27 +119,15 @@ def build(
                     else str(artifact_path)
                 )
             else:
-                command = ["python", "-u", "-m", "hatchling", "build", "--target", target]
-
-                # We deliberately pass the location unchanged so that absolute paths may be non-local
-                # and reflect wherever builds actually take place
-                if location:
-                    command.extend(("--directory", location))
-
-                if hooks_only or env_var_enabled(BuildEnvVars.HOOKS_ONLY):
-                    command.append("--hooks-only")
-
-                if no_hooks or env_var_enabled(BuildEnvVars.NO_HOOKS):
-                    command.append("--no-hooks")
-
-                if clean or env_var_enabled(BuildEnvVars.CLEAN):
-                    command.append("--clean")
-
-                if clean_hooks_after or env_var_enabled(BuildEnvVars.CLEAN_HOOKS_AFTER):
-                    command.append("--clean-hooks-after")
-
-                if clean_only:
-                    command.append("--clean-only")
+                command = _build_command(
+                    target,
+                    location=location,
+                    hooks_only=hooks_only,
+                    no_hooks=no_hooks,
+                    clean=clean,
+                    clean_hooks_after=clean_hooks_after,
+                    clean_only=clean_only,
+                )
 
                 context = ExecutionContext(app.project.build_env)
                 context.add_shell_command(command)
@@ -164,8 +151,7 @@ def _build_all_members(
     app.ensure_environment_plugin_dependencies()
 
     from hatch.config.constants import AppEnvVars
-    from hatch.project.config import env_var_enabled
-    from hatch.project.constants import DEFAULT_BUILD_DIRECTORY, BuildEnvVars
+    from hatch.project.constants import DEFAULT_BUILD_DIRECTORY
     from hatch.utils.fs import Path
     from hatch.utils.runner import ExecutionContext
     from hatch.utils.structures import EnvVars
@@ -221,25 +207,15 @@ def _build_all_members(
                         else str(artifact_path)
                     )
                 else:
-                    command = ["python", "-u", "-m", "hatchling", "build", "--target", target]
-
-                    if location:
-                        command.extend(("--directory", location))
-
-                    if hooks_only or env_var_enabled(BuildEnvVars.HOOKS_ONLY):
-                        command.append("--hooks-only")
-
-                    if no_hooks or env_var_enabled(BuildEnvVars.NO_HOOKS):
-                        command.append("--no-hooks")
-
-                    if clean or env_var_enabled(BuildEnvVars.CLEAN):
-                        command.append("--clean")
-
-                    if clean_hooks_after or env_var_enabled(BuildEnvVars.CLEAN_HOOKS_AFTER):
-                        command.append("--clean-hooks-after")
-
-                    if clean_only:
-                        command.append("--clean-only")
+                    command = _build_command(
+                        target,
+                        location=location,
+                        hooks_only=hooks_only,
+                        no_hooks=no_hooks,
+                        clean=clean,
+                        clean_hooks_after=clean_hooks_after,
+                        clean_only=clean_only,
+                    )
 
                     context = ExecutionContext(app.project.build_env)
                     context.add_shell_command(command)
@@ -281,23 +257,15 @@ def _build_all_members(
                     for target in targets:
                         target_name, _, _ = target.partition(":")
 
-                        command = ["python", "-u", "-m", "hatchling", "build", "--target", target]
-                        command.extend(("--directory", str(shared_build_dir)))
-
-                        if hooks_only or env_var_enabled(BuildEnvVars.HOOKS_ONLY):
-                            command.append("--hooks-only")
-
-                        if no_hooks or env_var_enabled(BuildEnvVars.NO_HOOKS):
-                            command.append("--no-hooks")
-
-                        if clean or env_var_enabled(BuildEnvVars.CLEAN):
-                            command.append("--clean")
-
-                        if clean_hooks_after or env_var_enabled(BuildEnvVars.CLEAN_HOOKS_AFTER):
-                            command.append("--clean-hooks-after")
-
-                        if clean_only:
-                            command.append("--clean-only")
+                        command = _build_command(
+                            target,
+                            location=str(shared_build_dir),
+                            hooks_only=hooks_only,
+                            no_hooks=no_hooks,
+                            clean=clean,
+                            clean_hooks_after=clean_hooks_after,
+                            clean_only=clean_only,
+                        )
 
                         context = ExecutionContext(build_env)
                         context.add_shell_command(command)
@@ -305,6 +273,42 @@ def _build_all_members(
                         app.execute_context(context)
             except SystemExit as e:
                 app.abort(f"Build failed for workspace member `{label}`", code=e.code or 1)
+
+
+def _build_command(
+    target: str,
+    *,
+    location: str | None,
+    hooks_only: bool,
+    no_hooks: bool,
+    clean: bool,
+    clean_hooks_after: bool,
+    clean_only: bool,
+) -> list[str]:
+    from hatch.project.config import env_var_enabled
+    from hatch.project.constants import BuildEnvVars
+
+    command = ["python", "-u", "-m", "hatchling", "build", "--target", target]
+
+    if location:
+        command.extend(("--directory", location))
+
+    if hooks_only or env_var_enabled(BuildEnvVars.HOOKS_ONLY):
+        command.append("--hooks-only")
+
+    if no_hooks or env_var_enabled(BuildEnvVars.NO_HOOKS):
+        command.append("--no-hooks")
+
+    if clean or env_var_enabled(BuildEnvVars.CLEAN):
+        command.append("--clean")
+
+    if clean_hooks_after or env_var_enabled(BuildEnvVars.CLEAN_HOOKS_AFTER):
+        command.append("--clean-hooks-after")
+
+    if clean_only:
+        command.append("--clean-only")
+
+    return command
 
 
 def _root_project_is_buildable(project) -> bool:
