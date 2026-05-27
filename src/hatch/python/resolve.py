@@ -19,6 +19,8 @@ if TYPE_CHECKING:
 
 # Use an artificially high epoch to ensure that custom distributions are always considered newer
 CUSTOM_DISTRIBUTION_VERSION_EPOCH = 100
+CPYTHON_STANDALONE_BASE_URL = "https://github.com/astral-sh/python-build-standalone/releases/download"
+PYPY_BASE_URL = "https://downloads.python.org/pypy"
 
 
 def custom_env_var(prefix: str, name: str) -> str:
@@ -35,6 +37,17 @@ def get_custom_version(name: str) -> str | None:
 
 def get_custom_path(name: str) -> str | None:
     return os.environ.get(custom_env_var(PythonEnvVars.CUSTOM_PATH_PREFIX, name))
+
+
+def apply_mirror(source: str, base_url: str, env_var: str) -> str:
+    if not source.startswith(f"{base_url}/"):
+        return source
+
+    mirror = os.environ.get(env_var)
+    if not mirror:
+        return source
+
+    return f"{mirror.rstrip('/')}/{source.removeprefix(base_url).lstrip('/')}"
 
 
 class Distribution(ABC):
@@ -134,8 +147,7 @@ class PyPyOfficialDistribution(Distribution):
         if (custom_version := get_custom_version(self.name)) is not None:
             return Version(f"{CUSTOM_DISTRIBUTION_VERSION_EPOCH}!{custom_version}")
 
-        *_, remaining = self.source.partition("/pypy/")
-        _, version, *_ = remaining.split("-")
+        _, version, *_ = self.archive_name.split("-")
         return Version(f"0!{version[1:]}")
 
     @cached_property
@@ -188,7 +200,14 @@ def get_distribution(name: str, source: str = "", variant_cpu: str = "", variant
         raise PythonDistributionResolutionError(message)
 
     source = keys[key]
-    return _get_distribution_class(source)(name, source)
+    distribution_class = _get_distribution_class(source)
+
+    if distribution_class is CPythonStandaloneDistribution:
+        source = apply_mirror(source, CPYTHON_STANDALONE_BASE_URL, PythonEnvVars.CPYTHON_INSTALL_MIRROR)
+    elif distribution_class is PyPyOfficialDistribution:
+        source = apply_mirror(source, PYPY_BASE_URL, PythonEnvVars.PYPY_INSTALL_MIRROR)
+
+    return distribution_class(name, source)
 
 
 def get_compatible_distributions() -> dict[str, Distribution]:
@@ -272,7 +291,7 @@ def _get_default_variant_gil() -> str:
 def _get_distribution_class(source: str) -> type[Distribution]:
     if "/python-build-standalone/releases/download/" in source:
         return CPythonStandaloneDistribution
-    if source.startswith("https://downloads.python.org/pypy/"):
+    if source.startswith(f"{PYPY_BASE_URL}/"):
         return PyPyOfficialDistribution
 
     message = f"Unknown distribution source: {source}"
