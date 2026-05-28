@@ -455,7 +455,7 @@ class TemplateConfig(LazilyParsedConfig):
         self._field_email = FIELD_TO_PARSE
         self._field_licenses = FIELD_TO_PARSE
         self._field_plugins = FIELD_TO_PARSE
-        self._field_github_org = FIELD_TO_PARSE
+        self._field_github_owner = FIELD_TO_PARSE
         self._field_copyright_holder = FIELD_TO_PARSE
 
     @property
@@ -567,40 +567,40 @@ class TemplateConfig(LazilyParsedConfig):
         self._field_plugins = FIELD_TO_PARSE
 
     @property
-    def github_org(self):
-        if self._field_github_org is FIELD_TO_PARSE:
-            if "github-org" in self.raw_data:
-                github_org = self.raw_data["github-org"]
-                if not isinstance(github_org, str):
+    def github_owner(self):
+        if self._field_github_owner is FIELD_TO_PARSE:
+            if "github-owner" in self.raw_data:
+                github_owner = self.raw_data["github-owner"]
+                if not isinstance(github_owner, str):
                     self.raise_error("must be a string")
 
-                self._field_github_org = github_org
+                self._field_github_owner = github_owner
             else:
-                github_org = os.environ.get("GITHUB_ORG")
-                if github_org is None:
+                github_owner = os.environ.get("GITHUB_OWNER")
+                if github_owner is None:
                     import shutil
 
                     if shutil.which("gh") is None:
                         # Revert to provided name if not found
-                        github_org = self.name
+                        github_owner = self.name
                     else:
                         import subprocess
 
                         try:
-                            github_org = subprocess.check_output(
+                            github_owner = subprocess.check_output(
                                 ["gh", "api", "user", "--jq", ".login"],  # noqa: S607
                                 text=True,
                             ).strip()
                         except Exception:  # noqa: BLE001
-                            github_org = repr(self.name)[1:-1]
-                self._field_github_org = self.raw_data["github-org"] = github_org
+                            github_owner = repr(self.name)[1:-1]
+                self._field_github_owner = self.raw_data["github-owner"] = github_owner
 
-        return self._field_github_org
+        return self._field_github_owner
 
-    @github_org.setter
-    def github_org(self, value):
-        self.raw_data["github-org"] = value
-        self._field_github_org = FIELD_TO_PARSE
+    @github_owner.setter
+    def github_owner(self, value):
+        self.raw_data["github-owner"] = value
+        self._field_github_owner = FIELD_TO_PARSE
 
     @property
     def copyright_holder(self):

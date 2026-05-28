@@ -116,7 +116,7 @@ def get_template_files(template_name, project_name, **kwargs):
     kwargs.setdefault("author", config.template.name)
     kwargs.setdefault("email", config.template.email)
     kwargs.setdefault("copyright-holder", config.template.copyright_holder)
-    kwargs.setdefault("github-org", config.template.github_org)
+    kwargs.setdefault("github-owner", config.template.github_owner)
     kwargs.setdefault("year", str(datetime.now(timezone.utc).year))
 
     return __load_template_module(template_name)(**kwargs)

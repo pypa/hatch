@@ -111,14 +111,23 @@ path = "{package_metadata_file_path}"{tests_section}
     def __init__(self, template_config: dict, plugin_config: dict):
         template_config = dict(template_config)
 
+        # The "name" template config value is used as both the default author's name and the github owner name if that value
+        # is not set
+        name_value = repr(template_config["name"])[1:-1]
+        template_config["name"] = name_value
+
+        # Default github owner name to value of "name" if not set or blank.
+        if not template_config.get("github-owner"):
+            template_config["github-owner"] = name_value
+
         project_url_data = ""
         project_urls = (
             plugin_config["project_urls"]
             if "project_urls" in plugin_config
             else {
-                "Documentation": "https://github.com/{github-org}/{project_name_normalized}#readme",
-                "Issues": "https://github.com/{github-org}/{project_name_normalized}/issues",
-                "Source": "https://github.com/{github-org}/{project_name_normalized}",
+                "Documentation": "https://github.com/{github-owner}/{project_name_normalized}#readme",
+                "Issues": "https://github.com/{github-owner}/{project_name_normalized}/issues",
+                "Source": "https://github.com/{github-owner}/{project_name_normalized}",
             }
         )
         if project_urls:
