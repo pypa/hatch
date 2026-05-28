@@ -111,6 +111,10 @@ path = "{package_metadata_file_path}"{tests_section}
     def __init__(self, template_config: dict, plugin_config: dict):
         template_config = dict(template_config)
 
+        # Default github organization name to user's name if not set or blank.
+        if not template_config.get("github-org", None):
+            template_config["github-org"] = repr(template_config["name"])[1:-1]
+
         project_url_data = ""
         project_urls = (
             plugin_config["project_urls"]
