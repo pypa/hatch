@@ -83,7 +83,7 @@ class TestDefaultCheckMode:
         data_path = temp_dir / "data"
         data_path.mkdir()
 
-        config_dir = data_path / "env" / ".internal" / "hatch-static-analysis" / ".config" / project_path.id
+        config_dir = data_path / "env" / ".internal" / "hatch-check-fmt" / ".config" / project_path.id
         default_config = config_dir / "ruff_defaults.toml"
         user_config = config_dir / "pyproject.toml"
         user_config_path = platform.join_command_args([str(user_config)])
@@ -115,7 +115,7 @@ class TestDefaultCheckMode:
         data_path = temp_dir / "data"
         data_path.mkdir()
 
-        config_dir = data_path / "env" / ".internal" / "hatch-static-analysis" / ".config" / project_path.id
+        config_dir = data_path / "env" / ".internal" / "hatch-check-fmt" / ".config" / project_path.id
         default_config = config_dir / "ruff_defaults.toml"
         user_config = config_dir / "pyproject.toml"
         user_config_path = platform.join_command_args([str(user_config)])
@@ -149,7 +149,7 @@ class TestPreview:
         data_path = temp_dir / "data"
         data_path.mkdir()
 
-        config_dir = data_path / "env" / ".internal" / "hatch-static-analysis" / ".config" / project_path.id
+        config_dir = data_path / "env" / ".internal" / "hatch-check-fmt" / ".config" / project_path.id
         default_config = config_dir / "ruff_defaults.toml"
         user_config = config_dir / "pyproject.toml"
         user_config_path = platform.join_command_args([str(user_config)])
@@ -181,7 +181,7 @@ class TestPreview:
         data_path = temp_dir / "data"
         data_path.mkdir()
 
-        config_dir = data_path / "env" / ".internal" / "hatch-static-analysis" / ".config" / project_path.id
+        config_dir = data_path / "env" / ".internal" / "hatch-check-fmt" / ".config" / project_path.id
         default_config = config_dir / "ruff_defaults.toml"
         user_config = config_dir / "pyproject.toml"
         user_config_path = platform.join_command_args([str(user_config)])
@@ -215,7 +215,7 @@ class TestArguments:
         data_path = temp_dir / "data"
         data_path.mkdir()
 
-        config_dir = data_path / "env" / ".internal" / "hatch-static-analysis" / ".config" / project_path.id
+        config_dir = data_path / "env" / ".internal" / "hatch-check-fmt" / ".config" / project_path.id
         default_config = config_dir / "ruff_defaults.toml"
         user_config = config_dir / "pyproject.toml"
         user_config_path = platform.join_command_args([str(user_config)])
@@ -279,7 +279,7 @@ class TestConfigPath:
 
         project = Project(project_path)
         config = dict(project.raw_config)
-        config["tool"]["hatch"]["envs"] = {"hatch-static-analysis": {"config-path": "ruff_defaults.toml"}}
+        config["tool"]["hatch"]["envs"] = {"hatch-check-fmt": {"config-path": "ruff_defaults.toml"}}
         config["tool"]["ruff"] = {"extend": "ruff_defaults.toml"}
         project.save_config(config)
 
@@ -289,7 +289,7 @@ class TestConfigPath:
         assert result.exit_code == 0, result.output
         assert not result.output
 
-        root_data_path = data_path / "env" / ".internal" / "hatch-static-analysis" / ".config"
+        root_data_path = data_path / "env" / ".internal" / "hatch-check-fmt" / ".config"
         assert not root_data_path.is_dir()
 
         assert env_run.call_args_list == [

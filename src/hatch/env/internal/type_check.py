@@ -13,9 +13,9 @@ def get_default_config() -> dict[str, Any]:
         "installer": "uv",
         "dependencies": [f"pyrefly=={PYREFLY_DEFAULT_VERSION}", *test_deps],
         "scripts": {
-            "check": "pyrefly check{env:HATCH_TYPES_ARGS:} {args}",
-            "check-summarize": "pyrefly check{env:HATCH_TYPES_ARGS:} --summarize-errors {args}",
-            "coverage": "pyrefly report{env:HATCH_TYPES_ARGS:} {args}",
+            "check": "pyrefly check{env:HATCH_CHECK_TYPES_ARGS:} {args}",
+            "check-summarize": "pyrefly check{env:HATCH_CHECK_TYPES_ARGS:} --summarize-errors {args}",
+            "coverage": "pyrefly report{env:HATCH_CHECK_TYPES_ARGS:} {args}",
             "config": "pyrefly dump-config {args}",
         },
     }

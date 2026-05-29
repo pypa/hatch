@@ -11,9 +11,11 @@ def get_internal_env_config() -> dict[str, Any]:
     internal_config = {}
     for env_name, env_config in (
         ("hatch-build", build.get_default_config()),
+        ("hatch-check-code", static_analysis.get_check_code_config()),
+        ("hatch-check-fmt", static_analysis.get_check_fmt_config()),
+        ("hatch-check-types", type_check.get_default_config()),
         ("hatch-static-analysis", static_analysis.get_default_config()),
         ("hatch-test", test.get_default_config()),
-        ("hatch-type-check", type_check.get_default_config()),
         ("hatch-uv", uv.get_default_config()),
     ):
         env_config["template"] = env_name

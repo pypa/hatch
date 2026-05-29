@@ -46,7 +46,15 @@ class TypeCheckEnvironment:
         return None
 
     def construct_config_file(self) -> str:
-        """Generate a minimal pyrefly.toml based on the project layout."""
+        """Generate a minimal pyrefly.toml based on the project layout.
+
+        The generated config tells pyrefly:
+        - Where to find source code (project-includes)
+        - Where to resolve imports from (search-path)
+        - To use relaxed type checking rules (preset = "legacy")
+        - To not guess import roots on its own (disable-search-path-heuristics)
+        - Which platform-specific modules to ignore (ignore-missing-imports)
+        """
         lines: list[str] = []
         root = str(self.env.root)
 
@@ -54,21 +62,31 @@ class TypeCheckEnvironment:
         search_paths = self._detect_search_paths()
         ignore_imports = self._detect_platform_conditional_deps()
 
-        # Paths must be absolute since the config file may not live in the project root
+        # Paths must be absolute because the auto-generated config file is stored in an
+        # isolated data directory (not the project root), so relative paths would not resolve
+        # to the correct project directories.
         if project_includes:
             abs_includes = [os.path.join(root, p) for p in project_includes]
             includes_str = ", ".join(f'"{p}"' for p in abs_includes)
+            # project-includes tells pyrefly which directories contain source files to check
             lines.append(f"project-includes = [{includes_str}]")
 
         if search_paths:
             abs_paths = [os.path.join(root, p) for p in search_paths]
             paths_str = ", ".join(f'"{p}"' for p in abs_paths)
+            # search-path tells pyrefly where to resolve imports from (e.g., "src" for src-layout)
             lines.append(f"search-path = [{paths_str}]")
 
+        # "legacy" preset uses relaxed type checking rules suitable for existing codebases
+        # that haven't been fully annotated yet.
+        # Disable pyrefly's automatic search path detection since we explicitly configure paths
+        # above; without this, pyrefly may add duplicate or incorrect import roots.
         lines.extend(('preset = "legacy"', "disable-search-path-heuristics = true"))
 
         if ignore_imports:
             imports_str = ", ".join(f'"{m}"' for m in ignore_imports)
+            # Suppress errors for platform-conditional dependencies that aren't installed
+            # on the current OS (e.g., a Linux-only package when running on macOS)
             lines.append(f"ignore-missing-imports = [{imports_str}]")
 
         # Ensure file ends with newline
@@ -90,7 +108,14 @@ class TypeCheckEnvironment:
         self.internal_config_file.write_text(config_contents)
 
     def _detect_project_includes(self) -> list[str]:
-        """Detect which directories contain source code to type check."""
+        """Detect which directories contain source code to type check.
+
+        This is used to populate pyrefly's `project-includes` config option, which tells
+        pyrefly which directories to scan for Python files. Without this, pyrefly would
+        either check nothing (if project-includes is empty) or fall back to its own
+        heuristics which may miss source in non-standard layouts like src-layout or
+        monorepo workspace members.
+        """
         includes: list[str] = []
         root = str(self.env.root)
 
