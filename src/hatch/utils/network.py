@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from collections.abc import Generator
 
-    import httpx
+    import httpx2
 
     from hatch.utils.fs import Path
 
@@ -20,21 +20,21 @@ DEFAULT_TIMEOUT = 10
 
 
 @contextmanager
-def streaming_response(*args: Any, **kwargs: Any) -> Generator[httpx.Response, None, None]:
+def streaming_response(*args: Any, **kwargs: Any) -> Generator[httpx2.Response, None, None]:
     from secrets import choice
 
-    import httpx
+    import httpx2
 
     attempts = 0
     while True:
         attempts += 1
         try:
-            with httpx.stream(*args, **kwargs) as response:
+            with httpx2.stream(*args, **kwargs) as response:
                 response.raise_for_status()
                 yield response
 
             break
-        except httpx.HTTPError:
+        except httpx2.HTTPError:
             sleep = min(MAXIMUM_SLEEP, MINIMUM_SLEEP * 2**attempts)
             if sleep == MAXIMUM_SLEEP:
                 raise

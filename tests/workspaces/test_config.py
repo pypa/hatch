@@ -503,7 +503,7 @@ version = "0.1.0"
       "services/worker",
       "services/frontend"
     ]
-    dependencies = ["pytest", "httpx", "docker"]
+    dependencies = ["pytest", "httpx2", "docker"]
     scripts.test = "pytest tests/integration {args}"
     """)
 

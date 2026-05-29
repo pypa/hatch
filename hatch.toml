@@ -90,7 +90,7 @@ detached = true
 installer = "uv"
 dependencies = [
   "build~=0.7.0",
-  "httpx",
+  "httpx2",
 ]
 [envs.backend.env-vars]
 HATCH_BUILD_CLEAN = "true"
@@ -103,7 +103,7 @@ version = "cd backend && hatch version {args}"
 detached = true
 installer = "uv"
 dependencies = [
-  "httpx",
+  "httpx2",
   "ruff",
 ]
 [envs.upkeep.scripts]
