@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     from hatch.cli.application import Application
 
 
-@click.command(short_help="Lint source code", context_settings={"ignore_unknown_options": True})
+@click.command(short_help="Perform static analysis", context_settings={"ignore_unknown_options": True})
 @click.argument("args", nargs=-1)
 @click.option("--fix", is_flag=True, help="Fix lint errors rather than just reporting them")
 @click.option("--sync", is_flag=True, help="Sync the default config file with the current version of Hatch")
@@ -20,7 +20,9 @@ def code(
     fix: bool,
     sync: bool,
 ):
-    """Lint source code using Ruff."""
+    """
+    Perform static analysis, using Ruff by default.
+    """
     from hatch.cli.fmt.core import StaticAnalysisEnvironment
 
     app.ensure_environment_plugin_dependencies()

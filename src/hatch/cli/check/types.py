@@ -20,12 +20,14 @@ def types(
     summarize: bool,
     cover: bool,
 ):
-    """Type check source code using Pyrefly."""
+    """
+    Type check source code, using Pyrefly by default.
+    """
     from hatch.cli.types.core import TypeCheckEnvironment
 
     app.ensure_environment_plugin_dependencies()
 
-    for context in app.runner_context(["hatch-type-check"]):
+    for context in app.runner_context(["hatch-check-types"]):
         tc_env = TypeCheckEnvironment(context.env)
 
         if cover:
@@ -43,7 +45,7 @@ def types(
         formatted_args = context.env.join_command_args(list(args))
         context.add_shell_command(f"{script} {formatted_args}")
 
-        context.env_vars["HATCH_TYPES_ARGS"] = internal_args
+        context.env_vars["HATCH_CHECK_TYPES_ARGS"] = internal_args
 
         if not tc_env.config_path:
             tc_env.write_config_file()

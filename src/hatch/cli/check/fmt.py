@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     from hatch.cli.application import Application
 
 
-@click.command(short_help="Format source code", context_settings={"ignore_unknown_options": True})
+@click.command(short_help="Verify formatting", context_settings={"ignore_unknown_options": True})
 @click.argument("args", nargs=-1)
 @click.option("--fix", is_flag=True, help="Apply formatting fixes rather than just checking")
 @click.option("--sync", is_flag=True, help="Sync the default config file with the current version of Hatch")
@@ -20,7 +20,9 @@ def fmt(
     fix: bool,
     sync: bool,
 ):
-    """Format source code using Ruff."""
+    """
+    Verify formatting, using Ruff by default.
+    """
     from hatch.cli.fmt.core import StaticAnalysisEnvironment
 
     app.ensure_environment_plugin_dependencies()
