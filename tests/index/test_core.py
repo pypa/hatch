@@ -5,6 +5,7 @@ import httpx
 import pytest
 
 from hatch._version import __version__
+from hatch.config.constants import NetworkEnvVars
 from hatch.index.core import PackageIndex
 from hatch.utils.linehaul import get_linehaul_component
 
@@ -72,6 +73,15 @@ class TestTLS:
         _ = index.client
 
         mock.assert_called_once_with(verify=True, cert=("foo", "bar"), trust_env=True)
+
+
+class TestTimeout:
+    def test_default_timeout_env_var(self, monkeypatch):
+        monkeypatch.setenv(NetworkEnvVars.TIMEOUT, "42.5")
+
+        index = PackageIndex("https://foo.internal/a/b/")
+
+        assert index.client.timeout.connect == 42.5
 
 
 class TestUserAgent:
