@@ -31,13 +31,16 @@ class IndexURLs:
 
 
 class PackageIndex:
-    def __init__(self, repo: str, *, user="", auth="", ca_cert=None, client_cert=None, client_key=None):
+    def __init__(self, repo: str, *, user="", auth="", ca_cert=None, client_cert=None, client_key=None, timeout=None):
+        from hatch.utils.network import DEFAULT_TIMEOUT
+
         self.urls = IndexURLs(repo)
         self.repo = str(self.urls.repo)
         self.user = user
         self.auth = auth
-
+        self.timeout = timeout or DEFAULT_TIMEOUT
         self.__cert = None
+
         if client_cert:
             self.__cert = client_cert
             if client_key:
@@ -52,13 +55,12 @@ class PackageIndex:
         import httpx
 
         from hatch.utils.linehaul import get_linehaul_component
-        from hatch.utils.network import DEFAULT_TIMEOUT
 
         user_agent = f"Hatch/{__version__} {get_linehaul_component()} HTTPX/{httpx.__version__}"
         return httpx.Client(
             headers={"User-Agent": user_agent},
             transport=httpx.HTTPTransport(retries=3, verify=self.__verify, cert=self.__cert),
-            timeout=DEFAULT_TIMEOUT,
+            timeout=self.timeout,
         )
 
     def upload_artifact(self, artifact: Path, data: dict):
