@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.17.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.17.0) - 2026-05-31 ## {: #hatch-v1.17.0 }
+
 ***Changed:***
 
 - The `hatch fmt` command is now deprecated in favor of the new `hatch check` command group
