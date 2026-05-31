@@ -118,7 +118,7 @@ For example, if there was a directory alongside the project root named `artifact
     - Sources that do not exist will raise an error.
 
 !!! warning
-    Files included using this option will overwrite any file path that was already included by other file selection options.
+    Attempting to overwrite any file path that was already included by other file selection options will raise an error.
 
 ### Default file selection
 
