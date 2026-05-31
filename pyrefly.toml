@@ -1,0 +1,9 @@
+project-includes = ["src/hatch", "backend/src/hatchling", "tests"]
+search-path = ["src", "backend/src", "tests"]
+preset = "legacy"
+
+# Disable the heuristic since we're explicitly setting search paths
+disable-search-path-heuristics = true
+
+# Platform-conditional dependencies that may not be installed on all OSes
+ignore-missing-imports = ["distro"]

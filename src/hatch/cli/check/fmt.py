@@ -8,55 +8,40 @@ if TYPE_CHECKING:
     from hatch.cli.application import Application
 
 
-@click.command(short_help="Format and lint source code", context_settings={"ignore_unknown_options": True})
+@click.command(short_help="Verify formatting", context_settings={"ignore_unknown_options": True})
 @click.argument("args", nargs=-1)
-@click.option("--check", is_flag=True, help="Only check for errors rather than fixing them")
-@click.option("--linter", "-l", is_flag=True, help="Only run the linter")
-@click.option("--formatter", "-f", is_flag=True, help="Only run the formatter")
+@click.option("--fix", is_flag=True, help="Apply formatting fixes rather than just checking")
 @click.option("--sync", is_flag=True, help="Sync the default config file with the current version of Hatch")
 @click.pass_obj
 def fmt(
     app: Application,
     *,
     args: tuple[str, ...],
-    check: bool,
-    linter: bool,
-    formatter: bool,
+    fix: bool,
     sync: bool,
 ):
-    """Format and lint source code."""
-    app.display_warning(
-        "The `hatch fmt` command is deprecated and will be removed in a future release. "
-        "Use `hatch check code --fix` for linting and `hatch check fmt --fix` for formatting instead."
-    )
-
-    if linter and formatter:
-        app.abort("Cannot specify both --linter and --formatter")
-
+    """
+    Verify formatting, using Ruff by default.
+    """
     from hatch.cli.fmt.core import StaticAnalysisEnvironment
 
     app.ensure_environment_plugin_dependencies()
 
-    for context in app.runner_context(["hatch-static-analysis"]):
+    for context in app.runner_context(["hatch-check-fmt"]):
         sa_env = StaticAnalysisEnvironment(context.env)
 
         # TODO: remove in a few minor releases, this is very new but we don't want to break users on the cutting edge
         if legacy_config_path := app.project.config.config.get("format", {}).get("config-path", ""):
             app.display_warning(
                 "The `tool.hatch.format.config-path` option is deprecated and will be removed in a future release. "
-                "Use `tool.hatch.envs.hatch-static-analysis.config-path` instead."
+                "Use `tool.hatch.envs.hatch-check-fmt.config-path` instead."
             )
             sa_env.config_path = legacy_config_path
 
         if sync and not sa_env.config_path:
             app.abort("The --sync flag can only be used when the `tool.hatch.format.config-path` option is defined")
 
-        scripts: list[str] = []
-        if not formatter:
-            scripts.append("lint-check" if check else "lint-fix")
-
-        if not linter:
-            scripts.append("format-check" if check else "format-fix")
+        script = "format-fix" if fix else "format-check"
 
         default_args = sa_env.get_default_args()
         arguments = list(args)
@@ -70,14 +55,20 @@ def fmt(
 
         internal_args = context.env.join_command_args(default_args)
         if internal_args:
-            # Add an extra space if required
             internal_args = f" {internal_args}"
 
         formatted_args = context.env.join_command_args(arguments)
-        for script in scripts:
-            context.add_shell_command(f"{script} {formatted_args}")
+        context.add_shell_command(f"{script} {formatted_args}")
 
-        context.env_vars["HATCH_FMT_ARGS"] = internal_args
+        # Check for legacy HATCH_FMT_ARGS usage in scripts and warn about deprecation
+        for script_body in context.env.config.get("scripts", {}).values():
+            if isinstance(script_body, str) and "HATCH_FMT_ARGS" in script_body:
+                app.display_warning(
+                    "The `HATCH_FMT_ARGS` environment variable is deprecated. Use `HATCH_CHECK_FMT_ARGS` instead."
+                )
+                break
+
+        context.env_vars["HATCH_CHECK_FMT_ARGS"] = internal_args
 
         if not sa_env.config_path or sync:
             sa_env.write_config_file(preview=preview)
