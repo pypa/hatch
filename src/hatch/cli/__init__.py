@@ -8,6 +8,7 @@ import click
 from hatch._version import __version__
 from hatch.cli.application import Application
 from hatch.cli.build import build
+from hatch.cli.check import check
 from hatch.cli.clean import clean
 from hatch.cli.config import config
 from hatch.cli.dep import dep
@@ -218,6 +219,7 @@ def hatch(
 
 
 hatch.add_command(build)
+hatch.add_command(check)
 hatch.add_command(clean)
 hatch.add_command(config)
 hatch.add_command(dep)

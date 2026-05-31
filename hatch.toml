@@ -39,6 +39,13 @@ extra-dependencies = [
 [envs.types.scripts]
 check = "mypy --install-types --non-interactive {args:backend/src/hatchling src/hatch tests}"
 
+[envs.hatch-check-types]
+workspace.members = ["backend/"]
+extra-dependencies = [
+  "editables",
+  "setuptools",
+]
+
 [envs.docs]
 dependencies = [
   "mkdocs~=1.6.0",
@@ -84,7 +91,7 @@ detached = true
 installer = "uv"
 dependencies = [
   "build~=0.7.0",
-  "httpx",
+  "httpx2",
 ]
 [envs.backend.env-vars]
 HATCH_BUILD_CLEAN = "true"
@@ -97,7 +104,7 @@ version = "cd backend && hatch version {args}"
 detached = true
 installer = "uv"
 dependencies = [
-  "httpx",
+  "httpx2",
   "ruff",
 ]
 [envs.upkeep.scripts]

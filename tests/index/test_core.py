@@ -1,7 +1,7 @@
 import json
 import platform
 
-import httpx
+import httpx2
 import pytest
 
 from hatch._version import __version__
@@ -46,28 +46,28 @@ class TestURLs:
 
 class TestTLS:
     def test_default(self, mocker):
-        mock = mocker.patch("httpx._transports.default.create_ssl_context")
+        mock = mocker.patch("httpx2._transports.default.create_ssl_context")
         index = PackageIndex("https://foo.internal/a/b/")
         _ = index.client
 
         mock.assert_called_once_with(verify=True, cert=None, trust_env=True)
 
     def test_ca_cert(self, mocker):
-        mock = mocker.patch("httpx._transports.default.create_ssl_context")
+        mock = mocker.patch("httpx2._transports.default.create_ssl_context")
         index = PackageIndex("https://foo.internal/a/b/", ca_cert="foo")
         _ = index.client
 
         mock.assert_called_once_with(verify="foo", cert=None, trust_env=True)
 
     def test_client_cert(self, mocker):
-        mock = mocker.patch("httpx._transports.default.create_ssl_context")
+        mock = mocker.patch("httpx2._transports.default.create_ssl_context")
         index = PackageIndex("https://foo.internal/a/b/", client_cert="foo")
         _ = index.client
 
         mock.assert_called_once_with(verify=True, cert="foo", trust_env=True)
 
     def test_client_cert_with_key(self, mocker):
-        mock = mocker.patch("httpx._transports.default.create_ssl_context")
+        mock = mocker.patch("httpx2._transports.default.create_ssl_context")
         index = PackageIndex("https://foo.internal/a/b/", client_cert="foo", client_key="bar")
         _ = index.client
 
@@ -82,7 +82,7 @@ class TestUserAgent:
         user_agent = client.headers["User-Agent"]
 
         assert user_agent.startswith(f"Hatch/{__version__} ")
-        assert user_agent.endswith(f" HTTPX/{httpx.__version__}")
+        assert user_agent.endswith(f" HTTPX2/{httpx2.__version__}")
 
     def _extract_json_from_user_agent(self, user_agent: str) -> dict:
         json_start = user_agent.index("{")
