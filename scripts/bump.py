@@ -1,5 +1,4 @@
 import argparse
-import re
 import subprocess
 from datetime import datetime, timezone
 
@@ -24,17 +23,15 @@ def main():
     history_file = root_dir / "docs" / "history" / f"{args.project}.md"
 
     if args.project == "hatchling":
-        process = subprocess.run(  # noqa: PLW1510
-            ["hatch", "version", args.version],  # noqa: S607
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            encoding="utf-8",
-            cwd=str(project_dir),
-        )
-        if process.returncode:
-            raise OSError(process.stdout)
+        from hatchling.metadata.core import ProjectMetadata
+        from hatchling.plugin.manager import PluginManager
 
-        new_version = re.search(r"New: (.+)$", process.stdout, re.MULTILINE).group(1)
+        metadata = ProjectMetadata(str(project_dir), PluginManager())
+        source = metadata.hatch.version.source
+        version_data = source.get_version_data()
+        original_version = version_data["version"]
+        new_version = metadata.hatch.version.scheme.update(args.version, original_version, version_data)
+        source.set_version(new_version, version_data)
     else:
         from hatchling.version.scheme.standard import StandardScheme
 
