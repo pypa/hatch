@@ -49,6 +49,10 @@
          <lastmod>2020-02-02</lastmod>
     </url>
     <url>
+         <loc>https://hatch.pypa.io/dev/blog/2026/05/30/hatch-v1170/</loc>
+         <lastmod>2020-02-02</lastmod>
+    </url>
+    <url>
          <loc>https://hatch.pypa.io/dev/blog/2022/10/08/hatch-v160/</loc>
          <lastmod>2020-02-02</lastmod>
     </url>
@@ -122,6 +126,10 @@
     </url>
     <url>
          <loc>https://hatch.pypa.io/dev/config/internal/testing/</loc>
+         <lastmod>2020-02-02</lastmod>
+    </url>
+    <url>
+         <loc>https://hatch.pypa.io/dev/config/internal/type-checking/</loc>
          <lastmod>2020-02-02</lastmod>
     </url>
     <url>
@@ -306,6 +314,10 @@
     </url>
     <url>
          <loc>https://hatch.pypa.io/dev/tutorials/testing/overview/</loc>
+         <lastmod>2020-02-02</lastmod>
+    </url>
+    <url>
+         <loc>https://hatch.pypa.io/dev/blog/archive/2026/</loc>
          <lastmod>2020-02-02</lastmod>
     </url>
     <url>
