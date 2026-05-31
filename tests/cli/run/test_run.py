@@ -2499,6 +2499,43 @@ class TestScriptRunner:
         assert data_path in executable.parents
         assert unit_conversion == "(1.0, 'KiB')"
 
+    def test_system_packages_from_tool_config(self, hatch, helpers, temp_dir):
+        data_path = temp_dir / "data"
+        data_path.mkdir()
+        script = (temp_dir / "script.py").resolve()
+        script.write_text(
+            helpers.dedent(
+                """
+                # /// script
+                # dependencies = []
+                #
+                # [tool.hatch]
+                # installer = "pip"
+                # system-packages = true
+                # ///
+                import pathlib
+
+                import pytest
+
+                pathlib.Path('test.txt').write_text(pytest.__version__)
+                """
+            )
+        )
+
+        with temp_dir.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+            result = hatch("run", "script.py")
+
+        assert result.exit_code == 0, result.output
+        assert result.output == helpers.dedent(
+            f"""
+            Creating environment: {script.id}
+            Checking dependencies
+            """
+        )
+        output_file = temp_dir / "test.txt"
+        assert output_file.is_file()
+        assert output_file.read_text()
+
     def test_unsupported_python_version(self, hatch, helpers, temp_dir):
         data_path = temp_dir / "data"
         data_path.mkdir()

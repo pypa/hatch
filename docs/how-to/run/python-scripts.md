@@ -66,3 +66,13 @@ You may use the `[tool.hatch]` table directly to control the script's [environme
 # installer = "pip"
 # ///
 ```
+
+The same table accepts options for Hatch's [virtual environment plugin](../../plugins/environment/virtual.md). For example, set `system-packages` to allow the script environment to access packages from the parent Python's `site-packages` directory:
+
+```python tab="script.py"
+# /// script
+# ...
+# [tool.hatch]
+# system-packages = true
+# ///
+```
