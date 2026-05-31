@@ -15,7 +15,7 @@ Hatch [v1.17.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.17.0) brings
 
 ## Lockfile support
 
-Reproducible installs are table stakes for serious Python projects. Hatch now generates [PEP 751](https://peps.python.org/pep-0751/) lockfiles (`pylock.toml`) for your environments, capturing exact resolved versions and cryptographic hashes of every dependency.
+ Hatch now generates [PEP 751](https://peps.python.org/pep-0751/) lockfiles (`pylock.toml`) for your environments, capturing exact resolved versions and cryptographic hashes of every dependency.
 
 ### Getting started
 
