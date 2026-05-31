@@ -65,6 +65,46 @@ class TestDistributionVersions:
         assert ".".join(map(str, version.release)) == "9000.42"
 
 
+class TestDistributionMirrors:
+    def test_cpython_standalone(self):
+        mirror = "https://mirror.example.com/python-build-standalone"
+        with EnvVars({PythonEnvVars.CPYTHON_INSTALL_MIRROR: mirror}):
+            dist = get_distribution("3.11")
+
+        assert dist.source.startswith(f"{mirror}/")
+        assert "github.com/astral-sh/python-build-standalone" not in dist.source
+        assert dist.archive_name.startswith("cpython-3.11.")
+        assert dist.version.epoch == 0
+        assert dist.version.base_version.startswith("3.11.")
+
+    def test_pypy(self):
+        mirror = "file:///mirror/pypy"
+        with EnvVars({PythonEnvVars.PYPY_INSTALL_MIRROR: mirror}):
+            dist = get_distribution("pypy3.10")
+
+        assert dist.source.startswith(f"{mirror}/")
+        assert not dist.source.startswith("https://downloads.python.org/pypy/")
+        assert dist.archive_name.startswith("pypy3.10-v")
+        assert dist.version.epoch == 0
+
+    def test_explicit_source_is_not_mirrored(self):
+        source = "https://github.com/indygreg/python-build-standalone/releases/download/20230507/cpython-3.11.3%2B20230507-aarch64-unknown-linux-gnu-install_only.tar.gz"
+        with EnvVars({PythonEnvVars.CPYTHON_INSTALL_MIRROR: "https://mirror.example.com/python-build-standalone"}):
+            dist = get_distribution("3.11", source)
+
+        assert dist.source == source
+
+    def test_custom_source_takes_precedence(self):
+        name = "3.11"
+        custom_source = "https://example.com/custom/cpython-3.11.3%2B20230507-aarch64-unknown-linux-gnu.tar.gz"
+        with EnvVars({
+            PythonEnvVars.CPYTHON_INSTALL_MIRROR: "https://mirror.example.com/python-build-standalone",
+            custom_env_var(PythonEnvVars.CUSTOM_SOURCE_PREFIX, name): custom_source,
+        }):
+            dist = get_distribution(name)
+            assert dist.source == custom_source
+
+
 class TestDistributionPaths:
     def test_cpython_standalone_custom(self):
         name = "3.11"

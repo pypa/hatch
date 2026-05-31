@@ -56,7 +56,9 @@ If no version has been chosen, then each resolver will try to find a version tha
 The following options are recognized for internal Python resolution.
 
 !!! tip
-    You can set custom sources for distributions by setting the `HATCH_PYTHON_SOURCE_<NAME>` environment variable where `<NAME>` is the uppercased version of the distribution name with periods replaced by underscores e.g. `HATCH_PYTHON_SOURCE_PYPY3_10`.
+    You can set custom sources for distributions by setting the `HATCH_PYTHON_CUSTOM_SOURCE_<NAME>` environment variable where `<NAME>` is the uppercased version of the distribution name with periods replaced by underscores e.g. `HATCH_PYTHON_CUSTOM_SOURCE_PYPY3_10`.
+
+    To mirror the built-in downloads without configuring every distribution individually, set `HATCH_PYTHON_INSTALL_MIRROR` for CPython distributions or `HATCH_PYPY_INSTALL_MIRROR` for PyPy distributions. The mirror URL replaces only the known upstream base URL and keeps the normal archive path suffix. Point these variables only at mirrors you trust.
 
 ### CPython
 
