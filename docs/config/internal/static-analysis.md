@@ -2,9 +2,12 @@
 
 -----
 
-Static analysis performed by the [`fmt`](../../cli/reference.md#hatch-fmt) command is ([by default](#customize-behavior)) backed entirely by [Ruff](https://github.com/astral-sh/ruff).
+Static analysis performed by the [`check code`](../../cli/reference.md#hatch-check-code) and [`check fmt`](../../cli/reference.md#hatch-check-fmt) commands is ([by default](#customize-behavior)) backed entirely by [Ruff](https://github.com/astral-sh/ruff).
 
 Hatch provides [default settings](#default-settings) that user configuration can [extend](#extending-config).
+
+!!! note
+    The [`fmt`](../../cli/reference.md#hatch-fmt) command is being deprecated. Use `hatch check code` for linting and `hatch check fmt` for formatting instead.
 
 ## Extending config
 
@@ -73,10 +76,10 @@ Then instruct Ruff to consider your configuration as an extension of the default
     extend = "ruff_defaults.toml"
     ```
 
-Anytime you wish to update the defaults (such as when upgrading Hatch), you must run the [`fmt`](../../cli/reference.md#hatch-fmt) command once with the `--sync` flag e.g.:
+Anytime you wish to update the defaults (such as when upgrading Hatch), you must run the [`check code`](../../cli/reference.md#hatch-check-code) or [`check fmt`](../../cli/reference.md#hatch-check-fmt) command once with the `--sync` flag e.g.:
 
 ```
-hatch fmt --check --sync
+hatch check code --sync
 ```
 
 !!! tip
@@ -93,30 +96,43 @@ config-path = "none"
 
 ## Customize behavior
 
-You can fully alter the behavior of the environment used by the [`fmt`](../../cli/reference.md#hatch-fmt) command. See the [how-to](../../how-to/static-analysis/behavior.md) for a detailed example.
+You can fully alter the behavior of the environments used by the [`check code`](../../cli/reference.md#hatch-check-code) and [`check fmt`](../../cli/reference.md#hatch-check-fmt) commands. See the [how-to](../../how-to/static-analysis/behavior.md) for a detailed example.
+
+The `check code` command uses the `hatch-check-code` environment, and the `check fmt` command uses the `hatch-check-fmt` environment. The legacy `fmt` command continues to use the `hatch-static-analysis` environment.
 
 ### Dependencies
 
 Pin the particular version of Ruff by explicitly defining the environment [dependencies](../environment/overview.md#dependencies):
 
 ```toml config-example
-[tool.hatch.envs.hatch-static-analysis]
+[tool.hatch.envs.hatch-check-code]
+dependencies = ["ruff==X.Y.Z"]
+
+[tool.hatch.envs.hatch-check-fmt]
 dependencies = ["ruff==X.Y.Z"]
 ```
 
 ### Scripts
 
-If you want to change the default commands that are executed, you can override the [scripts](../environment/overview.md#scripts). The following four scripts must be defined:
+If you want to change the default commands that are executed, you can override the [scripts](../environment/overview.md#scripts).
+
+For the `hatch-check-code` environment:
 
 ```toml config-example
-[tool.hatch.envs.hatch-static-analysis.scripts]
-format-check = "..."
-format-fix = "..."
+[tool.hatch.envs.hatch-check-code.scripts]
 lint-check = "..."
 lint-fix = "..."
 ```
 
-The `format-*` scripts correspond to the `--formatter`/`-f` flag while the `lint-*` scripts correspond to the `--linter`/`-l` flag. The `*-fix` scripts run by default while the `*-check` scripts correspond to the `--check` flag.
+For the `hatch-check-fmt` environment:
+
+```toml config-example
+[tool.hatch.envs.hatch-check-fmt.scripts]
+format-check = "..."
+format-fix = "..."
+```
+
+The `*-fix` scripts run by default while the `*-check` scripts run when the `--fix` flag is not passed.
 
 !!! note "Reminder"
     If you choose to use different tools for static analysis, be sure to update the required [dependencies](#dependencies).
@@ -126,7 +142,10 @@ The `format-*` scripts correspond to the `--formatter`/`-f` flag while the `lint
 By default, [UV is enabled](../../how-to/environment/select-installer.md). You may disable that behavior as follows:
 
 ```toml config-example
-[tool.hatch.envs.hatch-static-analysis]
+[tool.hatch.envs.hatch-check-code]
+installer = "pip"
+
+[tool.hatch.envs.hatch-check-fmt]
 installer = "pip"
 ```
 
