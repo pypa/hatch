@@ -834,7 +834,7 @@ def test_lock_writes_one_lockfile_per_environment(hatch, helpers, temp_dir, conf
     helpers.update_project_environment(
         project,
         "default",
-        {**base, "installer": "uv", "skip-install": True, "locked": True, "dependencies": ["httpx"]},
+        {**base, "installer": "uv", "skip-install": True, "locked": True, "dependencies": ["httpx2"]},
     )
     helpers.update_project_environment(
         project,
@@ -861,7 +861,7 @@ def test_lock_writes_one_lockfile_per_environment(hatch, helpers, temp_dir, conf
     assert lock_api.is_file()
     assert lock_worker.is_file()
 
-    assert "httpx" in lock_default.read_text(encoding="utf-8").lower()
+    assert "httpx2" in lock_default.read_text(encoding="utf-8").lower()
     assert "click" in lock_api.read_text(encoding="utf-8").lower()
     assert "rich" in lock_worker.read_text(encoding="utf-8").lower()
 
@@ -1035,7 +1035,7 @@ def test_lock_export_paths_use_same_names_as_export_all(hatch, helpers, temp_dir
     helpers.update_project_environment(
         project,
         "default",
-        {**base, "installer": "uv", "skip-install": True, "locked": True, "dependencies": ["httpx"]},
+        {**base, "installer": "uv", "skip-install": True, "locked": True, "dependencies": ["httpx2"]},
     )
     helpers.update_project_environment(
         project,
@@ -1056,7 +1056,7 @@ def test_lock_export_paths_use_same_names_as_export_all(hatch, helpers, temp_dir
     assert r_sidecar.exit_code == 0, r_sidecar.output
     assert exp_default.is_file()
     assert exp_sidecar.is_file()
-    assert "httpx" in exp_default.read_text(encoding="utf-8").lower()
+    assert "httpx2" in exp_default.read_text(encoding="utf-8").lower()
     assert "click" in exp_sidecar.read_text(encoding="utf-8").lower()
 
 
