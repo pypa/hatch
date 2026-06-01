@@ -612,10 +612,12 @@ jobs:
 
     - name: Add assets to draft release
       run:
-        gh release create --draft "$RELEASE_TAG" \
+        gh release upload "$RELEASE_TAG" \
           archives/* \
           distributions/* \
-          installers/*
+          installers/* \
+          --repo "$REPO"
       env:
         GH_TOKEN: ${{ github.token }}
         RELEASE_TAG: ${{ github.ref_name }}
+        REPO: ${{ github.repository }}
