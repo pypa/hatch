@@ -114,7 +114,7 @@ class CPythonStandaloneDistribution(Distribution):
         if (custom_path := get_custom_path(self.name)) is not None:
             return custom_path
 
-        if self.name == "3.7":
+        if self.name == "3.7" or "freethreaded" in self.source:
             if sys.platform == "win32":
                 return r"python\install\python.exe"
 
@@ -159,7 +159,9 @@ def get_distribution(name: str, source: str = "", variant_cpu: str = "", variant
     if source:
         return _get_distribution_class(source)(name, source)
 
-    if name not in DISTRIBUTIONS:
+    distribution_name, inferred_variant_gil = _normalize_distribution_name(name)
+
+    if distribution_name not in DISTRIBUTIONS:
         message = f"Unknown distribution: {name}"
         raise PythonDistributionUnknownError(message)
 
@@ -178,11 +180,14 @@ def get_distribution(name: str, source: str = "", variant_cpu: str = "", variant
         variant_cpu = _get_default_variant_cpu(name, system, arch)
 
     if not variant_gil:
+        variant_gil = inferred_variant_gil
+
+    if not variant_gil:
         variant_gil = _get_default_variant_gil()
 
     key = (system, arch, abi, variant_cpu, variant_gil)
 
-    keys: dict[tuple, str] = DISTRIBUTIONS[name]
+    keys: dict[tuple, str] = DISTRIBUTIONS[distribution_name]
     if key not in keys:
         message = f"Could not find a default source for {name=} {system=} {arch=} {abi=} {variant_cpu=} {variant_gil=}"
         raise PythonDistributionResolutionError(message)
@@ -267,6 +272,16 @@ def _get_default_variant_cpu(name: str, system: str, arch: str) -> str:
 
 def _get_default_variant_gil() -> str:
     return os.environ.get("HATCH_PYTHON_VARIANT_GIL", "").lower()
+
+
+def _normalize_distribution_name(name: str) -> tuple[str, str]:
+    if name.endswith("t"):
+        base_name = name[:-1]
+
+        if base_name in DISTRIBUTIONS and base_name[0].isdigit():
+            return base_name, "freethreaded"
+
+    return name, ""
 
 
 def _get_distribution_class(source: str) -> type[Distribution]:
