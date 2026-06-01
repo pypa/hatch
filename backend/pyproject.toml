@@ -54,9 +54,3 @@ hatchling = "hatchling.cli:hatchling"
 
 [tool.hatch.version]
 path = "src/hatchling/__about__.py"
-
-[tool.hatch.build.targets.wheel]
-core-metadata-version = "2.4"
-
-[tool.hatch.build.targets.sdist]
-core-metadata-version = "2.4"
