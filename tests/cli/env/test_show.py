@@ -85,6 +85,33 @@ def test_default_as_json(hatch, temp_dir, config_file):
     assert environments["default"] == {"type": "virtual"}
 
 
+def test_default_as_json_unknown_type(hatch, helpers, temp_dir, config_file):
+    config_file.model.template.plugins["default"]["tests"] = False
+    config_file.save()
+
+    project_name = "My.App"
+
+    with temp_dir.as_cwd():
+        result = hatch("new", project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
+    data_path.mkdir()
+
+    project = Project(project_path)
+    helpers.update_project_environment(project, "default", {"type": "container"})
+
+    with project_path.as_cwd():
+        result = hatch("env", "show", "--json")
+
+    assert result.exit_code == 0, result.output
+
+    environments = json.loads(result.output)
+    assert environments["default"] == {"type": "container"}
+
+
 def test_single_only(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
