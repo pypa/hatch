@@ -207,6 +207,44 @@ class TestDefaultFileSelection:
         assert builder.config.default_packages() == []
         assert builder.config.default_only_include() == []
 
+    def test_force_include_duplicate_path(self, hatch, temp_dir, config_file):
+        config_file.model.template.plugins["default"]["src-layout"] = False
+        config_file.save()
+
+        project_name = "My.App"
+
+        with temp_dir.as_cwd():
+            result = hatch("new", project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / "my-app"
+        (project_path / "my_datafile").write_text("hello world")
+        config = {
+            "project": {"name": project_name, "dynamic": ["version"]},
+            "tool": {
+                "hatch": {
+                    "version": {"path": "my_app/__about__.py"},
+                    "build": {
+                        "targets": {
+                            "wheel": {
+                                "force-include": {
+                                    "my_datafile": "my_app-0.0.1.dist-info/METADATA",
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        }
+        builder = WheelBuilder(str(project_path), config=config)
+
+        build_path = project_path / "dist"
+        build_path.mkdir()
+
+        with pytest.raises(ValueError, match="second file is being added"):
+            list(builder.build(directory=str(build_path)))
+
     def test_force_include_option_considered_selection(self, temp_dir):
         config = {
             "project": {"name": "my-app", "version": "0.0.1"},

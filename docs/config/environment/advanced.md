@@ -279,7 +279,7 @@ version = ["0.1.0", "0.2.0", "1.0.0"]
     ```toml config-example
     [tool.hatch.envs.test.overrides]
     matrix.foo.dependencies = [
-      "httpx",
+      "httpx2",
       { value = "cryptography" },
     ]
     ```

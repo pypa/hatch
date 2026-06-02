@@ -8,6 +8,29 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.17.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.17.0) - 2026-05-31 ## {: #hatch-v1.17.0 }
+
+***Changed:***
+
+- The `hatch fmt` command is now deprecated in favor of the new `hatch check` command group
+- Migrate HTTP client from `httpx` to `httpx2`
+
+***Added:***
+
+- Add `hatch check` command group with subcommands for `check code` (linting), `check fmt` (formatting), and `check types` (type checking)
+- Add `hatch check types` command for type checking using Pyrefly, with `--summarize` and `--cover` flags
+- Add `hatch env lock` command to generate PEP 751 compliant lockfiles (`pylock.toml`) for environments
+- Add `hatch dep lock` and `hatch lock` commands as shortcuts for locking the active environment
+- Add `hatch dep sync` command for syncing dependencies from a lockfile
+- Add pluggable dependency locker interface with built-in UV and pip implementations
+- Add `--cover-xml` and `--cover-xml-output` flags to the `hatch test` command for generating XML coverage reports
+- Add linehaul telemetry data to User-Agent header for PyPI download statistics
+- Auto-create environment when locking if it doesn't exist
+
+***Fixed:***
+
+- Fix help output formatting for the `run` command
+
 ## [1.16.5](https://github.com/pypa/hatch/releases/tag/hatch-v1.16.5) - 2026-02-26 ## {: #hatch-v1.16.5 }
 
 ***Fixed:***

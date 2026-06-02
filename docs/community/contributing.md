@@ -48,17 +48,16 @@ hatch test --cover --all
 
 ## Lint
 
-Run automated formatting:
+Run automated formatting and linting fixes:
 
 ```bash
-hatch fmt
+hatch check --fix
 ```
 
-Run full linting and type checking:
+Run all checks (linting, formatting, type checking):
 
 ```bash
-hatch fmt --check
-hatch run types:check
+hatch check
 ```
 
 ## Docs

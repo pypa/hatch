@@ -7,7 +7,7 @@ if TYPE_CHECKING:
 
     from hatchling.metadata.core import ProjectMetadata
 
-DEFAULT_METADATA_VERSION = "2.5"
+DEFAULT_METADATA_VERSION = "2.4"
 LATEST_METADATA_VERSION = "2.5"
 CORE_METADATA_PROJECT_FIELDS = {
     "Author": ("authors",),

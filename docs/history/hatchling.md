@@ -8,9 +8,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.30.1](https://github.com/pypa/hatch/releases/tag/hatchling-v1.30.1) - 2026-06-01 ## {: #hatchling-v1.30.1 }
+
+***Fixed***
+
+- Default core metadata version kept at 2.4 until more tools support 2.5
+
+## [1.30.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.30.0) - 2026-05-31 ## {: #hatchling-v1.30.0 }
+
 ***Added:***
 
 - Support PEP 794 (core metadata `Import-Name` and `Import-Namespace` fields and version 2.5)
+
+***Fixed:***
+
+- Exclude Git worktree metadata files from sdists
 
 ## [1.29.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.29.0) - 2026-02-21 ## {: #hatchling-v1.29.0 }
 
