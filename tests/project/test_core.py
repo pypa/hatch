@@ -183,3 +183,62 @@ class TestEnsureCWD:
 
         with temp_dir.as_cwd(), project.ensure_cwd() as cwd:
             assert cwd == subdir
+
+
+class TestCheckHatchVersion:
+    @staticmethod
+    def _setup_project(temp_dir, *, requires=None):
+        project_file = temp_dir / "pyproject.toml"
+        project_file.touch()
+        project = Project(temp_dir)
+        project.find_project_root()
+
+        hatch_config = {} if requires is None else {"requires": requires}
+        project.save_config({
+            "project": {"name": "foo", "version": "0.0.1"},
+            "tool": {"hatch": hatch_config},
+        })
+        return project
+
+    def test_satisfied(self, temp_dir, mocker):
+        project = self._setup_project(temp_dir, requires=">=1")
+        app = mocker.MagicMock()
+        project.set_app(app)
+        mocker.patch("hatch._version.__version__", "1.18.0")
+
+        _ = project.metadata
+
+        app.abort.assert_not_called()
+
+    def test_unsatisfied(self, temp_dir, mocker):
+        project = self._setup_project(temp_dir, requires=">99")
+        app = mocker.MagicMock()
+        project.set_app(app)
+        mocker.patch("hatch._version.__version__", "1.18.0")
+
+        _ = project.metadata
+
+        app.abort.assert_called_once()
+        message = app.abort.call_args[0][0]
+        assert ">99" in message
+        assert "1.18.0" in message
+
+    def test_default_no_constraint(self, temp_dir, mocker):
+        project = self._setup_project(temp_dir)
+        app = mocker.MagicMock()
+        project.set_app(app)
+        mocker.patch("hatch._version.__version__", "1.18.0")
+
+        _ = project.metadata
+
+        app.abort.assert_not_called()
+
+    def test_prerelease_current_version_allowed(self, temp_dir, mocker):
+        project = self._setup_project(temp_dir, requires=">=1")
+        app = mocker.MagicMock()
+        project.set_app(app)
+        mocker.patch("hatch._version.__version__", "2.0.0rc1")
+
+        _ = project.metadata
+
+        app.abort.assert_not_called()

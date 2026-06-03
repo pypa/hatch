@@ -82,6 +82,7 @@ nav:
     - Context formatting: config/context.md
     - Project templates: config/project-templates.md
     - Hatch: config/hatch.md
+    - Requires: config/requires.md
   - CLI:
     - About: cli/about.md
     - Reference: cli/reference.md

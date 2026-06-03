@@ -1455,6 +1455,8 @@ class HatchMetadata(Generic[PluginManagerBound]):
         self._build_config: dict[str, Any] | None = None
         self._build_targets: dict[str, Any] | None = None
         self._version: HatchVersionConfig | None = None
+        self._requires: str | None = None
+        self._specifier_set: SpecifierSet | None = None
 
     @property
     def metadata(self) -> HatchMetadataSettings:
@@ -1507,6 +1509,36 @@ class HatchMetadata(Generic[PluginManagerBound]):
             self._version = HatchVersionConfig(self.root, deepcopy(options), self.plugin_manager)
 
         return self._version
+
+    @property
+    def requires(self) -> str:
+        if self._requires is None:
+            from packaging.specifiers import InvalidSpecifier, SpecifierSet
+
+            requires = self.config.get("requires", "")
+
+            if not isinstance(requires, str):
+                message = "Field `tool.hatch.requires` must be a string"
+                raise TypeError(message)
+
+            try:
+                self._specifier_set = SpecifierSet(requires)
+            except InvalidSpecifier as e:
+                message = f"Field `tool.hatch.requires` is invalid: {e}"
+                raise ValueError(message) from None
+
+            self._requires = str(self._specifier_set)
+
+        return self._requires
+
+    @property
+    def specifier_set(self) -> SpecifierSet:
+        from packaging.specifiers import SpecifierSet
+
+        if self._specifier_set is None:
+            _ = self.requires
+
+        return cast(SpecifierSet, self._specifier_set)
 
 
 class HatchVersionConfig(Generic[PluginManagerBound]):
