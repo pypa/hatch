@@ -220,8 +220,9 @@ extend = "{config_path}"
 {old_contents.rstrip()}"""
         )
 
+    @pytest.mark.usefixtures("env_run")
     def test_existing_config_with_extend_in_pyproject(
-        self, hatch, helpers, temp_dir, config_file, env_run, mocker, platform, defaults_file_stable
+        self, hatch, helpers, temp_dir, config_file, platform, defaults_file_stable
     ):
         config_file.model.template.plugins["default"]["tests"] = False
         config_file.save()
@@ -265,8 +266,9 @@ extend = "{config_path}"
         assert internal_content.count("extend") == 1
         assert existing_extend in internal_content
 
+    @pytest.mark.usefixtures("env_run")
     def test_existing_ruff_toml_with_extend(
-        self, hatch, helpers, temp_dir, config_file, env_run, mocker, platform, defaults_file_stable
+        self, hatch, helpers, temp_dir, config_file, platform, defaults_file_stable
     ):
         config_file.model.template.plugins["default"]["tests"] = False
         config_file.save()
