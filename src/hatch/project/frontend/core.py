@@ -180,12 +180,24 @@ class HatchBuildFrontend:
             return output
 
     def get_required_build_deps(self, targets: list[str]) -> list[str]:
+        from hatchling.builders.constants import EDITABLES_REQUIREMENT
+
         target_dependencies: list[str] = []
         hooks: set[str] = set()
         for target in targets:
-            target_config = self.__project.config.build.target(target)
+            target_name, _, target_version = target.partition(":")
+            target_config = self.__project.config.build.target(target_name)
             target_dependencies.extend(target_config.dependencies)
             hooks.update(target_config.hook_config)
+
+            versions = [target_version] if target_version else target_config.versions
+            if (
+                target_name == "wheel"
+                and "editable" in versions
+                and not target_config.dev_mode_dirs
+                and EDITABLES_REQUIREMENT not in target_dependencies
+            ):
+                target_dependencies.append(EDITABLES_REQUIREMENT)
 
         # Remove any build hooks that are known to not define any dependencies dynamically
         hooks.difference_update((

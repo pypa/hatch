@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import re
 from collections import defaultdict
-from collections.abc import Generator
 from contextlib import contextmanager
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, cast
@@ -278,12 +277,13 @@ class Project:
             with self.app.status("Inspecting build dependencies"):
                 if build_backend != BUILD_BACKEND:
                     for target in targets:
-                        if target == "sdist":
+                        target_name, _, _ = target.partition(":")
+                        if target_name == "sdist":
                             additional_dependencies.extend(self.build_frontend.get_requires("sdist"))
-                        elif target == "wheel":
+                        elif target_name == "wheel":
                             additional_dependencies.extend(self.build_frontend.get_requires("wheel"))
                         else:
-                            self.app.abort(f"Target `{target}` is not supported by `{build_backend}`")
+                            self.app.abort(f"Target `{target_name}` is not supported by `{build_backend}`")
                 else:
                     required_build_deps = self.build_frontend.hatch.get_required_build_deps(targets)
                     if required_build_deps:
@@ -296,6 +296,7 @@ class Project:
                 from hatch.dep.core import Dependency
 
                 self.build_env.additional_dependencies.extend(map(Dependency, additional_dependencies))
+                self.build_env.reset_dependency_cache()
                 with self.build_env.app_status_dependency_synchronization():
                     self.build_env.sync_dependencies()
 

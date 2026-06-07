@@ -388,7 +388,8 @@ class EnvironmentInterface(ABC):
                     all_dependencies_complex.append(Dependency(str(req)))
 
             for target in os.environ.get(BuildEnvVars.REQUESTED_TARGETS, "").split():
-                target_config = self.app.project.config.build.target(target)
+                target_name, _, _ = target.partition(":")
+                target_config = self.app.project.config.build.target(target_name)
                 all_dependencies_complex.extend(map(Dependency, target_config.dependencies))
 
             return all_dependencies_complex
@@ -795,6 +796,16 @@ class EnvironmentInterface(ABC):
         from hatch.utils.dep import hash_dependencies
 
         return hash_dependencies(self.all_dependencies_complex)
+
+    def reset_dependency_cache(self) -> None:
+        for attribute in (
+            "dependencies_complex",
+            "dependencies",
+            "all_dependencies_complex",
+            "all_dependencies",
+            "missing_dependencies",
+        ):
+            self.__dict__.pop(attribute, None)
 
     @contextmanager
     def app_status_creation(self):

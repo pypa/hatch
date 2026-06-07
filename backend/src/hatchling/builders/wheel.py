@@ -539,7 +539,16 @@ class WheelBuilder(BuilderInterface):
         return self.build_editable_detection(directory, **build_data)
 
     def build_editable_detection(self, directory: str, **build_data: Any) -> str:
-        from editables import EditableProject
+        try:
+            from editables import EditableProject
+        except ModuleNotFoundError as e:
+            if e.name != "editables":  # no cov
+                raise
+            message = (
+                "Building editable wheels requires the `editables` package. "
+                f"Install `{EDITABLES_REQUIREMENT}` or use a PEP 517 frontend that installs build requirements."
+            )
+            raise RuntimeError(message) from None
 
         build_data["tag"] = self.get_default_tag()
 

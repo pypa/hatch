@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Fixed:***
+
+- Include the `editables` build requirement when wheel targets are configured to build editable wheels.
+
 ## [1.30.1](https://github.com/pypa/hatch/releases/tag/hatchling-v1.30.1) - 2026-06-01 ## {: #hatchling-v1.30.1 }
 
 ***Fixed***

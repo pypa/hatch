@@ -74,7 +74,7 @@ def build(app: Application, location, targets, hooks_only, no_hooks, ext, clean,
         env_vars[AppEnvVars.QUIET] = str(abs(app.verbosity))
 
     with EnvVars(env_vars):
-        app.project.prepare_build_environment(targets=[target.split(":")[0] for target in targets])
+        app.project.prepare_build_environment(targets=list(targets))
 
     build_backend = app.project.metadata.build.build_backend
     with app.project.location.as_cwd(), app.project.build_env.get_env_vars():

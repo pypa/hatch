@@ -4,6 +4,7 @@ import json
 import os
 
 from hatchling.bridge.app import Application
+from hatchling.builders.constants import EDITABLES_REQUIREMENT
 from hatchling.metadata.core import ProjectMetadata
 from hatchling.plugin.manager import PluginManager
 
@@ -20,7 +21,8 @@ def main() -> None:
     metadata = ProjectMetadata(project_root, plugin_manager)
 
     dependencies: dict[str, None] = {}
-    for target_name in targets:
+    for target in targets:
+        target_name, _, target_version = target.partition(":")
         builder_class = plugin_manager.builder.get(target_name)
         if builder_class is None:
             continue
@@ -30,6 +32,9 @@ def main() -> None:
         )
         for dependency in builder.config.dependencies:
             dependencies[dependency] = None
+        versions = [target_version] if target_version else builder.config.versions
+        if target_name == "wheel" and "editable" in versions and not builder.config.dev_mode_dirs:
+            dependencies[EDITABLES_REQUIREMENT] = None
 
     output = json.dumps(list(dependencies))
     with open(os.path.join(output_dir, "output.json"), "w", encoding="utf-8") as f:

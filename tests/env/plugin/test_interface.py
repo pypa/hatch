@@ -1844,6 +1844,43 @@ feature3 = ["pkg-feature-3{i}"]
         deps = environment.dependencies_complex
         assert any("extra-dep" in str(d) for d in deps)
 
+    def test_reset_dependency_cache(self, temp_dir, isolated_data_dir, platform, temp_application):
+        pyproject = temp_dir / "pyproject.toml"
+        pyproject.write_text("""
+    [project]
+    name = "my-app"
+    version = "0.0.1"
+    """)
+
+        project = Project(temp_dir)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            temp_dir,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        _ = environment.dependencies_complex
+        _ = environment.dependencies
+        _ = environment.all_dependencies_complex
+        _ = environment.all_dependencies
+
+        environment.additional_dependencies = ["extra-dep"]
+        environment.reset_dependency_cache()
+
+        assert any("extra-dep" in str(d) for d in environment.dependencies_complex)
+        assert any("extra-dep" in dependency for dependency in environment.dependencies)
+        assert any("extra-dep" in str(d) for d in environment.all_dependencies_complex)
+        assert any("extra-dep" in dependency for dependency in environment.all_dependencies)
+
 
 class TestScripts:
     @pytest.mark.parametrize("field", ["scripts", "extra-scripts"])

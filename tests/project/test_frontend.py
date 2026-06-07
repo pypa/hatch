@@ -400,3 +400,98 @@ version = "9000.42"
         output = json.loads((output_dir / "output.json").read_text())
 
         assert output == []
+
+    def test_editable_wheel_version(self, temp_dir, temp_dir_data, platform, global_application):
+        project_dir = temp_dir / "project"
+        project_dir.mkdir()
+        (project_dir / "pyproject.toml").write_text(
+            """\
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "foo"
+version = "9000.42"
+
+[tool.hatch.build.targets.wheel]
+versions = ["editable"]
+"""
+        )
+
+        package_dir = project_dir / "foo"
+        package_dir.mkdir()
+        (package_dir / "__init__.py").touch()
+
+        project = Project(project_dir)
+        project.build_env = MockEnvironment(
+            temp_dir,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            temp_dir_data,
+            temp_dir_data,
+            platform,
+            0,
+            global_application,
+        )
+
+        output_dir = temp_dir / "output"
+        output_dir.mkdir()
+        script = project.build_frontend.hatch.scripts.get_build_deps(
+            output_dir=str(output_dir), project_root=str(project_dir), targets=["wheel"]
+        )
+        platform.check_command([sys.executable, "-c", script])
+        output = json.loads((output_dir / "output.json").read_text())
+
+        assert output == [EDITABLES_REQUIREMENT]
+
+    def test_editable_wheel_version_with_dev_mode_dirs(
+        self, temp_dir, temp_dir_data, platform, global_application
+    ):
+        project_dir = temp_dir / "project"
+        project_dir.mkdir()
+        (project_dir / "pyproject.toml").write_text(
+            """\
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "foo"
+version = "9000.42"
+
+[tool.hatch.build.targets.wheel]
+versions = ["editable"]
+dev-mode-dirs = ["."]
+"""
+        )
+
+        package_dir = project_dir / "foo"
+        package_dir.mkdir()
+        (package_dir / "__init__.py").touch()
+
+        project = Project(project_dir)
+        project.build_env = MockEnvironment(
+            temp_dir,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            temp_dir_data,
+            temp_dir_data,
+            platform,
+            0,
+            global_application,
+        )
+
+        output_dir = temp_dir / "output"
+        output_dir.mkdir()
+        script = project.build_frontend.hatch.scripts.get_build_deps(
+            output_dir=str(output_dir), project_root=str(project_dir), targets=["wheel"]
+        )
+        platform.check_command([sys.executable, "-c", script])
+        output = json.loads((output_dir / "output.json").read_text())
+
+        assert output == []

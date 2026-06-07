@@ -565,6 +565,24 @@ class BuildConfig:
         return list(dependencies)
 
     @cached_property
+    def dev_mode_dirs(self) -> list[str]:
+        dev_mode_dirs: list[str] = self.__config.get("dev-mode-dirs", [])
+        if not isinstance(dev_mode_dirs, list):
+            message = "Field `tool.hatch.build.dev-mode-dirs` must be an array of strings"
+            raise TypeError(message)
+
+        for i, dev_mode_dir in enumerate(dev_mode_dirs, 1):
+            if not isinstance(dev_mode_dir, str):
+                message = f"Directory #{i} in field `tool.hatch.build.dev-mode-dirs` must be a string"
+                raise TypeError(message)
+
+            if not dev_mode_dir:
+                message = f"Directory #{i} in field `tool.hatch.build.dev-mode-dirs` cannot be an empty string"
+                raise ValueError(message)
+
+        return list(dev_mode_dirs)
+
+    @cached_property
     def hook_config(self) -> dict[str, dict[str, Any]]:
         hook_config: dict[str, dict[str, Any]] = self.__config.get("hooks", {})
         if not isinstance(hook_config, dict):
@@ -633,6 +651,53 @@ class BuildTargetConfig:
         all_dependencies = list(self.__global_config.dependencies)
         all_dependencies.extend(dependencies)
         return all_dependencies
+
+    @cached_property
+    def versions(self) -> list[str]:
+        versions: list[str] = self.__config.get("versions", [])
+        if not isinstance(versions, list):
+            message = f"Field `tool.hatch.build.targets.{self.__name}.versions` must be an array of strings"
+            raise TypeError(message)
+
+        for i, version in enumerate(versions, 1):
+            if not isinstance(version, str):
+                message = (
+                    f"Version #{i} in field `tool.hatch.build.targets.{self.__name}.versions` must be a string"
+                )
+                raise TypeError(message)
+
+            if not version:
+                message = (
+                    f"Version #{i} in field `tool.hatch.build.targets.{self.__name}.versions` "
+                    f"cannot be an empty string"
+                )
+                raise ValueError(message)
+
+        return list(versions)
+
+    @cached_property
+    def dev_mode_dirs(self) -> list[str]:
+        if "dev-mode-dirs" in self.__config:
+            dev_mode_dirs: list[str] = self.__config["dev-mode-dirs"]
+            location = f"tool.hatch.build.targets.{self.__name}.dev-mode-dirs"
+        else:
+            dev_mode_dirs = self.__global_config.dev_mode_dirs
+            location = "tool.hatch.build.dev-mode-dirs"
+
+        if not isinstance(dev_mode_dirs, list):
+            message = f"Field `{location}` must be an array of strings"
+            raise TypeError(message)
+
+        for i, dev_mode_dir in enumerate(dev_mode_dirs, 1):
+            if not isinstance(dev_mode_dir, str):
+                message = f"Directory #{i} in field `{location}` must be a string"
+                raise TypeError(message)
+
+            if not dev_mode_dir:
+                message = f"Directory #{i} in field `{location}` cannot be an empty string"
+                raise ValueError(message)
+
+        return list(dev_mode_dirs)
 
     @cached_property
     def hook_config(self) -> dict[str, dict[str, Any]]:

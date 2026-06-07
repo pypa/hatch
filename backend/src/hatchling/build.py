@@ -38,10 +38,19 @@ def get_requires_for_build_wheel(config_settings: dict[str, Any] | None = None) 
     """
     https://peps.python.org/pep-0517/#get-requires-for-build-wheel
     """
+    from hatchling.builders.constants import EDITABLES_REQUIREMENT
     from hatchling.builders.wheel import WheelBuilder
 
     builder = WheelBuilder(os.getcwd())
-    return builder.config.dependencies
+    dependencies = list(builder.config.dependencies)
+    if (
+        "editable" in builder.config.versions
+        and not builder.config.dev_mode_dirs
+        and EDITABLES_REQUIREMENT not in dependencies
+    ):
+        dependencies.append(EDITABLES_REQUIREMENT)
+
+    return dependencies
 
 
 def build_wheel(
