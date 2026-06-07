@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Fixed:***
+
+- Fix self-referencing extras being skipped when static optional dependencies are used with metadata hooks
+
 ## [1.17.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.17.0) - 2026-05-31 ## {: #hatch-v1.17.0 }
 
 ***Changed:***

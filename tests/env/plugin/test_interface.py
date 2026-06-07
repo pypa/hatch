@@ -1541,6 +1541,59 @@ feature3 = ["pkg-feature-3{i}"]
         # Should have my-app[test] which will cause pip to install pytest
         assert any("pytest" in dep.lower() for dep in all_deps_str)
 
+    def test_self_referencing_dependency_with_extras_and_metadata_hook(
+        self, temp_dir, isolated_data_dir, platform, global_application
+    ):
+        project_dir = temp_dir / "my-app"
+        project_dir.mkdir()
+
+        config = {
+            "project": {
+                "name": "my-app",
+                "version": "0.0.1",
+                "dependencies": [],
+                "optional-dependencies": {
+                    "test": ["pytest>=7.0"],
+                },
+            },
+            "tool": {
+                "hatch": {
+                    "metadata": {
+                        "hooks": {
+                            "docstring-description": {},
+                        },
+                    },
+                    "envs": {
+                        "dev": {
+                            "skip-install": False,
+                            "dependencies": ["my-app[test]"],
+                        }
+                    },
+                }
+            },
+        }
+
+        project = Project(project_dir, config=config)
+        global_application.project = project
+
+        environment = MockEnvironment(
+            project_dir,
+            project.metadata,
+            "dev",
+            project.config.envs["dev"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            global_application,
+        )
+
+        all_deps_str = [str(d) for d in environment.all_dependencies_complex]
+
+        assert any("my-app" in dep and "file://" in dep for dep in all_deps_str)
+        assert any("pytest" in dep.lower() for dep in all_deps_str)
+
     def test_dev_mode_true_returns_editable(self, temp_dir, isolated_data_dir, platform, temp_application):
         """Verify dev-mode=true creates editable local dependency."""
         # Create a pyproject.toml file so skip_install defaults to False
