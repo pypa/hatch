@@ -187,13 +187,13 @@ class TestEnsureCWD:
 
 class TestCheckHatchVersion:
     @staticmethod
-    def _setup_project(temp_dir, *, requires=None):
+    def _setup_project(temp_dir, *, requires_hatch=None):
         project_file = temp_dir / "pyproject.toml"
         project_file.touch()
         project = Project(temp_dir)
         project.find_project_root()
 
-        hatch_config = {} if requires is None else {"requires": requires}
+        hatch_config = {} if requires_hatch is None else {"requires_hatch": requires_hatch}
         project.save_config({
             "project": {"name": "foo", "version": "0.0.1"},
             "tool": {"hatch": hatch_config},
@@ -201,7 +201,7 @@ class TestCheckHatchVersion:
         return project
 
     def test_satisfied(self, temp_dir, mocker):
-        project = self._setup_project(temp_dir, requires=">=1")
+        project = self._setup_project(temp_dir, requires_hatch=">=1")
         app = mocker.MagicMock()
         project.set_app(app)
         mocker.patch("hatch._version.__version__", "1.18.0")
@@ -211,7 +211,7 @@ class TestCheckHatchVersion:
         app.abort.assert_not_called()
 
     def test_unsatisfied(self, temp_dir, mocker):
-        project = self._setup_project(temp_dir, requires=">99")
+        project = self._setup_project(temp_dir, requires_hatch=">99")
         app = mocker.MagicMock()
         project.set_app(app)
         mocker.patch("hatch._version.__version__", "1.18.0")
@@ -234,7 +234,7 @@ class TestCheckHatchVersion:
         app.abort.assert_not_called()
 
     def test_prerelease_current_version_allowed(self, temp_dir, mocker):
-        project = self._setup_project(temp_dir, requires=">=1")
+        project = self._setup_project(temp_dir, requires_hatch=">=1")
         app = mocker.MagicMock()
         project.set_app(app)
         mocker.patch("hatch._version.__version__", "2.0.0rc1")
