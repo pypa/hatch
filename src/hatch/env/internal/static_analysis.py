@@ -41,4 +41,4 @@ def get_check_fmt_config() -> dict[str, Any]:
     }
 
 
-RUFF_DEFAULT_VERSION: str = "0.13.2"
+RUFF_DEFAULT_VERSION: str = "0.15.12"
