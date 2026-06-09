@@ -44,9 +44,7 @@ class TestParseSource:
             parse_source("foo", {"path": "./foo", "git": "https://example.com/foo"})
 
     def test_path_full(self):
-        source = parse_source(
-            "foo", {"path": "./packages/foo", "editable": False, "subdirectory": "src"}
-        )
+        source = parse_source("foo", {"path": "./packages/foo", "editable": False, "subdirectory": "src"})
 
         assert isinstance(source, PathSource)
         assert source.path == "./packages/foo"
@@ -104,9 +102,7 @@ class TestParseSource:
             parse_source("foo", {"git": ""})
 
     def test_url(self):
-        source = parse_source(
-            "foo", {"url": "https://example.com/foo.tar.gz", "subdirectory": "pkg"}
-        )
+        source = parse_source("foo", {"url": "https://example.com/foo.tar.gz", "subdirectory": "pkg"})
 
         assert isinstance(source, UrlSource)
         assert source.url == "https://example.com/foo.tar.gz"
@@ -357,8 +353,10 @@ class TestCollectGlobalInstallArgs:
         ]
 
         assert collect_global_install_args(sources) == [
-            "--extra-index-url", "https://example.com/a",
-            "--extra-index-url", "https://example.com/b",
+            "--extra-index-url",
+            "https://example.com/a",
+            "--extra-index-url",
+            "https://example.com/b",
         ]
 
     def test_dedupe(self):
@@ -368,7 +366,8 @@ class TestCollectGlobalInstallArgs:
         ]
 
         assert collect_global_install_args(sources) == [
-            "--extra-index-url", "https://example.com/a",
+            "--extra-index-url",
+            "https://example.com/a",
         ]
 
     def test_non_index_sources_ignored(self):

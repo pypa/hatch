@@ -110,9 +110,7 @@ def _parse_git_source(name: str, raw: dict[str, Any]) -> GitSource:
 
     ref_kinds = [k for k in ("rev", "tag", "branch") if k in raw]
     if len(ref_kinds) > 1:
-        message = (
-            f"Field `{field_prefix}` must define only one of: {', '.join(ref_kinds)}"
-        )
+        message = f"Field `{field_prefix}` must define only one of: {', '.join(ref_kinds)}"
         raise ValueError(message)
 
     rev = _check_optional_str(raw.get("rev"), f"{field_prefix}.rev")
@@ -190,15 +188,11 @@ def parse_source(name: str, raw: Any) -> Source:
 
     found_types = [k for k in _TYPE_KEYS if k in raw]
     if not found_types:
-        message = (
-            f"Field `{field_prefix}` must define exactly one of: {', '.join(_TYPE_KEYS)}"
-        )
+        message = f"Field `{field_prefix}` must define exactly one of: {', '.join(_TYPE_KEYS)}"
         raise ValueError(message)
 
     if len(found_types) > 1:
-        message = (
-            f"Field `{field_prefix}` must define only one of: {', '.join(found_types)}"
-        )
+        message = f"Field `{field_prefix}` must define only one of: {', '.join(found_types)}"
         raise ValueError(message)
 
     return _SOURCE_PARSERS[found_types[0]](name, raw)
@@ -234,9 +228,7 @@ def parse_sources(config: Any) -> dict[str, Source]:
         sources[normalized] = parse_source(name, raw)
 
     duplicates = [
-        f"{normed} ({', '.join(originals)})"
-        for normed, originals in original_names.items()
-        if len(originals) > 1
+        f"{normed} ({', '.join(originals)})" for normed, originals in original_names.items() if len(originals) > 1
     ]
     if duplicates:
         message = f"Field `tool.hatch.sources` contains duplicate names: {', '.join(duplicates)}"
@@ -296,9 +288,7 @@ def lookup(sources: Mapping[str, Source], name: str) -> Source | None:
     return sources.get(normalize_project_name(name))
 
 
-def apply_source_to_requirement(
-    name: str, extras: list[str], source: Source, root: str
-) -> tuple[str, bool] | None:
+def apply_source_to_requirement(name: str, extras: list[str], source: Source, root: str) -> tuple[str, bool] | None:
     """
     Rewrite a requirement so it points at the given source. Returns a tuple of
     `(requirement_string, editable)` suitable for constructing a new `Dependency`,
@@ -356,9 +346,7 @@ def decorate_dependency(dependency, sources: Mapping[str, Source], root: str):
     if source is None:
         return dependency
 
-    rewritten = apply_source_to_requirement(
-        dependency.name, list(dependency.extras), source, root
-    )
+    rewritten = apply_source_to_requirement(dependency.name, list(dependency.extras), source, root)
     if rewritten is None:
         # `IndexSource` and `WorkspaceSource` do not change the requirement
         # string. Attach the source so install logic can act on it.

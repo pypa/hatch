@@ -390,9 +390,7 @@ class EnvironmentInterface(ABC):
 
             group_deps: list[Dependency] = []
             for dependency_group in self.dependency_groups:
-                group_deps.extend(
-                    get_complex_dependency_group(self.app.project.dependency_groups, dependency_group)
-                )
+                group_deps.extend(get_complex_dependency_group(self.app.project.dependency_groups, dependency_group))
             all_dependencies_complex.extend(decorate_dependencies(group_deps, self.sources, str(self.root)))
 
         if self.builder:
@@ -968,7 +966,8 @@ class EnvironmentInterface(ABC):
         command.extend(args)
         return command
 
-    def get_source_install_args(self, dependencies: list[Dependency]) -> list[str]:
+    @staticmethod
+    def get_source_install_args(dependencies: list[Dependency]) -> list[str]:
         """
         Returns global installer flags derived from any
         [sources](../../config/dependency.md#sources) attached to the given

@@ -3782,9 +3782,7 @@ class TestEnvironmentSources:
         assert deps[0].editable is True
         assert isinstance(deps[0].source, PathSource)
 
-    def test_index_source_attached_without_url_change(
-        self, isolation, isolated_data_dir, platform, temp_application
-    ):
+    def test_index_source_attached_without_url_change(self, isolation, isolated_data_dir, platform, temp_application):
         from hatch.project.sources import IndexSource
 
         config = {
