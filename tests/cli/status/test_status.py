@@ -7,7 +7,7 @@ from hatch.utils.structures import EnvVars
 
 class TestModeLocalDefault:
     def test_no_project(self, hatch, isolation, config_file, helpers):
-        result = hatch('status')
+        result = hatch("status")
 
         assert result.exit_code == 0, result.output
         assert result.output == helpers.dedent(
@@ -19,11 +19,11 @@ class TestModeLocalDefault:
         )
 
     def test_found_project(self, hatch, temp_dir, config_file, helpers):
-        project_file = temp_dir / 'pyproject.toml'
+        project_file = temp_dir / "pyproject.toml"
         project_file.touch()
 
         with temp_dir.as_cwd():
-            result = hatch('status')
+            result = hatch("status")
 
         assert result.exit_code == 0, result.output
         assert result.output == helpers.dedent(
@@ -36,16 +36,16 @@ class TestModeLocalDefault:
 
 
 class TestProjectExplicit:
-    @pytest.mark.parametrize('file_name', ['pyproject.toml', 'setup.py'])
+    @pytest.mark.parametrize("file_name", ["pyproject.toml", "setup.py"])
     def test_found_project_flag(self, hatch, temp_dir, config_file, helpers, file_name):
         project_file = temp_dir / file_name
         project_file.touch()
 
-        project = 'foo'
+        project = "foo"
         config_file.model.projects = {project: str(temp_dir)}
         config_file.save()
 
-        result = hatch('-p', project, 'status')
+        result = hatch("-p", project, "status")
 
         assert result.exit_code == 0, result.output
         assert result.output == helpers.dedent(
@@ -56,17 +56,17 @@ class TestProjectExplicit:
             """
         )
 
-    @pytest.mark.parametrize('file_name', ['pyproject.toml', 'setup.py'])
+    @pytest.mark.parametrize("file_name", ["pyproject.toml", "setup.py"])
     def test_found_project_env(self, hatch, temp_dir, config_file, helpers, file_name):
         project_file = temp_dir / file_name
         project_file.touch()
 
-        project = 'foo'
+        project = "foo"
         config_file.model.projects = {project: str(temp_dir)}
         config_file.save()
 
         with EnvVars({ConfigEnvVars.PROJECT: project}):
-            result = hatch('status')
+            result = hatch("status")
 
         assert result.exit_code == 0, result.output
         assert result.output == helpers.dedent(
@@ -78,30 +78,30 @@ class TestProjectExplicit:
         )
 
     def test_unknown_project(self, hatch):
-        project = 'foo'
-        result = hatch('-p', project, 'status')
+        project = "foo"
+        result = hatch("-p", project, "status")
 
         assert result.exit_code == 1
-        assert result.output == f'Unable to locate project {project}\n'
+        assert result.output == f"Unable to locate project {project}\n"
 
     def test_not_a_project(self, hatch, temp_dir, config_file):
-        project = 'foo'
+        project = "foo"
         config_file.model.project = project
         config_file.model.projects = {project: str(temp_dir)}
         config_file.save()
 
-        result = hatch('-p', project, 'status')
+        result = hatch("-p", project, "status")
 
         assert result.exit_code == 1
-        assert result.output == f'Unable to locate project {project}\n'
+        assert result.output == f"Unable to locate project {project}\n"
 
 
 class TestModeProject:
     def test_no_project(self, hatch, isolation, config_file, helpers):
-        config_file.model.mode = 'project'
+        config_file.model.mode = "project"
         config_file.save()
 
-        result = hatch('status')
+        result = hatch("status")
 
         assert result.exit_code == 0, result.output
         assert result.output == helpers.dedent(
@@ -114,12 +114,12 @@ class TestModeProject:
         )
 
     def test_unknown_project(self, hatch, isolation, config_file, helpers):
-        project = 'foo'
-        config_file.model.mode = 'project'
+        project = "foo"
+        config_file.model.mode = "project"
         config_file.model.project = project
         config_file.save()
 
-        result = hatch('status')
+        result = hatch("status")
 
         assert result.exit_code == 0, result.output
         assert result.output == helpers.dedent(
@@ -132,13 +132,13 @@ class TestModeProject:
         )
 
     def test_not_a_project(self, hatch, temp_dir, config_file, helpers):
-        project = 'foo'
-        config_file.model.mode = 'project'
+        project = "foo"
+        config_file.model.mode = "project"
         config_file.model.project = project
         config_file.model.projects = {project: str(temp_dir)}
         config_file.save()
 
-        result = hatch('status')
+        result = hatch("status")
 
         assert result.exit_code == 0, result.output
         assert result.output == helpers.dedent(
@@ -149,18 +149,18 @@ class TestModeProject:
             """
         )
 
-    @pytest.mark.parametrize('file_name', ['pyproject.toml', 'setup.py'])
+    @pytest.mark.parametrize("file_name", ["pyproject.toml", "setup.py"])
     def test_found_project(self, hatch, temp_dir, config_file, helpers, file_name):
         project_file = temp_dir / file_name
         project_file.touch()
 
-        project = 'foo'
-        config_file.model.mode = 'project'
+        project = "foo"
+        config_file.model.mode = "project"
         config_file.model.project = project
         config_file.model.projects = {project: str(temp_dir)}
         config_file.save()
 
-        result = hatch('status')
+        result = hatch("status")
 
         assert result.exit_code == 0, result.output
         assert result.output == helpers.dedent(
@@ -174,10 +174,10 @@ class TestModeProject:
 
 class TestModeAware:
     def test_no_detection_no_project(self, hatch, config_file, helpers, isolation):
-        config_file.model.mode = 'aware'
+        config_file.model.mode = "aware"
         config_file.save()
 
-        result = hatch('status')
+        result = hatch("status")
 
         assert result.exit_code == 0, result.output
         assert result.output == helpers.dedent(
@@ -190,12 +190,12 @@ class TestModeAware:
         )
 
     def test_unknown_project(self, hatch, isolation, config_file, helpers):
-        project = 'foo'
+        project = "foo"
         config_file.model.project = project
-        config_file.model.mode = 'aware'
+        config_file.model.mode = "aware"
         config_file.save()
 
-        result = hatch('status')
+        result = hatch("status")
 
         assert result.exit_code == 0, result.output
         assert result.output == helpers.dedent(
@@ -208,13 +208,13 @@ class TestModeAware:
         )
 
     def test_not_a_project(self, hatch, temp_dir, config_file, helpers):
-        project = 'foo'
+        project = "foo"
         config_file.model.project = project
         config_file.model.projects = {project: str(temp_dir)}
-        config_file.model.mode = 'aware'
+        config_file.model.mode = "aware"
         config_file.save()
 
-        result = hatch('status')
+        result = hatch("status")
 
         assert result.exit_code == 0, result.output
         assert result.output == helpers.dedent(
@@ -225,18 +225,18 @@ class TestModeAware:
             """
         )
 
-    @pytest.mark.parametrize('file_name', ['pyproject.toml', 'setup.py'])
+    @pytest.mark.parametrize("file_name", ["pyproject.toml", "setup.py"])
     def test_found_project(self, hatch, temp_dir, config_file, helpers, file_name):
         project_file = temp_dir / file_name
         project_file.touch()
 
-        project = 'foo'
+        project = "foo"
         config_file.model.project = project
         config_file.model.projects = {project: str(temp_dir)}
-        config_file.model.mode = 'aware'
+        config_file.model.mode = "aware"
         config_file.save()
 
-        result = hatch('status')
+        result = hatch("status")
 
         assert result.exit_code == 0, result.output
         assert result.output == helpers.dedent(
@@ -248,18 +248,18 @@ class TestModeAware:
         )
 
     def test_local_override(self, hatch, temp_dir, config_file, helpers):
-        project_file = temp_dir / 'pyproject.toml'
+        project_file = temp_dir / "pyproject.toml"
         project_file.touch()
 
-        project = 'foo'
+        project = "foo"
         config_file.model.project = project
         config_file.model.projects = {project: str(temp_dir)}
-        config_file.model.mode = 'aware'
+        config_file.model.mode = "aware"
         config_file.save()
 
         with temp_chdir() as d:
-            d.joinpath('pyproject.toml').touch()
-            result = hatch('status')
+            d.joinpath("pyproject.toml").touch()
+            result = hatch("status")
 
         assert result.exit_code == 0, result.output
         assert result.output == helpers.dedent(

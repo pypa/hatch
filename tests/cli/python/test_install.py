@@ -10,9 +10,9 @@ from hatch.python.resolve import get_distribution
 
 
 def test_unknown(hatch, helpers, path_append, mocker):
-    install = mocker.patch('hatch.python.core.PythonManager.install')
+    install = mocker.patch("hatch.python.core.PythonManager.install")
 
-    result = hatch('python', 'install', 'foo', 'bar')
+    result = hatch("python", "install", "foo", "bar")
 
     assert result.exit_code == 1, result.output
     assert result.output == helpers.dedent(
@@ -26,10 +26,10 @@ def test_unknown(hatch, helpers, path_append, mocker):
 
 
 def test_incompatible_single(hatch, helpers, path_append, dist_name, mocker):
-    mocker.patch('hatch.python.resolve.get_distribution', side_effect=PythonDistributionResolutionError)
-    install = mocker.patch('hatch.python.core.PythonManager.install')
+    mocker.patch("hatch.python.resolve.get_distribution", side_effect=PythonDistributionResolutionError)
+    install = mocker.patch("hatch.python.core.PythonManager.install")
 
-    result = hatch('python', 'install', dist_name)
+    result = hatch("python", "install", dist_name)
 
     assert result.exit_code == 1, result.output
     assert result.output == helpers.dedent(
@@ -43,15 +43,15 @@ def test_incompatible_single(hatch, helpers, path_append, dist_name, mocker):
 
 
 def test_incompatible_all(hatch, helpers, path_append, mocker):
-    mocker.patch('hatch.python.resolve.get_distribution', side_effect=PythonDistributionResolutionError)
-    install = mocker.patch('hatch.python.core.PythonManager.install')
+    mocker.patch("hatch.python.resolve.get_distribution", side_effect=PythonDistributionResolutionError)
+    install = mocker.patch("hatch.python.core.PythonManager.install")
 
-    result = hatch('python', 'install', 'all')
+    result = hatch("python", "install", "all")
 
     assert result.exit_code == 1, result.output
     assert result.output == helpers.dedent(
         f"""
-        Incompatible distributions: {', '.join(ORDERED_DISTRIBUTIONS)}
+        Incompatible distributions: {", ".join(ORDERED_DISTRIBUTIONS)}
         """
     )
 
@@ -63,13 +63,13 @@ def test_incompatible_all(hatch, helpers, path_append, mocker):
 def test_installation(
     hatch, helpers, temp_dir_data, platform, path_append, default_shells, compatible_python_distributions
 ):
-    selection = [name for name in compatible_python_distributions if not name.startswith('pypy')]
+    selection = [name for name in compatible_python_distributions if not name.startswith("pypy")]
     dist_name = secrets.choice(selection)
-    result = hatch('python', 'install', dist_name)
+    result = hatch("python", "install", dist_name)
 
-    install_dir = temp_dir_data / 'data' / 'pythons' / dist_name
+    install_dir = temp_dir_data / "data" / "pythons" / dist_name
     metadata_file = install_dir / InstalledDistribution.metadata_filename()
-    python_path = install_dir / json.loads(metadata_file.read_text())['python_path']
+    python_path = install_dir / json.loads(metadata_file.read_text())["python_path"]
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -85,21 +85,21 @@ def test_installation(
 
     assert python_path.is_file()
 
-    output = platform.check_command_output([python_path, '-c', 'import sys;print(sys.executable)']).strip()
+    output = platform.check_command_output([python_path, "-c", "import sys;print(sys.executable)"]).strip()
     assert output == str(python_path)
 
-    output = platform.check_command_output([python_path, '--version']).strip()
-    assert output.startswith(f'Python {dist_name}.')
+    output = platform.check_command_output([python_path, "--version"]).strip()
+    assert output.startswith(f"Python {dist_name}.")
 
     path_append.assert_called_once_with(str(python_path.parent), shells=default_shells)
 
 
 def test_already_installed_latest(hatch, helpers, temp_dir_data, path_append, dist_name, mocker):
-    install = mocker.patch('hatch.python.core.PythonManager.install')
-    install_dir = temp_dir_data / 'data' / 'pythons'
+    install = mocker.patch("hatch.python.core.PythonManager.install")
+    install_dir = temp_dir_data / "data" / "pythons"
     installed_dist = helpers.write_distribution(install_dir, dist_name)
 
-    result = hatch('python', 'install', dist_name)
+    result = hatch("python", "install", dist_name)
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -113,12 +113,12 @@ def test_already_installed_latest(hatch, helpers, temp_dir_data, path_append, di
 
 
 def test_already_installed_update_disabled(hatch, helpers, temp_dir_data, path_append, dist_name, mocker):
-    install = mocker.patch('hatch.python.core.PythonManager.install')
-    install_dir = temp_dir_data / 'data' / 'pythons'
+    install = mocker.patch("hatch.python.core.PythonManager.install")
+    install_dir = temp_dir_data / "data" / "pythons"
     helpers.write_distribution(install_dir, dist_name)
     helpers.downgrade_distribution_metadata(install_dir / dist_name)
 
-    result = hatch('python', 'install', dist_name, input='n\n')
+    result = hatch("python", "install", dist_name, input="n\n")
 
     assert result.exit_code == 1, result.output
     assert result.output == helpers.dedent(
@@ -133,17 +133,17 @@ def test_already_installed_update_disabled(hatch, helpers, temp_dir_data, path_a
 
 
 def test_already_installed_update_prompt(hatch, helpers, temp_dir_data, path_append, default_shells, dist_name, mocker):
-    install_dir = temp_dir_data / 'data' / 'pythons'
+    install_dir = temp_dir_data / "data" / "pythons"
     helpers.write_distribution(install_dir, dist_name)
 
     dist_dir = install_dir / dist_name
     metadata = helpers.downgrade_distribution_metadata(dist_dir)
-    python_path = dist_dir / metadata['python_path']
+    python_path = dist_dir / metadata["python_path"]
     install = mocker.patch(
-        'hatch.python.core.PythonManager.install', return_value=mocker.MagicMock(path=dist_dir, python_path=python_path)
+        "hatch.python.core.PythonManager.install", return_value=mocker.MagicMock(path=dist_dir, python_path=python_path)
     )
 
-    result = hatch('python', 'install', dist_name, input='y\n')
+    result = hatch("python", "install", dist_name, input="y\n")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -163,17 +163,17 @@ def test_already_installed_update_prompt(hatch, helpers, temp_dir_data, path_app
 
 
 def test_already_installed_update_flag(hatch, helpers, temp_dir_data, path_append, default_shells, dist_name, mocker):
-    install_dir = temp_dir_data / 'data' / 'pythons'
+    install_dir = temp_dir_data / "data" / "pythons"
     helpers.write_distribution(install_dir, dist_name)
 
     dist_dir = install_dir / dist_name
     metadata = helpers.downgrade_distribution_metadata(dist_dir)
-    python_path = dist_dir / metadata['python_path']
+    python_path = dist_dir / metadata["python_path"]
     install = mocker.patch(
-        'hatch.python.core.PythonManager.install', return_value=mocker.MagicMock(path=dist_dir, python_path=python_path)
+        "hatch.python.core.PythonManager.install", return_value=mocker.MagicMock(path=dist_dir, python_path=python_path)
     )
 
-    result = hatch('python', 'install', '--update', dist_name)
+    result = hatch("python", "install", "--update", dist_name)
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -191,16 +191,16 @@ def test_already_installed_update_flag(hatch, helpers, temp_dir_data, path_appen
     path_append.assert_called_once_with(str(python_path.parent), shells=default_shells)
 
 
-@pytest.mark.parametrize('detector', ['in_current_path', 'in_new_path'])
+@pytest.mark.parametrize("detector", ["in_current_path", "in_new_path"])
 def test_already_in_path(hatch, helpers, temp_dir_data, path_append, mocker, detector, dist_name):
-    mocker.patch(f'userpath.{detector}', return_value=True)
-    dist_dir = temp_dir_data / 'data' / 'pythons' / dist_name
+    mocker.patch(f"userpath.{detector}", return_value=True)
+    dist_dir = temp_dir_data / "data" / "pythons" / dist_name
     python_path = dist_dir / get_distribution(dist_name).python_path
     install = mocker.patch(
-        'hatch.python.core.PythonManager.install', return_value=mocker.MagicMock(path=dist_dir, python_path=python_path)
+        "hatch.python.core.PythonManager.install", return_value=mocker.MagicMock(path=dist_dir, python_path=python_path)
     )
 
-    result = hatch('python', 'install', dist_name)
+    result = hatch("python", "install", dist_name)
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -215,13 +215,13 @@ def test_already_in_path(hatch, helpers, temp_dir_data, path_append, mocker, det
 
 
 def test_private(hatch, helpers, temp_dir_data, path_append, dist_name, mocker):
-    dist_dir = temp_dir_data / 'data' / 'pythons' / dist_name
+    dist_dir = temp_dir_data / "data" / "pythons" / dist_name
     python_path = dist_dir / get_distribution(dist_name).python_path
     install = mocker.patch(
-        'hatch.python.core.PythonManager.install', return_value=mocker.MagicMock(path=dist_dir, python_path=python_path)
+        "hatch.python.core.PythonManager.install", return_value=mocker.MagicMock(path=dist_dir, python_path=python_path)
     )
 
-    result = hatch('python', 'install', '--private', dist_name)
+    result = hatch("python", "install", "--private", dist_name)
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -236,14 +236,14 @@ def test_private(hatch, helpers, temp_dir_data, path_append, dist_name, mocker):
 
 
 def test_specific_location(hatch, helpers, temp_dir_data, path_append, dist_name, mocker):
-    install_dir = temp_dir_data / 'foo' / 'bar' / 'baz'
+    install_dir = temp_dir_data / "foo" / "bar" / "baz"
     dist_dir = install_dir / dist_name
     python_path = dist_dir / get_distribution(dist_name).python_path
     install = mocker.patch(
-        'hatch.python.core.PythonManager.install', return_value=mocker.MagicMock(path=dist_dir, python_path=python_path)
+        "hatch.python.core.PythonManager.install", return_value=mocker.MagicMock(path=dist_dir, python_path=python_path)
     )
 
-    result = hatch('python', 'install', '--private', '-d', str(install_dir), dist_name)
+    result = hatch("python", "install", "--private", "-d", str(install_dir), dist_name)
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -260,29 +260,29 @@ def test_specific_location(hatch, helpers, temp_dir_data, path_append, dist_name
 def test_all(hatch, temp_dir_data, path_append, default_shells, mocker, compatible_python_distributions):
     mocked_dists = []
     for name in compatible_python_distributions:
-        dist_dir = temp_dir_data / 'data' / 'pythons' / name
+        dist_dir = temp_dir_data / "data" / "pythons" / name
         python_path = dist_dir / get_distribution(name).python_path
         mocked_dists.append(mocker.MagicMock(path=dist_dir, python_path=python_path))
 
-    install = mocker.patch('hatch.python.core.PythonManager.install', side_effect=mocked_dists)
+    install = mocker.patch("hatch.python.core.PythonManager.install", side_effect=mocked_dists)
 
-    result = hatch('python', 'install', 'all')
+    result = hatch("python", "install", "all")
 
     assert result.exit_code == 0, result.output
 
     expected_lines = []
     for dist in mocked_dists:
-        expected_lines.extend((f'Installing {dist.path.name}', f'Installed {dist.path.name} @ {dist.path}'))
+        expected_lines.extend((f"Installing {dist.path.name}", f"Installed {dist.path.name} @ {dist.path}"))
 
     expected_lines.extend((
-        '',
-        'The following directories have been added to your PATH (pending a shell restart):',
-        '',
+        "",
+        "The following directories have been added to your PATH (pending a shell restart):",
+        "",
     ))
     expected_lines.extend(str(dist.python_path.parent) for dist in mocked_dists)
-    expected_lines.append('')
+    expected_lines.append("")
 
-    assert result.output == '\n'.join(expected_lines)
+    assert result.output == "\n".join(expected_lines)
 
     assert install.call_args_list == [mocker.call(name) for name in compatible_python_distributions]
     assert path_append.call_args_list == [

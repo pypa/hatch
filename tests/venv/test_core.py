@@ -10,23 +10,23 @@ from hatch.venv.core import VirtualEnv
 
 
 def test_initialization_does_not_create(temp_dir, platform):
-    venv_dir = temp_dir / 'venv'
+    venv_dir = temp_dir / "venv"
     venv = VirtualEnv(venv_dir, platform)
 
     assert not venv.exists()
 
-    with pytest.raises(OSError, match=f'Unable to locate executables directory within: {re.escape(str(venv_dir))}'):
+    with pytest.raises(OSError, match=f"Unable to locate executables directory within: {re.escape(str(venv_dir))}"):
         _ = venv.executables_directory
 
 
 def test_remove_non_existent_no_error(temp_dir, platform):
-    venv_dir = temp_dir / 'venv'
+    venv_dir = temp_dir / "venv"
     venv = VirtualEnv(venv_dir, platform)
     venv.remove()
 
 
 def test_creation(temp_dir, platform):
-    venv_dir = temp_dir / 'venv'
+    venv_dir = temp_dir / "venv"
     venv = VirtualEnv(venv_dir, platform)
     venv.create(sys.executable)
 
@@ -35,124 +35,124 @@ def test_creation(temp_dir, platform):
 
 
 def test_executables_directory(temp_dir, platform):
-    venv_dir = temp_dir / 'venv'
+    venv_dir = temp_dir / "venv"
     venv = VirtualEnv(venv_dir, platform)
     venv.create(sys.executable)
 
     assert venv.executables_directory.is_dir()
     for entry in venv.executables_directory.iterdir():
-        if entry.name.startswith('py'):
+        if entry.name.startswith("py"):
             break
     else:  # no cov
-        msg = 'Unable to locate Python executable'
+        msg = "Unable to locate Python executable"
         raise AssertionError(msg)
 
 
 def test_activation(temp_dir, platform):
-    venv_dir = temp_dir / 'venv'
+    venv_dir = temp_dir / "venv"
     venv = VirtualEnv(venv_dir, platform)
     venv.create(sys.executable)
 
     with EnvVars(exclude=VirtualEnv.IGNORED_ENV_VARS):
-        os.environ['PATH'] = str(temp_dir)
-        os.environ['VIRTUAL_ENV'] = 'foo'
+        os.environ["PATH"] = str(temp_dir)
+        os.environ["VIRTUAL_ENV"] = "foo"
         for env_var in VirtualEnv.IGNORED_ENV_VARS:
-            os.environ[env_var] = 'foo'
+            os.environ[env_var] = "foo"
 
         venv.activate()
 
-        assert os.environ['PATH'] == f'{venv.executables_directory}{os.pathsep}{temp_dir}'
-        assert os.environ['VIRTUAL_ENV'] == str(venv_dir)
+        assert os.environ["PATH"] == f"{venv.executables_directory}{os.pathsep}{temp_dir}"
+        assert os.environ["VIRTUAL_ENV"] == str(venv_dir)
         for env_var in VirtualEnv.IGNORED_ENV_VARS:
             assert env_var not in os.environ
 
         venv.deactivate()
 
-        assert os.environ['PATH'] == str(temp_dir)
-        assert os.environ['VIRTUAL_ENV'] == 'foo'
+        assert os.environ["PATH"] == str(temp_dir)
+        assert os.environ["VIRTUAL_ENV"] == "foo"
         for env_var in VirtualEnv.IGNORED_ENV_VARS:
-            assert os.environ[env_var] == 'foo'
+            assert os.environ[env_var] == "foo"
 
 
 def test_activation_path_env_var_missing(temp_dir, platform):
-    venv_dir = temp_dir / 'venv'
+    venv_dir = temp_dir / "venv"
     venv = VirtualEnv(venv_dir, platform)
     venv.create(sys.executable)
 
     with EnvVars(exclude=VirtualEnv.IGNORED_ENV_VARS):
-        os.environ.pop('PATH', None)
-        os.environ['VIRTUAL_ENV'] = 'foo'
+        os.environ.pop("PATH", None)
+        os.environ["VIRTUAL_ENV"] = "foo"
         for env_var in VirtualEnv.IGNORED_ENV_VARS:
-            os.environ[env_var] = 'foo'
+            os.environ[env_var] = "foo"
 
         venv.activate()
 
-        assert os.environ['PATH'] == f'{venv.executables_directory}{os.pathsep}{os.defpath}'
-        assert os.environ['VIRTUAL_ENV'] == str(venv_dir)
+        assert os.environ["PATH"] == f"{venv.executables_directory}{os.pathsep}{os.defpath}"
+        assert os.environ["VIRTUAL_ENV"] == str(venv_dir)
         for env_var in VirtualEnv.IGNORED_ENV_VARS:
             assert env_var not in os.environ
 
         venv.deactivate()
 
-        assert 'PATH' not in os.environ
-        assert os.environ['VIRTUAL_ENV'] == 'foo'
+        assert "PATH" not in os.environ
+        assert os.environ["VIRTUAL_ENV"] == "foo"
         for env_var in VirtualEnv.IGNORED_ENV_VARS:
-            assert os.environ[env_var] == 'foo'
+            assert os.environ[env_var] == "foo"
 
 
 def test_context_manager(temp_dir, platform, extract_installed_requirements):
-    venv_dir = temp_dir / 'venv'
+    venv_dir = temp_dir / "venv"
     venv = VirtualEnv(venv_dir, platform)
     venv.create(sys.executable)
 
     with EnvVars(exclude=VirtualEnv.IGNORED_ENV_VARS):
-        os.environ['PATH'] = str(temp_dir)
-        os.environ['VIRTUAL_ENV'] = 'foo'
+        os.environ["PATH"] = str(temp_dir)
+        os.environ["VIRTUAL_ENV"] = "foo"
         for env_var in VirtualEnv.IGNORED_ENV_VARS:
-            os.environ[env_var] = 'foo'
+            os.environ[env_var] = "foo"
 
         with venv:
-            assert os.environ['PATH'] == f'{venv.executables_directory}{os.pathsep}{temp_dir}'
-            assert os.environ['VIRTUAL_ENV'] == str(venv_dir)
+            assert os.environ["PATH"] == f"{venv.executables_directory}{os.pathsep}{temp_dir}"
+            assert os.environ["VIRTUAL_ENV"] == str(venv_dir)
             for env_var in VirtualEnv.IGNORED_ENV_VARS:
                 assert env_var not in os.environ
 
             # Run here while we have cleanup
-            output = platform.run_command(['pip', 'freeze'], check=True, capture_output=True).stdout.decode('utf-8')
+            output = platform.run_command(["pip", "freeze"], check=True, capture_output=True).stdout.decode("utf-8")
             assert not extract_installed_requirements(output.splitlines())
 
-        assert os.environ['PATH'] == str(temp_dir)
-        assert os.environ['VIRTUAL_ENV'] == 'foo'
+        assert os.environ["PATH"] == str(temp_dir)
+        assert os.environ["VIRTUAL_ENV"] == "foo"
         for env_var in VirtualEnv.IGNORED_ENV_VARS:
-            assert os.environ[env_var] == 'foo'
+            assert os.environ[env_var] == "foo"
 
 
 def test_creation_allow_system_packages(temp_dir, platform, extract_installed_requirements):
-    venv_dir = temp_dir / 'venv'
+    venv_dir = temp_dir / "venv"
     venv = VirtualEnv(venv_dir, platform)
     venv.create(sys.executable, allow_system_packages=True)
 
     with venv:
-        output = platform.run_command(['pip', 'freeze'], check=True, capture_output=True).stdout.decode('utf-8')
+        output = platform.run_command(["pip", "freeze"], check=True, capture_output=True).stdout.decode("utf-8")
 
         assert len(extract_installed_requirements(output.splitlines())) > 0
 
 
 def test_python_data(temp_dir, platform):
-    venv_dir = temp_dir / 'venv'
+    venv_dir = temp_dir / "venv"
     venv = VirtualEnv(venv_dir, platform)
     venv.create(sys.executable)
 
     with venv:
         output = platform.run_command(
-            ['python', '-W', 'ignore', '-'],
+            ["python", "-W", "ignore", "-"],
             check=True,
             capture_output=True,
-            input=b'import json,sys;print(json.dumps([path for path in sys.path if path]))',
-        ).stdout.decode('utf-8')
+            input=b"import json,sys;print(json.dumps([path for path in sys.path if path]))",
+        ).stdout.decode("utf-8")
 
         assert venv.environment is venv.environment
         assert venv.sys_path is venv.sys_path
 
-        assert venv.environment['sys_platform'] == sys.platform
+        assert venv.environment["sys_platform"] == sys.platform
         assert venv.sys_path == json.loads(output)

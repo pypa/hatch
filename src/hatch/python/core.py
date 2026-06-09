@@ -43,7 +43,7 @@ class InstalledDistribution:
 
     @classmethod
     def metadata_filename(cls) -> str:
-        return 'hatch-dist.json'
+        return "hatch-dist.json"
 
 
 class PythonManager:
@@ -70,7 +70,7 @@ class PythonManager:
                 continue
 
             metadata = json.loads(metadata_file.read_text())
-            distribution = get_distribution(path.name, source=metadata.get('source', ''))
+            distribution = get_distribution(path.name, source=metadata.get("source", ""))
             if not (path / distribution.python_path).is_file():
                 continue
 
@@ -94,7 +94,7 @@ class PythonManager:
             download_file(archive_path, dist.source, follow_redirects=True)
             dist.unpack(archive_path, unpack_path)
 
-            backup_path = path.with_suffix('.bak')
+            backup_path = path.with_suffix(".bak")
             if backup_path.is_dir():
                 backup_path.wait_for_dir_removed()
 
@@ -115,7 +115,7 @@ class PythonManager:
 
                     raise
 
-        metadata = {'source': dist.source, 'python_path': dist.python_path}
+        metadata = {"source": dist.source, "python_path": dist.python_path}
         metadata_file = path / InstalledDistribution.metadata_filename()
         metadata_file.write_text(json.dumps(metadata, indent=2))
 

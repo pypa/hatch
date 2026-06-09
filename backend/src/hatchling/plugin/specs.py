@@ -1,6 +1,6 @@
 import pluggy
 
-hookspec = pluggy.HookspecMarker('hatch')
+hookspec = pluggy.HookspecMarker("hatch")
 
 
 @hookspec

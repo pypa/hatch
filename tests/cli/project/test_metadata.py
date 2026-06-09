@@ -6,38 +6,39 @@ from hatch.config.constants import ConfigEnvVars
 from hatch.project.core import Project
 from hatchling.utils.constants import DEFAULT_CONFIG_FILE
 
-pytestmark = [pytest.mark.usefixtures('mock_backend_process_output')]
+pytestmark = [pytest.mark.usefixtures("mock_backend_process_output")]
 
 
 def read_readme(project_dir):
-    return repr((project_dir / 'README.txt').read_text())[1:-1]
+    return repr((project_dir / "README.txt").read_text())[1:-1]
 
 
+@pytest.mark.requires_internet
 def test_other_backend(hatch, temp_dir, helpers):
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
         assert result.exit_code == 0, result.output
 
-    path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
-    (path / 'README.md').replace(path / 'README.txt')
+    (path / "README.md").replace(path / "README.txt")
 
     project = Project(path)
     config = dict(project.raw_config)
-    config['build-system']['requires'] = ['flit-core']
-    config['build-system']['build-backend'] = 'flit_core.buildapi'
-    config['project']['version'] = '0.0.1'
-    config['project']['dynamic'] = []
-    config['project']['readme'] = 'README.txt'
-    del config['project']['license']
+    config["build-system"]["requires"] = ["flit-core==3.10.1"]
+    config["build-system"]["build-backend"] = "flit_core.buildapi"
+    config["project"]["version"] = "0.0.1"
+    config["project"]["dynamic"] = []
+    config["project"]["readme"] = "README.txt"
+    del config["project"]["license"]
     project.save_config(config)
 
     with path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('project', 'metadata')
+        result = hatch("project", "metadata")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -84,26 +85,27 @@ def test_other_backend(hatch, temp_dir, helpers):
     )
 
 
+@pytest.mark.requires_internet
 def test_default_all(hatch, temp_dir, helpers):
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
         assert result.exit_code == 0, result.output
 
-    path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
-    (path / 'README.md').replace(path / 'README.txt')
+    (path / "README.md").replace(path / "README.txt")
 
     project = Project(path)
     config = dict(project.raw_config)
-    config['project']['readme'] = 'README.txt'
+    config["project"]["readme"] = "README.txt"
     project.save_config(config)
 
     with path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('project', 'metadata')
+        result = hatch("project", "metadata")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -148,26 +150,27 @@ def test_default_all(hatch, temp_dir, helpers):
     )
 
 
+@pytest.mark.requires_internet
 def test_field_readme(hatch, temp_dir):
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
         assert result.exit_code == 0, result.output
 
-    path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
-    (path / 'README.md').replace(path / 'README.txt')
+    (path / "README.md").replace(path / "README.txt")
 
     project = Project(path)
     config = dict(project.raw_config)
-    config['project']['readme'] = 'README.txt'
+    config["project"]["readme"] = "README.txt"
     project.save_config(config)
 
     with path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('project', 'metadata', 'readme')
+        result = hatch("project", "metadata", "readme")
 
     assert result.exit_code == 0, result.output
     assert result.output == (
@@ -176,24 +179,25 @@ Creating environment: hatch-build
 Checking dependencies
 Syncing dependencies
 Inspecting build dependencies
-{(path / 'README.txt').read_text()}
+{(path / "README.txt").read_text()}
 """
     )
 
 
+@pytest.mark.requires_internet
 def test_field_string(hatch, temp_dir, helpers):
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
         assert result.exit_code == 0, result.output
 
-    path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
     with path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('project', 'metadata', 'license')
+        result = hatch("project", "metadata", "license")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -207,19 +211,20 @@ def test_field_string(hatch, temp_dir, helpers):
     )
 
 
+@pytest.mark.requires_internet
 def test_field_complex(hatch, temp_dir, helpers):
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
         assert result.exit_code == 0, result.output
 
-    path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
     with path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('project', 'metadata', 'urls')
+        result = hatch("project", "metadata", "urls")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -239,21 +244,21 @@ def test_field_complex(hatch, temp_dir, helpers):
 
 @pytest.mark.allow_backend_process
 def test_incompatible_environment(hatch, temp_dir, helpers, build_env_config):
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
         assert result.exit_code == 0, result.output
 
-    path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
     project = Project(path)
-    helpers.update_project_environment(project, 'hatch-build', {'python': '9000', **build_env_config})
+    helpers.update_project_environment(project, "hatch-build", {"python": "9000", **build_env_config})
 
     with path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('project', 'metadata')
+        result = hatch("project", "metadata")
 
     assert result.exit_code == 1, result.output
     assert result.output == helpers.dedent(
@@ -263,15 +268,16 @@ def test_incompatible_environment(hatch, temp_dir, helpers, build_env_config):
     )
 
 
+@pytest.mark.requires_internet
 def test_plugin_dependencies_unmet(hatch, temp_dir, helpers, mock_plugin_installation):
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
         assert result.exit_code == 0, result.output
 
-    path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
     dependency = os.urandom(16).hex()
@@ -284,15 +290,15 @@ def test_plugin_dependencies_unmet(hatch, temp_dir, helpers, mock_plugin_install
         )
     )
 
-    (path / 'README.md').replace(path / 'README.txt')
+    (path / "README.md").replace(path / "README.txt")
 
     project = Project(path)
     config = dict(project.raw_config)
-    config['project']['readme'] = 'README.txt'
+    config["project"]["readme"] = "README.txt"
     project.save_config(config)
 
     with path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('project', 'metadata')
+        result = hatch("project", "metadata")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -339,27 +345,28 @@ def test_plugin_dependencies_unmet(hatch, temp_dir, helpers, mock_plugin_install
     helpers.assert_plugin_installation(mock_plugin_installation, [dependency])
 
 
+@pytest.mark.requires_internet
 def test_build_dependencies_unmet(hatch, temp_dir, helpers):
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
         assert result.exit_code == 0, result.output
 
-    path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
-    (path / 'README.md').replace(path / 'README.txt')
+    (path / "README.md").replace(path / "README.txt")
 
     project = Project(path)
     config = dict(project.raw_config)
-    config['project']['readme'] = 'README.txt'
-    config['tool']['hatch']['build'] = {'dependencies': ['binary']}
+    config["project"]["readme"] = "README.txt"
+    config["tool"]["hatch"]["build"] = {"dependencies": ["binary"]}
     project.save_config(config)
 
     with path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('project', 'metadata', 'license')
+        result = hatch("project", "metadata", "license")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -377,23 +384,23 @@ def test_build_dependencies_unmet(hatch, temp_dir, helpers):
 @pytest.mark.allow_backend_process
 @pytest.mark.requires_internet
 def test_no_compatibility_check_if_exists(hatch, temp_dir, helpers, mocker):
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
         assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
     project = Project(project_path)
     config = dict(project.raw_config)
-    config['build-system']['requires'].append('binary')
+    config["build-system"]["requires"].append("binary")
     project.save_config(config)
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('project', 'metadata', 'license')
+        result = hatch("project", "metadata", "license")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -406,9 +413,9 @@ def test_no_compatibility_check_if_exists(hatch, temp_dir, helpers, mocker):
         """
     )
 
-    mocker.patch('hatch.env.virtual.VirtualEnvironment.check_compatibility', side_effect=Exception('incompatible'))
+    mocker.patch("hatch.env.virtual.VirtualEnvironment.check_compatibility", side_effect=Exception("incompatible"))
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('project', 'metadata', 'license')
+        result = hatch("project", "metadata", "license")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(

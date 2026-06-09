@@ -1,24 +1,18 @@
+
 [envs.hatch-static-analysis]
 config-path = "ruff_defaults.toml"
 
 [envs.default]
 installer = "uv"
-post-install-commands = [
-  "uv pip install {verbosity:flag:-1} -e ./backend",
-]
+
 
 [envs.hatch-test]
+workspace.members = ["backend/"]
 extra-dependencies = [
   "filelock",
   "flit-core",
-  "hatchling",
-  "pyfakefs",
   "trustme",
-  # Hatchling dynamic dependency
   "editables",
-]
-post-install-commands = [
-  "pip install {verbosity:flag:-1} -e ./backend",
 ]
 extra-args = ["--dist", "worksteal"]
 
@@ -45,18 +39,26 @@ extra-dependencies = [
 [envs.types.scripts]
 check = "mypy --install-types --non-interactive {args:backend/src/hatchling src/hatch tests}"
 
+[envs.hatch-check-types]
+workspace.members = ["backend/"]
+extra-dependencies = [
+  "editables",
+  "setuptools",
+]
+
 [envs.docs]
 dependencies = [
   "mkdocs~=1.6.0",
-  "mkdocs-material~=9.5.24",
+  "mkdocs-material~=9.7.0",
   # Plugins
   "mkdocs-minify-plugin~=0.8.0",
   "mkdocs-git-revision-date-localized-plugin~=1.2.5",
   "mkdocs-git-committers-plugin-2~=2.3.0",
-  "mkdocstrings-python~=1.10.3",
+  "mkdocstrings[python]~=0.26.0",
   "mkdocs-redirects~=1.2.1",
   "mkdocs-glightbox~=0.4.0",
   "mike~=2.1.1",
+  "mkdocs-autorefs>=1.0.0",
   # Extensions
   "mkdocs-click~=0.8.1",
   "pymdown-extensions~=10.8.1",
@@ -64,16 +66,10 @@ dependencies = [
   "pygments~=2.18.0",
   # Validation
   "linkchecker~=10.5.0",
-  "griffe<1.0",
-]
-pre-install-commands = [
-  "python scripts/install_mkdocs_material_insiders.py",
-]
-[envs.docs.overrides]
-env.GH_TOKEN_MKDOCS_MATERIAL_INSIDERS.env-vars = [
-  { key = "MKDOCS_CONFIG", value = "mkdocs.insiders.yml" },
-  { key = "MKDOCS_CONFIG", value = "mkdocs.yml", if = [""] },
-  { key = "MKDOCS_IMAGE_PROCESSING", value = "true" },
+  "griffe>=1.0.0",
+  # Image processing for social cards
+  "cairosvg~=2.7.0",
+  "pillow~=10.3.0",
 ]
 [envs.docs.env-vars]
 SOURCE_DATE_EPOCH = "1580601600"
@@ -86,7 +82,7 @@ ci-build = "mike deploy --config-file {env:MKDOCS_CONFIG} --update-aliases {args
 validate = "linkchecker --config .linkcheckerrc site"
 # https://github.com/linkchecker/linkchecker/issues/678
 build-check = [
-  "build --no-directory-urls",
+  "python -W ignore::DeprecationWarning -m mkdocs build --no-directory-urls",
   "validate",
 ]
 
@@ -95,7 +91,7 @@ detached = true
 installer = "uv"
 dependencies = [
   "build~=0.7.0",
-  "httpx",
+  "httpx2",
 ]
 [envs.backend.env-vars]
 HATCH_BUILD_CLEAN = "true"
@@ -108,7 +104,7 @@ version = "cd backend && hatch version {args}"
 detached = true
 installer = "uv"
 dependencies = [
-  "httpx",
+  "httpx2",
   "ruff",
 ]
 [envs.upkeep.scripts]
@@ -123,11 +119,10 @@ update-ruff = [
 ]
 
 [envs.release]
+workspace.members = ["backend/"]
 detached = true
 installer = "uv"
-dependencies = [
-  "hatchling",
-]
+
 [envs.release.scripts]
 bump = "python scripts/bump.py {args}"
 github = "python scripts/release_github.py {args}"

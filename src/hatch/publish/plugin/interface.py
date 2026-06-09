@@ -28,7 +28,7 @@ class PublisherInterface(ABC):
     ```
     """
 
-    PLUGIN_NAME = ''
+    PLUGIN_NAME = ""
     """The name used for selection."""
 
     def __init__(self, app, root, cache_dir, project_config, plugin_config):
@@ -90,15 +90,15 @@ class PublisherInterface(ABC):
         [plugin configuration](reference.md#hatch.publish.plugin.interface.PublisherInterface.plugin_config).
         """
         if self.__disable is None:
-            if 'disable' in self.project_config:
-                disable = self.project_config['disable']
+            if "disable" in self.project_config:
+                disable = self.project_config["disable"]
                 if not isinstance(disable, bool):
-                    message = f'Field `tool.hatch.publish.{self.PLUGIN_NAME}.disable` must be a boolean'
+                    message = f"Field `tool.hatch.publish.{self.PLUGIN_NAME}.disable` must be a boolean"
                     raise TypeError(message)
             else:
-                disable = self.plugin_config.get('disable', False)
+                disable = self.plugin_config.get("disable", False)
                 if not isinstance(disable, bool):
-                    message = f'Global plugin configuration `publish.{self.PLUGIN_NAME}.disable` must be a boolean'
+                    message = f"Global plugin configuration `publish.{self.PLUGIN_NAME}.disable` must be a boolean"
                     raise TypeError(message)
 
             self.__disable = disable

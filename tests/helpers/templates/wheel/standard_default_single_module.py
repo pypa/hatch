@@ -8,18 +8,18 @@ from .utils import update_record_file_contents
 
 
 def get_files(**kwargs):
-    metadata_directory = kwargs.get('metadata_directory', '')
+    metadata_directory = kwargs.get("metadata_directory", "")
 
     files = [
-        File(Path(metadata_directory, 'licenses', f.path), f.contents)
+        File(Path(metadata_directory, "licenses", f.path), f.contents)
         for f in get_template_files(**kwargs)
-        if str(f.path) == 'LICENSE.txt'
+        if str(f.path) == "LICENSE.txt"
     ]
 
     files.extend((
-        File(Path('my_app.py'), ''),
+        File(Path("my_app.py"), ""),
         File(
-            Path(metadata_directory, 'WHEEL'),
+            Path(metadata_directory, "WHEEL"),
             f"""\
 Wheel-Version: 1.0
 Generator: hatchling {__version__}
@@ -29,17 +29,17 @@ Tag: py3-none-any
 """,
         ),
         File(
-            Path(metadata_directory, 'METADATA'),
+            Path(metadata_directory, "METADATA"),
             f"""\
 Metadata-Version: {DEFAULT_METADATA_VERSION}
-Name: {kwargs['project_name']}
+Name: {kwargs["project_name"]}
 Version: 0.0.1
 License-File: LICENSE.txt
 """,
         ),
     ))
 
-    record_file = File(Path(metadata_directory, 'RECORD'), '')
+    record_file = File(Path(metadata_directory, "RECORD"), "")
     update_record_file_contents(record_file, files)
     files.append(record_file)
 

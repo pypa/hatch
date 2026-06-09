@@ -10,7 +10,17 @@ echo "==:> Starting server"
 devpi-server --host 0.0.0.0 --port 3141 &
 
 echo "==:> Waiting on server"
-sleep 5
+for i in $(seq 1 30); do
+    if devpi use http://localhost:3141 2>/dev/null; then
+        break
+    fi
+    if [ "$i" -eq 30 ]; then
+        echo "Timed out waiting for devpi-server"
+        exit 1
+    fi
+    sleep 1
+done
+
 
 echo "==:> Setting up index"
 devpi use http://localhost:3141

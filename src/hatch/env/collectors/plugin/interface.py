@@ -26,7 +26,7 @@ class EnvironmentCollectorInterface:
     ```
     """
 
-    PLUGIN_NAME = ''
+    PLUGIN_NAME = ""
     """The name used for selection."""
 
     def __init__(self, root, config):

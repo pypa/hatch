@@ -20,10 +20,10 @@ class VersionFile:
 
     def read(self, *, pattern: str | bool) -> str:
         if not os.path.isfile(self.__path):
-            message = f'file does not exist: {self.__relative_path}'
+            message = f"file does not exist: {self.__relative_path}"
             raise OSError(message)
 
-        with open(self.__path, encoding='utf-8') as f:
+        with open(self.__path, encoding="utf-8") as f:
             contents = f.read()
 
         if not pattern or pattern is True:
@@ -31,21 +31,21 @@ class VersionFile:
 
         match = re.search(pattern, contents, flags=re.MULTILINE)
         if not match:
-            message = f'unable to parse the version from the file: {self.__relative_path}'
+            message = f"unable to parse the version from the file: {self.__relative_path}"
             raise ValueError(message)
 
         groups = match.groupdict()
-        if 'version' not in groups:
-            message = 'no group named `version` was defined in the pattern'
+        if "version" not in groups:
+            message = "no group named `version` was defined in the pattern"
             raise ValueError(message)
 
-        self.__cached_read_data = groups['version'], contents, match.span('version')
+        self.__cached_read_data = groups["version"], contents, match.span("version")
         return self.__cached_read_data[0]
 
     def set_version(self, version: str) -> None:
         _old_version, file_contents, (start, end) = self.__cached_read_data  # type: ignore[misc]
-        with open(self.__path, 'w', encoding='utf-8') as f:
-            f.write(f'{file_contents[:start]}{version}{file_contents[end:]}')
+        with open(self.__path, "w", encoding="utf-8") as f:
+            f.write(f"{file_contents[:start]}{version}{file_contents[end:]}")
 
     def write(self, version: str, template: str = DEFAULT_TEMPLATE) -> None:
         template = template or DEFAULT_TEMPLATE
@@ -54,5 +54,5 @@ class VersionFile:
         if not os.path.isdir(parent_dir):
             os.makedirs(parent_dir)
 
-        with open(self.__path, 'w', encoding='utf-8') as f:
+        with open(self.__path, "w", encoding="utf-8") as f:
             f.write(template.format(version=version))

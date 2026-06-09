@@ -14,5 +14,5 @@ def load_toml_data(data: str) -> dict[str, Any]:
 
 
 def load_toml_file(path: str) -> dict[str, Any]:
-    with open(path, encoding='utf-8') as f:
+    with open(path, encoding="utf-8") as f:
         return tomllib.loads(f.read())

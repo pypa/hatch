@@ -1,5 +1,5 @@
 class TemplateInterface:
-    PLUGIN_NAME = ''
+    PLUGIN_NAME = ""
     PRIORITY = 100
 
     def __init__(self, plugin_config: dict, cache_dir, creation_time):

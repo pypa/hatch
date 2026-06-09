@@ -8,7 +8,7 @@ def get_files(**kwargs):
     files = [File(Path(f.path), f.contents) for f in get_template_files(**kwargs)]
     files.append(
         File(
-            Path('.github', 'workflows', 'test.yml'),
+            Path(".github", "workflows", "test.yml"),
             """\
 name: test
 

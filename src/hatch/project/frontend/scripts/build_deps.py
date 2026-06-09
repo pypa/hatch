@@ -11,9 +11,9 @@ RUNNER: dict = {}
 
 
 def main() -> None:
-    project_root: str = RUNNER['project_root']
-    output_dir: str = RUNNER['output_dir']
-    targets: list[str] = RUNNER['targets']
+    project_root: str = RUNNER["project_root"]
+    output_dir: str = RUNNER["output_dir"]
+    targets: list[str] = RUNNER["targets"]
 
     app = Application()
     plugin_manager = PluginManager()
@@ -32,9 +32,9 @@ def main() -> None:
             dependencies[dependency] = None
 
     output = json.dumps(list(dependencies))
-    with open(os.path.join(output_dir, 'output.json'), 'w', encoding='utf-8') as f:
+    with open(os.path.join(output_dir, "output.json"), "w", encoding="utf-8") as f:
         f.write(output)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

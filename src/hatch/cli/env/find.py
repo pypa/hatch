@@ -8,8 +8,8 @@ if TYPE_CHECKING:
     from hatch.cli.application import Application
 
 
-@click.command(short_help='Locate environments')
-@click.argument('env_name', default='default')
+@click.command(short_help="Locate environments")
+@click.argument("env_name", default="default")
 @click.pass_obj
 def find(app: Application, env_name: str):
     """Locate environments."""
@@ -17,7 +17,7 @@ def find(app: Application, env_name: str):
 
     environments = app.project.expand_environments(env_name)
     if not environments:
-        app.abort(f'Environment `{env_name}` is not defined by project config')
+        app.abort(f"Environment `{env_name}` is not defined by project config")
 
     for env in environments:
         environment = app.project.get_environment(env)
