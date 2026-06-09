@@ -66,6 +66,21 @@ class RecordFile:
         self.__file_obj.close()
 
 
+class _WheelZipFile(zipfile.ZipFile):
+    def open(self, name, mode="r", pwd=None, *, force_zip64=False):
+        filename = name.filename if isinstance(name, zipfile.ZipInfo) else name
+        if mode == "w" and filename in self.NameToInfo:
+            message = (
+                f"A second file is being added to the wheel archive at the same path: `{filename}`.\n\n"
+                f"The most likely cause of this is an entry in the "
+                f"`tool.hatch.build.targets.wheel.force-include` table. See: "
+                f"https://hatch.pypa.io/1.8/config/build/#forced-inclusion\n\n"
+            )
+            raise ValueError(message)
+
+        return super().open(name, mode, pwd, force_zip64=force_zip64)
+
+
 class WheelArchive:
     def __init__(self, project_id: str, *, reproducible: bool) -> None:
         """
@@ -83,7 +98,7 @@ class WheelArchive:
 
         raw_fd, self.path = tempfile.mkstemp(suffix=".whl")
         self.fd = os.fdopen(raw_fd, "w+b")
-        self.zf = zipfile.ZipFile(self.fd, "w", compression=zipfile.ZIP_DEFLATED)
+        self.zf = _WheelZipFile(self.fd, "w", compression=zipfile.ZIP_DEFLATED)
 
     @staticmethod
     def get_reproducible_time_tuple() -> TIME_TUPLE:

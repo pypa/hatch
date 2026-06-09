@@ -295,17 +295,33 @@ def devpi(tmp_path_factory, worker_id):
     with FileLock(lock_file):
         if not any(devpi_started_sessions.iterdir()):
             with EnvVars(env_vars):
-                subprocess.check_call(["docker", "compose", "-f", compose_file, "up", "--build", "-d"])
+                result = subprocess.run(
+                    ["docker", "compose", "-f", compose_file, "up", "--build", "-d", "--wait"],
+                    check=False,
+                    capture_output=True,
+                )
+                if result.returncode != 0:
+                    # Debugging info for if devpi fails to start
+                    logs = subprocess.run(["docker", "logs", "hatch-devpi"], check=False, capture_output=True)
+                    pytest.fail(
+                        f"Failed to start devpi container, see logs:\n{logs.stdout.decode()}\n{logs.stderr.decode()}"
+                    )
 
-            for _ in range(60):
+            for _ in range(120):
                 output = subprocess.check_output(["docker", "logs", "hatch-devpi"]).decode("utf-8")
                 if f"Serving index {dp.user}/{dp.index_name}" in output:
-                    time.sleep(5)
+                    time.sleep(15)
                     break
 
                 time.sleep(1)
             else:  # no cov
-                pass
+                # Add logging here too for timeout case
+                import warnings
+
+                logs = subprocess.run(["docker", "logs", "hatch-devpi"], check=False, capture_output=True)
+                warnings.warn(
+                    f"devpi container logs (timeout):\n{logs.stdout.decode()}\n{logs.stderr.decode()}", stacklevel=1
+                )
 
         (devpi_started_sessions / worker_id).touch()
 
@@ -327,11 +343,44 @@ def devpi(tmp_path_factory, worker_id):
 
 @pytest.fixture
 def env_run(mocker) -> Generator[MagicMock, None, None]:
+    """
+    Stub subprocess so ``hatch test`` / ``hatch run`` tests can inspect ``call_args_list``
+    without running real commands.
+    """
     run = mocker.patch("subprocess.run", return_value=subprocess.CompletedProcess([], 0, stdout=b""))
     mocker.patch("hatch.env.virtual.VirtualEnvironment.exists", return_value=True)
     mocker.patch("hatch.env.virtual.VirtualEnvironment.dependency_hash", return_value="")
     mocker.patch("hatch.env.virtual.VirtualEnvironment.command_context")
     return run
+
+
+@pytest.fixture
+def mock_locker(mocker) -> None:
+    """
+    Stub locker-level ``generate_lockfile`` / ``lockfile_in_sync`` for lock CLI tests.
+
+    Patches at the orchestration layer so the CLI routing, environment selection,
+    matrix expansion, and lockfile grouping logic all run normally — only the
+    resolver is replaced.
+    """
+
+    stub_pylock = "lock-version = 1\n"
+
+    def fake_generate(_environment, output_path, **_kwargs):
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_text(stub_pylock, encoding="utf-8")
+
+    def fake_in_sync(_environment, output_path, **_kwargs):
+        if not output_path.is_file():
+            return False
+        return output_path.read_text(encoding="utf-8") == stub_pylock
+
+    mocker.patch("hatch.env.lock.generate_lockfile", side_effect=fake_generate)
+    mocker.patch("hatch.env.lock.lockfile_in_sync", side_effect=fake_in_sync)
+    mocker.patch("hatch.env.lock.apply_lock_with_locker")
+    mocker.patch("hatch.env.virtual.VirtualEnvironment.exists", return_value=True)
+    mocker.patch("hatch.env.virtual.VirtualEnvironment.dependency_hash", return_value="")
+    mocker.patch("hatch.env.virtual.VirtualEnvironment.command_context")
 
 
 def is_hatchling_command(command: list[str] | str) -> bool:

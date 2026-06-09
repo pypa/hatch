@@ -53,13 +53,11 @@ jobs:
       run: hatch run docs:build-check
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        GH_TOKEN_MKDOCS_MATERIAL_INSIDERS: ${{ secrets.GH_TOKEN_MKDOCS_MATERIAL_INSIDERS }}
 
     - name: Commit documentation
       run: hatch run docs:ci-build $HATCH_DOCS_VERSION latest
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        GH_TOKEN_MKDOCS_MATERIAL_INSIDERS: ${{ secrets.GH_TOKEN_MKDOCS_MATERIAL_INSIDERS }}
 
     - name: Create archive
       run: git archive -o site.zip gh-pages

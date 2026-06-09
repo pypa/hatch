@@ -9,6 +9,14 @@ The usual process to make a contribution is to:
 5. Add tests if possible to cover the lines you added.
 6. Commit, and send a Pull Request.
 
+## AI Contributions 
+* All AI usage in any form must be disclosed. You must state the tool you used (e.g. Claude Code, Cursor, Amp) along with the extent that the work was AI-assisted.
+
+* The human-in-the-loop must fully understand all code. If you can't explain what your changes do and how they interact with the greater system without the aid of AI tools, do not contribute to this project.
+
+* Issues and discussions can use AI assistance but must have a full human-in-the-loop. This means that any content generated with AI must have been reviewed and edited by a human before submission. AI is very good at being overly verbose and including noise that distracts from the main point. Humans must do their research and trim this down.
+
+
 ## Clone the repository
 
 Clone the `hatch` repository, `cd` into it, and create a new branch for your contribution:
@@ -40,17 +48,16 @@ hatch test --cover --all
 
 ## Lint
 
-Run automated formatting:
+Run automated formatting and linting fixes:
 
 ```bash
-hatch fmt
+hatch check --fix
 ```
 
-Run full linting and type checking:
+Run all checks (linting, formatting, type checking):
 
 ```bash
-hatch fmt --check
-hatch run types:check
+hatch check
 ```
 
 ## Docs

@@ -1,4 +1,6 @@
 import argparse
+import subprocess
+import sys
 import webbrowser
 from urllib.parse import urlencode
 
@@ -11,11 +13,23 @@ def main():
     args = parser.parse_args()
 
     version, notes = get_latest_release(args.project)
+    tag = f"{args.project}-v{version}"
 
+    # Create and push tag first
+    try:
+        subprocess.run(["git", "tag", tag], check=True)  # noqa: S607
+        subprocess.run(["git", "push", "origin", tag], check=True)  # noqa: S607
+        print(f"Created and pushed tag: {tag}")
+    except subprocess.CalledProcessError as e:
+        print(f"Error creating tag: {e}")
+        sys.exit(1)
+
+    # Open GitHub UI to create draft release
     params = urlencode({
         "title": f"{args.project.capitalize()} v{version}",
-        "tag": f"{args.project}-v{version}",
+        "tag": tag,
         "body": notes,
+        "draft": "true",
     })
 
     url = f"https://github.com/pypa/hatch/releases/new?{params}"

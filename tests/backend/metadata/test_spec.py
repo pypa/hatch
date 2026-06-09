@@ -229,6 +229,32 @@ Requires-Dist: baz @ file:///path/to/project ; extra == 'feature3'
             },
         }
 
+    def test_import_names_and_import_namespaces(self):
+        core_metadata = f"""\
+Metadata-Version: {LATEST_METADATA_VERSION}
+Name: My.App
+Version: 0.1.0
+Import-Name: _pytest
+Import-Name: py
+Import-Name: pytest
+"""
+        assert project_metadata_from_core_metadata(core_metadata) == {
+            "name": "My.App",
+            "version": "0.1.0",
+            "import-names": ["_pytest", "py", "pytest"],
+        }
+
+    def test_import_names_and_import_namespaces_conflict(self):
+        core_metadata = f"""\
+Metadata-Version: {LATEST_METADATA_VERSION}
+Name: My.App
+Version: 0.1.0
+Import-Name: pytest
+Import-Namespace: pytest
+"""
+        with pytest.raises(ValueError, match="^Import-Name and Import-Namespace fields cannot contain the same name$"):
+            project_metadata_from_core_metadata(core_metadata)
+
 
 @pytest.mark.parametrize("constructor", [get_core_metadata_constructors()["1.2"]])
 class TestCoreMetadataV12:
@@ -2368,5 +2394,132 @@ class TestCoreMetadataV24:
             Description-Content-Type: text/markdown
 
             test content
+            """
+        )
+
+
+@pytest.mark.parametrize("constructor", [get_core_metadata_constructors()["2.5"]])
+class TestCoreMetadataV25:
+    def test_import_names(self, constructor, isolation, helpers):
+        metadata = ProjectMetadata(
+            str(isolation),
+            None,
+            {
+                "project": {
+                    "name": "scikit-learn",
+                    "version": "0.1.0",
+                    "import-names": ["sklearn"],
+                    "description": "A set of python modules for machine learning and data mining",
+                },
+            },
+        )
+
+        assert constructor(metadata) == helpers.dedent(
+            """
+            Metadata-Version: 2.5
+            Name: scikit-learn
+            Version: 0.1.0
+            Import-Name: sklearn
+            Summary: A set of python modules for machine learning and data mining
+            """
+        )
+
+    def test_import_names_private(self, constructor, isolation, helpers):
+        metadata = ProjectMetadata(
+            str(isolation),
+            None,
+            {
+                "project": {
+                    "name": "pytest",
+                    "version": "0.1.0",
+                    "import-names": ["pytest", "_pytest"],
+                    "description": "pytest: simple powerful testing with Python",
+                },
+            },
+        )
+
+        assert constructor(metadata) == helpers.dedent(
+            """
+            Metadata-Version: 2.5
+            Name: pytest
+            Version: 0.1.0
+            Import-Name: _pytest; private
+            Import-Name: pytest
+            Summary: pytest: simple powerful testing with Python
+            """
+        )
+
+    def test_explicit_no_import_names(self, constructor, isolation, helpers):
+        metadata = ProjectMetadata(
+            str(isolation),
+            None,
+            {
+                "project": {
+                    "name": "my-package",
+                    "version": "0.1.0",
+                    "import-names": [],
+                    "description": "My package without any import names",
+                },
+            },
+        )
+
+        assert constructor(metadata) == helpers.dedent(
+            """
+            Metadata-Version: 2.5
+            Name: my-package
+            Version: 0.1.0
+            Import-Name
+            Summary: My package without any import names
+            """
+        )
+
+    def test_import_namespaces(self, constructor, isolation, helpers):
+        metadata = ProjectMetadata(
+            str(isolation),
+            None,
+            {
+                "project": {
+                    "name": "azure-mgmt-search",
+                    "version": "0.1.0",
+                    "import-names": ["azure.mgmt.search"],
+                    "import-namespaces": ["azure", "azure.mgmt"],
+                    "description": "Microsoft Azure Search Management Client Library for Python",
+                },
+            },
+        )
+
+        assert constructor(metadata) == helpers.dedent(
+            """
+            Metadata-Version: 2.5
+            Name: azure-mgmt-search
+            Version: 0.1.0
+            Import-Name: azure.mgmt.search
+            Import-Namespace: azure
+            Import-Namespace: azure.mgmt
+            Summary: Microsoft Azure Search Management Client Library for Python
+            """
+        )
+
+    def test_import_namespaces_private(self, constructor, isolation, helpers):
+        metadata = ProjectMetadata(
+            str(isolation),
+            None,
+            {
+                "project": {
+                    "name": "pytest",
+                    "version": "0.1.0",
+                    "import-namespaces": ["_pytest.assertion"],
+                    "description": "pytest: simple powerful testing with Python",
+                },
+            },
+        )
+
+        assert constructor(metadata) == helpers.dedent(
+            """
+            Metadata-Version: 2.5
+            Name: pytest
+            Version: 0.1.0
+            Import-Namespace: _pytest.assertion; private
+            Summary: pytest: simple powerful testing with Python
             """
         )

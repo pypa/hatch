@@ -25,6 +25,11 @@ def fmt(
     sync: bool,
 ):
     """Format and lint source code."""
+    app.display_warning(
+        "The `hatch fmt` command is deprecated and will be removed in a future release. "
+        "Use `hatch check code --fix` for linting and `hatch check fmt --fix` for formatting instead."
+    )
+
     if linter and formatter:
         app.abort("Cannot specify both --linter and --formatter")
 
