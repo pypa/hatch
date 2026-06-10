@@ -189,6 +189,11 @@ The following values have special meanings:
 | --- | --- |
 | `isolated` (default) | `<DATA_DIR>/pythons` |
 
+## Network
+
+Hatch uses a 10 second timeout for network requests by default. This can be overridden by setting the
+`HATCH_NETWORK_TIMEOUT` environment variable to the desired number of seconds.
+
 ## Terminal
 
 You can configure how all output is displayed using the `terminal.styles` table. These settings are also applied to all plugins.

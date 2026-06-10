@@ -52,13 +52,13 @@ class PackageIndex:
         import httpx2
 
         from hatch.utils.linehaul import get_linehaul_component
-        from hatch.utils.network import DEFAULT_TIMEOUT
+        from hatch.utils.network import get_default_timeout
 
         user_agent = f"Hatch/{__version__} {get_linehaul_component()} HTTPX2/{httpx2.__version__}"
         return httpx2.Client(
             headers={"User-Agent": user_agent},
             transport=httpx2.HTTPTransport(retries=3, verify=self.__verify, cert=self.__cert),
-            timeout=DEFAULT_TIMEOUT,
+            timeout=get_default_timeout(),
         )
 
     def upload_artifact(self, artifact: Path, data: dict):
