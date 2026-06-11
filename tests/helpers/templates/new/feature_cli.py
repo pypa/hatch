@@ -15,7 +15,7 @@ def get_files(**kwargs):
         File(
             Path("src", kwargs["package_name"], "__init__.py"),
             f"""\
-# SPDX-FileCopyrightText: {kwargs["year"]}-present {kwargs["author"]} <{kwargs["email"]}>
+# SPDX-FileCopyrightText: {kwargs["year"]}-present {kwargs["copyright-holder"]}
 #
 # SPDX-License-Identifier: MIT
 """,
@@ -23,7 +23,7 @@ def get_files(**kwargs):
         File(
             Path("src", kwargs["package_name"], "__about__.py"),
             f"""\
-# SPDX-FileCopyrightText: {kwargs["year"]}-present {kwargs["author"]} <{kwargs["email"]}>
+# SPDX-FileCopyrightText: {kwargs["year"]}-present {kwargs["copyright-holder"]}
 #
 # SPDX-License-Identifier: MIT
 __version__ = "0.0.1"
@@ -32,7 +32,7 @@ __version__ = "0.0.1"
         File(
             Path("src", kwargs["package_name"], "__main__.py"),
             f"""\
-# SPDX-FileCopyrightText: {kwargs["year"]}-present {kwargs["author"]} <{kwargs["email"]}>
+# SPDX-FileCopyrightText: {kwargs["year"]}-present {kwargs["copyright-holder"]}
 #
 # SPDX-License-Identifier: MIT
 import sys
@@ -46,7 +46,7 @@ if __name__ == "__main__":
         File(
             Path("src", kwargs["package_name"], "cli", "__init__.py"),
             f"""\
-# SPDX-FileCopyrightText: {kwargs["year"]}-present {kwargs["author"]} <{kwargs["email"]}>
+# SPDX-FileCopyrightText: {kwargs["year"]}-present {kwargs["copyright-holder"]}
 #
 # SPDX-License-Identifier: MIT
 import click
@@ -63,7 +63,7 @@ def {kwargs["package_name"]}():
         File(
             Path("tests", "__init__.py"),
             f"""\
-# SPDX-FileCopyrightText: {kwargs["year"]}-present {kwargs["author"]} <{kwargs["email"]}>
+# SPDX-FileCopyrightText: {kwargs["year"]}-present {kwargs["copyright-holder"]}
 #
 # SPDX-License-Identifier: MIT
 """,
@@ -128,9 +128,9 @@ dependencies = [
 ]
 
 [project.urls]
-Documentation = "https://github.com/{kwargs["author"]}/{kwargs["project_name_normalized"]}#readme"
-Issues = "https://github.com/{kwargs["author"]}/{kwargs["project_name_normalized"]}/issues"
-Source = "https://github.com/{kwargs["author"]}/{kwargs["project_name_normalized"]}"
+Documentation = "https://github.com/{kwargs["github-org"]}/{kwargs["project_name_normalized"]}#readme"
+Issues = "https://github.com/{kwargs["github-org"]}/{kwargs["project_name_normalized"]}/issues"
+Source = "https://github.com/{kwargs["github-org"]}/{kwargs["project_name_normalized"]}"
 
 [project.scripts]
 {kwargs["project_name_normalized"]} = "{kwargs["package_name"]}.cli:{kwargs["package_name"]}"

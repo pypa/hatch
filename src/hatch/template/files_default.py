@@ -110,16 +110,19 @@ path = "{package_metadata_file_path}"{tests_section}
 
     def __init__(self, template_config: dict, plugin_config: dict):
         template_config = dict(template_config)
-        template_config["name"] = repr(template_config["name"])[1:-1]
+
+        # Default github organization name to user's name if not set or blank.
+        if not template_config.get("github-org", None):
+            template_config["github-org"] = repr(template_config["name"])[1:-1]
 
         project_url_data = ""
         project_urls = (
             plugin_config["project_urls"]
             if "project_urls" in plugin_config
             else {
-                "Documentation": "https://github.com/{name}/{project_name_normalized}#readme",
-                "Issues": "https://github.com/{name}/{project_name_normalized}/issues",
-                "Source": "https://github.com/{name}/{project_name_normalized}",
+                "Documentation": "https://github.com/{github-org}/{project_name_normalized}#readme",
+                "Issues": "https://github.com/{github-org}/{project_name_normalized}/issues",
+                "Source": "https://github.com/{github-org}/{project_name_normalized}",
             }
         )
         if project_urls:

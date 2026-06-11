@@ -15,7 +15,7 @@ def get_files(**kwargs):
         File(
             Path("src", kwargs["package_name"], "__init__.py"),
             f"""\
-# SPDX-FileCopyrightText: {kwargs["year"]}-present {kwargs["author"]} <{kwargs["email"]}>
+# SPDX-FileCopyrightText: {kwargs["year"]}-present {kwargs["copyright-holder"]}
 #
 # SPDX-License-Identifier: MIT
 """,
@@ -23,7 +23,7 @@ def get_files(**kwargs):
         File(
             Path("src", kwargs["package_name"], "__about__.py"),
             f"""\
-# SPDX-FileCopyrightText: {kwargs["year"]}-present {kwargs["author"]} <{kwargs["email"]}>
+# SPDX-FileCopyrightText: {kwargs["year"]}-present {kwargs["copyright-holder"]}
 #
 # SPDX-License-Identifier: MIT
 __version__ = "0.0.1"
@@ -32,7 +32,7 @@ __version__ = "0.0.1"
         File(
             Path("tests", "__init__.py"),
             f"""\
-# SPDX-FileCopyrightText: {kwargs["year"]}-present {kwargs["author"]} <{kwargs["email"]}>
+# SPDX-FileCopyrightText: {kwargs["year"]}-present {kwargs["copyright-holder"]}
 #
 # SPDX-License-Identifier: MIT
 """,
