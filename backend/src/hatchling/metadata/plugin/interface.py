@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from typing import Any
 
 
 class MetadataHookInterface(ABC):  # no cov
@@ -31,9 +32,10 @@ class MetadataHookInterface(ABC):  # no cov
     PLUGIN_NAME = ""
     """The name used for selection."""
 
-    def __init__(self, root: str, config: dict) -> None:
+    def __init__(self, root: str, config: dict, config_settings: dict[str, Any] | None) -> None:
         self.__root = root
         self.__config = config
+        self.__config_settings = config_settings
 
     @property
     def root(self) -> str:
@@ -52,6 +54,13 @@ class MetadataHookInterface(ABC):  # no cov
         ```
         """
         return self.__config
+
+    @property
+    def config_settings(self) -> dict[str, Any] | None:
+        """
+        Configuration settings from the build frontend, if supported.
+        """
+        return self.__config_settings
 
     @abstractmethod
     def update(self, metadata: dict) -> None:
