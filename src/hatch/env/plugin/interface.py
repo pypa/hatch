@@ -252,8 +252,22 @@ class EnvironmentInterface(ABC):
         return env_exclude
 
     @cached_property
+    def sources(self):
+        """
+        The mapping of normalized project names to
+        [`Source`](../utilities.md#hatch.project.sources.Source) objects, parsed
+        from `[tool.hatch.sources]`.
+        """
+        project = getattr(self.app, "project", None)
+        if project is None:
+            return {}
+
+        return project.config.sources
+
+    @cached_property
     def environment_dependencies_complex(self) -> list[Dependency]:
         from hatch.dep.core import Dependency, InvalidDependencyError
+        from hatch.project.sources import decorate_dependencies
 
         dependencies_complex: list[Dependency] = []
         with self.apply_context():
@@ -274,7 +288,7 @@ class EnvironmentInterface(ABC):
                         message = f"Dependency #{i} of field `tool.hatch.envs.{self.name}.{option}` is invalid: {e}"
                         raise ValueError(message) from None
 
-        return dependencies_complex
+        return decorate_dependencies(dependencies_complex, self.sources, str(self.root))
 
     @cached_property
     def environment_dependencies(self) -> list[str]:
@@ -290,6 +304,7 @@ class EnvironmentInterface(ABC):
             return []
 
         from hatch.dep.core import Dependency
+        from hatch.project.sources import decorate_dependencies
         from hatch.utils.dep import get_complex_dependencies, get_complex_dependency_group, get_complex_features
 
         all_dependencies_complex = list(map(Dependency, workspace_dependencies))
@@ -327,7 +342,7 @@ class EnvironmentInterface(ABC):
                 get_complex_dependency_group(self.app.project.dependency_groups, dependency_group)
             )
 
-        return all_dependencies_complex
+        return decorate_dependencies(all_dependencies_complex, self.sources, str(self.root))
 
     @cached_property
     def project_dependencies(self) -> list[str]:
@@ -359,6 +374,7 @@ class EnvironmentInterface(ABC):
     @cached_property
     def dependencies_complex(self) -> list[Dependency]:
         from hatch.dep.core import Dependency
+        from hatch.project.sources import decorate_dependencies
 
         all_dependencies_complex = list(self.environment_dependencies_complex)
 
@@ -372,10 +388,10 @@ class EnvironmentInterface(ABC):
         if self.dependency_groups and not self.skip_install:
             from hatch.utils.dep import get_complex_dependency_group
 
+            group_deps: list[Dependency] = []
             for dependency_group in self.dependency_groups:
-                all_dependencies_complex.extend(
-                    get_complex_dependency_group(self.app.project.dependency_groups, dependency_group)
-                )
+                group_deps.extend(get_complex_dependency_group(self.app.project.dependency_groups, dependency_group))
+            all_dependencies_complex.extend(decorate_dependencies(group_deps, self.sources, str(self.root)))
 
         if self.builder:
             from hatch.project.constants import BuildEnvVars
@@ -949,6 +965,19 @@ class EnvironmentInterface(ABC):
 
         command.extend(args)
         return command
+
+    @staticmethod
+    def get_source_install_args(dependencies: list[Dependency]) -> list[str]:
+        """
+        Returns global installer flags derived from any
+        [sources](../../config/dependency.md#sources) attached to the given
+        dependencies. Currently this surfaces every `IndexSource` as
+        `--extra-index-url`, deduplicated and order-preserving.
+        """
+        from hatch.project.sources import collect_global_install_args
+
+        sources_used = [dep.source for dep in dependencies if dep.source is not None]
+        return collect_global_install_args(sources_used)
 
     def join_command_args(self, args: list[str]):
         """

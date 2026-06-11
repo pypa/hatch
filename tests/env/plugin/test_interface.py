@@ -3744,3 +3744,136 @@ version = "0.0.1"
         new_ctx = ctx.join("subdir")
         assert "subdir" in str(new_ctx.local_path)
         assert "subdir" in new_ctx.env_path
+
+
+class TestEnvironmentSources:
+    def test_path_source_rewrites_dependency(self, isolation, isolated_data_dir, platform, temp_application):
+        from hatch.project.sources import PathSource
+
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1", "dependencies": ["dep1"]},
+            "tool": {
+                "hatch": {
+                    "sources": {"dep1": "./packages/dep1"},
+                    "envs": {"default": {"skip-install": False}},
+                }
+            },
+        }
+        project = Project(isolation, config=config)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        deps = environment.project_dependencies_complex
+        assert len(deps) == 1
+        assert deps[0].url is not None
+        assert deps[0].url.startswith("file://")
+        assert deps[0].editable is True
+        assert isinstance(deps[0].source, PathSource)
+
+    def test_index_source_attached_without_url_change(self, isolation, isolated_data_dir, platform, temp_application):
+        from hatch.project.sources import IndexSource
+
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1", "dependencies": ["dep1"]},
+            "tool": {
+                "hatch": {
+                    "sources": {"dep1": {"index": "https://pypi.example.com/simple"}},
+                    "envs": {"default": {"skip-install": False}},
+                }
+            },
+        }
+        project = Project(isolation, config=config)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        deps = environment.project_dependencies_complex
+        assert len(deps) == 1
+        assert deps[0].url is None
+        assert isinstance(deps[0].source, IndexSource)
+
+        global_args = environment.get_source_install_args(deps)
+        assert global_args == ["--extra-index-url", "https://pypi.example.com/simple"]
+
+    def test_environment_dependencies_decorated(self, isolation, isolated_data_dir, platform, temp_application):
+        from hatch.project.sources import GitSource
+
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {
+                "hatch": {
+                    "sources": {"dep2": {"git": "https://example.com/dep2", "rev": "abc"}},
+                    "envs": {"default": {"dependencies": ["dep2"]}},
+                }
+            },
+        }
+        project = Project(isolation, config=config)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        deps = environment.environment_dependencies_complex
+        assert len(deps) == 1
+        assert deps[0].url == "git+https://example.com/dep2@abc"
+        assert isinstance(deps[0].source, GitSource)
+
+    def test_no_sources_is_noop(self, isolation, isolated_data_dir, platform, temp_application):
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1", "dependencies": ["dep1"]},
+            "tool": {"hatch": {"envs": {"default": {"skip-install": False}}}},
+        }
+        project = Project(isolation, config=config)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        deps = environment.project_dependencies_complex
+        assert len(deps) == 1
+        assert deps[0].url is None
+        assert deps[0].source is None
+        assert environment.get_source_install_args(deps) == []
