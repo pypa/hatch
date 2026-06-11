@@ -4,7 +4,7 @@
 
 The username is derived from the following sources, in order of precedence:
 
-1. The  `--user` / `-u` cli option.
+1. The `--user` / `-u` cli option.
 2. The `HATCH_INDEX_USER` environment variable.
 3. The [`repos` tables](../../plugins/publisher/package-index.md).
 4. The [`~/.pypirc` file](https://packaging.python.org/en/latest/specifications/pypirc/).
