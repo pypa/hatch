@@ -157,6 +157,13 @@ class TestVariantCPU:
 
 
 class TestVariantGIL:
+    def test_free_threaded_distribution_alias(self):
+        dist = get_distribution("3.13t")
+
+        assert dist.name == "3.13t"
+        assert "freethreaded" in dist.source
+        assert dist.python_path == "python/install/bin/python3"
+
     def test_compatible(self):
         with EnvVars({"HATCH_PYTHON_VARIANT_GIL": "freethreaded"}):
             dist = get_distribution("3.13")

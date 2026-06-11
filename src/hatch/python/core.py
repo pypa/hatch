@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from hatch.python.distributions import DISTRIBUTIONS, ORDERED_DISTRIBUTIONS
+from hatch.errors import HatchError
+from hatch.python.distributions import ORDERED_DISTRIBUTIONS
 from hatch.python.resolve import get_distribution
 from hatch.utils.fs import temp_directory
 
@@ -62,7 +63,7 @@ class PythonManager:
 
         installed_distributions: list[InstalledDistribution] = []
         for path in self.directory.iterdir():
-            if not (path.name in DISTRIBUTIONS and path.is_dir()):
+            if not path.is_dir():
                 continue
 
             metadata_file = path / InstalledDistribution.metadata_filename()
@@ -70,7 +71,11 @@ class PythonManager:
                 continue
 
             metadata = json.loads(metadata_file.read_text())
-            distribution = get_distribution(path.name, source=metadata.get("source", ""))
+            try:
+                distribution = get_distribution(path.name, source=metadata.get("source", ""))
+            except HatchError:
+                continue
+
             if not (path / distribution.python_path).is_file():
                 continue
 
