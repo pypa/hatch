@@ -3,25 +3,28 @@ from __future__ import annotations
 import os
 from contextlib import contextmanager
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any, Generic, TypeVar
 
 import pathspec
 
 from hatchling.builders.constants import DEFAULT_BUILD_DIRECTORY, EXCLUDED_DIRECTORIES, BuildEnvVars
 from hatchling.builders.utils import normalize_inclusion_map, normalize_relative_directory, normalize_relative_path
 from hatchling.metadata.utils import normalize_project_name
+from hatchling.plugin.manager import PluginManagerBound
 from hatchling.utils.fs import locate_file
 
 if TYPE_CHECKING:
     from collections.abc import Generator
 
+    from typing_extensions import Self
+
     from hatchling.builders.plugin.interface import BuilderInterface
 
 
-class BuilderConfig:
+class BuilderConfig(Generic[PluginManagerBound]):
     def __init__(
         self,
-        builder: BuilderInterface,
+        builder: BuilderInterface[Self, PluginManagerBound],
         root: str,
         plugin_name: str,
         build_config: dict[str, Any],
@@ -43,7 +46,7 @@ class BuilderConfig:
         self.build_reserved_paths: set[str] = set()
 
     @property
-    def builder(self) -> BuilderInterface:
+    def builder(self) -> BuilderInterface[Self, PluginManagerBound]:
         return self.__builder
 
     @property
@@ -861,4 +864,4 @@ def env_var_enabled(env_var: str, *, default: bool = False) -> bool:
     return default
 
 
-BuilderConfigBound = TypeVar("BuilderConfigBound", bound=BuilderConfig)
+BuilderConfigBound = TypeVar("BuilderConfigBound", bound=BuilderConfig[Any])
