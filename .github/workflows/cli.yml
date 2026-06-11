@@ -16,6 +16,9 @@ env:
   STABLE_PYTHON_VERSION: '3.12'
   HYPERFINE_VERSION: '1.18.0'
 
+permissions:
+  contents: read
+
 jobs:
   response-time:
     name: CLI responsiveness with latest Python
