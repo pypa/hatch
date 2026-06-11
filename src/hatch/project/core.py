@@ -295,7 +295,7 @@ class Project:
             if additional_dependencies:
                 from hatch.dep.core import Dependency
 
-                self.build_env.additional_dependencies.extend(map(Dependency, additional_dependencies))
+                self.build_env.add_additional_dependencies(map(Dependency, additional_dependencies))
                 with self.build_env.app_status_dependency_synchronization():
                     self.build_env.sync_dependencies()
 
