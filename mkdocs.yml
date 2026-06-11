@@ -130,6 +130,7 @@ nav:
       - Python scripts: how-to/run/python-scripts.md
     - Config:
       - Dynamic metadata: how-to/config/dynamic-metadata.md
+      - Constrain Hatch version: how-to/config/constrain-hatch.md
     - Environments:
       - Select installer: how-to/environment/select-installer.md
       - Dependency resolution: how-to/environment/dependency-resolution.md
