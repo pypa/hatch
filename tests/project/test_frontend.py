@@ -94,6 +94,64 @@ description = "text"
             "description": "text",
         }
 
+    def test_backend_stdout_is_forwarded_to_stderr(self, temp_dir, temp_dir_data, platform, global_application):
+        project_dir = temp_dir / "project"
+        project_dir.mkdir()
+        (project_dir / "pyproject.toml").write_text(
+            """\
+[build-system]
+requires = []
+build-backend = "noisy_backend"
+backend-path = ["."]
+
+[project]
+name = "foo"
+version = "9000.42"
+"""
+        )
+        (project_dir / "noisy_backend.py").write_text(
+            """\
+import os
+import sys
+
+
+def prepare_metadata_for_build_wheel(metadata_directory, config_settings=None):
+    print("backend stdout")
+    print("backend stderr", file=sys.stderr)
+    dist_info = os.path.join(metadata_directory, "foo-9000.42.dist-info")
+    os.mkdir(dist_info)
+    with open(os.path.join(dist_info, "METADATA"), "w", encoding="utf-8") as f:
+        f.write("Metadata-Version: 2.4\\nName: foo\\nVersion: 9000.42\\n")
+    return "foo-9000.42.dist-info"
+"""
+        )
+
+        project = Project(project_dir)
+        project.build_env = MockEnvironment(
+            temp_dir,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            temp_dir_data,
+            temp_dir_data,
+            platform,
+            0,
+            global_application,
+        )
+
+        output_dir = temp_dir / "output"
+        output_dir.mkdir()
+        script = project.build_frontend.scripts.prepare_metadata(
+            output_dir=str(output_dir), project_root=str(project_dir)
+        )
+        process = platform.run_command([sys.executable, "-c", script], capture_output=True, text=True)
+
+        assert process.returncode == 0
+        assert process.stdout == ""
+        assert "backend stdout" in process.stderr
+        assert "backend stderr" in process.stderr
+
     @pytest.mark.parametrize(
         ("backend_pkg", "backend_api"),
         [pytest.param(backend_pkg, backend_api, id=backend_pkg) for backend_pkg, backend_api in BACKENDS],
