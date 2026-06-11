@@ -77,10 +77,8 @@ class PipLocker(LockerInterface):
         if layered or lock_extras or lock_groups:
             return False
 
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".toml", delete=False, encoding="utf-8") as f:
-            temp_path = Path(f.name)
-
-        try:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            temp_path = Path(tmp_dir) / "pylock.toml"
             cls.generate(
                 environment,
                 dependencies,
@@ -93,8 +91,6 @@ class PipLocker(LockerInterface):
             )
             existing = output_path.read_text(encoding="utf-8")
             fresh = temp_path.read_text(encoding="utf-8")
-        finally:
-            temp_path.unlink(missing_ok=True)
 
         return existing == fresh
 
