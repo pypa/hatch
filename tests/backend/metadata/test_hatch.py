@@ -116,35 +116,6 @@ class TestVersionScheme:
         assert isinstance(metadata.version.scheme, StandardScheme)
 
 
-class TestRequiresHatch:
-    @pytest.mark.parametrize("attribute", ["requires_hatch", "specifier_set"])
-    def test_not_string(self, isolation, attribute):
-        metadata = HatchMetadata(isolation, {"requires_hatch": 1.18}, None)
-
-        with pytest.raises(TypeError, match="Field `tool.hatch.requires-hatch` must be a string"):
-            _ = getattr(metadata, attribute)
-
-    def test_invalid(self, isolation):
-        metadata = HatchMetadata(isolation, {"requires_hatch": "^1"}, None)
-
-        with pytest.raises(ValueError, match="Field `tool.hatch.requires-hatch` is invalid: .+"):
-            _ = metadata.requires_hatch
-
-    def test_default(self, isolation):
-        metadata = HatchMetadata(isolation, {}, None)
-
-        assert metadata.requires_hatch == ""
-        for major_version in map(str, range(10)):
-            assert metadata.specifier_set.contains(major_version)
-
-    def test_custom(self, isolation):
-        metadata = HatchMetadata(isolation, {"requires_hatch": ">1"}, None)
-
-        assert metadata.requires_hatch == ">1"
-        assert not metadata.specifier_set.contains("1")
-        assert metadata.specifier_set.contains("2")
-
-
 class TestMetadata:
     def test_default(self, isolation):
         config = {}

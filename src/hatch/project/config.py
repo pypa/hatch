@@ -5,7 +5,7 @@ from copy import deepcopy
 from functools import cached_property
 from itertools import product
 from os import environ
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 from hatch.env.utils import ensure_valid_environment
 from hatch.project.constants import DEFAULT_BUILD_DIRECTORY, BuildEnvVars
@@ -13,6 +13,8 @@ from hatch.project.env import apply_overrides
 from hatch.project.utils import format_script_commands, parse_script_command
 
 if TYPE_CHECKING:
+    from packaging.specifiers import SpecifierSet
+
     from hatch.dep.core import Dependency
 
 
@@ -33,6 +35,8 @@ class ProjectConfig:
         self._matrix_variables = None
         self._publish = None
         self._scripts = None
+        self._requires_hatch: str | None = None
+        self._hatch_specifier_set: SpecifierSet | None = None
         self._cached_env_overrides = {}
 
     @cached_property
@@ -518,6 +522,36 @@ class ProjectConfig:
             self._scripts = config
 
         return self._scripts
+
+    @property
+    def requires_hatch(self) -> str:
+        if self._requires_hatch is None:
+            from packaging.specifiers import InvalidSpecifier, SpecifierSet
+
+            requires_hatch = self.config.get("requires_hatch", "")
+
+            if not isinstance(requires_hatch, str):
+                message = "Field `tool.hatch.requires-hatch` must be a string"
+                raise TypeError(message)
+
+            try:
+                self._hatch_specifier_set = SpecifierSet(requires_hatch)
+            except InvalidSpecifier as e:
+                message = f"Field `tool.hatch.requires-hatch` is invalid: {e}"
+                raise ValueError(message) from None
+
+            self._requires_hatch = str(self._hatch_specifier_set)
+
+        return self._requires_hatch
+
+    @property
+    def hatch_specifier_set(self) -> SpecifierSet:
+        from packaging.specifiers import SpecifierSet
+
+        if self._hatch_specifier_set is None:
+            _ = self.requires_hatch
+
+        return cast(SpecifierSet, self._hatch_specifier_set)
 
     def finalize_env_overrides(self, option_types):
         # We lazily apply overrides because we need type information potentially defined by

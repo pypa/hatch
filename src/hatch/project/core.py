@@ -18,7 +18,6 @@ if TYPE_CHECKING:
     from hatch.config.model import RootConfig
     from hatch.env.plugin.interface import EnvironmentInterface
     from hatch.project.frontend.core import BuildFrontend
-    from hatchling.metadata.core import ProjectMetadata
 
 
 class Project:
@@ -399,8 +398,8 @@ class Project:
         # Used for creating new projects
         return re.sub(r"[-_. ]+", "-", name).lower()
 
-    def _check_hatch_version(self, metadata: ProjectMetadata) -> None:
-        specifier_set = metadata.hatch.specifier_set
+    def _check_hatch_version(self) -> None:
+        specifier_set = self.config.hatch_specifier_set
         if not specifier_set:
             return
 
@@ -415,7 +414,7 @@ class Project:
             from hatchling.metadata.core import ProjectMetadata
 
             self._metadata = ProjectMetadata(self.location, self.plugin_manager, self.raw_config)
-            self._check_hatch_version(self._metadata)
+            self._check_hatch_version()
 
         return self._metadata
 
