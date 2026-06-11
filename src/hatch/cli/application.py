@@ -151,9 +151,13 @@ class Application(Terminal):
             self.run_shell_commands(context)
 
     def ensure_environment_plugin_dependencies(self) -> None:
-        self.ensure_plugin_dependencies(
-            self.project.config.env_requires_complex, wait_message="Syncing environment plugin requirements"
-        )
+        try:
+            self.ensure_plugin_dependencies(
+                self.project.config.env_requires_complex, wait_message="Syncing environment plugin requirements"
+            )
+        except Exception as e:
+            self.abort(e)
+            raise
 
     def ensure_plugin_dependencies(self, dependencies: list[Dependency], *, wait_message: str) -> None:
         if not dependencies:
