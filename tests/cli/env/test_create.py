@@ -2113,3 +2113,67 @@ def test_workspace_members_always_editable_with_dev_mode_false(
         # Workspace members MUST be editable (always)
         assert member_a_req.lower().startswith("-e"), f"Member A should be editable: {member_a_req}"
         assert member_b_req.lower().startswith("-e"), f"Member B should be editable: {member_b_req}"
+
+
+@pytest.mark.requires_internet
+def test_requires_hatch_satisfied(hatch, helpers, temp_dir, config_file):
+    config_file.model.template.plugins["default"]["tests"] = False
+    config_file.save()
+
+    project_name = "My.App"
+
+    with temp_dir.as_cwd():
+        result = hatch("new", project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
+    data_path.mkdir()
+
+    project = Project(project_path)
+    config = dict(project.raw_config)
+    config["tool"]["hatch"]["requires-hatch"] = ">=0"
+    project.save_config(config)
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch("env", "create")
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        """
+        Creating environment: default
+        Installing project in development mode
+        Checking dependencies
+        """
+    )
+
+    env_data_path = data_path / "env" / "virtual"
+    assert env_data_path.is_dir()
+
+
+def test_requires_hatch_not_satisfied(hatch, helpers, temp_dir, config_file):
+    config_file.model.template.plugins["default"]["tests"] = False
+    config_file.save()
+
+    project_name = "My.App"
+
+    with temp_dir.as_cwd():
+        result = hatch("new", project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
+    data_path.mkdir()
+
+    project = Project(project_path)
+    config = dict(project.raw_config)
+    config["tool"]["hatch"]["requires-hatch"] = ">999"
+    project.save_config(config)
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch("env", "create")
+
+    assert result.exit_code == 1, result.output
+    assert ">999" in result.output
