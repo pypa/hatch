@@ -2152,7 +2152,7 @@ def test_requires_hatch_satisfied(hatch, helpers, temp_dir, config_file):
     assert env_data_path.is_dir()
 
 
-def test_requires_hatch_not_satisfied(hatch, helpers, temp_dir, config_file):
+def test_requires_hatch_not_satisfied(hatch, temp_dir, config_file):
     config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
