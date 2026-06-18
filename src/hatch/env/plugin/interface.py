@@ -265,6 +265,25 @@ class EnvironmentInterface(ABC):
         return project.config.sources
 
     @cached_property
+    def source_workspace_members(self) -> dict[str, str]:
+        """
+        The mapping of normalized project names to the local path of the matching
+        [workspace](Workspace) member, used to resolve `workspace` entries in
+        `[tool.hatch.sources]`.
+
+        This is only populated when at least one source actually uses
+        `workspace = true`, so unrelated environments do not pay the cost of
+        resolving workspace members.
+        """
+        from hatch.project.sources import WorkspaceSource
+        from hatch.utils.metadata import normalize_project_name
+
+        if not any(isinstance(source, WorkspaceSource) for source in self.sources.values()):
+            return {}
+
+        return {normalize_project_name(member.name): str(member.project.location) for member in self.workspace.members}
+
+    @cached_property
     def environment_dependencies_complex(self) -> list[Dependency]:
         from hatch.dep.core import Dependency, InvalidDependencyError
         from hatch.project.sources import decorate_dependencies
@@ -288,7 +307,7 @@ class EnvironmentInterface(ABC):
                         message = f"Dependency #{i} of field `tool.hatch.envs.{self.name}.{option}` is invalid: {e}"
                         raise ValueError(message) from None
 
-        return decorate_dependencies(dependencies_complex, self.sources, str(self.root))
+        return decorate_dependencies(dependencies_complex, self.sources, str(self.root), self.source_workspace_members)
 
     @cached_property
     def environment_dependencies(self) -> list[str]:
@@ -342,7 +361,9 @@ class EnvironmentInterface(ABC):
                 get_complex_dependency_group(self.app.project.dependency_groups, dependency_group)
             )
 
-        return decorate_dependencies(all_dependencies_complex, self.sources, str(self.root))
+        return decorate_dependencies(
+            all_dependencies_complex, self.sources, str(self.root), self.source_workspace_members
+        )
 
     @cached_property
     def project_dependencies(self) -> list[str]:
@@ -391,7 +412,9 @@ class EnvironmentInterface(ABC):
             group_deps: list[Dependency] = []
             for dependency_group in self.dependency_groups:
                 group_deps.extend(get_complex_dependency_group(self.app.project.dependency_groups, dependency_group))
-            all_dependencies_complex.extend(decorate_dependencies(group_deps, self.sources, str(self.root)))
+            all_dependencies_complex.extend(
+                decorate_dependencies(group_deps, self.sources, str(self.root), self.source_workspace_members)
+            )
 
         if self.builder:
             from hatch.project.constants import BuildEnvVars

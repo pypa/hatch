@@ -3877,3 +3877,87 @@ class TestEnvironmentSources:
         assert deps[0].url is None
         assert deps[0].source is None
         assert environment.get_source_install_args(deps) == []
+
+    def test_workspace_source_resolves_to_member(self, temp_dir, isolated_data_dir, platform, temp_application):
+        from hatch.project.sources import WorkspaceSource
+
+        member_dir = temp_dir / "packages" / "dep1"
+        member_dir.ensure_dir_exists()
+        (member_dir / "pyproject.toml").write_text('[project]\nname = "dep1"\nversion = "0.0.1"\n')
+
+        pyproject = temp_dir / "pyproject.toml"
+        pyproject.write_text("""
+[project]
+name = "my-app"
+version = "0.0.1"
+dependencies = ["dep1"]
+
+[tool.hatch.sources]
+dep1 = { workspace = true }
+
+[tool.hatch.envs.default]
+skip-install = false
+workspace.members = ["packages/*"]
+""")
+
+        project = Project(temp_dir)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            temp_dir,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        workspace_deps = [dep for dep in environment.project_dependencies_complex if dep.name == "dep1"]
+        assert len(workspace_deps) == 1
+        dep = workspace_deps[0]
+        assert dep.url is not None
+        assert dep.url.startswith("file://")
+        assert dep.url.endswith("packages/dep1")
+        assert dep.editable is True
+        assert isinstance(dep.source, WorkspaceSource)
+
+    def test_workspace_source_without_member_errors(self, temp_dir, isolated_data_dir, platform, temp_application):
+        pyproject = temp_dir / "pyproject.toml"
+        pyproject.write_text("""
+[project]
+name = "my-app"
+version = "0.0.1"
+dependencies = ["dep1"]
+
+[tool.hatch.sources]
+dep1 = { workspace = true }
+
+[tool.hatch.envs.default]
+skip-install = false
+""")
+
+        project = Project(temp_dir)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            temp_dir,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        with pytest.raises(
+            ValueError,
+            match="Dependency `dep1` declares `workspace = true` in `tool.hatch.sources` but no matching member",
+        ):
+            _ = environment.project_dependencies_complex

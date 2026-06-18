@@ -262,6 +262,25 @@ class TestApplySourceToRequirement:
 
         assert apply_source_to_requirement("foo", [], source, str(temp_dir)) is None
 
+    def test_workspace_resolves_to_member(self, temp_dir):
+        source = WorkspaceSource()
+        member_path = str(temp_dir / "members" / "foo")
+        workspace_members = {"foo": member_path}
+
+        result = apply_source_to_requirement("foo", [], source, str(temp_dir), workspace_members)
+
+        assert result is not None
+        spec, editable = result
+        assert spec.startswith("foo @ file://")
+        assert spec.endswith("members/foo")
+        assert editable is True
+
+    def test_workspace_unmatched_member_returns_none(self, temp_dir):
+        source = WorkspaceSource()
+
+        # `bar` is not present in the member mapping
+        assert apply_source_to_requirement("foo", [], source, str(temp_dir), {"bar": str(temp_dir)}) is None
+
 
 class TestDecorateDependency:
     def test_no_sources(self, temp_dir):
@@ -329,6 +348,33 @@ class TestDecorateDependency:
         result = decorate_dependency(dep, sources, str(temp_dir))
 
         assert result.url is not None
+
+    def test_workspace_source_resolves_to_member(self, temp_dir):
+        from hatch.dep.core import Dependency
+
+        dep = Dependency("foo>=1")
+        sources = {"foo": WorkspaceSource()}
+        member_path = str(temp_dir / "members" / "foo")
+
+        result = decorate_dependency(dep, sources, str(temp_dir), {"foo": member_path})
+
+        assert result is not dep
+        assert result.url is not None
+        assert result.url.startswith("file://")
+        assert result.editable is True
+        assert isinstance(result.source, WorkspaceSource)
+
+    def test_workspace_source_unmatched_raises(self, temp_dir):
+        from hatch.dep.core import Dependency
+
+        dep = Dependency("foo>=1")
+        sources = {"foo": WorkspaceSource()}
+
+        with pytest.raises(
+            ValueError,
+            match="Dependency `foo` declares `workspace = true` in `tool.hatch.sources` but no matching member",
+        ):
+            decorate_dependency(dep, sources, str(temp_dir), {})
 
 
 class TestDecorateDependencies:

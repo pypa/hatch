@@ -288,12 +288,21 @@ def lookup(sources: Mapping[str, Source], name: str) -> Source | None:
     return sources.get(normalize_project_name(name))
 
 
-def apply_source_to_requirement(name: str, extras: list[str], source: Source, root: str) -> tuple[str, bool] | None:
+def apply_source_to_requirement(
+    name: str,
+    extras: list[str],
+    source: Source,
+    root: str,
+    workspace_members: Mapping[str, str] | None = None,
+) -> tuple[str, bool] | None:
     """
     Rewrite a requirement so it points at the given source. Returns a tuple of
     `(requirement_string, editable)` suitable for constructing a new `Dependency`,
-    or `None` if the source does not rewrite the requirement (e.g. `IndexSource`
-    or `WorkspaceSource`).
+    or `None` if the source does not rewrite the requirement (e.g. `IndexSource`,
+    or a `WorkspaceSource` that cannot be matched to a member in `workspace_members`).
+
+    `workspace_members` maps [normalized](https://peps.python.org/pep-0503/#normalized-names)
+    project names to the local path of the matching workspace member.
     """
     extras_segment = f"[{','.join(extras)}]" if extras else ""
 
@@ -308,6 +317,20 @@ def apply_source_to_requirement(name: str, extras: list[str], source: Source, ro
     if isinstance(source, UrlSource):
         url = render_url(source)
         return f"{name}{extras_segment} @ {url}", False
+
+    if isinstance(source, WorkspaceSource):
+        if workspace_members is None:
+            return None
+
+        from hatch.utils.metadata import normalize_project_name
+
+        member_path = workspace_members.get(normalize_project_name(name))
+        if member_path is None:
+            return None
+
+        # Workspace members are installed editable, matching `local_dependencies_complex`.
+        url = render_path_url(member_path, root)
+        return f"{name}{extras_segment} @ {url}", True
 
     return None
 
@@ -329,13 +352,19 @@ def collect_global_install_args(sources_used: list[Source]) -> list[str]:
     return args
 
 
-def decorate_dependency(dependency, sources: Mapping[str, Source], root: str):
+def decorate_dependency(
+    dependency, sources: Mapping[str, Source], root: str, workspace_members: Mapping[str, str] | None = None
+):
     """
     Apply a matching source from `sources` to `dependency`, returning a new
     [`Dependency`](../utilities.md#hatch.dep.core.Dependency) if a rewrite is
     needed, or the original dependency otherwise.
 
     Dependencies that already define a PEP 508 direct reference are left alone.
+
+    `workspace_members` maps [normalized](https://peps.python.org/pep-0503/#normalized-names)
+    project names to the local path of the matching workspace member, used to resolve
+    [`WorkspaceSource`](#WorkspaceSource) entries.
     """
     from hatch.dep.core import Dependency
 
@@ -346,10 +375,20 @@ def decorate_dependency(dependency, sources: Mapping[str, Source], root: str):
     if source is None:
         return dependency
 
-    rewritten = apply_source_to_requirement(dependency.name, list(dependency.extras), source, root)
+    rewritten = apply_source_to_requirement(dependency.name, list(dependency.extras), source, root, workspace_members)
     if rewritten is None:
-        # `IndexSource` and `WorkspaceSource` do not change the requirement
-        # string. Attach the source so install logic can act on it.
+        if isinstance(source, WorkspaceSource):
+            # A `WorkspaceSource` that reaches here could not be matched to a member, which
+            # is a configuration error. Installing from a default index would silently ignore
+            # the declared source, so fail loudly instead.
+            message = (
+                f"Dependency `{dependency.name}` declares `workspace = true` in `tool.hatch.sources` "
+                f"but no matching member was found in `tool.hatch.envs.<ENV_NAME>.workspace.members`"
+            )
+            raise ValueError(message)
+
+        # `IndexSource` does not change the requirement string. Attach the source so
+        # install logic can act on it.
         return Dependency(str(dependency), source=source)
 
     spec, editable = rewritten
@@ -359,11 +398,13 @@ def decorate_dependency(dependency, sources: Mapping[str, Source], root: str):
     return Dependency(spec, editable=editable, source=source)
 
 
-def decorate_dependencies(dependencies, sources: Mapping[str, Source], root: str):
+def decorate_dependencies(
+    dependencies, sources: Mapping[str, Source], root: str, workspace_members: Mapping[str, str] | None = None
+):
     """
     Apply [`decorate_dependency`](#decorate_dependency) to each dependency in turn.
     """
     if not sources:
         return list(dependencies)
 
-    return [decorate_dependency(dep, sources, root) for dep in dependencies]
+    return [decorate_dependency(dep, sources, root, workspace_members) for dep in dependencies]
