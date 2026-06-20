@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import sys
 from functools import cached_property
 from typing import TYPE_CHECKING
 
@@ -9,7 +8,7 @@ import hyperlink
 from hatch._version import __version__
 
 if TYPE_CHECKING:
-    import httpx
+    import httpx2
 
     from hatch.utils.fs import Path
 
@@ -49,19 +48,16 @@ class PackageIndex:
             self.__verify = ca_cert
 
     @cached_property
-    def client(self) -> httpx.Client:
-        import httpx
+    def client(self) -> httpx2.Client:
+        import httpx2
 
+        from hatch.utils.linehaul import get_linehaul_component
         from hatch.utils.network import DEFAULT_TIMEOUT
 
-        user_agent = (
-            f"Hatch/{__version__} "
-            f"{sys.implementation.name}/{'.'.join(map(str, sys.version_info[:3]))} "
-            f"HTTPX/{httpx.__version__}"
-        )
-        return httpx.Client(
+        user_agent = f"Hatch/{__version__} {get_linehaul_component()} HTTPX2/{httpx2.__version__}"
+        return httpx2.Client(
             headers={"User-Agent": user_agent},
-            transport=httpx.HTTPTransport(retries=3, verify=self.__verify, cert=self.__cert),
+            transport=httpx2.HTTPTransport(retries=3, verify=self.__verify, cert=self.__cert),
             timeout=DEFAULT_TIMEOUT,
         )
 
@@ -101,7 +97,7 @@ class PackageIndex:
             )
             response.raise_for_status()
 
-    def get_simple_api(self, project: str) -> httpx.Response:
+    def get_simple_api(self, project: str) -> httpx2.Response:
         return self.client.get(
             str(self.urls.simple.child(project, "")),
             headers={"Cache-Control": "no-cache"},

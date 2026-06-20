@@ -13,6 +13,7 @@ def read_readme(project_dir):
     return repr((project_dir / "README.txt").read_text())[1:-1]
 
 
+@pytest.mark.requires_internet
 def test_other_backend(hatch, temp_dir, helpers):
     project_name = "My.App"
 
@@ -84,6 +85,7 @@ def test_other_backend(hatch, temp_dir, helpers):
     )
 
 
+@pytest.mark.requires_internet
 def test_default_all(hatch, temp_dir, helpers):
     project_name = "My.App"
 
@@ -148,6 +150,7 @@ def test_default_all(hatch, temp_dir, helpers):
     )
 
 
+@pytest.mark.requires_internet
 def test_field_readme(hatch, temp_dir):
     project_name = "My.App"
 
@@ -181,6 +184,7 @@ Inspecting build dependencies
     )
 
 
+@pytest.mark.requires_internet
 def test_field_string(hatch, temp_dir, helpers):
     project_name = "My.App"
 
@@ -207,6 +211,7 @@ def test_field_string(hatch, temp_dir, helpers):
     )
 
 
+@pytest.mark.requires_internet
 def test_field_complex(hatch, temp_dir, helpers):
     project_name = "My.App"
 
@@ -263,6 +268,7 @@ def test_incompatible_environment(hatch, temp_dir, helpers, build_env_config):
     )
 
 
+@pytest.mark.requires_internet
 def test_plugin_dependencies_unmet(hatch, temp_dir, helpers, mock_plugin_installation):
     project_name = "My.App"
 
@@ -339,6 +345,7 @@ def test_plugin_dependencies_unmet(hatch, temp_dir, helpers, mock_plugin_install
     helpers.assert_plugin_installation(mock_plugin_installation, [dependency])
 
 
+@pytest.mark.requires_internet
 def test_build_dependencies_unmet(hatch, temp_dir, helpers):
     project_name = "My.App"
 

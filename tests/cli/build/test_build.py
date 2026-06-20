@@ -235,6 +235,7 @@ def test_no_compatibility_check_if_exists(hatch, temp_dir, helpers, mocker):
     )
 
 
+@pytest.mark.requires_internet
 def test_unknown_targets(hatch, temp_dir, helpers):
     project_name = "My.App"
 
@@ -260,6 +261,7 @@ def test_unknown_targets(hatch, temp_dir, helpers):
     )
 
 
+@pytest.mark.requires_internet
 def test_mutually_exclusive_hook_options(hatch, temp_dir, helpers):
     project_name = "My.App"
 
@@ -285,6 +287,7 @@ def test_mutually_exclusive_hook_options(hatch, temp_dir, helpers):
     )
 
 
+@pytest.mark.requires_internet
 def test_default(hatch, temp_dir, helpers):
     project_name = "My.App"
 
@@ -321,6 +324,7 @@ def test_default(hatch, temp_dir, helpers):
     )
 
 
+@pytest.mark.requires_internet
 def test_explicit_targets(hatch, temp_dir, helpers):
     project_name = "My.App"
 
@@ -354,6 +358,7 @@ def test_explicit_targets(hatch, temp_dir, helpers):
     )
 
 
+@pytest.mark.requires_internet
 def test_explicit_directory(hatch, temp_dir, helpers):
     project_name = "My.App"
 
@@ -390,6 +395,7 @@ def test_explicit_directory(hatch, temp_dir, helpers):
     )
 
 
+@pytest.mark.requires_internet
 def test_explicit_directory_env_var(hatch, temp_dir, helpers):
     project_name = "My.App"
 
@@ -426,6 +432,7 @@ def test_explicit_directory_env_var(hatch, temp_dir, helpers):
     )
 
 
+@pytest.mark.requires_internet
 def test_clean(hatch, temp_dir, helpers, config_file):
     config_file.model.template.plugins["default"]["src-layout"] = False
     config_file.save()
@@ -510,6 +517,7 @@ def test_clean(hatch, temp_dir, helpers, config_file):
     )
 
 
+@pytest.mark.requires_internet
 def test_clean_env_var(hatch, temp_dir, helpers):
     project_name = "My.App"
 
@@ -566,6 +574,7 @@ def test_clean_env_var(hatch, temp_dir, helpers):
     )
 
 
+@pytest.mark.requires_internet
 def test_clean_only(hatch, temp_dir, helpers, config_file):
     config_file.model.template.plugins["default"]["src-layout"] = False
     config_file.save()
@@ -632,6 +641,7 @@ def test_clean_only(hatch, temp_dir, helpers, config_file):
     )
 
 
+@pytest.mark.requires_internet
 def test_clean_only_hooks_only(hatch, temp_dir, helpers, config_file):
     config_file.model.template.plugins["default"]["src-layout"] = False
     config_file.save()
@@ -698,6 +708,7 @@ def test_clean_only_hooks_only(hatch, temp_dir, helpers, config_file):
     )
 
 
+@pytest.mark.requires_internet
 def test_clean_hooks_after(hatch, temp_dir, helpers, config_file):
     config_file.model.template.plugins["default"]["src-layout"] = False
     config_file.save()
@@ -763,6 +774,7 @@ def test_clean_hooks_after(hatch, temp_dir, helpers, config_file):
     )
 
 
+@pytest.mark.requires_internet
 def test_clean_hooks_after_env_var(hatch, temp_dir, helpers, config_file):
     config_file.model.template.plugins["default"]["src-layout"] = False
     config_file.save()
@@ -828,6 +840,7 @@ def test_clean_hooks_after_env_var(hatch, temp_dir, helpers, config_file):
     )
 
 
+@pytest.mark.requires_internet
 def test_clean_only_no_hooks(hatch, temp_dir, helpers, config_file):
     config_file.model.template.plugins["default"]["src-layout"] = False
     config_file.save()
@@ -894,6 +907,7 @@ def test_clean_only_no_hooks(hatch, temp_dir, helpers, config_file):
     )
 
 
+@pytest.mark.requires_internet
 def test_hooks_only(hatch, temp_dir, helpers, config_file):
     config_file.model.template.plugins["default"]["src-layout"] = False
     config_file.save()
@@ -954,6 +968,7 @@ def test_hooks_only(hatch, temp_dir, helpers, config_file):
     )
 
 
+@pytest.mark.requires_internet
 def test_hooks_only_env_var(hatch, temp_dir, helpers, config_file):
     config_file.model.template.plugins["default"]["src-layout"] = False
     config_file.save()
@@ -1014,6 +1029,7 @@ def test_hooks_only_env_var(hatch, temp_dir, helpers, config_file):
     )
 
 
+@pytest.mark.requires_internet
 def test_extensions_only(hatch, temp_dir, helpers, config_file):
     config_file.model.template.plugins["default"]["src-layout"] = False
     config_file.save()
@@ -1074,6 +1090,7 @@ def test_extensions_only(hatch, temp_dir, helpers, config_file):
     )
 
 
+@pytest.mark.requires_internet
 def test_no_hooks(hatch, temp_dir, helpers):
     project_name = "My.App"
 
@@ -1129,6 +1146,7 @@ def test_no_hooks(hatch, temp_dir, helpers):
     )
 
 
+@pytest.mark.requires_internet
 def test_no_hooks_env_var(hatch, temp_dir, helpers):
     project_name = "My.App"
 
@@ -1184,6 +1202,7 @@ def test_no_hooks_env_var(hatch, temp_dir, helpers):
     )
 
 
+@pytest.mark.requires_internet
 def test_debug_verbosity(hatch, temp_dir, helpers):
     project_name = "My.App"
 
@@ -1354,6 +1373,7 @@ def test_build_dependencies(hatch, temp_dir, helpers):
     )
 
 
+@pytest.mark.requires_internet
 def test_plugin_dependencies_unmet(hatch, temp_dir, helpers, mock_plugin_installation):
     project_name = "My.App"
 

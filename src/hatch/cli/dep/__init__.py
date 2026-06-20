@@ -1,9 +1,67 @@
 import click
 
+from hatch.cli.env.lock import dependency_lock_click_options, run_dep_lock
+
 
 @click.group(short_help="Manage environment dependencies")
 def dep():
     pass
+
+
+@dep.command("lock", short_help="Generate a lockfile for the active environment (`-e` / `HATCH_ENV`)")
+@dependency_lock_click_options
+@click.pass_obj
+def dep_lock(
+    app,
+    *,
+    upgrade: bool,
+    upgrade_package: tuple[str, ...],
+    export_path: str | None,
+    export_all_path: str | None,
+    check: bool,
+):
+    """Resolve dependencies and write a PEP 751 ``pylock.toml`` for the selected environment."""
+    app.ensure_environment_plugin_dependencies()
+    run_dep_lock(
+        app,
+        upgrade=upgrade,
+        upgrade_package=upgrade_package,
+        export_path=export_path,
+        export_all_path=export_all_path,
+        check=check,
+    )
+
+
+@dep.command("sync", short_help="Install dependencies from the environment lockfile (`apply_lock`)")
+@click.pass_obj
+def dep_sync(app):
+    """Sync the active environment to its lockfile (``locked`` environments only)."""
+    app.ensure_environment_plugin_dependencies()
+
+    environment = app.project.get_environment()
+    if not environment.locked:
+        app.abort(
+            "The active environment is not `locked`. Set `locked = true` or use `hatch env lock --export` "
+            "and a normal install workflow."
+        )
+
+    from hatch.env.lock import LockerNotFoundError, LockerUnsupportedError, resolve_lockfile_path
+
+    lock_path = resolve_lockfile_path(environment)
+    if not lock_path.is_file():
+        app.abort(f"No lockfile at `{lock_path}`. Run `hatch dep lock` or `hatch env lock` first.")
+
+    try:
+        with app.status("Syncing from lockfile"):
+            environment.sync_dependencies()
+    except LockerNotFoundError as e:
+        app.abort(str(e))
+    except LockerUnsupportedError as e:
+        if e.detail:
+            app.abort(f"Cannot sync environment `{environment.name}` from lockfile: {e.detail}")
+        app.abort(str(e))
+
+    app.display_success(f"Synced environment `{environment.name}` from `{lock_path.name}`")
 
 
 @dep.command("hash", short_help="Output a hash of the currently defined dependencies")

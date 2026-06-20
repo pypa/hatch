@@ -27,6 +27,8 @@ EXCLUDED_DIRECTORIES = frozenset((
 EXCLUDED_FILES = frozenset((
     # https://en.wikipedia.org/wiki/.DS_Store
     ".DS_Store",
+    # Git worktree metadata file
+    ".git",
 ))
 
 

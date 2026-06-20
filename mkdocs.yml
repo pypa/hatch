@@ -77,6 +77,7 @@ nav:
     - Internal:
       - Testing: config/internal/testing.md
       - Static analysis: config/internal/static-analysis.md
+      - Type checking: config/internal/type-checking.md
       - Building: config/internal/build.md
     - Context formatting: config/context.md
     - Project templates: config/project-templates.md
@@ -102,6 +103,8 @@ nav:
     - Environment:
       - Reference: plugins/environment/reference.md
       - Virtual: plugins/environment/virtual.md
+    - Dependency locker:
+      - Reference: plugins/locker.md
     - Environment collector:
       - Reference: plugins/environment-collector/reference.md
       - Custom: plugins/environment-collector/custom.md
@@ -130,6 +133,7 @@ nav:
     - Environments:
       - Select installer: how-to/environment/select-installer.md
       - Dependency resolution: how-to/environment/dependency-resolution.md
+      - Lockfiles: how-to/environment/lockfiles.md
       - Workspace: how-to/environment/workspace.md
     - Static analysis:
       - Customize behavior: how-to/static-analysis/behavior.md
@@ -170,6 +174,26 @@ plugins:
   glightbox: {}
   minify:
     minify_html: true
+  git-committers:
+    repository: pypa/hatch
+    enabled: !ENV [GITHUB_ACTIONS, false]
+    token: !ENV [GH_TOKEN, ""]
+  social:
+    cards_layout_options:
+      logo: docs/assets/images/logo.svg
+  material/blog:
+    categories_allowed:
+      - General
+      - News
+      - Release
+      - Roadmap
+    post_excerpt: required
+    post_slugify: !!python/object/apply:pymdownx.slugs.slugify
+      kwds:
+        case: lower
+    categories_slugify: !!python/object/apply:pymdownx.slugs.slugify
+      kwds:
+        case: lower
   git-revision-date-localized:
     type: date
     strict: false

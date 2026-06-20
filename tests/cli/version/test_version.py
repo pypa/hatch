@@ -129,6 +129,7 @@ def test_incompatible_environment(hatch, temp_dir, helpers, build_env_config):
     )
 
 
+@pytest.mark.requires_internet
 @pytest.mark.usefixtures("mock_backend_process")
 def test_show_dynamic(hatch, helpers, temp_dir):
     project_name = "My.App"
@@ -155,6 +156,7 @@ def test_show_dynamic(hatch, helpers, temp_dir):
     )
 
 
+@pytest.mark.requires_internet
 @pytest.mark.usefixtures("mock_backend_process")
 def test_plugin_dependencies_unmet(hatch, helpers, temp_dir, mock_plugin_installation):
     project_name = "My.App"
@@ -237,6 +239,7 @@ def test_no_compatibility_check_if_exists(hatch, helpers, temp_dir, mocker):
     )
 
 
+@pytest.mark.requires_internet
 @pytest.mark.usefixtures("mock_backend_process")
 def test_set_dynamic(hatch, helpers, temp_dir):
     project_name = "My.App"
@@ -275,6 +278,7 @@ def test_set_dynamic(hatch, helpers, temp_dir):
     )
 
 
+@pytest.mark.requires_internet
 @pytest.mark.usefixtures("mock_backend_process")
 def test_set_dynamic_downgrade(hatch, helpers, temp_dir):
     project_name = "My.App"
@@ -369,6 +373,7 @@ def test_set_static(hatch, helpers, temp_dir):
     )
 
 
+@pytest.mark.requires_internet
 @pytest.mark.usefixtures("mock_backend_process")
 def test_verbose_output_to_stderr(hatch, temp_dir):
     """Test that verbose output (command display and status messages) goes to stderr, not stdout."""
