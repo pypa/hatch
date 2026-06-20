@@ -12,7 +12,7 @@ requires-hatch = ">=1.18.0"
 
 This is useful if your project relies on features that are only supported by specific versions of Hatch.
 
-The value of the field must be a string, a valid [PEP 440](https://peps.python.org/pep-0440/#version-specifiers) version specifier set that specifies the allowed Hatch version(s).
+The value of the field must be a string containing a valid [PEP 440](https://peps.python.org/pep-0440/#version-specifiers) version specifier set.
 The field is optional.
 
 !!! note
