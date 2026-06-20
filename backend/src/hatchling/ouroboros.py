@@ -9,15 +9,15 @@ from hatchling.build import *  # noqa: F403
 
 
 def read_dependencies() -> list[str]:
-    pattern = r'^dependencies = (\[.*?\])$'
+    pattern = r"^dependencies = (\[.*?\])$"
 
-    with open(os.path.join(os.getcwd(), 'pyproject.toml'), encoding='utf-8') as f:
+    with open(os.path.join(os.getcwd(), "pyproject.toml"), encoding="utf-8") as f:
         # Windows \r\n prevents match
-        contents = '\n'.join(line.rstrip() for line in f)
+        contents = "\n".join(line.rstrip() for line in f)
 
     match = re.search(pattern, contents, flags=re.MULTILINE | re.DOTALL)
     if match is None:
-        message = 'No dependencies found'
+        message = "No dependencies found"
         raise ValueError(message)
 
     return literal_eval(match.group(1))

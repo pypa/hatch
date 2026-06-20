@@ -18,8 +18,8 @@ If you're [using UV](select-installer.md), a different set of [environment varia
 
 ```toml config-example
 [tool.hatch.envs.default.env-vars]
-UV_EXTRA_INDEX_URL = "https://token:{env:GITLAB_API_TOKEN}@gitlab.com/api/v4/groups/<group1_path>/-/packages/pypi/simple/"
-UV_INDEX_URL = "https://token:{env:GITLAB_API_TOKEN}@gitlab.com/api/v4/groups/<group2_path>/-/packages/pypi/simple/ https://pypi.org/simple/"
+UV_INDEX = "https://token:{env:GITLAB_API_TOKEN}@gitlab.com/api/v4/groups/<group1_path>/-/packages/pypi/simple/ https://token:{env:GITLAB_API_TOKEN}@gitlab.com/api/v4/groups/<group2_path>/-/packages/pypi/simple/"
+UV_DEFAULT_INDEX = "https://pypi.org/simple/"
 ```
 
 !!! tip

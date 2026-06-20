@@ -6,38 +6,38 @@ from hatchling.utils.constants import DEFAULT_CONFIG_FILE
 
 
 def test_filter_not_mapping(hatch, helpers, temp_dir, config_file):
-    config_file.model.template.plugins['default']['tests'] = False
+    config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
     project = Project(project_path)
     helpers.update_project_environment(
         project,
-        'default',
+        "default",
         {
-            'skip-install': True,
-            'scripts': {
-                'error': [
+            "skip-install": True,
+            "scripts": {
+                "error": [
                     'python -c "import sys;sys.exit(3)"',
-                    'python -c "import pathlib,sys;pathlib.Path(\'test.txt\').write_text(sys.executable)"',
+                    "python -c \"import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable)\"",
                 ],
             },
-            **project.config.envs['default'],
+            **project.config.envs["default"],
         },
     )
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('env', 'run', 'error', '--filter', '[]')
+        result = hatch("env", "run", "error", "--filter", "[]")
 
     assert result.exit_code == 1
     assert result.output == helpers.dedent(
@@ -48,42 +48,42 @@ def test_filter_not_mapping(hatch, helpers, temp_dir, config_file):
 
 
 def test_filter(hatch, helpers, temp_dir, config_file):
-    config_file.model.template.plugins['default']['tests'] = False
+    config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
     project = Project(project_path)
-    helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
+    helpers.update_project_environment(project, "default", {"skip-install": True, **project.config.envs["default"]})
     helpers.update_project_environment(
         project,
-        'test',
+        "test",
         {
-            'matrix': [{'version': ['9000', '42']}],
-            'overrides': {'matrix': {'version': {'foo-bar-option': {'value': True, 'if': ['42']}}}},
+            "matrix": [{"version": ["9000", "42"]}],
+            "overrides": {"matrix": {"version": {"foo-bar-option": {"value": True, "if": ["42"]}}}},
         },
     )
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
         result = hatch(
-            'env',
-            'run',
-            '--env',
-            'test',
-            '--filter',
+            "env",
+            "run",
+            "--env",
+            "test",
+            "--filter",
             '{"foo-bar-option":true}',
-            '--',
-            'python',
-            '-c',
+            "--",
+            "python",
+            "-c",
             "import os,sys;open('test.txt', 'a').write(sys.executable+os.linesep[-1])",
         )
 
@@ -95,10 +95,10 @@ def test_filter(hatch, helpers, temp_dir, config_file):
         Checking dependencies
         """
     )
-    output_file = project_path / 'test.txt'
+    output_file = project_path / "test.txt"
     assert output_file.is_file()
 
-    env_data_path = data_path / 'env' / 'virtual'
+    env_data_path = data_path / "env" / "virtual"
     assert env_data_path.is_dir()
 
     project_data_path = env_data_path / project_path.name
@@ -114,47 +114,47 @@ def test_filter(hatch, helpers, temp_dir, config_file):
     assert len(env_dirs) == 1
 
     env_path = env_dirs[0]
-    assert env_path.name == 'test.42'
+    assert env_path.name == "test.42"
 
     python_path = str(output_file.read_text()).strip()
     assert str(env_path) in python_path
 
 
 def test_force_continue(hatch, helpers, temp_dir, config_file):
-    config_file.model.template.plugins['default']['tests'] = False
+    config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
     project = Project(project_path)
     helpers.update_project_environment(
         project,
-        'default',
+        "default",
         {
-            'skip-install': True,
-            'scripts': {
-                'error': [
+            "skip-install": True,
+            "scripts": {
+                "error": [
                     'python -c "import sys;sys.exit(2)"',
                     '- python -c "import sys;sys.exit(3)"',
                     'python -c "import sys;sys.exit(1)"',
-                    'python -c "import pathlib,sys;pathlib.Path(\'test.txt\').write_text(sys.executable)"',
+                    "python -c \"import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable)\"",
                 ],
             },
-            **project.config.envs['default'],
+            **project.config.envs["default"],
         },
     )
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('env', 'run', '--force-continue', '--', 'error')
+        result = hatch("env", "run", "--force-continue", "--", "error")
 
     assert result.exit_code == 2
     assert result.output == helpers.dedent(
@@ -167,10 +167,10 @@ def test_force_continue(hatch, helpers, temp_dir, config_file):
         cmd [4] | python -c "import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable)"
         """
     )
-    output_file = project_path / 'test.txt'
+    output_file = project_path / "test.txt"
     assert output_file.is_file()
 
-    env_data_path = data_path / 'env' / 'virtual'
+    env_data_path = data_path / "env" / "virtual"
     assert env_data_path.is_dir()
 
     project_data_path = env_data_path / project_path.name
@@ -193,36 +193,36 @@ def test_force_continue(hatch, helpers, temp_dir, config_file):
 
 
 def test_ignore_compatibility(hatch, helpers, temp_dir, config_file):
-    config_file.model.template.plugins['default']['tests'] = False
+    config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
     project = Project(project_path)
     helpers.update_project_environment(
-        project, 'default', {'skip-install': True, 'platforms': ['foo'], **project.config.envs['default']}
+        project, "default", {"skip-install": True, "platforms": ["foo"], **project.config.envs["default"]}
     )
-    helpers.update_project_environment(project, 'test', {})
+    helpers.update_project_environment(project, "test", {})
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
         result = hatch(
-            'env',
-            'run',
-            '--ignore-compat',
-            '--env',
-            'test',
-            '--',
-            'python',
-            '-c',
+            "env",
+            "run",
+            "--ignore-compat",
+            "--env",
+            "test",
+            "--",
+            "python",
+            "-c",
             "import os,sys;open('test.txt', 'a').write(sys.executable+os.linesep[-1])",
         )
 
@@ -233,26 +233,26 @@ def test_ignore_compatibility(hatch, helpers, temp_dir, config_file):
         test -> unsupported platform
         """
     )
-    output_file = project_path / 'test.txt'
+    output_file = project_path / "test.txt"
     assert not output_file.is_file()
 
-    env_data_path = data_path / 'env' / 'virtual'
+    env_data_path = data_path / "env" / "virtual"
     assert not env_data_path.is_dir()
 
 
 def test_plugin_dependencies_unmet(hatch, helpers, temp_dir, config_file, mock_plugin_installation):
-    config_file.model.template.plugins['default']['tests'] = False
+    config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
     dependency = os.urandom(16).hex()
@@ -266,11 +266,11 @@ def test_plugin_dependencies_unmet(hatch, helpers, temp_dir, config_file, mock_p
     )
 
     project = Project(project_path)
-    helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
+    helpers.update_project_environment(project, "default", {"skip-install": True, **project.config.envs["default"]})
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
         result = hatch(
-            'env', 'run', '--', 'python', '-c', "import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable)"
+            "env", "run", "--", "python", "-c", "import pathlib,sys;pathlib.Path('test.txt').write_text(sys.executable)"
         )
 
     assert result.exit_code == 0, result.output
@@ -283,10 +283,10 @@ def test_plugin_dependencies_unmet(hatch, helpers, temp_dir, config_file, mock_p
     )
     helpers.assert_plugin_installation(mock_plugin_installation, [dependency])
 
-    output_file = project_path / 'test.txt'
+    output_file = project_path / "test.txt"
     assert output_file.is_file()
 
-    env_data_path = data_path / 'env' / 'virtual'
+    env_data_path = data_path / "env" / "virtual"
     assert env_data_path.is_dir()
 
     project_data_path = env_data_path / project_path.name

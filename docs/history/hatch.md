@@ -8,17 +8,134 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.17.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.17.0) - 2026-05-31 ## {: #hatch-v1.17.0 }
+
 ***Changed:***
 
+- The `hatch fmt` command is now deprecated in favor of the new `hatch check` command group
+- Migrate HTTP client from `httpx` to `httpx2`
+
+***Added:***
+
+- Add `hatch check` command group with subcommands for `check code` (linting), `check fmt` (formatting), and `check types` (type checking)
+- Add `hatch check types` command for type checking using Pyrefly, with `--summarize` and `--cover` flags
+- Add `hatch env lock` command to generate PEP 751 compliant lockfiles (`pylock.toml`) for environments
+- Add `hatch dep lock` and `hatch lock` commands as shortcuts for locking the active environment
+- Add `hatch dep sync` command for syncing dependencies from a lockfile
+- Add pluggable dependency locker interface with built-in UV and pip implementations
+- Add `--cover-xml` and `--cover-xml-output` flags to the `hatch test` command for generating XML coverage reports
+- Add linehaul telemetry data to User-Agent header for PyPI download statistics
+- Auto-create environment when locking if it doesn't exist
+
+***Fixed:***
+
+- Fix help output formatting for the `run` command
+
+## [1.16.5](https://github.com/pypa/hatch/releases/tag/hatch-v1.16.5) - 2026-02-26 ## {: #hatch-v1.16.5 }
+
+***Fixed:***
+
+- Handle a breaking change in `virtualenv` by only supporting the latest version and adding `python-discovery` as a dependency.
+
+## [1.16.4](https://github.com/pypa/hatch/releases/tag/hatch-v1.16.4) - 2026-02-23 ## {: #hatch-v1.16.4 }
+
+***Fixed:***
+
+- Fixes hatch shell type error for keep_env.
+- SBOM documentation for including SBOM files in `sdist`
+- Fixes workspace member detection to properly handle shared path prefixes.
+
+## [1.16.3](https://github.com/pypa/hatch/releases/tag/hatch-v1.16.3) - 2026-01-20 ## {: #hatch-v1.16.3 }
+
+***Added:***
+
+- Env var for keep-env when an exception occurs during environment creation to enable debugging.
+
+***Fixed:***
+
+- Fix issue with self-referential dependencies not being recognized.
+- Fix incomplete environments created when an exception occurs during creation.
+- Fix dependency-groups not working with when environment is not marked as builder.
+- Change Keyring to take expect repository URL instead of repository name.
+
+## [1.16.2](https://github.com/pypa/hatch/releases/tag/hatch-v1.16.2) - 2025-12-06 ## {: #hatch-v1.16.2 }
+
+***Fixed:***
+
+- Properly send informational output to `stderr` instead of `stdout`
+- Implement documented support for `sbom-files` as build data for the `wheel` build target
+- Fix regression where environments no longer acknowledged the `project.optional-dependencies` field
+
+## [1.16.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.16.1) - 2025-11-27 ## {: #hatch-v1.16.1 }
+
+***Fixed:***
+
+- Handle special characters correctly in path for editable installs.
+- Fix multiple calls to install on `sync_dependencies` to become a single call.
+- Fix context variable formatting in project dependencies to prevent crashes when using variables like `{root:parent:uri}` in the `[project]` section.
+- Fix environment overrides for `dependency-groups` field to properly support matrix and conditional configurations.
+
+## [1.16.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.16.0) - 2025-11-26 ## {: #hatch-v1.16.0 }
+
+***Changed:***
+
+- Drop support for 3.9
 - Environment type plugins are now no longer expected to support a pseudo-build environment as any environment now may be used for building. The following methods have been removed: `build_environment`, `build_environment_exists`, `run_builder`, `construct_build_command`
 
 ***Added:***
 
+- Support for workspaces inspired by Cargo Workspaces
+- Dependency group support.
 - The `version` and `project metadata` commands now support projects that do not use Hatchling as the build backend
 - The `version` command accepts a `--force` option, allowing for downgrades when an explicit version number is given.
 - Build environments can now be configured, the default build environment is `hatch-build`
 - The environment interface now has the following methods and properties in order to better support builds on remote machines: `project_root`, `sep`, `pathsep`, `fs_context`
 - Bump the minimum supported version of `packaging` to 24.2
+- Upgrade Ruff to 0.13.2
+
+***Fixed:***
+
+- All HTTP requests now set an identifiable `User-Agent` header.
+- Fix issue where terminal output would be out of sync during build.
+- Fix for Click Sentinel value when using `run` command
+
+## [1.15.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.15.1) - 2025-10-16 ## {: #hatch-v1.15.1 }
+
+***Fixed:***
+
+- Fix compatibility with cached default CPython distributions that were sourced from GitHub releases of the old owner
+
+## [1.15.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.15.0) - 2025-10-15 ## {: #hatch-v1.15.0 }
+
+***Changed:***
+
+- Drop support for Python 3.8
+
+***Added:***
+
+- Support Python 3.14
+- Upgrade default CPython distributions to 20251014
+- Upgrade default PyPy distributions to 7.3.20
+
+## [1.14.2](https://github.com/pypa/hatch/releases/tag/hatch-v1.14.2) - 2025-09-24 ## {: #hatch-v1.14.2 }
+
+***Fixed:***
+
+- Fix compatibility with recent versions of Click
+
+## [1.14.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.14.1) - 2025-04-07 ## {: #hatch-v1.14.1 }
+
+***Fixed:***
+
+- Remove uses of the deprecated `--no-python-version-warning` flag when using pip
+
+## [1.14.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.14.0) - 2024-12-16 ## {: #hatch-v1.14.0 }
+
+***Added:***
+
+- Upgrade default CPython distributions to 20241206
+- Bump the minimum supported version of Hatchling to 1.26.3
+- Update `virtualenv` dependency
 
 ## [1.13.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.13.0) - 2024-10-13 ## {: #hatch-v1.13.0 }
 
