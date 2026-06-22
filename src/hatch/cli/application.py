@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import signal
 import sys
 from functools import cached_property
 from typing import TYPE_CHECKING, cast
@@ -15,8 +16,7 @@ from hatch.utils.runner import ExecutionContext
 if TYPE_CHECKING:
     from collections.abc import Generator
 
-    from packaging.requirements import Requirement
-
+    from hatch.dep.core import Dependency
     from hatch.env.plugin.interface import EnvironmentInterface
 
 
@@ -48,8 +48,8 @@ class Application(Terminal):
     def get_environment(self, env_name: str | None = None) -> EnvironmentInterface:
         return self.project.get_environment(env_name)
 
-    def prepare_environment(self, environment: EnvironmentInterface):
-        self.project.prepare_environment(environment)
+    def prepare_environment(self, environment: EnvironmentInterface, *, keep_env: bool = False):
+        self.project.prepare_environment(environment, keep_env=keep_env)
 
     def run_shell_commands(self, context: ExecutionContext) -> None:
         with context.env.command_context():
@@ -62,22 +62,37 @@ class Application(Terminal):
             should_display_command = not context.hide_commands and (self.verbose or len(resolved_commands) > 1)
             for i, raw_command in enumerate(resolved_commands, 1):
                 if should_display_command:
-                    self.display(f'{context.source} [{i}] | {raw_command}')
+                    self.display_info(f"{context.source} [{i}] | {raw_command}")
 
                 command = raw_command
                 continue_on_error = context.force_continue
-                if raw_command.startswith('- '):
+                if raw_command.startswith("- "):
                     continue_on_error = True
                     command = command[2:]
 
-                process = context.env.run_shell_command(command)
+                # Ignore SIGINT in the parent process while the child command runs so that
+                # only the child handles Ctrl-C.  The terminal sends SIGINT to the entire
+                # foreground process group; without this the parent raises KeyboardInterrupt
+                # and aborts even though the child (e.g. a Python REPL) may choose to stay
+                # alive.  The child's exit code is still used to determine success/failure.
+                original_sigint = signal.getsignal(signal.SIGINT)
+                try:
+                    signal.signal(signal.SIGINT, signal.SIG_IGN)
+                    process = context.env.run_shell_command(command)
+                finally:
+                    # Restore the original handler in finally so the parent stays
+                    # responsive to Ctrl-C even if the child raises or is cancelled.
+                    # Don't hoist this out of the finally block.
+                    signal.signal(signal.SIGINT, original_sigint)
+                sys.stdout.flush()
+                sys.stderr.flush()
                 if process.returncode:
                     first_error_code = first_error_code or process.returncode
                     if continue_on_error:
                         continue
 
                     if context.show_code_on_error:
-                        self.abort(f'Failed with exit code: {process.returncode}', code=process.returncode)
+                        self.abort(f"Failed with exit code: {process.returncode}", code=process.returncode)
                     else:
                         self.abort(code=process.returncode)
 
@@ -90,6 +105,7 @@ class Application(Terminal):
         *,
         ignore_compat: bool = False,
         display_header: bool = False,
+        keep_env: bool = False,
     ) -> Generator[ExecutionContext, None, None]:
         if self.verbose or len(environments) > 1:
             display_header = True
@@ -107,7 +123,7 @@ class Application(Terminal):
                             incompatible[environment.name] = str(e)
                             continue
 
-                        self.abort(f'Environment `{env_name}` is incompatible: {e}')
+                        self.abort(f"Environment `{env_name}` is incompatible: {e}")
 
                 any_compatible = True
                 if display_header:
@@ -116,17 +132,17 @@ class Application(Terminal):
                 context = ExecutionContext(environment)
                 yield context
 
-                self.prepare_environment(environment)
+                self.prepare_environment(environment, keep_env=keep_env)
                 self.execute_context(context)
 
         if incompatible:
             num_incompatible = len(incompatible)
-            padding = '\n' if any_compatible else ''
+            padding = "\n" if any_compatible else ""
             self.display_warning(
-                f'{padding}Skipped {num_incompatible} incompatible environment{"s" if num_incompatible > 1 else ""}:'
+                f"{padding}Skipped {num_incompatible} incompatible environment{'s' if num_incompatible > 1 else ''}:"
             )
             for env_name, reason in incompatible.items():
-                self.display_warning(f'{env_name} -> {reason}')
+                self.display_warning(f"{env_name} -> {reason}")
 
     def execute_context(self, context: ExecutionContext) -> None:
         from hatch.utils.structures import EnvVars
@@ -136,33 +152,35 @@ class Application(Terminal):
 
     def ensure_environment_plugin_dependencies(self) -> None:
         self.ensure_plugin_dependencies(
-            self.project.config.env_requires_complex, wait_message='Syncing environment plugin requirements'
+            self.project.config.env_requires_complex, wait_message="Syncing environment plugin requirements"
         )
 
-    def ensure_plugin_dependencies(self, dependencies: list[Requirement], *, wait_message: str) -> None:
+    def ensure_plugin_dependencies(self, dependencies: list[Dependency], *, wait_message: str) -> None:
         if not dependencies:
             return
 
-        from hatch.dep.sync import dependencies_in_sync
+        from hatch.dep.sync import InstalledDistributions
         from hatch.env.utils import add_verbosity_flag
 
-        if app_path := os.environ.get('PYAPP'):
+        if app_path := os.environ.get("PYAPP"):
             from hatch.utils.env import PythonInfo
 
-            management_command = os.environ['PYAPP_COMMAND_NAME']
-            executable = self.platform.check_command_output([app_path, management_command, 'python-path']).strip()
+            management_command = os.environ["PYAPP_COMMAND_NAME"]
+            executable = self.platform.check_command_output([app_path, management_command, "python-path"]).strip()
             python_info = PythonInfo(self.platform, executable=executable)
-            if dependencies_in_sync(dependencies, sys_path=python_info.sys_path):
+            distributions = InstalledDistributions(sys_path=python_info.sys_path)
+            if distributions.dependencies_in_sync(dependencies):
                 return
 
-            pip_command = [app_path, management_command, 'pip']
+            pip_command = [app_path, management_command, "pip"]
         else:
-            if dependencies_in_sync(dependencies):
+            distributions = InstalledDistributions()
+            if distributions.dependencies_in_sync(dependencies):
                 return
 
-            pip_command = [sys.executable, '-u', '-m', 'pip']
+            pip_command = [sys.executable, "-u", "-m", "pip"]
 
-        pip_command.extend(['install', '--disable-pip-version-check'])
+        pip_command.extend(["install", "--disable-pip-version-check"])
 
         # Default to -1 verbosity
         add_verbosity_flag(pip_command, self.verbosity, adjustment=-1)
@@ -182,14 +200,14 @@ class Application(Terminal):
 
             return self.project.location / path
 
-        return self.data_dir / 'env' / environment_type
+        return self.data_dir / "env" / environment_type
 
     def get_python_manager(self, directory: str | None = None):
         from hatch.python.core import PythonManager
 
         configured_dir = directory or self.config.dirs.python
-        if configured_dir == 'isolated':
-            return PythonManager(self.data_dir / 'pythons')
+        if configured_dir == "isolated":
+            return PythonManager(self.data_dir / "pythons")
 
         return PythonManager(Path(configured_dir).expand())
 
@@ -199,7 +217,7 @@ class Application(Terminal):
 
         return detect_shell(self.platform)
 
-    def abort(self, text='', code=1, **kwargs):
+    def abort(self, text="", code=1, **kwargs):
         if text:
             self.display_error(text, **kwargs)
         self.__exit_func(code)

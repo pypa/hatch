@@ -53,4 +53,4 @@ jobs:
         template_config: dict,  # noqa: ARG002
         plugin_config: dict,  # noqa: ARG002
     ):
-        super().__init__(Path('.github', 'workflows', 'test.yml'), self.TEMPLATE)
+        super().__init__(Path(".github", "workflows", "test.yml"), self.TEMPLATE)

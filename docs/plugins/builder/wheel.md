@@ -23,6 +23,10 @@ The builder plugin name is `wheel`.
 | `strict-naming` | `true` | Whether or not file names should contain the normalized version of the project name |
 | `macos-max-compat` | `false` | Whether or not on macOS, when build hooks have set the `infer_tag` [build data](#build-data), the wheel name should signal broad support rather than specific versions for newer SDK versions.<br><br>Note: This option will eventually be removed. |
 | `bypass-selection` | `false` | Whether or not to suppress the error when one has not defined any file selection options and all heuristics have failed to determine what to ship |
+| `sbom-files` | | A list of paths to [Software Bill of Materials](https://peps.python.org/pep-0770/) files that will be included in the `.dist-info/sboms/` directory of the wheel |
+
+!!! note
+    Many build frontends will build the wheel from a source distribution. This is the recommended approach, but it means you need to ensure the SBOM files passed to `sbom-files` are also [included in the source distribution](https://hatch.pypa.io/latest/config/build/#file-selection).
 
 ## Versions
 
@@ -60,3 +64,4 @@ This is data that can be modified by [build hooks](../build-hook/reference.md).
 | `shared_scripts` | | Additional [`shared-scripts`](#options) entries, which take precedence in case of conflicts |
 | `extra_metadata` | | Additional [`extra-metadata`](#options) entries, which take precedence in case of conflicts |
 | `force_include_editable` | | Similar to the [`force_include` option](../build-hook/reference.md#build-data) but specifically for the `editable` [version](#versions) and takes precedence |
+| `sbom_files` | | This is a list of the sbom files that should be included under `.dist-info/sboms`. |

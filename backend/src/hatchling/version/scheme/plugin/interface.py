@@ -14,7 +14,7 @@ class VersionSchemeInterface(ABC):  # no cov
 
 
     class SpecialVersionScheme(VersionSchemeInterface):
-        PLUGIN_NAME = 'special'
+        PLUGIN_NAME = "special"
         ...
     ```
 
@@ -30,7 +30,7 @@ class VersionSchemeInterface(ABC):  # no cov
     ```
     """
 
-    PLUGIN_NAME = ''
+    PLUGIN_NAME = ""
     """The name used for selection."""
 
     def __init__(self, root: str, config: dict) -> None:
@@ -67,11 +67,11 @@ class VersionSchemeInterface(ABC):  # no cov
         from hatchling.utils.constants import VersionEnvVars
 
         if VersionEnvVars.VALIDATE_BUMP in os.environ:
-            return os.environ[VersionEnvVars.VALIDATE_BUMP] not in {'false', '0'}
+            return os.environ[VersionEnvVars.VALIDATE_BUMP] not in {"false", "0"}
 
-        validate_bump = self.config.get('validate-bump', True)
+        validate_bump = self.config.get("validate-bump", True)
         if not isinstance(validate_bump, bool):
-            message = 'option `validate-bump` must be a boolean'
+            message = "option `validate-bump` must be a boolean"
             raise TypeError(message)
 
         return validate_bump

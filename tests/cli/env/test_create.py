@@ -13,22 +13,22 @@ from hatchling.utils.fs import path_to_uri
 
 
 def test_undefined(hatch, helpers, temp_dir, config_file):
-    config_file.model.template.plugins['default']['tests'] = False
+    config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('env', 'create', 'test')
+        result = hatch("env", "create", "test")
 
     assert result.exit_code == 1
     assert result.output == helpers.dedent(
@@ -39,28 +39,28 @@ def test_undefined(hatch, helpers, temp_dir, config_file):
 
 
 def test_unknown_type(hatch, helpers, temp_dir, config_file):
-    config_file.model.template.plugins['default']['tests'] = False
+    config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
     project = Project(project_path)
-    config = dict(project.config.envs['default'])
-    config['type'] = 'foo'
-    helpers.update_project_environment(project, 'default', config)
-    helpers.update_project_environment(project, 'test', {})
+    config = dict(project.config.envs["default"])
+    config["type"] = "foo"
+    helpers.update_project_environment(project, "default", config)
+    helpers.update_project_environment(project, "test", {})
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('env', 'create', 'test')
+        result = hatch("env", "create", "test")
 
     assert result.exit_code == 1
     assert result.output == helpers.dedent(
@@ -71,26 +71,26 @@ def test_unknown_type(hatch, helpers, temp_dir, config_file):
 
 
 def test_new(hatch, helpers, temp_dir, config_file):
-    config_file.model.template.plugins['default']['tests'] = False
+    config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
     project = Project(project_path)
-    helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
-    helpers.update_project_environment(project, 'test', {})
+    helpers.update_project_environment(project, "default", {"skip-install": True, **project.config.envs["default"]})
+    helpers.update_project_environment(project, "test", {})
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('env', 'create', 'test')
+        result = hatch("env", "create", "test")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -102,15 +102,15 @@ def test_new(hatch, helpers, temp_dir, config_file):
 
     project = Project(project_path)
     assert project.config.envs == {
-        'default': {'type': 'virtual', 'skip-install': True},
-        'test': {'type': 'virtual', 'skip-install': True},
+        "default": {"type": "virtual", "skip-install": True},
+        "test": {"type": "virtual", "skip-install": True},
     }
-    assert project.raw_config['tool']['hatch']['envs'] == {
-        'default': {'type': 'virtual', 'skip-install': True},
-        'test': {},
+    assert project.raw_config["tool"]["hatch"]["envs"] == {
+        "default": {"type": "virtual", "skip-install": True},
+        "test": {},
     }
 
-    env_data_path = data_path / 'env' / 'virtual'
+    env_data_path = data_path / "env" / "virtual"
     assert env_data_path.is_dir()
 
     project_data_path = env_data_path / project_path.name
@@ -127,36 +127,37 @@ def test_new(hatch, helpers, temp_dir, config_file):
 
     env_path = env_dirs[0]
 
-    assert env_path.name == 'test'
+    assert env_path.name == "test"
 
 
 def test_uv_shipped(hatch, helpers, temp_dir, config_file):
-    config_file.model.template.plugins['default']['tests'] = False
+    config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
     project = Project(project_path)
     helpers.update_project_environment(
         project,
-        'default',
-        {'skip-install': True, 'installer': 'uv', **project.config.envs['default']},
+        "default",
+        {"skip-install": True, "installer": "uv", **project.config.envs["default"]},
     )
-    helpers.update_project_environment(project, 'test', {})
+    helpers.update_project_environment(project, "test", {})
 
-    with project_path.as_cwd(), EnvVars(
-        {ConfigEnvVars.DATA: str(data_path)}, exclude=[get_env_var(plugin_name='virtual', option='uv_path')]
+    with (
+        project_path.as_cwd(),
+        EnvVars({ConfigEnvVars.DATA: str(data_path)}, exclude=[get_env_var(plugin_name="virtual", option="uv_path")]),
     ):
-        result = hatch('env', 'create', 'test')
+        result = hatch("env", "create", "test")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -166,7 +167,7 @@ def test_uv_shipped(hatch, helpers, temp_dir, config_file):
         """
     )
 
-    env_data_path = data_path / 'env' / 'virtual'
+    env_data_path = data_path / "env" / "virtual"
     assert env_data_path.is_dir()
 
     project_data_path = env_data_path / project_path.name
@@ -183,38 +184,39 @@ def test_uv_shipped(hatch, helpers, temp_dir, config_file):
 
     env_path = env_dirs[0]
 
-    assert env_path.name == 'test'
+    assert env_path.name == "test"
 
 
 @pytest.mark.requires_internet
 def test_uv_env(hatch, helpers, temp_dir, config_file):
-    config_file.model.template.plugins['default']['tests'] = False
+    config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
     project = Project(project_path)
     helpers.update_project_environment(
         project,
-        'default',
-        {'skip-install': True, 'installer': 'uv', **project.config.envs['default']},
+        "default",
+        {"skip-install": True, "installer": "uv", **project.config.envs["default"]},
     )
-    helpers.update_project_environment(project, 'hatch-uv', {'dependencies': ['uv>=0.1.31']})
-    helpers.update_project_environment(project, 'test', {})
+    helpers.update_project_environment(project, "hatch-uv", {"dependencies": ["uv>=0.1.31"]})
+    helpers.update_project_environment(project, "test", {})
 
-    with project_path.as_cwd(), EnvVars(
-        {ConfigEnvVars.DATA: str(data_path)}, exclude=[get_env_var(plugin_name='virtual', option='uv_path')]
+    with (
+        project_path.as_cwd(),
+        EnvVars({ConfigEnvVars.DATA: str(data_path)}, exclude=[get_env_var(plugin_name="virtual", option="uv_path")]),
     ):
-        result = hatch('env', 'create', 'test')
+        result = hatch("env", "create", "test")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -227,7 +229,7 @@ def test_uv_env(hatch, helpers, temp_dir, config_file):
         """
     )
 
-    env_data_path = data_path / 'env' / 'virtual'
+    env_data_path = data_path / "env" / "virtual"
     assert env_data_path.is_dir()
 
     project_data_path = env_data_path / project_path.name
@@ -242,32 +244,32 @@ def test_uv_env(hatch, helpers, temp_dir, config_file):
     env_dirs = list(storage_path.iterdir())
     assert len(env_dirs) == 2
 
-    assert sorted(p.name for p in env_dirs) == ['hatch-uv', 'test']
+    assert sorted(p.name for p in env_dirs) == ["hatch-uv", "test"]
 
 
 def test_new_selected_python(hatch, helpers, temp_dir, config_file, python_on_path, mocker):
-    mocker.patch('sys.executable')
+    mocker.patch("sys.executable")
 
-    config_file.model.template.plugins['default']['tests'] = False
+    config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
     project = Project(project_path)
-    helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
-    helpers.update_project_environment(project, 'test', {})
+    helpers.update_project_environment(project, "default", {"skip-install": True, **project.config.envs["default"]})
+    helpers.update_project_environment(project, "test", {})
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path), AppEnvVars.PYTHON: python_on_path}):
-        result = hatch('env', 'create', 'test')
+        result = hatch("env", "create", "test")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -279,15 +281,15 @@ def test_new_selected_python(hatch, helpers, temp_dir, config_file, python_on_pa
 
     project = Project(project_path)
     assert project.config.envs == {
-        'default': {'type': 'virtual', 'skip-install': True},
-        'test': {'type': 'virtual', 'skip-install': True},
+        "default": {"type": "virtual", "skip-install": True},
+        "test": {"type": "virtual", "skip-install": True},
     }
-    assert project.raw_config['tool']['hatch']['envs'] == {
-        'default': {'type': 'virtual', 'skip-install': True},
-        'test': {},
+    assert project.raw_config["tool"]["hatch"]["envs"] == {
+        "default": {"type": "virtual", "skip-install": True},
+        "test": {},
     }
 
-    env_data_path = data_path / 'env' / 'virtual'
+    env_data_path = data_path / "env" / "virtual"
     assert env_data_path.is_dir()
 
     project_data_path = env_data_path / project_path.name
@@ -304,31 +306,31 @@ def test_new_selected_python(hatch, helpers, temp_dir, config_file, python_on_pa
 
     env_path = env_dirs[0]
 
-    assert env_path.name == 'test'
+    assert env_path.name == "test"
 
 
 def test_selected_absolute_directory(hatch, helpers, temp_dir, config_file):
-    config_file.model.template.plugins['default']['tests'] = False
-    config_file.model.dirs.env = {'virtual': '$VENVS_DIR'}
+    config_file.model.template.plugins["default"]["tests"] = False
+    config_file.model.dirs.env = {"virtual": "$VENVS_DIR"}
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    env_data_path = temp_dir / '.venvs'
+    project_path = temp_dir / "my-app"
+    env_data_path = temp_dir / ".venvs"
 
     project = Project(project_path)
-    assert project.config.envs == {'default': {'type': 'virtual'}}
-    helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
-    helpers.update_project_environment(project, 'test', {})
+    assert project.config.envs == {"default": {"type": "virtual"}}
+    helpers.update_project_environment(project, "default", {"skip-install": True, **project.config.envs["default"]})
+    helpers.update_project_environment(project, "test", {})
 
-    with project_path.as_cwd({'VENVS_DIR': str(env_data_path)}):
-        result = hatch('env', 'create', 'test')
+    with project_path.as_cwd({"VENVS_DIR": str(env_data_path)}):
+        result = hatch("env", "create", "test")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -340,12 +342,12 @@ def test_selected_absolute_directory(hatch, helpers, temp_dir, config_file):
 
     project = Project(project_path)
     assert project.config.envs == {
-        'default': {'type': 'virtual', 'skip-install': True},
-        'test': {'type': 'virtual', 'skip-install': True},
+        "default": {"type": "virtual", "skip-install": True},
+        "test": {"type": "virtual", "skip-install": True},
     }
-    assert project.raw_config['tool']['hatch']['envs'] == {
-        'default': {'type': 'virtual', 'skip-install': True},
-        'test': {},
+    assert project.raw_config["tool"]["hatch"]["envs"] == {
+        "default": {"type": "virtual", "skip-install": True},
+        "test": {},
     }
 
     assert env_data_path.is_dir()
@@ -364,32 +366,32 @@ def test_selected_absolute_directory(hatch, helpers, temp_dir, config_file):
 
     env_path = env_dirs[0]
 
-    assert env_path.name == 'test'
+    assert env_path.name == "test"
 
 
 def test_option_absolute_directory(hatch, helpers, temp_dir, config_file):
-    config_file.model.template.plugins['default']['tests'] = False
-    config_file.model.dirs.env = {'virtual': '$VENVS_DIR'}
+    config_file.model.template.plugins["default"]["tests"] = False
+    config_file.model.dirs.env = {"virtual": "$VENVS_DIR"}
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    env_data_path = temp_dir / '.venvs'
-    env_path = temp_dir / 'foo'
+    project_path = temp_dir / "my-app"
+    env_data_path = temp_dir / ".venvs"
+    env_path = temp_dir / "foo"
 
     project = Project(project_path)
-    assert project.config.envs == {'default': {'type': 'virtual'}}
-    helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
-    helpers.update_project_environment(project, 'test', {'path': str(env_path)})
+    assert project.config.envs == {"default": {"type": "virtual"}}
+    helpers.update_project_environment(project, "default", {"skip-install": True, **project.config.envs["default"]})
+    helpers.update_project_environment(project, "test", {"path": str(env_path)})
 
-    with project_path.as_cwd({'VENVS_DIR': str(env_data_path)}):
-        result = hatch('env', 'create', 'test')
+    with project_path.as_cwd({"VENVS_DIR": str(env_data_path)}):
+        result = hatch("env", "create", "test")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -401,12 +403,12 @@ def test_option_absolute_directory(hatch, helpers, temp_dir, config_file):
 
     project = Project(project_path)
     assert project.config.envs == {
-        'default': {'type': 'virtual', 'skip-install': True},
-        'test': {'type': 'virtual', 'skip-install': True, 'path': str(env_path)},
+        "default": {"type": "virtual", "skip-install": True},
+        "test": {"type": "virtual", "skip-install": True, "path": str(env_path)},
     }
-    assert project.raw_config['tool']['hatch']['envs'] == {
-        'default': {'type': 'virtual', 'skip-install': True},
-        'test': {'path': str(env_path)},
+    assert project.raw_config["tool"]["hatch"]["envs"] == {
+        "default": {"type": "virtual", "skip-install": True},
+        "test": {"path": str(env_path)},
     }
 
     assert not env_data_path.is_dir()
@@ -414,29 +416,29 @@ def test_option_absolute_directory(hatch, helpers, temp_dir, config_file):
 
 
 def test_env_var_absolute_directory(hatch, helpers, temp_dir, config_file):
-    config_file.model.template.plugins['default']['tests'] = False
-    config_file.model.dirs.env = {'virtual': '$VENVS_DIR'}
+    config_file.model.template.plugins["default"]["tests"] = False
+    config_file.model.dirs.env = {"virtual": "$VENVS_DIR"}
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    env_data_path = temp_dir / '.venvs'
-    env_path = temp_dir / 'foo'
-    env_path_overridden = temp_dir / 'bar'
+    project_path = temp_dir / "my-app"
+    env_data_path = temp_dir / ".venvs"
+    env_path = temp_dir / "foo"
+    env_path_overridden = temp_dir / "bar"
 
     project = Project(project_path)
-    assert project.config.envs == {'default': {'type': 'virtual'}}
-    helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
-    helpers.update_project_environment(project, 'test', {'path': str(env_path_overridden)})
+    assert project.config.envs == {"default": {"type": "virtual"}}
+    helpers.update_project_environment(project, "default", {"skip-install": True, **project.config.envs["default"]})
+    helpers.update_project_environment(project, "test", {"path": str(env_path_overridden)})
 
-    with project_path.as_cwd({'VENVS_DIR': str(env_data_path), 'HATCH_ENV_TYPE_VIRTUAL_PATH': str(env_path)}):
-        result = hatch('env', 'create', 'test')
+    with project_path.as_cwd({"VENVS_DIR": str(env_data_path), "HATCH_ENV_TYPE_VIRTUAL_PATH": str(env_path)}):
+        result = hatch("env", "create", "test")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -448,12 +450,12 @@ def test_env_var_absolute_directory(hatch, helpers, temp_dir, config_file):
 
     project = Project(project_path)
     assert project.config.envs == {
-        'default': {'type': 'virtual', 'skip-install': True},
-        'test': {'type': 'virtual', 'skip-install': True, 'path': str(env_path_overridden)},
+        "default": {"type": "virtual", "skip-install": True},
+        "test": {"type": "virtual", "skip-install": True, "path": str(env_path_overridden)},
     }
-    assert project.raw_config['tool']['hatch']['envs'] == {
-        'default': {'type': 'virtual', 'skip-install': True},
-        'test': {'path': str(env_path_overridden)},
+    assert project.raw_config["tool"]["hatch"]["envs"] == {
+        "default": {"type": "virtual", "skip-install": True},
+        "test": {"path": str(env_path_overridden)},
     }
 
     assert not env_data_path.is_dir()
@@ -461,25 +463,25 @@ def test_env_var_absolute_directory(hatch, helpers, temp_dir, config_file):
 
 
 def test_selected_local_directory(hatch, helpers, temp_dir, config_file):
-    config_file.model.template.plugins['default']['tests'] = False
-    config_file.model.dirs.env = {'virtual': '$VENVS_DIR'}
+    config_file.model.template.plugins["default"]["tests"] = False
+    config_file.model.dirs.env = {"virtual": "$VENVS_DIR"}
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
+    project_path = temp_dir / "my-app"
 
     project = Project(project_path)
-    helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
-    helpers.update_project_environment(project, 'test', {'matrix': [{'version': ['9000', '42']}]})
+    helpers.update_project_environment(project, "default", {"skip-install": True, **project.config.envs["default"]})
+    helpers.update_project_environment(project, "test", {"matrix": [{"version": ["9000", "42"]}]})
 
-    with project_path.as_cwd({'VENVS_DIR': '.hatch'}):
-        result = hatch('env', 'create')
+    with project_path.as_cwd({"VENVS_DIR": ".hatch"}):
+        result = hatch("env", "create")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -489,8 +491,8 @@ def test_selected_local_directory(hatch, helpers, temp_dir, config_file):
         """
     )
 
-    with project_path.as_cwd({'VENVS_DIR': '.hatch'}):
-        result = hatch('env', 'create', 'test')
+    with project_path.as_cwd({"VENVS_DIR": ".hatch"}):
+        result = hatch("env", "create", "test")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -504,46 +506,46 @@ def test_selected_local_directory(hatch, helpers, temp_dir, config_file):
 
     project = Project(project_path)
     assert project.config.envs == {
-        'default': {'type': 'virtual', 'skip-install': True},
-        'test.9000': {'type': 'virtual', 'skip-install': True},
-        'test.42': {'type': 'virtual', 'skip-install': True},
+        "default": {"type": "virtual", "skip-install": True},
+        "test.9000": {"type": "virtual", "skip-install": True},
+        "test.42": {"type": "virtual", "skip-install": True},
     }
-    assert project.raw_config['tool']['hatch']['envs'] == {
-        'default': {'type': 'virtual', 'skip-install': True},
-        'test': {'matrix': [{'version': ['9000', '42']}]},
+    assert project.raw_config["tool"]["hatch"]["envs"] == {
+        "default": {"type": "virtual", "skip-install": True},
+        "test": {"matrix": [{"version": ["9000", "42"]}]},
     }
 
-    env_data_path = project_path / '.hatch'
+    env_data_path = project_path / ".hatch"
     assert env_data_path.is_dir()
 
     env_dirs = list(env_data_path.iterdir())
     assert len(env_dirs) == 4
 
-    assert sorted(entry.name for entry in env_dirs) == ['.gitignore', 'my-app', 'test.42', 'test.9000']
+    assert sorted(entry.name for entry in env_dirs) == [".gitignore", "my-app", "test.42", "test.9000"]
 
 
 def test_option_local_directory(hatch, helpers, temp_dir, config_file):
-    config_file.model.template.plugins['default']['tests'] = False
-    config_file.model.dirs.env = {'virtual': '$VENVS_DIR'}
+    config_file.model.template.plugins["default"]["tests"] = False
+    config_file.model.dirs.env = {"virtual": "$VENVS_DIR"}
     config_file.save()
 
-    project_name = 'My.App'
-    env_data_path = temp_dir / '.venvs'
+    project_name = "My.App"
+    env_data_path = temp_dir / ".venvs"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
+    project_path = temp_dir / "my-app"
 
     project = Project(project_path)
-    assert project.config.envs == {'default': {'type': 'virtual'}}
-    helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
-    helpers.update_project_environment(project, 'test', {'path': '.venv'})
+    assert project.config.envs == {"default": {"type": "virtual"}}
+    helpers.update_project_environment(project, "default", {"skip-install": True, **project.config.envs["default"]})
+    helpers.update_project_environment(project, "test", {"path": ".venv"})
 
-    with project_path.as_cwd({'VENVS_DIR': str(env_data_path)}):
-        result = hatch('env', 'create', 'test')
+    with project_path.as_cwd({"VENVS_DIR": str(env_data_path)}):
+        result = hatch("env", "create", "test")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -555,39 +557,39 @@ def test_option_local_directory(hatch, helpers, temp_dir, config_file):
 
     project = Project(project_path)
     assert project.config.envs == {
-        'default': {'type': 'virtual', 'skip-install': True},
-        'test': {'type': 'virtual', 'skip-install': True, 'path': '.venv'},
+        "default": {"type": "virtual", "skip-install": True},
+        "test": {"type": "virtual", "skip-install": True, "path": ".venv"},
     }
-    assert project.raw_config['tool']['hatch']['envs'] == {
-        'default': {'type': 'virtual', 'skip-install': True},
-        'test': {'path': '.venv'},
+    assert project.raw_config["tool"]["hatch"]["envs"] == {
+        "default": {"type": "virtual", "skip-install": True},
+        "test": {"path": ".venv"},
     }
     assert not env_data_path.is_dir()
-    assert (project_path / '.venv').is_dir()
+    assert (project_path / ".venv").is_dir()
 
 
 def test_env_var_local_directory(hatch, helpers, temp_dir, config_file):
-    config_file.model.template.plugins['default']['tests'] = False
-    config_file.model.dirs.env = {'virtual': '$VENVS_DIR'}
+    config_file.model.template.plugins["default"]["tests"] = False
+    config_file.model.dirs.env = {"virtual": "$VENVS_DIR"}
     config_file.save()
 
-    project_name = 'My.App'
-    env_data_path = temp_dir / '.venvs'
+    project_name = "My.App"
+    env_data_path = temp_dir / ".venvs"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
+    project_path = temp_dir / "my-app"
 
     project = Project(project_path)
-    assert project.config.envs == {'default': {'type': 'virtual'}}
-    helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
-    helpers.update_project_environment(project, 'test', {'path': '.foo'})
+    assert project.config.envs == {"default": {"type": "virtual"}}
+    helpers.update_project_environment(project, "default", {"skip-install": True, **project.config.envs["default"]})
+    helpers.update_project_environment(project, "test", {"path": ".foo"})
 
-    with project_path.as_cwd({'VENVS_DIR': str(env_data_path), 'HATCH_ENV_TYPE_VIRTUAL_PATH': '.venv'}):
-        result = hatch('env', 'create', 'test')
+    with project_path.as_cwd({"VENVS_DIR": str(env_data_path), "HATCH_ENV_TYPE_VIRTUAL_PATH": ".venv"}):
+        result = hatch("env", "create", "test")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -599,44 +601,44 @@ def test_env_var_local_directory(hatch, helpers, temp_dir, config_file):
 
     project = Project(project_path)
     assert project.config.envs == {
-        'default': {'type': 'virtual', 'skip-install': True},
-        'test': {'type': 'virtual', 'skip-install': True, 'path': '.foo'},
+        "default": {"type": "virtual", "skip-install": True},
+        "test": {"type": "virtual", "skip-install": True, "path": ".foo"},
     }
-    assert project.raw_config['tool']['hatch']['envs'] == {
-        'default': {'type': 'virtual', 'skip-install': True},
-        'test': {'path': '.foo'},
+    assert project.raw_config["tool"]["hatch"]["envs"] == {
+        "default": {"type": "virtual", "skip-install": True},
+        "test": {"path": ".foo"},
     }
     assert not env_data_path.is_dir()
-    assert (project_path / '.venv').is_dir()
+    assert (project_path / ".venv").is_dir()
 
 
 def test_enter_project_directory(hatch, config_file, helpers, temp_dir):
-    config_file.model.template.plugins['default']['tests'] = False
+    config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
-    project = 'foo'
-    config_file.model.mode = 'project'
+    project = "foo"
+    config_file.model.mode = "project"
     config_file.model.project = project
     config_file.model.projects = {project: str(project_path)}
     config_file.save()
 
     project = Project(project_path)
-    helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
-    helpers.update_project_environment(project, 'test', {})
+    helpers.update_project_environment(project, "default", {"skip-install": True, **project.config.envs["default"]})
+    helpers.update_project_environment(project, "test", {})
 
     with EnvVars({ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('env', 'create', 'test')
+        result = hatch("env", "create", "test")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -646,7 +648,7 @@ def test_enter_project_directory(hatch, config_file, helpers, temp_dir):
         """
     )
 
-    env_data_path = data_path / 'env' / 'virtual'
+    env_data_path = data_path / "env" / "virtual"
     assert env_data_path.is_dir()
 
     project_data_path = env_data_path / project_path.name
@@ -663,30 +665,30 @@ def test_enter_project_directory(hatch, config_file, helpers, temp_dir):
 
     env_path = env_dirs[0]
 
-    assert env_path.name == 'test'
+    assert env_path.name == "test"
 
 
 def test_already_created(hatch, config_file, helpers, temp_dir):
-    config_file.model.template.plugins['default']['tests'] = False
+    config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
     project = Project(project_path)
-    helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
-    helpers.update_project_environment(project, 'test', {})
+    helpers.update_project_environment(project, "default", {"skip-install": True, **project.config.envs["default"]})
+    helpers.update_project_environment(project, "test", {})
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('env', 'create', 'test')
+        result = hatch("env", "create", "test")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -696,7 +698,7 @@ def test_already_created(hatch, config_file, helpers, temp_dir):
         """
     )
 
-    env_data_path = data_path / 'env' / 'virtual'
+    env_data_path = data_path / "env" / "virtual"
     assert env_data_path.is_dir()
 
     project_data_path = env_data_path / project_path.name
@@ -713,10 +715,10 @@ def test_already_created(hatch, config_file, helpers, temp_dir):
 
     env_path = env_dirs[0]
 
-    assert env_path.name == 'test'
+    assert env_path.name == "test"
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('env', 'create', 'test')
+        result = hatch("env", "create", "test")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -727,25 +729,25 @@ def test_already_created(hatch, config_file, helpers, temp_dir):
 
 
 def test_default(hatch, config_file, helpers, temp_dir):
-    config_file.model.template.plugins['default']['tests'] = False
+    config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
     project = Project(project_path)
-    helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
+    helpers.update_project_environment(project, "default", {"skip-install": True, **project.config.envs["default"]})
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('env', 'create')
+        result = hatch("env", "create")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -755,7 +757,7 @@ def test_default(hatch, config_file, helpers, temp_dir):
         """
     )
 
-    env_data_path = data_path / 'env' / 'virtual'
+    env_data_path = data_path / "env" / "virtual"
     assert env_data_path.is_dir()
 
     project_data_path = env_data_path / project_path.name
@@ -776,26 +778,26 @@ def test_default(hatch, config_file, helpers, temp_dir):
 
 
 def test_matrix(hatch, helpers, temp_dir, config_file):
-    config_file.model.template.plugins['default']['tests'] = False
+    config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
     project = Project(project_path)
-    helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
-    helpers.update_project_environment(project, 'test', {'matrix': [{'version': ['9000', '42']}]})
+    helpers.update_project_environment(project, "default", {"skip-install": True, **project.config.envs["default"]})
+    helpers.update_project_environment(project, "test", {"matrix": [{"version": ["9000", "42"]}]})
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('env', 'create', 'test')
+        result = hatch("env", "create", "test")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -809,16 +811,16 @@ def test_matrix(hatch, helpers, temp_dir, config_file):
 
     project = Project(project_path)
     assert project.config.envs == {
-        'default': {'type': 'virtual', 'skip-install': True},
-        'test.9000': {'type': 'virtual', 'skip-install': True},
-        'test.42': {'type': 'virtual', 'skip-install': True},
+        "default": {"type": "virtual", "skip-install": True},
+        "test.9000": {"type": "virtual", "skip-install": True},
+        "test.42": {"type": "virtual", "skip-install": True},
     }
-    assert project.raw_config['tool']['hatch']['envs'] == {
-        'default': {'type': 'virtual', 'skip-install': True},
-        'test': {'matrix': [{'version': ['9000', '42']}]},
+    assert project.raw_config["tool"]["hatch"]["envs"] == {
+        "default": {"type": "virtual", "skip-install": True},
+        "test": {"matrix": [{"version": ["9000", "42"]}]},
     }
 
-    env_data_path = data_path / 'env' / 'virtual'
+    env_data_path = data_path / "env" / "virtual"
     assert env_data_path.is_dir()
 
     project_data_path = env_data_path / project_path.name
@@ -833,33 +835,33 @@ def test_matrix(hatch, helpers, temp_dir, config_file):
     env_dirs = sorted(storage_path.iterdir(), key=lambda d: d.name)
     assert len(env_dirs) == 2
 
-    assert env_dirs[0].name == 'test.42'
-    assert env_dirs[1].name == 'test.9000'
+    assert env_dirs[0].name == "test.42"
+    assert env_dirs[1].name == "test.9000"
 
 
 def test_incompatible_single(hatch, helpers, temp_dir, config_file):
-    config_file.model.template.plugins['default']['tests'] = False
+    config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
     project = Project(project_path)
     helpers.update_project_environment(
-        project, 'default', {'skip-install': True, 'platforms': ['foo'], **project.config.envs['default']}
+        project, "default", {"skip-install": True, "platforms": ["foo"], **project.config.envs["default"]}
     )
-    helpers.update_project_environment(project, 'test', {})
+    helpers.update_project_environment(project, "test", {})
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('env', 'create', 'test')
+        result = hatch("env", "create", "test")
 
     assert result.exit_code == 1
     assert result.output == helpers.dedent(
@@ -870,41 +872,41 @@ def test_incompatible_single(hatch, helpers, temp_dir, config_file):
 
     project = Project(project_path)
     assert project.config.envs == {
-        'default': {'type': 'virtual', 'skip-install': True, 'platforms': ['foo']},
-        'test': {'type': 'virtual', 'skip-install': True, 'platforms': ['foo']},
+        "default": {"type": "virtual", "skip-install": True, "platforms": ["foo"]},
+        "test": {"type": "virtual", "skip-install": True, "platforms": ["foo"]},
     }
-    assert project.raw_config['tool']['hatch']['envs'] == {
-        'default': {'type': 'virtual', 'skip-install': True, 'platforms': ['foo']},
-        'test': {},
+    assert project.raw_config["tool"]["hatch"]["envs"] == {
+        "default": {"type": "virtual", "skip-install": True, "platforms": ["foo"]},
+        "test": {},
     }
 
-    env_data_path = data_path / 'env' / 'virtual'
+    env_data_path = data_path / "env" / "virtual"
     assert not env_data_path.is_dir()
 
 
 def test_incompatible_matrix_full(hatch, helpers, temp_dir, config_file):
-    config_file.model.template.plugins['default']['tests'] = False
+    config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
     project = Project(project_path)
     helpers.update_project_environment(
-        project, 'default', {'skip-install': True, 'platforms': ['foo'], **project.config.envs['default']}
+        project, "default", {"skip-install": True, "platforms": ["foo"], **project.config.envs["default"]}
     )
-    helpers.update_project_environment(project, 'test', {'matrix': [{'version': ['9000', '42']}]})
+    helpers.update_project_environment(project, "test", {"matrix": [{"version": ["9000", "42"]}]})
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('env', 'create', 'test')
+        result = hatch("env", "create", "test")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -917,47 +919,47 @@ def test_incompatible_matrix_full(hatch, helpers, temp_dir, config_file):
 
     project = Project(project_path)
     assert project.config.envs == {
-        'default': {'type': 'virtual', 'skip-install': True, 'platforms': ['foo']},
-        'test.9000': {'type': 'virtual', 'skip-install': True, 'platforms': ['foo']},
-        'test.42': {'type': 'virtual', 'skip-install': True, 'platforms': ['foo']},
+        "default": {"type": "virtual", "skip-install": True, "platforms": ["foo"]},
+        "test.9000": {"type": "virtual", "skip-install": True, "platforms": ["foo"]},
+        "test.42": {"type": "virtual", "skip-install": True, "platforms": ["foo"]},
     }
-    assert project.raw_config['tool']['hatch']['envs'] == {
-        'default': {'type': 'virtual', 'skip-install': True, 'platforms': ['foo']},
-        'test': {'matrix': [{'version': ['9000', '42']}]},
+    assert project.raw_config["tool"]["hatch"]["envs"] == {
+        "default": {"type": "virtual", "skip-install": True, "platforms": ["foo"]},
+        "test": {"matrix": [{"version": ["9000", "42"]}]},
     }
 
-    env_data_path = data_path / 'env' / 'virtual'
+    env_data_path = data_path / "env" / "virtual"
     assert not env_data_path.is_dir()
 
 
 def test_incompatible_matrix_partial(hatch, helpers, temp_dir, config_file):
-    config_file.model.template.plugins['default']['tests'] = False
+    config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
     project = Project(project_path)
-    helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
+    helpers.update_project_environment(project, "default", {"skip-install": True, **project.config.envs["default"]})
     helpers.update_project_environment(
         project,
-        'test',
+        "test",
         {
-            'matrix': [{'version': ['9000', '42']}],
-            'overrides': {'matrix': {'version': {'platforms': [{'value': 'foo', 'if': ['9000']}]}}},
+            "matrix": [{"version": ["9000", "42"]}],
+            "overrides": {"matrix": {"version": {"platforms": [{"value": "foo", "if": ["9000"]}]}}},
         },
     )
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('env', 'create', 'test')
+        result = hatch("env", "create", "test")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -971,19 +973,19 @@ def test_incompatible_matrix_partial(hatch, helpers, temp_dir, config_file):
 
     project = Project(project_path)
     assert project.config.envs == {
-        'default': {'type': 'virtual', 'skip-install': True},
-        'test.9000': {'type': 'virtual', 'skip-install': True, 'platforms': ['foo']},
-        'test.42': {'type': 'virtual', 'skip-install': True},
+        "default": {"type": "virtual", "skip-install": True},
+        "test.9000": {"type": "virtual", "skip-install": True, "platforms": ["foo"]},
+        "test.42": {"type": "virtual", "skip-install": True},
     }
-    assert project.raw_config['tool']['hatch']['envs'] == {
-        'default': {'type': 'virtual', 'skip-install': True},
-        'test': {
-            'matrix': [{'version': ['9000', '42']}],
-            'overrides': {'matrix': {'version': {'platforms': [{'value': 'foo', 'if': ['9000']}]}}},
+    assert project.raw_config["tool"]["hatch"]["envs"] == {
+        "default": {"type": "virtual", "skip-install": True},
+        "test": {
+            "matrix": [{"version": ["9000", "42"]}],
+            "overrides": {"matrix": {"version": {"platforms": [{"value": "foo", "if": ["9000"]}]}}},
         },
     }
 
-    env_data_path = data_path / 'env' / 'virtual'
+    env_data_path = data_path / "env" / "virtual"
     assert env_data_path.is_dir()
 
     project_data_path = env_data_path / project_path.name
@@ -998,29 +1000,29 @@ def test_incompatible_matrix_partial(hatch, helpers, temp_dir, config_file):
     env_dirs = list(storage_path.iterdir())
     assert len(env_dirs) == 1
 
-    assert env_dirs[0].name == 'test.42'
+    assert env_dirs[0].name == "test.42"
 
 
 @pytest.mark.requires_internet
 def test_install_project_default_dev_mode(
     hatch, helpers, temp_dir, platform, uv_on_path, extract_installed_requirements
 ):
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
     project = Project(project_path)
-    helpers.update_project_environment(project, 'test', {})
+    helpers.update_project_environment(project, "test", {})
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('env', 'create', 'test')
+        result = hatch("env", "create", "test")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -1031,7 +1033,7 @@ def test_install_project_default_dev_mode(
         """
     )
 
-    env_data_path = data_path / 'env' / 'virtual'
+    env_data_path = data_path / "env" / "virtual"
     assert env_data_path.is_dir()
 
     project_data_path = env_data_path / project_path.name
@@ -1048,37 +1050,39 @@ def test_install_project_default_dev_mode(
 
     env_path = env_dirs[0]
 
-    assert env_path.name == 'test'
+    assert env_path.name == "test"
 
     with UVVirtualEnv(env_path, platform):
-        output = platform.run_command([uv_on_path, 'pip', 'freeze'], check=True, capture_output=True).stdout.decode(
-            'utf-8'
+        output = platform.run_command([uv_on_path, "pip", "freeze"], check=True, capture_output=True).stdout.decode(
+            "utf-8"
         )
         requirements = extract_installed_requirements(output.splitlines())
 
         assert len(requirements) == 1
-        assert requirements[0].lower() == f'-e {project_path.as_uri().lower()}'
+        assert requirements[0].lower() == f"-e {project_path.as_uri().lower()}"
 
 
 @pytest.mark.requires_internet
 def test_install_project_no_dev_mode(hatch, helpers, temp_dir, platform, uv_on_path, extract_installed_requirements):
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
     project = Project(project_path)
-    helpers.update_project_environment(project, 'default', {'dev-mode': False, **project.config.envs['default']})
-    helpers.update_project_environment(project, 'test', {})
+    helpers.update_project_environment(
+        project, "default", {"dev-mode": False, "extra-dependencies": ["binary"], **project.config.envs["default"]}
+    )
+    helpers.update_project_environment(project, "test", {})
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('env', 'create', 'test')
+        result = hatch("env", "create", "test")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -1086,10 +1090,11 @@ def test_install_project_no_dev_mode(hatch, helpers, temp_dir, platform, uv_on_p
         Creating environment: test
         Installing project
         Checking dependencies
+        Syncing dependencies
         """
     )
 
-    env_data_path = data_path / 'env' / 'virtual'
+    env_data_path = data_path / "env" / "virtual"
     assert env_data_path.is_dir()
 
     project_data_path = env_data_path / project_path.name
@@ -1106,47 +1111,47 @@ def test_install_project_no_dev_mode(hatch, helpers, temp_dir, platform, uv_on_p
 
     env_path = env_dirs[0]
 
-    assert env_path.name == 'test'
+    assert env_path.name == "test"
 
     with UVVirtualEnv(env_path, platform):
-        output = platform.run_command([uv_on_path, 'pip', 'freeze'], check=True, capture_output=True).stdout.decode(
-            'utf-8'
+        output = platform.run_command([uv_on_path, "pip", "freeze"], check=True, capture_output=True).stdout.decode(
+            "utf-8"
         )
         requirements = extract_installed_requirements(output.splitlines())
 
-        assert len(requirements) == 1
-        assert requirements[0].lower() == f'my-app @ {project_path.as_uri().lower()}'
+        assert len(requirements) == 2
+        assert f"my-app @ {project_path.as_uri().lower()}" in [req.lower() for req in requirements]
 
 
 @pytest.mark.requires_internet
 def test_pre_install_commands(hatch, helpers, temp_dir, config_file):
-    config_file.model.template.plugins['default']['tests'] = False
+    config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
     project = Project(project_path)
     helpers.update_project_environment(
         project,
-        'default',
+        "default",
         {
-            'pre-install-commands': ["python -c \"with open('test.txt', 'w') as f: f.write('content')\""],
-            **project.config.envs['default'],
+            "pre-install-commands": ["python -c \"with open('test.txt', 'w') as f: f.write('content')\""],
+            **project.config.envs["default"],
         },
     )
-    helpers.update_project_environment(project, 'test', {})
+    helpers.update_project_environment(project, "test", {})
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('env', 'create', 'test')
+        result = hatch("env", "create", "test")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -1157,34 +1162,34 @@ def test_pre_install_commands(hatch, helpers, temp_dir, config_file):
         Checking dependencies
         """
     )
-    assert (project_path / 'test.txt').is_file()
+    assert (project_path / "test.txt").is_file()
 
 
 def test_pre_install_commands_error(hatch, helpers, temp_dir, config_file):
-    config_file.model.template.plugins['default']['tests'] = False
+    config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
     project = Project(project_path)
     helpers.update_project_environment(
         project,
-        'default',
-        {'pre-install-commands': ['python -c "import sys;sys.exit(7)"'], **project.config.envs['default']},
+        "default",
+        {"pre-install-commands": ['python -c "import sys;sys.exit(7)"'], **project.config.envs["default"]},
     )
-    helpers.update_project_environment(project, 'test', {})
+    helpers.update_project_environment(project, "test", {})
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('env', 'create', 'test')
+        result = hatch("env", "create", "test")
 
     assert result.exit_code == 7
     assert result.output == helpers.dedent(
@@ -1198,33 +1203,33 @@ def test_pre_install_commands_error(hatch, helpers, temp_dir, config_file):
 
 @pytest.mark.requires_internet
 def test_post_install_commands(hatch, helpers, temp_dir, config_file):
-    config_file.model.template.plugins['default']['tests'] = False
+    config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
     project = Project(project_path)
     helpers.update_project_environment(
         project,
-        'default',
+        "default",
         {
-            'post-install-commands': ["python -c \"with open('test.txt', 'w') as f: f.write('content')\""],
-            **project.config.envs['default'],
+            "post-install-commands": ["python -c \"with open('test.txt', 'w') as f: f.write('content')\""],
+            **project.config.envs["default"],
         },
     )
-    helpers.update_project_environment(project, 'test', {})
+    helpers.update_project_environment(project, "test", {})
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('env', 'create', 'test')
+        result = hatch("env", "create", "test")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -1235,35 +1240,35 @@ def test_post_install_commands(hatch, helpers, temp_dir, config_file):
         Checking dependencies
         """
     )
-    assert (project_path / 'test.txt').is_file()
+    assert (project_path / "test.txt").is_file()
 
 
 @pytest.mark.requires_internet
 def test_post_install_commands_error(hatch, helpers, temp_dir, config_file):
-    config_file.model.template.plugins['default']['tests'] = False
+    config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
     project = Project(project_path)
     helpers.update_project_environment(
         project,
-        'default',
-        {'post-install-commands': ['python -c "import sys;sys.exit(7)"'], **project.config.envs['default']},
+        "default",
+        {"post-install-commands": ['python -c "import sys;sys.exit(7)"'], **project.config.envs["default"]},
     )
-    helpers.update_project_environment(project, 'test', {})
+    helpers.update_project_environment(project, "test", {})
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('env', 'create', 'test')
+        result = hatch("env", "create", "test")
 
     assert result.exit_code == 7
     assert result.output == helpers.dedent(
@@ -1278,31 +1283,31 @@ def test_post_install_commands_error(hatch, helpers, temp_dir, config_file):
 
 @pytest.mark.requires_internet
 def test_sync_dependencies_uv(hatch, helpers, temp_dir, platform, uv_on_path, extract_installed_requirements):
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
     project = Project(project_path)
     helpers.update_project_environment(
         project,
-        'default',
+        "default",
         {
-            'dependencies': ['binary'],
-            'post-install-commands': ["python -c \"with open('test.txt', 'w') as f: f.write('content')\""],
-            **project.config.envs['default'],
+            "dependencies": ["binary"],
+            "post-install-commands": ["python -c \"with open('test.txt', 'w') as f: f.write('content')\""],
+            **project.config.envs["default"],
         },
     )
-    helpers.update_project_environment(project, 'test', {})
+    helpers.update_project_environment(project, "test", {})
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('env', 'create', 'test')
+        result = hatch("env", "create", "test")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -1314,9 +1319,9 @@ def test_sync_dependencies_uv(hatch, helpers, temp_dir, platform, uv_on_path, ex
         Syncing dependencies
         """
     )
-    assert (project_path / 'test.txt').is_file()
+    assert (project_path / "test.txt").is_file()
 
-    env_data_path = data_path / 'env' / 'virtual'
+    env_data_path = data_path / "env" / "virtual"
     assert env_data_path.is_dir()
 
     project_data_path = env_data_path / project_path.name
@@ -1333,48 +1338,49 @@ def test_sync_dependencies_uv(hatch, helpers, temp_dir, platform, uv_on_path, ex
 
     env_path = env_dirs[0]
 
-    assert env_path.name == 'test'
+    assert env_path.name == "test"
 
     with UVVirtualEnv(env_path, platform):
-        output = platform.run_command([uv_on_path, 'pip', 'freeze'], check=True, capture_output=True).stdout.decode(
-            'utf-8'
+        output = platform.run_command([uv_on_path, "pip", "freeze"], check=True, capture_output=True).stdout.decode(
+            "utf-8"
         )
         requirements = extract_installed_requirements(output.splitlines())
 
         assert len(requirements) == 2
-        assert requirements[0].startswith('binary==')
-        assert requirements[1].lower() == f'-e {project_path.as_uri().lower()}'
+        assert requirements[0].startswith("binary==")
+        assert requirements[1].lower() == f"-e {project_path.as_uri().lower()}"
 
 
 @pytest.mark.requires_internet
 def test_sync_dependencies_pip(hatch, helpers, temp_dir, platform, extract_installed_requirements):
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
     project = Project(project_path)
     helpers.update_project_environment(
         project,
-        'default',
+        "default",
         {
-            'dependencies': ['binary'],
-            'post-install-commands': ["python -c \"with open('test.txt', 'w') as f: f.write('content')\""],
-            **project.config.envs['default'],
+            "dependencies": ["binary"],
+            "post-install-commands": ["python -c \"with open('test.txt', 'w') as f: f.write('content')\""],
+            **project.config.envs["default"],
         },
     )
-    helpers.update_project_environment(project, 'test', {})
+    helpers.update_project_environment(project, "test", {})
 
-    with project_path.as_cwd(), EnvVars(
-        {ConfigEnvVars.DATA: str(data_path)}, exclude=[get_env_var(plugin_name='virtual', option='uv_path')]
+    with (
+        project_path.as_cwd(),
+        EnvVars({ConfigEnvVars.DATA: str(data_path)}, exclude=[get_env_var(plugin_name="virtual", option="uv_path")]),
     ):
-        result = hatch('env', 'create', 'test')
+        result = hatch("env", "create", "test")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -1386,9 +1392,9 @@ def test_sync_dependencies_pip(hatch, helpers, temp_dir, platform, extract_insta
         Syncing dependencies
         """
     )
-    assert (project_path / 'test.txt').is_file()
+    assert (project_path / "test.txt").is_file()
 
-    env_data_path = data_path / 'env' / 'virtual'
+    env_data_path = data_path / "env" / "virtual"
     assert env_data_path.is_dir()
 
     project_data_path = env_data_path / project_path.name
@@ -1405,39 +1411,39 @@ def test_sync_dependencies_pip(hatch, helpers, temp_dir, platform, extract_insta
 
     env_path = env_dirs[0]
 
-    assert env_path.name == 'test'
+    assert env_path.name == "test"
 
     with VirtualEnv(env_path, platform):
-        output = platform.run_command(['pip', 'freeze'], check=True, capture_output=True).stdout.decode('utf-8')
+        output = platform.run_command(["pip", "freeze"], check=True, capture_output=True).stdout.decode("utf-8")
         requirements = extract_installed_requirements(output.splitlines())
 
         assert len(requirements) == 2
-        assert requirements[0].startswith('binary==')
-        assert requirements[1].lower() == f'-e {str(project_path).lower()}'
+        assert requirements[0].startswith("binary==")
+        assert requirements[1].lower() == f"-e {str(project_path).lower()}"
 
 
 @pytest.mark.requires_internet
 def test_features(hatch, helpers, temp_dir, platform, uv_on_path, extract_installed_requirements):
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
     project = Project(project_path)
     config = dict(project.raw_config)
-    config['project']['optional-dependencies'] = {'foo': ['binary']}
+    config["project"]["optional-dependencies"] = {"foo": ["binary"]}
     project.save_config(config)
-    helpers.update_project_environment(project, 'default', {'features': ['foo'], **project.config.envs['default']})
-    helpers.update_project_environment(project, 'test', {})
+    helpers.update_project_environment(project, "default", {"features": ["foo"], **project.config.envs["default"]})
+    helpers.update_project_environment(project, "test", {})
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('env', 'create', 'test')
+        result = hatch("env", "create", "test")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -1448,7 +1454,7 @@ def test_features(hatch, helpers, temp_dir, platform, uv_on_path, extract_instal
         """
     )
 
-    env_data_path = data_path / 'env' / 'virtual'
+    env_data_path = data_path / "env" / "virtual"
     assert env_data_path.is_dir()
 
     project_data_path = env_data_path / project_path.name
@@ -1465,55 +1471,55 @@ def test_features(hatch, helpers, temp_dir, platform, uv_on_path, extract_instal
 
     env_path = env_dirs[0]
 
-    assert env_path.name == 'test'
+    assert env_path.name == "test"
 
     with UVVirtualEnv(env_path, platform):
-        output = platform.run_command([uv_on_path, 'pip', 'freeze'], check=True, capture_output=True).stdout.decode(
-            'utf-8'
+        output = platform.run_command([uv_on_path, "pip", "freeze"], check=True, capture_output=True).stdout.decode(
+            "utf-8"
         )
         requirements = extract_installed_requirements(output.splitlines())
 
         assert len(requirements) == 2
-        assert requirements[0].startswith('binary==')
-        assert requirements[1].lower() == f'-e {project_path.as_uri().lower()}'
+        assert requirements[0].startswith("binary==")
+        assert requirements[1].lower() == f"-e {project_path.as_uri().lower()}"
 
 
 @pytest.mark.requires_internet
 def test_sync_dynamic_dependencies(hatch, helpers, temp_dir, platform, uv_on_path, extract_installed_requirements):
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
     for i in range(2):
         with temp_dir.as_cwd():
-            result = hatch('new', f'{project_name}{i}')
+            result = hatch("new", f"{project_name}{i}")
 
         assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
     project = Project(project_path)
     config = dict(project.raw_config)
-    config['project'].pop('dependencies')
-    config['project']['dynamic'].extend(('dependencies', 'optional-dependencies'))
-    config['tool']['hatch']['metadata'] = {'allow-direct-references': True, 'hooks': {'custom': {}}}
+    config["project"].pop("dependencies")
+    config["project"]["dynamic"].extend(("dependencies", "optional-dependencies"))
+    config["tool"]["hatch"]["metadata"] = {"allow-direct-references": True, "hooks": {"custom": {}}}
     project.save_config(config)
     helpers.update_project_environment(
         project,
-        'default',
+        "default",
         {
-            'dependencies': ['my-app1 @ {root:uri}/../my-app1'],
-            'features': ['foo'],
-            'post-install-commands': ["python -c \"with open('test.txt', 'w') as f: f.write('content')\""],
-            **project.config.envs['default'],
+            "dependencies": ["my-app1 @ {root:uri}/../my-app1"],
+            "features": ["foo"],
+            "post-install-commands": ["python -c \"with open('test.txt', 'w') as f: f.write('content')\""],
+            **project.config.envs["default"],
         },
     )
-    helpers.update_project_environment(project, 'test', {})
+    helpers.update_project_environment(project, "test", {})
 
     build_script = project_path / DEFAULT_BUILD_SCRIPT
     build_script.write_text(
@@ -1530,7 +1536,7 @@ def test_sync_dynamic_dependencies(hatch, helpers, temp_dir, platform, uv_on_pat
     )
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('env', 'create', 'test')
+        result = hatch("env", "create", "test")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -1547,9 +1553,9 @@ def test_sync_dynamic_dependencies(hatch, helpers, temp_dir, platform, uv_on_pat
         Syncing dependencies
         """
     )
-    assert (project_path / 'test.txt').is_file()
+    assert (project_path / "test.txt").is_file()
 
-    env_data_path = data_path / 'env' / 'virtual'
+    env_data_path = data_path / "env" / "virtual"
     assert env_data_path.is_dir()
 
     project_data_path = env_data_path / project_path.name
@@ -1562,60 +1568,60 @@ def test_sync_dynamic_dependencies(hatch, helpers, temp_dir, platform, uv_on_pat
     assert len(storage_path.name) == 8
 
     env_dirs = sorted(storage_path.iterdir())
-    assert [d.name for d in env_dirs] == ['hatch-build', 'test']
+    assert [d.name for d in env_dirs] == ["hatch-build", "test"]
 
     env_path = env_dirs[1]
 
     with UVVirtualEnv(env_path, platform):
-        output = platform.run_command([uv_on_path, 'pip', 'freeze'], check=True, capture_output=True).stdout.decode(
-            'utf-8'
+        output = platform.run_command([uv_on_path, "pip", "freeze"], check=True, capture_output=True).stdout.decode(
+            "utf-8"
         )
         requirements = extract_installed_requirements(output.splitlines())
 
         assert len(requirements) == 4
-        assert requirements[0].startswith('binary==')
-        assert requirements[1].lower() == f'-e {project_path.as_uri().lower()}'
-        assert requirements[2].lower() == f'my-app0 @ {project_path.parent.as_uri().lower()}/my-app0'
-        assert requirements[3].lower() == f'my-app1 @ {project_path.parent.as_uri().lower()}/my-app1'
+        assert requirements[0].startswith("binary==")
+        assert requirements[1].lower() == f"-e {project_path.as_uri().lower()}"
+        assert requirements[2].lower() == f"my-app0 @ {project_path.parent.as_uri().lower()}/my-app0"
+        assert requirements[3].lower() == f"my-app1 @ {project_path.parent.as_uri().lower()}/my-app1"
 
 
 @pytest.mark.requires_internet
 def test_unknown_dynamic_feature(hatch, helpers, temp_dir, config_file):
-    config_file.model.template.plugins['default']['tests'] = False
+    config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
     with temp_dir.as_cwd():
-        result = hatch('new', f'{project_name}1')
+        result = hatch("new", f"{project_name}1")
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
     project = Project(project_path)
     config = dict(project.raw_config)
-    config['build-system']['requires'].append(f'my-app1 @ {path_to_uri(project_path).lower()}/../my-app1')
-    config['project']['dynamic'].append('optional-dependencies')
-    config['tool']['hatch']['metadata'] = {'hooks': {'custom': {}}}
+    config["build-system"]["requires"].append(f"my-app1 @ {path_to_uri(project_path).lower()}/../my-app1")
+    config["project"]["dynamic"].append("optional-dependencies")
+    config["tool"]["hatch"]["metadata"] = {"hooks": {"custom": {}}}
     project.save_config(config)
     helpers.update_project_environment(
         project,
-        'default',
+        "default",
         {
-            'features': ['foo'],
-            'post-install-commands': ["python -c \"with open('test.txt', 'w') as f: f.write('content')\""],
-            **project.config.envs['default'],
+            "features": ["foo"],
+            "post-install-commands": ["python -c \"with open('test.txt', 'w') as f: f.write('content')\""],
+            **project.config.envs["default"],
         },
     )
-    helpers.update_project_environment(project, 'test', {})
+    helpers.update_project_environment(project, "test", {})
 
     build_script = project_path / DEFAULT_BUILD_SCRIPT
     build_script.write_text(
@@ -1630,35 +1636,38 @@ def test_unknown_dynamic_feature(hatch, helpers, temp_dir, config_file):
         )
     )
 
-    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}), pytest.raises(
-        ValueError,
-        match=(
-            'Feature `foo` of field `tool.hatch.envs.test.features` is not defined in the dynamic '
-            'field `project.optional-dependencies`'
+    with (
+        project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}),
+        pytest.raises(
+            ValueError,
+            match=(
+                "Feature `foo` of field `tool.hatch.envs.test.features` is not defined in the dynamic "
+                "field `project.optional-dependencies`"
+            ),
         ),
     ):
-        hatch('env', 'create', 'test')
+        hatch("env", "create", "test")
 
 
 def test_no_project_file(hatch, helpers, temp_dir, config_file):
-    config_file.model.template.plugins['default']['tests'] = False
+    config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
-    (project_path / 'pyproject.toml').remove()
+    (project_path / "pyproject.toml").remove()
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('env', 'create')
+        result = hatch("env", "create")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -1668,7 +1677,7 @@ def test_no_project_file(hatch, helpers, temp_dir, config_file):
         """
     )
 
-    env_data_path = data_path / 'env' / 'virtual'
+    env_data_path = data_path / "env" / "virtual"
     assert env_data_path.is_dir()
 
     project_data_path = env_data_path / project_path.name
@@ -1689,18 +1698,18 @@ def test_no_project_file(hatch, helpers, temp_dir, config_file):
 
 
 def test_plugin_dependencies_unmet(hatch, config_file, helpers, temp_dir, mock_plugin_installation):
-    config_file.model.template.plugins['default']['tests'] = False
+    config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
     dependency = os.urandom(16).hex()
@@ -1714,10 +1723,10 @@ def test_plugin_dependencies_unmet(hatch, config_file, helpers, temp_dir, mock_p
     )
 
     project = Project(project_path)
-    helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
+    helpers.update_project_environment(project, "default", {"skip-install": True, **project.config.envs["default"]})
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('env', 'create')
+        result = hatch("env", "create")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -1729,7 +1738,7 @@ def test_plugin_dependencies_unmet(hatch, config_file, helpers, temp_dir, mock_p
     )
     helpers.assert_plugin_installation(mock_plugin_installation, [dependency])
 
-    env_data_path = data_path / 'env' / 'virtual'
+    env_data_path = data_path / "env" / "virtual"
     assert env_data_path.is_dir()
 
     project_data_path = env_data_path / project_path.name
@@ -1749,23 +1758,23 @@ def test_plugin_dependencies_unmet(hatch, config_file, helpers, temp_dir, mock_p
     assert env_path.name == project_path.name
 
 
-@pytest.mark.usefixtures('mock_plugin_installation')
+@pytest.mark.usefixtures("mock_plugin_installation")
 def test_plugin_dependencies_met(hatch, config_file, helpers, temp_dir):
-    config_file.model.template.plugins['default']['tests'] = False
+    config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
-    dependency = 'hatch'
+    dependency = "hatch"
     (project_path / DEFAULT_CONFIG_FILE).write_text(
         helpers.dedent(
             f"""
@@ -1776,10 +1785,10 @@ def test_plugin_dependencies_met(hatch, config_file, helpers, temp_dir):
     )
 
     project = Project(project_path)
-    helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
+    helpers.update_project_environment(project, "default", {"skip-install": True, **project.config.envs["default"]})
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('env', 'create')
+        result = hatch("env", "create")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -1789,7 +1798,7 @@ def test_plugin_dependencies_met(hatch, config_file, helpers, temp_dir):
         """
     )
 
-    env_data_path = data_path / 'env' / 'virtual'
+    env_data_path = data_path / "env" / "virtual"
     assert env_data_path.is_dir()
 
     project_data_path = env_data_path / project_path.name
@@ -1809,23 +1818,23 @@ def test_plugin_dependencies_met(hatch, config_file, helpers, temp_dir):
     assert env_path.name == project_path.name
 
 
-@pytest.mark.usefixtures('mock_plugin_installation')
+@pytest.mark.usefixtures("mock_plugin_installation")
 def test_plugin_dependencies_met_as_app(hatch, config_file, helpers, temp_dir):
-    config_file.model.template.plugins['default']['tests'] = False
+    config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
-    dependency = 'hatch'
+    dependency = "hatch"
     (project_path / DEFAULT_CONFIG_FILE).write_text(
         helpers.dedent(
             f"""
@@ -1836,12 +1845,12 @@ def test_plugin_dependencies_met_as_app(hatch, config_file, helpers, temp_dir):
     )
 
     project = Project(project_path)
-    helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
+    helpers.update_project_environment(project, "default", {"skip-install": True, **project.config.envs["default"]})
 
     with project_path.as_cwd(
-        env_vars={ConfigEnvVars.DATA: str(data_path), 'PYAPP': sys.executable, 'PYAPP_COMMAND_NAME': 'self'}
+        env_vars={ConfigEnvVars.DATA: str(data_path), "PYAPP": sys.executable, "PYAPP_COMMAND_NAME": "self"}
     ):
-        result = hatch('env', 'create')
+        result = hatch("env", "create")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -1851,7 +1860,7 @@ def test_plugin_dependencies_met_as_app(hatch, config_file, helpers, temp_dir):
         """
     )
 
-    env_data_path = data_path / 'env' / 'virtual'
+    env_data_path = data_path / "env" / "virtual"
     assert env_data_path.is_dir()
 
     project_data_path = env_data_path / project_path.name
@@ -1873,27 +1882,27 @@ def test_plugin_dependencies_met_as_app(hatch, config_file, helpers, temp_dir):
 
 @pytest.mark.requires_internet
 def test_no_compatible_python(hatch, helpers, temp_dir, config_file):
-    config_file.model.template.plugins['default']['tests'] = False
+    config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
     project = Project(project_path)
     config = dict(project.raw_config)
-    config['project']['requires-python'] = '==9000'
+    config["project"]["requires-python"] = "==9000"
     project.save_config(config)
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('env', 'create')
+        result = hatch("env", "create")
 
     assert result.exit_code == 1, result.output
     assert result.output == helpers.dedent(
@@ -1904,28 +1913,28 @@ def test_no_compatible_python(hatch, helpers, temp_dir, config_file):
 
 
 def test_no_compatible_python_ok_if_not_installed(hatch, helpers, temp_dir, config_file):
-    config_file.model.template.plugins['default']['tests'] = False
+    config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
 
-    project_name = 'My.App'
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
-        result = hatch('new', project_name)
+        result = hatch("new", project_name)
 
     assert result.exit_code == 0, result.output
 
-    project_path = temp_dir / 'my-app'
-    data_path = temp_dir / 'data'
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
     data_path.mkdir()
 
     project = Project(project_path)
     config = dict(project.raw_config)
-    config['project']['requires-python'] = '==9000'
+    config["project"]["requires-python"] = "==9000"
     project.save_config(config)
-    helpers.update_project_environment(project, 'default', {'skip-install': True, **project.config.envs['default']})
+    helpers.update_project_environment(project, "default", {"skip-install": True, **project.config.envs["default"]})
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch('env', 'create')
+        result = hatch("env", "create")
 
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -1935,7 +1944,7 @@ def test_no_compatible_python_ok_if_not_installed(hatch, helpers, temp_dir, conf
         """
     )
 
-    env_data_path = data_path / 'env' / 'virtual'
+    env_data_path = data_path / "env" / "virtual"
     assert env_data_path.is_dir()
 
     project_data_path = env_data_path / project_path.name
@@ -1953,3 +1962,154 @@ def test_no_compatible_python_ok_if_not_installed(hatch, helpers, temp_dir, conf
     env_path = env_dirs[0]
 
     assert env_path.name == project_path.name
+
+
+@pytest.mark.requires_internet
+def test_workspace(hatch, helpers, temp_dir, platform, uv_on_path, extract_installed_requirements):
+    project_name = "My.App"
+
+    with temp_dir.as_cwd():
+        result = hatch("new", project_name)
+        assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
+    data_path.mkdir()
+
+    members = ["foo", "bar", "baz"]
+    for member in members:
+        with project_path.as_cwd():
+            result = hatch("new", member)
+            assert result.exit_code == 0, result.output
+
+    project = Project(project_path)
+    helpers.update_project_environment(
+        project,
+        "default",
+        {
+            "workspace": {"members": [{"path": member} for member in members]},
+            **project.config.envs["default"],
+        },
+    )
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch("env", "create")
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        """
+        Creating environment: default
+        Installing project in development mode
+        Checking dependencies
+        Syncing dependencies
+        """
+    )
+
+    env_data_path = data_path / "env" / "virtual"
+    assert env_data_path.is_dir()
+
+    project_data_path = env_data_path / project_path.name
+    assert project_data_path.is_dir()
+
+    storage_dirs = list(project_data_path.iterdir())
+    assert len(storage_dirs) == 1
+
+    storage_path = storage_dirs[0]
+    assert len(storage_path.name) == 8
+
+    env_dirs = list(storage_path.iterdir())
+    assert len(env_dirs) == 1
+
+    env_path = env_dirs[0]
+
+    assert env_path.name == project_path.name
+
+    with UVVirtualEnv(env_path, platform):
+        output = platform.run_command([uv_on_path, "pip", "freeze"], check=True, capture_output=True).stdout.decode(
+            "utf-8"
+        )
+        requirements = extract_installed_requirements(output.splitlines())
+
+        assert len(requirements) == 4
+        assert requirements[0].lower() == f"-e {project_path.as_uri().lower()}/bar"
+        assert requirements[1].lower() == f"-e {project_path.as_uri().lower()}/baz"
+        assert requirements[2].lower() == f"-e {project_path.as_uri().lower()}/foo"
+        assert requirements[3].lower() == f"-e {project_path.as_uri().lower()}"
+
+
+@pytest.mark.requires_internet
+def test_workspace_members_always_editable_with_dev_mode_false(
+    hatch, helpers, temp_dir, platform, uv_on_path, extract_installed_requirements
+):
+    """Verify workspace members are always installed as editable even when dev-mode=false."""
+    project_name = "My.App"
+
+    with temp_dir.as_cwd():
+        result = hatch("new", project_name)
+        assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
+    data_path.mkdir()
+
+    # Create workspace members
+    members = ["member-a", "member-b"]
+    for member in members:
+        with project_path.as_cwd():
+            result = hatch("new", member)
+            assert result.exit_code == 0, result.output
+
+    project = Project(project_path)
+    helpers.update_project_environment(
+        project,
+        "default",
+        {
+            "dev-mode": False,
+            "workspace": {"members": members},
+            **project.config.envs["default"],
+        },
+    )
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch("env", "create", "default")
+
+    assert result.exit_code == 0, result.output
+
+    env_data_path = data_path / "env" / "virtual"
+    project_data_path = env_data_path / project_path.name
+    storage_dirs = list(project_data_path.iterdir())
+    storage_path = storage_dirs[0]
+    env_dirs = list(storage_path.iterdir())
+    env_path = env_dirs[0]
+
+    with UVVirtualEnv(env_path, platform):
+        output = platform.run_command([uv_on_path, "pip", "freeze"], check=True, capture_output=True).stdout.decode(
+            "utf-8"
+        )
+        requirements = extract_installed_requirements(output.splitlines())
+
+        # Find project and member requirements - be more precise
+        my_app_reqs = [
+            r
+            for r in requirements
+            if (r.lower().startswith("-e file:") and r.lower().endswith("/my-app"))
+            or (r.lower().startswith("my-app @") and "/member-" not in r.lower())
+        ]
+        member_a_reqs = [r for r in requirements if "member-a" in r.lower() and "/member-a" in r.lower()]
+        member_b_reqs = [r for r in requirements if "member-b" in r.lower() and "/member-b" in r.lower()]
+
+        assert len(my_app_reqs) == 1, f"Expected 1 my-app requirement, got {len(my_app_reqs)}: {my_app_reqs}"
+        assert len(member_a_reqs) == 1, f"Expected 1 member-a requirement, got {len(member_a_reqs)}: {member_a_reqs}"
+        assert len(member_b_reqs) == 1, f"Expected 1 member-b requirement, got {len(member_b_reqs)}: {member_b_reqs}"
+
+        my_app_req = my_app_reqs[0]
+        member_a_req = member_a_reqs[0]
+        member_b_req = member_b_reqs[0]
+
+        # Project should NOT be editable (dev-mode=false)
+        assert not my_app_req.lower().startswith("-e"), f"Project should not be editable: {my_app_req}"
+        assert my_app_req.lower().startswith("my-app @"), f"Project should be non-editable install: {my_app_req}"
+
+        # Workspace members MUST be editable (always)
+        assert member_a_req.lower().startswith("-e"), f"Member A should be editable: {member_a_req}"
+        assert member_b_req.lower().startswith("-e"), f"Member B should be editable: {member_b_req}"

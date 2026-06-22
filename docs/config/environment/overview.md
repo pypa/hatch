@@ -103,6 +103,25 @@ features = [
 !!! note
     Features/optional dependencies are also known as `extras` in other tools.
 
+### Dependency Groups
+
+[Dependency groups](https://packaging.python.org/en/latest/specifications/dependency-groups/#dependency-groups) provide a uniform way to organize related development dependencies. See [advanced usage](advanced.md#dependency-groups) for more details on dependency group features like including other groups.
+
+You can include dependency-groups in your hatch environments using the `[dependency-groups]` array:
+
+```toml config-example
+[dependency-groups]
+test = [
+  "pytest>=7.0.0",
+  "pytest-cov>=4.1.0",
+]
+
+[tool.hatch.envs.test]
+dependency-groups = [
+  "test",
+]
+```
+
 ### Dev mode
 
 By default, environments will always reflect the current state of your project on disk, for example, by installing it in editable mode in a Python environment. Set `dev-mode` to `false` to disable this behavior and have your project installed only upon creation of a new environment. From then on, you need to manage your project installation manually.
@@ -270,6 +289,76 @@ The following platforms are supported:
 - `macos`
 
 If unspecified, the environment is assumed to be compatible with all platforms.
+
+## Locking
+
+Hatch can generate [PEP 751](https://peps.python.org/pep-0751/) lockfiles (`pylock.toml`) for environments. Lockfiles capture the exact versions of all resolved dependencies, ensuring reproducible installations.
+
+### Locked
+
+Set `locked` to `true` to enable automatic lockfile generation for an environment. When enabled, a lockfile will be generated whenever the environment is created or its dependencies change.
+
+```toml config-example
+[tool.hatch.envs.test]
+locked = true
+dependencies = [
+  "pytest",
+  "pytest-cov",
+]
+```
+
+The default value is `false` unless overridden by the global [`lock-envs`](#lock-envs) setting.
+
+### Locker plugin ### {: #locker }
+
+Select which [dependency locker](../../plugins/locker.md) runs **generate**, **in_sync**, and **apply_lock** (defaults follow the environment installer: `uv` with UV, otherwise `pip`).
+
+!!! note
+    Locker capabilities can differ. The built-in `pip` locker does not currently implement `apply_lock`, so lockfile application with [`dep sync`](../../cli/reference.md#hatch-dep-sync) requires the `uv` locker.
+
+Global default:
+
+```toml config-example
+[tool.hatch]
+locker = "uv"
+```
+
+Per environment (overrides `tool.hatch.locker`):
+
+```toml config-example
+[tool.hatch.envs.docs]
+locker = "pip"
+```
+
+### Lock filename ### {: #lock-filename }
+
+By default, lockfiles are named following the [PEP 751](https://peps.python.org/pep-0751/) convention: `pylock.toml` for the `default` environment and `pylock.<ENV_NAME>.toml` for all others. You can override this with the `lock-filename` option:
+
+```toml config-example
+[tool.hatch.envs.test]
+lock-filename = "locks/test-requirements.lock"
+```
+
+### Global lock-envs ### {: #lock-envs }
+
+You can enable locking for all environments at once by setting `lock-envs` to `true` at the top level of your Hatch configuration:
+
+```toml config-example
+[tool.hatch]
+lock-envs = true
+```
+
+This acts as the default value for each environment's [`locked`](#locked) option. Individual environments can still opt out by explicitly setting `locked = false`:
+
+```toml config-example
+[tool.hatch]
+lock-envs = true
+
+[tool.hatch.envs.docs]
+locked = false
+```
+
+See the [lockfile how-to guide](../../how-to/environment/lockfiles.md) for practical usage examples.
 
 ## Description
 
