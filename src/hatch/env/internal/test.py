@@ -4,8 +4,10 @@ from typing import Any
 
 
 def get_default_config() -> dict[str, Any]:
+    from hatch.env.internal import default_installer
+
     return {
-        "installer": "uv",
+        "installer": default_installer(),
         "dependencies": [
             "coverage-enable-subprocess==1.0",
             "coverage[toml]~=7.11",

@@ -1,8 +1,33 @@
 from __future__ import annotations
 
+import os
+import shutil
+import sysconfig
+from functools import cache
 from typing import Any
 
 from hatch.env.utils import ensure_valid_environment
+
+
+@cache
+def uv_available() -> bool:
+    # `uv` is an optional dependency, so detect whether it is actually installed before defaulting
+    # the internal environments to it. This mirrors the standalone detection used by the virtual
+    # environment type (see `hatch.env.virtual.VirtualEnvironment.uv_path`): when `uv` is installed
+    # as a Python package it lands in the install environment's scripts directory, which is not
+    # necessarily on the running process's `PATH`, so that directory is prepended before searching.
+    #
+    # The result is cached because `default_installer` is called by every internal environment config
+    # producer, and a fresh `PATH` scan on every config build is wasteful. Tests that toggle `uv`
+    # availability must clear this cache (`uv_available.cache_clear()`).
+    scripts_dir = sysconfig.get_path("scripts")
+    old_path = os.environ.get("PATH", os.defpath)
+    new_path = f"{scripts_dir}{os.pathsep}{old_path}"
+    return shutil.which("uv", path=new_path) is not None
+
+
+def default_installer() -> str:
+    return "uv" if uv_available() else "pip"
 
 
 def get_internal_env_config() -> dict[str, Any]:
