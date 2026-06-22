@@ -4,9 +4,11 @@ from typing import Any
 
 
 def get_default_config() -> dict[str, Any]:
+    from hatch.env.internal import default_installer
+
     return {
         "skip-install": True,
-        "installer": "uv",
+        "installer": default_installer(),
         "dependencies": [f"ruff=={RUFF_DEFAULT_VERSION}"],
         "scripts": {
             "format-check": "ruff format{env:HATCH_FMT_ARGS:}{env:HATCH_CHECK_FMT_ARGS:} --check --diff {args:.}",
@@ -18,9 +20,11 @@ def get_default_config() -> dict[str, Any]:
 
 
 def get_check_code_config() -> dict[str, Any]:
+    from hatch.env.internal import default_installer
+
     return {
         "skip-install": True,
-        "installer": "uv",
+        "installer": default_installer(),
         "dependencies": [f"ruff=={RUFF_DEFAULT_VERSION}"],
         "scripts": {
             "lint-check": "ruff check{env:HATCH_CHECK_CODE_ARGS:} {args:.}",
@@ -30,9 +34,11 @@ def get_check_code_config() -> dict[str, Any]:
 
 
 def get_check_fmt_config() -> dict[str, Any]:
+    from hatch.env.internal import default_installer
+
     return {
         "skip-install": True,
-        "installer": "uv",
+        "installer": default_installer(),
         "dependencies": [f"ruff=={RUFF_DEFAULT_VERSION}"],
         "scripts": {
             "format-check": "ruff format{env:HATCH_CHECK_FMT_ARGS:} --check --diff {args:.}",

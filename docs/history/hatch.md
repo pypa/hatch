@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Changed:***
+
+- Make `uv` an optional dependency. The internal environments (build, static analysis, test and type checking) now detect whether `uv` is available and fall back to `pip` when it is not, so Hatch works without `uv` installed. Install the `uv` extra (`hatch[uv]`) to bundle it.
+
 ## [1.17.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.17.0) - 2026-05-31 ## {: #hatch-v1.17.0 }
 
 ***Changed:***
