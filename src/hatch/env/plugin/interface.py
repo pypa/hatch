@@ -422,9 +422,22 @@ class EnvironmentInterface(ABC):
             dep_obj = dep if isinstance(dep, Dependency) else Dependency(str(dep))
 
             if dep_obj.name.lower() in workspace_names and dep_obj.extras:
-                # Only expand if we have static optional dependencies to avoid recursion
                 if not self.metadata.hatch.metadata.hook_config:
                     optional_dependencies = self.metadata.core.optional_dependencies
+                elif self.app.project.has_static_dependencies:
+                    from hatchling.metadata.core import CoreMetadata
+
+                    static_metadata = CoreMetadata(
+                        self.metadata.root,
+                        self.metadata.core_raw_metadata,
+                        self.metadata.hatch.metadata,
+                        self.metadata.context,
+                    )
+                    optional_dependencies = static_metadata.optional_dependencies
+                else:
+                    optional_dependencies = {}
+
+                if optional_dependencies:
                     for extra in dep_obj.extras:
                         if extra in optional_dependencies:
                             filtered_deps.extend(Dependency(d) for d in optional_dependencies[extra])
