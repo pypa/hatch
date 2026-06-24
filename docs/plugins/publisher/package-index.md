@@ -14,6 +14,7 @@ See the documentation for [publishing](../../publish.md).
 | `--ca-cert` | `ca-cert` | The path to a CA bundle |
 | `--client-cert` | `client-cert` | The path to a client certificate, optionally containing the private key |
 | `--client-key` | `client-key` | The path to the client certificate's private key |
+| `--timeout` | `timeout` | The HTTP timeout in seconds for index requests |
 | | `repos` | A table of named [repositories](#repositories) to their respective options |
 
 ## Configuration

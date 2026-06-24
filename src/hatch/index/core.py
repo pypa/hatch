@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 import hyperlink
 
 from hatch._version import __version__
+from hatch.utils.network import DEFAULT_TIMEOUT
 
 if TYPE_CHECKING:
     import httpx2
@@ -31,7 +32,7 @@ class IndexURLs:
 
 
 class PackageIndex:
-    def __init__(self, repo: str, *, user="", auth="", ca_cert=None, client_cert=None, client_key=None):
+    def __init__(self, repo: str, *, user="", auth="", ca_cert=None, client_cert=None, client_key=None, timeout=None):
         self.urls = IndexURLs(repo)
         self.repo = str(self.urls.repo)
         self.user = user
@@ -47,18 +48,21 @@ class PackageIndex:
         if ca_cert:
             self.__verify = ca_cert
 
+        self.__timeout = DEFAULT_TIMEOUT
+        if timeout:
+            self.__timeout = timeout
+
     @cached_property
     def client(self) -> httpx2.Client:
         import httpx2
 
         from hatch.utils.linehaul import get_linehaul_component
-        from hatch.utils.network import DEFAULT_TIMEOUT
 
         user_agent = f"Hatch/{__version__} {get_linehaul_component()} HTTPX2/{httpx2.__version__}"
         return httpx2.Client(
             headers={"User-Agent": user_agent},
             transport=httpx2.HTTPTransport(retries=3, verify=self.__verify, cert=self.__cert),
-            timeout=DEFAULT_TIMEOUT,
+            timeout=self.__timeout,
         )
 
     def upload_artifact(self, artifact: Path, data: dict):
