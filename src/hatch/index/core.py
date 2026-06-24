@@ -48,7 +48,9 @@ class PackageIndex:
         if ca_cert:
             self.__verify = ca_cert
 
-        self.__timeout = DEFAULT_TIMEOUT if timeout is None else timeout
+        self.__timeout = DEFAULT_TIMEOUT
+        if timeout:
+            self.__timeout = timeout
 
     @cached_property
     def client(self) -> httpx2.Client:
