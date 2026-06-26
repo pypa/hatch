@@ -682,10 +682,17 @@ class WheelBuilder(BuilderInterface):
         for shared_script in self.recurse_explicit_files(shared_scripts):
             with open(shared_script.path, "rb") as f:
                 content = BytesIO()
+                leading_blank_lines = []
                 for line in f:
-                    # Ignore leading blank lines
+                    # Buffer leading blank lines: they are only stripped when they
+                    # precede a shebang, otherwise the file is preserved verbatim
+                    # (e.g. a binary or a script that legitimately starts blank).
                     if not line.strip():
+                        leading_blank_lines.append(line)
                         continue
+
+                    if not line.startswith(b"#!"):
+                        content.write(b"".join(leading_blank_lines))
 
                     match = shebang.match(line)
                     if match is None:
@@ -697,6 +704,9 @@ class WheelBuilder(BuilderInterface):
 
                     content.write(f.read())
                     break
+                else:
+                    # No non-blank line was found (empty or all-blank file); preserve it.
+                    content.write(b"".join(leading_blank_lines))
 
             record = archive.write_shared_script(shared_script, content.getvalue())
             records.write(record)
