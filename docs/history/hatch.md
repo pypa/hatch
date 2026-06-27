@@ -8,6 +8,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Fixed***
+
+- Use `TemporaryDirectory` and pylock*.toml for temporary lock files.
+- Skip injection of `ruff` extend if a key already exists in `ruff.toml`.
+- Pass `--no-header` to `uv pip compile` in the `uv` locker so that generated lockfiles are deterministic
+
+
 ## [1.17.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.17.0) - 2026-05-31 ## {: #hatch-v1.17.0 }
 
 ***Changed:***
