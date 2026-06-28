@@ -37,6 +37,10 @@ if TYPE_CHECKING:
 
 TIME_TUPLE = tuple[int, int, int, int, int, int]
 
+# The Linux kernel only reads the first BINPRM_BUF_SIZE (256) bytes of a shebang
+# line, so anything longer cannot be a functional shebang and is left untouched.
+MAX_SHEBANG_LENGTH = 256
+
 
 class FileSelectionOptions(NamedTuple):
     include: list[str]
@@ -161,6 +165,10 @@ class WheelArchive:
     def add_shared_file(self, shared_file: IncludedFile) -> tuple[str, str, str]:
         shared_file.distribution_path = f"{self.shared_data_directory}/data/{shared_file.distribution_path}"
         return self.add_file(shared_file)
+
+    def add_shared_script(self, shared_script: IncludedFile) -> tuple[str, str, str]:
+        shared_script.distribution_path = f"{self.shared_data_directory}/scripts/{shared_script.distribution_path}"
+        return self.add_file(shared_script)
 
     def add_extra_metadata_file(self, extra_metadata_file: IncludedFile) -> tuple[str, str, str]:
         extra_metadata_file.distribution_path = (
@@ -681,34 +689,28 @@ class WheelBuilder(BuilderInterface):
 
         for shared_script in self.recurse_explicit_files(shared_scripts):
             with open(shared_script.path, "rb") as f:
-                content = BytesIO()
-                leading_blank_lines = []
-                for line in f:
-                    # Buffer leading blank lines: they are only stripped when they
-                    # precede a shebang, otherwise the file is preserved verbatim
-                    # (e.g. a binary or a script that legitimately starts blank).
-                    if not line.strip():
-                        leading_blank_lines.append(line)
-                        continue
+                prefix = f.read(2)
 
-                    if not line.startswith(b"#!"):
-                        content.write(b"".join(leading_blank_lines))
-
-                    match = shebang.match(line)
-                    if match is None:
-                        content.write(line)
+                # A shebang is only honored on the first line starting at the very
+                # first byte, so anything else is kept as is.
+                if prefix != b"#!":
+                    record = archive.add_shared_script(shared_script)
+                else:
+                    line = prefix + f.readline(MAX_SHEBANG_LENGTH - len(prefix))
+                    if len(line) == MAX_SHEBANG_LENGTH and not line.endswith(b"\n"):
+                        # The line is too long to be a functional shebang.
+                        record = archive.add_shared_script(shared_script)
+                    elif (match := shebang.match(line)) is None:
+                        record = archive.add_shared_script(shared_script)
                     else:
+                        content = BytesIO()
                         content.write(b"#!python")
                         if remaining := match.group(1):
                             content.write(remaining)
+                        content.write(f.read())
 
-                    content.write(f.read())
-                    break
-                else:
-                    # No non-blank line was found (empty or all-blank file); preserve it.
-                    content.write(b"".join(leading_blank_lines))
+                        record = archive.write_shared_script(shared_script, content.getvalue())
 
-            record = archive.write_shared_script(shared_script, content.getvalue())
             records.write(record)
 
     def add_sboms(self, archive: WheelArchive, records: RecordFile, build_data: dict[str, Any]) -> None:
