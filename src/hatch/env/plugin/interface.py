@@ -415,20 +415,27 @@ class EnvironmentInterface(ABC):
         from hatch.dep.core import Dependency
 
         local_deps = list(self.local_dependencies_complex)
-        workspace_names = {dep.name.lower() for dep in local_deps}
+
+        # Map each locally-resolved package name to the metadata that owns its optional-dependencies,
+        # so extras on `<pkg>[extra]` deps are expanded from the *referenced* package's own metadata
+        # rather than always the current project's.
+        local_metadata: dict[str, Any] = {}
+        if not self.skip_install:
+            local_metadata[self.metadata.name.lower()] = self.metadata
+        for member in self.workspace.members:
+            local_metadata[member.name.lower()] = member.project.metadata
 
         filtered_deps: list[Dependency] = []
         for dep in self.dependencies_complex:
             dep_obj = dep if isinstance(dep, Dependency) else Dependency(str(dep))
 
-            if dep_obj.name.lower() in workspace_names and dep_obj.extras:
-                # Only expand if we have static optional dependencies to avoid recursion
-                if not self.metadata.hatch.metadata.hook_config:
-                    optional_dependencies = self.metadata.core.optional_dependencies
-                    for extra in dep_obj.extras:
-                        if extra in optional_dependencies:
-                            filtered_deps.extend(Dependency(d) for d in optional_dependencies[extra])
-            elif dep_obj.name.lower() not in workspace_names:
+            name_lower = dep_obj.name.lower()
+            if name_lower in local_metadata and dep_obj.extras:
+                optional_dependencies = local_metadata[name_lower].core.optional_dependencies
+                for extra in dep_obj.extras:
+                    if extra in optional_dependencies:
+                        filtered_deps.extend(Dependency(d) for d in optional_dependencies[extra])
+            elif name_lower not in local_metadata:
                 filtered_deps.append(dep_obj)
 
         return local_deps + filtered_deps
