@@ -26,11 +26,28 @@ def version(app: Application, *, desired_version: str | None, force: bool):
             app.abort(f"Project {app.project.chosen_name} (not a project)")
 
     if "version" in app.project.metadata.config.get("project", {}):
+        import tomlkit
+
+        project_file_path = app.project.location / "pyproject.toml"
+
+        raw_config = tomlkit.parse(project_file_path.read_text("utf-8"))
+        version = raw_config["project"]["version"]
+
         if desired_version:
-            app.abort("Cannot set version when it is statically defined by the `project.version` field")
+            from hatchling.version.scheme.standard import StandardScheme
+
+            scheme_config = {"validate-bump": False} if force else {}
+            scheme = StandardScheme(str(app.project.location), scheme_config)
+            updated_version = scheme.update(desired_version, version, {})
+            raw_config["project"]["version"] = updated_version
+
+            project_file_path.write_text(tomlkit.dumps(raw_config), "utf-8")
+
+            app.display_info(f"Old: {version}")
+            app.display_info(f"New: {updated_version}")
         else:
-            app.display(app.project.metadata.config["project"]["version"])
-            return
+            app.display(version)
+        return
 
     from hatch.config.constants import VersionEnvVars
     from hatch.project.constants import BUILD_BACKEND
