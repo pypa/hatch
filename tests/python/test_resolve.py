@@ -5,7 +5,7 @@ import pytest
 
 from hatch.config.constants import PythonEnvVars
 from hatch.errors import PythonDistributionResolutionError, PythonDistributionUnknownError
-from hatch.python.resolve import custom_env_var, get_distribution
+from hatch.python.resolve import custom_env_var, get_compatible_distributions, get_distribution
 from hatch.utils.structures import EnvVars
 
 
@@ -13,6 +13,11 @@ class TestErrors:
     def test_unknown_distribution(self):
         with pytest.raises(PythonDistributionUnknownError, match="Unknown distribution: foo"):
             get_distribution("foo")
+
+    @pytest.mark.parametrize("name", ["2.7t", "3.12t", "3.13tt"])
+    def test_unknown_free_threaded_distribution(self, name):
+        with pytest.raises(PythonDistributionUnknownError, match=f"Unknown distribution: {name}"):
+            get_distribution(name)
 
     @pytest.mark.skipif(
         not (sys.platform == "linux" and machine().lower() == "x86_64"),
@@ -157,11 +162,36 @@ class TestVariantCPU:
 
 
 class TestVariantGIL:
+    @pytest.mark.parametrize(("name", "base_version"), [("3.13t", "3.13.9"), ("3.14t", "3.14.0")])
+    def test_free_threaded_selectors(self, name, base_version):
+        dist = get_distribution(name)
+
+        assert dist.name == name
+        assert "freethreaded" in dist.source
+        assert dist.version.base_version == base_version
+
+    @pytest.mark.skipif(
+        not (sys.platform == "linux" and machine().lower() == "x86_64"),
+        reason="No CPU variants for this platform and architecture combination",
+    )
+    def test_free_threaded_selector_cpu_variant(self):
+        dist = get_distribution("3.13t", variant_cpu="v2")
+
+        assert "freethreaded" in dist.source
+        assert "x86_64_v2" in dist.source
+
     def test_compatible(self):
         with EnvVars({"HATCH_PYTHON_VARIANT_GIL": "freethreaded"}):
             dist = get_distribution("3.13")
 
+        assert dist.name == "3.13"
         assert "freethreaded" in dist.source
+
+    def test_compatible_distributions_do_not_include_free_threaded_selectors(self):
+        compatible_distributions = get_compatible_distributions()
+
+        assert "3.13t" not in compatible_distributions
+        assert "3.14t" not in compatible_distributions
 
     def test_incompatible(self, platform):
         with (
