@@ -335,11 +335,13 @@ class VirtualEnvironment(EnvironmentInterface):
         ):
             return
 
-        message = (
-            f"cannot locate Python: {python_version}"
-            if python_version
-            else "no compatible Python distribution available"
-        )
+        if self._explicit_python_violates_constraint(python_version):
+            message = f"Python {python_version} does not satisfy project requires-python: {self._python_constraint}"
+        elif python_version:
+            message = f"cannot locate Python: {python_version}"
+        else:
+            message = "no compatible Python distribution available"
+
         raise OSError(message)
 
     @cached_property
@@ -477,6 +479,21 @@ class VirtualEnvironment(EnvironmentInterface):
             return available_distribution
 
         return None
+
+    def _explicit_python_violates_constraint(self, python_version: str) -> bool:
+        if not (python_version and str(self._python_constraint)):
+            return False
+
+        from packaging.version import InvalidVersion
+
+        candidate_version = python_version.removeprefix("pypy").rstrip("t")
+        if "." not in candidate_version:
+            return False
+
+        try:
+            return not self._python_constraint.contains(candidate_version)
+        except InvalidVersion:
+            return False
 
     def _is_stable_path(self, executable: str) -> bool:
         path = Path(executable).resolve()
