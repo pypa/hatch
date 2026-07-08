@@ -46,6 +46,10 @@ class PipLocker(LockerInterface):
         try:
             command = ["python", "-u", "-m", "pip", "lock", "-r", str(deps_file), "-o", str(output_path)]
 
+            # Index sources do not rewrite requirement strings, so their flags must
+            # be passed to the resolver directly
+            command.extend(environment.get_source_install_args(environment.dependencies_complex))
+
             add_verbosity_flag(command, environment.verbosity, adjustment=-1)
 
             if upgrade:

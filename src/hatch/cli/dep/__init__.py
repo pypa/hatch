@@ -161,6 +161,53 @@ def table(app, project_only, env_only, show_lines, force_ascii):
         )
 
 
+@show.command("sources", short_help="Show dependency source redirections for the active environment")
+@click.option("--lines", "-l", "show_lines", is_flag=True, help="Whether or not to show lines between table rows")
+@click.option("--ascii", "force_ascii", is_flag=True, help="Whether or not to only use ASCII characters")
+@click.pass_obj
+def show_sources(app, show_lines, force_ascii):
+    """
+    Show each configured dependency source, what it points at, and which
+    dependencies of the active environment it redirects.
+    """
+    app.ensure_environment_plugin_dependencies()
+
+    from hatch.project.sources import describe_source
+    from hatch.utils.metadata import normalize_project_name
+
+    environment = app.project.get_environment()
+    configured = environment.sources
+    if not configured:
+        app.display("No sources defined in `[tool.hatch.sources]`")
+        return
+
+    matched = {name: [] for name in configured}
+    for dependency in environment.dependencies_complex:
+        if dependency.source is None:
+            continue
+
+        normalized = normalize_project_name(dependency.name)
+        if normalized in matched:
+            matched[normalized].append(str(dependency))
+
+    columns = {"Source": {}, "Type": {}, "Target": {}, "Dependencies": {}}
+    for i, (name, source) in enumerate(sorted(configured.items())):
+        source_type, target = describe_source(source)
+        columns["Source"][i] = name
+        columns["Type"][i] = source_type
+        columns["Target"][i] = target
+        columns["Dependencies"][i] = "\n".join(matched[name]) if matched[name] else "none"
+
+    column_options = {"Source": {"no_wrap": True}, "Type": {"no_wrap": True}}
+    app.display_table(
+        f"Sources: {app.env}", columns, show_lines=show_lines, column_options=column_options, force_ascii=force_ascii
+    )
+
+    unused = sorted(name for name, deps in matched.items() if not deps)
+    if unused:
+        app.display_warning(f"Sources matched no dependencies of environment `{app.env}`: {', '.join(unused)}")
+
+
 @show.command(short_help="Enumerate dependencies as a list of requirements")
 @click.option("--project-only", "-p", is_flag=True, help="Whether or not to exclude environment dependencies")
 @click.option("--env-only", "-e", is_flag=True, help="Whether or not to exclude project dependencies")

@@ -3039,3 +3039,50 @@ class TestBuild:
             "hook5": {"bar": "foo"},
             "hook6": {"bar": "foo", "enable-by-default": False},
         }
+
+
+class TestSources:
+    def test_default(self, isolation):
+        project_config = ProjectConfig(isolation, {})
+
+        assert project_config.sources == project_config.sources == {}
+
+    def test_not_table(self, isolation):
+        with pytest.raises(TypeError, match="Field `tool.hatch.sources` must be a table"):
+            _ = ProjectConfig(isolation, {"sources": 9000}).sources
+
+    def test_path_shorthand(self, isolation):
+        from hatch.project.sources import PathSource
+
+        project_config = ProjectConfig(isolation, {"sources": {"foo": "./pkg"}})
+
+        assert "foo" in project_config.sources
+        assert isinstance(project_config.sources["foo"], PathSource)
+        assert project_config.sources["foo"].path == "./pkg"
+        assert project_config.sources["foo"].editable is True
+
+    def test_table_form(self, isolation):
+        from hatch.project.sources import GitSource, IndexSource
+
+        project_config = ProjectConfig(
+            isolation,
+            {
+                "sources": {
+                    "bar": {"git": "https://example.com/bar", "rev": "abc"},
+                    "baz": {"index": "https://pypi.example.com/simple"},
+                }
+            },
+        )
+
+        assert isinstance(project_config.sources["bar"], GitSource)
+        assert project_config.sources["bar"].rev == "abc"
+        assert isinstance(project_config.sources["baz"], IndexSource)
+
+    def test_normalized_keys(self, isolation):
+        project_config = ProjectConfig(isolation, {"sources": {"My_Pkg": "./pkg"}})
+
+        assert "my-pkg" in project_config.sources
+
+    def test_invalid_entry(self, isolation):
+        with pytest.raises(ValueError, match="Field `tool.hatch.sources.foo` must define exactly one of:"):
+            _ = ProjectConfig(isolation, {"sources": {"foo": {"editable": True}}}).sources

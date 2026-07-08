@@ -101,6 +101,24 @@ def test_local_dir(hatch, temp_dir, platform, uv_on_path):
 
 
 @pytest.mark.requires_internet
+def test_local_dir_subdirectory_mismatch(hatch, temp_dir, platform, uv_on_path):
+    project_name = os.urandom(10).hex()
+
+    with temp_dir.as_cwd():
+        result = hatch("new", project_name)
+        assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / project_name
+    # The installed distribution has no subdirectory recorded, so a dependency
+    # that requests one must not be considered in sync
+    dependency_string = f"{project_name}@{project_path.as_uri()}#subdirectory=pkg"
+    with TempUVVirtualEnv(sys.executable, platform) as venv:
+        platform.run_command([uv_on_path, "pip", "install", str(project_path)], check=True, capture_output=True)
+        distributions = InstalledDistributions(sys_path=venv.sys_path)
+        assert not distributions.dependencies_in_sync([Dependency(dependency_string)])
+
+
+@pytest.mark.requires_internet
 def test_local_dir_editable(hatch, temp_dir, platform, uv_on_path):
     project_name = os.urandom(10).hex()
 

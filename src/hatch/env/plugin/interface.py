@@ -252,8 +252,55 @@ class EnvironmentInterface(ABC):
         return env_exclude
 
     @cached_property
+    def sources(self):
+        """
+        The mapping of normalized project names to
+        [`Source`](../utilities.md#hatch.project.sources.Source) objects, parsed
+        from `[tool.hatch.sources]` with any entries in
+        `[tool.hatch.envs.<ENV_NAME>.sources]` taking precedence.
+
+        Setting the `HATCH_NO_SOURCES` environment variable to any non-empty value
+        disables all sources, e.g. for verifying that published metadata resolves
+        on its own.
+        """
+        if os.environ.get(AppEnvVars.NO_SOURCES):
+            return {}
+
+        project = getattr(self.app, "project", None)
+        global_sources = {} if project is None else project.config.sources
+
+        env_config = self.config.get("sources", {})
+        if not env_config:
+            return dict(global_sources)
+
+        from hatch.project.sources import parse_sources
+
+        env_sources = parse_sources(env_config, root_field=f"tool.hatch.envs.{self.name}.sources")
+        return {**global_sources, **env_sources}
+
+    @cached_property
+    def source_workspace_members(self) -> dict[str, str]:
+        """
+        The mapping of normalized project names to the local path of the matching
+        [workspace](Workspace) member, used to resolve `workspace` entries in
+        `[tool.hatch.sources]`.
+
+        This is only populated when at least one source actually uses
+        `workspace = true`, so unrelated environments do not pay the cost of
+        resolving workspace members.
+        """
+        from hatch.project.sources import WorkspaceSource
+        from hatch.utils.metadata import normalize_project_name
+
+        if not any(isinstance(source, WorkspaceSource) for source in self.sources.values()):
+            return {}
+
+        return {normalize_project_name(member.name): str(member.project.location) for member in self.workspace.members}
+
+    @cached_property
     def environment_dependencies_complex(self) -> list[Dependency]:
         from hatch.dep.core import Dependency, InvalidDependencyError
+        from hatch.project.sources import decorate_dependencies
 
         dependencies_complex: list[Dependency] = []
         with self.apply_context():
@@ -274,7 +321,7 @@ class EnvironmentInterface(ABC):
                         message = f"Dependency #{i} of field `tool.hatch.envs.{self.name}.{option}` is invalid: {e}"
                         raise ValueError(message) from None
 
-        return dependencies_complex
+        return decorate_dependencies(dependencies_complex, self.sources, str(self.root), self.source_workspace_members)
 
     @cached_property
     def environment_dependencies(self) -> list[str]:
@@ -290,6 +337,7 @@ class EnvironmentInterface(ABC):
             return []
 
         from hatch.dep.core import Dependency
+        from hatch.project.sources import decorate_dependencies
         from hatch.utils.dep import get_complex_dependencies, get_complex_dependency_group, get_complex_features
 
         all_dependencies_complex = list(map(Dependency, workspace_dependencies))
@@ -327,7 +375,9 @@ class EnvironmentInterface(ABC):
                 get_complex_dependency_group(self.app.project.dependency_groups, dependency_group)
             )
 
-        return all_dependencies_complex
+        return decorate_dependencies(
+            all_dependencies_complex, self.sources, str(self.root), self.source_workspace_members
+        )
 
     @cached_property
     def project_dependencies(self) -> list[str]:
@@ -359,23 +409,30 @@ class EnvironmentInterface(ABC):
     @cached_property
     def dependencies_complex(self) -> list[Dependency]:
         from hatch.dep.core import Dependency
+        from hatch.project.sources import decorate_dependencies
 
         all_dependencies_complex = list(self.environment_dependencies_complex)
 
         # Convert additional_dependencies to Dependency objects
+        additional_deps: list[Dependency] = []
         for dep in self.additional_dependencies:
             if isinstance(dep, Dependency):
-                all_dependencies_complex.append(dep)
+                additional_deps.append(dep)
             else:
-                all_dependencies_complex.append(Dependency(str(dep)))
+                additional_deps.append(Dependency(str(dep)))
+        all_dependencies_complex.extend(
+            decorate_dependencies(additional_deps, self.sources, str(self.root), self.source_workspace_members)
+        )
 
         if self.dependency_groups and not self.skip_install:
             from hatch.utils.dep import get_complex_dependency_group
 
+            group_deps: list[Dependency] = []
             for dependency_group in self.dependency_groups:
-                all_dependencies_complex.extend(
-                    get_complex_dependency_group(self.app.project.dependency_groups, dependency_group)
-                )
+                group_deps.extend(get_complex_dependency_group(self.app.project.dependency_groups, dependency_group))
+            all_dependencies_complex.extend(
+                decorate_dependencies(group_deps, self.sources, str(self.root), self.source_workspace_members)
+            )
 
         if self.builder:
             from hatch.project.constants import BuildEnvVars
@@ -956,6 +1013,19 @@ class EnvironmentInterface(ABC):
 
         command.extend(args)
         return command
+
+    @staticmethod
+    def get_source_install_args(dependencies: list[Dependency]) -> list[str]:
+        """
+        Returns global installer flags derived from any
+        [sources](../../config/dependency.md#sources) attached to the given
+        dependencies. Currently this surfaces every `IndexSource` as
+        `--extra-index-url`, deduplicated and order-preserving.
+        """
+        from hatch.project.sources import collect_global_install_args
+
+        sources_used = [dep.source for dep in dependencies if dep.source is not None]
+        return collect_global_install_args(sources_used)
 
     def join_command_args(self, args: list[str]):
         """

@@ -54,6 +54,12 @@ class ProjectConfig:
         return lock_envs
 
     @cached_property
+    def sources(self):
+        from hatch.project.sources import parse_sources
+
+        return parse_sources(self.config.get("sources", {}))
+
+    @cached_property
     def locker(self) -> str | None:
         locker = self.config.get("locker")
         if locker is None:
