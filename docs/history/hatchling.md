@@ -8,6 +8,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.31.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.31.0) - 2026-06-30 ## {: #hatchling-v1.31.0 }
+
+***Fixed***
+
+- Only rewrite the shebang of a shared script when a Python shebang is present on the first line, preserving binary files and other content verbatim instead of dropping leading bytes.
+
 ## [1.30.1](https://github.com/pypa/hatch/releases/tag/hatchling-v1.30.1) - 2026-06-01 ## {: #hatchling-v1.30.1 }
 
 ***Fixed***

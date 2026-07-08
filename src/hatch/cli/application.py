@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import signal
 import sys
 from functools import cached_property
 from typing import TYPE_CHECKING, cast
@@ -69,7 +70,20 @@ class Application(Terminal):
                     continue_on_error = True
                     command = command[2:]
 
-                process = context.env.run_shell_command(command)
+                # Ignore SIGINT in the parent process while the child command runs so that
+                # only the child handles Ctrl-C.  The terminal sends SIGINT to the entire
+                # foreground process group; without this the parent raises KeyboardInterrupt
+                # and aborts even though the child (e.g. a Python REPL) may choose to stay
+                # alive.  The child's exit code is still used to determine success/failure.
+                original_sigint = signal.getsignal(signal.SIGINT)
+                try:
+                    signal.signal(signal.SIGINT, signal.SIG_IGN)
+                    process = context.env.run_shell_command(command)
+                finally:
+                    # Restore the original handler in finally so the parent stays
+                    # responsive to Ctrl-C even if the child raises or is cancelled.
+                    # Don't hoist this out of the finally block.
+                    signal.signal(signal.SIGINT, original_sigint)
                 sys.stdout.flush()
                 sys.stderr.flush()
                 if process.returncode:

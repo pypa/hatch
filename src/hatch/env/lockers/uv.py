@@ -86,6 +86,7 @@ class UvLocker(LockerInterface):
 
         command.extend([
             "--generate-hashes",
+            "--no-header",
             "--output-file",
             str(output_path),
         ])
@@ -129,10 +130,8 @@ class UvLocker(LockerInterface):
         if not output_path.is_file():
             return False
 
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".toml", delete=False, encoding="utf-8") as f:
-            temp_path = Path(f.name)
-
-        try:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            temp_path = Path(tmp_dir) / "pylock.toml"
             cls.generate(
                 environment,
                 dependencies,
@@ -145,8 +144,6 @@ class UvLocker(LockerInterface):
             )
             existing = output_path.read_text(encoding="utf-8")
             fresh = temp_path.read_text(encoding="utf-8")
-        finally:
-            temp_path.unlink(missing_ok=True)
 
         return existing == fresh
 

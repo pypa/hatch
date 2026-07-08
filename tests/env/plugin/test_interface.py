@@ -1541,6 +1541,150 @@ feature3 = ["pkg-feature-3{i}"]
         # Should have my-app[test] which will cause pip to install pytest
         assert any("pytest" in dep.lower() for dep in all_deps_str)
 
+    def test_workspace_member_dependency_with_extras(self, temp_dir, isolated_data_dir, platform, temp_application):
+        """A workspace member's extras must expand against that member's own optional-dependencies,
+        not the root project's.
+        """
+        member_file = temp_dir / "member-pkg" / "pyproject.toml"
+        member_file.parent.mkdir()
+        member_file.write_text(
+            """\
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "member-pkg"
+version = "0.0.1"
+dependencies = []
+
+[project.optional-dependencies]
+test = ["member-test-dep"]
+"""
+        )
+
+        config = {
+            "project": {
+                "name": "my-app",
+                "version": "0.0.1",
+                "dependencies": [],
+                "optional-dependencies": {
+                    # Same extra name on the root project, with a *different* dependency,
+                    # to prove the lookup uses the member's metadata not the root's.
+                    "test": ["root-test-dep"],
+                },
+            },
+            "tool": {
+                "hatch": {
+                    "envs": {
+                        "default": {
+                            "skip-install": False,
+                            "dependencies": ["member-pkg[test]"],
+                            "workspace": {"members": [{"path": "member-pkg"}]},
+                        },
+                    },
+                },
+            },
+        }
+
+        project = Project(temp_dir, config=config)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            temp_dir,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        all_deps_str = [str(d) for d in environment.all_dependencies_complex]
+
+        # The member's own extra must be expanded
+        assert any("member-test-dep" in dep for dep in all_deps_str)
+        # The root project's same-named extra must NOT leak into the env
+        assert not any("root-test-dep" in dep for dep in all_deps_str)
+
+    def test_self_referencing_dependency_with_extras_and_metadata_hook(
+        self, temp_dir, isolated_data_dir, platform, global_application, helpers
+    ):
+        """Regression test for https://github.com/pypa/hatch/issues/2252.
+
+        A configured metadata hook must not cause extras of self-referencing dependencies to be dropped.
+        The hook here only sets ``description``; ``optional-dependencies`` remain static and the extras
+        of ``my-app[test]`` must still expand to ``pytest>=7.0``.
+        """
+        project_dir = temp_dir / "my-app"
+        project_dir.mkdir()
+
+        (project_dir / "my_app").mkdir()
+        (project_dir / "my_app" / "__init__.py").write_text("")
+        (project_dir / "my_app" / "__about__.py").write_text('__version__ = "0.0.1"')
+
+        (project_dir / "hatch_build.py").write_text(
+            helpers.dedent(
+                """
+                from hatchling.metadata.plugin.interface import MetadataHookInterface
+
+                class CustomHook(MetadataHookInterface):
+                    def update(self, metadata):
+                        metadata['description'] = 'set by hook'
+                """
+            )
+        )
+
+        config = {
+            "project": {
+                "name": "my-app",
+                "version": "0.0.1",
+                "dynamic": ["description"],
+                "dependencies": [],
+                "optional-dependencies": {
+                    "test": ["pytest>=7.0"],
+                },
+            },
+            "tool": {
+                "hatch": {
+                    "metadata": {"hooks": {"custom": {}}},
+                    "envs": {
+                        "dev": {
+                            "skip-install": False,
+                            "dependencies": ["my-app[test]"],
+                        }
+                    },
+                }
+            },
+        }
+
+        project = Project(project_dir, config=config)
+        global_application.project = project
+
+        environment = MockEnvironment(
+            project_dir,
+            project.metadata,
+            "dev",
+            project.config.envs["dev"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            global_application,
+        )
+
+        all_deps_str = [str(d) for d in environment.all_dependencies_complex]
+
+        # The self-referenced project must still be installed locally
+        assert any("my-app" in dep and "file://" in dep for dep in all_deps_str)
+
+        # And the extras must be expanded even though a metadata hook is configured
+        assert any("pytest" in dep.lower() for dep in all_deps_str)
+
     def test_dev_mode_true_returns_editable(self, temp_dir, isolated_data_dir, platform, temp_application):
         """Verify dev-mode=true creates editable local dependency."""
         # Create a pyproject.toml file so skip_install defaults to False
