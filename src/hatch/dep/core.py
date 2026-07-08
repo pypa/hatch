@@ -48,5 +48,23 @@ class Dependency(Requirement):
         uri = hyperlink.parse(self.url)
         if uri.scheme != "file":
             return None
-        decoded_url = unquote(self.url)
+        # The fragment (e.g. `#subdirectory=...`) is not part of the filesystem path
+        decoded_url = unquote(self.url.split("#", 1)[0])
         return Path.from_uri(decoded_url)
+
+    @cached_property
+    def subdirectory(self) -> str | None:
+        """
+        The `subdirectory` component of the URL fragment, if any.
+        """
+        from urllib.parse import parse_qs, urlsplit
+
+        if self.url is None:
+            return None
+
+        fragment = urlsplit(self.url).fragment
+        if not fragment:
+            return None
+
+        subdirectories = parse_qs(fragment).get("subdirectory")
+        return subdirectories[0] if subdirectories else None

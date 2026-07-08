@@ -10,6 +10,7 @@ from hatch.project.sources import (
     collect_global_install_args,
     decorate_dependencies,
     decorate_dependency,
+    describe_source,
     parse_source,
     parse_sources,
     render_git_url,
@@ -167,6 +168,18 @@ class TestParseSources:
         with pytest.raises(ValueError, match="Source names in `tool.hatch.sources` cannot be empty"):
             parse_sources({"": "./pkg"})
 
+    def test_custom_root_field_in_errors(self):
+        root_field = "tool.hatch.envs.test.sources"
+
+        with pytest.raises(TypeError, match="Field `tool.hatch.envs.test.sources` must be a table"):
+            parse_sources(9000, root_field=root_field)
+
+        with pytest.raises(TypeError, match="Field `tool.hatch.envs.test.sources.foo.path` must be a string"):
+            parse_sources({"foo": {"path": 9000}}, root_field=root_field)
+
+        with pytest.raises(ValueError, match="Field `tool.hatch.envs.test.sources` contains duplicate names:"):
+            parse_sources({"my-pkg": "./pkg", "my_pkg": "./pkg2"}, root_field=root_field)
+
 
 class TestRender:
     def test_render_path_url_relative(self, temp_dir):
@@ -237,6 +250,29 @@ class TestApplySourceToRequirement:
         assert result is not None
         spec, _ = result
         assert spec.startswith("foo[a,b] @ file://")
+
+    def test_path_editable_with_subdirectory_joins_path(self, temp_dir):
+        source = PathSource(path="monorepo", editable=True, subdirectory="packages/foo")
+
+        result = apply_source_to_requirement("foo", [], source, str(temp_dir))
+
+        assert result is not None
+        spec, editable = result
+        assert editable is True
+        # Editable installs pass a bare directory to the installer, so the
+        # subdirectory must be part of the path rather than a URL fragment
+        assert "#subdirectory" not in spec
+        assert spec.endswith("monorepo/packages/foo")
+
+    def test_path_non_editable_with_subdirectory_uses_fragment(self, temp_dir):
+        source = PathSource(path="monorepo", editable=False, subdirectory="packages/foo")
+
+        result = apply_source_to_requirement("foo", [], source, str(temp_dir))
+
+        assert result is not None
+        spec, editable = result
+        assert editable is False
+        assert spec.endswith("#subdirectory=packages/foo")
 
     def test_git(self, temp_dir):
         source = GitSource(git="https://example.com/foo", rev="abc")
@@ -420,3 +456,31 @@ class TestCollectGlobalInstallArgs:
         sources = [PathSource(path="pkg"), GitSource(git="https://example.com/foo")]
 
         assert collect_global_install_args(sources) == []
+
+
+class TestDescribeSource:
+    def test_path(self):
+        assert describe_source(PathSource(path="./pkg")) == ("path", "./pkg")
+
+    def test_path_with_options(self):
+        source = PathSource(path="./monorepo", editable=False, subdirectory="pkg")
+
+        assert describe_source(source) == ("path", "./monorepo (subdirectory: pkg) (not editable)")
+
+    def test_git(self):
+        source = GitSource(git="https://example.com/foo", tag="v1")
+
+        assert describe_source(source) == ("git", "git+https://example.com/foo@v1")
+
+    def test_url(self):
+        source = UrlSource(url="https://example.com/foo.tgz")
+
+        assert describe_source(source) == ("url", "https://example.com/foo.tgz")
+
+    def test_index(self):
+        source = IndexSource(index="https://pypi.example.com/simple")
+
+        assert describe_source(source) == ("index", "https://pypi.example.com/simple")
+
+    def test_workspace(self):
+        assert describe_source(WorkspaceSource()) == ("workspace", "resolved via `workspace.members`")

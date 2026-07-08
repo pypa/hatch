@@ -67,6 +67,9 @@ class WorkspaceSource(Source):
     """
 
 
+DEFAULT_ROOT_FIELD = "tool.hatch.sources"
+
+
 def _check_str(value: Any, field_path: str) -> str:
     if not isinstance(value, str):
         message = f"Field `{field_path}` must be a string"
@@ -82,9 +85,7 @@ def _check_optional_str(value: Any, field_path: str) -> str | None:
     return _check_str(value, field_path)
 
 
-def _parse_path_source(name: str, raw: dict[str, Any]) -> PathSource:
-    field_prefix = f"tool.hatch.sources.{name}"
-
+def _parse_path_source(field_prefix: str, raw: dict[str, Any]) -> PathSource:
     path = _check_str(raw["path"], f"{field_prefix}.path")
     if not path:
         message = f"Field `{field_prefix}.path` cannot be an empty string"
@@ -100,9 +101,7 @@ def _parse_path_source(name: str, raw: dict[str, Any]) -> PathSource:
     return PathSource(path=path, editable=editable, subdirectory=subdirectory)
 
 
-def _parse_git_source(name: str, raw: dict[str, Any]) -> GitSource:
-    field_prefix = f"tool.hatch.sources.{name}"
-
+def _parse_git_source(field_prefix: str, raw: dict[str, Any]) -> GitSource:
     git = _check_str(raw["git"], f"{field_prefix}.git")
     if not git:
         message = f"Field `{field_prefix}.git` cannot be an empty string"
@@ -121,9 +120,7 @@ def _parse_git_source(name: str, raw: dict[str, Any]) -> GitSource:
     return GitSource(git=git, rev=rev, tag=tag, branch=branch, subdirectory=subdirectory)
 
 
-def _parse_url_source(name: str, raw: dict[str, Any]) -> UrlSource:
-    field_prefix = f"tool.hatch.sources.{name}"
-
+def _parse_url_source(field_prefix: str, raw: dict[str, Any]) -> UrlSource:
     url = _check_str(raw["url"], f"{field_prefix}.url")
     if not url:
         message = f"Field `{field_prefix}.url` cannot be an empty string"
@@ -134,9 +131,7 @@ def _parse_url_source(name: str, raw: dict[str, Any]) -> UrlSource:
     return UrlSource(url=url, subdirectory=subdirectory)
 
 
-def _parse_index_source(name: str, raw: dict[str, Any]) -> IndexSource:
-    field_prefix = f"tool.hatch.sources.{name}"
-
+def _parse_index_source(field_prefix: str, raw: dict[str, Any]) -> IndexSource:
     index = _check_str(raw["index"], f"{field_prefix}.index")
     if not index:
         message = f"Field `{field_prefix}.index` cannot be an empty string"
@@ -145,9 +140,7 @@ def _parse_index_source(name: str, raw: dict[str, Any]) -> IndexSource:
     return IndexSource(index=index)
 
 
-def _parse_workspace_source(name: str, raw: dict[str, Any]) -> WorkspaceSource:
-    field_prefix = f"tool.hatch.sources.{name}"
-
+def _parse_workspace_source(field_prefix: str, raw: dict[str, Any]) -> WorkspaceSource:
     workspace_value = raw["workspace"]
     if not isinstance(workspace_value, bool):
         message = f"Field `{field_prefix}.workspace` must be a boolean"
@@ -169,11 +162,12 @@ _SOURCE_PARSERS = {
 }
 
 
-def parse_source(name: str, raw: Any) -> Source:
+def parse_source(name: str, raw: Any, *, root_field: str = DEFAULT_ROOT_FIELD) -> Source:
     """
-    Parse a single entry of `tool.hatch.sources`.
+    Parse a single entry of a sources table. `root_field` is the location of the
+    table being parsed, used in error messages, e.g. `tool.hatch.envs.test.sources`.
     """
-    field_prefix = f"tool.hatch.sources.{name}"
+    field_prefix = f"{root_field}.{name}"
 
     if isinstance(raw, str):
         if not raw:
@@ -195,20 +189,21 @@ def parse_source(name: str, raw: Any) -> Source:
         message = f"Field `{field_prefix}` must define only one of: {', '.join(found_types)}"
         raise ValueError(message)
 
-    return _SOURCE_PARSERS[found_types[0]](name, raw)
+    return _SOURCE_PARSERS[found_types[0]](field_prefix, raw)
 
 
-def parse_sources(config: Any) -> dict[str, Source]:
+def parse_sources(config: Any, *, root_field: str = DEFAULT_ROOT_FIELD) -> dict[str, Source]:
     """
-    Parse the entire `[tool.hatch.sources]` table. Returns a mapping keyed by
+    Parse an entire sources table like `[tool.hatch.sources]`. Returns a mapping keyed by
     [normalized](https://peps.python.org/pep-0503/#normalized-names) project name.
+    `root_field` is the location of the table being parsed, used in error messages.
     """
     from collections import defaultdict
 
     from hatch.utils.metadata import normalize_project_name
 
     if not isinstance(config, dict):
-        message = "Field `tool.hatch.sources` must be a table"
+        message = f"Field `{root_field}` must be a table"
         raise TypeError(message)
 
     sources: dict[str, Source] = {}
@@ -216,22 +211,22 @@ def parse_sources(config: Any) -> dict[str, Source]:
 
     for name, raw in config.items():
         if not isinstance(name, str):
-            message = "Source names in `tool.hatch.sources` must be strings"
+            message = f"Source names in `{root_field}` must be strings"
             raise TypeError(message)
 
         if not name:
-            message = "Source names in `tool.hatch.sources` cannot be empty"
+            message = f"Source names in `{root_field}` cannot be empty"
             raise ValueError(message)
 
         normalized = normalize_project_name(name)
         original_names[normalized].append(name)
-        sources[normalized] = parse_source(name, raw)
+        sources[normalized] = parse_source(name, raw, root_field=root_field)
 
     duplicates = [
         f"{normed} ({', '.join(originals)})" for normed, originals in original_names.items() if len(originals) > 1
     ]
     if duplicates:
-        message = f"Field `tool.hatch.sources` contains duplicate names: {', '.join(duplicates)}"
+        message = f"Field `{root_field}` contains duplicate names: {', '.join(duplicates)}"
         raise ValueError(message)
 
     return sources
@@ -307,6 +302,15 @@ def apply_source_to_requirement(
     extras_segment = f"[{','.join(extras)}]" if extras else ""
 
     if isinstance(source, PathSource):
+        if source.editable and source.subdirectory:
+            # Editable installs pass a bare directory to the installer, where a
+            # `#subdirectory` fragment would be treated as part of the filesystem
+            # path, so resolve the subdirectory into the path itself.
+            import os
+
+            url = render_path_url(os.path.join(source.path, source.subdirectory), root)
+            return f"{name}{extras_segment} @ {url}", True
+
         url = render_path_url(source.path, root, subdirectory=source.subdirectory)
         return f"{name}{extras_segment} @ {url}", source.editable
 
@@ -408,3 +412,30 @@ def decorate_dependencies(
         return list(dependencies)
 
     return [decorate_dependency(dep, sources, root, workspace_members) for dep in dependencies]
+
+
+def describe_source(source: Source) -> tuple[str, str]:
+    """
+    Return a `(type, target)` pair describing `source` for display purposes.
+    """
+    if isinstance(source, PathSource):
+        target = source.path
+        if source.subdirectory:
+            target = f"{target} (subdirectory: {source.subdirectory})"
+        if not source.editable:
+            target = f"{target} (not editable)"
+        return "path", target
+
+    if isinstance(source, GitSource):
+        return "git", render_git_url(source)
+
+    if isinstance(source, UrlSource):
+        return "url", render_url(source)
+
+    if isinstance(source, IndexSource):
+        return "index", source.index
+
+    if isinstance(source, WorkspaceSource):
+        return "workspace", "resolved via `workspace.members`"
+
+    return type(source).__name__, ""

@@ -3961,3 +3961,144 @@ skip-install = false
             match="Dependency `dep1` declares `workspace = true` in `tool.hatch.sources` but no matching member",
         ):
             _ = environment.project_dependencies_complex
+
+    def test_env_sources_override_global(self, isolation, isolated_data_dir, platform, temp_application):
+        from hatch.project.sources import GitSource, PathSource
+
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1", "dependencies": ["dep1"]},
+            "tool": {
+                "hatch": {
+                    "sources": {"dep1": "./packages/dep1"},
+                    "envs": {
+                        "default": {"skip-install": False},
+                        "upstream": {
+                            "skip-install": False,
+                            "sources": {"dep1": {"git": "https://example.com/dep1", "branch": "main"}},
+                        },
+                    },
+                }
+            },
+        }
+        project = Project(isolation, config=config)
+        project.set_app(temp_application)
+        temp_application.project = project
+
+        environments = {}
+        for env_name in ("default", "upstream"):
+            environments[env_name] = MockEnvironment(
+                isolation,
+                project.metadata,
+                env_name,
+                project.config.envs[env_name],
+                {},
+                isolated_data_dir,
+                isolated_data_dir,
+                platform,
+                0,
+                temp_application,
+            )
+
+        assert isinstance(environments["default"].sources["dep1"], PathSource)
+        assert isinstance(environments["upstream"].sources["dep1"], GitSource)
+
+        deps = environments["upstream"].project_dependencies_complex
+        assert len(deps) == 1
+        assert deps[0].url == "git+https://example.com/dep1@main"
+
+    def test_env_sources_error_location(self, isolation, isolated_data_dir, platform, temp_application):
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {
+                "hatch": {
+                    "envs": {"default": {"sources": {"dep1": {"path": 9000}}}},
+                }
+            },
+        }
+        project = Project(isolation, config=config)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        with pytest.raises(
+            TypeError, match=re.escape("Field `tool.hatch.envs.default.sources.dep1.path` must be a string")
+        ):
+            _ = environment.sources
+
+    def test_no_sources_env_var(self, isolation, isolated_data_dir, platform, temp_application):
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1", "dependencies": ["dep1"]},
+            "tool": {
+                "hatch": {
+                    "sources": {"dep1": "./packages/dep1"},
+                    "envs": {"default": {"skip-install": False}},
+                }
+            },
+        }
+        project = Project(isolation, config=config)
+        project.set_app(temp_application)
+        temp_application.project = project
+
+        with EnvVars({AppEnvVars.NO_SOURCES: "1"}):
+            environment = MockEnvironment(
+                isolation,
+                project.metadata,
+                "default",
+                project.config.envs["default"],
+                {},
+                isolated_data_dir,
+                isolated_data_dir,
+                platform,
+                0,
+                temp_application,
+            )
+            deps = environment.project_dependencies_complex
+
+        assert len(deps) == 1
+        assert deps[0].url is None
+        assert deps[0].source is None
+
+    def test_additional_dependencies_decorated(self, isolation, isolated_data_dir, platform, temp_application):
+        from hatch.project.sources import GitSource
+
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {
+                "hatch": {
+                    "sources": {"dep3": {"git": "https://example.com/dep3", "rev": "abc"}},
+                    "envs": {"default": {}},
+                }
+            },
+        }
+        project = Project(isolation, config=config)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+        environment.additional_dependencies = ["dep3"]
+
+        deps = [dep for dep in environment.dependencies_complex if dep.name == "dep3"]
+        assert len(deps) == 1
+        assert deps[0].url == "git+https://example.com/dep3@abc"
+        assert isinstance(deps[0].source, GitSource)

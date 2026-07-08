@@ -256,13 +256,27 @@ class EnvironmentInterface(ABC):
         """
         The mapping of normalized project names to
         [`Source`](../utilities.md#hatch.project.sources.Source) objects, parsed
-        from `[tool.hatch.sources]`.
+        from `[tool.hatch.sources]` with any entries in
+        `[tool.hatch.envs.<ENV_NAME>.sources]` taking precedence.
+
+        Setting the `HATCH_NO_SOURCES` environment variable to any non-empty value
+        disables all sources, e.g. for verifying that published metadata resolves
+        on its own.
         """
-        project = getattr(self.app, "project", None)
-        if project is None:
+        if os.environ.get(AppEnvVars.NO_SOURCES):
             return {}
 
-        return project.config.sources
+        project = getattr(self.app, "project", None)
+        global_sources = {} if project is None else project.config.sources
+
+        env_config = self.config.get("sources", {})
+        if not env_config:
+            return dict(global_sources)
+
+        from hatch.project.sources import parse_sources
+
+        env_sources = parse_sources(env_config, root_field=f"tool.hatch.envs.{self.name}.sources")
+        return {**global_sources, **env_sources}
 
     @cached_property
     def source_workspace_members(self) -> dict[str, str]:
@@ -400,11 +414,15 @@ class EnvironmentInterface(ABC):
         all_dependencies_complex = list(self.environment_dependencies_complex)
 
         # Convert additional_dependencies to Dependency objects
+        additional_deps: list[Dependency] = []
         for dep in self.additional_dependencies:
             if isinstance(dep, Dependency):
-                all_dependencies_complex.append(dep)
+                additional_deps.append(dep)
             else:
-                all_dependencies_complex.append(Dependency(str(dep)))
+                additional_deps.append(Dependency(str(dep)))
+        all_dependencies_complex.extend(
+            decorate_dependencies(additional_deps, self.sources, str(self.root), self.source_workspace_members)
+        )
 
         if self.dependency_groups and not self.skip_install:
             from hatch.utils.dep import get_complex_dependency_group

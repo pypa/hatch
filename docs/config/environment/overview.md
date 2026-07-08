@@ -87,7 +87,7 @@ extra-dependencies = [
     Hatch uses [pip](https://github.com/pypa/pip) to install dependencies so any [configuration](https://pip.pypa.io/en/stable/topics/configuration/) it supports Hatch does as well. For example, if you wanted to only use a private repository you could set the `PIP_INDEX_URL` [environment variable](#environment-variables).
 
 !!! tip
-    To redirect a dependency to a local path, Git repository, URL, alternate index, or workspace member without altering your published metadata, see [sources](../dependency.md#sources).
+    To redirect a dependency to a local path, Git repository, URL, alternate index, or workspace member without altering your published metadata, see [sources](../dependency.md#sources). Environments may override individual sources with [`tool.hatch.envs.<ENV_NAME>.sources`](../dependency.md#environment-overrides), and all sources can be disabled by setting the `HATCH_NO_SOURCES` environment variable.
 
 ## Installation
 

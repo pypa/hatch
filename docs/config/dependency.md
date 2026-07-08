@@ -311,6 +311,8 @@ foo = { path = "./packages/foo", editable = true }
 foo = { path = "./monorepo", subdirectory = "packages/foo" }
 ```
 
+For editable installs the subdirectory is resolved into the path itself (equivalent to `path = "./monorepo/packages/foo"`), since installers expect a bare project directory. For non-editable installs the subdirectory is passed as a URL fragment, which also supports archives.
+
 ### Git
 
 Pull from a Git repository:
@@ -364,9 +366,35 @@ my-pkg = { workspace = true }
 
 The actual install path is determined by the matching member in `tool.hatch.envs.<ENV_NAME>.workspace.members`. This lets you declare workspace membership in one place and reference it from many environments.
 
+### Environment overrides
+
+Individual environments may define their own sources under `tool.hatch.envs.<ENV_NAME>.sources`. Entries there take precedence over the global `[tool.hatch.sources]` table on a per-name basis, so an environment can redirect a dependency differently while every other environment keeps the global behavior:
+
+```toml config-example
+[tool.hatch.sources]
+foo = "./packages/foo"
+
+[tool.hatch.envs.test-upstream.sources]
+foo = { git = "https://github.com/example/foo", branch = "main" }
+```
+
+Here every environment installs `foo` from the local checkout except `test-upstream`, which tracks the upstream development branch.
+
 ### Precedence
 
 A dependency that already uses a [PEP 508 direct reference](#direct-references) is left untouched — the explicit URL on the dependency wins over a configured source.
+
+### Disabling sources
+
+Setting the `HATCH_NO_SOURCES` environment variable to any non-empty value disables all sources, both global and per-environment. This is useful in CI to verify that your published metadata resolves on its own, without local redirections:
+
+```
+HATCH_NO_SOURCES=1 hatch env create
+```
+
+### Inspecting sources
+
+The [`dep show sources`](../cli/reference.md#hatch-dep-show) command displays each configured source, its target, and the dependencies of the active environment that it redirects. Sources that match no dependencies are reported with a warning, which helps catch typos in source names since unmatched sources are otherwise silently ignored.
 
 ### Installer translation
 
@@ -374,11 +402,14 @@ Sources produce installer-agnostic instructions that Hatch renders into the righ
 
 | Source | Per-dependency form | Global flags |
 | --- | --- | --- |
-| `path` (editable) | `name @ file://<resolved>` with `--editable` | none |
+| `path` (editable) | `--editable <resolved>` | none |
 | `path` (non-editable) | `name @ file://<resolved>` | none |
 | `git` | `name @ git+<url>[@<ref>]` | none |
 | `url` | `name @ <url>` | none |
 | `index` | unchanged | `--extra-index-url <url>` |
 | `workspace` | resolved through `workspace.members` | none |
 
-Both [`installer = "pip"`](environment/overview.md#dependencies) and `installer = "uv"` accept the same flag forms, so the same source configuration works for either.
+Both [`installer = "pip"`](environment/overview.md#dependencies) and `installer = "uv"` accept the same flag forms, so the same source configuration works for either. When an environment is [`locked`](environment/overview.md#locked), sources also apply during lock resolution: rewritten requirements flow into the lock inputs and index sources are passed to the resolver as `--extra-index-url`.
+
+!!! note
+    Sources do not apply to [build requirements](../config/build.md#build-system) (`build-system.requires` or build target dependencies). Build environments always resolve from declared metadata so that builds remain reproducible.
