@@ -181,7 +181,7 @@ def show_sources(app, show_lines, force_ascii):
         app.display("No sources defined in `[tool.hatch.sources]`")
         return
 
-    matched: dict[str, list[str]] = {name: [] for name in configured}
+    matched = {name: [] for name in configured}
     for dependency in environment.dependencies_complex:
         if dependency.source is None:
             continue
