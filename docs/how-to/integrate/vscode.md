@@ -2,9 +2,9 @@
 
 -----
 
-Visual Studio Code announced support for [Hatch environment discovery](https://code.visualstudio.com/updates/v1_88#_hatch-environment-discovery) in `vscode-python`'s [2024.4 release](https://github.com/microsoft/vscode-python/releases/tag/v2024.4.0).
+For the best experience, install the dedicated [Hatch extension for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=PyPA.hatch). The extension is maintained in the [pypa/hatch-code](https://github.com/pypa/hatch-code) repository.
 
-For it to work, you should [install Hatch](../../install.md) globally. If you used the GUI installers on Windows or macOS, or your system package manager on e.g. Arch Linux or Fedora, this should be taken care of.
+For environment discovery to work, you should [install Hatch](../../install.md) globally. If you used the GUI installers on Windows or macOS, or your system package manager on e.g. Arch Linux or Fedora, this should be taken care of.
 
 ??? note "Setting up PATH"
 
