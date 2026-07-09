@@ -20,6 +20,15 @@ class MetadataFile(File):
         super().__init__(Path(template_config["package_name"], "__about__.py"), '__version__ = "0.0.1"\n')
 
 
+class GitIgnore(File):
+    def __init__(
+        self,
+        template_config: dict,  # noqa: ARG002
+        plugin_config: dict,  # noqa: ARG002
+    ):
+        super().__init__(Path(".gitignore"), "__pycache__/\ndist/\n")
+
+
 class Readme(File):
     TEMPLATE = """\
 # {project_name}
