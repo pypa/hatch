@@ -60,6 +60,22 @@ hatch python install 3.12 --private
 
 This when combined with the [directory option](#location) can be used to create private, isolated installations.
 
+### Mirrors
+
+By default, CPython distributions are downloaded from the [python-build-standalone](https://github.com/astral-sh/python-build-standalone) project's GitHub releases and PyPy distributions are downloaded from the [PyPy](https://www.pypy.org) project's website.
+
+You can use a mirror by setting the following environment variables, whose values replace the default URL prefixes of distribution downloads:
+
+| Option | Default URL prefix |
+| --- | --- |
+| `HATCH_PYTHON_INSTALL_MIRROR` | `https://github.com/astral-sh/python-build-standalone/releases/download` |
+| `HATCH_PYPY_INSTALL_MIRROR` | `https://downloads.python.org/pypy` |
+
+For example, if `HATCH_PYTHON_INSTALL_MIRROR` is set to `https://mirror.example.com/python-build-standalone` then the distribution `https://github.com/astral-sh/python-build-standalone/releases/download/20251014/cpython-3.12.12%2B20251014-x86_64-unknown-linux-gnu-install_only_stripped.tar.gz` would instead be downloaded from `https://mirror.example.com/python-build-standalone/20251014/cpython-3.12.12%2B20251014-x86_64-unknown-linux-gnu-install_only_stripped.tar.gz`.
+
+!!! tip
+    If you require complete control over the source of each distribution rather than a mirror, you can use [custom distributions](../../how-to/python/custom.md).
+
 ## Listing distributions
 
 You can see all of the available and installed Python distributions by using the [`python show`](../../cli/reference.md#hatch-python-show) command. For example, if you already installed the `3.12` distribution you may see something like this:
