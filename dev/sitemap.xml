@@ -141,6 +141,10 @@
          <lastmod>2020-02-02</lastmod>
     </url>
     <url>
+         <loc>https://hatch.pypa.io/dev/how-to/config/constrain-hatch/</loc>
+         <lastmod>2020-02-02</lastmod>
+    </url>
+    <url>
          <loc>https://hatch.pypa.io/dev/how-to/config/dynamic-metadata/</loc>
          <lastmod>2020-02-02</lastmod>
     </url>
