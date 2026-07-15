@@ -35,7 +35,7 @@ def test_installation(temp_dir, platform, current_arch, name):
     output = platform.check_command_output([python_path, "-c", "import sys;print(sys.executable)"]).strip()
     assert output == str(python_path)
 
-    major_minor = name.replace("pypy", "")
+    major_minor = name.rstrip("t").replace("pypy", "")
 
     output = platform.check_command_output([python_path, "--version"]).strip()
 
