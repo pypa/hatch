@@ -73,6 +73,13 @@ class BuilderConfig:
             )
         )
 
+    def include_forced_path(self, distribution_path: str) -> bool:
+        return (
+            self.path_is_build_artifact(distribution_path)
+            or self.path_is_artifact(distribution_path)
+            or (not self.path_is_reserved(distribution_path) and not self.forced_path_is_excluded(distribution_path))
+        )
+
     def path_is_included(self, relative_path: str) -> bool:
         if self.include_spec is None:
             return True
@@ -83,6 +90,15 @@ class BuilderConfig:
         if self.__exclude_all:
             return True
 
+        if self.exclude_spec is None:
+            return False
+
+        return self.exclude_spec.match_file(relative_path)
+
+    def forced_path_is_excluded(self, relative_path: str) -> bool:
+        # Unlike `path_is_excluded`, this ignores `__exclude_all`, which only signals that
+        # default project file selection should be skipped in favor of forced inclusion, not
+        # that forced inclusion should exclude everything.
         if self.exclude_spec is None:
             return False
 
