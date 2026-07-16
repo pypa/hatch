@@ -93,3 +93,28 @@ class TestGetInstalled:
             python_path.touch()
 
         assert tuple(manager.get_installed()) == compatible_python_distributions
+
+    def test_free_threaded_distribution_identity(self, temp_dir):
+        manager = PythonManager(temp_dir)
+
+        for name in ("3.13", "3.13t"):
+            dist = get_distribution(name)
+            path = temp_dir / dist.name
+            path.mkdir()
+            metadata_file = path / InstalledDistribution.metadata_filename()
+            metadata_file.write_text(json.dumps({"source": dist.source}))
+            python_path = path / dist.python_path
+            python_path.parent.ensure_dir_exists()
+            python_path.touch()
+
+        installed = manager.get_installed()
+
+        assert tuple(installed) == ("3.13", "3.13t")
+        assert installed["3.13"].path == temp_dir / "3.13"
+        assert installed["3.13t"].path == temp_dir / "3.13t"
+        assert installed["3.13"].name == "3.13"
+        assert installed["3.13t"].name == "3.13t"
+        assert installed["3.13"].version == "3.13.9"
+        assert installed["3.13t"].version == "3.13.9"
+        assert "freethreaded" not in installed["3.13"].metadata["source"]
+        assert "freethreaded" in installed["3.13t"].metadata["source"]
