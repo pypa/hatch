@@ -20,6 +20,10 @@ if TYPE_CHECKING:
 # Use an artificially high epoch to ensure that custom distributions are always considered newer
 CUSTOM_DISTRIBUTION_VERSION_EPOCH = 100
 
+# Default sources whose prefix may be overridden by a mirror environment variable
+CPYTHON_DISTRIBUTION_SOURCE_PREFIX = "https://github.com/astral-sh/python-build-standalone/releases/download"
+PYPY_DISTRIBUTION_SOURCE_PREFIX = "https://downloads.python.org/pypy"
+
 
 def custom_env_var(prefix: str, name: str) -> str:
     return f"{prefix}{name.upper().replace('.', '_')}"
@@ -35,6 +39,23 @@ def get_custom_version(name: str) -> str | None:
 
 def get_custom_path(name: str) -> str | None:
     return os.environ.get(custom_env_var(PythonEnvVars.CUSTOM_PATH_PREFIX, name))
+
+
+def _apply_install_mirror(distribution_class: type[Distribution], source: str) -> str:
+    if distribution_class is CPythonStandaloneDistribution:
+        env_var = PythonEnvVars.INSTALL_MIRROR
+        prefix = CPYTHON_DISTRIBUTION_SOURCE_PREFIX
+    elif distribution_class is PyPyOfficialDistribution:
+        env_var = PythonEnvVars.PYPY_INSTALL_MIRROR
+        prefix = PYPY_DISTRIBUTION_SOURCE_PREFIX
+    else:
+        return source
+
+    mirror = os.environ.get(env_var)
+    if mirror and source.startswith(prefix):
+        return mirror + source[len(prefix) :]
+
+    return source
 
 
 class Distribution(ABC):
@@ -188,7 +209,9 @@ def get_distribution(name: str, source: str = "", variant_cpu: str = "", variant
         raise PythonDistributionResolutionError(message)
 
     source = keys[key]
-    return _get_distribution_class(source)(name, source)
+    distribution_class = _get_distribution_class(source)
+    source = _apply_install_mirror(distribution_class, source)
+    return distribution_class(name, source)
 
 
 def get_compatible_distributions() -> dict[str, Distribution]:

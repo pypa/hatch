@@ -156,6 +156,45 @@ class TestVariantCPU:
                 assert variant in dist.source
 
 
+class TestInstallMirror:
+    def test_cpython_default(self):
+        dist = get_distribution("3.12")
+
+        assert dist.source.startswith("https://github.com/astral-sh/python-build-standalone/releases/download/")
+
+    def test_cpython_mirror(self):
+        with EnvVars({"HATCH_PYTHON_INSTALL_MIRROR": "https://mirror.example.com/python-build-standalone"}):
+            dist = get_distribution("3.12")
+
+        assert dist.source.startswith("https://mirror.example.com/python-build-standalone/")
+        assert not dist.source.startswith("https://github.com/astral-sh/python-build-standalone/releases/download/")
+
+    def test_pypy_default(self):
+        dist = get_distribution("pypy3.10")
+
+        assert dist.source.startswith("https://downloads.python.org/pypy/")
+
+    def test_pypy_mirror(self):
+        with EnvVars({"HATCH_PYPY_INSTALL_MIRROR": "https://mirror.example.com/pypy"}):
+            dist = get_distribution("pypy3.10")
+
+        assert dist.source.startswith("https://mirror.example.com/pypy/")
+        assert not dist.source.startswith("https://downloads.python.org/pypy/")
+
+    def test_cpython_mirror_does_not_affect_pypy(self):
+        with EnvVars({"HATCH_PYTHON_INSTALL_MIRROR": "https://mirror.example.com/python-build-standalone"}):
+            dist = get_distribution("pypy3.10")
+
+        assert dist.source.startswith("https://downloads.python.org/pypy/")
+
+    def test_explicit_source_not_mirrored(self):
+        url = "https://github.com/indygreg/python-build-standalone/releases/download/20230507/cpython-3.11.3%2B20230507-aarch64-unknown-linux-gnu-install_only.tar.gz"
+        with EnvVars({"HATCH_PYTHON_INSTALL_MIRROR": "https://mirror.example.com/python-build-standalone"}):
+            dist = get_distribution("3.11", url)
+
+        assert dist.source == url
+
+
 class TestVariantGIL:
     def test_compatible(self):
         with EnvVars({"HATCH_PYTHON_VARIANT_GIL": "freethreaded"}):

@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Added:***
+
+- Add support for the `HATCH_PYTHON_INSTALL_MIRROR` and `HATCH_PYPY_INSTALL_MIRROR` environment variables to download Python distributions from a mirror
+
 ## [1.17.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.17.1) - 2026-07-08 ## {: #hatch-v1.17.1 }
 
 ***Fixed***
