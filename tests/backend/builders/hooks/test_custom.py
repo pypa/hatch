@@ -22,8 +22,18 @@ def test_path_not_string(isolation):
 
 def test_nonexistent(isolation):
     config = {"path": "test.py"}
+    expected_message = "Build script does not exist: test.py (relative to project root)"
 
-    with pytest.raises(OSError, match="Build script does not exist: test.py"):
+    with pytest.raises(OSError, match=f"^{re.escape(expected_message)}$"):
+        CustomBuildHook(str(isolation), config, None, None, "", "")
+
+
+def test_nonexistent_absolute_path(isolation):
+    build_script = str(isolation / "test.py")
+    config = {"path": build_script}
+    expected_message = f"Build script does not exist: {build_script}"
+
+    with pytest.raises(OSError, match=f"^{re.escape(expected_message)}$"):
         CustomBuildHook(str(isolation), config, None, None, "", "")
 
 
