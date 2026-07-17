@@ -25,12 +25,18 @@ def new(app, name, location, interactive, feature_cli, initialize, setuptools_op
 
     migration_possible = False
     if initialize:
-        interactive = True
         location = location or Path.cwd()
         if (location / "setup.py").is_file() or (location / "setup.cfg").is_file():
             migration_possible = True
             if not name:
                 name = "temporary"
+
+        # Only force interactive mode when the project name is still missing, so
+        # it can be prompted for; otherwise honor the -i/--interactive flag. This
+        # keeps `hatch new --init <name>` from prompting for a description when
+        # the user did not ask for interactive mode.
+        if not name:
+            interactive = True
 
     if not name:
         if not interactive:
