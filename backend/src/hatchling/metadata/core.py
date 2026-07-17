@@ -42,10 +42,12 @@ class ProjectMetadata(Generic[PluginManagerBound]):
         root: str,
         plugin_manager: PluginManagerBound | None,
         config: dict[str, Any] | None = None,
+        config_settings: dict[str, Any] | None = None,
     ) -> None:
         self.root = root
         self.plugin_manager = plugin_manager
         self._config = config
+        self.config_settings = config_settings
 
         self._context: Context | None = None
         self._build: BuildMetadata | None = None
@@ -235,7 +237,7 @@ class ProjectMetadata(Generic[PluginManagerBound]):
                 hatch_config = hatch_config.copy()
                 hatch_config.update(config)
 
-            self._hatch = HatchMetadata(self.root, hatch_config, self.plugin_manager)
+            self._hatch = HatchMetadata(self.root, hatch_config, self.plugin_manager, self.config_settings)
 
         return self._hatch
 
@@ -1446,10 +1448,17 @@ class CoreMetadata:
 
 
 class HatchMetadata(Generic[PluginManagerBound]):
-    def __init__(self, root: str, config: dict[str, dict[str, Any]], plugin_manager: PluginManagerBound) -> None:
+    def __init__(
+        self,
+        root: str,
+        config: dict[str, dict[str, Any]],
+        plugin_manager: PluginManagerBound,
+        config_settings: dict[str, Any] | None,
+    ) -> None:
         self.root = root
         self.config = config
         self.plugin_manager = plugin_manager
+        self.config_settings = config_settings
 
         self._metadata: HatchMetadataSettings | None = None
         self._build_config: dict[str, Any] | None = None
@@ -1464,7 +1473,9 @@ class HatchMetadata(Generic[PluginManagerBound]):
                 message = "Field `tool.hatch.metadata` must be a table"
                 raise TypeError(message)
 
-            self._metadata = HatchMetadataSettings(self.root, metadata_config, self.plugin_manager)
+            self._metadata = HatchMetadataSettings(
+                self.root, metadata_config, self.plugin_manager, self.config_settings
+            )
 
         return self._metadata
 
@@ -1600,10 +1611,17 @@ class HatchVersionConfig(Generic[PluginManagerBound]):
 
 
 class HatchMetadataSettings(Generic[PluginManagerBound]):
-    def __init__(self, root: str, config: dict[str, Any], plugin_manager: PluginManagerBound) -> None:
+    def __init__(
+        self,
+        root: str,
+        config: dict[str, Any],
+        plugin_manager: PluginManagerBound,
+        config_settings: dict[str, Any] | None,
+    ) -> None:
         self.root = root
         self.config = config
         self.plugin_manager = plugin_manager
+        self.config_settings = config_settings
 
         self._allow_direct_references: bool | None = None
         self._allow_ambiguous_features: bool | None = None
@@ -1661,7 +1679,7 @@ class HatchMetadataSettings(Generic[PluginManagerBound]):
                     message = f"Unknown metadata hook: {hook_name}"
                     raise UnknownPluginError(message)
 
-                configured_hooks[hook_name] = metadata_hook(self.root, config)
+                configured_hooks[hook_name] = metadata_hook(self.root, config, self.config_settings)
 
             self._hooks = configured_hooks
 
