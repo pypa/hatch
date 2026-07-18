@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Fixed:***
+
+- Erase stale coverage data before running `hatch test --cover`.
+
 ## [1.17.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.17.1) - 2026-07-08 ## {: #hatch-v1.17.1 }
 
 ***Fixed***
