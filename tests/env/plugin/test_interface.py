@@ -1685,6 +1685,70 @@ test = ["member-test-dep"]
         # And the extras must be expanded even though a metadata hook is configured
         assert any("pytest" in dep.lower() for dep in all_deps_str)
 
+    def test_self_referencing_dependency_with_extras_and_unresolvable_metadata_hook(
+        self, temp_dir, isolated_data_dir, platform, global_application
+    ):
+        """Regression test for https://github.com/pypa/hatch/issues/2345.
+
+        A metadata hook that can't be resolved by hatch's own plugin manager
+        (e.g. a third-party hook plugin that is only installed in the project's build environment,
+        not in hatch's own venv) must not crash extra expansion for a self-referencing dependency,
+        as long as `optional-dependencies` itself is static.
+        """
+        project_dir = temp_dir / "my-app"
+        project_dir.mkdir()
+
+        config = {
+            "project": {
+                "name": "my-app",
+                "version": "0.0.1",
+                "dynamic": ["description"],
+                "dependencies": [],
+                "optional-dependencies": {
+                    "test": ["pytest>=7.0"],
+                },
+            },
+            "tool": {
+                "hatch": {
+                    # This hook is not registered anywhere (no `hatch_build.py`, no installed
+                    # plugin), simulating a third-party metadata hook that is only available in
+                    # the project's own build environment.
+                    "metadata": {"hooks": {"docstring-description": {}}},
+                    "envs": {
+                        "dev": {
+                            "skip-install": False,
+                            "dependencies": ["my-app[test]"],
+                        }
+                    },
+                }
+            },
+        }
+
+        project = Project(project_dir, config=config)
+        global_application.project = project
+
+        environment = MockEnvironment(
+            project_dir,
+            project.metadata,
+            "dev",
+            project.config.envs["dev"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            global_application,
+        )
+
+        all_deps_str = [str(d) for d in environment.all_dependencies_complex]
+
+        # The self-referenced project must still be installed locally
+        assert any("my-app" in dep and "file://" in dep for dep in all_deps_str)
+
+        # And the extras must be expanded without hatch needing to resolve the unrelated,
+        # unresolvable metadata hook in its own process
+        assert any("pytest" in dep.lower() for dep in all_deps_str)
+
     def test_dev_mode_true_returns_editable(self, temp_dir, isolated_data_dir, platform, temp_application):
         """Verify dev-mode=true creates editable local dependency."""
         # Create a pyproject.toml file so skip_install defaults to False
