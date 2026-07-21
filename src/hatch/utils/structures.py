@@ -5,12 +5,13 @@ from fnmatch import fnmatch
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from collections.abc import Collection, Mapping
     from types import TracebackType
 
 
 class EnvVars(dict):
     def __init__(
-        self, env_vars: dict | None = None, include: list[str] | None = None, exclude: list[str] | None = None
+        self, env_vars: Mapping | None = None, include: Collection[str] | None = None, exclude: Collection[str] | None = None
     ) -> None:
         super().__init__(os.environ)
         self.old_env = dict(self)

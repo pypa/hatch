@@ -291,7 +291,7 @@ class EnvironmentInterface(ABC):
     def project_dependencies_complex(self) -> tuple[Dependency, ...]:
         workspace_dependencies = self.workspace.get_dependencies()
         if self.skip_install and not self.features and not self.dependency_groups and not workspace_dependencies:
-            return []
+            return ()
 
         from hatch.dep.core import Dependency
         from hatch.utils.dep import get_complex_dependencies, get_complex_dependency_group, get_complex_features
@@ -402,7 +402,7 @@ class EnvironmentInterface(ABC):
         if self.dev_mode or self.features or self.dependency_groups:
             all_dependencies_complex.extend(self.project_dependencies_complex)
 
-        return all_dependencies_complex
+        return tuple(all_dependencies_complex)
 
     @cached_property
     def dependencies(self) -> tuple[str, ...]:
@@ -667,7 +667,7 @@ class EnvironmentInterface(ABC):
         return config
 
     @cached_property
-    def pre_install_commands(self) -> list[str]:
+    def pre_install_commands(self) -> tuple[str, ...]:
         pre_install_commands = self.config.get("pre-install-commands", [])
         if not isinstance(pre_install_commands, list):
             message = f"Field `tool.hatch.envs.{self.name}.pre-install-commands` must be an array"
@@ -678,10 +678,10 @@ class EnvironmentInterface(ABC):
                 message = f"Command #{i} of field `tool.hatch.envs.{self.name}.pre-install-commands` must be a string"
                 raise TypeError(message)
 
-        return list(pre_install_commands)  # type: ignore
+        return tuple(pre_install_commands)
 
     @cached_property
-    def post_install_commands(self) -> list[str]:
+    def post_install_commands(self) -> tuple[str, ...]:
         post_install_commands = self.config.get("post-install-commands", [])
         if not isinstance(post_install_commands, list):
             message = f"Field `tool.hatch.envs.{self.name}.post-install-commands` must be an array"
@@ -692,7 +692,7 @@ class EnvironmentInterface(ABC):
                 message = f"Command #{i} of field `tool.hatch.envs.{self.name}.post-install-commands` must be a string"
                 raise TypeError(message)
 
-        return list(post_install_commands)  # type: ignore
+        return tuple(post_install_commands)
 
     @cached_property
     def workspace(self) -> Workspace:
