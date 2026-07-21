@@ -11,7 +11,10 @@ if TYPE_CHECKING:
 
 class EnvVars(dict):
     def __init__(
-        self, env_vars: Mapping | None = None, include: Collection[str] | None = None, exclude: Collection[str] | None = None
+        self,
+        env_vars: Mapping | None = None,
+        include: Collection[str] | None = None,
+        exclude: Collection[str] | None = None,
     ) -> None:
         super().__init__(os.environ)
         self.old_env = dict(self)

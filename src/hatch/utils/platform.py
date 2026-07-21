@@ -51,7 +51,9 @@ class Platform:
         """
         return self.__modules
 
-    def format_for_subprocess(self, command: str | Sequence[str | os.PathLike], *, shell: bool) -> str | Sequence[str | os.PathLike]:
+    def format_for_subprocess(
+        self, command: str | Sequence[str | os.PathLike], *, shell: bool
+    ) -> str | Sequence[str | os.PathLike]:
         """
         Format the given command in a cross-platform manner for immediate consumption by subprocess utilities.
         """
@@ -87,7 +89,9 @@ class Platform:
 
         return self.modules.subprocess.CompletedProcess(process.args, process.poll(), stdout, stderr)
 
-    def run_command(self, command: str | Sequence[str | os.PathLike], *, shell: bool = False, **kwargs: Any) -> CompletedProcess:
+    def run_command(
+        self, command: str | Sequence[str | os.PathLike], *, shell: bool = False, **kwargs: Any
+    ) -> CompletedProcess:
         """
         Equivalent to the standard library's
         [subprocess.run](https://docs.python.org/3/library/subprocess.html#subprocess.run),
@@ -100,7 +104,9 @@ class Platform:
         self.populate_default_popen_kwargs(kwargs, shell=shell)
         return self.modules.subprocess.run(self.format_for_subprocess(command, shell=shell), shell=shell, **kwargs)
 
-    def check_command(self, command: str | Sequence[str | os.PathLike], *, shell: bool = False, **kwargs: Any) -> CompletedProcess:
+    def check_command(
+        self, command: str | Sequence[str | os.PathLike], *, shell: bool = False, **kwargs: Any
+    ) -> CompletedProcess:
         """
         Equivalent to [run_command](utilities.md#hatch.utils.platform.Platform.run_command),
         but non-zero exit codes will gracefully end program execution.
@@ -111,7 +117,9 @@ class Platform:
 
         return process
 
-    def check_command_output(self, command: str | Sequence[str | os.PathLike], *, shell: bool = False, **kwargs: Any) -> str:
+    def check_command_output(
+        self, command: str | Sequence[str | os.PathLike], *, shell: bool = False, **kwargs: Any
+    ) -> str:
         """
         Equivalent to the output from the process returned by
         [capture_process](utilities.md#hatch.utils.platform.Platform.capture_process),
@@ -129,7 +137,9 @@ class Platform:
 
         return process.stdout.decode("utf-8")
 
-    def capture_process(self, command: str | Sequence[str | os.PathLike], *, shell: bool = False, **kwargs: Any) -> Popen:
+    def capture_process(
+        self, command: str | Sequence[str | os.PathLike], *, shell: bool = False, **kwargs: Any
+    ) -> Popen:
         """
         Equivalent to the standard library's
         [subprocess.Popen](https://docs.python.org/3/library/subprocess.html#subprocess.Popen),
