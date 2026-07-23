@@ -8,6 +8,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Added:***
+
+- Add the `--all`/`-a` flag to the `build` command to build every workspace member defined by the selected environment, consolidating artifacts in the workspace root's `dist` directory by default
 
 ***Fixed:***
 

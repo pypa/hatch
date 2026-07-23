@@ -71,6 +71,23 @@ workspace.members = [
 ]
 ```
 
+## Building all members
+
+Build an `sdist` and `wheel` for every workspace member with the [`build`](../../cli/reference.md#hatch-build) command's `--all` flag:
+
+```
+hatch build --all
+```
+
+Members are discovered from the selected environment's `workspace.members` option and artifacts are consolidated in the workspace root's `dist` directory by default, ready for e.g. `twine upload dist/*`. Pass a location argument to write artifacts elsewhere:
+
+```
+hatch build --all out/artifacts
+```
+
+!!! note
+    The workspace root project itself is not built unless it is listed as a member.
+
 ## Test matrices with workspaces
 
 Combine workspace configuration with test matrices:
