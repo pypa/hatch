@@ -126,8 +126,13 @@ class UvLocker(LockerInterface):
         if not output_path.is_file():
             return False
 
+        existing = output_path.read_text(encoding="utf-8")
+
         with tempfile.TemporaryDirectory() as tmp_dir:
             temp_path = Path(tmp_dir) / "pylock.toml"
+            # Pre-seed with existing lock so uv preserves pinned versions
+            # (uv pip compile reads pins from --output-file by default).
+            temp_path.write_text(existing, encoding="utf-8")
             cls.generate(
                 environment,
                 dependencies,
@@ -138,7 +143,6 @@ class UvLocker(LockerInterface):
                 lock_extras=lock_extras,
                 lock_groups=lock_groups,
             )
-            existing = output_path.read_text(encoding="utf-8")
             fresh = temp_path.read_text(encoding="utf-8")
 
         return existing == fresh

@@ -431,6 +431,81 @@ def test_uv_in_sync_different_content(helpers, monkeypatch, temp_dir):
     assert not UvLocker.in_sync(object(), [], lock_path)
 
 
+def test_uv_in_sync_preserves_pins_from_existing_lock(helpers, monkeypatch, temp_dir):
+    """in_sync() should pre-seed the temp file so generate() can preserve existing pins.
+
+    This verifies the fix: in_sync() copies the existing lock content into the temp file
+    before calling generate(), so that uv's pin-preservation logic keeps existing versions
+    when they still satisfy the requirements.
+    """
+    lock_path = temp_dir / "pylock.toml"
+    existing_content = helpers.dedent(
+        """
+        lock-version = "1.0"
+        created-by = "uv"
+
+        [[packages]]
+        name = "click"
+        version = "8.4.1"
+        """
+    )
+    lock_path.write_text(existing_content, encoding="utf-8")
+
+    # Simulate uv's behavior: if the output file already has pins that satisfy
+    # the requirements, the resolver preserves them (writes the same content back).
+    def generate(_cls, _environment, _dependencies, output_path, **_kwargs):
+        # uv reads the existing output file and preserves pins — so if the file
+        # was pre-seeded, it stays the same.
+        pass  # output_path already contains the pre-seeded content
+
+    monkeypatch.setattr(UvLocker, "generate", classmethod(generate))
+
+    assert UvLocker.in_sync(object(), ["click>=8.0"], lock_path)
+
+
+def test_uv_in_sync_detects_stale_when_inputs_change(helpers, monkeypatch, temp_dir):
+    """in_sync() should return False when inputs changed such that the lock is invalid.
+
+    Even with pin-preservation, if a new dependency is added or a range is tightened
+    beyond what's pinned, the resolver produces different output.
+    """
+    lock_path = temp_dir / "pylock.toml"
+    lock_path.write_text(
+        helpers.dedent(
+            """
+            lock-version = "1.0"
+            created-by = "uv"
+
+            [[packages]]
+            name = "click"
+            version = "8.4.1"
+            """
+        ),
+        encoding="utf-8",
+    )
+
+    # Simulate: requirements changed (e.g., click>=9.0 now required), so uv resolves
+    # to a new version even with pin-preservation (old pin doesn't satisfy new range).
+    def generate(_cls, _environment, _dependencies, output_path, **_kwargs):
+        output_path.write_text(
+            helpers.dedent(
+                """
+                lock-version = "1.0"
+                created-by = "uv"
+
+                [[packages]]
+                name = "click"
+                version = "9.0.0"
+                """
+            ),
+            encoding="utf-8",
+        )
+
+    monkeypatch.setattr(UvLocker, "generate", classmethod(generate))
+
+    assert not UvLocker.in_sync(object(), ["click>=9.0"], lock_path)
+
+
 @pytest.mark.usefixtures("mock_locker")
 def test_check_lockfile_stale(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins["default"]["tests"] = False
@@ -1161,6 +1236,77 @@ def test_lock_creates_env_if_not_exists(hatch, helpers, temp_dir, config_file, u
 
 
 @pytest.mark.requires_internet
+def test_check_does_not_fail_when_newer_version_available(hatch, helpers, temp_dir, config_file, uv_on_path):
+    """--check should pass when the lockfile satisfies declared requirements, even if newer versions exist.
+
+    This is a regression test: the current in_sync() re-resolves from scratch into a temp file
+    (which has no existing pins to preserve), so it always picks the latest versions. If any
+    dependency has a newer release available, the freshly-resolved lock differs from the stored
+    one and --check incorrectly reports "not up to date".
+
+    The correct behavior: --check should verify that the existing lock is consistent with the
+    *input requirements*, not that it matches a fresh unconstrained resolution.
+    """
+    _require_uv(uv_on_path)
+
+    config_file.model.template.plugins["default"]["tests"] = False
+    config_file.save()
+
+    project_name = "My.App"
+    with temp_dir.as_cwd():
+        assert hatch("new", project_name).exit_code == 0
+
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
+    data_path.mkdir()
+
+    project = Project(project_path)
+    helpers.update_project_environment(project, "default", {"skip-install": True, **project.config.envs["default"]})
+    # Pin to a specific older version so the lock resolves deterministically.
+    helpers.update_project_environment(
+        project,
+        "test",
+        {
+            "installer": "uv",
+            "skip-install": True,
+            "locked": True,
+            "dependencies": ["urllib3==2.0.0"],
+        },
+    )
+
+    lock_path = project_path / "pylock.test.toml"
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        # Generate the lock — pins urllib3 at exactly 2.0.0
+        assert hatch("env", "lock", "test").exit_code == 0
+        assert lock_path.is_file()
+        lock_body = lock_path.read_text(encoding="utf-8")
+        assert "2.0.0" in lock_body
+
+        # Now widen the requirement to a range that 2.0.0 still satisfies.
+        # A fresh resolution with >=1.26 would pick the latest urllib3 (e.g., 2.4.x),
+        # but 2.0.0 is still valid — the lock should be considered in sync.
+        helpers.update_project_environment(
+            project,
+            "test",
+            {
+                "installer": "uv",
+                "skip-install": True,
+                "locked": True,
+                "dependencies": ["urllib3>=1.26"],
+            },
+        )
+
+        result = hatch("env", "lock", "test", "--check")
+
+    # This SHOULD pass — the locked version (2.0.0) satisfies >=1.26
+    assert result.exit_code == 0, (
+        f"--check incorrectly failed when a newer version is available but the lock satisfies requirements.\n"
+        f"Output: {result.output}"
+    )
+    assert "Lockfile is up to date" in result.output
+
+
 def test_lock_creates_env_if_not_exists_export(hatch, helpers, temp_dir, config_file, uv_on_path):
     """Locking with --export should also auto-create the environment (GH-2250)."""
     _require_uv(uv_on_path)
