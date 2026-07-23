@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Fixed:***
+
+- Restore the `exclude` and `artifacts` patterns being respected for directories added with the `force-include` option
+
 ## [1.31.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.31.0) - 2026-06-30 ## {: #hatchling-v1.31.0 }
 
 ***Fixed***
