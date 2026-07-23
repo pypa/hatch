@@ -180,6 +180,10 @@ def test(
     if cover:
         patched_coverage.write_config_file()
 
+        for context in app.runner_context([selected_envs[0]]):
+            context.add_shell_command("coverage erase")
+            context.env_vars["COVERAGE_RCFILE"] = coverage_config_file
+
     for context in app.runner_context(selected_envs, ignore_compat=multiple_possible, display_header=multiple_possible):
         internal_arguments: list[str] = list(context.env.config.get("extra-args", []))
 
