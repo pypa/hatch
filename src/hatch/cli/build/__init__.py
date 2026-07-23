@@ -6,6 +6,7 @@ import click
 
 if TYPE_CHECKING:
     from hatch.cli.application import Application
+    from hatch.project.core import Project
 
 
 @click.command(short_help="Build a project")
@@ -17,6 +18,16 @@ if TYPE_CHECKING:
     multiple=True,
     help=(
         "The target to build, overriding project defaults. This may be selected multiple times e.g. `-t sdist -t wheel`"
+    ),
+)
+@click.option(
+    "--all",
+    "-a",
+    "build_all",
+    is_flag=True,
+    help=(
+        "Whether or not to build every workspace member defined by the selected environment. "
+        "Artifacts are written to the workspace root's `dist` directory by default"
     ),
 )
 @click.option(
@@ -49,18 +60,16 @@ if TYPE_CHECKING:
 )
 @click.option("--clean-only", is_flag=True, hidden=True)
 @click.pass_obj
-def build(app: Application, location, targets, hooks_only, no_hooks, ext, clean, clean_hooks_after, clean_only):
+def build(
+    app: Application, location, targets, build_all, hooks_only, no_hooks, ext, clean, clean_hooks_after, clean_only
+):
     """Build a project."""
     app.ensure_environment_plugin_dependencies()
 
     from hatch.config.constants import AppEnvVars
-    from hatch.project.config import env_var_enabled
-    from hatch.project.constants import BUILD_BACKEND, DEFAULT_BUILD_DIRECTORY, BuildEnvVars
+    from hatch.project.constants import DEFAULT_BUILD_DIRECTORY
     from hatch.utils.fs import Path
-    from hatch.utils.runner import ExecutionContext
-    from hatch.utils.structures import EnvVars
 
-    build_dir = Path(location).resolve() if location else None
     if ext:
         hooks_only = True
         targets = ("wheel",)
@@ -73,11 +82,76 @@ def build(app: Application, location, targets, hooks_only, no_hooks, ext, clean,
     elif app.quiet:
         env_vars[AppEnvVars.QUIET] = str(abs(app.verbosity))
 
-    with EnvVars(env_vars):
-        app.project.prepare_build_environment(targets=[target.split(":")[0] for target in targets])
+    if not build_all:
+        _build_project(
+            app,
+            app.project,
+            location,
+            targets,
+            hooks_only=hooks_only,
+            no_hooks=no_hooks,
+            clean=clean,
+            clean_hooks_after=clean_hooks_after,
+            clean_only=clean_only,
+            env_vars=env_vars,
+        )
+        return
 
-    build_backend = app.project.metadata.build.build_backend
-    with app.project.location.as_cwd(), app.project.build_env.get_env_vars():
+    environment = app.project.get_environment()
+    members = environment.workspace.members
+    if not members:
+        app.abort(
+            f"The `--all` flag requires workspace members to be defined in field "
+            f"`tool.hatch.envs.{environment.name}.workspace.members`"
+        )
+
+    # Artifacts from every member are consolidated in a single directory, defaulting to the
+    # workspace root. The location must be absolute because each member builds from its own path
+    build_directory = str(Path(location).resolve() if location else app.project.location / DEFAULT_BUILD_DIRECTORY)
+    for member in members:
+        if not clean_only:
+            app.display_header(member.name)
+
+        _build_project(
+            app,
+            member.project,
+            build_directory,
+            targets,
+            hooks_only=hooks_only,
+            no_hooks=no_hooks,
+            clean=clean,
+            clean_hooks_after=clean_hooks_after,
+            clean_only=clean_only,
+            env_vars=env_vars,
+        )
+
+
+def _build_project(
+    app: Application,
+    project: Project,
+    location,
+    targets,
+    *,
+    hooks_only,
+    no_hooks,
+    clean,
+    clean_hooks_after,
+    clean_only,
+    env_vars,
+):
+    from hatch.project.config import env_var_enabled
+    from hatch.project.constants import BUILD_BACKEND, DEFAULT_BUILD_DIRECTORY, BuildEnvVars
+    from hatch.utils.fs import Path
+    from hatch.utils.runner import ExecutionContext
+    from hatch.utils.structures import EnvVars
+
+    build_dir = Path(location).resolve() if location else None
+
+    with EnvVars(env_vars):
+        project.prepare_build_environment(targets=[target.split(":")[0] for target in targets])
+
+    build_backend = project.metadata.build.build_backend
+    with project.location.as_cwd(), project.build_env.get_env_vars():
         for target in targets:
             target_name, _, _ = target.partition(":")
             if not clean_only:
@@ -85,19 +159,19 @@ def build(app: Application, location, targets, hooks_only, no_hooks, ext, clean,
 
             if build_backend != BUILD_BACKEND:
                 if target_name == "sdist":
-                    directory = build_dir or app.project.location / DEFAULT_BUILD_DIRECTORY
+                    directory = build_dir or project.location / DEFAULT_BUILD_DIRECTORY
                     directory.ensure_dir_exists()
-                    artifact_path = app.project.build_frontend.build_sdist(directory)
+                    artifact_path = project.build_frontend.build_sdist(directory)
                 elif target_name == "wheel":
-                    directory = build_dir or app.project.location / DEFAULT_BUILD_DIRECTORY
+                    directory = build_dir or project.location / DEFAULT_BUILD_DIRECTORY
                     directory.ensure_dir_exists()
-                    artifact_path = app.project.build_frontend.build_wheel(directory)
+                    artifact_path = project.build_frontend.build_wheel(directory)
                 else:
                     app.abort(f"Target `{target_name}` is not supported by `{build_backend}`")
 
                 app.display_info(
-                    str(artifact_path.relative_to(app.project.location))
-                    if app.project.location in artifact_path.parents
+                    str(artifact_path.relative_to(project.location))
+                    if project.location in artifact_path.parents
                     else str(artifact_path)
                 )
             else:
@@ -106,7 +180,7 @@ def build(app: Application, location, targets, hooks_only, no_hooks, ext, clean,
                 # We deliberately pass the location unchanged so that absolute paths may be non-local
                 # and reflect wherever builds actually take place
                 if location:
-                    command.extend(("--directory", location))
+                    command.extend(("--directory", str(location)))
 
                 if hooks_only or env_var_enabled(BuildEnvVars.HOOKS_ONLY):
                     command.append("--hooks-only")
@@ -123,7 +197,7 @@ def build(app: Application, location, targets, hooks_only, no_hooks, ext, clean,
                 if clean_only:
                     command.append("--clean-only")
 
-                context = ExecutionContext(app.project.build_env)
+                context = ExecutionContext(project.build_env)
                 context.add_shell_command(command)
                 context.env_vars.update(env_vars)
                 app.execute_context(context)
