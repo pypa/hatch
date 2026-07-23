@@ -72,6 +72,7 @@ def test_default(hatch, helpers, temp_dir):
         │       └── __init__.py
         ├── tests
         │   └── __init__.py
+        ├── .gitignore
         ├── LICENSE.txt
         ├── README.md
         └── pyproject.toml
@@ -97,6 +98,7 @@ def test_default_explicit_path(hatch, helpers, temp_dir):
             └── __init__.py
         tests
         └── __init__.py
+        .gitignore
         LICENSE.txt
         README.md
         pyproject.toml
@@ -127,6 +129,7 @@ def test_default_empty_plugins_table(hatch, helpers, config_file, temp_dir):
         │       └── __init__.py
         ├── tests
         │   └── __init__.py
+        ├── .gitignore
         ├── LICENSE.txt
         ├── README.md
         └── pyproject.toml
@@ -158,6 +161,7 @@ def test_default_no_license_cache(hatch, helpers, temp_dir):
         │       └── __init__.py
         ├── tests
         │   └── __init__.py
+        ├── .gitignore
         ├── LICENSE.txt
         ├── README.md
         └── pyproject.toml
@@ -191,6 +195,7 @@ def test_licenses_multiple(hatch, helpers, config_file, temp_dir):
         │       └── __init__.py
         ├── tests
         │   └── __init__.py
+        ├── .gitignore
         ├── README.md
         └── pyproject.toml
         """
@@ -220,6 +225,7 @@ def test_licenses_empty(hatch, helpers, config_file, temp_dir):
         │       └── __init__.py
         ├── tests
         │   └── __init__.py
+        ├── .gitignore
         ├── README.md
         └── pyproject.toml
         """
@@ -253,6 +259,7 @@ def test_projects_urls_space_in_label(hatch, helpers, config_file, temp_dir):
         │       └── __init__.py
         ├── tests
         │   └── __init__.py
+        ├── .gitignore
         ├── LICENSE.txt
         ├── README.md
         └── pyproject.toml
@@ -283,6 +290,7 @@ def test_projects_urls_empty(hatch, helpers, config_file, temp_dir):
         │       └── __init__.py
         ├── tests
         │   └── __init__.py
+        ├── .gitignore
         ├── LICENSE.txt
         ├── README.md
         └── pyproject.toml
@@ -314,6 +322,7 @@ def test_feature_cli(hatch, helpers, temp_dir):
         │       └── __main__.py
         ├── tests
         │   └── __init__.py
+        ├── .gitignore
         ├── LICENSE.txt
         ├── README.md
         └── pyproject.toml
@@ -348,6 +357,7 @@ def test_feature_ci(hatch, helpers, config_file, temp_dir):
         │       └── __init__.py
         ├── tests
         │   └── __init__.py
+        ├── .gitignore
         ├── LICENSE.txt
         ├── README.md
         └── pyproject.toml
@@ -378,6 +388,7 @@ def test_feature_no_src_layout(hatch, helpers, config_file, temp_dir):
         │   └── __init__.py
         ├── tests
         │   └── __init__.py
+        ├── .gitignore
         ├── LICENSE.txt
         ├── README.md
         └── pyproject.toml
@@ -407,6 +418,7 @@ def test_feature_tests_disable(hatch, helpers, config_file, temp_dir):
         │   └── my_app
         │       ├── __about__.py
         │       └── __init__.py
+        ├── .gitignore
         ├── LICENSE.txt
         ├── README.md
         └── pyproject.toml
@@ -451,6 +463,7 @@ def test_interactive(hatch, helpers, temp_dir):
         │       └── __init__.py
         ├── tests
         │   └── __init__.py
+        ├── .gitignore
         ├── LICENSE.txt
         ├── README.md
         └── pyproject.toml
@@ -483,6 +496,7 @@ def test_no_project_name_enables_interactive(hatch, helpers, temp_dir):
         │       └── __init__.py
         ├── tests
         │   └── __init__.py
+        ├── .gitignore
         ├── LICENSE.txt
         ├── README.md
         └── pyproject.toml
