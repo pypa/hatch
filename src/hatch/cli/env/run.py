@@ -33,6 +33,11 @@ def filter_environments(environments, filter_data):
     "--force-continue", is_flag=True, help="Run every command and if there were any errors exit with the first code"
 )
 @click.option("--ignore-compat", is_flag=True, help="Ignore incompatibility when selecting specific environments")
+@click.option(
+    "--fresh",
+    is_flag=True,
+    help="Create a fresh environment for each run, removing the existing one first",
+)
 @click.pass_obj
 def run(
     app: Application,
@@ -44,6 +49,7 @@ def run(
     filter_json: str | None,
     force_continue: bool,
     ignore_compat: bool,
+    fresh: bool,
 ):
     """
     Run commands within project environments.
@@ -139,6 +145,7 @@ def run(
         ignore_compat=ignore_compat or matrix_selected,
         display_header=matrix_selected,
         keep_env=bool(os.environ.get(AppEnvVars.KEEP_ENV)),
+        fresh=fresh or bool(os.environ.get(AppEnvVars.FRESH)),
     ):
         if context.env.name == "system":
             context.env.exists = lambda: True  # type: ignore[method-assign]
