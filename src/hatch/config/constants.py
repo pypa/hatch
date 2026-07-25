@@ -10,6 +10,7 @@ class AppEnvVars:
     NO_COLOR = "NO_COLOR"
     FORCE_COLOR = "FORCE_COLOR"
     KEEP_ENV = "HATCH_KEEP_ENV"
+    NETWORK_TIMEOUT = "HATCH_NETWORK_TIMEOUT"
 
 
 class ConfigEnvVars:

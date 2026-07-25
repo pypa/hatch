@@ -8,6 +8,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Added:***
+
+- The default timeout for Hatch's own network requests can now be overridden with the `HATCH_NETWORK_TIMEOUT` environment variable.
 
 ***Fixed:***
 

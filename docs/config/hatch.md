@@ -189,6 +189,23 @@ The following values have special meanings:
 | --- | --- |
 | `isolated` (default) | `<DATA_DIR>/pythons` |
 
+## Network
+
+### Timeout
+
+Requests that Hatch itself makes over the network, such as downloading Python distributions or publishing to a package index, time out after 10 seconds by default.
+
+You can change this by setting the `HATCH_NETWORK_TIMEOUT` environment variable to the desired number of seconds, which is useful on slow or heavily proxied connections:
+
+```console
+$ HATCH_NETWORK_TIMEOUT=60 hatch python install 3.12
+```
+
+The value must be a positive number, and may be fractional e.g. `2.5`.
+
+!!! note
+    This does not affect the tools that Hatch invokes to install dependencies. Configure those directly, such as with pip's [`--timeout`](https://pip.pypa.io/en/stable/cli/pip/#cmdoption-timeout) option or uv's [`UV_HTTP_TIMEOUT`](https://docs.astral.sh/uv/reference/environment/#uv_http_timeout) environment variable.
+
 ## Terminal
 
 You can configure how all output is displayed using the `terminal.styles` table. These settings are also applied to all plugins.
