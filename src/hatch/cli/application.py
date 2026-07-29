@@ -76,14 +76,21 @@ class Application(Terminal):
                 # and aborts even though the child (e.g. a Python REPL) may choose to stay
                 # alive.  The child's exit code is still used to determine success/failure.
                 original_sigint = signal.getsignal(signal.SIGINT)
+
+                def restore_sigint(original_sigint=original_sigint) -> None:
+                    signal.signal(signal.SIGINT, original_sigint)
+
                 try:
                     signal.signal(signal.SIGINT, signal.SIG_IGN)
-                    process = context.env.run_shell_command(command)
+                    kwargs = {}
+                    if os.name != "nt":
+                        kwargs["preexec_fn"] = restore_sigint
+                    process = context.env.run_shell_command(command, **kwargs)
                 finally:
                     # Restore the original handler in finally so the parent stays
                     # responsive to Ctrl-C even if the child raises or is cancelled.
                     # Don't hoist this out of the finally block.
-                    signal.signal(signal.SIGINT, original_sigint)
+                    restore_sigint()
                 sys.stdout.flush()
                 sys.stderr.flush()
                 if process.returncode:
