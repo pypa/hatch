@@ -505,7 +505,7 @@ def test_initialize_fresh(hatch, helpers, temp_dir):
     assert not project_file.is_file()
 
     with path.as_cwd():
-        result = hatch("new", "--init", input=f"{project_name}\n{description}")
+        result = hatch("new", "--init", "-i", input=f"{project_name}\n{description}")
 
     expected_files = helpers.get_template_files("new.default", project_name, description=description)
     helpers.assert_files(path, expected_files)
@@ -516,6 +516,20 @@ def test_initialize_fresh(hatch, helpers, temp_dir):
         Project name: {project_name}
         Description []: {description}
 
+        Wrote: pyproject.toml
+        """
+    )
+
+
+def test_initialize_non_interactive(hatch, helpers, temp_dir):
+    project_name = "my-app"
+
+    with temp_dir.as_cwd():
+        result = hatch("new", "--init", project_name)
+
+    assert result.exit_code == 0, result.output
+    assert remove_trailing_spaces(result.output) == helpers.dedent(
+        """
         Wrote: pyproject.toml
         """
     )
@@ -546,7 +560,7 @@ path = "o/__init__.py"
     )
 
     with temp_dir.as_cwd():
-        result = hatch("new", "--init", input=f"{project_name}\n{description}")
+        result = hatch("new", "--init", "-i", input=f"{project_name}\n{description}")
 
     assert result.exit_code == 0, result.output
     assert remove_trailing_spaces(result.output) == helpers.dedent(
