@@ -7,6 +7,10 @@ from ..licenses import MIT
 def get_files(**kwargs):
     return [
         File(
+            Path(".gitignore"),
+            "*.py[cod]\n__pycache__/\n.hatch/\ndist/\n",
+        ),
+        File(
             Path("LICENSE.txt"),
             MIT.replace("<year>", f"{kwargs['year']}-present", 1).replace(
                 "<copyright holders>", f"{kwargs['author']} <{kwargs['email']}>", 1

@@ -2,6 +2,18 @@ from hatch.template import File
 from hatch.utils.fs import Path
 
 
+class GitIgnore(File):
+    def __init__(
+        self,
+        template_config: dict,  # noqa: ARG002
+        plugin_config: dict,  # noqa: ARG002
+    ):
+        super().__init__(
+            Path(".gitignore"),
+            "*.py[cod]\n__pycache__/\n.hatch/\ndist/\n",
+        )
+
+
 class PackageRoot(File):
     def __init__(
         self,
