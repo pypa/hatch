@@ -335,6 +335,24 @@ class VirtualEnvironment(EnvironmentInterface):
         ):
             return
 
+        requires_python = self.metadata.config.get("project", {}).get("requires-python", "")
+        if python_version and requires_python:
+            try:
+                import python_discovery
+
+                raw_interpreter = python_discovery.get_interpreter(
+                    python_version, (), env=self.get_interpreter_resolver_env()
+                )
+                if raw_interpreter is not None and not self._python_constraint.contains(raw_interpreter.version_str):
+                    message = f"Python {raw_interpreter.version_str} does not satisfy constraint: {requires_python}"
+                    raise OSError(message)
+            except ImportError:
+                pass
+
+            if not self._python_constraint.contains(f"{python_version.rstrip('t')}.100"):
+                message = f"Python {python_version} does not satisfy constraint: {requires_python}"
+                raise OSError(message)
+
         message = (
             f"cannot locate Python: {python_version}"
             if python_version
@@ -435,7 +453,10 @@ class VirtualEnvironment(EnvironmentInterface):
         return None
 
     def _find_existing_interpreter(self, python_version: str = "") -> str | None:
-        import python_discovery
+        try:
+            import python_discovery
+        except ImportError:
+            return None
 
         python_info = python_discovery.get_interpreter(
             python_version, (), env=self.get_interpreter_resolver_env(), predicate=self._interpreter_is_compatible

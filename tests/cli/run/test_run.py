@@ -2628,3 +2628,28 @@ class TestScriptRunner:
         executable = Path(output_file.read_text())
         assert executable.is_file()
         assert data_path in executable.parents
+
+
+def test_incompatible_requires_python_error_message(hatch, helpers, temp_dir):
+    with temp_dir.as_cwd():
+        (temp_dir / "pyproject.toml").write_text(
+            helpers.dedent(
+                """
+                [build-system]
+                requires = ["hatchling"]
+                build-backend = "hatchling.build"
+
+                [project]
+                name = "foo"
+                version = "0.1.0"
+                requires-python = ">=3.99"
+
+                [tool.hatch.envs.test]
+                python = "3.11"
+                """
+            )
+        )
+        result = hatch("env", "create", "test")
+        assert result.exit_code == 1
+        assert "does not satisfy constraint: >=3.99" in result.output
+
