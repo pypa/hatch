@@ -1840,6 +1840,23 @@ class TestPatternExclude:
             assert not builder.config.exclude_spec.match_file(f"baz{separator}bar{separator}file.py")
 
     @pytest.mark.parametrize("separator", ["/", "\\"])
+    def test_vcs_git_info_exclude(self, temp_dir, separator, platform):
+        if separator == "\\" and not platform.windows:
+            pytest.skip("Not running on Windows")
+
+        git_info_dir = temp_dir / ".git" / "info"
+        git_info_dir.ensure_dir_exists()
+        (git_info_dir / "exclude").write_text("/secret\n*.tmp")
+
+        with temp_dir.as_cwd():
+            config = {"tool": {"hatch": {"build": {"exclude": ["foo"]}}}}
+            builder = MockBuilder(str(temp_dir), config=config)
+
+            assert builder.config.exclude_spec.match_file(f"secret{separator}file.txt")
+            assert builder.config.exclude_spec.match_file(f"bar{separator}file.tmp")
+            assert not builder.config.exclude_spec.match_file(f"bar{separator}file.txt")
+
+    @pytest.mark.parametrize("separator", ["/", "\\"])
     def test_ignore_vcs_git(self, temp_dir, separator, platform):
         if separator == "\\" and not platform.windows:
             pytest.skip("Not running on Windows")

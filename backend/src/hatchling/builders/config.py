@@ -756,6 +756,10 @@ class BuilderConfig:
         if local_gitignore is not None:
             exclusion_files["git"].append(local_gitignore)
 
+        local_git_exclude = locate_file(self.root, os.path.join(".git", "info", "exclude"))
+        if local_git_exclude is not None:
+            exclusion_files["git"].append(local_git_exclude)
+
         local_hgignore = locate_file(self.root, ".hgignore", boundary=".hg")
         if local_hgignore is not None:
             exclusion_files["hg"].append(local_hgignore)
