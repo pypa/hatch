@@ -14,11 +14,15 @@ from hatch.project.utils import format_script_commands, parse_script_command
 from hatch.utils.structures import EnvVars
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, Iterable
+    from collections.abc import Generator, Iterable, Mapping
 
+    from hatch.cli.application import Application
     from hatch.dep.core import Dependency
+    from hatch.env.context import EnvironmentContextFormatter
     from hatch.project.core import Project
     from hatch.utils.fs import Path
+    from hatch.utils.platform import Platform
+    from hatchling.metadata.core import ProjectMetadata
 
 
 class EnvironmentInterface(ABC):
@@ -80,14 +84,14 @@ class EnvironmentInterface(ABC):
         return self.__matrix_variables
 
     @property
-    def app(self):
+    def app(self) -> Application:
         """
         An instance of [Application](../utilities.md#hatchling.bridge.app.Application).
         """
         return self.__app
 
     @cached_property
-    def context(self):
+    def context(self) -> EnvironmentContextFormatter:
         return self.get_context()
 
     @property
@@ -102,7 +106,7 @@ class EnvironmentInterface(ABC):
         return self.__root
 
     @property
-    def metadata(self):
+    def metadata(self) -> ProjectMetadata:
         return self.__metadata
 
     @property
@@ -113,7 +117,7 @@ class EnvironmentInterface(ABC):
         return self.__name
 
     @property
-    def platform(self):
+    def platform(self) -> Platform:
         """
         An instance of [Platform](../utilities.md#hatch.utils.platform.Platform).
         """
@@ -185,7 +189,7 @@ class EnvironmentInterface(ABC):
         return system_python
 
     @cached_property
-    def env_vars(self) -> dict[str, str]:
+    def env_vars(self) -> Mapping[str, str]:
         """
         ```toml config-example
         [tool.hatch.envs.<ENV_NAME>.env-vars]
@@ -212,7 +216,7 @@ class EnvironmentInterface(ABC):
         return new_env_vars
 
     @cached_property
-    def env_include(self) -> list[str]:
+    def env_include(self) -> tuple[str, ...]:
         """
         ```toml config-example
         [tool.hatch.envs.<ENV_NAME>]
@@ -229,10 +233,10 @@ class EnvironmentInterface(ABC):
                 message = f"Pattern #{i} of field `tool.hatch.envs.{self.name}.env-include` must be a string"
                 raise TypeError(message)
 
-        return ["HATCH_BUILD_*", *env_include] if env_include else env_include
+        return ("HATCH_BUILD_*", *env_include) if env_include else tuple(env_include)
 
     @cached_property
-    def env_exclude(self) -> list[str]:
+    def env_exclude(self) -> tuple[str, ...]:
         """
         ```toml config-example
         [tool.hatch.envs.<ENV_NAME>]
@@ -249,10 +253,10 @@ class EnvironmentInterface(ABC):
                 message = f"Pattern #{i} of field `tool.hatch.envs.{self.name}.env-exclude` must be a string"
                 raise TypeError(message)
 
-        return env_exclude
+        return tuple(env_exclude)
 
     @cached_property
-    def environment_dependencies_complex(self) -> list[Dependency]:
+    def environment_dependencies_complex(self) -> tuple[Dependency, ...]:
         from hatch.dep.core import Dependency, InvalidDependencyError
 
         dependencies_complex: list[Dependency] = []
@@ -274,20 +278,20 @@ class EnvironmentInterface(ABC):
                         message = f"Dependency #{i} of field `tool.hatch.envs.{self.name}.{option}` is invalid: {e}"
                         raise ValueError(message) from None
 
-        return dependencies_complex
+        return tuple(dependencies_complex)
 
     @cached_property
-    def environment_dependencies(self) -> list[str]:
+    def environment_dependencies(self) -> tuple[str, ...]:
         """
         The list of all [environment dependencies](../../config/environment/overview.md#dependencies).
         """
-        return [str(dependency) for dependency in self.environment_dependencies_complex]
+        return tuple(str(dependency) for dependency in self.environment_dependencies_complex)
 
     @cached_property
-    def project_dependencies_complex(self) -> list[Dependency]:
+    def project_dependencies_complex(self) -> tuple[Dependency, ...]:
         workspace_dependencies = self.workspace.get_dependencies()
         if self.skip_install and not self.features and not self.dependency_groups and not workspace_dependencies:
-            return []
+            return ()
 
         from hatch.dep.core import Dependency
         from hatch.utils.dep import get_complex_dependencies, get_complex_dependency_group, get_complex_features
@@ -327,20 +331,20 @@ class EnvironmentInterface(ABC):
                 get_complex_dependency_group(self.app.project.dependency_groups, dependency_group)
             )
 
-        return all_dependencies_complex
+        return tuple(all_dependencies_complex)
 
     @cached_property
-    def project_dependencies(self) -> list[str]:
+    def project_dependencies(self) -> tuple[str, ...]:
         """
         The list of all [project dependencies](../../config/metadata.md#dependencies) (if
         [installed](../../config/environment/overview.md#skip-install)), selected
         [optional dependencies](../../config/environment/overview.md#features), and
         workspace dependencies.
         """
-        return [str(dependency) for dependency in self.project_dependencies_complex]
+        return tuple(str(dependency) for dependency in self.project_dependencies_complex)
 
     @cached_property
-    def local_dependencies_complex(self) -> list[Dependency]:
+    def local_dependencies_complex(self) -> tuple[Dependency, ...]:
         from hatch.dep.core import Dependency
 
         local_dependencies_complex = []
@@ -354,10 +358,10 @@ class EnvironmentInterface(ABC):
                 for member in self.workspace.members
             )
 
-        return local_dependencies_complex
+        return tuple(local_dependencies_complex)
 
     @cached_property
-    def dependencies_complex(self) -> list[Dependency]:
+    def dependencies_complex(self) -> tuple[Dependency, ...]:
         from hatch.dep.core import Dependency
 
         all_dependencies_complex = list(self.environment_dependencies_complex)
@@ -391,24 +395,24 @@ class EnvironmentInterface(ABC):
                 target_config = self.app.project.config.build.target(target)
                 all_dependencies_complex.extend(map(Dependency, target_config.dependencies))
 
-            return all_dependencies_complex
+            return tuple(all_dependencies_complex)
 
         # Ensure these are checked last to speed up initial environment creation since
         # they will already be installed along with the project
         if self.dev_mode or self.features or self.dependency_groups:
             all_dependencies_complex.extend(self.project_dependencies_complex)
 
-        return all_dependencies_complex
+        return tuple(all_dependencies_complex)
 
     @cached_property
-    def dependencies(self) -> list[str]:
+    def dependencies(self) -> tuple[str, ...]:
         """
         The list of all
         [project dependencies](reference.md#hatch.env.plugin.interface.EnvironmentInterface.project_dependencies)
         (if in [dev mode](../../config/environment/overview.md#dev-mode)) and
         [environment dependencies](../../config/environment/overview.md#dependencies).
         """
-        return [str(dependency) for dependency in self.dependencies_complex]
+        return tuple(str(dependency) for dependency in self.dependencies_complex)
 
     @cached_property
     def all_dependencies_complex(self) -> list[Dependency]:
@@ -416,26 +420,28 @@ class EnvironmentInterface(ABC):
 
         local_deps = list(self.local_dependencies_complex)
 
-        # Map each locally-resolved package name to the metadata that owns its optional-dependencies,
-        # so extras on `<pkg>[extra]` deps are expanded from the *referenced* package's own metadata
-        # rather than always the current project's.
-        local_metadata: dict[str, Any] = {}
+        # Map each locally-resolved package name to the project that owns its optional-dependencies,
+        # so extras on `<pkg>[extra]` deps are expanded using the *referenced* project's own dependency
+        # resolution. `Project.get_dependencies` only evaluates metadata/version hooks (in that project's
+        # own build environment) when the relevant fields are actually dynamic, avoiding both dropped
+        # extras and spurious plugin errors from evaluating hooks in the wrong environment.
+        local_projects: dict[str, Project] = {}
         if not self.skip_install:
-            local_metadata[self.metadata.name.lower()] = self.metadata
+            local_projects[self.metadata.name.lower()] = self.app.project
         for member in self.workspace.members:
-            local_metadata[member.name.lower()] = member.project.metadata
+            local_projects[member.name.lower()] = member.project
 
         filtered_deps: list[Dependency] = []
         for dep in self.dependencies_complex:
             dep_obj = dep if isinstance(dep, Dependency) else Dependency(str(dep))
 
             name_lower = dep_obj.name.lower()
-            if name_lower in local_metadata and dep_obj.extras:
-                optional_dependencies = local_metadata[name_lower].core.optional_dependencies
+            if name_lower in local_projects and dep_obj.extras:
+                _, optional_dependencies = local_projects[name_lower].get_dependencies()
                 for extra in dep_obj.extras:
                     if extra in optional_dependencies:
                         filtered_deps.extend(Dependency(d) for d in optional_dependencies[extra])
-            elif name_lower not in local_metadata:
+            elif name_lower not in local_projects:
                 filtered_deps.append(dep_obj)
 
         return local_deps + filtered_deps
@@ -528,7 +534,7 @@ class EnvironmentInterface(ABC):
         return builder
 
     @cached_property
-    def features(self):
+    def features(self) -> tuple[str, ...]:
         from hatch.utils.metadata import normalize_project_name
 
         features = self.config.get("features", [])
@@ -561,10 +567,10 @@ class EnvironmentInterface(ABC):
 
             all_features.add(normalized_feature)
 
-        return sorted(all_features)
+        return tuple(sorted(all_features))
 
     @cached_property
-    def dependency_groups(self):
+    def dependency_groups(self) -> tuple[str, ...]:
         from hatch.utils.metadata import normalize_project_name
 
         dependency_groups = self.config.get("dependency-groups", [])
@@ -597,7 +603,7 @@ class EnvironmentInterface(ABC):
 
             all_dependency_groups.add(normalized_dependency_group)
 
-        return sorted(all_dependency_groups)
+        return tuple(sorted(all_dependency_groups))
 
     @cached_property
     def description(self) -> str:
@@ -661,7 +667,7 @@ class EnvironmentInterface(ABC):
         return config
 
     @cached_property
-    def pre_install_commands(self):
+    def pre_install_commands(self) -> tuple[str, ...]:
         pre_install_commands = self.config.get("pre-install-commands", [])
         if not isinstance(pre_install_commands, list):
             message = f"Field `tool.hatch.envs.{self.name}.pre-install-commands` must be an array"
@@ -672,10 +678,10 @@ class EnvironmentInterface(ABC):
                 message = f"Command #{i} of field `tool.hatch.envs.{self.name}.pre-install-commands` must be a string"
                 raise TypeError(message)
 
-        return list(pre_install_commands)
+        return tuple(pre_install_commands)
 
     @cached_property
-    def post_install_commands(self):
+    def post_install_commands(self) -> tuple[str, ...]:
         post_install_commands = self.config.get("post-install-commands", [])
         if not isinstance(post_install_commands, list):
             message = f"Field `tool.hatch.envs.{self.name}.post-install-commands` must be an array"
@@ -686,7 +692,7 @@ class EnvironmentInterface(ABC):
                 message = f"Command #{i} of field `tool.hatch.envs.{self.name}.post-install-commands` must be a string"
                 raise TypeError(message)
 
-        return list(post_install_commands)
+        return tuple(post_install_commands)
 
     @cached_property
     def workspace(self) -> Workspace:
@@ -1004,7 +1010,7 @@ class EnvironmentInterface(ABC):
         """
         return get_env_var_option(plugin_name=self.PLUGIN_NAME, option=option)
 
-    def get_context(self):
+    def get_context(self) -> EnvironmentContextFormatter:
         """
         Returns a subclass of
         [EnvironmentContextFormatter](../utilities.md#hatch.env.context.EnvironmentContextFormatter).
