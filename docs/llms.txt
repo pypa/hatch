@@ -1,0 +1,78 @@
+# Hatch
+
+> Hatch logo{ role="img" }
+
+## Docs
+
+- [Hatch](/dev/): Hatch logo{ role="img" }
+- [Installation](/dev/install/): Refer to the official action for more information.
+- [Introduction](/dev/intro/): Projects can be set up for use by Hatch using the `new` command.
+- [Environments](/dev/environment/): Environments are designed to allow for isolated workspaces for testing, building documentation, or anything else projects need.
+- [Versioning](/dev/version/): When the version is not statically set, configuration is defined in the `tool.hatch.version` table. The `source` option determines the source to use for retrieving and updating the version. The regex source is used by default.
+- [Builds](/dev/build/): Builds are configured using the `tool.hatch.build` table. Every target is defined by a section within `tool.hatch.build.targets`, for example:
+- [Publishing](/dev/publish/): After your project is built, you can distribute it using the `publish` command.
+- [Next steps](/dev/next-steps/): At this point you should have a basic understanding of how to use Hatch.
+- [Why Hatch?](/dev/why/): The high level value proposition of Hatch is that if one adopts all functionality then many other tools become unnecessary since there is support for everything one might require. Further, if one chooses to use only specific features then there are still benefits compared to alternatives.
+- [Hatch history](/dev/history/hatch/): All notable changes to Hatch will be documented in this file.
+- [Hatchling history](/dev/history/hatchling/): All notable changes to Hatchling will be documented in this file.
+- [Users](/dev/community/users/): The following is not intended to be a complete enumeration. Be sure to view the development version of this page for an up-to-date listing.
+- [Community highlights](/dev/community/highlights/): Integration Project Jupyter - https://blog.jupyter.org/packaging-for-jupyter-in-2022-c7be64c38926 Visual Studio Code - https://code.visuals…
+- [Contributing](/dev/community/contributing/): The usual process to make a contribution is to:
+- [Configuring project metadata](/dev/config/metadata/): Project metadata is stored in a `pyproject.toml` file located at the root of a project's tree and is based entirely on [the standard][project metadata standard].
+- [Dependency configuration](/dev/config/dependency/): Project dependencies are defined with [PEP 508][] strings using optional [PEP 440 version specifiers][].
+- [Build configuration](/dev/config/build/): Build targets are defined as sections within `tool.hatch.build.targets`:
+- [Environment configuration](/dev/config/environment/overview/): All environments are defined as sections within the `tool.hatch.envs` table.
+- [Advanced environment configuration](/dev/config/environment/advanced/): All environments support the following extra context formatting fields:
+- [Testing configuration](/dev/config/internal/testing/): Check out the testing overview tutorial for a more comprehensive walk-through.
+- [Static analysis configuration](/dev/config/internal/static-analysis/): Static analysis performed by the `check code` and `check fmt` commands is (by default) backed entirely by Ruff.
+- [Type checking configuration](/dev/config/internal/type-checking/): Type checking performed by the `check types` command is (by default) backed by Pyrefly.
+- [Build environment configuration](/dev/config/internal/build/): You can fully alter the behavior of the environment used by the `build` command.
+- [Context formatting](/dev/config/context/): You can populate configuration with the values of certain supported fields using the syntax of Python's format strings. Each field interprets the modifier part after the colon differently, if at all.
+- [Project templates](/dev/config/project-templates/): You can control how new projects are created by the new command using Hatch's config file.
+- [Hatch configuration](/dev/config/hatch/): Configuration for Hatch itself is stored in a `config.toml` file located by default in one of the following platform-specific directories.
+- [CLI usage](/dev/cli/about/): The amount of displayed output is controlled solely by the `-v`/`--verbose` (environment variable `HATCH_VERBOSE`) and `-q`/`--quiet` (environment variable `HATCH_QUIET`) root options.
+- [Plugins](/dev/plugins/about/): Hatch utilizes pluggy for its plugin functionality.
+- [Builder plugins](/dev/plugins/builder/reference/): See the documentation for build configuration.
+- [Wheel builder](/dev/plugins/builder/wheel/): A wheel is a binary distribution of a Python package that can be installed directly into an environment.
+- [Source distribution builder](/dev/plugins/builder/sdist/): A source distribution, or `sdist`, is an archive of Python "source code". Although largely unspecified, by convention it should include everything that is required to build a wheel without making network requests.
+- [Binary builder](/dev/plugins/builder/binary/): This uses PyApp to build an application that is able to bootstrap itself at runtime.
+- [Custom builder](/dev/plugins/builder/custom/): This is a custom class in a given Python file that inherits from the BuilderInterface.
+- [Build hook plugins](/dev/plugins/build-hook/reference/): A build hook provides code that will be executed at various stages of the build process. See the documentation for build hook configuration.
+- [Version build hook](/dev/plugins/build-hook/version/): This writes the project's version to a file.
+- [Custom build hook](/dev/plugins/build-hook/custom/): This is a custom class in a given Python file that inherits from the BuildHookInterface.
+- [Metadata hook plugins](/dev/plugins/metadata-hook/reference/): Metadata hooks allow for the modification of project metadata after it has been loaded.
+- [Custom metadata hook](/dev/plugins/metadata-hook/custom/): This is a custom class in a given Python file that inherits from the MetadataHookInterface.
+- [Environment plugins](/dev/plugins/environment/reference/): See the documentation for environment configuration.
+- [Virtual environment](/dev/plugins/environment/virtual/): This uses virtual environments backed by virtualenv or UV.
+- [Dependency locker plugins](/dev/plugins/locker/): Hatch selects a **locker** plugin to **generate** PEP 751 lockfiles, verify they are **in sync** with the configured dependency inputs, and **apply** them when syncing a `locked` environment. Built-in lockers are **`uv`** and **`pip`**, matching the virtual environment installer.
+- [Environment collector plugins](/dev/plugins/environment-collector/reference/): Environment collectors allow for dynamically modifying environments or adding environments beyond those defined in config. Users can override default values provided by each environment.
+- [Custom environment collector](/dev/plugins/environment-collector/custom/): This is a custom class in a given Python file that inherits from the EnvironmentCollectorInterface.
+- [Default environment collector](/dev/plugins/environment-collector/default/): This adds the `default` environment with type set to virtual and will always be applied.
+- [Publisher plugins](/dev/plugins/publisher/reference/): ::: hatch.publish.plugin.interface.PublisherInterface options: members: - PLUGIN_NAME - app - root - cache_dir - project_config - plugin_config - disable - publish
+- [Index publisher](/dev/plugins/publisher/package-index/): See the documentation for publishing.
+- [Version source plugins](/dev/plugins/version-source/reference/): ::: hatchling.version.source.plugin.interface.VersionSourceInterface options: members: - PLUGIN_NAME - root - config - get_version_data - set_version
+- [Regex version source](/dev/plugins/version-source/regex/): See the documentation for versioning.
+- [Code version source](/dev/plugins/version-source/code/): Setting the version is not supported.
+- [Environment version source](/dev/plugins/version-source/env/): Retrieves the version from an environment variable. This can be useful in build pipelines where the version is set by an external trigger.
+- [Version scheme plugins](/dev/plugins/version-scheme/reference/): ::: hatchling.version.scheme.plugin.interface.VersionSchemeInterface options: members: - PLUGIN_NAME - root - config - validate_bump - update
+- [Standard version scheme](/dev/plugins/version-scheme/standard/): See the documentation for versioning.
+- [Plugin utilities](/dev/plugins/utilities/): ::: hatchling.builders.utils.get_reproducible_timestamp options: show_root_full_path: true
+- [How to report issues](/dev/how-to/meta/report-issues/): All reports regarding unexpected behavior should be generated with the `self report` command:
+- [How to use Hatch environments from Visual Studio Code](/dev/how-to/integrate/vscode/): Visual Studio Code announced support for Hatch environment discovery in `vscode-python`'s 2024.4 release.
+- [How to run Python scripts](/dev/how-to/run/python-scripts/): The `run` command supports executing Python scripts with inline metadata, such that a dedicated environment is automatically created with the required dependencies and with the correct version of Python.
+- [How to configure custom dynamic metadata](/dev/how-to/config/dynamic-metadata/): If you have project metadata that is not appropriate for static entry into `pyproject.toml` you will need to provide a custom metadata hook to apply such data during builds.
+- [How to configure constraints on the runtime version of Hatch](/dev/how-to/config/constrain-hatch/): You can specify constraints on the runtime version of Hatch by providing a value for `tool.hatch.requires-hatch`. If the version of Hatch does not satisfy the given contraints, and Hatch is called with a command that reads the project's metadata, it will exit with an error.
+- [How to select the installer](/dev/how-to/environment/select-installer/): The virtual environment type by default uses virtualenv for virtual environment creation and pip to install dependencies. You can speed up environment creation and dependency resolution by using UV instead of both of those tools.
+- [How to configure dependency resolution](/dev/how-to/environment/dependency-resolution/): Most Hatch environment types, like the default virtual, simply use pip to install dependencies. Therefore, you can use the standard environment variables that influence `pip`'s behavior.
+- [How to use lockfiles](/dev/how-to/environment/lockfiles/): Hatch can generate PEP 751 lockfiles (`pylock.toml`) for your environments. Lockfiles capture the exact resolved versions and hashes of all dependencies, ensuring reproducible installations across machines and CI.
+- [How to configure workspace environments](/dev/how-to/environment/workspace/): Workspace environments allow you to manage multiple related packages within a single environment. This is useful for monorepos or projects with multiple interdependent packages.
+- [Customize static analysis behavior](/dev/how-to/static-analysis/behavior/): You can fully alter the static analysis performed by the `check code` and `check fmt` commands by modifying the reserved environments named `hatch-check-code` and `hatch-check-fmt`.
+- [How to use custom Python distributions](/dev/how-to/python/custom/): The built-in Python management capabilities offer full support for using custom distributions.
+- [How to authenticate for index publishing](/dev/how-to/publish/auth/): The username is derived from the following sources, in order of precedence:
+- [How to configure repositories for index publishing](/dev/how-to/publish/repo/): You can select the repository with which to upload using the `-r`/`--repo` option or by setting the `HATCH_INDEX_REPO` environment variable.
+- [Testing build plugins](/dev/how-to/plugins/testing-builds/): For testing Hatchling plugins, you'll usually want to generate a project to execute builds as a real user would. For example, as a minimal pytest fixture:
+- [Managing Python distributions](/dev/tutorials/python/manage/): The `python` command group provides a set of commands to manage Python distributions that may be used by other tools.
+- [Managing environments](/dev/tutorials/environment/basic-usage/): Hatch environments are isolated workspaces that can be used for project tasks including running tests, building documentation and running code formatters and linters.
+- [Testing projects](/dev/tutorials/testing/overview/): The `test` command (by default) uses pytest with select plugins and coverage.py. View the testing configuration for more information.
+- [FAQ](/dev/meta/faq/): ***Q***: What is the risk of lock-in?
+- [Authors](/dev/meta/authors/): Maintainers Ofek Lev :material-web: :material-github: :material-twitter: Cary Hawkins :material-github: :material-web: Contributors Amjith…
