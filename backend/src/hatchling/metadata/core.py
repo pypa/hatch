@@ -7,7 +7,10 @@ from copy import deepcopy
 from typing import TYPE_CHECKING, Any, Generic, cast
 
 from hatchling.metadata.utils import (
+    detect_import_names,
+    detect_import_namespaces,
     format_dependency,
+    import_name_candidates,
     is_valid_import_name,
     is_valid_project_name,
     normalize_project_name,
@@ -391,6 +394,7 @@ class CoreMetadata:
         self._optional_dependencies: dict[str, list[str]] | None = None
         self._dynamic: list[str] | None = None
         self._import_names: list[str] | None = None
+        self._import_names_complete: bool = False
         self._import_namespaces: list[str] | None = None
 
         # Indicates that the version has been successfully set dynamically
@@ -1351,32 +1355,8 @@ class CoreMetadata:
         """
         https://peps.python.org/pep-0794/
         """
-        if self._import_names is None:
-            if "import-names" not in self.config:
-                return None
-
-            import_names = self.config["import-names"]
-            if "import-names" in self.dynamic:
-                message = (
-                    "Metadata field `import-names` cannot be both statically defined and "
-                    "listed in field `project.dynamic`"
-                )
-                raise ValueError(message)
-
-            if not isinstance(import_names, list):
-                message = "Field `project.import-names` must be an array"
-                raise TypeError(message)
-
-            for i, import_name in enumerate(import_names, 1):
-                if not isinstance(import_name, str) or not is_valid_import_name(import_name):
-                    message = f"Import name #{i} of field `project.import-names` must be a valid import name"
-                    raise TypeError(message)
-
-            self._import_names = sorted(import_names)
-
-            if set(self._import_names) & set(self.import_namespaces):
-                message = "Fields `project.import-names` and `project.import-namespaces` cannot contain the same name"
-                raise ValueError(message)
+        if not self._import_names_complete:
+            self.__resolve_import_metadata()
 
         return self._import_names
 
@@ -1385,35 +1365,88 @@ class CoreMetadata:
         """
         https://packaging.python.org/en/latest/specifications/pyproject-toml/#import-namespaces
         """
-        if self._import_namespaces is None:
-            if "import-namespaces" in self.config:
-                import_namespaces = self.config["import-namespaces"]
-                if "import-namespaces" in self.dynamic:
-                    message = (
-                        "Metadata field `import-namespaces` cannot be both statically defined and "
-                        "listed in field `project.dynamic`"
-                    )
-                    raise ValueError(message)
-            else:
-                import_namespaces = []
+        if not self._import_names_complete:
+            self.__resolve_import_metadata()
 
-            if not isinstance(import_namespaces, list):
+        return cast("list[str]", self._import_namespaces)
+
+    def __resolve_import_metadata(self) -> None:
+        # If not explicitly declared, `import-names`/`import-namespaces` are auto-detected
+        # from the project's package layout (PEP 794), mirroring `flit-core`. Explicit
+        # declarations always win and are never validated against the detected layout.
+        #
+        # Explicit configuration for both fields is validated first, before any auto-detection
+        # is attempted, since auto-detection requires `raw_name`/`name` (and therefore
+        # `project.name`), which explicit configuration should not otherwise require.
+        import_names_explicit = "import-names" in self.config
+        import_names: list[str] | None = None
+        if import_names_explicit:
+            import_names_config = self.config["import-names"]
+            if "import-names" in self.dynamic:
+                message = (
+                    "Metadata field `import-names` cannot be both statically defined and "
+                    "listed in field `project.dynamic`"
+                )
+                raise ValueError(message)
+
+            if not isinstance(import_names_config, list):
+                message = "Field `project.import-names` must be an array"
+                raise TypeError(message)
+
+            for i, import_name in enumerate(import_names_config, 1):
+                if not isinstance(import_name, str) or not is_valid_import_name(import_name):
+                    message = f"Import name #{i} of field `project.import-names` must be a valid import name"
+                    raise TypeError(message)
+
+            import_names = sorted(import_names_config)
+
+        import_namespaces_explicit = "import-namespaces" in self.config
+        import_namespaces: list[str] = []
+        if import_namespaces_explicit:
+            import_namespaces_config = self.config["import-namespaces"]
+            if "import-namespaces" in self.dynamic:
+                message = (
+                    "Metadata field `import-namespaces` cannot be both statically defined and "
+                    "listed in field `project.dynamic`"
+                )
+                raise ValueError(message)
+
+            if not isinstance(import_namespaces_config, list):
                 message = "Field `project.import-namespaces` must be an array"
                 raise TypeError(message)
 
-            for i, import_namespace in enumerate(import_namespaces, 1):
+            for i, import_namespace in enumerate(import_namespaces_config, 1):
                 if not isinstance(import_namespace, str) or not is_valid_import_name(import_namespace):
                     message = f"Import namespace #{i} of field `project.import-namespaces` must be a valid import name"
                     raise TypeError(message)
 
-            self._import_namespaces = sorted(import_namespaces)
+            import_namespaces = sorted(import_namespaces_config)
 
-            import_names = self.import_names
-            if import_names is not None and set(import_names) & set(self._import_namespaces):
-                message = "Fields `project.import-names` and `project.import-namespaces` cannot contain the same name"
-                raise ValueError(message)
+        if not import_names_explicit or not import_namespaces_explicit:
+            candidates = import_name_candidates(self.raw_name, self.name)
 
-        return self._import_namespaces
+            # Namespace-package detection only applies as a fallback when no flat/src/single-module
+            # layout was found, otherwise e.g. a `src/<name>/__init__.py` layout would be misdetected
+            # as a namespace package named `src`.
+            detected_names = detect_import_names(self.root, candidates)
+            detected_namespace_names: list[str] = []
+            detected_namespaces: list[str] = []
+            if not detected_names:
+                detected_namespace_names, detected_namespaces = detect_import_namespaces(self.root, candidates)
+
+            if not import_names_explicit:
+                import_names = detected_names or detected_namespace_names or None
+
+            if not import_namespaces_explicit:
+                import_namespaces = sorted(detected_namespaces)
+
+        if import_names is not None and set(import_names) & set(import_namespaces):
+            message = "Fields `project.import-names` and `project.import-namespaces` cannot contain the same name"
+            raise ValueError(message)
+
+        self._import_names = import_names
+        self._import_namespaces = import_namespaces
+        self._import_names_complete = True
 
     @property
     def dynamic(self) -> list[str]:

@@ -1430,14 +1430,82 @@ class TestImportNames:
             _ = metadata.core.import_names
 
     def test_correct(self, isolation):
-        metadata = ProjectMetadata(str(isolation), None, {"project": {"import-names": ["foo", "_foo"]}})
+        metadata = ProjectMetadata(str(isolation), None, {"project": {"name": "foo", "import-names": ["foo", "_foo"]}})
 
         assert metadata.core.import_names == ["_foo", "foo"]
 
     def test_private_import_name(self, isolation):
-        metadata = ProjectMetadata(str(isolation), None, {"project": {"import-names": ["foo", "_foo ; private"]}})
+        metadata = ProjectMetadata(
+            str(isolation), None, {"project": {"name": "foo", "import-names": ["foo", "_foo ; private"]}}
+        )
 
         assert metadata.core.import_names == ["_foo ; private", "foo"]
+
+    @pytest.mark.parametrize(
+        ("raw_name", "directory", "import_names"),
+        [
+            ("foo", "foo", ["foo"]),
+            ("my-package", "my_package", ["my_package"]),
+            ("MyPackage", "MyPackage", ["MyPackage"]),
+        ],
+    )
+    def test_auto_detect_flat_layout(self, temp_dir, directory, raw_name, import_names):
+        temp_dir.joinpath(directory).mkdir()
+        temp_dir.joinpath(directory, "__init__.py").touch()
+
+        metadata = ProjectMetadata(str(temp_dir), None, {"project": {"name": raw_name}})
+
+        assert metadata.core.import_names == import_names
+        assert metadata.core.import_namespaces == []
+
+    @pytest.mark.parametrize(
+        ("raw_name", "directory", "import_names"),
+        [
+            ("foo", "foo", ["foo"]),
+            ("my-package", "my_package", ["my_package"]),
+            ("MyPackage", "MyPackage", ["MyPackage"]),
+        ],
+    )
+    def test_auto_detect_src_layout(self, temp_dir, directory, raw_name, import_names):
+        temp_dir.joinpath("src", directory).mkdir(parents=True)
+        temp_dir.joinpath("src", directory, "__init__.py").touch()
+
+        metadata = ProjectMetadata(str(temp_dir), None, {"project": {"name": raw_name}})
+
+        assert metadata.core.import_names == import_names
+        assert metadata.core.import_namespaces == []
+
+    @pytest.mark.parametrize(
+        ("raw_name", "module", "import_names"),
+        [
+            ("foo", "foo", ["foo"]),
+            ("my-module", "my_module", ["my_module"]),
+            ("MyModule", "MyModule", ["MyModule"]),
+        ],
+    )
+    def test_auto_detect_single_module(self, temp_dir, raw_name, module, import_names):
+        temp_dir.joinpath(f"{module}.py").touch()
+
+        metadata = ProjectMetadata(str(temp_dir), None, {"project": {"name": raw_name}})
+
+        assert metadata.core.import_names == import_names
+        assert metadata.core.import_namespaces == []
+
+    def test_auto_detect_none(self, temp_dir):
+        metadata = ProjectMetadata(str(temp_dir), None, {"project": {"name": "foo"}})
+
+        assert metadata.core.import_names is None
+        assert metadata.core.import_namespaces == []
+
+    def test_auto_detect_explicit_overrides_no_validation(self, temp_dir):
+        temp_dir.joinpath("foo").mkdir()
+        temp_dir.joinpath("foo", "__init__.py").touch()
+
+        metadata = ProjectMetadata(
+            str(temp_dir), None, {"project": {"name": "foo", "import-names": ["totally_unrelated"]}}
+        )
+
+        assert metadata.core.import_names == ["totally_unrelated"]
 
 
 class TestImportNamespaces:
@@ -1468,7 +1536,9 @@ class TestImportNamespaces:
             _ = metadata.core.import_namespaces
 
     def test_correct(self, isolation):
-        metadata = ProjectMetadata(str(isolation), None, {"project": {"import-namespaces": ["foo", "foo.bar"]}})
+        metadata = ProjectMetadata(
+            str(isolation), None, {"project": {"name": "foo", "import-namespaces": ["foo", "foo.bar"]}}
+        )
 
         assert metadata.core.import_namespaces == ["foo", "foo.bar"]
 
@@ -1476,10 +1546,29 @@ class TestImportNamespaces:
         metadata = ProjectMetadata(
             str(isolation),
             None,
-            {"project": {"import-namespaces": ["foo", "foo.bar", "foo.bar ; private"]}},
+            {"project": {"name": "foo", "import-namespaces": ["foo", "foo.bar", "foo.bar ; private"]}},
         )
 
         assert metadata.core.import_namespaces == ["foo", "foo.bar", "foo.bar ; private"]
+
+    def test_auto_detect_namespace_package(self, temp_dir):
+        temp_dir.joinpath("ns", "foo").mkdir(parents=True)
+        temp_dir.joinpath("ns", "foo", "__init__.py").touch()
+
+        metadata = ProjectMetadata(str(temp_dir), None, {"project": {"name": "foo"}})
+
+        assert metadata.core.import_namespaces == ["ns"]
+        assert metadata.core.import_names == ["ns.foo"]
+
+    def test_auto_detect_explicit_overrides_no_validation(self, temp_dir):
+        temp_dir.joinpath("ns", "foo").mkdir(parents=True)
+        temp_dir.joinpath("ns", "foo", "__init__.py").touch()
+
+        metadata = ProjectMetadata(
+            str(temp_dir), None, {"project": {"name": "foo", "import-namespaces": ["totally_unrelated"]}}
+        )
+
+        assert metadata.core.import_namespaces == ["totally_unrelated"]
 
     def test_import_names_and_import_namespaces_conflict(self, isolation):
         metadata = ProjectMetadata(
