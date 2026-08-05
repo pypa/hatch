@@ -39,6 +39,7 @@ Tag: py3-none-any
 Metadata-Version: {DEFAULT_METADATA_VERSION}
 Name: {kwargs["project_name"]}
 Version: 0.0.1
+Import-Name: {kwargs["package_name"]}
 License-File: LICENSES/Apache-2.0.txt
 License-File: LICENSES/MIT.txt
 """,
