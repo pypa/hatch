@@ -348,6 +348,52 @@ def test_show_static(hatch, temp_dir):
 
 def test_set_static(hatch, helpers, temp_dir):
     project_name = "My.App"
+    test_comment = "# This is a test comment to assure version bumps do not erase comments."
+
+    with temp_dir.as_cwd():
+        hatch("new", project_name)
+
+    path = temp_dir / "my-app"
+    pyproject = path / "pyproject.toml"
+    data_path = temp_dir / "data"
+    data_path.mkdir()
+
+    # To test if formatting and comments are preserved after static set
+    # Regular Project.save_config does not preserve it
+    with open(pyproject, "r+", encoding="utf-8") as f:
+        lines = list(f)
+        for i, line in enumerate(lines):
+            if line.startswith("dynamic"):
+                lines[i] = 'version    =    "1.2.3"\n'
+        lines.append(test_comment)
+        f.seek(0)
+        f.writelines(lines)
+
+    with path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch("version", "minor,rc")
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        """
+        Old: 1.2.3
+        New: 1.3.0rc0
+        """
+    )
+
+    project = Project(path)
+    assert project.raw_config["project"]["version"] == "1.3.0rc0", "should update static version"
+
+    with open(pyproject, encoding="utf-8") as fr:
+        for line in fr:
+            if line.startswith("version"):
+                version_line = line
+        last_line = line
+    assert version_line == 'version    =    "1.3.0rc0"\n', "should preserve pyproject formatting"
+    assert last_line == test_comment, "should preserve pyproject comments"
+
+
+def test_set_static_downgrade(hatch, helpers, temp_dir):
+    project_name = "My.App"
 
     with temp_dir.as_cwd():
         hatch("new", project_name)
@@ -362,15 +408,27 @@ def test_set_static(hatch, helpers, temp_dir):
     config["project"]["dynamic"].remove("version")
     project.save_config(config)
 
+    # This one fails, because it's a downgrade without --force
     with path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
-        result = hatch("version", "minor,rc")
+        result = hatch("version", "1.2.0", catch_exceptions=True)
 
     assert result.exit_code == 1, result.output
+    assert str(result.exception) == "Version `1.2.0` is not higher than the original version `1.2.3`"
+
+    # Try again, this time with --force
+    with path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch("version", "--force", "1.2.0")
+
+    assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
         """
-        Cannot set version when it is statically defined by the `project.version` field
+        Old: 1.2.3
+        New: 1.2.0
         """
     )
+
+    project = Project(path)
+    assert project.raw_config["project"]["version"] == "1.2.0", "should force update static version"
 
 
 @pytest.mark.requires_internet

@@ -216,7 +216,7 @@ extend = "{config_path}\""""
             user_config.read_text()
             == f"""\
 [tool.ruff]
-extend = "{config_path}\"
+extend = "{config_path}"
 {old_contents.rstrip()}"""
         )
 

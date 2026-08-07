@@ -3039,3 +3039,32 @@ class TestBuild:
             "hook5": {"bar": "foo"},
             "hook6": {"bar": "foo", "enable-by-default": False},
         }
+
+
+class TestRequiresHatch:
+    @pytest.mark.parametrize("attribute", ["requires_hatch", "hatch_specifier_set"])
+    def test_not_string(self, isolation, attribute):
+        project_config = ProjectConfig(isolation, {"requires-hatch": 1.18}, None)
+
+        with pytest.raises(TypeError, match="Field `tool.hatch.requires-hatch` must be a string"):
+            _ = getattr(project_config, attribute)
+
+    def test_invalid(self, isolation):
+        project_config = ProjectConfig(isolation, {"requires-hatch": "^1"}, None)
+
+        with pytest.raises(ValueError, match="Field `tool.hatch.requires-hatch` is invalid: .+"):
+            _ = project_config.requires_hatch
+
+    def test_default(self, isolation):
+        project_config = ProjectConfig(isolation, {}, None)
+
+        assert project_config.requires_hatch == ""
+        for major_version in map(str, range(10)):
+            assert project_config.hatch_specifier_set.contains(major_version)
+
+    def test_custom(self, isolation):
+        project_config = ProjectConfig(isolation, {"requires-hatch": ">1"}, None)
+
+        assert project_config.requires_hatch == ">1"
+        assert not project_config.hatch_specifier_set.contains("1")
+        assert project_config.hatch_specifier_set.contains("2")
