@@ -86,6 +86,7 @@ class UvLocker(LockerInterface):
 
         command.extend([
             "--generate-hashes",
+            "--no-header",
             "--output-file",
             str(output_path),
         ])

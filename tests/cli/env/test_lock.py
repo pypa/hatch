@@ -4,6 +4,7 @@ import pytest
 import tomli_w
 
 from hatch.config.constants import ConfigEnvVars
+from hatch.env.lockers.uv import UvLocker
 from hatch.project.core import Project
 from hatch.utils.toml import load_toml_file
 
@@ -370,6 +371,64 @@ def test_check_exists(hatch, helpers, temp_dir, config_file):
 
     assert result.exit_code == 0, result.output
     assert "Lockfile is up to date" in result.output
+
+
+def test_uv_in_sync_identical_content(helpers, monkeypatch, temp_dir):
+    lock_path = temp_dir / "pylock.toml"
+    lock_body = helpers.dedent(
+        """
+        lock-version = "1.0"
+        created-by = "uv"
+
+        [[packages]]
+        name = "click"
+        version = "8.4.1"
+        """
+    )
+    lock_path.write_text(lock_body, encoding="utf-8")
+
+    def generate(_cls, _environment, _dependencies, output_path, **_kwargs):
+        output_path.write_text(lock_body, encoding="utf-8")
+
+    monkeypatch.setattr(UvLocker, "generate", classmethod(generate))
+
+    assert UvLocker.in_sync(object(), [], lock_path)
+
+
+def test_uv_in_sync_different_content(helpers, monkeypatch, temp_dir):
+    lock_path = temp_dir / "pylock.toml"
+    lock_path.write_text(
+        helpers.dedent(
+            """
+            lock-version = "1.0"
+            created-by = "uv"
+
+            [[packages]]
+            name = "click"
+            version = "8.4.1"
+            """
+        ),
+        encoding="utf-8",
+    )
+
+    def generate(_cls, _environment, _dependencies, output_path, **_kwargs):
+        output_path.write_text(
+            helpers.dedent(
+                """
+                lock-version = "1.0"
+                created-by = "uv"
+
+                [[packages]]
+                name = "click"
+                version = "8.5.0"
+                """
+            ),
+            encoding="utf-8",
+        )
+
+    monkeypatch.setattr(UvLocker, "generate", classmethod(generate))
+
+    assert not UvLocker.in_sync(object(), [], lock_path)
 
 
 @pytest.mark.usefixtures("mock_locker")
