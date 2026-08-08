@@ -306,3 +306,50 @@ def test_plugin_dependencies_unmet(hatch, helpers, temp_dir, config_file, mock_p
     assert env_path.name == project_path.name
 
     assert str(env_path) in str(output_file.read_text())
+
+def test_fresh(hatch, helpers, temp_dir, config_file):
+    config_file.model.template.plugins["default"]["tests"] = False
+    config_file.save()
+
+    project_name = "My.App"
+
+    with temp_dir.as_cwd():
+        result = hatch("new", project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
+    data_path.mkdir()
+
+    project = Project(project_path)
+    helpers.update_project_environment(
+        project,
+        "default",
+        {"skip-install": True, **project.config.envs["default"]},
+    )
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch("env", "run", "--", "python", "-c", "import sys;sys.exit(0)")
+
+    assert result.exit_code == 0, result.output
+    assert "Creating environment" in result.output
+
+    env_data_path = data_path / "env" / "virtual" / project_path.name
+    storage_dirs = list(env_data_path.iterdir())
+    assert len(storage_dirs) == 1
+    storage_path = storage_dirs[0]
+    env_dirs_before = list(storage_path.iterdir())
+    assert len(env_dirs_before) == 1
+    env_path_before = env_dirs_before[0]
+    assert env_path_before.is_dir()
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch("env", "run", "--fresh", "--", "python", "-c", "import sys;sys.exit(0)")
+
+    assert result.exit_code == 0, result.output
+
+    env_dirs_after = list(storage_path.iterdir())
+    assert len(env_dirs_after) == 1
+    env_path_after = env_dirs_after[0]
+    assert env_path_after.is_dir()

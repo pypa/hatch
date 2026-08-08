@@ -10,6 +10,7 @@ class AppEnvVars:
     NO_COLOR = "NO_COLOR"
     FORCE_COLOR = "FORCE_COLOR"
     KEEP_ENV = "HATCH_KEEP_ENV"
+    FRESH = "HATCH_FRESH"
 
 
 class ConfigEnvVars:

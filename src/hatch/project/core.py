@@ -194,7 +194,11 @@ class Project:
 
     # Ensure that this method is clearly written since it is
     # used for documenting the life cycle of environments.
-    def prepare_environment(self, environment: EnvironmentInterface, *, keep_env: bool):
+    def prepare_environment(self, environment: EnvironmentInterface, *, keep_env: bool, fresh: bool = False):
+        if fresh and environment.exists():
+            environment.remove()
+            self.env_metadata.reset(environment)
+
         if not environment.exists():
             with self.managed_environment(environment, keep_env=keep_env):
                 self.env_metadata.reset(environment)
