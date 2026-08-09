@@ -8,10 +8,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
-**Fixed**
-
-- Allow the `; private` annotation on `import-names`/`import-namespaces` entries, as permitted by the specification, and avoid duplicating it in generated metadata for entries that already declare it
-
 **Changed***
 
 - Bump default core metadata version to 2.5
