@@ -73,6 +73,7 @@ nav:
     - Build: config/build.md
     - Environments:
       - Overview: config/environment/overview.md
+      - Sources: config/environment/sources.md
       - Advanced: config/environment/advanced.md
     - Internal:
       - Testing: config/internal/testing.md

@@ -85,6 +85,9 @@ class InstalledDistributions:
                 if Path.from_uri(url) != dependency.path:
                     return False
 
+                if direct_url_data.get("subdirectory") != dependency.subdirectory:
+                    return False
+
             if "vcs_info" in direct_url_data:
                 vcs_info = direct_url_data["vcs_info"]
                 vcs = vcs_info["vcs"]

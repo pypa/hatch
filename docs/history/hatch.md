@@ -8,9 +8,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Added:***
+
+- Add the `sources` environment option, which redirects dependencies to a local path, Git repository, URL, alternate index, or workspace member at install time without altering published metadata. The top-level `[tool.hatch.sources]` table is an alias for the `default` environment, environments inherit sources entry by entry, the `HATCH_NO_SOURCES` environment variable disables them, and `hatch dep show sources` reports what each source redirects
+
+- Add the `--all`/`-a` flag to the `build` command to build the workspace root and every workspace member defined by the selected environment, consolidating artifacts in the workspace root's `dist` directory by default. A root that does not define a `project` table is skipped so that a top-level `pyproject.toml` may only contain workspace configuration
+
 ***Fixed:***
 
-- Prevent output from non-Hatchling build backends from polluting stdout when reading project metadata.
+- Erase stale coverage data before running `hatch test --cover`.
+
+- Fix environment creation crashing when a metadata hook exists that doesn’t happen to be installed in the `hatch` CLI’s environment.
+
+- Fix commands run by `hatch run` no longer being interruptible with Ctrl-C, which happened because the ignored `SIGINT` of the parent process was inherited by the child process.
+
 
 ## [1.17.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.17.1) - 2026-07-08 ## {: #hatch-v1.17.1 }
 

@@ -1,5 +1,6 @@
 import json
 import sys
+from typing import Any
 
 import pytest
 
@@ -88,11 +89,15 @@ description = "text"
         output = json.loads((output_dir / "output.json").read_text())
         metadata_file = work_dir / output["return_val"] / "METADATA"
 
-        assert project_metadata_from_core_metadata(metadata_file.read_text()) == {
+        expected_metadata: dict[str, Any] = {
             "name": "foo",
             "version": "9000.42",
             "description": "text",
         }
+        if backend_pkg == "flit-core":
+            expected_metadata["import-names"] = ["foo"]
+
+        assert project_metadata_from_core_metadata(metadata_file.read_text()) == expected_metadata
 
     def test_backend_stdout_is_forwarded_to_stderr(self, temp_dir, temp_dir_data, platform, global_application):
         # Non-Hatchling backends (notably setuptools/setuptools-scm) may print build
@@ -203,11 +208,15 @@ description = "text"
         output = json.loads((output_dir / "output.json").read_text())
         metadata_file = work_dir / output["return_val"] / "METADATA"
 
-        assert project_metadata_from_core_metadata(metadata_file.read_text()) == {
+        expected_metadata: dict[str, Any] = {
             "name": "foo",
             "version": "9000.42",
             "description": "text",
         }
+        if backend_pkg == "flit-core":
+            expected_metadata["import-names"] = ["foo"]
+
+        assert project_metadata_from_core_metadata(metadata_file.read_text()) == expected_metadata
 
 
 class TestBuildWheel:
