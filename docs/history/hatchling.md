@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+**Added**
+
+- Auto-detect `import-names`/`import-namespaces` project metadata from the project's package layout when not explicitly declared
+
 **Changed***
 
 - Bump default core metadata version to 2.5
