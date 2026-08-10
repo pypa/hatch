@@ -117,6 +117,10 @@
          <lastmod>2020-02-02</lastmod>
     </url>
     <url>
+         <loc>https://hatch.pypa.io/dev/config/environment/sources/</loc>
+         <lastmod>2020-02-02</lastmod>
+    </url>
+    <url>
          <loc>https://hatch.pypa.io/dev/config/internal/build/</loc>
          <lastmod>2020-02-02</lastmod>
     </url>
