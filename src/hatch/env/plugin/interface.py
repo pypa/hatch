@@ -282,7 +282,7 @@ class EnvironmentInterface(ABC):
         """
         The mapping of normalized project names to the local path of the matching
         workspace member, used to resolve `workspace` entries in
-        [`sources`](#hatch.env.plugin.interface.EnvironmentInterface.sources).
+        [sources](../../config/environment/sources.md).
 
         This is only populated when at least one source actually uses
         `workspace = true`, so unrelated environments do not pay the cost of
@@ -1020,9 +1020,9 @@ class EnvironmentInterface(ABC):
     def get_source_install_args(self, dependencies: Sequence[Dependency]) -> list[str]:
         """
         Returns global installer flags derived from the
-        [sources](#hatch.env.plugin.interface.EnvironmentInterface.sources) that apply to the
-        given dependencies. Currently this surfaces every `IndexSource` as `--extra-index-url`,
-        deduplicated and order-preserving.
+        [sources](../../config/environment/sources.md) that apply to the given dependencies.
+        Currently this surfaces every `IndexSource` as `--extra-index-url`, deduplicated
+        and order-preserving.
         """
         from hatch.project.sources import collect_global_install_args
 
