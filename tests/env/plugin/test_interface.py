@@ -3956,8 +3956,6 @@ version = "0.0.1"
 
 class TestEnvironmentSources:
     def test_path_source_rewrites_dependency(self, isolation, isolated_data_dir, platform, temp_application):
-        from hatch.project.sources import PathSource
-
         config = {
             "project": {"name": "my_app", "version": "0.0.1", "dependencies": ["dep1"]},
             "tool": {
@@ -3988,11 +3986,8 @@ class TestEnvironmentSources:
         assert deps[0].url is not None
         assert deps[0].url.startswith("file://")
         assert deps[0].editable is True
-        assert isinstance(deps[0].source, PathSource)
 
-    def test_index_source_attached_without_url_change(self, isolation, isolated_data_dir, platform, temp_application):
-        from hatch.project.sources import IndexSource
-
+    def test_index_source_becomes_install_flag(self, isolation, isolated_data_dir, platform, temp_application):
         config = {
             "project": {"name": "my_app", "version": "0.0.1", "dependencies": ["dep1"]},
             "tool": {
@@ -4021,14 +4016,11 @@ class TestEnvironmentSources:
         deps = environment.project_dependencies_complex
         assert len(deps) == 1
         assert deps[0].url is None
-        assert isinstance(deps[0].source, IndexSource)
 
         global_args = environment.get_source_install_args(deps)
         assert global_args == ["--extra-index-url", "https://pypi.example.com/simple"]
 
     def test_environment_dependencies_decorated(self, isolation, isolated_data_dir, platform, temp_application):
-        from hatch.project.sources import GitSource
-
         config = {
             "project": {"name": "my_app", "version": "0.0.1"},
             "tool": {
@@ -4057,7 +4049,6 @@ class TestEnvironmentSources:
         deps = environment.environment_dependencies_complex
         assert len(deps) == 1
         assert deps[0].url == "git+https://example.com/dep2@abc"
-        assert isinstance(deps[0].source, GitSource)
 
     def test_no_sources_is_noop(self, isolation, isolated_data_dir, platform, temp_application):
         config = {
@@ -4083,12 +4074,9 @@ class TestEnvironmentSources:
         deps = environment.project_dependencies_complex
         assert len(deps) == 1
         assert deps[0].url is None
-        assert deps[0].source is None
         assert environment.get_source_install_args(deps) == []
 
     def test_workspace_source_resolves_to_member(self, temp_dir, isolated_data_dir, platform, temp_application):
-        from hatch.project.sources import WorkspaceSource
-
         member_dir = temp_dir / "packages" / "dep1"
         member_dir.ensure_dir_exists()
         (member_dir / "pyproject.toml").write_text('[project]\nname = "dep1"\nversion = "0.0.1"\n')
@@ -4131,7 +4119,6 @@ workspace.members = ["packages/*"]
         assert dep.url.startswith("file://")
         assert dep.url.endswith("packages/dep1")
         assert dep.editable is True
-        assert isinstance(dep.source, WorkspaceSource)
 
     def test_workspace_source_without_member_errors(self, temp_dir, isolated_data_dir, platform, temp_application):
         pyproject = temp_dir / "pyproject.toml"
@@ -4166,7 +4153,7 @@ skip-install = false
 
         with pytest.raises(
             ValueError,
-            match="Dependency `dep1` declares `workspace = true` in `tool.hatch.sources` but no matching member",
+            match="Dependency `dep1` declares `workspace = true` in its environment's `sources`",
         ):
             _ = environment.project_dependencies_complex
 
@@ -4275,11 +4262,8 @@ skip-install = false
 
         assert len(deps) == 1
         assert deps[0].url is None
-        assert deps[0].source is None
 
     def test_additional_dependencies_decorated(self, isolation, isolated_data_dir, platform, temp_application):
-        from hatch.project.sources import GitSource
-
         config = {
             "project": {"name": "my_app", "version": "0.0.1"},
             "tool": {
@@ -4309,4 +4293,3 @@ skip-install = false
         deps = [dep for dep in environment.dependencies_complex if dep.name == "dep3"]
         assert len(deps) == 1
         assert deps[0].url == "git+https://example.com/dep3@abc"
-        assert isinstance(deps[0].source, GitSource)

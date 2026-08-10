@@ -3043,49 +3043,71 @@ class TestBuild:
 
 class TestSources:
     def test_default(self, isolation):
-        project_config = ProjectConfig(isolation, {})
+        project_config = ProjectConfig(isolation, {}, PluginManager())
 
-        assert project_config.sources == project_config.sources == {}
+        assert "sources" not in project_config.envs["default"]
 
     def test_not_table(self, isolation):
+        project_config = ProjectConfig(isolation, {"sources": 9000}, PluginManager())
+
         with pytest.raises(TypeError, match="Field `tool.hatch.sources` must be a table"):
-            _ = ProjectConfig(isolation, {"sources": 9000}).sources
+            _ = project_config.envs
 
-    def test_path_shorthand(self, isolation):
-        from hatch.project.sources import PathSource
+    def test_invalid_entry(self, isolation):
+        project_config = ProjectConfig(isolation, {"sources": {"foo": {"editable": True}}}, PluginManager())
 
-        project_config = ProjectConfig(isolation, {"sources": {"foo": "./pkg"}})
+        with pytest.raises(ValueError, match="Field `tool.hatch.sources.foo` must define exactly one of:"):
+            _ = project_config.envs
 
-        assert "foo" in project_config.sources
-        assert isinstance(project_config.sources["foo"], PathSource)
-        assert project_config.sources["foo"].path == "./pkg"
-        assert project_config.sources["foo"].editable is True
+    def test_global_table_aliases_default_environment(self, isolation):
+        project_config = ProjectConfig(isolation, {"sources": {"foo": "./pkg"}}, PluginManager())
 
-    def test_table_form(self, isolation):
-        from hatch.project.sources import GitSource, IndexSource
+        assert project_config.envs["default"]["sources"] == {"foo": "./pkg"}
 
+    def test_default_environment_overrides_global_table(self, isolation):
         project_config = ProjectConfig(
             isolation,
             {
-                "sources": {
-                    "bar": {"git": "https://example.com/bar", "rev": "abc"},
-                    "baz": {"index": "https://pypi.example.com/simple"},
-                }
+                "sources": {"foo": "./pkg", "bar": "./other"},
+                "envs": {"default": {"sources": {"foo": {"index": "https://pypi.example.com/simple"}}}},
             },
+            PluginManager(),
         )
 
-        assert isinstance(project_config.sources["bar"], GitSource)
-        assert project_config.sources["bar"].rev == "abc"
-        assert isinstance(project_config.sources["baz"], IndexSource)
+        assert project_config.envs["default"]["sources"] == {
+            "bar": "./other",
+            "foo": {"index": "https://pypi.example.com/simple"},
+        }
 
-    def test_normalized_keys(self, isolation):
-        project_config = ProjectConfig(isolation, {"sources": {"My_Pkg": "./pkg"}})
+    def test_override_matches_normalized_name(self, isolation):
+        project_config = ProjectConfig(
+            isolation,
+            {"sources": {"My_Pkg": "./pkg"}, "envs": {"default": {"sources": {"my-pkg": "./local"}}}},
+            PluginManager(),
+        )
 
-        assert "my-pkg" in project_config.sources
+        assert project_config.envs["default"]["sources"] == {"my-pkg": "./local"}
 
-    def test_invalid_entry(self, isolation):
-        with pytest.raises(ValueError, match="Field `tool.hatch.sources.foo` must define exactly one of:"):
-            _ = ProjectConfig(isolation, {"sources": {"foo": {"editable": True}}}).sources
+    def test_inherited_by_other_environments(self, isolation):
+        project_config = ProjectConfig(isolation, {"sources": {"foo": "./pkg"}, "envs": {"test": {}}}, PluginManager())
+
+        assert project_config.envs["test"]["sources"] == {"foo": "./pkg"}
+
+    def test_inheritance_is_key_level(self, isolation):
+        project_config = ProjectConfig(
+            isolation,
+            {"sources": {"foo": "./pkg", "bar": "./other"}, "envs": {"test": {"sources": {"foo": "./local"}}}},
+            PluginManager(),
+        )
+
+        assert project_config.envs["test"]["sources"] == {"bar": "./other", "foo": "./local"}
+
+    def test_not_inherited_by_detached_environment(self, isolation):
+        project_config = ProjectConfig(
+            isolation, {"sources": {"foo": "./pkg"}, "envs": {"test": {"detached": True}}}, PluginManager()
+        )
+
+        assert "sources" not in project_config.envs["test"]
 
 
 class TestRequiresHatch:

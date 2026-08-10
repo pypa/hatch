@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Any, cast
 from hatch.env.utils import ensure_valid_environment
 from hatch.project.constants import DEFAULT_BUILD_DIRECTORY, BuildEnvVars
 from hatch.project.env import apply_overrides
+from hatch.project.sources import merge_source_tables, parse_sources
 from hatch.project.utils import format_script_commands, parse_script_command
 
 if TYPE_CHECKING:
@@ -56,12 +57,6 @@ class ProjectConfig:
             raise TypeError(message)
 
         return lock_envs
-
-    @cached_property
-    def sources(self):
-        from hatch.project.sources import parse_sources
-
-        return parse_sources(self.config.get("sources", {}))
 
     @cached_property
     def locker(self) -> str | None:
@@ -206,6 +201,8 @@ class ProjectConfig:
 
             # Prevent plugins from removing the default environment
             ensure_valid_environment(config.setdefault("default", {}))
+
+            _populate_sources(config, self.config.get("sources", {}))
 
             seen = set()
             active = []
@@ -725,6 +722,15 @@ def expand_script_commands(script_name, commands, config, seen, active):
     return expanded_commands
 
 
+def _populate_sources(config, global_config):
+    """The top-level `sources` table is an alias for the `default` environment."""
+    # Parse here so errors name the top-level field rather than the environment it merges into
+    parse_sources(global_config)
+    if global_config:
+        default_config = config["default"]
+        default_config["sources"] = merge_source_tables(global_config, default_config.get("sources", {}))
+
+
 def _populate_default_env_values(env_name, data, config, seen, active):
     if env_name in seen:
         return
@@ -762,6 +768,8 @@ def _populate_default_env_values(env_name, data, config, seen, active):
             scripts = data["scripts"] if "scripts" in data else data.setdefault("scripts", {})
             for script, commands in value.items():
                 scripts.setdefault(script, commands)
+        elif key == "sources":
+            data["sources"] = merge_source_tables(value, data.get("sources", {}))
         else:
             data.setdefault(key, value)
 

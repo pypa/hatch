@@ -27,7 +27,7 @@ def test_no_sources(hatch, helpers, temp_dir, config_file):
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
         """
-        No sources defined in `[tool.hatch.sources]`
+        No sources defined for environment `default`
         """
     )
 

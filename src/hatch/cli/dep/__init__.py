@@ -172,22 +172,21 @@ def show_sources(app, show_lines, force_ascii):
     """
     app.ensure_environment_plugin_dependencies()
 
-    from hatch.project.sources import describe_source
+    from hatch.project.sources import describe_source, source_applied
     from hatch.utils.metadata import normalize_project_name
 
     environment = app.project.get_environment()
     configured = environment.sources
     if not configured:
-        app.display("No sources defined in `[tool.hatch.sources]`")
+        app.display(f"No sources defined for environment `{app.env}`")
         return
 
+    root = str(environment.root)
+    workspace_members = environment.source_workspace_members
     matched = {name: [] for name in configured}
     for dependency in environment.dependencies_complex:
-        if dependency.source is None:
-            continue
-
         normalized = normalize_project_name(dependency.name)
-        if normalized in matched:
+        if normalized in matched and source_applied(dependency, configured[normalized], root, workspace_members):
             matched[normalized].append(str(dependency))
 
     columns = {"Source": {}, "Type": {}, "Target": {}, "Dependencies": {}}

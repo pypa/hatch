@@ -1,5 +1,6 @@
 import pytest
 
+from hatch.dep.core import Dependency
 from hatch.project.sources import (
     GitSource,
     IndexSource,
@@ -11,11 +12,13 @@ from hatch.project.sources import (
     decorate_dependencies,
     decorate_dependency,
     describe_source,
+    merge_source_tables,
     parse_source,
     parse_sources,
     render_git_url,
     render_path_url,
     render_url,
+    source_applied,
 )
 
 
@@ -320,8 +323,6 @@ class TestApplySourceToRequirement:
 
 class TestDecorateDependency:
     def test_no_sources(self, temp_dir):
-        from hatch.dep.core import Dependency
-
         dep = Dependency("foo>=1")
 
         result = decorate_dependency(dep, {}, str(temp_dir))
@@ -329,8 +330,6 @@ class TestDecorateDependency:
         assert result is dep
 
     def test_path_source_rewrites(self, temp_dir):
-        from hatch.dep.core import Dependency
-
         dep = Dependency("foo>=1")
         sources = {"foo": PathSource(path="pkg")}
 
@@ -340,22 +339,17 @@ class TestDecorateDependency:
         assert result.url is not None
         assert result.url.startswith("file://")
         assert result.editable is True
-        assert isinstance(result.source, PathSource)
 
-    def test_index_source_attached_without_rewrite(self, temp_dir):
-        from hatch.dep.core import Dependency
-
+    def test_index_source_left_alone(self, temp_dir):
         dep = Dependency("foo>=1")
         sources = {"foo": IndexSource(index="https://pypi.example.com/simple")}
 
         result = decorate_dependency(dep, sources, str(temp_dir))
 
-        assert result.url is None
-        assert isinstance(result.source, IndexSource)
+        # An index does not change the requirement, it becomes an install-wide flag
+        assert result is dep
 
     def test_existing_url_preserved(self, temp_dir):
-        from hatch.dep.core import Dependency
-
         dep = Dependency("foo @ https://override.example.com/foo.tgz")
         sources = {"foo": PathSource(path="pkg")}
 
@@ -365,8 +359,6 @@ class TestDecorateDependency:
         assert result is dep
 
     def test_marker_preserved(self, temp_dir):
-        from hatch.dep.core import Dependency
-
         dep = Dependency('foo>=1; sys_platform == "linux"')
         sources = {"foo": PathSource(path="pkg")}
 
@@ -376,8 +368,6 @@ class TestDecorateDependency:
         assert "linux" in str(result.marker)
 
     def test_normalized_lookup(self, temp_dir):
-        from hatch.dep.core import Dependency
-
         dep = Dependency("My_Pkg.Name>=1")
         sources = {"my-pkg-name": PathSource(path="pkg")}
 
@@ -386,8 +376,6 @@ class TestDecorateDependency:
         assert result.url is not None
 
     def test_workspace_source_resolves_to_member(self, temp_dir):
-        from hatch.dep.core import Dependency
-
         dep = Dependency("foo>=1")
         sources = {"foo": WorkspaceSource()}
         member_path = str(temp_dir / "members" / "foo")
@@ -398,25 +386,20 @@ class TestDecorateDependency:
         assert result.url is not None
         assert result.url.startswith("file://")
         assert result.editable is True
-        assert isinstance(result.source, WorkspaceSource)
 
     def test_workspace_source_unmatched_raises(self, temp_dir):
-        from hatch.dep.core import Dependency
-
         dep = Dependency("foo>=1")
         sources = {"foo": WorkspaceSource()}
 
         with pytest.raises(
             ValueError,
-            match="Dependency `foo` declares `workspace = true` in `tool.hatch.sources` but no matching member",
+            match="Dependency `foo` declares `workspace = true` in its environment's `sources`",
         ):
             decorate_dependency(dep, sources, str(temp_dir), {})
 
 
 class TestDecorateDependencies:
     def test_empty_sources(self, temp_dir):
-        from hatch.dep.core import Dependency
-
         deps = [Dependency("foo"), Dependency("bar")]
 
         result = decorate_dependencies(deps, {}, str(temp_dir))
@@ -426,15 +409,16 @@ class TestDecorateDependencies:
 
 class TestCollectGlobalInstallArgs:
     def test_empty(self):
-        assert collect_global_install_args([]) == []
+        assert collect_global_install_args([], {}) == []
 
     def test_index_sources(self):
-        sources = [
-            IndexSource(index="https://example.com/a"),
-            IndexSource(index="https://example.com/b"),
-        ]
+        dependencies = [Dependency("foo"), Dependency("bar")]
+        sources = {
+            "foo": IndexSource(index="https://example.com/a"),
+            "bar": IndexSource(index="https://example.com/b"),
+        }
 
-        assert collect_global_install_args(sources) == [
+        assert collect_global_install_args(dependencies, sources) == [
             "--extra-index-url",
             "https://example.com/a",
             "--extra-index-url",
@@ -442,20 +426,79 @@ class TestCollectGlobalInstallArgs:
         ]
 
     def test_dedupe(self):
-        sources = [
-            IndexSource(index="https://example.com/a"),
-            IndexSource(index="https://example.com/a"),
-        ]
+        dependencies = [Dependency("foo"), Dependency("bar")]
+        sources = {
+            "foo": IndexSource(index="https://example.com/a"),
+            "bar": IndexSource(index="https://example.com/a"),
+        }
 
-        assert collect_global_install_args(sources) == [
+        assert collect_global_install_args(dependencies, sources) == [
             "--extra-index-url",
             "https://example.com/a",
         ]
 
     def test_non_index_sources_ignored(self):
-        sources = [PathSource(path="pkg"), GitSource(git="https://example.com/foo")]
+        dependencies = [Dependency("foo"), Dependency("bar")]
+        sources = {"foo": PathSource(path="pkg"), "bar": GitSource(git="https://example.com/foo")}
 
-        assert collect_global_install_args(sources) == []
+        assert collect_global_install_args(dependencies, sources) == []
+
+    def test_unmatched_dependencies_ignored(self):
+        dependencies = [Dependency("foo")]
+        sources = {"bar": IndexSource(index="https://example.com/a")}
+
+        assert collect_global_install_args(dependencies, sources) == []
+
+    def test_normalized_lookup(self):
+        dependencies = [Dependency("My_Pkg.Name")]
+        sources = {"my-pkg-name": IndexSource(index="https://example.com/a")}
+
+        assert collect_global_install_args(dependencies, sources) == ["--extra-index-url", "https://example.com/a"]
+
+    def test_direct_reference_wins(self):
+        dependencies = [Dependency("foo @ https://example.com/foo.tgz")]
+        sources = {"foo": IndexSource(index="https://example.com/a")}
+
+        assert collect_global_install_args(dependencies, sources) == []
+
+
+class TestMergeSourceTables:
+    def test_empty(self):
+        assert merge_source_tables({}, {}) == {}
+
+    def test_disjoint(self):
+        assert merge_source_tables({"foo": "./a"}, {"bar": "./b"}) == {"foo": "./a", "bar": "./b"}
+
+    def test_override_wins(self):
+        assert merge_source_tables({"foo": "./a"}, {"foo": "./b"}) == {"foo": "./b"}
+
+    def test_override_matches_normalized_name(self):
+        assert merge_source_tables({"My_Pkg": "./a"}, {"my-pkg": "./b"}) == {"my-pkg": "./b"}
+
+    def test_non_string_names_preserved(self):
+        # Left for `parse_sources` to reject with a proper error message
+        assert merge_source_tables({9000: "./a"}, {}) == {9000: "./a"}
+
+
+class TestSourceApplied:
+    def test_index_source_without_url(self):
+        assert source_applied(Dependency("foo"), IndexSource(index="https://example.com/a"), "/root")
+
+    def test_index_source_with_direct_reference(self):
+        dep = Dependency("foo @ https://example.com/foo.tgz")
+
+        assert not source_applied(dep, IndexSource(index="https://example.com/a"), "/root")
+
+    def test_rewritten_dependency(self, temp_dir):
+        source = PathSource(path="pkg")
+        decorated = decorate_dependency(Dependency("foo"), {"foo": source}, str(temp_dir))
+
+        assert source_applied(decorated, source, str(temp_dir))
+
+    def test_unrelated_direct_reference(self, temp_dir):
+        dep = Dependency("foo @ https://example.com/foo.tgz")
+
+        assert not source_applied(dep, PathSource(path="pkg"), str(temp_dir))
 
 
 class TestDescribeSource:

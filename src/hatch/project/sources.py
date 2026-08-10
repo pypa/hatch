@@ -4,7 +4,9 @@ from functools import cached_property
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
+    from collections.abc import Iterable, Mapping
+
+    from hatch.dep.core import Dependency
 
 
 _TYPE_KEYS: tuple[str, ...] = ("path", "git", "url", "index", "workspace")
@@ -12,7 +14,7 @@ _TYPE_KEYS: tuple[str, ...] = ("path", "git", "url", "index", "workspace")
 
 class Source:
     """
-    Base class for all dependency sources defined under `tool.hatch.sources`.
+    Base class for all dependency sources defined under an environment's `sources` table.
 
     A source provides an alternative origin for a dependency at install time
     without altering the project's published metadata. Each environment plugin
@@ -194,7 +196,7 @@ def parse_source(name: str, raw: Any, *, root_field: str = DEFAULT_ROOT_FIELD) -
 
 def parse_sources(config: Any, *, root_field: str = DEFAULT_ROOT_FIELD) -> dict[str, Source]:
     """
-    Parse an entire sources table like `[tool.hatch.sources]`. Returns a mapping keyed by
+    Parse an entire sources table like `[tool.hatch.envs.default.sources]`. Returns a mapping keyed by
     [normalized](https://peps.python.org/pep-0503/#normalized-names) project name.
     `root_field` is the location of the table being parsed, used in error messages.
     """
@@ -230,6 +232,26 @@ def parse_sources(config: Any, *, root_field: str = DEFAULT_ROOT_FIELD) -> dict[
         raise ValueError(message)
 
     return sources
+
+
+def merge_source_tables(base: Mapping[str, Any], overrides: Mapping[str, Any]) -> dict[str, Any]:
+    """
+    Merge two unparsed sources tables, with entries in `overrides` replacing entries in
+    `base` for the same project. Names are compared after
+    [normalization](https://peps.python.org/pep-0503/#normalized-names) so that a table
+    can override individual entries of another no matter how each spells a project name.
+    """
+    from hatch.utils.metadata import normalize_project_name
+
+    overridden = {normalize_project_name(name) for name in overrides if isinstance(name, str)}
+    merged = {
+        name: source
+        for name, source in base.items()
+        if not isinstance(name, str) or normalize_project_name(name) not in overridden
+    }
+    merged.update(overrides)
+
+    return merged
 
 
 def render_path_url(path: str, root: str, *, subdirectory: str | None = None) -> str:
@@ -339,16 +361,21 @@ def apply_source_to_requirement(
     return None
 
 
-def collect_global_install_args(sources_used: list[Source]) -> list[str]:
+def collect_global_install_args(dependencies: Iterable[Dependency], sources: Mapping[str, Source]) -> list[str]:
     """
     Collect installer flags that apply to the entire install command (rather
     than to a single dependency). Currently this surfaces every `IndexSource`
-    as `--extra-index-url`, deduplicated and order-preserving so PyPI remains
-    the primary index.
+    matching one of the given dependencies as `--extra-index-url`, deduplicated
+    and order-preserving so PyPI remains the primary index.
     """
     args: list[str] = []
     seen: set[str] = set()
-    for source in sources_used:
+    for dependency in dependencies:
+        # An explicit direct reference always wins over a configured source
+        if dependency.url is not None:
+            continue
+
+        source = lookup(sources, dependency.name)
         if isinstance(source, IndexSource) and source.index not in seen:
             seen.add(source.index)
             args.extend(["--extra-index-url", source.index])
@@ -357,8 +384,11 @@ def collect_global_install_args(sources_used: list[Source]) -> list[str]:
 
 
 def decorate_dependency(
-    dependency, sources: Mapping[str, Source], root: str, workspace_members: Mapping[str, str] | None = None
-):
+    dependency: Dependency,
+    sources: Mapping[str, Source],
+    root: str,
+    workspace_members: Mapping[str, str] | None = None,
+) -> Dependency:
     """
     Apply a matching source from `sources` to `dependency`, returning a new
     [`Dependency`](../utilities.md#hatch.dep.core.Dependency) if a rewrite is
@@ -386,25 +416,27 @@ def decorate_dependency(
             # is a configuration error. Installing from a default index would silently ignore
             # the declared source, so fail loudly instead.
             message = (
-                f"Dependency `{dependency.name}` declares `workspace = true` in `tool.hatch.sources` "
-                f"but no matching member was found in `tool.hatch.envs.<ENV_NAME>.workspace.members`"
+                f"Dependency `{dependency.name}` declares `workspace = true` in its environment's "
+                f"`sources` but no matching member was found in `tool.hatch.envs.<ENV_NAME>.workspace.members`"
             )
             raise ValueError(message)
 
-        # `IndexSource` does not change the requirement string. Attach the source so
-        # install logic can act on it.
-        return Dependency(str(dependency), source=source)
+        # `IndexSource` becomes an install-wide flag rather than changing the requirement
+        return dependency
 
     spec, editable = rewritten
     if dependency.marker is not None:
         spec = f"{spec} ; {dependency.marker}"
 
-    return Dependency(spec, editable=editable, source=source)
+    return Dependency(spec, editable=editable)
 
 
 def decorate_dependencies(
-    dependencies, sources: Mapping[str, Source], root: str, workspace_members: Mapping[str, str] | None = None
-):
+    dependencies: Iterable[Dependency],
+    sources: Mapping[str, Source],
+    root: str,
+    workspace_members: Mapping[str, str] | None = None,
+) -> list[Dependency]:
     """
     Apply [`decorate_dependency`](#decorate_dependency) to each dependency in turn.
     """
@@ -412,6 +444,24 @@ def decorate_dependencies(
         return list(dependencies)
 
     return [decorate_dependency(dep, sources, root, workspace_members) for dep in dependencies]
+
+
+def source_applied(
+    dependency: Dependency, source: Source, root: str, workspace_members: Mapping[str, str] | None = None
+) -> bool:
+    """
+    Whether `source` is what produced `dependency`, as opposed to the dependency carrying
+    a direct reference of its own that takes precedence over the source.
+    """
+    rewritten = apply_source_to_requirement(dependency.name, list(dependency.extras), source, root, workspace_members)
+    if rewritten is None:
+        # Sources that do not rewrite the requirement apply unless it points elsewhere already
+        return dependency.url is None
+
+    from hatch.dep.core import Dependency
+
+    spec, _ = rewritten
+    return Dependency(spec).url == dependency.url
 
 
 def describe_source(source: Source) -> tuple[str, str]:
