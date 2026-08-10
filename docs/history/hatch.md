@@ -20,6 +20,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Fix environment creation crashing when a metadata hook exists that doesn’t happen to be installed in the `hatch` CLI’s environment.
 
+- Fix commands run by `hatch run` no longer being interruptible with Ctrl-C, which happened because the ignored `SIGINT` of the parent process was inherited by the child process.
+
 
 ## [1.17.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.17.1) - 2026-07-08 ## {: #hatch-v1.17.1 }
 
