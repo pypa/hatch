@@ -417,6 +417,19 @@ class Project:
 
         return self._metadata
 
+    @cached_property
+    def defines_project(self) -> bool:
+        """
+        Whether the project file defines a `project` table itself, as opposed to one being
+        synthesized for environment management only.
+        """
+        if self.root is None or self._project_file_path is None:
+            return False
+
+        from hatch.utils.toml import load_toml_file
+
+        return "project" in load_toml_file(str(self._project_file_path))
+
     @property
     def raw_config(self):
         if self._raw_config is None:

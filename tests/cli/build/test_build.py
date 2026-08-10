@@ -1424,18 +1424,18 @@ def test_plugin_dependencies_unmet(hatch, temp_dir, helpers, mock_plugin_install
 
 class TestBuildAll:
     def _create_workspace(self, hatch, temp_dir):
-        workspace_root = temp_dir / "workspace"
-        workspace_root.mkdir()
-        (workspace_root / "pyproject.toml").write_text(
-            """\
-[project]
-name = "workspace-root"
-version = "0.1.0"
+        with temp_dir.as_cwd():
+            result = hatch("new", "workspace-root")
+            assert result.exit_code == 0, result.output
 
+        workspace_root = temp_dir / "workspace-root"
+        with (workspace_root / "pyproject.toml").open("a") as f:
+            f.write(
+                """
 [tool.hatch.envs.default]
 workspace.members = ["packages/*"]
 """
-        )
+            )
 
         packages_dir = workspace_root / "packages"
         packages_dir.mkdir()
@@ -1481,11 +1481,47 @@ workspace.members = ["packages/*"]
             "member1-0.0.1.tar.gz",
             "member2-0.0.1-py3-none-any.whl",
             "member2-0.0.1.tar.gz",
+            "workspace_root-0.0.1-py3-none-any.whl",
+            "workspace_root-0.0.1.tar.gz",
         ]
 
+        for project_name in ("workspace-root", "member1", "member2"):
+            assert f" {project_name} " in result.output
+
         for member_name in ("member1", "member2"):
-            assert f" {member_name} " in result.output
             assert not (workspace_root / "packages" / member_name / "dist").is_dir()
+
+    def test_virtual_root(self, hatch, temp_dir):
+        workspace_root = temp_dir / "workspace"
+        workspace_root.mkdir()
+        (workspace_root / "pyproject.toml").write_text(
+            """\
+[tool.hatch.envs.default]
+workspace.members = ["packages/*"]
+"""
+        )
+
+        packages_dir = workspace_root / "packages"
+        packages_dir.mkdir()
+        with packages_dir.as_cwd():
+            for project_name in ("member1", "member2"):
+                result = hatch("new", project_name)
+                assert result.exit_code == 0, result.output
+
+        with workspace_root.as_cwd():
+            result = hatch("build", "--all")
+            assert result.exit_code == 0, result.output
+
+        build_directory = workspace_root / "dist"
+        assert build_directory.is_dir()
+
+        artifacts = sorted(artifact.name for artifact in build_directory.iterdir())
+        assert artifacts == [
+            "member1-0.0.1-py3-none-any.whl",
+            "member1-0.0.1.tar.gz",
+            "member2-0.0.1-py3-none-any.whl",
+            "member2-0.0.1.tar.gz",
+        ]
 
     def test_explicit_targets(self, hatch, temp_dir):
         workspace_root = self._create_workspace(hatch, temp_dir)
@@ -1501,6 +1537,7 @@ workspace.members = ["packages/*"]
         assert artifacts == [
             "member1-0.0.1-py3-none-any.whl",
             "member2-0.0.1-py3-none-any.whl",
+            "workspace_root-0.0.1-py3-none-any.whl",
         ]
 
     def test_explicit_directory(self, hatch, temp_dir):
@@ -1519,5 +1556,7 @@ workspace.members = ["packages/*"]
             "member1-0.0.1.tar.gz",
             "member2-0.0.1-py3-none-any.whl",
             "member2-0.0.1.tar.gz",
+            "workspace_root-0.0.1-py3-none-any.whl",
+            "workspace_root-0.0.1.tar.gz",
         ]
         assert not (workspace_root / "dist").is_dir()

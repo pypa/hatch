@@ -26,8 +26,8 @@ if TYPE_CHECKING:
     "build_all",
     is_flag=True,
     help=(
-        "Whether or not to build every workspace member defined by the selected environment. "
-        "Artifacts are written to the workspace root's `dist` directory by default"
+        "Whether or not to build the workspace root and every workspace member defined by the selected "
+        "environment. Artifacts are written to the workspace root's `dist` directory by default"
     ),
 )
 @click.option(
@@ -105,16 +105,21 @@ def build(
             f"`tool.hatch.envs.{environment.name}.workspace.members`"
         )
 
-    # Artifacts from every member are consolidated in a single directory, defaulting to the
+    # Artifacts from every project are consolidated in a single directory, defaulting to the
     # workspace root. The location must be absolute because each member builds from its own path
     build_directory = str(Path(location).resolve() if location else app.project.location / DEFAULT_BUILD_DIRECTORY)
-    for member in members:
+
+    # The workspace root is built without needing to be listed as a member, but only when it
+    # defines a project itself rather than merely being a container for workspace configuration
+    projects = [app.project] if app.project.defines_project else []
+    projects.extend(member.project for member in members if member.project.location != app.project.location)
+    for project in projects:
         if not clean_only:
-            app.display_header(member.name)
+            app.display_header(project.metadata.name)
 
         _build_project(
             app,
-            member.project,
+            project,
             build_directory,
             targets,
             hooks_only=hooks_only,
