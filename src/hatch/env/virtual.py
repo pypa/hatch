@@ -251,14 +251,16 @@ class VirtualEnvironment(EnvironmentInterface):
 
                 lockfile_path = resolve_lockfile_path(self)
                 if lockfile_path.is_file():
-                    all_install_args = []
+                    workspace_install_args = []
                     for dep in workspace_deps:
                         if dep.editable:
-                            all_install_args.extend(["--editable", dep.path])
+                            workspace_install_args.extend(["--editable", dep.path])
                         else:
-                            all_install_args.append(dep.path)
+                            workspace_install_args.append(dep.path)
 
-                    if all_install_args:
+                    if workspace_install_args:
+                        all_install_args = list(self.get_source_install_args(self.all_dependencies_complex))
+                        all_install_args.extend(workspace_install_args)
                         self.platform.check_command(self.construct_pip_install_command(all_install_args))
                     apply_lock_with_locker(self, lockfile_path)
                     return
@@ -267,13 +269,13 @@ class VirtualEnvironment(EnvironmentInterface):
             if not self.missing_dependencies:
                 return
 
-            all_install_args = []
+            workspace_install_args = []
 
             for dep in workspace_deps:
                 if dep.editable:
-                    all_install_args.extend(["--editable", dep.path])
+                    workspace_install_args.extend(["--editable", dep.path])
                 else:
-                    all_install_args.append(dep.path)
+                    workspace_install_args.append(dep.path)
 
             standard_dependencies = []
 
@@ -289,13 +291,17 @@ class VirtualEnvironment(EnvironmentInterface):
                 else:
                     standard_dependencies.append(str(dependency))
 
+            if not (workspace_install_args or standard_dependencies or user_editable_dependencies):
+                return
+
+            all_install_args = list(self.get_source_install_args(self.all_dependencies_complex))
+            all_install_args.extend(workspace_install_args)
             all_install_args.extend(standard_dependencies)
 
             for dep_path in user_editable_dependencies:
                 all_install_args.extend(["--editable", dep_path])
 
-            if all_install_args:
-                self.platform.check_command(self.construct_pip_install_command(all_install_args))
+            self.platform.check_command(self.construct_pip_install_command(all_install_args))
 
     @contextmanager
     def command_context(self):

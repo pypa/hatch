@@ -14,12 +14,13 @@ from hatch.project.utils import format_script_commands, parse_script_command
 from hatch.utils.structures import EnvVars
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, Iterable, Mapping
+    from collections.abc import Generator, Iterable, Mapping, Sequence
 
     from hatch.cli.application import Application
     from hatch.dep.core import Dependency
     from hatch.env.context import EnvironmentContextFormatter
     from hatch.project.core import Project
+    from hatch.project.sources import Source
     from hatch.utils.fs import Path
     from hatch.utils.platform import Platform
     from hatchling.metadata.core import ProjectMetadata
@@ -256,8 +257,49 @@ class EnvironmentInterface(ABC):
         return tuple(env_exclude)
 
     @cached_property
+    def sources(self) -> dict[str, Source]:
+        """
+        ```toml config-example
+        [tool.hatch.envs.<ENV_NAME>.sources]
+        ```
+
+        The mapping of normalized project names to
+        [`Source`](../utilities.md#hatch.project.sources.Source) objects.
+
+        Setting the `HATCH_NO_SOURCES` environment variable to any non-empty value
+        disables all sources, e.g. for verifying that published metadata resolves
+        on its own.
+        """
+        if os.environ.get(AppEnvVars.NO_SOURCES):
+            return {}
+
+        from hatch.project.sources import parse_sources
+
+        return parse_sources(self.config.get("sources", {}), root_field=f"tool.hatch.envs.{self.name}.sources")
+
+    @cached_property
+    def source_workspace_members(self) -> dict[str, str]:
+        """
+        The mapping of normalized project names to the local path of the matching
+        workspace member, used to resolve `workspace` entries in
+        [sources](../../config/environment/sources.md).
+
+        This is only populated when at least one source actually uses
+        `workspace = true`, so unrelated environments do not pay the cost of
+        resolving workspace members.
+        """
+        from hatch.project.sources import WorkspaceSource
+        from hatch.utils.metadata import normalize_project_name
+
+        if not any(isinstance(source, WorkspaceSource) for source in self.sources.values()):
+            return {}
+
+        return {normalize_project_name(member.name): str(member.project.location) for member in self.workspace.members}
+
+    @cached_property
     def environment_dependencies_complex(self) -> tuple[Dependency, ...]:
         from hatch.dep.core import Dependency, InvalidDependencyError
+        from hatch.project.sources import decorate_dependencies
 
         dependencies_complex: list[Dependency] = []
         with self.apply_context():
@@ -278,7 +320,9 @@ class EnvironmentInterface(ABC):
                         message = f"Dependency #{i} of field `tool.hatch.envs.{self.name}.{option}` is invalid: {e}"
                         raise ValueError(message) from None
 
-        return tuple(dependencies_complex)
+        return tuple(
+            decorate_dependencies(dependencies_complex, self.sources, str(self.root), self.source_workspace_members)
+        )
 
     @cached_property
     def environment_dependencies(self) -> tuple[str, ...]:
@@ -294,6 +338,7 @@ class EnvironmentInterface(ABC):
             return ()
 
         from hatch.dep.core import Dependency
+        from hatch.project.sources import decorate_dependencies
         from hatch.utils.dep import get_complex_dependencies, get_complex_dependency_group, get_complex_features
 
         all_dependencies_complex = list(map(Dependency, workspace_dependencies))
@@ -331,7 +376,9 @@ class EnvironmentInterface(ABC):
                 get_complex_dependency_group(self.app.project.dependency_groups, dependency_group)
             )
 
-        return tuple(all_dependencies_complex)
+        return tuple(
+            decorate_dependencies(all_dependencies_complex, self.sources, str(self.root), self.source_workspace_members)
+        )
 
     @cached_property
     def project_dependencies(self) -> tuple[str, ...]:
@@ -363,23 +410,30 @@ class EnvironmentInterface(ABC):
     @cached_property
     def dependencies_complex(self) -> tuple[Dependency, ...]:
         from hatch.dep.core import Dependency
+        from hatch.project.sources import decorate_dependencies
 
         all_dependencies_complex = list(self.environment_dependencies_complex)
 
         # Convert additional_dependencies to Dependency objects
+        additional_deps: list[Dependency] = []
         for dep in self.additional_dependencies:
             if isinstance(dep, Dependency):
-                all_dependencies_complex.append(dep)
+                additional_deps.append(dep)
             else:
-                all_dependencies_complex.append(Dependency(str(dep)))
+                additional_deps.append(Dependency(str(dep)))
+        all_dependencies_complex.extend(
+            decorate_dependencies(additional_deps, self.sources, str(self.root), self.source_workspace_members)
+        )
 
         if self.dependency_groups and not self.skip_install:
             from hatch.utils.dep import get_complex_dependency_group
 
+            group_deps: list[Dependency] = []
             for dependency_group in self.dependency_groups:
-                all_dependencies_complex.extend(
-                    get_complex_dependency_group(self.app.project.dependency_groups, dependency_group)
-                )
+                group_deps.extend(get_complex_dependency_group(self.app.project.dependency_groups, dependency_group))
+            all_dependencies_complex.extend(
+                decorate_dependencies(group_deps, self.sources, str(self.root), self.source_workspace_members)
+            )
 
         if self.builder:
             from hatch.project.constants import BuildEnvVars
@@ -962,6 +1016,17 @@ class EnvironmentInterface(ABC):
 
         command.extend(args)
         return command
+
+    def get_source_install_args(self, dependencies: Sequence[Dependency]) -> list[str]:
+        """
+        Returns global installer flags derived from the
+        [sources](../../config/environment/sources.md) that apply to the given dependencies.
+        Currently this surfaces every `IndexSource` as `--extra-index-url`, deduplicated
+        and order-preserving.
+        """
+        from hatch.project.sources import collect_global_install_args
+
+        return collect_global_install_args(dependencies, self.sources)
 
     def join_command_args(self, args: list[str]):
         """
