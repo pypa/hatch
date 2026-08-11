@@ -38,6 +38,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Fix the hardcoded reliance on `pip` when installing dependencies internally by using `uv` instead.
 
+- Fix environment creation silently installing a GIL-enabled Python distribution when Hatch itself runs on a free-threaded build. The distribution matching the running interpreter, such as `3.14t`, is now selected.
+
+- Fix free-threaded selectors such as `3.14t` being rejected by an environment's `python` option, even though `hatch python install 3.14t` already accepted them.
+
+- Never automatically select a prerelease Python distribution, such as 3.15.0rc1, when falling back to the latest compatible version. A prerelease is still installed when requested explicitly.
+
 
 ## [1.17.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.17.1) - 2026-07-08 ## {: #hatch-v1.17.1 }
 
