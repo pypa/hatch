@@ -752,11 +752,11 @@ class BuilderConfig:
     def vcs_exclusion_files(self) -> dict[str, list[str]]:
         exclusion_files: dict[str, list[str]] = {"git": [], "hg": []}
 
-        local_gitignore = locate_file(self.root, ".gitignore", boundary=".git")
+        local_gitignore = locate_file(self.root, ".gitignore", boundaries=[".git", ".hg"])
         if local_gitignore is not None:
             exclusion_files["git"].append(local_gitignore)
 
-        local_hgignore = locate_file(self.root, ".hgignore", boundary=".hg")
+        local_hgignore = locate_file(self.root, ".hgignore", boundaries=[".git", ".hg"])
         if local_hgignore is not None:
             exclusion_files["hg"].append(local_hgignore)
 
