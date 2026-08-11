@@ -8,6 +8,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Fixed:***
+
+- Expand extras of local dependencies transitively, so an extra that references another extra of the same project or of a sibling workspace member (e.g. `pkg[a]` where `a = ["pkg[b]"]`) no longer drops the referenced dependencies
+- Match project and extra names of local dependencies by their normalized form, so e.g. `my_app[test]` resolves against a project named `my-app`
+- Warn rather than silently expand to nothing when a local dependency refers to an extra the project does not define
+
 ## [1.18.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.18.0) - 2026-08-11 ## {: #hatch-v1.18.0 }
 
 ***Changed:***

@@ -1749,6 +1749,242 @@ test = ["member-test-dep"]
         # unresolvable metadata hook in its own process
         assert any("pytest" in dep.lower() for dep in all_deps_str)
 
+    def test_self_referencing_dependency_with_recursive_extras(
+        self, temp_dir, isolated_data_dir, platform, global_application
+    ):
+        """An extra that references another extra of the same project must be expanded transitively.
+
+        Note that hatchling rejects a cyclic chain like this one outright, so the cycle here only asserts
+        that expansion terminates, not that such a project is otherwise valid.
+        """
+        project_dir = temp_dir / "my-app"
+        project_dir.mkdir()
+
+        config = {
+            "project": {
+                "name": "my-app",
+                "version": "0.0.1",
+                "dependencies": [],
+                "optional-dependencies": {
+                    "all": ["my-app[test]", "direct-dep"],
+                    "test": ["my-app[cycle]", "pytest>=7.0"],
+                    "cycle": ["my-app[all]", "cycle-dep"],
+                },
+            },
+            "tool": {"hatch": {"envs": {"dev": {"skip-install": False, "dependencies": ["my-app[all]"]}}}},
+        }
+
+        project = Project(project_dir, config=config)
+        global_application.project = project
+
+        environment = MockEnvironment(
+            project_dir,
+            project.metadata,
+            "dev",
+            project.config.envs["dev"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            global_application,
+        )
+
+        all_deps_str = [str(d) for d in environment.all_dependencies_complex]
+
+        assert "direct-dep" in all_deps_str
+        assert "pytest>=7.0" in all_deps_str
+        assert "cycle-dep" in all_deps_str
+        # No unexpanded self-references may be handed to the installer
+        assert not any(dep.startswith("my-app[") for dep in all_deps_str)
+
+    def test_self_referencing_dependency_with_unnormalized_names(
+        self, temp_dir, isolated_data_dir, platform, global_application
+    ):
+        """Project and extra names must be matched in their normalized (PEP 503/685) form."""
+        project_dir = temp_dir / "my-app"
+        project_dir.mkdir()
+
+        config = {
+            "project": {
+                "name": "My.App",
+                "version": "0.0.1",
+                "dependencies": [],
+                "optional-dependencies": {
+                    "all": ["My_App[Test_Extra]"],
+                    "test.extra": ["pytest>=7.0"],
+                },
+            },
+            "tool": {"hatch": {"envs": {"dev": {"skip-install": False, "dependencies": ["my_app[ALL]"]}}}},
+        }
+
+        project = Project(project_dir, config=config)
+        global_application.project = project
+
+        environment = MockEnvironment(
+            project_dir,
+            project.metadata,
+            "dev",
+            project.config.envs["dev"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            global_application,
+        )
+
+        all_deps_str = [str(d) for d in environment.all_dependencies_complex]
+
+        assert "pytest>=7.0" in all_deps_str
+        assert not any("my" in dep.lower() and "[" in dep for dep in all_deps_str)
+
+    def test_self_referencing_dependency_with_ambiguous_extras(
+        self, temp_dir, isolated_data_dir, platform, global_application
+    ):
+        """With `allow-ambiguous-features`, an extra as written must win over a normalized alias.
+
+        `Feature_A` normalizes to `feature-a`, which is itself a distinct extra here.
+        """
+        project_dir = temp_dir / "my-app"
+        project_dir.mkdir()
+
+        config = {
+            "project": {
+                "name": "my-app",
+                "version": "0.0.1",
+                "dependencies": [],
+                # Declared in this order so that a plain assignment instead of `setdefault` would
+                # clobber `feature-a` rather than coincidentally restore it
+                "optional-dependencies": {"feature-a": ["dep-lower"], "Feature_A": ["dep-upper"]},
+            },
+            "tool": {
+                "hatch": {
+                    "metadata": {"allow-ambiguous-features": True},
+                    "envs": {"dev": {"skip-install": False, "dependencies": ["my-app[feature-a]"]}},
+                }
+            },
+        }
+
+        project = Project(project_dir, config=config)
+        global_application.project = project
+
+        environment = MockEnvironment(
+            project_dir,
+            project.metadata,
+            "dev",
+            project.config.envs["dev"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            global_application,
+        )
+
+        all_deps_str = [str(d) for d in environment.all_dependencies_complex]
+
+        assert "dep-lower" in all_deps_str
+        assert "dep-upper" not in all_deps_str
+
+    def test_workspace_member_extra_referencing_sibling_member(
+        self, temp_dir, isolated_data_dir, platform, temp_application
+    ):
+        """An extra of one workspace member may reference an extra of another member."""
+        for name, optional_dependencies in (
+            ("member-a", '[project.optional-dependencies]\nall = ["member-b[test]"]'),
+            ("member-b", '[project.optional-dependencies]\ntest = ["member-b-test-dep"]'),
+        ):
+            member_file = temp_dir / name / "pyproject.toml"
+            member_file.parent.mkdir()
+            member_file.write_text(
+                f"""\
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "{name}"
+version = "0.0.1"
+dependencies = []
+
+{optional_dependencies}
+"""
+            )
+
+        config = {
+            "project": {"name": "my-app", "version": "0.0.1", "dependencies": []},
+            "tool": {
+                "hatch": {
+                    "envs": {
+                        "default": {
+                            "skip-install": False,
+                            "dependencies": ["member-a[all]"],
+                            "workspace": {"members": [{"path": "member-a"}, {"path": "member-b"}]},
+                        },
+                    },
+                },
+            },
+        }
+
+        project = Project(temp_dir, config=config)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            temp_dir,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        all_deps_str = [str(d) for d in environment.all_dependencies_complex]
+
+        # `member-a[all]` -> `member-b[test]` -> `member-b-test-dep`
+        assert "member-b-test-dep" in all_deps_str
+        assert not any(dep.startswith("member-") and "[" in dep for dep in all_deps_str)
+
+    def test_self_referencing_dependency_with_unknown_extra_warns(
+        self, temp_dir, isolated_data_dir, platform, global_application, capsys
+    ):
+        """An extra the local project does not define must not vanish silently."""
+        project_dir = temp_dir / "my-app"
+        project_dir.mkdir()
+
+        config = {
+            "project": {
+                "name": "my-app",
+                "version": "0.0.1",
+                "dependencies": [],
+                "optional-dependencies": {"test": ["pytest>=7.0"]},
+            },
+            "tool": {"hatch": {"envs": {"dev": {"skip-install": False, "dependencies": ["my-app[tset]"]}}}},
+        }
+
+        project = Project(project_dir, config=config)
+        global_application.project = project
+
+        environment = MockEnvironment(
+            project_dir,
+            project.metadata,
+            "dev",
+            project.config.envs["dev"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            global_application,
+        )
+
+        assert not any("pytest" in str(d) for d in environment.all_dependencies_complex)
+        assert "refers to extra `tset`, which local project `my-app` does not define" in capsys.readouterr().err
+
     def test_dev_mode_true_returns_editable(self, temp_dir, isolated_data_dir, platform, temp_application):
         """Verify dev-mode=true creates editable local dependency."""
         # Create a pyproject.toml file so skip_install defaults to False
