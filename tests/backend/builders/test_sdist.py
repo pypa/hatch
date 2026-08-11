@@ -1216,6 +1216,37 @@ class TestBuildStandard:
         stat = os.stat(str(extraction_directory / builder.project_id / "PKG-INFO"))
         assert stat.st_mtime == get_reproducible_timestamp()
 
+    def test_readme_outside_project_not_in_archive(self, temp_dir):
+        project_path = temp_dir / "my-app"
+        project_path.mkdir()
+
+        # Shared README in the parent (monorepo) directory
+        readme_path = temp_dir / "README.md"
+        readme_path.write_text("test content\n")
+
+        config = {
+            "project": {"name": "my-app", "version": "0.1.0", "readme": "../README.md"},
+            "tool": {"hatch": {"build": {"targets": {"sdist": {"versions": ["standard"]}}}}},
+        }
+        builder = SdistBuilder(str(project_path), config=config)
+
+        build_path = project_path / "dist"
+        build_path.mkdir()
+
+        with project_path.as_cwd():
+            artifacts = list(builder.build(directory=str(build_path)))
+
+        assert len(artifacts) == 1
+        with tarfile.open(artifacts[0], "r:gz") as tar_archive:
+            # The readme content is embedded in PKG-INFO and the file itself
+            # must not be added with a backward-relative archive path.
+            assert "../README.md" not in tar_archive.getnames()
+            pkg_info = tar_archive.extractfile(
+                next(name for name in tar_archive.getnames() if name.endswith("PKG-INFO"))
+            )
+            assert pkg_info is not None
+            assert "test content" in pkg_info.read().decode()
+
     def test_include_license_files(self, hatch, helpers, temp_dir, config_file):
         config_file.model.template.plugins["default"]["src-layout"] = False
         config_file.save()
