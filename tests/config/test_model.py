@@ -25,6 +25,8 @@ def test_default(default_cache_dir, default_data_dir):
         "template": {
             "name": "Foo Bar",
             "email": "foo@bar.baz",
+            "github-org": "Foo Bar",
+            "copyright-holder": "Foo Bar <foo@bar.baz>",
             "licenses": {"default": ["MIT"], "headers": True},
             "plugins": {"default": {"ci": False, "src-layout": True, "tests": True}},
         },
@@ -1118,6 +1120,46 @@ class TestTemplate:
             ),
         ):
             _ = config.template.plugins
+
+    def test_github_org(self):
+        config = RootConfig({"template": {"github-org": "foobarbaz"}})
+
+        assert config.template.github_org == "foobarbaz"
+        assert config.raw_data == {"template": {"github-org": "foobarbaz"}}
+
+    def test_github_org_default(self):
+        config = RootConfig({"template": {"name": "Foo Bar"}})
+
+        assert config.template.github_org == "Foo Bar"
+        assert config.raw_data == {"template": {"github-org": "Foo Bar", "name": "Foo Bar"}}
+
+    def test_github_org_default_env_var(self):
+        import os
+
+        os.environ["GITHUB_ORG"] = "foobarbaz"
+        config = RootConfig({})
+
+        assert config.template.github_org == "foobarbaz"
+        assert config.raw_data == {"template": {"github-org": "foobarbaz"}}
+        os.environ.pop("GITHUB_ORG")
+
+    @pytest.mark.usefixtures("use_gh")
+    def test_github_org_default_gh(self):
+        config = RootConfig({})
+
+        assert config.template.github_org == "gh-foobarbaz"
+        assert config.raw_data == {"template": {"github-org": "gh-foobarbaz"}}
+
+    def test_copyright_holder(self):
+        config = RootConfig({"template": {"copyright-holder": "Foobar Inc."}})
+
+        assert config.template.copyright_holder == "Foobar Inc."
+        assert config.raw_data == {"template": {"copyright-holder": "Foobar Inc."}}
+
+    def test_copyright_default_holder(self):
+        config = RootConfig({"template": {"name": "Foo Bar", "email": "foo@bar.com"}})
+
+        assert config.template.copyright_holder == "Foo Bar <foo@bar.com>"
 
 
 class TestTerminal:

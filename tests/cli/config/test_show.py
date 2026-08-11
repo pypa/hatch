@@ -1,3 +1,6 @@
+from unittest.mock import MagicMock, patch
+
+
 def test_default_scrubbed(hatch, config_file, helpers, default_cache_dir, default_data_dir):
     config_file.model.project = "foo"
     config_file.model.publish["index"]["auth"] = "bar"
@@ -28,6 +31,8 @@ def test_default_scrubbed(hatch, config_file, helpers, default_cache_dir, defaul
         [template]
         name = "Foo Bar"
         email = "foo@bar.baz"
+        github-org = "Foo Bar"
+        copyright-holder = "Foo Bar <foo@bar.baz>"
 
         [template.licenses]
         headers = true
@@ -52,6 +57,7 @@ def test_default_scrubbed(hatch, config_file, helpers, default_cache_dir, defaul
     )
 
 
+@patch("shutil.which", MagicMock(return_value=None))  # Disables attempting to fetch github org from gh cli tool
 def test_reveal(hatch, config_file, helpers, default_cache_dir, default_data_dir):
     config_file.model.project = "foo"
     config_file.model.publish["index"]["auth"] = "bar"
@@ -86,6 +92,8 @@ def test_reveal(hatch, config_file, helpers, default_cache_dir, default_data_dir
         [template]
         name = "Foo Bar"
         email = "foo@bar.baz"
+        github-org = "Foo Bar"
+        copyright-holder = "Foo Bar <foo@bar.baz>"
 
         [template.licenses]
         headers = true
