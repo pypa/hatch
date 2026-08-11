@@ -114,7 +114,7 @@ class TestGetInstalled:
         assert installed["3.13t"].path == temp_dir / "3.13t"
         assert installed["3.13"].name == "3.13"
         assert installed["3.13t"].name == "3.13t"
-        assert installed["3.13"].version == "3.13.9"
-        assert installed["3.13t"].version == "3.13.9"
+        assert installed["3.13"].version == "3.13.15"
+        assert installed["3.13t"].version == "3.13.15"
         assert "freethreaded" not in installed["3.13"].metadata["source"]
         assert "freethreaded" in installed["3.13t"].metadata["source"]
