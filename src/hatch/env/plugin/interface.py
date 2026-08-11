@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 import sys
 from abc import ABC, abstractmethod
+from collections import deque
 from contextlib import contextmanager
 from functools import cached_property
 from os.path import isabs
@@ -471,32 +472,51 @@ class EnvironmentInterface(ABC):
     @cached_property
     def all_dependencies_complex(self) -> list[Dependency]:
         from hatch.dep.core import Dependency
+        from hatch.utils.metadata import normalize_project_name
 
         local_deps = list(self.local_dependencies_complex)
 
-        # Map each locally-resolved package name to the project that owns its optional-dependencies,
-        # so extras on `<pkg>[extra]` deps are expanded using the *referenced* project's own dependency
-        # resolution. `Project.get_dependencies` only evaluates metadata/version hooks (in that project's
-        # own build environment) when the relevant fields are actually dynamic, avoiding both dropped
-        # extras and spurious plugin errors from evaluating hooks in the wrong environment.
+        # Expand extras on `<pkg>[extra]` deps using the *referenced* project's own dependency resolution.
+        # ProjectMetadata and WorkspaceMember names are already normalized.
         local_projects: dict[str, Project] = {}
         if not self.skip_install:
-            local_projects[self.metadata.name.lower()] = self.app.project
+            local_projects[self.metadata.name] = self.app.project
         for member in self.workspace.members:
-            local_projects[member.name.lower()] = member.project
+            local_projects[member.name] = member.project
 
+        features: dict[str, dict[str, list[str]]] = {}  # project name -> extra -> dependencies
+        seen: set[tuple[str, str]] = set()  # allows handling cyclic extras
         filtered_deps: list[Dependency] = []
-        for dep in self.dependencies_complex:
-            dep_obj = dep if isinstance(dep, Dependency) else Dependency(str(dep))
+        queue = deque(self.dependencies_complex)
+        while queue:
+            dep = queue.popleft()
 
-            name_lower = dep_obj.name.lower()
-            if name_lower in local_projects and dep_obj.extras:
-                _, optional_dependencies = local_projects[name_lower].get_dependencies()
-                for extra in dep_obj.extras:
-                    if extra in optional_dependencies:
-                        filtered_deps.extend(Dependency(d) for d in optional_dependencies[extra])
-            elif name_lower not in local_projects:
-                filtered_deps.append(dep_obj)
+            # Names from `dependencies_complex` are not normalized yet
+            name = normalize_project_name(dep.name)
+            if name not in local_projects:
+                filtered_deps.append(dep)
+                continue
+            if not dep.extras:
+                continue
+
+            if name not in features:
+                optional_dependencies = dict(local_projects[name].get_dependencies()[1])
+                # Also index by normalized (PEP 685) extra name, but never overwrite one as written:
+                # `allow-ambiguous-features` permits `Feature_A` and `feature-a` side by side
+                for option, dependencies in list(optional_dependencies.items()):
+                    optional_dependencies.setdefault(normalize_project_name(option), dependencies)
+                features[name] = optional_dependencies
+
+            for extra in sorted(dep.extras):  # sorted for reproducible ordering
+                option = extra if extra in features[name] else normalize_project_name(extra)
+                if option not in features[name]:
+                    self.app.display_warning(
+                        f"Dependency `{dep}` of environment `{self.name}` refers to extra `{extra}`, "
+                        f"which local project `{name}` does not define"
+                    )
+                elif (name, option) not in seen:
+                    seen.add((name, option))
+                    queue.extend(Dependency(d) for d in features[name][option])
 
         return local_deps + filtered_deps
 
