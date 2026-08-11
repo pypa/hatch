@@ -8,9 +8,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
-**Changed***
+***Changed:***
 
 - Bump default core metadata version to 2.5
+
+- Add `tomlkit` as a runtime dependency, which is required to rewrite `pyproject.toml` when setting a static version
+
+***Added:***
+
+- The `version` command can now set a version that is statically defined by the `project.version` field, updating `pyproject.toml` in place. Pass `--force` to allow an explicit downgrade
+
+***Fixed:***
+
+- Allow the `; private` annotation on `project.import-names` and `project.import-namespaces` entries rather than rejecting them as invalid import names.
+
+- Reject `project.readme` paths that are absolute or resolve outside of the project directory.
 
 ## [1.31.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.31.0) - 2026-06-30 ## {: #hatchling-v1.31.0 }
 
