@@ -251,18 +251,29 @@ class VirtualEnvironment(EnvironmentInterface):
 
                 lockfile_path = resolve_lockfile_path(self)
                 if lockfile_path.is_file():
-                    workspace_install_args = []
-                    for dep in workspace_deps:
-                        if dep.editable:
-                            workspace_install_args.extend(["--editable", dep.path])
+                    local_install_args = []
+                    if not self.skip_install:
+                        if self.dev_mode:
+                            local_install_args.extend(["--editable", self.root])
                         else:
-                            workspace_install_args.append(dep.path)
+                            local_install_args.append(self.root)
 
-                    if workspace_install_args:
-                        all_install_args = list(self.get_source_install_args(self.all_dependencies_complex))
-                        all_install_args.extend(workspace_install_args)
-                        self.platform.check_command(self.construct_pip_install_command(all_install_args))
+                    for dep in workspace_deps:
+                        # The root project is installed separately during environment creation.
+                        if dep.path == self.root:
+                            continue
+
+                        if dep.editable:
+                            local_install_args.extend(["--editable", dep.path])
+                        else:
+                            local_install_args.append(dep.path)
+
                     apply_lock_with_locker(self, lockfile_path)
+                    # Exact sync removes local packages that are not represented in the lockfile.
+                    if local_install_args:
+                        self.platform.check_command(
+                            self.construct_pip_install_command(["--no-deps", *local_install_args])
+                        )
                     return
 
             # If we do not have missing dependencies we should not sync
