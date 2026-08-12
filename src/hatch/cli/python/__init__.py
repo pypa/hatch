@@ -10,6 +10,7 @@ _LAZY_SUBCOMMANDS = {
     "show": "hatch.cli.python.show:show",
 }
 
+
 @click.group(
     cls=LazyGroup,
     lazy_subcommands=_LAZY_SUBCOMMANDS,

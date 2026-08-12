@@ -10,6 +10,7 @@ _LAZY_SUBCOMMANDS = {
     "types": "hatch.cli.check.types:types",
 }
 
+
 @click.group(
     cls=LazyGroup,
     lazy_subcommands=_LAZY_SUBCOMMANDS,
@@ -17,7 +18,6 @@ _LAZY_SUBCOMMANDS = {
     invoke_without_command=True,
     short_help="Check source code",
 )
-
 @click.option("--fix", is_flag=True, help="Fix issues rather than just reporting them")
 @click.pass_context
 def check(ctx: click.Context, *, fix: bool):

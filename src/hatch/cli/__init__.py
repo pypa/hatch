@@ -32,6 +32,7 @@ _LAZY_SUBCOMMANDS = {
     "version": "hatch.cli.version:version",
 }
 
+
 @click.group(
     cls=LazyGroup,
     lazy_subcommands=_LAZY_SUBCOMMANDS,
@@ -227,6 +228,7 @@ def hatch(
 
 
 hatch.add_command(self_command)
+
 
 def main():  # no cov
     try:
