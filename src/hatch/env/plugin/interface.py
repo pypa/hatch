@@ -1194,9 +1194,7 @@ class Workspace:
             local_projects = {member.name: features}
             for feature in member.features:
                 feature_deps = features.get(feature, [])
-                all_dependencies.extend(
-                    resolve_extras(feature_deps, local_projects, warn=self.env.app.display_warning)
-                )
+                all_dependencies.extend(resolve_extras(feature_deps, local_projects, warn=self.env.app.display_warning))
 
         if self.parallel:
             from concurrent.futures import ThreadPoolExecutor
