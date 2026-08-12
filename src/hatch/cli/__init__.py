@@ -6,33 +6,36 @@ from typing import cast
 import click
 
 from hatch._version import __version__
-from hatch.cli.application import Application
-from hatch.cli.build import build
-from hatch.cli.check import check
-from hatch.cli.clean import clean
-from hatch.cli.config import config
-from hatch.cli.dep import dep
-from hatch.cli.env import env
-from hatch.cli.fmt import fmt
-from hatch.cli.lock_cmd import lock_command
-from hatch.cli.new import new
-from hatch.cli.project import project
-from hatch.cli.publish import publish
-from hatch.cli.python import python
-from hatch.cli.run import run
-from hatch.cli.self import self_command
-from hatch.cli.shell import shell
-from hatch.cli.status import status
-from hatch.cli.test import test
-from hatch.cli.version import version
+from hatch.cli.lazy import LazyGroup
 from hatch.config.constants import AppEnvVars, ConfigEnvVars
-from hatch.project.core import Project
 from hatch.utils.ci import running_in_ci
 from hatch.utils.fs import Path
 
+_LAZY_SUBCOMMANDS = {
+    "build": "hatch.cli.build:build",
+    "check": "hatch.cli.check:check",
+    "clean": "hatch.cli.clean:clean",
+    "config": "hatch.cli.config:config",
+    "dep": "hatch.cli.dep:dep",
+    "env": "hatch.cli.env:env",
+    "fmt": "hatch.cli.fmt:fmt",
+    "lock": "hatch.cli.lock_cmd:lock_command",
+    "new": "hatch.cli.new:new",
+    "project": "hatch.cli.project:project",
+    "publish": "hatch.cli.publish:publish",
+    "python": "hatch.cli.python:python",
+    "run": "hatch.cli.run:run",
+    "shell": "hatch.cli.shell:shell",
+    "status": "hatch.cli.status:status",
+    "test": "hatch.cli.test:test",
+    "version": "hatch.cli.version:version",
+}
 
 @click.group(
-    context_settings={"help_option_names": ["-h", "--help"], "max_content_width": 120}, invoke_without_command=True
+    cls=LazyGroup,
+    lazy_subcommands=_LAZY_SUBCOMMANDS,
+    context_settings={"help_option_names": ["-h", "--help"], "max_content_width": 120},
+    invoke_without_command=True,
 )
 @click.option(
     "--env",
@@ -124,7 +127,11 @@ def hatch(
     if interactive is None and running_in_ci():
         interactive = False
 
+    from hatch.cli.application import Application
+    from hatch.project.core import Project
+
     app = Application(ctx.exit, verbosity=verbose - quiet, enable_color=color, interactive=interactive)
+
     app.env_active = os.environ.get(AppEnvVars.ENV_ACTIVE)
     if (
         app.env_active
@@ -218,25 +225,8 @@ def hatch(
         return
 
 
-hatch.add_command(build)
-hatch.add_command(check)
-hatch.add_command(clean)
-hatch.add_command(config)
-hatch.add_command(dep)
-hatch.add_command(env)
-hatch.add_command(fmt)
-hatch.add_command(lock_command)
-hatch.add_command(new)
-hatch.add_command(project)
-hatch.add_command(publish)
-hatch.add_command(python)
-hatch.add_command(run)
+from hatch.cli.self import self_command
 hatch.add_command(self_command)
-hatch.add_command(shell)
-hatch.add_command(status)
-hatch.add_command(test)
-hatch.add_command(version)
-
 
 def main():  # no cov
     try:
