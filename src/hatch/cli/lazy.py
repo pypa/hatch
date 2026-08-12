@@ -22,7 +22,7 @@ class LazyGroup(click.Group):
         eager = super().list_commands(ctx)
         return sorted(set(eager) | set(self._lazy_subcommands))
 
-    def get_command(self, ctx: click.Context, cmd_name: str) -> click.BaseCommand | None:
+    def get_command(self, ctx: click.Context, cmd_name: str) -> click.Command | None:
         # Check eagerly-registered commands first
         if cmd := super().get_command(ctx, cmd_name):
             return cmd
