@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from collections import deque
 from typing import TYPE_CHECKING, Any
 
 from hatchling.metadata.utils import get_normalized_dependency, normalize_project_name
@@ -96,70 +95,75 @@ def get_complex_dependency_group(
 
 
 def resolve_extras(
-    optional_dependencies: dict[str, list[str]],
-    project_name: str,
+    deps: list[str],
+    local_projects: dict[str, dict[str, list[str]]],
     *,
     warn: Callable[[str], object] | None = None,
-) -> dict[str, list[str]]:
+) -> list[str]:
+    """Expand extras on local-project dependencies transitively.
+
+    Parameters
+    ----------
+    deps:
+        Raw PEP 508 dependency strings to resolve.
+    local_projects:
+        Mapping of normalized project name → raw optional-dependencies dict.
+        Self-referencing extras within each project AND cross-project extras
+        are expanded in a single BFS pass.
+    warn:
+        Warning callback for undefined extras.
+
+    Returns only dependency strings that do not reference any local project.
+    """
+    from collections import deque
+
     from packaging.requirements import Requirement
 
-    normalized_project = normalize_project_name(project_name)
+    from hatchling.metadata.utils import normalize_project_name
 
-    # Build a lookup that indexes extras by both as-written and normalized name.
-    extras_lookup: dict[str, list[str]] = {}
-    for key, deps in optional_dependencies.items():
-        extras_lookup[key] = deps
-        normalized_key = normalize_project_name(key)
-        if normalized_key != key:
-            extras_lookup.setdefault(normalized_key, deps)
+    external: list[str] = []
+    seen: set[str] = set()
+    queue: deque[str] = deque(deps)
 
-    def _lookup_extra(name: str) -> list[str] | None:
-        """Find deps for an extra, preferring the as-written key."""
-        if name in extras_lookup:
-            return extras_lookup[name]
-        normalized = normalize_project_name(name)
-        return extras_lookup.get(normalized)
+    # Pre-build normalized lookups for each project's optional-deps keys.
+    # A key like "test.extra" needs to be findable via normalized "test-extra".
+    normalized_lookups: dict[str, dict[str, list[str]]] = {}
+    for project_name, optional_deps in local_projects.items():
+        lookup: dict[str, list[str]] = {}
+        for key, value in optional_deps.items():
+            lookup[key] = value
+            norm_key = normalize_project_name(key)
+            if norm_key != key:
+                lookup.setdefault(norm_key, value)
+        normalized_lookups[project_name] = lookup
 
-    # Resolve each extra independently: expand all self-references via BFS.
-    resolved: dict[str, list[str]] = {}
+    while queue:
+        dep_str = queue.popleft()
+        if dep_str in seen:
+            continue
+        seen.add(dep_str)
 
-    for extra_name, raw_deps in optional_dependencies.items():
-        external_deps: list[str] = []
-        seen_extras: set[str] = set()  # normalized extra names already visited
-        queue: deque[str] = deque(raw_deps)
+        req = Requirement(dep_str)
+        name = normalize_project_name(req.name)
 
-        while queue:
-            dep_str = queue.popleft()
-            req = Requirement(dep_str)
-            dep_name_normalized = normalize_project_name(req.name)
+        if name not in local_projects:
+            external.append(dep_str)
+            continue
 
-            # Not a self-reference → keep as external dep
-            if dep_name_normalized != normalized_project:
-                external_deps.append(dep_str)
-                continue
+        if not req.extras:
+            continue
 
-            # Self-reference without extras (e.g. bare "pkg") → drop silently
-            if not req.extras:
-                continue
+        lookup = normalized_lookups[name]
+        for extra in req.extras:
+            norm_extra = normalize_project_name(extra)
+            extra_deps = lookup.get(extra) or lookup.get(norm_extra)
+            if extra_deps is None:
+                if warn is not None:
+                    warn(
+                        f"Dependency `{dep_str}` refers to extra "
+                        f"`{extra}`, which local project `{name}` does not define"
+                    )
+            else:
+                queue.extend(extra_deps)
 
-            # Self-reference with extras → expand each referenced extra
-            for referenced_extra in sorted(req.extras):
-                norm_ref = normalize_project_name(referenced_extra)
-                if norm_ref in seen_extras:
-                    continue
-                seen_extras.add(norm_ref)
-
-                ref_deps = _lookup_extra(referenced_extra)
-                if ref_deps is None:
-                    if warn is not None:
-                        warn(
-                            f"Optional dependency group `{extra_name}` references "
-                            f"extra `{referenced_extra}` which is not defined in "
-                            f"project `{project_name}`"
-                        )
-                else:
-                    queue.extend(ref_deps)
-
-        resolved[extra_name] = external_deps
-
-    return resolved
+    return external

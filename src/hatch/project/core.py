@@ -11,7 +11,7 @@ from hatch.utils.fs import Path
 from hatch.utils.runner import ExecutionContext
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Generator
+    from collections.abc import Generator
 
     from hatch.cli.application import Application
     from hatch.config.model import RootConfig
@@ -319,16 +319,6 @@ class Project:
         dynamic_features: dict[str, list[str]] = project_metadata.get("optional-dependencies", {})
 
         return dynamic_dependencies, dynamic_features
-
-    def get_resolved_optional_dependencies(self, warn: Callable[[str], object] | None = None) -> dict[str, list[str]]:
-        """
-        Return optional-dependencies with self-referencing extras fully expanded
-        and names normalized. Single source of truth for all Hatch consumers.
-        """
-        from hatch.utils.dep import resolve_extras
-
-        _, raw_features = self.get_dependencies()
-        return resolve_extras(raw_features, self.metadata.name, warn=warn)
 
     @cached_property
     def has_static_dependencies(self) -> bool:
