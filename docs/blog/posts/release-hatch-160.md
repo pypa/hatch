@@ -100,4 +100,4 @@ The [`standard` version scheme](../../plugins/version-scheme/standard.md) now su
 
 This use case comes from [Project Jupyter](https://jupyter.org):
 
-> A common pattern we use in Jupyter is to bump to a `.dev0` minor version bump after making a release.  If we have a  bug fix that needs to go out in the interim, we'd rather not be forced to create a branch every time.
+> A common pattern we use in Jupyter is to bump to a `.dev0` minor version bump after making a release. If we have a bug fix that needs to go out in the interim, we'd rather not be forced to create a branch every time.
