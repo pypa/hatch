@@ -1,6 +1,5 @@
 import click
 
-
 from hatch.cli.lazy import LazyGroup
 
 _LAZY_SUBCOMMANDS = {
@@ -20,4 +19,3 @@ _LAZY_SUBCOMMANDS = {
 )
 def python():
     pass
-

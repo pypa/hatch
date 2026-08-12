@@ -35,4 +35,3 @@ def check(ctx: click.Context, *, fix: bool):
     ctx.invoke(code, fix=fix)
     ctx.invoke(fmt, fix=fix)
     ctx.invoke(types)
-

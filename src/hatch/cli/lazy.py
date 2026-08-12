@@ -1,12 +1,9 @@
 from __future__ import annotations
 
 import importlib
-from typing import TYPE_CHECKING
 
 import click
 
-if TYPE_CHECKING:
-    from collections.abc import Sequence
 
 class LazyGroup(click.Group):
     """A click Group that defers subcommand imports until invocation time.

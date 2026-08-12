@@ -7,6 +7,7 @@ import click
 
 from hatch._version import __version__
 from hatch.cli.lazy import LazyGroup
+from hatch.cli.self import self_command
 from hatch.config.constants import AppEnvVars, ConfigEnvVars
 from hatch.utils.ci import running_in_ci
 from hatch.utils.fs import Path
@@ -225,7 +226,6 @@ def hatch(
         return
 
 
-from hatch.cli.self import self_command
 hatch.add_command(self_command)
 
 def main():  # no cov
