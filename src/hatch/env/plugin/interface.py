@@ -342,7 +342,6 @@ class EnvironmentInterface(ABC):
         from hatch.utils.dep import (
             get_complex_dependencies,
             get_complex_dependency_group,
-            get_complex_features,
             resolve_extras,
         )
         from hatchling.metadata.utils import normalize_project_name
