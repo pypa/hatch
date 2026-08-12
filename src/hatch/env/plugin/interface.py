@@ -359,13 +359,12 @@ class EnvironmentInterface(ABC):
             }
 
         dependencies_complex = get_complex_dependencies(formatted_dependencies)
-        optional_dependencies_complex = get_complex_features(formatted_optional_dependencies)
 
         if not self.skip_install:
             all_dependencies_complex.extend(dependencies_complex.values())
 
         resolved_features = resolve_extras(
-            optional_dependencies_complex, self.metadata.name, warn=self.app.display_warning
+            formatted_optional_dependencies, self.metadata.name, warn=self.app.display_warning
         )
         for feature in self.features:
             norm = normalize_project_name(feature)
