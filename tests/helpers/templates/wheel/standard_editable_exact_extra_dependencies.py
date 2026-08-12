@@ -46,7 +46,7 @@ Name: {kwargs["project_name"]}
 Version: 0.0.1
 License-File: LICENSE.txt
 Requires-Dist: binary
-Requires-Dist: editables~=0.3
+Requires-Dist: editables~=0.4
 """,
         ),
     ))
