@@ -360,18 +360,17 @@ class EnvironmentInterface(ABC):
         local_projects = {self.metadata.name: formatted_optional_dependencies}
         feature_refs = [f"{self.metadata.name}[{feature}]" for feature in self.features]
         if feature_refs:
-            resolved = resolve_extras(feature_refs, local_projects, warn=self.app.display_warning)
-            if not resolved and self.features:
-                from hatchling.metadata.utils import normalize_project_name as _npn
+            from hatchling.metadata.utils import normalize_project_name as _npn
 
-                for feature in self.features:
-                    found = any(_npn(k) == feature for k in formatted_optional_dependencies)
-                    if not found:
-                        message = (
-                            f"Feature `{feature}` of field `tool.hatch.envs.{self.name}.features` is not "
-                            f"defined in the dynamic field `project.optional-dependencies`"
-                        )
-                        raise ValueError(message)
+            known_features = {_npn(k) for k in formatted_optional_dependencies}
+            for feature in self.features:
+                if feature not in known_features:
+                    message = (
+                        f"Feature `{feature}` of field `tool.hatch.envs.{self.name}.features` is not "
+                        f"defined in the dynamic field `project.optional-dependencies`"
+                    )
+                    raise ValueError(message)
+            resolved = resolve_extras(feature_refs, local_projects, warn=self.app.display_warning)
             all_dependencies_complex.extend(Dependency(d) for d in resolved)
 
         for dependency_group in self.dependency_groups:
