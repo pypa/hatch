@@ -59,6 +59,8 @@ exclude = [
 
 will exclude every file with a `.json` extension, and will include everything under a `tests` directory located at the root and every file with a `.py` extension that is directly under a `pkg` directory located at the root except for `_compat.py`.
 
+When the sdist `include` list is narrower than the wheel target, Hatchling still adds the wheel's in-tree sources to the sdist so isolated builds (`python -m build`, `uv build`) do not drop them. Use sdist `exclude` if a wheel source must stay out of the archive.
+
 ### Artifacts
 
 If you want to include files that are [ignored by your VCS](#vcs), such as those that might be created by [build hooks](#build-hooks), you can use the `artifacts` option. This option is semantically equivalent to `include`.

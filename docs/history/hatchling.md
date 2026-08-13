@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Fixed:***
+
+- Source distributions now include in-tree files selected by the wheel target, so `python -m build` and `uv build` ship the same wheel contents as `hatch build -t wheel`. Files explicitly excluded from the sdist are still omitted.
+
 ## [1.32.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.32.0) - 2026-08-11 ## {: #hatchling-v1.32.0 }
 
 ***Changed:***

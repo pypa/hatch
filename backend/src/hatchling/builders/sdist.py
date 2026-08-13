@@ -11,6 +11,7 @@ from time import time as get_current_timestamp
 from typing import TYPE_CHECKING, Any
 
 from hatchling.builders.config import BuilderConfig
+from hatchling.builders.constants import EXCLUDED_DIRECTORIES, EXCLUDED_FILES
 from hatchling.builders.plugin.interface import BuilderInterface
 from hatchling.builders.utils import (
     get_reproducible_timestamp,
@@ -19,7 +20,9 @@ from hatchling.builders.utils import (
     normalize_file_permissions,
     normalize_relative_path,
     replace_file,
+    safe_walk,
 )
+from hatchling.builders.wheel import WheelBuilder
 from hatchling.metadata.spec import DEFAULT_METADATA_VERSION, get_core_metadata_constructors
 from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT, DEFAULT_CONFIG_FILE
 
@@ -327,6 +330,78 @@ class SdistBuilder(BuilderInterface):
 
         return contents
 
+    def _add_in_tree_source(self, force_include: dict[str, str], path: str) -> None:
+        """Record a project-tree file so PEP 517 wheel-from-sdist builds can see it."""
+        if not path.startswith(self.root) or not os.path.isfile(path):
+            return
+
+        relative_path = os.path.relpath(path, self.root)
+        escaped = relative_path == ".." or relative_path.startswith(f"..{os.sep}")
+        if escaped or self.config.path_is_excluded(relative_path):
+            return
+
+        force_include[path] = relative_path
+
+    def _add_in_tree_sources(self, force_include: dict[str, str], source: str) -> None:
+        if os.path.isfile(source):
+            self._add_in_tree_source(force_include, source)
+            return
+
+        if not os.path.isdir(source) or not source.startswith(self.root):
+            return
+
+        for root, dirs, files in safe_walk(source):
+            dirs[:] = sorted(d for d in dirs if d not in EXCLUDED_DIRECTORIES)
+            files.sort()
+            for filename in files:
+                if filename in EXCLUDED_FILES:
+                    continue
+                self._add_in_tree_source(force_include, os.path.join(root, filename))
+
+    def get_wheel_source_force_include(self) -> dict[str, str]:
+        """Collect in-tree wheel sources that isolated sdist builds must keep.
+
+        Frontends such as `python -m build` and `uv build` unpack the sdist and
+        build the wheel from that tree. Files listed only on the wheel target
+        were previously omitted from the sdist, so those wheels silently dropped
+        them. Explicit sdist `exclude` entries still win, including VCS ignore
+        rules.
+
+        Returns:
+            Mapping of absolute source paths to project-relative archive paths.
+        """
+        force_include: dict[str, str] = {}
+        try:
+            wheel_builder = WheelBuilder(
+                self.root,
+                plugin_manager=self.plugin_manager,
+                config=self.raw_config,
+                metadata=self.metadata,
+                app=self.app,
+            )
+            selected_files = list(wheel_builder.recurse_selected_project_files())
+            force_sources = list(wheel_builder.config.force_include)
+            extra_sources = [
+                *wheel_builder.config.shared_data,
+                *wheel_builder.config.shared_scripts,
+                *wheel_builder.config.extra_metadata,
+            ]
+            sbom_files = list(wheel_builder.config.sbom_files)
+        except (TypeError, ValueError) as error:
+            self.app.display_debug(f"Skipping wheel source inclusion for sdist: {error}")
+            return force_include
+
+        for included_file in selected_files:
+            self._add_in_tree_source(force_include, included_file.path)
+
+        for source in (*force_sources, *extra_sources):
+            self._add_in_tree_sources(force_include, source)
+
+        for sbom_file in sbom_files:
+            self._add_in_tree_source(force_include, os.path.join(self.root, sbom_file))
+
+        return force_include
+
     def get_default_build_data(self) -> dict[str, Any]:
         force_include = {}
         for filename in ["pyproject.toml", DEFAULT_CONFIG_FILE, DEFAULT_BUILD_SCRIPT]:
@@ -349,6 +424,8 @@ class SdistBuilder(BuilderInterface):
             for license_file in license_files:
                 relative_path = normalize_relative_path(license_file)
                 force_include[os.path.join(self.root, relative_path)] = relative_path
+
+        force_include.update(self.get_wheel_source_force_include())
 
         return build_data
 
