@@ -4,6 +4,22 @@ import argparse
 from typing import Any
 
 
+def _display_artifact(app: Any, artifact: str, root: str, directory: str | None) -> None:
+    import os
+
+    if os.path.isfile(artifact):
+        candidates = [root]
+        if directory:
+            candidates.append(os.path.dirname(os.path.abspath(directory)))
+
+        for candidate in candidates:
+            if candidate and (artifact == candidate or artifact.startswith(candidate + os.sep)):
+                app.display_info(os.path.relpath(artifact, candidate))
+                return
+
+    app.display_info(artifact)  # no cov
+
+
 def build_impl(
     *,
     called_by_app: bool,  # noqa: ARG001
@@ -19,7 +35,8 @@ def build_impl(
     import os
 
     from hatchling.bridge.app import Application
-    from hatchling.builders.constants import BuildEnvVars
+    from hatchling.builders.constants import DEFAULT_BUILD_DIRECTORY, BuildEnvVars
+    from hatchling.builders.sdist_wheel import build_wheel_from_sdist
     from hatchling.metadata.core import ProjectMetadata
     from hatchling.plugin.manager import PluginManager
 
@@ -60,8 +77,33 @@ def build_impl(
     if no_hooks:
         os.environ[BuildEnvVars.NO_HOOKS] = "true"
 
+    # When both targets are requested, build the wheel from the sdist so the
+    # published artifacts match what installers produce from the sdist alone.
+    build_wheel_via_sdist = (
+        not clean_only
+        and not show_dynamic_deps
+        and not hooks_only
+        and "sdist" in target_data
+        and "wheel" in target_data
+    )
+    if build_wheel_via_sdist:
+        ordered_targets = [(name, versions) for name, versions in target_data.items() if name != "wheel"]
+        ordered_targets.append(("wheel", target_data["wheel"]))
+    else:
+        ordered_targets = list(target_data.items())
+
+    # Resolve the output directory against the original project before any
+    # temporary sdist extraction changes the effective project root.
+    if directory:
+        output_directory: str | None = os.path.abspath(directory)
+    elif build_wheel_via_sdist:
+        output_directory = os.path.join(root, DEFAULT_BUILD_DIRECTORY)
+    else:
+        output_directory = None
+
     dynamic_dependencies: dict[str, None] = {}
-    for i, (target_name, versions) in enumerate(target_data.items()):
+    sdist_artifact: str | None = None
+    for i, (target_name, versions) in enumerate(ordered_targets):
         # Separate targets with a blank line
         if not (clean_only or show_dynamic_deps) and i != 0:  # no cov
             app.display_info()
@@ -72,25 +114,49 @@ def build_impl(
         if not (clean_only or show_dynamic_deps) and len(target_data) > 1:
             app.display_mini_header(target_name)
 
-        builder = builder_class(root, plugin_manager=plugin_manager, metadata=metadata, app=app.get_safe_application())
         if show_dynamic_deps:
+            builder = builder_class(
+                root, plugin_manager=plugin_manager, metadata=metadata, app=app.get_safe_application()
+            )
             for dependency in builder.config.dynamic_dependencies:
                 dynamic_dependencies[dependency] = None
 
             continue
 
-        for artifact in builder.build(
-            directory=directory,
-            versions=versions,
-            hooks_only=hooks_only,
-            clean=clean,
-            clean_hooks_after=clean_hooks_after,
-            clean_only=clean_only,
-        ):
-            if os.path.isfile(artifact) and artifact.startswith(root):
-                app.display_info(os.path.relpath(artifact, root))
-            else:  # no cov
-                app.display_info(artifact)
+        if build_wheel_via_sdist and target_name == "wheel":
+            if sdist_artifact is None:
+                app.abort("Cannot build wheel from sdist because no sdist artifact was produced")
+
+            artifacts = build_wheel_from_sdist(
+                sdist_path=sdist_artifact,
+                wheel_builder_class=builder_class,
+                plugin_manager=plugin_manager,
+                app=app.get_safe_application(),
+                directory=output_directory,
+                versions=versions,
+                hooks_only=hooks_only,
+                clean=clean,
+                clean_hooks_after=clean_hooks_after,
+                clean_only=clean_only,
+            )
+        else:
+            builder = builder_class(
+                root, plugin_manager=plugin_manager, metadata=metadata, app=app.get_safe_application()
+            )
+            artifacts = builder.build(
+                directory=output_directory if output_directory is not None else directory,
+                versions=versions,
+                hooks_only=hooks_only,
+                clean=clean,
+                clean_hooks_after=clean_hooks_after,
+                clean_only=clean_only,
+            )
+
+        for artifact in artifacts:
+            if target_name == "sdist":
+                sdist_artifact = artifact
+
+            _display_artifact(app, artifact, root, output_directory if output_directory is not None else directory)
 
     if show_dynamic_deps:
         app.display(str(list(dynamic_dependencies)))
