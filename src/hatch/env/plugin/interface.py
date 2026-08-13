@@ -357,17 +357,21 @@ class EnvironmentInterface(ABC):
         if not self.skip_install:
             all_dependencies_complex.extend(dependencies_complex.values())
 
-        # Resolve features: use resolve_extras with root project as the only local
         local_projects = {self.metadata.name: formatted_optional_dependencies}
-        for feature in self.features:
-            feature_deps = formatted_optional_dependencies.get(feature)
-            if feature_deps is None:
-                message = (
-                    f"Feature `{feature}` of field `tool.hatch.envs.{self.name}.features` is not "
-                    f"defined in the dynamic field `project.optional-dependencies`"
-                )
-                raise ValueError(message)
-            resolved = resolve_extras(feature_deps, local_projects, warn=self.app.display_warning)
+        feature_refs = [f"{self.metadata.name}[{feature}]" for feature in self.features]
+        if feature_refs:
+            resolved = resolve_extras(feature_refs, local_projects, warn=self.app.display_warning)
+            if not resolved and self.features:
+                from hatchling.metadata.utils import normalize_project_name as _npn
+
+                for feature in self.features:
+                    found = any(_npn(k) == feature for k in formatted_optional_dependencies)
+                    if not found:
+                        message = (
+                            f"Feature `{feature}` of field `tool.hatch.envs.{self.name}.features` is not "
+                            f"defined in the dynamic field `project.optional-dependencies`"
+                        )
+                        raise ValueError(message)
             all_dependencies_complex.extend(Dependency(d) for d in resolved)
 
         for dependency_group in self.dependency_groups:
@@ -475,15 +479,13 @@ class EnvironmentInterface(ABC):
 
         local_deps = list(self.local_dependencies_complex)
 
-        # Build raw optional-dependencies for all local projects
         local_projects: dict[str, dict[str, list[str]]] = {}
         if not self.skip_install:
-            local_projects[self.metadata.name] = {}  # lazily populated below
+            local_projects[self.metadata.name] = {}
         for member in self.workspace.members:
             _, opt = member.project.get_dependencies()
             local_projects[member.name] = opt
 
-        # Lazy-resolve root project only if an env dep actually references it with extras
         dep_strs = [str(d) for d in self.dependencies_complex]
         if self.metadata.name in local_projects:
             from packaging.requirements import Requirement
@@ -494,7 +496,11 @@ class EnvironmentInterface(ABC):
             )
             if needs_root:
                 _, optional_deps = self.app.project.get_dependencies()
-                local_projects[self.metadata.name] = optional_deps
+                with self.apply_context():
+                    local_projects[self.metadata.name] = {
+                        feature: [self.metadata.context.format(dep) for dep in deps]
+                        for feature, deps in optional_deps.items()
+                    }
 
         external_deps = resolve_extras(dep_strs, local_projects, warn=self.app.display_warning)
 
@@ -1203,8 +1209,10 @@ class Workspace:
                 with self.env.app.status(f"Checking workspace member: {member.name}"):
                     dependencies, features = member.get_dependencies()
                     deps = list(dependencies)
+                    local_projects = {member.name: features}
                     for feature in member.features:
-                        deps.extend(features.get(feature, []))
+                        feature_deps = features.get(feature, [])
+                        deps.extend(resolve_extras(feature_deps, local_projects, warn=self.env.app.display_warning))
                     return deps
 
             with ThreadPoolExecutor() as executor:
@@ -1216,8 +1224,12 @@ class Workspace:
                 with self.env.app.status(f"Checking workspace member: {member.name}"):
                     dependencies, features = member.get_dependencies()
                     all_dependencies.extend(dependencies)
+                    local_projects = {member.name: features}
                     for feature in member.features:
-                        all_dependencies.extend(features.get(feature, []))
+                        feature_deps = features.get(feature, [])
+                        all_dependencies.extend(
+                            resolve_extras(feature_deps, local_projects, warn=self.env.app.display_warning)
+                        )
 
         return all_dependencies
 

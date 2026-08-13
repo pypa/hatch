@@ -126,7 +126,6 @@ def resolve_extras(
     queue: deque[str] = deque(deps)
 
     # Pre-build normalized lookups for each project's optional-deps keys.
-    # A key like "test.extra" needs to be findable via normalized "test-extra".
     normalized_lookups: dict[str, dict[str, list[str]]] = {}
     for project_name, optional_deps in local_projects.items():
         lookup: dict[str, list[str]] = {}
