@@ -2,13 +2,16 @@ from __future__ import annotations
 
 import re
 import sys
-from collections.abc import Sequence
 from importlib.metadata import Distribution, DistributionFinder
+from typing import TYPE_CHECKING
 
 from packaging.markers import default_environment
 
 from hatch.dep.core import Dependency
 from hatch.utils.fs import Path
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 
 class InstalledDistributions:
