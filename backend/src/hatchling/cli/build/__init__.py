@@ -126,19 +126,19 @@ def build_impl(
         if build_wheel_via_sdist and target_name == "wheel":
             if sdist_artifact is None:
                 app.abort("Cannot build wheel from sdist because no sdist artifact was produced")
-
-            artifacts = build_wheel_from_sdist(
-                sdist_path=sdist_artifact,
-                wheel_builder_class=builder_class,
-                plugin_manager=plugin_manager,
-                app=app.get_safe_application(),
-                directory=output_directory,
-                versions=versions,
-                hooks_only=hooks_only,
-                clean=clean,
-                clean_hooks_after=clean_hooks_after,
-                clean_only=clean_only,
-            )
+            else:
+                artifacts = build_wheel_from_sdist(
+                    sdist_path=sdist_artifact,
+                    wheel_builder_class=builder_class,
+                    plugin_manager=plugin_manager,
+                    app=app.get_safe_application(),
+                    directory=output_directory,
+                    versions=versions,
+                    hooks_only=hooks_only,
+                    clean=clean,
+                    clean_hooks_after=clean_hooks_after,
+                    clean_only=clean_only,
+                )
         else:
             builder = builder_class(
                 root, plugin_manager=plugin_manager, metadata=metadata, app=app.get_safe_application()
