@@ -49,6 +49,7 @@ def main() -> int:
             [sys.executable, script_path, hook, str(control_dir)],
             cwd=project_root,
             env=env_vars,
+            stdout=sys.stderr,
             check=False,
         )
         if process.returncode:
