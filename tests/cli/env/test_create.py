@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import os
 import sys
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -10,6 +13,16 @@ from hatch.utils.structures import EnvVars
 from hatch.venv.core import UVVirtualEnv, VirtualEnv
 from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT, DEFAULT_CONFIG_FILE
 from hatchling.utils.fs import path_to_uri
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from types import ModuleType
+    from unittest.mock import MagicMock
+
+    from click.testing import Result
+
+    from hatch.config.user import ConfigFile
+    from hatch.utils.fs import Path
 
 
 def test_undefined(hatch, helpers, temp_dir, config_file):
@@ -1755,6 +1768,102 @@ def test_plugin_dependencies_unmet(hatch, config_file, helpers, temp_dir, mock_p
 
     env_path = env_dirs[0]
 
+    assert env_path.name == project_path.name
+
+
+def test_plugin_dependencies_unmet_pyapp(
+    hatch: Callable[..., Result],
+    config_file: ConfigFile,
+    helpers: ModuleType,
+    temp_dir: Path,
+    mock_plugin_installation: MagicMock,
+) -> None:
+    """
+    This test is a PyApp counterpart to `test_plugin_dependencies_unmet`.
+
+    This difference is materially relevant because, for PyApp binaries,
+    environment plugin requirements are installed through the standalone
+    binary's own self-management command, which forwards to either `pip` or
+    `uv pip`, depending on how the binary was built, and these commands
+    disagree about where the `--python` parameter belongs.
+    """
+    config_file.model.template.plugins["default"]["tests"] = False
+    config_file.save()
+    project_name: str = "My.PyApp"
+    with temp_dir.as_cwd():
+        result: Result = hatch("new", project_name)
+    assert result.exit_code == 0, result.output
+    project_path: Path = temp_dir / "my-pyapp"
+    data_path: Path = temp_dir / "data"
+    data_path.mkdir(exist_ok=True)
+    # A random dependency ensures a real install is forced
+    dependency: str = os.urandom(16).hex()
+    (project_path / DEFAULT_CONFIG_FILE).write_text(
+        helpers.dedent(
+            f"""
+            [env]
+            requires = ["{dependency}"]
+            """
+        )
+    )
+    # Skip the install so the environment is created without building the
+    # project itself (we only care about the plugin requirement sync)
+    project: Project = Project(project_path)
+    helpers.update_project_environment(
+        project,
+        "default",
+        {"skip-install": True, **project.config.envs["default"]},
+    )
+    # The exposed management command is not always named `self`, so use
+    # whatever the isolation fixture randomized it to
+    management_command: str = os.environ["PYAPP_COMMAND_NAME"]
+    # `PYAPP` is what makes Hatch believe it is running as a binary, and it
+    # doubles as the path invoked for the self-management command
+    env_vars: dict[str, str] = {
+        ConfigEnvVars.DATA: str(data_path),
+        "PYAPP": sys.executable,
+    }
+    with project_path.as_cwd(env_vars=env_vars):
+        result = hatch("env", "create")
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        """
+        Syncing environment plugin requirements
+        Creating environment: default
+        Checking dependencies
+        """
+    )
+    # No `--python` may appear here, and the flags must reach the binary in
+    # an order both `pip` and `uv` accept
+    helpers.assert_plugin_installation(
+        mock_plugin_installation,
+        [dependency],
+        app_command=[sys.executable, management_command],
+    )
+    # Dependencies must be resolved against the interpreter the binary
+    # manages, which is discovered rather than assumed. This pins that the
+    # probe is performed — without it, replacing the whole chain with a
+    # bare `InstalledDistributions()` leaves the test green. It does not
+    # pin that the probed path is the one used, since the fixture returns
+    # `sys.executable` and so the two are indistinguishable here
+    probe: MagicMock = mock_plugin_installation.python_path
+    expected: list[str] = [sys.executable, management_command, "python-path"]
+
+    assert probe.call_count == 1
+    assert probe.call_args.args[0] == expected
+    # The sync must not stop the environment from being created, mirroring
+    # the assertions made by the non-PyApp counterpart
+    env_data_path: Path = data_path / "env" / "virtual"
+    assert env_data_path.is_dir()
+    project_data_path: Path = env_data_path / project_path.name
+    assert project_data_path.is_dir()
+    storage_dirs: tuple[Path, ...] = tuple(project_data_path.iterdir())
+    assert len(storage_dirs) == 1
+    storage_path: Path = storage_dirs[0]
+    assert len(storage_path.name) == 8
+    env_dirs: tuple[Path, ...] = tuple(storage_path.iterdir())
+    assert len(env_dirs) == 1
+    env_path: Path = env_dirs[0]
     assert env_path.name == project_path.name
 
 

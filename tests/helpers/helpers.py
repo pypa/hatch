@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 from functools import lru_cache
 from textwrap import dedent as _dedent
 from typing import TYPE_CHECKING
-from unittest.mock import call
+from unittest.mock import MagicMock, call
 
 import tomli_w
 
@@ -47,18 +47,35 @@ def get_current_timestamp():
     return datetime.now(timezone.utc).timestamp()
 
 
-def assert_plugin_installation(subprocess_run, dependencies: list[str], *, verbosity=0, count=1):
-    from uv import find_uv_bin
+def assert_plugin_installation(
+    subprocess_run: MagicMock,
+    dependencies: list[str],
+    *,
+    verbosity: int = 0,
+    count: int = 1,
+    app_command: list[str] | None = None,
+) -> None:
+    command: list[str]
+    if app_command is None:
+        from uv import find_uv_bin
 
-    uv_bin = find_uv_bin()
-    command = [
-        uv_bin,
-        "pip",
-        "install",
-        "--disable-pip-version-check",
-        "--python",
-        sys.executable,
-    ]
+        command = [
+            find_uv_bin(),
+            "pip",
+            "install",
+            "--python",
+            sys.executable,
+        ]
+    else:
+        # The self-management command targets its own installation, so
+        # the interpreter is never selected explicitly
+        command = [
+            *app_command,
+            "pip",
+            "install",
+            "--disable-pip-version-check",
+        ]
+
     add_verbosity_flag(command, verbosity, adjustment=-1)
     command.extend(dependencies)
 
