@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 import sys
+from collections.abc import Sequence
 from importlib.metadata import Distribution, DistributionFinder
 
 from packaging.markers import default_environment
@@ -24,7 +25,7 @@ class InstalledDistributions:
     def dependencies_in_sync(self, dependencies: list[Dependency]) -> bool:
         return all(self.dependency_in_sync(dependency) for dependency in dependencies)
 
-    def missing_dependencies(self, dependencies: list[Dependency]) -> list[Dependency]:
+    def missing_dependencies(self, dependencies: Sequence[Dependency]) -> list[Dependency]:
         return [dependency for dependency in dependencies if not self.dependency_in_sync(dependency)]
 
     def dependency_in_sync(self, dependency: Dependency, *, environment: dict[str, str] | None = None) -> bool:
