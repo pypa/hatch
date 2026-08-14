@@ -386,6 +386,29 @@ class TestReadme:
         with pytest.raises(OSError, match="Readme file does not exist: foo/bar\\.md"):
             _ = metadata.core.readme
 
+    def test_string_path_outside_project(self, temp_dir):
+        # Monorepos often share a README from the repository root via a
+        # backward-relative path; the content is embedded in the metadata.
+        readme_path = temp_dir.parent / "README.md"
+        readme_path.write_text("test content")
+
+        metadata = ProjectMetadata(str(temp_dir), None, {"project": {"readme": "../README.md"}})
+
+        assert metadata.core.readme == metadata.core.readme == "test content"
+        assert metadata.core.readme_content_type == metadata.core.readme_content_type == "text/markdown"
+        assert metadata.core.readme_path == metadata.core.readme_path == "../README.md"
+
+    def test_table_file_path_outside_project(self, temp_dir):
+        readme_path = temp_dir.parent / "README.md"
+        readme_path.write_text("test content")
+
+        metadata = ProjectMetadata(
+            str(temp_dir), None, {"project": {"readme": {"file": "../README.md", "content-type": "text/markdown"}}}
+        )
+
+        assert metadata.core.readme == metadata.core.readme == "test content"
+        assert metadata.core.readme_path == metadata.core.readme_path == "../README.md"
+
     @pytest.mark.parametrize(
         ("extension", "content_type"), [(".md", "text/markdown"), (".rst", "text/x-rst"), (".txt", "text/plain")]
     )

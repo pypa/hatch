@@ -529,8 +529,8 @@ class CoreMetadata:
                     raise TypeError(message)
 
                 readme_path = os.path.normpath(os.path.join(self.root, readme))
-                if os.path.isabs(readme) or os.path.relpath(readme_path, self.root).startswith(".."):
-                    message = f"Readme path must be within the project directory: {readme}"
+                if os.path.isabs(readme):
+                    message = f"Readme path must be relative to the project directory: {readme}"
                     raise ValueError(message)
                 if not os.path.isfile(readme_path):
                     message = f"Readme file does not exist: {readme}"
@@ -569,8 +569,8 @@ class CoreMetadata:
                         raise TypeError(message)
 
                     path = os.path.normpath(os.path.join(self.root, relative_path))
-                    if os.path.isabs(relative_path) or os.path.relpath(path, self.root).startswith(".."):
-                        message = f"Readme path must be within the project directory: {relative_path}"
+                    if os.path.isabs(relative_path):
+                        message = f"Readme path must be relative to the project directory: {relative_path}"
                         raise ValueError(message)
                     if not os.path.isfile(path):
                         message = f"Readme file does not exist: {relative_path}"
