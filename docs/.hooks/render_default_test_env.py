@@ -51,7 +51,8 @@ def get_scripts_toml():
 class TestEnvDefaultsPreprocessor(Preprocessor):
     def run(self, lines):  # noqa: PLR6301
         return (
-            "\n".join(lines)
+            "\n"
+            .join(lines)
             .replace(MARKER_DEPENDENCIES, get_dependencies_toml())
             .replace(MARKER_MATRIX, get_matrix_toml())
             .replace(MARKER_SCRIPTS, get_scripts_toml())
