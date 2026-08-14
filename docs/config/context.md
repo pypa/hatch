@@ -35,10 +35,17 @@ All paths support the following modifiers:
 
 ### System separators
 
+Use these fields by enclosing the separator character in braces. Hatch replaces
+only the context fields; literal `/` and `;` characters are left unchanged.
+
 | Field | Description |
 | --- | --- |
-| `/` | `\` on Windows, `/` otherwise |
-| `;` | `;` on Windows, `:` otherwise |
+| `{/}` | `\` on Windows, `/` otherwise |
+| `{;}` | `;` on Windows, `:` otherwise |
+
+For example, `data{/}generated` expands to `data\generated` on Windows and
+`data/generated` otherwise, while `src{;}tests` expands to `src;tests` on
+Windows and `src:tests` otherwise.
 
 ### Environment variables
 
