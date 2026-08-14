@@ -151,13 +151,28 @@ def _build_project(
     from hatch.utils.structures import EnvVars
 
     build_dir = Path(location).resolve() if location else None
+    target_list = list(targets)
+    build_backend = project.metadata.build.build_backend
+    target_names = [target.partition(":")[0] for target in target_list]
+    build_wheel_via_sdist = (
+        build_backend == BUILD_BACKEND
+        and not clean_only
+        and not hooks_only
+        and "sdist" in target_names
+        and "wheel" in target_names
+    )
+    if build_wheel_via_sdist:
+        # Always produce the sdist before the wheel so the wheel can be built from it.
+        target_list = [target for target in target_list if target.partition(":")[0] != "wheel"] + [
+            target for target in target_list if target.partition(":")[0] == "wheel"
+        ]
 
     with EnvVars(env_vars):
-        project.prepare_build_environment(targets=[target.split(":")[0] for target in targets])
+        project.prepare_build_environment(targets=[target.split(":")[0] for target in target_list])
 
-    build_backend = project.metadata.build.build_backend
+    sdist_artifact = None
     with project.location.as_cwd(), project.build_env.get_env_vars():
-        for target in targets:
+        for target in target_list:
             target_name, _, _ = target.partition(":")
             if not clean_only:
                 app.display_header(target_name)
@@ -181,11 +196,15 @@ def _build_project(
                 )
             else:
                 command = ["python", "-u", "-m", "hatchling", "build", "--target", target]
+                command_env = dict(env_vars)
 
                 # We deliberately pass the location unchanged so that absolute paths may be non-local
                 # and reflect wherever builds actually take place
                 if location:
                     command.extend(("--directory", str(location)))
+                elif build_wheel_via_sdist and target_name == "wheel" and sdist_artifact is not None:
+                    # Keep the wheel alongside the sdist in the original project dist directory.
+                    command.extend(("--directory", str((project.location / DEFAULT_BUILD_DIRECTORY).resolve())))
 
                 if hooks_only or env_var_enabled(BuildEnvVars.HOOKS_ONLY):
                     command.append("--hooks-only")
@@ -202,7 +221,27 @@ def _build_project(
                 if clean_only:
                     command.append("--clean-only")
 
-                context = ExecutionContext(project.build_env)
-                context.add_shell_command(command)
-                context.env_vars.update(env_vars)
-                app.execute_context(context)
+                if build_wheel_via_sdist and target_name == "wheel" and sdist_artifact is not None:
+                    from tempfile import TemporaryDirectory
+
+                    from hatchling.builders.sdist_wheel import unpack_sdist
+
+                    with TemporaryDirectory() as temp_dir:
+                        project_root = Path(unpack_sdist(str(sdist_artifact), temp_dir))
+                        context = ExecutionContext(project.build_env)
+                        context.add_shell_command(command)
+                        context.env_vars.update(command_env)
+                        with project_root.as_cwd():
+                            app.execute_context(context)
+                else:
+                    context = ExecutionContext(project.build_env)
+                    context.add_shell_command(command)
+                    context.env_vars.update(command_env)
+                    app.execute_context(context)
+
+                if target_name == "sdist":
+                    dist_directory = build_dir or project.location / DEFAULT_BUILD_DIRECTORY
+                    if dist_directory.is_dir():
+                        sdists = sorted(dist_directory.glob("*.tar.gz"), key=lambda path: path.stat().st_mtime)
+                        if sdists:
+                            sdist_artifact = sdists[-1]
