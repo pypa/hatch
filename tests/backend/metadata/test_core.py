@@ -226,6 +226,7 @@ class TestVersion:
         metadata = ProjectMetadata(str(isolation), None, {"project": {"version": "0.1.0.0-rc.1"}})
 
         assert metadata.version == metadata.version == "0.1.0.0rc1"
+        assert metadata.raw_version == metadata.raw_version == "0.1.0.0-rc.1"
         assert metadata.core.version == metadata.core.version == "0.1.0.0-rc.1"
 
     def test_dynamic_missing(self, isolation):
@@ -1665,6 +1666,13 @@ class TestHatchPersonalProjectConfigFile:
 
 
 class TestMetadataConversion:
+    def test_version_preserves_original_string(self, isolation, latest_spec):
+        raw_metadata = {"name": "My.App", "version": "2026.08.10"}
+        metadata = ProjectMetadata(str(isolation), None, {"project": raw_metadata})
+
+        core_metadata = latest_spec(metadata)
+        assert project_metadata_from_core_metadata(core_metadata) == raw_metadata
+
     def test_required_only(self, isolation, latest_spec):
         raw_metadata = {"name": "My.App", "version": "0.0.1"}
         metadata = ProjectMetadata(str(isolation), None, {"project": raw_metadata})

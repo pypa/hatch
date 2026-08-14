@@ -57,6 +57,7 @@ class ProjectMetadata(Generic[PluginManagerBound]):
         self._dynamic: list[str] | None = None
         self._name: str | None = None
         self._version: str | None = None
+        self._raw_version: str | None = None
         self._project_file: str | None = None
 
         # App already loaded config
@@ -152,6 +153,12 @@ class ProjectMetadata(Generic[PluginManagerBound]):
                 self.core.dynamic.remove("version")
 
         return self._version
+
+    @property
+    def raw_version(self) -> str:
+        """Return the version string before PEP 440 normalization."""
+        _ = self.version
+        return cast(str, self._raw_version)
 
     @property
     def config(self) -> dict[str, Any]:
@@ -260,6 +267,7 @@ class ProjectMetadata(Generic[PluginManagerBound]):
             message = f"Invalid version `{version}` from {source}, see https://peps.python.org/pep-0440/"
             raise ValueError(message) from None
         else:
+            self._raw_version = version
             return normalized_version
 
     def validate_fields(self) -> None:
