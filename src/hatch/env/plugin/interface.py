@@ -298,6 +298,7 @@ class EnvironmentInterface(ABC):
 
     @cached_property
     def environment_dependencies_complex(self) -> tuple[Dependency, ...]:
+        """Dependencies declared in the environment's own ``dependencies`` and ``extra-dependencies`` config fields."""
         from hatch.dep.core import Dependency, InvalidDependencyError
         from hatch.project.sources import decorate_dependencies
 
@@ -333,18 +334,19 @@ class EnvironmentInterface(ABC):
 
     @cached_property
     def project_dependencies_complex(self) -> tuple[Dependency, ...]:
+        """Project-level dependencies: [project] dependencies + selected features + dependency-groups + workspace member deps."""
         workspace_dependencies = self.workspace.get_dependencies()
         if self.skip_install and not self.features and not self.dependency_groups and not workspace_dependencies:
             return ()
 
         from hatch.dep.core import Dependency
         from hatch.project.sources import decorate_dependencies
-        from hatch.utils.dep import get_complex_dependencies, get_complex_dependency_group, get_complex_features
+        from hatch.utils.dep import get_complex_dependency_group, resolve_extras
+        from hatchling.metadata.utils import normalize_project_name
 
         all_dependencies_complex = list(map(Dependency, workspace_dependencies))
         dependencies, optional_dependencies = self.app.project.get_dependencies()
 
-        # Format dependencies with context before creating Dependency objects
         with self.apply_context():
             formatted_dependencies = [self.metadata.context.format(dep) for dep in dependencies]
             formatted_optional_dependencies = {
@@ -352,24 +354,21 @@ class EnvironmentInterface(ABC):
                 for feature, deps in optional_dependencies.items()
             }
 
-        dependencies_complex = get_complex_dependencies(formatted_dependencies)
-        optional_dependencies_complex = get_complex_features(formatted_optional_dependencies)
+        if self.features:
+            known_features = {normalize_project_name(k) for k in formatted_optional_dependencies}
+            for feature in self.features:
+                if feature not in known_features:
+                    message = (
+                        f"Feature `{feature}` of field `tool.hatch.envs.{self.name}.features` is not "
+                        f"defined in the dynamic field `project.optional-dependencies`"
+                    )
+                    raise ValueError(message)
 
-        if not self.skip_install:
-            all_dependencies_complex.extend(dependencies_complex.values())
-
-        for feature in self.features:
-            if feature not in optional_dependencies_complex:
-                message = (
-                    f"Feature `{feature}` of field `tool.hatch.envs.{self.name}.features` is not "
-                    f"defined in the dynamic field `project.optional-dependencies`"
-                )
-                raise ValueError(message)
-
-            all_dependencies_complex.extend([
-                dep if isinstance(dep, Dependency) else Dependency(str(dep))
-                for dep in optional_dependencies_complex[feature]
-            ])
+        feature_refs = [f"{self.metadata.name}[{feature}]" for feature in self.features]
+        local_projects = {self.metadata.name: formatted_optional_dependencies}
+        all_dep_strings = formatted_dependencies + feature_refs if not self.skip_install else feature_refs
+        resolved = resolve_extras(all_dep_strings, local_projects, warn=self.app.display_warning)
+        all_dependencies_complex.extend(Dependency(d) for d in resolved)
 
         for dependency_group in self.dependency_groups:
             all_dependencies_complex.extend(
@@ -392,6 +391,7 @@ class EnvironmentInterface(ABC):
 
     @cached_property
     def local_dependencies_complex(self) -> tuple[Dependency, ...]:
+        """Editable install entries for the root project and workspace members (file:// URLs)."""
         from hatch.dep.core import Dependency
 
         local_dependencies_complex = []
@@ -409,6 +409,7 @@ class EnvironmentInterface(ABC):
 
     @cached_property
     def dependencies_complex(self) -> tuple[Dependency, ...]:
+        """Union of environment, project, and build dependencies before extras expansion on local projects."""
         from hatch.dep.core import Dependency
         from hatch.project.sources import decorate_dependencies
 
@@ -469,36 +470,40 @@ class EnvironmentInterface(ABC):
         return tuple(str(dependency) for dependency in self.dependencies_complex)
 
     @cached_property
-    def all_dependencies_complex(self) -> list[Dependency]:
+    def all_dependencies_complex(self) -> tuple[Dependency, ...]:
+        """Final resolved set: local installs + all non-local deps after expanding extras on local project references."""
         from hatch.dep.core import Dependency
+        from hatch.utils.dep import resolve_extras
+        from hatchling.metadata.utils import normalize_project_name
 
         local_deps = list(self.local_dependencies_complex)
 
-        # Map each locally-resolved package name to the project that owns its optional-dependencies,
-        # so extras on `<pkg>[extra]` deps are expanded using the *referenced* project's own dependency
-        # resolution. `Project.get_dependencies` only evaluates metadata/version hooks (in that project's
-        # own build environment) when the relevant fields are actually dynamic, avoiding both dropped
-        # extras and spurious plugin errors from evaluating hooks in the wrong environment.
-        local_projects: dict[str, Project] = {}
+        local_projects: dict[str, dict[str, list[str]]] = {}
         if not self.skip_install:
-            local_projects[self.metadata.name.lower()] = self.app.project
+            local_projects[self.metadata.name] = {}
         for member in self.workspace.members:
-            local_projects[member.name.lower()] = member.project
+            _, opt = member.project.get_dependencies()
+            local_projects[member.name] = opt
 
-        filtered_deps: list[Dependency] = []
-        for dep in self.dependencies_complex:
-            dep_obj = dep if isinstance(dep, Dependency) else Dependency(str(dep))
+        dep_strs = [str(d) for d in self.dependencies_complex]
+        if self.metadata.name in local_projects:
+            from packaging.requirements import Requirement
 
-            name_lower = dep_obj.name.lower()
-            if name_lower in local_projects and dep_obj.extras:
-                _, optional_dependencies = local_projects[name_lower].get_dependencies()
-                for extra in dep_obj.extras:
-                    if extra in optional_dependencies:
-                        filtered_deps.extend(Dependency(d) for d in optional_dependencies[extra])
-            elif name_lower not in local_projects:
-                filtered_deps.append(dep_obj)
+            needs_root = any(
+                normalize_project_name(Requirement(d).name) == self.metadata.name and Requirement(d).extras
+                for d in dep_strs
+            )
+            if needs_root:
+                _, optional_deps = self.app.project.get_dependencies()
+                with self.apply_context():
+                    local_projects[self.metadata.name] = {
+                        feature: [self.metadata.context.format(dep) for dep in deps]
+                        for feature, deps in optional_deps.items()
+                    }
 
-        return local_deps + filtered_deps
+        external_deps = resolve_extras(dep_strs, local_projects, warn=self.app.display_warning)
+
+        return tuple(local_deps + [Dependency(d) for d in external_deps])
 
     @cached_property
     def all_dependencies(self) -> list[str]:
@@ -1177,6 +1182,8 @@ class Workspace:
         return parallel
 
     def get_dependencies(self) -> list[str]:
+        from hatch.utils.dep import resolve_extras
+
         static_members: list[WorkspaceMember] = []
         dynamic_members: list[WorkspaceMember] = []
         for member in self.members:
@@ -1189,8 +1196,10 @@ class Workspace:
         for member in static_members:
             dependencies, features = member.get_dependencies()
             all_dependencies.extend(dependencies)
+            local_projects = {member.name: features}
             for feature in member.features:
-                all_dependencies.extend(features.get(feature, []))
+                feature_deps = features.get(feature, [])
+                all_dependencies.extend(resolve_extras(feature_deps, local_projects, warn=self.env.app.display_warning))
 
         if self.parallel:
             from concurrent.futures import ThreadPoolExecutor
@@ -1199,8 +1208,10 @@ class Workspace:
                 with self.env.app.status(f"Checking workspace member: {member.name}"):
                     dependencies, features = member.get_dependencies()
                     deps = list(dependencies)
+                    local_projects = {member.name: features}
                     for feature in member.features:
-                        deps.extend(features.get(feature, []))
+                        feature_deps = features.get(feature, [])
+                        deps.extend(resolve_extras(feature_deps, local_projects, warn=self.env.app.display_warning))
                     return deps
 
             with ThreadPoolExecutor() as executor:
@@ -1212,8 +1223,12 @@ class Workspace:
                 with self.env.app.status(f"Checking workspace member: {member.name}"):
                     dependencies, features = member.get_dependencies()
                     all_dependencies.extend(dependencies)
+                    local_projects = {member.name: features}
                     for feature in member.features:
-                        all_dependencies.extend(features.get(feature, []))
+                        feature_deps = features.get(feature, [])
+                        all_dependencies.extend(
+                            resolve_extras(feature_deps, local_projects, warn=self.env.app.display_warning)
+                        )
 
         return all_dependencies
 
