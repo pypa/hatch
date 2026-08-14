@@ -1,11 +1,13 @@
 import os
 import tarfile
+import zipfile
 
 import pytest
 
 from hatchling.builders.plugin.interface import BuilderInterface
 from hatchling.builders.sdist import SdistBuilder
 from hatchling.builders.utils import get_reproducible_timestamp
+from hatchling.builders.wheel import WheelBuilder
 from hatchling.metadata.spec import DEFAULT_METADATA_VERSION, get_core_metadata_constructors
 from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT, DEFAULT_CONFIG_FILE
 
@@ -1542,3 +1544,133 @@ class TestBuildStandard:
         # we assert that at minimum 644 is set, based on the platform (e.g.)
         # windows it may be higher
         assert file_stat.st_mode & 0o644
+
+    def test_wheel_include_files_added_to_sdist(self, helpers, temp_dir):
+        """Wheel-only includes must ship in the sdist so PEP 517 frontends keep them.
+
+        https://github.com/pypa/hatch/issues/1874
+        """
+        project_path = temp_dir / "foo"
+        project_path.mkdir()
+        (project_path / "sdist.py").touch()
+        (project_path / "sdist_wheel.py").touch()
+        (project_path / "wheel.py").touch()
+
+        config = {
+            "project": {"name": "foo", "version": "0.0.1"},
+            "tool": {
+                "hatch": {
+                    "build": {
+                        "targets": {
+                            "sdist": {"include": ["sdist.py", "sdist_wheel.py"]},
+                            "wheel": {"include": ["sdist_wheel.py", "wheel.py"]},
+                        }
+                    }
+                }
+            },
+        }
+        builder = SdistBuilder(str(project_path), config=config)
+        artifacts = list(builder.build(directory=str(project_path / "dist")))
+        assert len(artifacts) == 1
+
+        with tarfile.open(artifacts[0], "r:gz") as archive:
+            names = archive.getnames()
+
+        prefix = builder.project_id
+        assert f"{prefix}/sdist.py" in names
+        assert f"{prefix}/sdist_wheel.py" in names
+        assert f"{prefix}/wheel.py" in names
+
+        extraction_directory = temp_dir / "_archive"
+        extraction_directory.mkdir()
+        with tarfile.open(artifacts[0], "r:gz") as archive:
+            archive.extractall(str(extraction_directory), **helpers.tarfile_extraction_compat_options())
+
+        unpacked = extraction_directory / prefix
+        wheel_builder = WheelBuilder(str(unpacked), config=config)
+        wheels = list(wheel_builder.build(directory=str(temp_dir / "wheels")))
+        with zipfile.ZipFile(wheels[0]) as wheel:
+            wheel_names = wheel.namelist()
+
+        assert "wheel.py" in wheel_names
+        assert "sdist_wheel.py" in wheel_names
+        assert "sdist.py" not in wheel_names
+
+    def test_sdist_exclude_overrides_wheel_include(self, temp_dir):
+        project_path = temp_dir / "foo"
+        project_path.mkdir()
+        (project_path / "kept.py").touch()
+        (project_path / "tree_only.py").touch()
+
+        config = {
+            "project": {"name": "foo", "version": "0.0.1"},
+            "tool": {
+                "hatch": {
+                    "build": {
+                        "targets": {
+                            "sdist": {"include": ["kept.py", "tree_only.py"], "exclude": ["tree_only.py"]},
+                            "wheel": {"include": ["kept.py", "tree_only.py"]},
+                        }
+                    }
+                }
+            },
+        }
+        builder = SdistBuilder(str(project_path), config=config)
+        artifacts = list(builder.build(directory=str(project_path / "dist")))
+
+        with tarfile.open(artifacts[0], "r:gz") as archive:
+            names = archive.getnames()
+
+        prefix = builder.project_id
+        assert f"{prefix}/kept.py" in names
+        assert f"{prefix}/tree_only.py" not in names
+
+    def test_wheel_force_include_source_added_to_sdist(self, temp_dir):
+        project_path = temp_dir / "foo"
+        project_path.mkdir()
+        (project_path / "pkg").mkdir()
+        (project_path / "pkg" / "__init__.py").touch()
+        (project_path / "data.txt").write_text("payload\n")
+
+        config = {
+            "project": {"name": "foo", "version": "0.0.1"},
+            "tool": {
+                "hatch": {
+                    "build": {
+                        "targets": {
+                            "sdist": {"only-include": ["pkg"]},
+                            "wheel": {
+                                "packages": ["pkg"],
+                                "force-include": {"data.txt": "pkg/data.txt"},
+                            },
+                        }
+                    }
+                }
+            },
+        }
+        builder = SdistBuilder(str(project_path), config=config)
+        artifacts = list(builder.build(directory=str(project_path / "dist")))
+
+        with tarfile.open(artifacts[0], "r:gz") as archive:
+            names = archive.getnames()
+
+        prefix = builder.project_id
+        assert f"{prefix}/pkg/__init__.py" in names
+        assert f"{prefix}/data.txt" in names
+
+    def test_missing_wheel_package_does_not_fail_sdist(self, temp_dir):
+        project_path = temp_dir / "proj"
+        project_path.mkdir()
+        (project_path / "notes.txt").write_text("hi\n")
+        config = {
+            "project": {"name": "MyApp", "version": "0.0.1"},
+            "tool": {"hatch": {"build": {"targets": {"sdist": {"include": ["notes.txt"]}}}}},
+        }
+        builder = SdistBuilder(str(project_path), config=config)
+        artifacts = list(builder.build(directory=str(project_path / "dist")))
+        assert len(artifacts) == 1
+
+        with tarfile.open(artifacts[0], "r:gz") as archive:
+            names = archive.getnames()
+
+        assert f"{builder.project_id}/notes.txt" in names

@@ -40,6 +40,8 @@ When the user has not set any [file selection](../../config/build.md#file-select
     - Any defined [`readme`](../../config/metadata.md#readme) file
     - All defined [`license-files`](../../config/metadata.md#license)
 
+    In-tree files selected by the [wheel](wheel.md) target are also included, so frontends that build the wheel from the sdist (`python -m build`, `uv build`) ship the same contents as `hatch build -t wheel`. Paths listed in the sdist [`exclude`](../../config/build.md#patterns) option are still omitted. Generated or out-of-tree wheel sources are not copied; those still need a [build hook](../build-hook/reference.md) or an explicit sdist [`artifacts`](../../config/build.md#artifacts) / [`force-include`](../../config/build.md#forced-inclusion) entry.
+
 ## Reproducibility
 
 [Reproducible builds](../../config/build.md#reproducible-builds) are supported.
