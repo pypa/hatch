@@ -2052,6 +2052,242 @@ test = ["member-test-dep"]
         deps = environment.dependencies_complex
         assert any("extra-dep" in str(d) for d in deps)
 
+    def test_self_referencing_dependency_with_recursive_extras(
+        self, temp_dir, isolated_data_dir, platform, global_application
+    ):
+        """An extra that references another extra of the same project must be expanded transitively.
+
+        Note that hatchling rejects a cyclic chain like this one outright, so the cycle here only asserts
+        that expansion terminates, not that such a project is otherwise valid.
+        """
+        project_dir = temp_dir / "my-app"
+        project_dir.mkdir()
+
+        config = {
+            "project": {
+                "name": "my-app",
+                "version": "0.0.1",
+                "dependencies": [],
+                "optional-dependencies": {
+                    "all": ["my-app[test]", "direct-dep"],
+                    "test": ["my-app[cycle]", "pytest>=7.0"],
+                    "cycle": ["my-app[all]", "cycle-dep"],
+                },
+            },
+            "tool": {"hatch": {"envs": {"dev": {"skip-install": False, "dependencies": ["my-app[all]"]}}}},
+        }
+
+        project = Project(project_dir, config=config)
+        global_application.project = project
+
+        environment = MockEnvironment(
+            project_dir,
+            project.metadata,
+            "dev",
+            project.config.envs["dev"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            global_application,
+        )
+
+        all_deps_str = [str(d) for d in environment.all_dependencies_complex]
+
+        assert "direct-dep" in all_deps_str
+        assert "pytest>=7.0" in all_deps_str
+        assert "cycle-dep" in all_deps_str
+        # No unexpanded self-references may be handed to the installer
+        assert not any(dep.startswith("my-app[") for dep in all_deps_str)
+
+    def test_self_referencing_dependency_with_unnormalized_names(
+        self, temp_dir, isolated_data_dir, platform, global_application
+    ):
+        """Project and extra names must be matched in their normalized (PEP 503/685) form."""
+        project_dir = temp_dir / "my-app"
+        project_dir.mkdir()
+
+        config = {
+            "project": {
+                "name": "My.App",
+                "version": "0.0.1",
+                "dependencies": [],
+                "optional-dependencies": {
+                    "all": ["My_App[Test_Extra]"],
+                    "test.extra": ["pytest>=7.0"],
+                },
+            },
+            "tool": {"hatch": {"envs": {"dev": {"skip-install": False, "dependencies": ["my_app[ALL]"]}}}},
+        }
+
+        project = Project(project_dir, config=config)
+        global_application.project = project
+
+        environment = MockEnvironment(
+            project_dir,
+            project.metadata,
+            "dev",
+            project.config.envs["dev"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            global_application,
+        )
+
+        all_deps_str = [str(d) for d in environment.all_dependencies_complex]
+
+        assert "pytest>=7.0" in all_deps_str
+        assert not any("my" in dep.lower() and "[" in dep for dep in all_deps_str)
+
+    def test_self_referencing_dependency_with_ambiguous_extras(
+        self, temp_dir, isolated_data_dir, platform, global_application
+    ):
+        """With `allow-ambiguous-features`, an extra as written must win over a normalized alias.
+
+        `Feature_A` normalizes to `feature-a`, which is itself a distinct extra here.
+        """
+        project_dir = temp_dir / "my-app"
+        project_dir.mkdir()
+
+        config = {
+            "project": {
+                "name": "my-app",
+                "version": "0.0.1",
+                "dependencies": [],
+                # Declared in this order so that a plain assignment instead of `setdefault` would
+                # clobber `feature-a` rather than coincidentally restore it
+                "optional-dependencies": {"feature-a": ["dep-lower"], "Feature_A": ["dep-upper"]},
+            },
+            "tool": {
+                "hatch": {
+                    "metadata": {"allow-ambiguous-features": True},
+                    "envs": {"dev": {"skip-install": False, "dependencies": ["my-app[feature-a]"]}},
+                }
+            },
+        }
+
+        project = Project(project_dir, config=config)
+        global_application.project = project
+
+        environment = MockEnvironment(
+            project_dir,
+            project.metadata,
+            "dev",
+            project.config.envs["dev"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            global_application,
+        )
+
+        all_deps_str = [str(d) for d in environment.all_dependencies_complex]
+
+        assert "dep-lower" in all_deps_str
+        assert "dep-upper" not in all_deps_str
+
+    def test_workspace_member_extra_referencing_sibling_member(
+        self, temp_dir, isolated_data_dir, platform, temp_application
+    ):
+        """An extra of one workspace member may reference an extra of another member."""
+        for name, optional_dependencies in (
+            ("member-a", '[project.optional-dependencies]\nall = ["member-b[test]"]'),
+            ("member-b", '[project.optional-dependencies]\ntest = ["member-b-test-dep"]'),
+        ):
+            member_file = temp_dir / name / "pyproject.toml"
+            member_file.parent.mkdir()
+            member_file.write_text(
+                f"""\
+    [build-system]
+    requires = ["hatchling"]
+    build-backend = "hatchling.build"
+
+    [project]
+    name = "{name}"
+    version = "0.0.1"
+    dependencies = []
+
+    {optional_dependencies}
+    """
+            )
+
+        config = {
+            "project": {"name": "my-app", "version": "0.0.1", "dependencies": []},
+            "tool": {
+                "hatch": {
+                    "envs": {
+                        "default": {
+                            "skip-install": False,
+                            "dependencies": ["member-a[all]"],
+                            "workspace": {"members": [{"path": "member-a"}, {"path": "member-b"}]},
+                        },
+                    },
+                },
+            },
+        }
+
+        project = Project(temp_dir, config=config)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            temp_dir,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        all_deps_str = [str(d) for d in environment.all_dependencies_complex]
+
+        # `member-a[all]` -> `member-b[test]` -> `member-b-test-dep`
+        assert "member-b-test-dep" in all_deps_str
+        assert not any(dep.startswith("member-") and "[" in dep for dep in all_deps_str)
+
+    def test_self_referencing_dependency_with_unknown_extra_warns(
+        self, temp_dir, isolated_data_dir, platform, global_application, capsys
+    ):
+        """An extra the local project does not define must not vanish silently."""
+        project_dir = temp_dir / "my-app"
+        project_dir.mkdir()
+
+        config = {
+            "project": {
+                "name": "my-app",
+                "version": "0.0.1",
+                "dependencies": [],
+                "optional-dependencies": {"test": ["pytest>=7.0"]},
+            },
+            "tool": {"hatch": {"envs": {"dev": {"skip-install": False, "dependencies": ["my-app[tset]"]}}}},
+        }
+
+        project = Project(project_dir, config=config)
+        global_application.project = project
+
+        environment = MockEnvironment(
+            project_dir,
+            project.metadata,
+            "dev",
+            project.config.envs["dev"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            global_application,
+        )
+
+        assert not any("pytest" in str(d) for d in environment.all_dependencies_complex)
+        assert "refers to extra `tset`, which local project `my-app` does not define" in capsys.readouterr().err
+
 
 class TestScripts:
     @pytest.mark.parametrize("field", ["scripts", "extra-scripts"])
@@ -3952,3 +4188,344 @@ version = "0.0.1"
         new_ctx = ctx.join("subdir")
         assert "subdir" in str(new_ctx.local_path)
         assert "subdir" in new_ctx.env_path
+
+
+class TestEnvironmentSources:
+    def test_path_source_rewrites_dependency(self, isolation, isolated_data_dir, platform, temp_application):
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1", "dependencies": ["dep1"]},
+            "tool": {
+                "hatch": {
+                    "sources": {"dep1": "./packages/dep1"},
+                    "envs": {"default": {"skip-install": False}},
+                }
+            },
+        }
+        project = Project(isolation, config=config)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        deps = environment.project_dependencies_complex
+        assert len(deps) == 1
+        assert deps[0].url is not None
+        assert deps[0].url.startswith("file://")
+        assert deps[0].editable is True
+
+    def test_index_source_becomes_install_flag(self, isolation, isolated_data_dir, platform, temp_application):
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1", "dependencies": ["dep1"]},
+            "tool": {
+                "hatch": {
+                    "sources": {"dep1": {"index": "https://pypi.example.com/simple"}},
+                    "envs": {"default": {"skip-install": False}},
+                }
+            },
+        }
+        project = Project(isolation, config=config)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        deps = environment.project_dependencies_complex
+        assert len(deps) == 1
+        assert deps[0].url is None
+
+        global_args = environment.get_source_install_args(deps)
+        assert global_args == ["--extra-index-url", "https://pypi.example.com/simple"]
+
+    def test_environment_dependencies_decorated(self, isolation, isolated_data_dir, platform, temp_application):
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {
+                "hatch": {
+                    "sources": {"dep2": {"git": "https://example.com/dep2", "rev": "abc"}},
+                    "envs": {"default": {"dependencies": ["dep2"]}},
+                }
+            },
+        }
+        project = Project(isolation, config=config)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        deps = environment.environment_dependencies_complex
+        assert len(deps) == 1
+        assert deps[0].url == "git+https://example.com/dep2@abc"
+
+    def test_no_sources_is_noop(self, isolation, isolated_data_dir, platform, temp_application):
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1", "dependencies": ["dep1"]},
+            "tool": {"hatch": {"envs": {"default": {"skip-install": False}}}},
+        }
+        project = Project(isolation, config=config)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        deps = environment.project_dependencies_complex
+        assert len(deps) == 1
+        assert deps[0].url is None
+        assert environment.get_source_install_args(deps) == []
+
+    def test_workspace_source_resolves_to_member(self, temp_dir, isolated_data_dir, platform, temp_application):
+        member_dir = temp_dir / "packages" / "dep1"
+        member_dir.ensure_dir_exists()
+        (member_dir / "pyproject.toml").write_text('[project]\nname = "dep1"\nversion = "0.0.1"\n')
+
+        pyproject = temp_dir / "pyproject.toml"
+        pyproject.write_text("""
+[project]
+name = "my-app"
+version = "0.0.1"
+dependencies = ["dep1"]
+
+[tool.hatch.sources]
+dep1 = { workspace = true }
+
+[tool.hatch.envs.default]
+skip-install = false
+workspace.members = ["packages/*"]
+""")
+
+        project = Project(temp_dir)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            temp_dir,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        workspace_deps = [dep for dep in environment.project_dependencies_complex if dep.name == "dep1"]
+        assert len(workspace_deps) == 1
+        dep = workspace_deps[0]
+        assert dep.url is not None
+        assert dep.url.startswith("file://")
+        assert dep.url.endswith("packages/dep1")
+        assert dep.editable is True
+
+    def test_workspace_source_without_member_errors(self, temp_dir, isolated_data_dir, platform, temp_application):
+        pyproject = temp_dir / "pyproject.toml"
+        pyproject.write_text("""
+[project]
+name = "my-app"
+version = "0.0.1"
+dependencies = ["dep1"]
+
+[tool.hatch.sources]
+dep1 = { workspace = true }
+
+[tool.hatch.envs.default]
+skip-install = false
+""")
+
+        project = Project(temp_dir)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            temp_dir,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        with pytest.raises(
+            ValueError,
+            match="Dependency `dep1` declares `workspace = true` in its environment's `sources`",
+        ):
+            _ = environment.project_dependencies_complex
+
+    def test_env_sources_override_global(self, isolation, isolated_data_dir, platform, temp_application):
+        from hatch.project.sources import GitSource, PathSource
+
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1", "dependencies": ["dep1"]},
+            "tool": {
+                "hatch": {
+                    "sources": {"dep1": "./packages/dep1"},
+                    "envs": {
+                        "default": {"skip-install": False},
+                        "upstream": {
+                            "skip-install": False,
+                            "sources": {"dep1": {"git": "https://example.com/dep1", "branch": "main"}},
+                        },
+                    },
+                }
+            },
+        }
+        project = Project(isolation, config=config)
+        project.set_app(temp_application)
+        temp_application.project = project
+
+        environments = {}
+        for env_name in ("default", "upstream"):
+            environments[env_name] = MockEnvironment(
+                isolation,
+                project.metadata,
+                env_name,
+                project.config.envs[env_name],
+                {},
+                isolated_data_dir,
+                isolated_data_dir,
+                platform,
+                0,
+                temp_application,
+            )
+
+        assert isinstance(environments["default"].sources["dep1"], PathSource)
+        assert isinstance(environments["upstream"].sources["dep1"], GitSource)
+
+        deps = environments["upstream"].project_dependencies_complex
+        assert len(deps) == 1
+        assert deps[0].url == "git+https://example.com/dep1@main"
+
+    def test_env_sources_error_location(self, isolation, isolated_data_dir, platform, temp_application):
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {
+                "hatch": {
+                    "envs": {"default": {"sources": {"dep1": {"path": 9000}}}},
+                }
+            },
+        }
+        project = Project(isolation, config=config)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        with pytest.raises(
+            TypeError, match=re.escape("Field `tool.hatch.envs.default.sources.dep1.path` must be a string")
+        ):
+            _ = environment.sources
+
+    def test_no_sources_env_var(self, isolation, isolated_data_dir, platform, temp_application):
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1", "dependencies": ["dep1"]},
+            "tool": {
+                "hatch": {
+                    "sources": {"dep1": "./packages/dep1"},
+                    "envs": {"default": {"skip-install": False}},
+                }
+            },
+        }
+        project = Project(isolation, config=config)
+        project.set_app(temp_application)
+        temp_application.project = project
+
+        with EnvVars({AppEnvVars.NO_SOURCES: "1"}):
+            environment = MockEnvironment(
+                isolation,
+                project.metadata,
+                "default",
+                project.config.envs["default"],
+                {},
+                isolated_data_dir,
+                isolated_data_dir,
+                platform,
+                0,
+                temp_application,
+            )
+            deps = environment.project_dependencies_complex
+
+        assert len(deps) == 1
+        assert deps[0].url is None
+
+    def test_additional_dependencies_decorated(self, isolation, isolated_data_dir, platform, temp_application):
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {
+                "hatch": {
+                    "sources": {"dep3": {"git": "https://example.com/dep3", "rev": "abc"}},
+                    "envs": {"default": {}},
+                }
+            },
+        }
+        project = Project(isolation, config=config)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+        environment.additional_dependencies = ["dep3"]
+
+        deps = [dep for dep in environment.dependencies_complex if dep.name == "dep3"]
+        assert len(deps) == 1
+        assert deps[0].url == "git+https://example.com/dep3@abc"

@@ -3,11 +3,15 @@ from __future__ import annotations
 import re
 import sys
 from importlib.metadata import Distribution, DistributionFinder
+from typing import TYPE_CHECKING
 
 from packaging.markers import default_environment
 
 from hatch.dep.core import Dependency
 from hatch.utils.fs import Path
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 
 class InstalledDistributions:
@@ -24,7 +28,7 @@ class InstalledDistributions:
     def dependencies_in_sync(self, dependencies: list[Dependency]) -> bool:
         return all(self.dependency_in_sync(dependency) for dependency in dependencies)
 
-    def missing_dependencies(self, dependencies: list[Dependency]) -> list[Dependency]:
+    def missing_dependencies(self, dependencies: Sequence[Dependency]) -> list[Dependency]:
         return [dependency for dependency in dependencies if not self.dependency_in_sync(dependency)]
 
     def dependency_in_sync(self, dependency: Dependency, *, environment: dict[str, str] | None = None) -> bool:
@@ -83,6 +87,9 @@ class InstalledDistributions:
                     return False
 
                 if Path.from_uri(url) != dependency.path:
+                    return False
+
+                if direct_url_data.get("subdirectory") != dependency.subdirectory:
                     return False
 
             if "vcs_info" in direct_url_data:

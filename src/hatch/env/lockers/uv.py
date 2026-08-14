@@ -96,6 +96,10 @@ class UvLocker(LockerInterface):
         for group in lock_groups:
             command.extend(["--group", group])
 
+        # Index sources do not rewrite requirement strings, so their flags must
+        # be passed to the resolver directly
+        command.extend(environment.get_source_install_args(environment.dependencies_complex))
+
         add_verbosity_flag(command, environment.verbosity, adjustment=-1)
 
         if upgrade:

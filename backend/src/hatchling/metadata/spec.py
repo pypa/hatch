@@ -2,12 +2,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from hatchling.metadata.utils import split_import_name_annotation
+
 if TYPE_CHECKING:
     from collections.abc import Callable
 
     from hatchling.metadata.core import ProjectMetadata
 
-DEFAULT_METADATA_VERSION = "2.4"
+DEFAULT_METADATA_VERSION = "2.5"
 LATEST_METADATA_VERSION = "2.5"
 CORE_METADATA_PROJECT_FIELDS = {
     "Author": ("authors",),
@@ -633,12 +635,14 @@ def construct_metadata_file_2_5(metadata: ProjectMetadata, extra_dependencies: t
             metadata_file += "Import-Name\n"
 
         for import_name in metadata.core.import_names:
-            _name = f"{import_name}; private" if import_name.startswith("_") else import_name
+            name, private = split_import_name_annotation(import_name)
+            _name = f"{name}; private" if private or name.startswith("_") else name
             metadata_file += f"Import-Name: {_name}\n"
 
     if metadata.core.import_namespaces:
         for import_namespace in metadata.core.import_namespaces:
-            _name = f"{import_namespace}; private" if import_namespace.startswith("_") else import_namespace
+            name, private = split_import_name_annotation(import_namespace)
+            _name = f"{name}; private" if private or name.startswith("_") else name
             metadata_file += f"Import-Namespace: {_name}\n"
 
     if metadata.core.dynamic:

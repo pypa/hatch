@@ -1420,7 +1420,7 @@ class TestImportNames:
         with pytest.raises(TypeError, match="Field `project.import-names` must be an array"):
             _ = metadata.core.import_names
 
-    @pytest.mark.parametrize("entry", [5, "1_foo", "foo.1_bar"])
+    @pytest.mark.parametrize("entry", [5, "1_foo", "foo.1_bar", "foo ; not-valid"])
     def test_entry_not_valid_import_name(self, isolation, entry):
         metadata = ProjectMetadata(str(isolation), None, {"project": {"import-names": [entry]}})
 
@@ -1433,6 +1433,11 @@ class TestImportNames:
         metadata = ProjectMetadata(str(isolation), None, {"project": {"import-names": ["foo", "_foo"]}})
 
         assert metadata.core.import_names == ["_foo", "foo"]
+
+    def test_private_import_name(self, isolation):
+        metadata = ProjectMetadata(str(isolation), None, {"project": {"import-names": ["foo", "_foo ; private"]}})
+
+        assert metadata.core.import_names == ["_foo ; private", "foo"]
 
 
 class TestImportNamespaces:
@@ -1453,7 +1458,7 @@ class TestImportNamespaces:
         with pytest.raises(TypeError, match="Field `project.import-namespaces` must be an array"):
             _ = metadata.core.import_namespaces
 
-    @pytest.mark.parametrize("entry", [5, "1_foo", "foo.1_bar"])
+    @pytest.mark.parametrize("entry", [5, "1_foo", "foo.1_bar", "foo.bar ; not-valid"])
     def test_entry_not_valid_import_name(self, isolation, entry):
         metadata = ProjectMetadata(str(isolation), None, {"project": {"import-namespaces": [entry]}})
 
@@ -1466,6 +1471,15 @@ class TestImportNamespaces:
         metadata = ProjectMetadata(str(isolation), None, {"project": {"import-namespaces": ["foo", "foo.bar"]}})
 
         assert metadata.core.import_namespaces == ["foo", "foo.bar"]
+
+    def test_private_import_namespace(self, isolation):
+        metadata = ProjectMetadata(
+            str(isolation),
+            None,
+            {"project": {"import-namespaces": ["foo", "foo.bar", "foo.bar ; private"]}},
+        )
+
+        assert metadata.core.import_namespaces == ["foo", "foo.bar", "foo.bar ; private"]
 
     def test_import_names_and_import_namespaces_conflict(self, isolation):
         metadata = ProjectMetadata(
