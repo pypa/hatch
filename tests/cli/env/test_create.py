@@ -1758,6 +1758,61 @@ def test_plugin_dependencies_unmet(hatch, config_file, helpers, temp_dir, mock_p
     assert env_path.name == project_path.name
 
 
+def test_plugin_dependencies_unmet_pyapp(
+    hatch, config_file, helpers, temp_dir, mock_plugin_installation, mock_python_path
+):
+    config_file.model.template.plugins["default"]["tests"] = False
+    config_file.save()
+
+    project_name = "My.PyApp"
+
+    with temp_dir.as_cwd():
+        result = hatch("new", project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / "my-pyapp"
+    data_path = temp_dir / "data"
+    data_path.mkdir()
+
+    dependency = os.urandom(16).hex()
+    (project_path / DEFAULT_CONFIG_FILE).write_text(
+        helpers.dedent(
+            f"""
+            [env]
+            requires = ["{dependency}"]
+            """
+        )
+    )
+
+    project = Project(project_path)
+    helpers.update_project_environment(project, "default", {"skip-install": True, **project.config.envs["default"]})
+
+    management_command = os.environ["PYAPP_COMMAND_NAME"]
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path), "PYAPP": sys.executable}):
+        result = hatch("env", "create")
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        """
+        Syncing environment plugin requirements
+        Creating environment: default
+        Checking dependencies
+        """
+    )
+    # No `--python` may appear here, and the flags must reach the binary in
+    # an order both `pip` and `uv` accept
+    helpers.assert_plugin_installation(
+        mock_plugin_installation,
+        [dependency],
+        app_command=[sys.executable, management_command],
+    )
+    # Dependencies must be resolved against the interpreter the binary
+    # manages
+    assert mock_python_path.call_count == 1
+    assert mock_python_path.call_args.args[0] == [sys.executable, management_command, "python-path"]
+
+
 @pytest.mark.usefixtures("mock_plugin_installation")
 def test_plugin_dependencies_met(hatch, config_file, helpers, temp_dir):
     config_file.model.template.plugins["default"]["tests"] = False
