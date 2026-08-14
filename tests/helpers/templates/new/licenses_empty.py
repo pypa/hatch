@@ -4,6 +4,10 @@ from hatch.utils.fs import Path
 
 def get_files(**kwargs):
     return [
+        File(
+            Path(".gitignore"),
+            "__pycache__/\ndist/\n",
+        ),
         File(Path("src", kwargs["package_name"], "__init__.py")),
         File(Path("src", kwargs["package_name"], "__about__.py"), '__version__ = "0.0.1"\n'),
         File(Path("tests", "__init__.py")),
