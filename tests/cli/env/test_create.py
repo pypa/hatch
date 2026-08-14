@@ -1,8 +1,5 @@
-from __future__ import annotations
-
 import os
 import sys
-from typing import TYPE_CHECKING
 
 import pytest
 
@@ -13,16 +10,6 @@ from hatch.utils.structures import EnvVars
 from hatch.venv.core import UVVirtualEnv, VirtualEnv
 from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT, DEFAULT_CONFIG_FILE
 from hatchling.utils.fs import path_to_uri
-
-if TYPE_CHECKING:
-    from collections.abc import Callable
-    from types import ModuleType
-    from unittest.mock import MagicMock
-
-    from click.testing import Result
-
-    from hatch.config.user import ConfigFile
-    from hatch.utils.fs import Path
 
 
 def test_undefined(hatch, helpers, temp_dir, config_file):
@@ -1772,26 +1759,23 @@ def test_plugin_dependencies_unmet(hatch, config_file, helpers, temp_dir, mock_p
 
 
 def test_plugin_dependencies_unmet_pyapp(
-    hatch: Callable[..., Result],
-    config_file: ConfigFile,
-    helpers: ModuleType,
-    temp_dir: Path,
-    mock_plugin_installation: MagicMock,
-    mock_python_path: MagicMock,
-) -> None:
-    """
-    This test is a PyApp counterpart to `test_plugin_dependencies_unmet`.
-    """
+    hatch, config_file, helpers, temp_dir, mock_plugin_installation, mock_python_path
+):
     config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
-    project_name: str = "My.PyApp"
+
+    project_name = "My.PyApp"
+
     with temp_dir.as_cwd():
-        result: Result = hatch("new", project_name)
+        result = hatch("new", project_name)
+
     assert result.exit_code == 0, result.output
-    project_path: Path = temp_dir / "my-pyapp"
-    data_path: Path = temp_dir / "data"
+
+    project_path = temp_dir / "my-pyapp"
+    data_path = temp_dir / "data"
     data_path.mkdir()
-    dependency: str = os.urandom(16).hex()
+
+    dependency = os.urandom(16).hex()
     (project_path / DEFAULT_CONFIG_FILE).write_text(
         helpers.dedent(
             f"""
@@ -1800,11 +1784,14 @@ def test_plugin_dependencies_unmet_pyapp(
             """
         )
     )
-    project: Project = Project(project_path)
+
+    project = Project(project_path)
     helpers.update_project_environment(project, "default", {"skip-install": True, **project.config.envs["default"]})
-    management_command: str = os.environ["PYAPP_COMMAND_NAME"]
+
+    management_command = os.environ["PYAPP_COMMAND_NAME"]
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path), "PYAPP": sys.executable}):
         result = hatch("env", "create")
+
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
         """
