@@ -166,23 +166,16 @@ class Application(Terminal):
         from hatch.dep.sync import InstalledDistributions
         from hatch.env.utils import add_verbosity_flag
 
-        pip_command: list[str]
         if app_path := os.environ.get("PYAPP"):
             from hatch.utils.env import PythonInfo
 
-            management_command = os.environ["PYAPP_COMMAND_NAME"]
+            management_command = os.environ.get("PYAPP_COMMAND_NAME", "self")
             executable = self.platform.check_command_output([app_path, management_command, "python-path"]).strip()
             python_info = PythonInfo(self.platform, executable=executable)
             distributions = InstalledDistributions(sys_path=python_info.sys_path)
             if distributions.dependencies_in_sync(dependencies):
                 return
-            pip_command = [
-                app_path,
-                management_command,
-                "pip",
-                "install",
-                "--disable-pip-version-check",
-            ]
+            pip_command = [app_path, management_command, "pip", "install", "--disable-pip-version-check"]
         else:
             distributions = InstalledDistributions()
             if distributions.dependencies_in_sync(dependencies):
@@ -191,13 +184,7 @@ class Application(Terminal):
             from uv import find_uv_bin
 
             uv_bin = find_uv_bin()
-            pip_command = [
-                uv_bin,
-                "pip",
-                "install",
-                "--python",
-                sys.executable,
-            ]
+            pip_command = [uv_bin, "pip", "install", "--python", sys.executable]
 
         # Default to -1 verbosity
         add_verbosity_flag(pip_command, self.verbosity, adjustment=-1)

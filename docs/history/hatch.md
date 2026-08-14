@@ -8,13 +8,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
-**Fixed:**
+***Fixed:***
 
-- Fix syncing environment plugin requirements failing with
-  `ERROR: The --python option must be placed before the pip subcommand name`
-  on the standalone binary. The `--python` option is now only passed to `uv`,
-  since the self-management command already targets its own installation and
-  may forward to `pip`, which requires that option to precede the subcommand.
+- Fix syncing environment plugin requirements on standalone binaries built to forward to `pip`
 
 ## [1.18.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.18.0) - 2026-08-11 ## {: #hatch-v1.18.0 }
 

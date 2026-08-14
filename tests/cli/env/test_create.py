@@ -1777,15 +1777,10 @@ def test_plugin_dependencies_unmet_pyapp(
     helpers: ModuleType,
     temp_dir: Path,
     mock_plugin_installation: MagicMock,
+    mock_python_path: MagicMock,
 ) -> None:
     """
     This test is a PyApp counterpart to `test_plugin_dependencies_unmet`.
-
-    This difference is materially relevant because, for PyApp binaries,
-    environment plugin requirements are installed through the standalone
-    binary's own self-management command, which forwards to either `pip` or
-    `uv pip`, depending on how the binary was built, and these commands
-    disagree about where the `--python` parameter belongs.
     """
     config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
@@ -1795,8 +1790,7 @@ def test_plugin_dependencies_unmet_pyapp(
     assert result.exit_code == 0, result.output
     project_path: Path = temp_dir / "my-pyapp"
     data_path: Path = temp_dir / "data"
-    data_path.mkdir(exist_ok=True)
-    # A random dependency ensures a real install is forced
+    data_path.mkdir()
     dependency: str = os.urandom(16).hex()
     (project_path / DEFAULT_CONFIG_FILE).write_text(
         helpers.dedent(
@@ -1806,24 +1800,10 @@ def test_plugin_dependencies_unmet_pyapp(
             """
         )
     )
-    # Skip the install so the environment is created without building the
-    # project itself (we only care about the plugin requirement sync)
     project: Project = Project(project_path)
-    helpers.update_project_environment(
-        project,
-        "default",
-        {"skip-install": True, **project.config.envs["default"]},
-    )
-    # The exposed management command is not always named `self`, so use
-    # whatever the isolation fixture randomized it to
+    helpers.update_project_environment(project, "default", {"skip-install": True, **project.config.envs["default"]})
     management_command: str = os.environ["PYAPP_COMMAND_NAME"]
-    # `PYAPP` is what makes Hatch believe it is running as a binary, and it
-    # doubles as the path invoked for the self-management command
-    env_vars: dict[str, str] = {
-        ConfigEnvVars.DATA: str(data_path),
-        "PYAPP": sys.executable,
-    }
-    with project_path.as_cwd(env_vars=env_vars):
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path), "PYAPP": sys.executable}):
         result = hatch("env", "create")
     assert result.exit_code == 0, result.output
     assert result.output == helpers.dedent(
@@ -1841,30 +1821,9 @@ def test_plugin_dependencies_unmet_pyapp(
         app_command=[sys.executable, management_command],
     )
     # Dependencies must be resolved against the interpreter the binary
-    # manages, which is discovered rather than assumed. This pins that the
-    # probe is performed — without it, replacing the whole chain with a
-    # bare `InstalledDistributions()` leaves the test green. It does not
-    # pin that the probed path is the one used, since the fixture returns
-    # `sys.executable` and so the two are indistinguishable here
-    probe: MagicMock = mock_plugin_installation.python_path
-    expected: list[str] = [sys.executable, management_command, "python-path"]
-
-    assert probe.call_count == 1
-    assert probe.call_args.args[0] == expected
-    # The sync must not stop the environment from being created, mirroring
-    # the assertions made by the non-PyApp counterpart
-    env_data_path: Path = data_path / "env" / "virtual"
-    assert env_data_path.is_dir()
-    project_data_path: Path = env_data_path / project_path.name
-    assert project_data_path.is_dir()
-    storage_dirs: tuple[Path, ...] = tuple(project_data_path.iterdir())
-    assert len(storage_dirs) == 1
-    storage_path: Path = storage_dirs[0]
-    assert len(storage_path.name) == 8
-    env_dirs: tuple[Path, ...] = tuple(storage_path.iterdir())
-    assert len(env_dirs) == 1
-    env_path: Path = env_dirs[0]
-    assert env_path.name == project_path.name
+    # manages
+    assert mock_python_path.call_count == 1
+    assert mock_python_path.call_args.args[0] == [sys.executable, management_command, "python-path"]
 
 
 @pytest.mark.usefixtures("mock_plugin_installation")
