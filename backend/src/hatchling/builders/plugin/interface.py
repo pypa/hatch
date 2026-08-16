@@ -228,7 +228,7 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
 
                         relative_file_path = os.path.join(target_path, relative_directory, f)
                         distribution_path = self.config.get_distribution_path(relative_file_path)
-                        if not self.config.path_is_reserved(distribution_path):
+                        if self.config.include_forced_path(distribution_path):
                             yield IncludedFile(
                                 os.path.join(root, f),
                                 "" if external else relative_file_path,
