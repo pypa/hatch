@@ -179,6 +179,11 @@ class Application(Terminal):
                 return
 
             pip_command = [app_path, management_command, "pip"]
+            # pip requires --python before the subcommand name, so it cannot
+            # share a single argument ordering with uv (which requires it
+            # after the subcommand) (#2389).
+            pip_command.extend(["--python", sys.executable])
+            pip_command.extend(["install", "--disable-pip-version-check"])
         else:
             distributions = InstalledDistributions()
             if distributions.dependencies_in_sync(dependencies):
@@ -186,8 +191,7 @@ class Application(Terminal):
 
             uv_bin = find_uv_bin()
             pip_command = [uv_bin, "pip"]
-
-        pip_command.extend(["install", "--disable-pip-version-check", "--python", sys.executable])
+            pip_command.extend(["install", "--disable-pip-version-check", "--python", sys.executable])
 
         # Default to -1 verbosity
         add_verbosity_flag(pip_command, self.verbosity, adjustment=-1)
