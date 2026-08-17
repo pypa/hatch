@@ -432,6 +432,9 @@ class VirtualEnvironment(EnvironmentInterface):
         return None
 
     def _resolve_internal_interpreter_path(self, python_version: str) -> str | None:
+        if dist := self.python_manager.get_installed().get(python_version):
+            return str(dist.python_path)
+
         if (available_distribution := self._get_available_distribution(python_version)) is not None:
             with self.app.status(f"Installing Python distribution: {available_distribution}"):
                 dist = self.python_manager.install(available_distribution)
