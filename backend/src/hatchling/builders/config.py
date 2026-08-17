@@ -752,6 +752,12 @@ class BuilderConfig:
     def vcs_exclusion_files(self) -> dict[str, list[str]]:
         exclusion_files: dict[str, list[str]] = {"git": [], "hg": []}
 
+        # Listed before `.gitignore` because Git gives the latter higher precedence, and the
+        # last matching pattern is the one that decides: https://git-scm.com/docs/gitignore
+        local_git_exclude = locate_file(self.root, os.path.join(".git", "info", "exclude"), boundary=".git")
+        if local_git_exclude is not None:
+            exclusion_files["git"].append(local_git_exclude)
+
         local_gitignore = locate_file(self.root, ".gitignore", boundary=".git")
         if local_gitignore is not None:
             exclusion_files["git"].append(local_gitignore)
