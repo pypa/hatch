@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING
 from hatch.config.constants import AppEnvVars
 from hatch.env.plugin.interface import EnvironmentInterface
 from hatch.env.utils import add_verbosity_flag
+from hatch.python.resolve import normalize_distribution_name
 from hatch.utils.fs import Path
 from hatch.utils.shells import ShellManager
 from hatch.utils.structures import EnvVars
@@ -213,7 +214,7 @@ class VirtualEnvironment(EnvironmentInterface):
             command.append("--dry-run")
         python_version = self.config.get("python", "")
         if python_version:
-            command.extend(["--python-version", python_version])
+            command.extend(["--python-version", normalize_distribution_name(python_version)])
         return command
 
     def dependencies_in_sync(self):

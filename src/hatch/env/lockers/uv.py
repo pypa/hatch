@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 
 from hatch.env.lockers.interface import LockerInterface
 from hatch.env.utils import add_verbosity_flag
+from hatch.python.resolve import normalize_distribution_name
 from hatch.utils.fs import Path
 
 if TYPE_CHECKING:
@@ -109,7 +110,7 @@ class UvLocker(LockerInterface):
 
         python_version = environment.config.get("python", "")
         if python_version:
-            command.extend(["--python-version", python_version])
+            command.extend(["--python-version", normalize_distribution_name(python_version)])
 
         with environment.command_context():
             environment.platform.check_command(command)
