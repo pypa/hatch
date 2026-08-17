@@ -1889,6 +1889,36 @@ class TestPatternExclude:
             assert builder.config.path_is_excluded(f"foo{separator}bar") is True
 
     @pytest.mark.parametrize("separator", ["/", "\\"])
+    def test_vcs_git_info_exclude(self, temp_dir, separator, platform):
+        if separator == "\\" and not platform.windows:
+            pytest.skip("Not running on Windows")
+
+        with temp_dir.as_cwd():
+            config = {"tool": {"hatch": {"build": {"exclude": ["foo"]}}}}
+            builder = MockBuilder(str(temp_dir), config=config)
+
+            git_info_dir = temp_dir / ".git" / "info"
+            git_info_dir.mkdir(parents=True)
+            (git_info_dir / "exclude").write_text("/bar\n*.pyc")
+
+            assert builder.config.exclude_spec.match_file(f"foo{separator}file.py")
+            assert builder.config.exclude_spec.match_file(f"bar{separator}file.py")
+            assert builder.config.exclude_spec.match_file(f"baz{separator}bar{separator}file.pyc")
+            assert not builder.config.exclude_spec.match_file(f"baz{separator}bar{separator}file.py")
+
+    def test_vcs_git_info_exclude_lower_precedence_than_gitignore(self, temp_dir):
+        with temp_dir.as_cwd():
+            builder = MockBuilder(str(temp_dir), config={})
+
+            git_info_dir = temp_dir / ".git" / "info"
+            git_info_dir.mkdir(parents=True)
+            (git_info_dir / "exclude").write_text("*.tmp")
+            (temp_dir / ".gitignore").write_text("!keep.tmp")
+
+            assert builder.config.exclude_spec.match_file("other.tmp")
+            assert not builder.config.exclude_spec.match_file("keep.tmp")
+
+    @pytest.mark.parametrize("separator", ["/", "\\"])
     def test_vcs_mercurial(self, temp_dir, separator, platform):
         if separator == "\\" and not platform.windows:
             pytest.skip("Not running on Windows")
