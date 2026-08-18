@@ -21,6 +21,27 @@ def normalize_project_name(project_name: str) -> str:
     return re.sub(r"[-_.]+", "-", project_name).lower()
 
 
+def split_import_name_annotation(import_name: str) -> tuple[str, bool]:
+    # https://packaging.python.org/en/latest/specifications/pyproject-toml/#import-names
+    # https://packaging.python.org/en/latest/specifications/pyproject-toml/#import-namespaces
+    #
+    # An import name MAY be followed by `; private`, with any amount of whitespace surrounding
+    # the semicolon. Returns the bare name and whether it was annotated private.
+    if ";" not in import_name:
+        return import_name, False
+
+    name, annotation = import_name.split(";", 1)
+    return name.strip(), annotation.strip() == "private"
+
+
+def is_valid_import_name(import_name: str) -> bool:
+    name, annotated_private = split_import_name_annotation(import_name)
+    if ";" in import_name and not annotated_private:
+        return False
+
+    return all(module.isidentifier() for module in name.split("."))
+
+
 def normalize_requirement(requirement: Requirement) -> None:
     # Changes to this function affect reproducibility between versions
     from packaging.specifiers import SpecifierSet

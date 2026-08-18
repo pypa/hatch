@@ -274,3 +274,18 @@ pkg[feature1,feature2] @ <REFERENCE> ; python_version < "3.7"
 ```
 
 Note that the space before the semicolon is required.
+
+
+## Sources
+
+Dependencies may be redirected to a local checkout, a Git branch, a URL, an alternate index, or a workspace member at install time, without changing the metadata your project publishes:
+
+```toml config-example
+[project]
+dependencies = ["foo"]
+
+[tool.hatch.sources]
+foo = "./packages/foo"
+```
+
+Sources are environment configuration, so each environment can redirect a dependency differently. See [environment sources](environment/sources.md) for the full reference.
