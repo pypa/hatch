@@ -20,6 +20,9 @@ RESERVED_OPTIONS = {
     "env-include": list,
     "env-vars": dict,
     "features": list,
+    "lock-filename": str,
+    "locker": str,
+    "locked": bool,
     "matrix-name-format": str,
     "platforms": list,
     "post-install-commands": list,
@@ -27,6 +30,7 @@ RESERVED_OPTIONS = {
     "python": str,
     "scripts": dict,
     "skip-install": bool,
+    "sources": dict,
     "type": str,
     "workspace": dict,
 }

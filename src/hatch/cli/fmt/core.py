@@ -106,11 +106,20 @@ class StaticAnalysisEnvironment:
                     f'extend = "{config_path}"',
                 ))
             else:
-                lines.insert(index + 1, f'extend = "{config_path}"')
+                # Only insert if extend is not already present in the [tool.ruff] section
+                next_section = next(
+                    (i for i in range(index + 1, len(lines)) if lines[i].startswith("[")),
+                    len(lines),
+                )
+                section_lines = lines[index + 1 : next_section]
+                if not any(line.startswith("extend") for line in section_lines):
+                    lines.insert(index + 1, f'extend = "{config_path}"')
 
             contents = "\n".join(lines)
-        else:
+        elif not any(line.startswith("extend") for line in old_contents.splitlines()):
             contents = f'extend = "{config_path}"\n{old_contents}'
+        else:
+            contents = old_contents
 
         self.internal_user_config_file.write_text(contents)
 

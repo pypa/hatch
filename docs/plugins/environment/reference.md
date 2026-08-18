@@ -74,6 +74,8 @@ All environment types should [offer support](#hatch.env.plugin.interface.Environ
       - platform
       - environment_dependencies
       - dependencies
+      - sources
+      - get_source_install_args
       - env_vars
       - env_include
       - env_exclude
@@ -93,3 +95,11 @@ All environment types should [offer support](#hatch.env.plugin.interface.Environ
       - get_option_types
       - get_env_var_option
       - get_context
+
+## Dependency lockers
+
+**Dependency lockers** are implemented: register classes with `hatch_register_locker` (see [Dependency locker plugins](../locker.md)). They stay **decoupled** from environment plugins—no subclassing [`EnvironmentInterface`](#hatch.env.plugin.interface.EnvironmentInterface) just to change locking—and call the environment’s **public API** (for example [`command_context`](#hatch.env.plugin.interface.EnvironmentInterface.command_context) and [`platform`](../utilities.md)).
+
+For moving artifacts between the workspace and the environment, custom lockers should prefer [`fs_context`](#hatch.env.plugin.interface.EnvironmentInterface.fs_context) and [`FileSystemContext`](../utilities.md#hatch.env.plugin.interface.FileSystemContext) over ad hoc I/O.
+
+End-user commands: [How to use lockfiles](../../how-to/environment/lockfiles.md).

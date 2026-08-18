@@ -578,6 +578,7 @@ path = "my_app/__init__.py"
     )
 
 
+@pytest.mark.requires_internet
 def test_initialize_setup_cfg_only(hatch, helpers, temp_dir):
     """
     Test initializing a project with a setup.cfg file only.

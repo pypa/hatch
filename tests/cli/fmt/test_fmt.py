@@ -5,6 +5,11 @@ import pytest
 from hatch.config.constants import ConfigEnvVars
 from hatch.project.core import Project
 
+FMT_DEPRECATION_WARNING = (
+    "The `hatch fmt` command is deprecated and will be removed in a future release."
+    " Use `hatch check code --fix` for linting and `hatch check fmt --fix` for formatting instead.\n"
+)
+
 
 def construct_ruff_defaults_file(rules: tuple[str, ...]) -> str:
     from hatch.cli.fmt.core import PER_FILE_IGNORED_RULES
@@ -90,7 +95,7 @@ class TestDefaults:
             result = hatch("fmt")
 
         assert result.exit_code == 0, result.output
-        assert result.output == helpers.dedent(
+        assert result.output == FMT_DEPRECATION_WARNING + helpers.dedent(
             f"""
             cmd [1] | ruff check --config {user_config_path} --fix .
             cmd [2] | ruff format --config {user_config_path} .
@@ -138,7 +143,7 @@ extend = "{config_path}\""""
             result = hatch("fmt", "--check")
 
         assert result.exit_code == 0, result.output
-        assert result.output == helpers.dedent(
+        assert result.output == FMT_DEPRECATION_WARNING + helpers.dedent(
             f"""
             cmd [1] | ruff check --config {user_config_path} .
             cmd [2] | ruff format --config {user_config_path} --check --diff .
@@ -192,7 +197,7 @@ extend = "{config_path}\""""
             result = hatch("fmt", "--check")
 
         assert result.exit_code == 0, result.output
-        assert result.output == helpers.dedent(
+        assert result.output == FMT_DEPRECATION_WARNING + helpers.dedent(
             f"""
             cmd [1] | ruff check --config {user_config_path} .
             cmd [2] | ruff format --config {user_config_path} --check --diff .
@@ -211,7 +216,7 @@ extend = "{config_path}\""""
             user_config.read_text()
             == f"""\
 [tool.ruff]
-extend = "{config_path}\"
+extend = "{config_path}"
 {old_contents.rstrip()}"""
         )
 
@@ -241,7 +246,7 @@ class TestPreview:
             result = hatch("fmt", "--preview")
 
         assert result.exit_code == 0, result.output
-        assert result.output == helpers.dedent(
+        assert result.output == FMT_DEPRECATION_WARNING + helpers.dedent(
             f"""
             cmd [1] | ruff check --config {user_config_path} --preview --fix .
             cmd [2] | ruff format --config {user_config_path} --preview .
@@ -289,7 +294,7 @@ extend = "{config_path}\""""
             result = hatch("fmt", "--check", "--preview")
 
         assert result.exit_code == 0, result.output
-        assert result.output == helpers.dedent(
+        assert result.output == FMT_DEPRECATION_WARNING + helpers.dedent(
             f"""
             cmd [1] | ruff check --config {user_config_path} --preview .
             cmd [2] | ruff format --config {user_config_path} --preview --check --diff .
@@ -334,7 +339,7 @@ class TestComponents:
             result = hatch("fmt", "--linter")
 
         assert result.exit_code == 0, result.output
-        assert not result.output
+        assert result.output == FMT_DEPRECATION_WARNING
 
         root_data_path = data_path / "env" / ".internal" / "hatch-static-analysis" / ".config"
         config_dir = next(root_data_path.iterdir())
@@ -377,7 +382,7 @@ extend = "{config_path}\""""
             result = hatch("fmt", "--formatter")
 
         assert result.exit_code == 0, result.output
-        assert not result.output
+        assert result.output == FMT_DEPRECATION_WARNING
 
         root_data_path = data_path / "env" / ".internal" / "hatch-static-analysis" / ".config"
         config_dir = next(root_data_path.iterdir())
@@ -421,7 +426,7 @@ extend = "{config_path}\""""
             result = hatch("fmt", "--linter", "--formatter")
 
         assert result.exit_code == 1, result.output
-        assert result.output == helpers.dedent(
+        assert result.output == FMT_DEPRECATION_WARNING + helpers.dedent(
             """
             Cannot specify both --linter and --formatter
             """
@@ -453,7 +458,7 @@ class TestArguments:
             result = hatch("fmt", "--", "--foo", "bar")
 
         assert result.exit_code == 0, result.output
-        assert result.output == helpers.dedent(
+        assert result.output == FMT_DEPRECATION_WARNING + helpers.dedent(
             f"""
             cmd [1] | ruff check --config {user_config_path} --fix --foo bar
             cmd [2] | ruff format --config {user_config_path} --foo bar
@@ -499,7 +504,7 @@ class TestConfigPath:
             result = hatch("fmt", "--sync")
 
         assert result.exit_code == 1, result.output
-        assert result.output == helpers.dedent(
+        assert result.output == FMT_DEPRECATION_WARNING + helpers.dedent(
             """
             The --sync flag can only be used when the `tool.hatch.format.config-path` option is defined
             """
@@ -532,7 +537,7 @@ class TestConfigPath:
             result = hatch("fmt", "--sync")
 
         assert result.exit_code == 0, result.output
-        assert result.output == helpers.dedent(
+        assert result.output == FMT_DEPRECATION_WARNING + helpers.dedent(
             """
             cmd [1] | ruff check --fix .
             cmd [2] | ruff format .
@@ -576,7 +581,7 @@ class TestConfigPath:
             result = hatch("fmt")
 
         assert result.exit_code == 0, result.output
-        assert result.output == helpers.dedent(
+        assert result.output == FMT_DEPRECATION_WARNING + helpers.dedent(
             """
             cmd [1] | ruff check --fix .
             cmd [2] | ruff format .
@@ -620,7 +625,7 @@ class TestConfigPath:
             result = hatch("fmt", "--sync")
 
         assert result.exit_code == 0, result.output
-        assert result.output == helpers.dedent(
+        assert result.output == FMT_DEPRECATION_WARNING + helpers.dedent(
             """
             The `tool.hatch.format.config-path` option is deprecated and will be removed in a future release. Use `tool.hatch.envs.hatch-static-analysis.config-path` instead.
             cmd [1] | ruff check --fix .
@@ -681,7 +686,7 @@ class TestCustomScripts:
             result = hatch("fmt", "--linter")
 
         assert result.exit_code == 0, result.output
-        assert not result.output
+        assert result.output == FMT_DEPRECATION_WARNING
 
         root_data_path = data_path / "env" / ".internal" / "hatch-static-analysis" / ".config"
         assert not root_data_path.is_dir()
@@ -731,7 +736,7 @@ class TestCustomScripts:
             result = hatch("fmt", "--check", "--linter")
 
         assert result.exit_code == 0, result.output
-        assert not result.output
+        assert result.output == FMT_DEPRECATION_WARNING
 
         root_data_path = data_path / "env" / ".internal" / "hatch-static-analysis" / ".config"
         assert not root_data_path.is_dir()
@@ -781,7 +786,7 @@ class TestCustomScripts:
             result = hatch("fmt", "--formatter")
 
         assert result.exit_code == 0, result.output
-        assert result.output == helpers.dedent(
+        assert result.output == FMT_DEPRECATION_WARNING + helpers.dedent(
             """
             cmd [1] | isort .
             cmd [2] | black .
@@ -837,7 +842,7 @@ class TestCustomScripts:
             result = hatch("fmt", "--check", "--formatter")
 
         assert result.exit_code == 0, result.output
-        assert result.output == helpers.dedent(
+        assert result.output == FMT_DEPRECATION_WARNING + helpers.dedent(
             """
             cmd [1] | black --check --diff .
             cmd [2] | isort --check-only --diff .
@@ -893,7 +898,7 @@ class TestCustomScripts:
             result = hatch("fmt")
 
         assert result.exit_code == 0, result.output
-        assert result.output == helpers.dedent(
+        assert result.output == FMT_DEPRECATION_WARNING + helpers.dedent(
             """
             cmd [1] | flake8 .
             cmd [2] | isort .
@@ -951,7 +956,7 @@ class TestCustomScripts:
             result = hatch("fmt", "--check")
 
         assert result.exit_code == 0, result.output
-        assert result.output == helpers.dedent(
+        assert result.output == FMT_DEPRECATION_WARNING + helpers.dedent(
             """
             cmd [1] | flake8 .
             cmd [2] | black --check --diff .

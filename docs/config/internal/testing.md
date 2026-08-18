@@ -102,7 +102,7 @@ If you want to change the default commands that are executed, you can override t
 <HATCH_TEST_ENV_SCRIPTS>
 ```
 
-The `run` script is the default behavior while the `run-cov` script is used instead when measuring code coverage. The `cov-combine` script runs after all tests complete when measuring code coverage, as well as the `cov-report` script when not using the `--cover-quiet` flag.
+The `run` script is the default behavior while the `run-cov` script is used instead when measuring code coverage. The `cov-combine` script runs after all tests complete when measuring code coverage, as well as the `cov-report` script when not using the `--cover-quiet` flag. The `--cover-xml` flag can be used to generate an XML coverage report (equivalent to running `coverage xml`), and the `--cover-xml-output` flag can be used to specify a custom output path.
 
 !!! note
     The `HATCH_TEST_ARGS` environment variable is how the [`test`](../../cli/reference.md#hatch-test) command's flags are translated and internally populated without affecting the user's arguments. This is also the way that [extra arguments](#extra-arguments) are passed.

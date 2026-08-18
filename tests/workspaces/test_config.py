@@ -1,3 +1,7 @@
+import pytest
+
+
+@pytest.mark.requires_internet
 class TestWorkspaceConfiguration:
     def test_workspace_members_editable_install(self, temp_dir, hatch):
         """Test that workspace members are installed as editable packages."""
@@ -499,7 +503,7 @@ version = "0.1.0"
       "services/worker",
       "services/frontend"
     ]
-    dependencies = ["pytest", "httpx", "docker"]
+    dependencies = ["pytest", "httpx2", "docker"]
     scripts.test = "pytest tests/integration {args}"
     """)
 

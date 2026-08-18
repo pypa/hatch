@@ -12,4 +12,5 @@ if typing.TYPE_CHECKING:
 
 @hookimpl
 def hatch_register_build_hook() -> list[type[BuildHookInterface]]:
-    return [CustomBuildHook, VersionBuildHook]
+    # CustomBuildHook fakes its type via `__new__`; it is not a real subclass
+    return [CustomBuildHook, VersionBuildHook]  # type: ignore[list-item]

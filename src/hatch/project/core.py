@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import re
 from collections import defaultdict
-from collections.abc import Generator
 from contextlib import contextmanager
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, cast
@@ -236,6 +235,15 @@ class Project:
             new_dep_hash = environment.dependency_hash()
 
         current_dep_hash = self.env_metadata.dependency_hash(environment)
+
+        from hatch.env.lock import environment_has_lock_inputs, generate_lockfile, resolve_lockfile_path
+
+        if environment.locked and environment_has_lock_inputs(environment):
+            lockfile_path = resolve_lockfile_path(environment)
+            if not lockfile_path.is_file() or new_dep_hash != current_dep_hash:
+                with self.app.status(f"Locking environment: {environment.name}"):
+                    generate_lockfile(environment, lockfile_path)
+
         if new_dep_hash != current_dep_hash:
             with environment.app_status_dependency_installation_check():
                 dependencies_in_sync = environment.dependencies_in_sync()
@@ -389,14 +397,38 @@ class Project:
         # Used for creating new projects
         return re.sub(r"[-_. ]+", "-", name).lower()
 
+    def _check_hatch_version(self) -> None:
+        specifier_set = self.config.hatch_specifier_set
+        if not specifier_set:
+            return
+
+        from hatch._version import __version__
+
+        if not specifier_set.contains(__version__, prereleases=True):
+            self.app.abort(f"Hatch {specifier_set} is required but {__version__} is installed")
+
     @property
     def metadata(self):
         if self._metadata is None:
             from hatchling.metadata.core import ProjectMetadata
 
             self._metadata = ProjectMetadata(self.location, self.plugin_manager, self.raw_config)
+            self._check_hatch_version()
 
         return self._metadata
+
+    @cached_property
+    def defines_project(self) -> bool:
+        """
+        Whether the project file defines a `project` table itself, as opposed to one being
+        synthesized for environment management only.
+        """
+        if self.root is None or self._project_file_path is None:
+            return False
+
+        from hatch.utils.toml import load_toml_file
+
+        return "project" in load_toml_file(str(self._project_file_path))
 
     @property
     def raw_config(self):

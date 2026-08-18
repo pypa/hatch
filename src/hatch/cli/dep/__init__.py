@@ -1,9 +1,67 @@
 import click
 
+from hatch.cli.env.lock import dependency_lock_click_options, run_dep_lock
+
 
 @click.group(short_help="Manage environment dependencies")
 def dep():
     pass
+
+
+@dep.command("lock", short_help="Generate a lockfile for the active environment (`-e` / `HATCH_ENV`)")
+@dependency_lock_click_options
+@click.pass_obj
+def dep_lock(
+    app,
+    *,
+    upgrade: bool,
+    upgrade_package: tuple[str, ...],
+    export_path: str | None,
+    export_all_path: str | None,
+    check: bool,
+):
+    """Resolve dependencies and write a PEP 751 ``pylock.toml`` for the selected environment."""
+    app.ensure_environment_plugin_dependencies()
+    run_dep_lock(
+        app,
+        upgrade=upgrade,
+        upgrade_package=upgrade_package,
+        export_path=export_path,
+        export_all_path=export_all_path,
+        check=check,
+    )
+
+
+@dep.command("sync", short_help="Install dependencies from the environment lockfile (`apply_lock`)")
+@click.pass_obj
+def dep_sync(app):
+    """Sync the active environment to its lockfile (``locked`` environments only)."""
+    app.ensure_environment_plugin_dependencies()
+
+    environment = app.project.get_environment()
+    if not environment.locked:
+        app.abort(
+            "The active environment is not `locked`. Set `locked = true` or use `hatch env lock --export` "
+            "and a normal install workflow."
+        )
+
+    from hatch.env.lock import LockerNotFoundError, LockerUnsupportedError, resolve_lockfile_path
+
+    lock_path = resolve_lockfile_path(environment)
+    if not lock_path.is_file():
+        app.abort(f"No lockfile at `{lock_path}`. Run `hatch dep lock` or `hatch env lock` first.")
+
+    try:
+        with app.status("Syncing from lockfile"):
+            environment.sync_dependencies()
+    except LockerNotFoundError as e:
+        app.abort(str(e))
+    except LockerUnsupportedError as e:
+        if e.detail:
+            app.abort(f"Cannot sync environment `{environment.name}` from lockfile: {e.detail}")
+        app.abort(str(e))
+
+    app.display_success(f"Synced environment `{environment.name}` from `{lock_path.name}`")
 
 
 @dep.command("hash", short_help="Output a hash of the currently defined dependencies")
@@ -101,6 +159,52 @@ def table(app, project_only, env_only, show_lines, force_ascii):
         app.display_table(
             table_title, columns, show_lines=show_lines, column_options=column_options, force_ascii=force_ascii
         )
+
+
+@show.command("sources", short_help="Show dependency source redirections for the active environment")
+@click.option("--lines", "-l", "show_lines", is_flag=True, help="Whether or not to show lines between table rows")
+@click.option("--ascii", "force_ascii", is_flag=True, help="Whether or not to only use ASCII characters")
+@click.pass_obj
+def show_sources(app, show_lines, force_ascii):
+    """
+    Show each configured dependency source, what it points at, and which
+    dependencies of the active environment it redirects.
+    """
+    app.ensure_environment_plugin_dependencies()
+
+    from hatch.project.sources import describe_source, source_applied
+    from hatch.utils.metadata import normalize_project_name
+
+    environment = app.project.get_environment()
+    configured = environment.sources
+    if not configured:
+        app.display(f"No sources defined for environment `{app.env}`")
+        return
+
+    root = str(environment.root)
+    workspace_members = environment.source_workspace_members
+    matched = {name: [] for name in configured}
+    for dependency in environment.dependencies_complex:
+        normalized = normalize_project_name(dependency.name)
+        if normalized in matched and source_applied(dependency, configured[normalized], root, workspace_members):
+            matched[normalized].append(str(dependency))
+
+    columns = {"Source": {}, "Type": {}, "Target": {}, "Dependencies": {}}
+    for i, (name, source) in enumerate(sorted(configured.items())):
+        source_type, target = describe_source(source)
+        columns["Source"][i] = name
+        columns["Type"][i] = source_type
+        columns["Target"][i] = target
+        columns["Dependencies"][i] = "\n".join(matched[name]) if matched[name] else "none"
+
+    column_options = {"Source": {"no_wrap": True}, "Type": {"no_wrap": True}}
+    app.display_table(
+        f"Sources: {app.env}", columns, show_lines=show_lines, column_options=column_options, force_ascii=force_ascii
+    )
+
+    unused = sorted(name for name, deps in matched.items() if not deps)
+    if unused:
+        app.display_warning(f"Sources matched no dependencies of environment `{app.env}`: {', '.join(unused)}")
 
 
 @show.command(short_help="Enumerate dependencies as a list of requirements")

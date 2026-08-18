@@ -343,11 +343,44 @@ def devpi(tmp_path_factory, worker_id):
 
 @pytest.fixture
 def env_run(mocker) -> Generator[MagicMock, None, None]:
+    """
+    Stub subprocess so ``hatch test`` / ``hatch run`` tests can inspect ``call_args_list``
+    without running real commands.
+    """
     run = mocker.patch("subprocess.run", return_value=subprocess.CompletedProcess([], 0, stdout=b""))
     mocker.patch("hatch.env.virtual.VirtualEnvironment.exists", return_value=True)
     mocker.patch("hatch.env.virtual.VirtualEnvironment.dependency_hash", return_value="")
     mocker.patch("hatch.env.virtual.VirtualEnvironment.command_context")
     return run
+
+
+@pytest.fixture
+def mock_locker(mocker) -> None:
+    """
+    Stub locker-level ``generate_lockfile`` / ``lockfile_in_sync`` for lock CLI tests.
+
+    Patches at the orchestration layer so the CLI routing, environment selection,
+    matrix expansion, and lockfile grouping logic all run normally — only the
+    resolver is replaced.
+    """
+
+    stub_pylock = "lock-version = 1\n"
+
+    def fake_generate(_environment, output_path, **_kwargs):
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_text(stub_pylock, encoding="utf-8")
+
+    def fake_in_sync(_environment, output_path, **_kwargs):
+        if not output_path.is_file():
+            return False
+        return output_path.read_text(encoding="utf-8") == stub_pylock
+
+    mocker.patch("hatch.env.lock.generate_lockfile", side_effect=fake_generate)
+    mocker.patch("hatch.env.lock.lockfile_in_sync", side_effect=fake_in_sync)
+    mocker.patch("hatch.env.lock.apply_lock_with_locker")
+    mocker.patch("hatch.env.virtual.VirtualEnvironment.exists", return_value=True)
+    mocker.patch("hatch.env.virtual.VirtualEnvironment.dependency_hash", return_value="")
+    mocker.patch("hatch.env.virtual.VirtualEnvironment.command_context")
 
 
 def is_hatchling_command(command: list[str] | str) -> bool:
@@ -448,12 +481,22 @@ def mock_backend_process_output(request, mocker):
 
 @pytest.fixture
 def mock_plugin_installation(mocker):
+    from uv import find_uv_bin
+
     subprocess_run = subprocess.run
     mocked_subprocess_run = mocker.MagicMock(returncode=0)
 
     def _mock(command, **kwargs):
         if isinstance(command, list):
+            if any(arg.startswith("hatchling") for arg in command):
+                return subprocess_run(command, **kwargs)
+
             if command[:5] == [sys.executable, "-u", "-m", "pip", "install"]:
+                mocked_subprocess_run(command, **kwargs)
+                return mocked_subprocess_run
+
+            uv_bin = find_uv_bin()
+            if command[:3] == [uv_bin, "pip", "install"]:
                 mocked_subprocess_run(command, **kwargs)
                 return mocked_subprocess_run
 
