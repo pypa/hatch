@@ -3039,3 +3039,101 @@ class TestBuild:
             "hook5": {"bar": "foo"},
             "hook6": {"bar": "foo", "enable-by-default": False},
         }
+
+
+class TestSources:
+    def test_default(self, isolation):
+        project_config = ProjectConfig(isolation, {}, PluginManager())
+
+        assert "sources" not in project_config.envs["default"]
+
+    def test_not_table(self, isolation):
+        project_config = ProjectConfig(isolation, {"sources": 9000}, PluginManager())
+
+        with pytest.raises(TypeError, match="Field `tool.hatch.sources` must be a table"):
+            _ = project_config.envs
+
+    def test_invalid_entry(self, isolation):
+        project_config = ProjectConfig(isolation, {"sources": {"foo": {"editable": True}}}, PluginManager())
+
+        with pytest.raises(ValueError, match="Field `tool.hatch.sources.foo` must define exactly one of:"):
+            _ = project_config.envs
+
+    def test_global_table_aliases_default_environment(self, isolation):
+        project_config = ProjectConfig(isolation, {"sources": {"foo": "./pkg"}}, PluginManager())
+
+        assert project_config.envs["default"]["sources"] == {"foo": "./pkg"}
+
+    def test_default_environment_overrides_global_table(self, isolation):
+        project_config = ProjectConfig(
+            isolation,
+            {
+                "sources": {"foo": "./pkg", "bar": "./other"},
+                "envs": {"default": {"sources": {"foo": {"index": "https://pypi.example.com/simple"}}}},
+            },
+            PluginManager(),
+        )
+
+        assert project_config.envs["default"]["sources"] == {
+            "bar": "./other",
+            "foo": {"index": "https://pypi.example.com/simple"},
+        }
+
+    def test_override_matches_normalized_name(self, isolation):
+        project_config = ProjectConfig(
+            isolation,
+            {"sources": {"My_Pkg": "./pkg"}, "envs": {"default": {"sources": {"my-pkg": "./local"}}}},
+            PluginManager(),
+        )
+
+        assert project_config.envs["default"]["sources"] == {"my-pkg": "./local"}
+
+    def test_inherited_by_other_environments(self, isolation):
+        project_config = ProjectConfig(isolation, {"sources": {"foo": "./pkg"}, "envs": {"test": {}}}, PluginManager())
+
+        assert project_config.envs["test"]["sources"] == {"foo": "./pkg"}
+
+    def test_inheritance_is_key_level(self, isolation):
+        project_config = ProjectConfig(
+            isolation,
+            {"sources": {"foo": "./pkg", "bar": "./other"}, "envs": {"test": {"sources": {"foo": "./local"}}}},
+            PluginManager(),
+        )
+
+        assert project_config.envs["test"]["sources"] == {"bar": "./other", "foo": "./local"}
+
+    def test_not_inherited_by_detached_environment(self, isolation):
+        project_config = ProjectConfig(
+            isolation, {"sources": {"foo": "./pkg"}, "envs": {"test": {"detached": True}}}, PluginManager()
+        )
+
+        assert "sources" not in project_config.envs["test"]
+
+
+class TestRequiresHatch:
+    @pytest.mark.parametrize("attribute", ["requires_hatch", "hatch_specifier_set"])
+    def test_not_string(self, isolation, attribute):
+        project_config = ProjectConfig(isolation, {"requires-hatch": 1.18}, None)
+
+        with pytest.raises(TypeError, match="Field `tool.hatch.requires-hatch` must be a string"):
+            _ = getattr(project_config, attribute)
+
+    def test_invalid(self, isolation):
+        project_config = ProjectConfig(isolation, {"requires-hatch": "^1"}, None)
+
+        with pytest.raises(ValueError, match="Field `tool.hatch.requires-hatch` is invalid: .+"):
+            _ = project_config.requires_hatch
+
+    def test_default(self, isolation):
+        project_config = ProjectConfig(isolation, {}, None)
+
+        assert project_config.requires_hatch == ""
+        for major_version in map(str, range(10)):
+            assert project_config.hatch_specifier_set.contains(major_version)
+
+    def test_custom(self, isolation):
+        project_config = ProjectConfig(isolation, {"requires-hatch": ">1"}, None)
+
+        assert project_config.requires_hatch == ">1"
+        assert not project_config.hatch_specifier_set.contains("1")
+        assert project_config.hatch_specifier_set.contains("2")

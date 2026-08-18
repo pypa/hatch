@@ -2449,6 +2449,35 @@ class TestCoreMetadataV25:
             """
         )
 
+    def test_import_names_explicit_private_annotation(self, constructor, isolation, helpers):
+        metadata = ProjectMetadata(
+            str(isolation),
+            None,
+            {
+                "project": {
+                    "name": "pytest",
+                    "version": "0.1.0",
+                    # `_pytest ; private` is already annotated and underscore-prefixed, so it must not
+                    # be annotated a second time; `pytest; private` is annotated despite not being
+                    # underscore-prefixed, and must be preserved (in canonical `; private` form) rather
+                    # than dropped.
+                    "import-names": ["_pytest ; private", "pytest; private"],
+                    "description": "pytest: simple powerful testing with Python",
+                },
+            },
+        )
+
+        assert constructor(metadata) == helpers.dedent(
+            """
+            Metadata-Version: 2.5
+            Name: pytest
+            Version: 0.1.0
+            Import-Name: _pytest; private
+            Import-Name: pytest; private
+            Summary: pytest: simple powerful testing with Python
+            """
+        )
+
     def test_explicit_no_import_names(self, constructor, isolation, helpers):
         metadata = ProjectMetadata(
             str(isolation),

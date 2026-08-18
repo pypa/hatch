@@ -1,4 +1,5 @@
 import os
+import signal
 import sys
 import sysconfig
 
@@ -7,7 +8,7 @@ import pytest
 from hatch.config.constants import AppEnvVars, ConfigEnvVars
 from hatch.project.core import Project
 from hatch.python.core import PythonManager
-from hatch.python.resolve import get_compatible_distributions
+from hatch.python.resolve import get_compatible_distributions, is_valid_distribution_name
 from hatch.utils.fs import Path
 from hatch.utils.structures import EnvVars
 from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT, DEFAULT_CONFIG_FILE
@@ -20,9 +21,17 @@ def available_python_version():
     compatible_distributions = get_compatible_distributions()
     current_version = f"{sys.version_info.major}.{sys.version_info.minor}"
     if current_version in compatible_distributions:
+        free_threaded_version = f"{current_version}t"
+        if FREE_THREADED_BUILD and is_valid_distribution_name(free_threaded_version):
+            return free_threaded_version
+
         return current_version
 
-    versions = [d for d in get_compatible_distributions() if not d.startswith("pypy")]
+    versions = [
+        name
+        for name, distribution in compatible_distributions.items()
+        if not name.startswith("pypy") and not distribution.version.is_prerelease
+    ]
     return versions[-1]
 
 
@@ -733,6 +742,43 @@ def test_scripts_no_environment(hatch, helpers, temp_dir, config_file):
     assert not env_data_path.exists()
 
     assert os.path.realpath(output_file.read_text().strip()).lower() == os.path.realpath(sys.executable).lower()
+
+
+def test_interrupt_signal_not_inherited(hatch, temp_dir, config_file):
+    config_file.model.template.plugins["default"]["tests"] = False
+    config_file.save()
+
+    project_name = "My.App"
+
+    with temp_dir.as_cwd():
+        result = hatch("new", project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
+    data_path.mkdir()
+
+    project = Project(project_path)
+    config = dict(project.raw_config)
+    config["tool"]["hatch"]["scripts"] = {"py": "python -c {args}"}
+    project.save_config(config)
+
+    original_handler = signal.getsignal(signal.SIGINT)
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch(
+            "run",
+            ":py",
+            "import pathlib,signal;pathlib.Path('test.txt').write_text(str(signal.getsignal(signal.SIGINT)))",
+        )
+
+    assert result.exit_code == 0, result.output
+
+    output_file = project_path / "test.txt"
+    assert output_file.read_text() == str(signal.default_int_handler)
+
+    assert signal.getsignal(signal.SIGINT) is original_handler
 
 
 def test_error(hatch, helpers, temp_dir, config_file):

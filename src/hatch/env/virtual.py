@@ -251,14 +251,16 @@ class VirtualEnvironment(EnvironmentInterface):
 
                 lockfile_path = resolve_lockfile_path(self)
                 if lockfile_path.is_file():
-                    all_install_args = []
+                    workspace_install_args = []
                     for dep in workspace_deps:
                         if dep.editable:
-                            all_install_args.extend(["--editable", dep.path])
+                            workspace_install_args.extend(["--editable", dep.path])
                         else:
-                            all_install_args.append(dep.path)
+                            workspace_install_args.append(dep.path)
 
-                    if all_install_args:
+                    if workspace_install_args:
+                        all_install_args = list(self.get_source_install_args(self.all_dependencies_complex))
+                        all_install_args.extend(workspace_install_args)
                         self.platform.check_command(self.construct_pip_install_command(all_install_args))
                     apply_lock_with_locker(self, lockfile_path)
                     return
@@ -267,13 +269,13 @@ class VirtualEnvironment(EnvironmentInterface):
             if not self.missing_dependencies:
                 return
 
-            all_install_args = []
+            workspace_install_args = []
 
             for dep in workspace_deps:
                 if dep.editable:
-                    all_install_args.extend(["--editable", dep.path])
+                    workspace_install_args.extend(["--editable", dep.path])
                 else:
-                    all_install_args.append(dep.path)
+                    workspace_install_args.append(dep.path)
 
             standard_dependencies = []
 
@@ -289,13 +291,17 @@ class VirtualEnvironment(EnvironmentInterface):
                 else:
                     standard_dependencies.append(str(dependency))
 
+            if not (workspace_install_args or standard_dependencies or user_editable_dependencies):
+                return
+
+            all_install_args = list(self.get_source_install_args(self.all_dependencies_complex))
+            all_install_args.extend(workspace_install_args)
             all_install_args.extend(standard_dependencies)
 
             for dep_path in user_editable_dependencies:
                 all_install_args.extend(["--editable", dep_path])
 
-            if all_install_args:
-                self.platform.check_command(self.construct_pip_install_command(all_install_args))
+            self.platform.check_command(self.construct_pip_install_command(all_install_args))
 
     @contextmanager
     def command_context(self):
@@ -443,33 +449,48 @@ class VirtualEnvironment(EnvironmentInterface):
         return None if python_info is None else python_info.executable
 
     def _get_available_distribution(self, python_version: str = "") -> str | None:
-        from hatch.python.resolve import get_compatible_distributions
+        from hatch.python.resolve import get_compatible_distributions, normalize_distribution_name
 
+        # Free-threaded selectors like `3.14t` are never compatible distributions in their own
+        # right, so candidates are matched on the base version but installed under the selector
         compatible_distributions = get_compatible_distributions()
-        for installed_distribution in self.python_manager.get_installed():
-            compatible_distributions.pop(installed_distribution, None)
+        installed_distributions = set(self.python_manager.get_installed())
 
         if not python_version:
-            # Only try providing CPython distributions
-            available_distributions = [d for d in compatible_distributions if not d.startswith("pypy")]
+            # Only try providing CPython distributions, and never automatically select a
+            # prerelease since that is only ever an explicit choice
+            available_distributions = [
+                name
+                for name, distribution in compatible_distributions.items()
+                if not name.startswith("pypy") and not distribution.version.is_prerelease
+            ]
 
-            # Prioritize the version that Hatch is currently using, if available
+            # Prioritize the version that Hatch is currently using, if available, keeping the
+            # free-threaded selector ahead of its base version so that free-threaded builds do
+            # not silently receive a GIL-enabled interpreter
+            preferred_distribution = self._preferred_python_version
+            base_distribution = normalize_distribution_name(preferred_distribution)
             with suppress(ValueError):
-                available_distributions.remove(self._preferred_python_version)
-                available_distributions.append(self._preferred_python_version)
+                available_distributions.remove(base_distribution)
+                available_distributions.append(base_distribution)
+                if preferred_distribution != base_distribution:
+                    available_distributions.append(preferred_distribution)
 
             # Latest first
             available_distributions.reverse()
-        elif python_version in compatible_distributions:
+        elif normalize_distribution_name(python_version) in compatible_distributions:
             available_distributions = [python_version]
         else:
             return None
 
         for available_distribution in available_distributions:
+            if available_distribution in installed_distributions:
+                continue
+
             minor_version = (
                 available_distribution.replace("pypy", "", 1)
                 if available_distribution.startswith("pypy")
-                else available_distribution
+                else normalize_distribution_name(available_distribution)
             )
             if not self._python_constraint.contains(minor_version):
                 continue
