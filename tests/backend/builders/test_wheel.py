@@ -2088,7 +2088,6 @@ class TestBuildStandard:
         (shared_data_path / "other_script.sh").write_text(
             helpers.dedent(
                 """
-
                 #!/bin/sh arg1 arg2
                 echo "Hello, World!"
                 """
@@ -2097,7 +2096,6 @@ class TestBuildStandard:
         (shared_data_path / "python_script.sh").write_text(
             helpers.dedent(
                 """
-
                 #!/usr/bin/env python3.11 arg1 arg2
                 print("Hello, World!")
                 """
@@ -2106,7 +2104,6 @@ class TestBuildStandard:
         (shared_data_path / "pythonw_script.sh").write_text(
             helpers.dedent(
                 """
-
                 #!/usr/bin/pythonw3.11 arg1 arg2
                 print("Hello, World!")
                 """
@@ -2115,7 +2112,6 @@ class TestBuildStandard:
         (shared_data_path / "pypy_script.sh").write_text(
             helpers.dedent(
                 """
-
                 #!/usr/bin/env pypy
                 print("Hello, World!")
                 """
@@ -2124,7 +2120,6 @@ class TestBuildStandard:
         (shared_data_path / "pypyw_script.sh").write_text(
             helpers.dedent(
                 """
-
                 #!pypyw3.11 arg1 arg2
                 print("Hello, World!")
                 """
@@ -2199,7 +2194,6 @@ class TestBuildStandard:
         (shared_data_path / "other_script.sh").write_text(
             helpers.dedent(
                 """
-
                 #!/bin/sh arg1 arg2
                 echo "Hello, World!"
                 """
@@ -2208,7 +2202,6 @@ class TestBuildStandard:
         (shared_data_path / "python_script.sh").write_text(
             helpers.dedent(
                 """
-
                 #!/usr/bin/env python3.11 arg1 arg2
                 print("Hello, World!")
                 """
@@ -2217,7 +2210,6 @@ class TestBuildStandard:
         (shared_data_path / "pythonw_script.sh").write_text(
             helpers.dedent(
                 """
-
                 #!/usr/bin/pythonw3.11 arg1 arg2
                 print("Hello, World!")
                 """
@@ -2226,7 +2218,6 @@ class TestBuildStandard:
         (shared_data_path / "pypy_script.sh").write_text(
             helpers.dedent(
                 """
-
                 #!/usr/bin/env pypy
                 print("Hello, World!")
                 """
@@ -2235,7 +2226,6 @@ class TestBuildStandard:
         (shared_data_path / "pypyw_script.sh").write_text(
             helpers.dedent(
                 """
-
                 #!pypyw3.11 arg1 arg2
                 print("Hello, World!")
                 """

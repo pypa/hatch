@@ -69,3 +69,27 @@
       - local_path
       - env_path
       - join
+
+::: hatch.project.sources.Source
+    options:
+      show_source: false
+
+::: hatch.project.sources.PathSource
+    options:
+      show_source: false
+
+::: hatch.project.sources.GitSource
+    options:
+      show_source: false
+
+::: hatch.project.sources.UrlSource
+    options:
+      show_source: false
+
+::: hatch.project.sources.IndexSource
+    options:
+      show_source: false
+
+::: hatch.project.sources.WorkspaceSource
+    options:
+      show_source: false

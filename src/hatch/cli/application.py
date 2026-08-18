@@ -75,9 +75,13 @@ class Application(Terminal):
                 # foreground process group; without this the parent raises KeyboardInterrupt
                 # and aborts even though the child (e.g. a Python REPL) may choose to stay
                 # alive.  The child's exit code is still used to determine success/failure.
+                # A handler that does nothing is used rather than `signal.SIG_IGN` because
+                # handled signals are reset to their default action when the child is
+                # executed whereas ignored signals stay ignored, which would otherwise make
+                # the child itself unable to be interrupted.
                 original_sigint = signal.getsignal(signal.SIGINT)
                 try:
-                    signal.signal(signal.SIGINT, signal.SIG_IGN)
+                    signal.signal(signal.SIGINT, lambda *_: None)
                     process = context.env.run_shell_command(command)
                 finally:
                     # Restore the original handler in finally so the parent stays
@@ -159,6 +163,8 @@ class Application(Terminal):
         if not dependencies:
             return
 
+        from uv import find_uv_bin
+
         from hatch.dep.sync import InstalledDistributions
         from hatch.env.utils import add_verbosity_flag
 
@@ -178,9 +184,10 @@ class Application(Terminal):
             if distributions.dependencies_in_sync(dependencies):
                 return
 
-            pip_command = [sys.executable, "-u", "-m", "pip"]
+            uv_bin = find_uv_bin()
+            pip_command = [uv_bin, "pip"]
 
-        pip_command.extend(["install", "--disable-pip-version-check"])
+        pip_command.extend(["install", "--disable-pip-version-check", "--python", sys.executable])
 
         # Default to -1 verbosity
         add_verbosity_flag(pip_command, self.verbosity, adjustment=-1)

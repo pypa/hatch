@@ -30,6 +30,7 @@ RESERVED_OPTIONS = {
     "python": str,
     "scripts": dict,
     "skip-install": bool,
+    "sources": dict,
     "type": str,
     "workspace": dict,
 }
