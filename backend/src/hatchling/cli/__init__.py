@@ -19,7 +19,7 @@ def hatchling() -> int:
 
     # Parse known arguments
     kwargs, extras = parser.parse_known_args()
-    
+
     # Extras can exist to be detected in custom hooks and plugins,
     # but they must be after a '--' separator
     if extras and extras[0] != "--":
