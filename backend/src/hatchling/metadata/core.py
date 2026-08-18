@@ -57,6 +57,7 @@ class ProjectMetadata(Generic[PluginManagerBound]):
         self._dynamic: list[str] | None = None
         self._name: str | None = None
         self._version: str | None = None
+        self._original_version: str | None = None
         self._project_file: str | None = None
 
         # App already loaded config
@@ -152,6 +153,20 @@ class ProjectMetadata(Generic[PluginManagerBound]):
                 self.core.dynamic.remove("version")
 
         return self._version
+
+    @property
+    def original_version(self) -> str:
+        """
+        The version as written by the user, before PEP 440 normalization.
+
+        The normalized `version` is used for distribution file names and `.dist-info`
+        directories, but core metadata records the original string so that stylized
+        versions (e.g. CalVer `2026.08.10`) appear as intended on package indexes.
+        """
+        if self._original_version is None:
+            self._version = self._get_version()
+
+        return cast(str, self._original_version)
 
     @property
     def config(self) -> dict[str, Any]:
@@ -260,6 +275,7 @@ class ProjectMetadata(Generic[PluginManagerBound]):
             message = f"Invalid version `{version}` from {source}, see https://peps.python.org/pep-0440/"
             raise ValueError(message) from None
         else:
+            self._original_version = version
             return normalized_version
 
     def validate_fields(self) -> None:
