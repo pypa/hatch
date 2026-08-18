@@ -12,15 +12,24 @@ else
 fi
 INSTALL_PATH="${RUNNER_TOOL_CACHE}${SEP}.hatch"
 
+curl_opts=(
+  --fail              # fail on HTTP errors (>=400), prevents saving an error page
+  --silent            # no progress meter or extra output
+  --show-error        # but still show errors (important for debugging)
+  --location          # follow redirects
+  --retry 2           # retry N more times on transient errors
+  --retry-connrefused # also if connection is refused (CDN saturation cases)
+)
+
 install_hatch() {
   mkdir -p "${INSTALL_PATH}"
   archive="${INSTALL_PATH}${SEP}$1"
 
   echo -e "${PURPLE}Downloading Hatch ${VERSION}${RESET}\n"
   if [[ "${VERSION}" == "latest" ]]; then
-    curl -sSLo "${archive}" "https://github.com/pypa/hatch/releases/latest/download/$1"
+    curl "${curl_opts[@]}" -o "${archive}" "https://github.com/pypa/hatch/releases/latest/download/$1"
   else
-    curl -sSLo "${archive}" "https://github.com/pypa/hatch/releases/download/hatch-v${VERSION}/$1"
+    curl "${curl_opts[@]}" -o "${archive}" "https://github.com/pypa/hatch/releases/download/hatch-v${VERSION}/$1"
   fi
 
   if [[ "${archive}" =~ \.zip$ ]]; then
