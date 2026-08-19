@@ -2,6 +2,7 @@ import pytest
 
 from hatch.env.utils import get_env_var
 
+
 @pytest.mark.parametrize(
   ("plugin_name", "option", "expected"),
   [
