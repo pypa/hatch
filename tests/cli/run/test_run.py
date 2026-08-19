@@ -1,4 +1,5 @@
 import os
+import pathlib
 import signal
 import sys
 import sysconfig
@@ -722,7 +723,14 @@ def test_scripts_no_environment(hatch, helpers, temp_dir, config_file):
 
     project = Project(project_path)
     config = dict(project.raw_config)
-    config["tool"]["hatch"]["scripts"] = {"py": "python -c {args}"}
+    # Try to handle testing on systems where there is no "python", only e.g.
+    # "python3". Ideally we would use the absolute path from sys.executable
+    # path, but then we are much more likely to have problems due to things
+    # like whitespace in the directory path, considering we are not attempting
+    # shell escaping. Even the executable name could have these issues, but
+    # this should be good enough for testing purposes.
+    py = pathlib.Path(sys.executable).name
+    config["tool"]["hatch"]["scripts"] = {"py": f"{py} -c {{args}}"}
     project.save_config(config)
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
@@ -761,7 +769,14 @@ def test_interrupt_signal_not_inherited(hatch, temp_dir, config_file):
 
     project = Project(project_path)
     config = dict(project.raw_config)
-    config["tool"]["hatch"]["scripts"] = {"py": "python -c {args}"}
+    # Try to handle testing on systems where there is no "python", only e.g.
+    # "python3". Ideally we would use the absolute path from sys.executable
+    # path, but then we are much more likely to have problems due to things
+    # like whitespace in the directory path, considering we are not attempting
+    # shell escaping. Even the executable name could have these issues, but
+    # this should be good enough for testing purposes.
+    py = pathlib.Path(sys.executable).name
+    config["tool"]["hatch"]["scripts"] = {"py": f"{py} -c {{args}}"}
     project.save_config(config)
 
     original_handler = signal.getsignal(signal.SIGINT)
