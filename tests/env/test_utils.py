@@ -25,7 +25,10 @@ def test_get_env_var(
     option: str,
     expected: str,
 ):
-    assert get_env_var(
-        plugin_name=plugin_name,
-        option=option,
-    ) == expected
+    assert (
+        get_env_var(
+            plugin_name=plugin_name,
+            option=option,
+        )
+        == expected
+    )
