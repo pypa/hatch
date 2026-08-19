@@ -8,11 +8,15 @@ from hatch.env.utils import get_env_var
     [
         ("virtual", "uv-path", "HATCH_ENV_TYPE_VIRTUAL_UV_PATH"),
         ("virtual", "uv_path", "HATCH_ENV_TYPE_VIRTUAL_UV_PATH"),
+        ("pip-compile", "installer", "HATCH_ENV_TYPE_PIP_COMPILE_INSTALLER"),
+        ("pip_compile", "installer", "HATCH_ENV_TYPE_PIP_COMPILE_INSTALLER"),
         ("my-plugin", "my-option", "HATCH_ENV_TYPE_MY_PLUGIN_MY_OPTION"),
         ("MY-plugin", "Some-Option", "HATCH_ENV_TYPE_MY_PLUGIN_SOME_OPTION"),
         ("a-b-c", "d-e-f", "HATCH_ENV_TYPE_A_B_C_D_E_F"),
     ],
     ids=[
+        "hyphenated-option",
+        "underscored-option",
         "hyphenated-plugin",
         "underscored-plugin",
         "hyphenated-both",
