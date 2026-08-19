@@ -124,7 +124,7 @@ def test_search_paths(temp_dir, helpers):
     )
 
     with temp_dir.as_cwd():
-        assert source.get_version_data()['version'] == '1.0.0.1.dev0'
+        assert source.get_version_data()["version"] == "1.0.0.1.dev0"
 
 
 def test_pep563_with_dataclasses_1(temp_dir, helpers):
@@ -134,9 +134,9 @@ def test_pep563_with_dataclasses_1(temp_dir, helpers):
     References:
        - https://github.com/pypa/hatch/issues/1863
     """
-    source = CodeSource(str(temp_dir), {'path': 'a/b.py'})
+    source = CodeSource(str(temp_dir), {"path": "a/b.py"})
 
-    file_path = temp_dir / 'a' / 'b.py'
+    file_path = temp_dir / "a" / "b.py"
     file_path.ensure_parent_dir_exists()
     file_path.write_text(
         helpers.dedent(
@@ -156,7 +156,7 @@ def test_pep563_with_dataclasses_1(temp_dir, helpers):
     )
 
     with temp_dir.as_cwd():
-        assert source.get_version_data()['version'] == '0.1.1'
+        assert source.get_version_data()["version"] == "0.1.1"
 
 
 def test_pep563_with_dataclasses_2(temp_dir, helpers):
@@ -166,9 +166,9 @@ def test_pep563_with_dataclasses_2(temp_dir, helpers):
     References:
        - https://github.com/pypa/hatch/issues/1863
     """
-    source = CodeSource(str(temp_dir), {'path': 'a/b.py'})
+    source = CodeSource(str(temp_dir), {"path": "a/b.py"})
 
-    file_path = temp_dir / 'a' / 'b.py'
+    file_path = temp_dir / "a" / "b.py"
     file_path.ensure_parent_dir_exists()
     file_path.write_text(
         helpers.dedent(
@@ -186,4 +186,4 @@ def test_pep563_with_dataclasses_2(temp_dir, helpers):
     )
 
     with temp_dir.as_cwd():
-        assert source.get_version_data()['version'] == '0.1.1'
+        assert source.get_version_data()["version"] == "0.1.1"
