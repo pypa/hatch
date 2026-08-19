@@ -167,11 +167,7 @@ class TestDirectoryRecursion:
             ]
 
     def test_in_tree_dir_link_does_not_hide_real_directory(self, temp_dir):
-        """A directory link that sorts before its target must not drop the real package.
-
-        https://github.com/pypa/hatch/issues/1197
-        https://github.com/pypa/hatch/issues/2008
-        """
+        """A directory link that sorts before its target must not drop the real package."""
         project_dir = temp_dir / "project"
         project_dir.ensure_dir_exists()
 
@@ -195,7 +191,7 @@ class TestDirectoryRecursion:
         assert relative_paths == ["foo/__init__.py", "foo/pkg.py"]
 
     def test_excluding_dir_link_keeps_real_directory(self, temp_dir):
-        """Excluding the alias must not exclude the real package (#2008)."""
+        """Excluding the alias must not exclude the real package."""
         project_dir = temp_dir / "project"
         project_dir.ensure_dir_exists()
 

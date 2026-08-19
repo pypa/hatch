@@ -46,10 +46,8 @@ def safe_walk(path: str) -> Iterable[tuple[str, list[str], list[str]]]:
     walk_root = os.path.realpath(path)
     walk_root_abs = os.path.abspath(path)
     for root, dirs, files in os.walk(path, followlinks=True):
-        # An in-tree directory symlink/junction that sorts before its target
-        # would otherwise mark the target inode as seen and skip the real
-        # directory (issues #1197, #2008). Skip the alias so the real path is
-        # still walked. Out-of-tree links are still followed.
+        # Following an in-tree directory link records the target inode as seen.
+        # If the alias sorts first, the real directory is then skipped as a cycle.
         if (
             _is_dir_link(root)
             and os.path.normcase(os.path.abspath(root)) != os.path.normcase(walk_root_abs)
