@@ -2,8 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from hatch.python.distributions import DISTRIBUTIONS, ORDERED_DISTRIBUTIONS
-from hatch.python.resolve import get_distribution
+from hatch.python.resolve import ORDERED_DISTRIBUTION_NAMES, get_distribution, is_valid_distribution_name
 from hatch.utils.fs import temp_directory
 
 if TYPE_CHECKING:
@@ -62,7 +61,7 @@ class PythonManager:
 
         installed_distributions: list[InstalledDistribution] = []
         for path in self.directory.iterdir():
-            if not (path.name in DISTRIBUTIONS and path.is_dir()):
+            if not (is_valid_distribution_name(path.name) and path.is_dir()):
                 continue
 
             metadata_file = path / InstalledDistribution.metadata_filename()
@@ -76,7 +75,7 @@ class PythonManager:
 
             installed_distributions.append(InstalledDistribution(path, distribution, metadata))
 
-        installed_distributions.sort(key=lambda d: ORDERED_DISTRIBUTIONS.index(d.name))
+        installed_distributions.sort(key=lambda d: ORDERED_DISTRIBUTION_NAMES.index(d.name))
         return {dist.name: dist for dist in installed_distributions}
 
     def install(self, identifier: str) -> InstalledDistribution:

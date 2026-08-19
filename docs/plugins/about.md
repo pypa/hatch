@@ -85,4 +85,5 @@ These must be installed in the same environment as Hatch itself.
 
 - [Environment](environment/reference.md)
 - [Environment collector](environment-collector/reference.md)
+- [Dependency locker](locker.md)
 - [Publisher](publisher/reference.md)

@@ -17,7 +17,7 @@ def get_files(**kwargs):
         if str(f.path) == "LICENSE.txt"
     ]
 
-    pth_file_name = f"_{kwargs['package_name']}.pth"
+    pth_file_name = f"_editable_impl_{kwargs['package_name']}.pth"
     loader_file_name = f"_editable_impl_{kwargs['package_name']}.py"
     files.extend((
         File(Path(pth_file_name), f"import _editable_impl_{kwargs['package_name']}"),

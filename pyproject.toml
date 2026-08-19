@@ -40,12 +40,14 @@ classifiers = [
 ]
 dependencies = [
   "click>=8.0.6",
+  "distro>=1.0.0; sys_platform == 'linux'",
   "hatchling>=1.27.0",
-  "httpx>=0.22.0",
+  "httpx2>=0.22.0",
   "hyperlink>=21.0.0",
   "keyring>=23.5.0",
   "packaging>=24.2",
   "pexpect~=4.8",
+  "python-discovery>=1.1",
   "platformdirs>=2.5.0",
   "pyproject-hooks",
   "rich>=11.2.0",
@@ -54,7 +56,7 @@ dependencies = [
   "tomlkit>=0.11.1",
   "userpath~=1.7",
   "uv>=0.5.23",
-  "virtualenv>=20.26.6",
+  "virtualenv>=21",
   "backports.zstd>=1.0.0 ; python_version<'3.14'",
 ]
 dynamic = ["version"]

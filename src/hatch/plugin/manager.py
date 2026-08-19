@@ -28,3 +28,8 @@ class PluginManager(_PluginManager):
         from hatch.template.plugin import hooks
 
         self.manager.register(hooks)
+
+    def hatch_register_locker(self):
+        from hatch.env.lockers import hooks
+
+        self.manager.register(hooks)

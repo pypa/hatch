@@ -35,6 +35,7 @@ def run(ctx: click.Context, args: tuple[str, ...]):
     version = ["42", "3.14", "9000"]
     ```
 
+    \b
     ```toml tab="hatch.toml"
     [[envs.test.matrix]]
     python = ["3.9", "3.10"]

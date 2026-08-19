@@ -4,7 +4,7 @@ import re
 from ast import literal_eval
 from collections import defaultdict
 
-import httpx
+import httpx2
 from utils import ROOT
 
 URL = "https://raw.githubusercontent.com/ofek/pyapp/master/build.rs"
@@ -43,7 +43,7 @@ def parse_distributions(contents: str, constant: str):
 
 
 def main():
-    response = httpx.get(URL)
+    response = httpx2.get(URL)
     response.raise_for_status()
 
     contents = response.text

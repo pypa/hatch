@@ -8,6 +8,92 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.18.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.18.0) - 2026-08-11 ## {: #hatch-v1.18.0 }
+
+***Changed:***
+
+- Upgrade default CPython distributions to 20260807
+
+***Added:***
+
+- Add the `sources` environment option, which redirects dependencies to a local path, Git repository, URL, alternate index, or workspace member at install time without altering published metadata. The top-level `[tool.hatch.sources]` table is an alias for the `default` environment, environments inherit sources entry by entry, the `HATCH_NO_SOURCES` environment variable disables them, and `hatch dep show sources` reports what each source redirects
+
+- Add the `--all`/`-a` flag to the `build` command to build the workspace root and every workspace member defined by the selected environment, consolidating artifacts in the workspace root's `dist` directory by default. A root that does not define a `project` table is skipped so that a top-level `pyproject.toml` may only contain workspace configuration
+
+- Add the `tool.hatch.requires-hatch` field, a version specifier set that commands reading the project's metadata enforce against the running version of Hatch
+
+- Add first-class support for free-threaded distribution names such as `3.13t` and `3.14t` to the `python` commands and environment `python` option, rather than requiring the `HATCH_PYTHON_VARIANT_GIL` environment variable
+
+- The `version` command can now bump versions that are statically defined by the `project.version` field, updating `pyproject.toml` in place. Pass `--force` to allow an explicit downgrade
+
+- Support managing Python 3.15 distributions, currently 3.15.0rc1
+
+***Fixed:***
+
+- Erase stale coverage data before running `hatch test --cover`.
+
+- Fix environment creation crashing when a metadata hook exists that doesn’t happen to be installed in the `hatch` CLI’s environment.
+
+- Fix commands run by `hatch run` no longer being interruptible with Ctrl-C, which happened because the ignored `SIGINT` of the parent process was inherited by the child process.
+
+- Fix the generated Pyrefly config being invalid on Windows, since backslashes in the absolute paths were interpreted as TOML escape sequences.
+
+- Fix the hardcoded reliance on `pip` when installing dependencies internally by using `uv` instead.
+
+- Fix environment creation silently installing a GIL-enabled Python distribution when Hatch itself runs on a free-threaded build. The distribution matching the running interpreter, such as `3.14t`, is now selected.
+
+- Fix free-threaded selectors such as `3.14t` being rejected by an environment's `python` option, even though `hatch python install 3.14t` already accepted them.
+
+- Never automatically select a prerelease Python distribution, such as 3.15.0rc1, when falling back to the latest compatible version. A prerelease is still installed when requested explicitly.
+
+
+## [1.17.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.17.1) - 2026-07-08 ## {: #hatch-v1.17.1 }
+
+***Fixed***
+
+- Use `TemporaryDirectory` and pylock*.toml for temporary lock files.
+- Skip injection of `ruff` extend if a key already exists in `ruff.toml`.
+- Pass `--no-header` to `uv pip compile` in the `uv` locker so that generated lockfiles are deterministic.
+- Fix env-dependency extras being dropped when a metadata hook is configured and resolve workspace-member extras from the member's own metadata.
+
+
+## [1.17.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.17.0) - 2026-05-31 ## {: #hatch-v1.17.0 }
+
+***Changed:***
+
+- The `hatch fmt` command is now deprecated in favor of the new `hatch check` command group
+- Migrate HTTP client from `httpx` to `httpx2`
+
+***Added:***
+
+- Add `hatch check` command group with subcommands for `check code` (linting), `check fmt` (formatting), and `check types` (type checking)
+- Add `hatch check types` command for type checking using Pyrefly, with `--summarize` and `--cover` flags
+- Add `hatch env lock` command to generate PEP 751 compliant lockfiles (`pylock.toml`) for environments
+- Add `hatch dep lock` and `hatch lock` commands as shortcuts for locking the active environment
+- Add `hatch dep sync` command for syncing dependencies from a lockfile
+- Add pluggable dependency locker interface with built-in UV and pip implementations
+- Add `--cover-xml` and `--cover-xml-output` flags to the `hatch test` command for generating XML coverage reports
+- Add linehaul telemetry data to User-Agent header for PyPI download statistics
+- Auto-create environment when locking if it doesn't exist
+
+***Fixed:***
+
+- Fix help output formatting for the `run` command
+
+## [1.16.5](https://github.com/pypa/hatch/releases/tag/hatch-v1.16.5) - 2026-02-26 ## {: #hatch-v1.16.5 }
+
+***Fixed:***
+
+- Handle a breaking change in `virtualenv` by only supporting the latest version and adding `python-discovery` as a dependency.
+
+## [1.16.4](https://github.com/pypa/hatch/releases/tag/hatch-v1.16.4) - 2026-02-23 ## {: #hatch-v1.16.4 }
+
+***Fixed:***
+
+- Fixes hatch shell type error for keep_env.
+- SBOM documentation for including SBOM files in `sdist`
+- Fixes workspace member detection to properly handle shared path prefixes.
+
 ## [1.16.3](https://github.com/pypa/hatch/releases/tag/hatch-v1.16.3) - 2026-01-20 ## {: #hatch-v1.16.3 }
 
 ***Added:***
@@ -16,10 +102,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ***Fixed:***
 
-- Fix issue with self-referential dependencies not being recognized. 
+- Fix issue with self-referential dependencies not being recognized.
 - Fix incomplete environments created when an exception occurs during creation.
-- Fix dependency-groups not working with when environment is not marked as builder. 
-- Change Keyring to take expect repository URL instead of repository name. 
+- Fix dependency-groups not working with when environment is not marked as builder.
+- Change Keyring to take expect repository URL instead of repository name.
 
 ## [1.16.2](https://github.com/pypa/hatch/releases/tag/hatch-v1.16.2) - 2025-12-06 ## {: #hatch-v1.16.2 }
 

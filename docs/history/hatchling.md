@@ -8,6 +8,52 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.32.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.32.0) - 2026-08-11 ## {: #hatchling-v1.32.0 }
+
+***Changed:***
+
+- Bump default core metadata version to 2.5
+
+- Add `tomlkit` as a runtime dependency, which is required to rewrite `pyproject.toml` when setting a static version
+
+***Added:***
+
+- The `version` command can now set a version that is statically defined by the `project.version` field, updating `pyproject.toml` in place. Pass `--force` to allow an explicit downgrade
+
+***Fixed:***
+
+- Allow the `; private` annotation on `project.import-names` and `project.import-namespaces` entries rather than rejecting them as invalid import names.
+
+- Reject `project.readme` paths that are absolute or resolve outside of the project directory.
+
+## [1.31.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.31.0) - 2026-06-30 ## {: #hatchling-v1.31.0 }
+
+***Fixed***
+
+- Only rewrite the shebang of a shared script when a Python shebang is present on the first line, preserving binary files and other content verbatim instead of dropping leading bytes.
+
+## [1.30.1](https://github.com/pypa/hatch/releases/tag/hatchling-v1.30.1) - 2026-06-01 ## {: #hatchling-v1.30.1 }
+
+***Fixed***
+
+- Default core metadata version kept at 2.4 until more tools support 2.5
+
+## [1.30.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.30.0) - 2026-05-31 ## {: #hatchling-v1.30.0 }
+
+***Added:***
+
+- Support PEP 794 (core metadata `Import-Name` and `Import-Namespace` fields and version 2.5)
+
+***Fixed:***
+
+- Exclude Git worktree metadata files from sdists
+
+## [1.29.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.29.0) - 2026-02-21 ## {: #hatchling-v1.29.0 }
+
+***Fixed:***
+
+- Source Date Epoch no longer fails when set to date before 1980. 
+
 ## [1.28.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.28.0) - 2025-11-26 ## {: #hatchling-v1.28.0 }
 
 ***Changed:***

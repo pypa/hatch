@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any, Generic, cast
 
 from hatchling.metadata.utils import (
     format_dependency,
+    is_valid_import_name,
     is_valid_project_name,
     normalize_project_name,
     normalize_requirement,
@@ -389,6 +390,8 @@ class CoreMetadata:
         self._optional_dependencies_complex: dict[str, dict[str, Requirement]] | None = None
         self._optional_dependencies: dict[str, list[str]] | None = None
         self._dynamic: list[str] | None = None
+        self._import_names: list[str] | None = None
+        self._import_namespaces: list[str] | None = None
 
         # Indicates that the version has been successfully set dynamically
         self._version_set: bool = False
@@ -526,6 +529,9 @@ class CoreMetadata:
                     raise TypeError(message)
 
                 readme_path = os.path.normpath(os.path.join(self.root, readme))
+                if os.path.isabs(readme) or os.path.relpath(readme_path, self.root).startswith(".."):
+                    message = f"Readme path must be within the project directory: {readme}"
+                    raise ValueError(message)
                 if not os.path.isfile(readme_path):
                     message = f"Readme file does not exist: {readme}"
                     raise OSError(message)
@@ -563,6 +569,9 @@ class CoreMetadata:
                         raise TypeError(message)
 
                     path = os.path.normpath(os.path.join(self.root, relative_path))
+                    if os.path.isabs(relative_path) or os.path.relpath(path, self.root).startswith(".."):
+                        message = f"Readme path must be within the project directory: {relative_path}"
+                        raise ValueError(message)
                     if not os.path.isfile(path):
                         message = f"Readme file does not exist: {relative_path}"
                         raise OSError(message)
@@ -1336,6 +1345,75 @@ class CoreMetadata:
             }
 
         return self._optional_dependencies
+
+    @property
+    def import_names(self) -> list[str] | None:
+        """
+        https://peps.python.org/pep-0794/
+        """
+        if self._import_names is None:
+            if "import-names" not in self.config:
+                return None
+
+            import_names = self.config["import-names"]
+            if "import-names" in self.dynamic:
+                message = (
+                    "Metadata field `import-names` cannot be both statically defined and "
+                    "listed in field `project.dynamic`"
+                )
+                raise ValueError(message)
+
+            if not isinstance(import_names, list):
+                message = "Field `project.import-names` must be an array"
+                raise TypeError(message)
+
+            for i, import_name in enumerate(import_names, 1):
+                if not isinstance(import_name, str) or not is_valid_import_name(import_name):
+                    message = f"Import name #{i} of field `project.import-names` must be a valid import name"
+                    raise TypeError(message)
+
+            self._import_names = sorted(import_names)
+
+            if set(self._import_names) & set(self.import_namespaces):
+                message = "Fields `project.import-names` and `project.import-namespaces` cannot contain the same name"
+                raise ValueError(message)
+
+        return self._import_names
+
+    @property
+    def import_namespaces(self) -> list[str]:
+        """
+        https://packaging.python.org/en/latest/specifications/pyproject-toml/#import-namespaces
+        """
+        if self._import_namespaces is None:
+            if "import-namespaces" in self.config:
+                import_namespaces = self.config["import-namespaces"]
+                if "import-namespaces" in self.dynamic:
+                    message = (
+                        "Metadata field `import-namespaces` cannot be both statically defined and "
+                        "listed in field `project.dynamic`"
+                    )
+                    raise ValueError(message)
+            else:
+                import_namespaces = []
+
+            if not isinstance(import_namespaces, list):
+                message = "Field `project.import-namespaces` must be an array"
+                raise TypeError(message)
+
+            for i, import_namespace in enumerate(import_namespaces, 1):
+                if not isinstance(import_namespace, str) or not is_valid_import_name(import_namespace):
+                    message = f"Import namespace #{i} of field `project.import-namespaces` must be a valid import name"
+                    raise TypeError(message)
+
+            self._import_namespaces = sorted(import_namespaces)
+
+            import_names = self.import_names
+            if import_names is not None and set(import_names) & set(self._import_namespaces):
+                message = "Fields `project.import-names` and `project.import-namespaces` cannot contain the same name"
+                raise ValueError(message)
+
+        return self._import_namespaces
 
     @property
     def dynamic(self) -> list[str]:

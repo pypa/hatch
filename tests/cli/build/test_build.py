@@ -235,6 +235,7 @@ def test_no_compatibility_check_if_exists(hatch, temp_dir, helpers, mocker):
     )
 
 
+@pytest.mark.requires_internet
 def test_unknown_targets(hatch, temp_dir, helpers):
     project_name = "My.App"
 
@@ -260,6 +261,7 @@ def test_unknown_targets(hatch, temp_dir, helpers):
     )
 
 
+@pytest.mark.requires_internet
 def test_mutually_exclusive_hook_options(hatch, temp_dir, helpers):
     project_name = "My.App"
 
@@ -285,6 +287,7 @@ def test_mutually_exclusive_hook_options(hatch, temp_dir, helpers):
     )
 
 
+@pytest.mark.requires_internet
 def test_default(hatch, temp_dir, helpers):
     project_name = "My.App"
 
@@ -321,6 +324,7 @@ def test_default(hatch, temp_dir, helpers):
     )
 
 
+@pytest.mark.requires_internet
 def test_explicit_targets(hatch, temp_dir, helpers):
     project_name = "My.App"
 
@@ -354,6 +358,7 @@ def test_explicit_targets(hatch, temp_dir, helpers):
     )
 
 
+@pytest.mark.requires_internet
 def test_explicit_directory(hatch, temp_dir, helpers):
     project_name = "My.App"
 
@@ -390,6 +395,7 @@ def test_explicit_directory(hatch, temp_dir, helpers):
     )
 
 
+@pytest.mark.requires_internet
 def test_explicit_directory_env_var(hatch, temp_dir, helpers):
     project_name = "My.App"
 
@@ -426,6 +432,7 @@ def test_explicit_directory_env_var(hatch, temp_dir, helpers):
     )
 
 
+@pytest.mark.requires_internet
 def test_clean(hatch, temp_dir, helpers, config_file):
     config_file.model.template.plugins["default"]["src-layout"] = False
     config_file.save()
@@ -510,6 +517,7 @@ def test_clean(hatch, temp_dir, helpers, config_file):
     )
 
 
+@pytest.mark.requires_internet
 def test_clean_env_var(hatch, temp_dir, helpers):
     project_name = "My.App"
 
@@ -566,6 +574,7 @@ def test_clean_env_var(hatch, temp_dir, helpers):
     )
 
 
+@pytest.mark.requires_internet
 def test_clean_only(hatch, temp_dir, helpers, config_file):
     config_file.model.template.plugins["default"]["src-layout"] = False
     config_file.save()
@@ -632,6 +641,7 @@ def test_clean_only(hatch, temp_dir, helpers, config_file):
     )
 
 
+@pytest.mark.requires_internet
 def test_clean_only_hooks_only(hatch, temp_dir, helpers, config_file):
     config_file.model.template.plugins["default"]["src-layout"] = False
     config_file.save()
@@ -698,6 +708,7 @@ def test_clean_only_hooks_only(hatch, temp_dir, helpers, config_file):
     )
 
 
+@pytest.mark.requires_internet
 def test_clean_hooks_after(hatch, temp_dir, helpers, config_file):
     config_file.model.template.plugins["default"]["src-layout"] = False
     config_file.save()
@@ -763,6 +774,7 @@ def test_clean_hooks_after(hatch, temp_dir, helpers, config_file):
     )
 
 
+@pytest.mark.requires_internet
 def test_clean_hooks_after_env_var(hatch, temp_dir, helpers, config_file):
     config_file.model.template.plugins["default"]["src-layout"] = False
     config_file.save()
@@ -828,6 +840,7 @@ def test_clean_hooks_after_env_var(hatch, temp_dir, helpers, config_file):
     )
 
 
+@pytest.mark.requires_internet
 def test_clean_only_no_hooks(hatch, temp_dir, helpers, config_file):
     config_file.model.template.plugins["default"]["src-layout"] = False
     config_file.save()
@@ -894,6 +907,7 @@ def test_clean_only_no_hooks(hatch, temp_dir, helpers, config_file):
     )
 
 
+@pytest.mark.requires_internet
 def test_hooks_only(hatch, temp_dir, helpers, config_file):
     config_file.model.template.plugins["default"]["src-layout"] = False
     config_file.save()
@@ -954,6 +968,7 @@ def test_hooks_only(hatch, temp_dir, helpers, config_file):
     )
 
 
+@pytest.mark.requires_internet
 def test_hooks_only_env_var(hatch, temp_dir, helpers, config_file):
     config_file.model.template.plugins["default"]["src-layout"] = False
     config_file.save()
@@ -1014,6 +1029,7 @@ def test_hooks_only_env_var(hatch, temp_dir, helpers, config_file):
     )
 
 
+@pytest.mark.requires_internet
 def test_extensions_only(hatch, temp_dir, helpers, config_file):
     config_file.model.template.plugins["default"]["src-layout"] = False
     config_file.save()
@@ -1074,6 +1090,7 @@ def test_extensions_only(hatch, temp_dir, helpers, config_file):
     )
 
 
+@pytest.mark.requires_internet
 def test_no_hooks(hatch, temp_dir, helpers):
     project_name = "My.App"
 
@@ -1129,6 +1146,7 @@ def test_no_hooks(hatch, temp_dir, helpers):
     )
 
 
+@pytest.mark.requires_internet
 def test_no_hooks_env_var(hatch, temp_dir, helpers):
     project_name = "My.App"
 
@@ -1184,6 +1202,7 @@ def test_no_hooks_env_var(hatch, temp_dir, helpers):
     )
 
 
+@pytest.mark.requires_internet
 def test_debug_verbosity(hatch, temp_dir, helpers):
     project_name = "My.App"
 
@@ -1354,6 +1373,7 @@ def test_build_dependencies(hatch, temp_dir, helpers):
     )
 
 
+@pytest.mark.requires_internet
 def test_plugin_dependencies_unmet(hatch, temp_dir, helpers, mock_plugin_installation):
     project_name = "My.App"
 
@@ -1400,3 +1420,143 @@ def test_plugin_dependencies_unmet(hatch, temp_dir, helpers, mock_plugin_install
         """
     )
     helpers.assert_plugin_installation(mock_plugin_installation, [dependency])
+
+
+class TestBuildAll:
+    def _create_workspace(self, hatch, temp_dir):
+        with temp_dir.as_cwd():
+            result = hatch("new", "workspace-root")
+            assert result.exit_code == 0, result.output
+
+        workspace_root = temp_dir / "workspace-root"
+        with (workspace_root / "pyproject.toml").open("a") as f:
+            f.write(
+                """
+[tool.hatch.envs.default]
+workspace.members = ["packages/*"]
+"""
+            )
+
+        packages_dir = workspace_root / "packages"
+        packages_dir.mkdir()
+        with packages_dir.as_cwd():
+            for project_name in ("member1", "member2"):
+                result = hatch("new", project_name)
+                assert result.exit_code == 0, result.output
+
+        return workspace_root
+
+    def test_no_workspace_members(self, hatch, temp_dir, helpers):
+        project_name = "My.App"
+
+        with temp_dir.as_cwd():
+            result = hatch("new", project_name)
+            assert result.exit_code == 0, result.output
+
+        path = temp_dir / "my-app"
+
+        with path.as_cwd():
+            result = hatch("build", "--all")
+
+        assert result.exit_code == 1, result.output
+        assert result.output == helpers.dedent(
+            """
+            The `--all` flag requires workspace members to be defined in field `tool.hatch.envs.default.workspace.members`
+            """
+        )
+
+    def test_default(self, hatch, temp_dir):
+        workspace_root = self._create_workspace(hatch, temp_dir)
+
+        with workspace_root.as_cwd():
+            result = hatch("build", "--all")
+            assert result.exit_code == 0, result.output
+
+        build_directory = workspace_root / "dist"
+        assert build_directory.is_dir()
+
+        artifacts = sorted(artifact.name for artifact in build_directory.iterdir())
+        assert artifacts == [
+            "member1-0.0.1-py3-none-any.whl",
+            "member1-0.0.1.tar.gz",
+            "member2-0.0.1-py3-none-any.whl",
+            "member2-0.0.1.tar.gz",
+            "workspace_root-0.0.1-py3-none-any.whl",
+            "workspace_root-0.0.1.tar.gz",
+        ]
+
+        for project_name in ("workspace-root", "member1", "member2"):
+            assert f" {project_name} " in result.output
+
+        for member_name in ("member1", "member2"):
+            assert not (workspace_root / "packages" / member_name / "dist").is_dir()
+
+    def test_virtual_root(self, hatch, temp_dir):
+        workspace_root = temp_dir / "workspace"
+        workspace_root.mkdir()
+        (workspace_root / "pyproject.toml").write_text(
+            """\
+[tool.hatch.envs.default]
+workspace.members = ["packages/*"]
+"""
+        )
+
+        packages_dir = workspace_root / "packages"
+        packages_dir.mkdir()
+        with packages_dir.as_cwd():
+            for project_name in ("member1", "member2"):
+                result = hatch("new", project_name)
+                assert result.exit_code == 0, result.output
+
+        with workspace_root.as_cwd():
+            result = hatch("build", "--all")
+            assert result.exit_code == 0, result.output
+
+        build_directory = workspace_root / "dist"
+        assert build_directory.is_dir()
+
+        artifacts = sorted(artifact.name for artifact in build_directory.iterdir())
+        assert artifacts == [
+            "member1-0.0.1-py3-none-any.whl",
+            "member1-0.0.1.tar.gz",
+            "member2-0.0.1-py3-none-any.whl",
+            "member2-0.0.1.tar.gz",
+        ]
+
+    def test_explicit_targets(self, hatch, temp_dir):
+        workspace_root = self._create_workspace(hatch, temp_dir)
+
+        with workspace_root.as_cwd():
+            result = hatch("build", "--all", "-t", "wheel")
+            assert result.exit_code == 0, result.output
+
+        build_directory = workspace_root / "dist"
+        assert build_directory.is_dir()
+
+        artifacts = sorted(artifact.name for artifact in build_directory.iterdir())
+        assert artifacts == [
+            "member1-0.0.1-py3-none-any.whl",
+            "member2-0.0.1-py3-none-any.whl",
+            "workspace_root-0.0.1-py3-none-any.whl",
+        ]
+
+    def test_explicit_directory(self, hatch, temp_dir):
+        workspace_root = self._create_workspace(hatch, temp_dir)
+        build_directory = temp_dir / "artifacts"
+
+        with workspace_root.as_cwd():
+            result = hatch("build", "--all", str(build_directory))
+            assert result.exit_code == 0, result.output
+
+        assert build_directory.is_dir()
+
+        artifacts = sorted(artifact.name for artifact in build_directory.iterdir())
+        assert artifacts == [
+            "member1-0.0.1-py3-none-any.whl",
+            "member1-0.0.1.tar.gz",
+            "member2-0.0.1-py3-none-any.whl",
+            "member2-0.0.1.tar.gz",
+            "workspace_root-0.0.1-py3-none-any.whl",
+            "workspace_root-0.0.1.tar.gz",
+        ]
+        assert not (workspace_root / "dist").is_dir()
