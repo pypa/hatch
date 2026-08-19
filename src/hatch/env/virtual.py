@@ -251,12 +251,12 @@ class VirtualEnvironment(EnvironmentInterface):
 
                 lockfile_path = resolve_lockfile_path(self)
                 if lockfile_path.is_file():
-                    local_install_args = []
+                    workspace_install_args = []
                     if not self.skip_install:
                         if self.dev_mode:
-                            local_install_args.extend(["--editable", self.root])
+                            workspace_install_args.extend(["--editable", self.root])
                         else:
-                            local_install_args.append(self.root)
+                            workspace_install_args.append(self.root)
 
                     for dep in workspace_deps:
                         # The root project is installed separately during environment creation.
@@ -264,15 +264,15 @@ class VirtualEnvironment(EnvironmentInterface):
                             continue
 
                         if dep.editable:
-                            local_install_args.extend(["--editable", dep.path])
+                            workspace_install_args.extend(["--editable", dep.path])
                         else:
-                            local_install_args.append(dep.path)
+                            workspace_install_args.append(dep.path)
 
                     apply_lock_with_locker(self, lockfile_path)
                     # Exact sync removes local packages that are not represented in the lockfile.
-                    if local_install_args:
+                    if workspace_install_args:
                         self.platform.check_command(
-                            self.construct_pip_install_command(["--no-deps", *local_install_args])
+                            self.construct_pip_install_command(["--no-deps", *workspace_install_args])
                         )
                     return
 
