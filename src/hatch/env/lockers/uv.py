@@ -76,6 +76,8 @@ class UvLocker(LockerInterface):
         lock_groups: tuple[str, ...],
         requirements_file: Path | None,
     ) -> None:
+        from hatch.python.resolve import normalize_distribution_name
+
         pyproject = environment.root / "pyproject.toml"
         command = [environment.uv_path, "pip", "compile"]
 
@@ -107,7 +109,10 @@ class UvLocker(LockerInterface):
         for pkg in upgrade_packages:
             command.extend(["--upgrade-package", pkg])
 
-        python_version = environment.config.get("python", "")
+        # uv resolves for a version, not for a build, and rejects a free-threaded
+        # selector like `3.14t` outright. The base version is what it wants, and
+        # hatch-test ships `3.14t` in its default matrix.
+        python_version = normalize_distribution_name(environment.config.get("python", ""))
         if python_version:
             command.extend(["--python-version", python_version])
 
