@@ -884,6 +884,43 @@ def test_incompatible_single(hatch, helpers, temp_dir, config_file):
     assert not env_data_path.is_dir()
 
 
+def test_incompatible_python_constraint(hatch, helpers, temp_dir, config_file):
+    config_file.model.template.plugins["default"]["tests"] = False
+    config_file.save()
+
+    project_name = "My.App"
+
+    with temp_dir.as_cwd():
+        result = hatch("new", project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
+    data_path.mkdir()
+
+    project = Project(project_path)
+    python_version = f"{sys.version_info.major}.{sys.version_info.minor}"
+    python_constraint = f"<{python_version}"
+    config = dict(project.raw_config)
+    config["project"]["requires-python"] = python_constraint
+    project.save_config(config)
+    helpers.update_project_environment(project, "test", {"python": python_version})
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch("env", "create", "test")
+
+    assert result.exit_code == 1
+    assert result.output == helpers.dedent(
+        f"""
+        Environment `test` is incompatible: Python {python_version} does not satisfy project requires-python: {python_constraint}
+        """
+    )
+
+    env_data_path = data_path / "env" / "virtual"
+    assert not env_data_path.is_dir()
+
+
 def test_incompatible_matrix_full(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
