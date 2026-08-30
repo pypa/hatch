@@ -1373,6 +1373,87 @@ def test_build_dependencies(hatch, temp_dir, helpers):
     )
 
 
+@pytest.mark.allow_backend_process
+@pytest.mark.requires_internet
+def test_require_runtime_dependencies(hatch, temp_dir, helpers):
+    """Runtime deps requested by a build hook must be installed in the build env.
+
+    Regression test for https://github.com/pypa/hatch/issues/2110: after
+    `prepare_environment` caches dependency views, adding hook-discovered
+    additional dependencies (e.g. `require-runtime-dependencies`) must
+    invalidate those caches so the second `sync_dependencies` actually
+    installs them.
+    """
+    project_name = "My.App"
+
+    with temp_dir.as_cwd():
+        result = hatch("new", project_name)
+        assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
+    data_path.mkdir()
+
+    build_script = project_path / DEFAULT_BUILD_SCRIPT
+    build_script.write_text(
+        helpers.dedent(
+            """
+            import pathlib
+            from typing import Any
+
+            from hatchling.builders.hooks.plugin.interface import BuildHookInterface
+
+            class CustomBuildHook(BuildHookInterface):
+                PLUGIN_NAME = "custom"
+
+                def initialize(self, version: str, build_data: dict[str, Any]) -> None:
+                    import binary
+
+                    pathlib.Path("test.txt").write_text(str(binary.convert_units(1024)))
+            """
+        )
+    )
+
+    project = Project(project_path)
+    config = dict(project.raw_config)
+    config["project"]["dependencies"] = ["binary"]
+    config["tool"]["hatch"]["build"] = {
+        "hooks": {
+            "custom": {
+                "path": DEFAULT_BUILD_SCRIPT,
+                "require-runtime-dependencies": True,
+            }
+        },
+    }
+    project.save_config(config)
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch("build", "-t", "wheel")
+
+    assert result.exit_code == 0, result.output
+
+    output_file = project_path / "test.txt"
+    assert output_file.is_file()
+    assert str(output_file.read_text()) == "(1.0, 'KiB')"
+
+    build_directory = project_path / "dist"
+    assert build_directory.is_dir()
+    artifacts = list(build_directory.iterdir())
+    assert len(artifacts) == 1
+    assert artifacts[0].name.endswith(".whl")
+
+    assert result.output == helpers.dedent(
+        """
+        Creating environment: hatch-build
+        Checking dependencies
+        Syncing dependencies
+        Inspecting build dependencies
+        Syncing dependencies
+        ──────────────────────────────────── wheel ─────────────────────────────────────
+        """
+    )
+
+
 @pytest.mark.requires_internet
 def test_plugin_dependencies_unmet(hatch, temp_dir, helpers, mock_plugin_installation):
     project_name = "My.App"
