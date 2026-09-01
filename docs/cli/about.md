@@ -19,7 +19,14 @@ Completion is achieved by saving a script and then executing it as a part of you
 Afterward, you'll need to start a new shell in order for the changes to take effect.
 
 === "Bash"
-    Save the script somewhere:
+    If your system uses bash-completion, save the script to the user completions directory:
+
+    ```console
+    mkdir -p ~/.local/share/bash-completion/completions
+    _HATCH_COMPLETE=bash_source hatch > ~/.local/share/bash-completion/completions/hatch
+    ```
+
+    If bash-completion is not available, save the script somewhere:
 
     ```console
     _HATCH_COMPLETE=bash_source hatch > ~/.hatch-complete.bash
