@@ -14,39 +14,39 @@ __all__ = [
 __all__ += ["__all__"]
 
 
-def get_requires_for_build_sdist(config_settings: dict[str, Any] | None = None) -> list[str]:  # noqa: ARG001
+def get_requires_for_build_sdist(config_settings: dict[str, Any] | None = None) -> list[str]:
     """
     https://peps.python.org/pep-0517/#get-requires-for-build-sdist
     """
     from hatchling.builders.sdist import SdistBuilder
 
-    builder = SdistBuilder(os.getcwd())
+    builder = SdistBuilder(os.getcwd(), config_settings=config_settings)
     return builder.config.dependencies
 
 
-def build_sdist(sdist_directory: str, config_settings: dict[str, Any] | None = None) -> str:  # noqa: ARG001
+def build_sdist(sdist_directory: str, config_settings: dict[str, Any] | None = None) -> str:
     """
     https://peps.python.org/pep-0517/#build-sdist
     """
     from hatchling.builders.sdist import SdistBuilder
 
-    builder = SdistBuilder(os.getcwd())
+    builder = SdistBuilder(os.getcwd(), config_settings=config_settings)
     return os.path.basename(next(builder.build(directory=sdist_directory, versions=["standard"])))
 
 
-def get_requires_for_build_wheel(config_settings: dict[str, Any] | None = None) -> list[str]:  # noqa: ARG001
+def get_requires_for_build_wheel(config_settings: dict[str, Any] | None = None) -> list[str]:
     """
     https://peps.python.org/pep-0517/#get-requires-for-build-wheel
     """
     from hatchling.builders.wheel import WheelBuilder
 
-    builder = WheelBuilder(os.getcwd())
+    builder = WheelBuilder(os.getcwd(), config_settings=config_settings)
     return builder.config.dependencies
 
 
 def build_wheel(
     wheel_directory: str,
-    config_settings: dict[str, Any] | None = None,  # noqa: ARG001
+    config_settings: dict[str, Any] | None = None,
     metadata_directory: str | None = None,  # noqa: ARG001
 ) -> str:
     """
@@ -54,24 +54,24 @@ def build_wheel(
     """
     from hatchling.builders.wheel import WheelBuilder
 
-    builder = WheelBuilder(os.getcwd())
+    builder = WheelBuilder(os.getcwd(), config_settings=config_settings)
     return os.path.basename(next(builder.build(directory=wheel_directory, versions=["standard"])))
 
 
-def get_requires_for_build_editable(config_settings: dict[str, Any] | None = None) -> list[str]:  # noqa: ARG001
+def get_requires_for_build_editable(config_settings: dict[str, Any] | None = None) -> list[str]:
     """
     https://peps.python.org/pep-0660/#get-requires-for-build-editable
     """
     from hatchling.builders.constants import EDITABLES_REQUIREMENT
     from hatchling.builders.wheel import WheelBuilder
 
-    builder = WheelBuilder(os.getcwd())
+    builder = WheelBuilder(os.getcwd(), config_settings=config_settings)
     return [*builder.config.dependencies, EDITABLES_REQUIREMENT]
 
 
 def build_editable(
     wheel_directory: str,
-    config_settings: dict[str, Any] | None = None,  # noqa: ARG001
+    config_settings: dict[str, Any] | None = None,
     metadata_directory: str | None = None,  # noqa: ARG001
 ) -> str:
     """
@@ -79,7 +79,7 @@ def build_editable(
     """
     from hatchling.builders.wheel import WheelBuilder
 
-    builder = WheelBuilder(os.getcwd())
+    builder = WheelBuilder(os.getcwd(), config_settings=config_settings)
     return os.path.basename(next(builder.build(directory=wheel_directory, versions=["editable"])))
 
 
@@ -100,14 +100,14 @@ if "PIP_BUILD_TRACKER" not in os.environ:
 
     def prepare_metadata_for_build_wheel(
         metadata_directory: str,
-        config_settings: dict[str, Any] | None = None,  # noqa: ARG001
+        config_settings: dict[str, Any] | None = None,
     ) -> str:
         """
         https://peps.python.org/pep-0517/#prepare-metadata-for-build-wheel
         """
         from hatchling.builders.wheel import WheelBuilder
 
-        builder = WheelBuilder(os.getcwd())
+        builder = WheelBuilder(os.getcwd(), config_settings=config_settings)
 
         directory = os.path.join(metadata_directory, f"{builder.artifact_project_id}.dist-info")
         if not os.path.isdir(directory):
@@ -120,7 +120,7 @@ if "PIP_BUILD_TRACKER" not in os.environ:
 
     def prepare_metadata_for_build_editable(
         metadata_directory: str,
-        config_settings: dict[str, Any] | None = None,  # noqa: ARG001
+        config_settings: dict[str, Any] | None = None,
     ) -> str:
         """
         https://peps.python.org/pep-0660/#prepare-metadata-for-build-editable
@@ -128,7 +128,7 @@ if "PIP_BUILD_TRACKER" not in os.environ:
         from hatchling.builders.constants import EDITABLES_REQUIREMENT
         from hatchling.builders.wheel import WheelBuilder
 
-        builder = WheelBuilder(os.getcwd())
+        builder = WheelBuilder(os.getcwd(), config_settings=config_settings)
 
         directory = os.path.join(metadata_directory, f"{builder.artifact_project_id}.dist-info")
         if not os.path.isdir(directory):

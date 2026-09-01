@@ -49,6 +49,7 @@ class BuildHookInterface(Generic[BuilderConfigBound, PluginManagerBound]):  # no
         metadata: ProjectMetadata[PluginManagerBound],
         directory: str,
         target_name: str,
+        config_settings: dict[str, Any] | None,
         app: Application | None = None,
     ) -> None:
         self.__root = root
@@ -57,6 +58,7 @@ class BuildHookInterface(Generic[BuilderConfigBound, PluginManagerBound]):  # no
         self.__metadata = metadata
         self.__directory = directory
         self.__target_name = target_name
+        self.__config_settings = config_settings
         self.__app = app
 
     @property
@@ -94,6 +96,13 @@ class BuildHookInterface(Generic[BuilderConfigBound, PluginManagerBound]):  # no
     def metadata(self) -> ProjectMetadata[PluginManagerBound]:
         # Undocumented for now
         return self.__metadata
+
+    @property
+    def config_settings(self) -> dict[str, Any] | None:
+        """
+        Configuration settings from the build frontend, if supported.
+        """
+        return self.__config_settings
 
     @property
     def build_config(self) -> BuilderConfigBound:
