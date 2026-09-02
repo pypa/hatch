@@ -44,6 +44,15 @@ class TestWindows:
         platform.populate_default_popen_kwargs(kwargs, shell=True)
         assert kwargs["executable"] == "foo"
 
+    def test_populate_default_popen_kwargs_executable_fallback(self):
+        platform = Platform()
+
+        with EnvVars(exclude=["COMSPEC", "ComSpec", "comspec"]):
+            kwargs = {}
+            platform.populate_default_popen_kwargs(kwargs, shell=True)
+            if platform.default_shell and os.path.isabs(platform.default_shell):
+                assert kwargs["executable"] == platform.default_shell
+
 
 @pytest.mark.requires_macos
 class TestMacOS:

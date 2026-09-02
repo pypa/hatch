@@ -231,6 +231,62 @@ class TestEnvInclude:
 
         assert environment.env_include == ("HATCH_BUILD_*", "FOO*")
 
+    def test_windows_preserve_base_env_vars(self, isolation, isolated_data_dir, global_application):
+        class MockPlatform:
+            windows = True
+
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {"hatch": {"envs": {"default": {"env-include": ["FOO*"]}}}},
+        }
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            MockPlatform(),
+            0,
+            global_application,
+        )
+
+        with EnvVars({"FOO_BAR": "baz", "SYSTEMROOT": "C:\\Windows", "UNWANTED": "1"}):
+            env_vars = environment.get_env_vars()
+            assert "FOO_BAR" in env_vars
+            assert "SYSTEMROOT" in env_vars
+            assert "UNWANTED" not in env_vars
+
+    def test_non_windows_normal_env_include(self, isolation, isolated_data_dir, global_application):
+        class MockPlatform:
+            windows = False
+
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {"hatch": {"envs": {"default": {"env-include": ["FOO*"]}}}},
+        }
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            MockPlatform(),
+            0,
+            global_application,
+        )
+
+        with EnvVars({"FOO_BAR": "baz", "SYSTEMROOT": "C:\\Windows", "UNWANTED": "1"}):
+            env_vars = environment.get_env_vars()
+            assert "FOO_BAR" in env_vars
+            assert "SYSTEMROOT" not in env_vars
+            assert "UNWANTED" not in env_vars
+
 
 class TestEnvExclude:
     def test_default(self, isolation, isolated_data_dir, platform, global_application):

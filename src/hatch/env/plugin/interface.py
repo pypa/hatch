@@ -13,6 +13,21 @@ from hatch.env.utils import add_verbosity_flag, get_env_var_option
 from hatch.project.utils import format_script_commands, parse_script_command
 from hatch.utils.structures import EnvVars
 
+WINDOWS_BASE_ENV_VARS: tuple[str, ...] = (
+    "COMSPEC",
+    "ComSpec",
+    "comspec",
+    "PATHEXT",
+    "SYSTEMROOT",
+    "SystemRoot",
+    "systemroot",
+    "TEMP",
+    "TMP",
+    "WINDIR",
+    "windir",
+)
+
+
 if TYPE_CHECKING:
     from collections.abc import Generator, Iterable, Mapping, Sequence
 
@@ -1072,7 +1087,11 @@ class EnvironmentInterface(ABC):
         !!! note
             The environment variable `HATCH_ENV_ACTIVE` will always be set to the name of the environment.
         """
-        return EnvVars(self.env_vars, self.env_include, self.env_exclude)
+        env_include = self.env_include
+        if env_include and self.platform.windows:
+            env_include = (*env_include, *WINDOWS_BASE_ENV_VARS)
+
+        return EnvVars(self.env_vars, env_include, self.env_exclude)
 
     def get_env_var_option(self, option: str) -> str:
         """

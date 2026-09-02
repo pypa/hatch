@@ -183,6 +183,10 @@ class Platform:
                 if executable:
                     kwargs["executable"] = executable
                     break
+        elif "executable" not in kwargs and self.windows and shell and not os.environ.get("COMSPEC"):
+            comspec = self.default_shell
+            if comspec and os.path.isabs(comspec):
+                kwargs["executable"] = comspec
 
     @staticmethod
     def stream_process_output(process: Popen) -> Iterable[str]:
