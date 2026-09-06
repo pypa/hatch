@@ -26,7 +26,7 @@ The builder plugin name is `wheel`.
 | `sbom-files` | | A list of paths to [Software Bill of Materials](https://peps.python.org/pep-0770/) files that will be included in the `.dist-info/sboms/` directory of the wheel |
 
 !!! note
-    Many build frontends will build the wheel from a source distribution. This is the recommended approach, but it means you need to ensure the SBOM files passed to `sbom-files` are also [included in the source distribution](https://hatch.pypa.io/latest/config/build/#file-selection).
+    Many build frontends will build the wheel from a source distribution. Hatchling includes in-tree wheel sources (including `sbom-files` that already exist in the project) in the sdist automatically. Generated or out-of-tree paths still need to be produced by a [build hook](../build-hook/reference.md) or copied into the project before the sdist is built.
 
 ## Versions
 
