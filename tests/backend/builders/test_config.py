@@ -1888,6 +1888,35 @@ class TestPatternExclude:
             assert builder.config.path_is_excluded(f"foo{separator}deb") is True
             assert builder.config.path_is_excluded(f"foo{separator}bar") is True
 
+    def test_vcs_git_own_ignore_when_root_path_contains_pattern(self, temp_dir):
+        project_dir = temp_dir / "dist" / "foo-0"
+        project_dir.mkdir(parents=True)
+        (project_dir / ".gitignore").write_text("dist/\nfoo/data/test.txt\n")
+
+        builder = MockBuilder(str(project_dir))
+
+        assert builder.config.path_is_excluded("foo/data/test.txt") is True
+        assert builder.config.path_is_excluded("foo/__init__.py") is False
+
+    def test_vcs_git_skip_parent_ignore_that_excludes_project(self, temp_dir):
+        project_dir = temp_dir / "dist" / "foo-0"
+        project_dir.mkdir(parents=True)
+        (temp_dir / ".gitignore").write_text("*\n")
+
+        builder = MockBuilder(str(project_dir))
+
+        assert builder.config.path_is_excluded("foo/__init__.py") is False
+
+    def test_vcs_git_parent_ignore_that_does_not_exclude_project(self, temp_dir):
+        project_dir = temp_dir / "pkg"
+        project_dir.mkdir()
+        (temp_dir / ".gitignore").write_text("*.pyc\n")
+
+        builder = MockBuilder(str(project_dir))
+
+        assert builder.config.path_is_excluded("foo.pyc") is True
+        assert builder.config.path_is_excluded("foo.py") is False
+
     @pytest.mark.parametrize("separator", ["/", "\\"])
     def test_vcs_mercurial(self, temp_dir, separator, platform):
         if separator == "\\" and not platform.windows:
