@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import tempfile
+from shutil import copyfile
 from typing import TYPE_CHECKING
 
 from hatch.env.lockers.interface import LockerInterface
@@ -132,6 +133,7 @@ class UvLocker(LockerInterface):
 
         with tempfile.TemporaryDirectory() as tmp_dir:
             temp_path = Path(tmp_dir) / "pylock.toml"
+            copyfile(output_path, temp_path)
             cls.generate(
                 environment,
                 dependencies,

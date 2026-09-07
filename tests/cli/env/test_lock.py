@@ -395,6 +395,28 @@ def test_uv_in_sync_identical_content(helpers, monkeypatch, temp_dir):
     assert UvLocker.in_sync(object(), [], lock_path)
 
 
+def test_uv_in_sync_seeds_existing_lockfile(helpers, monkeypatch, temp_dir):
+    lock_path = temp_dir / "pylock.toml"
+    lock_body = helpers.dedent(
+        """
+        lock-version = "1.0"
+        created-by = "uv"
+
+        [[packages]]
+        name = "click"
+        version = "8.4.1"
+        """
+    )
+    lock_path.write_text(lock_body, encoding="utf-8")
+
+    def generate(_cls, _environment, _dependencies, output_path, **_kwargs):
+        assert output_path.read_text(encoding="utf-8") == lock_body
+
+    monkeypatch.setattr(UvLocker, "generate", classmethod(generate))
+
+    assert UvLocker.in_sync(object(), [], lock_path)
+
+
 def test_uv_in_sync_different_content(helpers, monkeypatch, temp_dir):
     lock_path = temp_dir / "pylock.toml"
     lock_path.write_text(
