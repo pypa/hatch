@@ -29,7 +29,7 @@ Hatchling is a standards-compliant[^1] build backend and is a dependency of Hatc
 
 ### VCS
 
-By default, Hatch will respect the first `.gitignore` or `.hgignore` file found in your project's root directory or parent directories. Set `ignore-vcs` to `true` to disable this behavior:
+By default, Hatch will respect the first `.gitignore` or `.hgignore` file found in your project's root directory or parent directories, as well as the repository's `.git/info/exclude` file. As in Git, patterns in `.gitignore` take precedence over those in `.git/info/exclude`. Set `ignore-vcs` to `true` to disable this behavior:
 
 ```toml config-example
 [tool.hatch.build.targets.sdist]
