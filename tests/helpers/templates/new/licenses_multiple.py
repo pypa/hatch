@@ -6,6 +6,10 @@ from ..licenses import MIT, Apache_2_0
 
 def get_files(**kwargs):
     return [
+        File(
+            Path(".gitignore"),
+            "__pycache__/\ndist/\n",
+        ),
         File(Path("LICENSES", "Apache-2.0.txt"), Apache_2_0),
         File(
             Path("LICENSES", "MIT.txt"),
