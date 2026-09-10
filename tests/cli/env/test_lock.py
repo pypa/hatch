@@ -610,7 +610,7 @@ def test_custom_lock_filename_with_context_formatting(hatch, helpers, temp_dir, 
             "skip-install": True,
             "dependencies": ["requests"],
             "locked": True,
-            "lock-filename": "requirements-{env_name}.txt",
+            "lock-filename": "pylock.{env_name}.toml",
             **project.config.envs["default"],
         },
     )
@@ -619,7 +619,7 @@ def test_custom_lock_filename_with_context_formatting(hatch, helpers, temp_dir, 
         "test1",
         {
             "locked": True,
-            "lock-filename": "locks/{env_name}/requirements.txt",
+            "lock-filename": "locks/{env_name}/pylock.toml",
         },
     )
     helpers.update_project_environment(
@@ -634,19 +634,19 @@ def test_custom_lock_filename_with_context_formatting(hatch, helpers, temp_dir, 
         result = hatch("env", "lock", "default")
 
     assert result.exit_code == 0, result.output
-    assert f"Wrote lockfile: {project_path / 'requirements-default.txt'}" in result.output
+    assert f"Wrote lockfile: {project_path / 'pylock.default.toml'}" in result.output
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
         result = hatch("env", "lock", "test1")
 
     assert result.exit_code == 0, result.output
-    assert f"Wrote lockfile: {project_path / 'locks' / 'test1' / 'requirements.txt'}" in result.output
+    assert f"Wrote lockfile: {project_path / 'locks' / 'test1' / 'pylock.toml'}" in result.output
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
         result = hatch("env", "lock", "test2")
 
     assert result.exit_code == 0, result.output
-    assert f"Wrote lockfile: {project_path / 'requirements-test2.txt'}" in result.output
+    assert f"Wrote lockfile: {project_path / 'pylock.test2.toml'}" in result.output
 
 
 @pytest.mark.usefixtures("mock_locker")
