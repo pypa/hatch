@@ -21,9 +21,9 @@ class CustomBuilder(Generic[PluginManagerBound]):
         root: str,
         plugin_manager: PluginManagerBound | None = None,
         config: dict[str, Any] | None = None,
-        metadata: ProjectMetadata | None = None,
+        metadata: ProjectMetadata[PluginManagerBound] | None = None,
         app: Application | None = None,
-    ) -> BuilderInterface:
+    ) -> BuilderInterface[Any, PluginManagerBound]:
         project_metadata = ProjectMetadata(root, plugin_manager, config)
 
         target_config = project_metadata.hatch.build_targets.get(cls.PLUGIN_NAME, {})

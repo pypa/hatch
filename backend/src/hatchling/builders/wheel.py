@@ -27,6 +27,7 @@ from hatchling.builders.utils import (
     set_zip_info_mode,
 )
 from hatchling.metadata.spec import DEFAULT_METADATA_VERSION, get_core_metadata_constructors
+from hatchling.plugin.manager import PluginManager
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Sequence
@@ -214,7 +215,7 @@ class WheelArchive:
         self.fd.close()
 
 
-class WheelBuilderConfig(BuilderConfig):
+class WheelBuilderConfig(BuilderConfig[PluginManager]):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
@@ -492,7 +493,7 @@ class WheelBuilderConfig(BuilderConfig):
             return name
 
 
-class WheelBuilder(BuilderInterface):
+class WheelBuilder(BuilderInterface[WheelBuilderConfig, PluginManager]):
     """
     Build a binary distribution (.whl file)
     """

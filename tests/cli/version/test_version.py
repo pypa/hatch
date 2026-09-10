@@ -37,6 +37,7 @@ class TestNoProject:
         )
 
 
+@pytest.mark.requires_internet
 def test_other_backend_show(hatch, temp_dir, helpers):
     project_name = "My.App"
 
