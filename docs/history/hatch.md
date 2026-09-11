@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Fixed:***
+
+- Fix `hatch env lock --check` failing when a newer compatible dependency version is published. The check now seeds the temporary resolve with the existing lockfile so `uv pip compile` keeps compatible pins (#2406).
+
 ## [1.18.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.18.0) - 2026-08-11 ## {: #hatch-v1.18.0 }
 
 ***Changed:***
