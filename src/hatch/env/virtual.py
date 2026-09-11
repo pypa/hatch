@@ -203,6 +203,8 @@ class VirtualEnvironment(EnvironmentInterface):
             )
 
     def uv_pip_sync_command(self, lockfile_path: Path, *, dry_run: bool = False) -> list[str]:
+        from hatch.python.resolve import normalize_distribution_name
+
         command = [self.uv_path, "pip", "sync", str(lockfile_path)]
         for extra in self.features:
             command.extend(["--extra", extra])
@@ -211,7 +213,8 @@ class VirtualEnvironment(EnvironmentInterface):
         add_verbosity_flag(command, self.verbosity, adjustment=-1)
         if dry_run:
             command.append("--dry-run")
-        python_version = self.config.get("python", "")
+        # See the note in hatch.env.lockers.uv: uv rejects a free-threaded selector.
+        python_version = normalize_distribution_name(self.config.get("python", ""))
         if python_version:
             command.extend(["--python-version", python_version])
         return command

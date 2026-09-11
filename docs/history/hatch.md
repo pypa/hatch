@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Fixed:***
+
+- Strip the free-threaded suffix from the environment's `python` setting before passing it to uv's `--python-version`, which takes a version rather than a build and rejects selectors like `3.14t`
+
 ## [1.18.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.18.0) - 2026-08-11 ## {: #hatch-v1.18.0 }
 
 ***Changed:***
