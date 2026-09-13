@@ -289,6 +289,11 @@ def merge_environment_lock_inputs(
 def resolve_lockfile_path(environment: EnvironmentInterface) -> Path:
     lock_filename = environment.config.get("lock-filename")
     if lock_filename:
+        # Format the configured filename using the project's context with the
+        # environment-specific formatters applied so context fields like
+        # {env_name}, {matrix:...}, etc. are resolved.
+        with environment.metadata.context.apply_context(environment.context):
+            lock_filename = environment.metadata.context.format(lock_filename)
         return environment.root / lock_filename
 
     if environment.name == "default":

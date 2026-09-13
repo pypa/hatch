@@ -2400,6 +2400,17 @@ class TestCoreMetadataV24:
 
 @pytest.mark.parametrize("constructor", [get_core_metadata_constructors()["2.5"]])
 class TestCoreMetadataV25:
+    def test_original_version_preserved(self, constructor, isolation, helpers):
+        metadata = ProjectMetadata(str(isolation), None, {"project": {"name": "My.App", "version": "2026.08.10"}})
+
+        assert constructor(metadata) == helpers.dedent(
+            """
+            Metadata-Version: 2.5
+            Name: My.App
+            Version: 2026.08.10
+            """
+        )
+
     def test_import_names(self, constructor, isolation, helpers):
         metadata = ProjectMetadata(
             str(isolation),

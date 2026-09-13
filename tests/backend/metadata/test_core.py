@@ -228,6 +228,12 @@ class TestVersion:
         assert metadata.version == metadata.version == "0.1.0.0rc1"
         assert metadata.core.version == metadata.core.version == "0.1.0.0-rc.1"
 
+    def test_original_version_preserved(self, isolation):
+        metadata = ProjectMetadata(str(isolation), None, {"project": {"version": "2026.08.10"}})
+
+        assert metadata.version == "2026.8.10"
+        assert metadata.original_version == metadata.original_version == "2026.08.10"
+
     def test_dynamic_missing(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {"project": {"dynamic": ["version"]}, "tool": {"hatch": {}}})
 
