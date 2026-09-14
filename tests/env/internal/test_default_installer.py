@@ -68,9 +68,8 @@ class TestUvAvailableDetection:
         which.assert_called_once_with("uv", path=f"{scripts_dir}{os.pathsep}/usr/bin")
 
     def test_detects_uv_in_scripts_dir_not_on_bare_path(self, mocker, tmp_path):
-        # The exact scenario from the review: ``uv`` is installed as a package and lives in the
-        # scripts directory, but that directory is not on the running process's ``PATH``. A bare
-        # ``shutil.which("uv")`` would miss it; the augmented lookup must find it.
+        # ``uv`` lives in the scripts directory, which is not on ``PATH``; a bare
+        # ``shutil.which("uv")`` would miss it.
         scripts_dir = tmp_path
         uv_name = "uv.exe" if os.name == "nt" else "uv"
         uv_binary = scripts_dir / uv_name
