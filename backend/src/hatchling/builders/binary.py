@@ -6,12 +6,13 @@ from typing import TYPE_CHECKING, Any
 
 from hatchling.builders.config import BuilderConfig
 from hatchling.builders.plugin.interface import BuilderInterface
+from hatchling.plugin.manager import PluginManager
 
 if TYPE_CHECKING:
     from collections.abc import Callable
 
 
-class BinaryBuilderConfig(BuilderConfig["PluginManager"]):
+class BinaryBuilderConfig(BuilderConfig[PluginManager]):
     SUPPORTED_VERSIONS = ("3.12", "3.11", "3.10", "3.9", "3.8", "3.7")
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
@@ -82,7 +83,7 @@ class BinaryBuilderConfig(BuilderConfig["PluginManager"]):
         return self.__pyapp_version
 
 
-class BinaryBuilder(BuilderInterface[BinaryBuilderConfig, "PluginManager"]):
+class BinaryBuilder(BuilderInterface[BinaryBuilderConfig, PluginManager]):
     """
     Build binaries
     """
