@@ -9,6 +9,7 @@ from hatchling.builders.plugin.interface import BuilderInterface
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+
     from hatch.plugin.manager import PluginManager
 
 
