@@ -4,7 +4,7 @@ import os
 import sys
 from typing import TYPE_CHECKING, Any
 
-from hatch.plugin.manager import PluginManager
+from hatchling.plugin.manager import PluginManager
 from hatchling.builders.config import BuilderConfig
 from hatchling.builders.plugin.interface import BuilderInterface
 
