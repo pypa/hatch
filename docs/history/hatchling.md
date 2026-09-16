@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.32.1](https://github.com/pypa/hatch/releases/tag/hatchling-v1.32.1) - 2026-09-16 ## {: #hatchling-v1.32.1 }
+
 ***Fixed:***
 
 - Preserve the version string exactly as written in core metadata, so stylized versions such as CalVer `2026.08.10` are no longer stripped of leading zeros. Distribution file names and `.dist-info` directories continue to use the PEP 440 normalized form.
