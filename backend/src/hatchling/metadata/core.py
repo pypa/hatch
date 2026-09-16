@@ -166,7 +166,7 @@ class ProjectMetadata(Generic[PluginManagerBound]):
         if self._original_version is None:
             self._version = self._get_version()
 
-        return cast(str, self._original_version)
+        return cast("str", self._original_version)
 
     @property
     def config(self) -> dict[str, Any]:
@@ -482,7 +482,7 @@ class CoreMetadata:
 
                 self._version = version
 
-        return cast(str, self._version)
+        return cast("str", self._version)
 
     @property
     def description(self) -> str:
@@ -624,7 +624,7 @@ class CoreMetadata:
         if self._readme_content_type is None:
             _ = self.readme
 
-        return cast(str, self._readme_content_type)
+        return cast("str", self._readme_content_type)
 
     @property
     def readme_path(self) -> str:
@@ -634,7 +634,7 @@ class CoreMetadata:
         if self._readme_path is None:
             _ = self.readme
 
-        return cast(str, self._readme_path)
+        return cast("str", self._readme_path)
 
     @property
     def requires_python(self) -> str:
@@ -671,12 +671,10 @@ class CoreMetadata:
 
     @property
     def python_constraint(self) -> SpecifierSet:
-        from packaging.specifiers import SpecifierSet
-
         if self._python_constraint is None:
             _ = self.requires_python
 
-        return cast(SpecifierSet, self._python_constraint)
+        return cast("SpecifierSet", self._python_constraint)
 
     @property
     def license(self) -> str:
@@ -751,7 +749,7 @@ class CoreMetadata:
         if self._license_expression is None:
             _ = self.license
 
-        return cast(str, self._license_expression)
+        return cast("str", self._license_expression)
 
     @property
     def license_files(self) -> list[str]:
@@ -863,7 +861,7 @@ class CoreMetadata:
         if self._authors_data is None:
             _ = self.authors
 
-        return cast(dict, self._authors_data)
+        return cast("dict", self._authors_data)
 
     @property
     def maintainers(self) -> list[str]:
@@ -931,7 +929,7 @@ class CoreMetadata:
         if self._maintainers_data is None:
             _ = self.maintainers
 
-        return cast(dict, self._maintainers_data)
+        return cast("dict", self._maintainers_data)
 
     @property
     def keywords(self) -> list[str]:

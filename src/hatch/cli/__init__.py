@@ -178,7 +178,7 @@ def hatch(
         if potential_project is None or potential_project.root is None:
             app.abort(f"Unable to locate project {project}")
 
-        app.project = cast(Project, potential_project)
+        app.project = cast("Project", potential_project)
         app.project.set_app(app)
         return
 

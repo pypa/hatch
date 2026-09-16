@@ -73,11 +73,11 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
         app: Application | None = None,
     ) -> None:
         self.__root = root
-        self.__plugin_manager = cast(PluginManagerBound, plugin_manager)
+        self.__plugin_manager = cast("PluginManagerBound", plugin_manager)
         self.__raw_config = config
         self.__metadata = metadata
         self.__app = app
-        self.__config = cast(BuilderConfigBound, None)
+        self.__config = cast("BuilderConfigBound", None)
         self.__project_config: dict[str, Any] | None = None
         self.__hatch_config: dict[str, Any] | None = None
         self.__build_config: dict[str, Any] | None = None
@@ -292,7 +292,7 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
         if self.__plugin_manager is None:
             from hatchling.plugin.manager import PluginManager
 
-            self.__plugin_manager = cast(PluginManagerBound, PluginManager())
+            self.__plugin_manager = cast("PluginManagerBound", PluginManager())
 
         return self.__plugin_manager
 
@@ -313,7 +313,7 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
         if self.__app is None:
             from hatchling.bridge.app import Application
 
-            self.__app = cast(Application, Application().get_safe_application())
+            self.__app = cast("Application", Application().get_safe_application())
 
         return self.__app
 
@@ -442,7 +442,7 @@ class BuilderInterface(ABC, Generic[BuilderConfigBound, PluginManagerBound]):
         """
         Must return a subclass of [BuilderConfig](../utilities.md#hatchling.builders.config.BuilderConfig).
         """
-        return cast(type[BuilderConfigBound], BuilderConfig)
+        return cast("type[BuilderConfigBound]", BuilderConfig)
 
     @staticmethod
     def normalize_file_name_component(file_name: str) -> str:

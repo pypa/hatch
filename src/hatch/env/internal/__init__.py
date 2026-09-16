@@ -36,11 +36,7 @@ def is_isolated_environment(env_name: str, config: dict[str, Any]) -> bool:
     # version. This environment does not require the project and can be reused by every project to
     # improve responsiveness. However, if the user for some reason chooses to override the dependencies
     # to use a different version of Ruff, then the project would get its own environment.
-    return (
-        not config.get("builder", False)
-        and config.get("skip-install", False)
-        and is_default_environment(env_name, config)
-    )
+    return not config.get("builder") and config.get("skip-install", False) and is_default_environment(env_name, config)
 
 
 def is_default_environment(env_name: str, config: dict[str, Any]) -> bool:
@@ -48,7 +44,7 @@ def is_default_environment(env_name: str, config: dict[str, Any]) -> bool:
     internal_config = get_internal_env_config().get(env_name)
     if not internal_config:
         # Environment generated from matrix
-        internal_config = get_internal_env_config().get(env_name.split(".")[0])
+        internal_config = get_internal_env_config().get(env_name.split(".", maxsplit=1)[0])
         if not internal_config:
             return False
 

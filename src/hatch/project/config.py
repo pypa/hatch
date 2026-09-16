@@ -549,12 +549,10 @@ class ProjectConfig:
 
     @property
     def hatch_specifier_set(self) -> SpecifierSet:
-        from packaging.specifiers import SpecifierSet
-
         if self._hatch_specifier_set is None:
             _ = self.requires_hatch
 
-        return cast(SpecifierSet, self._hatch_specifier_set)
+        return cast("SpecifierSet", self._hatch_specifier_set)
 
     def finalize_env_overrides(self, option_types):
         # We lazily apply overrides because we need type information potentially defined by

@@ -84,9 +84,7 @@ class Project:
             message = "The application has not been set"
             raise RuntimeError(message)
 
-        from hatch.cli.application import Application
-
-        return cast(Application, self.__app)
+        return cast("Application", self.__app)
 
     @cached_property
     def build_env(self) -> EnvironmentInterface:

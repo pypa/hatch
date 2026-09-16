@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 def is_valid_project_name(project_name: str) -> bool:
     # https://peps.python.org/pep-0508/#names
-    return re.search("^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$", project_name, re.IGNORECASE) is not None
+    return re.search(r"^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$", project_name, re.IGNORECASE) is not None
 
 
 def normalize_project_name(project_name: str) -> str:

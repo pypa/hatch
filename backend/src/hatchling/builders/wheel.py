@@ -118,7 +118,7 @@ class WheelArchive:
         file_stat = os.stat(included_file.path)
 
         if self.reproducible:
-            zip_info = zipfile.ZipInfo(relative_path, cast(TIME_TUPLE, self.time_tuple))
+            zip_info = zipfile.ZipInfo(relative_path, cast("TIME_TUPLE", self.time_tuple))
 
             # https://github.com/takluyver/flit/pull/66
             new_mode = normalize_file_permissions(file_stat.st_mode)

@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING, cast
 
 from hatch.cli.terminal import Terminal
 from hatch.config.user import ConfigFile, RootConfig
-from hatch.project.core import Project
 from hatch.utils.fs import Path
 from hatch.utils.platform import Platform
 from hatch.utils.runner import ExecutionContext
@@ -18,6 +17,7 @@ if TYPE_CHECKING:
 
     from hatch.dep.core import Dependency
     from hatch.env.plugin.interface import EnvironmentInterface
+    from hatch.project.core import Project
 
 
 class Application(Terminal):
@@ -31,11 +31,11 @@ class Application(Terminal):
         self.verbose = self.verbosity > 0
 
         # Lazily set these as we acquire more knowledge about the environment
-        self.data_dir = cast(Path, None)
-        self.cache_dir = cast(Path, None)
-        self.project = cast(Project, None)
-        self.env = cast(str, None)
-        self.env_active = cast(str, None)
+        self.data_dir = cast("Path", None)
+        self.cache_dir = cast("Path", None)
+        self.project = cast("Project", None)
+        self.env = cast("str", None)
+        self.env_active = cast("str", None)
 
     @property
     def plugins(self):

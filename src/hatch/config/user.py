@@ -10,7 +10,7 @@ from hatch.utils.toml import load_toml_data
 class ConfigFile:
     def __init__(self, path: Path | None = None):
         self._path: Path | None = path
-        self.model = cast(RootConfig, None)
+        self.model = cast("RootConfig", None)
 
     @property
     def path(self):

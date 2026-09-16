@@ -213,7 +213,7 @@ class TypeCheckEnvironment:
     def _dep_to_import_name(dep: str) -> str:
         """Convert a dependency string to its likely import name."""
         # Strip markers (everything after ;)
-        name = dep.split(";")[0].strip()
+        name = dep.split(";", maxsplit=1)[0].strip()
         # Strip version specifiers
         for char in (">=", "<=", "!=", "~=", "==", ">", "<", "["):
             name = name.split(char)[0]

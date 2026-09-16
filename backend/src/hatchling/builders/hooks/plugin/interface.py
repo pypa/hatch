@@ -67,7 +67,7 @@ class BuildHookInterface(Generic[BuilderConfigBound, PluginManagerBound]):  # no
         if self.__app is None:
             from hatchling.bridge.app import Application
 
-            self.__app = cast(Application, Application().get_safe_application())
+            self.__app = cast("Application", Application().get_safe_application())
 
         return self.__app
 

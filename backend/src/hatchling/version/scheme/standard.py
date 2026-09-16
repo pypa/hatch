@@ -108,4 +108,4 @@ def update_release(original_version: Version, new_release_parts: list[int]) -> t
 def parse_letter_version(*args: Any, **kwargs: Any) -> tuple[Literal["a", "b", "rc"], int]:
     from packaging.version import _parse_letter_version  # noqa: PLC2701
 
-    return cast(tuple[Literal["a", "b", "rc"], int], _parse_letter_version(*args, **kwargs))
+    return cast("tuple[Literal['a', 'b', 'rc'], int]", _parse_letter_version(*args, **kwargs))

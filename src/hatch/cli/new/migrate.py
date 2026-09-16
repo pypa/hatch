@@ -270,7 +270,7 @@ def setup(**kwargs):
         if package_path != f"src/{package_name}":
             build_targets.setdefault("wheel", {})["packages"] = [package_path]
 
-    if kwargs.get("data_files", []):
+    if kwargs.get("data_files"):
         shared_data = {}
         for shared_directory, relative_paths in kwargs["data_files"]:
             relative_files = {}

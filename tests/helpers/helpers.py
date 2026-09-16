@@ -180,5 +180,5 @@ def downgrade_distribution_metadata(dist_dir: Path):
 
 
 def downgrade_version(version: str) -> str:
-    major_version = version.split(".")[0]
+    major_version = version.split(".", maxsplit=1)[0]
     return version.replace(major_version, str(int(major_version) - 1), 1)
