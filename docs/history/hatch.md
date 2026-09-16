@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.18.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.18.1) - 2026-09-16 ## {: #hatch-v1.18.1 }
+
 ***Added:***
 
 - Apply context formatting to the `lock-filename` environment option so fields such as `{env_name}` and `{matrix:...}` are resolved when computing the lock file path.
