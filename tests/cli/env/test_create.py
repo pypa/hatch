@@ -2177,3 +2177,36 @@ def test_requires_hatch_not_satisfied(hatch, temp_dir, config_file):
 
     assert result.exit_code == 1, result.output
     assert ">999" in result.output
+
+
+@pytest.mark.requires_internet
+def test_matrix_python_sources_internal(hatch, helpers, temp_dir):
+    with temp_dir.as_cwd():
+        result = hatch("new", "My.App")
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
+    data_path.mkdir()
+
+    project = Project(project_path)
+
+    config = {"python": "3.15", "python-sources": ["internal"], "matrix": [{"version": ["v1", "v2"]}]}
+    helpers.update_project_environment(project, "default", config)
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch("env", "create")
+
+    assert result.exit_code == 0
+    assert result.output == helpers.dedent(
+        """
+        Creating environment: v1
+        Installing Python distribution: 3.15
+        Installing project in development mode
+        Checking dependencies
+        Creating environment: v2
+        Installing project in development mode
+        Checking dependencies
+        """
+    )
