@@ -12,6 +12,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Fix syncing environment plugin requirements on standalone binaries built to forward to `pip`
 
+## [1.18.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.18.1) - 2026-09-16 ## {: #hatch-v1.18.1 }
+
+***Added:***
+
+- Apply context formatting to the `lock-filename` environment option so fields such as `{env_name}` and `{matrix:...}` are resolved when computing the lock file path.
+
+***Fixed:***
+
+- Consolidate extras and feature resolution into a single code path, fixing regressions where environment and project extras could be dropped or resolved inconsistently, and always validate undefined features.
+
+- Normalize hyphens in the plugin name when building environment option environment variable names in `get_env_var()`, so options for hyphenated plugins resolve to the correct variable.
+
 ## [1.18.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.18.0) - 2026-08-11 ## {: #hatch-v1.18.0 }
 
 ***Changed:***

@@ -4,9 +4,9 @@ import os
 import sys
 from typing import TYPE_CHECKING, Any
 
-from hatch.plugin.manager import PluginManager
 from hatchling.builders.config import BuilderConfig
 from hatchling.builders.plugin.interface import BuilderInterface
+from hatchling.plugin.manager import PluginManager
 
 if TYPE_CHECKING:
     from collections.abc import Callable
