@@ -19,6 +19,7 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
     from hatchling.builders.plugin.interface import BuilderInterface
+    from hatchling.utils.context import Context
 
 
 class BuilderConfig(Generic[PluginManagerBound]):
@@ -64,6 +65,10 @@ class BuilderConfig(Generic[PluginManagerBound]):
     @property
     def target_config(self) -> dict[str, Any]:
         return self.__target_config
+
+    @property
+    def context(self) -> Context:
+        return self.__builder.metadata.context
 
     def include_path(self, relative_path: str, *, explicit: bool = False, is_package: bool = True) -> bool:
         return (
@@ -503,7 +508,7 @@ class BuilderConfig(Generic[PluginManagerBound]):
                 )
                 raise TypeError(message)
 
-            dependencies[dependency] = None
+            dependencies[self.context.format(dependency)] = None
 
         global_dependencies = self.build_config.get("dependencies", [])
         if not isinstance(global_dependencies, list):
@@ -515,7 +520,7 @@ class BuilderConfig(Generic[PluginManagerBound]):
                 message = f"Dependency #{i} of field `tool.hatch.build.dependencies` must be a string"
                 raise TypeError(message)
 
-            dependencies[dependency] = None
+            dependencies[self.context.format(dependency)] = None
 
         require_runtime_dependencies = self.require_runtime_dependencies
         require_runtime_features = dict.fromkeys(self.require_runtime_features)
@@ -568,7 +573,7 @@ class BuilderConfig(Generic[PluginManagerBound]):
                     message = f"Dependency #{i} of option `dependencies` of build hook `{hook_name}` must be a string"
                     raise TypeError(message)
 
-                dependencies[dependency] = None
+                dependencies[self.context.format(dependency)] = None
 
         if require_runtime_dependencies:
             for dependency in self.builder.metadata.core.dependencies:
@@ -586,7 +591,7 @@ class BuilderConfig(Generic[PluginManagerBound]):
 
     @cached_property
     def dynamic_dependencies(self) -> list[str]:
-        dependencies = []
+        dependencies: list[str] = []
         for hook_name, config in self.hook_config.items():
             build_hook_cls = self.builder.plugin_manager.build_hook.get(hook_name)
             if build_hook_cls is None:
@@ -601,7 +606,7 @@ class BuilderConfig(Generic[PluginManagerBound]):
             except ImportError:
                 continue
 
-            dependencies.extend(build_hook.dependencies())
+            dependencies.extend(map(self.context.format, build_hook.dependencies()))
 
         return dependencies
 
