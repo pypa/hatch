@@ -228,8 +228,11 @@ class TestVersion:
         assert metadata.version == metadata.version == "0.1.0.0rc1"
         assert metadata.core.version == metadata.core.version == "0.1.0.0-rc.1"
 
-    def test_original_version_preserved(self, isolation):
-        metadata = ProjectMetadata(str(isolation), None, {"project": {"version": "2026.08.10"}})
+    @pytest.mark.parametrize("whitespace", ["", "\n", "\r\n", " \t\r\n\f\v"])
+    def test_original_version_preserved(self, isolation, whitespace):
+        metadata = ProjectMetadata(
+            str(isolation), None, {"project": {"version": f"{whitespace}2026.08.10{whitespace}"}}
+        )
 
         assert metadata.version == "2026.8.10"
         assert metadata.original_version == metadata.original_version == "2026.08.10"
@@ -306,6 +309,25 @@ class TestVersion:
             ValueError, match="Invalid version `0..0` from source `regex`, see https://peps.python.org/pep-0440/"
         ):
             _ = metadata.version
+
+    @pytest.mark.parametrize("constructor", get_core_metadata_constructors().values())
+    def test_dynamic_source_regex_trailing_newline(self, constructor, temp_dir):
+        metadata = ProjectMetadata(
+            str(temp_dir),
+            PluginManager(),
+            {
+                "project": {"name": "my-app", "dynamic": ["version"], "dependencies": ["anyio==4.3.0"]},
+                "tool": {"hatch": {"version": {"path": "VERSION", "pattern": "(?P<version>[^']+)"}}},
+            },
+        )
+        (temp_dir / "VERSION").write_text("2026.08.10\n")
+
+        assert metadata.version == "2026.8.10"
+        assert project_metadata_from_core_metadata(constructor(metadata)) == {
+            "name": "my-app",
+            "version": "2026.08.10",
+            "dependencies": ["anyio==4.3.0"],
+        }
 
     def test_dynamic_error(self, isolation):
         metadata = ProjectMetadata(
