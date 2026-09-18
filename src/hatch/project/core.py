@@ -192,9 +192,13 @@ class Project:
                 environment.remove()
             raise
 
+    def prepare_environment(self, environment: EnvironmentInterface, *, keep_env: bool):
+        with self.env_metadata.lock(environment):
+            self._prepare_environment_unlocked(environment, keep_env=keep_env)
+
     # Ensure that this method is clearly written since it is
     # used for documenting the life cycle of environments.
-    def prepare_environment(self, environment: EnvironmentInterface, *, keep_env: bool):
+    def _prepare_environment_unlocked(self, environment: EnvironmentInterface, *, keep_env: bool):
         if not environment.exists():
             with self.managed_environment(environment, keep_env=keep_env):
                 self.env_metadata.reset(environment)
