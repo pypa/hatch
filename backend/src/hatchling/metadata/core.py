@@ -157,7 +157,7 @@ class ProjectMetadata(Generic[PluginManagerBound]):
     @property
     def original_version(self) -> str:
         """
-        The version as written by the user, before PEP 440 normalization.
+        The version as written by the user, with surrounding whitespace removed.
 
         The normalized `version` is used for distribution file names and `.dist-info`
         directories, but core metadata records the original string so that stylized
@@ -275,7 +275,7 @@ class ProjectMetadata(Generic[PluginManagerBound]):
             message = f"Invalid version `{version}` from {source}, see https://peps.python.org/pep-0440/"
             raise ValueError(message) from None
         else:
-            self._original_version = version
+            self._original_version = version.strip()
             return normalized_version
 
     def validate_fields(self) -> None:
