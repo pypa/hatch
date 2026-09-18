@@ -1,12 +1,15 @@
 from __future__ import annotations
 
+from contextlib import contextmanager
 from functools import cached_property
-from os import environ
+from os import environ, pathsep
 from typing import TYPE_CHECKING, Any
 
 from hatch.utils.platform import get_platform_name
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
+
     from hatch.env.plugin.interface import EnvironmentInterface
     from hatch.utils.fs import Path
 
@@ -410,10 +413,50 @@ TYPE_OVERRIDES = {
 }
 
 
+# Environment lock files held by ancestor Hatch processes, or by an enclosing `lock()` call in this one
+ANCESTOR_HELD_LOCKS_ENV_VAR = "_HATCH_ANCESTOR_HELD_ENV_LOCKS"
+
+
 class EnvironmentMetadata:
     def __init__(self, data_dir: Path, project_path: Path):
         self.__data_dir = data_dir
         self.__project_path = project_path
+
+    @contextmanager
+    def lock(self, environment: EnvironmentInterface) -> Generator[None, None, None]:
+        """
+        Prevent other processes from preparing the environment at the same time.
+
+        While this process holds the lock, the processes it starts, such as pre-install and post-install commands,
+        and their descendants inherit it through an environment variable. If one of them runs Hatch for the same
+        environment, that invocation proceeds without waiting: this process is blocked until it finishes, so waiting
+        would deadlock.
+        """
+        from filelock import FileLock, Timeout
+
+        from hatch.utils.structures import EnvVars
+
+        metadata_file = self._metadata_file(environment)
+        lock_file = str(metadata_file.with_suffix(".lock"))
+
+        ancestor_held_locks = [path for path in environ.get(ANCESTOR_HELD_LOCKS_ENV_VAR, "").split(pathsep) if path]
+        if lock_file in ancestor_held_locks:
+            yield
+            return
+
+        metadata_file.parent.ensure_dir_exists()
+        lock = FileLock(lock_file)
+        try:
+            lock.acquire(timeout=0)
+        except Timeout:
+            with environment.app.status(f"Waiting for another process to prepare environment: {environment.name}"):
+                lock.acquire()
+
+        try:
+            with EnvVars({ANCESTOR_HELD_LOCKS_ENV_VAR: pathsep.join([*ancestor_held_locks, lock_file])}):
+                yield
+        finally:
+            lock.release()
 
     def dependency_hash(self, environment: EnvironmentInterface) -> str:
         return self._read(environment).get("dependency_hash", "")
