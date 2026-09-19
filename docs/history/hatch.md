@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Fixed:***
+
+- Prevent concurrent Hatch processes from preparing the same environment simultaneously. Previously they could fail while reading its metadata or install into it at the same time, for example when environments using the `uv` installer first created the shared `hatch-uv` environment in parallel.
+
 ## [1.18.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.18.1) - 2026-09-16 ## {: #hatch-v1.18.1 }
 
 ***Added:***
