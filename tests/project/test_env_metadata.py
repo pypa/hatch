@@ -1,3 +1,4 @@
+import json
 import os
 import subprocess
 import sys
@@ -10,6 +11,7 @@ from filelock import FileLock
 
 from hatch.project.core import Project
 from hatch.project.env import ANCESTOR_HELD_LOCKS_ENV_VAR, EnvironmentMetadata
+from hatch.utils.structures import EnvVars
 
 TRY_LOCK = """\
 import sys
@@ -38,6 +40,10 @@ def metadata(temp_dir):
 
 def lock_file_of(metadata, environment):
     return metadata._metadata_file(environment).with_suffix(".lock")  # noqa: SLF001
+
+
+def owner_file_of(metadata, environment):
+    return metadata._metadata_file(environment).with_suffix(".owner")  # noqa: SLF001
 
 
 class TestLock:
@@ -78,25 +84,76 @@ class TestLock:
 
         environment = make_environment(status=status)
         lock_file = str(lock_file_of(metadata, environment))
+        owner_file = owner_file_of(metadata, environment)
 
         with metadata.lock(environment):
-            assert os.environ[ANCESTOR_HELD_LOCKS_ENV_VAR] == lock_file
+            held = json.loads(os.environ[ANCESTOR_HELD_LOCKS_ENV_VAR])
+            assert held == {lock_file: owner_file.read_text()}
             with metadata.lock(environment):
-                assert os.environ[ANCESTOR_HELD_LOCKS_ENV_VAR] == lock_file
+                assert json.loads(os.environ[ANCESTOR_HELD_LOCKS_ENV_VAR]) == held
 
-            assert os.environ[ANCESTOR_HELD_LOCKS_ENV_VAR] == lock_file
+            assert json.loads(os.environ[ANCESTOR_HELD_LOCKS_ENV_VAR]) == held
 
         assert ANCESTOR_HELD_LOCKS_ENV_VAR not in os.environ
+        assert not owner_file.read_text()
 
     def test_nested_environments_are_all_held(self, metadata):
         foo = make_environment("foo")
         bar = make_environment("bar")
 
         with metadata.lock(foo), metadata.lock(bar):
-            assert os.environ[ANCESTOR_HELD_LOCKS_ENV_VAR].split(os.pathsep) == [
+            assert set(json.loads(os.environ[ANCESTOR_HELD_LOCKS_ENV_VAR])) == {
                 str(lock_file_of(metadata, foo)),
                 str(lock_file_of(metadata, bar)),
-            ]
+            }
+
+    def test_outlived_hold_does_not_bypass_the_current_holder(self, metadata):
+        messages = []
+        environment = make_environment("foo")
+        with metadata.lock(environment):
+            inherited = os.environ[ANCESTOR_HELD_LOCKS_ENV_VAR]
+
+        # Another process takes the lock and records its own token
+        other_holder = FileLock(str(lock_file_of(metadata, environment)))
+        other_holder.acquire()
+        owner_file_of(metadata, environment).write_text("other")
+
+        def status(message):
+            messages.append(message)
+            other_holder.release()
+            return nullcontext()
+
+        environment.app.status = status
+        with EnvVars({ANCESTOR_HELD_LOCKS_ENV_VAR: inherited}), metadata.lock(environment):
+            pass
+
+        assert messages == ["Waiting for another process to prepare environment: foo"]
+
+    def test_ended_hold_takes_the_free_lock_with_a_new_token(self, metadata):
+        def status(message):
+            pytest.fail(f"Unexpected wait: {message}")
+
+        environment = make_environment(status=status)
+        lock_file = str(lock_file_of(metadata, environment))
+        with metadata.lock(environment):
+            inherited = os.environ[ANCESTOR_HELD_LOCKS_ENV_VAR]
+
+        with EnvVars({ANCESTOR_HELD_LOCKS_ENV_VAR: inherited}), metadata.lock(environment):
+            assert not lock_is_free(lock_file)
+            token = json.loads(os.environ[ANCESTOR_HELD_LOCKS_ENV_VAR])[lock_file]
+            assert token != json.loads(inherited)[lock_file]
+            assert owner_file_of(metadata, environment).read_text() == token
+
+    def test_token_left_by_a_dead_holder_does_not_count_as_a_hold(self, metadata):
+        environment = make_environment()
+        lock_file = str(lock_file_of(metadata, environment))
+        owner_file = owner_file_of(metadata, environment)
+        owner_file.parent.ensure_dir_exists()
+        owner_file.write_text("dead")
+
+        with EnvVars({ANCESTOR_HELD_LOCKS_ENV_VAR: json.dumps({lock_file: "dead"})}), metadata.lock(environment):
+            assert not lock_is_free(lock_file)
+            assert owner_file.read_text() != "dead"
 
 
 def test_prepare_environment_holds_lock(temp_dir, metadata):
