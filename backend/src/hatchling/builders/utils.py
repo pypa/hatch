@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import shutil
+import stat
 from base64 import urlsafe_b64encode
 from typing import TYPE_CHECKING
 
@@ -19,11 +20,49 @@ def replace_file(src: str, dst: str) -> None:
         os.remove(src)
 
 
+def _is_dir_link(path: str) -> bool:
+    try:
+        st = os.lstat(path)
+    except OSError:
+        return False
+    if stat.S_ISLNK(st.st_mode):
+        return True
+    # Windows junctions are reparse points; ``os.path.islink`` is false for them
+    # on some Python versions.
+    file_attributes = getattr(st, "st_file_attributes", 0)
+    return bool(file_attributes & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400))
+
+
+def _is_inside_directory(root: str, path: str) -> bool:
+    try:
+        common = os.path.commonpath([root, path])
+    except ValueError:
+        return False
+    return os.path.normcase(common) == os.path.normcase(root)
+
+
 def safe_walk(path: str) -> Iterable[tuple[str, list[str], list[str]]]:
     seen = set()
+    walk_root = os.path.realpath(path)
+    walk_root_abs = os.path.abspath(path)
     for root, dirs, files in os.walk(path, followlinks=True):
-        stat = os.stat(root)
-        identifier = stat.st_dev, stat.st_ino
+        # Following an in-tree directory link records the target inode as seen.
+        # If the alias sorts first, the real directory is then skipped as a cycle.
+        if (
+            _is_dir_link(root)
+            and os.path.normcase(os.path.abspath(root)) != os.path.normcase(walk_root_abs)
+            and _is_inside_directory(walk_root, os.path.realpath(root))
+        ):
+            del dirs[:]
+            continue
+
+        try:
+            root_stat = os.stat(root)
+        except OSError:
+            del dirs[:]
+            continue
+
+        identifier = root_stat.st_dev, root_stat.st_ino
         if identifier in seen:
             del dirs[:]
             continue
