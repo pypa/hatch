@@ -14,7 +14,7 @@ If you have [project metadata](../../config/metadata.md) that is not appropriate
 Change the `[project]` section of `pyproject.toml`:
 
 1. Define the [dynamic field](../../config/metadata.md#dynamic) as an array of all the fields you will set dynamically e.g. `dynamic = ["version", "license", "authors", "maintainers"]`
-2. If any of those fields have static definitions in `pyproject.toml`, delete those definitions. It is verboten to define a field statically and dynamically.
+2. If any of those fields have static definitions in `pyproject.toml`, delete those definitions. It is forbidden to define a field statically and dynamically.
 
 Add a section to trigger loading of dynamic metadata plugins: `[tool.hatch.metadata.hooks.custom]`. Use exactly that name, regardless of the name of the class you will use or its `PLUGIN_NAME`. There doesn't need to be anything in the section.
 
