@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Fixed:***
+
+- Fix syncing environment plugin requirements on standalone binaries built to forward to `pip`
+
 ## [1.18.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.18.1) - 2026-09-16 ## {: #hatch-v1.18.1 }
 
 ***Added:***
