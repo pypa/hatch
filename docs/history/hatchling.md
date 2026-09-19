@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Fixed:***
+
+- Revert the extra type parameter added to `BuildHookInterface` in 1.32.3, which broke plugins that subscripted the interface with a single argument (e.g. `BuildHookInterface[MyConfig]`) by raising `TypeError` at import time. `BuilderConfig` is likewise no longer generic, restoring the pre-1.32.3 plugin interface.
+
 ## [1.32.3](https://github.com/pypa/hatch/releases/tag/hatchling-v1.32.3) - 2026-09-17 ## {: #hatchling-v1.32.3 }
 
 
