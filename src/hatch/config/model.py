@@ -455,6 +455,8 @@ class TemplateConfig(LazilyParsedConfig):
         self._field_email = FIELD_TO_PARSE
         self._field_licenses = FIELD_TO_PARSE
         self._field_plugins = FIELD_TO_PARSE
+        self._field_github_org = FIELD_TO_PARSE
+        self._field_copyright_holder = FIELD_TO_PARSE
 
     @property
     def name(self):
@@ -563,6 +565,62 @@ class TemplateConfig(LazilyParsedConfig):
     def plugins(self, value):
         self.raw_data["plugins"] = value
         self._field_plugins = FIELD_TO_PARSE
+
+    @property
+    def github_org(self):
+        if self._field_github_org is FIELD_TO_PARSE:
+            if "github-org" in self.raw_data:
+                github_org = self.raw_data["github-org"]
+                if not isinstance(github_org, str):
+                    self.raise_error("must be a string")
+
+                self._field_github_org = github_org
+            else:
+                github_org = os.environ.get("GITHUB_ORG")
+                if github_org is None:
+                    import shutil
+
+                    if shutil.which("gh") is None:
+                        # Revert to provided name if not found
+                        github_org = self.name
+                    else:
+                        import subprocess
+
+                        try:
+                            github_org = subprocess.check_output(
+                                ["gh", "api", "user", "--jq", ".login"],  # noqa: S607
+                                text=True,
+                            ).strip()
+                        except Exception:  # noqa: BLE001
+                            github_org = repr(self.name)[1:-1]
+                self._field_github_org = self.raw_data["github-org"] = github_org
+
+        return self._field_github_org
+
+    @github_org.setter
+    def github_org(self, value):
+        self.raw_data["github-org"] = value
+        self._field_github_org = FIELD_TO_PARSE
+
+    @property
+    def copyright_holder(self):
+        if self._field_copyright_holder is FIELD_TO_PARSE:
+            if "copyright-holder" in self.raw_data:
+                copyright_holder = self.raw_data["copyright-holder"]
+                if not isinstance(copyright_holder, str):
+                    self.raise_error("must be a string")
+
+                self._field_copyright_holder = copyright_holder
+            else:
+                copyright_holder = f"{self.name} <{self.email}>"
+                self._field_copyright_holder = self.raw_data["copyright-holder"] = copyright_holder
+
+        return self._field_copyright_holder
+
+    @copyright_holder.setter
+    def copyright_holder(self, value):
+        self.raw_data["copyright-holder"] = value
+        self._field_copyright_holder = FIELD_TO_PARSE
 
 
 class LicensesConfig(LazilyParsedConfig):
