@@ -189,6 +189,17 @@ class VirtualEnvironment(EnvironmentInterface):
             if not entries or (entries == [".gitignore"] and self.root in self.storage_path.parents):
                 self.storage_path.remove()
 
+                # Also clean up the parent project_name directory if it is now empty
+                # (e.g. `<data_dir>/env/virtual/<project_name>/<project_id>` -> remove `<project_name>`)
+                storage_parent = self.storage_path.parent
+                if (
+                    storage_parent != self.data_directory
+                    and storage_parent != self.platform.home / ".virtualenvs"
+                    and storage_parent.is_dir()
+                    and not any(storage_parent.iterdir())
+                ):
+                    storage_parent.remove()
+
     def exists(self):
         return self.virtual_env.exists()
 
