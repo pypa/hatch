@@ -25,6 +25,8 @@ def test_default(default_cache_dir, default_data_dir):
         "template": {
             "name": "Foo Bar",
             "email": "foo@bar.baz",
+            "github-owner": "Foo Bar",
+            "copyright-holder": "Foo Bar <foo@bar.baz>",
             "licenses": {"default": ["MIT"], "headers": True},
             "plugins": {"default": {"ci": False, "src-layout": True, "tests": True}},
         },
@@ -1118,6 +1120,46 @@ class TestTemplate:
             ),
         ):
             _ = config.template.plugins
+
+    def test_github_owner(self):
+        config = RootConfig({"template": {"github-owner": "foobarbaz"}})
+
+        assert config.template.github_owner == "foobarbaz"
+        assert config.raw_data == {"template": {"github-owner": "foobarbaz"}}
+
+    def test_github_owner_default(self):
+        config = RootConfig({"template": {"name": "Foo Bar"}})
+
+        assert config.template.github_owner == "Foo Bar"
+        assert config.raw_data == {"template": {"github-owner": "Foo Bar", "name": "Foo Bar"}}
+
+    def test_github_owner_default_env_var(self):
+        import os
+
+        os.environ["GITHUB_OWNER"] = "foobarbaz"
+        config = RootConfig({})
+
+        assert config.template.github_owner == "foobarbaz"
+        assert config.raw_data == {"template": {"github-owner": "foobarbaz"}}
+        os.environ.pop("GITHUB_OWNER")
+
+    @pytest.mark.usefixtures("use_gh")
+    def test_github_owner_default_gh(self):
+        config = RootConfig({})
+
+        assert config.template.github_owner == "gh-foobarbaz"
+        assert config.raw_data == {"template": {"github-owner": "gh-foobarbaz"}}
+
+    def test_copyright_holder(self):
+        config = RootConfig({"template": {"copyright-holder": "Foobar Inc."}})
+
+        assert config.template.copyright_holder == "Foobar Inc."
+        assert config.raw_data == {"template": {"copyright-holder": "Foobar Inc."}}
+
+    def test_copyright_default_holder(self):
+        config = RootConfig({"template": {"name": "Foo Bar", "email": "foo@bar.com"}})
+
+        assert config.template.copyright_holder == "Foo Bar <foo@bar.com>"
 
 
 class TestTerminal:
