@@ -18,6 +18,22 @@ if TYPE_CHECKING:
     from hatchling.builders.plugin.interface import BuilderInterface
 
 
+def _vcs_ignore_excludes_project(exclusion_file: str, root: str, patterns: list[str]) -> bool:
+    """Return True when a parent ignore file's patterns match the project root.
+
+    Gitignore patterns are relative to the ignore file. Matching the absolute
+    project path also fires when an ancestor directory name appears in the
+    project's own ignore file, e.g. `dist/` while building an unpacked sdist
+    under `dist/`.
+    """
+    ignore_dir = os.path.dirname(os.path.abspath(exclusion_file))
+    relative_root = os.path.relpath(os.path.abspath(root), ignore_dir)
+    if relative_root in {os.curdir, ""}:
+        return False
+
+    return pathspec.GitIgnoreSpec.from_lines(patterns).match_file(relative_root.replace(os.sep, "/"))
+
+
 class BuilderConfig:
     def __init__(
         self,
@@ -768,12 +784,16 @@ class BuilderConfig:
         # https://git-scm.com/docs/gitignore#_pattern_format
         for exclusion_file in self.vcs_exclusion_files["git"]:
             with open(exclusion_file, encoding="utf-8") as f:
-                patterns.extend(f.readlines())
+                file_patterns = f.readlines()
+                if _vcs_ignore_excludes_project(exclusion_file, self.root, file_patterns):
+                    continue
+                patterns.extend(file_patterns)
 
         # https://linux.die.net/man/5/hgignore
         for exclusion_file in self.vcs_exclusion_files["hg"]:
             with open(exclusion_file, encoding="utf-8") as f:
                 glob_mode = False
+                file_patterns = []
                 for line in f:
                     exact_line = line.strip()
                     if exact_line == "syntax: glob":
@@ -785,12 +805,11 @@ class BuilderConfig:
                         continue
 
                     if glob_mode:
-                        patterns.append(line)
+                        file_patterns.append(line)
 
-        # validate project root is not excluded by vcs
-        exclude_spec = pathspec.GitIgnoreSpec.from_lines(patterns)
-        if exclude_spec.match_file(self.root):
-            return []
+                if _vcs_ignore_excludes_project(exclusion_file, self.root, file_patterns):
+                    continue
+                patterns.extend(file_patterns)
 
         return patterns
 
