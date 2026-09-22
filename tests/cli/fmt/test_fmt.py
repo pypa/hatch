@@ -167,6 +167,35 @@ extend = "{config_path}\""""
 extend = "{config_path}\""""
         )
 
+    def test_internal_config_files_written_as_utf8(self, hatch, temp_dir, config_file, env_run, mocker):
+        config_file.model.template.plugins["default"]["tests"] = False
+        config_file.save()
+
+        project_dir = temp_dir / "sübdir"
+        project_dir.mkdir()
+        with project_dir.as_cwd():
+            result = hatch("new", "My.App")
+
+        assert result.exit_code == 0, result.output
+
+        project_path = project_dir / "my-app"
+        data_path = project_dir / "data"
+        data_path.mkdir()
+
+        config_dir = data_path / "env" / ".internal" / "hatch-static-analysis" / ".config" / project_path.id
+
+        # Simulate a non-UTF-8 locale such as cp1252 on Windows
+        mocker.patch("io.text_encoding", side_effect=lambda encoding, *args: encoding or "cp1252")
+        with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+            result = hatch("fmt")
+
+        assert result.exit_code == 0, result.output
+
+        # TOML is spec'd as UTF-8; the internal user config embeds the absolute
+        # path to the generated defaults file, which is non-ASCII here
+        contents = (config_dir / "pyproject.toml").read_bytes().decode("utf-8")
+        assert "sübdir" in contents
+
     def test_existing_config(
         self, hatch, helpers, temp_dir, config_file, env_run, mocker, platform, defaults_file_stable
     ):

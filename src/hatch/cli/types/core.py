@@ -39,7 +39,7 @@ class TypeCheckEnvironment:
         if pyproject.is_file():
             from hatch.utils.toml import load_toml_data
 
-            data = load_toml_data(pyproject.read_text())
+            data = load_toml_data(pyproject.read_text(encoding="utf-8"))
             if "tool" in data and "pyrefly" in data["tool"]:
                 return pyproject
 
@@ -103,7 +103,7 @@ class TypeCheckEnvironment:
             return
 
         self.internal_config_file.parent.ensure_dir_exists()
-        self.internal_config_file.write_text(config_contents)
+        self.internal_config_file.write_text(config_contents, encoding="utf-8")
 
     def _detect_project_includes(self) -> list[str]:
         """Detect which directories contain source code to type check.
@@ -227,7 +227,7 @@ class TypeCheckEnvironment:
 
         from hatch.utils.toml import load_toml_data
 
-        data = load_toml_data(self.user_config_file.read_text())
+        data = load_toml_data(self.user_config_file.read_text(encoding="utf-8"))
 
         if self.user_config_file.name == "pyproject.toml":
             return data.get("tool", {}).get("pyrefly", {})
