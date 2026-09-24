@@ -101,8 +101,44 @@ class TestExtendInjection:
             internal_pyproject = config_dir / "pyproject.toml"
             assert internal_pyproject.is_file(), f"missing {internal_pyproject}"
             contents = internal_pyproject.read_text()
-            assert contents.count("extend") == 1, (
-                f"{env_name}: 'extend' appears {contents.count('extend')} times, expected 1"
+            assert contents.count("extend =") == 1, (
+                f"{env_name}: 'extend =' appears {contents.count('extend =')} times, expected 1"
+            )
+
+    @pytest.mark.usefixtures("env_run")
+    def test_existing_extend_exclude_in_pyproject(self, hatch, temp_dir, config_file):
+        config_file.model.template.plugins["default"]["tests"] = False
+        config_file.save()
+
+        project_name = "My.App"
+
+        with temp_dir.as_cwd():
+            result = hatch("new", project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / "my-app"
+        data_path = temp_dir / "data"
+        data_path.mkdir()
+
+        pyproject = project_path / "pyproject.toml"
+        pyproject.write_text(pyproject.read_text() + '\n[tool.ruff]\nextend-exclude = ["src/bad.py"]\n')
+
+        with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+            result = hatch("check")
+
+        assert result.exit_code == 0, result.output
+
+        for env_name in ("hatch-check-code", "hatch-check-fmt"):
+            config_dir = data_path / "env" / ".internal" / env_name / ".config" / project_path.id
+            internal_pyproject = config_dir / "pyproject.toml"
+            assert internal_pyproject.is_file(), f"missing {internal_pyproject}"
+            contents = internal_pyproject.read_text()
+            assert contents.count("extend =") == 1, (
+                f"{env_name}: 'extend =' appears {contents.count('extend =')} times, expected 1"
+            )
+            assert contents.count("extend-exclude") == 1, (
+                f"{env_name}: 'extend-exclude' appears {contents.count('extend-exclude')} times, expected 1"
             )
 
     @pytest.mark.usefixtures("env_run")
@@ -133,6 +169,6 @@ class TestExtendInjection:
             internal_ruff_toml = config_dir / "ruff.toml"
             assert internal_ruff_toml.is_file(), f"missing {internal_ruff_toml}"
             contents = internal_ruff_toml.read_text()
-            assert contents.count("extend") == 1, (
-                f"{env_name}: 'extend' appears {contents.count('extend')} times, expected 1"
+            assert contents.count("extend =") == 1, (
+                f"{env_name}: 'extend =' appears {contents.count('extend =')} times, expected 1"
             )

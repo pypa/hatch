@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+import re
 from functools import cached_property
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from hatch.env.plugin.interface import EnvironmentInterface
     from hatch.utils.fs import Path
+
+EXTEND_RE = re.compile(r"extend\s*=")
 
 
 class StaticAnalysisEnvironment:
@@ -112,7 +115,7 @@ class StaticAnalysisEnvironment:
                     len(lines),
                 )
                 section_lines = lines[index + 1 : next_section]
-                if not any(line.startswith("extend") for line in section_lines):
+                if not any(EXTEND_RE.match(line) for line in section_lines):
                     lines.insert(index + 1, f'extend = "{config_path}"')
 
             contents = "\n".join(lines)
