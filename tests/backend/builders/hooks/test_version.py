@@ -9,20 +9,20 @@ from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT
 class TestConfigPath:
     def test_correct(self, isolation):
         config = {"path": "foo/bar.py"}
-        hook = VersionBuildHook(str(isolation), config, None, None, "", "")
+        hook = VersionBuildHook(str(isolation), config, None, None, "", "", None)
 
         assert hook.config_path == hook.config_path == "foo/bar.py"
 
     def test_missing(self, isolation):
         config = {"path": ""}
-        hook = VersionBuildHook(str(isolation), config, None, None, "", "")
+        hook = VersionBuildHook(str(isolation), config, None, None, "", "", None)
 
         with pytest.raises(ValueError, match="Option `path` for build hook `version` is required"):
             _ = hook.config_path
 
     def test_not_string(self, isolation):
         config = {"path": 9000}
-        hook = VersionBuildHook(str(isolation), config, None, None, "", "")
+        hook = VersionBuildHook(str(isolation), config, None, None, "", "", None)
 
         with pytest.raises(TypeError, match="Option `path` for build hook `version` must be a string"):
             _ = hook.config_path
@@ -31,13 +31,13 @@ class TestConfigPath:
 class TestConfigTemplate:
     def test_correct(self, isolation):
         config = {"template": "foo"}
-        hook = VersionBuildHook(str(isolation), config, None, None, "", "")
+        hook = VersionBuildHook(str(isolation), config, None, None, "", "", None)
 
         assert hook.config_template == hook.config_template == "foo"
 
     def test_not_string(self, isolation):
         config = {"template": 9000}
-        hook = VersionBuildHook(str(isolation), config, None, None, "", "")
+        hook = VersionBuildHook(str(isolation), config, None, None, "", "", None)
 
         with pytest.raises(TypeError, match="Option `template` for build hook `version` must be a string"):
             _ = hook.config_template
@@ -46,13 +46,13 @@ class TestConfigTemplate:
 class TestConfigPattern:
     def test_correct(self, isolation):
         config = {"pattern": "foo"}
-        hook = VersionBuildHook(str(isolation), config, None, None, "", "")
+        hook = VersionBuildHook(str(isolation), config, None, None, "", "", None)
 
         assert hook.config_pattern == hook.config_pattern == "foo"
 
     def test_not_string(self, isolation):
         config = {"pattern": 9000}
-        hook = VersionBuildHook(str(isolation), config, None, None, "", "")
+        hook = VersionBuildHook(str(isolation), config, None, None, "", "", None)
 
         with pytest.raises(TypeError, match="Option `pattern` for build hook `version` must be a string"):
             _ = hook.config_pattern
@@ -84,7 +84,7 @@ class TestTemplate:
         )
 
         build_data = {"artifacts": []}
-        hook = VersionBuildHook(str(temp_dir), config, None, metadata, "", "")
+        hook = VersionBuildHook(str(temp_dir), config, None, metadata, "", "", None)
         hook.initialize([], build_data)
 
         expected_file = temp_dir / "baz.py"
@@ -124,7 +124,7 @@ class TestTemplate:
         )
 
         build_data = {"artifacts": []}
-        hook = VersionBuildHook(str(temp_dir), config, None, metadata, "", "")
+        hook = VersionBuildHook(str(temp_dir), config, None, metadata, "", "", None)
         hook.initialize([], build_data)
 
         expected_file = temp_dir / "bar" / "baz.py"
@@ -164,7 +164,7 @@ class TestTemplate:
         )
 
         build_data = {"artifacts": []}
-        hook = VersionBuildHook(str(temp_dir), config, None, metadata, "", "")
+        hook = VersionBuildHook(str(temp_dir), config, None, metadata, "", "", None)
         hook.initialize([], build_data)
 
         expected_file = temp_dir / "baz.py"
@@ -211,7 +211,7 @@ class TestPattern:
         )
 
         build_data = {"artifacts": []}
-        hook = VersionBuildHook(str(temp_dir), config, None, metadata, "", "")
+        hook = VersionBuildHook(str(temp_dir), config, None, metadata, "", "", None)
         hook.initialize([], build_data)
 
         assert version_file.read_text() == helpers.dedent(
@@ -254,7 +254,7 @@ class TestPattern:
         )
 
         build_data = {"artifacts": []}
-        hook = VersionBuildHook(str(temp_dir), config, None, metadata, "", "")
+        hook = VersionBuildHook(str(temp_dir), config, None, metadata, "", "", None)
         hook.initialize([], build_data)
 
         assert version_file.read_text() == helpers.dedent(
