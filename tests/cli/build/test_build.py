@@ -1,5 +1,6 @@
 import os
 import re
+import zipfile
 
 import pytest
 
@@ -322,6 +323,53 @@ def test_default(hatch, temp_dir, helpers):
         {wheel_path.relative_to(path)}
         """
     )
+
+
+@pytest.mark.requires_internet
+def test_wheel_built_from_sdist(hatch, temp_dir):
+    """Default builds should package the wheel from the sdist, not the project tree."""
+    project_name = "My.App"
+
+    with temp_dir.as_cwd():
+        result = hatch("new", project_name)
+        assert result.exit_code == 0, result.output
+
+    path = temp_dir / "my-app"
+    package_dir = path / "src" / "my_app"
+    if not package_dir.is_dir():
+        package_dir = path / "my_app"
+    tree_only = package_dir / "tree_only.py"
+    tree_only.write_text("value = 1\n")
+    exclude_path = tree_only.relative_to(path).as_posix()
+
+    project = Project(path)
+    config = dict(project.raw_config)
+    config.setdefault("tool", {}).setdefault("hatch", {}).setdefault("build", {}).setdefault("targets", {})
+    config["tool"]["hatch"]["build"]["targets"]["sdist"] = {"exclude": [exclude_path]}
+    project.save_config(config)
+
+    with path.as_cwd():
+        result = hatch("build")
+        assert result.exit_code == 0, result.output
+
+    build_directory = path / "dist"
+    wheel_path = next(artifact for artifact in build_directory.iterdir() if artifact.name.endswith(".whl"))
+    with zipfile.ZipFile(wheel_path) as archive:
+        names = archive.namelist()
+
+    assert "my_app/__init__.py" in names
+    assert "my_app/tree_only.py" not in names
+
+    build_directory.remove()
+    with path.as_cwd():
+        result = hatch("build", "-t", "wheel")
+        assert result.exit_code == 0, result.output
+
+    wheel_path = next(artifact for artifact in (path / "dist").iterdir() if artifact.name.endswith(".whl"))
+    with zipfile.ZipFile(wheel_path) as archive:
+        names = archive.namelist()
+
+    assert "my_app/tree_only.py" in names
 
 
 @pytest.mark.requires_internet
