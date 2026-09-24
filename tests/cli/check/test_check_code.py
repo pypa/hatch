@@ -420,8 +420,44 @@ class TestExtendInjection:
 
         # extend must not be duplicated
         internal_content = user_config.read_text()
-        assert internal_content.count("extend") == 1
+        assert internal_content.count("extend =") == 1
         assert existing_extend in internal_content
+
+    @pytest.mark.usefixtures("env_run")
+    def test_existing_config_with_extend_exclude_in_pyproject(self, hatch, temp_dir, config_file, defaults_file_stable):
+        config_file.model.template.plugins["default"]["tests"] = False
+        config_file.save()
+
+        project_name = "My.App"
+
+        with temp_dir.as_cwd():
+            result = hatch("new", project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / "my-app"
+        data_path = temp_dir / "data"
+        data_path.mkdir()
+
+        config_dir = data_path / "env" / ".internal" / "hatch-check-code" / ".config" / project_path.id
+        default_config = config_dir / "ruff_defaults.toml"
+        user_config = config_dir / "pyproject.toml"
+
+        project_file = project_path / "pyproject.toml"
+        old_contents = project_file.read_text()
+        extend_exclude = 'extend-exclude = ["src/bad.py"]'
+        project_file.write_text(f"[tool.ruff]\n{extend_exclude}\n{old_contents}")
+
+        with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+            result = hatch("check", "code")
+
+        assert result.exit_code == 0, result.output
+
+        assert default_config.read_text() == defaults_file_stable
+
+        internal_content = user_config.read_text()
+        assert internal_content.count("extend =") == 1
+        assert extend_exclude in internal_content
 
     @pytest.mark.usefixtures("env_run")
     def test_existing_ruff_toml_with_extend(self, hatch, temp_dir, config_file, defaults_file_stable):
@@ -456,5 +492,5 @@ class TestExtendInjection:
 
         # extend must not be duplicated
         internal_content = user_config.read_text()
-        assert internal_content.count("extend") == 1
+        assert internal_content.count("extend =") == 1
         assert existing_extend in internal_content
