@@ -37,10 +37,13 @@ When the user has not set any [file selection](../../config/build.md#file-select
     - `/hatch.toml`
     - `/hatch_build.py`
     - `/.gitignore` or `/.hgignore`, when present in the project root
+    - Nested `.gitignore` files governing selected files, when VCS filtering is enabled
     - Any defined [`readme`](../../config/metadata.md#readme) file
     - All defined [`license-files`](../../config/metadata.md#license)
 
-Project-local ignore files are included unchanged. Ignore files above the project root are not automatically copied into the archive, even when their rules affect file selection from the checkout. You can still include an external file explicitly using [`force-include`](../../config/build.md#forced-inclusion).
+Project-local ignore files are included unchanged, including nested `.gitignore` files whose rules exclude themselves. Nested ignore files are only automatically preserved when they govern a selected file; traversing an excluded directory does not cause its ignore file to be included. Ignore files above the project root are not automatically copied into the archive, even when their rules affect file selection from the checkout. You can still include an external file explicitly using [`force-include`](../../config/build.md#forced-inclusion).
+
+Preserved ignore files follow the same [`sources`](../../config/build.md#rewriting-paths) mappings as other files. If several map to the same archive path, identical copies are deduplicated and differing contents cause an error. A file already selected for that path takes precedence; use `force-include` to choose the rules for a shared destination.
 
 Rules needed when building a wheel from the extracted sdist must be in project-local ignore files or build configuration. For example, if sdist `artifacts` includes a file that only a parent `.gitignore` excludes from wheels, that exclusion will not be available when rebuilding from the sdist.
 

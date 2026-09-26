@@ -173,8 +173,10 @@ class BuilderConfig:
                 raise ValueError(message)
 
         default_patterns = self.default_global_exclude()
-        if not self.ignore_vcs and self.vcs_ignore.sources:
-            return ExclusionSpec(default_patterns, self.vcs_ignore.sources, exclude_patterns)
+        if not self.ignore_vcs:
+            return ExclusionSpec(
+                default_patterns, self.vcs_ignore.sources, exclude_patterns, vcs_ignore=self.vcs_ignore
+            )
         all_exclude_patterns = default_patterns + exclude_patterns
         if all_exclude_patterns:
             return pathspec.GitIgnoreSpec.from_lines(all_exclude_patterns)

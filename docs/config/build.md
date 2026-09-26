@@ -29,14 +29,18 @@ Hatchling is a standards-compliant[^1] build backend and is a dependency of Hatc
 
 ### VCS
 
-By default, Hatch will respect the first `.gitignore` or `.hgignore` file found in your project's root directory or parent directories. Set `ignore-vcs` to `true` to disable this behavior:
+By default, Hatch respects applicable `.gitignore` files in your project's root directory, parent directories up to the nearest `.git` directory or file, and subdirectories. Rules in files closer to a selected file override rules from ancestors. For Mercurial, Hatch respects the nearest `.hgignore` file in the project or its parents, stopping at `.hg`. Set `ignore-vcs` to `true` to disable VCS filtering:
 
 ```toml config-example
 [tool.hatch.build.targets.sdist]
 ignore-vcs = true
 ```
 
-Ignore patterns are interpreted relative to the directory containing the ignore file. For example, a parent `.gitignore` rule `packages/demo/private.txt` excludes `private.txt` when building the project in `packages/demo`.
+Ignore patterns are interpreted relative to the directory containing the ignore file. For example, a parent `.gitignore` rule `packages/demo/private.txt` excludes `private.txt` when building the project in `packages/demo`. As in Git, a negation cannot re-include a file underneath an excluded directory unless the directory is re-included first. Symbolic links to `.gitignore` files are not followed.
+
+Pattern matching uses [pathspec](https://python-path-specification.readthedocs.io/). Its supported syntax and matching behavior depend on the installed version; some edge cases differ from Git.
+
+File selection uses ignore files without consulting Git's index, personal excludes, or repository configuration. Matching is case-sensitive on every platform, and tracked files are subject to the same build rules as untracked files. Explicit build exclusions, artifacts, and forced inclusions retain their precedence over VCS rules.
 
 If the enclosing repository ignores the project directory itself, Hatch treats the project as independent: parent ignore files are not applied, and automatic discovery of `pyproject.toml` and `hatch.toml` stops at the project root. Ignore files inside the project still apply. A project-local ignore file cannot exclude its own containing directory, even when an ancestor directory has a name such as `dist`, `build`, `var`, or `lib`.
 

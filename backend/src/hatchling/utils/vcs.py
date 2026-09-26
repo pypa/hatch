@@ -22,20 +22,21 @@ class IgnoreSource:
     prefix: str
     lines: list[str]
     path: str | None = None
+    directory: str = ""
 
     @cached_property
     def patterns(self) -> list[str]:
-        if self.vcs == "git":
-            return [line.rstrip("\r\n") for line in self.lines]
-
         patterns = []
-        glob_mode = False
-        for line in self.lines:
-            exact_line = line.strip()
-            if exact_line.startswith("syntax: "):
-                glob_mode = exact_line == "syntax: glob"
-            elif glob_mode:
-                patterns.append(line.rstrip("\r\n"))
+        glob_mode = self.vcs == "git"
+        for index, original_line in enumerate(self.lines):
+            line = original_line.rstrip("\r\n")
+            if index == 0:
+                line = line.removeprefix("\ufeff")
+            if self.vcs == "hg" and line.strip().startswith("syntax: "):
+                glob_mode = line.strip() == "syntax: glob"
+                continue
+            if glob_mode:
+                patterns.append(line)
         return patterns
 
     @cached_property
@@ -56,7 +57,9 @@ class IgnoreSource:
         return spec.check_file(path).include
 
     def check_project_entry(self, path: str, *, directory: bool = False) -> bool | None:
-        return self.check_entry(f"{self.prefix}{path}", directory=directory)
+        if self.directory and not path.startswith(self.directory):
+            return None
+        return self.check_entry(f"{self.prefix}{path[len(self.directory) :]}", directory=directory)
 
 
 class ExclusionSpec:
@@ -67,15 +70,19 @@ class ExclusionSpec:
         defaults: list[str],
         sources: list[IgnoreSource],
         overrides: list[str],
+        *,
+        vcs_ignore: VCSIgnorePolicy | None = None,
     ) -> None:
         self.defaults = pathspec.GitIgnoreSpec.from_lines(defaults)
         self.sources = sources
+        self.vcs_ignore = vcs_ignore
         self.overrides = pathspec.GitIgnoreSpec.from_lines(overrides) if overrides else None
         self._directories: dict[str, bool | None] = {}
 
     def check_entry(self, path: str, *, directory: bool = False) -> bool | None:
         result = None
-        for source in self.sources:
+        sources = self.sources if self.vcs_ignore is None else self.vcs_ignore.sources_for_path(path)
+        for source in sources:
             matched = source.check_project_entry(path, directory=directory)
             if matched is not None:
                 result = matched
@@ -111,14 +118,15 @@ class VCSIgnorePolicy:
         self.is_sdist = os.path.isfile(os.path.join(self.root, "PKG-INFO"))
         self.parent_ignored = False
         self.sources: list[IgnoreSource] = []
+        self._git_sources: dict[str, list[IgnoreSource]] = {}
 
         for vcs in ("git", "hg"):
-            source, ignored = self.find_source(vcs)
+            sources, ignored = self.find_sources(vcs)
             if ignored:
                 self.parent_ignored = True
                 self.sources = [source for source in self.sources if not source.prefix]
-            if source is not None:
-                self.sources.append(source)
+            self.sources.extend(sources)
+        self._git_sources[""] = [source for source in self.sources if source.vcs == "git"]
 
     @property
     def isolated(self) -> bool:
@@ -130,17 +138,38 @@ class VCSIgnorePolicy:
             return path if os.path.isfile(path) else None
         return locate_file(self.root, name)
 
-    def find_source(self, vcs: str) -> tuple[IgnoreSource | None, bool]:
+    def read_source(self, vcs: str, directory: str, *, nested: bool = False) -> IgnoreSource | None:
+        path = os.path.join(directory, f".{vcs}ignore")
+        if not os.path.isfile(path) or (vcs == "git" and os.path.islink(path)):
+            return None
+        relative = os.path.relpath(directory, self.root) if nested else os.path.relpath(self.root, directory)
+        prefix = "" if relative == os.curdir else f"{relative.replace(os.sep, '/')}/"
+        with open(path, encoding="utf-8", errors="surrogateescape", newline="\n") as f:
+            return IgnoreSource(vcs, "" if nested else prefix, f.readlines(), path, prefix if nested else "")
+
+    def sources_for_path(self, path: str) -> list[IgnoreSource]:
+        directory = path.rpartition("/")[0]
+        self.load_git_directory(directory)
+        return self._git_sources[directory] + [source for source in self.sources if source.vcs == "hg"]
+
+    def load_git_directory(self, directory: str) -> None:
+        if directory in self._git_sources:
+            return
+        parent = directory.rpartition("/")[0]
+        self.load_git_directory(parent)
+        sources = self._git_sources[parent]
+        source = self.read_source("git", os.path.join(self.root, directory), nested=True)
+        if source is not None:
+            sources = [*sources, source]
+        self._git_sources[directory] = sources
+
+    def find_sources(self, vcs: str) -> tuple[list[IgnoreSource], bool]:
         sources = []
         directory = self.root
         while True:
-            path = os.path.join(directory, f".{vcs}ignore")
-            if os.path.isfile(path):
-                prefix = os.path.relpath(self.root, directory)
-                prefix = "" if prefix == os.curdir else f"{prefix.replace(os.sep, '/')}/"
-                with open(path, encoding="utf-8") as f:
-                    sources.append(IgnoreSource(vcs, prefix, f.readlines(), path))
-
+            source = self.read_source(vcs, directory)
+            if source is not None:
+                sources.append(source)
             if self.isolated or os.path.exists(os.path.join(directory, f".{vcs}")):
                 break
             parent = os.path.dirname(directory)
@@ -149,10 +178,9 @@ class VCSIgnorePolicy:
             directory = parent
 
         if not sources:
-            return None, False
+            return [], False
 
-        # Check each directory on the way to the project, using ancestor files in
-        # precedence order. A child cannot be re-included beneath an ignored parent.
+        # A child's rules can only apply after its containing directory is admitted.
         parts = sources[-1].prefix.rstrip("/").split("/") if sources[-1].prefix else []
         for depth in range(1, len(parts) + 1):
             ignored = None
@@ -164,8 +192,7 @@ class VCSIgnorePolicy:
                 if matched is not None:
                     ignored = matched
             if ignored:
-                local = sources[0] if not sources[0].prefix else None
-                return local, True
+                return ([sources[0]] if not sources[0].prefix else []), True
 
-        # Preserve the existing first-ignore-file selection for project contents.
-        return sources[0], False
+        # Mercurial retains its supported nearest-file glob subset.
+        return (list(reversed(sources)) if vcs == "git" else sources[:1]), False

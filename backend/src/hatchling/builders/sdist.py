@@ -11,7 +11,7 @@ from time import time as get_current_timestamp
 from typing import TYPE_CHECKING, Any
 
 from hatchling.builders.config import BuilderConfig
-from hatchling.builders.plugin.interface import BuilderInterface
+from hatchling.builders.plugin.interface import BuilderInterface, IncludedFile
 from hatchling.builders.utils import (
     get_reproducible_timestamp,
     normalize_archive_path,
@@ -24,7 +24,7 @@ from hatchling.metadata.spec import DEFAULT_METADATA_VERSION, get_core_metadata_
 from hatchling.utils.constants import DEFAULT_BUILD_SCRIPT, DEFAULT_CONFIG_FILE
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, Iterable
     from types import TracebackType
 
 
@@ -206,6 +206,55 @@ class SdistBuilder(BuilderInterface):
         replace_file(archive.path, target)
         normalize_artifact_permissions(target)
         return target
+
+    def recurse_included_files(self) -> Iterable[IncludedFile]:
+        if self.config.ignore_vcs:
+            yield from super().recurse_included_files()
+            return
+
+        included_paths = set()
+        last_directory = None
+        ignore_files = {}
+        for included_file in super().recurse_included_files():
+            included_paths.add(included_file.distribution_path)
+            directory = os.path.dirname(included_file.path)
+            # Consecutive files usually share rules; keep only the last directory.
+            if directory != last_directory:
+                last_directory = directory
+                try:
+                    relative_path = os.path.relpath(included_file.path, self.root)
+                except ValueError:
+                    # An explicit external input may be on another drive.
+                    pass
+                else:
+                    if relative_path != os.pardir and not relative_path.startswith(f"{os.pardir}{os.sep}"):
+                        # Artifacts and explicit file selections bypass filtering,
+                        # but their local ignore rules still matter when rebuilding.
+                        for source in self.config.vcs_ignore.sources_for_path(relative_path.replace(os.sep, "/")):
+                            if source.directory and source.path is not None:
+                                ignore_files[os.path.relpath(source.path, self.root)] = source.path
+            yield included_file
+
+        # Preserve rules governing selected files, even when they exclude
+        # themselves. Merely visiting a directory does not require its rules.
+        additional_files: dict[str, IncludedFile] = {}
+        for relative_path, path in sorted(ignore_files.items()):
+            distribution_path = self.config.get_distribution_path(relative_path)
+            if distribution_path in included_paths:
+                continue
+            if distribution_path in additional_files:
+                previous = additional_files[distribution_path]
+                with open(previous.path, "rb") as previous_file, open(path, "rb") as current_file:
+                    if previous_file.read() != current_file.read():
+                        message = (
+                            f"Ignore files `{previous.relative_path}` and `{relative_path}` map to the same sdist path "
+                            f"`{distribution_path}` with different contents. Adjust `sources` or use `force-include` "
+                            "to select an ignore file for that path."
+                        )
+                        raise ValueError(message)
+                continue
+            additional_files[distribution_path] = IncludedFile(path, relative_path, distribution_path)
+        yield from additional_files.values()
 
     @property
     def artifact_project_id(self) -> str:

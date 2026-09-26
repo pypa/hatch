@@ -1,3 +1,4 @@
+import os
 import tarfile
 from zipfile import ZipFile
 
@@ -216,3 +217,92 @@ def test_parent_ignore_can_be_explicitly_included(temp_dir, helpers, vcs):
     extracted = extract_sdist(root, temp_dir / "sdist", temp_dir / "extracted", helpers)
 
     assert (extracted / f".{vcs}ignore").read_text() == contents
+
+
+@pytest.mark.parametrize("ignore_root", [False, True])
+@pytest.mark.parametrize("self_excluded", [False, True])
+@pytest.mark.parametrize("explicit_files", [False, True])
+def test_nested_ignore_round_trip(temp_dir, helpers, ignore_root, self_excluded, explicit_files):
+    extra_config = (
+        'only-include = ["demo/private.txt", "demo/__init__.py", "demo/keep.txt"]\n' if explicit_files else ""
+    )
+    root = make_project(temp_dir / "repository" / "pkg", extra_config)
+    if ignore_root:
+        (root.parent / ".gitignore").write_text("pkg/\n")
+    patterns = "private.txt\n" + (".gitignore\n" if self_excluded else "")
+    (root / "demo" / ".gitignore").write_text(patterns)
+    original = wheel_files(root, temp_dir / "wheel")
+    assert "demo/private.txt" not in original
+    assert "demo/keep.txt" in original
+    extracted = extract_sdist(root, temp_dir / "sdist", temp_dir / "dist", helpers)
+    assert (extracted / "demo" / "private.txt").is_file()
+    assert (extracted / "demo" / ".gitignore").read_text() == patterns
+    assert wheel_files(extracted, temp_dir / "rebuilt") == original
+
+    second = extract_sdist(extracted, temp_dir / "second-sdist", temp_dir / "second", helpers)
+    assert wheel_files(second, temp_dir / "second-wheel") == original
+
+
+def test_nested_negation_overrides_parent_rules(temp_dir):
+    root = make_project(temp_dir / "pkg")
+    (root / ".gitignore").write_text("*.txt\n")
+    (root / "demo" / ".gitignore").write_text("!keep.txt\n")
+    files = wheel_files(root, temp_dir / "wheel")
+    assert "demo/keep.txt" in files
+    assert "demo/private.txt" not in files
+
+
+def test_ignore_vcs_disables_nested_rules(temp_dir):
+    root = make_project(temp_dir / "pkg", "\n[tool.hatch.build]\nignore-vcs = true\n")
+    (root / "demo" / ".gitignore").write_text("*.txt\n")
+    assert "demo/private.txt" in wheel_files(root, temp_dir / "wheel")
+
+
+@pytest.mark.parametrize("skip_excluded_dirs", [False, True])
+@pytest.mark.parametrize("selection", ['include = ["/demo"]', 'exclude = ["/docs"]'])
+def test_sdist_omits_ignore_files_for_unselected_directories(temp_dir, helpers, skip_excluded_dirs, selection):
+    root = make_project(temp_dir / "pkg", f"{selection}\nskip-excluded-dirs = {str(skip_excluded_dirs).lower()}\n")
+    docs = root / "docs"
+    docs.mkdir()
+    (docs / ".gitignore").write_text("private.txt\n")
+    (docs / "private.txt").write_text("unselected data\n")
+
+    extracted = extract_sdist(root, temp_dir / "sdist", temp_dir / "extracted", helpers)
+
+    assert (extracted / "demo" / "__init__.py").is_file()
+    assert not (extracted / "docs").exists()
+
+
+@pytest.mark.parametrize("resolution", ["conflict", "identical", "force-include", "only-include"])
+def test_sdist_remapped_ignore_files(temp_dir, helpers, resolution):
+    selected_files = ["a/module_a.py", "b/module_b.py"]
+    if resolution == "only-include":
+        selected_files.append("a/.gitignore")
+    config = f"only-include = {selected_files!r}\n"
+    config += '[tool.hatch.build.targets.sdist.sources]\n"a" = "demo"\n"b" = "demo"\n'
+    if resolution == "force-include":
+        config += '[tool.hatch.build.targets.sdist.force-include]\n"../rules" = "demo/.gitignore"\n'
+        (temp_dir / "rules").write_text("private-*.txt\n")
+    root = make_project(temp_dir / "pkg", config)
+    for directory in ("a", "b"):
+        (root / directory).mkdir()
+        pattern = "private-a.txt" if resolution == "identical" else f"private-{directory}.txt"
+        (root / directory / ".gitignore").write_text(f".gitignore\n{pattern}\n")
+        (root / directory / f"module_{directory}.py").write_text("VALUE = 1\n")
+
+    if resolution == "conflict":
+        with pytest.raises(ValueError, match="map to the same sdist path") as exc_info:
+            extract_sdist(root, temp_dir / "sdist", temp_dir / "extracted", helpers)
+        assert str(exc_info.value) == (
+            f"Ignore files `{os.path.join('a', '.gitignore')}` and `{os.path.join('b', '.gitignore')}` "
+            f"map to the same sdist path `{os.path.join('demo', '.gitignore')}` with different contents. "
+            "Adjust `sources` or use `force-include` to select an ignore file for that path."
+        )
+        return
+
+    extracted = extract_sdist(root, temp_dir / "sdist", temp_dir / "extracted", helpers)
+
+    original = temp_dir / "rules" if resolution == "force-include" else root / "a" / ".gitignore"
+    assert (extracted / "demo" / ".gitignore").read_bytes() == original.read_bytes()
+    assert (extracted / "demo" / "module_a.py").is_file()
+    assert (extracted / "demo" / "module_b.py").is_file()

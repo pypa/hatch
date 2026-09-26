@@ -12,10 +12,12 @@ from hatchling.utils.vcs import ExclusionSpec, IgnoreSource, VCSIgnorePolicy
     [
         ("*", True),
         ("pkg/", True),
+        ("pkg/ \n", True),
         ("/pkg/", True),
         ("p?g/", True),
         ("p[k]g", True),
         ("pkg/**", False),
+        ("pkg/**/", False),
         ("pkg/*", False),
         ("*\n!/pkg/", False),
         ("/pkg/\n!/pkg/", False),
@@ -114,17 +116,31 @@ def test_sdist_boundary(temp_dir):
     assert not policy.sources
 
 
-def test_nearest_ignore_file_selects_contents(temp_dir):
+def test_local_ignore_file_inherits_parent_rules(temp_dir):
     root = temp_dir / "pkg"
     root.mkdir()
     (temp_dir / ".gitignore").write_text("*.py\n")
     (root / ".gitignore").write_text("*.txt\n")
 
     policy = VCSIgnorePolicy(str(root))
-    spec = ExclusionSpec([], policy.sources, [])
+    spec = ExclusionSpec([], policy.sources, [], vcs_ignore=policy)
 
     assert spec.match_file("file.txt")
-    assert not spec.match_file("file.py")
+    assert spec.match_file("file.py")
+
+
+@pytest.mark.parametrize("directory", ["", "nested/"])
+def test_ignore_file_encoding(temp_dir, directory):
+    root = temp_dir / "pkg"
+    ignore_file = root / directory / ".gitignore"
+    ignore_file.parent.mkdir(parents=True)
+    ignore_file.write_bytes(b"\xef\xbb\xbfprivate.txt\r\ncache/\r\n")
+    policy = VCSIgnorePolicy(str(root))
+    spec = ExclusionSpec([], policy.sources, [], vcs_ignore=policy)
+
+    assert spec.match_file(f"{directory}private.txt")
+    assert spec.match_file(f"{directory}cache/file.txt")
+    assert not spec.match_file(f"{directory}module.py")
 
 
 @pytest.mark.requires_git
@@ -211,3 +227,84 @@ def test_explicit_negation_overrides_ignored_directory():
 
     assert not spec.match_file("data/keep.txt")
     assert spec.match_file("data/other.txt")
+
+
+@pytest.mark.requires_git
+@pytest.mark.parametrize(
+    "ignore_files",
+    [
+        {".gitignore": "*.txt\n", "pkg/.gitignore": "*.py\n"},
+        {".gitignore": "*.txt\n", "pkg/.gitignore": "!keep.txt\n"},
+        {".gitignore": "*.txt\n", "pkg/demo/.gitignore": "!keep.txt\n"},
+        {"pkg/demo/.gitignore": "private.txt\n"},
+        {".gitignore": "pkg/demo/\n", "pkg/demo/.gitignore": "!keep.txt\n"},
+        {".gitignore": "pkg/demo/*\n", "pkg/demo/.gitignore": "!keep.txt\n"},
+        {".gitignore": "*.txt\n", "pkg/demo/.gitignore": "/private.txt\n!keep.txt\n"},
+        {".gitignore": "pkg/*\n!pkg/demo/\n", "pkg/demo/.gitignore": "!keep.txt\n"},
+        {
+            ".gitignore": "*.txt\n",
+            "pkg/.gitignore": "!keep.txt\n",
+            "pkg/demo/.gitignore": "/keep.txt\n",
+            "pkg/demo/deep/.gitignore": "!private.txt\n",
+        },
+    ],
+)
+def test_ignore_hierarchy_matches_git(temp_dir, ignore_files):
+    git = ["git", "-c", f"core.excludesFile={os.devnull}", "-c", "core.ignoreCase=false"]
+    subprocess.run([*git, "init", "-q", "--template=", str(temp_dir)], check=True)
+    root = temp_dir / "pkg"
+    root.mkdir()
+    for name, contents in ignore_files.items():
+        path = temp_dir / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(contents)
+    policy = VCSIgnorePolicy(str(root))
+    assert not policy.parent_ignored
+    spec = ExclusionSpec([], policy.sources, [], vcs_ignore=policy)
+    for directory in ["", "demo/", "demo/deep/", "other/"]:
+        for name in ["private.txt", "keep.txt", "module.py"]:
+            path = f"{directory}{name}"
+            result = subprocess.run([*git, "check-ignore", "-q", "--no-index", path], cwd=root, check=False)
+            assert result.returncode in {0, 1}
+            assert spec.match_file(path) is (result.returncode == 0), path
+
+
+def test_nested_rules_with_an_ignored_project(temp_dir):
+    root = temp_dir / "pkg"
+    nested = root / "demo"
+    nested.mkdir(parents=True)
+    (temp_dir / ".gitignore").write_text("*\n")
+    (nested / ".gitignore").write_text("private.txt\n")
+    policy = VCSIgnorePolicy(str(root))
+    spec = ExclusionSpec([], policy.sources, [], vcs_ignore=policy)
+
+    assert policy.isolated
+    assert spec.match_file("demo/private.txt")
+    assert not spec.match_file("demo/module.py")
+
+
+def test_nested_negation_overrides_defaults(temp_dir):
+    root = temp_dir / "pkg"
+    nested = root / "dist"
+    nested.mkdir(parents=True)
+    (nested / ".gitignore").write_text("!keep.txt\n")
+    policy = VCSIgnorePolicy(str(root))
+    spec = ExclusionSpec(["/dist"], policy.sources, [], vcs_ignore=policy)
+
+    assert spec.match_file("dist/")
+    assert not spec.match_file("dist/keep.txt")
+    assert spec.match_file("dist/drop.txt")
+
+
+def test_symlinked_gitignore_is_not_followed(temp_dir):
+    root = temp_dir / "pkg"
+    root.mkdir()
+    (temp_dir / "rules").write_text("*\n")
+    try:
+        (root / ".gitignore").symlink_to(temp_dir / "rules")
+    except OSError:
+        pytest.skip("Symlinks are unavailable")
+    policy = VCSIgnorePolicy(str(root))
+    spec = ExclusionSpec([], policy.sources, [], vcs_ignore=policy)
+
+    assert not spec.match_file("module.py")
