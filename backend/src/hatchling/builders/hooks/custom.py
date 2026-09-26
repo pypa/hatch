@@ -29,7 +29,8 @@ class CustomBuildHook:
 
         path = os.path.normpath(os.path.join(root, build_script))
         if not os.path.isfile(path):
-            message = f"Build script does not exist: {build_script}"
+            relative_to_root = " (relative to project root)" if not os.path.isabs(build_script) else ""
+            message = f"Build script does not exist: {build_script}{relative_to_root}"
             raise OSError(message)
 
         hook_class = load_plugin_from_script(path, build_script, BuildHookInterface, "build_hook")
