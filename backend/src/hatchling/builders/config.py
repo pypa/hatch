@@ -10,7 +10,7 @@ import pathspec
 from hatchling.builders.constants import DEFAULT_BUILD_DIRECTORY, EXCLUDED_DIRECTORIES, BuildEnvVars
 from hatchling.builders.utils import normalize_inclusion_map, normalize_relative_directory, normalize_relative_path
 from hatchling.metadata.utils import normalize_project_name
-from hatchling.utils.fs import locate_file
+from hatchling.utils.vcs import ExclusionSpec, VCSIgnorePolicy
 
 if TYPE_CHECKING:
     from collections.abc import Generator
@@ -150,18 +150,13 @@ class BuilderConfig:
         return None
 
     @cached_property
-    def exclude_spec(self) -> pathspec.GitIgnoreSpec | None:
+    def exclude_spec(self) -> pathspec.GitIgnoreSpec | ExclusionSpec | None:
         if "exclude" in self.target_config:
             exclude_config = self.target_config
             exclude_location = f"tool.hatch.build.targets.{self.plugin_name}.exclude"
         else:
             exclude_config = self.build_config
             exclude_location = "tool.hatch.build.exclude"
-
-        all_exclude_patterns = self.default_global_exclude()
-
-        if not self.ignore_vcs:
-            all_exclude_patterns.extend(self.load_vcs_exclusion_patterns())
 
         exclude_patterns = exclude_config.get("exclude", self.default_exclude())
         if not isinstance(exclude_patterns, list):
@@ -177,8 +172,10 @@ class BuilderConfig:
                 message = f"Pattern #{i} in field `{exclude_location}` cannot be an empty string"
                 raise ValueError(message)
 
-            all_exclude_patterns.append(exclude_pattern)
-
+        default_patterns = self.default_global_exclude()
+        if not self.ignore_vcs and self.vcs_ignore.sources:
+            return ExclusionSpec(default_patterns, self.vcs_ignore.sources, exclude_patterns)
+        all_exclude_patterns = default_patterns + exclude_patterns
         if all_exclude_patterns:
             return pathspec.GitIgnoreSpec.from_lines(all_exclude_patterns)
         return None
@@ -751,48 +748,14 @@ class BuilderConfig:
     @cached_property
     def vcs_exclusion_files(self) -> dict[str, list[str]]:
         exclusion_files: dict[str, list[str]] = {"git": [], "hg": []}
-
-        local_gitignore = locate_file(self.root, ".gitignore", boundary=".git")
-        if local_gitignore is not None:
-            exclusion_files["git"].append(local_gitignore)
-
-        local_hgignore = locate_file(self.root, ".hgignore", boundary=".hg")
-        if local_hgignore is not None:
-            exclusion_files["hg"].append(local_hgignore)
-
+        for source in self.vcs_ignore.sources:
+            if source.path is not None:
+                exclusion_files[source.vcs].append(source.path)
         return exclusion_files
 
-    def load_vcs_exclusion_patterns(self) -> list[str]:
-        patterns = []
-
-        # https://git-scm.com/docs/gitignore#_pattern_format
-        for exclusion_file in self.vcs_exclusion_files["git"]:
-            with open(exclusion_file, encoding="utf-8") as f:
-                patterns.extend(f.readlines())
-
-        # https://linux.die.net/man/5/hgignore
-        for exclusion_file in self.vcs_exclusion_files["hg"]:
-            with open(exclusion_file, encoding="utf-8") as f:
-                glob_mode = False
-                for line in f:
-                    exact_line = line.strip()
-                    if exact_line == "syntax: glob":
-                        glob_mode = True
-                        continue
-
-                    if exact_line.startswith("syntax: "):
-                        glob_mode = False
-                        continue
-
-                    if glob_mode:
-                        patterns.append(line)
-
-        # validate project root is not excluded by vcs
-        exclude_spec = pathspec.GitIgnoreSpec.from_lines(patterns)
-        if exclude_spec.match_file(self.root):
-            return []
-
-        return patterns
+    @property
+    def vcs_ignore(self) -> VCSIgnorePolicy:
+        return self.builder.metadata.vcs_ignore
 
     def normalize_build_directory(self, build_directory: str) -> str:
         if not os.path.isabs(build_directory):

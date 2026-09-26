@@ -36,6 +36,12 @@ By default, Hatch will respect the first `.gitignore` or `.hgignore` file found 
 ignore-vcs = true
 ```
 
+Ignore patterns are interpreted relative to the directory containing the ignore file. For example, a parent `.gitignore` rule `packages/demo/private.txt` excludes `private.txt` when building the project in `packages/demo`.
+
+If the enclosing repository ignores the project directory itself, Hatch treats the project as independent: parent ignore files are not applied, and automatic discovery of `pyproject.toml` and `hatch.toml` stops at the project root. Ignore files inside the project still apply. A project-local ignore file cannot exclude its own containing directory, even when an ancestor directory has a name such as `dist`, `build`, `var`, or `lib`.
+
+An extracted source distribution (identified by its root `PKG-INFO` file) also stops automatic parent discovery. Explicit paths, such as [`force-include`](#forced-inclusion) sources outside the project, continue to work.
+
 !!! note
     For `.hgignore` files only glob syntax is supported.
 

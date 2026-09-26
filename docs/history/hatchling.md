@@ -8,6 +8,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Changed:***
+
+- Require `pathspec>=0.12.1` to use its public match results when applying scoped ignore rules.
+
+***Fixed:***
+
+- Preserve local VCS ignore rules when building beneath directories such as `dist`, `build`, `var`, or `lib`, preventing ignored files such as `.env` from being included in source distributions.
+- Treat projects excluded by an enclosing repository as independent of automatically discovered parent ignore files and configuration.
+- Match inherited VCS ignore rules relative to the ignore file's directory and prevent extracted distributions from inheriting unrelated parent rules.
+
 ## [1.33.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.33.0) - 2026-10-27 ## {: #hatchling-v1.33.0 }
 
 ***Added:***
