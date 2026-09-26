@@ -341,8 +341,13 @@ class SdistBuilder(BuilderInterface):
 
         readme_path = self.metadata.core.readme_path
         if readme_path:
-            readme_path = normalize_relative_path(readme_path)
-            force_include[os.path.join(self.root, readme_path)] = readme_path
+            normalized_readme = normalize_relative_path(readme_path)
+            # The readme content is always embedded in PKG-INFO, so files
+            # outside the project root are not added to the archive to
+            # avoid path traversal entries in the file list.
+            resolved_readme = os.path.abspath(os.path.join(self.root, normalized_readme))
+            if not os.path.relpath(resolved_readme, os.path.abspath(self.root)).startswith(os.pardir):
+                force_include[resolved_readme] = normalized_readme
 
         license_files = self.metadata.core.license_files
         if license_files:
