@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ***Changed:***
 
+- Stop automatically copying `.gitignore` and `.hgignore` files from above the project root into source distributions. Rules needed after extraction must be in project-local ignore files or build configuration.
 - Require `pathspec>=0.12.1` to use its public match results when applying scoped ignore rules.
 
 ***Fixed:***

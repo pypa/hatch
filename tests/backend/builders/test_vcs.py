@@ -83,6 +83,40 @@ def test_sdist_round_trip(temp_dir, helpers, vcs, parent_patterns, local_pattern
     assert wheel_files(second, temp_dir / "second-wheel") == original
 
 
+@pytest.mark.parametrize("vcs", ["git", "hg"])
+@pytest.mark.parametrize(
+    "patterns", ["pkg/demo/private.txt\n/demo/keep.txt\n", "p?g/**/private.txt\n", "pkg/**\n", "*.txt\n"]
+)
+def test_parent_ignore_is_not_copied(temp_dir, helpers, vcs, patterns):
+    root = make_project(temp_dir / "repository" / "pkg")
+    contents = f"syntax: glob\n{patterns}" if vcs == "hg" else patterns
+    parent_ignore = root.parent / f".{vcs}ignore"
+    parent_ignore.write_text(contents)
+    original = wheel_files(root, temp_dir / "original-wheel")
+    assert "demo/private.txt" not in original
+
+    destination = temp_dir / "unrelated" / "dist"
+    destination.mkdir(parents=True)
+    (destination / ".gitignore").write_text("*.py\n*.txt\n")
+    (destination / ".hgignore").write_text("syntax: glob\n*.py\n*.txt\n")
+    extracted = extract_sdist(root, temp_dir / "sdist", destination, helpers)
+
+    assert not (extracted / ".gitignore").exists()
+    assert not (extracted / ".hgignore").exists()
+    assert not (root / f".{vcs}ignore").exists()
+    assert parent_ignore.read_text() == contents
+
+    # The sdist explicitly includes this artifact. Parent-only rules are no longer
+    # available when rebuilding, so exclusions needed there must be project-local.
+    rebuilt = wheel_files(extracted, temp_dir / "rebuilt-wheel")
+    expected_package = {name: data for name, data in original.items() if name.startswith("demo/")}
+    expected_package["demo/private.txt"] = (root / "demo" / "private.txt").read_bytes()
+    assert {name: data for name, data in rebuilt.items() if name.startswith("demo/")} == expected_package
+
+    second = extract_sdist(extracted, temp_dir / "second-sdist", temp_dir / "build", helpers)
+    assert wheel_files(second, temp_dir / "second-wheel") == rebuilt
+
+
 @pytest.mark.parametrize("directory", ["dist", "build", "var"])
 def test_local_ignore_in_matching_ancestor_directory(temp_dir, helpers, directory):
     root = make_project(temp_dir / directory / "pkg")
@@ -156,3 +190,29 @@ def test_sdist_vcs_negation_overrides_default_exclusion(temp_dir, helpers, ignor
 
     assert (extracted / "dist" / "keep.txt").exists() is not ignored_by_vcs
     assert not (extracted / "dist" / "drop.txt").exists()
+
+
+def test_ignore_vcs_option(temp_dir, helpers):
+    root = make_project(temp_dir / "pkg", "\n[tool.hatch.build]\nignore-vcs = true\n")
+    (temp_dir / ".gitignore").write_text("pkg/demo/private.txt\n")
+    original = wheel_files(root, temp_dir / "wheel")
+    assert "demo/private.txt" in original
+
+    extracted = extract_sdist(root, temp_dir / "sdist", temp_dir / "extracted", helpers)
+    assert not (extracted / ".gitignore").exists()
+    assert wheel_files(extracted, temp_dir / "rebuilt") == original
+
+
+@pytest.mark.parametrize("vcs", ["git", "hg"])
+def test_parent_ignore_can_be_explicitly_included(temp_dir, helpers, vcs):
+    root = make_project(
+        temp_dir / "pkg",
+        f'\n[tool.hatch.build.targets.sdist.force-include]\n"../.{vcs}ignore" = ".{vcs}ignore"\n',
+    )
+    patterns = "pkg/demo/private.txt\n"
+    contents = f"syntax: glob\n{patterns}" if vcs == "hg" else patterns
+    (temp_dir / f".{vcs}ignore").write_text(contents)
+
+    extracted = extract_sdist(root, temp_dir / "sdist", temp_dir / "extracted", helpers)
+
+    assert (extracted / f".{vcs}ignore").read_text() == contents

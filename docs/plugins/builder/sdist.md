@@ -36,9 +36,13 @@ When the user has not set any [file selection](../../config/build.md#file-select
     - `/pyproject.toml`
     - `/hatch.toml`
     - `/hatch_build.py`
-    - `/.gitignore` or `/.hgignore`
+    - `/.gitignore` or `/.hgignore`, when present in the project root
     - Any defined [`readme`](../../config/metadata.md#readme) file
     - All defined [`license-files`](../../config/metadata.md#license)
+
+Project-local ignore files are included unchanged. Ignore files above the project root are not automatically copied into the archive, even when their rules affect file selection from the checkout. You can still include an external file explicitly using [`force-include`](../../config/build.md#forced-inclusion).
+
+Rules needed when building a wheel from the extracted sdist must be in project-local ignore files or build configuration. For example, if sdist `artifacts` includes a file that only a parent `.gitignore` excludes from wheels, that exclusion will not be available when rebuilding from the sdist.
 
 ## Reproducibility
 

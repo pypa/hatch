@@ -42,6 +42,8 @@ If the enclosing repository ignores the project directory itself, Hatch treats t
 
 An extracted source distribution (identified by its root `PKG-INFO` file) also stops automatic parent discovery. Explicit paths, such as [`force-include`](#forced-inclusion) sources outside the project, continue to work.
 
+Parent ignore files can affect file selection from a checkout, but are not automatically copied into [source distributions](../plugins/builder/sdist.md#default-file-selection). Put rules that must also apply after extraction in project-local ignore files or build configuration.
+
 !!! note
     For `.hgignore` files only glob syntax is supported.
 

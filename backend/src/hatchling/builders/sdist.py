@@ -335,9 +335,10 @@ class SdistBuilder(BuilderInterface):
                 force_include[path] = filename
         build_data = {"force_include": force_include, "dependencies": []}
 
-        for exclusion_files in self.config.vcs_exclusion_files.values():
-            for exclusion_file in exclusion_files:
-                force_include[exclusion_file] = os.path.basename(exclusion_file)
+        for filename in (".gitignore", ".hgignore"):
+            path = os.path.join(self.root, filename)
+            if os.path.isfile(path):
+                force_include[path] = filename
 
         readme_path = self.metadata.core.readme_path
         if readme_path:
