@@ -43,6 +43,53 @@ def test_help(hatch):
     assert long.exit_code == 0, long.output
 
     assert short.output == long.output
+    assert "--reinstall" in long.output
+
+
+@pytest.mark.requires_internet
+def test_non_editable_project_is_reinstalled_when_source_changes(hatch, temp_dir):
+    project_path = temp_dir / "project"
+    (project_path / "src" / "demo").mkdir(parents=True)
+    (project_path / "src" / "demo" / "__init__.py").write_text("VALUE = 'first'\n")
+    (project_path / "pyproject.toml").write_text(
+        """\
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "demo"
+version = "0.0.1"
+
+[tool.hatch.envs.default]
+dev-mode = false
+"""
+    )
+
+    with project_path.as_cwd():
+        first = hatch(
+            "run",
+            "python",
+            "-c",
+            "import demo,pathlib; pathlib.Path('result.txt').write_text(demo.VALUE)",
+        )
+
+    assert first.exit_code == 0, first.output
+    assert (project_path / "result.txt").read_text() == "first"
+
+    (project_path / "src" / "demo" / "__init__.py").write_text("VALUE = 'second'\n")
+
+    with project_path.as_cwd():
+        second = hatch(
+            "run",
+            "--reinstall",
+            "python",
+            "-c",
+            "import demo,pathlib; pathlib.Path('result.txt').write_text(demo.VALUE)",
+        )
+
+    assert second.exit_code == 0, second.output
+    assert (project_path / "result.txt").read_text() == "second"
 
 
 def test_automatic_creation(hatch, helpers, temp_dir, config_file):
