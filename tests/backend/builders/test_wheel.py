@@ -279,6 +279,36 @@ class TestDefaultFileSelection:
             assert builder.config.default_packages() == []
             assert builder.config.default_only_include() == []
 
+    def test_force_include_as_sole_selection_respects_exclude(self, temp_dir):
+        external_dir = temp_dir / "external"
+        external_dir.ensure_dir_exists()
+        (external_dir / "keep.py").touch()
+        (external_dir / "drop.rst").touch()
+
+        project_dir = temp_dir / "my-app"
+        project_dir.ensure_dir_exists()
+
+        config = {
+            "project": {"name": "my-app", "version": "0.0.1"},
+            "tool": {
+                "hatch": {
+                    "build": {
+                        "targets": {
+                            "wheel": {
+                                "force-include": {str(external_dir): "pkg"},
+                                "exclude": ["*.rst"],
+                            }
+                        }
+                    }
+                }
+            },
+        }
+        builder = WheelBuilder(str(project_dir), config=config)
+
+        assert [f.distribution_path for f in builder.recurse_included_files()] == [
+            f"pkg{os.sep}keep.py",
+        ]
+
     def test_unnormalized_name_with_unnormalized_directory(self, temp_dir):
         config = {"project": {"name": "MyApp", "version": "0.0.1"}}
         builder = WheelBuilder(str(temp_dir), config=config)
