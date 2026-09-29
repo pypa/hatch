@@ -22,7 +22,14 @@ def replace_file(src: str, dst: str) -> None:
 def safe_walk(path: str) -> Iterable[tuple[str, list[str], list[str]]]:
     seen = set()
     for root, dirs, files in os.walk(path, followlinks=True):
-        stat = os.stat(root)
+        try:
+            stat = os.stat(root)
+        except FileNotFoundError:
+            # Directories can vanish between os.walk listing them and this stat,
+            # e.g. a cache or temporary build env stored inside the project tree.
+            del dirs[:]
+            continue
+
         identifier = stat.st_dev, stat.st_ino
         if identifier in seen:
             del dirs[:]
