@@ -25,7 +25,10 @@ def new(app, name, location, interactive, feature_cli, initialize, setuptools_op
 
     migration_possible = False
     if initialize:
-        interactive = True
+        # A provided name should not turn on the description prompt.
+        # Prompt only when the name itself still has to be asked for.
+        if not name:
+            interactive = True
         location = location or Path.cwd()
         if (location / "setup.py").is_file() or (location / "setup.cfg").is_file():
             migration_possible = True

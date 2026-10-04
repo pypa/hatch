@@ -521,6 +521,17 @@ def test_initialize_fresh(hatch, helpers, temp_dir):
     )
 
 
+def test_initialize_with_name_does_not_prompt_for_description(hatch, temp_dir):
+    project_name = "My.App"
+
+    with temp_dir.as_cwd():
+        result = hatch("new", "--init", project_name)
+
+    assert result.exit_code == 0, result.output
+    assert "Description" not in result.output
+    assert (temp_dir / "pyproject.toml").is_file()
+
+
 def test_initialize_update(hatch, helpers, temp_dir):
     project_name = "My.App"
     description = "foo"
