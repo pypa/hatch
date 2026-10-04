@@ -263,6 +263,11 @@ class VirtualEnvironment(EnvironmentInterface):
                         all_install_args.extend(workspace_install_args)
                         self.platform.check_command(self.construct_pip_install_command(all_install_args))
                     apply_lock_with_locker(self, lockfile_path)
+                    # uv pip sync drops the project when the lock does not list it.
+                    if not self.skip_install:
+                        project_target = self.apply_features(str(self.root))
+                        project_args = ["--editable", project_target] if self.dev_mode else [project_target]
+                        self.platform.check_command(self.construct_pip_install_command(project_args))
                     return
 
             # If we do not have missing dependencies we should not sync
