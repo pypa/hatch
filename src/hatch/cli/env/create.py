@@ -15,7 +15,13 @@ if TYPE_CHECKING:
 @click.argument("env_name", default="default")
 @click.pass_obj
 def create(app: Application, env_name: str):
-    """Create environments."""
+    """Create environments from project configuration.
+
+    Define custom environments in `pyproject.toml` under
+    `[tool.hatch.envs.ENV_NAME]` or in `hatch.toml` under `[envs.ENV_NAME]`
+    before running this command. It does not add or modify configuration.
+    The `default` environment is available without an explicit definition.
+    """
     app.ensure_environment_plugin_dependencies()
 
     environments = app.project.expand_environments(env_name)
