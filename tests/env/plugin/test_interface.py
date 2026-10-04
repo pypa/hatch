@@ -4223,6 +4223,10 @@ class TestEnvironmentSources:
         assert deps[0].url.startswith("file://")
         assert deps[0].editable is True
 
+        final = [dep for dep in environment.all_dependencies_complex if dep.name == "dep1"]
+        assert len(final) == 1
+        assert final[0].editable is True
+
     def test_index_source_becomes_install_flag(self, isolation, isolated_data_dir, platform, temp_application):
         config = {
             "project": {"name": "my_app", "version": "0.0.1", "dependencies": ["dep1"]},

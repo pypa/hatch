@@ -503,7 +503,15 @@ class EnvironmentInterface(ABC):
 
         external_deps = resolve_extras(dep_strs, local_projects, warn=self.app.display_warning)
 
-        return tuple(local_deps + [Dependency(d) for d in external_deps])
+        # Rebuilding from the requirement string drops the editable flag set by path sources.
+        editable_names = {normalize_project_name(d.name) for d in self.dependencies_complex if d.editable}
+        rebuilt = []
+        for spec in external_deps:
+            dependency = Dependency(spec)
+            if normalize_project_name(dependency.name) in editable_names and dependency.url is not None:
+                dependency = Dependency(spec, editable=True)
+            rebuilt.append(dependency)
+        return tuple(local_deps + rebuilt)
 
     @cached_property
     def all_dependencies(self) -> list[str]:
