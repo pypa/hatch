@@ -109,7 +109,9 @@ class UvLocker(LockerInterface):
 
         python_version = environment.config.get("python", "")
         if python_version:
-            command.extend(["--python-version", python_version])
+            from hatch.python.resolve import normalize_distribution_name
+
+            command.extend(["--python-version", normalize_distribution_name(python_version)])
 
         with environment.command_context():
             environment.platform.check_command(command)

@@ -5,7 +5,12 @@ import pytest
 
 from hatch.config.constants import PythonEnvVars
 from hatch.errors import PythonDistributionResolutionError, PythonDistributionUnknownError
-from hatch.python.resolve import custom_env_var, get_compatible_distributions, get_distribution
+from hatch.python.resolve import (
+    custom_env_var,
+    get_compatible_distributions,
+    get_distribution,
+    normalize_distribution_name,
+)
 from hatch.utils.structures import EnvVars
 
 
@@ -159,6 +164,11 @@ class TestVariantCPU:
                     assert v not in dist.source
             else:
                 assert variant in dist.source
+
+
+def test_tool_version_drops_freethreaded_suffix():
+    assert normalize_distribution_name("3.14t") == "3.14"
+    assert normalize_distribution_name("3.12") == "3.12"
 
 
 class TestVariantGIL:
