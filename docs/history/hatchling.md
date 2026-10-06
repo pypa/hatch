@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Fixed:***
+
+- The `shared-data` and `shared-scripts` options of the `wheel` target now count as file selection, like `force-include`, so defining only them no longer raises an error about being unable to determine which files to ship.
+
 ## [1.32.4](https://github.com/pypa/hatch/releases/tag/hatchling-v1.32.4) - 2026-09-20 ## {: #hatchling-v1.32.4 }
 
 ***Fixed:***

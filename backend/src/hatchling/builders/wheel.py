@@ -261,7 +261,13 @@ class WheelBuilderConfig(BuilderConfig):
                 return FileSelectionOptions([], exclude, [namespace], [])
             project_names.add(project_name)
 
-        if self.bypass_selection or self.build_artifact_spec is not None or self.get_force_include():
+        if (
+            self.bypass_selection
+            or self.build_artifact_spec is not None
+            or self.get_force_include()
+            or self.shared_data
+            or self.shared_scripts
+        ):
             self.set_exclude_all()
             return FileSelectionOptions([], exclude, [], [])
 

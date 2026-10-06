@@ -257,6 +257,19 @@ class TestDefaultFileSelection:
         assert builder.config.default_packages() == []
         assert builder.config.default_only_include() == []
 
+    @pytest.mark.parametrize("option", ["shared-data", "shared-scripts"])
+    def test_shared_option_considered_selection(self, temp_dir, option):
+        config = {
+            "project": {"name": "my-app", "version": "0.0.1"},
+            "tool": {"hatch": {"build": {"targets": {"wheel": {option: {"foo": "bar"}}}}}},
+        }
+        builder = WheelBuilder(str(temp_dir), config=config)
+
+        assert builder.config.default_include() == []
+        assert builder.config.default_exclude() == []
+        assert builder.config.default_packages() == []
+        assert builder.config.default_only_include() == []
+
     def test_force_include_build_data_considered_selection(self, temp_dir):
         config = {"project": {"name": "my-app", "version": "0.0.1"}}
         builder = WheelBuilder(str(temp_dir), config=config)
