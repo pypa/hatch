@@ -39,6 +39,7 @@ class CustomHook(BuildHookInterface):
 Metadata-Version: {DEFAULT_METADATA_VERSION}
 Name: {kwargs["project_name"]}
 Version: 0.0.1
+Import-Name: {kwargs["package_name"]}
 License-File: LICENSE.txt
 """,
         ),

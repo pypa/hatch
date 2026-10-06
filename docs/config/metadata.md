@@ -240,6 +240,27 @@ plugin-name1 = "pkg.subpkg1"
 plugin-name2 = "pkg.subpkg2:func"
 ```
 
+## Import names
+
+The [`import-names`](https://packaging.python.org/en/latest/specifications/pyproject-toml/#import-names) and [`import-namespaces`](https://packaging.python.org/en/latest/specifications/pyproject-toml/#import-namespaces) fields record the top-level module(s) that a project makes importable, independently of the project's distribution name on PyPI.
+
+By default, these are auto-detected from the project's package layout, using the same heuristics as the [default file selection](../plugins/builder/wheel.md#default-file-selection) for the [wheel](../plugins/builder/wheel.md) target: a flat layout (`<name>/__init__.py`), a `src` layout (`src/<name>/__init__.py`), a single-file module (`<name>.py`), or an unambiguous namespace package (`<namespace>/<name>/__init__.py`). If none of these match, no import name is recorded.
+
+To declare these explicitly instead, for example when a project's import name doesn't match its project name:
+
+```toml tab="pyproject.toml"
+[project]
+...
+import-names = [
+  "...",
+]
+import-namespaces = [
+  "...",
+]
+```
+
+Explicit declarations always take precedence over auto-detection and are not validated against the project's on-disk layout.
+
 ## Dynamic
 
 If any metadata fields are set dynamically, like the [`version`](#version) may be, then they must be listed here.

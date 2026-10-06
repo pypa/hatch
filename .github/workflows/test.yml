@@ -4,6 +4,7 @@ on:
   push:
     branches:
     - master
+    - auto-pep-794
   pull_request:
     branches:
     - master

@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import os
 import re
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from packaging.requirements import Requirement
 
     from hatchling.metadata.core import ProjectMetadata
@@ -40,6 +43,57 @@ def is_valid_import_name(import_name: str) -> bool:
         return False
 
     return all(module.isidentifier() for module in name.split("."))
+
+
+def _escape_import_name_candidate(name: str) -> str:
+    # Deliberately mirrors `BuilderInterface.normalize_file_name_component`
+    # (hatchling/builders/plugin/interface.py), which escapes project names into candidate
+    # on-disk directory/file names using the wheel filename escaping rule
+    # (https://peps.python.org/pep-0427/#escaping-and-unicode). Reused here as-is, not because
+    # import names are governed by PEP 427, but so that auto-detection searches for the exact
+    # same candidate names the wheel builder's own package-detection heuristic would look for.
+    # Cannot import the original directly without introducing a metadata -> builders cycle;
+    # keep in sync if that changes.
+    return re.sub(r"[^\w\d.]+", "_", name, flags=re.UNICODE)
+
+
+def import_name_candidates(raw_name: str, name: str) -> tuple[str, ...]:
+    return (_escape_import_name_candidate(raw_name), _escape_import_name_candidate(name))
+
+
+def detect_import_names(root: str, candidates: Iterable[str]) -> list[str]:
+    """
+    Best-effort detection of the import name a project ships, based on common layouts
+    (flat, src/, single-module). Returns an empty list if nothing matches; never raises.
+    """
+    for project_name in candidates:
+        if os.path.isfile(os.path.join(root, project_name, "__init__.py")):
+            return [project_name]
+
+        if os.path.isfile(os.path.join(root, "src", project_name, "__init__.py")):
+            return [project_name]
+
+        if os.path.isfile(os.path.join(root, f"{project_name}.py")):
+            return [project_name]
+
+    return []
+
+
+def detect_import_namespaces(root: str, candidates: Iterable[str]) -> tuple[list[str], list[str]]:
+    """
+    Best-effort detection of a single, unambiguous namespace-package layout
+    (`<namespace>/<project_name>/__init__.py`). Returns a `(import_names, import_namespaces)`
+    pair, both possibly empty; never raises.
+    """
+    from glob import glob
+
+    for project_name in candidates:
+        matches = glob(os.path.join(root, "*", project_name, "__init__.py"))
+        if len(matches) == 1:
+            namespace = os.path.relpath(matches[0], root).split(os.sep)[0]
+            return [f"{namespace}.{project_name}"], [namespace]
+
+    return [], []
 
 
 def normalize_requirement(requirement: Requirement) -> None:

@@ -1,6 +1,5 @@
 import json
 import sys
-from typing import Any
 
 import pytest
 
@@ -89,15 +88,12 @@ description = "text"
         output = json.loads((output_dir / "output.json").read_text())
         metadata_file = work_dir / output["return_val"] / "METADATA"
 
-        expected_metadata: dict[str, Any] = {
+        assert project_metadata_from_core_metadata(metadata_file.read_text()) == {
             "name": "foo",
             "version": "9000.42",
             "description": "text",
+            "import-names": ["foo"],
         }
-        if backend_pkg == "flit-core":
-            expected_metadata["import-names"] = ["foo"]
-
-        assert project_metadata_from_core_metadata(metadata_file.read_text()) == expected_metadata
 
     @pytest.mark.parametrize(
         ("backend_pkg", "backend_api"),
@@ -147,15 +143,12 @@ description = "text"
         output = json.loads((output_dir / "output.json").read_text())
         metadata_file = work_dir / output["return_val"] / "METADATA"
 
-        expected_metadata: dict[str, Any] = {
+        assert project_metadata_from_core_metadata(metadata_file.read_text()) == {
             "name": "foo",
             "version": "9000.42",
             "description": "text",
+            "import-names": ["foo"],
         }
-        if backend_pkg == "flit-core":
-            expected_metadata["import-names"] = ["foo"]
-
-        assert project_metadata_from_core_metadata(metadata_file.read_text()) == expected_metadata
 
 
 class TestBuildWheel:

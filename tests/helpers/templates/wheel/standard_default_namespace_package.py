@@ -39,6 +39,8 @@ Tag: py3-none-any
 Metadata-Version: {DEFAULT_METADATA_VERSION}
 Name: {kwargs["project_name"]}
 Version: 0.0.1
+Import-Name: {namespace_package}.{kwargs["package_name"]}
+Import-Namespace: {namespace_package}
 License-File: LICENSE.txt
 """,
         ),
