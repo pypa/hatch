@@ -3,7 +3,7 @@
 -----
 
 You can specify constraints on the runtime version of Hatch by providing a value for `tool.hatch.requires-hatch`. 
-If the version of Hatch does not satisfy the given contraints, and Hatch is called with a command that reads the project's metadata, it will exit with an error.
+If the version of Hatch does not satisfy the given constraints, and Hatch is called with a command that reads the project's metadata, it will exit with an error.
 
 ```toml tab="pyproject.toml"
 [tool.hatch]
