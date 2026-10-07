@@ -10,6 +10,7 @@ See the documentation for [environment configuration](../../config/environment/o
 - [hatch-containers](https://github.com/ofek/hatch-containers) - environments run inside containers
 - [hatch-pip-compile](https://github.com/juftin/hatch-pip-compile) - use [pip-compile](https://github.com/jazzband/pip-tools) to manage project dependencies and lockfiles
 - [hatch-pip-deepfreeze](https://github.com/sbidoul/hatch-pip-deepfreeze) - [virtual](virtual.md) environments with dependency locking by [pip-deepfreeze](https://github.com/sbidoul/pip-deepfreeze)
+- [hatch-uvenv](https://github.com/djcopley/hatch-uvenv) - [virtual](virtual.md) environments with dependency locking by [uv](https://docs.astral.sh/uv/)
 
 ## Installation
 
