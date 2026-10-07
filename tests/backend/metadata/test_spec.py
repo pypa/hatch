@@ -2563,3 +2563,40 @@ class TestCoreMetadataV25:
             Summary: pytest: simple powerful testing with Python
             """
         )
+
+
+class TestCoreMetadataV26:
+    def test_version_header(self, isolation, helpers):
+        metadata = ProjectMetadata(str(isolation), None, {"project": {"name": "My.App", "version": "0.1.0"}})
+
+        assert get_core_metadata_constructors()["2.6"](metadata) == helpers.dedent(
+            """
+            Metadata-Version: 2.6
+            Name: My.App
+            Version: 0.1.0
+            """
+        )
+
+    def test_same_fields_as_v25(self, isolation):
+        metadata = ProjectMetadata(
+            str(isolation),
+            None,
+            {
+                "project": {
+                    "name": "My.App",
+                    "version": "0.1.0",
+                    "description": "foo",
+                    "keywords": ["a", "b"],
+                    "authors": [{"name": "Foo", "email": "foo@example.org"}],
+                    "dependencies": ["bar>=1"],
+                    "optional-dependencies": {"dev": ["pytest"]},
+                    "import-names": ["my_app"],
+                    "dynamic": ["classifiers"],
+                },
+            },
+        )
+        constructors = get_core_metadata_constructors()
+
+        assert constructors["2.6"](metadata, ("baz",)) == constructors["2.5"](metadata, ("baz",)).replace(
+            "Metadata-Version: 2.5", "Metadata-Version: 2.6", 1
+        )

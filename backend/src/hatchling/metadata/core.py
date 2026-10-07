@@ -32,9 +32,67 @@ else:
     import tomli as tomllib
 
 
+METADATA_2_6_EXTENDABLE_FIELDS = frozenset({
+    "authors",
+    "classifiers",
+    "dependencies",
+    "entry-points",
+    "gui-scripts",
+    "import-names",
+    "import-namespaces",
+    "license-files",
+    "keywords",
+    "maintainers",
+    "optional-dependencies",
+    "scripts",
+    "urls",
+})
+
+
 def load_toml(path: str) -> dict[str, Any]:
     with open(path, encoding="utf-8") as f:
         return tomllib.loads(f.read())
+
+
+def _is_extension(before: list, after: list) -> bool:
+    return after[: len(before)] == before
+
+
+def _check_only_extended(field: str, before: Any, after: Any) -> None:
+    """
+    https://peps.python.org/pep-0808/
+
+    Entries of a field that is both statically defined and listed in `project.dynamic`
+    may be appended by metadata hooks but never removed, reordered, or modified.
+    """
+    if isinstance(before, list):
+        if not isinstance(after, list) or not _is_extension(before, after):
+            message = (
+                f"Entries of metadata field `{field}` were removed, reordered, or modified, "
+                f"but fields listed in `project.dynamic` may only be extended by appending"
+            )
+            raise ValueError(message)
+    elif isinstance(before, dict):
+        if not isinstance(after, dict):
+            message = (
+                f"Metadata field `{field}` was replaced but fields listed in `project.dynamic` may only be extended"
+            )
+            raise ValueError(message)  # noqa: TRY004
+
+        for key, value in before.items():
+            if key not in after:
+                message = (
+                    f"Entry `{key}` of metadata field `{field}` was removed "
+                    f"but fields listed in `project.dynamic` may only be extended"
+                )
+                raise ValueError(message)
+
+            _check_only_extended(f"{field}.{key}", value, after[key])
+
+    # cover scripts, gui-scripts and urls entries, and the entries inside an entry-points group
+    elif before != after:
+        message = f"Metadata field `{field}` was modified but fields listed in `project.dynamic` may only be extended"
+        raise ValueError(message)
 
 
 class ProjectMetadata(Generic[PluginManagerBound]):
@@ -203,6 +261,11 @@ class ProjectMetadata(Generic[PluginManagerBound]):
             metadata_hooks = self.hatch.metadata.hooks
             if metadata_hooks:
                 static_fields = set(self.core_raw_metadata)
+                extended_fields = {
+                    field: deepcopy(self.core_raw_metadata[field])
+                    for field in METADATA_2_6_EXTENDABLE_FIELDS
+                    if field in self.core_raw_metadata and field in metadata.dynamic
+                }
                 if "version" in self.hatch.config:
                     self._version = self._get_version(metadata)
                     self.core_raw_metadata["version"] = self.version
@@ -211,6 +274,10 @@ class ProjectMetadata(Generic[PluginManagerBound]):
                     for metadata_hook in metadata_hooks.values():
                         metadata_hook.update(self.core_raw_metadata)
                         metadata.add_known_classifiers(metadata_hook.get_known_classifiers())
+
+                    for field, before in extended_fields.items():
+                        _check_only_extended(field, before, self.core_raw_metadata[field])
+                        metadata.dynamic.remove(field)
 
                     new_fields = set(self.core_raw_metadata) - static_fields
                     for new_field in new_fields:
@@ -761,13 +828,6 @@ class CoreMetadata:
         if self._license_files is None:
             if "license-files" in self.config:
                 globs = self.config["license-files"]
-                if "license-files" in self.dynamic:
-                    message = (
-                        "Metadata field `license-files` cannot be both statically defined and "
-                        "listed in field `project.dynamic`"
-                    )
-                    raise ValueError(message)
-
                 if isinstance(globs, dict):
                     globs = globs.get("globs", globs.get("paths", []))
             else:
@@ -805,16 +865,7 @@ class CoreMetadata:
         authors_data: dict[str, list[str]]
 
         if self._authors is None:
-            if "authors" in self.config:
-                authors = self.config["authors"]
-                if "authors" in self.dynamic:
-                    message = (
-                        "Metadata field `authors` cannot be both statically defined and "
-                        "listed in field `project.dynamic`"
-                    )
-                    raise ValueError(message)
-            else:
-                authors = []
+            authors = self.config.get("authors", [])
 
             if not isinstance(authors, list):
                 message = "Field `project.authors` must be an array"
@@ -873,16 +924,7 @@ class CoreMetadata:
         maintainers: list[str]
 
         if self._maintainers is None:
-            if "maintainers" in self.config:
-                maintainers = self.config["maintainers"]
-                if "maintainers" in self.dynamic:
-                    message = (
-                        "Metadata field `maintainers` cannot be both statically defined and "
-                        "listed in field `project.dynamic`"
-                    )
-                    raise ValueError(message)
-            else:
-                maintainers = []
+            maintainers = self.config.get("maintainers", [])
 
             if not isinstance(maintainers, list):
                 message = "Field `project.maintainers` must be an array"
@@ -939,16 +981,7 @@ class CoreMetadata:
         https://peps.python.org/pep-0621/#keywords
         """
         if self._keywords is None:
-            if "keywords" in self.config:
-                keywords = self.config["keywords"]
-                if "keywords" in self.dynamic:
-                    message = (
-                        "Metadata field `keywords` cannot be both statically defined and "
-                        "listed in field `project.dynamic`"
-                    )
-                    raise ValueError(message)
-            else:
-                keywords = []
+            keywords = self.config.get("keywords", [])
 
             if not isinstance(keywords, list):
                 message = "Field `project.keywords` must be an array"
@@ -975,16 +1008,7 @@ class CoreMetadata:
         if self._classifiers is None:
             import bisect
 
-            if "classifiers" in self.config:
-                classifiers = self.config["classifiers"]
-                if "classifiers" in self.dynamic:
-                    message = (
-                        "Metadata field `classifiers` cannot be both statically defined and "
-                        "listed in field `project.dynamic`"
-                    )
-                    raise ValueError(message)
-            else:
-                classifiers = []
+            classifiers = self.config.get("classifiers", [])
 
             if not isinstance(classifiers, list):
                 message = "Field `project.classifiers` must be an array"
@@ -1039,15 +1063,7 @@ class CoreMetadata:
         https://peps.python.org/pep-0621/#urls
         """
         if self._urls is None:
-            if "urls" in self.config:
-                urls = self.config["urls"]
-                if "urls" in self.dynamic:
-                    message = (
-                        "Metadata field `urls` cannot be both statically defined and listed in field `project.dynamic`"
-                    )
-                    raise ValueError(message)
-            else:
-                urls = {}
+            urls = self.config.get("urls", {})
 
             if not isinstance(urls, dict):
                 message = "Field `project.urls` must be a table"
@@ -1072,16 +1088,7 @@ class CoreMetadata:
         https://peps.python.org/pep-0621/#entry-points
         """
         if self._scripts is None:
-            if "scripts" in self.config:
-                scripts = self.config["scripts"]
-                if "scripts" in self.dynamic:
-                    message = (
-                        "Metadata field `scripts` cannot be both statically defined and "
-                        "listed in field `project.dynamic`"
-                    )
-                    raise ValueError(message)
-            else:
-                scripts = {}
+            scripts = self.config.get("scripts", {})
 
             if not isinstance(scripts, dict):
                 message = "Field `project.scripts` must be a table"
@@ -1106,16 +1113,7 @@ class CoreMetadata:
         https://peps.python.org/pep-0621/#entry-points
         """
         if self._gui_scripts is None:
-            if "gui-scripts" in self.config:
-                gui_scripts = self.config["gui-scripts"]
-                if "gui-scripts" in self.dynamic:
-                    message = (
-                        "Metadata field `gui-scripts` cannot be both statically defined and "
-                        "listed in field `project.dynamic`"
-                    )
-                    raise ValueError(message)
-            else:
-                gui_scripts = {}
+            gui_scripts = self.config.get("gui-scripts", {})
 
             if not isinstance(gui_scripts, dict):
                 message = "Field `project.gui-scripts` must be a table"
@@ -1140,16 +1138,7 @@ class CoreMetadata:
         https://peps.python.org/pep-0621/#entry-points
         """
         if self._entry_points is None:
-            if "entry-points" in self.config:
-                defined_entry_point_groups = self.config["entry-points"]
-                if "entry-points" in self.dynamic:
-                    message = (
-                        "Metadata field `entry-points` cannot be both statically defined and "
-                        "listed in field `project.dynamic`"
-                    )
-                    raise ValueError(message)
-            else:
-                defined_entry_point_groups = {}
+            defined_entry_point_groups = self.config.get("entry-points", {})
 
             if not isinstance(defined_entry_point_groups, dict):
                 message = "Field `project.entry-points` must be a table"
@@ -1194,16 +1183,7 @@ class CoreMetadata:
         if self._dependencies_complex is None:
             from packaging.requirements import InvalidRequirement, Requirement
 
-            if "dependencies" in self.config:
-                dependencies = self.config["dependencies"]
-                if "dependencies" in self.dynamic:
-                    message = (
-                        "Metadata field `dependencies` cannot be both statically defined and "
-                        "listed in field `project.dynamic`"
-                    )
-                    raise ValueError(message)
-            else:
-                dependencies = []
+            dependencies = self.config.get("dependencies", [])
 
             if not isinstance(dependencies, list):
                 message = "Field `project.dependencies` must be an array"
@@ -1254,16 +1234,7 @@ class CoreMetadata:
         if self._optional_dependencies_complex is None:
             from packaging.requirements import InvalidRequirement, Requirement
 
-            if "optional-dependencies" in self.config:
-                optional_dependencies = self.config["optional-dependencies"]
-                if "optional-dependencies" in self.dynamic:
-                    message = (
-                        "Metadata field `optional-dependencies` cannot be both statically defined and "
-                        "listed in field `project.dynamic`"
-                    )
-                    raise ValueError(message)
-            else:
-                optional_dependencies = {}
+            optional_dependencies = self.config.get("optional-dependencies", {})
 
             if not isinstance(optional_dependencies, dict):
                 message = "Field `project.optional-dependencies` must be a table"
@@ -1372,12 +1343,6 @@ class CoreMetadata:
                 return None
 
             import_names = self.config["import-names"]
-            if "import-names" in self.dynamic:
-                message = (
-                    "Metadata field `import-names` cannot be both statically defined and "
-                    "listed in field `project.dynamic`"
-                )
-                raise ValueError(message)
 
             if not isinstance(import_names, list):
                 message = "Field `project.import-names` must be an array"
@@ -1402,16 +1367,7 @@ class CoreMetadata:
         https://packaging.python.org/en/latest/specifications/pyproject-toml/#import-namespaces
         """
         if self._import_namespaces is None:
-            if "import-namespaces" in self.config:
-                import_namespaces = self.config["import-namespaces"]
-                if "import-namespaces" in self.dynamic:
-                    message = (
-                        "Metadata field `import-namespaces` cannot be both statically defined and "
-                        "listed in field `project.dynamic`"
-                    )
-                    raise ValueError(message)
-            else:
-                import_namespaces = []
+            import_namespaces = self.config.get("import-namespaces", [])
 
             if not isinstance(import_namespaces, list):
                 message = "Field `project.import-namespaces` must be an array"
