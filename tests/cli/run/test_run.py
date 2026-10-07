@@ -1,4 +1,5 @@
 import os
+import pathlib
 import signal
 import sys
 import sysconfig
@@ -722,7 +723,11 @@ def test_scripts_no_environment(hatch, helpers, temp_dir, config_file):
 
     project = Project(project_path)
     config = dict(project.raw_config)
-    config["tool"]["hatch"]["scripts"] = {"py": "python -c {args}"}
+    # Handle systems where the interpreter is not called "python", but e.g.
+    # "python3". Still inadequate if we need the full path or the name contains
+    # whitespace, but should be good enough for testing.
+    py = pathlib.Path(sys.executable).name
+    config["tool"]["hatch"]["scripts"] = {"py": f"{py} -c {{args}}"}
     project.save_config(config)
 
     with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
@@ -761,7 +766,11 @@ def test_interrupt_signal_not_inherited(hatch, temp_dir, config_file):
 
     project = Project(project_path)
     config = dict(project.raw_config)
-    config["tool"]["hatch"]["scripts"] = {"py": "python -c {args}"}
+    # Handle systems where the interpreter is not called "python", but e.g.
+    # "python3". Still inadequate if we need the full path or the name contains
+    # whitespace, but should be good enough for testing.
+    py = pathlib.Path(sys.executable).name
+    config["tool"]["hatch"]["scripts"] = {"py": f"{py} -c {{args}}"}
     project.save_config(config)
 
     original_handler = signal.getsignal(signal.SIGINT)
