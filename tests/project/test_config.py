@@ -1506,9 +1506,7 @@ class TestEnvs:
         env_config = {
             "foo": {
                 "matrix": [{"mode": ["quiet", "verbose"]}],
-                "overrides": {
-                    "matrix": {"mode": {"extra-args": {"value": ["-q"], "if": ["quiet"]}}}
-                },
+                "overrides": {"matrix": {"mode": {"extra-args": {"value": ["-q"], "if": ["quiet"]}}}},
             }
         }
         project_config = ProjectConfig(isolation, {"envs": env_config}, PluginManager())
