@@ -503,7 +503,10 @@ class EnvironmentInterface(ABC):
 
         external_deps = resolve_extras(dep_strs, local_projects, warn=self.app.display_warning)
 
-        return tuple(local_deps + [Dependency(d) for d in external_deps])
+        # Reuse the original objects so that attributes not captured by the string form,
+        # such as the `editable` flag set by path `sources`, are preserved
+        originals = {str(d): d for d in self.dependencies_complex}
+        return tuple(local_deps + [originals.get(d) or Dependency(d) for d in external_deps])
 
     @cached_property
     def all_dependencies(self) -> list[str]:
