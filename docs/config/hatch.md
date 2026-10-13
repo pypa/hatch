@@ -189,6 +189,20 @@ The following values have special meanings:
 | --- | --- |
 | `isolated` (default) | `<DATA_DIR>/pythons` |
 
+## Network
+
+### Timeout
+
+HTTP requests, such as downloading Python distributions or uploading to a package index, time out after 10 seconds by default. On slow or heavily throttled connections that may not be long enough.
+
+You can set a different timeout in seconds with the `HATCH_HTTP_TIMEOUT` environment variable.
+
+```
+HATCH_HTTP_TIMEOUT=60
+```
+
+The value must be a positive number.
+
 ## Terminal
 
 You can configure how all output is displayed using the `terminal.styles` table. These settings are also applied to all plugins.

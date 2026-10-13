@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Added:***
+
+- The HTTP timeout is now configurable with the `HATCH_HTTP_TIMEOUT` environment variable
+
 ***Fixed:***
 
 - Fix syncing environment plugin requirements on standalone binaries built to forward to `pip`
