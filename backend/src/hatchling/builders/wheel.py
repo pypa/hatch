@@ -11,6 +11,11 @@ from functools import cached_property
 from io import StringIO
 from typing import TYPE_CHECKING, Any, NamedTuple, cast
 
+if TYPE_CHECKING:
+    from hatchling.bridge.app import Application
+    from hatchling.metadata.core import ProjectMetadata
+    from hatchling.plugin.manager import PluginManagerBound
+
 from hatchling.__about__ import __version__
 from hatchling.builders.config import BuilderConfig
 from hatchling.builders.constants import EDITABLES_REQUIREMENT
@@ -499,6 +504,55 @@ class WheelBuilder(BuilderInterface):
 
     PLUGIN_NAME = "wheel"
 
+    def __init__(
+        self,
+        root: str,
+        plugin_manager: PluginManagerBound | None = None,
+        config: dict[str, Any] | None = None,
+        metadata: ProjectMetadata | None = None,
+        app: Application | None = None,
+        variant_label: str | None = None,
+    ):
+        super().__init__(
+            root=root,
+            plugin_manager=plugin_manager,
+            config=config,
+            metadata=metadata,
+            app=app,
+        )
+
+        if variant_label is not None:
+            self.metadata.select_variant(variant_label)
+
+        if self.metadata.variant is not None:
+            self.validate_variant()
+
+    def validate_variant(self) -> None:
+        """
+        Verify the selected variant against the provider plugins declared for its namespaces.
+        """
+        variant = self.metadata.variant
+        if variant is None or variant.is_null_variant():
+            return
+
+        from variantlib.api import validate_variant
+        from variantlib.errors import PluginError
+
+        try:
+            result = validate_variant(variant, self.metadata.variant_info)
+        except (PluginError, RuntimeError) as e:
+            message = f"Unable to load a variant provider plugin for variant `{variant.label}`: {e}"
+            raise ValueError(message) from None
+
+        if result.multi_value_violations:
+            features = ", ".join([feature.to_str() for feature in sorted(result.multi_value_violations)])
+            message = f"The following variant features specify multiple values, which is not allowed: {features}."
+            raise ValueError(message)
+        if result.invalid_properties:
+            properties = ", ".join([prop.to_str() for prop in sorted(result.invalid_properties)])
+            message = f"The following variant properties are invalid according to their provider plugin: {properties}."
+            raise ValueError(message)
+
     def get_version_api(self) -> dict[str, Callable]:
         return {"standard": self.build_standard, "editable": self.build_editable}
 
@@ -534,13 +588,21 @@ class WheelBuilder(BuilderInterface):
             records.write((f"{archive.metadata_directory}/RECORD", "", ""))
             archive.write_metadata("RECORD", records.construct())
 
-        target = os.path.join(directory, f"{self.artifact_project_id}-{build_data['tag']}.whl")
+        if self.metadata.variant is not None:
+            wheel_name = f"{self.artifact_project_id}-{build_data['tag']}-{self.metadata.variant.label}.whl"
+        else:
+            wheel_name = f"{self.artifact_project_id}-{build_data['tag']}.whl"
+        target = os.path.join(directory, wheel_name)
 
         replace_file(archive.path, target)
         normalize_artifact_permissions(target)
         return target
 
     def build_editable(self, directory: str, **build_data: Any) -> str:
+        if self.metadata.variant is not None:
+            message = "Variant wheels cannot be built in editable mode"
+            raise ValueError(message)
+
         if self.config.dev_mode_dirs:
             return self.build_editable_explicit(directory, **build_data)
 
@@ -788,6 +850,15 @@ Root-Is-Purelib: {"true" if build_data["pure_python"] else "false"}
             "METADATA", self.config.core_metadata_constructor(self.metadata, extra_dependencies=extra_dependencies)
         )
         records.write(record)
+        if self.metadata.variant is not None:
+            from variantlib.api import make_variant_dist_info
+            from variantlib.constants import VARIANT_DIST_INFO_FILENAME
+
+            record = archive.write_metadata(
+                VARIANT_DIST_INFO_FILENAME,
+                make_variant_dist_info(self.metadata.variant, variant_info=self.metadata.variant_info),
+            )
+            records.write(record)
 
     def add_licenses(self, archive: WheelArchive, records: RecordFile) -> None:
         for relative_path in self.metadata.core.license_files:

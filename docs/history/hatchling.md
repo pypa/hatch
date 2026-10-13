@@ -8,6 +8,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Added:***
+
+- Support for building [wheel variants](https://peps.python.org/pep-0825/), declared in a top-level `variant` table and selected by label with the new `--variant-label` and `--null-variant` flags or the `variant-label` config setting.
+- The `get_requires_for_build_wheel` hook now returns the provider plugin packages needed by the selected variant.
+
+***Changed:***
+
+- Hatchling now depends on `variantlib` for variant metadata and plugin loading.
+
 ## [1.32.4](https://github.com/pypa/hatch/releases/tag/hatchling-v1.32.4) - 2026-09-20 ## {: #hatchling-v1.32.4 }
 
 ***Fixed:***

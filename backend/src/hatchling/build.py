@@ -14,6 +14,20 @@ __all__ = [
 __all__ += ["__all__"]
 
 
+def _get_variant_label(config_settings: dict[str, Any] | None) -> str | None:
+    if not config_settings or "variant-label" not in config_settings:
+        return None
+
+    label = config_settings["variant-label"]
+    if isinstance(label, list):
+        if len(label) != 1:
+            message = "The `variant-label` config setting must be specified exactly once"
+            raise ValueError(message)
+        label = label[0]
+
+    return label
+
+
 def get_requires_for_build_sdist(config_settings: dict[str, Any] | None = None) -> list[str]:  # noqa: ARG001
     """
     https://peps.python.org/pep-0517/#get-requires-for-build-sdist
@@ -34,19 +48,25 @@ def build_sdist(sdist_directory: str, config_settings: dict[str, Any] | None = N
     return os.path.basename(next(builder.build(directory=sdist_directory, versions=["standard"])))
 
 
-def get_requires_for_build_wheel(config_settings: dict[str, Any] | None = None) -> list[str]:  # noqa: ARG001
+def get_requires_for_build_wheel(config_settings: dict[str, Any] | None = None) -> list[str]:
     """
     https://peps.python.org/pep-0517/#get-requires-for-build-wheel
     """
     from hatchling.builders.wheel import WheelBuilder
 
     builder = WheelBuilder(os.getcwd())
-    return builder.config.dependencies
+    dependencies = list(builder.config.dependencies)
+
+    label = _get_variant_label(config_settings)
+    if label is not None:
+        dependencies.extend(builder.metadata.variant_provider_requires(label))
+
+    return dependencies
 
 
 def build_wheel(
     wheel_directory: str,
-    config_settings: dict[str, Any] | None = None,  # noqa: ARG001
+    config_settings: dict[str, Any] | None = None,
     metadata_directory: str | None = None,  # noqa: ARG001
 ) -> str:
     """
@@ -54,7 +74,7 @@ def build_wheel(
     """
     from hatchling.builders.wheel import WheelBuilder
 
-    builder = WheelBuilder(os.getcwd())
+    builder = WheelBuilder(os.getcwd(), variant_label=_get_variant_label(config_settings))
     return os.path.basename(next(builder.build(directory=wheel_directory, versions=["standard"])))
 
 
@@ -100,14 +120,14 @@ if "PIP_BUILD_TRACKER" not in os.environ:
 
     def prepare_metadata_for_build_wheel(
         metadata_directory: str,
-        config_settings: dict[str, Any] | None = None,  # noqa: ARG001
+        config_settings: dict[str, Any] | None = None,
     ) -> str:
         """
         https://peps.python.org/pep-0517/#prepare-metadata-for-build-wheel
         """
         from hatchling.builders.wheel import WheelBuilder
 
-        builder = WheelBuilder(os.getcwd())
+        builder = WheelBuilder(os.getcwd(), variant_label=_get_variant_label(config_settings))
 
         directory = os.path.join(metadata_directory, f"{builder.artifact_project_id}.dist-info")
         if not os.path.isdir(directory):
@@ -115,6 +135,13 @@ if "PIP_BUILD_TRACKER" not in os.environ:
 
         with open(os.path.join(directory, "METADATA"), "w", encoding="utf-8") as f:
             f.write(builder.config.core_metadata_constructor(builder.metadata))
+
+        if builder.metadata.variant is not None:
+            from variantlib.api import make_variant_dist_info
+            from variantlib.constants import VARIANT_DIST_INFO_FILENAME
+
+            with open(os.path.join(directory, VARIANT_DIST_INFO_FILENAME), "w", encoding="utf-8") as f:
+                f.write(make_variant_dist_info(builder.metadata.variant, variant_info=builder.metadata.variant_info))
 
         return os.path.basename(directory)
 
