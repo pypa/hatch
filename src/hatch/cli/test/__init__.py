@@ -174,6 +174,9 @@ def test(
             else:
                 app.abort(f"No compatible environments found: {candidate_envs}")
 
+    if not selected_envs:
+        app.abort("No environments were selected")
+
     test_script = "run-cov" if cover else "run"
     patched_coverage = PatchedCoverageConfig(app.project.location, app.data_dir / ".config")
     coverage_config_file = str(patched_coverage.internal_config_path)
