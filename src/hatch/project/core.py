@@ -194,8 +194,9 @@ class Project:
 
     # Ensure that this method is clearly written since it is
     # used for documenting the life cycle of environments.
-    def prepare_environment(self, environment: EnvironmentInterface, *, keep_env: bool):
-        if not environment.exists():
+    def prepare_environment(self, environment: EnvironmentInterface, *, keep_env: bool, reinstall: bool = False):
+        environment_existed = environment.exists()
+        if not environment_existed:
             with self.managed_environment(environment, keep_env=keep_env):
                 self.env_metadata.reset(environment)
 
@@ -254,6 +255,10 @@ class Project:
                     new_dep_hash = environment.dependency_hash()
 
             self.env_metadata.update_dependency_hash(environment, new_dep_hash)
+
+        if reinstall and environment_existed and not environment.dev_mode and not environment.skip_install:
+            with environment.app_status_project_installation():
+                environment.install_project()
 
     def prepare_build_environment(self, *, targets: list[str] | None = None, keep_env: bool = False) -> None:
         from hatch.project.constants import BUILD_BACKEND, BuildEnvVars

@@ -13,8 +13,9 @@ if TYPE_CHECKING:
     context_settings={"help_option_names": [], "ignore_unknown_options": True},
 )
 @click.argument("args", metavar="[ENV:]ARGS...", required=True, nargs=-1)
+@click.option("--reinstall", is_flag=True, help="Reinstall the project before running the command")
 @click.pass_context
-def run(ctx: click.Context, args: tuple[str, ...]):
+def run(ctx: click.Context, args: tuple[str, ...], reinstall: bool):
     """
     Run commands within project environments.
     This is a convenience wrapper around the [`env run`](#hatch-env-run) command.
@@ -160,4 +161,5 @@ def run(ctx: click.Context, args: tuple[str, ...]):
         env_names=[env_name],
         included_variable_specs=included_variables,
         excluded_variable_specs=excluded_variables,
+        reinstall=reinstall,
     )
