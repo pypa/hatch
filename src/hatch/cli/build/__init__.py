@@ -59,9 +59,31 @@ if TYPE_CHECKING:
     ),
 )
 @click.option("--clean-only", is_flag=True, hidden=True)
+@click.option(
+    "--null-variant",
+    "null_variant",
+    is_flag=True,
+    help="Build the `null variant` which is equivalent to `--variant-label null`",
+)
+@click.option(
+    "--variant-label",
+    "variant_label",
+    help="Build the variant with the given label from the variant.variants table.",
+)
 @click.pass_obj
 def build(
-    app: Application, location, targets, build_all, hooks_only, no_hooks, ext, clean, clean_hooks_after, clean_only
+    app: Application,
+    location,
+    targets,
+    build_all,
+    hooks_only,
+    no_hooks,
+    ext,
+    clean,
+    clean_hooks_after,
+    clean_only,
+    null_variant,
+    variant_label,
 ):
     """Build a project."""
     app.ensure_environment_plugin_dependencies()
@@ -75,6 +97,12 @@ def build(
         targets = ("wheel",)
     elif not targets:
         targets = ("sdist", "wheel")
+
+    if null_variant:
+        if variant_label is not None:
+            app.abort("Cannot use both --null-variant and --variant-label together")
+
+        variant_label = "null"
 
     env_vars = {}
     if app.verbose:
@@ -94,6 +122,7 @@ def build(
             clean_hooks_after=clean_hooks_after,
             clean_only=clean_only,
             env_vars=env_vars,
+            variant_label=variant_label,
         )
         return
 
@@ -128,6 +157,7 @@ def build(
             clean_hooks_after=clean_hooks_after,
             clean_only=clean_only,
             env_vars=env_vars,
+            variant_label=variant_label,
         )
 
 
@@ -143,6 +173,7 @@ def _build_project(
     clean_hooks_after,
     clean_only,
     env_vars,
+    variant_label,
 ):
     from hatch.project.config import env_var_enabled
     from hatch.project.constants import BUILD_BACKEND, DEFAULT_BUILD_DIRECTORY, BuildEnvVars
@@ -153,7 +184,9 @@ def _build_project(
     build_dir = Path(location).resolve() if location else None
 
     with EnvVars(env_vars):
-        project.prepare_build_environment(targets=[target.split(":")[0] for target in targets])
+        project.prepare_build_environment(
+            targets=[target.split(":")[0] for target in targets], variant_label=variant_label
+        )
 
     build_backend = project.metadata.build.build_backend
     with project.location.as_cwd(), project.build_env.get_env_vars():
@@ -170,7 +203,9 @@ def _build_project(
                 elif target_name == "wheel":
                     directory = build_dir or project.location / DEFAULT_BUILD_DIRECTORY
                     directory.ensure_dir_exists()
-                    artifact_path = project.build_frontend.build_wheel(directory)
+                    artifact_path = project.build_frontend.build_wheel(
+                        directory, config_settings={"variant-label": variant_label} if variant_label else None
+                    )
                 else:
                     app.abort(f"Target `{target_name}` is not supported by `{build_backend}`")
 
@@ -181,6 +216,9 @@ def _build_project(
                 )
             else:
                 command = ["python", "-u", "-m", "hatchling", "build", "--target", target]
+
+                if variant_label:
+                    command.extend(("--variant-label", variant_label))
 
                 # We deliberately pass the location unchanged so that absolute paths may be non-local
                 # and reflect wherever builds actually take place

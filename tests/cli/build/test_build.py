@@ -1564,3 +1564,104 @@ workspace.members = ["packages/*"]
             "workspace_root-0.0.1.tar.gz",
         ]
         assert not (workspace_root / "dist").is_dir()
+
+
+class TestVariants:
+    VARIANT_CONFIG = """
+        [variant.default-priorities]
+        namespace = ['stub']
+
+        [variant.providers.stub]
+        requires = ['stub-variant-provider']
+
+        [variant.variants.foo]
+        stub.level = ['v3']
+        """
+
+    def create_project(self, hatch, helpers, temp_dir):
+        with temp_dir.as_cwd():
+            result = hatch("new", "My.App")
+            assert result.exit_code == 0, result.output
+
+        path = temp_dir / "my-app"
+        config_path = path / "pyproject.toml"
+        config_path.write_text(config_path.read_text() + helpers.dedent(self.VARIANT_CONFIG))
+        return path
+
+    @pytest.mark.parametrize("args", [("--null-variant",), ("--variant-label", "null")], ids=["flag", "label"])
+    def test_null_variant(self, hatch, temp_dir, helpers, args):
+        path = self.create_project(hatch, helpers, temp_dir)
+
+        with path.as_cwd():
+            result = hatch("build", "-t", "wheel", *args)
+            assert result.exit_code == 0, result.output
+
+        build_directory = path / "dist"
+        artifacts = list(build_directory.iterdir())
+        assert len(artifacts) == 1
+        assert artifacts[0].name.endswith("-null.whl")
+
+        assert result.output == helpers.dedent(
+            f"""
+            Creating environment: hatch-build
+            Checking dependencies
+            Syncing dependencies
+            Inspecting build dependencies
+            ──────────────────────────────────── wheel ─────────────────────────────────────
+            {artifacts[0].relative_to(path)}
+            """
+        )
+
+    def test_unknown_label(self, hatch, temp_dir, helpers):
+        path = self.create_project(hatch, helpers, temp_dir)
+
+        # The backend runs in-process under test, so the error propagates
+        with path.as_cwd(), pytest.raises(ValueError, match="Variant `bar` is not defined in the `variant` table"):
+            hatch("build", "-t", "wheel", "--variant-label", "bar")
+
+        assert not (path / "dist").is_dir()
+
+    def test_mutually_exclusive_flags(self, hatch, temp_dir, helpers):
+        path = self.create_project(hatch, helpers, temp_dir)
+
+        with path.as_cwd():
+            result = hatch("build", "-t", "wheel", "--variant-label", "foo", "--null-variant")
+
+        assert result.exit_code == 1, result.output
+        assert "Cannot use both --null-variant and --variant-label together" in result.output
+        assert not (path / "dist").is_dir()
+
+    def test_label_requires_wheel_target(self, hatch, temp_dir, helpers):
+        path = self.create_project(hatch, helpers, temp_dir)
+
+        with path.as_cwd():
+            result = hatch("build", "-t", "sdist", "--variant-label", "foo")
+
+        assert result.exit_code == 1, result.output
+        assert "Only the `wheel` target supports variants" in result.output
+
+    def test_custom_target_unaffected(self, hatch, temp_dir, helpers):
+        path = self.create_project(hatch, helpers, temp_dir)
+        (path / DEFAULT_BUILD_SCRIPT).write_text(
+            helpers.dedent(
+                """
+                from hatchling.builders.wheel import WheelBuilder
+
+                def get_builder():
+                    return CustomWheelBuilder
+
+                class CustomWheelBuilder(WheelBuilder):
+                    pass
+                """
+            )
+        )
+        config_path = path / "pyproject.toml"
+        config_path.write_text(f"{config_path.read_text()}\n[tool.hatch.build.targets.custom]\n")
+
+        with path.as_cwd():
+            result = hatch("build", "-t", "custom")
+            assert result.exit_code == 0, result.output
+
+        artifacts = list((path / "dist").iterdir())
+        assert len(artifacts) == 1
+        assert artifacts[0].name.endswith(".whl")

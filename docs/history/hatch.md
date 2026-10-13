@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Added:***
+
+- The `build` command can build [wheel variants](https://peps.python.org/pep-0825/) with the new `--variant-label` and `--null-variant` flags, installing the required provider plugins into the build environment. The label is forwarded to other build backends as the `variant-label` config setting.
+
 ***Fixed:***
 
 - Fix syncing environment plugin requirements on standalone binaries built to forward to `pip`
