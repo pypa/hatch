@@ -213,6 +213,8 @@ After installing projects that define CLI scripts, each key will be available al
 cli-name = "pkg.subpkg:func"
 ```
 
+Replace `cli-name` with the command name you want to expose and `pkg.subpkg:func` with the import path of the function to call.
+
 Using the above example, running `cli-name` would essentially execute the following Python script:
 
 ```python
@@ -232,7 +234,11 @@ GUI scripts are exactly the same as CLI scripts except on Windows, where they ar
 gui-name = "pkg.subpkg:func"
 ```
 
+Replace `gui-name` with the command name you want to expose and `pkg.subpkg:func` with the import path of the function to call.
+
 ### Plugins
+
+Replace `plugin-namespace` with the entry point group used by the code that discovers your plugins. The consuming framework may prescribe this group name. Replace `plugin-name1` and `plugin-name2` with the names of your plugins, and the values with their import paths. An import path can refer to a module, like `pkg.subpkg1`, or an object within a module, like `pkg.subpkg2:func`.
 
 ```toml tab="pyproject.toml"
 [project.entry-points.plugin-namespace]
