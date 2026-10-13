@@ -101,13 +101,13 @@ class VirtualEnvironment(EnvironmentInterface):
         return UVVirtualEnv if self.use_uv else VirtualEnv
 
     def expose_uv(self):
-        if not (self.use_uv or self.uv_path):
+        if not (self.use_uv and self.uv_path):
             return nullcontext()
 
         return EnvVars({"HATCH_UV": self.uv_path})
 
     @cached_property
-    def uv_path(self) -> str:
+    def uv_path(self) -> str | None:
         if self.explicit_uv_path:
             return self.explicit_uv_path
 
@@ -203,7 +203,7 @@ class VirtualEnvironment(EnvironmentInterface):
             )
 
     def uv_pip_sync_command(self, lockfile_path: Path, *, dry_run: bool = False) -> list[str]:
-        command = [self.uv_path, "pip", "sync", str(lockfile_path)]
+        command = [self.uv_path or "uv", "pip", "sync", str(lockfile_path)]
         for extra in self.features:
             command.extend(["--extra", extra])
         for group in self.dependency_groups:
@@ -312,7 +312,7 @@ class VirtualEnvironment(EnvironmentInterface):
         if not self.use_uv:
             return super().construct_pip_install_command(args)
 
-        command = [self.uv_path, "pip", "install"]
+        command = [self.uv_path or "uv", "pip", "install"]
 
         # Default to -1 verbosity
         add_verbosity_flag(command, self.verbosity, adjustment=-1)
