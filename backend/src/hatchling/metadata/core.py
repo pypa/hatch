@@ -20,6 +20,8 @@ from hatchling.utils.fs import locate_file
 if TYPE_CHECKING:
     from packaging.requirements import Requirement
     from packaging.specifiers import SpecifierSet
+    from variantlib.models.variant import VariantDescription
+    from variantlib.pyproject_toml import VariantPyProjectToml
 
     from hatchling.metadata.plugin.interface import MetadataHookInterface
     from hatchling.utils.context import Context
@@ -59,6 +61,9 @@ class ProjectMetadata(Generic[PluginManagerBound]):
         self._version: str | None = None
         self._original_version: str | None = None
         self._project_file: str | None = None
+
+        self._variant_info: VariantPyProjectToml | None = None
+        self.variant: VariantDescription | None = None
 
         # App already loaded config
         if config is not None and root is not None:
@@ -141,6 +146,18 @@ class ProjectMetadata(Generic[PluginManagerBound]):
             self._name = normalize_project_name(name)
 
         return self._name
+
+    @property
+    def variant_info(self) -> VariantPyProjectToml | None:
+        """
+        The `variant` table from `pyproject.toml`, if the project defines one.
+        """
+        if self._variant_info is None and "variant" in self.config:
+            from variantlib.pyproject_toml import VariantPyProjectToml
+
+            self._variant_info = VariantPyProjectToml(self.config)
+
+        return self._variant_info
 
     @property
     def version(self) -> str:
@@ -281,6 +298,38 @@ class ProjectMetadata(Generic[PluginManagerBound]):
     def validate_fields(self) -> None:
         _ = self.version
         self.core.validate_fields()
+
+    def select_variant(self, label: str) -> VariantDescription:
+        """
+        Select the variant to build, by its label in the `variant.variants` table.
+
+        The selection is stored on this instance and seen by every builder that shares it.
+        """
+        variant_info = self.variant_info
+        if variant_info is None:
+            message = "Cannot select a variant because the `variant` table is not present in `pyproject.toml`"
+            raise ValueError(message)
+
+        variant = variant_info.get_variant_desc(label)
+        if variant is None:
+            message = f"Variant `{label}` is not defined in the `variant` table"
+            raise ValueError(message)
+
+        self.variant = variant
+        return self.variant
+
+    def variant_provider_requires(self, label: str) -> list[str]:
+        """
+        The provider plugin packages needed to build the variant with the given label.
+        """
+        variant_info = self.variant_info
+        if variant_info is None:
+            message = "Cannot select a variant because the `variant` table is not present in `pyproject.toml`"
+            raise ValueError(message)
+
+        variant = self.select_variant(label)
+        namespaces = {vprop.namespace for vprop in variant.properties}
+        return sorted(variant_info.get_provider_requires(namespaces))
 
 
 class BuildMetadata:
