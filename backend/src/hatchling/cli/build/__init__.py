@@ -15,6 +15,8 @@ def build_impl(
     clean_hooks_after: bool,
     clean_only: bool,
     show_dynamic_deps: bool,
+    variant_label: str | None = None,
+    null_variant: bool = False,
 ) -> None:
     import os
 
@@ -60,6 +62,20 @@ def build_impl(
     if no_hooks:
         os.environ[BuildEnvVars.NO_HOOKS] = "true"
 
+    if null_variant:
+        if variant_label is not None:
+            app.abort("Cannot use both --null-variant and --variant-label together")
+
+        variant_label = "null"
+
+    if variant_label is not None:
+        if "wheel" not in target_data:
+            app.abort("Only the `wheel` target supports variants")
+
+        # No variant in these so don't query the provider plugins
+        if not clean_only and not show_dynamic_deps:
+            metadata.select_variant(variant_label)
+
     dynamic_dependencies: dict[str, None] = {}
     for i, (target_name, versions) in enumerate(target_data.items()):
         # Separate targets with a blank line
@@ -72,7 +88,13 @@ def build_impl(
         if not (clean_only or show_dynamic_deps) and len(target_data) > 1:
             app.display_mini_header(target_name)
 
-        builder = builder_class(root, plugin_manager=plugin_manager, metadata=metadata, app=app.get_safe_application())
+        builder = builder_class(
+            root,
+            plugin_manager=plugin_manager,
+            metadata=metadata,
+            app=app.get_safe_application(),
+        )
+
         if show_dynamic_deps:
             for dependency in builder.config.dynamic_dependencies:
                 dynamic_dependencies[dependency] = None
@@ -116,4 +138,17 @@ def build_command(subparsers: argparse._SubParsersAction, defaults: Any) -> None
     parser.add_argument("--clean-only", dest="clean_only", action="store_true")
     parser.add_argument("--show-dynamic-deps", dest="show_dynamic_deps", action="store_true")
     parser.add_argument("--app", dest="called_by_app", action="store_true", help=argparse.SUPPRESS)
+
+    parser.add_argument(
+        "--null-variant",
+        dest="null_variant",
+        action="store_true",
+        help="Build the `null variant`, which is equivalent to `--variant-label null`",
+    )
+    parser.add_argument(
+        "--variant-label",
+        dest="variant_label",
+        help="Build the variant with the given label from the variant.variants table",
+    )
+
     parser.set_defaults(func=build_impl)

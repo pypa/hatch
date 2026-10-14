@@ -42,6 +42,7 @@ dependencies = [
   "tomlkit>=0.11.1",
   "tomli>=1.2.2; python_version < '3.11'",
   "trove-classifiers",
+  "variantlib>=0.2.0",
 ]
 
 [project.urls]

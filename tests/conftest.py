@@ -614,3 +614,42 @@ def cargo_available():  # no cov
         return True
 
     return shutil.which("cargo") is not None
+
+
+@pytest.fixture
+def variant_provider_plugin(temp_dir):
+    """
+    A minimal variant provider plugin for the ``stub`` namespace, importable as ``stub_variant_provider``.
+
+    It is placed on ``PYTHONPATH`` so that the subprocess spawned by variantlib's plugin loader can import it.
+    """
+    plugin_dir = temp_dir / "variant_plugins"
+    plugin_dir.mkdir()
+    plugin_dir.joinpath("stub_variant_provider.py").write_text(
+        """\
+from dataclasses import dataclass
+
+
+@dataclass
+class VariantFeatureConfig:
+    name: str
+    values: list
+    multi_value: bool
+
+
+def get_all_configs():
+    return [
+        VariantFeatureConfig("level", ["v1", "v2", "v3"], False),
+        VariantFeatureConfig("ext", ["a", "b"], True),
+    ]
+
+
+def get_supported_configs():
+    return get_all_configs()
+"""
+    )
+
+    python_path = os.environ.get("PYTHONPATH")
+    new_python_path = str(plugin_dir) if not python_path else f"{plugin_dir}{os.pathsep}{python_path}"
+    with EnvVars({"PYTHONPATH": new_python_path}):
+        yield plugin_dir

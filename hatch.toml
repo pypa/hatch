@@ -13,6 +13,8 @@ extra-dependencies = [
   "flit-core",
   "trustme",
   "editables",
+  # TODO: drop this once an updated release is available on PyPI
+  "variantlib @ git+https://github.com/wheelnext/variantlib@v0.2.0",
 ]
 extra-args = ["--dist", "worksteal"]
 

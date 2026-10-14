@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import os
 import platform
 import sys
@@ -42,6 +43,39 @@ def extract_zip(zip_path: Path, target: Path) -> None:
             member = z.getinfo(name)
             path = z.extract(member, target)
             os.chmod(path, member.external_attr >> 16)
+
+
+def variant_config(**variants):
+    return {
+        "project": {"name": "my-app", "version": "0.0.1"},
+        "tool": {"hatch": {"build": {"targets": {"wheel": {"versions": ["standard"]}}}}},
+        "variant": {
+            "default-priorities": {"namespace": ["stub"]},
+            "providers": {"stub": {"requires": ["stub-variant-provider"], "plugin-api": "stub_variant_provider"}},
+            "variants": variants,
+        },
+    }
+
+
+def create_variant_project(temp_dir: Path) -> Path:
+    project_path = temp_dir / "my-app"
+    package_init = project_path / "my_app" / "__init__.py"
+    package_init.ensure_parent_dir_exists()
+    package_init.touch()
+    return project_path
+
+
+def read_variant_metadata(artifact, builder):
+    with zipfile.ZipFile(str(artifact), "r") as zip_archive:
+        metadata_directory = f"{builder.project_id}.dist-info"
+        record = zip_archive.read(f"{metadata_directory}/RECORD").decode("utf-8")
+        variant_json = f"{metadata_directory}/variant.json"
+        if variant_json not in zip_archive.namelist():
+            assert "variant.json" not in record
+            return None
+
+        assert f"{variant_json},sha256=" in record
+        return json.loads(zip_archive.read(variant_json))
 
 
 def test_class():
@@ -4026,3 +4060,98 @@ class TestSBOMFiles:
             ],
         )
         helpers.assert_files(extraction_directory, expected_files)
+
+
+class TestVariants:
+    def test_no_variant_by_default(self, temp_dir):
+        project_path = create_variant_project(temp_dir)
+        builder = WheelBuilder(str(project_path), config=variant_config(foo={"stub": {"level": ["v3"]}}))
+
+        with project_path.as_cwd():
+            artifacts = list(builder.build())
+
+        assert builder.metadata.variant is None
+        assert artifacts == [
+            str(project_path / "dist" / f"{builder.project_id}-{get_python_versions_tag()}-none-any.whl")
+        ]
+        assert read_variant_metadata(artifacts[0], builder) is None
+
+    def test_null_variant(self, temp_dir):
+        project_path = create_variant_project(temp_dir)
+        builder = WheelBuilder(str(project_path), config=variant_config(), variant_label="null")
+
+        with project_path.as_cwd():
+            artifacts = list(builder.build())
+
+        assert artifacts == [
+            str(project_path / "dist" / f"{builder.project_id}-{get_python_versions_tag()}-none-any-null.whl")
+        ]
+
+        variant_metadata = read_variant_metadata(artifacts[0], builder)
+        assert variant_metadata["$schema"].startswith("https://")
+        assert variant_metadata["default-priorities"] == {"namespace": ["stub"]}
+        assert variant_metadata["providers"] == {
+            "stub": {"requires": ["stub-variant-provider"], "plugin-api": "stub_variant_provider"}
+        }
+        assert variant_metadata["variants"] == {"null": {}}
+
+    @pytest.mark.usefixtures("variant_provider_plugin")
+    def test_labeled_variant(self, temp_dir):
+        project_path = create_variant_project(temp_dir)
+        builder = WheelBuilder(
+            str(project_path),
+            config=variant_config(foo={"stub": {"level": ["v3"], "ext": ["b", "a"]}}),
+            variant_label="foo",
+        )
+
+        with project_path.as_cwd():
+            artifacts = list(builder.build())
+
+        assert builder.metadata.variant.label == "foo"
+        assert artifacts == [
+            str(project_path / "dist" / f"{builder.project_id}-{get_python_versions_tag()}-none-any-foo.whl")
+        ]
+
+        variant_metadata = read_variant_metadata(artifacts[0], builder)
+        # One entry, matching the label, with lexically sorted values
+        assert variant_metadata["variants"] == {"foo": {"stub": {"ext": ["a", "b"], "level": ["v3"]}}}
+
+    def test_unknown_label(self, temp_dir):
+        project_path = create_variant_project(temp_dir)
+
+        with pytest.raises(ValueError, match="Variant `bar` is not defined in the `variant` table"):
+            WheelBuilder(str(project_path), config=variant_config(foo={"stub": {"level": ["v3"]}}), variant_label="bar")
+
+    def test_no_variant_table(self, temp_dir):
+        project_path = create_variant_project(temp_dir)
+        config = {"project": {"name": "my-app", "version": "0.0.1"}}
+
+        with pytest.raises(ValueError, match="`variant` table is not present"):
+            WheelBuilder(str(project_path), config=config, variant_label="null")
+
+    @pytest.mark.usefixtures("variant_provider_plugin")
+    @pytest.mark.parametrize(
+        ("properties", "error"),
+        [
+            pytest.param(
+                {"level": ["v9"]},
+                "invalid according to their provider plugin: stub :: level :: v9",
+                id="invalid_value",
+            ),
+            pytest.param(
+                {"level": ["v1", "v2"]}, "multiple values, which is not allowed: stub :: level", id="multiple_values"
+            ),
+        ],
+    )
+    def test_rejected_properties(self, temp_dir, properties, error):
+        project_path = create_variant_project(temp_dir)
+
+        with pytest.raises(ValueError, match=error):
+            WheelBuilder(str(project_path), config=variant_config(foo={"stub": properties}), variant_label="foo")
+
+    def test_editable_rejected(self, temp_dir):
+        project_path = create_variant_project(temp_dir)
+        builder = WheelBuilder(str(project_path), config=variant_config(), variant_label="null")
+
+        with project_path.as_cwd(), pytest.raises(ValueError, match="cannot be built in editable mode"):
+            list(builder.build(versions=["editable"]))

@@ -267,6 +267,54 @@ versions = [
 
 See the [wheel](../plugins/builder/wheel.md#versions) target for a real world example.
 
+## Variants
+
+A variant wheel targets specific hardware or software, such as a particular GPU or CPU feature level. Several variants of one version can be published together. Installers that support them pick the best match for the machine, and older installers fall back to the regular wheel. See [PEP 825](https://peps.python.org/pep-0825/) for the format.
+
+Variants are only built when specified, so existing projects are unaffected.
+
+### Configuration
+
+Variant metadata lives in a top-level `variant` table:
+
+```toml config-example
+[variant.default-priorities]
+# every namespace used below, most important first
+namespace = ["nvidia"]
+
+[variant.providers.nvidia]
+# the plugin that reports what a machine supports
+requires = ["nvidia-variant-provider"]
+
+[variant.variants.cu128]
+# a buildable variant: a label and the properties it was built for
+nvidia.cuda_version_lower_bound = ["12.8"]
+nvidia.sm_arch = ["120_real", "100_real"]
+```
+
+Each provider needs exactly one of these keys:
+
+| Key | Use |
+| --- | --- |
+| `requires` | A plugin queried at install time, for anything that depends on the machine. Its entry point is inferred from the first package name, or set `plugin-api` explicitly. |
+| `static-properties` | Fixed values, for choices that need no detecting such as a BLAS library. Add `feature-order` when there is more than one feature. |
+| `build-requires` | A plugin queried only while building, whose values are written into the wheel as `static-properties`. |
+
+A provider may also set `optional = true`, which hides it unless the user opts in. The `builtin` key from the specification is not supported yet.
+
+Variant labels may use `0-9`, `a-z`, `_` and `.`, and the label `null` is reserved for the variant with no properties, which needs no entry of its own.
+
+### Building a variant
+
+```
+hatch build -t wheel --variant-label cu128
+python -m build -w -Cvariant-label=cu128
+```
+
+Either command writes `my_app-1.0-py3-none-any-cu128.whl` with a matching `variant.json` in its `.dist-info` directory. Use `--null-variant` to build the null variant. Only the `wheel` target supports variants, and editable builds always produce a regular wheel.
+
+Hatch installs the provider plugins used by the variant into the build environment, then refuses to build if they do not recognize one of its properties.
+
 ## Build hooks
 
 A build hook defines code that will be executed at various stages of the build process and can be provided by any [build hook plugin](../plugins/build-hook/reference.md). There is one built-in build hook: [custom](../plugins/build-hook/custom.md).

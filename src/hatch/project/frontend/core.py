@@ -51,11 +51,15 @@ class BuildFrontend:
             artifact_path.move(directory)
             return directory / artifact_path.name
 
-    def build_wheel(self, directory: Path) -> Path:
+    def build_wheel(self, directory: Path, config_settings: dict[str, Any] | None = None) -> Path:
         with self.__env.fs_context() as fs_context:
             output_context = fs_context.join("output")
             output_context.local_path.ensure_dir_exists()
-            script = self.scripts.build_wheel(project_root=self.__env.project_root, output_dir=output_context.env_path)
+            script = self.scripts.build_wheel(
+                project_root=self.__env.project_root,
+                output_dir=output_context.env_path,
+                config_settings=config_settings,
+            )
 
             script_context = fs_context.join("build_wheel.py")
             script_context.local_path.parent.ensure_dir_exists()
@@ -75,12 +79,17 @@ class BuildFrontend:
             artifact_path.move(directory)
             return directory / artifact_path.name
 
-    def get_requires(self, build: Literal["sdist", "wheel", "editable"]) -> list[str]:
+    def get_requires(
+        self, build: Literal["sdist", "wheel", "editable"], config_settings: dict[str, Any] | None = None
+    ) -> list[str]:
         with self.__env.fs_context() as fs_context:
             output_context = fs_context.join("output")
             output_context.local_path.ensure_dir_exists()
             script = self.scripts.get_requires(
-                project_root=self.__env.project_root, output_dir=output_context.env_path, build=build
+                project_root=self.__env.project_root,
+                output_dir=output_context.env_path,
+                build=build,
+                config_settings=config_settings,
             )
 
             script_context = fs_context.join(f"get_requires_{build}.py")
@@ -240,28 +249,43 @@ class StandardBuildFrontendScripts(BuildFrontendScripts):
         project_root: str,
         output_dir: str,
         build: Literal["sdist", "wheel", "editable"],
+        config_settings: dict[str, Any] | None = None,
     ) -> str:
         return self.get_runner_script(
             project_root=project_root,
             output_dir=output_dir,
             hook=f"get_requires_for_build_{build}",
-            kwargs={"config_settings": None},
+            kwargs={"config_settings": config_settings},
         )
 
-    def prepare_metadata(self, *, output_dir: str, project_root: str, editable: bool = False) -> str:
+    def prepare_metadata(
+        self,
+        *,
+        output_dir: str,
+        project_root: str,
+        editable: bool = False,
+        config_settings: dict[str, Any] | None = None,
+    ) -> str:
         return self.get_runner_script(
             project_root=project_root,
             output_dir=output_dir,
             hook="prepare_metadata_for_build_editable" if editable else "prepare_metadata_for_build_wheel",
-            kwargs={"work_dir": "metadata_directory", "config_settings": None, "_allow_fallback": True},
+            kwargs={"work_dir": "metadata_directory", "config_settings": config_settings, "_allow_fallback": True},
         )
 
-    def build_wheel(self, *, output_dir: str, project_root: str, editable: bool = False) -> str:
+    def build_wheel(
+        self,
+        *,
+        output_dir: str,
+        project_root: str,
+        editable: bool = False,
+        config_settings: dict[str, Any] | None = None,
+    ) -> str:
         return self.get_runner_script(
             project_root=project_root,
             output_dir=output_dir,
             hook="build_editable" if editable else "build_wheel",
-            kwargs={"work_dir": "wheel_directory", "config_settings": None, "metadata_directory": None},
+            kwargs={"work_dir": "wheel_directory", "config_settings": config_settings, "metadata_directory": None},
         )
 
     def build_sdist(self, *, output_dir: str, project_root: str) -> str:

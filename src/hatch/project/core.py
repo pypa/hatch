@@ -255,7 +255,9 @@ class Project:
 
             self.env_metadata.update_dependency_hash(environment, new_dep_hash)
 
-    def prepare_build_environment(self, *, targets: list[str] | None = None, keep_env: bool = False) -> None:
+    def prepare_build_environment(
+        self, *, targets: list[str] | None = None, keep_env: bool = False, variant_label: str | None = None
+    ) -> None:
         from hatch.project.constants import BUILD_BACKEND, BuildEnvVars
         from hatch.utils.structures import EnvVars
 
@@ -275,12 +277,15 @@ class Project:
 
             additional_dependencies: list[str] = []
             with self.app.status("Inspecting build dependencies"):
+                config_settings = {"variant-label": variant_label} if variant_label is not None else None
                 if build_backend != BUILD_BACKEND:
                     for target in targets:
                         if target == "sdist":
                             additional_dependencies.extend(self.build_frontend.get_requires("sdist"))
                         elif target == "wheel":
-                            additional_dependencies.extend(self.build_frontend.get_requires("wheel"))
+                            additional_dependencies.extend(
+                                self.build_frontend.get_requires("wheel", config_settings=config_settings)
+                            )
                         else:
                             self.app.abort(f"Target `{target}` is not supported by `{build_backend}`")
                 else:
@@ -291,9 +296,21 @@ class Project:
                                 self.metadata.context.format(dep) for dep in required_build_deps
                             )
 
+                    # Metadata is already loaded, so skip the hook
+                    if variant_label is not None and "wheel" in targets:
+                        additional_dependencies.extend(self.metadata.variant_provider_requires(variant_label))
+
             if additional_dependencies:
                 from hatch.dep.core import Dependency
 
+                for cached in (
+                    "dependencies_complex",
+                    "dependencies",
+                    "all_dependencies_complex",
+                    "all_dependencies",
+                    "missing_dependencies",
+                ):
+                    self.build_env.__dict__.pop(cached, None)
                 self.build_env.additional_dependencies.extend(map(Dependency, additional_dependencies))
                 with self.build_env.app_status_dependency_synchronization():
                     self.build_env.sync_dependencies()

@@ -28,6 +28,10 @@ The builder plugin name is `wheel`.
 !!! note
     Many build frontends will build the wheel from a source distribution. This is the recommended approach, but it means you need to ensure the SBOM files passed to `sbom-files` are also [included in the source distribution](https://hatch.pypa.io/latest/config/build/#file-selection).
 
+## Variants
+
+When a variant label is requested, the builder appends it to the filename and adds a `variant.json` file to the `.dist-info` directory. The label must be `null` or a key of the [`variant.variants`](../../config/build.md#variants) table, and is passed either as `--variant-label` to `hatch build` or as the `variant-label` config setting.
+
 ## Versions
 
 | Version | Description |
