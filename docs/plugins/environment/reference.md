@@ -24,9 +24,9 @@ requires = [
 
 ## Life cycle
 
-Whenever an environment is used, the following logic is performed:
+Whenever an environment is used, the following logic is performed while holding a lock on the environment, so that concurrent Hatch processes prepare it one at a time:
 
-::: hatch.project.core.Project.prepare_environment
+::: hatch.project.core.Project._prepare_environment_unlocked
     options:
       show_root_heading: false
       show_root_toc_entry: false
