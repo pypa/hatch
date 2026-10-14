@@ -28,7 +28,7 @@ Hatch is a modern, extensible Python project manager.
 - Easy [publishing](https://hatch.pypa.io/latest/publish/) to PyPI or other indices
 - [Version](https://hatch.pypa.io/latest/version/) management
 - Best practice [project generation](https://hatch.pypa.io/latest/config/project-templates/)
-- Responsive [CLI](https://hatch.pypa.io/latest/cli/about/), ~2-3x [faster](https://github.com/pypa/hatch/actions/workflows/cli.yml) than equivalent tools
+- Responsive [CLI](https://hatch.pypa.io/latest/cli/about/)
 
 See the [Why Hatch?](https://hatch.pypa.io/latest/why/) page for more information.
 
