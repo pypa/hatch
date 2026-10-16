@@ -258,14 +258,16 @@ class ProjectMetadata(Generic[PluginManagerBound]):
             # Save the fields
             _ = self.dynamic
 
+            # Snapshot the static values
+            extended_fields = {
+                field: deepcopy(self.core_raw_metadata[field])
+                for field in METADATA_2_6_EXTENDABLE_FIELDS
+                if field in self.core_raw_metadata and field in metadata.dynamic
+            }
+
             metadata_hooks = self.hatch.metadata.hooks
             if metadata_hooks:
                 static_fields = set(self.core_raw_metadata)
-                extended_fields = {
-                    field: deepcopy(self.core_raw_metadata[field])
-                    for field in METADATA_2_6_EXTENDABLE_FIELDS
-                    if field in self.core_raw_metadata and field in metadata.dynamic
-                }
                 if "version" in self.hatch.config:
                     self._version = self._get_version(metadata)
                     self.core_raw_metadata["version"] = self.version
@@ -275,9 +277,9 @@ class ProjectMetadata(Generic[PluginManagerBound]):
                         metadata_hook.update(self.core_raw_metadata)
                         metadata.add_known_classifiers(metadata_hook.get_known_classifiers())
 
+                    # Validate PEP 808 restrictions
                     for field, before in extended_fields.items():
                         _check_only_extended(field, before, self.core_raw_metadata[field])
-                        metadata.dynamic.remove(field)
 
                     new_fields = set(self.core_raw_metadata) - static_fields
                     for new_field in new_fields:
@@ -289,6 +291,10 @@ class ProjectMetadata(Generic[PluginManagerBound]):
                                 f"listed in `project.dynamic`"
                             )
                             raise ValueError(message)
+
+            # Whether or not hooks ran, remove 'Dynamic' entries from core metadata
+            for field in extended_fields:
+                metadata.dynamic.remove(field)
 
             self._core = metadata
 

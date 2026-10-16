@@ -1880,6 +1880,22 @@ class TestExtendedFields:
             assert core.import_namespaces == ["ns", "ns_extra"]
             assert core.dynamic == []
 
+    def test_no_hooks_no_dynamic_core_metadata(self, temp_dir):
+        metadata = ProjectMetadata(
+            str(temp_dir),
+            PluginManager(),
+            {
+                "project": {
+                    "name": "foo",
+                    "version": "0.0.1",
+                    "keywords": ["a"],
+                    "dynamic": ["keywords"],
+                },
+            },
+        )
+        with temp_dir.as_cwd():
+            assert not metadata.core.dynamic, "Core metadata 'Dynamic' expected to be empty"
+
     @pytest.mark.parametrize(
         ("update", "message"),
         [
