@@ -182,3 +182,11 @@ exclude_lines = [
                 **template_config,
             ),
         )
+
+
+class Gitignore(File):
+    def __init__(self, template_config, plugin_config):
+        super().__init__(
+            Path(".gitignore"),
+            "__pycache__/\ndist/\n",
+        )
