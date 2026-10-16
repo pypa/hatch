@@ -90,7 +90,7 @@ class PinHook(MetadataHookInterface):
 
 The built distribution then requires `torch`, `packaging`, and `torch==<the version installed at build time>`.
 
-The build fails if the hook breaks these rules.
+The build fails if the hook breaks these rules. Once the hooks have run, these fields are not marked `Dynamic` in the built `METADATA`.
 
 The following fields can be extended this way:
 
