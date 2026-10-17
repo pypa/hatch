@@ -463,6 +463,45 @@ def test_check_lockfile_stale(hatch, helpers, temp_dir, config_file):
     assert "not up to date" in result.output
 
 
+def test_check_lockfile_stale_after_dependency_change(hatch, helpers, temp_dir, config_file):
+    config_file.model.template.plugins["default"]["tests"] = False
+    config_file.save()
+
+    project_name = "My.App"
+
+    with temp_dir.as_cwd():
+        result = hatch("new", project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
+    data_path.mkdir()
+
+    project = Project(project_path)
+    helpers.update_project_environment(
+        project,
+        "default",
+        {"skip-install": True, "dependencies": ["requests"], "locked": True, **project.config.envs["default"]},
+    )
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        assert hatch("env", "lock", "default").exit_code == 0
+        lockfile = (project_path / "pylock.toml").read_text(encoding="utf-8")
+
+        helpers.update_project_environment(
+            project,
+            "default",
+            {"skip-install": True, "dependencies": ["requests", "six"], "locked": True},
+        )
+        result = hatch("env", "lock", "default", "--check")
+
+    assert result.exit_code == 1, result.output
+    assert "not up to date" in result.output
+    # Checking must not rewrite the lockfile
+    assert (project_path / "pylock.toml").read_text(encoding="utf-8") == lockfile
+
+
 @pytest.mark.usefixtures("mock_locker")
 def test_export(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins["default"]["tests"] = False
