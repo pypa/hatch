@@ -12,6 +12,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Fix syncing environment plugin requirements on standalone binaries built to forward to `pip`
 
+- Don't prompt for a description when running `hatch new --init <name>` without the `-i`/`--interactive` flag.
+
 ## [1.18.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.18.1) - 2026-09-16 ## {: #hatch-v1.18.1 }
 
 ***Added:***
