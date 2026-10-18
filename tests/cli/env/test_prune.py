@@ -89,6 +89,8 @@ def test_all(hatch, helpers, temp_dir_data, config_file):
     )
 
     assert not storage_path.is_dir()
+    # Issue #737: the project_name directory should also be cleaned up
+    assert not project_data_path.is_dir()
 
 
 def test_incompatible_ok(hatch, helpers, temp_dir_data, config_file):
