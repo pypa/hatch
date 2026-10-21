@@ -6,7 +6,7 @@ from hatchling.cli.metadata import metadata_command
 from hatchling.cli.version import version_command
 
 
-def hatchling() -> int:
+def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="hatchling", allow_abbrev=False)
     subparsers = parser.add_subparsers()
 
@@ -17,6 +17,11 @@ def hatchling() -> int:
     metadata_command(subparsers, defaults)
     version_command(subparsers, defaults)
 
+    return parser
+
+
+def hatchling() -> int:
+    parser = get_parser()
     kwargs = vars(parser.parse_args())
     try:
         command = kwargs.pop("func")

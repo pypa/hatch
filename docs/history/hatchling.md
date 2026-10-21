@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Added:***
+
+- Add `hatchling.cli.get_parser` to allow generating documentation, such as a manual page, from the command line interface
+
 ## [1.32.4](https://github.com/pypa/hatch/releases/tag/hatchling-v1.32.4) - 2026-09-20 ## {: #hatchling-v1.32.4 }
 
 ***Fixed:***
