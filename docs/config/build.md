@@ -113,7 +113,7 @@ For example, if there was a directory alongside the project root named `artifact
 
 !!! note
     - Files must be mapped exactly to their desired paths, not to directories.
-    - The contents of directory sources are recursively included.
+    - The contents of directory sources are recursively included, subject to the [`exclude`](#patterns) and [`artifacts`](#artifacts) options.
     - To map directory contents directly to the root use `/` (a forward slash).
     - Sources that do not exist will raise an error.
 
