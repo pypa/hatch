@@ -1323,7 +1323,8 @@ class TestBuildStandard:
         stat = os.stat(str(extraction_directory / builder.project_id / "PKG-INFO"))
         assert stat.st_mtime == get_reproducible_timestamp()
 
-    def test_default_vcs_git_exclusion_files(self, hatch, helpers, temp_dir, config_file):
+    @pytest.mark.parametrize("location", ["project", "parent"])
+    def test_default_vcs_git_exclusion_files(self, hatch, helpers, temp_dir, config_file, location):
         config_file.model.template.plugins["default"]["src-layout"] = False
         config_file.save()
 
@@ -1336,8 +1337,13 @@ class TestBuildStandard:
 
         project_path = temp_dir / "my-app"
 
-        (project_path / ".gitignore").write_text("*.pyc\n*.so\n*.h\n")
-        (project_path / ".git").write_text("gitdir: ../.git/worktrees/my-app\n")
+        if location == "project":
+            vcs_root = project_path
+            (vcs_root / ".git").write_text("gitdir: ../.git/worktrees/my-app\n")
+        else:
+            vcs_root = temp_dir
+            (vcs_root / ".git").mkdir()
+        (vcs_root / ".gitignore").write_text("*.pyc\n*.so\n*.h\n")
         (project_path / "my_app" / "lib.so").touch()
         (project_path / "my_app" / "lib.h").touch()
 
@@ -1378,9 +1384,12 @@ class TestBuildStandard:
         expected_files = helpers.get_template_files(
             "sdist.standard_default_vcs_git_exclusion_files", project_name, relative_root=builder.project_id
         )
+        if location == "parent":
+            expected_files = [file for file in expected_files if file.path.name != ".gitignore"]
         helpers.assert_files(extraction_directory, expected_files)
 
-    def test_default_vcs_mercurial_exclusion_files(self, hatch, helpers, temp_dir, config_file):
+    @pytest.mark.parametrize("location", ["project", "parent"])
+    def test_default_vcs_mercurial_exclusion_files(self, hatch, helpers, temp_dir, config_file, location):
         config_file.model.template.plugins["default"]["src-layout"] = False
         config_file.save()
 
@@ -1393,7 +1402,7 @@ class TestBuildStandard:
 
         project_path = temp_dir / "my-app"
 
-        vcs_ignore_file = temp_dir / ".hgignore"
+        vcs_ignore_file = (project_path if location == "project" else temp_dir) / ".hgignore"
         vcs_ignore_file.write_text(
             helpers.dedent(
                 """
@@ -1450,6 +1459,8 @@ class TestBuildStandard:
         expected_files = helpers.get_template_files(
             "sdist.standard_default_vcs_mercurial_exclusion_files", project_name, relative_root=builder.project_id
         )
+        if location == "parent":
+            expected_files = [file for file in expected_files if file.path.name != ".hgignore"]
         helpers.assert_files(extraction_directory, expected_files)
 
     def test_no_strict_naming(self, hatch, helpers, temp_dir, config_file):

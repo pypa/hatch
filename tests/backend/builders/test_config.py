@@ -1739,8 +1739,8 @@ class TestPatternExclude:
 
         builder = MockBuilder(str(isolation))
 
-        assert isinstance(builder.config.exclude_spec, pathspec.GitIgnoreSpec)
-        assert builder.config.exclude_spec.match_file(f"dist{separator}file.py")
+        assert builder.config.path_is_excluded(f"dist{separator}file.py")
+        assert not builder.config.path_is_excluded(f"package{separator}file.py")
 
     def test_global_invalid_type(self, isolation):
         config = {"tool": {"hatch": {"build": {"exclude": ""}}}}
@@ -1943,7 +1943,8 @@ class TestPatternExclude:
         builder = MockBuilder(str(isolation))
         builder.config.default_global_exclude = list
 
-        assert builder.config.exclude_spec is None
+        assert not builder.config.path_is_excluded("dist/file.py")
+        assert not builder.config.path_is_excluded("file.pyc")
         assert not builder.config.path_is_excluded(".git/file")
 
 

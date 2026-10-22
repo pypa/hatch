@@ -8,6 +8,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Changed:***
+
+- Stop automatically copying `.gitignore` and `.hgignore` files from above the project root into source distributions. Rules needed after extraction must be in project-local ignore files or build configuration.
+- Require `pathspec>=0.12.1` to use its public match results when applying scoped ignore rules.
+
+***Fixed:***
+
+- Preserve local VCS ignore rules when building beneath directories such as `dist`, `build`, `var`, or `lib`, preventing ignored files such as `.env` from being included in source distributions.
+- Treat projects excluded by an enclosing repository as independent of automatically discovered parent ignore files and configuration.
+- Match inherited VCS ignore rules relative to the ignore file's directory and prevent extracted distributions from inheriting unrelated parent rules.
+- Apply Git ignore inheritance across ancestor and nested files, including negations and excluded directory boundaries, and preserve nested ignore files in source distributions.
+
 ## [1.32.4](https://github.com/pypa/hatch/releases/tag/hatchling-v1.32.4) - 2026-09-20 ## {: #hatchling-v1.32.4 }
 
 ***Fixed:***
