@@ -4268,6 +4268,90 @@ class TestEnvironmentSources:
         assert deps[0].url.startswith("file://")
         assert deps[0].editable is True
 
+    @pytest.mark.parametrize(
+        ("source", "editable"), [("./packages/dep1", True), ({"path": "./packages/dep1", "editable": False}, False)]
+    )
+    def test_path_source_editable_in_all_dependencies(
+        self, isolation, isolated_data_dir, platform, temp_application, source, editable
+    ):
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {
+                "hatch": {
+                    "envs": {
+                        "default": {
+                            "skip-install": True,
+                            "dependencies": ["dep1"],
+                            "sources": {"dep1": source},
+                        }
+                    },
+                }
+            },
+        }
+        project = Project(isolation, config=config)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        deps = [dep for dep in environment.all_dependencies_complex if dep.name == "dep1"]
+        assert len(deps) == 1
+        assert deps[0].path == isolation / "packages" / "dep1"
+        assert deps[0].editable is editable
+
+    def test_path_source_editable_with_same_name_from_local_extra(
+        self, isolation, isolated_data_dir, platform, temp_application
+    ):
+        config = {
+            "project": {
+                "name": "my_app",
+                "version": "0.0.1",
+                "optional-dependencies": {"extra1": ["dep1>=1"]},
+            },
+            "tool": {
+                "hatch": {
+                    "envs": {
+                        "default": {
+                            "skip-install": False,
+                            "dependencies": ["dep1", "my_app[extra1]"],
+                            "sources": {"dep1": "./packages/dep1"},
+                        }
+                    },
+                }
+            },
+        }
+        project = Project(isolation, config=config)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        deps = {str(dep): dep for dep in environment.all_dependencies_complex if dep.name == "dep1"}
+        sourced = [dep for dep in deps.values() if dep.url is not None]
+        assert len(sourced) == 1
+        assert sourced[0].editable is True
+        assert deps["dep1>=1"].editable is False
+
     def test_index_source_becomes_install_flag(self, isolation, isolated_data_dir, platform, temp_application):
         config = {
             "project": {"name": "my_app", "version": "0.0.1", "dependencies": ["dep1"]},
