@@ -11,6 +11,18 @@ Unless an environment is [chosen explicitly](#selection), Hatch will use the `de
 
 ## Creation
 
+The `env create` command creates environments from your project configuration; it does not add or modify that configuration. Before creating a custom environment, define it in one of your project configuration files:
+
+```toml tab="pyproject.toml"
+[tool.hatch.envs.env-name]
+```
+
+```toml tab="hatch.toml"
+[envs.env-name]
+```
+
+Then run `hatch env create env-name`. The `default` environment is available without an explicit configuration table.
+
 You can create environments by using the [`env create`](cli/reference.md#hatch-env-create) command. Let's enter the directory of the project we created in the [setup phase](intro.md#new-project):
 
 ```console
