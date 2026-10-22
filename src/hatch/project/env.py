@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from contextlib import contextmanager
 from functools import cached_property
 from os import environ
 from typing import TYPE_CHECKING, Any
@@ -7,6 +8,8 @@ from typing import TYPE_CHECKING, Any
 from hatch.utils.platform import get_platform_name
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
+
     from hatch.env.plugin.interface import EnvironmentInterface
     from hatch.utils.fs import Path
 
@@ -410,10 +413,71 @@ TYPE_OVERRIDES = {
 }
 
 
+# Tokens of the environment locks held by ancestor Hatch processes, or by an enclosing `lock()` call in the current
+# process, keyed by lock file (it's a JSON map {lockfile_path: token})
+ANCESTOR_HELD_LOCKS_ENV_VAR = "_HATCH_ANCESTOR_HELD_ENV_LOCKS"
+
+
 class EnvironmentMetadata:
     def __init__(self, data_dir: Path, project_path: Path):
         self.__data_dir = data_dir
         self.__project_path = project_path
+
+    @contextmanager
+    def lock(self, environment: EnvironmentInterface) -> Generator[None, None, None]:
+        """
+        Prevent other processes from preparing the environment at the same time.
+
+        While this process holds the lock, the processes it starts, such as pre-install and post-install commands,
+        and their descendants inherit it through an environment variable. If one of them runs Hatch for the same
+        environment, that invocation proceeds without waiting: this process is blocked until it finishes, so waiting
+        would deadlock.
+
+        Each hold writes a random token to an owner file next to the lock and clears it before releasing. A descendant
+        proceeds only while the owner file contains the token it inherited, so one that outlives the hold waits like
+        any other process.
+        """
+        import json
+        import secrets
+
+        from filelock import FileLock, Timeout
+
+        from hatch.utils.structures import EnvVars
+
+        metadata_file = self._metadata_file(environment)
+        lock_file = str(metadata_file.with_suffix(".lock"))
+        owner_file = metadata_file.with_suffix(".owner")
+        ancestor_held_locks = json.loads(environ.get(ANCESTOR_HELD_LOCKS_ENV_VAR, "{}"))
+
+        metadata_file.parent.ensure_dir_exists()
+        lock = FileLock(lock_file)
+        try:
+            lock.acquire(timeout=0)
+        except Timeout:
+            ancestor_token = ancestor_held_locks.get(lock_file)
+            try:
+                owner_token = owner_file.read_text()
+            except OSError:
+                owner_token = None
+
+            if ancestor_token is not None and owner_token == ancestor_token:
+                yield
+                return
+
+            with environment.app.status(f"Waiting for another process to prepare environment: {environment.name}"):
+                lock.acquire()
+
+        token = secrets.token_hex(16)
+        try:
+            owner_file.write_text(token)
+            with EnvVars({ANCESTOR_HELD_LOCKS_ENV_VAR: json.dumps({**ancestor_held_locks, lock_file: token})}):
+                yield
+        finally:
+            # Clear rather than delete the owner file: on Windows, deleting fails while a descendant reads it
+            try:
+                owner_file.write_text("")
+            finally:
+                lock.release()
 
     def dependency_hash(self, environment: EnvironmentInterface) -> str:
         return self._read(environment).get("dependency_hash", "")
