@@ -95,29 +95,24 @@ class StaticAnalysisEnvironment:
 
         old_contents = self.user_config_file.read_text()
         config_path = str(self.internal_config_file).replace("\\", "\\\\")
-        if self.user_config_file.name == "pyproject.toml":
-            lines = old_contents.splitlines()
-            try:
-                index = lines.index("[tool.ruff]")
-            except ValueError:
-                lines.extend((
-                    "",
-                    "[tool.ruff]",
-                    f'extend = "{config_path}"',
-                ))
-            else:
-                # Only insert if extend is not already present in the [tool.ruff] section
-                next_section = next(
-                    (i for i in range(index + 1, len(lines)) if lines[i].startswith("[")),
-                    len(lines),
-                )
-                section_lines = lines[index + 1 : next_section]
-                if not any(line.startswith("extend") for line in section_lines):
+
+        if not self.user_config_extends:
+            if self.user_config_file.name == "pyproject.toml":
+                lines = old_contents.splitlines()
+                try:
+                    index = lines.index("[tool.ruff]")
+                except ValueError:
+                    lines.extend((
+                        "",
+                        "[tool.ruff]",
+                        f'extend = "{config_path}"',
+                    ))
+                else:
                     lines.insert(index + 1, f'extend = "{config_path}"')
 
-            contents = "\n".join(lines)
-        elif not any(line.startswith("extend") for line in old_contents.splitlines()):
-            contents = f'extend = "{config_path}"\n{old_contents}'
+                contents = "\n".join(lines)
+            else:
+                contents = f'extend = "{config_path}"\n{old_contents}'
         else:
             contents = old_contents
 
@@ -147,6 +142,15 @@ class StaticAnalysisEnvironment:
         from hatch.utils.toml import load_toml_data
 
         return load_toml_data(self.user_config_file.read_text())
+
+    @cached_property
+    def user_config_extends(self) -> bool:
+        """Returns True if the user configuration extends another file."""
+        if self.user_config_file is None:
+            return False
+        if self.user_config_file.name == "pyproject.toml":
+            return "extend" in self.user_config.get("tool", {}).get("ruff", {})
+        return "extend" in self.user_config
 
     @cached_property
     def linter_preview(self) -> bool:
