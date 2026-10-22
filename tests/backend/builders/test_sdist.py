@@ -3,6 +3,8 @@ import tarfile
 
 import pytest
 
+from hatch.template import File
+from hatch.utils.fs import Path
 from hatchling.builders.plugin.interface import BuilderInterface
 from hatchling.builders.sdist import SdistBuilder
 from hatchling.builders.utils import get_reproducible_timestamp
@@ -1450,6 +1452,78 @@ class TestBuildStandard:
         expected_files = helpers.get_template_files(
             "sdist.standard_default_vcs_mercurial_exclusion_files", project_name, relative_root=builder.project_id
         )
+        helpers.assert_files(extraction_directory, expected_files)
+
+    @pytest.mark.parametrize("cache_in_gitignore", [False, True])
+    def test_include_vanished_directory(self, hatch, helpers, temp_dir, config_file, mocker, cache_in_gitignore):
+        config_file.model.template.plugins["default"]["src-layout"] = False
+        config_file.save()
+
+        project_name = "My.App"
+
+        with temp_dir.as_cwd():
+            result = hatch("new", project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / "my-app"
+        if cache_in_gitignore:
+            (project_path / ".gitignore").write_text(".cache/\n")
+
+        build_env = project_path / ".cache" / "uv" / "builds-v0" / ".tmp1234"
+        (build_env / "lib" / "bar" / "baz").ensure_dir_exists()
+        (build_env / "lib" / "foo" / "baz").ensure_dir_exists()
+
+        walk = os.walk
+
+        def walk_and_remove_build_env(top, *args, **kwargs):
+            for root, dirs, files in walk(top, *args, **kwargs):
+                # Simulate the build environment being removed concurrently, right after this directory was listed
+                if root == str(build_env / "lib" / "bar"):
+                    build_env.remove()
+
+                yield root, dirs, files
+
+        mocker.patch("os.walk", side_effect=walk_and_remove_build_env)
+
+        config = {
+            "project": {"name": project_name, "dynamic": ["version"], "readme": "README.md"},
+            "tool": {
+                "hatch": {
+                    "version": {"path": "my_app/__about__.py"},
+                    "build": {"targets": {"sdist": {"versions": ["standard"], "include": ["my_app"]}}},
+                },
+            },
+        }
+        builder = SdistBuilder(str(project_path), config=config)
+
+        build_path = project_path / "dist"
+
+        with project_path.as_cwd():
+            artifacts = list(builder.build())
+
+        assert not build_env.exists()
+        assert len(artifacts) == 1
+        expected_artifact = artifacts[0]
+
+        build_artifacts = list(build_path.iterdir())
+        assert len(build_artifacts) == 1
+        assert expected_artifact == str(build_artifacts[0])
+        assert expected_artifact == str(build_path / f"{builder.project_id}.tar.gz")
+
+        extraction_directory = temp_dir / "_archive"
+        extraction_directory.mkdir()
+
+        with tarfile.open(str(expected_artifact), "r:gz") as tar_archive:
+            tar_archive.extractall(str(extraction_directory), **helpers.tarfile_extraction_compat_options())
+
+        expected_files = helpers.get_template_files(
+            "sdist.standard_include", project_name, relative_root=builder.project_id
+        )
+        if cache_in_gitignore:
+            # VCS ignore files are always included in source distributions
+            expected_files.append(File(Path(builder.project_id, ".gitignore"), ".cache/\n"))
+
         helpers.assert_files(extraction_directory, expected_files)
 
     def test_no_strict_naming(self, hatch, helpers, temp_dir, config_file):
