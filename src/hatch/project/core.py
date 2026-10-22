@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import re
 from collections import defaultdict
-from collections.abc import Generator
 from contextlib import contextmanager
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, cast
@@ -295,7 +294,7 @@ class Project:
             if additional_dependencies:
                 from hatch.dep.core import Dependency
 
-                self.build_env.additional_dependencies.extend(map(Dependency, additional_dependencies))
+                self.build_env.add_additional_dependencies([Dependency(dep) for dep in additional_dependencies])
                 with self.build_env.app_status_dependency_synchronization():
                     self.build_env.sync_dependencies()
 
@@ -417,6 +416,19 @@ class Project:
             self._check_hatch_version()
 
         return self._metadata
+
+    @cached_property
+    def defines_project(self) -> bool:
+        """
+        Whether the project file defines a `project` table itself, as opposed to one being
+        synthesized for environment management only.
+        """
+        if self.root is None or self._project_file_path is None:
+            return False
+
+        from hatch.utils.toml import load_toml_file
+
+        return "project" in load_toml_file(str(self._project_file_path))
 
     @property
     def raw_config(self):

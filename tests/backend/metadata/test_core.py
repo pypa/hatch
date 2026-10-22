@@ -228,6 +228,15 @@ class TestVersion:
         assert metadata.version == metadata.version == "0.1.0.0rc1"
         assert metadata.core.version == metadata.core.version == "0.1.0.0-rc.1"
 
+    @pytest.mark.parametrize("whitespace", ["", "\n", "\r\n", " \t\r\n\f\v"])
+    def test_original_version_preserved(self, isolation, whitespace):
+        metadata = ProjectMetadata(
+            str(isolation), None, {"project": {"version": f"{whitespace}2026.08.10{whitespace}"}}
+        )
+
+        assert metadata.version == "2026.8.10"
+        assert metadata.original_version == metadata.original_version == "2026.08.10"
+
     def test_dynamic_missing(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {"project": {"dynamic": ["version"]}, "tool": {"hatch": {}}})
 
@@ -300,6 +309,25 @@ class TestVersion:
             ValueError, match="Invalid version `0..0` from source `regex`, see https://peps.python.org/pep-0440/"
         ):
             _ = metadata.version
+
+    @pytest.mark.parametrize("constructor", get_core_metadata_constructors().values())
+    def test_dynamic_source_regex_trailing_newline(self, constructor, temp_dir):
+        metadata = ProjectMetadata(
+            str(temp_dir),
+            PluginManager(),
+            {
+                "project": {"name": "my-app", "dynamic": ["version"], "dependencies": ["anyio==4.3.0"]},
+                "tool": {"hatch": {"version": {"path": "VERSION", "pattern": "(?P<version>[^']+)"}}},
+            },
+        )
+        (temp_dir / "VERSION").write_text("2026.08.10\n")
+
+        assert metadata.version == "2026.8.10"
+        assert project_metadata_from_core_metadata(constructor(metadata)) == {
+            "name": "my-app",
+            "version": "2026.08.10",
+            "dependencies": ["anyio==4.3.0"],
+        }
 
     def test_dynamic_error(self, isolation):
         metadata = ProjectMetadata(
@@ -1420,7 +1448,7 @@ class TestImportNames:
         with pytest.raises(TypeError, match="Field `project.import-names` must be an array"):
             _ = metadata.core.import_names
 
-    @pytest.mark.parametrize("entry", [5, "1_foo", "foo.1_bar"])
+    @pytest.mark.parametrize("entry", [5, "1_foo", "foo.1_bar", "foo ; not-valid"])
     def test_entry_not_valid_import_name(self, isolation, entry):
         metadata = ProjectMetadata(str(isolation), None, {"project": {"import-names": [entry]}})
 
@@ -1433,6 +1461,11 @@ class TestImportNames:
         metadata = ProjectMetadata(str(isolation), None, {"project": {"import-names": ["foo", "_foo"]}})
 
         assert metadata.core.import_names == ["_foo", "foo"]
+
+    def test_private_import_name(self, isolation):
+        metadata = ProjectMetadata(str(isolation), None, {"project": {"import-names": ["foo", "_foo ; private"]}})
+
+        assert metadata.core.import_names == ["_foo ; private", "foo"]
 
 
 class TestImportNamespaces:
@@ -1453,7 +1486,7 @@ class TestImportNamespaces:
         with pytest.raises(TypeError, match="Field `project.import-namespaces` must be an array"):
             _ = metadata.core.import_namespaces
 
-    @pytest.mark.parametrize("entry", [5, "1_foo", "foo.1_bar"])
+    @pytest.mark.parametrize("entry", [5, "1_foo", "foo.1_bar", "foo.bar ; not-valid"])
     def test_entry_not_valid_import_name(self, isolation, entry):
         metadata = ProjectMetadata(str(isolation), None, {"project": {"import-namespaces": [entry]}})
 
@@ -1466,6 +1499,15 @@ class TestImportNamespaces:
         metadata = ProjectMetadata(str(isolation), None, {"project": {"import-namespaces": ["foo", "foo.bar"]}})
 
         assert metadata.core.import_namespaces == ["foo", "foo.bar"]
+
+    def test_private_import_namespace(self, isolation):
+        metadata = ProjectMetadata(
+            str(isolation),
+            None,
+            {"project": {"import-namespaces": ["foo", "foo.bar", "foo.bar ; private"]}},
+        )
+
+        assert metadata.core.import_namespaces == ["foo", "foo.bar", "foo.bar ; private"]
 
     def test_import_names_and_import_namespaces_conflict(self, isolation):
         metadata = ProjectMetadata(

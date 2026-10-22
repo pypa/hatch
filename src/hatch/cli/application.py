@@ -75,9 +75,13 @@ class Application(Terminal):
                 # foreground process group; without this the parent raises KeyboardInterrupt
                 # and aborts even though the child (e.g. a Python REPL) may choose to stay
                 # alive.  The child's exit code is still used to determine success/failure.
+                # A handler that does nothing is used rather than `signal.SIG_IGN` because
+                # handled signals are reset to their default action when the child is
+                # executed whereas ignored signals stay ignored, which would otherwise make
+                # the child itself unable to be interrupted.
                 original_sigint = signal.getsignal(signal.SIGINT)
                 try:
-                    signal.signal(signal.SIGINT, signal.SIG_IGN)
+                    signal.signal(signal.SIGINT, lambda *_: None)
                     process = context.env.run_shell_command(command)
                 finally:
                     # Restore the original handler in finally so the parent stays
@@ -165,22 +169,22 @@ class Application(Terminal):
         if app_path := os.environ.get("PYAPP"):
             from hatch.utils.env import PythonInfo
 
-            management_command = os.environ["PYAPP_COMMAND_NAME"]
+            management_command = os.environ.get("PYAPP_COMMAND_NAME", "self")
             executable = self.platform.check_command_output([app_path, management_command, "python-path"]).strip()
             python_info = PythonInfo(self.platform, executable=executable)
             distributions = InstalledDistributions(sys_path=python_info.sys_path)
             if distributions.dependencies_in_sync(dependencies):
                 return
-
-            pip_command = [app_path, management_command, "pip"]
+            pip_command = [app_path, management_command, "pip", "install", "--disable-pip-version-check"]
         else:
             distributions = InstalledDistributions()
             if distributions.dependencies_in_sync(dependencies):
                 return
 
-            pip_command = [sys.executable, "-u", "-m", "pip"]
+            from uv import find_uv_bin
 
-        pip_command.extend(["install", "--disable-pip-version-check"])
+            uv_bin = find_uv_bin()
+            pip_command = [uv_bin, "pip", "install", "--python", sys.executable]
 
         # Default to -1 verbosity
         add_verbosity_flag(pip_command, self.verbosity, adjustment=-1)

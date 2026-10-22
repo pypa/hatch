@@ -45,4 +45,6 @@ class SystemEnvironment(EnvironmentInterface):
         return distributions.dependencies_in_sync(self.dependencies_complex)
 
     def sync_dependencies(self):
-        self.platform.check_command(self.construct_pip_install_command(self.dependencies))
+        install_args = list(self.get_source_install_args(self.dependencies_complex))
+        install_args.extend(self.dependencies)
+        self.platform.check_command(self.construct_pip_install_command(install_args))

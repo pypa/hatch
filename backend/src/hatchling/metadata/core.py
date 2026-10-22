@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any, Generic, cast
 
 from hatchling.metadata.utils import (
     format_dependency,
+    is_valid_import_name,
     is_valid_project_name,
     normalize_project_name,
     normalize_requirement,
@@ -56,6 +57,7 @@ class ProjectMetadata(Generic[PluginManagerBound]):
         self._dynamic: list[str] | None = None
         self._name: str | None = None
         self._version: str | None = None
+        self._original_version: str | None = None
         self._project_file: str | None = None
 
         # App already loaded config
@@ -151,6 +153,20 @@ class ProjectMetadata(Generic[PluginManagerBound]):
                 self.core.dynamic.remove("version")
 
         return self._version
+
+    @property
+    def original_version(self) -> str:
+        """
+        The version as written by the user, with surrounding whitespace removed.
+
+        The normalized `version` is used for distribution file names and `.dist-info`
+        directories, but core metadata records the original string so that stylized
+        versions (e.g. CalVer `2026.08.10`) appear as intended on package indexes.
+        """
+        if self._original_version is None:
+            self._version = self._get_version()
+
+        return cast(str, self._original_version)
 
     @property
     def config(self) -> dict[str, Any]:
@@ -259,6 +275,7 @@ class ProjectMetadata(Generic[PluginManagerBound]):
             message = f"Invalid version `{version}` from {source}, see https://peps.python.org/pep-0440/"
             raise ValueError(message) from None
         else:
+            self._original_version = version.strip()
             return normalized_version
 
     def validate_fields(self) -> None:
@@ -528,6 +545,9 @@ class CoreMetadata:
                     raise TypeError(message)
 
                 readme_path = os.path.normpath(os.path.join(self.root, readme))
+                if os.path.isabs(readme) or os.path.relpath(readme_path, self.root).startswith(".."):
+                    message = f"Readme path must be within the project directory: {readme}"
+                    raise ValueError(message)
                 if not os.path.isfile(readme_path):
                     message = f"Readme file does not exist: {readme}"
                     raise OSError(message)
@@ -565,6 +585,9 @@ class CoreMetadata:
                         raise TypeError(message)
 
                     path = os.path.normpath(os.path.join(self.root, relative_path))
+                    if os.path.isabs(relative_path) or os.path.relpath(path, self.root).startswith(".."):
+                        message = f"Readme path must be within the project directory: {relative_path}"
+                        raise ValueError(message)
                     if not os.path.isfile(path):
                         message = f"Readme file does not exist: {relative_path}"
                         raise OSError(message)
@@ -1361,7 +1384,7 @@ class CoreMetadata:
                 raise TypeError(message)
 
             for i, import_name in enumerate(import_names, 1):
-                if not isinstance(import_name, str) or not self.__import_name_is_valid(import_name):
+                if not isinstance(import_name, str) or not is_valid_import_name(import_name):
                     message = f"Import name #{i} of field `project.import-names` must be a valid import name"
                     raise TypeError(message)
 
@@ -1395,7 +1418,7 @@ class CoreMetadata:
                 raise TypeError(message)
 
             for i, import_namespace in enumerate(import_namespaces, 1):
-                if not isinstance(import_namespace, str) or not self.__import_name_is_valid(import_namespace):
+                if not isinstance(import_namespace, str) or not is_valid_import_name(import_namespace):
                     message = f"Import namespace #{i} of field `project.import-namespaces` must be a valid import name"
                     raise TypeError(message)
 
@@ -1439,10 +1462,6 @@ class CoreMetadata:
     @staticmethod
     def __classifier_is_private(classifier: str) -> bool:
         return classifier.lower().startswith("private ::")
-
-    @staticmethod
-    def __import_name_is_valid(import_name: str) -> bool:
-        return all(module.isidentifier() for module in import_name.split("."))
 
 
 class HatchMetadata(Generic[PluginManagerBound]):

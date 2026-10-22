@@ -587,6 +587,69 @@ def test_custom_lock_filename(hatch, helpers, temp_dir, config_file):
 
 
 @pytest.mark.usefixtures("mock_locker")
+def test_custom_lock_filename_with_context_formatting(hatch, helpers, temp_dir, config_file):
+    config_file.model.template.plugins["default"]["tests"] = False
+    config_file.save()
+
+    project_name = "My.App"
+
+    with temp_dir.as_cwd():
+        result = hatch("new", project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
+    data_path.mkdir()
+
+    project = Project(project_path)
+    helpers.update_project_environment(
+        project,
+        "default",
+        {
+            "skip-install": True,
+            "dependencies": ["requests"],
+            "locked": True,
+            "lock-filename": "pylock.{env_name}.toml",
+            **project.config.envs["default"],
+        },
+    )
+    helpers.update_project_environment(
+        project,
+        "test1",
+        {
+            "locked": True,
+            "lock-filename": "locks/{env_name}/pylock.toml",
+        },
+    )
+    helpers.update_project_environment(
+        project,
+        "test2",
+        {
+            "locked": True,
+        },
+    )
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch("env", "lock", "default")
+
+    assert result.exit_code == 0, result.output
+    assert f"Wrote lockfile: {project_path / 'pylock.default.toml'}" in result.output
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch("env", "lock", "test1")
+
+    assert result.exit_code == 0, result.output
+    assert f"Wrote lockfile: {project_path / 'locks' / 'test1' / 'pylock.toml'}" in result.output
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch("env", "lock", "test2")
+
+    assert result.exit_code == 0, result.output
+    assert f"Wrote lockfile: {project_path / 'pylock.test2.toml'}" in result.output
+
+
+@pytest.mark.usefixtures("mock_locker")
 def test_matrix(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()

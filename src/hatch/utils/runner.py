@@ -3,6 +3,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from hatch.env.plugin.interface import EnvironmentInterface
 
 
@@ -11,7 +13,7 @@ class ExecutionContext:
         self,
         environment: EnvironmentInterface,
         *,
-        shell_commands: list[str] | None = None,
+        shell_commands: Sequence[str] | None = None,
         env_vars: dict[str, str] | None = None,
         force_continue: bool = False,
         show_code_on_error: bool = False,
@@ -19,7 +21,7 @@ class ExecutionContext:
         source: str = "cmd",
     ) -> None:
         self.env = environment
-        self.shell_commands: list[str] = shell_commands or []
+        self.shell_commands: list[str] = list(shell_commands) if shell_commands else []
         self.env_vars: dict[str, str] = env_vars or {}
         self.force_continue = force_continue
         self.show_code_on_error = show_code_on_error

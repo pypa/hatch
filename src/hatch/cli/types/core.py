@@ -56,7 +56,6 @@ class TypeCheckEnvironment:
         - Which platform-specific modules to ignore (ignore-missing-imports)
         """
         lines: list[str] = []
-        root = str(self.env.root)
 
         project_includes = self._detect_project_includes()
         search_paths = self._detect_search_paths()
@@ -64,16 +63,15 @@ class TypeCheckEnvironment:
 
         # Paths must be absolute because the auto-generated config file is stored in an
         # isolated data directory (not the project root), so relative paths would not resolve
-        # to the correct project directories.
+        # to the correct project directories. The POSIX form is used so that the quoted values
+        # contain no backslashes, which TOML would interpret as escape sequences.
         if project_includes:
-            abs_includes = [os.path.join(root, p) for p in project_includes]
-            includes_str = ", ".join(f'"{p}"' for p in abs_includes)
+            includes_str = ", ".join(f'"{(self.env.root / p).as_posix()}"' for p in project_includes)
             # project-includes tells pyrefly which directories contain source files to check
             lines.append(f"project-includes = [{includes_str}]")
 
         if search_paths:
-            abs_paths = [os.path.join(root, p) for p in search_paths]
-            paths_str = ", ".join(f'"{p}"' for p in abs_paths)
+            paths_str = ", ".join(f'"{(self.env.root / p).as_posix()}"' for p in search_paths)
             # search-path tells pyrefly where to resolve imports from (e.g., "src" for src-layout)
             lines.append(f"search-path = [{paths_str}]")
 

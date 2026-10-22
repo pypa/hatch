@@ -8,6 +8,38 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## [1.32.4](https://github.com/pypa/hatch/releases/tag/hatchling-v1.32.4) - 2026-09-20 ## {: #hatchling-v1.32.4 }
+
+***Fixed:***
+
+- Revert the extra type parameter added to `BuildHookInterface` in 1.32.3, which broke plugins that subscripted the interface with a single argument (e.g. `BuildHookInterface[MyConfig]`) by raising `TypeError` at import time. `BuilderConfig` is likewise no longer generic, restoring the pre-1.32.3 plugin interface.
+- Strip spaces around version metadata when using original input for CalVer to keep leading zeroes. 
+
+## [1.32.3](https://github.com/pypa/hatch/releases/tag/hatchling-v1.32.3) - 2026-09-17 ## {: #hatchling-v1.32.3 }
+
+
+***Fixed:***
+
+- Preserve the version string exactly as written in core metadata, so stylized versions such as CalVer `2026.08.10` are no longer stripped of leading zeros. Distribution file names and `.dist-info` directories continue to use the PEP 440 normalized form.
+
+## [1.32.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.32.0) - 2026-08-11 ## {: #hatchling-v1.32.0 }
+
+***Changed:***
+
+- Bump default core metadata version to 2.5
+
+- Add `tomlkit` as a runtime dependency, which is required to rewrite `pyproject.toml` when setting a static version
+
+***Added:***
+
+- The `version` command can now set a version that is statically defined by the `project.version` field, updating `pyproject.toml` in place. Pass `--force` to allow an explicit downgrade
+
+***Fixed:***
+
+- Allow the `; private` annotation on `project.import-names` and `project.import-namespaces` entries rather than rejecting them as invalid import names.
+
+- Reject `project.readme` paths that are absolute or resolve outside of the project directory.
+
 ## [1.31.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.31.0) - 2026-06-30 ## {: #hatchling-v1.31.0 }
 
 ***Fixed***

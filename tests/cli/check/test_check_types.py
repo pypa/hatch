@@ -3,6 +3,7 @@ from __future__ import annotations
 import pytest
 
 from hatch.config.constants import ConfigEnvVars
+from hatch.utils.toml import load_toml_data
 
 
 class TestDefaults:
@@ -110,6 +111,40 @@ class TestArguments:
         command = env_run.call_args_list[0].args[0]
         assert command.startswith("pyrefly check --config ")
         assert "--foo bar" in command
+
+
+class TestGeneratedConfig:
+    @pytest.mark.usefixtures("env_run")
+    def test_valid_toml_with_absolute_paths(self, hatch, temp_dir, config_file):
+        config_file.model.template.plugins["default"]["tests"] = False
+        config_file.save()
+
+        project_name = "My.App"
+
+        with temp_dir.as_cwd():
+            result = hatch("new", project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / "my-app"
+        data_path = temp_dir / "data"
+        data_path.mkdir()
+
+        with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+            result = hatch("check", "types")
+
+        assert result.exit_code == 0, result.output
+
+        config_files = list(data_path.rglob("pyrefly.toml"))
+        assert len(config_files) == 1
+
+        # Parsing must succeed even when the project root is an absolute Windows path;
+        # raw backslashes would be invalid TOML escape sequences.
+        config = load_toml_data(config_files[0].read_text())
+        assert config["project-includes"] == [f"{project_path.as_posix()}/src/my_app"]
+        assert config["search-path"] == [f"{project_path.as_posix()}/src"]
+        assert config["preset"] == "legacy"
+        assert config["disable-search-path-heuristics"] is True
 
 
 class TestExistingConfig:

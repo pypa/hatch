@@ -12,4 +12,5 @@ if TYPE_CHECKING:
 
 @hookimpl
 def hatch_register_environment_collector() -> list[type[EnvironmentCollectorInterface]]:
-    return [CustomEnvironmentCollector, DefaultEnvironmentCollector]
+    # CustomEnvironmentCollector fakes its type via `__new__`; it is not a real subclass
+    return [CustomEnvironmentCollector, DefaultEnvironmentCollector]  # type: ignore[list-item]

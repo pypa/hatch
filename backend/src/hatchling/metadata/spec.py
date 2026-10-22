@@ -2,12 +2,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from hatchling.metadata.utils import split_import_name_annotation
+
 if TYPE_CHECKING:
     from collections.abc import Callable
 
     from hatchling.metadata.core import ProjectMetadata
 
-DEFAULT_METADATA_VERSION = "2.4"
+DEFAULT_METADATA_VERSION = "2.5"
 LATEST_METADATA_VERSION = "2.5"
 CORE_METADATA_PROJECT_FIELDS = {
     "Author": ("authors",),
@@ -214,13 +216,13 @@ def project_metadata_from_core_metadata(core_metadata: str) -> dict[str, Any]:
     return metadata
 
 
-def construct_metadata_file_1_2(metadata: ProjectMetadata, extra_dependencies: tuple[str] | None = None) -> str:
+def construct_metadata_file_1_2(metadata: ProjectMetadata[Any], extra_dependencies: tuple[str] | None = None) -> str:
     """
     https://peps.python.org/pep-0345/
     """
     metadata_file = "Metadata-Version: 1.2\n"
     metadata_file += f"Name: {metadata.core.raw_name}\n"
-    metadata_file += f"Version: {metadata.version}\n"
+    metadata_file += f"Version: {metadata.original_version}\n"
 
     if metadata.core.description:
         metadata_file += f"Summary: {metadata.core.description}\n"
@@ -275,13 +277,13 @@ def construct_metadata_file_1_2(metadata: ProjectMetadata, extra_dependencies: t
     return metadata_file
 
 
-def construct_metadata_file_2_1(metadata: ProjectMetadata, extra_dependencies: tuple[str] | None = None) -> str:
+def construct_metadata_file_2_1(metadata: ProjectMetadata[Any], extra_dependencies: tuple[str] | None = None) -> str:
     """
     https://peps.python.org/pep-0566/
     """
     metadata_file = "Metadata-Version: 2.1\n"
     metadata_file += f"Name: {metadata.core.raw_name}\n"
-    metadata_file += f"Version: {metadata.version}\n"
+    metadata_file += f"Version: {metadata.original_version}\n"
 
     if metadata.core.description:
         metadata_file += f"Summary: {metadata.core.description}\n"
@@ -352,13 +354,13 @@ def construct_metadata_file_2_1(metadata: ProjectMetadata, extra_dependencies: t
     return metadata_file
 
 
-def construct_metadata_file_2_2(metadata: ProjectMetadata, extra_dependencies: tuple[str] | None = None) -> str:
+def construct_metadata_file_2_2(metadata: ProjectMetadata[Any], extra_dependencies: tuple[str] | None = None) -> str:
     """
     https://peps.python.org/pep-0643/
     """
     metadata_file = "Metadata-Version: 2.2\n"
     metadata_file += f"Name: {metadata.core.raw_name}\n"
-    metadata_file += f"Version: {metadata.version}\n"
+    metadata_file += f"Version: {metadata.original_version}\n"
 
     if metadata.core.dynamic:
         # Ordered set
@@ -438,13 +440,13 @@ def construct_metadata_file_2_2(metadata: ProjectMetadata, extra_dependencies: t
     return metadata_file
 
 
-def construct_metadata_file_2_3(metadata: ProjectMetadata, extra_dependencies: tuple[str] | None = None) -> str:
+def construct_metadata_file_2_3(metadata: ProjectMetadata[Any], extra_dependencies: tuple[str] | None = None) -> str:
     """
     https://peps.python.org/pep-0685/
     """
     metadata_file = "Metadata-Version: 2.3\n"
     metadata_file += f"Name: {metadata.core.raw_name}\n"
-    metadata_file += f"Version: {metadata.version}\n"
+    metadata_file += f"Version: {metadata.original_version}\n"
 
     if metadata.core.dynamic:
         # Ordered set
@@ -524,13 +526,13 @@ def construct_metadata_file_2_3(metadata: ProjectMetadata, extra_dependencies: t
     return metadata_file
 
 
-def construct_metadata_file_2_4(metadata: ProjectMetadata, extra_dependencies: tuple[str] | None = None) -> str:
+def construct_metadata_file_2_4(metadata: ProjectMetadata[Any], extra_dependencies: tuple[str] | None = None) -> str:
     """
     https://peps.python.org/pep-0639/
     """
     metadata_file = "Metadata-Version: 2.4\n"
     metadata_file += f"Name: {metadata.core.raw_name}\n"
-    metadata_file += f"Version: {metadata.version}\n"
+    metadata_file += f"Version: {metadata.original_version}\n"
 
     if metadata.core.dynamic:
         # Ordered set
@@ -621,7 +623,7 @@ def construct_metadata_file_2_5(metadata: ProjectMetadata, extra_dependencies: t
     """
     metadata_file = "Metadata-Version: 2.5\n"
     metadata_file += f"Name: {metadata.core.raw_name}\n"
-    metadata_file += f"Version: {metadata.version}\n"
+    metadata_file += f"Version: {metadata.original_version}\n"
 
     if metadata.core.import_names is not None:
         if not metadata.core.import_names and not metadata.core.import_namespaces:
@@ -633,12 +635,14 @@ def construct_metadata_file_2_5(metadata: ProjectMetadata, extra_dependencies: t
             metadata_file += "Import-Name\n"
 
         for import_name in metadata.core.import_names:
-            _name = f"{import_name}; private" if import_name.startswith("_") else import_name
+            name, private = split_import_name_annotation(import_name)
+            _name = f"{name}; private" if private or name.startswith("_") else name
             metadata_file += f"Import-Name: {_name}\n"
 
     if metadata.core.import_namespaces:
         for import_namespace in metadata.core.import_namespaces:
-            _name = f"{import_namespace}; private" if import_namespace.startswith("_") else import_namespace
+            name, private = split_import_name_annotation(import_namespace)
+            _name = f"{name}; private" if private or name.startswith("_") else name
             metadata_file += f"Import-Namespace: {_name}\n"
 
     if metadata.core.dynamic:

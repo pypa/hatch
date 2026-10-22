@@ -194,6 +194,7 @@ class TestCoverage:
         assert not result.output
 
         assert env_run.call_args_list == [
+            mocker.call("coverage erase", shell=True),
             mocker.call("coverage run -m pytest -p no:randomly tests", shell=True),
             mocker.call("coverage combine", shell=True),
             mocker.call("coverage report", shell=True),
@@ -230,6 +231,7 @@ class TestCoverage:
         assert not result.output
 
         assert env_run.call_args_list == [
+            mocker.call("coverage erase", shell=True),
             mocker.call("coverage run -m pytest -p no:randomly --flag -- arg1 arg2", shell=True),
             mocker.call("coverage combine", shell=True),
             mocker.call("coverage report", shell=True),
@@ -266,6 +268,7 @@ class TestCoverage:
         assert not result.output
 
         assert env_run.call_args_list == [
+            mocker.call("coverage erase", shell=True),
             mocker.call("coverage run -m pytest -p no:randomly tests", shell=True),
             mocker.call("coverage combine", shell=True),
         ]
@@ -303,6 +306,7 @@ class TestCoverage:
         assert not result.output
 
         assert env_run.call_args_list == [
+            mocker.call("coverage erase", shell=True),
             mocker.call("coverage run -m pytest -p no:randomly tests", shell=True),
             mocker.call("coverage combine", shell=True),
             mocker.call("coverage report", shell=True),
@@ -341,6 +345,7 @@ class TestCoverage:
         assert not result.output
 
         assert env_run.call_args_list == [
+            mocker.call("coverage erase", shell=True),
             mocker.call("coverage run -m pytest -p no:randomly tests", shell=True),
             mocker.call("coverage combine", shell=True),
             mocker.call("coverage report", shell=True),
@@ -809,6 +814,7 @@ class TestCustomScripts:
         assert not result.output
 
         assert env_run.call_args_list == [
+            mocker.call("coverage erase", shell=True),
             mocker.call("test with coverage", shell=True),
             mocker.call("combine coverage", shell=True),
             mocker.call("show coverage", shell=True),

@@ -74,6 +74,8 @@ All environment types should [offer support](#hatch.env.plugin.interface.Environ
       - platform
       - environment_dependencies
       - dependencies
+      - sources
+      - get_source_install_args
       - env_vars
       - env_include
       - env_exclude

@@ -71,6 +71,20 @@ workspace.members = [
 ]
 ```
 
+## Building all members
+
+Build an `sdist` and `wheel` for the workspace root and every workspace member with the [`build`](../../cli/reference.md#hatch-build) command's `--all` flag:
+
+```
+hatch build --all
+```
+
+The root project is built first and does not need to be listed as a member. If the top-level `pyproject.toml` does not define a `project` table and only serves as a container for workspace configuration, the root is skipped and only the members are built. Members are discovered from the selected environment's `workspace.members` option and artifacts are consolidated in the workspace root's `dist` directory by default, ready for e.g. `twine upload dist/*`. Pass a location argument to write artifacts elsewhere:
+
+```
+hatch build --all out/artifacts
+```
+
 ## Test matrices with workspaces
 
 Combine workspace configuration with test matrices:

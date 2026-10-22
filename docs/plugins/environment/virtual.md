@@ -69,6 +69,8 @@ The following options are recognized for internal Python resolution.
 | `3.11` |
 | `3.12` |
 | `3.13` |
+| `3.14` |
+| `3.15` |
 
 The source of distributions is the [python-build-standalone](https://github.com/indygreg/python-build-standalone) project.
 
@@ -86,6 +88,7 @@ Some distributions have [variants](https://gregoryszorc.com/docs/python-build-st
 | `pypy2.7` |
 | `pypy3.9` |
 | `pypy3.10` |
+| `pypy3.11` |
 
 The source of distributions is the [PyPy](https://www.pypy.org) project.
 

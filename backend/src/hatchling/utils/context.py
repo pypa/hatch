@@ -14,6 +14,8 @@ if TYPE_CHECKING:
 
 
 class ContextFormatter(ABC):
+    CONTEXT_NAME: str
+
     @abstractmethod
     def get_formatters(self) -> MutableMapping:
         """
@@ -109,7 +111,7 @@ class Context:
     def format(self, *args: Any, **kwargs: Any) -> str:
         return self.__formatter.format(*args, **kwargs)
 
-    def add_context(self, context: DefaultContextFormatter) -> None:
+    def add_context(self, context: ContextFormatter) -> None:
         if context.CONTEXT_NAME in self.__configured_contexts:
             return
 
@@ -117,7 +119,7 @@ class Context:
         self.__configured_contexts.add(context.CONTEXT_NAME)
 
     @contextmanager
-    def apply_context(self, context: DefaultContextFormatter) -> Iterator:
+    def apply_context(self, context: ContextFormatter) -> Iterator:
         self.__add_formatters(context.get_formatters())
         try:
             yield

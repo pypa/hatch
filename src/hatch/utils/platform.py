@@ -4,10 +4,10 @@ import os
 import sys
 from functools import cache
 from importlib import import_module
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable
+    from collections.abc import Callable, Iterable, Sequence
     from subprocess import CompletedProcess, Popen
     from types import ModuleType
 
@@ -51,7 +51,9 @@ class Platform:
         """
         return self.__modules
 
-    def format_for_subprocess(self, command: str | list[str], *, shell: bool) -> str | list[str]:
+    def format_for_subprocess(
+        self, command: str | Sequence[str | os.PathLike], *, shell: bool
+    ) -> str | Sequence[str | os.PathLike]:
         """
         Format the given command in a cross-platform manner for immediate consumption by subprocess utilities.
         """
@@ -77,7 +79,7 @@ class Platform:
         sys.exit(code)
 
     def _run_command_integrated(
-        self, command: str | list[str], *, shell: bool = False, **kwargs: Any
+        self, command: str | Sequence[str | os.PathLike], *, shell: bool = False, **kwargs: Any
     ) -> CompletedProcess:
         with self.capture_process(command, shell=shell, **kwargs) as process:
             for line in self.stream_process_output(process):
@@ -87,7 +89,9 @@ class Platform:
 
         return self.modules.subprocess.CompletedProcess(process.args, process.poll(), stdout, stderr)
 
-    def run_command(self, command: str | list[str], *, shell: bool = False, **kwargs: Any) -> CompletedProcess:
+    def run_command(
+        self, command: str | Sequence[str | os.PathLike], *, shell: bool = False, **kwargs: Any
+    ) -> CompletedProcess:
         """
         Equivalent to the standard library's
         [subprocess.run](https://docs.python.org/3/library/subprocess.html#subprocess.run),
@@ -100,7 +104,9 @@ class Platform:
         self.populate_default_popen_kwargs(kwargs, shell=shell)
         return self.modules.subprocess.run(self.format_for_subprocess(command, shell=shell), shell=shell, **kwargs)
 
-    def check_command(self, command: str | list[str], *, shell: bool = False, **kwargs: Any) -> CompletedProcess:
+    def check_command(
+        self, command: str | Sequence[str | os.PathLike], *, shell: bool = False, **kwargs: Any
+    ) -> CompletedProcess:
         """
         Equivalent to [run_command](utilities.md#hatch.utils.platform.Platform.run_command),
         but non-zero exit codes will gracefully end program execution.
@@ -111,7 +117,9 @@ class Platform:
 
         return process
 
-    def check_command_output(self, command: str | list[str], *, shell: bool = False, **kwargs: Any) -> str:
+    def check_command_output(
+        self, command: str | Sequence[str | os.PathLike], *, shell: bool = False, **kwargs: Any
+    ) -> str:
         """
         Equivalent to the output from the process returned by
         [capture_process](utilities.md#hatch.utils.platform.Platform.capture_process),
@@ -129,7 +137,9 @@ class Platform:
 
         return process.stdout.decode("utf-8")
 
-    def capture_process(self, command: str | list[str], *, shell: bool = False, **kwargs: Any) -> Popen:
+    def capture_process(
+        self, command: str | Sequence[str | os.PathLike], *, shell: bool = False, **kwargs: Any
+    ) -> Popen:
         """
         Equivalent to the standard library's
         [subprocess.Popen](https://docs.python.org/3/library/subprocess.html#subprocess.Popen),
@@ -191,9 +201,9 @@ class Platform:
         """
         if self.__default_shell is None:
             if self.windows:
-                self.__default_shell = cast(str, os.environ.get("SHELL", os.environ.get("COMSPEC", "cmd")))
+                self.__default_shell = os.environ.get("SHELL", os.environ.get("COMSPEC", "cmd"))
             else:
-                self.__default_shell = cast(str, os.environ.get("SHELL", "bash"))
+                self.__default_shell = os.environ.get("SHELL", "bash")
         return self.__default_shell
 
     @property
@@ -237,7 +247,7 @@ class Platform:
         """
         return not (self.windows or self.macos)
 
-    def exit_with_command(self, command: list[str]) -> None:
+    def exit_with_command(self, command: list[str | os.PathLike]) -> None:
         """
         Run the given command and exit with its exit code. On non-Windows systems, this uses the standard library's
         [os.execvp](https://docs.python.org/3/library/os.html#os.execvp).

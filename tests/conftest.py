@@ -480,20 +480,45 @@ def mock_backend_process_output(request, mocker):
 
 
 @pytest.fixture
-def mock_plugin_installation(mocker):
+def mock_python_path(mocker):
+    return mocker.MagicMock(returncode=0, stdout=sys.executable.encode())
+
+
+@pytest.fixture
+def mock_plugin_installation(mocker, mock_python_path):
+    from uv import find_uv_bin
+
     subprocess_run = subprocess.run
     mocked_subprocess_run = mocker.MagicMock(returncode=0)
 
     def _mock(command, **kwargs):
         if isinstance(command, list):
+            if any(arg.startswith("hatchling") for arg in command):
+                return subprocess_run(command, **kwargs)
+
             if command[:5] == [sys.executable, "-u", "-m", "pip", "install"]:
                 mocked_subprocess_run(command, **kwargs)
                 return mocked_subprocess_run
 
-            if command[:3] == [sys.executable, "self", "python-path"]:
-                return mocker.MagicMock(returncode=0, stdout=sys.executable.encode())
+            uv_bin = find_uv_bin()
+            if command[:3] == [uv_bin, "pip", "install"]:
+                mocked_subprocess_run(command, **kwargs)
+                return mocked_subprocess_run
 
-        return subprocess_run(command, **kwargs)  # no cov
+            # Mirror how the self-management command is derived, rather
+            # than assuming the exposed command is named `self`
+            if app_path := os.environ.get("PYAPP"):
+                app_command = [app_path, os.environ.get("PYAPP_COMMAND_NAME", "self")]
+
+                if command[:3] == [*app_command, "python-path"]:
+                    mock_python_path(command, **kwargs)
+                    return mock_python_path
+
+                if command[:4] == [*app_command, "pip", "install"]:
+                    mocked_subprocess_run(command, **kwargs)
+                    return mocked_subprocess_run
+
+        return subprocess_run(command, **kwargs)
 
     mocker.patch("subprocess.run", side_effect=_mock)
 
