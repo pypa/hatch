@@ -10,7 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ***Fixed:***
 
-- Skip directories that disappear while walking the project tree so editable builds no longer fail with `FileNotFoundError` when a cache or temporary path inside the project is removed mid-walk.
+- Skip directories that disappear while walking the project tree during builds, instead of failing with `FileNotFoundError`.
 
 ## [1.32.4](https://github.com/pypa/hatch/releases/tag/hatchling-v1.32.4) - 2026-09-20 ## {: #hatchling-v1.32.4 }
 

@@ -1,3 +1,4 @@
+import os
 from os.path import sep as path_sep
 
 import pytest
@@ -165,6 +166,41 @@ class TestDirectoryRecursion:
                 str(project_dir / "README.md"),
                 str(project_dir / "foo" / "bar.txt"),
             ]
+
+    @pytest.mark.parametrize(
+        ("build_config", "source"),
+        [
+            pytest.param({"only-include": ["foo"]}, "project/foo", id="only-include"),
+            pytest.param({"force-include": {"../foo": "foo"}}, "foo", id="force-include"),
+        ],
+    )
+    def test_vanished_directory(self, temp_dir, mocker, build_config, source):
+        project_dir = temp_dir / "project"
+        project_dir.ensure_dir_exists()
+
+        with project_dir.as_cwd():
+            config = {"tool": {"hatch": {"build": build_config}}}
+            builder = MockBuilder(str(project_dir), config=config)
+
+            foo = temp_dir / source
+            for name in ("bar", "baz"):
+                (foo / name).ensure_dir_exists()
+                (foo / name / "file.txt").touch()
+
+            walk = os.walk
+
+            def walk_and_remove_bar(top, *args, **kwargs):
+                for root, dirs, files in walk(top, *args, **kwargs):
+                    # Simulate the directory being removed concurrently, right after it was listed
+                    if root == str(foo / "bar"):
+                        (foo / "bar").remove()
+
+                    yield root, dirs, files
+
+            mocker.patch("os.walk", side_effect=walk_and_remove_bar)
+
+            assert [f.path for f in builder.recurse_included_files()] == [str(foo / "baz" / "file.txt")]
+            assert not (foo / "bar").exists()
 
     def test_only_include(self, temp_dir):
         project_dir = temp_dir / "project"

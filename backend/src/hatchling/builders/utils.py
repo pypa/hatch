@@ -24,7 +24,7 @@ def safe_walk(path: str) -> Iterable[tuple[str, list[str], list[str]]]:
     for root, dirs, files in os.walk(path, followlinks=True):
         try:
             stat = os.stat(root)
-        except FileNotFoundError:
+        except (FileNotFoundError, NotADirectoryError):
             # Directories can vanish between os.walk listing them and this stat,
             # e.g. a cache or temporary build env stored inside the project tree.
             del dirs[:]

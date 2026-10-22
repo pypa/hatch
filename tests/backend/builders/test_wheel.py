@@ -2833,6 +2833,82 @@ class TestBuildStandard:
             assert zip_info.date_time == (2020, 2, 2, 0, 0, 0)
 
     @fixed_pathlib_resolution
+    @pytest.mark.parametrize("cache_in_gitignore", [False, True])
+    def test_editable_default_vanished_directory(
+        self, hatch, helpers, temp_dir, config_file, mocker, cache_in_gitignore
+    ):
+        config_file.model.template.plugins["default"]["src-layout"] = False
+        config_file.save()
+
+        project_name = "My.App"
+
+        with temp_dir.as_cwd():
+            result = hatch("new", project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / "my-app"
+        if cache_in_gitignore:
+            (project_path / ".gitignore").write_text(".cache/\n")
+
+        build_env = project_path / ".cache" / "uv" / "builds-v0" / ".tmp1234"
+        (build_env / "lib" / "bar" / "baz").ensure_dir_exists()
+        (build_env / "lib" / "foo" / "baz").ensure_dir_exists()
+
+        walk = os.walk
+
+        def walk_and_remove_build_env(top, *args, **kwargs):
+            for root, dirs, files in walk(top, *args, **kwargs):
+                # Simulate the build environment being removed concurrently, right after this directory was listed
+                if root == str(build_env / "lib" / "bar"):
+                    build_env.remove()
+
+                yield root, dirs, files
+
+        mocker.patch("os.walk", side_effect=walk_and_remove_build_env)
+
+        config = {
+            "project": {"name": project_name, "dynamic": ["version"]},
+            "tool": {
+                "hatch": {
+                    "version": {"path": "my_app/__about__.py"},
+                    "build": {"targets": {"wheel": {"versions": ["editable"], "include": ["my_app"]}}},
+                },
+            },
+        }
+        builder = WheelBuilder(str(project_path), config=config)
+
+        build_path = project_path / "dist"
+        build_path.mkdir()
+
+        with project_path.as_cwd():
+            artifacts = list(builder.build(directory=str(build_path)))
+
+        assert not build_env.exists()
+        assert len(artifacts) == 1
+        expected_artifact = artifacts[0]
+
+        build_artifacts = list(build_path.iterdir())
+        assert len(build_artifacts) == 1
+        assert expected_artifact == str(build_artifacts[0])
+        assert expected_artifact == str(build_path / f"{builder.project_id}-{get_python_versions_tag()}-none-any.whl")
+
+        extraction_directory = temp_dir / "_archive"
+        extraction_directory.mkdir()
+
+        with zipfile.ZipFile(str(expected_artifact), "r") as zip_archive:
+            zip_archive.extractall(str(extraction_directory))
+
+        metadata_directory = f"{builder.project_id}.dist-info"
+        expected_files = helpers.get_template_files(
+            "wheel.standard_editable_pth",
+            project_name,
+            metadata_directory=metadata_directory,
+            package_paths=[str(project_path)],
+        )
+        helpers.assert_files(extraction_directory, expected_files)
+
+    @fixed_pathlib_resolution
     def test_editable_exact(self, hatch, helpers, temp_dir, config_file):
         config_file.model.template.plugins["default"]["src-layout"] = False
         config_file.save()
