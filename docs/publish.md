@@ -2,13 +2,13 @@
 
 -----
 
-After your project is [built](build.md), you can distribute it using the [`publish`](cli/reference.md#hatch-publish) command.
+After you have [built](build.md) your project's distribution files, you can distribute it using the [`hatch publish`](cli/reference.md#hatch-publish) command.
 
-The `-p`/`--publisher` option controls which publisher to use, with the default being [index](plugins/publisher/package-index.md).
+The `-p`/`--publisher` option controls which publisher to use (e.g. PyPI vs TestPyPi), with the default being [index](plugins/publisher/package-index.md).
 
 ## Artifact selection
 
-By default, the `dist` directory located at the root of your project will be used:
+By default, Hatch will look in your `dist/` directory located at the root of your project for your distribution files:
 
 ```console
 $ hatch publish
@@ -19,7 +19,8 @@ dist/hatch_demo-1rc0.tar.gz ... success
 https://pypi.org/project/hatch-demo/1rc0/
 ```
 
-You can instead pass specific paths as arguments:
+However, you can instead pass specific paths as arguments
+to `hatch publish` if your distribution files are located somewhere else:
 
 ```
 hatch publish /path/to/artifacts foo-1.tar.gz
