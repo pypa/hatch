@@ -10,21 +10,21 @@ def test_no_path(isolation):
     config = {"path": ""}
 
     with pytest.raises(ValueError, match="Option `path` for metadata hook `custom` must not be empty if defined"):
-        CustomMetadataHook(str(isolation), config)
+        CustomMetadataHook(str(isolation), config, None)
 
 
 def test_path_not_string(isolation):
     config = {"path": 3}
 
     with pytest.raises(TypeError, match="Option `path` for metadata hook `custom` must be a string"):
-        CustomMetadataHook(str(isolation), config)
+        CustomMetadataHook(str(isolation), config, None)
 
 
 def test_nonexistent(isolation):
     config = {"path": "test.py"}
 
     with pytest.raises(OSError, match="Build script does not exist: test.py"):
-        CustomMetadataHook(str(isolation), config)
+        CustomMetadataHook(str(isolation), config, None)
 
 
 def test_default(temp_dir, helpers):
@@ -47,7 +47,7 @@ def test_default(temp_dir, helpers):
     )
 
     with temp_dir.as_cwd():
-        hook = CustomMetadataHook(str(temp_dir), config)
+        hook = CustomMetadataHook(str(temp_dir), config, None)
 
     assert hook.foo() == ("custom", str(temp_dir))
 
@@ -73,7 +73,7 @@ def test_explicit_path(temp_dir, helpers):
     )
 
     with temp_dir.as_cwd():
-        hook = CustomMetadataHook(str(temp_dir), config)
+        hook = CustomMetadataHook(str(temp_dir), config, None)
 
     assert hook.foo() == ("custom", str(temp_dir))
 
@@ -106,4 +106,4 @@ def test_no_subclass(temp_dir, helpers):
         ),
         temp_dir.as_cwd(),
     ):
-        CustomMetadataHook(str(temp_dir), config)
+        CustomMetadataHook(str(temp_dir), config, None)
