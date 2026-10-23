@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ***Added:***
 
+- Officially support Python 3.15
 - Support [PEP 808](https://peps.python.org/pep-0808/): `authors`, `maintainers`, `classifiers`, `dependencies`, `entry-points`, `scripts`, `gui-scripts`, `keywords`, `license-files`, `optional-dependencies`, `urls`, `import-names` and `import-namespaces` may now be both statically defined and listed in `project.dynamic`. Metadata hooks may then append entries but not remove, reorder or modify the static ones.
 - Add support for core metadata version 2.6 ([PEP 808](https://peps.python.org/pep-0808/)), selectable with the `core-metadata-version` option of the `sdist` and `wheel` targets. The default remains 2.5.
 
