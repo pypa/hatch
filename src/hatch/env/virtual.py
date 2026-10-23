@@ -219,7 +219,7 @@ class VirtualEnvironment(EnvironmentInterface):
             command.append("--dry-run")
         python_version = self.config.get("python", "")
         if python_version:
-            command.extend(["--python-version", python_version])
+            command.extend(["--python", python_version])
         return command
 
     def dependencies_in_sync(self):
