@@ -35,8 +35,12 @@ def show(
         contextual_config = {}
         for environments in (app.project.config.envs, app.project.config.internal_envs):
             for env_name, config in environments.items():
-                environment = app.project.get_environment(env_name)
                 new_config = contextual_config[env_name] = dict(config)
+                environment_class = app.project.plugin_manager.environment.get(config["type"])
+                if environment_class is None:
+                    continue
+
+                environment = app.project.get_environment(env_name)
 
                 env_vars = dict(environment.env_vars)
                 env_vars.pop(AppEnvVars.ENV_ACTIVE)
