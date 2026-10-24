@@ -74,7 +74,8 @@ def run(ctx: click.Context, args: tuple[str, ...]):
         script = script.resolve()
 
         try:
-            metadata = parse_inline_script_metadata(script.read_text())
+            # Decode like Python does: UTF-8 whatever the locale, skipping a BOM
+            metadata = parse_inline_script_metadata(script.read_text(encoding="utf-8-sig"))
         except ValueError as e:
             app.abort(f"{e}, {first_arg}")
 

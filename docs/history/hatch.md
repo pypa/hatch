@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ***Fixed:***
 
 - Fix syncing environment plugin requirements on standalone binaries built to forward to `pip`
+- Read inline script metadata as UTF-8 regardless of the locale, and after a UTF-8 BOM, when running a script with `hatch run`
 
 - Fix the `test` command raising an `IndexError` with `--cover`, or silently doing nothing otherwise, when the `--include` or `--exclude` options match no environments. It now aborts with a clear message.
 
