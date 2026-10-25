@@ -1,23 +1,23 @@
 import click
 
-from hatch.cli.env.create import create
-from hatch.cli.env.find import find
-from hatch.cli.env.lock import lock
-from hatch.cli.env.prune import prune
-from hatch.cli.env.remove import remove
-from hatch.cli.env.run import run
-from hatch.cli.env.show import show
+from hatch.cli.lazy import LazyGroup
+
+_LAZY_SUBCOMMANDS = {
+    "create": "hatch.cli.env.create:create",
+    "find": "hatch.cli.env.find:find",
+    "lock": "hatch.cli.env.lock:lock",
+    "prune": "hatch.cli.env.prune:prune",
+    "remove": "hatch.cli.env.remove:remove",
+    "run": "hatch.cli.env.run:run",
+    "show": "hatch.cli.env.show:show",
+}
 
 
-@click.group(short_help="Manage project environments")
+@click.group(
+    cls=LazyGroup,
+    lazy_subcommands=_LAZY_SUBCOMMANDS,
+    context_settings={"help_option_names": ["-h", "--help"], "max_content_width": 120},
+    invoke_without_command=True,
+)
 def env():
     pass
-
-
-env.add_command(create)
-env.add_command(find)
-env.add_command(lock)
-env.add_command(prune)
-env.add_command(remove)
-env.add_command(run)
-env.add_command(show)
