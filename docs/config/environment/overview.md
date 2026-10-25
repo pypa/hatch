@@ -8,7 +8,18 @@ All environments are defined as sections within the `tool.hatch.envs` table.
 [tool.hatch.envs.<ENV_NAME>]
 ```
 
-The [storage location](../hatch.md#environments) for environments is completely configurable.
+The [global storage location](../hatch.md#environments) for environments is
+configured in Hatch's `config.toml`. To choose the location of a specific
+virtual environment instead, set its `path` option in the project's
+`pyproject.toml`:
+
+```toml config-example
+[tool.hatch.envs.test]
+path = ".venv/test"
+```
+
+Relative paths are resolved from the project root. Absolute paths are also
+supported.
 
 Unless an environment is explicitly selected on the command line, the `default` environment will be used. The [type](#type) of this environment defaults to `virtual`.
 
