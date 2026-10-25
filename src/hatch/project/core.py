@@ -301,8 +301,13 @@ class Project:
     def get_dependencies(self) -> tuple[list[str], dict[str, list[str]]]:
         dynamic_fields = {"dependencies", "optional-dependencies"}
         if not dynamic_fields.intersection(self.metadata.dynamic):
+            from hatch.utils.metadata import normalize_project_name
+
             dependencies: list[str] = self.metadata.core_raw_metadata.get("dependencies", [])
-            features: dict[str, list[str]] = self.metadata.core_raw_metadata.get("optional-dependencies", {})
+            features: dict[str, list[str]] = {
+                normalize_project_name(k): v
+                for k, v in self.metadata.core_raw_metadata.get("optional-dependencies", {}).items()
+            }
             return dependencies, features
 
         from hatch.project.constants import BUILD_BACKEND
