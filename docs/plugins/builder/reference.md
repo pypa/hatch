@@ -2,7 +2,7 @@
 
 -----
 
-See the documentation for [build configuration](../../config/build.md).
+See the documentation for [build configuration](../../config/build.md) and the how-to for [testing plugins](../../how-to/plugins/testing-builds.md).
 
 ## Known third-party
 
