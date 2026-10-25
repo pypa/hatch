@@ -166,6 +166,53 @@ class TestDirectoryRecursion:
                 str(project_dir / "foo" / "bar.txt"),
             ]
 
+    def test_in_tree_dir_link_does_not_hide_real_directory(self, temp_dir):
+        """A directory link that sorts before its target must not drop the real package."""
+        project_dir = temp_dir / "project"
+        project_dir.ensure_dir_exists()
+
+        foo = project_dir / "foo"
+        foo.ensure_dir_exists()
+        (foo / "__init__.py").touch()
+        (foo / "pkg.py").touch()
+
+        bar = project_dir / "bar"
+        try:
+            bar.symlink_to(foo, target_is_directory=True)
+        except OSError as exc:
+            pytest.skip(f"directory symlink/junction not available: {exc}")
+
+        with project_dir.as_cwd():
+            config = {"tool": {"hatch": {"build": {"include": ["foo"]}}}}
+            builder = MockBuilder(str(project_dir), config=config)
+
+            relative_paths = sorted(f.relative_path.replace("\\", "/") for f in builder.recurse_included_files())
+
+        assert relative_paths == ["foo/__init__.py", "foo/pkg.py"]
+
+    def test_excluding_dir_link_keeps_real_directory(self, temp_dir):
+        """Excluding the alias must not exclude the real package."""
+        project_dir = temp_dir / "project"
+        project_dir.ensure_dir_exists()
+
+        foo = project_dir / "foo"
+        foo.ensure_dir_exists()
+        (foo / "__init__.py").touch()
+
+        bar = project_dir / "bar"
+        try:
+            bar.symlink_to(foo, target_is_directory=True)
+        except OSError as exc:
+            pytest.skip(f"directory symlink/junction not available: {exc}")
+
+        with project_dir.as_cwd():
+            config = {"tool": {"hatch": {"build": {"include": ["foo", "bar"], "exclude": ["bar"]}}}}
+            builder = MockBuilder(str(project_dir), config=config)
+
+            relative_paths = sorted(f.relative_path.replace("\\", "/") for f in builder.recurse_included_files())
+
+        assert relative_paths == ["foo/__init__.py"]
+
     def test_only_include(self, temp_dir):
         project_dir = temp_dir / "project"
         project_dir.ensure_dir_exists()
