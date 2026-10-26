@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Added:***
+
+- Officially support Python 3.15
+
 ***Fixed:***
 
 - Restore the `exclude` and `artifacts` patterns being respected for directories added with the `force-include` option

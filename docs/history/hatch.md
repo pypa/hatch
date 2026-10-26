@@ -8,9 +8,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Changed:***
+
+- Upgrade default CPython distributions to 20261009
+
+***Added:***
+
+- Officially support Python 3.15. Managed Python 3.15 distributions are now the final 3.15.0 release rather than a release candidate, and the default `test` command matrix includes `3.15` and `3.15t`
+
 ***Fixed:***
 
 - Fix syncing environment plugin requirements on standalone binaries built to forward to `pip`
+
+- Fix the `test` command raising an `IndexError` with `--cover`, or silently doing nothing otherwise, when the `--include` or `--exclude` options match no environments. It now aborts with a clear message.
+
+- Fix build hooks that set `require-runtime-dependencies` (or otherwise declare dynamic build dependencies) failing with `ModuleNotFoundError` because those dependencies were never installed into the build environment. Environment plugins should use the new `add_additional_dependencies` method to extend `additional_dependencies` so that cached dependency views are invalidated.
+
+- Fix the `fmt` command dropping the default Ruff configuration when the user's Ruff configuration contains keys that merely start with `extend`, such as `extend-exclude`. Only an exact `extend` key now prevents the default configuration from being injected.
 
 ## [1.18.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.18.1) - 2026-09-16 ## {: #hatch-v1.18.1 }
 

@@ -19,7 +19,7 @@ from hatch.venv.core import UVVirtualEnv, VirtualEnv
 FREETHREADED_BUILD = bool(sysconfig.get_config_var("Py_GIL_DISABLED"))
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable
+    from collections.abc import Callable, Iterable, Sequence
 
     from packaging.specifiers import SpecifierSet
     from python_discovery import PythonInfo
@@ -142,6 +142,12 @@ class VirtualEnvironment(EnvironmentInterface):
     def missing_dependencies(self) -> list[Dependency]:
         return self.distributions.missing_dependencies(self.all_dependencies_complex)
 
+    def add_additional_dependencies(self, dependencies: Sequence[Dependency]) -> None:
+        super().add_additional_dependencies(dependencies)
+        # The distributions snapshot predates any packages installed since it was taken
+        for attr in ("distributions", "missing_dependencies"):
+            vars(self).pop(attr, None)
+
     @staticmethod
     def get_option_types() -> dict:
         return {
@@ -213,7 +219,7 @@ class VirtualEnvironment(EnvironmentInterface):
             command.append("--dry-run")
         python_version = self.config.get("python", "")
         if python_version:
-            command.extend(["--python-version", python_version])
+            command.extend(["--python", python_version])
         return command
 
     def dependencies_in_sync(self):

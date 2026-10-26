@@ -109,7 +109,7 @@ class UvLocker(LockerInterface):
 
         python_version = environment.config.get("python", "")
         if python_version:
-            command.extend(["--python-version", python_version])
+            command.extend(["--python", python_version])
 
         with environment.command_context():
             environment.platform.check_command(command)
