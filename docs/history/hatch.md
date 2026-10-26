@@ -26,6 +26,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Fix the `fmt` command dropping the default Ruff configuration when the user's Ruff configuration contains keys that merely start with `extend`, such as `extend-exclude`. Only an exact `extend` key now prevents the default configuration from being injected.
 
+- Fix the misleading `cannot locate Python` error when an environment's Python version does not satisfy the project's `requires-python` constraint. The error now states the constraint that is not satisfied.
+
 ## [1.18.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.18.1) - 2026-09-16 ## {: #hatch-v1.18.1 }
 
 ***Added:***
