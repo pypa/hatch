@@ -347,6 +347,13 @@ class VirtualEnvironment(EnvironmentInterface):
         ):
             return
 
+        if python_version and not self._python_version_satisfies_constraint(python_version):
+            message = (
+                f"Python {python_version} does not satisfy the project's "
+                f"`requires-python` constraint: {self._python_constraint}"
+            )
+            raise OSError(message)
+
         message = (
             f"cannot locate Python: {python_version}"
             if python_version
@@ -504,6 +511,24 @@ class VirtualEnvironment(EnvironmentInterface):
             return available_distribution
 
         return None
+
+    def _python_version_satisfies_constraint(self, python_version: str) -> bool:
+        from packaging.version import InvalidVersion, Version
+
+        from hatch.python.resolve import normalize_distribution_name
+
+        version = (
+            python_version.replace("pypy", "", 1)
+            if python_version.startswith("pypy")
+            else normalize_distribution_name(python_version)
+        )
+        try:
+            Version(version)
+        except InvalidVersion:
+            # Not a version, e.g. a path to an interpreter, so the constraint cannot be checked here
+            return True
+
+        return self._python_constraint.contains(version)
 
     def _is_stable_path(self, executable: str) -> bool:
         path = Path(executable).resolve()
