@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ***Fixed:***
 
 - Fix syncing environment plugin requirements on standalone binaries built to forward to `pip`
+- `hatch env lock --check` no longer regenerates the lockfile of a `locked` environment whose dependencies changed before comparing it, so a stale lockfile is now reported as not up to date instead of being rewritten
 
 - Fix the `test` command raising an `IndexError` with `--cover`, or silently doing nothing otherwise, when the `--include` or `--exclude` options match no environments. It now aborts with a clear message.
 
