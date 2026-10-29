@@ -3,6 +3,7 @@ from __future__ import annotations
 from functools import cached_property
 from os import environ
 from typing import TYPE_CHECKING, Any
+from warnings import warn
 
 from hatch.utils.platform import get_platform_name
 
@@ -19,6 +20,7 @@ RESERVED_OPTIONS = {
     "env-exclude": list,
     "env-include": list,
     "env-vars": dict,
+    "extra-args": list,
     "features": list,
     "lock-filename": str,
     "locker": str,
@@ -53,6 +55,23 @@ def apply_overrides(env_name, source, condition, condition_value, options, new_c
             _apply_override_to_workspace(
                 env_name, option, data, source, condition, condition_value, new_config, overwrite
             )
+        elif option == "extra-args" and isinstance(data, dict) and "value" in data:
+            # Preserve the legacy untyped syntax during the compatibility period.
+            warn(
+                "The single-table conditional syntax for `extra-args` is deprecated and will be removed in a "
+                "future release; use an array of conditional string entries instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            value = data["value"]
+            if not isinstance(value, list) or not all(isinstance(item, str) for item in value):
+                message = (
+                    f"Option `value` in field `tool.hatch.envs.{env_name}.overrides.{source}."
+                    f"{condition}.{option}` must be an array of strings"
+                )
+                raise TypeError(message)
+            if _resolve_condition(env_name, option, source, condition, condition_value, data):
+                new_config[option] = value
         elif override_type in TYPE_OVERRIDES:
             TYPE_OVERRIDES[override_type](
                 env_name, option, data, source, condition, condition_value, new_config, overwrite
