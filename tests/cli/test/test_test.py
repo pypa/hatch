@@ -829,6 +829,46 @@ class TestCustomScripts:
             "parallel = true",
         ]
 
+    def test_coverage_with_utf8_pyproject(self, hatch, temp_dir, config_file, env_run, mocker):
+        config_file.model.template.plugins["default"]["tests"] = False
+        config_file.save()
+
+        project_name = "My.App"
+
+        with temp_dir.as_cwd():
+            result = hatch("new", project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / "my-app"
+        data_path = temp_dir / "data"
+        data_path.mkdir()
+
+        project = Project(project_path)
+        config = dict(project.raw_config)
+        config["tool"]["hatch"]["envs"] = {
+            "hatch-test": {
+                "scripts": {
+                    "run": "test",
+                    "run-cov": "test with coverage",
+                    "cov-combine": "combine coverage",
+                    "cov-report": "show coverage",
+                },
+            }
+        }
+        project.save_config(config)
+
+        # Append a UTF-8-only character in a comment, as in GH #1677
+        with (project_path / "pyproject.toml").open("ab") as f:
+            f.write("\n# ”\n".encode("utf-8"))
+
+        # Simulate a non-UTF-8 locale such as cp1252 on Windows
+        mocker.patch("io.text_encoding", side_effect=lambda encoding, *args: encoding or "cp1252")
+        with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+            result = hatch("test", "--cover")
+
+        assert result.exit_code == 0, result.output
+
     def test_single(self, hatch, temp_dir, config_file, env_run, mocker):
         config_file.model.template.plugins["default"]["tests"] = False
         config_file.save()
