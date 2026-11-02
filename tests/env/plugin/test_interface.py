@@ -3,7 +3,9 @@ import re
 import pytest
 
 from hatch.config.constants import AppEnvVars
+from hatch.dep.core import Dependency
 from hatch.env.plugin.interface import EnvironmentInterface
+from hatch.env.virtual import VirtualEnvironment
 from hatch.project.core import Project
 from hatch.utils.structures import EnvVars
 
@@ -2287,6 +2289,49 @@ test = ["member-test-dep"]
 
         assert not any("pytest" in str(d) for d in environment.all_dependencies_complex)
         assert "refers to extra `tset`, which local project `my-app` does not define" in capsys.readouterr().err
+
+    def test_add_additional_dependencies_invalidates_caches(
+        self, temp_dir, isolated_data_dir, platform, temp_application
+    ):
+        """Extending additional_dependencies must invalidate the cached dependency views.
+
+        Otherwise the build env fails to install dynamic build-hook dependencies (e.g. those
+        pulled in by require-runtime-dependencies).
+        """
+        pyproject = temp_dir / "pyproject.toml"
+        pyproject.write_text("""
+    [project]
+    name = "my-app"
+    version = "0.0.1"
+    """)
+
+        project = Project(temp_dir)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = VirtualEnvironment(
+            temp_dir,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        # Prime the caches with the empty additional_dependencies snapshot.
+        assert not any("extra-dep" in str(d) for d in environment.dependencies_complex)
+        assert not any("extra-dep" in str(d) for d in environment.all_dependencies_complex)
+        vars(environment)["distributions"] = vars(environment)["missing_dependencies"] = []
+
+        environment.add_additional_dependencies([Dependency("extra-dep"), Dependency("other-dep")])
+
+        assert {"extra-dep", "other-dep"} <= {d.name for d in environment.dependencies_complex}
+        assert {"extra-dep", "other-dep"} <= {d.name for d in environment.all_dependencies_complex}
+        assert "distributions" not in vars(environment)
+        assert "missing_dependencies" not in vars(environment)
 
 
 class TestScripts:

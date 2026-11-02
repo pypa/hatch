@@ -6,7 +6,7 @@ from hatch.config.constants import AppEnvVars
 
 
 def get_env_var(*, plugin_name: str, option: str) -> str:
-    return f"{AppEnvVars.ENV_OPTION_PREFIX}{plugin_name}_{option.replace('-', '_')}".upper()
+    return f"{AppEnvVars.ENV_OPTION_PREFIX}{plugin_name.replace('-', '_')}_{option.replace('-', '_')}".upper()
 
 
 def get_env_var_option(*, plugin_name: str, option: str, default: str = "") -> str:

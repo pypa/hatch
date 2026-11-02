@@ -16,8 +16,10 @@ class BuildHookInterface(Generic[BuilderConfigBound]):  # no cov
     ```python tab="plugin.py"
     from hatchling.builders.hooks.plugin.interface import BuildHookInterface
 
+    from .builder import SpecialBuilderConfig
 
-    class SpecialBuildHook(BuildHookInterface):
+
+    class SpecialBuildHook(BuildHookInterface[SpecialBuilderConfig]):
         PLUGIN_NAME = "special"
         ...
     ```

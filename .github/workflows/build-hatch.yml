@@ -611,7 +611,7 @@ jobs:
         merge-multiple: true
 
     - name: Add assets to draft release
-      run:
+      run: |
         gh release upload "$RELEASE_TAG" \
           archives/* \
           distributions/* \

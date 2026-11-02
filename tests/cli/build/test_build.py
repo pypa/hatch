@@ -1465,6 +1465,7 @@ workspace.members = ["packages/*"]
             """
         )
 
+    @pytest.mark.requires_internet
     def test_default(self, hatch, temp_dir):
         workspace_root = self._create_workspace(hatch, temp_dir)
 
@@ -1491,6 +1492,7 @@ workspace.members = ["packages/*"]
         for member_name in ("member1", "member2"):
             assert not (workspace_root / "packages" / member_name / "dist").is_dir()
 
+    @pytest.mark.requires_internet
     def test_virtual_root(self, hatch, temp_dir):
         workspace_root = temp_dir / "workspace"
         workspace_root.mkdir()
@@ -1523,6 +1525,7 @@ workspace.members = ["packages/*"]
             "member2-0.0.1.tar.gz",
         ]
 
+    @pytest.mark.requires_internet
     def test_explicit_targets(self, hatch, temp_dir):
         workspace_root = self._create_workspace(hatch, temp_dir)
 
@@ -1540,6 +1543,7 @@ workspace.members = ["packages/*"]
             "workspace_root-0.0.1-py3-none-any.whl",
         ]
 
+    @pytest.mark.requires_internet
     def test_explicit_directory(self, hatch, temp_dir):
         workspace_root = self._create_workspace(hatch, temp_dir)
         build_directory = temp_dir / "artifacts"
