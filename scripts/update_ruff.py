@@ -113,6 +113,8 @@ def main():
     unselected_rules: set[str] = set()
     for rule in json.loads(process.stdout):
         code = rule["code"]
+        if not code:
+            continue
         if ignored_pattern.match(code) or removed_pattern.search(rule["explanation"]):
             unselected_rules.add(code)
             continue
