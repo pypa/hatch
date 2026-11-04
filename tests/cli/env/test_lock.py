@@ -463,6 +463,7 @@ def test_check_lockfile_stale(hatch, helpers, temp_dir, config_file):
     assert "not up to date" in result.output
 
 
+@pytest.mark.requires_internet
 def test_check_lockfile_stale_after_dependency_change(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
