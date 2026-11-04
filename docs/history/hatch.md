@@ -11,7 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ***Fixed:***
 
 - Fix syncing environment plugin requirements on standalone binaries built to forward to `pip`
-- `hatch env lock --check` no longer regenerates the lockfile of a `locked` environment whose dependencies changed before comparing it, so a stale lockfile is now reported as not up to date instead of being rewritten
+- `hatch env lock --check` no longer regenerates the lockfile of a `locked` environment whose dependencies changed before comparing it, so a stale lockfile is now reported as not up to date instead of being rewritten. It also no longer synchronizes the environment dependencies or updates the stored dependency hash
 
 ## [1.18.1](https://github.com/pypa/hatch/releases/tag/hatch-v1.18.1) - 2026-09-16 ## {: #hatch-v1.18.1 }
 
