@@ -76,6 +76,9 @@ def test(
 
     would run tests in the environments `hatch-test.py3.10-42` and `hatch-test.py3.10-3.14`.
 
+    Use the global `-e`/`--env` option (or `HATCH_ENV`) to select a single environment
+    from the `hatch-test` matrix. This cannot be combined with matrix filtering options.
+
     The `-py`/`--python` option is a shortcut for specifying the inclusion `-i py=...`.
 
     \b
@@ -132,6 +135,11 @@ def test(
     if test_all and (included_variables or excluded_variables):
         app.abort("The --all option cannot be used with the --include or --exclude options.")
 
+    env_source = ctx.find_root().get_parameter_source("env_name")
+    explicit_env = env_source is not None and env_source != click.core.ParameterSource.DEFAULT
+    if explicit_env and (test_all or included_variables or excluded_variables):
+        app.abort("The --env option cannot be used with --all, --python, --include or --exclude.")
+
     if retries is None and retry_delay is not None:
         app.abort("The --retry-delay option requires the --retries option to be set as well.")
 
@@ -140,7 +148,12 @@ def test(
     test_envs = app.project.config.internal_matrices["hatch-test"]["envs"]
     selected_envs: list[str] = []
     multiple_possible = True
-    if test_all:
+    if explicit_env:
+        if app.env not in test_envs:
+            app.abort(f"Environment `{app.env}` is not in the hatch-test matrix.")
+        selected_envs.append(app.env)
+        multiple_possible = False
+    elif test_all:
         selected_envs.extend(test_envs)
     elif included_variables or excluded_variables:
         selected_envs.extend(select_environments(test_envs, included_variables, excluded_variables))
