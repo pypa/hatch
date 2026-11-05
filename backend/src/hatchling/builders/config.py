@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING, Any, TypeVar
 
 import pathspec
 
-from hatch.project.core import Project
 from hatchling.builders.constants import DEFAULT_BUILD_DIRECTORY, EXCLUDED_DIRECTORIES, BuildEnvVars
 from hatchling.builders.utils import normalize_inclusion_map, normalize_relative_directory, normalize_relative_path
 from hatchling.metadata.utils import normalize_project_name
@@ -373,7 +372,6 @@ class BuilderConfig:
             raise TypeError(message)
 
         all_groups: dict[str, None] = {}
-        project_dependency_groups = Project(self.builder.metadata._project_file, name=self.builder.metadata.name, config=self.builder.raw_config).dependency_groups if 'project' in self.builder.raw_config else {}
         for i, raw_group in enumerate(require_dependency_groups, 1):
             if not isinstance(raw_group, str):
                 message = f"Group #{i} of field `{groups_location}` must be a string"
@@ -384,7 +382,7 @@ class BuilderConfig:
                 raise ValueError(message)
 
             group = normalize_project_name(raw_group)
-            if group not in project_dependency_groups:
+            if group not in self.builder.metadata.dependency_groups:
                 message = (
                     f"Group `{group}` of field `{groups_location}` is not defined in "
                     f"field `dependency-groups`"
@@ -524,7 +522,6 @@ class BuilderConfig:
     def dependencies(self) -> list[str]:
         # Used as an ordered set
         dependencies: dict[str, None] = {}
-        proj_dependency_groups = Project(self.builder.metadata._project_file, name=self.builder.metadata.name, config=self.builder.raw_config).dependency_groups if 'project' in self.builder.raw_config else {}
 
         target_dependencies = self.target_config.get("dependencies", [])
         if not isinstance(target_dependencies, list):
@@ -616,7 +613,7 @@ class BuilderConfig:
                     raise ValueError(message)
 
                 group = normalize_project_name(raw_group)
-                if group not in proj_dependency_groups:
+                if group not in self.builder.metadata.dependency_groups:
                     message = (
                         f"Group `{group}` of option `require-dependency-groups` of build hook `{hook_name}` "
                         f"is not defined in field `dependency-groups`"
@@ -647,7 +644,7 @@ class BuilderConfig:
                     dependencies[dependency] = None
         if require_dependency_groups:
             for group in require_dependency_groups:
-                for dependency in proj_dependency_groups[group]:
+                for dependency in self.builder.metadata.dependency_groups[group]:
                     dependencies[dependency] = None
 
         for dependency in self.dynamic_dependencies:
