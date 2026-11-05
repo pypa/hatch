@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Any, TypeVar
 
 import pathspec
 
+from hatch.project.core import Project
 from hatchling.builders.constants import DEFAULT_BUILD_DIRECTORY, EXCLUDED_DIRECTORIES, BuildEnvVars
 from hatchling.builders.utils import normalize_inclusion_map, normalize_relative_directory, normalize_relative_path
 from hatchling.metadata.utils import normalize_project_name
@@ -358,6 +359,43 @@ class BuilderConfig:
         return list(all_features)
 
     @cached_property
+    def require_dependency_groups(self) -> list[str]:
+        if "require-dependency-groups" in self.target_config:
+            groups_config = self.target_config
+            groups_location = f"tool.hatch.build.targets.{self.plugin_name}.require-dependency-groups"
+        else:
+            groups_config = self.build_config
+            groups_location = "tool.hatch.build.require-dependency-groups"
+
+        require_dependency_groups = groups_config.get("require-dependency-groups", [])
+        if not isinstance(require_dependency_groups, list):
+            message = f"Field `{groups_location}` must be an array"
+            raise TypeError(message)
+
+        all_groups: dict[str, None] = {}
+        project_dependency_groups = Project(self.builder.metadata._project_file, name=self.builder.metadata.name, config=self.builder.raw_config).dependency_groups if 'project' in self.builder.raw_config else {}
+        for i, raw_group in enumerate(require_dependency_groups, 1):
+            if not isinstance(raw_group, str):
+                message = f"Group #{i} of field `{groups_location}` must be a string"
+                raise TypeError(message)
+
+            if not raw_group:
+                message = f"Group #{i} of field `{groups_location}` cannot be an empty string"
+                raise ValueError(message)
+
+            group = normalize_project_name(raw_group)
+            if group not in project_dependency_groups:
+                message = (
+                    f"Group `{group}` of field `{groups_location}` is not defined in "
+                    f"field `dependency-groups`"
+                )
+                raise ValueError(message)
+
+            all_groups[group] = None
+
+        return list(all_groups)
+
+    @cached_property
     def only_packages(self) -> bool:
         """
         Whether or not the target should ignore non-artifact files that do not reside within a Python package.
@@ -486,6 +524,7 @@ class BuilderConfig:
     def dependencies(self) -> list[str]:
         # Used as an ordered set
         dependencies: dict[str, None] = {}
+        proj_dependency_groups = Project(self.builder.metadata._project_file, name=self.builder.metadata.name, config=self.builder.raw_config).dependency_groups if 'project' in self.builder.raw_config else {}
 
         target_dependencies = self.target_config.get("dependencies", [])
         if not isinstance(target_dependencies, list):
@@ -516,6 +555,7 @@ class BuilderConfig:
 
         require_runtime_dependencies = self.require_runtime_dependencies
         require_runtime_features = dict.fromkeys(self.require_runtime_features)
+        require_dependency_groups = dict.fromkeys(self.require_dependency_groups)
         for hook_name, config in self.hook_config.items():
             hook_require_runtime_dependencies = config.get("require-runtime-dependencies", False)
             if not isinstance(hook_require_runtime_dependencies, bool):
@@ -555,6 +595,36 @@ class BuilderConfig:
 
                 require_runtime_features[feature] = None
 
+            hook_require_dependency_groups = config.get("require-dependency-groups", [])
+            if not isinstance(hook_require_dependency_groups, list):
+                message = f"Option `require-dependency-groups` of build hook `{hook_name}` must be an array"
+                raise TypeError(message)
+
+            for i, raw_group in enumerate(hook_require_dependency_groups, 1):
+                if not isinstance(raw_group, str):
+                    message = (
+                        f"Group #{i} of option `require-dependency-groups` of build hook `{hook_name}` "
+                        f"must be a string"
+                    )
+                    raise TypeError(message)
+
+                if not raw_group:
+                    message = (
+                        f"Group #{i} of option `require-dependency-groups` of build hook `{hook_name}` "
+                        f"cannot be an empty string"
+                    )
+                    raise ValueError(message)
+
+                group = normalize_project_name(raw_group)
+                if group not in proj_dependency_groups:
+                    message = (
+                        f"Group `{group}` of option `require-dependency-groups` of build hook `{hook_name}` "
+                        f"is not defined in field `dependency-groups`"
+                    )
+                    raise ValueError(message)
+
+                require_dependency_groups[group] = None
+
             hook_dependencies = config.get("dependencies", [])
             if not isinstance(hook_dependencies, list):
                 message = f"Option `dependencies` of build hook `{hook_name}` must be an array"
@@ -574,6 +644,10 @@ class BuilderConfig:
         if require_runtime_features:
             for feature in require_runtime_features:
                 for dependency in self.builder.metadata.core.optional_dependencies[feature]:
+                    dependencies[dependency] = None
+        if require_dependency_groups:
+            for group in require_dependency_groups:
+                for dependency in proj_dependency_groups[group]:
                     dependencies[dependency] = None
 
         for dependency in self.dynamic_dependencies:
