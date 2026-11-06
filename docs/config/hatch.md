@@ -189,6 +189,10 @@ The following values have special meanings:
 | --- | --- |
 | `isolated` (default) | `<DATA_DIR>/pythons` |
 
+## Network
+
+Network requests, such as downloading Python distributions, use a timeout of 10 seconds by default. You can select a custom timeout in seconds by setting the `HATCH_NETWORK_TIMEOUT` environment variable.
+
 ## Terminal
 
 You can configure how all output is displayed using the `terminal.styles` table. These settings are also applied to all plugins.
