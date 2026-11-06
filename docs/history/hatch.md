@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Added:***
+
+- Make the timeout for network requests configurable with the `HATCH_NETWORK_TIMEOUT` environment variable.
+
 ## [1.18.2](https://github.com/pypa/hatch/releases/tag/hatch-v1.18.2) - 2026-10-27 ## {: #hatch-v1.18.2 }
 
 ***Changed:***
