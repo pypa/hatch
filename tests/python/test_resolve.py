@@ -5,7 +5,13 @@ import pytest
 
 from hatch.config.constants import PythonEnvVars
 from hatch.errors import PythonDistributionResolutionError, PythonDistributionUnknownError
-from hatch.python.resolve import custom_env_var, get_compatible_distributions, get_distribution
+from hatch.python.resolve import (
+    CPythonStandaloneDistribution,
+        PyPyOfficialDistribution,
+    custom_env_var,
+    get_compatible_distributions,
+    get_distribution,
+)
 from hatch.utils.structures import EnvVars
 
 
@@ -202,3 +208,48 @@ class TestVariantGIL:
             ),
         ):
             get_distribution("3.12")
+
+
+class TestSourceBaseUrl:
+    def test_mirror_rewrites_default_source(self):
+        with EnvVars({"HATCH_PYTHON_SOURCE_BASE_URL": "https://mirror.example.com/pbs"}):
+            dist = get_distribution("3.11")
+
+        assert dist.source.startswith("https://mirror.example.com/pbs/")
+        assert "cpython-3.11" in dist.source
+        assert isinstance(dist, CPythonStandaloneDistribution)
+
+    def test_mirror_trailing_slash(self):
+        with EnvVars({"HATCH_PYTHON_SOURCE_BASE_URL": "https://mirror.example.com/pbs/"}):
+            dist = get_distribution("3.11")
+
+        assert dist.source.startswith("https://mirror.example.com/pbs/")
+        assert "//2026" not in dist.source
+
+    def test_mirror_version_still_parses(self):
+        with EnvVars({"HATCH_PYTHON_SOURCE_BASE_URL": "https://mirror.example.com/pbs"}):
+            dist = get_distribution("3.11")
+
+        assert dist.version.base_version.startswith("3.11.")
+
+    def test_mirror_ignored_for_pypy(self):
+        with EnvVars({"HATCH_PYTHON_SOURCE_BASE_URL": "https://mirror.example.com/pbs"}):
+            dist = get_distribution("pypy3.10")
+
+        assert dist.source.startswith("https://downloads.python.org/pypy/")
+        assert isinstance(dist, PyPyOfficialDistribution)
+
+    def test_explicit_source_unchanged(self):
+        url = "https://github.com/indygreg/python-build-standalone/releases/download/20230507/cpython-3.11.3%2B20230507-aarch64-unknown-linux-gnu-install_only.tar.gz"
+        with EnvVars({"HATCH_PYTHON_SOURCE_BASE_URL": "https://mirror.example.com/pbs"}):
+            dist = get_distribution("3.11", url)
+
+        assert dist.source == url
+
+    def test_mirror_source_is_recognized(self):
+        url = "https://mirror.example.com/pbs/20261026/cpython-3.11.3%2B20261026-x86_64-unknown-linux-gnu-install_only_stripped.tar.gz"
+        with EnvVars({"HATCH_PYTHON_SOURCE_BASE_URL": "https://mirror.example.com/pbs"}):
+            dist = get_distribution("3.11", url)
+
+        assert isinstance(dist, CPythonStandaloneDistribution)
+        assert dist.version.base_version == "3.11.3"
