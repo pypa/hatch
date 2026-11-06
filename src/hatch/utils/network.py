@@ -50,7 +50,7 @@ def streaming_response(*args: Any, **kwargs: Any) -> Generator[httpx2.Response, 
                 response.raise_for_status()
                 yield response
 
-    break
+            break
         except httpx2.HTTPError:
             sleep = min(MAXIMUM_SLEEP, MINIMUM_SLEEP * 2**attempts)
             if sleep == MAXIMUM_SLEEP:
