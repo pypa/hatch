@@ -1089,6 +1089,57 @@ class TestFilters:
 
         assert not (data_path / ".config" / "coverage").exists()
 
+    @pytest.mark.parametrize(
+        "args",
+        [
+            pytest.param(("-i", "py=3.13"), id="include"),
+            pytest.param(("-i", "py=3.13", "--cover"), id="include-cover"),
+            pytest.param(("-x", "py=3.12,3.10,3.8"), id="exclude"),
+            pytest.param(("-x", "py=3.12,3.10,3.8", "--cover"), id="exclude-cover"),
+        ],
+    )
+    def test_no_matching_environments(self, hatch, temp_dir, config_file, helpers, env_run, args):
+        config_file.model.template.plugins["default"]["tests"] = False
+        config_file.save()
+
+        project_name = "My.App"
+
+        with temp_dir.as_cwd():
+            result = hatch("new", project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / "my-app"
+        data_path = temp_dir / "data"
+        data_path.mkdir()
+
+        project = Project(project_path)
+        config = dict(project.raw_config)
+        config["tool"]["hatch"]["envs"] = {
+            "hatch-test": {
+                "matrix": [{"python": ["3.12", "3.10", "3.8"]}],
+                "scripts": {
+                    "run": "test {env_name}",
+                    "run-cov": "test with coverage",
+                    "cov-combine": "combine coverage",
+                    "cov-report": "show coverage",
+                },
+            }
+        }
+        project.save_config(config)
+
+        with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+            result = hatch("test", *args)
+
+        assert result.exit_code == 1, result.output
+        assert result.output == helpers.dedent(
+            """
+            No environments were selected
+            """
+        )
+
+        assert env_run.call_args_list == []
+
 
 class TestShow:
     def test_default_compact(self, hatch, temp_dir, config_file, helpers):

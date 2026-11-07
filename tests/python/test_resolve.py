@@ -162,7 +162,7 @@ class TestVariantCPU:
 
 
 class TestVariantGIL:
-    @pytest.mark.parametrize(("name", "base_version"), [("3.13t", "3.13.15"), ("3.14t", "3.14.7")])
+    @pytest.mark.parametrize(("name", "base_version"), [("3.13t", "3.13.18"), ("3.14t", "3.14.10")])
     def test_free_threaded_selectors(self, name, base_version):
         dist = get_distribution(name)
 

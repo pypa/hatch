@@ -74,6 +74,8 @@ def test_default_as_json(hatch, temp_dir, config_file):
         "hatch-check-fmt",
         "hatch-check-types",
         "hatch-static-analysis",
+        "hatch-test.py3.15",
+        "hatch-test.py3.15t",
         "hatch-test.py3.14",
         "hatch-test.py3.14t",
         "hatch-test.py3.13",
