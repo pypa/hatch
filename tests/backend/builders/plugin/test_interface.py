@@ -188,11 +188,15 @@ class TestDirectoryRecursion:
                 (foo / name / "file.txt").touch()
 
             walk = os.walk
+            removed = False
 
             def walk_and_remove_bar(top, *args, **kwargs):
+                nonlocal removed
                 for root, dirs, files in walk(top, *args, **kwargs):
                     # Simulate the directory being removed concurrently, right after it was listed
-                    if root == str(foo / "bar"):
+                    if not removed and root == str(foo / "bar"):
+                        # rmtree itself calls os.walk on Windows; do not trigger removal again.
+                        removed = True
                         (foo / "bar").remove()
 
                     yield root, dirs, files

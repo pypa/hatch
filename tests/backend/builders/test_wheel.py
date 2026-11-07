@@ -2856,11 +2856,15 @@ class TestBuildStandard:
         (build_env / "lib" / "foo" / "baz").ensure_dir_exists()
 
         walk = os.walk
+        removed = False
 
         def walk_and_remove_build_env(top, *args, **kwargs):
+            nonlocal removed
             for root, dirs, files in walk(top, *args, **kwargs):
                 # Simulate the build environment being removed concurrently, right after this directory was listed
-                if root == str(build_env / "lib" / "bar"):
+                if not removed and root == str(build_env / "lib" / "bar"):
+                    # rmtree itself calls os.walk on Windows; do not trigger removal again.
+                    removed = True
                     build_env.remove()
 
                 yield root, dirs, files
