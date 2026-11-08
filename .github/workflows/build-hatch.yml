@@ -134,10 +134,10 @@ jobs:
           os: windows-2022
         # macOS
         - target: aarch64-apple-darwin
-          os: macos-14
+          os: macos-15
           use-dist: true
         - target: x86_64-apple-darwin
-          os: macos-14
+          os: macos-15
           use-dist: true
 
     env:
@@ -375,7 +375,7 @@ jobs:
     needs:
     - binaries
     - python-artifacts
-    runs-on: macos-14
+    runs-on: macos-15
 
     env:
       VERSION: ${{ needs.python-artifacts.outputs.version }}
