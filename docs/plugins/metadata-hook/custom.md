@@ -24,8 +24,7 @@ The metadata hook plugin name is `custom`.
 from hatchling.metadata.plugin.interface import MetadataHookInterface
 
 
-class CustomMetadataHook(MetadataHookInterface):
-    ...
+class CustomMetadataHook(MetadataHookInterface): ...
 ```
 
 If multiple subclasses are found, you must define a function named `get_metadata_hook` that returns the desired build hook.

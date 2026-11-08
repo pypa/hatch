@@ -113,6 +113,8 @@ def main():
     unselected_rules: set[str] = set()
     for rule in json.loads(process.stdout):
         code = rule["code"]
+        if not code:
+            continue
         if ignored_pattern.match(code) or removed_pattern.search(rule["explanation"]):
             unselected_rules.add(code)
             continue
@@ -123,17 +125,17 @@ def main():
             stable_rules.add(code)
 
     lines.append("STABLE_RULES: tuple[str, ...] = (")
-    lines.extend(f"    {rule!r}," for rule in sorted(stable_rules))
+    lines.extend(f'    "{rule}",' for rule in sorted(stable_rules))
     lines.append(")")
 
     lines.append("PREVIEW_RULES: tuple[str, ...] = (")
-    lines.extend(f"    {rule!r}," for rule in sorted(preview_rules))
+    lines.extend(f'    "{rule}",' for rule in sorted(preview_rules))
     lines.append(")")
 
     lines.append("PER_FILE_IGNORED_RULES: dict[str, list[str]] = {")
     for ignored_glob, ignored_rules in sorted(PER_FILE_IGNORED_RULES.items()):
-        lines.append(f"    {ignored_glob!r}: [")
-        lines.extend(f"        {rule!r}," for rule in sorted(ignored_rules))
+        lines.append(f'    "{ignored_glob}": [')
+        lines.extend(f'        "{rule}",' for rule in sorted(ignored_rules))
         lines.append("    ],")
     lines.append("}")
 
@@ -157,7 +159,7 @@ def main():
     lines = get_lines_until(data_file, "UNSELECTED_RULES")
 
     lines.append("UNSELECTED_RULES: tuple[str, ...] = (")
-    lines.extend(f"    {rule!r}," for rule in sorted(unselected_rules))
+    lines.extend(f'    "{rule}",' for rule in sorted(unselected_rules))
     lines.append(")")
 
     lines.append("")

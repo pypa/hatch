@@ -12,10 +12,10 @@ import pytest
 
 @pytest.fixture
 def new_project(tmp_path):
-    project_dir = tmp_path / 'my-app'
+    project_dir = tmp_path / "my-app"
     project_dir.mkdir()
 
-    project_file = project_dir / 'pyproject.toml'
+    project_file = project_dir / "pyproject.toml"
     project_file.write_text(
         f"""\
 [build-system]
@@ -26,7 +26,7 @@ build-backend = "hatchling.build"
 name = "my-app"
 version = "0.1.0"
 """,
-        encoding='utf-8',
+        encoding="utf-8",
     )
     ...
 ```
@@ -43,23 +43,21 @@ from tempfile import TemporaryDirectory
 import pytest
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def plugin_dir():
     with TemporaryDirectory() as d:
-        directory = Path(d, 'plugin')
-        shutil.copytree(
-            Path.cwd(), directory, ignore=shutil.ignore_patterns('.git')
-        )
+        directory = Path(d, "plugin")
+        shutil.copytree(Path.cwd(), directory, ignore=shutil.ignore_patterns(".git"))
 
         yield directory.resolve()
 
 
 @pytest.fixture
 def new_project(tmp_path, plugin_dir):
-    project_dir = tmp_path / 'my-app'
+    project_dir = tmp_path / "my-app"
     project_dir.mkdir()
 
-    project_file = project_dir / 'pyproject.toml'
+    project_file = project_dir / "pyproject.toml"
     project_file.write_text(
         f"""\
 [build-system]
@@ -70,7 +68,7 @@ build-backend = "hatchling.build"
 name = "my-app"
 version = "0.1.0"
 """,
-        encoding='utf-8',
+        encoding="utf-8",
     )
     ...
 ```

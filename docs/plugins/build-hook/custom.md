@@ -25,8 +25,7 @@ The build hook plugin name is `custom`.
 from hatchling.builders.hooks.plugin.interface import BuildHookInterface
 
 
-class CustomBuildHook(BuildHookInterface):
-    ...
+class CustomBuildHook(BuildHookInterface): ...
 ```
 
 If multiple subclasses are found, you must define a function named `get_build_hook` that returns the desired build hook.
