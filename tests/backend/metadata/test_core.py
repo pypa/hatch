@@ -17,6 +17,39 @@ def latest_spec():
 
 
 class TestConfig:
+    @pytest.mark.parametrize("boundary", ["ignored", "sdist", "none"])
+    @pytest.mark.parametrize("local", [False, True])
+    def test_parent_discovery_boundary(self, temp_dir, boundary, local):
+        root = temp_dir / "pkg"
+        root.mkdir()
+        (temp_dir / "pyproject.toml").write_text("parent = true\n")
+        (temp_dir / "hatch.toml").write_text("parent = true\n")
+        if boundary == "ignored":
+            (temp_dir / ".gitignore").write_text("pkg/\n")
+        elif boundary == "sdist":
+            (root / "PKG-INFO").touch()
+        if local:
+            (root / "pyproject.toml").write_text("local = true\n")
+            (root / "hatch.toml").write_text("local = true\n")
+
+        metadata = ProjectMetadata(str(root), None)
+        expected = {"local": True} if local else {"parent": True} if boundary == "none" else {}
+        assert metadata.config == expected
+        assert metadata.hatch.config == expected
+
+    @pytest.mark.parametrize("boundary", ["ignored", "sdist", "none"])
+    def test_parent_hatch_only_boundary(self, temp_dir, boundary):
+        root = temp_dir / "pkg"
+        root.mkdir()
+        (temp_dir / "hatch.toml").write_text("parent = true\n")
+        if boundary == "ignored":
+            (temp_dir / ".gitignore").write_text("pkg/\n")
+        elif boundary == "sdist":
+            (root / "PKG-INFO").touch()
+
+        metadata = ProjectMetadata(str(root), None)
+        assert metadata.hatch.config == ({"parent": True} if boundary == "none" else {})
+
     def test_default(self, isolation):
         metadata = ProjectMetadata(str(isolation), None)
 

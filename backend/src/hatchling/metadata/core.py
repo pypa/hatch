@@ -4,6 +4,7 @@ import os
 import sys
 from contextlib import suppress
 from copy import deepcopy
+from functools import cached_property
 from typing import TYPE_CHECKING, Any, Generic, cast
 
 from hatchling.metadata.utils import (
@@ -15,7 +16,7 @@ from hatchling.metadata.utils import (
 )
 from hatchling.plugin.manager import PluginManagerBound
 from hatchling.utils.constants import DEFAULT_CONFIG_FILE
-from hatchling.utils.fs import locate_file
+from hatchling.utils.vcs import VCSIgnorePolicy
 
 if TYPE_CHECKING:
     from packaging.requirements import Requirement
@@ -171,7 +172,12 @@ class ProjectMetadata(Generic[PluginManagerBound]):
     @property
     def config(self) -> dict[str, Any]:
         if self._config is None:
-            project_file = locate_file(self.root, "pyproject.toml")
+            local_project_file = os.path.join(self.root, "pyproject.toml")
+            project_file = (
+                local_project_file
+                if os.path.isfile(local_project_file)
+                else self.vcs_ignore.locate_project_file("pyproject.toml")
+            )
             if project_file is None:
                 self._config = {}
             else:
@@ -179,6 +185,10 @@ class ProjectMetadata(Generic[PluginManagerBound]):
                 self._config = load_toml(project_file)
 
         return self._config
+
+    @cached_property
+    def vcs_ignore(self) -> VCSIgnorePolicy:
+        return VCSIgnorePolicy(self.root)
 
     @property
     def build(self) -> BuildMetadata:
@@ -243,7 +253,7 @@ class ProjectMetadata(Generic[PluginManagerBound]):
             hatch_file = (
                 os.path.join(os.path.dirname(self._project_file), DEFAULT_CONFIG_FILE)
                 if self._project_file is not None
-                else locate_file(self.root, DEFAULT_CONFIG_FILE) or ""
+                else self.vcs_ignore.locate_project_file(DEFAULT_CONFIG_FILE) or ""
             )
 
             if hatch_file and os.path.isfile(hatch_file):
