@@ -2573,6 +2573,35 @@ class TestScriptRunner:
             """
         )
 
+    def test_metadata_after_bom(self, hatch, helpers, temp_dir):
+        data_path = temp_dir / "data"
+        data_path.mkdir()
+        script = (temp_dir / "script.py").resolve()
+        script.write_text(
+            helpers.dedent(
+                """
+                # /// script
+                # requires-python = ">9000"
+                # ///
+                import pathlib
+                import sys
+
+                pathlib.Path('test.txt').write_text(sys.executable)
+                """
+            ),
+            encoding="utf-8-sig",
+        )
+
+        with temp_dir.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+            result = hatch("run", "script.py")
+
+        assert result.exit_code == 1, result.output
+        assert result.output == helpers.dedent(
+            """
+            Unable to satisfy Python version constraint: >9000
+            """
+        )
+
     @pytest.mark.requires_internet
     def test_python_version_constraint(self, hatch, helpers, temp_dir):
         data_path = temp_dir / "data"
