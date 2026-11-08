@@ -194,7 +194,14 @@ class Project:
 
     # Ensure that this method is clearly written since it is
     # used for documenting the life cycle of environments.
-    def prepare_environment(self, environment: EnvironmentInterface, *, keep_env: bool):
+    def prepare_environment(
+        self,
+        environment: EnvironmentInterface,
+        *,
+        keep_env: bool,
+        update_lockfile: bool = True,
+        sync_dependencies: bool = True,
+    ):
         if not environment.exists():
             with self.managed_environment(environment, keep_env=keep_env):
                 self.env_metadata.reset(environment)
@@ -238,13 +245,13 @@ class Project:
 
         from hatch.env.lock import environment_has_lock_inputs, generate_lockfile, resolve_lockfile_path
 
-        if environment.locked and environment_has_lock_inputs(environment):
+        if update_lockfile and environment.locked and environment_has_lock_inputs(environment):
             lockfile_path = resolve_lockfile_path(environment)
             if not lockfile_path.is_file() or new_dep_hash != current_dep_hash:
                 with self.app.status(f"Locking environment: {environment.name}"):
                     generate_lockfile(environment, lockfile_path)
 
-        if new_dep_hash != current_dep_hash:
+        if sync_dependencies and new_dep_hash != current_dep_hash:
             with environment.app_status_dependency_installation_check():
                 dependencies_in_sync = environment.dependencies_in_sync()
 
