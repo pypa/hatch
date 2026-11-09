@@ -38,6 +38,19 @@ Dynamic: Provides-Extra
             "dynamic": ["classifiers", "dependencies", "optional-dependencies"],
         }
 
+    def test_dynamic_license_file(self):
+        core_metadata = f"""\
+Metadata-Version: {LATEST_METADATA_VERSION}
+Name: My.App
+Version: 0.1.0
+Dynamic: License-File
+"""
+        assert project_metadata_from_core_metadata(core_metadata) == {
+            "name": "My.App",
+            "version": "0.1.0",
+            "dynamic": ["license-files"],
+        }
+
     def test_description(self):
         core_metadata = f"""\
 Metadata-Version: {LATEST_METADATA_VERSION}
@@ -1974,6 +1987,22 @@ class TestCoreMetadataV24:
             Dynamic: Author
             Dynamic: Author-email
             Dynamic: Classifier
+            """
+        )
+
+    def test_dynamic_license_files(self, constructor, isolation, helpers):
+        metadata = ProjectMetadata(
+            str(isolation),
+            None,
+            {"project": {"name": "My.App", "version": "0.1.0", "dynamic": ["license-files"]}},
+        )
+
+        assert constructor(metadata) == helpers.dedent(
+            """
+            Metadata-Version: 2.4
+            Name: My.App
+            Version: 0.1.0
+            Dynamic: License-File
             """
         )
 
