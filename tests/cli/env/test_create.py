@@ -2232,3 +2232,100 @@ def test_requires_hatch_not_satisfied(hatch, temp_dir, config_file):
 
     assert result.exit_code == 1, result.output
     assert ">999" in result.output
+
+
+def test_sources_path_project_dependency(
+    hatch,
+    helpers,
+    temp_dir,
+    config_file,
+    platform,
+    uv_on_path,
+    extract_installed_requirements,
+):
+    """Path sources for project.dependencies must apply during env create.
+
+    Source-redirected project deps are installed before the editable project so
+    pip can resolve them locally. Without that, pip searches indexes and fails
+    with ``No matching distribution found`` for private packages.
+    """
+    config_file.model.template.plugins["default"]["tests"] = False
+    config_file.save()
+
+    packages = temp_dir / "packages"
+    foo_path = packages / "foo"
+    (foo_path / "src" / "foo").ensure_dir_exists()
+    (foo_path / "src" / "foo" / "__init__.py").write_text("VALUE = 1\n")
+    (foo_path / "pyproject.toml").write_text(
+        helpers.dedent(
+            """
+            [build-system]
+            requires = ["hatchling"]
+            build-backend = "hatchling.build"
+
+            [project]
+            name = "foo"
+            version = "0.1.0"
+            requires-python = ">=3.9"
+
+            [tool.hatch.build.targets.wheel]
+            packages = ["src/foo"]
+            """
+        )
+    )
+
+    bar_path = packages / "bar"
+    (bar_path / "src" / "bar").ensure_dir_exists()
+    (bar_path / "src" / "bar" / "__init__.py").write_text("from foo import VALUE\n")
+    (bar_path / "pyproject.toml").write_text(
+        helpers.dedent(
+            """
+            [build-system]
+            requires = ["hatchling"]
+            build-backend = "hatchling.build"
+
+            [project]
+            name = "bar"
+            version = "0.1.0"
+            requires-python = ">=3.9"
+            dependencies = ["foo==0.1.0"]
+
+            [tool.hatch.build.targets.wheel]
+            packages = ["src/bar"]
+
+            [tool.hatch.envs.default]
+            path = ".venv"
+
+            [tool.hatch.envs.default.sources]
+            foo = { path = "../foo", editable = true }
+            """
+        )
+    )
+
+    data_path = temp_dir / "data"
+    data_path.mkdir()
+
+    with bar_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch("env", "create")
+
+    assert result.exit_code == 0, result.output
+    assert "Creating environment: default" in result.output
+    assert "Installing project in development mode" in result.output
+
+    env_path = bar_path / ".venv"
+    assert env_path.is_dir()
+
+    with UVVirtualEnv(env_path, platform):
+        output = platform.run_command([uv_on_path, "pip", "freeze"], check=True, capture_output=True).stdout.decode(
+            "utf-8"
+        )
+        requirements = extract_installed_requirements(output.splitlines())
+        assert any(
+            req.lower().startswith("foo")
+            or "foo@" in req.lower()
+            or req.lower().startswith("-e ")
+            for req in requirements
+        )
+        assert any("bar" in req.lower() for req in requirements)
+
+        platform.run_command(["python", "-c", "import foo, bar; assert foo.VALUE == 1"], check=True)

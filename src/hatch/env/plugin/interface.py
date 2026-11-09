@@ -576,6 +576,27 @@ class EnvironmentInterface(ABC):
         return skip_install
 
     @cached_property
+    def sourced_project_dependencies(self) -> tuple[Dependency, ...]:
+        """
+        Project dependencies that match a configured
+        [source](../../config/environment/sources.md).
+
+        These are installed before the project itself so that
+        `pip install -e .` can resolve `project.dependencies` against the
+        redirected origins rather than package indexes.
+        """
+        if not self.sources or self.skip_install:
+            return ()
+
+        from hatch.project.sources import lookup
+
+        return tuple(
+            dependency
+            for dependency in self.project_dependencies_complex
+            if lookup(self.sources, dependency.name) is not None
+        )
+
+    @cached_property
     def dev_mode(self) -> bool:
         """
         ```toml config-example
@@ -846,6 +867,15 @@ class EnvironmentInterface(ABC):
 
         This should install the project in the environment such that the environment
         always reflects the current state of the project.
+        """
+
+    @abstractmethod
+    def install_sourced_project_dependencies(self):
+        """
+        :material-align-horizontal-left: **REQUIRED** :material-align-horizontal-right:
+
+        Install [`sourced_project_dependencies`](reference.md#hatch.env.plugin.interface.EnvironmentInterface.sourced_project_dependencies)
+        so they are present before project installation.
         """
 
     @abstractmethod

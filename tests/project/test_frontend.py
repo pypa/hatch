@@ -33,6 +33,9 @@ class MockEnvironment(EnvironmentInterface):  # no cov
     def install_project_dev_mode(self):
         pass
 
+    def install_sourced_project_dependencies(self):
+        pass
+
     def dependencies_in_sync(self):
         pass
 

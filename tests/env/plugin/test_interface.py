@@ -31,6 +31,9 @@ class MockEnvironment(EnvironmentInterface):  # no cov
     def install_project_dev_mode(self):
         pass
 
+    def install_sourced_project_dependencies(self):
+        pass
+
     def dependencies_in_sync(self):
         pass
 
@@ -4574,3 +4577,97 @@ skip-install = false
         deps = [dep for dep in environment.dependencies_complex if dep.name == "dep3"]
         assert len(deps) == 1
         assert deps[0].url == "git+https://example.com/dep3@abc"
+
+    def test_sourced_project_dependencies_with_matching_source(
+        self, isolation, isolated_data_dir, platform, temp_application
+    ):
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1", "dependencies": ["dep1"]},
+            "tool": {
+                "hatch": {
+                    "sources": {"dep1": "./packages/dep1"},
+                    "envs": {"default": {"skip-install": False}},
+                }
+            },
+        }
+        project = Project(isolation, config=config)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        deps = environment.sourced_project_dependencies
+        assert len(deps) == 1
+        assert deps[0].name == "dep1"
+        assert deps[0].url is not None
+        assert deps[0].editable is True
+
+    def test_sourced_project_dependencies_without_matching_source(
+        self, isolation, isolated_data_dir, platform, temp_application
+    ):
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1", "dependencies": ["dep1"]},
+            "tool": {
+                "hatch": {
+                    "sources": {"other": "./packages/other"},
+                    "envs": {"default": {"skip-install": False}},
+                }
+            },
+        }
+        project = Project(isolation, config=config)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        assert environment.sourced_project_dependencies == ()
+
+    def test_sourced_project_dependencies_skipped_when_skip_install(
+        self, isolation, isolated_data_dir, platform, temp_application
+    ):
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1", "dependencies": ["dep1"]},
+            "tool": {
+                "hatch": {
+                    "sources": {"dep1": "./packages/dep1"},
+                    "envs": {"default": {"skip-install": True}},
+                }
+            },
+        }
+        project = Project(isolation, config=config)
+        project.set_app(temp_application)
+        temp_application.project = project
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            temp_application,
+        )
+
+        assert environment.sourced_project_dependencies == ()
