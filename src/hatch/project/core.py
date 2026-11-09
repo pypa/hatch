@@ -215,6 +215,7 @@ class Project:
                             )
 
                     with environment.app_status_project_installation():
+                        environment.install_sourced_project_dependencies()
                         if environment.dev_mode:
                             environment.install_project_dev_mode()
                         else:

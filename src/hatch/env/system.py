@@ -33,6 +33,26 @@ class SystemEnvironment(EnvironmentInterface):
             self.construct_pip_install_command(["--editable", self.apply_features(str(self.root))])
         )
 
+    def install_sourced_project_dependencies(self):
+        dependencies = self.sourced_project_dependencies
+        if not dependencies:
+            return
+
+        standard_dependencies = []
+        editable_paths = []
+        for dependency in dependencies:
+            if dependency.editable and dependency.path is not None:
+                editable_paths.append(str(dependency.path))
+            else:
+                standard_dependencies.append(str(dependency))
+
+        install_args = list(self.get_source_install_args(dependencies))
+        install_args.extend(standard_dependencies)
+        for path in editable_paths:
+            install_args.extend(["--editable", path])
+
+        self.platform.check_command(self.construct_pip_install_command(install_args))
+
     def dependencies_in_sync(self):
         if not self.dependencies:
             return True
