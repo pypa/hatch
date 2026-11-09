@@ -1477,6 +1477,47 @@ class TestEnvs:
         assert project_config.envs == expected_envs
         assert project_config.matrices["foo"] == construct_matrix_data("foo", env_config)
 
+    def test_overrides_matrix_extra_args_conditional(self, isolation):
+        env_config = {
+            "foo": {
+                "extra-args": ["--base"],
+                "matrix": [{"mode": ["quiet", "verbose"]}],
+                "overrides": {
+                    "matrix": {
+                        "mode": {
+                            "extra-args": [
+                                {"value": "-q", "if": ["quiet"]},
+                                {"value": "-vv", "if": ["verbose"]},
+                            ]
+                        }
+                    }
+                },
+            }
+        }
+        project_config = ProjectConfig(isolation, {"envs": env_config}, PluginManager())
+
+        assert project_config.envs == {
+            "default": {"type": "virtual"},
+            "foo.quiet": {"type": "virtual", "extra-args": ["--base", "-q"]},
+            "foo.verbose": {"type": "virtual", "extra-args": ["--base", "-vv"]},
+        }
+
+    def test_overrides_matrix_extra_args_legacy_syntax(self, isolation):
+        env_config = {
+            "foo": {
+                "matrix": [{"mode": ["quiet", "verbose"]}],
+                "overrides": {"matrix": {"mode": {"extra-args": {"value": ["-q"], "if": ["quiet"]}}}},
+            }
+        }
+        project_config = ProjectConfig(isolation, {"envs": env_config}, PluginManager())
+
+        with pytest.warns(DeprecationWarning, match="single-table conditional syntax for `extra-args`"):
+            assert project_config.envs == {
+                "default": {"type": "virtual"},
+                "foo.quiet": {"type": "virtual", "extra-args": ["-q"]},
+                "foo.verbose": {"type": "virtual"},
+            }
+
     @pytest.mark.parametrize("option", ARRAY_OPTIONS)
     def test_overrides_matrix_array_table_conditional_with_platform(self, isolation, option, current_platform):
         env_config = {
