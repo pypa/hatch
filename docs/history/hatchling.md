@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Fixed:***
+
+- Use the correct singular `License-File` core metadata field name for `license-files` in `Dynamic` headers, both when writing (previously emitted the invalid `License-Files`) and when reading core metadata back into project metadata
+
 ## [1.33.0](https://github.com/pypa/hatch/releases/tag/hatchling-v1.33.0) - 2026-10-27 ## {: #hatchling-v1.33.0 }
 
 ***Added:***
