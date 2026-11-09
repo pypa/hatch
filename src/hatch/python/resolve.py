@@ -21,8 +21,27 @@ if TYPE_CHECKING:
 CUSTOM_DISTRIBUTION_VERSION_EPOCH = 100
 FREETHREADED_GIL_VARIANT = "freethreaded"
 
+# The default source of CPython distributions, which may be overridden with
+# the `HATCH_PYTHON_SOURCE_BASE_URL` environment variable in order to use a
+# mirror that serves the same release layout.
+STANDALONE_SOURCE_PREFIX = "https://github.com/astral-sh/python-build-standalone/releases/download/"
 
-def _distribution_supports_variant_gil(name: str, variant_gil: str) -> bool:
+
+def get_source_base_url() -> str | None:
+    return os.environ.get(PythonEnvVars.SOURCE_BASE_URL)
+
+
+def _resolve_standalone_source(source: str) -> str:
+    if (base_url := get_source_base_url()) is None:
+        return source
+
+    if source.startswith(STANDALONE_SOURCE_PREFIX):
+        return f"{base_url.rstrip('/')}/{source[len(STANDALONE_SOURCE_PREFIX) :]}"
+
+    return source
+
+    
+    def _distribution_supports_variant_gil(name: str, variant_gil: str) -> bool:
     return any(key[4] == variant_gil for key in DISTRIBUTIONS.get(name, ()))
 
 
@@ -219,7 +238,7 @@ def get_distribution(name: str, source: str = "", variant_cpu: str = "", variant
         raise PythonDistributionResolutionError(message)
 
     source = keys[key]
-    return _get_distribution_class(source)(name, source)
+    return _get_distribution_class(source)(name, _resolve_standalone_source(source))
 
 
 def get_compatible_distributions() -> dict[str, Distribution]:
@@ -302,6 +321,8 @@ def _get_default_variant_gil() -> str:
 
 def _get_distribution_class(source: str) -> type[Distribution]:
     if "/python-build-standalone/releases/download/" in source:
+        return CPythonStandaloneDistribution
+            if (base_url := get_source_base_url()) is not None and source.startswith(base_url.rstrip("/")):
         return CPythonStandaloneDistribution
     if source.startswith("https://downloads.python.org/pypy/"):
         return PyPyOfficialDistribution

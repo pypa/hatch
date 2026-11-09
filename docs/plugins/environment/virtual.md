@@ -57,6 +57,8 @@ The following options are recognized for internal Python resolution.
 
 !!! tip
     You can set custom sources for distributions by setting the `HATCH_PYTHON_SOURCE_<NAME>` environment variable where `<NAME>` is the uppercased version of the distribution name with periods replaced by underscores e.g. `HATCH_PYTHON_SOURCE_PYPY3_10`.
+    
+    If you have a mirror of the python-build-standalone releases, you can override the download URL prefix for all CPython distributions at once by setting the `HATCH_PYTHON_SOURCE_BASE_URL` environment variable to the mirror's base URL, e.g.`https://mirror.example.com/python-build-standalone/releases/download`. The remainder of the URL, starting with the release date, is appended to this base URL. A per-distribution custom source, if set, takes precedence over the mirror.
 
 ### CPython
 
