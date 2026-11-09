@@ -2508,10 +2508,41 @@ class TestCoreMetadataV25:
             Metadata-Version: 2.5
             Name: my-package
             Version: 0.1.0
-            Import-Name
+            Import-Name:
             Summary: My package without any import names
             """
         )
+
+    def test_explicit_no_import_names_valid_email_headers(self, constructor, isolation):
+        # Regression test: an empty `Import-Name` field must still be a valid RFC 822
+        # header line (i.e. include the colon). Without the colon, email parsers end the
+        # header block at that line, silently demoting every following field (Summary,
+        # Requires-Dist, Classifier, ...) into the body.
+        import email
+
+        metadata = ProjectMetadata(
+            str(isolation),
+            None,
+            {
+                "project": {
+                    "name": "my-package",
+                    "version": "0.1.0",
+                    "import-names": [],
+                    "description": "My package without any import names",
+                    "requires-python": ">=3.9",
+                    "dependencies": ["foo"],
+                },
+            },
+        )
+
+        message = email.message_from_string(constructor(metadata))
+
+        assert not message.defects
+        assert message.get_all("Import-Name") == [""]
+        assert message.get("Summary") == "My package without any import names"
+        assert message.get("Requires-Python") == ">=3.9"
+        assert message.get_all("Requires-Dist") == ["foo"]
+        assert message.get_payload() == ""
 
     def test_import_namespaces(self, constructor, isolation, helpers):
         metadata = ProjectMetadata(
