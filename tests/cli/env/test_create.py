@@ -1967,6 +1967,38 @@ def test_no_compatible_python(hatch, helpers, temp_dir, config_file):
     )
 
 
+def test_python_version_does_not_satisfy_constraint(hatch, helpers, temp_dir, config_file):
+    config_file.model.template.plugins["default"]["tests"] = False
+    config_file.save()
+
+    project_name = "My.App"
+
+    with temp_dir.as_cwd():
+        result = hatch("new", project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / "my-app"
+    data_path = temp_dir / "data"
+    data_path.mkdir()
+
+    project = Project(project_path)
+    config = dict(project.raw_config)
+    config["project"]["requires-python"] = "==9000"
+    project.save_config(config)
+    helpers.update_project_environment(project, "default", {"python": "3.11"})
+
+    with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+        result = hatch("env", "create")
+
+    assert result.exit_code == 1, result.output
+    assert result.output == helpers.dedent(
+        """
+        Environment `default` is incompatible: Python 3.11 does not satisfy the project's `requires-python` constraint: ==9000
+        """
+    )
+
+
 def test_no_compatible_python_ok_if_not_installed(hatch, helpers, temp_dir, config_file):
     config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
