@@ -632,7 +632,7 @@ def construct_metadata_file_2_5(metadata: ProjectMetadata, extra_dependencies: t
             # projects MAY have an empty `Import-Name` field in their metadata. This represents
             # a project with NO import names, public or private (i.e. there are no Python modules
             # of any kind in the distribution file).
-            metadata_file += "Import-Name\n"
+            metadata_file += "Import-Name:\n"
 
         for import_name in metadata.core.import_names:
             name, private = split_import_name_annotation(import_name)
