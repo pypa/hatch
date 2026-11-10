@@ -30,6 +30,8 @@ dist/hatch_demo-1rc0.tar.gz
 dist/hatch_demo-1rc0-py3-none-any.whl
 ```
 
+When both targets are built with the Hatchling backend, the wheel is produced **from the sdist** (the same path installers use) rather than directly from the project tree. Build only the wheel with `-t wheel` if you need to package directly from the checkout.
+
 To only build specific targets, use the `-t`/`--target` option:
 
 ```console
