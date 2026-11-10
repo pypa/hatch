@@ -240,6 +240,29 @@ plugin-name1 = "pkg.subpkg1"
 plugin-name2 = "pkg.subpkg2:func"
 ```
 
+## Import names
+
+The [`import-names`](https://packaging.python.org/en/latest/specifications/pyproject-toml/#import-names) and [`import-namespaces`](https://packaging.python.org/en/latest/specifications/pyproject-toml/#import-namespaces) fields record the names that a project makes importable, independently of the project's distribution name. For more information, see [PEP 794](https://peps.python.org/pep-0794/).
+
+```toml tab="pyproject.toml"
+[project]
+...
+import-names = [
+  "...",
+]
+import-namespaces = [
+  "...",
+]
+```
+
+- `import-names` lists the modules and packages that the project provides. Dotted names such as `pkg.subpkg` are allowed.
+- `import-namespaces` lists the [namespace packages](https://packaging.python.org/en/latest/guides/packaging-namespace-packages/) that the project contributes to.
+- A name may not appear in both fields.
+- Append `; private` to a name to mark it as not intended for public use, for example `"_internal; private"`. Names that start with an underscore are always recorded as private.
+- An empty `import-names` array, with `import-namespaces` unset, states that the project provides nothing importable.
+
+These fields are written to the `Import-Name` and `Import-Namespace` entries of the [core metadata](../plugins/builder/wheel.md#options) when the version is 2.5 or later. Declarations are not validated against the project's layout on disk.
+
 ## Dynamic
 
 If any metadata fields are set dynamically, like the [`version`](#version) may be, then they must be listed here.
