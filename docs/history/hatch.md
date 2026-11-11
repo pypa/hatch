@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Added:***
+
+- Cap repeated `{verbosity:flag}` characters with an optional maximum applied after the adjustment, for example `{verbosity:flag:0:1}` renders at most one `-v` or `-q`
+
 ## [1.18.2](https://github.com/pypa/hatch/releases/tag/hatch-v1.18.2) - 2026-10-27 ## {: #hatch-v1.18.2 }
 
 ***Changed:***
