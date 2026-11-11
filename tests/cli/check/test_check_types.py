@@ -3,6 +3,7 @@ from __future__ import annotations
 import pytest
 
 from hatch.config.constants import ConfigEnvVars
+from hatch.utils.fs import Path
 from hatch.utils.toml import load_toml_data
 
 
@@ -83,6 +84,36 @@ class TestDefaults:
         assert len(env_run.call_args_list) == 1
         command = env_run.call_args_list[0].args[0]
         assert command.startswith("pyrefly report --config ")
+
+    def test_internal_config_file_written_as_utf8(self, hatch, temp_dir, config_file, env_run, mocker):
+        config_file.model.template.plugins["default"]["tests"] = False
+        config_file.save()
+
+        project_dir = temp_dir / "sübdir"
+        project_dir.mkdir()
+        with project_dir.as_cwd():
+            result = hatch("new", "My.App")
+
+        assert result.exit_code == 0, result.output
+
+        project_path = project_dir / "my-app"
+        data_path = project_dir / "data"
+        data_path.mkdir()
+
+        # Simulate a non-UTF-8 locale such as cp1252 on Windows
+        mocker.patch("io.text_encoding", side_effect=lambda encoding, *args: encoding or "cp1252")
+        with project_path.as_cwd(env_vars={ConfigEnvVars.DATA: str(data_path)}):
+            result = hatch("check", "types")
+
+        assert result.exit_code == 0, result.output
+
+        # TOML is spec'd as UTF-8; the generated config embeds absolute project
+        # paths, which are non-ASCII here
+        command = env_run.call_args_list[0].args[0]
+        assert command.startswith("pyrefly check --config ")
+        internal_config = Path(command.split("--config ", 1)[1].strip().strip('"'))
+        contents = internal_config.read_bytes().decode("utf-8")
+        assert "sübdir" in contents
 
 
 class TestArguments:
