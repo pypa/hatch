@@ -11,7 +11,7 @@ All environments support the following extra [context formatting](../context.md)
 | `env_name` | The name of the environment |
 | `env_type` | The [type](overview.md#type) of environment |
 | `matrix` | Its modifier selects the value of that matrix variable. If the environment is not part of a matrix or was not generated with the variable, you must specify a default value as an additional modifier e.g. `{matrix:version:v1.0.0}`. |
-| `verbosity` | The integer verbosity value of Hatch. A `flag` modifier is supported that will render the value as a CLI flag e.g. `-2` becomes `-qq`, `1` becomes `-v`, and `0` becomes an empty string. An additional flag integer modifier may be used to adjust the verbosity level. For example, if you wanted to make a command quiet by default, you could use `{verbosity:flag:-1}` within the command. |
+| `verbosity` | The integer verbosity value of Hatch. A `flag` modifier is supported that will render the value as a CLI flag e.g. `-2` becomes `-qq`, `1` becomes `-v`, and `0` becomes an empty string. An additional flag integer modifier may be used to adjust the verbosity level. For example, if you wanted to make a command quiet by default, you could use `{verbosity:flag:-1}` within the command. A final integer modifier caps the number of repeated flag characters and is applied after the adjustment. For example, `{verbosity:flag:0:1}` renders at most one `-v` or `-q` (Ruff and Black). That cap must be from 0 to 100. |
 | `args` | For [executed commands](../../environment.md#command-execution) only, any extra command line arguments with an optional default modifier if none were provided |
 
 ## Matrix

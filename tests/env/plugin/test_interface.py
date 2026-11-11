@@ -3067,6 +3067,80 @@ class TestContextFormatting:
 
         assert list(environment.expand_command("foo")) == [command]
 
+    @pytest.mark.parametrize(
+        ("verbosity", "modifier", "command"),
+        [
+            (3, "0:1", "command -v"),
+            (2, "0:1", "command -v"),
+            (-2, "0:1", "command -q"),
+            (3, "0:2", "command -vv"),
+            (0, "-1:1", "command -q"),
+            (3, "0:0", "command"),
+            (5, "0:4", "command -vvvv"),
+            (2, ":1", "command -v"),
+            (100, "0:100", "command -" + "v" * 100),
+            (3, "0:0001", "command -v"),
+            (0, "10000000", "command -vvv"),
+        ],
+    )
+    def test_verbosity_flag_maximum(
+        self, isolation, isolated_data_dir, platform, global_application, verbosity, modifier, command
+    ):
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {"hatch": {"envs": {"default": {"scripts": {"foo": f"command {{verbosity:flag:{modifier}}}"}}}}},
+        }
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            verbosity,
+            global_application,
+        )
+
+        assert list(environment.expand_command("foo")) == [command]
+
+    @pytest.mark.parametrize(
+        ("modifier", "exception", "match"),
+        [
+            ("0:nope", TypeError, "Verbosity flag maximum must be an integer"),
+            ("1:", TypeError, "Verbosity flag maximum must be an integer"),
+            ("0:-1", ValueError, "Verbosity flag maximum must be a non-negative integer"),
+            ("0:101", ValueError, "Verbosity flag maximum must be less than or equal to 100"),
+            ("0:-1000", ValueError, "Verbosity flag maximum must be a non-negative integer"),
+            ("0:999999999999", ValueError, "Verbosity flag maximum must be less than or equal to 100"),
+        ],
+    )
+    def test_verbosity_flag_maximum_invalid(
+        self, isolation, isolated_data_dir, platform, global_application, modifier, exception, match
+    ):
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {"hatch": {"envs": {"default": {"scripts": {"foo": f"command {{verbosity:flag:{modifier}}}"}}}}},
+        }
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            global_application,
+        )
+
+        with pytest.raises(exception, match=match):
+            next(environment.expand_command("foo"))
+
     def test_verbosity_flag_adjustment_invalid(self, temp_dir, isolated_data_dir, platform, temp_application):
         """Test verbosity flag with invalid adjustment."""
         pyproject = temp_dir / "pyproject.toml"

@@ -49,18 +49,30 @@ def ensure_valid_environment(env_config: dict):
             raise TypeError(msg)
 
 
-def get_verbosity_flag(verbosity: int, *, adjustment=0) -> str:
+# Caps repeated `-v`/`-q` characters. Above the historical default of 3, and
+# far below a size that could exhaust memory.
+MAX_VERBOSITY_FLAG_LENGTH = 100
+
+
+def get_verbosity_flag(verbosity: int, *, adjustment=0, maximum=3) -> str:
+    if maximum < 0:
+        message = f"Verbosity flag maximum must be a non-negative integer: {maximum}"
+        raise ValueError(message)
+    if maximum > MAX_VERBOSITY_FLAG_LENGTH:
+        message = f"Verbosity flag maximum must be less than or equal to {MAX_VERBOSITY_FLAG_LENGTH}: {maximum}"
+        raise ValueError(message)
+
     verbosity += adjustment
-    if not verbosity:
+    if not verbosity or maximum == 0:
         return ""
 
     if verbosity > 0:
-        return f"-{'v' * abs(min(verbosity, 3))}"
+        return f"-{'v' * min(verbosity, maximum)}"
 
-    return f"-{'q' * abs(max(verbosity, -3))}"
+    return f"-{'q' * min(abs(verbosity), maximum)}"
 
 
-def add_verbosity_flag(command: list[str], verbosity: int, *, adjustment=0):
-    flag = get_verbosity_flag(verbosity, adjustment=adjustment)
+def add_verbosity_flag(command: list[str], verbosity: int, *, adjustment=0, maximum=3):
+    flag = get_verbosity_flag(verbosity, adjustment=adjustment, maximum=maximum)
     if flag:
         command.append(flag)

@@ -67,11 +67,12 @@ class EnvironmentContextFormatter(EnvironmentContextFormatterBase):
         if not data:
             return str(self.environment.verbosity)
 
-        modifier, _, adjustment = data.partition(":")
+        modifier, _, rest = data.partition(":")
         if modifier != "flag":
             message = f"Unknown verbosity modifier: {modifier}"
             raise ValueError(message)
 
+        adjustment, maximum_separator, maximum = rest.partition(":")
         if not adjustment:
             adjustment = "0"
 
@@ -81,4 +82,13 @@ class EnvironmentContextFormatter(EnvironmentContextFormatterBase):
             message = f"Verbosity flag adjustment must be an integer: {adjustment}"
             raise TypeError(message) from None
 
-        return get_verbosity_flag(self.environment.verbosity, adjustment=adjustment)
+        if not maximum_separator:
+            return get_verbosity_flag(self.environment.verbosity, adjustment=adjustment)
+
+        try:
+            maximum = int(maximum)
+        except ValueError:
+            message = f"Verbosity flag maximum must be an integer: {maximum}"
+            raise TypeError(message) from None
+
+        return get_verbosity_flag(self.environment.verbosity, adjustment=adjustment, maximum=maximum)
