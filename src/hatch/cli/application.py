@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib
 import os
 import signal
 import sys
@@ -193,6 +194,15 @@ class Application(Terminal):
 
         with self.status(wait_message):
             self.platform.check_command(pip_command)
+
+        # The import system caches the contents of `sys.path` entries based on their modification time,
+        # which installers do not always update (e.g. uv cloning directories on macOS)
+        importlib.invalidate_caches()
+        if sys.version_info < (3, 11):
+            # The above only clears the cache of `importlib.metadata` starting with Python 3.11
+            from importlib.metadata import MetadataPathFinder
+
+            MetadataPathFinder().invalidate_caches()
 
     def get_env_directory(self, environment_type):
         directories = self.config.dirs.env

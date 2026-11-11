@@ -203,6 +203,87 @@ def test_plugin_dependencies_unmet(hatch, helpers, temp_dir_data, config_file, m
     helpers.assert_plugin_installation(mock_plugin_installation, [dependency])
 
 
+def test_plugin_dependencies_unmet_new_environment_type(
+    hatch, helpers, temp_dir_data, config_file, mock_plugin_installation, monkeypatch
+):
+    config_file.model.template.plugins["default"]["tests"] = False
+    config_file.save()
+
+    project_name = "My.App"
+
+    with temp_dir_data.as_cwd():
+        result = hatch("new", project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir_data / "my-app"
+
+    dependency = os.urandom(16).hex()
+    (project_path / DEFAULT_CONFIG_FILE).write_text(
+        helpers.dedent(
+            f"""
+            [env]
+            requires = ["{dependency}"]
+
+            [envs.default]
+            type = "{dependency}"
+            """
+        )
+    )
+
+    site_packages = temp_dir_data / "site-packages"
+    site_packages.mkdir()
+    monkeypatch.syspath_prepend(str(site_packages))
+
+    module_name = f"hatch_plugin_{dependency}"
+
+    def install_plugin(*args, **kwargs):  # noqa: ARG001
+        stat = site_packages.stat()
+
+        (site_packages / f"{module_name}.py").write_text(
+            helpers.dedent(
+                f"""
+                from hatch.env.system import SystemEnvironment
+                from hatchling.plugin import hookimpl
+
+
+                class PluginEnvironment(SystemEnvironment):
+                    PLUGIN_NAME = "{dependency}"
+
+                    def find(self):
+                        return "{dependency}"
+
+
+                @hookimpl
+                def hatch_register_environment():
+                    return PluginEnvironment
+                """
+            )
+        )
+        dist_info = site_packages / f"{dependency}-1.0.0.dist-info"
+        dist_info.mkdir()
+        (dist_info / "METADATA").write_text(f"Metadata-Version: 2.1\nName: {dependency}\nVersion: 1.0.0\n")
+        (dist_info / "entry_points.txt").write_text(f"[hatch]\n{dependency} = {module_name}\n")
+
+        # Some installers do not update the modification time of the directory, such as uv
+        # cloning directories into a `site-packages` directory that the user does not own on macOS
+        os.utime(site_packages, ns=(stat.st_atime_ns, stat.st_mtime_ns))
+
+    mock_plugin_installation.side_effect = install_plugin
+
+    with project_path.as_cwd():
+        result = hatch("env", "find")
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        f"""
+        Syncing environment plugin requirements
+        {dependency}
+        """
+    )
+    helpers.assert_plugin_installation(mock_plugin_installation, [dependency])
+
+
 @pytest.mark.skipif(sys.platform not in {"win32", "darwin"}, reason="Case insensitive file system required")
 def test_case_sensitivity(hatch, temp_dir_data):
     from hatch.utils.fs import Path

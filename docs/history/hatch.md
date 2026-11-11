@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Fixed:***
+
+- Fix environment plugins not being detected on the first run after syncing environment plugin requirements, which happened on macOS when the `site-packages` directory is not owned by the current user, such as with the python.org installer
+
 ## [1.18.2](https://github.com/pypa/hatch/releases/tag/hatch-v1.18.2) - 2026-10-27 ## {: #hatch-v1.18.2 }
 
 ***Changed:***
