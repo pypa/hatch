@@ -1248,3 +1248,45 @@ class TestShow:
             +-------------------+---------+--------------+-------------+-------------+
             """
         )
+
+
+@pytest.mark.parametrize("selection", ["option", "environment", "unknown"])
+@pytest.mark.parametrize(
+    "filter_args",
+    [(), ("--all",), ("--python", "3.12"), ("--include", "variant=first"), ("--exclude", "variant=first")],
+)
+def test_explicit_environment(hatch, temp_dir, config_file, env_run, mocker, selection, filter_args):
+    config_file.model.template.plugins["default"]["tests"] = False
+    config_file.save()
+    with temp_dir.as_cwd():
+        result = hatch("new", "example")
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / "example"
+    project = Project(project_path)
+    config = dict(project.raw_config)
+    config["tool"]["hatch"]["envs"] = {
+        "hatch-test": {
+            "matrix": [{"variant": ["first", "second"]}],
+            "scripts": {"run": "test {env_name} {args}"},
+        }
+    }
+    project.save_config(config)
+    args = ("-e", "hatch-test.second", "test", "-v") if selection == "option" else ("test", "-v")
+    if selection == "unknown":
+        args = ("-e", "missing", "test")
+    env_vars = {"HATCH_ENV": "hatch-test.second"} if selection == "environment" else {}
+    with project_path.as_cwd(env_vars=env_vars):
+        result = hatch(*args, *filter_args)
+    if filter_args:
+        assert result.exit_code == 1, result.output
+        assert "cannot be used with --all, --python, --include or --exclude" in result.output
+        env_run.assert_not_called()
+        return
+    if selection == "unknown":
+        assert result.exit_code == 1, result.output
+        assert "Environment `missing` is not in the hatch-test matrix." in result.output
+        env_run.assert_not_called()
+        return
+    assert result.exit_code == 0, result.output
+    assert env_run.call_args_list == [mocker.call("test hatch-test.second -v", shell=True)]
