@@ -47,7 +47,7 @@ def update_record_file_contents(record_file, files, generated_files=()):
 
 def test_normalize_artifact_permissions():
     """
-    assert that this func does what we expect on a tmpfile that that starts at 600
+    assert that this func does what we expect on a tmpfile that starts at 600
     """
     _, path = tempfile.mkstemp()
 
