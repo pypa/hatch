@@ -228,6 +228,52 @@ def test_include_features(hatch, helpers, temp_dir, config_file):
     )
 
 
+
+def test_feature_name_with_underscore(hatch, helpers, temp_dir, config_file):
+    """Regression test for issue #2166: feature names with underscores should be equivalent to hyphens."""
+    config_file.model.template.plugins["default"]["tests"] = False
+    config_file.save()
+
+    project_name = "My.App"
+
+    with temp_dir.as_cwd():
+        result = hatch("new", project_name)
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir / "my-app"
+
+    project = Project(project_path)
+    config = dict(project.raw_config)
+    config["project"]["dependencies"] = ["foo-bar-baz"]
+    config["project"]["optional-dependencies"] = {
+        "foo_bar": ["bar-baz-foo"],
+    }
+    project.save_config(config)
+    helpers.update_project_environment(project, "default", {"dependencies": ["baz-bar-foo"]})
+
+    # The feature name with underscores should work identically to the hyphenated version
+    with project_path.as_cwd():
+        result = hatch("dep", "show", "requirements", "-f", "foo_bar")
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        """
+        bar-baz-foo
+        """
+    )
+
+    # The hyphenated version should also work
+    with project_path.as_cwd():
+        result = hatch("dep", "show", "requirements", "-f", "foo-bar")
+
+    assert result.exit_code == 0, result.output
+    assert result.output == helpers.dedent(
+        """
+        bar-baz-foo
+        """
+    )
+
 def test_plugin_dependencies_unmet(hatch, helpers, temp_dir, config_file, mock_plugin_installation):
     config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
