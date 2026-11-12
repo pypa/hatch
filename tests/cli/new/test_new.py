@@ -521,6 +521,34 @@ def test_initialize_fresh(hatch, helpers, temp_dir):
     )
 
 
+def test_initialize_with_name_is_noninteractive(hatch, helpers, temp_dir):
+    project_name = "My.App"
+
+    with temp_dir.as_cwd():
+        result = hatch("new", project_name)
+        assert result.exit_code == 0, result.output
+
+    path = temp_dir / "my-app"
+
+    project_file = path / "pyproject.toml"
+    project_file.remove()
+    assert not project_file.is_file()
+
+    with path.as_cwd():
+        result = hatch("new", "--init", project_name)
+
+    expected_files = helpers.get_template_files("new.default", project_name)
+    helpers.assert_files(path, expected_files)
+
+    assert result.exit_code == 0, result.output
+    assert "Description" not in result.output
+    assert remove_trailing_spaces(result.output) == helpers.dedent(
+        """
+        Wrote: pyproject.toml
+        """
+    )
+
+
 def test_initialize_update(hatch, helpers, temp_dir):
     project_name = "My.App"
     description = "foo"
