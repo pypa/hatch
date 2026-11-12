@@ -181,6 +181,60 @@ class TestDirectoryRecursion:
 
             assert [f.path for f in builder.recurse_included_files()] == [str(project_dir / "foo" / "bar.txt")]
 
+    def test_force_include_respects_exclude(self, temp_dir):
+        project_dir = temp_dir / "project"
+        project_dir.ensure_dir_exists()
+
+        with project_dir.as_cwd():
+            config = {
+                "tool": {
+                    "hatch": {
+                        "build": {
+                            "exclude": ["*.rst"],
+                            "force-include": {"../external": "pkg"},
+                        }
+                    }
+                }
+            }
+            builder = MockBuilder(str(project_dir), config=config)
+
+            external = temp_dir / "external"
+            external.ensure_dir_exists()
+            (external / "keep.py").touch()
+            (external / "drop.rst").touch()
+
+            assert [(f.path, f.distribution_path) for f in builder.recurse_included_files()] == [
+                (str(external / "keep.py"), f"pkg{path_sep}keep.py"),
+            ]
+
+    def test_force_include_artifacts_override_exclude(self, temp_dir):
+        project_dir = temp_dir / "project"
+        project_dir.ensure_dir_exists()
+
+        with project_dir.as_cwd():
+            config = {
+                "tool": {
+                    "hatch": {
+                        "build": {
+                            "exclude": ["*.rst"],
+                            "artifacts": ["*.rst"],
+                            "force-include": {"../external": "pkg"},
+                        }
+                    }
+                }
+            }
+            builder = MockBuilder(str(project_dir), config=config)
+
+            external = temp_dir / "external"
+            external.ensure_dir_exists()
+            (external / "keep.py").touch()
+            (external / "drop.rst").touch()
+
+            assert [(f.path, f.distribution_path) for f in builder.recurse_included_files()] == [
+                (str(external / "drop.rst"), f"pkg{path_sep}drop.rst"),
+                (str(external / "keep.py"), f"pkg{path_sep}keep.py"),
+            ]
+
     def test_no_duplication_force_include_only(self, temp_dir):
         project_dir = temp_dir / "project"
         project_dir.ensure_dir_exists()
