@@ -349,6 +349,145 @@ class TestRequireRuntimeFeatures:
         assert builder.config.require_runtime_features == ["foo-bar"]
 
 
+class TestRequireDependencyGroups:
+    def test_default(self, isolation):
+        builder = MockBuilder(str(isolation))
+
+        assert builder.config.require_dependency_groups == builder.config.require_dependency_groups == []
+
+    def test_target(self, isolation):
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "dependency-groups": {"foo": [], "bar": []},
+            "tool": {"hatch": {"build": {"targets": {"foo": {"require-dependency-groups": ["foo", "bar"]}}}}},
+        }
+        builder = MockBuilder(str(isolation), config=config)
+        builder.PLUGIN_NAME = "foo"
+
+        assert builder.config.require_dependency_groups == ["foo", "bar"]
+
+    def test_target_not_array(self, isolation):
+        config = {"tool": {"hatch": {"build": {"targets": {"foo": {"require-dependency-groups": 9000}}}}}}
+        builder = MockBuilder(str(isolation), config=config)
+        builder.PLUGIN_NAME = "foo"
+
+        with pytest.raises(
+            TypeError, match="Field `tool.hatch.build.targets.foo.require-dependency-groups` must be an array"
+        ):
+            _ = builder.config.require_dependency_groups
+
+    def test_target_feature_not_string(self, isolation):
+        config = {"tool": {"hatch": {"build": {"targets": {"foo": {"require-dependency-groups": [9000]}}}}}}
+        builder = MockBuilder(str(isolation), config=config)
+        builder.PLUGIN_NAME = "foo"
+
+        with pytest.raises(
+            TypeError,
+            match="Group #1 of field `tool.hatch.build.targets.foo.require-dependency-groups` must be a string",
+        ):
+            _ = builder.config.require_dependency_groups
+
+    def test_target_feature_empty_string(self, isolation):
+        config = {"tool": {"hatch": {"build": {"targets": {"foo": {"require-dependency-groups": [""]}}}}}}
+        builder = MockBuilder(str(isolation), config=config)
+        builder.PLUGIN_NAME = "foo"
+
+        with pytest.raises(
+            ValueError,
+            match=(
+                "Group #1 of field `tool.hatch.build.targets.foo.require-dependency-groups` cannot be an empty string"
+            ),
+        ):
+            _ = builder.config.require_dependency_groups
+
+    def test_target_feature_unknown(self, isolation):
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {"hatch": {"build": {"targets": {"foo": {"require-dependency-groups": ["foo_bar"]}}}}},
+        }
+        builder = MockBuilder(str(isolation), config=config)
+        builder.PLUGIN_NAME = "foo"
+
+        with pytest.raises(
+            ValueError,
+            match=(
+                "Group `foo-bar` of field `tool.hatch.build.targets.foo.require-dependency-groups` is not defined in "
+                "field `dependency-groups`"
+            ),
+        ):
+            _ = builder.config.require_dependency_groups
+
+    def test_global(self, isolation):
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "dependency-groups": {"foo": [], "bar": []},
+            "tool": {"hatch": {"build": {"require-dependency-groups": ["foo", "bar"]}}},
+        }
+        builder = MockBuilder(str(isolation), config=config)
+
+        assert builder.config.require_dependency_groups == ["foo", "bar"]
+
+    def test_global_not_array(self, isolation):
+        config = {"tool": {"hatch": {"build": {"require-dependency-groups": 9000}}}}
+        builder = MockBuilder(str(isolation), config=config)
+
+        with pytest.raises(TypeError, match="Field `tool.hatch.build.require-dependency-groups` must be an array"):
+            _ = builder.config.require_dependency_groups
+
+    def test_global_feature_not_string(self, isolation):
+        config = {"tool": {"hatch": {"build": {"require-dependency-groups": [9000]}}}}
+        builder = MockBuilder(str(isolation), config=config)
+
+        with pytest.raises(
+            TypeError, match="Group #1 of field `tool.hatch.build.require-dependency-groups` must be a string"
+        ):
+            _ = builder.config.require_dependency_groups
+
+    def test_global_feature_empty_string(self, isolation):
+        config = {"tool": {"hatch": {"build": {"require-dependency-groups": [""]}}}}
+        builder = MockBuilder(str(isolation), config=config)
+
+        with pytest.raises(
+            ValueError,
+            match="Group #1 of field `tool.hatch.build.require-dependency-groups` cannot be an empty string",
+        ):
+            _ = builder.config.require_dependency_groups
+
+    def test_global_feature_unknown(self, isolation):
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {"hatch": {"build": {"require-dependency-groups": ["foo_bar"]}}},
+        }
+        builder = MockBuilder(str(isolation), config=config)
+
+        with pytest.raises(
+            ValueError,
+            match=(
+                "Group `foo-bar` of field `tool.hatch.build.require-dependency-groups` is not defined in "
+                "field `dependency-groups`"
+            ),
+        ):
+            _ = builder.config.require_dependency_groups
+
+    def test_target_overrides_global(self, isolation):
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "dependency-groups": {"foo_bar": [], "bar_baz": []},
+            "tool": {
+                "hatch": {
+                    "build": {
+                        "require-dependency-groups": ["bar_baz"],
+                        "targets": {"foo": {"require-dependency-groups": ["foo_bar"]}},
+                    }
+                }
+            },
+        }
+        builder = MockBuilder(str(isolation), config=config)
+        builder.PLUGIN_NAME = "foo"
+
+        assert builder.config.require_dependency_groups == ["foo-bar"]
+
+
 class TestOnlyPackages:
     def test_default(self, isolation):
         builder = MockBuilder(str(isolation))
@@ -1349,6 +1488,52 @@ class TestDependencies:
         ):
             _ = builder.config.dependencies
 
+    def test_hook_require_dependency_groups_not_array(self, isolation):
+        config = {"tool": {"hatch": {"build": {"hooks": {"foo": {"require-dependency-groups": 9000}}}}}}
+        builder = MockBuilder(str(isolation), config=config)
+        builder.PLUGIN_NAME = "foo"
+
+        with pytest.raises(TypeError, match="Option `require-dependency-groups` of build hook `foo` must be an array"):
+            _ = builder.config.dependencies
+
+    def test_hook_require_dependency_groups_group_not_string(self, isolation):
+        config = {"tool": {"hatch": {"build": {"hooks": {"foo": {"require-dependency-groups": [9000]}}}}}}
+        builder = MockBuilder(str(isolation), config=config)
+        builder.PLUGIN_NAME = "foo"
+
+        with pytest.raises(
+            TypeError, match="Group #1 of option `require-dependency-groups` of build hook `foo` must be a string"
+        ):
+            _ = builder.config.dependencies
+
+    def test_hook_require_dependency_groups_group_empty_string(self, isolation):
+        config = {"tool": {"hatch": {"build": {"hooks": {"foo": {"require-dependency-groups": [""]}}}}}}
+        builder = MockBuilder(str(isolation), config=config)
+        builder.PLUGIN_NAME = "foo"
+
+        with pytest.raises(
+            ValueError,
+            match="Group #1 of option `require-dependency-groups` of build hook `foo` cannot be an empty string",
+        ):
+            _ = builder.config.dependencies
+
+    def test_hook_require_dependency_groups_group_unknown(self, isolation):
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {"hatch": {"build": {"hooks": {"foo": {"require-dependency-groups": ["foo_bar"]}}}}},
+        }
+        builder = MockBuilder(str(isolation), config=config)
+        builder.PLUGIN_NAME = "foo"
+
+        with pytest.raises(
+            ValueError,
+            match=(
+                "Group `foo-bar` of option `require-dependency-groups` of build hook `foo` is not defined in "
+                "field `dependency-groups`"
+            ),
+        ):
+            _ = builder.config.dependencies
+
     def test_hook_dependencies_not_array(self, isolation):
         config = {"tool": {"hatch": {"build": {"hooks": {"foo": {"dependencies": 9000}}}}}}
         builder = MockBuilder(str(isolation), config=config)
@@ -1410,6 +1595,26 @@ class TestDependencies:
                 "hatch": {
                     "build": {
                         "require-runtime-features": ["bar-baz"],
+                        "dependencies": ["bar"],
+                        "hooks": {"foobar": {"dependencies": ["test1"]}},
+                        "targets": {"foo": {"dependencies": ["baz"], "hooks": {"foobar": {"dependencies": ["test2"]}}}},
+                    }
+                }
+            },
+        }
+        builder = MockBuilder(str(isolation), config=config)
+        builder.PLUGIN_NAME = "foo"
+
+        assert builder.config.dependencies == ["baz", "bar", "test2", "foo"]
+
+    def test_require_dependency_groups(self, isolation):
+        config = {
+            "project": {"name": "my-app", "version": "0.0.1"},
+            "dependency-groups": {"bar_baz": ["foo"]},
+            "tool": {
+                "hatch": {
+                    "build": {
+                        "require-dependency-groups": ["bar-baz"],
                         "dependencies": ["bar"],
                         "hooks": {"foobar": {"dependencies": ["test1"]}},
                         "targets": {"foo": {"dependencies": ["baz"], "hooks": {"foobar": {"dependencies": ["test2"]}}}},
@@ -1573,6 +1778,50 @@ class TestDependencies:
                                 "dependencies": ["foo"],
                                 "enable-by-default": False,
                                 "require-runtime-features": ["foo-bar"],
+                            },
+                            "bar": {"dependencies": ["bar"]},
+                        },
+                    }
+                }
+            },
+        }
+        builder = MockBuilder(str(isolation), config=config)
+        builder.PLUGIN_NAME = "foo"
+
+        assert builder.config.dependencies == ["bar"]
+
+    def test_hooks_require_dependency_groups(self, isolation):
+        config = {
+            "project": {"name": "my-app", "version": "0.0.1"},
+            "dependency-groups": {"foo_bar": ["baz"]},
+            "tool": {
+                "hatch": {
+                    "build": {
+                        "hooks": {
+                            "foo": {"dependencies": ["foo"], "enable-by-default": False},
+                            "bar": {"dependencies": ["bar"], "require-dependency-groups": ["foo-bar"]},
+                        },
+                    }
+                }
+            },
+        }
+        builder = MockBuilder(str(isolation), config=config)
+        builder.PLUGIN_NAME = "foo"
+
+        assert builder.config.dependencies == ["bar", "baz"]
+
+    def test_hooks_require_dependency_groups_disabled(self, isolation):
+        config = {
+            "project": {"name": "my-app", "version": "0.0.1"},
+            "dependency-groups": {"foo_bar": ["baz"]},
+            "tool": {
+                "hatch": {
+                    "build": {
+                        "hooks": {
+                            "foo": {
+                                "dependencies": ["foo"],
+                                "enable-by-default": False,
+                                "require-dependency-groups": ["foo-bar"],
                             },
                             "bar": {"dependencies": ["bar"]},
                         },

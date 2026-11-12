@@ -243,13 +243,23 @@ You can also declare dependence on the project's [runtime dependencies](metadata
 require-runtime-dependencies = true
 ```
 
-Additionally, you may declare dependence on specific [runtime features](metadata.md#optional) of the project with the `require-runtime-features` option:
+You may also declare dependence on specific [runtime features](metadata.md#optional) of the project with the `require-runtime-features` option:
 
 ```toml config-example
 [tool.hatch.build.targets.your-target-name]
 require-runtime-features = [
   "feature1",
   "feature2",
+]
+```
+
+Additionally, you may declare dependence on specific [dependency groups](environment/overview.md#dependency-groups) of the project with the `require-dependency-groups` option:
+
+```toml config-example
+[tool.hatch.build.targets.your-target-name]
+require-dependency-groups = [
+  "group1",
+  "group2",
 ]
 ```
 
@@ -301,13 +311,23 @@ You can also declare dependence on the project's [runtime dependencies](metadata
 require-runtime-dependencies = true
 ```
 
-Additionally, you may declare dependence on specific [runtime features](metadata.md#optional) of the project with the `require-runtime-features` option:
+You may also declare dependence on specific [runtime features](metadata.md#optional) of the project with the `require-runtime-features` option:
 
 ```toml config-example
 [tool.hatch.build.hooks.your-hook-name]
 require-runtime-features = [
   "feature1",
   "feature2",
+]
+```
+
+Additionally, you may declare dependence on specific [dependency groups](environment/overview.md#dependency-groups) of the project with the `require-dependency-groups` option:
+
+```toml config-example
+[tool.hatch.build.hooks.your-hook-name]
+require-dependency-groups = [
+  "group1",
+  "group2",
 ]
 ```
 
