@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Changed:***
+
+- Make `uv` an optional dependency. The internal environments (build, static analysis, test and type checking) now detect whether `uv` is available and fall back to `pip` when it is not, so Hatch works without `uv` installed. Install the `uv` extra (`hatch[uv]`) to bundle it.
+
 ## [1.18.2](https://github.com/pypa/hatch/releases/tag/hatch-v1.18.2) - 2026-10-27 ## {: #hatch-v1.18.2 }
 
 ***Changed:***
@@ -87,7 +91,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Skip injection of `ruff` extend if a key already exists in `ruff.toml`.
 - Pass `--no-header` to `uv pip compile` in the `uv` locker so that generated lockfiles are deterministic.
 - Fix env-dependency extras being dropped when a metadata hook is configured and resolve workspace-member extras from the member's own metadata.
-
 
 ## [1.17.0](https://github.com/pypa/hatch/releases/tag/hatch-v1.17.0) - 2026-05-31 ## {: #hatch-v1.17.0 }
 
