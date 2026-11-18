@@ -1542,3 +1542,55 @@ class TestBuildStandard:
         # we assert that at minimum 644 is set, based on the platform (e.g.)
         # windows it may be higher
         assert file_stat.st_mode & 0o644
+
+    def test_config_settings(self, hatch, helpers, temp_dir, config_file):
+        config_file.model.template.plugins["default"]["src-layout"] = False
+        config_file.save()
+
+        project_name = "My.App"
+
+        with temp_dir.as_cwd():
+            result = hatch("new", project_name)
+
+        assert result.exit_code == 0, result.output
+
+        project_path = temp_dir / "my-app"
+
+        config_settings = {"foo": "bar", "hooks": []}
+
+        build_script = project_path / DEFAULT_BUILD_SCRIPT
+        build_script.write_text(
+            helpers.dedent(
+                """
+                from hatchling.metadata.plugin.interface import MetadataHookInterface
+                from hatchling.builders.hooks.plugin.interface import BuildHookInterface
+
+                class CustomMetadataBuilder(MetadataHookInterface):
+                    def update(self, metadata):
+                        assert self.config_settings == {"foo": "bar", "hooks": []}
+                        self.config_settings["hooks"].append("metadata")
+
+                class CustomHook(BuildHookInterface):
+                    def initialize(self, version, build_data):
+                        assert self.config_settings == {"foo": "bar", "hooks": ["metadata"]}
+                        self.config_settings["hooks"].append("build")
+                """
+            )
+        )
+
+        config = {
+            "project": {"name": project_name, "dynamic": ["version"]},
+            "tool": {
+                "hatch": {
+                    "version": {"path": "my_app/__about__.py"},
+                    "metadata": {"hooks": {"custom": {}}},
+                    "build": {"targets": {"sdist": {"hooks": {"custom": {}}}}},
+                },
+            },
+        }
+        builder = SdistBuilder(str(project_path), config=config, config_settings=config_settings)
+
+        with project_path.as_cwd():
+            list(builder.build(hooks_only=True))
+
+        assert config_settings["hooks"] == ["metadata", "build"]

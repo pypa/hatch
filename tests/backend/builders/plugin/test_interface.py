@@ -387,3 +387,17 @@ class TestDirectoryRecursion:
                 (str(temp_dir / "external2.txt"), f"nested{path_sep}target1.txt"),
                 (str(temp_dir / "external1.txt"), f"nested{path_sep}target2.txt"),
             ]
+
+
+class TestConfigSettings:
+    def test_no_config(self, isolation):
+        builder = MockBuilder(str(isolation))
+
+        assert builder.config_settings is None
+
+    def test_with_config(self, isolation):
+        config_settings = {"foo": "bar"}
+        builder = MockBuilder(str(isolation), config_settings=config_settings)
+
+        assert builder.config_settings is config_settings
+        assert builder.config_settings["foo"] == "bar"
