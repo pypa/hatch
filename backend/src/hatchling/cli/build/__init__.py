@@ -106,7 +106,7 @@ def build_command(subparsers: argparse._SubParsersAction, defaults: Any) -> None
         "--target",
         dest="targets",
         action="append",
-        help="Comma-separated list of targets to build, overriding project defaults",
+        help="Target to build, overriding project defaults (can be specified multiple times)",
         **defaults,
     )
     parser.add_argument("--hooks-only", dest="hooks_only", action="store_true", default=None)
