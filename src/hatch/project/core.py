@@ -112,31 +112,7 @@ class Project:
         """
         https://peps.python.org/pep-0735/
         """
-        from hatch.utils.metadata import normalize_project_name
-
-        dependency_groups = self.raw_config.get("dependency-groups", {})
-
-        if not isinstance(dependency_groups, dict):
-            message = "Field `dependency-groups` must be a table"
-            raise TypeError(message)
-
-        original_names = defaultdict(list)
-        normalized_groups = {}
-
-        for group_name, value in dependency_groups.items():
-            normed_group_name = normalize_project_name(group_name)
-            original_names[normed_group_name].append(group_name)
-            normalized_groups[normed_group_name] = value
-
-        errors = []
-        for normed_name, names in original_names.items():
-            if len(names) > 1:
-                errors.append(f"{normed_name} ({', '.join(names)})")
-        if errors:
-            msg = f"Field `dependency-groups` contains duplicate names: {', '.join(errors)}"
-            raise ValueError(msg)
-
-        return normalized_groups
+        return self.metadata.dependency_groups
 
     def get_environment(self, env_name: str | None = None) -> EnvironmentInterface:
         if env_name is None:
