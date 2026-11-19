@@ -47,11 +47,16 @@ def get_current_timestamp():
     return datetime.now(timezone.utc).timestamp()
 
 
-def assert_plugin_installation(subprocess_run, dependencies: list[str], *, verbosity=0, count=1, app_command=None):
+def assert_plugin_installation(
+    subprocess_run, dependencies: list[str], *, verbosity=0, count=1, app_command=None, uv_bin=None
+):
     if app_command is None:
-        from uv import find_uv_bin
+        if uv_bin is None:
+            from uv import find_uv_bin
 
-        command = [find_uv_bin(), "pip", "install", "--python", sys.executable]
+            uv_bin = find_uv_bin()
+
+        command = [uv_bin, "pip", "install", "--python", sys.executable]
     else:
         command = [*app_command, "pip", "install", "--disable-pip-version-check"]
 

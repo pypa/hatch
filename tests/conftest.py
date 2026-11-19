@@ -525,6 +525,30 @@ def mock_plugin_installation(mocker, mock_python_path):
     return mocked_subprocess_run
 
 
+@pytest.fixture
+def mock_uv_package_missing(
+    mocker,
+    # Ensure the plugin installation is mocked before hiding the `uv` package
+    mock_plugin_installation,  # noqa: ARG001
+) -> str:
+    """
+    Simulate a scenario where a `uv` executable is found, but the `uv`
+    package is not.
+    """
+    from uv import find_uv_bin
+
+    uv_bin = find_uv_bin()
+    which = shutil.which
+
+    def _which(cmd, *args, **kwargs):
+        return uv_bin if cmd == "uv" else which(cmd, *args, **kwargs)
+
+    mocker.patch.dict(sys.modules, {"uv": None})
+    mocker.patch("shutil.which", side_effect=_which)
+
+    return uv_bin
+
+
 def pytest_runtest_setup(item):
     for marker in item.iter_markers():
         if marker.name == "requires_internet" and not network_connectivity():  # no cov

@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Fixed:***
+
+- Fix syncing of environment plugin requirements when the `uv` _executable_ is installed, but not the `uv` _package_ (such as with Homebrew)
+
 ## [1.18.2](https://github.com/pypa/hatch/releases/tag/hatch-v1.18.2) - 2026-10-27 ## {: #hatch-v1.18.2 }
 
 ***Changed:***
