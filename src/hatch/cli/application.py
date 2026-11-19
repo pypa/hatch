@@ -181,9 +181,16 @@ class Application(Terminal):
             if distributions.dependencies_in_sync(dependencies):
                 return
 
-            from uv import find_uv_bin
+            try:
+                from uv import find_uv_bin
 
-            uv_bin = find_uv_bin()
+                uv_bin = find_uv_bin()
+            except ImportError:
+                # Homebrew provides the `uv` executable, but not the `uv`
+                # package
+                if not (uv_bin := self.platform.modules.shutil.which("uv")):
+                    raise
+
             pip_command = [uv_bin, "pip", "install", "--python", sys.executable]
 
         # Default to -1 verbosity

@@ -1,4 +1,5 @@
 import os
+import shutil
 import sys
 
 import pytest
@@ -1811,6 +1812,65 @@ def test_plugin_dependencies_unmet_pyapp(
     # manages
     assert mock_python_path.call_count == 1
     assert mock_python_path.call_args.args[0] == [sys.executable, management_command, "python-path"]
+
+
+@pytest.fixture(name="unmet_plugin_project")
+def get_unmet_plugin_project(hatch, config_file, helpers, temp_dir_data):
+    config_file.model.template.plugins["default"]["tests"] = False
+    config_file.save()
+
+    with temp_dir_data.as_cwd():
+        result = hatch("new", "My.App")
+
+    assert result.exit_code == 0, result.output
+
+    project_path = temp_dir_data / "my-app"
+    dependency = os.urandom(16).hex()
+    (project_path / DEFAULT_CONFIG_FILE).write_text(f'[env]\nrequires = ["{dependency}"]\n')
+
+    project = Project(project_path)
+    helpers.update_project_environment(project, "default", {"skip-install": True, **project.config.envs["default"]})
+
+    return project_path, dependency
+
+
+def test_plugin_dependencies_unmet_uv_package_missing(
+    hatch, helpers, unmet_plugin_project, mock_plugin_installation, mock_uv_package_missing
+):
+    project_path, dependency = unmet_plugin_project
+
+    with project_path.as_cwd():
+        result = hatch("env", "create")
+
+    assert result.exit_code == 0, result.output
+    helpers.assert_plugin_installation(mock_plugin_installation, [dependency], uv_bin=mock_uv_package_missing)
+
+
+def test_plugin_dependencies_unmet_uv_package_preferred(
+    hatch, helpers, unmet_plugin_project, mock_plugin_installation, mocker
+):
+    which = mocker.patch("shutil.which", wraps=shutil.which)
+    project_path, dependency = unmet_plugin_project
+
+    with project_path.as_cwd():
+        result = hatch("env", "create")
+
+    assert result.exit_code == 0, result.output
+    assert ("uv",) not in [call.args for call in which.call_args_list]
+    helpers.assert_plugin_installation(mock_plugin_installation, [dependency])
+
+
+def test_plugin_dependencies_unmet_uv_package_and_executable_missing(
+    hatch, unmet_plugin_project, mock_plugin_installation, mocker
+):
+    mocker.patch.dict(sys.modules, {"uv": None})
+    mocker.patch("shutil.which", return_value=None)
+    project_path, _ = unmet_plugin_project
+
+    with project_path.as_cwd(), pytest.raises(ModuleNotFoundError, match="uv"):
+        hatch("env", "create")
+
+    mock_plugin_installation.assert_not_called()
 
 
 @pytest.mark.usefixtures("mock_plugin_installation")
