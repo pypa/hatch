@@ -1,8 +1,25 @@
 from __future__ import annotations
 
+import os
+import shutil
+import sysconfig
+from functools import cache
 from typing import Any
 
 from hatch.env.utils import ensure_valid_environment
+
+
+@cache
+def uv_available() -> bool:
+    # uv installed as a package lands in the scripts directory, which need not be on PATH.
+    scripts_dir = sysconfig.get_path("scripts")
+    old_path = os.environ.get("PATH", os.defpath)
+    new_path = f"{scripts_dir}{os.pathsep}{old_path}"
+    return shutil.which("uv", path=new_path) is not None
+
+
+def default_installer() -> str:
+    return "uv" if uv_available() else "pip"
 
 
 def get_internal_env_config() -> dict[str, Any]:

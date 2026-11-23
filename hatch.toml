@@ -8,6 +8,7 @@ installer = "uv"
 
 [envs.hatch-test]
 workspace.members = ["backend/"]
+features = ["uv"]
 extra-dependencies = [
   "filelock",
   "flit-core",

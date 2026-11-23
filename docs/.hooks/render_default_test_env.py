@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+import ast
 import os
-from ast import literal_eval
 from functools import cache
 
 import tomlkit
@@ -11,6 +11,26 @@ MARKER_DEPENDENCIES = "<HATCH_TEST_ENV_DEPENDENCIES>"
 MARKER_MATRIX = "<HATCH_TEST_ENV_MATRIX>"
 MARKER_SCRIPTS = "<HATCH_TEST_ENV_SCRIPTS>"
 
+# `installer` defaults to `default_installer()` at runtime, which returns `uv` when
+# `uv` is available and `pip` otherwise (see `hatch.env.internal.default_installer`).
+# That call is not a literal, so render it as its documented default for the docs.
+DEFAULT_INSTALLER = "uv"
+
+
+class _ResolveDefaultInstaller(ast.NodeTransformer):
+    """Replace the `default_installer()` call with its documented default literal.
+
+    The default test environment config holds `"installer": default_installer()`, a
+    runtime call that `ast.literal_eval` cannot evaluate. The installer value is not
+    rendered in the docs anyway (only dependencies, matrix and scripts are), so swap
+    the call for its default string to keep the config parseable.
+    """
+
+    def visit_Call(self, node: ast.Call) -> ast.AST:
+        if isinstance(node.func, ast.Name) and node.func.id == "default_installer":
+            return ast.copy_location(ast.Constant(value=DEFAULT_INSTALLER), node)
+        return self.generic_visit(node)
+
 
 @cache
 def test_env_config():
@@ -19,7 +39,8 @@ def test_env_config():
         contents = f.read()
 
     value = "".join(contents.split(" return ")[1].strip().splitlines())
-    return literal_eval(value)
+    tree = ast.fix_missing_locations(_ResolveDefaultInstaller().visit(ast.parse(value, mode="eval")))
+    return ast.literal_eval(tree)
 
 
 @cache
