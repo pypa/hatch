@@ -66,6 +66,7 @@ def get_core_metadata_constructors() -> dict[str, Callable]:
         "2.3": construct_metadata_file_2_3,
         "2.4": construct_metadata_file_2_4,
         "2.5": construct_metadata_file_2_5,
+        "2.6": construct_metadata_file_2_6,
     }
 
 
@@ -726,3 +727,13 @@ def construct_metadata_file_2_5(metadata: ProjectMetadata, extra_dependencies: t
         metadata_file += f"\n{metadata.core.readme}"
 
     return metadata_file
+
+
+def construct_metadata_file_2_6(metadata: ProjectMetadata, extra_dependencies: tuple[str] | None = None) -> str:
+    """
+    https://peps.python.org/pep-0808/
+
+    The fields are the same as version 2.5; only the semantics of `Dynamic` differ.
+    """
+    metadata_file = construct_metadata_file_2_5(metadata, extra_dependencies)
+    return metadata_file.replace("Metadata-Version: 2.5\n", "Metadata-Version: 2.6\n", 1)

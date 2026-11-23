@@ -1,3 +1,5 @@
+from typing import Any, ClassVar
+
 import pytest
 
 from hatchling.metadata.core import BuildMetadata, CoreMetadata, HatchMetadata, ProjectMetadata
@@ -635,19 +637,6 @@ class TestLicense:
 
 
 class TestLicenseFiles:
-    def test_dynamic(self, isolation):
-        metadata = ProjectMetadata(
-            str(isolation), None, {"project": {"license-files": 9000, "dynamic": ["license-files"]}}
-        )
-
-        with pytest.raises(
-            ValueError,
-            match=(
-                "Metadata field `license-files` cannot be both statically defined and listed in field `project.dynamic`"
-            ),
-        ):
-            _ = metadata.core.license_files
-
     def test_not_array(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {"project": {"license-files": 9000}})
 
@@ -713,15 +702,6 @@ class TestLicenseFiles:
 
 
 class TestAuthors:
-    def test_dynamic(self, isolation):
-        metadata = ProjectMetadata(str(isolation), None, {"project": {"authors": 9000, "dynamic": ["authors"]}})
-
-        with pytest.raises(
-            ValueError,
-            match="Metadata field `authors` cannot be both statically defined and listed in field `project.dynamic`",
-        ):
-            _ = metadata.core.authors
-
     def test_not_array(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {"project": {"authors": "foo"}})
 
@@ -791,17 +771,6 @@ class TestAuthors:
 
 
 class TestMaintainers:
-    def test_dynamic(self, isolation):
-        metadata = ProjectMetadata(str(isolation), None, {"project": {"maintainers": 9000, "dynamic": ["maintainers"]}})
-
-        with pytest.raises(
-            ValueError,
-            match=(
-                "Metadata field `maintainers` cannot be both statically defined and listed in field `project.dynamic`"
-            ),
-        ):
-            _ = metadata.core.maintainers
-
     def test_not_array(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {"project": {"maintainers": "foo"}})
 
@@ -874,15 +843,6 @@ class TestMaintainers:
 
 
 class TestKeywords:
-    def test_dynamic(self, isolation):
-        metadata = ProjectMetadata(str(isolation), None, {"project": {"keywords": 9000, "dynamic": ["keywords"]}})
-
-        with pytest.raises(
-            ValueError,
-            match="Metadata field `keywords` cannot be both statically defined and listed in field `project.dynamic`",
-        ):
-            _ = metadata.core.keywords
-
     def test_not_array(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {"project": {"keywords": 10}})
 
@@ -902,17 +862,6 @@ class TestKeywords:
 
 
 class TestClassifiers:
-    def test_dynamic(self, isolation):
-        metadata = ProjectMetadata(str(isolation), None, {"project": {"classifiers": 9000, "dynamic": ["classifiers"]}})
-
-        with pytest.raises(
-            ValueError,
-            match=(
-                "Metadata field `classifiers` cannot be both statically defined and listed in field `project.dynamic`"
-            ),
-        ):
-            _ = metadata.core.classifiers
-
     def test_not_array(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {"project": {"classifiers": 10}})
 
@@ -979,15 +928,6 @@ class TestClassifiers:
 
 
 class TestURLs:
-    def test_dynamic(self, isolation):
-        metadata = ProjectMetadata(str(isolation), None, {"project": {"urls": 9000, "dynamic": ["urls"]}})
-
-        with pytest.raises(
-            ValueError,
-            match="Metadata field `urls` cannot be both statically defined and listed in field `project.dynamic`",
-        ):
-            _ = metadata.core.urls
-
     def test_not_table(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {"project": {"urls": 10}})
 
@@ -1007,15 +947,6 @@ class TestURLs:
 
 
 class TestScripts:
-    def test_dynamic(self, isolation):
-        metadata = ProjectMetadata(str(isolation), None, {"project": {"scripts": 9000, "dynamic": ["scripts"]}})
-
-        with pytest.raises(
-            ValueError,
-            match="Metadata field `scripts` cannot be both statically defined and listed in field `project.dynamic`",
-        ):
-            _ = metadata.core.scripts
-
     def test_not_table(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {"project": {"scripts": 10}})
 
@@ -1035,17 +966,6 @@ class TestScripts:
 
 
 class TestGUIScripts:
-    def test_dynamic(self, isolation):
-        metadata = ProjectMetadata(str(isolation), None, {"project": {"gui-scripts": 9000, "dynamic": ["gui-scripts"]}})
-
-        with pytest.raises(
-            ValueError,
-            match=(
-                "Metadata field `gui-scripts` cannot be both statically defined and listed in field `project.dynamic`"
-            ),
-        ):
-            _ = metadata.core.gui_scripts
-
     def test_not_table(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {"project": {"gui-scripts": 10}})
 
@@ -1065,19 +985,6 @@ class TestGUIScripts:
 
 
 class TestEntryPoints:
-    def test_dynamic(self, isolation):
-        metadata = ProjectMetadata(
-            str(isolation), None, {"project": {"entry-points": 9000, "dynamic": ["entry-points"]}}
-        )
-
-        with pytest.raises(
-            ValueError,
-            match=(
-                "Metadata field `entry-points` cannot be both statically defined and listed in field `project.dynamic`"
-            ),
-        ):
-            _ = metadata.core.entry_points
-
     def test_not_table(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {"project": {"entry-points": 10}})
 
@@ -1136,19 +1043,6 @@ class TestEntryPoints:
 
 
 class TestDependencies:
-    def test_dynamic(self, isolation):
-        metadata = ProjectMetadata(
-            str(isolation), None, {"project": {"dependencies": 9000, "dynamic": ["dependencies"]}}
-        )
-
-        with pytest.raises(
-            ValueError,
-            match=(
-                "Metadata field `dependencies` cannot be both statically defined and listed in field `project.dynamic`"
-            ),
-        ):
-            _ = metadata.core.dependencies
-
     def test_not_array(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {"project": {"dependencies": 10}})
 
@@ -1235,20 +1129,6 @@ class TestDependencies:
 
 
 class TestOptionalDependencies:
-    def test_dynamic(self, isolation):
-        metadata = ProjectMetadata(
-            str(isolation), None, {"project": {"optional-dependencies": 9000, "dynamic": ["optional-dependencies"]}}
-        )
-
-        with pytest.raises(
-            ValueError,
-            match=(
-                "Metadata field `optional-dependencies` cannot be both statically defined and "
-                "listed in field `project.dynamic`"
-            ),
-        ):
-            _ = metadata.core.optional_dependencies
-
     def test_not_table(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {"project": {"optional-dependencies": 10}})
 
@@ -1431,17 +1311,6 @@ class TestOptionalDependencies:
 
 
 class TestImportNames:
-    def test_dynamic(self, isolation):
-        metadata = ProjectMetadata(
-            str(isolation), None, {"project": {"import-names": 9000, "dynamic": ["import-names"]}}
-        )
-
-        with pytest.raises(
-            ValueError,
-            match="Metadata field `import-names` cannot be both statically defined and listed in field `project.dynamic`",
-        ):
-            _ = metadata.core.import_names
-
     def test_not_array(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {"project": {"import-names": 10}})
 
@@ -1469,17 +1338,6 @@ class TestImportNames:
 
 
 class TestImportNamespaces:
-    def test_dynamic(self, isolation):
-        metadata = ProjectMetadata(
-            str(isolation), None, {"project": {"import-namespaces": 9000, "dynamic": ["import-namespaces"]}}
-        )
-
-        with pytest.raises(
-            ValueError,
-            match="Metadata field `import-namespaces` cannot be both statically defined and listed in field `project.dynamic`",
-        ):
-            _ = metadata.core.import_namespaces
-
     def test_not_array(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {"project": {"import-namespaces": 10}})
 
@@ -1913,3 +1771,214 @@ class TestSourceDistributionMetadata:
                 "scripts": {"foo": "bar"},
                 "dynamic": ["scripts"],
             }
+
+
+_LIST_REPLACEMENTS = {
+    "authors": {"name": "X"},
+    "maintainers": {"name": "X"},
+    "classifiers": "X",
+    "dependencies": "x>=1",
+    "keywords": "x",
+    "license-files": "X",
+    "import-names": "x",
+    "import-namespaces": "x",
+}
+
+
+class TestExtendedFields:
+    # Static values with enough entries to be removed, reordered, and modified
+    _REJECTED: ClassVar[dict[str, Any]] = {
+        "authors": [{"name": "A"}, {"name": "B"}],
+        "maintainers": [{"name": "A"}, {"name": "B"}],
+        "classifiers": ["Programming Language :: Python", "Topic :: Utilities"],
+        "dependencies": ["foo>=1", "bar>=1"],
+        "entry-points": {"g": {"a": "p:a", "b": "p:b"}},
+        "scripts": {"a": "p:a", "b": "p:b"},
+        "gui-scripts": {"a": "p:a", "b": "p:b"},
+        "keywords": ["a", "b"],
+        "license-files": ["A", "B"],
+        "optional-dependencies": {"dev": ["x", "y"], "docs": ["z"]},
+        "urls": {"a": "https://a.org", "b": "https://b.org"},
+        "import-names": ["a", "b"],
+        "import-namespaces": ["n", "m"],
+    }
+
+    @staticmethod
+    def _metadata(temp_dir, project, update):
+        metadata = ProjectMetadata(
+            str(temp_dir),
+            PluginManager(),
+            {
+                "project": {"name": "foo", "version": "0.0.1", **project},
+                "tool": {"hatch": {"metadata": {"hooks": {"custom": {}}}}},
+            },
+        )
+        body = "".join(f"        {line}\n" for line in update.splitlines())
+        (temp_dir / DEFAULT_BUILD_SCRIPT).write_text(
+            "from hatchling.metadata.plugin.interface import MetadataHookInterface\n\n"
+            "class CustomHook(MetadataHookInterface):\n"
+            "    def update(self, metadata):\n" + body
+        )
+        return metadata
+
+    def test_extend(self, temp_dir):
+        (temp_dir / "LICENSE").touch()
+        (temp_dir / "NOTICE").touch()
+
+        update = "\n".join((  # noqa: FLY002
+            "metadata['dynamic'].append({'name': 'Bar', 'email': 'bar@example.org'})",
+            "metadata['authors'].append({'name': 'Bar', 'email': 'bar@example.org'})",
+            "metadata['maintainers'].append({'name': 'Baz'})",
+            "metadata['classifiers'].append('Private :: Do Not Upload')",
+            "metadata['dependencies'].append('bar>=2')",
+            "metadata['entry-points']['group1']['new'] = 'pkg:new'",
+            "metadata['entry-points']['group2'] = {'other': 'pkg:other'}",
+            "metadata['scripts']['new-script'] = 'pkg:new_script'",
+            "metadata['gui-scripts']['new-gui'] = 'pkg:new_gui'",
+            "metadata['keywords'].append('b')",
+            "metadata['license-files'].append('NOTICE')",
+            "metadata['optional-dependencies']['pinned'] = ['bar==1']",
+            "metadata['optional-dependencies']['dev'].append('baz')",
+            "metadata['urls']['Docs'] = 'https://example.com'",
+            "metadata['import-names'].append('foo_extra')",
+            "metadata['import-namespaces'].append('ns_extra')",
+        ))
+        extendable = {
+            "authors": [{"name": "Foo"}],
+            "maintainers": [{"name": "Qux"}],
+            "classifiers": ["Programming Language :: Python"],
+            "dependencies": ["foo>=1"],
+            "entry-points": {"group1": {"old": "pkg:old"}},
+            "scripts": {"old-script": "pkg:old_script"},
+            "gui-scripts": {"old-gui": "pkg:old_gui"},
+            "keywords": ["a"],
+            "license-files": ["LICENSE"],
+            "optional-dependencies": {"dev": ["pytest"]},
+            "urls": {"Home": "https://example.org"},
+            "import-names": ["foo"],
+            "import-namespaces": ["ns"],
+        }
+        metadata = self._metadata(temp_dir, {"dynamic": list(extendable), **extendable}, update)
+
+        with temp_dir.as_cwd():
+            core = metadata.core
+            assert core.authors_data == {"name": ["Foo"], "email": ["Bar <bar@example.org>"]}
+            assert core.maintainers_data == {"name": ["Qux", "Baz"], "email": []}
+            assert core.classifiers == ["Private :: Do Not Upload", "Programming Language :: Python"]
+            assert core.dependencies == ["bar>=2", "foo>=1"]
+            assert core.entry_points == {
+                "group1": {"new": "pkg:new", "old": "pkg:old"},
+                "group2": {"other": "pkg:other"},
+            }
+            assert core.scripts == {"new-script": "pkg:new_script", "old-script": "pkg:old_script"}
+            assert core.gui_scripts == {"new-gui": "pkg:new_gui", "old-gui": "pkg:old_gui"}
+            assert core.keywords == ["a", "b"]
+            assert core.license_files == ["LICENSE", "NOTICE"]
+            assert core.optional_dependencies == {"dev": ["baz", "pytest"], "pinned": ["bar==1"]}
+            assert core.urls == {"Home": "https://example.org", "Docs": "https://example.com"}
+            assert core.import_names == ["foo", "foo_extra"]
+            assert core.import_namespaces == ["ns", "ns_extra"]
+            assert core.dynamic == []
+
+    def test_no_hooks_no_dynamic_core_metadata(self, temp_dir):
+        metadata = ProjectMetadata(
+            str(temp_dir),
+            PluginManager(),
+            {
+                "project": {
+                    "name": "foo",
+                    "version": "0.0.1",
+                    "keywords": ["a"],
+                    "dynamic": ["keywords"],
+                },
+            },
+        )
+        with temp_dir.as_cwd():
+            assert not metadata.core.dynamic, "Core metadata 'Dynamic' expected to be empty"
+
+    @pytest.mark.parametrize(
+        ("update", "message"),
+        [
+            *(
+                pytest.param(update, "removed, reordered, or modified", id=f"{field}-{case}")
+                for field, replacement in _LIST_REPLACEMENTS.items()
+                for case, update in (
+                    ("remove", f"metadata[{field!r}] = metadata[{field!r}][1:]"),
+                    ("reorder", f"metadata[{field!r}].reverse()"),
+                    ("insert-first", f"metadata[{field!r}].insert(0, {replacement!r})"),
+                    ("modify", f"metadata[{field!r}][0] = {replacement!r}"),
+                    ("replace", f"metadata[{field!r}] = 'foo'"),
+                )
+            ),
+            *(
+                pytest.param(update, message, id=f"{field}-{case}")
+                for field in ("scripts", "gui-scripts", "urls")
+                for case, update, message in (
+                    ("remove-key", f"del metadata[{field!r}]['a']", "was removed"),
+                    ("remove-all", f"metadata[{field!r}] = {{}}", "was removed"),
+                    ("modify", f"metadata[{field!r}]['a'] = 'changed'", "was modified"),
+                    ("replace", f"metadata[{field!r}] = 'foo'", "was replaced"),
+                )
+            ),
+            pytest.param(
+                "del metadata['entry-points']['g']",
+                "was removed",
+                id="entry-points-remove-group",
+            ),
+            pytest.param(
+                "del metadata['entry-points']['g']['a']",
+                "was removed",
+                id="entry-points-remove-entry",
+            ),
+            pytest.param(
+                "metadata['entry-points']['g']['a'] = 'changed'",
+                "was modified",
+                id="entry-points-modify-entry",
+            ),
+            pytest.param(
+                "metadata['entry-points']['g'] = 'foo'",
+                "was replaced",
+                id="entry-points-replace-group",
+            ),
+            pytest.param(
+                "metadata['entry-points'] = 'foo'",
+                "was replaced",
+                id="entry-points-replace",
+            ),
+            pytest.param(
+                "del metadata['optional-dependencies']['dev']",
+                "was removed",
+                id="extras-remove-extra",
+            ),
+            pytest.param(
+                "metadata['optional-dependencies']['dev'] = ['y']",
+                "removed, reordered, or modified",
+                id="extras-remove-item",
+            ),
+            pytest.param(
+                "metadata['optional-dependencies']['dev'].insert(0, 'w')",
+                "removed, reordered, or modified",
+                id="extras-insert-first",
+            ),
+            pytest.param(
+                "metadata['optional-dependencies']['dev'].reverse()",
+                "removed, reordered, or modified",
+                id="extras-reorder-items",
+            ),
+            pytest.param(
+                "metadata['optional-dependencies']['dev'][0] = 'changed'",
+                "removed, reordered, or modified",
+                id="extras-modify-item",
+            ),
+            pytest.param(
+                "metadata['optional-dependencies'] = 'foo'",
+                "was replaced",
+                id="extras-replace",
+            ),
+        ],
+    )
+    def test_not_only_extended(self, temp_dir, update, message):
+        metadata = self._metadata(temp_dir, {"dynamic": list(self._REJECTED), **self._REJECTED}, update)
+
+        with temp_dir.as_cwd(), pytest.raises(ValueError, match=message):
+            _ = metadata.core

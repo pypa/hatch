@@ -252,6 +252,8 @@ dynamic = [
 ]
 ```
 
+Following [PEP 808](https://peps.python.org/pep-0808/), fields that hold arrays or tables of arbitrary entries may also be statically defined, in which case [metadata hooks](../plugins/metadata-hook/reference.md) can only add to them. See the [how-to guide](../how-to/config/dynamic-metadata.md#extend-static-metadata) for details.
+
 ## Metadata options
 
 ### Allowing direct references
