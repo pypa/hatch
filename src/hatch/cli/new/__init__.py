@@ -31,7 +31,6 @@ def new(app, name, location, interactive, feature_cli, initialize, setuptools_op
             if not name:
                 name = "temporary"
         elif not name:
-            # Keep the existing prompt flow when --init is used without a name.
             interactive = True
 
     if not name:
