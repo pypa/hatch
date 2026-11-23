@@ -172,7 +172,7 @@ class PyPyOfficialDistribution(Distribution):
             return custom_path
 
         directory = self.archive_name
-        for extension in (".tar.bz2", ".zip"):
+        for extension in (".tar.gz", ".tar.bz2", ".zip"):
             if directory.endswith(extension):
                 directory = directory[: -len(extension)]
                 break
