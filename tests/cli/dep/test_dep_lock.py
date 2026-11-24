@@ -114,7 +114,7 @@ def test_dep_sync_succeeds_skipping_real_activation(hatch, helpers, temp_dir, co
     assert "Synced environment" in result.output
 
 
-def test_dep_sync_aborts_when_pip_locker_cannot_apply(hatch, helpers, temp_dir, config_file, mocker):
+def test_dep_sync_applies_lock_with_pip_locker(hatch, helpers, temp_dir, config_file, mocker):
     @contextmanager
     def skip_activation(_self):
         yield
@@ -131,6 +131,7 @@ def test_dep_sync_aborts_when_pip_locker_cannot_apply(hatch, helpers, temp_dir, 
     mocker.patch("hatch.env.virtual.VirtualEnvironment.exists", return_value=True)
     mocker.patch("hatch.env.virtual.VirtualEnvironment.dependency_hash", return_value="")
     mocker.patch("hatch.env.virtual.VirtualEnvironment.command_context")
+    check_command = mocker.patch("hatch.utils.platform.Platform.check_command")
 
     config_file.model.template.plugins["default"]["tests"] = False
     config_file.save()
@@ -162,10 +163,11 @@ def test_dep_sync_aborts_when_pip_locker_cannot_apply(hatch, helpers, temp_dir, 
         assert hatch("dep", "lock").exit_code == 0
         result = hatch("dep", "sync")
 
-    assert result.exit_code == 1
-    assert "Cannot sync environment `default` from lockfile" in result.output
-    assert "Applying lockfiles with the pip locker is not yet supported." in result.output
-    assert "Synced environment" not in result.output
+    assert result.exit_code == 0, result.output
+    assert "Synced environment" in result.output
+    command = check_command.call_args.args[0]
+    assert "install" in command
+    assert command[command.index("-r") + 1].endswith("pylock.toml")
 
 
 def test_dep_sync_aborts_when_not_locked(hatch, temp_dir, config_file):
@@ -248,3 +250,31 @@ def test_unknown_locker_aborts(hatch, helpers, temp_dir, config_file, mocker):
 
     assert result.exit_code == 1
     assert "Unknown locker plugin" in result.output
+
+
+def test_pip_locker_apply_lock_installs_from_lockfile(mocker, tmp_path):
+    from hatch.env.lockers.pip import PipLocker
+
+    environment = mocker.MagicMock()
+    environment.construct_pip_install_command.side_effect = lambda args: ["pip", "install", *args]
+    environment.get_source_install_args.return_value = ["--extra-index-url", "https://example.org/simple"]
+    lock_path = tmp_path / "pylock.toml"
+
+    PipLocker.apply_lock(environment, lock_path)
+
+    environment.construct_pip_install_command.assert_called_once_with(["-r", str(lock_path)])
+    environment.command_context.assert_called_once()
+    environment.platform.check_command.assert_called_once_with([
+        "pip",
+        "install",
+        "-r",
+        str(lock_path),
+        "--extra-index-url",
+        "https://example.org/simple",
+    ])
+
+
+def test_pip_locker_install_matches_lock_is_always_false(mocker, tmp_path):
+    from hatch.env.lockers.pip import PipLocker
+
+    assert PipLocker.install_matches_lock(mocker.MagicMock(), tmp_path / "pylock.toml") is False

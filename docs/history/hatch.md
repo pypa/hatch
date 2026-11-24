@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+***Added:***
+
+- The built-in `pip` locker now supports `apply_lock`, installing from the lockfile with `pip install -r pylock.toml` so that `locked` environments no longer require `uv`. Unlike `uv pip sync`, this does not remove packages absent from the lock.
+
 ## [1.18.2](https://github.com/pypa/hatch/releases/tag/hatch-v1.18.2) - 2026-10-27 ## {: #hatch-v1.18.2 }
 
 ***Changed:***

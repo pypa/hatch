@@ -99,16 +99,18 @@ class PipLocker(LockerInterface):
         return existing == fresh
 
     @classmethod
-    def apply_lock(cls, _environment: EnvironmentInterface, _lock_path: Path) -> None:
-        from hatch.env.lock import LockerUnsupportedError
+    def apply_lock(cls, environment: EnvironmentInterface, lock_path: Path) -> None:
+        # pip has no sync command (see pypa/pip#13737), so this installs the pinned
+        # packages with `pip install -r pylock.toml`. Packages that are not in the lock
+        # are left in place rather than removed.
+        command = environment.construct_pip_install_command(["-r", str(lock_path)])
+        command.extend(environment.get_source_install_args(environment.dependencies_complex))
 
-        message = (
-            "Applying lockfiles with the pip locker is not yet supported. "
-            'Use `installer = "uv"` (or `locker = "uv"`) for locked sync.'
-        )
-        raise LockerUnsupportedError(cls.PLUGIN_NAME, detail=message)
+        with environment.command_context():
+            environment.platform.check_command(command)
 
     @classmethod
     def install_matches_lock(cls, _environment: EnvironmentInterface, _lock_path: Path) -> bool:
-        # We cannot verify lock conformance for pip because apply_lock is unsupported.
+        # pip cannot verify an installation against a lock, so always report a mismatch
+        # to make the lock be applied again when syncing.
         return False

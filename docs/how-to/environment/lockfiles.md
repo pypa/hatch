@@ -137,7 +137,7 @@ When multiple matrix environments share the same `lock-filename`, Hatch will mer
 
 By default, Hatch picks a built-in **locker** from the environment installer:
 
-- **pip** (default): `pip lock` (requires pip 25.1+) for generation.
+- **pip** (default): `pip lock` (requires pip 25.1+) for generation and `pip install -r pylock.toml` when applying a lock (no removal of extraneous packages).
 - **UV**: `uv pip compile` (with hashes) and `uv pip sync` when applying a lock.
 
 Override with [`tool.hatch.locker`](../../config/environment/overview.md#locker) or [`tool.hatch.envs.<name>.locker`](../../config/environment/overview.md#locker). See [Dependency locker plugins](../../plugins/locker.md) to implement `hatch_register_locker`.

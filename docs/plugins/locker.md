@@ -32,4 +32,4 @@ Expose the module on the `hatch` entry point (see [Plugins — Discovery](about.
 | `PLUGIN_NAME` | When selected | Notes |
 | ------------- | ------------- | ----- |
 | `uv` | Virtual env + UV installer | `uv pip compile` / `uv pip sync`; supports layered locks (extras, dependency-groups, `pyproject.toml`). |
-| `pip` | Any supported environment | `pip lock`; flat dependency list only (no layered extras/groups in the pip locker). `apply_lock` is a no-op — use UV for `locked` installs from a pylock today. |
+| `pip` | Any supported environment | `pip lock`; flat dependency list only (no layered extras/groups in the pip locker). `apply_lock` runs `pip install -r pylock.toml`, which installs the pinned packages but, unlike `uv pip sync`, does not remove packages absent from the lock. |
