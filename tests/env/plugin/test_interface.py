@@ -1,3 +1,4 @@
+import os
 import re
 
 import pytest
@@ -232,6 +233,30 @@ class TestEnvInclude:
         )
 
         assert environment.env_include == ("HATCH_BUILD_*", "FOO*")
+
+    def test_windows_system_vars_preserved(self, isolation, isolated_data_dir, platform, global_application):
+        config = {
+            "project": {"name": "my_app", "version": "0.0.1"},
+            "tool": {"hatch": {"envs": {"default": {"env-include": ["FOO*"]}}}},
+        }
+        project = Project(isolation, config=config)
+        environment = MockEnvironment(
+            isolation,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            global_application,
+        )
+
+        with environment.get_env_vars():
+            if platform.windows:
+                assert "SystemRoot" in os.environ or "SYSTEMROOT" in os.environ
+                assert "ComSpec" in os.environ or "COMSPEC" in os.environ
 
 
 class TestEnvExclude:

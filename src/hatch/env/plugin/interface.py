@@ -1085,7 +1085,23 @@ class EnvironmentInterface(ABC):
         !!! note
             The environment variable `HATCH_ENV_ACTIVE` will always be set to the name of the environment.
         """
-        return EnvVars(self.env_vars, self.env_include, self.env_exclude)
+        include = self.env_include
+        if include and self.platform.windows:
+            include = (
+                *include,
+                "SYSTEMROOT",
+                "SystemRoot",
+                "SYSTEMDRIVE",
+                "SystemDrive",
+                "COMSPEC",
+                "ComSpec",
+                "PATHEXT",
+                "WINDIR",
+                "windir",
+                "TEMP",
+                "TMP",
+            )
+        return EnvVars(self.env_vars, include, self.env_exclude)
 
     def get_env_var_option(self, option: str) -> str:
         """
