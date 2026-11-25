@@ -54,10 +54,13 @@ def dependency_in_sync(
     extras = requirement.extras
     if extras:
         transitive_requirements: list[str] = distribution.metadata.get_all("Requires-Dist", [])
-        if not transitive_requirements:
-            return False
-
         available_extras: list[str] = distribution.metadata.get_all("Provides-Extra", [])
+
+        for extra in extras:
+            # FIXME: This may cause a build to never be ready if newer versions do not provide the desired
+            # extra and it's just a user error/typo. See: https://github.com/pypa/pip/issues/7122
+            if extra not in available_extras:
+                return False
 
         for requirement_string in transitive_requirements:
             transitive_requirement = Requirement(requirement_string)
@@ -65,11 +68,6 @@ def dependency_in_sync(
                 continue
 
             for extra in extras:
-                # FIXME: This may cause a build to never be ready if newer versions do not provide the desired
-                # extra and it's just a user error/typo. See: https://github.com/pypa/pip/issues/7122
-                if extra not in available_extras:
-                    return False
-
                 extra_environment = dict(environment)
                 extra_environment["extra"] = extra
                 if not dependency_in_sync(transitive_requirement, extra_environment, installed_distributions):
