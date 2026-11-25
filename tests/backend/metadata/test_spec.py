@@ -229,6 +229,31 @@ Requires-Dist: baz @ file:///path/to/project ; extra == 'feature3'
             },
         }
 
+    def test_dependencies_extra_marker_positions(self):
+        core_metadata = f"""\
+Metadata-Version: {LATEST_METADATA_VERSION}
+Name: My.App
+Version: 0.1.0
+Provides-Extra: dev
+Requires-Dist: tomli>=2.0 ; extra == "dev" and ( python_version < '3.11')
+Requires-Dist: bar==1 ; extra == "dev" and python_version < '3.11'
+Requires-Dist: baz==2 ; extra == "dev" and (python_version < '3.11' or sys_platform == 'win32')
+Requires-Dist: qux==3 ; python_version < '3.11' and extra == "dev" and sys_platform == 'linux'
+"""
+        assert project_metadata_from_core_metadata(core_metadata) == {
+            "name": "My.App",
+            "version": "0.1.0",
+            "dependencies": [],
+            "optional-dependencies": {
+                "dev": [
+                    'tomli>=2.0; python_version < "3.11"',
+                    'bar==1; python_version < "3.11"',
+                    'baz==2; python_version < "3.11" or sys_platform == "win32"',
+                    'qux==3; python_version < "3.11" and sys_platform == "linux"',
+                ],
+            },
+        }
+
     def test_import_names_and_import_namespaces(self):
         core_metadata = f"""\
 Metadata-Version: {LATEST_METADATA_VERSION}
