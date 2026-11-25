@@ -189,9 +189,9 @@ def project_metadata_from_core_metadata(core_metadata: str) -> dict[str, Any]:
                         # trailing semicolon in the string representation
                         if not markers:
                             req.marker = None
-                        # Otherwise we need to remove the preceding `and` operation
+                        # Otherwise remove the adjacent `and` operation
                         else:
-                            del markers[i - 1]
+                            del markers[0 if i == 0 else i - 1]
 
                         optional_dependencies.setdefault(extra, []).append(str(req))
                         break
