@@ -11,7 +11,8 @@ from tempfile import TemporaryDirectory
 from urllib.request import urlopen
 from zipfile import ZIP_DEFLATED, ZipFile, ZipInfo
 
-LAUNCHERS_URL = "https://raw.githubusercontent.com/astral-sh/uv/main/crates/uv-trampoline-builder/trampolines"
+# Pinned: uv 0.9.9+ trampolines read metadata from PE resources rather than the appended trailer built below
+LAUNCHERS_URL = "https://raw.githubusercontent.com/astral-sh/uv/0.9.8/crates/uv-trampoline-builder/trampolines"
 SCRIPT_TEMPLATE = """\
 #!{executable}
 import re
@@ -46,7 +47,7 @@ def main():
         launcher_data = fetch_launcher(launcher_name)
 
         for script in select_entry_points(ep, group):
-            # https://github.com/astral-sh/uv/tree/main/crates/uv-trampoline#how-do-you-use-it
+            # https://github.com/astral-sh/uv/tree/0.9.8/crates/uv-trampoline#how-do-you-use-it
             with closing(BytesIO()) as buf:
                 # Launcher
                 buf.write(launcher_data)
