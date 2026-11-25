@@ -45,10 +45,13 @@ class InstalledDistributions:
         extras = dependency.extras
         if extras:
             transitive_dependencies: list[str] = distribution.metadata.get_all("Requires-Dist", [])
-            if not transitive_dependencies:
-                return False
-
             available_extras: list[str] = distribution.metadata.get_all("Provides-Extra", [])
+
+            for extra in extras:
+                # FIXME: This may cause a build to never be ready if newer versions do not provide the desired
+                # extra and it's just a user error/typo. See: https://github.com/pypa/pip/issues/7122
+                if extra not in available_extras:
+                    return False
 
             for dependency_string in transitive_dependencies:
                 transitive_dependency = Dependency(dependency_string)
@@ -56,11 +59,6 @@ class InstalledDistributions:
                     continue
 
                 for extra in extras:
-                    # FIXME: This may cause a build to never be ready if newer versions do not provide the desired
-                    # extra and it's just a user error/typo. See: https://github.com/pypa/pip/issues/7122
-                    if extra not in available_extras:
-                        return False
-
                     extra_environment = dict(environment)
                     extra_environment["extra"] = extra
                     if not self.dependency_in_sync(transitive_dependency, environment=extra_environment):
