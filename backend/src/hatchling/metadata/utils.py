@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import keyword
 import re
 from typing import TYPE_CHECKING, Any
 
@@ -39,7 +40,7 @@ def is_valid_import_name(import_name: str) -> bool:
     if ";" in import_name and not annotated_private:
         return False
 
-    return all(module.isidentifier() for module in name.split("."))
+    return all(module.isidentifier() and not keyword.iskeyword(module) for module in name.split("."))
 
 
 def normalize_requirement(requirement: Requirement) -> None:

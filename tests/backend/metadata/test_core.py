@@ -1448,7 +1448,10 @@ class TestImportNames:
         with pytest.raises(TypeError, match="Field `project.import-names` must be an array"):
             _ = metadata.core.import_names
 
-    @pytest.mark.parametrize("entry", [5, "1_foo", "foo.1_bar", "foo ; not-valid"])
+    @pytest.mark.parametrize(
+        "entry",
+        [5, "1_foo", "foo.1_bar", "foo ; not-valid", "async", "class", "mypkg.async", "mypkg.import ; private"],
+    )
     def test_entry_not_valid_import_name(self, isolation, entry):
         metadata = ProjectMetadata(str(isolation), None, {"project": {"import-names": [entry]}})
 
@@ -1458,9 +1461,9 @@ class TestImportNames:
             _ = metadata.core.import_names
 
     def test_correct(self, isolation):
-        metadata = ProjectMetadata(str(isolation), None, {"project": {"import-names": ["foo", "_foo"]}})
+        metadata = ProjectMetadata(str(isolation), None, {"project": {"import-names": ["foo", "_foo", "match"]}})
 
-        assert metadata.core.import_names == ["_foo", "foo"]
+        assert metadata.core.import_names == ["_foo", "foo", "match"]
 
     def test_private_import_name(self, isolation):
         metadata = ProjectMetadata(str(isolation), None, {"project": {"import-names": ["foo", "_foo ; private"]}})
@@ -1486,7 +1489,10 @@ class TestImportNamespaces:
         with pytest.raises(TypeError, match="Field `project.import-namespaces` must be an array"):
             _ = metadata.core.import_namespaces
 
-    @pytest.mark.parametrize("entry", [5, "1_foo", "foo.1_bar", "foo.bar ; not-valid"])
+    @pytest.mark.parametrize(
+        "entry",
+        [5, "1_foo", "foo.1_bar", "foo.bar ; not-valid", "async", "class", "mypkg.async", "mypkg.import ; private"],
+    )
     def test_entry_not_valid_import_name(self, isolation, entry):
         metadata = ProjectMetadata(str(isolation), None, {"project": {"import-namespaces": [entry]}})
 
@@ -1496,9 +1502,11 @@ class TestImportNamespaces:
             _ = metadata.core.import_namespaces
 
     def test_correct(self, isolation):
-        metadata = ProjectMetadata(str(isolation), None, {"project": {"import-namespaces": ["foo", "foo.bar"]}})
+        metadata = ProjectMetadata(
+            str(isolation), None, {"project": {"import-namespaces": ["foo", "foo.bar", "foo.type"]}}
+        )
 
-        assert metadata.core.import_namespaces == ["foo", "foo.bar"]
+        assert metadata.core.import_namespaces == ["foo", "foo.bar", "foo.type"]
 
     def test_private_import_namespace(self, isolation):
         metadata = ProjectMetadata(
