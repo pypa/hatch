@@ -2290,6 +2290,99 @@ test = ["member-test-dep"]
         assert not any("pytest" in str(d) for d in environment.all_dependencies_complex)
         assert "refers to extra `tset`, which local project `my-app` does not define" in capsys.readouterr().err
 
+    def test_self_referencing_dependency_with_marker_preserved(
+        self, temp_dir, isolated_data_dir, platform, global_application
+    ):
+        """PEP 508 markers on local-project extras must be preserved during resolution."""
+        project_dir = temp_dir / "my-app"
+        project_dir.mkdir()
+
+        config = {
+            "project": {
+                "name": "my-app",
+                "version": "0.0.1",
+                "dependencies": [],
+                "optional-dependencies": {"win": ["pywin32>=306"]},
+            },
+            "tool": {
+                "hatch": {
+                    "envs": {
+                        "dev": {
+                            "skip-install": False,
+                            "dependencies": ["my-app[win]; sys_platform == 'win32'"],
+                        }
+                    }
+                }
+            },
+        }
+
+        project = Project(project_dir, config=config)
+        global_application.project = project
+
+        environment = MockEnvironment(
+            project_dir,
+            project.metadata,
+            "dev",
+            project.config.envs["dev"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            global_application,
+        )
+
+        all_deps_str = [str(d) for d in environment.all_dependencies_complex]
+        assert 'pywin32>=306; sys_platform == "win32"' in all_deps_str
+
+    def test_dependency_group_referencing_extra_with_marker_preserved(
+        self, temp_dir, isolated_data_dir, platform, global_application
+    ):
+        """PEP 508 markers on dependency-group local extras must be preserved during resolution."""
+        project_dir = temp_dir / "my-app"
+        project_dir.mkdir()
+
+        config = {
+            "project": {
+                "name": "my-app",
+                "version": "0.0.1",
+                "dependencies": [],
+                "optional-dependencies": {"win": ["pywin32>=306"]},
+            },
+            "dependency-groups": {
+                "dev": ["my-app[win]; sys_platform == 'win32'"],
+            },
+            "tool": {
+                "hatch": {
+                    "envs": {
+                        "default": {
+                            "skip-install": False,
+                            "dependency-groups": ["dev"],
+                        }
+                    }
+                }
+            },
+        }
+
+        project = Project(project_dir, config=config)
+        global_application.project = project
+
+        environment = MockEnvironment(
+            project_dir,
+            project.metadata,
+            "default",
+            project.config.envs["default"],
+            {},
+            isolated_data_dir,
+            isolated_data_dir,
+            platform,
+            0,
+            global_application,
+        )
+
+        all_deps_str = [str(d) for d in environment.all_dependencies_complex]
+        assert 'pywin32>=306; sys_platform == "win32"' in all_deps_str
+
     def test_add_additional_dependencies_invalidates_caches(
         self, temp_dir, isolated_data_dir, platform, temp_application
     ):

@@ -117,6 +117,7 @@ def resolve_extras(
     """
     from collections import deque
 
+    from packaging.markers import Marker
     from packaging.requirements import Requirement
 
     from hatchling.metadata.utils import normalize_project_name
@@ -162,6 +163,14 @@ def resolve_extras(
                         f"Dependency `{dep_str}` refers to extra "
                         f"`{extra}`, which local project `{name}` does not define"
                     )
+            elif req.marker is not None:
+                for dep in extra_deps:
+                    dep_req = Requirement(dep)
+                    if dep_req.marker is not None:
+                        dep_req.marker = Marker(f"({dep_req.marker}) and ({req.marker})")
+                    else:
+                        dep_req.marker = req.marker
+                    queue.append(str(dep_req))
             else:
                 queue.extend(extra_deps)
 
