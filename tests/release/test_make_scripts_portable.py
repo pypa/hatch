@@ -12,5 +12,5 @@ def test_launchers_url_pinned():
     spec.loader.exec_module(module)
 
     assert module.LAUNCHERS_URL == (
-        "https://raw.githubusercontent.com/astral-sh/uv/0.9.8/crates/uv-trampoline-builder/trampolines"
+        "https://raw.githubusercontent.com/astral-sh/uv/0.9.8/crates/uv-trampoline/trampolines"
     )

@@ -12,7 +12,7 @@ from urllib.request import urlopen
 from zipfile import ZIP_DEFLATED, ZipFile, ZipInfo
 
 # Pinned: uv 0.9.9+ trampolines read metadata from PE resources rather than the appended trailer built below
-LAUNCHERS_URL = "https://raw.githubusercontent.com/astral-sh/uv/0.9.8/crates/uv-trampoline-builder/trampolines"
+LAUNCHERS_URL = "https://raw.githubusercontent.com/astral-sh/uv/0.9.8/crates/uv-trampoline/trampolines"
 SCRIPT_TEMPLATE = """\
 #!{executable}
 import re
